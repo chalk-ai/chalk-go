@@ -6,26 +6,31 @@ import (
 )
 
 func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, error) {
+	emptyResult := OnlineQueryResult{}
+
 	if request.Context == nil {
 		request.Context = &OnlineQueryContext{Environment: c.EnvironmentId}
 	}
 
 	jsonRequestBody, err := request.serialize()
 	if err != nil {
-		return OnlineQueryResult{}, err
+		return emptyResult, err
 	}
 
 	httpRequest, err := http.NewRequest("POST", "v1/query/online", bytes.NewBuffer(jsonRequestBody))
-	// TODO: Handle err
+	if err != nil {
+		return emptyResult, err
+	}
+
 	var httpResponse onlineQueryHttpResponse
 
 	err = c.sendRequest(httpRequest, &httpResponse)
 	if err != nil {
-		return OnlineQueryResult{}, err
+		return emptyResult, err
 	}
 	if len(httpResponse.Errors) > 0 {
-		return OnlineQueryResult{}, &ChalkErrorResponse{ChalkErrors: httpResponse.Errors}
+		return emptyResult, &ChalkErrorResponse{ChalkErrors: httpResponse.Errors}
 	}
 
-	return httpResponse.deserialize()
+	return httpResponse.deserialize(), nil
 }

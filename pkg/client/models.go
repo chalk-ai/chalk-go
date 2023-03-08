@@ -17,13 +17,13 @@ type Client struct {
 }
 
 type OnlineQueryParams struct {
-	Inputs  map[string]any `json:"inputs,string"`
-	Outputs []string       `json:"outputs"`
+	Inputs  map[string]any
+	Outputs []string
 	// Pull online query context into Params object.
-	Context *OnlineQueryContext `json:"context"`
+	Context *OnlineQueryContext
 	// TODO: Use Duration. Drop JSON where
-	Staleness      map[string]string `json:"staleness"`
-	IncludeMeta    bool              `json:"include_meta"`
+	Staleness      map[string]string
+	IncludeMeta    bool
 	IncludeMetrics bool
 	DeploymentId   string
 	QueryName      string
@@ -63,18 +63,16 @@ type QueryMeta struct {
 
 type OnlineQueryResult struct {
 	Data []FeatureResult
-	// Make pointermaybe. Or make a method for specifically eventually.
-	Meta QueryMeta
+	Meta *QueryMeta
 
 	values map[string]any
 }
 
 type onlineQueryHttpResponse struct {
-	// Think about making this a pointer across OnlineQueryResult and onlineQuerylHttpResponse
 	Data   []FeatureResult `json:"data"`
 	Errors []ChalkError    `json:"errors"`
 	// Make query meta pointer.
-	Meta QueryMeta `json:"meta"`
+	Meta *QueryMeta `json:"meta"`
 }
 
 type FeatureResult struct {
