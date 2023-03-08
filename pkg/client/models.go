@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// Make separate file for public and private types
+
 type Client struct {
 	BaseUrl       string
 	jwt           *auth.JWT
@@ -15,16 +17,18 @@ type Client struct {
 }
 
 type OnlineQueryParams struct {
-	Inputs         map[string]any      `json:"inputs,string"`
-	Outputs        []string            `json:"outputs"`
-	Context        *OnlineQueryContext `json:"context"`
-	Staleness      map[string]string   `json:"staleness"`
-	IncludeMeta    bool                `json:"include_meta"`
-	IncludeMetrics bool                `json:"include_metrics"`
-	DeploymentId   string              `json:"deployment_id"`
-	QueryName      string              `json:"query_name"`
-	CorrelationId  string              `json:"correlation_id"`
-	Meta           map[string]string   `json:"meta"`
+	Inputs  map[string]any `json:"inputs,string"`
+	Outputs []string       `json:"outputs"`
+	// Pull online query context into Params object.
+	Context *OnlineQueryContext `json:"context"`
+	// TODO: Use Duration. Drop JSON where
+	Staleness      map[string]string `json:"staleness"`
+	IncludeMeta    bool              `json:"include_meta"`
+	IncludeMetrics bool
+	DeploymentId   string
+	QueryName      string
+	CorrelationId  string
+	Meta           map[string]string
 }
 
 type onlineQueryHttpRequest struct {
@@ -58,16 +62,19 @@ type QueryMeta struct {
 }
 
 type OnlineQueryResult struct {
-	Data []FeatureResult `json:"data"`
-	Meta QueryMeta       `json:"meta"`
+	Data []FeatureResult
+	// Make pointermaybe. Or make a method for specifically eventually.
+	Meta QueryMeta
 
 	values map[string]any
 }
 
 type onlineQueryHttpResponse struct {
+	// Think about making this a pointer across OnlineQueryResult and onlineQuerylHttpResponse
 	Data   []FeatureResult `json:"data"`
 	Errors []ChalkError    `json:"errors"`
-	Meta   QueryMeta       `json:"meta"`
+	// Make query meta pointer.
+	Meta QueryMeta `json:"meta"`
 }
 
 type FeatureResult struct {

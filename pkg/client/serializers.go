@@ -26,7 +26,7 @@ func (request *OnlineQueryParams) serialize() ([]byte, error) {
 	return jsonRequestBody, nil
 }
 
-func (response *onlineQueryHttpResponse) deserialize() (OnlineQueryResult, error) {
+func (response *onlineQueryHttpResponse) deserialize() OnlineQueryResult {
 	values := make(map[string]any)
 
 	for _, result := range response.Data {
@@ -37,5 +37,5 @@ func (response *onlineQueryHttpResponse) deserialize() (OnlineQueryResult, error
 		Data:   response.Data,
 		Meta:   response.Meta,
 		values: values,
-	}, nil
+	}
 }

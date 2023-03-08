@@ -19,7 +19,9 @@ func (e *ChalkErrorResponse) Error() string {
 }
 
 type ChalkError struct {
-	Code      string          `json:"code"`
+	// Make enum
+	Code string `json:"code"`
+	// Make enum
 	Category  string          `json:"category"`
 	Message   string          `json:"message"`
 	Exception *ChalkException `json:"exception"`
