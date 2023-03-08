@@ -8,7 +8,7 @@ import (
 func New(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
 	client := getConfiguredClient(configOverride)
 
-	jwt, getJWTErr := client.GetJWT()
+	jwt, getJWTErr := client.getJwt()
 	if getJWTErr != nil {
 		return nil, getJWTErr
 	}

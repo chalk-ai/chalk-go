@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (c *Client) GetJWT() (*auth.JWT, error) {
+func (c *Client) getJwt() (*auth.JWT, error) {
 	if c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
 		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
 		return c.jwt, nil
