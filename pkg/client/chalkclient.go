@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func New(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
+func ChalkClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
 	client := getConfiguredClient(configOverride)
 
 	jwt, getJWTErr := client.getJwt()
