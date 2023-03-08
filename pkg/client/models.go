@@ -8,8 +8,8 @@ import (
 
 type Client struct {
 	BaseUrl       string
-	JWT           *auth.JWT
-	HTTPClient    *http.Client
+	jwt           *auth.JWT
+	httpClient    *http.Client
 	EnvironmentId string
 	ClientId      string
 	ClientSecret  string
@@ -43,9 +43,9 @@ type ClientError struct {
 
 func (e *ClientError) Error() string {
 	if e.Trace != nil {
-		return fmt.Sprintf("HTTPClient Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
+		return fmt.Sprintf("httpClient Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
 			e.Path, e.Message, e.StatusCode, e.ContentLength, *e.Trace)
 	}
-	return fmt.Sprintf("HTTPClient Error: path=%q, message=%q, status=%d, content-length=%d",
+	return fmt.Sprintf("httpClient Error: path=%q, message=%q, status=%d, content-length=%d",
 		e.Path, e.Message, e.StatusCode, e.ContentLength)
 }

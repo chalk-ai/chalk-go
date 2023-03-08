@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-func RestClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
+func New(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
 	client := getConfiguredClient(configOverride)
 
 	jwt, getJWTErr := client.GetJWT()
 	if getJWTErr != nil {
 		return nil, getJWTErr
 	}
-	client.JWT = jwt
+	client.jwt = jwt
 
 	return client, nil
 }
@@ -25,7 +25,7 @@ func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *Client 
 		fileConfigOveridden = true
 		client = &Client{
 			BaseUrl:       configOverride.ApiServer,
-			HTTPClient:    &http.Client{},
+			httpClient:    &http.Client{},
 			EnvironmentId: configOverride.EnvironmentId,
 			ClientId:      configOverride.ClientId,
 			ClientSecret:  configOverride.ClientSecret,
@@ -33,9 +33,9 @@ func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *Client 
 	} else {
 		projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigByDirectory()
 		fileConfigOveridden = configOverride.ClientSecret != "" && configOverride.ClientId != ""
-		client := &Client{
+		client = &Client{
 			BaseUrl:       projectAuthConfigFromFile.ApiServer,
-			HTTPClient:    &http.Client{},
+			httpClient:    &http.Client{},
 			EnvironmentId: projectAuthConfigFromFile.ActiveEnvironment,
 			ClientId:      projectAuthConfigFromFile.ClientId,
 			ClientSecret:  projectAuthConfigFromFile.ClientSecret,

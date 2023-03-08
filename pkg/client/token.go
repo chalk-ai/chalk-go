@@ -9,9 +9,9 @@ import (
 )
 
 func (c *Client) GetJWT() (*auth.JWT, error) {
-	if c.JWT != nil && !time.Time.IsZero(c.JWT.ValidUntil) &&
-		c.JWT.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
-		return c.JWT, nil
+	if c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
+		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
+		return c.jwt, nil
 	}
 
 	jsonBody, err := json.Marshal(GetTokenRequest{
@@ -36,5 +36,6 @@ func (c *Client) GetJWT() (*auth.JWT, error) {
 		Token:      response.AccessToken,
 		ValidUntil: expiry,
 	}
-	return jwt, err
+	return jwt, nil
+	return &auth.JWT{}, nil
 }

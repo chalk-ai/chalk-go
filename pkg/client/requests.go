@@ -27,8 +27,8 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) error {
 		req.Header.Set("x-chalk-project-name", cfg.Project)
 	}
 
-	if c.JWT != nil && c.JWT.Token != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.JWT.Token))
+	if c.jwt != nil && c.jwt.Token != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
 	}
 
 	if !strings.HasPrefix(req.URL.String(), "http:") && !strings.HasPrefix(req.URL.String(), "https:") {
@@ -41,7 +41,7 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) error {
 
 	logrus.Debug("Sending request to ", req.URL)
 
-	res, err := c.HTTPClient.Do(req)
+	res, err := c.httpClient.Do(req)
 
 	if err != nil {
 		return err

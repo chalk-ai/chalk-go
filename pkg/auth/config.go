@@ -2,9 +2,7 @@ package auth
 
 import (
 	"github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	"os"
-	"time"
 )
 
 func (cfg AuthConfig) GetProjectAuthConfigByDirectory() (*ProjectAuthConfig, string, error) {
@@ -33,39 +31,4 @@ func (cfg AuthConfig) GetProjectAuthConfigByDirectory() (*ProjectAuthConfig, str
 	}
 
 	return tok, path, nil
-}
-
-func (cfg AuthConfig) UpsertJWT(token string, expiresIn int) error {
-	tokenConfig, _, err := cfg.GetTokenForWD()
-	if err != nil || tokenConfig == nil {
-		return err
-	}
-
-	expiry := time.Now().UTC().Add(time.Duration(expiresIn) * time.Second)
-	tokenConfig.JWT = &JWT{
-		Token:      &token,
-		ValidUntil: &expiry,
-	}
-	return nil
-}
-
-func (cfg AuthConfig) ResetJWTs() {
-	tokens := *cfg.Tokens
-	for _, token := range tokens {
-		token.JWT = nil
-	}
-}
-
-func (cfg AuthConfig) Save() error {
-	path, err := getConfigPath()
-	if err != nil || path == nil {
-		return err
-	}
-
-	yamlContents, err := yaml.Marshal(cfg)
-	if err != nil {
-		return err
-	}
-	err = utils.AtomicWriteFile(*path, yamlContents, 0666)
-	return err
 }
