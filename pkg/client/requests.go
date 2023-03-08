@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (c *Client) sendRequest(req *http.Request, v interface{}) error {
+func (c *Client) sendRequest(req *http.Request, response any) error {
 	req.Header.Set("content-type", "application/json")
 	req.Header.Set("accept", "application/json")
 	if c.EnvironmentId != "" {
@@ -57,7 +57,7 @@ func (c *Client) sendRequest(req *http.Request, v interface{}) error {
 
 	out, _ := io.ReadAll(res.Body)
 	logrus.Trace("Body: ", string(out))
-	err = json.Unmarshal(out, &v)
+	err = json.Unmarshal(out, &response)
 
 	return err
 }

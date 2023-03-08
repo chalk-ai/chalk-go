@@ -37,5 +37,4 @@ func (c *Client) getJwt() (*auth.JWT, error) {
 		ValidUntil: expiry,
 	}
 	return jwt, nil
-	return &auth.JWT{}, nil
 }
