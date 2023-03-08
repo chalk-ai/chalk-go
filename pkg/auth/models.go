@@ -7,7 +7,7 @@ type JWT struct {
 	ValidUntil time.Time `yaml:"validUntil"`
 }
 
-type ProjectAuthConfig struct {
+type projectAuthConfig struct {
 	Name              string `yaml:"name"`
 	ClientId          string `yaml:"clientId"`
 	ClientSecret      string `yaml:"clientSecret"`
@@ -25,5 +25,5 @@ type ProjectAuthConfigOverride struct {
 }
 
 type AuthConfig struct {
-	Tokens *map[string]*ProjectAuthConfig `yaml:"tokens,omitempty"`
+	Tokens *map[string]*projectAuthConfig `yaml:"tokens,omitempty"`
 }

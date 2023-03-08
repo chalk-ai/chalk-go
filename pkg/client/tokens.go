@@ -14,7 +14,7 @@ func (c *Client) getJwt() (*auth.JWT, error) {
 		return c.jwt, nil
 	}
 
-	jsonBody, err := json.Marshal(GetTokenRequest{
+	jsonBody, err := json.Marshal(getTokenRequest{
 		ClientId:     c.ClientId,
 		ClientSecret: c.ClientSecret,
 		GrantType:    "client_credentials",
@@ -28,7 +28,7 @@ func (c *Client) getJwt() (*auth.JWT, error) {
 		return nil, err
 	}
 
-	response := GetTokenResponse{}
+	response := getTokenResponse{}
 	err = c.sendRequest(req, &response)
 
 	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)

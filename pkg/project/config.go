@@ -12,7 +12,7 @@ var AuthConfigFileName = ".chalk.yml"
 var DEFAULT_REQUIREMENTS = "requirements.txt"
 var CHALKIGNORE = ".chalkignore"
 
-func LoadProjectConfig() (*ProjectSettings, error) {
+func LoadProjectConfig() (*projectSettings, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func getConfigPath() (*string, error) {
 	return &path, nil
 }
 
-func checkDirectory(directory string, filename string) (*ProjectSettings, error) {
+func checkDirectory(directory string, filename string) (*projectSettings, error) {
 	configFilename := filepath.Join(directory, filename)
 	if !utils.Exists(configFilename) {
 		return nil, nil
@@ -67,7 +67,7 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 		return nil, err
 	}
 
-	settings := ProjectSettings{
+	settings := projectSettings{
 		LocalDirectory: directory,
 		Filename:       configFilename,
 	}

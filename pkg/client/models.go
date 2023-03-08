@@ -27,7 +27,7 @@ type OnlineQueryRequest struct {
 	Meta           map[string]string   `json:"meta"`
 }
 
-type OnlineQueryHttpRequest struct {
+type onlineQueryHttpRequest struct {
 	Inputs         map[string]any      `json:"inputs,string"`
 	Outputs        []string            `json:"outputs"`
 	Context        *OnlineQueryContext `json:"context"`
@@ -62,7 +62,7 @@ type OnlineQueryResponse struct {
 	Meta QueryMeta       `json:"meta"`
 }
 
-type OnlineQueryHttpResponse struct {
+type onlineQueryHttpResponse struct {
 	Data   []FeatureResult `json:"data"`
 	Errors []ChalkError    `json:"errors"`
 	Meta   QueryMeta       `json:"meta"`
@@ -76,18 +76,18 @@ type FeatureResult struct {
 	Error     *ChalkError    `json:"error"`
 }
 
-type ChalkHTTPException struct {
+type chalkHttpException struct {
 	Detail *string `json:"detail"`
 	Trace  *string `json:"trace"`
 }
 
-type GetTokenRequest struct {
+type getTokenRequest struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 	GrantType    string `json:"grant_type"`
 }
 
-type GetTokenResponse struct {
+type getTokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	ExpiresIn   int    `json:"expires_in"`

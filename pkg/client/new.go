@@ -31,7 +31,7 @@ func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *Client 
 			ClientSecret:  configOverride.ClientSecret,
 		}
 	} else {
-		projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigByDirectory()
+		projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigFromWD()
 		fileConfigOveridden = configOverride.ClientSecret != "" && configOverride.ClientId != ""
 		client = &Client{
 			BaseUrl:       projectAuthConfigFromFile.ApiServer,

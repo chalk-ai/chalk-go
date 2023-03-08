@@ -63,7 +63,7 @@ func (c *Client) sendRequest(req *http.Request, response any) error {
 }
 
 func getClientError(res http.Response, req http.Request) ClientError {
-	var errorResponse ChalkHTTPException
+	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
 	logrus.Debug("API error response", err, errorResponse, string(out))

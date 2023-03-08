@@ -16,7 +16,7 @@ func (c *Client) OnlineQuery(request OnlineQueryRequest) (OnlineQueryResponse, e
 	}
 
 	httpRequest, err := http.NewRequest("POST", "v1/query/online", bytes.NewBuffer(jsonRequestBody))
-	var httpResponse OnlineQueryHttpResponse
+	var httpResponse onlineQueryHttpResponse
 
 	err = c.sendRequest(httpRequest, &httpResponse)
 	if err != nil {

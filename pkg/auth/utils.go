@@ -9,7 +9,7 @@ import (
 var AuthConfigFileName = ".chalk.yml"
 
 func getDefaultAuthConfig() AuthConfig {
-	m := make(map[string]*ProjectAuthConfig)
+	m := make(map[string]*projectAuthConfig)
 	return AuthConfig{
 		Tokens: &m,
 	}

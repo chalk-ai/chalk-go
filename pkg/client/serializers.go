@@ -6,7 +6,7 @@ import (
 )
 
 func (request *OnlineQueryRequest) serialize() ([]byte, error) {
-	httpRequestBody := OnlineQueryHttpRequest{
+	httpRequestBody := onlineQueryHttpRequest{
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
 		Context:        request.Context,
