@@ -14,7 +14,7 @@ type Client struct {
 	ClientSecret  string
 }
 
-type OnlineQueryRequest struct {
+type OnlineQueryParams struct {
 	Inputs         map[string]any      `json:"inputs,string"`
 	Outputs        []string            `json:"outputs"`
 	Context        *OnlineQueryContext `json:"context"`
@@ -57,9 +57,11 @@ type QueryMeta struct {
 	QueryId            string  `json:"query_id"`
 }
 
-type OnlineQueryResponse struct {
+type OnlineQueryResult struct {
 	Data []FeatureResult `json:"data"`
 	Meta QueryMeta       `json:"meta"`
+
+	values map[string]any
 }
 
 type onlineQueryHttpResponse struct {

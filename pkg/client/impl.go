@@ -5,14 +5,14 @@ import (
 	"net/http"
 )
 
-func (c *Client) OnlineQuery(request OnlineQueryRequest) (OnlineQueryResponse, error) {
+func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, error) {
 	if request.Context == nil {
 		request.Context = &OnlineQueryContext{Environment: c.EnvironmentId}
 	}
 
 	jsonRequestBody, err := request.serialize()
 	if err != nil {
-		return OnlineQueryResponse{}, err
+		return OnlineQueryResult{}, err
 	}
 
 	httpRequest, err := http.NewRequest("POST", "v1/query/online", bytes.NewBuffer(jsonRequestBody))
@@ -20,14 +20,11 @@ func (c *Client) OnlineQuery(request OnlineQueryRequest) (OnlineQueryResponse, e
 
 	err = c.sendRequest(httpRequest, &httpResponse)
 	if err != nil {
-		return OnlineQueryResponse{}, err
+		return OnlineQueryResult{}, err
 	}
 	if len(httpResponse.Errors) > 0 {
-		return OnlineQueryResponse{}, &ChalkErrorResponse{ChalkErrors: httpResponse.Errors}
+		return OnlineQueryResult{}, &ChalkErrorResponse{ChalkErrors: httpResponse.Errors}
 	}
 
-	return OnlineQueryResponse{
-		Data: httpResponse.Data,
-		Meta: httpResponse.Meta,
-	}, err
+	return httpResponse.deserialize()
 }

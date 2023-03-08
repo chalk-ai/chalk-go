@@ -5,7 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go/pkg/utils"
 )
 
-func (request *OnlineQueryRequest) serialize() ([]byte, error) {
+func (request *OnlineQueryParams) serialize() ([]byte, error) {
 	httpRequestBody := onlineQueryHttpRequest{
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
@@ -24,4 +24,18 @@ func (request *OnlineQueryRequest) serialize() ([]byte, error) {
 	}
 
 	return jsonRequestBody, nil
+}
+
+func (response *onlineQueryHttpResponse) deserialize() (OnlineQueryResult, error) {
+	values := make(map[string]any)
+
+	for _, result := range response.Data {
+		values[result.Field] = result.Value
+	}
+
+	return OnlineQueryResult{
+		Data:   response.Data,
+		Meta:   response.Meta,
+		values: values,
+	}, nil
 }
