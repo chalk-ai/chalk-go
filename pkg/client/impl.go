@@ -2,7 +2,6 @@ package client
 
 import (
 	"bytes"
-	"encoding/json"
 	"net/http"
 )
 
@@ -11,26 +10,13 @@ func (c *Client) OnlineQuery(request OnlineQueryRequest) (OnlineQueryResponse, e
 		request.Context = &OnlineQueryContext{Environment: c.EnvironmentId}
 	}
 
-	stringifiedInputs := getStringifiedInputs(request.Inputs)
-	httpRequestBody := OnlineQueryHttpRequest{
-		Inputs:         stringifiedInputs,
-		Outputs:        request.Outputs,
-		Context:        request.Context,
-		Staleness:      request.Staleness,
-		IncludeMeta:    request.IncludeMeta,
-		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   request.DeploymentId,
-		QueryName:      request.QueryName,
-		CorrelationId:  request.CorrelationId,
-		Meta:           request.Meta,
-	}
-
-	var httpResponse OnlineQueryHttpResponse
-	jsonRequestBody, err := json.Marshal(httpRequestBody)
+	jsonRequestBody, err := request.serialize()
 	if err != nil {
 		return OnlineQueryResponse{}, err
 	}
+
 	httpRequest, err := http.NewRequest("POST", "v1/query/online", bytes.NewBuffer(jsonRequestBody))
+	var httpResponse OnlineQueryHttpResponse
 
 	err = c.sendRequest(httpRequest, &httpResponse)
 	if err != nil {
