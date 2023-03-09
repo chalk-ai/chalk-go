@@ -65,7 +65,7 @@ type OnlineQueryResult struct {
 	Data []FeatureResult
 	Meta *QueryMeta
 
-	values map[string]any
+	features map[string]FeatureResult
 }
 
 type onlineQueryHttpResponse struct {

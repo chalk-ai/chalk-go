@@ -32,16 +32,16 @@ func (request *OnlineQueryParams) serialize() ([]byte, error) {
 }
 
 func (response *onlineQueryHttpResponse) deserialize() OnlineQueryResult {
-	values := make(map[string]any)
+	features := make(map[string]FeatureResult)
 
 	for _, result := range response.Data {
-		values[result.Field] = result.Value
+		features[result.Field] = result
 	}
 
 	return OnlineQueryResult{
-		Data:   response.Data,
-		Meta:   response.Meta,
-		values: values,
+		Data:     response.Data,
+		Meta:     response.Meta,
+		features: features,
 	}
 }
 

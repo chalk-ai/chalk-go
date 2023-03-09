@@ -20,8 +20,6 @@ func (e *ChalkErrorResponse) Error() string {
 	return strings.Join(stringifiedErrors, "\n")
 }
 
-//type ErrorCategory string
-
 type ChalkClientError struct {
 	Message string
 }
@@ -62,8 +60,7 @@ func (e *ChalkServerError) Error() string {
 }
 
 type chalkErrorSerialized struct {
-	Code string `json:"code"`
-	// Make enum
+	Code      string          `json:"code"`
 	Category  string          `json:"category"`
 	Message   string          `json:"message"`
 	Exception *ChalkException `json:"exception"`
@@ -81,9 +78,9 @@ type ChalkHttpError struct {
 
 func (e *ChalkHttpError) Error() string {
 	if e.Trace != nil {
-		return fmt.Sprintf("httpClient Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
+		return fmt.Sprintf("HTTP Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
 			e.Path, e.Message, e.StatusCode, e.ContentLength, *e.Trace)
 	}
-	return fmt.Sprintf("httpClient Error: path=%q, message=%q, status=%d, content-length=%d",
+	return fmt.Sprintf("HTTP Error: path=%q, message=%q, status=%d, content-length=%d",
 		e.Path, e.Message, e.StatusCode, e.ContentLength)
 }
