@@ -30,7 +30,6 @@ func (c *Client) sendRequest(params requestParams) error {
 	if !params.DontRefresh {
 		upsertJwtErr := c.upsertJwt()
 		logrus.Debug(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
-
 	}
 	if c.jwt != nil && c.jwt.Token != "" {
 		params.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
@@ -44,7 +43,7 @@ func (c *Client) sendRequest(params requestParams) error {
 		}
 	}
 
-	logrus.Debug("Sending params.Requestuest to ", params.Request.URL)
+	logrus.Debug("Sending request to ", params.Request.URL)
 
 	res, err := c.httpClient.Do(params.Request)
 	if err != nil {
