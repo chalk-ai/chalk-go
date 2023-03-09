@@ -2,10 +2,9 @@ package client
 
 import (
 	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"net/http"
 )
-
-// Make separate file for public and private types
 
 type Client struct {
 	ApiServer     config
@@ -46,4 +45,31 @@ type FeatureResult struct {
 	Timestamp string                `json:"ts"`
 	Meta      map[string]any        `json:"meta"`
 	Error     *chalkErrorSerialized `json:"error"`
+}
+
+type ChalkErrorResponse struct {
+	ServerErrors []ChalkServerError
+	ClientError  *ChalkClientError
+	HttpError    *ChalkHttpError
+}
+
+type ChalkServerError struct {
+	Code      enum.ErrorCode
+	Category  enum.ErrorCodeCategory
+	Message   string
+	Exception *chalkException
+	Feature   string
+	Resolver  string
+}
+
+type ChalkHttpError struct {
+	Path          string
+	Message       string
+	StatusCode    int
+	ContentLength int64
+	Trace         *string
+}
+
+type ChalkClientError struct {
+	Message string
 }

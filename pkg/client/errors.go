@@ -2,14 +2,8 @@ package client
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"strings"
 )
-
-type ChalkErrorResponse struct {
-	ServerErrors []ChalkServerError
-	ClientError  *ChalkClientError
-}
 
 func (e *ChalkErrorResponse) Error() string {
 	stringifiedErrors := make([]string, 0)
@@ -20,21 +14,8 @@ func (e *ChalkErrorResponse) Error() string {
 	return strings.Join(stringifiedErrors, "\n")
 }
 
-type ChalkClientError struct {
-	Message string
-}
-
 func (e *ChalkClientError) Error() string {
 	return e.Message
-}
-
-type ChalkServerError struct {
-	Code      enum.ErrorCode
-	Category  enum.ErrorCodeCategory
-	Message   string
-	Exception *chalkException
-	Feature   string
-	Resolver  string
 }
 
 func (e *ChalkServerError) Error() string {
@@ -61,23 +42,6 @@ func (e *ChalkServerError) Error() string {
 		details = ": [ " + contents + " ]"
 	}
 	return fmt.Sprintf("Chalk Error occurred%s", details)
-}
-
-type chalkErrorSerialized struct {
-	Code      string          `json:"code"`
-	Category  string          `json:"category"`
-	Message   string          `json:"message"`
-	Exception *chalkException `json:"exception"`
-	Feature   string          `json:"feature"`
-	Resolver  string          `json:"resolver"`
-}
-
-type ChalkHttpError struct {
-	Path          string
-	Message       string
-	StatusCode    int
-	ContentLength int64
-	Trace         *string
 }
 
 func (e *ChalkHttpError) Error() string {

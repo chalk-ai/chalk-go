@@ -61,3 +61,12 @@ type queryMeta struct {
 	DeploymentId       string  `json:"deployment_id"`
 	QueryId            string  `json:"query_id"`
 }
+
+type chalkErrorSerialized struct {
+	Code      string          `json:"code"`
+	Category  string          `json:"category"`
+	Message   string          `json:"message"`
+	Exception *chalkException `json:"exception"`
+	Feature   string          `json:"feature"`
+	Resolver  string          `json:"resolver"`
+}
