@@ -28,7 +28,7 @@ type ChalkClientError struct {
 
 type ChalkServerError struct {
 	Code      clientenums.ErrorCode
-	Category  string
+	Category  clientenums.ErrorCodeCategory
 	Message   string
 	Exception *ChalkException
 	Feature   string

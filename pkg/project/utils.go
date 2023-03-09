@@ -1,8 +1,8 @@
-package utils
+package project
 
 import "os"
 
-func Exists(path string) bool {
+func exists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
 	}

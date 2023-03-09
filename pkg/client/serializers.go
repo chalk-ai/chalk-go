@@ -3,12 +3,11 @@ package client
 import (
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go/pkg/client/clientenums"
-	"github.com/chalk-ai/chalk-go/pkg/utils"
 )
 
 func (request *OnlineQueryParams) serialize() ([]byte, error) {
 	context := OnlineQueryContext{
-		Environment: utils.StrPtrOrNil(request.EnvironmentId),
+		Environment: stringPointerOrNil(request.EnvironmentId),
 		Tags:        request.Tags,
 	}
 
@@ -19,9 +18,9 @@ func (request *OnlineQueryParams) serialize() ([]byte, error) {
 		Staleness:      request.Staleness,
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   utils.StrPtrOrNil(request.DeploymentId),
-		QueryName:      utils.StrPtrOrNil(request.QueryName),
-		CorrelationId:  utils.StrPtrOrNil(request.CorrelationId),
+		DeploymentId:   stringPointerOrNil(request.DeploymentId),
+		QueryName:      stringPointerOrNil(request.QueryName),
+		CorrelationId:  stringPointerOrNil(request.CorrelationId),
 		Meta:           request.Meta,
 	}
 	jsonRequestBody, err := json.Marshal(httpRequestBody)
@@ -49,11 +48,17 @@ func (response *onlineQueryHttpResponse) deserialize() OnlineQueryResult {
 func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
 	errorCode, getErrorCodeErr := clientenums.GetErrorCode(e.Code)
 	if getErrorCodeErr != nil {
-		return ChalkServerError{}, nil
+		return ChalkServerError{}, getErrorCodeErr
 	}
+
+	errorCodeCategory, getCategoryErr := clientenums.GetErrorCodeCategory(e.Category)
+	if getCategoryErr != nil {
+		return ChalkServerError{}, getCategoryErr
+	}
+
 	return ChalkServerError{
 		Code:      *errorCode,
-		Category:  e.Category,
+		Category:  *errorCodeCategory,
 		Message:   e.Message,
 		Exception: e.Exception,
 		Feature:   e.Feature,
