@@ -19,33 +19,33 @@ type Client struct {
 type OnlineQueryParams struct {
 	Inputs  map[string]any
 	Outputs []string
-	// Pull online query context into Params object.
-	Context *OnlineQueryContext
 	// TODO: Use Duration. Drop JSON where
 	Staleness      map[string]string
 	IncludeMeta    bool
 	IncludeMetrics bool
 	DeploymentId   string
+	EnvironmentId  string
 	QueryName      string
 	CorrelationId  string
 	Meta           map[string]string
+	Tags           []string
 }
 
 type onlineQueryHttpRequest struct {
-	Inputs         map[string]any      `json:"inputs,string"`
-	Outputs        []string            `json:"outputs"`
-	Context        *OnlineQueryContext `json:"context"`
-	Staleness      map[string]string   `json:"staleness"`
-	IncludeMeta    bool                `json:"include_meta"`
-	IncludeMetrics bool                `json:"include_metrics"`
-	DeploymentId   *string             `json:"deployment_id"`
-	QueryName      *string             `json:"query_name"`
-	CorrelationId  *string             `json:"correlation_id"`
-	Meta           map[string]string   `json:"meta"`
+	Inputs         map[string]any     `json:"inputs,string"`
+	Outputs        []string           `json:"outputs"`
+	Context        OnlineQueryContext `json:"context"`
+	Staleness      map[string]string  `json:"staleness"`
+	IncludeMeta    bool               `json:"include_meta"`
+	IncludeMetrics bool               `json:"include_metrics"`
+	DeploymentId   *string            `json:"deployment_id"`
+	QueryName      *string            `json:"query_name"`
+	CorrelationId  *string            `json:"correlation_id"`
+	Meta           map[string]string  `json:"meta"`
 }
 
 type OnlineQueryContext struct {
-	Environment string   `json:"environment"`
+	Environment *string  `json:"environment"`
 	Tags        []string `json:"tags"`
 }
 
@@ -69,18 +69,18 @@ type OnlineQueryResult struct {
 }
 
 type onlineQueryHttpResponse struct {
-	Data   []FeatureResult `json:"data"`
-	Errors []ChalkError    `json:"errors"`
+	Data   []FeatureResult        `json:"data"`
+	Errors []chalkErrorSerialized `json:"errors"`
 	// Make query meta pointer.
 	Meta *QueryMeta `json:"meta"`
 }
 
 type FeatureResult struct {
-	Field     string         `json:"field"`
-	Value     any            `json:"value"`
-	Timestamp string         `json:"ts"`
-	Meta      map[string]any `json:"meta"`
-	Error     *ChalkError    `json:"error"`
+	Field     string                `json:"field"`
+	Value     any                   `json:"Value"`
+	Timestamp string                `json:"ts"`
+	Meta      map[string]any        `json:"meta"`
+	Error     *chalkErrorSerialized `json:"error"`
 }
 
 type chalkHttpException struct {

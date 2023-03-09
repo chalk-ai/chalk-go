@@ -8,8 +8,8 @@ import (
 func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, error) {
 	emptyResult := OnlineQueryResult{}
 
-	if request.Context == nil {
-		request.Context = &OnlineQueryContext{Environment: c.EnvironmentId}
+	if request.EnvironmentId == "" {
+		request.EnvironmentId = c.EnvironmentId
 	}
 
 	jsonRequestBody, err := request.serialize()
@@ -29,7 +29,14 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 		return emptyResult, err
 	}
 	if len(httpResponse.Errors) > 0 {
-		return emptyResult, &ChalkErrorResponse{ChalkErrors: httpResponse.Errors}
+		serverErrors, deserializationErr := deserializeChalkErrors(httpResponse.Errors)
+		if deserializationErr != nil {
+			return OnlineQueryResult{}, &ChalkErrorResponse{
+				ClientError: deserializationErr,
+			}
+		}
+
+		return emptyResult, &ChalkErrorResponse{ServerErrors: serverErrors}
 	}
 
 	return httpResponse.deserialize(), nil

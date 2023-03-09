@@ -51,7 +51,7 @@ func (c *Client) sendRequest(req *http.Request, response any) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		clientError := getClientError(*res, *req)
+		clientError := getHttpError(*res, *req)
 		return &clientError
 	}
 
@@ -62,13 +62,13 @@ func (c *Client) sendRequest(req *http.Request, response any) error {
 	return err
 }
 
-func getClientError(res http.Response, req http.Request) ClientError {
+func getHttpError(res http.Response, req http.Request) ChalkHttpError {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
 	logrus.Debug("API error response", err, errorResponse, string(out))
 
-	clientError := ClientError{
+	clientError := ChalkHttpError{
 		Message:       "Unknown Chalk Server Error",
 		Path:          req.URL.String(),
 		StatusCode:    res.StatusCode,
