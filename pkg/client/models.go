@@ -8,17 +8,18 @@ import (
 // Make separate file for public and private types
 
 type Client struct {
-	jwt           *auth.JWT
-	httpClient    *http.Client
 	ApiServer     config
 	ClientId      config
-	ClientSecret  config
 	EnvironmentId config
+
+	clientSecret config
+	jwt          *auth.JWT
+	httpClient   *http.Client
 }
 
 type config struct {
 	Value  string
-	source string
+	Source string
 }
 
 type OnlineQueryParams struct {

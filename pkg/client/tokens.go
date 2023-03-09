@@ -17,7 +17,7 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 
 	jsonBody, err := json.Marshal(getTokenRequest{
 		ClientId:     c.ClientId.Value,
-		ClientSecret: c.ClientSecret.Value,
+		ClientSecret: c.clientSecret.Value,
 		GrantType:    "client_credentials",
 	})
 	if err != nil {
@@ -37,17 +37,16 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 				"  Auth config:\n"+
 				"    api_server=%q (source: %s),\n"+
 				"    client_id=%q (source: %s),\n"+
-				"    client_secret=%q (source: %s),\n"+
+				"    client_secret=*** (source: %s),\n"+
 				"    environment_id=%q (source: %s)\n",
 			err.Error(),
 			c.ApiServer.Value,
-			c.ApiServer.source,
+			c.ApiServer.Source,
 			c.ClientId.Value,
-			c.ClientId.source,
-			c.ClientSecret.Value,
-			c.ClientSecret.source,
+			c.ClientId.Source,
+			c.clientSecret.Source,
 			c.EnvironmentId.Value,
-			c.EnvironmentId.source,
+			c.EnvironmentId.Source,
 		)}
 	}
 
