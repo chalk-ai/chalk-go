@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func (cfg AuthConfig) GetProjectAuthConfigForWD() (*projectAuthConfig, string, error) {
+func (cfg authConfig) GetProjectAuthConfigForWD() (*projectAuthConfig, string, error) {
 	getwd, err := os.Getwd()
 
 	path := ""
