@@ -1,17 +1,16 @@
 package client
 
 import (
-	"encoding/json"
 	"github.com/chalk-ai/chalk-go/pkg/enum"
 )
 
-func (request *OnlineQueryParams) serialize() ([]byte, error) {
+func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	context := onlineQueryContext{
 		Environment: stringPointerOrNil(request.EnvironmentId),
 		Tags:        request.Tags,
 	}
 
-	httpRequestBody := onlineQueryRequestSerialized{
+	body := onlineQueryRequestSerialized{
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
 		Context:        context,
@@ -23,12 +22,8 @@ func (request *OnlineQueryParams) serialize() ([]byte, error) {
 		CorrelationId:  stringPointerOrNil(request.CorrelationId),
 		Meta:           request.Meta,
 	}
-	jsonRequestBody, err := json.Marshal(httpRequestBody)
-	if err != nil {
-		return []byte{}, err
-	}
 
-	return jsonRequestBody, nil
+	return body
 }
 
 func (response *onlineQueryResponseSerialized) deserialize() OnlineQueryResult {

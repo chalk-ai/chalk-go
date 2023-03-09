@@ -1,36 +1,19 @@
 package client
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/pkg/auth"
-	"net/http"
 	"time"
 )
 
 func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
-	if c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
-		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
-		return c.jwt, nil
-	}
-
-	jsonBody, err := json.Marshal(getTokenRequest{
+	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
 		ClientSecret: c.clientSecret.Value,
 		GrantType:    "client_credentials",
-	})
-	if err != nil {
-		return nil, &ChalkClientError{Message: err.Error()}
 	}
-
-	req, err := http.NewRequest("POST", "v1/oauth/token", bytes.NewBuffer(jsonBody))
-	if err != nil {
-		return nil, &ChalkClientError{Message: err.Error()}
-	}
-
 	response := getTokenResponse{}
-	err = c.sendRequest(requestParams{Request: req, Response: &response, DontRefresh: true})
+	err := c.sendRequest(requestParams{Method: "POST", URL: "v1/oauth/token", Body: body, Response: &response, DontRefresh: true})
 	if err != nil {
 		return nil, &ChalkClientError{Message: fmt.Sprintf(
 			"Error obtaining access token: %s.\n"+
@@ -58,7 +41,12 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 	return jwt, nil
 }
 
-func (c *Client) upsertJwt() *ChalkClientError {
+func (c *Client) refreshJwt(forceRefresh bool) *ChalkClientError {
+	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
+		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
+		return nil
+	}
+
 	jwt, getJwtErr := c.getJwt()
 	if getJwtErr != nil {
 		return getJwtErr

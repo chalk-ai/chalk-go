@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/pkg/project"
@@ -11,41 +12,52 @@ import (
 	"strings"
 )
 
-func (c *Client) sendRequest(params requestParams) error {
-	params.Request.Header.Set("content-type", "application/json")
-	params.Request.Header.Set("accept", "application/json")
+func (c *Client) sendRequest(args requestParams) error {
+	jsonBytes, jsonErr := json.Marshal(args.Body)
+	if jsonErr != nil {
+		return jsonErr
+	}
+
+	request, newRequestErr := http.NewRequest(args.Method, args.URL, bytes.NewBuffer(jsonBytes))
+	if newRequestErr != nil {
+		return newRequestErr
+	}
+
+	request.Header.Set("content-type", "application/json")
+	request.Header.Set("accept", "application/json")
 	if c.EnvironmentId.Value != "" {
-		params.Request.Header.Set("x-chalk-env-id", c.EnvironmentId.Value)
+		request.Header.Set("x-chalk-env-id", c.EnvironmentId.Value)
 	}
 
 	cfg, cfgErr := project.LoadProjectConfig()
 	if cfgErr == nil && cfg.Project != "" {
-		params.Request.Header.Set("x-chalk-project-name", cfg.Project)
+		request.Header.Set("x-chalk-project-name", cfg.Project)
 	}
 
 	if cfg.Project != "" {
-		params.Request.Header.Set("x-chalk-project-name", cfg.Project)
+		request.Header.Set("x-chalk-project-name", cfg.Project)
 	}
 
-	if !params.DontRefresh {
-		upsertJwtErr := c.upsertJwt()
-		logrus.Debug(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
+	if !args.DontRefresh {
+		upsertJwtErr := c.refreshJwt(false)
+		if upsertJwtErr != nil {
+			logrus.Debug(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
+		}
 	}
 	if c.jwt != nil && c.jwt.Token != "" {
-		params.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
 	}
 
-	if !strings.HasPrefix(params.Request.URL.String(), "http:") && !strings.HasPrefix(params.Request.URL.String(), "https:") {
+	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		var err error
-		params.Request.URL, err = url.Parse(fmt.Sprintf("%s/%s", c.ApiServer.Value, params.Request.URL.String()))
+		request.URL, err = url.Parse(fmt.Sprintf("%s/%s", c.ApiServer.Value, request.URL.String()))
 		if err != nil {
 			return err
 		}
 	}
 
-	logrus.Debug("Sending request to ", params.Request.URL)
-
-	res, err := c.httpClient.Do(params.Request)
+	logrus.Debug("Sending request to ", request.URL)
+	res, err := c.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
@@ -53,29 +65,45 @@ func (c *Client) sendRequest(params requestParams) error {
 	logrus.Debug("Response Status: ", res.Status)
 	defer res.Body.Close()
 
-	if res.StatusCode == 401 && !params.DontRefresh {
-		upsertJwtUpon401Err := c.upsertJwt()
-		if upsertJwtUpon401Err != nil {
-			logrus.Debug(fmt.Sprintf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error()))
-		} else {
-			res, err = c.httpClient.Do(params.Request)
-			if err != nil {
-				return err
-			}
-			logrus.Debug("Response Status for retry params.Requestuest: ", res.Status)
-		}
+	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
+		res, err = c.retryRequest(*request, jsonBytes, res, err)
 	}
 
 	if res.StatusCode != 200 {
-		clientError := getHttpError(*res, *params.Request)
+		clientError := getHttpError(*res, *request)
 		return &clientError
 	}
 
 	out, _ := io.ReadAll(res.Body)
 	logrus.Trace("Body: ", string(out))
-	err = json.Unmarshal(out, &params.Response)
+	err = json.Unmarshal(out, &args.Response)
 
 	return err
+}
+
+func (c *Client) retryRequest(originalRequest http.Request, originalBodyBytes []byte, originalResponse *http.Response, originalError error) (*http.Response, error) {
+	upsertJwtUpon401Err := c.refreshJwt(true)
+	if upsertJwtUpon401Err != nil {
+		logrus.Debug(fmt.Sprintf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error()))
+		return originalResponse, originalError
+	}
+
+	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), bytes.NewBuffer(originalBodyBytes))
+	if err != nil {
+		return nil, err
+	}
+	newRequest.Header = originalRequest.Header
+	if c.jwt != nil && c.jwt.Token != "" {
+		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	}
+
+	res, err := c.httpClient.Do(&originalRequest)
+	if err != nil {
+		return nil, err
+	}
+	logrus.Debug("Response Status for retried request: ", res.Status)
+
+	return res, nil
 }
 
 func getHttpError(res http.Response, req http.Request) ChalkHttpError {

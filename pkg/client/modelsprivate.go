@@ -38,7 +38,12 @@ type chalkHttpException struct {
 }
 
 type requestParams struct {
-	Request     *http.Request
+	Request *http.Request
+
+	Body   any
+	Method string
+	URL    string
+
 	Response    any
 	DontRefresh bool
 }
