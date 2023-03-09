@@ -6,12 +6,12 @@ import (
 )
 
 func (request *OnlineQueryParams) serialize() ([]byte, error) {
-	context := OnlineQueryContext{
+	context := onlineQueryContext{
 		Environment: stringPointerOrNil(request.EnvironmentId),
 		Tags:        request.Tags,
 	}
 
-	httpRequestBody := onlineQueryHttpRequest{
+	httpRequestBody := onlineQueryRequestSerialized{
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
 		Context:        context,
@@ -31,7 +31,7 @@ func (request *OnlineQueryParams) serialize() ([]byte, error) {
 	return jsonRequestBody, nil
 }
 
-func (response *onlineQueryHttpResponse) deserialize() OnlineQueryResult {
+func (response *onlineQueryResponseSerialized) deserialize() OnlineQueryResult {
 	features := make(map[string]FeatureResult)
 
 	for _, result := range response.Data {

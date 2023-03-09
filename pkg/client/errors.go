@@ -32,7 +32,7 @@ type ChalkServerError struct {
 	Code      enum.ErrorCode
 	Category  enum.ErrorCodeCategory
 	Message   string
-	Exception *ChalkException
+	Exception *chalkException
 	Feature   string
 	Resolver  string
 }
@@ -67,7 +67,7 @@ type chalkErrorSerialized struct {
 	Code      string          `json:"code"`
 	Category  string          `json:"category"`
 	Message   string          `json:"message"`
-	Exception *ChalkException `json:"exception"`
+	Exception *chalkException `json:"exception"`
 	Feature   string          `json:"feature"`
 	Resolver  string          `json:"resolver"`
 }

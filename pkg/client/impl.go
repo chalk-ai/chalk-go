@@ -22,7 +22,7 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 		return emptyResult, err
 	}
 
-	var httpResponse onlineQueryHttpResponse
+	var httpResponse onlineQueryResponseSerialized
 
 	err = c.sendRequest(httpRequest, &httpResponse)
 	if err != nil {
