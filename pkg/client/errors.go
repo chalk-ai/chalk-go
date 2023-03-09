@@ -24,6 +24,10 @@ type ChalkClientError struct {
 	Message string
 }
 
+func (e *ChalkClientError) Error() string {
+	return e.Message
+}
+
 type ChalkServerError struct {
 	Code      clientenums.ErrorCode
 	Category  clientenums.ErrorCodeCategory

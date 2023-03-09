@@ -48,6 +48,6 @@ func getChalkYamlConfig(value string) config {
 
 	return config{
 		value,
-		fmt.Sprintf(".chalk.yml config file in home directory: %s", path),
+		fmt.Sprintf("config file %s", path),
 	}
 }

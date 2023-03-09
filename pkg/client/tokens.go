@@ -33,11 +33,13 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 	err = c.sendRequest(req, &response)
 	if err != nil {
 		return nil, &ChalkClientError{Message: fmt.Sprintf(
-			"Error obtaining access token with these credentials: "+
-				"api_server=%q (%q), "+
-				"client_id=%q (%q), "+
-				"client_secret=%q (%q), "+
-				"environment_id=%q (%q)",
+			"Error obtaining access token: %s.\n"+
+				"  Auth config:\n"+
+				"    api_server=%q (source: %s),\n"+
+				"    client_id=%q (source: %s),\n"+
+				"    client_secret=%q (source: %s),\n"+
+				"    environment_id=%q (source: %s)\n",
+			err.Error(),
 			c.ApiServer.Value,
 			c.ApiServer.source,
 			c.ClientId.Value,

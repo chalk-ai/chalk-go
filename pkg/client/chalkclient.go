@@ -10,7 +10,7 @@ func ChalkClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error)
 
 	jwt, getJWTErr := client.getJwt()
 	if getJWTErr != nil {
-		return nil, getJWTErr
+		return client, getJWTErr
 	}
 	client.jwt = jwt
 
