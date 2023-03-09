@@ -2,11 +2,6 @@ package client
 
 import "net/http"
 
-type config struct {
-	Value  string
-	Source string
-}
-
 type onlineQueryRequestSerialized struct {
 	Inputs         map[string]any     `json:"inputs,string"`
 	Outputs        []string           `json:"outputs"`
@@ -23,8 +18,7 @@ type onlineQueryRequestSerialized struct {
 type onlineQueryResponseSerialized struct {
 	Data   []FeatureResult        `json:"data"`
 	Errors []chalkErrorSerialized `json:"errors"`
-	// Make query meta pointer.
-	Meta *queryMeta `json:"meta"`
+	Meta   *queryMeta             `json:"meta"`
 }
 
 type onlineQueryContext struct {
@@ -37,7 +31,7 @@ type chalkHttpException struct {
 	Trace  *string `json:"trace"`
 }
 
-type requestParams struct {
+type sendRequestParams struct {
 	Request *http.Request
 
 	Body   any
@@ -46,6 +40,11 @@ type requestParams struct {
 
 	Response    any
 	DontRefresh bool
+}
+
+type config struct {
+	Value  string
+	Source string
 }
 
 type getTokenRequest struct {

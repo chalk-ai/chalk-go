@@ -13,7 +13,7 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 		GrantType:    "client_credentials",
 	}
 	response := getTokenResponse{}
-	err := c.sendRequest(requestParams{Method: "POST", URL: "v1/oauth/token", Body: body, Response: &response, DontRefresh: true})
+	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/oauth/token", Body: body, Response: &response, DontRefresh: true})
 	if err != nil {
 		return nil, &ChalkClientError{Message: fmt.Sprintf(
 			"Error obtaining access token: %s.\n"+

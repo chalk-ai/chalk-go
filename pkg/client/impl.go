@@ -9,7 +9,7 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 
 	var serializedResponse onlineQueryResponseSerialized
 
-	err := c.sendRequest(requestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
+	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
 	if err != nil {
 		return emptyResult, err
 	}

@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func (c *Client) sendRequest(args requestParams) error {
+func (c *Client) sendRequest(args sendRequestParams) error {
 	jsonBytes, jsonErr := json.Marshal(args.Body)
 	if jsonErr != nil {
 		return jsonErr
