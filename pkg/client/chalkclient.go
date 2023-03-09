@@ -18,39 +18,31 @@ func ChalkClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error)
 }
 
 func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *Client {
-	fileConfigOveridden := false
 	var client *Client
-	if configOverride.ClientId != "" && configOverride.ClientSecret != "" && configOverride.ApiServer != "" && configOverride.EnvironmentId != "" {
-		// Skip loading from file
-		fileConfigOveridden = true
-		client = &Client{
-			BaseUrl:       configOverride.ApiServer,
-			httpClient:    &http.Client{},
-			EnvironmentId: configOverride.EnvironmentId,
-			ClientId:      configOverride.ClientId,
-			ClientSecret:  configOverride.ClientSecret,
-		}
-	} else {
-		projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigForWD()
-		fileConfigOveridden = configOverride.ClientSecret != "" && configOverride.ClientId != ""
-		client = &Client{
-			BaseUrl:       projectAuthConfigFromFile.ApiServer,
-			httpClient:    &http.Client{},
-			EnvironmentId: projectAuthConfigFromFile.ActiveEnvironment,
-			ClientId:      projectAuthConfigFromFile.ClientId,
-			ClientSecret:  projectAuthConfigFromFile.ClientSecret,
-		}
 
-		if configOverride.ApiServer != "" {
-			client.BaseUrl = configOverride.ApiServer
-		}
-		if configOverride.EnvironmentId != "" {
-			client.EnvironmentId = configOverride.EnvironmentId
-		}
-		if fileConfigOveridden {
-			client.ClientId = configOverride.ClientId
-			client.ClientSecret = configOverride.ClientSecret
-		}
+	projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigForWD()
+
+	apiServerOverride := getChalkClientArgConfig(configOverride.ApiServer)
+	clientIdOverride := getChalkClientArgConfig(configOverride.ClientId)
+	clientSecretOverride := getChalkClientArgConfig(configOverride.ClientSecret)
+	environmentIdOverride := getChalkClientArgConfig(configOverride.EnvironmentId)
+
+	apiServerEnvVarConfig := getEnvVarConfig(apiServerEnvVarKey)
+	clientIdEnvVarConfig := getEnvVarConfig(clientIdEnvVarKey)
+	clientSecretEnvVarConfig := getEnvVarConfig(clientSecretEnvVarKey)
+	environmentIdEnvVarConfig := getEnvVarConfig(environmentEnvVarKey)
+
+	apiServerFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
+	clientIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientId)
+	clientSecretFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
+	environmentIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
+
+	client = &Client{
+		httpClient:    &http.Client{},
+		ApiServer:     getFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
+		ClientId:      getFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
+		ClientSecret:  getFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
+		EnvironmentId: getFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
 	}
 
 	return client

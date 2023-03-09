@@ -15,8 +15,8 @@ func (c *Client) getJwt() (*auth.JWT, error) {
 	}
 
 	jsonBody, err := json.Marshal(getTokenRequest{
-		ClientId:     c.ClientId,
-		ClientSecret: c.ClientSecret,
+		ClientId:     c.ClientId.Value,
+		ClientSecret: c.ClientSecret.Value,
 		GrantType:    "client_credentials",
 	})
 	if err != nil {

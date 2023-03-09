@@ -9,7 +9,7 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
-		request.EnvironmentId = c.EnvironmentId
+		request.EnvironmentId = c.EnvironmentId.Value
 	}
 
 	jsonRequestBody, err := request.serialize()

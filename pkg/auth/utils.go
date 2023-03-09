@@ -15,7 +15,7 @@ func getDefaultAuthConfig() AuthConfig {
 	}
 }
 
-func getConfigPath() (*string, error) {
+func GetConfigPath() (*string, error) {
 	var err error
 	configDir := os.Getenv("XDG_CONFIG_HOME")
 	if configDir == "" {
@@ -29,7 +29,7 @@ func getConfigPath() (*string, error) {
 }
 
 func LoadAuthConfig() AuthConfig {
-	path, err := getConfigPath()
+	path, err := GetConfigPath()
 	if err != nil || path == nil {
 		return getDefaultAuthConfig()
 	}

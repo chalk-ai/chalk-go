@@ -14,8 +14,8 @@ import (
 func (c *Client) sendRequest(req *http.Request, response any) error {
 	req.Header.Set("content-type", "application/json")
 	req.Header.Set("accept", "application/json")
-	if c.EnvironmentId != "" {
-		req.Header.Set("x-chalk-env-id", c.EnvironmentId)
+	if c.EnvironmentId.Value != "" {
+		req.Header.Set("x-chalk-env-id", c.EnvironmentId.Value)
 	}
 
 	cfg, cfgErr := project.LoadProjectConfig()
@@ -33,7 +33,7 @@ func (c *Client) sendRequest(req *http.Request, response any) error {
 
 	if !strings.HasPrefix(req.URL.String(), "http:") && !strings.HasPrefix(req.URL.String(), "https:") {
 		var err error
-		req.URL, err = url.Parse(fmt.Sprintf("%s/%s", c.BaseUrl, req.URL.String()))
+		req.URL, err = url.Parse(fmt.Sprintf("%s/%s", c.ApiServer.Value, req.URL.String()))
 		if err != nil {
 			return err
 		}
