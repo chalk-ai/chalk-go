@@ -1,4 +1,4 @@
-package clientenums
+package enum
 
 import (
 	"errors"

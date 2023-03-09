@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/pkg/client/clientenums"
+	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"strings"
 )
 
@@ -29,8 +29,8 @@ func (e *ChalkClientError) Error() string {
 }
 
 type ChalkServerError struct {
-	Code      clientenums.ErrorCode
-	Category  clientenums.ErrorCodeCategory
+	Code      enum.ErrorCode
+	Category  enum.ErrorCodeCategory
 	Message   string
 	Exception *ChalkException
 	Feature   string

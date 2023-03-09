@@ -1,4 +1,4 @@
-package clientenums
+package enum
 
 type ErrorCode struct {
 	Value string
@@ -34,21 +34,3 @@ var allErrorCodes = map[string]ErrorCode{
 }
 
 var GetErrorCode = generateGetEnumFunction(allErrorCodes, "error codes")
-
-type ErrorCodeCategory struct {
-	Value string
-}
-
-var (
-	REQUEST = ErrorCodeCategory{"REQUEST"}
-	FIELD   = ErrorCodeCategory{"FIELD"}
-	NETWORK = ErrorCodeCategory{"NETWORK"}
-)
-
-var allErrorCodeCategories = map[string]ErrorCodeCategory{
-	REQUEST.Value: REQUEST,
-	FIELD.Value:   FIELD,
-	NETWORK.Value: NETWORK,
-}
-
-var GetErrorCodeCategory = generateGetEnumFunction(allErrorCodeCategories, "error code categories")

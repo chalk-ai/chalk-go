@@ -2,7 +2,7 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/chalk-ai/chalk-go/pkg/client/clientenums"
+	"github.com/chalk-ai/chalk-go/pkg/enum"
 )
 
 func (request *OnlineQueryParams) serialize() ([]byte, error) {
@@ -46,12 +46,12 @@ func (response *onlineQueryHttpResponse) deserialize() OnlineQueryResult {
 }
 
 func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
-	errorCode, getErrorCodeErr := clientenums.GetErrorCode(e.Code)
+	errorCode, getErrorCodeErr := enum.GetErrorCode(e.Code)
 	if getErrorCodeErr != nil {
 		return ChalkServerError{}, getErrorCodeErr
 	}
 
-	errorCodeCategory, getCategoryErr := clientenums.GetErrorCodeCategory(e.Category)
+	errorCodeCategory, getCategoryErr := enum.GetErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
 		return ChalkServerError{}, getCategoryErr
 	}

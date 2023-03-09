@@ -19,7 +19,7 @@ func getFirstNonEmptyConfig(configs ...config) config {
 			return config
 		}
 	}
-	return config{source: "default"}
+	return config{Source: "default"}
 }
 
 func getEnvVarConfig(key string) config {
