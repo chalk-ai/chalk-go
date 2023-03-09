@@ -7,12 +7,11 @@ import (
 
 func ChalkClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
 	client := getConfiguredClient(configOverride)
-
-	jwt, getJWTErr := client.getJwt()
-	if getJWTErr != nil {
-		return client, getJWTErr
+	err := client.upsertJwt()
+	if err != nil {
+		// Still return client instead of nil so that the configuration in the client can be inspected.
+		return client, err
 	}
-	client.jwt = jwt
 
 	return client, nil
 }

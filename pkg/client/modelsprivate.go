@@ -1,5 +1,7 @@
 package client
 
+import "net/http"
+
 type config struct {
 	Value  string
 	Source string
@@ -33,6 +35,12 @@ type onlineQueryContext struct {
 type chalkHttpException struct {
 	Detail *string `json:"detail"`
 	Trace  *string `json:"trace"`
+}
+
+type requestParams struct {
+	Request     *http.Request
+	Response    any
+	DontRefresh bool
 }
 
 type getTokenRequest struct {

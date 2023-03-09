@@ -30,7 +30,7 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 	}
 
 	response := getTokenResponse{}
-	err = c.sendRequest(req, &response)
+	err = c.sendRequest(requestParams{Request: req, Response: &response, DontRefresh: true})
 	if err != nil {
 		return nil, &ChalkClientError{Message: fmt.Sprintf(
 			"Error obtaining access token: %s.\n"+
@@ -56,4 +56,13 @@ func (c *Client) getJwt() (*auth.JWT, *ChalkClientError) {
 		ValidUntil: expiry,
 	}
 	return jwt, nil
+}
+
+func (c *Client) upsertJwt() *ChalkClientError {
+	jwt, getJwtErr := c.getJwt()
+	if getJwtErr != nil {
+		return getJwtErr
+	}
+	c.jwt = jwt
+	return nil
 }
