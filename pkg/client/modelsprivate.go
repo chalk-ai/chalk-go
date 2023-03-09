@@ -16,14 +16,22 @@ type onlineQueryRequestSerialized struct {
 }
 
 type onlineQueryResponseSerialized struct {
-	Data   []FeatureResult        `json:"data"`
-	Errors []chalkErrorSerialized `json:"errors"`
-	Meta   *queryMeta             `json:"meta"`
+	Data   []featureResultSerialized `json:"data"`
+	Errors []chalkErrorSerialized    `json:"errors"`
+	Meta   *queryMeta                `json:"meta"`
 }
 
 type onlineQueryContext struct {
 	Environment *string  `json:"environment"`
 	Tags        []string `json:"tags"`
+}
+
+type featureResultSerialized struct {
+	Field     string                `json:"field"`
+	Value     any                   `json:"Value"`
+	Timestamp string                `json:"ts"`
+	Meta      map[string]any        `json:"meta"`
+	Error     *chalkErrorSerialized `json:"error"`
 }
 
 type chalkHttpException struct {

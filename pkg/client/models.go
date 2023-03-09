@@ -4,6 +4,7 @@ import (
 	"github.com/chalk-ai/chalk-go/pkg/auth"
 	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"net/http"
+	"time"
 )
 
 type Client struct {
@@ -38,13 +39,12 @@ type OnlineQueryResult struct {
 	features map[string]FeatureResult
 }
 
-// TODO create FeatureResultSerialized
 type FeatureResult struct {
-	Field     string                `json:"field"`
-	Value     any                   `json:"Value"`
-	Timestamp string                `json:"ts"`
-	Meta      map[string]any        `json:"meta"`
-	Error     *chalkErrorSerialized `json:"error"`
+	Field     string
+	Value     any
+	Timestamp time.Time
+	Meta      map[string]any
+	Error     *ChalkServerError
 }
 
 type ChalkErrorResponse struct {

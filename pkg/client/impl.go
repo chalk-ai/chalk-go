@@ -24,5 +24,5 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 		return emptyResult, &ChalkErrorResponse{ServerErrors: serverErrors}
 	}
 
-	return serializedResponse.deserialize(), nil
+	return serializedResponse.deserialize()
 }
