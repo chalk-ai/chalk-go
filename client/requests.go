@@ -67,6 +67,9 @@ func (c *Client) sendRequest(args sendRequestParams) error {
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
 		res, err = c.retryRequest(*request, jsonBytes, res, err)
+		if err != nil {
+			return err
+		}
 	}
 
 	if res.StatusCode != 200 {
@@ -88,6 +91,8 @@ func (c *Client) retryRequest(originalRequest http.Request, originalBodyBytes []
 		return originalResponse, originalError
 	}
 
+	// New request needs to be constructed otherwise we were getting the error:
+	//     HTTP/1.x transport connection broken
 	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), bytes.NewBuffer(originalBodyBytes))
 	if err != nil {
 		return nil, err
@@ -97,7 +102,7 @@ func (c *Client) retryRequest(originalRequest http.Request, originalBodyBytes []
 		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
 	}
 
-	res, err := c.httpClient.Do(&originalRequest)
+	res, err := c.httpClient.Do(newRequest)
 	if err != nil {
 		return nil, err
 	}
