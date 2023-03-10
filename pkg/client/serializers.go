@@ -94,7 +94,7 @@ func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult,
 	}, nil
 }
 
-func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResult, *ChalkClientError) {
+func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResult, error) {
 	deserializedResults := make([]FeatureResult, 0)
 	for _, sResult := range results {
 		dResult, dErr := sResult.deserialize()
@@ -141,7 +141,7 @@ func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
 	}, nil
 }
 
-func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ChalkServerError, *ChalkClientError) {
+func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ChalkServerError, error) {
 	deserializedErrors := make([]ChalkServerError, 0)
 	for _, serializedErr := range errors {
 		deserializedError, deserializationFailure := serializedErr.deserialize()

@@ -1,6 +1,6 @@
 package client
 
-func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, error) {
+func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
@@ -11,18 +11,27 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, erro
 
 	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
 	if err != nil {
-		return emptyResult, err
+		httpError, ok := err.(*ChalkHttpError)
+		if ok {
+			return OnlineQueryResult{}, &ChalkErrorResponse{HttpError: httpError}
+		}
+		return OnlineQueryResult{}, &ChalkErrorResponse{ClientError: &ChalkClientError{Message: err.Error()}}
 	}
 	if len(serializedResponse.Errors) > 0 {
 		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
 		if deserializationErr != nil {
 			return OnlineQueryResult{}, &ChalkErrorResponse{
-				ClientError: deserializationErr,
+				ClientError: &ChalkClientError{deserializationErr.Error()},
 			}
 		}
 
 		return emptyResult, &ChalkErrorResponse{ServerErrors: serverErrors}
 	}
 
-	return serializedResponse.deserialize()
+	response, err := serializedResponse.deserialize()
+	if err != nil {
+		return OnlineQueryResult{}, &ChalkErrorResponse{}
+	}
+
+	return response, nil
 }
