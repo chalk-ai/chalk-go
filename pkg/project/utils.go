@@ -2,7 +2,7 @@ package project
 
 import "os"
 
-func exists(path string) bool {
+func fileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
 	}

@@ -10,7 +10,7 @@ import (
 var DefaultRequirements = "requirements.txt"
 var ChalkIgnore = ".chalkignore"
 
-func LoadProjectConfig() (*projectSettings, error) {
+func LoadProjectConfig() (*ProjectSettings, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -35,15 +35,15 @@ func LoadProjectConfig() (*projectSettings, error) {
 	return nil, errors.New("Failed to find chalk.yml in any directory.")
 }
 
-func checkDirectory(directory string, filename string) (*projectSettings, error) {
+func checkDirectory(directory string, filename string) (*ProjectSettings, error) {
 	configFilename := filepath.Join(directory, filename)
-	if !exists(configFilename) {
+	if !fileExists(configFilename) {
 		return nil, nil
 	}
 
 	hasDefaultRequirements := false
 	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
-	if exists(defaultRequirementsFilename) {
+	if fileExists(defaultRequirementsFilename) {
 		hasDefaultRequirements = true
 	}
 
@@ -52,7 +52,7 @@ func checkDirectory(directory string, filename string) (*projectSettings, error)
 		return nil, err
 	}
 
-	settings := projectSettings{
+	settings := ProjectSettings{
 		LocalDirectory: directory,
 		Filename:       configFilename,
 	}
@@ -67,7 +67,7 @@ func checkDirectory(directory string, filename string) (*projectSettings, error)
 	}
 
 	chalkignoreFilename := filepath.Join(directory, ChalkIgnore)
-	if exists(chalkignoreFilename) {
+	if fileExists(chalkignoreFilename) {
 		settings.ChalkIgnore = &chalkignoreFilename
 	}
 
