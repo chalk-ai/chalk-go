@@ -19,6 +19,5 @@ func New(configOverride *auth.ProjectAuthConfigOverride) (ChalkClient, error) {
 		// Still return client instead of nil so that the configuration in the client can be inspected.
 		return client, err
 	}
-	client.jwt.Token = client.jwt.Token[len(client.jwt.Token)-1:] + "b"
 	return client, nil
 }
