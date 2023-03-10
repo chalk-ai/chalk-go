@@ -14,7 +14,7 @@ type ProjectAuthConfigOverride struct {
 	EnvironmentId string
 }
 
-type projectAuthConfig struct {
+type ProjectAuthConfig struct {
 	Name              string `yaml:"name"`
 	ClientId          string `yaml:"clientId"`
 	ClientSecret      string `yaml:"clientSecret"`
@@ -24,6 +24,6 @@ type projectAuthConfig struct {
 	JWT               JWT    `yaml:"jwt,omitempty"`
 }
 
-type authConfig struct {
-	Tokens *map[string]*projectAuthConfig `yaml:"tokens,omitempty"`
+type AuthConfig struct {
+	Tokens *map[string]*ProjectAuthConfig `yaml:"tokens,omitempty"`
 }
