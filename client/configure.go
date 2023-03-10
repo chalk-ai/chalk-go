@@ -5,9 +5,10 @@ import (
 	"net/http"
 )
 
-func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *ChalkClientImpl {
-	var client *ChalkClientImpl
-
+func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *ChalkClientImpl {
+	if configOverride == nil {
+		configOverride = &auth.ProjectAuthConfigOverride{}
+	}
 	projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigForWD()
 
 	apiServerOverride := getChalkClientArgConfig(configOverride.ApiServer)
@@ -25,7 +26,7 @@ func getConfiguredClient(configOverride auth.ProjectAuthConfigOverride) *ChalkCl
 	clientSecretFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
 	environmentIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
 
-	client = &ChalkClientImpl{
+	client := &ChalkClientImpl{
 		httpClient:    &http.Client{},
 		ApiServer:     getFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
 		ClientId:      getFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),

@@ -9,15 +9,10 @@ type ChalkClient interface {
 }
 
 func New(configOverride *auth.ProjectAuthConfigOverride) (ChalkClient, error) {
-	if configOverride == nil {
-		configOverride = &auth.ProjectAuthConfigOverride{}
-	}
-
-	client := getConfiguredClient(*configOverride)
+	client := getConfiguredClient(configOverride)
 	err := client.refreshJwt(false)
 	if err != nil {
-		// Still return client instead of nil so that the configuration in the client can be inspected.
-		return client, err
+		return nil, err
 	}
 	return client, nil
 }
