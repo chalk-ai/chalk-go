@@ -16,7 +16,7 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
 		Context:        context,
-		Staleness:      deserializeStaleness(request.Staleness),
+		Staleness:      serializeStaleness(request.Staleness),
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
 		DeploymentId:   stringPointerOrNil(request.DeploymentId),
@@ -28,7 +28,7 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	return body
 }
 
-func deserializeStaleness(staleness map[string]time.Duration) map[string]string {
+func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 	res := map[string]string{}
 	for k, v := range staleness {
 		res[k] = strconv.Itoa(int(v.Seconds())) + "s"
