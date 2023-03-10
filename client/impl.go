@@ -30,7 +30,9 @@ func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *Cha
 
 	response, err := serializedResponse.deserialize()
 	if err != nil {
-		return OnlineQueryResult{}, &ChalkErrorResponse{}
+		return OnlineQueryResult{}, &ChalkErrorResponse{
+			ClientError: &ChalkClientError{err.Error()},
+		}
 	}
 
 	return response, nil

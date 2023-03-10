@@ -33,7 +33,7 @@ type OnlineQueryParams struct {
 
 type OnlineQueryResult struct {
 	Data []FeatureResult
-	Meta *queryMeta
+	Meta *QueryMeta
 
 	features map[string]FeatureResult
 }
@@ -42,8 +42,27 @@ type FeatureResult struct {
 	Field     string
 	Value     any
 	Timestamp time.Time
-	Meta      map[string]any
+	Meta      *FeatureResolutionMeta
 	Error     *ChalkServerError
+}
+
+type FeatureResolutionMeta struct {
+	ChosenResolverFqn string `json:"chosen_resolver_fqn"`
+	CacheHit          bool   `json:"cache_hit"`
+	PrimitiveType     string `json:"primitive_type"`
+	Version           int    `json:"version"`
+}
+
+type QueryMeta struct {
+	ExecutionDurationS float64 `json:"execution_duration_s"`
+	DeploymentId       string  `json:"deployment_id"`
+	QueryId            string  `json:"query_id"`
+}
+
+type ChalkException struct {
+	Kind       string `json:"kind"`
+	Message    string `json:"message"`
+	Stacktrace string `json:"stacktrace"`
 }
 
 type ChalkErrorResponse struct {
@@ -56,7 +75,7 @@ type ChalkServerError struct {
 	Code      enum.ErrorCode
 	Category  enum.ErrorCodeCategory
 	Message   string
-	Exception *chalkException
+	Exception *ChalkException
 	Feature   string
 	Resolver  string
 }

@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+func wrap(description string, errorToWrap error) *ChalkClientError {
+	return &ChalkClientError{Message: fmt.Sprintf("%s: %s", description, errorToWrap)}
+}
+
 func (e *ChalkErrorResponse) Error() string {
 
 	if len(e.ServerErrors) > 0 {
@@ -19,7 +23,7 @@ func (e *ChalkErrorResponse) Error() string {
 	} else if e.ClientError != nil {
 		return e.ClientError.Error()
 	} else {
-		return "Unexpected ChalkClient error. Please contact Chalk if this issue persists."
+		return "Unexpected ChalkClient error. Please contact Chalk if this persists."
 	}
 }
 

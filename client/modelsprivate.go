@@ -18,7 +18,7 @@ type onlineQueryRequestSerialized struct {
 type onlineQueryResponseSerialized struct {
 	Data   []featureResultSerialized `json:"data"`
 	Errors []chalkErrorSerialized    `json:"errors"`
-	Meta   *queryMeta                `json:"meta"`
+	Meta   *QueryMeta                `json:"meta"`
 }
 
 type onlineQueryContext struct {
@@ -27,11 +27,11 @@ type onlineQueryContext struct {
 }
 
 type featureResultSerialized struct {
-	Field     string                `json:"field"`
-	Value     any                   `json:"Value"`
-	Timestamp string                `json:"ts"`
-	Meta      map[string]any        `json:"meta"`
-	Error     *chalkErrorSerialized `json:"error"`
+	Field     string                 `json:"field"`
+	Value     any                    `json:"Value"`
+	Timestamp string                 `json:"ts"`
+	Meta      *FeatureResolutionMeta `json:"meta"`
+	Error     *chalkErrorSerialized  `json:"error"`
 }
 
 type chalkHttpException struct {
@@ -68,25 +68,11 @@ type getTokenResponse struct {
 	ApiServer   string `json:"api_server"`
 }
 
-// TODO create public ChalkException?
-type chalkException struct {
-	Kind       string `json:"kind"`
-	Message    string `json:"message"`
-	Stacktrace string `json:"stacktrace"`
-}
-
-// TODO create public QueryMeta
-type queryMeta struct {
-	ExecutionDurationS float64 `json:"execution_duration_s"`
-	DeploymentId       string  `json:"deployment_id"`
-	QueryId            string  `json:"query_id"`
-}
-
 type chalkErrorSerialized struct {
 	Code      string          `json:"code"`
 	Category  string          `json:"category"`
 	Message   string          `json:"message"`
-	Exception *chalkException `json:"exception"`
+	Exception *ChalkException `json:"exception"`
 	Feature   string          `json:"feature"`
 	Resolver  string          `json:"resolver"`
 }
