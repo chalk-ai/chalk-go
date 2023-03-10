@@ -24,7 +24,7 @@ func (e *ChalkErrorResponse) Error() string {
 	} else if e.ClientError != nil {
 		return e.ClientError.Error()
 	} else {
-		return "Unexpected ChalkClient error. Please contact Chalk if this persists."
+		return "Unexpected ChalkClientImpl error. Please contact Chalk if this persists."
 	}
 }
 

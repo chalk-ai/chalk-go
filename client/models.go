@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type Client struct {
+type ChalkClientImpl struct {
 	ApiServer     config
 	ClientId      config
 	EnvironmentId config

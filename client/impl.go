@@ -1,6 +1,6 @@
 package client
 
-func (c *Client) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
+func (c *ChalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
