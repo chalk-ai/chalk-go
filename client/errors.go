@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// TODO: Use this to wrap some otherwise untraceable errors
 func wrap(description string, errorToWrap error) *ChalkClientError {
 	return &ChalkClientError{Message: fmt.Sprintf("%s: %s", description, errorToWrap)}
 }

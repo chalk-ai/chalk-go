@@ -32,7 +32,7 @@ func getEnvVarConfig(key string) config {
 func getChalkClientArgConfig(value string) config {
 	return config{
 		value,
-		"ChalkClient argument",
+		"New argument",
 	}
 }
 

@@ -5,7 +5,11 @@ import (
 	"net/http"
 )
 
-func ChalkClient(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
+type ChalkClient interface {
+	OnlineQuery(params OnlineQueryParams) (OnlineQueryResult, ChalkErrorResponse)
+}
+
+func New(configOverride auth.ProjectAuthConfigOverride) (*Client, error) {
 	client := getConfiguredClient(configOverride)
 	err := client.refreshJwt(false)
 	if err != nil {
