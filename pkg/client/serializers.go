@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/chalk-ai/chalk-go/pkg/enum"
+	"strconv"
 	"time"
 )
 
@@ -15,7 +16,7 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Inputs:         request.Inputs,
 		Outputs:        request.Outputs,
 		Context:        context,
-		Staleness:      request.Staleness,
+		Staleness:      deserializeStaleness(request.Staleness),
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
 		DeploymentId:   stringPointerOrNil(request.DeploymentId),
@@ -25,6 +26,14 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	}
 
 	return body
+}
+
+func deserializeStaleness(staleness map[string]time.Duration) map[string]string {
+	res := map[string]string{}
+	for k, v := range staleness {
+		res[k] = strconv.Itoa(int(v.Seconds())) + "s"
+	}
+	return res
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {

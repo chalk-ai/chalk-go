@@ -21,7 +21,7 @@ type OnlineQueryParams struct {
 	Inputs  map[string]any
 	Outputs []string
 	// TODO: Use Duration. Drop JSON where
-	Staleness      map[string]string
+	Staleness      map[string]time.Duration
 	IncludeMeta    bool
 	IncludeMetrics bool
 	DeploymentId   string
