@@ -18,9 +18,8 @@ type Client struct {
 }
 
 type OnlineQueryParams struct {
-	Inputs  map[string]any
-	Outputs []string
-	// TODO: Use Duration. Drop JSON where
+	Inputs         map[string]any
+	Outputs        []string
 	Staleness      map[string]time.Duration
 	IncludeMeta    bool
 	IncludeMetrics bool
