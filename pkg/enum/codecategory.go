@@ -5,15 +5,15 @@ type ErrorCodeCategory struct {
 }
 
 var (
-	REQUEST = ErrorCodeCategory{"REQUEST"}
-	FIELD   = ErrorCodeCategory{"FIELD"}
-	NETWORK = ErrorCodeCategory{"NETWORK"}
+	Request = ErrorCodeCategory{"REQUEST"}
+	Field   = ErrorCodeCategory{"FIELD"}
+	Network = ErrorCodeCategory{"NETWORK"}
 )
 
 var allErrorCodeCategories = map[string]ErrorCodeCategory{
-	REQUEST.Value: REQUEST,
-	FIELD.Value:   FIELD,
-	NETWORK.Value: NETWORK,
+	Request.Value: Request,
+	Field.Value:   Field,
+	Network.Value: Network,
 }
 
 var GetErrorCodeCategory = generateGetEnumFunction(allErrorCodeCategories, "error code categories")

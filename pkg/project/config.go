@@ -8,8 +8,8 @@ import (
 )
 
 var AuthConfigFileName = ".chalk.yml"
-var DEFAULT_REQUIREMENTS = "requirements.txt"
-var CHALKIGNORE = ".chalkignore"
+var DefaultRequirements = "requirements.txt"
+var ChalkIgnore = ".chalkignore"
 
 func LoadProjectConfig() (*projectSettings, error) {
 	wd, err := os.Getwd()
@@ -56,7 +56,7 @@ func checkDirectory(directory string, filename string) (*projectSettings, error)
 	}
 
 	hasDefaultRequirements := false
-	defaultRequirementsFilename := filepath.Join(directory, DEFAULT_REQUIREMENTS)
+	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
 	if exists(defaultRequirementsFilename) {
 		hasDefaultRequirements = true
 	}
@@ -76,11 +76,11 @@ func checkDirectory(directory string, filename string) (*projectSettings, error)
 	}
 	for _, env := range settings.Environments {
 		if (env.Requirements == nil || *env.Requirements == "") && hasDefaultRequirements {
-			env.Requirements = &DEFAULT_REQUIREMENTS
+			env.Requirements = &DefaultRequirements
 		}
 	}
 
-	chalkignoreFilename := filepath.Join(directory, CHALKIGNORE)
+	chalkignoreFilename := filepath.Join(directory, ChalkIgnore)
 	if exists(chalkignoreFilename) {
 		settings.ChalkIgnore = &chalkignoreFilename
 	}
