@@ -6,12 +6,21 @@ import (
 )
 
 func (e *ChalkErrorResponse) Error() string {
-	stringifiedErrors := make([]string, 0)
-	for _, err := range e.ServerErrors {
-		stringifiedErrors = append(stringifiedErrors, err.Error())
-	}
 
-	return strings.Join(stringifiedErrors, "\n")
+	if len(e.ServerErrors) > 0 {
+		stringifiedServerErrors := make([]string, 0)
+		for _, err := range e.ServerErrors {
+			stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
+		}
+
+		return strings.Join(stringifiedServerErrors, "\n")
+	} else if e.HttpError != nil {
+		return e.HttpError.Error()
+	} else if e.ClientError != nil {
+		return e.ClientError.Error()
+	} else {
+		return "Unexpected ChalkClient error. Please contact Chalk if this issue persists."
+	}
 }
 
 func (e *ChalkClientError) Error() string {
