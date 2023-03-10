@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 )
 
-var AuthConfigFileName = ".chalk.yml"
 var DefaultRequirements = "requirements.txt"
 var ChalkIgnore = ".chalkignore"
 
@@ -34,19 +33,6 @@ func LoadProjectConfig() (*projectSettings, error) {
 	}
 
 	return nil, errors.New("Failed to find chalk.yml in any directory.")
-}
-
-func getConfigPath() (*string, error) {
-	var err error
-	configDir := os.Getenv("XDG_CONFIG_HOME")
-	if configDir == "" {
-		configDir, err = os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
-	}
-	path := filepath.Join(configDir, AuthConfigFileName)
-	return &path, nil
 }
 
 func checkDirectory(directory string, filename string) (*projectSettings, error) {
