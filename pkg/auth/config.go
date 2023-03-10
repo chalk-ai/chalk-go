@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func (cfg authConfig) GetProjectAuthConfigForWD() (*projectAuthConfig, string, error) {
+func (cfg AuthConfig) GetProjectAuthConfigForWD() (*ProjectAuthConfig, string, error) {
 	getwd, err := os.Getwd()
 
 	path := ""
@@ -13,7 +13,7 @@ func (cfg authConfig) GetProjectAuthConfigForWD() (*projectAuthConfig, string, e
 		return nil, path, err
 	}
 
-	var tok *projectAuthConfig = nil
+	var tok *ProjectAuthConfig = nil
 	if cfg.Tokens == nil {
 		return tok, path, nil
 	}
