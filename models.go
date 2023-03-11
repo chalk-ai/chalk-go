@@ -59,6 +59,22 @@ type OnlineQueryResult struct {
 	features map[string]FeatureResult
 }
 
+func (result *OnlineQueryResult) GetFeature(feature string) *FeatureResult {
+	featureResult, found := result.features[feature]
+	if !found {
+		return nil
+	}
+	return &featureResult
+}
+
+func (result *OnlineQueryResult) GetFeatureValue(feature string) any {
+	featureResult := result.GetFeature(feature)
+	if featureResult == nil {
+		return nil
+	}
+	return featureResult.Value
+}
+
 type FeatureResult struct {
 	// The name of the feature requested, e.g. 'user.identity.has_voip_phone'.
 	Field string

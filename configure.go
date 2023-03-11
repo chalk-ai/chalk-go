@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/pkg/auth"
 	"net/http"
 )
@@ -18,10 +19,10 @@ func getConfiguredClient(
 	clientSecretOverride := getChalkClientArgConfig(configOverride.ClientSecret)
 	environmentIdOverride := getChalkClientArgConfig(configOverride.EnvironmentId)
 
-	apiServerEnvVarConfig := getEnvVarConfig(apiServerEnvVarKey)
-	clientIdEnvVarConfig := getEnvVarConfig(clientIdEnvVarKey)
-	clientSecretEnvVarConfig := getEnvVarConfig(clientSecretEnvVarKey)
-	environmentIdEnvVarConfig := getEnvVarConfig(environmentEnvVarKey)
+	apiServerEnvVarConfig := getEnvVarConfig(internal.ApiServerEnvVarKey)
+	clientIdEnvVarConfig := getEnvVarConfig(internal.ClientIdEnvVarKey)
+	clientSecretEnvVarConfig := getEnvVarConfig(internal.ClientSecretEnvVarKey)
+	environmentIdEnvVarConfig := getEnvVarConfig(internal.EnvironmentEnvVarKey)
 
 	apiServerFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
 	clientIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientId)
