@@ -1,9 +1,38 @@
-# chalk-go
+# Go Chalk
 
-Go client for Chalk
+The official [Chalk](https://chalk.ai) client library.
 
+## Requirements
 
-### Configuring Logging
+- Go 1.19 or later
+
+## Installation
+
+Make sure your project is using Go Modules (it will have a `go.mod` file in its
+root if it already is):
+
+``` sh
+go mod init
+```
+
+Then, reference `chalk-go` in a Go program with `import`:
+
+``` go
+import (
+	"github.com/chalk-ai/chalk-go"
+)
+```
+
+Run any of the normal `go` commands (`build`/`install`/`test`). The Go
+toolchain will resolve and fetch the `chalk-go` module automatically.
+
+Alternatively, you can also explicitly `go get` the package into a project:
+
+```bash
+go get -u github.com/chalk-ai/chalk-go
+```
+
+## Configuring Logging
 
 By default, Chalk logs error messages only (which are sent to `stderr`).
 Configure default logging using the global `DefaultLeveledLogger` variable:
