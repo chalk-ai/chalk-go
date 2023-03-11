@@ -1,6 +1,19 @@
 package client
 
-import "net/http"
+import (
+	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"net/http"
+)
+
+type chalkClientImpl struct {
+	ApiServer     config
+	ClientId      config
+	EnvironmentId config
+
+	clientSecret config
+	jwt          *auth.JWT
+	httpClient   *http.Client
+}
 
 type onlineQueryRequestSerialized struct {
 	Inputs         map[string]any     `json:"inputs,string"`
@@ -28,7 +41,8 @@ type onlineQueryContext struct {
 
 type featureResultSerialized struct {
 	Field     string                 `json:"field"`
-	Value     any                    `json:"Value"`
+	Value     any                    `json:"value"`
+	Pkey      any                    `json:"pkey"`
 	Timestamp string                 `json:"ts"`
 	Meta      *FeatureResolutionMeta `json:"meta"`
 	Error     *chalkErrorSerialized  `json:"error"`

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *ChalkClientImpl {
+func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *chalkClientImpl {
 	if configOverride == nil {
 		configOverride = &auth.ProjectAuthConfigOverride{}
 	}
@@ -26,7 +26,7 @@ func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *ChalkC
 	clientSecretFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
 	environmentIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
 
-	client := &ChalkClientImpl{
+	client := &chalkClientImpl{
 		httpClient:    &http.Client{},
 		ApiServer:     getFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
 		ClientId:      getFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
