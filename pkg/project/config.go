@@ -2,6 +2,7 @@ package project
 
 import (
 	"errors"
+	"github.com/chalk-ai/chalk-go/internal"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -37,13 +38,13 @@ func LoadProjectConfig() (*ProjectSettings, error) {
 
 func checkDirectory(directory string, filename string) (*ProjectSettings, error) {
 	configFilename := filepath.Join(directory, filename)
-	if !fileExists(configFilename) {
+	if !internal.FileExists(configFilename) {
 		return nil, nil
 	}
 
 	hasDefaultRequirements := false
 	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
-	if fileExists(defaultRequirementsFilename) {
+	if internal.FileExists(defaultRequirementsFilename) {
 		hasDefaultRequirements = true
 	}
 
@@ -67,7 +68,7 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 	}
 
 	chalkignoreFilename := filepath.Join(directory, ChalkIgnore)
-	if fileExists(chalkignoreFilename) {
+	if internal.FileExists(chalkignoreFilename) {
 		settings.ChalkIgnore = &chalkignoreFilename
 	}
 

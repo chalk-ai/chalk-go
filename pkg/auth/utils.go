@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
@@ -48,4 +49,48 @@ func LoadAuthConfig() AuthConfig {
 	}
 
 	return config
+}
+
+func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
+	for _, config := range configs {
+		if config.Value != "" {
+			return config
+		}
+	}
+	return SourcedConfig{Source: "default"}
+}
+
+func GetEnvVarConfig(key string) SourcedConfig {
+	return SourcedConfig{
+		os.Getenv(key),
+		fmt.Sprintf("environment variable '%s'", key),
+	}
+}
+
+func GetChalkClientArgConfig(value string) SourcedConfig {
+	return SourcedConfig{
+		value,
+		"New argument",
+	}
+}
+
+func GetChalkYamlConfig(value string) SourcedConfig {
+	var path string
+
+	configPath, err := GetConfigPath()
+	if err != nil {
+		path = "unknown"
+	} else {
+		path = *configPath
+	}
+
+	return SourcedConfig{
+		value,
+		fmt.Sprintf("config file %s", path),
+	}
+}
+
+type SourcedConfig struct {
+	Value  string
+	Source string
 }

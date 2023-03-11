@@ -53,11 +53,6 @@ type sendRequestParams struct {
 	DontRefresh bool
 }
 
-type config struct {
-	Value  string
-	Source string
-}
-
 type getTokenRequest struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`

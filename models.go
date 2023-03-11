@@ -96,7 +96,7 @@ type FeatureResult struct {
 
 	// The error encountered in resolving this feature.
 	// If no error occurred, this field is empty.
-	Error *ChalkServerError
+	Error *ServerError
 }
 
 type FeatureResolutionMeta struct {
@@ -154,20 +154,20 @@ type ChalkException struct {
 	Stacktrace string `json:"stacktrace"`
 }
 
-type ChalkErrorResponse struct {
+type ErrorResponse struct {
 	// Errors that occurred in Chalk's server.
-	ServerErrors []ChalkServerError
+	ServerErrors []ServerError
 
 	// Errors that occurred in Client or its dependencies.
-	ClientError *ChalkClientError
+	ClientError *ClientError
 
 	// Errors that are standard HTTP errors such as missing authorization.
-	HttpError *ChalkHttpError
+	HttpError *HTTPError
 }
 
-// ChalkServerError is an error that occurred in Chalk's server,
+// ServerError is an error that occurred in Chalk's server,
 // for example, when a resolver unexpectedly fails to run.
-type ChalkServerError struct {
+type ServerError struct {
 	// The type of the error.
 	Code enum.ErrorCode
 
@@ -188,8 +188,8 @@ type ChalkServerError struct {
 	Resolver string
 }
 
-// ChalkHttpError is a wrapper around a standard HTTP error such as missing authorization.
-type ChalkHttpError struct {
+// HTTPError is a wrapper around a standard HTTP error such as missing authorization.
+type HTTPError struct {
 	// The URL of the HTTP request made.
 	Path string
 
@@ -206,7 +206,7 @@ type ChalkHttpError struct {
 	Trace *string
 }
 
-// ChalkClientError is an error that occurred in Client or its dependencies.
-type ChalkClientError struct {
+// ClientError is an error that occurred in Client or its dependencies.
+type ClientError struct {
 	Message string
 }

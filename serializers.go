@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"strconv"
 	"time"
@@ -8,7 +9,7 @@ import (
 
 func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	context := onlineQueryContext{
-		Environment: stringPointerOrNil(request.EnvironmentId),
+		Environment: internal.StringOrNil(request.EnvironmentId),
 		Tags:        request.Tags,
 	}
 
@@ -19,9 +20,9 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Staleness:      serializeStaleness(request.Staleness),
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   stringPointerOrNil(request.PreviewDeploymentId),
-		QueryName:      stringPointerOrNil(request.QueryName),
-		CorrelationId:  stringPointerOrNil(request.CorrelationId),
+		DeploymentId:   internal.StringOrNil(request.PreviewDeploymentId),
+		QueryName:      internal.StringOrNil(request.QueryName),
+		CorrelationId:  internal.StringOrNil(request.CorrelationId),
 		Meta:           request.Meta,
 	}
 
@@ -42,7 +43,7 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 		return FeatureResult{}, err
 	}
 
-	var dError *ChalkServerError = nil
+	var dError *ServerError = nil
 	if feature.Error != nil {
 		dErrorObj, err := feature.Error.deserialize()
 		if err != nil {
@@ -101,7 +102,7 @@ func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResu
 	for _, sResult := range results {
 		dResult, dErr := sResult.deserialize()
 		if dErr != nil {
-			return []FeatureResult{}, &ChalkClientError{
+			return []FeatureResult{}, &ClientError{
 				Message: dErr.Error(),
 			}
 		}
@@ -111,7 +112,7 @@ func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResu
 	return deserializedResults, nil
 }
 
-func (e *ChalkServerError) serialize() (chalkErrorSerialized, error) {
+func (e *ServerError) serialize() (chalkErrorSerialized, error) {
 	return chalkErrorSerialized{
 		Code:      e.Code.Value,
 		Category:  e.Category.Value,
@@ -122,18 +123,18 @@ func (e *ChalkServerError) serialize() (chalkErrorSerialized, error) {
 	}, nil
 }
 
-func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
+func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 	errorCode, getErrorCodeErr := enum.GetErrorCode(e.Code)
 	if getErrorCodeErr != nil {
-		return ChalkServerError{}, getErrorCodeErr
+		return ServerError{}, getErrorCodeErr
 	}
 
 	errorCodeCategory, getCategoryErr := enum.GetErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
-		return ChalkServerError{}, getCategoryErr
+		return ServerError{}, getCategoryErr
 	}
 
-	return ChalkServerError{
+	return ServerError{
 		Code:      *errorCode,
 		Category:  *errorCodeCategory,
 		Message:   e.Message,
@@ -143,12 +144,12 @@ func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
 	}, nil
 }
 
-func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ChalkServerError, error) {
-	deserializedErrors := make([]ChalkServerError, 0)
+func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error) {
+	deserializedErrors := make([]ServerError, 0)
 	for _, serializedErr := range errors {
 		deserializedError, deserializationFailure := serializedErr.deserialize()
 		if deserializationFailure != nil {
-			return []ChalkServerError{}, &ChalkClientError{
+			return []ServerError{}, &ClientError{
 				Message: deserializationFailure.Error(),
 			}
 		}

@@ -6,12 +6,11 @@ import (
 )
 
 // TODO: Use this to wrap some otherwise untraceable errors
-func wrap(description string, errorToWrap error) *ChalkClientError {
-	return &ChalkClientError{Message: fmt.Sprintf("%s: %s", description, errorToWrap)}
+func wrap(description string, errorToWrap error) *ClientError {
+	return &ClientError{Message: fmt.Sprintf("%s: %s", description, errorToWrap)}
 }
 
-func (e *ChalkErrorResponse) Error() string {
-
+func (e *ErrorResponse) Error() string {
 	if len(e.ServerErrors) > 0 {
 		stringifiedServerErrors := make([]string, 0)
 		for _, err := range e.ServerErrors {
@@ -28,11 +27,11 @@ func (e *ChalkErrorResponse) Error() string {
 	}
 }
 
-func (e *ChalkClientError) Error() string {
+func (e *ClientError) Error() string {
 	return e.Message
 }
 
-func (e *ChalkServerError) Error() string {
+func (e *ServerError) Error() string {
 	detailArr := make([]string, 0)
 	if e.Message != "" {
 		detailArr = append(detailArr, "Message: "+e.Message)
@@ -58,7 +57,7 @@ func (e *ChalkServerError) Error() string {
 	return fmt.Sprintf("Chalk Error occurred%s", details)
 }
 
-func (e *ChalkHttpError) Error() string {
+func (e *HTTPError) Error() string {
 	if e.Trace != nil {
 		return fmt.Sprintf("HTTP Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
 			e.Path, e.Message, e.StatusCode, e.ContentLength, *e.Trace)

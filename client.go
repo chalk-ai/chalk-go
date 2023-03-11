@@ -7,7 +7,7 @@ import (
 // Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
-	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse)
+	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ErrorResponse)
 }
 
 type ClientConfig struct {
@@ -55,13 +55,5 @@ type ClientConfig struct {
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
 func NewClient(config *ClientConfig) (Client, error) {
-	c := getConfiguredClient(config)
-	err := c.refreshJwt(false)
-	if config.Logger != nil {
-		c.logger = config.Logger
-	}
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
+	return newClientImpl(config)
 }
