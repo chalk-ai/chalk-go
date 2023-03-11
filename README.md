@@ -37,7 +37,7 @@ type LeveledLogger interface {
 }
 ```
 
-Some loggers like Logrus and Zap's SugaredLogger
+Some loggers like Logrus and Zap's `SugaredLogger`
 support this interface natively, so it's possible to set
 `DefaultLeveledLogger` to a `*logrus.Logger` or `*zap.SugaredLogger` directly.
 To use other loggers, you may need a shim layer.
