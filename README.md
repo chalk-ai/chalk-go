@@ -19,7 +19,7 @@ Then, reference `chalk-go` in a Go program with `import`:
 
 ``` go
 import (
-	"github.com/chalk-ai/chalk-go"
+    "github.com/chalk-ai/chalk-go"
 )
 ```
 
