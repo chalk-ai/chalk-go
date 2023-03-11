@@ -19,7 +19,7 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Staleness:      serializeStaleness(request.Staleness),
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   stringPointerOrNil(request.DeploymentId),
+		DeploymentId:   stringPointerOrNil(request.PreviewDeploymentId),
 		QueryName:      stringPointerOrNil(request.QueryName),
 		CorrelationId:  stringPointerOrNil(request.CorrelationId),
 		Meta:           request.Meta,
@@ -54,6 +54,7 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 	return FeatureResult{
 		Field:     feature.Field,
 		Value:     feature.Value,
+		Pkey:      feature.Pkey,
 		Timestamp: timeObj,
 		Meta:      feature.Meta,
 		Error:     dError,
@@ -69,6 +70,7 @@ func (feature FeatureResult) serialize() (featureResultSerialized, error) {
 	return featureResultSerialized{
 		Field:     feature.Field,
 		Value:     feature.Value,
+		Pkey:      feature.Pkey,
 		Timestamp: feature.Timestamp.String(),
 		Meta:      feature.Meta,
 		Error:     &sError,

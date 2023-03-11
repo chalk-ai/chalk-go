@@ -1,6 +1,8 @@
 package client
 
-func (c *ChalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
+// OnlineQuery computes features values using online resolvers.
+// See https://docs.chalk.ai/docs/query-basics for more information.
+func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
