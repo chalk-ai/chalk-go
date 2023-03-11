@@ -7,7 +7,6 @@ import (
 
 // OnlineQueryParams defines the parameters
 // that help you execute an online query.
-
 type OnlineQueryParams struct {
 	// The features for which there are known values, mapped to those values.
 	Inputs map[string]any
