@@ -1,4 +1,6 @@
-package enum
+package chalk
+
+import "github.com/chalk-ai/chalk-go/internal"
 
 type ErrorCode struct {
 	Value string
@@ -34,4 +36,4 @@ var allErrorCodes = map[string]ErrorCode{
 	DeadlineExceeded.Value:    DeadlineExceeded,
 }
 
-var GetErrorCode = generateGetEnumFunction(allErrorCodes, "error codes")
+var GetErrorCode = internal.GenerateGetEnumFunction(allErrorCodes, "error codes")

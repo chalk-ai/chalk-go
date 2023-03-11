@@ -1,7 +1,6 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"strconv"
 	"time"
 )
@@ -121,12 +120,12 @@ func (e *ChalkServerError) serialize() (chalkErrorSerialized, error) {
 }
 
 func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
-	errorCode, getErrorCodeErr := enum.GetErrorCode(e.Code)
+	errorCode, getErrorCodeErr := GetErrorCode(e.Code)
 	if getErrorCodeErr != nil {
 		return ChalkServerError{}, getErrorCodeErr
 	}
 
-	errorCodeCategory, getCategoryErr := enum.GetErrorCodeCategory(e.Category)
+	errorCodeCategory, getCategoryErr := GetErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
 		return ChalkServerError{}, getCategoryErr
 	}

@@ -1,4 +1,8 @@
-package client
+package chalk
+
+import (
+	"net/http"
+)
 
 func (c *ChalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
 	emptyResult := OnlineQueryResult{}
@@ -36,4 +40,12 @@ func (c *ChalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryRes
 	}
 
 	return response, nil
+}
+
+func (c *ChalkClientImpl) SetLogger(logger *LeveledLogger) {
+	c.logger = logger
+}
+
+func (c *ChalkClientImpl) SetHTTPClient(client *http.Client) {
+	c.httpClient = client
 }

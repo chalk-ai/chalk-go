@@ -7,6 +7,13 @@ import (
 	"path/filepath"
 )
 
+func fileExists(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		return false
+	}
+	return true
+}
+
 var DefaultRequirements = "requirements.txt"
 var ChalkIgnore = ".chalkignore"
 
@@ -18,7 +25,7 @@ func LoadProjectConfig() (*ProjectSettings, error) {
 	currentDirectory := wd
 	rootChecked := false
 	for currentDirectory != "/" && !rootChecked {
-		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
+		for _, filename := range []string{"chalk-go.yaml", "chalk-go.yml"} {
 			settings, err := checkDirectory(currentDirectory, filename)
 			if settings != nil && err == nil {
 				return settings, err
@@ -32,7 +39,7 @@ func LoadProjectConfig() (*ProjectSettings, error) {
 		}
 	}
 
-	return nil, errors.New("Failed to find chalk.yml in any directory.")
+	return nil, errors.New("Failed to find chalk-go.yml in any directory.")
 }
 
 func checkDirectory(directory string, filename string) (*ProjectSettings, error) {

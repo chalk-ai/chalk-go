@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-var authConfigFileName = ".chalk.yml"
+var authConfigFileName = ".chalk-go.yml"
 
 func getDefaultAuthConfig() AuthConfig {
 	m := make(map[string]*ProjectAuthConfig)

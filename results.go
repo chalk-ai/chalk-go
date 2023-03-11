@@ -1,4 +1,4 @@
-package client
+package chalk
 
 func (result *OnlineQueryResult) GetFeature(feature string) *FeatureResult {
 	featureResult, found := result.features[feature]

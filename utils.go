@@ -1,8 +1,8 @@
-package client
+package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"github.com/chalk-ai/chalk-go/internal/auth"
 	"os"
 )
 

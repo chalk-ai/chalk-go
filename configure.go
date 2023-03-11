@@ -1,25 +1,27 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"github.com/chalk-ai/chalk-go/internal"
+	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"net/http"
 )
 
-func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *ChalkClientImpl {
+func getConfiguredClient(configOverride *auth2.ProjectAuthConfigOverride) (*ChalkClientImpl, error) {
 	if configOverride == nil {
-		configOverride = &auth.ProjectAuthConfigOverride{}
+		configOverride = &auth2.ProjectAuthConfigOverride{}
 	}
-	projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigForWD()
+	// TODO: Check error here
+	projectAuthConfigFromFile, _, _ := auth2.LoadAuthConfig().GetProjectAuthConfigForWD()
 
 	apiServerOverride := getChalkClientArgConfig(configOverride.ApiServer)
 	clientIdOverride := getChalkClientArgConfig(configOverride.ClientId)
 	clientSecretOverride := getChalkClientArgConfig(configOverride.ClientSecret)
 	environmentIdOverride := getChalkClientArgConfig(configOverride.EnvironmentId)
 
-	apiServerEnvVarConfig := getEnvVarConfig(apiServerEnvVarKey)
-	clientIdEnvVarConfig := getEnvVarConfig(clientIdEnvVarKey)
-	clientSecretEnvVarConfig := getEnvVarConfig(clientSecretEnvVarKey)
-	environmentIdEnvVarConfig := getEnvVarConfig(environmentEnvVarKey)
+	apiServerEnvVarConfig := getEnvVarConfig(internal.ApiServerEnvVarKey)
+	clientIdEnvVarConfig := getEnvVarConfig(internal.ClientIdEnvVarKey)
+	clientSecretEnvVarConfig := getEnvVarConfig(internal.ClientSecretEnvVarKey)
+	environmentIdEnvVarConfig := getEnvVarConfig(internal.EnvironmentEnvVarKey)
 
 	apiServerFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
 	clientIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ClientId)
@@ -32,7 +34,12 @@ func getConfiguredClient(configOverride *auth.ProjectAuthConfigOverride) *ChalkC
 		ClientId:      getFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
 		clientSecret:  getFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
 		EnvironmentId: getFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
+		logger:        &DefaultLeveledLogger,
 	}
 
-	return client
+	err := client.refreshJwt(false)
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
 }

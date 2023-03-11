@@ -1,8 +1,7 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/auth"
-	"github.com/chalk-ai/chalk-go/pkg/enum"
+	"github.com/chalk-ai/chalk-go/internal/auth"
 	"net/http"
 	"time"
 )
@@ -15,6 +14,7 @@ type ChalkClientImpl struct {
 	clientSecret config
 	jwt          *auth.JWT
 	httpClient   *http.Client
+	logger       *LeveledLogger
 }
 
 type OnlineQueryParams struct {
@@ -72,8 +72,8 @@ type ChalkErrorResponse struct {
 }
 
 type ChalkServerError struct {
-	Code      enum.ErrorCode
-	Category  enum.ErrorCodeCategory
+	Code      ErrorCode
+	Category  ErrorCodeCategory
 	Message   string
 	Exception *ChalkException
 	Feature   string

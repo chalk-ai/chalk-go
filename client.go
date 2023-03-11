@@ -1,18 +1,16 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"github.com/chalk-ai/chalk-go/internal/auth"
+	"net/http"
 )
 
 type ChalkClient interface {
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse)
+	SetLogger(logger *LeveledLogger)
+	SetHTTPClient(logger *http.Client)
 }
 
 func New(configOverride *auth.ProjectAuthConfigOverride) (ChalkClient, error) {
-	client := getConfiguredClient(configOverride)
-	err := client.refreshJwt(false)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	return getConfiguredClient(configOverride)
 }

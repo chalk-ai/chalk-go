@@ -1,4 +1,6 @@
-package enum
+package chalk
+
+import "github.com/chalk-ai/chalk-go/internal"
 
 type ErrorCodeCategory struct {
 	Value string
@@ -16,4 +18,4 @@ var allErrorCodeCategories = map[string]ErrorCodeCategory{
 	Network.Value: Network,
 }
 
-var GetErrorCodeCategory = generateGetEnumFunction(allErrorCodeCategories, "error code categories")
+var GetErrorCodeCategory = internal.GenerateGetEnumFunction(allErrorCodeCategories, "error code categories")
