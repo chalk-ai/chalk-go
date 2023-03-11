@@ -1,20 +1,8 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/auth"
 	"net/http"
 )
-
-type chalkClientImpl struct {
-	ApiServer     config
-	ClientId      config
-	EnvironmentId config
-
-	clientSecret config
-	jwt          *auth.JWT
-	httpClient   *http.Client
-	logger       *LeveledLogger
-}
 
 type onlineQueryRequestSerialized struct {
 	Inputs         map[string]any     `json:"inputs,string"`

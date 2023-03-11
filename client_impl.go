@@ -1,5 +1,21 @@
 package chalk
 
+import (
+	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"net/http"
+)
+
+type chalkClientImpl struct {
+	ApiServer     config
+	ClientId      config
+	EnvironmentId config
+
+	clientSecret config
+	jwt          *auth.JWT
+	httpClient   *http.Client
+	logger       *LeveledLogger
+}
+
 // OnlineQuery computes features values using online resolvers.
 // See https://docs.chalk.ai/docs/query-basics for more information.
 func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
