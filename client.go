@@ -38,23 +38,23 @@ type ClientConfig struct {
 	HTTPClient *http.Client
 }
 
-// New creates a Client with authentication settings configured.
+// NewClient creates a Client with authentication settings configured.
 // These settings can be overriden by passing in a ClientConfig
-// object. Otherwise, for each configuration variable, New uses its
+// object. Otherwise, for each configuration variable, NewClient uses its
 // corresponding environment variable if it exists. The environment variables
-// that New looks for are:
+// that NewClient looks for are:
 //
 //	CHALK_ACTIVE_ENVIRONMENT
 //	CHALK_API_SERVER
 //	CHALK_CLIENT_ID
 //	CHALK_CLIENT_SECRET
 //
-// For each config variable, if it is still not found, New will look for a
+// For each config variable, if it is still not found, NewClient will look for a
 // `~/.chalk.yml` file, which is updated when you run `chalk login`.
 // If a configuration for the specific project directory if found,
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
-func New(config *ClientConfig) (Client, error) {
+func NewClient(config *ClientConfig) (Client, error) {
 	c := getConfiguredClient(config)
 	err := c.refreshJwt(false)
 	if config.Logger != nil {
