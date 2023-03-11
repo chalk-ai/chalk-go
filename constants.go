@@ -1,4 +1,4 @@
-package client
+package chalk
 
 const environmentEnvVarKey = "_CHALK_ACTIVE_ENVIRONMENT"
 const apiServerEnvVarKey = "_CHALK_API_SERVER"

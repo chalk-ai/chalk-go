@@ -1,4 +1,4 @@
-package client
+package chalk
 
 import (
 	"github.com/chalk-ai/chalk-go/pkg/auth"

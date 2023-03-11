@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -19,13 +18,11 @@ func (cfg AuthConfig) GetProjectAuthConfigForWD() (*ProjectAuthConfig, string, e
 	}
 	tokens := *cfg.Tokens
 	if token, ok := tokens[getwd]; ok {
-		logrus.Debug("Found directory-scoped config")
 		path = getwd
 		tok = token
 	}
 
 	if token, ok := tokens["default"]; ok && tok == nil {
-		logrus.Debug("Found default config")
 		path = "default"
 		tok = token
 	}

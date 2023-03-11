@@ -1,4 +1,4 @@
-package client
+package chalk
 
 import (
 	"fmt"

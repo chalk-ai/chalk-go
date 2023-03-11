@@ -1,13 +1,17 @@
-package client
+package chalk
 
 import (
 	"github.com/chalk-ai/chalk-go/pkg/auth"
+	"net/http"
 )
 
 // ChalkClient is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type ChalkClient interface {
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse)
+
+	SetLogger(logger *LeveledLogger)
+	SetHTTPClient(client *http.Client)
 }
 
 // New creates a ChalkClient with authentication settings configured.
@@ -27,10 +31,10 @@ type ChalkClient interface {
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
 func New(configOverride *auth.ProjectAuthConfigOverride) (ChalkClient, error) {
-	client := getConfiguredClient(configOverride)
-	err := client.refreshJwt(false)
+	c := getConfiguredClient(configOverride)
+	err := c.refreshJwt(false)
 	if err != nil {
 		return nil, err
 	}
-	return client, nil
+	return c, nil
 }

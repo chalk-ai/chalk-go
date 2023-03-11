@@ -1,11 +1,10 @@
-package client
+package chalk
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/pkg/project"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/url"
@@ -41,7 +40,7 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 	if !args.DontRefresh {
 		upsertJwtErr := c.refreshJwt(false)
 		if upsertJwtErr != nil {
-			logrus.Debug(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
+			(*c.logger).Debugf(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
 		}
 	}
 	if c.jwt != nil && c.jwt.Token != "" {
@@ -56,13 +55,13 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 		}
 	}
 
-	logrus.Debug("Sending request to ", request.URL)
+	(*c.logger).Debugf("Sending request to ", request.URL)
 	res, err := c.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
 
-	logrus.Debug("Response Status: ", res.Status)
+	(*c.logger).Debugf("Response Status: ", res.Status)
 	defer res.Body.Close()
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
@@ -73,12 +72,11 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	if res.StatusCode != 200 {
-		clientError := getHttpError(*res, *request)
+		clientError := getHttpError(c.logger, *res, *request)
 		return &clientError
 	}
 
 	out, _ := io.ReadAll(res.Body)
-	logrus.Trace("Body: ", string(out))
 	err = json.Unmarshal(out, &args.Response)
 
 	return err
@@ -87,7 +85,7 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 func (c *chalkClientImpl) retryRequest(originalRequest http.Request, originalBodyBytes []byte, originalResponse *http.Response, originalError error) (*http.Response, error) {
 	upsertJwtUpon401Err := c.refreshJwt(true)
 	if upsertJwtUpon401Err != nil {
-		logrus.Debug(fmt.Sprintf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error()))
+		(*c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
 		return originalResponse, originalError
 	}
 
@@ -106,16 +104,16 @@ func (c *chalkClientImpl) retryRequest(originalRequest http.Request, originalBod
 	if err != nil {
 		return nil, err
 	}
-	logrus.Debug("Response Status for retried request: ", res.Status)
+	(*c.logger).Debugf("Response Status for retried request: ", res.Status)
 
 	return res, nil
 }
 
-func getHttpError(res http.Response, req http.Request) ChalkHttpError {
+func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) ChalkHttpError {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
-	logrus.Debug("API error response", err, errorResponse, string(out))
+	(*logger).Errorf("API error response", err, errorResponse, string(out))
 
 	clientError := ChalkHttpError{
 		Message:       "Unknown Chalk Server Error",

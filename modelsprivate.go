@@ -1,4 +1,4 @@
-package client
+package chalk
 
 import (
 	"github.com/chalk-ai/chalk-go/pkg/auth"
@@ -13,6 +13,7 @@ type chalkClientImpl struct {
 	clientSecret config
 	jwt          *auth.JWT
 	httpClient   *http.Client
+	logger       *LeveledLogger
 }
 
 type onlineQueryRequestSerialized struct {
