@@ -158,7 +158,7 @@ type ChalkErrorResponse struct {
 	// Errors that occurred in Chalk's server.
 	ServerErrors []ChalkServerError
 
-	// Errors that occurred in ChalkClient or its dependencies.
+	// Errors that occurred in Client or its dependencies.
 	ClientError *ChalkClientError
 
 	// Errors that are standard HTTP errors such as missing authorization.
@@ -206,7 +206,7 @@ type ChalkHttpError struct {
 	Trace *string
 }
 
-// ChalkClientError is an error that occurred in ChalkClient or its dependencies.
+// ChalkClientError is an error that occurred in Client or its dependencies.
 type ChalkClientError struct {
 	Message string
 }

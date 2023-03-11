@@ -4,9 +4,9 @@ import (
 	"net/http"
 )
 
-// ChalkClient is the primary interface for interacting with Chalk. You can use
+// Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
-type ChalkClient interface {
+type Client interface {
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse)
 }
 
@@ -38,7 +38,7 @@ type ClientConfig struct {
 	HTTPClient *http.Client
 }
 
-// New creates a ChalkClient with authentication settings configured.
+// New creates a Client with authentication settings configured.
 // These settings can be overriden by passing in a ClientConfig
 // object. Otherwise, for each configuration variable, New uses its
 // corresponding environment variable if it exists. The environment variables
@@ -54,7 +54,7 @@ type ClientConfig struct {
 // If a configuration for the specific project directory if found,
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
-func New(config *ClientConfig) (ChalkClient, error) {
+func New(config *ClientConfig) (Client, error) {
 	c := getConfiguredClient(config)
 	err := c.refreshJwt(false)
 	if config.Logger != nil {
