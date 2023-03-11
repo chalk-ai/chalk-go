@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/pkg/auth"
-	"github.com/chalk-ai/chalk-go/pkg/project"
+	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/chalk-ai/chalk-go/internal/project"
 	"io"
 	"net/http"
 	"net/url"
@@ -15,12 +15,12 @@ import (
 )
 
 type clientImpl struct {
-	ApiServer     auth.SourcedConfig
-	ClientId      auth.SourcedConfig
-	EnvironmentId auth.SourcedConfig
+	ApiServer     auth2.SourcedConfig
+	ClientId      auth2.SourcedConfig
+	EnvironmentId auth2.SourcedConfig
 
-	clientSecret auth.SourcedConfig
-	jwt          *auth.JWT
+	clientSecret auth2.SourcedConfig
+	jwt          *auth2.JWT
 	httpClient   *http.Client
 	logger       *LeveledLogger
 }
@@ -65,7 +65,7 @@ func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, 
 	return response, nil
 }
 
-func (c *clientImpl) getJwt() (*auth.JWT, *ClientError) {
+func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
 		ClientSecret: c.clientSecret.Value,
@@ -93,7 +93,7 @@ func (c *clientImpl) getJwt() (*auth.JWT, *ClientError) {
 	}
 
 	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
-	jwt := &auth.JWT{
+	jwt := &auth2.JWT{
 		Token:      response.AccessToken,
 		ValidUntil: expiry,
 	}
@@ -243,30 +243,30 @@ func newClientImpl(
 	if configOverride == nil {
 		configOverride = &ClientConfig{}
 	}
-	projectAuthConfigFromFile, _, _ := auth.LoadAuthConfig().GetProjectAuthConfigForWD()
+	projectAuthConfigFromFile, _, _ := auth2.LoadAuthConfig().GetProjectAuthConfigForWD()
 
-	apiServerOverride := auth.GetChalkClientArgConfig(configOverride.ApiServer)
-	clientIdOverride := auth.GetChalkClientArgConfig(configOverride.ClientId)
-	clientSecretOverride := auth.GetChalkClientArgConfig(configOverride.ClientSecret)
-	environmentIdOverride := auth.GetChalkClientArgConfig(configOverride.EnvironmentId)
+	apiServerOverride := auth2.GetChalkClientArgConfig(configOverride.ApiServer)
+	clientIdOverride := auth2.GetChalkClientArgConfig(configOverride.ClientId)
+	clientSecretOverride := auth2.GetChalkClientArgConfig(configOverride.ClientSecret)
+	environmentIdOverride := auth2.GetChalkClientArgConfig(configOverride.EnvironmentId)
 
-	apiServerEnvVarConfig := auth.GetEnvVarConfig(internal.ApiServerEnvVarKey)
-	clientIdEnvVarConfig := auth.GetEnvVarConfig(internal.ClientIdEnvVarKey)
-	clientSecretEnvVarConfig := auth.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
-	environmentIdEnvVarConfig := auth.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
+	apiServerEnvVarConfig := auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey)
+	clientIdEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey)
+	clientSecretEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
+	environmentIdEnvVarConfig := auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
 
-	apiServerFileConfig := auth.GetChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
-	clientIdFileConfig := auth.GetChalkYamlConfig(projectAuthConfigFromFile.ClientId)
-	clientSecretFileConfig := auth.GetChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
-	environmentIdFileConfig := auth.GetChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
+	apiServerFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
+	clientIdFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ClientId)
+	clientSecretFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
+	environmentIdFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
 
 	client := &clientImpl{
 		httpClient:    configOverride.HTTPClient,
 		logger:        configOverride.Logger,
-		ApiServer:     auth.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
-		ClientId:      auth.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
-		clientSecret:  auth.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
-		EnvironmentId: auth.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
+		ApiServer:     auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
+		ClientId:      auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
+		clientSecret:  auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
+		EnvironmentId: auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
 	}
 
 	if client.logger == nil {

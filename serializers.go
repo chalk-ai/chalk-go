@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"strconv"
 	"time"
 )
@@ -124,12 +123,12 @@ func (e *ServerError) serialize() (chalkErrorSerialized, error) {
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
-	errorCode, getErrorCodeErr := enum.GetErrorCode(e.Code)
+	errorCode, getErrorCodeErr := getErrorCode(e.Code)
 	if getErrorCodeErr != nil {
 		return ServerError{}, getErrorCodeErr
 	}
 
-	errorCodeCategory, getCategoryErr := enum.GetErrorCodeCategory(e.Category)
+	errorCodeCategory, getCategoryErr := GetErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
 		return ServerError{}, getCategoryErr
 	}
@@ -158,3 +157,30 @@ func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error
 	}
 	return deserializedErrors, nil
 }
+
+var getErrorCode = internal.GenerateGetEnumFunction(
+	map[string]ErrorCode{
+		ParseFailed.Value:         ParseFailed,
+		ResolverTimedOut.Value:    ResolverTimedOut,
+		ResolverNotFound.Value:    ResolverNotFound,
+		InvalidQuery.Value:        InvalidQuery,
+		ValidationFailed.Value:    ValidationFailed,
+		ResolverFailed.Value:      ResolverFailed,
+		UpstreamFailed.Value:      UpstreamFailed,
+		Unauthenticated.Value:     Unauthenticated,
+		Unauthorized.Value:        Unauthorized,
+		InternalServerError.Value: InternalServerError,
+		Cancelled.Value:           Cancelled,
+		DeadlineExceeded.Value:    DeadlineExceeded,
+	},
+	"error codes",
+)
+
+var GetErrorCodeCategory = internal.GenerateGetEnumFunction(
+	map[string]ErrorCodeCategory{
+		Request.Value: Request,
+		Field.Value:   Field,
+		Network.Value: Network,
+	},
+	"error code categories",
+)

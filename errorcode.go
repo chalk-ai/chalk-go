@@ -1,4 +1,4 @@
-package enum
+package chalk
 
 // ErrorCode indicates the type of error occurred
 type ErrorCode struct {
@@ -42,20 +42,3 @@ var (
 	// DeadlineExceeded indicates the deadline expired before the operation could complete.
 	DeadlineExceeded = ErrorCode{"DEADLINE_EXCEEDED"}
 )
-
-var allErrorCodes = map[string]ErrorCode{
-	ParseFailed.Value:         ParseFailed,
-	ResolverTimedOut.Value:    ResolverTimedOut,
-	ResolverNotFound.Value:    ResolverNotFound,
-	InvalidQuery.Value:        InvalidQuery,
-	ValidationFailed.Value:    ValidationFailed,
-	ResolverFailed.Value:      ResolverFailed,
-	UpstreamFailed.Value:      UpstreamFailed,
-	Unauthenticated.Value:     Unauthenticated,
-	Unauthorized.Value:        Unauthorized,
-	InternalServerError.Value: InternalServerError,
-	Cancelled.Value:           Cancelled,
-	DeadlineExceeded.Value:    DeadlineExceeded,
-}
-
-var GetErrorCode = generateGetEnumFunction(allErrorCodes, "error codes")

@@ -67,10 +67,10 @@ type getTokenResponse struct {
 }
 
 type chalkErrorSerialized struct {
-	Code      string          `json:"code"`
-	Category  string          `json:"category"`
-	Message   string          `json:"message"`
-	Exception *ChalkException `json:"exception"`
-	Feature   string          `json:"feature"`
-	Resolver  string          `json:"resolver"`
+	Code      string             `json:"code"`
+	Category  string             `json:"category"`
+	Message   string             `json:"message"`
+	Exception *ResolverException `json:"exception"`
+	Feature   string             `json:"feature"`
+	Resolver  string             `json:"resolver"`
 }

@@ -1,11 +1,11 @@
-package enum
+package internal
 
 import (
 	"errors"
 	"fmt"
 )
 
-func generateGetEnumFunction[K comparable](valueToEnum map[string]K, enumName string) func(string) (*K, error) {
+func GenerateGetEnumFunction[K comparable](valueToEnum map[string]K, enumName string) func(string) (*K, error) {
 	return func(value string) (*K, error) {
 		enum, found := valueToEnum[value]
 		if !found {

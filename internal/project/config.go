@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-var DefaultRequirements = "requirements.txt"
-var ChalkIgnore = ".chalkignore"
+var defaultRequirements = "requirements.txt"
+var chalkIgnore = ".chalkignore"
 
 func LoadProjectConfig() (*ProjectSettings, error) {
 	wd, err := os.Getwd()
@@ -43,7 +43,7 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 	}
 
 	hasDefaultRequirements := false
-	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
+	defaultRequirementsFilename := filepath.Join(directory, defaultRequirements)
 	if internal.FileExists(defaultRequirementsFilename) {
 		hasDefaultRequirements = true
 	}
@@ -63,11 +63,11 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 	}
 	for _, env := range settings.Environments {
 		if (env.Requirements == nil || *env.Requirements == "") && hasDefaultRequirements {
-			env.Requirements = &DefaultRequirements
+			env.Requirements = &defaultRequirements
 		}
 	}
 
-	chalkignoreFilename := filepath.Join(directory, ChalkIgnore)
+	chalkignoreFilename := filepath.Join(directory, chalkIgnore)
 	if internal.FileExists(chalkignoreFilename) {
 		settings.ChalkIgnore = &chalkignoreFilename
 	}

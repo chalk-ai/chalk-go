@@ -1,7 +1,6 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"time"
 )
 
@@ -143,7 +142,7 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
-type ChalkException struct {
+type ResolverException struct {
 	// The name of the class of the exception.
 	Kind string `json:"kind"`
 
@@ -169,17 +168,17 @@ type ErrorResponse struct {
 // for example, when a resolver unexpectedly fails to run.
 type ServerError struct {
 	// The type of the error.
-	Code enum.ErrorCode
+	Code ErrorCode
 
 	// The category of the error, given in the type field for the error codes.
 	// This will be one of "REQUEST", "NETWORK", and "FIELD".
-	Category enum.ErrorCodeCategory
+	Category ErrorCodeCategory
 
 	// A readable description of the error message.
 	Message string
 
 	// The exception that caused the failure, if applicable.
-	Exception *ChalkException
+	Exception *ResolverException
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
 	Feature string
