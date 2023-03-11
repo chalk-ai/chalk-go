@@ -82,7 +82,10 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 	return err
 }
 
-func (c *chalkClientImpl) retryRequest(originalRequest http.Request, originalBodyBytes []byte, originalResponse *http.Response, originalError error) (*http.Response, error) {
+func (c *chalkClientImpl) retryRequest(
+	originalRequest http.Request, originalBodyBytes []byte,
+	originalResponse *http.Response, originalError error,
+) (*http.Response, error) {
 	upsertJwtUpon401Err := c.refreshJwt(true)
 	if upsertJwtUpon401Err != nil {
 		(*c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())

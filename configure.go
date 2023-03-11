@@ -30,7 +30,7 @@ func getConfiguredClient(
 	environmentIdFileConfig := getChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
 
 	client := &chalkClientImpl{
-		httpClient:    configOverride.Client,
+		httpClient:    configOverride.HTTPClient,
 		logger:        configOverride.Logger,
 		ApiServer:     getFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
 		ClientId:      getFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),

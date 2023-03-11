@@ -15,8 +15,27 @@ type ClientConfig struct {
 	ClientSecret  string
 	ApiServer     string
 	EnvironmentId string
-	Logger        *LeveledLogger
-	Client        *http.Client
+
+	// Logger is the logger that the backend will use to log errors,
+	// warnings, and informational messages.
+	//
+	// LeveledLogger is implemented by StdOutLeveledLogger, and one can be
+	// initialized at the desired level of logging.  LeveledLogger
+	// also provides out-of-the-box compatibility with a Logrus Logger, but may
+	// require a thin shim for use with other logging libraries that use less
+	// standard conventions like Zap.
+	//
+	// Defaults to DefaultLeveledLogger.
+	//
+	// To set a logger that logs nothing, set this to a chalk.LeveledLogger
+	// with a Level of LevelNull (simply setting this field to nil will not
+	// work).
+	Logger *LeveledLogger
+
+	// HTTPClient is an HTTP client instance to use when making API requests.
+	//
+	// If left unset, it'll be set to a default HTTP client for the package.
+	HTTPClient *http.Client
 }
 
 // New creates a ChalkClient with authentication settings configured.
