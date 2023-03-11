@@ -1,7 +1,5 @@
 package chalk
 
-import "net/http"
-
 // OnlineQuery computes features values using online resolvers.
 // See https://docs.chalk.ai/docs/query-basics for more information.
 func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
@@ -40,12 +38,4 @@ func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryRes
 	}
 
 	return response, nil
-}
-
-func (c *chalkClientImpl) SetLogger(logger *LeveledLogger) {
-	c.logger = logger
-}
-
-func (c *chalkClientImpl) SetHTTPClient(client *http.Client) {
-	c.httpClient = client
 }
