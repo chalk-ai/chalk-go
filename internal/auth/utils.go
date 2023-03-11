@@ -9,9 +9,9 @@ import (
 
 var authConfigFileName = ".chalk.yml"
 
-func getDefaultAuthConfig() AuthConfig {
-	m := make(map[string]*ProjectAuthConfig)
-	return AuthConfig{
+func getDefaultAuthConfig() ProjectTokens {
+	m := make(map[string]*ProjectToken)
+	return ProjectTokens{
 		Tokens: &m,
 	}
 }
@@ -29,7 +29,7 @@ func GetConfigPath() (*string, error) {
 	return &path, nil
 }
 
-func LoadAuthConfig() AuthConfig {
+func LoadAuthConfig() ProjectTokens {
 	path, err := GetConfigPath()
 	if err != nil || path == nil {
 		return getDefaultAuthConfig()
@@ -41,7 +41,7 @@ func LoadAuthConfig() AuthConfig {
 		return getDefaultAuthConfig()
 	}
 
-	config := AuthConfig{}
+	config := ProjectTokens{}
 	err = yaml.Unmarshal(data, &config)
 
 	if err != nil {
