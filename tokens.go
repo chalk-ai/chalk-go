@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (c *chalkClientImpl) getJwt() (*auth.JWT, *ChalkClientError) {
+func (c *clientImpl) getJwt() (*auth.JWT, *ChalkClientError) {
 	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
 		ClientSecret: c.clientSecret.Value,
@@ -41,7 +41,7 @@ func (c *chalkClientImpl) getJwt() (*auth.JWT, *ChalkClientError) {
 	return jwt, nil
 }
 
-func (c *chalkClientImpl) refreshJwt(forceRefresh bool) *ChalkClientError {
+func (c *clientImpl) refreshJwt(forceRefresh bool) *ChalkClientError {
 	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
 		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
 		return nil

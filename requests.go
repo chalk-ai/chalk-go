@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
+func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	jsonBytes, jsonErr := json.Marshal(args.Body)
 	if jsonErr != nil {
 		return jsonErr
@@ -82,7 +82,7 @@ func (c *chalkClientImpl) sendRequest(args sendRequestParams) error {
 	return err
 }
 
-func (c *chalkClientImpl) retryRequest(
+func (c *clientImpl) retryRequest(
 	originalRequest http.Request, originalBodyBytes []byte,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-type chalkClientImpl struct {
+type clientImpl struct {
 	ApiServer     config
 	ClientId      config
 	EnvironmentId config
@@ -18,7 +18,7 @@ type chalkClientImpl struct {
 
 // OnlineQuery computes features values using online resolvers.
 // See https://docs.chalk.ai/docs/query-basics for more information.
-func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
+func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
