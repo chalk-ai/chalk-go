@@ -40,8 +40,8 @@ func (c *chalkClientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryRes
 	return response, nil
 }
 
-func (c *chalkClientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ChalkErrorResponse) {
-	emptyResult := TriggerResolverRunResult{}
-
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "/v1/runs/trigger", Body: request})
-}
+//func (c *chalkClientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ChalkErrorResponse) {
+//	emptyResult := TriggerResolverRunResult{}
+//
+//	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "/v1/runs/trigger", Body: request})
+//}
