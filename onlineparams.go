@@ -75,6 +75,9 @@ func (p OnlineQueryParams) WithStaleness(feature string, duration time.Duration)
 }
 
 func (p OnlineQueryParams) withInput(feature string, value any) OnlineQueryParams {
+	if p.Inputs == nil {
+		p.Inputs = make(map[string]any)
+	}
 	p.Inputs[feature] = value
 	return p
 }
