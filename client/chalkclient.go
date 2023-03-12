@@ -8,6 +8,7 @@ import (
 // it to query data, trigger resolver runs, gather offline data, and more.
 type ChalkClient interface {
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ChalkErrorResponse)
+	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ChalkErrorResponse)
 }
 
 // New creates a ChalkClient with authentication settings configured.
