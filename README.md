@@ -32,6 +32,14 @@ Alternatively, you can also explicitly `go get` the package into a project:
 go get -u github.com/chalk-ai/chalk-go
 ```
 
+## Quickstart
+
+```go
+client := chalk.Client()
+```
+
+
+
 ## Configuring Logging
 
 By default, Chalk logs error messages only (which are sent to `stderr`).

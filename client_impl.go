@@ -237,18 +237,20 @@ func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HT
 }
 
 func newClientImpl(
-	configOverride *ClientConfig,
+	cfgs ...*ClientConfig,
 ) (*clientImpl, error) {
-
-	if configOverride == nil {
-		configOverride = &ClientConfig{}
+	var cfg = (*ClientConfig)(nil)
+	if len(cfgs) == 0 {
+		cfg = &ClientConfig{}
+	} else {
+		cfg = cfgs[len(cfgs)]
 	}
 	projectAuthConfigFromFile, _, _ := auth2.LoadAuthConfig().GetProjectAuthConfigForWD()
 
-	apiServerOverride := auth2.GetChalkClientArgConfig(configOverride.ApiServer)
-	clientIdOverride := auth2.GetChalkClientArgConfig(configOverride.ClientId)
-	clientSecretOverride := auth2.GetChalkClientArgConfig(configOverride.ClientSecret)
-	environmentIdOverride := auth2.GetChalkClientArgConfig(configOverride.EnvironmentId)
+	apiServerOverride := auth2.GetChalkClientArgConfig(cfg.ApiServer)
+	clientIdOverride := auth2.GetChalkClientArgConfig(cfg.ClientId)
+	clientSecretOverride := auth2.GetChalkClientArgConfig(cfg.ClientSecret)
+	environmentIdOverride := auth2.GetChalkClientArgConfig(cfg.EnvironmentId)
 
 	apiServerEnvVarConfig := auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey)
 	clientIdEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey)
@@ -261,8 +263,8 @@ func newClientImpl(
 	environmentIdFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
 
 	client := &clientImpl{
-		httpClient:    configOverride.HTTPClient,
-		logger:        configOverride.Logger,
+		httpClient:    cfg.HTTPClient,
+		logger:        cfg.Logger,
 		ApiServer:     auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
 		ClientId:      auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
 		clientSecret:  auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
@@ -278,8 +280,8 @@ func newClientImpl(
 	}
 
 	err := client.refreshJwt(false)
-	if configOverride.Logger != nil {
-		client.logger = configOverride.Logger
+	if cfg.Logger != nil {
+		client.logger = cfg.Logger
 	}
 	if err != nil {
 		return nil, err
