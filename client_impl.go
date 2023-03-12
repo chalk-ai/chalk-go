@@ -27,7 +27,7 @@ type clientImpl struct {
 
 // OnlineQuery computes features values using online resolvers.
 // See https://docs.chalk.ai/docs/query-basics for more information.
-func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQuery(request OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
