@@ -243,7 +243,7 @@ func newClientImpl(
 	if len(cfgs) == 0 {
 		cfg = &ClientConfig{}
 	} else {
-		cfg = cfgs[len(cfgs)]
+		cfg = cfgs[len(cfgs)-1]
 	}
 	projectAuthConfigFromFile, _, _ := auth2.LoadAuthConfig().GetProjectAuthConfigForWD()
 
