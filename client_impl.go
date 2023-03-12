@@ -27,7 +27,8 @@ type clientImpl struct {
 
 // OnlineQuery computes features values using online resolvers.
 // See https://docs.chalk.ai/docs/query-basics for more information.
-func (c *clientImpl) OnlineQuery(request OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ErrorResponse) {
+	//request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
@@ -237,11 +238,11 @@ func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HT
 }
 
 func newClientImpl(
-	cfgs ...*ClientConfig,
+	cfgs ...ClientConfig,
 ) (*clientImpl, error) {
-	var cfg = (*ClientConfig)(nil)
+	var cfg ClientConfig
 	if len(cfgs) == 0 {
-		cfg = &ClientConfig{}
+		cfg = ClientConfig{}
 	} else {
 		cfg = cfgs[len(cfgs)-1]
 	}

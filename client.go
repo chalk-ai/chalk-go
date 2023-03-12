@@ -7,7 +7,7 @@ import (
 // Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
-	OnlineQuery(args OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse)
+	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ErrorResponse)
 }
 
 type ClientConfig struct {
@@ -54,6 +54,6 @@ type ClientConfig struct {
 // If a configuration for the specific project directory if found,
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
-func NewClient(config ...*ClientConfig) (Client, error) {
+func NewClient(config ...ClientConfig) (Client, error) {
 	return newClientImpl(config...)
 }

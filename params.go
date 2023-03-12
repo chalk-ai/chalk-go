@@ -28,27 +28,27 @@ import "time"
 // Otherwise, an incomplete type will be returned, and it cannot
 // be passed into Client.OnlineQuery.
 type OnlineQueryParamsComplete struct {
-	params OnlineQueryParams
+	underlying OnlineQueryParams
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithInput(feature string, value any) OnlineQueryParamsComplete {
-	p.params = p.params.withInput(feature, value)
+	p.underlying = p.underlying.withInput(feature, value)
 	return p
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithOutputs(features ...string) OnlineQueryParamsComplete {
-	p.params = p.params.withOutputs(features...)
+	p.underlying = p.underlying.withOutputs(features...)
 	return p
 }
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithStaleness(feature string, duration time.Duration) OnlineQueryParamsComplete {
-	p.params = p.params.withStaleness(feature, duration)
+	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
 
@@ -59,13 +59,13 @@ func (p OnlineQueryParamsComplete) WithStaleness(feature string, duration time.D
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
 // For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
 func (p OnlineQueryParams) WithInput(feature string, value any) onlineQueryParamsWithInputs {
-	return onlineQueryParamsWithInputs{params: p.withInput(feature, value)}
+	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithOutputs(features ...string) onlineQueryParamsWithOutputs {
-	return onlineQueryParamsWithOutputs{params: p.withOutputs(features...)}
+	return onlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
 }
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
@@ -96,26 +96,26 @@ func (p OnlineQueryParams) withStaleness(feature string, duration time.Duration)
 *********************************************/
 
 type onlineQueryParamsWithInputs struct {
-	params OnlineQueryParams
+	underlying OnlineQueryParams
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithInputs) WithInput(feature string, value any) onlineQueryParamsWithInputs {
-	p.params = p.params.withInput(feature, value)
+	p.underlying = p.underlying.withInput(feature, value)
 	return p
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithInputs) WithOutputs(features ...string) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.params.withOutputs(features...)}
+	return OnlineQueryParamsComplete{p.underlying.withOutputs(features...)}
 }
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithInputs) WithStaleness(feature string, duration time.Duration) onlineQueryParamsWithInputs {
-	p.params = p.params.withStaleness(feature, duration)
+	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
 
@@ -124,25 +124,25 @@ func (p onlineQueryParamsWithInputs) WithStaleness(feature string, duration time
 *********************************************/
 
 type onlineQueryParamsWithOutputs struct {
-	params OnlineQueryParams
+	underlying OnlineQueryParams
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithOutputs) WithInput(feature string, value any) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.params.withInput(feature, value)}
+	return OnlineQueryParamsComplete{p.underlying.withInput(feature, value)}
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithOutputs) WithOutputs(features ...string) onlineQueryParamsWithOutputs {
-	p.params = p.params.withOutputs(features...)
+	p.underlying = p.underlying.withOutputs(features...)
 	return p
 }
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithOutputs) WithStaleness(feature string, duration time.Duration) onlineQueryParamsWithOutputs {
-	p.params = p.params.withStaleness(feature, duration)
+	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
