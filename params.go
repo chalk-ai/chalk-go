@@ -22,7 +22,7 @@ import "time"
 //	 		WithOutputs(Features.User.Email, Features.User.Card.Id),
 //		)
 //
-// [OnlineQueryParams.WithInput] and WithOutputs[OnlineQueryParams.WithOutputs]
+// [OnlineQueryParams.WithInput] and [OnlineQueryParams.WithOutputs]
 // are mandatory methods. This means they must each be called at
 // least once for OnlineQueryParamsComplete to be returned.
 // Otherwise, an incomplete type will be returned, and it cannot
