@@ -7,7 +7,7 @@ import "time"
 ******************************************/
 
 // OnlineQueryParamsComplete is the only type of object
-// accepted as an argument to [Client.OnlineQuery].
+// accepted as an argument to Client.OnlineQuery.
 // OnlineQueryParamsComplete is obtained by calling a chain
 // of methods starting with any method of [OnlineQueryParams].
 //
