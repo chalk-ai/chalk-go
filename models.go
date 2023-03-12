@@ -6,6 +6,10 @@ import (
 
 // OnlineQueryParams defines the parameters
 // that help you execute an online query.
+// OnlineQueryParams is the starting point
+// of the method chain that can help you
+// obtain an object of type [OnlineQueryParamsComplete]
+// that you can pass into [Client.OnlineQuery].
 type OnlineQueryParams struct {
 	// The features for which there are known values, mapped to those values.
 	Inputs map[string]any
