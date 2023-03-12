@@ -35,6 +35,10 @@ go get -u github.com/chalk-ai/chalk-go
 ## Quickstart
 
 ```go
+import (
+    "github.com/chalk-ai/chalk-go"
+)
+
 client := chalk.Client()
 ```
 
