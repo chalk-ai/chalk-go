@@ -1,14 +1,14 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/enum"
+	"github.com/chalk-ai/chalk-go/internal"
 	"strconv"
 	"time"
 )
 
 func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	context := onlineQueryContext{
-		Environment: stringPointerOrNil(request.EnvironmentId),
+		Environment: internal.StringOrNil(request.EnvironmentId),
 		Tags:        request.Tags,
 	}
 
@@ -19,9 +19,9 @@ func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Staleness:      serializeStaleness(request.Staleness),
 		IncludeMeta:    request.IncludeMeta,
 		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   stringPointerOrNil(request.PreviewDeploymentId),
-		QueryName:      stringPointerOrNil(request.QueryName),
-		CorrelationId:  stringPointerOrNil(request.CorrelationId),
+		DeploymentId:   internal.StringOrNil(request.PreviewDeploymentId),
+		QueryName:      internal.StringOrNil(request.QueryName),
+		CorrelationId:  internal.StringOrNil(request.CorrelationId),
 		Meta:           request.Meta,
 	}
 
@@ -42,7 +42,7 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 		return FeatureResult{}, err
 	}
 
-	var dError *ChalkServerError = nil
+	var dError *ServerError = nil
 	if feature.Error != nil {
 		dErrorObj, err := feature.Error.deserialize()
 		if err != nil {
@@ -101,7 +101,7 @@ func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResu
 	for _, sResult := range results {
 		dResult, dErr := sResult.deserialize()
 		if dErr != nil {
-			return []FeatureResult{}, &ChalkClientError{
+			return []FeatureResult{}, &ClientError{
 				Message: dErr.Error(),
 			}
 		}
@@ -111,7 +111,7 @@ func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResu
 	return deserializedResults, nil
 }
 
-func (e *ChalkServerError) serialize() (chalkErrorSerialized, error) {
+func (e *ServerError) serialize() (chalkErrorSerialized, error) {
 	return chalkErrorSerialized{
 		Code:      e.Code.Value,
 		Category:  e.Category.Value,
@@ -122,18 +122,18 @@ func (e *ChalkServerError) serialize() (chalkErrorSerialized, error) {
 	}, nil
 }
 
-func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
-	errorCode, getErrorCodeErr := enum.GetErrorCode(e.Code)
+func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
+	errorCode, getErrorCodeErr := getErrorCode(e.Code)
 	if getErrorCodeErr != nil {
-		return ChalkServerError{}, getErrorCodeErr
+		return ServerError{}, getErrorCodeErr
 	}
 
-	errorCodeCategory, getCategoryErr := enum.GetErrorCodeCategory(e.Category)
+	errorCodeCategory, getCategoryErr := GetErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
-		return ChalkServerError{}, getCategoryErr
+		return ServerError{}, getCategoryErr
 	}
 
-	return ChalkServerError{
+	return ServerError{
 		Code:      *errorCode,
 		Category:  *errorCodeCategory,
 		Message:   e.Message,
@@ -143,12 +143,12 @@ func (e *chalkErrorSerialized) deserialize() (ChalkServerError, error) {
 	}, nil
 }
 
-func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ChalkServerError, error) {
-	deserializedErrors := make([]ChalkServerError, 0)
+func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error) {
+	deserializedErrors := make([]ServerError, 0)
 	for _, serializedErr := range errors {
 		deserializedError, deserializationFailure := serializedErr.deserialize()
 		if deserializationFailure != nil {
-			return []ChalkServerError{}, &ChalkClientError{
+			return []ServerError{}, &ClientError{
 				Message: deserializationFailure.Error(),
 			}
 		}
@@ -157,3 +157,30 @@ func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ChalkServerError, 
 	}
 	return deserializedErrors, nil
 }
+
+var getErrorCode = internal.GenerateGetEnumFunction(
+	map[string]ErrorCode{
+		ParseFailed.Value:         ParseFailed,
+		ResolverTimedOut.Value:    ResolverTimedOut,
+		ResolverNotFound.Value:    ResolverNotFound,
+		InvalidQuery.Value:        InvalidQuery,
+		ValidationFailed.Value:    ValidationFailed,
+		ResolverFailed.Value:      ResolverFailed,
+		UpstreamFailed.Value:      UpstreamFailed,
+		Unauthenticated.Value:     Unauthenticated,
+		Unauthorized.Value:        Unauthorized,
+		InternalServerError.Value: InternalServerError,
+		Cancelled.Value:           Cancelled,
+		DeadlineExceeded.Value:    DeadlineExceeded,
+	},
+	"error codes",
+)
+
+var GetErrorCodeCategory = internal.GenerateGetEnumFunction(
+	map[string]ErrorCodeCategory{
+		Request.Value: Request,
+		Field.Value:   Field,
+		Network.Value: Network,
+	},
+	"error code categories",
+)

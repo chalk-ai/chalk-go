@@ -1,7 +1,6 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/enum"
 	"time"
 )
 
@@ -59,6 +58,22 @@ type OnlineQueryResult struct {
 	features map[string]FeatureResult
 }
 
+func (result *OnlineQueryResult) GetFeature(feature string) *FeatureResult {
+	featureResult, found := result.features[feature]
+	if !found {
+		return nil
+	}
+	return &featureResult
+}
+
+func (result *OnlineQueryResult) GetFeatureValue(feature string) any {
+	featureResult := result.GetFeature(feature)
+	if featureResult == nil {
+		return nil
+	}
+	return featureResult.Value
+}
+
 type FeatureResult struct {
 	// The name of the feature requested, e.g. 'user.identity.has_voip_phone'.
 	Field string
@@ -80,7 +95,7 @@ type FeatureResult struct {
 
 	// The error encountered in resolving this feature.
 	// If no error occurred, this field is empty.
-	Error *ChalkServerError
+	Error *ServerError
 }
 
 type FeatureResolutionMeta struct {
@@ -147,32 +162,32 @@ type TriggerResolverRunResult struct {
 	Status string `json:"status"`
 }
 
-type ChalkErrorResponse struct {
+type ErrorResponse struct {
 	// Errors that occurred in Chalk's server.
-	ServerErrors []ChalkServerError
+	ServerErrors []ServerError
 
-	// Errors that occurred in ChalkClient or its dependencies.
-	ClientError *ChalkClientError
+	// Errors that occurred in Client or its dependencies.
+	ClientError *ClientError
 
 	// Errors that are standard HTTP errors such as missing authorization.
-	HttpError *ChalkHttpError
+	HttpError *HTTPError
 }
 
-// ChalkServerError is an error that occurred in Chalk's server,
+// ServerError is an error that occurred in Chalk's server,
 // for example, when a resolver unexpectedly fails to run.
-type ChalkServerError struct {
+type ServerError struct {
 	// The type of the error.
-	Code enum.ErrorCode
+	Code ErrorCode
 
 	// The category of the error, given in the type field for the error codes.
 	// This will be one of "REQUEST", "NETWORK", and "FIELD".
-	Category enum.ErrorCodeCategory
+	Category ErrorCodeCategory
 
 	// A readable description of the error message.
 	Message string
 
 	// The exception that caused the failure, if applicable.
-	Exception *ChalkException
+	Exception *ResolverException
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
 	Feature string
@@ -181,7 +196,7 @@ type ChalkServerError struct {
 	Resolver string
 }
 
-type ChalkException struct {
+type ResolverException struct {
 	// The name of the class of the exception.
 	Kind string `json:"kind"`
 
@@ -192,8 +207,8 @@ type ChalkException struct {
 	Stacktrace string `json:"stacktrace"`
 }
 
-// ChalkHttpError is a wrapper around a standard HTTP error such as missing authorization.
-type ChalkHttpError struct {
+// HTTPError is a wrapper around a standard HTTP error such as missing authorization.
+type HTTPError struct {
 	// The URL of the HTTP request made.
 	Path string
 
@@ -210,7 +225,7 @@ type ChalkHttpError struct {
 	Trace *string
 }
 
-// ChalkClientError is an error that occurred in ChalkClient or its dependencies.
-type ChalkClientError struct {
+// ClientError is an error that occurred in Client or its dependencies.
+type ClientError struct {
 	Message string
 }

@@ -1,19 +1,8 @@
-package client
+package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/pkg/auth"
 	"net/http"
 )
-
-type chalkClientImpl struct {
-	ApiServer     config
-	ClientId      config
-	EnvironmentId config
-
-	clientSecret config
-	jwt          *auth.JWT
-	httpClient   *http.Client
-}
 
 type onlineQueryRequestSerialized struct {
 	Inputs         map[string]any     `json:"inputs,string"`
@@ -64,11 +53,6 @@ type sendRequestParams struct {
 	DontRefresh bool
 }
 
-type config struct {
-	Value  string
-	Source string
-}
-
 type getTokenRequest struct {
 	ClientId     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
@@ -83,10 +67,10 @@ type getTokenResponse struct {
 }
 
 type chalkErrorSerialized struct {
-	Code      string          `json:"code"`
-	Category  string          `json:"category"`
-	Message   string          `json:"message"`
-	Exception *ChalkException `json:"exception"`
-	Feature   string          `json:"feature"`
-	Resolver  string          `json:"resolver"`
+	Code      string             `json:"code"`
+	Category  string             `json:"category"`
+	Message   string             `json:"message"`
+	Exception *ResolverException `json:"exception"`
+	Feature   string             `json:"feature"`
+	Resolver  string             `json:"resolver"`
 }
