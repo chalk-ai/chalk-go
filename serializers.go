@@ -13,10 +13,10 @@ func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	}
 
 	body := onlineQueryRequestSerialized{
-		Inputs:         p.Inputs,
-		Outputs:        p.Outputs,
+		Inputs:         p.inputs,
+		Outputs:        p.outputs,
 		Context:        context,
-		Staleness:      serializeStaleness(p.Staleness),
+		Staleness:      serializeStaleness(p.staleness),
 		IncludeMeta:    p.IncludeMeta,
 		IncludeMetrics: p.IncludeMetrics,
 		DeploymentId:   internal.StringOrNil(p.PreviewDeploymentId),

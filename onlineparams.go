@@ -47,50 +47,29 @@ func (p OnlineQueryParamsComplete) WithOutputs(features ...string) OnlineQueryPa
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p OnlineQueryParamsComplete) WithStaleness(feature string, duration time.Duration) OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
 
-/********************************************
- Definitions for OnlineQueryParams
-*********************************************/
-
-// WithInput returns a copy of Online Query parameters with the specified inputs added.
-// For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
-func (p OnlineQueryParams) WithInput(feature string, value any) onlineQueryParamsWithInputs {
-	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
-}
-
-// WithOutputs returns a copy of Online Query parameters with the specified outputs added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParams) WithOutputs(features ...string) onlineQueryParamsWithOutputs {
-	return onlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
-}
-
-// WithStaleness returns a copy of Online Query parameters with the specified staleness added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParams) WithStaleness(feature string, duration time.Duration) OnlineQueryParams {
-	return p.withStaleness(feature, duration)
-}
-
 func (p OnlineQueryParams) withInput(feature string, value any) OnlineQueryParams {
-	if p.Inputs == nil {
-		p.Inputs = make(map[string]any)
+	if p.inputs == nil {
+		p.inputs = make(map[string]any)
 	}
-	p.Inputs[feature] = value
+	p.inputs[feature] = value
 	return p
 }
 
 func (p OnlineQueryParams) withOutputs(features ...string) OnlineQueryParams {
 	for _, feature := range features {
-		p.Outputs = append(p.Outputs, feature)
+		p.outputs = append(p.outputs, feature)
 	}
 	return p
 }
 
 func (p OnlineQueryParams) withStaleness(feature string, duration time.Duration) OnlineQueryParams {
-	p.Staleness[feature] = duration
+	p.staleness[feature] = duration
 	return p
 }
 
@@ -117,6 +96,7 @@ func (p onlineQueryParamsWithInputs) WithOutputs(features ...string) OnlineQuery
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p onlineQueryParamsWithInputs) WithStaleness(feature string, duration time.Duration) onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
@@ -145,6 +125,7 @@ func (p onlineQueryParamsWithOutputs) WithOutputs(features ...string) onlineQuer
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p onlineQueryParamsWithOutputs) WithStaleness(feature string, duration time.Duration) onlineQueryParamsWithOutputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
