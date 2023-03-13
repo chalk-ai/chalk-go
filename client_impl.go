@@ -285,7 +285,7 @@ func newClientImpl(
 
 	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
 	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
-	if clientId.Value == "" && clientSecret.Value == "" {
+	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
 		return nil, chalkYamlErr
 	}
 
