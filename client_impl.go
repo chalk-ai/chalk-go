@@ -19,10 +19,11 @@ type clientImpl struct {
 	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
 
-	clientSecret auth2.SourcedConfig
-	jwt          *auth2.JWT
-	httpClient   *http.Client
-	logger       *LeveledLogger
+	clientSecret       auth2.SourcedConfig
+	jwt                *auth2.JWT
+	httpClient         *http.Client
+	logger             *LeveledLogger
+	initialEnvironment auth2.SourcedConfig
 }
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
@@ -99,6 +100,15 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 			c.EnvironmentId.Value,
 			c.EnvironmentId.Source,
 		)}
+	}
+
+	if response.PrimaryEnvironment != "" {
+		c.EnvironmentId = auth2.SourcedConfig{
+			Value:  response.PrimaryEnvironment,
+			Source: "Primary Environment from credentials exchange response",
+		}
+	} else {
+		c.EnvironmentId = c.initialEnvironment
 	}
 
 	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
@@ -295,8 +305,11 @@ func newClientImpl(
 	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
 	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
 
+	apiServer := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
+	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
 	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
 	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
+
 	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
 		return nil, chalkYamlErr
 	}
@@ -306,8 +319,10 @@ func newClientImpl(
 		logger:        cfg.Logger,
 		ClientId:      clientId,
 		clientSecret:  clientSecret,
-		ApiServer:     auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
-		EnvironmentId: auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
+		ApiServer:     apiServer,
+		EnvironmentId: environmentId,
+
+		initialEnvironment: environmentId,
 	}
 
 	if client.logger == nil {
