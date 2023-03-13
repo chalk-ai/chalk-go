@@ -143,7 +143,7 @@ type QueryMeta struct {
 }
 
 type TriggerResolverRunParams struct {
-	// ResolverFqn is the fully qualified name of the resolver to trigger.
+	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
 
 	// EnvironmentId is the environment under which you'd like to query your data.
@@ -155,7 +155,7 @@ type TriggerResolverRunParams struct {
 }
 
 type TriggerResolverRunResult struct {
-	// Id is the ID of the resolver run.
+	// Id is the ID of the offline resolver run.
 	Id string `json:"id"`
 
 	// Status is the current status of the resolver run.
