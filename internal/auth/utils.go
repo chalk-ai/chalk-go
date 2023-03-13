@@ -10,14 +10,7 @@ import (
 
 var authConfigFileName = ".chalk.yml"
 
-func getDefaultAuthConfig() ProjectTokens {
-	m := make(map[string]*ProjectToken)
-	return ProjectTokens{
-		Tokens: &m,
-	}
-}
-
-func GetConfigPath() (*string, error) {
+func getConfigPath() (*string, error) {
 	var err error
 	configDir := os.Getenv("XDG_CONFIG_HOME")
 	if configDir == "" {
@@ -30,8 +23,37 @@ func GetConfigPath() (*string, error) {
 	return &path, nil
 }
 
-func LoadAuthConfig() (*ProjectTokens, *string, error) {
-	path, err := GetConfigPath()
+func getProjectAuthConfigForWD(config ProjectTokens, configPath string) (ProjectToken, error) {
+	getwd, err := os.Getwd()
+	if err != nil {
+		return ProjectToken{}, errors.New(fmt.Sprintf("error determining working directory: %s", err))
+	}
+
+	if config.Tokens == nil {
+		return ProjectToken{}, errors.New(
+			fmt.Sprintf("'tokens' collection does not exist or is empty in the auth config file '%s' -- please try to 'chalk login' again", configPath))
+	}
+
+	var returnToken *ProjectToken = nil
+
+	tokens := *config.Tokens
+	if token, ok := tokens[getwd]; ok {
+		returnToken = token
+	}
+
+	if token, ok := tokens["default"]; ok && returnToken == nil {
+		returnToken = token
+	}
+
+	if returnToken == nil {
+		return ProjectToken{}, errors.New(fmt.Sprintf("working directory '%s' does not exist as a key in the collection 'tokens' in the config file '%s', and the fallback key 'default' is also missing. Please try to 'chalk login' again", getwd, configPath))
+	}
+
+	return *returnToken, nil
+}
+
+func loadAuthConfig() (*ProjectTokens, *string, error) {
+	path, err := getConfigPath()
 	if err != nil || path == nil {
 		return nil, nil, err
 	}
@@ -56,7 +78,7 @@ func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
 			return config
 		}
 	}
-	return SourcedConfig{Source: "default"}
+	return SourcedConfig{Source: "value in '~/.chalk.yml' does not exist or is empty"}
 }
 
 func GetEnvVarConfig(key string) SourcedConfig {
@@ -76,7 +98,7 @@ func GetChalkClientArgConfig(value string) SourcedConfig {
 func GetChalkYamlConfig(value string) SourcedConfig {
 	var path string
 
-	configPath, err := GetConfigPath()
+	configPath, err := getConfigPath()
 	if err != nil {
 		path = "unknown"
 	} else {
