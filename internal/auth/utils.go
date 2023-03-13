@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -9,46 +10,66 @@ import (
 
 var authConfigFileName = ".chalk.yml"
 
-func getDefaultAuthConfig() ProjectTokens {
-	m := make(map[string]*ProjectToken)
-	return ProjectTokens{
-		Tokens: &m,
-	}
-}
-
-func GetConfigPath() (*string, error) {
+func getConfigPath() (*string, error) {
 	var err error
 	configDir := os.Getenv("XDG_CONFIG_HOME")
 	if configDir == "" {
 		configDir, err = os.UserHomeDir()
 		if err != nil {
-			return nil, err
+			return nil, errors.New("error getting home directory")
 		}
 	}
 	path := filepath.Join(configDir, authConfigFileName)
 	return &path, nil
 }
 
-func LoadAuthConfig() ProjectTokens {
-	path, err := GetConfigPath()
+func getProjectAuthConfigForWD(config ProjectTokens, configPath string) (ProjectToken, error) {
+	getwd, err := os.Getwd()
+	if err != nil {
+		return ProjectToken{}, errors.New(fmt.Sprintf("error determining working directory: %s", err))
+	}
+
+	if config.Tokens == nil {
+		return ProjectToken{}, errors.New(
+			fmt.Sprintf("'tokens' collection does not exist or is empty in the auth config file '%s' -- please try to 'chalk login' again", configPath))
+	}
+
+	var returnToken *ProjectToken = nil
+
+	tokens := *config.Tokens
+	if token, ok := tokens[getwd]; ok {
+		returnToken = token
+	}
+
+	if token, ok := tokens["default"]; ok && returnToken == nil {
+		returnToken = token
+	}
+
+	if returnToken == nil {
+		return ProjectToken{}, errors.New(fmt.Sprintf("working directory '%s' does not exist as a key in the collection 'tokens' in the config file '%s', and the fallback key 'default' is also missing. Please try to 'chalk login' again", getwd, configPath))
+	}
+
+	return *returnToken, nil
+}
+
+func loadAuthConfig() (*ProjectTokens, *string, error) {
+	path, err := getConfigPath()
 	if err != nil || path == nil {
-		return getDefaultAuthConfig()
+		return nil, nil, err
 	}
 
 	data, err := os.ReadFile(*path)
-
 	if err != nil {
-		return getDefaultAuthConfig()
+		return nil, path, errors.New(fmt.Sprintf("Error reading auth config file from path '%s': %s", *path, err))
 	}
 
 	config := ProjectTokens{}
 	err = yaml.Unmarshal(data, &config)
-
 	if err != nil {
-		return getDefaultAuthConfig()
+		return nil, path, errors.New(fmt.Sprintf("Error parsing auth config file at path '%s'. Please make sure you have run 'chalk login' successfully. Error details: %s", *path, err))
 	}
 
-	return config
+	return &config, path, nil
 }
 
 func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
@@ -57,7 +78,7 @@ func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
 			return config
 		}
 	}
-	return SourcedConfig{Source: "default"}
+	return SourcedConfig{Source: "value in '~/.chalk.yml' does not exist or is empty"}
 }
 
 func GetEnvVarConfig(key string) SourcedConfig {
@@ -70,14 +91,14 @@ func GetEnvVarConfig(key string) SourcedConfig {
 func GetChalkClientArgConfig(value string) SourcedConfig {
 	return SourcedConfig{
 		value,
-		"New argument",
+		"NewClient argument",
 	}
 }
 
 func GetChalkYamlConfig(value string) SourcedConfig {
 	var path string
 
-	configPath, err := GetConfigPath()
+	configPath, err := getConfigPath()
 	if err != nil {
 		path = "unknown"
 	} else {

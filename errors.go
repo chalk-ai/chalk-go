@@ -5,11 +5,6 @@ import (
 	"strings"
 )
 
-// TODO: Use this to wrap some otherwise untraceable errors
-func wrap(description string, errorToWrap error) *ClientError {
-	return &ClientError{Message: fmt.Sprintf("%s: %s", description, errorToWrap)}
-}
-
 func (e *ErrorResponse) Error() string {
 	if len(e.ServerErrors) > 0 {
 		stringifiedServerErrors := make([]string, 0)
