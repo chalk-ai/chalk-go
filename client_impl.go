@@ -25,7 +25,8 @@ type clientImpl struct {
 	logger       *LeveledLogger
 }
 
-func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
+	request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
 	if request.EnvironmentId == "" {
@@ -259,11 +260,11 @@ func getErrorResponse(err error) *ErrorResponse {
 func newClientImpl(
 	cfgs ...*ClientConfig,
 ) (*clientImpl, error) {
-	var cfg = (*ClientConfig)(nil)
+	var cfg *ClientConfig
 	if len(cfgs) == 0 {
 		cfg = &ClientConfig{}
 	} else {
-		cfg = cfgs[len(cfgs)]
+		cfg = cfgs[len(cfgs)-1]
 	}
 
 	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()

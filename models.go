@@ -6,16 +6,30 @@ import (
 
 // OnlineQueryParams defines the parameters
 // that help you execute an online query.
+// OnlineQueryParams is the starting point
+// of the method chain that can help you
+// obtain an object of type [OnlineQueryParamsComplete]
+// that you can pass into Client.OnlineQuery.
 type OnlineQueryParams struct {
+	/**************
+	 PRIVATE FIELDS
+	***************/
+
 	// The features for which there are known values, mapped to those values.
-	Inputs map[string]any
+	// Set by OnlineQueryParams.WithInput.
+	inputs map[string]any
 
 	// The features that you'd like to compute from the inputs.
-	Outputs []string
+	// Set by OnlineQueryParams.WithOutputs.
+	outputs []string
 
 	// Maximum staleness overrides for any output features or intermediate features.
-	// See https://docs.chalk.ai/docs/query-caching for more information.
-	Staleness map[string]time.Duration
+	// Set by OnlineQueryParams.WithStaleness.
+	staleness map[string]time.Duration
+
+	/*************
+	 PUBLIC FIELDS
+	**************/
 
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
@@ -45,6 +59,25 @@ type OnlineQueryParams struct {
 
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
+}
+
+// WithInput returns a copy of Online Query parameters with the specified inputs added.
+// For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
+func (p OnlineQueryParams) WithInput(feature string, value any) onlineQueryParamsWithInputs {
+	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
+}
+
+// WithOutputs returns a copy of Online Query parameters with the specified outputs added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParams) WithOutputs(features ...string) onlineQueryParamsWithOutputs {
+	return onlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
+}
+
+// WithStaleness returns a copy of Online Query parameters with the specified staleness added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// See https://docs.chalk.ai/docs/query-caching for more information on staleness.
+func (p OnlineQueryParams) WithStaleness(feature string, duration time.Duration) OnlineQueryParams {
+	return p.withStaleness(feature, duration)
 }
 
 // OnlineQueryResult holds the result of an online query.
@@ -120,7 +153,7 @@ type QueryMeta struct {
 	// The id of the deployment that served this query.
 	DeploymentId string `json:"deployment_id"`
 
-	// The id of the environment that served this query. Not intended to be human readable,
+	// The id of the environment that served this query. Not intended to be human-readable,
 	// but helpful for support.
 	EnvironmentId string `json:"environment_id"`
 

@@ -6,23 +6,23 @@ import (
 	"time"
 )
 
-func (request *OnlineQueryParams) serialize() onlineQueryRequestSerialized {
+func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	context := onlineQueryContext{
-		Environment: internal.StringOrNil(request.EnvironmentId),
-		Tags:        request.Tags,
+		Environment: internal.StringOrNil(p.EnvironmentId),
+		Tags:        p.Tags,
 	}
 
 	body := onlineQueryRequestSerialized{
-		Inputs:         request.Inputs,
-		Outputs:        request.Outputs,
+		Inputs:         p.inputs,
+		Outputs:        p.outputs,
 		Context:        context,
-		Staleness:      serializeStaleness(request.Staleness),
-		IncludeMeta:    request.IncludeMeta,
-		IncludeMetrics: request.IncludeMetrics,
-		DeploymentId:   internal.StringOrNil(request.PreviewDeploymentId),
-		QueryName:      internal.StringOrNil(request.QueryName),
-		CorrelationId:  internal.StringOrNil(request.CorrelationId),
-		Meta:           request.Meta,
+		Staleness:      serializeStaleness(p.staleness),
+		IncludeMeta:    p.IncludeMeta,
+		IncludeMetrics: p.IncludeMetrics,
+		DeploymentId:   internal.StringOrNil(p.PreviewDeploymentId),
+		QueryName:      internal.StringOrNil(p.QueryName),
+		CorrelationId:  internal.StringOrNil(p.CorrelationId),
+		Meta:           p.Meta,
 	}
 
 	return body
