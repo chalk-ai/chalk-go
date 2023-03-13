@@ -68,7 +68,15 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 
 func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
 	response := GetRunStatusResult{}
-	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response, PreviewDeploymentId: request.PreviewDeploymentId})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "GET",
+			URL:                 fmt.Sprintf("v1/runs/%s", request.RunId),
+			Body:                request,
+			Response:            &response,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
@@ -82,7 +90,15 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 		GrantType:    "client_credentials",
 	}
 	response := getTokenResponse{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/oauth/token", Body: body, Response: &response, DontRefresh: true})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:      "POST",
+			URL:         "v1/oauth/token",
+			Body:        body,
+			Response:    &response,
+			DontRefresh: true,
+		},
+	)
 	if err != nil {
 		return nil, &ClientError{Message: fmt.Sprintf(
 			"Error obtaining access token: %s.\n"+
@@ -306,9 +322,9 @@ func newClientImpl(
 	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
 
 	apiServer := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
-	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
 	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
 	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
+	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
 
 	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
 		return nil, chalkYamlErr
