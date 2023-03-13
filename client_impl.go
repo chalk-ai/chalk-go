@@ -265,7 +265,8 @@ func newClientImpl(
 	} else {
 		cfg = cfgs[len(cfgs)]
 	}
-	projectAuthConfigFromFile, _, _ := auth2.LoadAuthConfig().GetProjectAuthConfigForWD()
+
+	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
 
 	apiServerOverride := auth2.GetChalkClientArgConfig(cfg.ApiServer)
 	clientIdOverride := auth2.GetChalkClientArgConfig(cfg.ClientId)
@@ -277,17 +278,23 @@ func newClientImpl(
 	clientSecretEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
 	environmentIdEnvVarConfig := auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
 
-	apiServerFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ApiServer)
-	clientIdFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ClientId)
-	clientSecretFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ClientSecret)
-	environmentIdFileConfig := auth2.GetChalkYamlConfig(projectAuthConfigFromFile.ActiveEnvironment)
+	apiServerFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer)
+	clientIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId)
+	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
+	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
+
+	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
+	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
+	if clientId.Value == "" && clientSecret.Value == "" {
+		return nil, chalkYamlErr
+	}
 
 	client := &clientImpl{
 		httpClient:    cfg.HTTPClient,
 		logger:        cfg.Logger,
+		ClientId:      clientId,
+		clientSecret:  clientSecret,
 		ApiServer:     auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
-		ClientId:      auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig),
-		clientSecret:  auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig),
 		EnvironmentId: auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
 	}
 

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -22,33 +23,31 @@ func GetConfigPath() (*string, error) {
 	if configDir == "" {
 		configDir, err = os.UserHomeDir()
 		if err != nil {
-			return nil, err
+			return nil, errors.New("error getting home directory")
 		}
 	}
 	path := filepath.Join(configDir, authConfigFileName)
 	return &path, nil
 }
 
-func LoadAuthConfig() ProjectTokens {
+func LoadAuthConfig() (*ProjectTokens, *string, error) {
 	path, err := GetConfigPath()
 	if err != nil || path == nil {
-		return getDefaultAuthConfig()
+		return nil, nil, err
 	}
 
 	data, err := os.ReadFile(*path)
-
 	if err != nil {
-		return getDefaultAuthConfig()
+		return nil, path, errors.New(fmt.Sprintf("Error reading auth config file from path '%s': %s", *path, err))
 	}
 
 	config := ProjectTokens{}
 	err = yaml.Unmarshal(data, &config)
-
 	if err != nil {
-		return getDefaultAuthConfig()
+		return nil, path, errors.New(fmt.Sprintf("Error parsing auth config file at path '%s'. Please make sure you have run 'chalk login' successfully. Error details: %s", *path, err))
 	}
 
-	return config
+	return &config, path, nil
 }
 
 func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
@@ -70,7 +69,7 @@ func GetEnvVarConfig(key string) SourcedConfig {
 func GetChalkClientArgConfig(value string) SourcedConfig {
 	return SourcedConfig{
 		value,
-		"New argument",
+		"NewClient argument",
 	}
 }
 

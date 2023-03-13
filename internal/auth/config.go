@@ -1,31 +1,56 @@
 package auth
 
 import (
+	"errors"
+	"fmt"
 	"os"
 )
 
-func (cfg ProjectTokens) GetProjectAuthConfigForWD() (*ProjectToken, string, error) {
+func GetProjectAuthConfig() (ProjectToken, error) {
+	authConfigFromFile, configFilepath, loadConfigFileErr := LoadAuthConfig()
+	if loadConfigFileErr != nil {
+		return ProjectToken{}, loadConfigFileErr
+	}
+	if configFilepath == nil {
+		return ProjectToken{}, errors.New("unexpected error getting auth config filepath from home directory")
+	}
+	if authConfigFromFile == nil {
+		return ProjectToken{}, errors.New("unexpected error getting auth config file")
+	}
+
+	projectAuthConfig, projectAuthConfigErr := GetProjectAuthConfigForWD(*authConfigFromFile, *configFilepath)
+	if projectAuthConfigErr != nil {
+		return ProjectToken{}, projectAuthConfigErr
+	}
+
+	return projectAuthConfig, nil
+}
+
+func GetProjectAuthConfigForWD(config ProjectTokens, configPath string) (ProjectToken, error) {
 	getwd, err := os.Getwd()
-
-	path := ""
 	if err != nil {
-		return nil, path, err
+		return ProjectToken{}, errors.New(fmt.Sprintf("error determining working directory: %s", err))
 	}
 
-	var tok *ProjectToken = nil
-	if cfg.Tokens == nil {
-		return tok, path, nil
+	if config.Tokens == nil {
+		return ProjectToken{}, errors.New(
+			fmt.Sprintf("'tokens' collection does not exist or is empty in the auth config file '%s' -- please try to 'chalk login' again", configPath))
 	}
-	tokens := *cfg.Tokens
+
+	var returnToken *ProjectToken = nil
+
+	tokens := *config.Tokens
 	if token, ok := tokens[getwd]; ok {
-		path = getwd
-		tok = token
+		returnToken = token
 	}
 
-	if token, ok := tokens["default"]; ok && tok == nil {
-		path = "default"
-		tok = token
+	if token, ok := tokens["default"]; ok && returnToken == nil {
+		returnToken = token
 	}
 
-	return tok, path, nil
+	if returnToken == nil {
+		return ProjectToken{}, errors.New(fmt.Sprintf("working directory '%s' does not exist as a key in the collection 'tokens' in the config file '%s' The key 'default' is also missing. Please try to 'chalk login' again", getwd, configPath))
+	}
+
+	return *returnToken, nil
 }
