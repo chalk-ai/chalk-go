@@ -32,7 +32,16 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 
 	var serializedResponse onlineQueryResponseSerialized
 
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse, EnvironmentOverride: request.EnvironmentId, PreviewDeploymentId: request.PreviewDeploymentId})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/query/online",
+			Body:                request.serialize(),
+			Response:            &serializedResponse,
+			EnvironmentOverride: request.EnvironmentId,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return emptyResult, getErrorResponse(err)
 	}
@@ -59,7 +68,16 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 
 func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
 	response := TriggerResolverRunResult{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/runs/trigger", Body: request, Response: &response, EnvironmentOverride: request.EnvironmentId, PreviewDeploymentId: request.PreviewDeploymentId})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/runs/trigger",
+			Body:                request,
+			Response:            &response,
+			EnvironmentOverride: request.EnvironmentId,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return TriggerResolverRunResult{}, getErrorResponse(err)
 	}
