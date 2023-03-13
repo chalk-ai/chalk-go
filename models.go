@@ -11,9 +11,9 @@ import (
 // obtain an object of type [OnlineQueryParamsComplete]
 // that you can pass into Client.OnlineQuery.
 type OnlineQueryParams struct {
-	/*************
-	 CORE PRIVATE FIELDS
-	**************/
+	/**************
+	 PRIVATE FIELDS
+	***************/
 
 	// The features for which there are known values, mapped to those values.
 	// Set by OnlineQueryParams.WithInput.
