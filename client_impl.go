@@ -70,7 +70,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 
 func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
 	response := GetRunStatusResult{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response})
+	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response})
 	if err != nil {
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
