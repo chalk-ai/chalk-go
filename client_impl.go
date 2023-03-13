@@ -29,10 +29,6 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 	request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
-	if request.EnvironmentId == "" {
-		request.EnvironmentId = c.EnvironmentId.Value
-	}
-
 	var serializedResponse onlineQueryResponseSerialized
 
 	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse, EnvironmentOverride: request.EnvironmentId, PreviewDeploymentId: request.PreviewDeploymentId})
@@ -228,8 +224,12 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+	// TODO: Is project name still needed?
+	headers.Set("X-Chalk-Project-Name", projectName)
 
-	if environmentOverride != "" {
+	if environmentOverride == "" {
+		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
+	} else {
 		headers.Set("X-Chalk-Env-Id", environmentOverride)
 	}
 	if previewDeploymentId != "" {
