@@ -11,9 +11,13 @@ type Client interface {
 	// See https://docs.chalk.ai/docs/query-basics for more information.
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ErrorResponse)
 
-	// TriggerResolverRun triggers a resolver to run.
+	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
+
+	// GetRunStatus triggers an offline resolver to run.
+	// See https://docs.chalk.ai/docs/runs for more information.
+	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, *ErrorResponse)
 }
 
 type ClientConfig struct {
