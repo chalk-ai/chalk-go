@@ -68,6 +68,15 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 	return response, nil
 }
 
+func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
+	response := GetRunStatusResult{}
+	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response})
+	if err != nil {
+		return GetRunStatusResult{}, getErrorResponse(err)
+	}
+	return response, nil
+}
+
 func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
