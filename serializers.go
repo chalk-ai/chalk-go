@@ -128,7 +128,7 @@ func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 		return ServerError{}, getErrorCodeErr
 	}
 
-	errorCodeCategory, getCategoryErr := GetErrorCodeCategory(e.Category)
+	errorCodeCategory, getCategoryErr := getErrorCodeCategory(e.Category)
 	if getCategoryErr != nil {
 		return ServerError{}, getCategoryErr
 	}
@@ -176,7 +176,7 @@ var getErrorCode = internal.GenerateGetEnumFunction(
 	"error codes",
 )
 
-var GetErrorCodeCategory = internal.GenerateGetEnumFunction(
+var getErrorCodeCategory = internal.GenerateGetEnumFunction(
 	map[string]ErrorCodeCategory{
 		Request.Value: Request,
 		Field.Value:   Field,

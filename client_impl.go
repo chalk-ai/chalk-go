@@ -19,23 +19,29 @@ type clientImpl struct {
 	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
 
-	clientSecret auth2.SourcedConfig
-	jwt          *auth2.JWT
-	httpClient   *http.Client
-	logger       *LeveledLogger
+	clientSecret       auth2.SourcedConfig
+	jwt                *auth2.JWT
+	httpClient         *http.Client
+	logger             *LeveledLogger
+	initialEnvironment auth2.SourcedConfig
 }
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
-	if request.EnvironmentId == "" {
-		request.EnvironmentId = c.EnvironmentId.Value
-	}
-
 	var serializedResponse onlineQueryResponseSerialized
 
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/query/online",
+			Body:                request.serialize(),
+			Response:            &serializedResponse,
+			EnvironmentOverride: request.EnvironmentId,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return emptyResult, getErrorResponse(err)
 	}
@@ -62,7 +68,16 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 
 func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
 	response := TriggerResolverRunResult{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/runs/trigger", Body: request, Response: &response})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/runs/trigger",
+			Body:                request,
+			Response:            &response,
+			EnvironmentOverride: request.EnvironmentId,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return TriggerResolverRunResult{}, getErrorResponse(err)
 	}
@@ -71,7 +86,15 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 
 func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
 	response := GetRunStatusResult{}
-	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "GET",
+			URL:                 fmt.Sprintf("v1/runs/%s", request.RunId),
+			Body:                request,
+			Response:            &response,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
 	if err != nil {
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
@@ -85,7 +108,15 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 		GrantType:    "client_credentials",
 	}
 	response := getTokenResponse{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/oauth/token", Body: body, Response: &response, DontRefresh: true})
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:      "POST",
+			URL:         "v1/oauth/token",
+			Body:        body,
+			Response:    &response,
+			DontRefresh: true,
+		},
+	)
 	if err != nil {
 		return nil, &ClientError{Message: fmt.Sprintf(
 			"Error obtaining access token: %s.\n"+
@@ -103,6 +134,15 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 			c.EnvironmentId.Value,
 			c.EnvironmentId.Source,
 		)}
+	}
+
+	if response.PrimaryEnvironment != "" {
+		c.EnvironmentId = auth2.SourcedConfig{
+			Value:  response.PrimaryEnvironment,
+			Source: "Primary Environment from credentials exchange response",
+		}
+	} else {
+		c.EnvironmentId = c.initialEnvironment
 	}
 
 	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
@@ -138,20 +178,13 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	request.Header.Set("content-type", "application/json")
-	request.Header.Set("accept", "application/json")
-	if c.EnvironmentId.Value != "" {
-		request.Header.Set("x-chalk-env-id", c.EnvironmentId.Value)
-	}
-
 	cfg, cfgErr := project.LoadProjectConfig()
-	if cfgErr == nil && cfg.Project != "" {
-		request.Header.Set("x-chalk-project-name", cfg.Project)
+	projectName := ""
+	if cfgErr == nil {
+		projectName = cfg.Project
 	}
-
-	if cfg.Project != "" {
-		request.Header.Set("x-chalk-project-name", cfg.Project)
-	}
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, projectName)
+	request.Header = headers
 
 	if !args.DontRefresh {
 		upsertJwtErr := c.refreshJwt(false)
@@ -228,6 +261,28 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, projectName string) http.Header {
+	headers := http.Header{}
+
+	headers.Set("Accept", "application/json")
+	headers.Set("Content-Type", "application/json")
+	headers.Set("User-Agent", "chalk-go-0.0")
+	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+	// TODO: Is project name still needed?
+	headers.Set("X-Chalk-Project-Name", projectName)
+
+	if environmentOverride == "" {
+		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
+	} else {
+		headers.Set("X-Chalk-Env-Id", environmentOverride)
+	}
+	if previewDeploymentId != "" {
+		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
+	}
+
+	return headers
+}
+
 func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HTTPError {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
@@ -284,8 +339,11 @@ func newClientImpl(
 	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
 	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
 
+	apiServer := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
 	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
 	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
+	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
+
 	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
 		return nil, chalkYamlErr
 	}
@@ -295,8 +353,10 @@ func newClientImpl(
 		logger:        cfg.Logger,
 		ClientId:      clientId,
 		clientSecret:  clientSecret,
-		ApiServer:     auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig),
-		EnvironmentId: auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig),
+		ApiServer:     apiServer,
+		EnvironmentId: environmentId,
+
+		initialEnvironment: environmentId,
 	}
 
 	if client.logger == nil {
