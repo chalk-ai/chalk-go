@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
-	"github.com/chalk-ai/chalk-go/internal/project"
 	"io"
 	"net/http"
 	"net/url"
@@ -136,7 +135,7 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 		)}
 	}
 
-	if response.PrimaryEnvironment != "" {
+	if c.initialEnvironment.Value == "" {
 		c.EnvironmentId = auth2.SourcedConfig{
 			Value:  response.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
@@ -178,12 +177,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	cfg, cfgErr := project.LoadProjectConfig()
-	projectName := ""
-	if cfgErr == nil {
-		projectName = cfg.Project
-	}
-	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, projectName)
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId)
 	request.Header = headers
 
 	if !args.DontRefresh {
@@ -261,15 +255,13 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, projectName string) http.Header {
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
-	// TODO: Is project name still needed?
-	headers.Set("X-Chalk-Project-Name", projectName)
 
 	if environmentOverride == "" {
 		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
