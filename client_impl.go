@@ -25,8 +25,6 @@ type clientImpl struct {
 	logger       *LeveledLogger
 }
 
-// OnlineQuery computes features values using online resolvers.
-// See https://docs.chalk.ai/docs/query-basics for more information.
 func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, *ErrorResponse) {
 	emptyResult := OnlineQueryResult{}
 
@@ -38,16 +36,12 @@ func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, 
 
 	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
 	if err != nil {
-		httpError, ok := err.(*HTTPError)
-		if ok {
-			return OnlineQueryResult{}, &ErrorResponse{HttpError: httpError}
-		}
-		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
+		return emptyResult, getErrorResponse(err)
 	}
 	if len(serializedResponse.Errors) > 0 {
 		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
 		if deserializationErr != nil {
-			return OnlineQueryResult{}, &ErrorResponse{
+			return emptyResult, &ErrorResponse{
 				ClientError: &ClientError{deserializationErr.Error()},
 			}
 		}
@@ -57,11 +51,20 @@ func (c *clientImpl) OnlineQuery(request OnlineQueryParams) (OnlineQueryResult, 
 
 	response, err := serializedResponse.deserialize()
 	if err != nil {
-		return OnlineQueryResult{}, &ErrorResponse{
+		return emptyResult, &ErrorResponse{
 			ClientError: &ClientError{err.Error()},
 		}
 	}
 
+	return response, nil
+}
+
+func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
+	response := TriggerResolverRunResult{}
+	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/runs/trigger", Body: request, Response: &response})
+	if err != nil {
+		return TriggerResolverRunResult{}, getErrorResponse(err)
+	}
 	return response, nil
 }
 
@@ -234,6 +237,14 @@ func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HT
 	}
 
 	return clientError
+}
+
+func getErrorResponse(err error) *ErrorResponse {
+	httpError, ok := err.(*HTTPError)
+	if ok {
+		return &ErrorResponse{HttpError: httpError}
+	}
+	return &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
 }
 
 func newClientImpl(

@@ -7,7 +7,13 @@ import (
 // Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
+	// OnlineQuery computes features values using online resolvers.
+	// See https://docs.chalk.ai/docs/query-basics for more information.
 	OnlineQuery(args OnlineQueryParams) (OnlineQueryResult, *ErrorResponse)
+
+	// TriggerResolverRun triggers a resolver to run.
+	// See https://docs.chalk.ai/docs/runs for more information.
+	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
 }
 
 type ClientConfig struct {
