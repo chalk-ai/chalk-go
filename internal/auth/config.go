@@ -1,31 +1,25 @@
 package auth
 
 import (
-	"os"
+	"errors"
 )
 
-func (cfg ProjectTokens) GetProjectAuthConfigForWD() (*ProjectToken, string, error) {
-	getwd, err := os.Getwd()
-
-	path := ""
-	if err != nil {
-		return nil, path, err
+func GetProjectAuthConfig() (ProjectToken, error) {
+	authConfigFromFile, configFilepath, loadConfigFileErr := loadAuthConfig()
+	if loadConfigFileErr != nil {
+		return ProjectToken{}, loadConfigFileErr
+	}
+	if configFilepath == nil {
+		return ProjectToken{}, errors.New("unexpected error getting auth config filepath from home directory")
+	}
+	if authConfigFromFile == nil {
+		return ProjectToken{}, errors.New("unexpected error getting auth config file")
 	}
 
-	var tok *ProjectToken = nil
-	if cfg.Tokens == nil {
-		return tok, path, nil
-	}
-	tokens := *cfg.Tokens
-	if token, ok := tokens[getwd]; ok {
-		path = getwd
-		tok = token
+	projectAuthConfig, projectAuthConfigErr := getProjectAuthConfigForWD(*authConfigFromFile, *configFilepath)
+	if projectAuthConfigErr != nil {
+		return ProjectToken{}, projectAuthConfigErr
 	}
 
-	if token, ok := tokens["default"]; ok && tok == nil {
-		path = "default"
-		tok = token
-	}
-
-	return tok, path, nil
+	return projectAuthConfig, nil
 }
