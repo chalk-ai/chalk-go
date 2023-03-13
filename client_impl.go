@@ -35,7 +35,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 
 	var serializedResponse onlineQueryResponseSerialized
 
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse})
+	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/query/online", Body: request.serialize(), Response: &serializedResponse, EnvironmentOverride: request.EnvironmentId, PreviewDeploymentId: request.PreviewDeploymentId})
 	if err != nil {
 		return emptyResult, getErrorResponse(err)
 	}
@@ -62,7 +62,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 
 func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
 	response := TriggerResolverRunResult{}
-	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/runs/trigger", Body: request, Response: &response})
+	err := c.sendRequest(sendRequestParams{Method: "POST", URL: "v1/runs/trigger", Body: request, Response: &response, EnvironmentOverride: request.EnvironmentId, PreviewDeploymentId: request.PreviewDeploymentId})
 	if err != nil {
 		return TriggerResolverRunResult{}, getErrorResponse(err)
 	}
@@ -71,7 +71,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 
 func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
 	response := GetRunStatusResult{}
-	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response})
+	err := c.sendRequest(sendRequestParams{Method: "GET", URL: fmt.Sprintf("v1/runs/%s", request.RunId), Body: request, Response: &response, PreviewDeploymentId: request.PreviewDeploymentId})
 	if err != nil {
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
@@ -138,20 +138,13 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	request.Header.Set("content-type", "application/json")
-	request.Header.Set("accept", "application/json")
-	if c.EnvironmentId.Value != "" {
-		request.Header.Set("x-chalk-env-id", c.EnvironmentId.Value)
-	}
-
 	cfg, cfgErr := project.LoadProjectConfig()
-	if cfgErr == nil && cfg.Project != "" {
-		request.Header.Set("x-chalk-project-name", cfg.Project)
+	projectName := ""
+	if cfgErr == nil {
+		projectName = cfg.Project
 	}
-
-	if cfg.Project != "" {
-		request.Header.Set("x-chalk-project-name", cfg.Project)
-	}
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, projectName)
+	request.Header = headers
 
 	if !args.DontRefresh {
 		upsertJwtErr := c.refreshJwt(false)
@@ -226,6 +219,24 @@ func (c *clientImpl) retryRequest(
 	(*c.logger).Debugf("Response Status for retried request: ", res.Status)
 
 	return res, nil
+}
+
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, projectName string) http.Header {
+	headers := http.Header{}
+
+	headers.Set("Accept", "application/json")
+	headers.Set("Content-Type", "application/json")
+	headers.Set("User-Agent", "chalk-go-0.0")
+	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+
+	if environmentOverride != "" {
+		headers.Set("X-Chalk-Env-Id", environmentOverride)
+	}
+	if previewDeploymentId != "" {
+		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
+	}
+
+	return headers
 }
 
 func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HTTPError {

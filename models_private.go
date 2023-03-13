@@ -51,6 +51,9 @@ type sendRequestParams struct {
 
 	Response    any
 	DontRefresh bool
+
+	EnvironmentOverride string
+	PreviewDeploymentId string
 }
 
 type getTokenRequest struct {
