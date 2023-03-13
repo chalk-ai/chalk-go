@@ -9,6 +9,18 @@ import (
 type Client interface {
 	// OnlineQuery computes features values using online resolvers.
 	// See https://docs.chalk.ai/docs/query-basics for more information.
+	//
+	// Example:
+	//
+	//		res, err := client.OnlineQuery(
+	//			OnlineQueryParams{
+	//				IncludeMeta: true,
+	//				EnvironmentId: "pipkjlfc3gtmn",
+	//			}.
+	//	 		WithInput(Features.User.Card.Id, 4).
+	//	 		WithOutputs(Features.User.Email, Features.User.Card.Id),
+	//		)
+	//
 	OnlineQuery(args OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse)
 
 	// TriggerResolverRun triggers an offline resolver to run.

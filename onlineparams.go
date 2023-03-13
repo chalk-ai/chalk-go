@@ -117,7 +117,7 @@ func (p onlineQueryParamsWithOutputs) WithInput(feature string, value any) Onlin
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// For use via method git st. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithOutputs) WithOutputs(features ...string) onlineQueryParamsWithOutputs {
 	p.underlying = p.underlying.withOutputs(features...)
 	return p
