@@ -258,11 +258,11 @@ func getErrorResponse(err error) *ErrorResponse {
 }
 
 func newClientImpl(
-	cfgs ...ClientConfig,
+	cfgs ...*ClientConfig,
 ) (*clientImpl, error) {
-	var cfg ClientConfig
+	var cfg *ClientConfig
 	if len(cfgs) == 0 {
-		cfg = ClientConfig{}
+		cfg = &ClientConfig{}
 	} else {
 		cfg = cfgs[len(cfgs)-1]
 	}

@@ -76,6 +76,6 @@ type ClientConfig struct {
 // If a configuration for the specific project directory if found,
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
-func NewClient(config ...ClientConfig) (Client, error) {
+func NewClient(config ...*ClientConfig) (Client, error) {
 	return newClientImpl(config...)
 }
