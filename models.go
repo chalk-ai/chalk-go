@@ -97,7 +97,8 @@ type OnlineQueryResult struct {
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
-	featureResult, found := result.features[feature]
+	castedFeature := unwrapFeatureInterface(feature)
+	featureResult, found := result.features[castedFeature.fqn]
 	if !found {
 		return nil
 	}

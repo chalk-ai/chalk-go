@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"fmt"
 	"time"
 	"unsafe"
 )
@@ -42,6 +43,6 @@ func unwrapFeatureInterface(t any) *Feature {
 	case *time.Time:
 		return unwrapFeature(typed)
 	default:
-		panic("unsupported type")
+		panic(fmt.Sprintf("unsupported type: %s", typed))
 	}
 }
