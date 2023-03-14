@@ -3,14 +3,9 @@ package chalk
 import (
 	"fmt"
 	"reflect"
-	"unsafe"
 )
 
-func unwrapFeature[T any](t *T) *Feature {
-	return (*Feature)(unsafe.Pointer(t))
-}
-
-func unwrapFeatureInterface(t any) *Feature {
+func unwrapFeature(t any) *Feature {
 	if reflect.ValueOf(t).Kind() == reflect.Ptr {
 		v := reflect.New(reflect.TypeOf(t))
 		v.Elem().Set(reflect.ValueOf(t))
@@ -19,6 +14,10 @@ func unwrapFeatureInterface(t any) *Feature {
 
 	typePointedTo := reflect.ValueOf(t).Elem().Type()
 	panic(fmt.Sprintf("unsupported type: %s", typePointedTo))
+}
+
+func unwrapFeatureInterface(t any) *Feature {
+	return unwrapFeature(t)
 
 	//switch typed := t.(type) {
 	//case *any:
