@@ -5,8 +5,7 @@ import (
 )
 
 type Feature struct {
-	fqn   string
-	value any
+	Fqn string
 }
 
 // OnlineQueryParams defines the parameters
@@ -98,7 +97,7 @@ type OnlineQueryResult struct {
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
 	castedFeature := unwrapFeatureInterface(feature)
-	featureResult, found := result.features[castedFeature.fqn]
+	featureResult, found := result.features[castedFeature.Fqn]
 	if !found {
 		return nil
 	}

@@ -58,14 +58,14 @@ func (p OnlineQueryParams) withInput(feature any, value any) OnlineQueryParams {
 		p.inputs = make(map[string]any)
 	}
 	castedFeature := unwrapFeatureInterface(feature)
-	p.inputs[castedFeature.fqn] = value
+	p.inputs[castedFeature.Fqn] = value
 	return p
 }
 
 func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
 	for _, feature := range features {
 		castedFeature := unwrapFeatureInterface(feature)
-		p.outputs = append(p.outputs, castedFeature.fqn)
+		p.outputs = append(p.outputs, castedFeature.Fqn)
 	}
 	return p
 }
@@ -75,7 +75,7 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 		p.staleness = make(map[string]time.Duration)
 	}
 	castedFeature := unwrapFeatureInterface(feature)
-	p.staleness[castedFeature.fqn] = duration
+	p.staleness[castedFeature.Fqn] = duration
 	return p
 }
 
