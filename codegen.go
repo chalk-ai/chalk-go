@@ -43,11 +43,7 @@ func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 			//      Features.User.CreditReport = new(CreditReport)
 			//
 			featureSet := reflect.New(f.Type().Elem())
-			// Must use underlying value that's not wrapped by reflect,
-			// otherwise we will cause weird bugs. See
-			//     https://github.com/chalk-ai/chalk-go/pull/11
-			underlyingPointerValue := featureSet.Interface()
-			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(underlyingPointerValue).UnsafePointer())
+			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited)
