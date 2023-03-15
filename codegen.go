@@ -1,17 +1,18 @@
 package chalk
 
 import (
+	"fmt"
 	"reflect"
 )
 
-func ConvertFeatures[T any](t *T) {
+func InitFeatures[T any](t *T) {
 	structValue := reflect.ValueOf(t).Elem()
-	convertFeatures(structValue, "", make(map[string]bool))
+	initFeatures(structValue, "", make(map[string]bool))
 }
 
-func convertFeatures(s reflect.Value, fqn string, visited map[string]bool) {
+func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 	if s.Kind() != reflect.Struct {
-		panic("convertFeatures cannot take in any reflect.Value that is not of the kind reflect.Struct")
+		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", s.Kind().String()))
 	}
 
 	namespace := s.Type().Name()
@@ -20,7 +21,7 @@ func convertFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
-		// This is not a memoization. Simply a cycle checker while DFSing.
+		// This is not memoization. Simply a cycle checker while DFSing.
 		return
 	} else {
 		visited[namespace] = true
@@ -45,7 +46,7 @@ func convertFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&featureSet).UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			convertFeatures(featureSetInDisguise, updatedFqn+".", visited)
+			initFeatures(featureSetInDisguise, updatedFqn+".", visited)
 		} else {
 			// Create new Feature instance and point to it.
 			//
