@@ -43,7 +43,7 @@ func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 			//      Features.User.CreditReport = new(CreditReport)
 			//
 			featureSet := reflect.New(f.Type().Elem())
-			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&featureSet).UnsafePointer())
+			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(featureSet.Interface()).UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited)
