@@ -4,68 +4,63 @@ import (
 	"reflect"
 )
 
-func ConvertFeatures(t reflect.Value, path string, visited map[string]bool) {
-	if visited == nil {
-		visited = make(map[string]bool)
-	}
+func ConvertFeatures[T any](t *T) {
+	structValue := reflect.ValueOf(t).Elem()
+	convertFeatures(structValue, "", make(map[string]bool))
+}
 
-	var s reflect.Value
-	if t.Kind() == reflect.Struct {
-		s = t
-	} else {
-		s = t.Elem()
+func convertFeatures(s reflect.Value, fqn string, visited map[string]bool) {
+	if s.Kind() != reflect.Struct {
+		panic("convertFeatures cannot take in any reflect.Value that is not of the kind reflect.Struct")
 	}
 
 	namespace := s.Type().Name()
-	if namespaceVisited, ok := visited[namespace]; ok && namespaceVisited {
+	if fqn == "" {
+		fqn = snakeCase(namespace)
+	}
+
+	if isVisited, ok := visited[namespace]; ok && isVisited {
+		// This is not a memoization. Simply a cycle checker while DFSing.
 		return
 	} else {
 		visited[namespace] = true
 	}
 
-	if s.Kind() == reflect.Struct {
-		if path == "" {
-			path = SnakeCase(namespace)
+	for i := 0; i < s.NumField(); i++ {
+		attributeName := s.Type().Field(i).Name
+		updatedFqn := fqn + snakeCase(attributeName)
+
+		f := s.Field(i)
+		if !f.CanSet() || f.Kind() != reflect.Pointer {
+			continue
 		}
-		for i := 0; i < s.NumField(); i++ {
-			f := s.Field(i)
-			attributeName := s.Type().Field(i).Name
-			var newPath string
-			if path == "" {
-				newPath = SnakeCase(attributeName)
-			} else {
-				newPath = path + "." + SnakeCase(attributeName)
-			}
 
-			if f.CanSet() {
-				if f.Kind() == reflect.Pointer {
-					//if sliceContains([]string{"str", "int", "bool", "float64", "time.Time"}, f.Type().Elem().String()) {
-					if f.Type().Elem().Kind() == reflect.Struct {
-						// Should be has-ones
-						newStructObj := reflect.New(f.Type().Elem())
-						fakePointerToOriginalType := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&newStructObj).UnsafePointer())
-						f.Set(fakePointerToOriginalType)
-						ConvertFeatures(f.Elem(), newPath, visited)
-					} else {
-						feature := Feature{Fqn: newPath}
-						fakePointerToOriginalType := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
-						f.Set(fakePointerToOriginalType)
-					}
-
-					// OLD METHOD
-					//fCopy := reflect.New(reflect.TypeOf(&feature))
-					//fCopy.Elem().Set(reflect.ValueOf(&feature))
-					//fakePointerToOriginalType := reflect.NewAt(f.Type().Elem(), fCopy.Elem().UnsafePointer())
-
-				}
-			}
+		if f.Type().Elem().Kind() == reflect.Struct {
+			// Create new Feature Set instance and point to it.
+			// The equivalent way of doing it without 'reflect':
+			//
+			//      Features.User.CreditReport = new(CreditReport)
+			//
+			featureSet := reflect.New(f.Type().Elem())
+			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&featureSet).UnsafePointer())
+			f.Set(ptrInDisguiseToFeatureSet)
+			featureSetInDisguise := f.Elem()
+			convertFeatures(featureSetInDisguise, updatedFqn+".", visited)
+		} else {
+			// Create new Feature instance and point to it.
+			//
+			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
+			//
+			feature := Feature{Fqn: updatedFqn}
+			ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+			f.Set(ptrInDisguiseToFeature)
 		}
 	}
 
 	visited[namespace] = false
 }
 
-func SnakeCase(s string) string {
+func snakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -82,13 +77,4 @@ func SnakeCase(s string) string {
 
 func isASCIIUpper(c byte) bool {
 	return 'A' <= c && c <= 'Z'
-}
-
-func sliceContains[T comparable](s []T, e T) bool {
-	for _, v := range s {
-		if v == e {
-			return true
-		}
-	}
-	return false
 }
