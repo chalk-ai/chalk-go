@@ -47,15 +47,15 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 }
 
 func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
-	featureMap := make(fqnToField)
+	fieldMap := make(fqnToField)
 	structValue := reflect.ValueOf(t).Elem()
 
-	// Has a side effect: featureMap will be populated.
-	initFeatures(structValue, "", make(map[string]bool), featureMap)
+	// Has a side effect: fieldMap will be populated.
+	initFeatures(structValue, "", make(map[string]bool), fieldMap)
 
 	for _, featureResult := range result.Data {
 		fqn := featureResult.Field
-		err := featureMap.setFeature(fqn, featureResult.Value)
+		err := fieldMap.setFeature(fqn, featureResult.Value)
 		if err != nil {
 			outputNamespace := "unknown namespace"
 			sections := strings.Split(fqn, ".")
@@ -68,7 +68,7 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 		}
 	}
 	for _, expectedOutput := range result.expectedOutputs {
-		if field, ok := featureMap[expectedOutput]; ok {
+		if field, ok := fieldMap[expectedOutput]; ok {
 			if field.IsNil() {
 				return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
 			}
