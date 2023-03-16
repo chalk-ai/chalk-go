@@ -94,7 +94,11 @@ type OnlineQueryResult struct {
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
 
+	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
+
+	// Used to validate Data contains expected outputs as defined in OnlineQueryParams.
+	expectedOutputs []string
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
@@ -138,6 +142,37 @@ type FeatureResult struct {
 	Error *ServerError
 }
 
+// UnmarshalInto unmarshals OnlineQueryResult.Data into the input struct (passed by pointer).
+// The input argument should be a pointer to the struct that represents the output namespace.
+// UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
+// while leaving all other fields as nil. If the struct has fields that point to other
+// structs (has-one relations), those nested structs will also be populated with their
+// respective feature values.
+//
+// UnmarshalInto returns a ClientError if:
+// 1. its argument is not a pointer to a struct.
+// 2. any expected output feature (as specified in OnlineQueryParams) is not found in OnlineQueryResult.Data.
+//
+// Example usage:
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		outputs := []any{Features.User.Family.Size, Features.User.SocureScore}
+//		params := chalk.OnlineQueryParams{}.WithOutputs(outputs...).WithInput(Features.User.Id, 1)
+//
+//		result, err := chalkClient.OnlineQuery(params)
+//		if err != nil {
+//			return
+//		}
+//
+//		user := User{}
+//		unmarshalErr := result.UnmarshalInto(&user)
+//		if unmarshalErr != nil {
+//			return
+//		}
+//
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
 func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
 	value := reflect.ValueOf(resultHolder)
 	kind := value.Type().Kind()
@@ -148,6 +183,12 @@ func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
 	kindPointedTo := value.Elem().Kind()
 	if kindPointedTo != reflect.Struct {
 		return &ClientError{Message: fmt.Sprintf("argument should be pointer to a struct, got a pointer to a '%s' instead", kindPointedTo.String())}
+	}
+
+	for _, outputFeature := range result.expectedOutputs {
+		if _, ok := result.features[outputFeature]; !ok {
+			return &ClientError{Message: fmt.Sprintf("error unmarshaling. Output feature '%s' expected but not found in query result", outputFeature)}
+		}
 	}
 
 	return result.unmarshal(resultHolder)

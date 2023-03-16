@@ -63,7 +63,7 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 				outputNamespace = sections[0]
 			}
 			detailedErr := fmt.Sprintf("error unmarshaling feature '%s' into the struct '%s'. ", fqn, structValue.Type().String())
-			detailedErr += fmt.Sprintf("Please check if you are passing a pointer to a struct that represents the output namespace '%s'", outputNamespace)
+			detailedErr += fmt.Sprintf("Please check if you are passing a pointer to a struct that represents the output namespace '%s', ", outputNamespace)
 			return &ClientError{Message: detailedErr}
 		}
 	}

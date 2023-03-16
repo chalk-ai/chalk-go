@@ -61,7 +61,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 			ClientError: &ClientError{err.Error()},
 		}
 	}
-
+	response.expectedOutputs = params.underlying.outputs
 	return response, nil
 }
 
