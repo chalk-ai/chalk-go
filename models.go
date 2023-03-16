@@ -144,32 +144,40 @@ type FeatureResult struct {
 
 // UnmarshalInto unmarshals OnlineQueryResult.Data into the specified struct (passed by pointer).
 // The input argument should be a pointer to the struct that represents the output namespace.
-// UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
-// while leaving all other fields as nil. If the struct has fields that point to other
-// structs (has-one relations), those nested structs will also be populated with their
-// respective feature values.
 //
-// UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
-// are not nil pointers, and returns a ClientError otherwise.
+//  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
+//     while leaving all other fields as nil. If the struct has fields that point to other
+//     structs (has-one relations), those nested structs will also be populated with their
+//     respective feature values.
 //
-// UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//  2. UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
+//     are not nil pointers, and returns a ClientError otherwise.
 //
-// Example usage:
+//  3. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//
+// Implicit usage example (pass result struct into OnlineQuery):
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		outputs := []any{Features.User.Family.Size, Features.User.SocureScore}
-//		params := chalk.OnlineQueryParams{}.WithOutputs(outputs...).WithInput(Features.User.Id, 1)
+//		user := User{}
+//		result, _ := chalkClient.OnlineQuery(&chalk.OnlineQueryParams{}.WithOutputs(
+//			 Features.User.Family.Size,
+//			 Features.User.SocureScore
+//		).WithInput(Features.User.Id, 1), &user)
 //
-//		result, err := chalkClient.OnlineQuery(params)
-//		if err != nil {
-//			return
-//		}
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
+//
+// Equivalent explicit usage example:
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQuery(&chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Family.Size,
+//			Features.User.SocureScore
+//		).WithInput(Features.User.Id, 1), nil)
 //
 //		user := User{}
-//		unmarshalErr := result.UnmarshalInto(&user)
-//		if unmarshalErr != nil {
-//			return
-//		}
+//		result.UnmarshalInto(&user)
 //
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)

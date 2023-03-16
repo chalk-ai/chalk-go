@@ -25,7 +25,7 @@ type clientImpl struct {
 	initialEnvironment auth2.SourcedConfig
 }
 
-func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
@@ -61,7 +61,12 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryR
 			ClientError: &ClientError{err.Error()},
 		}
 	}
+
 	response.expectedOutputs = params.underlying.outputs
+	if resultHolder != nil {
+		response.UnmarshalInto(resultHolder)
+	}
+
 	return response, nil
 }
 
