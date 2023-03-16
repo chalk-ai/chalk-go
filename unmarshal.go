@@ -70,6 +70,7 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 	for _, expectedOutput := range result.expectedOutputs {
 		if field, ok := fieldMap[expectedOutput]; ok {
 			if field.IsNil() {
+				// TODO: Handle optional fields
 				return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
 			}
 		}
