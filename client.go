@@ -12,18 +12,19 @@ type Client interface {
 	//
 	// Example:
 	//
-	// user := User{}
-	// res, err := client.OnlineQuery(
-	//		OnlineQueryParams{
-	//			IncludeMeta: true,
-	//			EnvironmentId: "pipkjlfc3gtmn",
-	//		}.
-	//		WithInput(Features.User.Card.Id, 4).
-	//		WithOutputs(Features.User.Email, Features.User.Card.Id),
-	//		&user,
-	// )
-	// fmt.Println("User email: ", user.Email)
-	// fmt.Println("User card ID: ", user.Card.Id)
+	//		user := User{}
+	//		res, err := client.OnlineQuery(
+	//			OnlineQueryParams{
+	//				IncludeMeta: true,
+	//				EnvironmentId: "pipkjlfc3gtmn",
+	//			}.
+	//			WithInput(Features.User.Card.Id, 4).
+	//			WithOutputs(Features.User.Email, Features.User.Card.Id),
+	//			&user,
+	//		)
+	//		fmt.Println("User email: ", user.Email)
+	//		fmt.Println("User card ID: ", user.Card.Id)
+	//
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
 	// TriggerResolverRun triggers an offline resolver to run.
