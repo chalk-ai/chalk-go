@@ -150,8 +150,9 @@ type FeatureResult struct {
 // respective feature values.
 //
 // UnmarshalInto returns a ClientError if:
-// 1. its argument is not a pointer to a struct.
-// 2. any expected output feature (as specified in OnlineQueryParams) is not found in OnlineQueryResult.Data.
+//  1. its argument is not a pointer to a struct.
+//  2. any expected output feature (as specified in OnlineQueryParams) is not found in OnlineQueryResult.Data.
+//  3. unexpected errors occur
 //
 // Example usage:
 //
