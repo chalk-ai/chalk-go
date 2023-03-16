@@ -159,7 +159,7 @@ type FeatureResult struct {
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
-//		result, _ := chalkClient.OnlineQuery(&chalk.OnlineQueryParams{}.WithOutputs(
+//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
 //			 Features.User.Family.Size,
 //			 Features.User.SocureScore
 //		).WithInput(Features.User.Id, 1), &user)
@@ -171,7 +171,7 @@ type FeatureResult struct {
 // Equivalent explicit usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQuery(&chalk.OnlineQueryParams{}.WithOutputs(
+//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
 //			Features.User.Family.Size,
 //			Features.User.SocureScore
 //		).WithInput(Features.User.Id, 1), nil)
