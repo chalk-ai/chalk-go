@@ -63,6 +63,8 @@ type OnlineQueryParams struct {
 
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
+
+	ResultPointer any
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -134,6 +136,10 @@ type FeatureResult struct {
 	// The error encountered in resolving this feature.
 	// If no error occurred, this field is empty.
 	Error *ServerError
+}
+
+func (r *OnlineQueryResult) Deserialize(t any) *ClientError {
+	return r.deserialize(t)
 }
 
 type FeatureResolutionMeta struct {

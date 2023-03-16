@@ -10,7 +10,7 @@ func InitFeatures[T any](t *T) {
 	initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fqnToField FqnToField) {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fqnToField fqnToField) {
 	if structValue.Kind() != reflect.Struct {
 		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String()))
 	}

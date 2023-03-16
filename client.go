@@ -21,7 +21,7 @@ type Client interface {
 	//	 		WithOutputs(Features.User.Email, Features.User.Card.Id),
 	//		)
 	//
-	OnlineQuery(args OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse)
+	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
