@@ -64,7 +64,12 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 
 	response.expectedOutputs = params.underlying.outputs
 	if resultHolder != nil {
-		response.UnmarshalInto(resultHolder)
+		unmarshalErr := response.UnmarshalInto(resultHolder)
+		if unmarshalErr != nil {
+			return response, &ErrorResponse{
+				ClientError: unmarshalErr,
+			}
+		}
 	}
 
 	return response, nil
