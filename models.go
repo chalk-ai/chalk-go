@@ -1,6 +1,8 @@
 package chalk
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -92,7 +94,11 @@ type OnlineQueryResult struct {
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
 
+	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
+
+	// Used to validate result holder expected outputs are not nil.
+	expectedOutputs []string
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
@@ -134,6 +140,61 @@ type FeatureResult struct {
 	// The error encountered in resolving this feature.
 	// If no error occurred, this field is empty.
 	Error *ServerError
+}
+
+// UnmarshalInto unmarshals OnlineQueryResult.Data into the specified struct (passed by pointer).
+// The input argument should be a pointer to the struct that represents the output namespace.
+//
+//  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
+//     while leaving all other fields as nil. If the struct has fields that point to other
+//     structs (has-one relations), those nested structs will also be populated with their
+//     respective feature values.
+//
+//  2. UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
+//     are not nil pointers, and returns a ClientError otherwise.
+//
+//  3. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//
+// Implicit usage example (pass result struct into OnlineQuery):
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		user := User{}
+//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
+//			 Features.User.Family.Size,
+//			 Features.User.SocureScore
+//		).WithInput(Features.User.Id, 1), &user)
+//
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
+//
+// Equivalent explicit usage example:
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Family.Size,
+//			Features.User.SocureScore
+//		).WithInput(Features.User.Id, 1), nil)
+//
+//		user := User{}
+//		result.UnmarshalInto(&user)
+//
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
+func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
+	value := reflect.ValueOf(resultHolder)
+	kind := value.Type().Kind()
+	if kind != reflect.Pointer {
+		return &ClientError{Message: fmt.Sprintf("argument should be a pointer, got '%s' instead", kind.String())}
+	}
+
+	kindPointedTo := value.Elem().Kind()
+	if kindPointedTo != reflect.Struct {
+		return &ClientError{Message: fmt.Sprintf("argument should be pointer to a struct, got a pointer to a '%s' instead", kindPointedTo.String())}
+	}
+
+	return result.unmarshal(resultHolder)
 }
 
 type FeatureResolutionMeta struct {
