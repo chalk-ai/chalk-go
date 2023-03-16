@@ -8,11 +8,14 @@ import (
 type FqnToField map[string]reflect.Value
 
 func (t FqnToField) setFeature(fqn string, value any) error {
-	switch typed := value.(type) {
-	case float64:
-		value = int(typed)
-	}
+
 	if field, ok := t[fqn]; ok {
+		if field.Type().Elem().Kind() == reflect.Int {
+			switch typed := value.(type) {
+			case float64:
+				value = int(typed)
+			}
+		}
 		p := reflect.New(reflect.TypeOf(value))
 		p.Elem().Set(reflect.ValueOf(value))
 		castedPointer := reflect.NewAt(field.Type().Elem(), p.UnsafePointer())
