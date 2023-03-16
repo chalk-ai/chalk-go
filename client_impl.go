@@ -65,7 +65,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 
 	if resultHolder != nil {
 		deserializeErr := response.Deserialize(resultHolder)
-		if err != nil {
+		if deserializeErr != nil {
 			return response, &ErrorResponse{ClientError: deserializeErr}
 		}
 	}
