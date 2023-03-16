@@ -56,7 +56,7 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 	for _, featureResult := range result.Data {
 		fqn := featureResult.Field
 		err := featureMap.setFeature(fqn, featureResult.Value)
-		if err == nil {
+		if err != nil {
 			outputNamespace := "unknown namespace"
 			sections := strings.Split(fqn, ".")
 			if len(sections) > 0 {
