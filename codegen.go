@@ -7,17 +7,17 @@ import (
 
 func InitFeatures[T any](t *T) {
 	structValue := reflect.ValueOf(t).Elem()
-	initFeatures(structValue, "", make(map[string]bool))
+	initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
-func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
-	if s.Kind() != reflect.Struct {
-		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", s.Kind().String()))
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fqnToField Thing) {
+	if structValue.Kind() != reflect.Struct {
+		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String()))
 	}
 
-	namespace := s.Type().Name()
-	if fqn == "" {
-		fqn = snakeCase(namespace)
+	namespace := structValue.Type().Name()
+	if fqn == "" && namespace != "" {
+		fqn = snakeCase(namespace) + "."
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
@@ -27,11 +27,11 @@ func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 		visited[namespace] = true
 	}
 
-	for i := 0; i < s.NumField(); i++ {
-		attributeName := s.Type().Field(i).Name
+	for i := 0; i < structValue.NumField(); i++ {
+		attributeName := structValue.Type().Field(i).Name
 		updatedFqn := fqn + snakeCase(attributeName)
 
-		f := s.Field(i)
+		f := structValue.Field(i)
 		if !f.CanSet() || f.Kind() != reflect.Pointer {
 			continue
 		}
@@ -46,16 +46,21 @@ func initFeatures(s reflect.Value, fqn string, visited map[string]bool) {
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initFeatures(featureSetInDisguise, updatedFqn+".", visited)
+			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fqnToField)
 		} else {
 			// Create new Feature instance and point to it.
 			// The equivalent way of doing it without 'reflect':
 			//
 			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
 			//
-			feature := Feature{Fqn: updatedFqn}
-			ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
-			f.Set(ptrInDisguiseToFeature)
+			if fqnToField != nil {
+				fqnToField[updatedFqn] = f
+			} else {
+				feature := Feature{Fqn: updatedFqn}
+				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+				f.Set(ptrInDisguiseToFeature)
+			}
+
 		}
 	}
 
