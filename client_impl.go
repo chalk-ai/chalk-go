@@ -25,8 +25,7 @@ type clientImpl struct {
 	initialEnvironment auth2.SourcedConfig
 }
 
-func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
-	// TODO: Validate result holder is pointer
+func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 	emptyResult := OnlineQueryResult{}
 
@@ -60,13 +59,6 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	if err != nil {
 		return emptyResult, &ErrorResponse{
 			ClientError: &ClientError{err.Error()},
-		}
-	}
-
-	if resultHolder != nil {
-		deserializeErr := response.Deserialize(resultHolder)
-		if deserializeErr != nil {
-			return response, &ErrorResponse{ClientError: deserializeErr}
 		}
 	}
 

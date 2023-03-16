@@ -1,6 +1,8 @@
 package chalk
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -138,8 +140,19 @@ type FeatureResult struct {
 	Error *ServerError
 }
 
-func (r *OnlineQueryResult) Deserialize(t any) *ClientError {
-	return r.deserialize(t)
+func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
+	value := reflect.ValueOf(resultHolder)
+	kind := value.Type().Kind()
+	if kind != reflect.Pointer {
+		return &ClientError{Message: fmt.Sprintf("Unmarshal requires a pointer as argument, got '%s' instead", kind.String())}
+	}
+
+	kindPointedTo := value.Elem().Kind()
+	if kindPointedTo != reflect.Struct {
+		return &ClientError{Message: fmt.Sprintf("Unmarshal requires a pointer to a struct, got a pointer to a '%s' instead", kindPointedTo.String())}
+	}
+
+	return result.unmarshal(resultHolder)
 }
 
 type FeatureResolutionMeta struct {
