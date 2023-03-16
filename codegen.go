@@ -10,7 +10,7 @@ func InitFeatures[T any](t *T) {
 	initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fqnToField fqnToField) {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) {
 	if structValue.Kind() != reflect.Struct {
 		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String()))
 	}
@@ -46,15 +46,15 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fqnToField)
+			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
 		} else {
 			// Create new Feature instance and point to it.
 			// The equivalent way of doing it without 'reflect':
 			//
 			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
 			//
-			if fqnToField != nil {
-				fqnToField[updatedFqn] = f
+			if fieldMap != nil {
+				fieldMap[updatedFqn] = f
 			} else {
 				feature := Feature{Fqn: updatedFqn}
 				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
