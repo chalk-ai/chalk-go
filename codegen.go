@@ -36,7 +36,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			continue
 		}
 
-		if f.Type().Elem().Kind() == reflect.Struct {
+		if f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() != "time.Time" {
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':
 			//
