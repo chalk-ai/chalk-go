@@ -65,8 +65,6 @@ type OnlineQueryParams struct {
 
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
-
-	ResultPointer any
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
