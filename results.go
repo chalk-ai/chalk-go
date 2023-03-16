@@ -62,9 +62,16 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 			if len(sections) > 0 {
 				outputNamespace = sections[0]
 			}
-			detailedErr := fmt.Sprintf("error unmarshaling feature '%s' into the struct '%s'. ", fqn, structValue.Type().String())
+			detailedErr := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structValue.Type().String())
 			detailedErr += fmt.Sprintf("Please check if you are passing a pointer to a struct that represents the output namespace '%s', ", outputNamespace)
 			return &ClientError{Message: detailedErr}
+		}
+	}
+	for _, expectedOutput := range result.expectedOutputs {
+		if field, ok := featureMap[expectedOutput]; ok {
+			if field.IsNil() {
+				return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
+			}
 		}
 	}
 	return nil

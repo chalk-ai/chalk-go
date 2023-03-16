@@ -142,17 +142,17 @@ type FeatureResult struct {
 	Error *ServerError
 }
 
-// UnmarshalInto unmarshals OnlineQueryResult.Data into the input struct (passed by pointer).
+// UnmarshalInto unmarshals OnlineQueryResult.Data into the specified struct (passed by pointer).
 // The input argument should be a pointer to the struct that represents the output namespace.
 // UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
 // while leaving all other fields as nil. If the struct has fields that point to other
 // structs (has-one relations), those nested structs will also be populated with their
 // respective feature values.
 //
-// UnmarshalInto returns a ClientError if:
-//  1. its argument is not a pointer to a struct.
-//  2. any expected output feature (as specified in OnlineQueryParams) is not found in OnlineQueryResult.Data.
-//  3. unexpected errors occur
+// UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
+// are not nil pointers, and returns a ClientError otherwise.
+//
+// UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
 //
 // Example usage:
 //
@@ -184,12 +184,6 @@ func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
 	kindPointedTo := value.Elem().Kind()
 	if kindPointedTo != reflect.Struct {
 		return &ClientError{Message: fmt.Sprintf("argument should be pointer to a struct, got a pointer to a '%s' instead", kindPointedTo.String())}
-	}
-
-	for _, outputFeature := range result.expectedOutputs {
-		if _, ok := result.features[outputFeature]; !ok {
-			return &ClientError{Message: fmt.Sprintf("error unmarshaling. Output feature '%s' expected but not found in query result", outputFeature)}
-		}
 	}
 
 	return result.unmarshal(resultHolder)
