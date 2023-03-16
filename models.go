@@ -97,7 +97,7 @@ type OnlineQueryResult struct {
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
 
-	// Used to validate Data contains expected outputs as defined in OnlineQueryParams.
+	// Used to validate result holder expected outputs are not nil.
 	expectedOutputs []string
 }
 
@@ -159,7 +159,7 @@ type FeatureResult struct {
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
-//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
+//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
 //			 Features.User.Family.Size,
 //			 Features.User.SocureScore
 //		).WithInput(Features.User.Id, 1), &user)
