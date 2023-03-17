@@ -27,6 +27,8 @@ type Client interface {
 	//
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
+	OfflineQuery(args OfflineQueryParamsComplete) (OfflineQueryResult, *ErrorResponse)
+
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)

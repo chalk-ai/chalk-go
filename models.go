@@ -241,6 +241,34 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
+/*
+   def offline_query(
+       self,
+       input: Optional[Union[Mapping[Union[str, Feature, Any], Any], pd.DataFrame, pl.DataFrame, DataFrame]] = None,
+       input_times: Union[Sequence[datetime], datetime, None] = None,
+       output: Sequence[Union[str, Feature, Any]] = (),
+       required_output: Sequence[Union[str, Feature, Any]] = (),
+       environment: Optional[EnvironmentId] = None,
+       dataset_name: Optional[str] = None,
+       branch: Optional[BranchId] = None,
+       max_samples: Optional[int] = None,
+   ) -> DatasetImpl:
+
+*/
+
+type OfflineQueryParams struct {
+	Inputs         map[string][]string
+	Output         []string
+	RequiredOutput []string
+	EnvironmentId  string
+	DatasetName    string
+	Branch         string
+	MaxSamples     int
+}
+
+type OfflineQueryResult struct {
+}
+
 type TriggerResolverRunParams struct {
 	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
