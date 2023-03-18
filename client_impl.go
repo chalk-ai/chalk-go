@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -23,27 +25,6 @@ type clientImpl struct {
 	httpClient         *http.Client
 	logger             *LeveledLogger
 	initialEnvironment auth2.SourcedConfig
-}
-
-func (c *clientImpl) GetDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
-	response := GetOfflineQueryJobResponse{}
-
-	for !response.IsFinished {
-		err := c.sendRequest(
-			sendRequestParams{
-				Method:              "GET",
-				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
-				EnvironmentOverride: EnvironmentId,
-				Response:            &response,
-			},
-		)
-		if err != nil {
-			return []string{}, getErrorResponse(err)
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-
-	return response.Urls, nil
 }
 
 func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorResponse) {
@@ -157,6 +138,60 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
 	return response, nil
+}
+
+func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+	response := GetOfflineQueryJobResponse{}
+
+	for !response.IsFinished {
+		err := c.sendRequest(
+			sendRequestParams{
+				Method:              "GET",
+				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
+				EnvironmentOverride: EnvironmentId,
+				Response:            &response,
+			},
+		)
+		if err != nil {
+			return []string{}, getErrorResponse(err)
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	return response.Urls, nil
+}
+
+func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
+	resp, err := c.httpClient.Get(URL)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = deferFunctionWithError(resp.Body.Close, err)
+	}()
+
+	parsedUrl, urlParseErr := url.Parse(URL)
+	if urlParseErr != nil {
+		return urlParseErr
+	}
+	destinationFilepath := filepath.Join(parsedUrl.Path[4:])
+	destinationDirectory := filepath.Join(directory, filepath.Dir(destinationFilepath))
+
+	if err = os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
+		return err
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	destinationPath := filepath.Join(directory, destinationFilepath)
+	if err = os.WriteFile(destinationPath, data, os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {

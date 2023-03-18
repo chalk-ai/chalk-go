@@ -2,10 +2,6 @@ package chalk
 
 import (
 	"fmt"
-	"io"
-	"net/url"
-	"os"
-	"path/filepath"
 	"reflect"
 	"time"
 )
@@ -296,6 +292,21 @@ type DatasetRevision struct {
 	client *clientImpl
 }
 
+func (d *DatasetRevision) DownloadData(path string) *ErrorResponse {
+	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+	if getUrlsErr != nil {
+		return getUrlsErr
+	}
+
+	for _, url := range urls {
+		saveErr := d.client.saveUrlToDirectory(url, path)
+		if saveErr != nil {
+			return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
+		}
+	}
+	return nil
+}
+
 type ColumnMetadata struct {
 	FeatureFqn string `json:"feature_fqn"`
 	ColumnName string `json:"column_name"`
@@ -320,54 +331,6 @@ func deferFunctionWithError(function func() error, originalError error) error {
 		err = bodyCloseErr
 	}
 	return err
-}
-
-func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
-	resp, err := c.httpClient.Get(URL)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		err = deferFunctionWithError(resp.Body.Close, err)
-	}()
-
-	parsedUrl, urlParseErr := url.Parse(URL)
-	if urlParseErr != nil {
-		return urlParseErr
-	}
-	destinationFilepath := filepath.Join(parsedUrl.Path[4:])
-	destinationDirectory := filepath.Join(directory, filepath.Dir(destinationFilepath))
-
-	if err = os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
-		return err
-	}
-
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	destinationPath := filepath.Join(directory, destinationFilepath)
-	if err = os.WriteFile(destinationPath, data, os.ModePerm); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (d *DatasetRevision) DownloadData(client Client, path string) *ErrorResponse {
-	urls, getUrlsErr := client.GetDatasetUrls(d.RevisionId, "")
-	if getUrlsErr != nil {
-		return getUrlsErr
-	}
-
-	for _, url := range urls {
-		saveErr := d.client.saveUrlToDirectory(url, path)
-		if saveErr != nil {
-			return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
-		}
-	}
-	return nil
 }
 
 type TriggerResolverRunParams struct {
