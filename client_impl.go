@@ -68,18 +68,29 @@ def dataset_from_response(response: DatasetResponse, client: ChalkAPIClientImpl)
 //	return dataset
 //}
 
+func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+	response := getOfflineQueryJobResponse{}
+
+	for !response.isFinished {
+		err := c.sendRequest(
+			sendRequestParams{
+				Method:              "GET",
+				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
+				EnvironmentOverride: EnvironmentId,
+				Response:            &response,
+			},
+		)
+		if err != nil {
+			return []string{}, getErrorResponse(err)
+		}
+	}
+
+	return response.urls, nil
+}
+
 func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorResponse) {
 	emptyResult := Dataset{}
-
 	response := Dataset{}
-
-	jsonBytes, marshalErr := json.Marshal(request)
-	if marshalErr != nil {
-		fmt.Println(marshalErr)
-	} else {
-		fmt.Println("request:")
-		fmt.Println(string(jsonBytes))
-	}
 
 	err := c.sendRequest(
 		sendRequestParams{

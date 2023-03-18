@@ -2,6 +2,10 @@ package chalk
 
 import (
 	"fmt"
+	"io"
+	"net/url"
+	"os"
+	"path/filepath"
 	"reflect"
 	"time"
 )
@@ -341,6 +345,109 @@ type DatasetRevision struct {
 	DatasetName   *string       `json:"dataset_name"`
 	DatasetId     *string       `json:"dataset_id"`
 }
+
+/*
+class GetOfflineQueryJobResponse(BaseModel):
+    is_finished: bool = Field(description="Whether the export job is finished (it runs asynchronously)")
+    version: int = Field(
+        default=1,  # Backwards compatibility
+        description=(
+            "Version number representing the format of the data. The client uses this version number "
+            "to properly decode and load the query results into DataFrames."
+        ),
+    )
+    urls: List[str] = Field(
+        description="A list of short-lived, authenticated URLs that the client can download to retrieve the exported data."
+    )
+    errors: Optional[List[ChalkError]] = None
+    columns: Optional[List[ColumnMetadata]] = Field(
+        description="Expected columns for the dataframe, including data type information",
+        default=None,
+    )
+class ColumnMetadata(BaseModel):
+    feature_fqn: str = Field(description="The root FQN of the feature for a column")
+
+    column_name: str = Field(description="The name of the column that corresponds to this feature")
+
+    dtype: str = Field(description="The data type for this feature")
+    # This field is currently a JSON-stringified version of the SerializeDType property
+    # Using a string instead of a pydantic model the SerializedDType encoding does not affect
+    # the api layer
+
+
+*/
+
+type ColumnMetadata struct {
+	FeatureFqn string `json:"feature_fqn"`
+	ColumnName string `json:"column_name"`
+	Dtype      string `json:"dtype"`
+}
+
+type getOfflineQueryJobResponse struct {
+	isFinished bool
+	version    int
+	urls       []string
+	errors     []ServerError
+	columns    []ColumnMetadata
+}
+
+type IDatasetRevision interface {
+	DownloadData()
+}
+
+func deferFunctionWithError(function func() error, originalError error) error {
+	err := originalError
+	if bodyCloseErr := function(); bodyCloseErr != nil && err == nil {
+		err = bodyCloseErr
+	}
+	return err
+}
+
+func saveUrlToDirectory(client *clientImpl, URL string, directory string) error {
+	resp, err := client.httpClient.Get(URL)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = deferFunctionWithError(resp.Body.Close, err)
+	}()
+
+	parsedUrl, urlParseErr := url.Parse(URL)
+	if urlParseErr != nil {
+		return urlParseErr
+	}
+	destinationFilepath := filepath.Join(parsedUrl.Path[4:])
+	destinationDirectory := filepath.Join(directory, filepath.Dir(destinationFilepath))
+
+	if err = os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
+		return err
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	destinationPath := filepath.Join(directory, destinationFilepath)
+	if err = os.WriteFile(destinationPath, data, os.ModePerm); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *DatasetRevision) DownloadData(client *Client) *ErrorResponse {
+	urls, getUrlsErr := client.GetDatasetRevisionUrls(d.RevisionId, "")
+	if getUrlsErr != nil {
+		return getUrlsErr
+	}
+
+	for _, url := range urls {
+		saveUrlToDirectory(url)
+	}
+
+}
+
 type TriggerResolverRunParams struct {
 	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
