@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"encoding/json"
 	"github.com/chalk-ai/chalk-go/internal"
 	"strconv"
 	"time"
@@ -121,6 +122,88 @@ func (e *ServerError) serialize() (chalkErrorSerialized, error) {
 		Resolver:  e.Resolver,
 	}, nil
 }
+
+func (e *ErrorCode) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+
+	errorCode, getErrorCodeErr := getErrorCode(str)
+	if getErrorCodeErr != nil {
+		return getErrorCodeErr
+	}
+
+	*e = *errorCode
+	return nil
+}
+
+func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+
+	errorCodeCategory, getCategoryErr := getErrorCodeCategory(str)
+	if getCategoryErr != nil {
+		return getCategoryErr
+	}
+
+	*c = *errorCodeCategory
+	return nil
+}
+
+func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
+	queryInput := offlineQueryInputSerialized{}
+	for fqn, values := range p.Inputs {
+		queryInput.Columns = append(queryInput.Columns, fqn)
+		queryInput.Values = append(queryInput.Values, values)
+	}
+
+	requiredOutput := p.Output
+	if requiredOutput == nil {
+		requiredOutput = p.Output
+	}
+
+	return json.Marshal(offlineQueryRequestSerialized{
+		Input:             queryInput,
+		Output:            p.Output,
+		RequiredOutput:    requiredOutput,
+		DatasetName:       internal.StringOrNil(p.DatasetName),
+		Branch:            internal.StringOrNil(p.Branch),
+		MaxSamples:        p.MaxSamples,
+		DestinationFormat: "PARQUET",
+	})
+}
+
+//func (e ServerError) UnmarshalJSON(data []byte) error {
+//	c := chalkErrorSerialized{}
+//	unmarshalErr := json.Unmarshal(data, &c)
+//	if unmarshalErr != nil {
+//		return unmarshalErr
+//	}
+//
+//	errorCode, getErrorCodeErr := getErrorCode(c.Code)
+//	if getErrorCodeErr != nil {
+//		return getErrorCodeErr
+//	}
+//
+//	errorCodeCategory, getCategoryErr := getErrorCodeCategory(c.Category)
+//	if getCategoryErr != nil {
+//		return getCategoryErr
+//	}
+//
+//	e.Code = *errorCode
+//	e.Category = *errorCodeCategory
+//	e.Message = c.Message
+//	e.Exception = c.Exception
+//	e.Feature = c.Feature
+//	e.Resolver = c.Resolver
+//
+//	return nil
+//}
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 	errorCode, getErrorCodeErr := getErrorCode(e.Code)

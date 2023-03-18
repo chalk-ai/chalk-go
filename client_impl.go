@@ -25,6 +25,82 @@ type clientImpl struct {
 	initialEnvironment auth2.SourcedConfig
 }
 
+/*
+def dataset_from_response(response: DatasetResponse, client: ChalkAPIClientImpl) -> DatasetImpl:
+
+	revisions = [
+	    DatasetRevisionImpl(
+	        revision_id=revision.revision_id,
+	        creator_id=revision.creator_id,
+	        outputs=revision.outputs,
+	        givens_uri=revision.givens_uri,
+	        status=revision.status,
+	        filters=revision.filters,
+	        num_partitions=revision.num_partitions,
+	        output_uris=revision.output_uris,
+	        output_version=revision.output_version,
+	        num_bytes=revision.num_bytes,
+	        client=client,
+	        created_at=revision.created_at,
+	        started_at=revision.started_at,
+	        terminated_at=revision.terminated_at,
+	        dataset_name=revision.dataset_name,
+	        dataset_id=revision.dataset_id,
+	    )
+	    for revision in response.revisions
+	]
+	return DatasetImpl(
+	    is_finished=response.is_finished,
+	    version=response.version,
+	    revisions=revisions,
+	    client=client,
+	    dataset_id=response.dataset_id,
+	    dataset_name=response.dataset_name,
+	    errors=response.errors,
+	)
+*/
+//func datasetFromResponse(response DatasetResponse) Dataset {
+//	dataset := Dataset{
+//		Columns: response.Columns,
+//		Rows:    response.Rows,
+//	}
+//
+//	return dataset
+//}
+
+func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorResponse) {
+	emptyResult := Dataset{}
+
+	response := Dataset{}
+
+	jsonBytes, marshalErr := json.Marshal(request)
+	if marshalErr != nil {
+		fmt.Println(marshalErr)
+	} else {
+		fmt.Println("request:")
+		fmt.Println(string(jsonBytes))
+	}
+
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v3/offline_query",
+			Body:                request,
+			Response:            &response,
+			EnvironmentOverride: request.EnvironmentId,
+		},
+	)
+	if err != nil {
+		return emptyResult, getErrorResponse(err)
+	}
+
+	if len(response.Errors) > 0 {
+		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
+	}
+
+	return response, nil
+}
+
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 	emptyResult := OnlineQueryResult{}

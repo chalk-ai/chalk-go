@@ -257,18 +257,90 @@ type QueryMeta struct {
 */
 
 type OfflineQueryParams struct {
-	Inputs         map[string][]string
+	Inputs         map[string][]any
 	Output         []string
 	RequiredOutput []string
 	EnvironmentId  string
 	DatasetName    string
 	Branch         string
-	MaxSamples     int
+	MaxSamples     *int
 }
 
-type OfflineQueryResult struct {
+/*
+class DatasetImpl(Dataset):
+    def __init__(
+        self,
+        is_finished: bool,
+        version: int,
+        revisions: List[DatasetRevisionImpl],
+        client: ChalkClient,
+        dataset_id: Optional[uuid.UUID] = None,
+        dataset_name: Optional[str] = None,
+        errors: Optional[List[ChalkError]] = None,
+    ):
+        self._is_finished = is_finished
+        self._version = version
+        self._revisions = revisions
+        self._dataset_id = dataset_id
+        self._dataset_name = dataset_name
+        self._errors = errors
+        self._client = client
+*/
+
+//class QueryStatus(IntEnum):
+//PENDING_SUBMISSION = 1
+//"""Pending submission to the database."""
+//SUBMITTED = 2
+//"""Submitted to the database, but not yet running."""
+//RUNNING = 3
+//"""Running in the database."""
+//ERROR = 4
+//"""Error with either submitting or running the job."""
+//EXPIRED = 5
+//"""The job did not complete before an expiration deadline, so there are no results."""
+//CANCELLED = 6
+//"""Manually cancelled before it errored or finished successfully."""
+//SUCCESSFUL = 7  #
+//"""Successfully ran the job.""
+
+type QueryStatus int
+
+const (
+	PENDING_SUBMISSION QueryStatus = 1
+	SUBMITTED          QueryStatus = 2
+	RUNNING            QueryStatus = 3
+	ERROR              QueryStatus = 4
+	EXPIRED            QueryStatus = 5
+	CANCELLED          QueryStatus = 6
+	SUCCESSFUL         QueryStatus = 7
+)
+
+type Dataset struct {
+	IsFinished  bool              `json:"is_finished"`
+	Version     int               `json:"version"`
+	DatasetId   *string           `json:"dataset_id"`
+	DatasetName *string           `json:"dataset_name"`
+	Revisions   []DatasetRevision `json:"revisions"`
+	Errors      []ServerError     `json:"errors"`
 }
 
+type DatasetRevision struct {
+	RevisionId    string        `json:"revision_id"`
+	CreatorId     string        `json:"creator_id"`
+	Outputs       []string      `json:"outputs"`
+	GivensUri     *string       `json:"givens_uri"`
+	Status        QueryStatus   `json:"status"`
+	Filters       DatasetFilter `json:"filters"`
+	NumPartitions int           `json:"num_partitions"`
+	OutputUris    string        `json:"output_uris"`
+	OutputVersion int           `json:"output_version"`
+	NumBytes      *int          `json:"num_bytes"`
+	CreatedAt     *time.Time    `json:"created_at"`
+	StartedAt     *string       `json:"started_at"`
+	TerminatedAt  *time.Time    `json:"terminated_at"`
+	DatasetName   *string       `json:"dataset_name"`
+	DatasetId     *string       `json:"dataset_id"`
+}
 type TriggerResolverRunParams struct {
 	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
@@ -332,23 +404,23 @@ type ErrorResponse struct {
 // for example, when a resolver unexpectedly fails to run.
 type ServerError struct {
 	// The type of the error.
-	Code ErrorCode
+	Code ErrorCode `json:"code"`
 
 	// The category of the error, given in the type field for the error codes.
 	// This will be one of "REQUEST", "NETWORK", and "FIELD".
-	Category ErrorCodeCategory
+	Category ErrorCodeCategory `json:"category"`
 
 	// A readable description of the error message.
-	Message string
+	Message string `json:"message"`
 
 	// The exception that caused the failure, if applicable.
-	Exception *ResolverException
+	Exception *ResolverException `json:"exception"`
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
-	Feature string
+	Feature string `json:"feature"`
 
 	// The fully qualified name of the failing resolver, e.g. `my.project.get_fraud_score`.
-	Resolver string
+	Resolver string `json:"resolver"`
 }
 
 // HTTPError is a wrapper around a standard HTTP error such as missing authorization.
