@@ -67,8 +67,8 @@ func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorRe
 		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
 	}
 
-	for _, revision := response.Revisions {
-		revision.client = c
+	for idx, _ := range response.Revisions {
+		response.Revisions[idx].client = c
 	}
 
 	return response, nil
