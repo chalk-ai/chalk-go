@@ -25,6 +25,9 @@ type Client interface {
 	//		fmt.Println("User email: ", user.Email)
 	//		fmt.Println("User card ID: ", user.Card.Id)
 	//
+
+	GetDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse)
+
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
 	OfflineQuery(args OfflineQueryParams) (Dataset, *ErrorResponse)

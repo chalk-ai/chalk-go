@@ -25,53 +25,10 @@ type clientImpl struct {
 	initialEnvironment auth2.SourcedConfig
 }
 
-/*
-def dataset_from_response(response: DatasetResponse, client: ChalkAPIClientImpl) -> DatasetImpl:
+func (c *clientImpl) GetDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+	response := GetOfflineQueryJobResponse{}
 
-	revisions = [
-	    DatasetRevisionImpl(
-	        revision_id=revision.revision_id,
-	        creator_id=revision.creator_id,
-	        outputs=revision.outputs,
-	        givens_uri=revision.givens_uri,
-	        status=revision.status,
-	        filters=revision.filters,
-	        num_partitions=revision.num_partitions,
-	        output_uris=revision.output_uris,
-	        output_version=revision.output_version,
-	        num_bytes=revision.num_bytes,
-	        client=client,
-	        created_at=revision.created_at,
-	        started_at=revision.started_at,
-	        terminated_at=revision.terminated_at,
-	        dataset_name=revision.dataset_name,
-	        dataset_id=revision.dataset_id,
-	    )
-	    for revision in response.revisions
-	]
-	return DatasetImpl(
-	    is_finished=response.is_finished,
-	    version=response.version,
-	    revisions=revisions,
-	    client=client,
-	    dataset_id=response.dataset_id,
-	    dataset_name=response.dataset_name,
-	    errors=response.errors,
-	)
-*/
-//func datasetFromResponse(response DatasetResponse) Dataset {
-//	dataset := Dataset{
-//		Columns: response.Columns,
-//		Rows:    response.Rows,
-//	}
-//
-//	return dataset
-//}
-
-func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
-	response := getOfflineQueryJobResponse{}
-
-	for !response.isFinished {
+	for !response.IsFinished {
 		err := c.sendRequest(
 			sendRequestParams{
 				Method:              "GET",
@@ -83,9 +40,10 @@ func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]
 		if err != nil {
 			return []string{}, getErrorResponse(err)
 		}
+		time.Sleep(500 * time.Millisecond)
 	}
 
-	return response.urls, nil
+	return response.Urls, nil
 }
 
 func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorResponse) {
@@ -107,6 +65,10 @@ func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorRe
 
 	if len(response.Errors) > 0 {
 		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
+	}
+
+	for _, revision := response.Revisions {
+		revision.client = c
 	}
 
 	return response, nil
@@ -269,7 +231,14 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return jsonErr
 	}
 
-	request, newRequestErr := http.NewRequest(args.Method, args.URL, bytes.NewBuffer(jsonBytes))
+	var body io.Reader
+	if args.Body == nil {
+		body = nil
+	} else {
+		body = bytes.NewBuffer(jsonBytes)
+	}
+
+	request, newRequestErr := http.NewRequest(args.Method, args.URL, body)
 	if newRequestErr != nil {
 		return newRequestErr
 	}
@@ -317,7 +286,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	out, _ := io.ReadAll(res.Body)
-	err = json.Unmarshal(out, &args.Response)
+	err = json.Unmarshal(out, args.Response)
 
 	return err
 }

@@ -245,21 +245,6 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
-/*
-   def offline_query(
-       self,
-       input: Optional[Union[Mapping[Union[str, Feature, Any], Any], pd.DataFrame, pl.DataFrame, DataFrame]] = None,
-       input_times: Union[Sequence[datetime], datetime, None] = None,
-       output: Sequence[Union[str, Feature, Any]] = (),
-       required_output: Sequence[Union[str, Feature, Any]] = (),
-       environment: Optional[EnvironmentId] = None,
-       dataset_name: Optional[str] = None,
-       branch: Optional[BranchId] = None,
-       max_samples: Optional[int] = None,
-   ) -> DatasetImpl:
-
-*/
-
 type OfflineQueryParams struct {
 	Inputs         map[string][]any
 	Output         []string
@@ -269,43 +254,6 @@ type OfflineQueryParams struct {
 	Branch         string
 	MaxSamples     *int
 }
-
-/*
-class DatasetImpl(Dataset):
-    def __init__(
-        self,
-        is_finished: bool,
-        version: int,
-        revisions: List[DatasetRevisionImpl],
-        client: ChalkClient,
-        dataset_id: Optional[uuid.UUID] = None,
-        dataset_name: Optional[str] = None,
-        errors: Optional[List[ChalkError]] = None,
-    ):
-        self._is_finished = is_finished
-        self._version = version
-        self._revisions = revisions
-        self._dataset_id = dataset_id
-        self._dataset_name = dataset_name
-        self._errors = errors
-        self._client = client
-*/
-
-//class QueryStatus(IntEnum):
-//PENDING_SUBMISSION = 1
-//"""Pending submission to the database."""
-//SUBMITTED = 2
-//"""Submitted to the database, but not yet running."""
-//RUNNING = 3
-//"""Running in the database."""
-//ERROR = 4
-//"""Error with either submitting or running the job."""
-//EXPIRED = 5
-//"""The job did not complete before an expiration deadline, so there are no results."""
-//CANCELLED = 6
-//"""Manually cancelled before it errored or finished successfully."""
-//SUCCESSFUL = 7  #
-//"""Successfully ran the job.""
 
 type QueryStatus int
 
@@ -344,38 +292,9 @@ type DatasetRevision struct {
 	TerminatedAt  *time.Time    `json:"terminated_at"`
 	DatasetName   *string       `json:"dataset_name"`
 	DatasetId     *string       `json:"dataset_id"`
+
+	client *clientImpl
 }
-
-/*
-class GetOfflineQueryJobResponse(BaseModel):
-    is_finished: bool = Field(description="Whether the export job is finished (it runs asynchronously)")
-    version: int = Field(
-        default=1,  # Backwards compatibility
-        description=(
-            "Version number representing the format of the data. The client uses this version number "
-            "to properly decode and load the query results into DataFrames."
-        ),
-    )
-    urls: List[str] = Field(
-        description="A list of short-lived, authenticated URLs that the client can download to retrieve the exported data."
-    )
-    errors: Optional[List[ChalkError]] = None
-    columns: Optional[List[ColumnMetadata]] = Field(
-        description="Expected columns for the dataframe, including data type information",
-        default=None,
-    )
-class ColumnMetadata(BaseModel):
-    feature_fqn: str = Field(description="The root FQN of the feature for a column")
-
-    column_name: str = Field(description="The name of the column that corresponds to this feature")
-
-    dtype: str = Field(description="The data type for this feature")
-    # This field is currently a JSON-stringified version of the SerializeDType property
-    # Using a string instead of a pydantic model the SerializedDType encoding does not affect
-    # the api layer
-
-
-*/
 
 type ColumnMetadata struct {
 	FeatureFqn string `json:"feature_fqn"`
@@ -383,12 +302,12 @@ type ColumnMetadata struct {
 	Dtype      string `json:"dtype"`
 }
 
-type getOfflineQueryJobResponse struct {
-	isFinished bool
-	version    int
-	urls       []string
-	errors     []ServerError
-	columns    []ColumnMetadata
+type GetOfflineQueryJobResponse struct {
+	IsFinished bool             `json:"is_finished"`
+	Version    int              `json:"version"`
+	Urls       []string         `json:"urls"`
+	Errors     []ServerError    `json:"errors"`
+	Columns    []ColumnMetadata `json:"columns"`
 }
 
 type IDatasetRevision interface {
@@ -403,8 +322,8 @@ func deferFunctionWithError(function func() error, originalError error) error {
 	return err
 }
 
-func saveUrlToDirectory(client *clientImpl, URL string, directory string) error {
-	resp, err := client.httpClient.Get(URL)
+func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
+	resp, err := c.httpClient.Get(URL)
 	if err != nil {
 		return err
 	}
@@ -436,16 +355,19 @@ func saveUrlToDirectory(client *clientImpl, URL string, directory string) error 
 	return nil
 }
 
-func (d *DatasetRevision) DownloadData(client *Client) *ErrorResponse {
-	urls, getUrlsErr := client.GetDatasetRevisionUrls(d.RevisionId, "")
+func (d *DatasetRevision) DownloadData(client Client, path string) *ErrorResponse {
+	urls, getUrlsErr := client.GetDatasetUrls(d.RevisionId, "")
 	if getUrlsErr != nil {
 		return getUrlsErr
 	}
 
 	for _, url := range urls {
-		saveUrlToDirectory(url)
+		saveErr := d.client.saveUrlToDirectory(url, path)
+		if saveErr != nil {
+			return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
+		}
 	}
-
+	return nil
 }
 
 type TriggerResolverRunParams struct {
