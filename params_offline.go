@@ -95,7 +95,6 @@ func (p offlineQueryParamsWithOutputs) WithOutputs(features ...any) offlineQuery
 // WithRequiredOutputs returns a copy of Offline Query parameters with the specified outputs added.
 // For use via method git st. See OfflineQueryParamsComplete for usage examples.
 func (p offlineQueryParamsWithOutputs) WithRequiredOutputs(features ...any) offlineQueryParamsWithRequiredOutputs {
-	p.underlying =
 	return offlineQueryParamsWithRequiredOutputs{
 		p.underlying.withRequiredOutputs(features...),
 	}
