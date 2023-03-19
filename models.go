@@ -1,7 +1,9 @@
 package chalk
 
 import (
+	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
 )
@@ -297,12 +299,15 @@ func (d *DatasetRevision) DownloadData(path string) *ErrorResponse {
 	if getUrlsErr != nil {
 		return getUrlsErr
 	}
-
+	g, _ := errgroup.WithContext(context.Background())
 	for _, url := range urls {
-		saveErr := d.client.saveUrlToDirectory(url, path)
-		if saveErr != nil {
-			return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
-		}
+		g.Go(func() error {
+			return d.client.saveUrlToDirectory(url, path)
+		})
+	}
+	saveErr := g.Wait()
+	if saveErr != nil {
+		return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
 	}
 	return nil
 }
