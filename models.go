@@ -244,13 +244,31 @@ type QueryMeta struct {
 }
 
 type OfflineQueryParams struct {
-	Inputs         map[string][]any
-	Output         []string
-	RequiredOutput []string
-	EnvironmentId  string
-	DatasetName    string
-	Branch         string
-	MaxSamples     *int
+	inputs          map[string][]any
+	outputs         []string
+	requiredOutputs []string
+	EnvironmentId   string
+	DatasetName     string
+	Branch          string
+	MaxSamples      *int
+}
+
+// WithInput returns a copy of Offline Query parameters with the specified inputs added.
+// For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
+func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
+	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
+}
+
+// WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParams) WithOutputs(features ...any) offlineQueryParamsWithOutputs {
+	return offlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
+}
+
+// WithRequiredOutputs returns a copy of Offline Query parameters with the specified outputs added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParams) WithRequiredOutputs(features ...any) offlineQueryParamsWithRequiredOutputs {
+	return offlineQueryParamsWithRequiredOutputs{underlying: p.withRequiredOutputs(features...)}
 }
 
 type QueryStatus int

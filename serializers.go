@@ -157,19 +157,19 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 
 func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	queryInput := offlineQueryInputSerialized{}
-	for fqn, values := range p.Inputs {
+	for fqn, values := range p.inputs {
 		queryInput.Columns = append(queryInput.Columns, fqn)
 		queryInput.Values = append(queryInput.Values, values)
 	}
 
-	requiredOutput := p.Output
+	requiredOutput := p.outputs
 	if requiredOutput == nil {
-		requiredOutput = p.Output
+		requiredOutput = p.outputs
 	}
 
 	return json.Marshal(offlineQueryRequestSerialized{
 		Input:             queryInput,
-		Output:            p.Output,
+		Output:            p.outputs,
 		RequiredOutput:    requiredOutput,
 		DatasetName:       internal.StringOrNil(p.DatasetName),
 		Branch:            internal.StringOrNil(p.Branch),
