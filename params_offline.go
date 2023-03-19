@@ -16,7 +16,7 @@ package chalk
 //				EnvironmentId: "pipkjlfc3gtmn",
 //			}.
 //	 		WithInput(Features.User.Id, [1, 2, 3, 4]).
-//	 		WithOutputs(Features.User.Email, Features.User.Card.Id),
+//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
 //		)
 //
 // A pair of input and output methods mandatory, so one of either

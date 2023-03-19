@@ -27,7 +27,8 @@ type clientImpl struct {
 	initialEnvironment auth2.SourcedConfig
 }
 
-func (c *clientImpl) OfflineQuery(request OfflineQueryParams) (Dataset, *ErrorResponse) {
+func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
+	request := params.underlying
 	emptyResult := Dataset{}
 	response := Dataset{}
 

@@ -243,14 +243,21 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
+// OfflineQueryParams defines the parameters
+// that help you execute an online query.
+// OfflineQueryParams is the starting point
+// of the method chain that can help you
+// obtain an object of type [OfflineQueryParamsComplete]
+// that you can pass into Client.OfflineQuery.
 type OfflineQueryParams struct {
+	EnvironmentId string
+	DatasetName   string
+	Branch        string
+	MaxSamples    *int
+
 	inputs          map[string][]any
 	outputs         []string
 	requiredOutputs []string
-	EnvironmentId   string
-	DatasetName     string
-	Branch          string
-	MaxSamples      *int
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
