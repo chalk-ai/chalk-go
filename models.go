@@ -268,14 +268,14 @@ func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryPar
 
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
-func (p OfflineQueryParams) WithOutputs(features ...any) offlineQueryParamsWithOutputs {
-	return offlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
+func (p OfflineQueryParams) WithOutputs(features ...any) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{underlying: p.withOutputs(features...)}
 }
 
 // WithRequiredOutputs returns a copy of Offline Query parameters with the specified outputs added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
-func (p OfflineQueryParams) WithRequiredOutputs(features ...any) offlineQueryParamsWithRequiredOutputs {
-	return offlineQueryParamsWithRequiredOutputs{underlying: p.withRequiredOutputs(features...)}
+func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{underlying: p.withRequiredOutputs(features...)}
 }
 
 type QueryStatus int
