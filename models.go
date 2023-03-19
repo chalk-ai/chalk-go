@@ -255,7 +255,7 @@ type OfflineQueryParams struct {
 	Branch        string
 	MaxSamples    *int
 
-	inputs          map[string][]any
+	inputs          map[string][]TsFeatureValue
 	outputs         []string
 	requiredOutputs []string
 }
@@ -263,7 +263,7 @@ type OfflineQueryParams struct {
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
 // For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
-	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
+	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, getTsFeatures(values))}
 }
 
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
@@ -276,6 +276,11 @@ func (p OfflineQueryParams) WithOutputs(features ...any) OfflineQueryParamsCompl
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryParamsComplete {
 	return OfflineQueryParamsComplete{underlying: p.withRequiredOutputs(features...)}
+}
+
+type TsFeatureValue struct {
+	Value any
+	Time  *time.Time
 }
 
 type QueryStatus int

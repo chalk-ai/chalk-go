@@ -1,5 +1,7 @@
 package chalk
 
+import "time"
+
 /*****************************************
  Definitions for OfflineQueryParamsComplete
 ******************************************/
@@ -31,7 +33,7 @@ type OfflineQueryParamsComplete struct {
 // WithInput returns a copy of Offline Query parameters with the specified input added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParamsComplete) WithInput(feature any, values []any) OfflineQueryParamsComplete {
-	p.underlying = p.underlying.withInput(feature, values)
+	p.underlying = p.underlying.withInput(feature, getTsFeatures(values))
 	return p
 }
 
@@ -60,7 +62,7 @@ type offlineQueryParamsWithInputs struct {
 // WithInput returns a copy of Offline Query parameters with the specified input added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p offlineQueryParamsWithInputs) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
-	p.underlying = p.underlying.withInput(feature, values)
+	p.underlying = p.underlying.withInput(feature, getTsFeatures(values))
 	return p
 }
 
@@ -80,9 +82,9 @@ func (p offlineQueryParamsWithInputs) WithRequiredOutputs(features ...any) Offli
  Definitions for OfflineQueryParams
 ***********************************/
 
-func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryParams {
+func (p OfflineQueryParams) withInput(feature any, values []TsFeatureValue) OfflineQueryParams {
 	if p.inputs == nil {
-		p.inputs = make(map[string][]any)
+		p.inputs = make(map[string][]TsFeatureValue)
 	}
 	castedFeature := unwrapFeatureInterface(feature)
 	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], values...)
@@ -103,4 +105,29 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 		p.requiredOutputs = append(p.requiredOutputs, castedFeature.Fqn)
 	}
 	return p
+}
+
+func getTsFeatures(values []any) []TsFeatureValue {
+	castedValues := make([]TsFeatureValue, 0)
+	localTz, err := time.LoadLocation("Local")
+	if err != nil {
+		localTz, _ = time.LoadLocation("UTC")
+	}
+	for _, value := range values {
+		var castedVal TsFeatureValue
+		if tsFeature, ok := value.(TsFeatureValue); ok && tsFeature.Time != nil {
+			castedVal = tsFeature
+			if castedVal.Time.Location() == nil {
+				localTime := castedVal.Time.In(localTz)
+				castedVal.Time = &localTime
+			}
+		} else {
+			utcNow := time.Now()
+			castedVal = TsFeatureValue{Value: value, Time: &utcNow}
+		}
+		utcTime := castedVal.Time.UTC()
+		castedVal.Time = &utcTime
+		castedValues = append(castedValues, castedVal)
+	}
+	return castedValues
 }

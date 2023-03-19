@@ -157,17 +157,29 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 
 func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	queryInput := offlineQueryInputSerialized{}
-	for fqn, values := range p.inputs {
+	globalInputTimes := make([]any, 0)
+
+	for fqn, tsFeatureValues := range p.inputs {
+		var inputValues []any
+		var inputTimes []any
+		for _, v := range tsFeatureValues {
+			inputTimes = append(inputTimes, v.Time.Format(time.RFC3339))
+			inputValues = append(inputValues, v.Value)
+		}
 		queryInput.Columns = append(queryInput.Columns, fqn)
-		queryInput.Values = append(queryInput.Values, values)
+		queryInput.Values = append(queryInput.Values, inputValues)
+		globalInputTimes = inputTimes
 	}
+
+	queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
+	queryInput.Values = append(queryInput.Values, globalInputTimes)
 
 	requiredOutput := p.outputs
 	if requiredOutput == nil {
 		requiredOutput = p.outputs
 	}
 
-	return json.Marshal(offlineQueryRequestSerialized{
+	serializedObj := offlineQueryRequestSerialized{
 		Input:             queryInput,
 		Output:            p.outputs,
 		RequiredOutput:    requiredOutput,
@@ -175,7 +187,9 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 		Branch:            internal.StringOrNil(p.Branch),
 		MaxSamples:        p.MaxSamples,
 		DestinationFormat: "PARQUET",
-	})
+	}
+
+	return json.Marshal(serializedObj)
 }
 
 //func (e ServerError) UnmarshalJSON(data []byte) error {
