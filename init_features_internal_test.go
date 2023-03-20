@@ -34,19 +34,87 @@ var testFeatures struct {
 
 func TestInitFeaturesToNil(t *testing.T) {
 	initFeatures(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(fqnToField))
-	assert.Equal(t, (*string)(nil), testFeatures.User.Id)
-	assert.Equal(t, (*string)(nil), testFeatures.User.Name)
-	assert.Equal(t, (*string)(nil), testFeatures.User.Card.Id)
-	assert.Equal(t, (*int)(nil), testFeatures.User.Card.Number)
-	assert.Equal(t, (*string)(nil), testFeatures.User.Address.Id)
-	assert.Equal(t, (*string)(nil), testFeatures.User.Address.City)
-	assert.Equal(t, (*int)(nil), testFeatures.User.FamilySize)
-	assert.Equal(t, (*bool)(nil), testFeatures.User.HasFamily)
-	assert.Equal(t, (*float32)(nil), testFeatures.User.FamilyIncome)
+	assert.Nil(t, testFeatures.User.Id)
+	assert.Nil(t, testFeatures.User.Name)
+	assert.Nil(t, testFeatures.User.Card.Id)
+	assert.Nil(t, testFeatures.User.Card.Number)
+	assert.Nil(t, testFeatures.User.Address.Id)
+	assert.Nil(t, testFeatures.User.Address.City)
+	assert.Nil(t, testFeatures.User.FamilySize)
+	assert.Nil(t, testFeatures.User.HasFamily)
+	assert.Nil(t, testFeatures.User.FamilyIncome)
 
-	assert.Equal(t, (*string)(nil), testFeatures.Card.Id)
-	assert.Equal(t, (*int)(nil), testFeatures.Card.Number)
+	assert.Nil(t, testFeatures.Card.Id)
+	assert.Nil(t, testFeatures.Card.Number)
 
-	assert.Equal(t, (*string)(nil), testFeatures.Address.Id)
-	assert.Equal(t, (*string)(nil), testFeatures.Address.City)
+	assert.Nil(t, testFeatures.Address.Id)
+	assert.Nil(t, testFeatures.Address.City)
+
+}
+
+func TestUnmarshal(t *testing.T) {
+	userId := FeatureResult{
+		Value: "1",
+		Field: "go_user.id",
+	}
+	userName := FeatureResult{
+		Value: "Jan",
+		Field: "go_user.name",
+	}
+	userCardId := FeatureResult{
+		Value: "3333-3333-3333-3333",
+		Field: "go_user.card.id",
+	}
+	userCardNumber := FeatureResult{
+		Value: 1234,
+		Field: "go_user.card.number",
+	}
+	userAddressId := FeatureResult{
+		Value: "2",
+		Field: "go_user.address.id",
+	}
+	userAddressCity := FeatureResult{
+		Value: "San Francisco",
+		Field: "go_user.address.city",
+	}
+	userFamilySize := FeatureResult{
+		Value: 4,
+		Field: "go_user.family_size",
+	}
+	userHasFamily := FeatureResult{
+		Value: true,
+		Field: "go_user.has_family",
+	}
+	userFamilyIncome := FeatureResult{
+		Value: float32(100000.0),
+		Field: "go_user.family_income",
+	}
+
+	result := OnlineQueryResult{
+		Data: []FeatureResult{
+			userId,
+			userName,
+			userCardId,
+			userCardNumber,
+			userAddressId,
+			userAddressCity,
+			userFamilySize,
+			userHasFamily,
+			userFamilyIncome,
+		},
+	}
+
+	user := goUser{}
+	err := result.UnmarshalInto(&user)
+	assert.Nil(t, err)
+
+	assert.Equal(t, *user.Id, userId.Value)
+	assert.Equal(t, *user.Name, userName.Value)
+	assert.Equal(t, *user.Card.Id, userCardId.Value)
+	assert.Equal(t, *user.Card.Number, userCardNumber.Value)
+	assert.Equal(t, *user.Address.Id, userAddressId.Value)
+	assert.Equal(t, *user.Address.City, userAddressCity.Value)
+	assert.Equal(t, *user.FamilySize, userFamilySize.Value)
+	assert.Equal(t, *user.HasFamily, userHasFamily.Value)
+	assert.Equal(t, *user.FamilyIncome, userFamilyIncome.Value)
 }
