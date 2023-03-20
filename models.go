@@ -254,15 +254,6 @@ type OfflineQueryParams struct {
 	 PUBLIC FIELDS
 	**************/
 
-	// DefaultTime indicates the default time at which you would like to observe the features.
-	// If not specified, the current time will be used as the default observation time.
-	// The default observation time will be used when:
-	// 1. A feature value is passed into [OfflineQueryParams.WithInput] as a [TsFeatureValue] with a nil time.
-	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
-	// For more information about observation time, see [Temporal Consistency]
-	// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
-	DefaultTime *time.Time
-
 	// The environment under which to run the resolvers.
 	// API tokens can be scoped to an environment.
 	// If no environment is specified in the query,
@@ -281,6 +272,15 @@ type OfflineQueryParams struct {
 
 	// The maximum number of samples to include in the `DataFrame`.
 	MaxSamples *int
+
+	// DefaultTime indicates the default time at which you would like to observe the features.
+	// If not specified, the current time will be used as the default observation time.
+	// The default observation time will be used when:
+	// 1. A feature value is passed into [OfflineQueryParams.WithInput] as a [TsFeatureValue] with a nil time.
+	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
+	// For more information about observation time, see [Temporal Consistency]
+	// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
+	DefaultTime *time.Time
 
 	/***************
 	 PRIVATE FIELDS
