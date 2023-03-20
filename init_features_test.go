@@ -7,45 +7,51 @@ import (
 	"testing"
 )
 
-type GoAddress struct {
+type goAddress struct {
 	Id   *string
 	City *string
 }
 
-type GoCard struct {
+type goCard struct {
 	Id     *string
 	Number *string
 }
 
-type GoUser struct {
-	Id      *string
-	Name    *string
-	Card    *GoCard
-	Address *GoAddress
+type goUser struct {
+	Id           *string
+	Name         *string
+	Card         *goCard
+	Address      *goAddress
+	FamilySize   *int
+	HasFamily    *bool
+	FamilyIncome *float32
 }
 
-var TestFeatures struct {
-	User    *GoUser
-	Card    *GoCard
-	Address *GoAddress
+var testFeatures struct {
+	User    *goUser
+	Card    *goCard
+	Address *goAddress
 }
 
 func init() {
-	chalk.InitFeatures(&TestFeatures)
+	chalk.InitFeatures(&testFeatures)
 }
 
 func TestInitFeatures(t *testing.T) {
 	// Make sure each one can be unwrapped into a feature.
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Id).Fqn, "user.id")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Name).Fqn, "user.name")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Card.Id).Fqn, "user.card.id")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Card.Number).Fqn, "user.card.number")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Address.Id).Fqn, "user.address.id")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.User.Address.City).Fqn, "user.address.city")
+	assert.Equal(t, "user.id", internal.UnwrapFeature(testFeatures.User.Id).Fqn)
+	assert.Equal(t, "user.name", internal.UnwrapFeature(testFeatures.User.Name).Fqn)
+	assert.Equal(t, "user.card.id", internal.UnwrapFeature(testFeatures.User.Id).Fqn)
+	assert.Equal(t, "user.card.number", internal.UnwrapFeature(testFeatures.User.Card.Number).Fqn)
+	assert.Equal(t, "user.address.id", internal.UnwrapFeature(testFeatures.User.Address.Id).Fqn)
+	assert.Equal(t, "user.address.city", internal.UnwrapFeature(testFeatures.User.Address.City).Fqn)
+	assert.Equal(t, "user.family_size", internal.UnwrapFeature(testFeatures.User.FamilySize).Fqn)
+	assert.Equal(t, "user.has_family", internal.UnwrapFeature(testFeatures.User.HasFamily).Fqn)
+	assert.Equal(t, "user.family_income", internal.UnwrapFeature(testFeatures.User.FamilyIncome).Fqn)
 
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.Card.Id).Fqn, "card.id")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.Card.Number).Fqn, "card.number")
+	assert.Equal(t, "card.id", internal.UnwrapFeature(testFeatures.Card.Id).Fqn)
+	assert.Equal(t, "card.number", internal.UnwrapFeature(testFeatures.Card.Number).Fqn)
 
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.Address.Id).Fqn, "address.id")
-	assert.Equal(t, internal.UnwrapFeature(TestFeatures.Address.City).Fqn, "address.city")
+	assert.Equal(t, "address.id", internal.UnwrapFeature(testFeatures.Address.Id).Fqn)
+	assert.Equal(t, "address.city", internal.UnwrapFeature(testFeatures.Address.City).Fqn)
 }
