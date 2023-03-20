@@ -197,33 +197,6 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	return json.Marshal(serializedObj)
 }
 
-//func (e ServerError) UnmarshalJSON(data []byte) error {
-//	c := chalkErrorSerialized{}
-//	unmarshalErr := json.Unmarshal(data, &c)
-//	if unmarshalErr != nil {
-//		return unmarshalErr
-//	}
-//
-//	errorCode, getErrorCodeErr := getErrorCode(c.Code)
-//	if getErrorCodeErr != nil {
-//		return getErrorCodeErr
-//	}
-//
-//	errorCodeCategory, getCategoryErr := getErrorCodeCategory(c.Category)
-//	if getCategoryErr != nil {
-//		return getCategoryErr
-//	}
-//
-//	e.Code = *errorCode
-//	e.Category = *errorCodeCategory
-//	e.Message = c.Message
-//	e.Exception = c.Exception
-//	e.Feature = c.Feature
-//	e.Resolver = c.Resolver
-//
-//	return nil
-//}
-
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 	errorCode, getErrorCodeErr := getErrorCode(e.Code)
 	if getErrorCodeErr != nil {
