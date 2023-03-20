@@ -65,10 +65,6 @@ func TestUnmarshal(t *testing.T) {
 		Value: "3333-3333-3333-3333",
 		Field: "go_user.card.id",
 	}
-	userCardNumber := FeatureResult{
-		Value: 1234,
-		Field: "go_user.card.number",
-	}
 	userAddressId := FeatureResult{
 		Value: "2",
 		Field: "go_user.address.id",
@@ -95,7 +91,6 @@ func TestUnmarshal(t *testing.T) {
 			userId,
 			userName,
 			userCardId,
-			userCardNumber,
 			userAddressId,
 			userAddressCity,
 			userFamilySize,
@@ -108,13 +103,16 @@ func TestUnmarshal(t *testing.T) {
 	err := result.UnmarshalInto(&user)
 	assert.Nil(t, err)
 
+	// In the result
 	assert.Equal(t, *user.Id, userId.Value)
 	assert.Equal(t, *user.Name, userName.Value)
 	assert.Equal(t, *user.Card.Id, userCardId.Value)
-	assert.Equal(t, *user.Card.Number, userCardNumber.Value)
 	assert.Equal(t, *user.Address.Id, userAddressId.Value)
 	assert.Equal(t, *user.Address.City, userAddressCity.Value)
 	assert.Equal(t, *user.FamilySize, userFamilySize.Value)
 	assert.Equal(t, *user.HasFamily, userHasFamily.Value)
 	assert.Equal(t, *user.FamilyIncome, userFamilyIncome.Value)
+
+	// Not in the result
+	assert.Nil(t, user.Card.Number)
 }
