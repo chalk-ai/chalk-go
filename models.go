@@ -403,6 +403,10 @@ type DatasetRevision struct {
 	client *clientImpl
 }
 
+// DownloadData downloads output files pertaining to the revision to given path.
+// Datasets are stored in Chalk as sharded Parquet files. With this
+// method, you can download those raw files into a directory for processing
+// with other tools.
 func (d *DatasetRevision) DownloadData(path string) *ErrorResponse {
 	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
 	if getUrlsErr != nil {

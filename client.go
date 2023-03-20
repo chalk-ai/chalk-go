@@ -27,7 +27,7 @@ type Client interface {
 	//
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
-	// OfflineQuery computes feature values from the offline store.
+	// OfflineQuery queries feature values from the offline store.
 	// See `Dataset` for more information.
 	//
 	// Example:
@@ -45,7 +45,7 @@ type Client interface {
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
 
-	// GetRunStatus triggers an offline resolver to run.
+	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, *ErrorResponse)
 }
