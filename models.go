@@ -278,8 +278,7 @@ type OfflineQueryParams struct {
 	// The default observation time will be used when:
 	// 1. A feature value is passed into [OfflineQueryParams.WithInput] as a [TsFeatureValue] with a nil time.
 	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
-	// For more information about observation time, see [Temporal Consistency]
-	// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
+	// For more information about observation time, see https://docs.chalk.ai/docs/temporal-consistency
 	DefaultTime *time.Time
 
 	/***************
@@ -297,8 +296,9 @@ type OfflineQueryParams struct {
 // a [TsFeatureValue] if you want to query with a specific observation time. The observation
 // time for raw values will be the default observation time specified as [OfflineQueryParams.DefaultTime].
 // If no default observation time is specified, the current time will be used.
-// For more information about observation time, see [Temporal Consistency]
-// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
 }
@@ -318,8 +318,9 @@ func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryPar
 // TsFeatureValue is a struct that can be passed to OfflineQueryParams.WithInput
 // to specify the value of a feature along with a timestamp. This timestamp indicates
 // the observation time at which you would like the output feature values to be queried.
-// For more information about observation time, see [Temporal Consistency]
-// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
 type TsFeatureValue struct {
 	// The value of the feature. In the context of offline query,
 	// this is always a value of a primary feature.
