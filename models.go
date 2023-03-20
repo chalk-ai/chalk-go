@@ -243,69 +243,6 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
-/*
-   def offline_query(
-       self,
-       input: Optional[Union[Mapping[Union[str, Feature, Any], Any], pd.DataFrame, pl.DataFrame, DataFrame]] = None,
-       input_times: Union[Sequence[datetime], datetime, None] = None,
-       output: Sequence[Union[str, Feature, Any]] = (),
-       required_output: Sequence[Union[str, Feature, Any]] = (),
-       environment: Optional[EnvironmentId] = None,
-       dataset_name: Optional[str] = None,
-       branch: Optional[BranchId] = None,
-       max_samples: Optional[int] = None,
-   ) -> Dataset:
-       """Compute feature values from the offline store.
-       See `Dataset` for more information.
-
-       Parameters
-       ----------
-       input
-           The features for which there are known values.
-           It can be a mapping of features to a list of values for each
-           feature, or an existing `DataFrame`.
-           Each element in the `DataFrame` or list of values represents
-           an observation in line with the timestamp in `input_times`.
-       input_times
-           A list of the times of the observations from `input`.
-       output
-           The features that you'd like to sample, if they exist.
-           If an output feature was never computed for a sample (row) in
-           the resulting `DataFrame`, its value will be `None`.
-       environment
-           The environment under which to run the resolvers.
-           API tokens can be scoped to an environment.
-           If no environment is specified in the query,
-           but the token supports only a single environment,
-           then that environment will be taken as the scope
-           for executing the request.
-       dataset_name
-           A unique name that if provided will be used to generate and
-           save a `Dataset` constructed from the list of features computed
-           from the inputs.
-       max_samples
-           The maximum number of samples to include in the `DataFrame`.
-           If not specified, all samples will be returned.
-       branch
-
-       Other Parameters
-       ----------------
-       required_output
-           The features that you'd like to sample and must exist
-           in each resulting row. Rows where a `required_output`
-           was never stored in the offline store will be skipped.
-           This differs from specifying the feature in `output`,
-           where instead the row would be included, but the feature
-           value would be `None`.
-
-       Returns
-       -------
-       Dataset
-           A Chalk `Dataset`.
-
-       Examples
-*/
-
 // OfflineQueryParams defines the parameters
 // that help you execute an online query.
 // OfflineQueryParams is the starting point
