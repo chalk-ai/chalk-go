@@ -174,14 +174,19 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
 	queryInput.Values = append(queryInput.Values, globalInputTimes)
 
-	requiredOutput := p.outputs
+	output := p.outputs
+	if output == nil {
+		output = make([]string, 0)
+	}
+
+	requiredOutput := p.requiredOutputs
 	if requiredOutput == nil {
-		requiredOutput = p.outputs
+		requiredOutput = make([]string, 0)
 	}
 
 	serializedObj := offlineQueryRequestSerialized{
 		Input:             queryInput,
-		Output:            p.outputs,
+		Output:            output,
 		RequiredOutput:    requiredOutput,
 		DatasetName:       internal.StringOrNil(p.DatasetName),
 		Branch:            internal.StringOrNil(p.Branch),
