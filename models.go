@@ -333,6 +333,7 @@ type TsFeatureValue struct {
 	ObservationTime *time.Time
 }
 
+// QueryStatus represents the status of an offline query.
 type QueryStatus int
 
 const (
@@ -457,14 +458,6 @@ type GetOfflineQueryJobResponse struct {
 	Urls       []string         `json:"urls"`
 	Errors     []ServerError    `json:"errors"`
 	Columns    []ColumnMetadata `json:"columns"`
-}
-
-func deferFunctionWithError(function func() error, originalError error) error {
-	err := originalError
-	if bodyCloseErr := function(); bodyCloseErr != nil && err == nil {
-		err = bodyCloseErr
-	}
-	return err
 }
 
 type TriggerResolverRunParams struct {

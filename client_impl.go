@@ -188,11 +188,9 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	}
 
 	destinationPath := filepath.Join(directory, destinationFilepath)
-	if err = os.WriteFile(destinationPath, data, os.ModePerm); err != nil {
-		return err
-	}
+	err = os.WriteFile(destinationPath, data, os.ModePerm)
 
-	return nil
+	return err
 }
 
 func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
