@@ -1,9 +1,13 @@
-package chalk
+package internal
 
 import (
 	"fmt"
 	"reflect"
 )
+
+type Feature struct {
+	Fqn string
+}
 
 func unwrapFeature(t any) *Feature {
 	ptrInDisguiseToFeature := reflect.ValueOf(t)
@@ -15,6 +19,6 @@ func unwrapFeature(t any) *Feature {
 	panic(fmt.Sprintf("unsupported type: %s", typePointedTo))
 }
 
-func unwrapFeatureInterface(t any) *Feature {
+func UnwrapFeature(t any) *Feature {
 	return unwrapFeature(t)
 }

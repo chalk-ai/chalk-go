@@ -3,14 +3,11 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
 )
-
-type Feature struct {
-	Fqn string
-}
 
 // OnlineQueryParams defines the parameters
 // that help you execute an online query.
@@ -104,7 +101,7 @@ type OnlineQueryResult struct {
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
-	castedFeature := unwrapFeatureInterface(feature)
+	castedFeature := internal.UnwrapFeature(feature)
 	featureResult, found := result.features[castedFeature.Fqn]
 	if !found {
 		return nil
