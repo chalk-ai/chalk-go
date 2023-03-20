@@ -254,6 +254,15 @@ type OfflineQueryParams struct {
 	 PUBLIC FIELDS
 	**************/
 
+	// DefaultTime indicates the default time at which you would like to observe the features.
+	// If not specified, the current time will be used as the default observation time.
+	// The default observation time will be used when:
+	// 1. A feature value is passed into [OfflineQueryParams.WithInput] as a [TsFeatureValue] with a nil time.
+	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
+	// For more information about observation time, see [Temporal Consistency]
+	// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
+	DefaultTime *time.Time
+
 	// The environment under which to run the resolvers.
 	// API tokens can be scoped to an environment.
 	// If no environment is specified in the query,
@@ -284,11 +293,14 @@ type OfflineQueryParams struct {
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
 // For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
-// The "values" argument can be a list of a raw value (int or string) if you want to
-// query for the most recent feature values, or it can be a list of [TsFeatureValue]
-// if you want feature values from a specific observation time.
+// The "values" argument can contain a raw value (int or string), or it can also contain
+// a [TsFeatureValue] if you want to query with a specific observation time. The observation
+// time for raw values will be the default observation time specified as [OfflineQueryParams.DefaultTime].
+// If no default observation time is specified, the current time will be used.
+// For more information about observation time, see [Temporal Consistency]
+// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
-	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, getTsFeatures(values))}
+	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
 }
 
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
@@ -306,15 +318,18 @@ func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryPar
 // TsFeatureValue is a struct that can be passed to OfflineQueryParams.WithInput
 // to specify the value of a feature along with a timestamp. This timestamp indicates
 // the observation time at which you would like the output feature values to be queried.
+// For more information about observation time, see [Temporal Consistency]
+// [Temporal Consistency]: https://docs.chalk.com/docs/temporal-consistency
 type TsFeatureValue struct {
 	// The value of the feature. In the context of offline query,
-	// this is always a primary feature value.
+	// this is always a value of a primary feature.
 	Value any
 
 	// The observation time at which you would like the output
-	// feature values to be queried. If nil, the most recent
-	// feature values will be returned.
-	Time *time.Time
+	// feature values to be queried. If nil, [OfflineQueryParams.DefaultTime]
+	// will be used as the observation time. If [OfflineQueryParams.DefaultTime]
+	// is also nil, the current time will be used as the observation time.
+	ObservationTime *time.Time
 }
 
 type QueryStatus int
@@ -527,7 +542,7 @@ type ServerError struct {
 	Exception *ResolverException `json:"exception"`
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
-	Feature string `json:"feature"`
+	Feature string `json:"12feature"`
 
 	// The fully qualified name of the failing resolver, e.g. `my.project.get_fraud_score`.
 	Resolver string `json:"resolver"`

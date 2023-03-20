@@ -13,14 +13,15 @@ import "time"
 //
 // Example:
 //
-//		observationTime, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
-//		client.OfflineQuery(
-//			OfflineQueryParams{
-//				EnvironmentId: "pipkjlfc3gtmn",
-//			}.
-//	 		WithInput(Features.User.Id, []any{1, chalk.TsFeatureValue{Value: 2, Time: &observationTime}}).
-//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
-//		)
+//	     defaultObservedAt := time.Now().Add(-time.Hour)
+//			observedAt, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
+//			client.OfflineQuery(
+//				OfflineQueryParams{
+//					EnvironmentId: "pipkjlfc3gtmn",
+//				}.
+//		 		WithInput(Features.User.Id, []any{1, chalk.TsFeatureValue{Value: 2, ObservationTime: &observedAt}}).
+//		 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
+//			)
 //
 // It is mandatory to call [OfflineQueryParams.WithOutput]
 // or [OfflineQueryParams.WithRequiredOutputs] at least once
@@ -34,7 +35,7 @@ type OfflineQueryParamsComplete struct {
 // WithInput returns a copy of Offline Query parameters with the specified input added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParamsComplete) WithInput(feature any, values []any) OfflineQueryParamsComplete {
-	p.underlying = p.underlying.withInput(feature, getTsFeatures(values))
+	p.underlying = p.underlying.withInput(feature, values)
 	return p
 }
 
@@ -63,7 +64,7 @@ type offlineQueryParamsWithInputs struct {
 // WithInput returns a copy of Offline Query parameters with the specified input added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p offlineQueryParamsWithInputs) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
-	p.underlying = p.underlying.withInput(feature, getTsFeatures(values))
+	p.underlying = p.underlying.withInput(feature, values)
 	return p
 }
 
@@ -83,12 +84,14 @@ func (p offlineQueryParamsWithInputs) WithRequiredOutputs(features ...any) Offli
  Definitions for OfflineQueryParams
 ***********************************/
 
-func (p OfflineQueryParams) withInput(feature any, values []TsFeatureValue) OfflineQueryParams {
+func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryParams {
+	timestampedValues := p.getTimestampedFeatures(values)
+
 	if p.inputs == nil {
 		p.inputs = make(map[string][]TsFeatureValue)
 	}
 	castedFeature := unwrapFeatureInterface(feature)
-	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], values...)
+	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], timestampedValues...)
 	return p
 }
 
@@ -108,7 +111,7 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 	return p
 }
 
-func getTsFeatures(values []any) []TsFeatureValue {
+func (p OfflineQueryParams) getTimestampedFeatures(values []any) []TsFeatureValue {
 	castedValues := make([]TsFeatureValue, 0)
 	localTz, err := time.LoadLocation("Local")
 	if err != nil {
@@ -116,18 +119,21 @@ func getTsFeatures(values []any) []TsFeatureValue {
 	}
 	for _, value := range values {
 		var castedVal TsFeatureValue
-		if tsFeature, ok := value.(TsFeatureValue); ok && tsFeature.Time != nil {
+		if tsFeature, ok := value.(TsFeatureValue); ok && tsFeature.ObservationTime != nil {
 			castedVal = tsFeature
-			if castedVal.Time.Location() == nil {
-				localTime := castedVal.Time.In(localTz)
-				castedVal.Time = &localTime
+			if castedVal.ObservationTime.Location() == nil {
+				localTime := castedVal.ObservationTime.In(localTz)
+				castedVal.ObservationTime = &localTime
 			}
 		} else {
-			utcNow := time.Now()
-			castedVal = TsFeatureValue{Value: value, Time: &utcNow}
+			observedAt := time.Now()
+			if p.DefaultTime != nil {
+				observedAt = *p.DefaultTime
+			}
+			castedVal = TsFeatureValue{Value: value, ObservationTime: &observedAt}
 		}
-		utcTime := castedVal.Time.UTC()
-		castedVal.Time = &utcTime
+		utcTime := castedVal.ObservationTime.UTC()
+		castedVal.ObservationTime = &utcTime
 		castedValues = append(castedValues, castedVal)
 	}
 	return castedValues

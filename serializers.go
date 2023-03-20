@@ -163,7 +163,7 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 		var inputValues []any
 		var inputTimes []any
 		for _, v := range tsFeatureValues {
-			inputTimes = append(inputTimes, v.Time.Format(time.RFC3339))
+			inputTimes = append(inputTimes, v.ObservationTime.Format(time.RFC3339))
 			inputValues = append(inputValues, v.Value)
 		}
 		queryInput.Columns = append(queryInput.Columns, fqn)
