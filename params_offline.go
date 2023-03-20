@@ -13,11 +13,12 @@ import "time"
 //
 // Example:
 //
+//		observationTime, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
 //		client.OfflineQuery(
 //			OfflineQueryParams{
 //				EnvironmentId: "pipkjlfc3gtmn",
 //			}.
-//	 		WithInput(Features.User.Id, [1, 2, 3, 4]).
+//	 		WithInput(Features.User.Id, []any{1, chalk.TsFeatureValue{Value: 2, Time: &observationTime}}).
 //	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
 //		)
 //

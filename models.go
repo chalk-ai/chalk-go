@@ -312,7 +312,8 @@ type TsFeatureValue struct {
 	Value any
 
 	// The observation time at which you would like the output
-	// feature values to be queried
+	// feature values to be queried. If nil, the most recent
+	// feature values will be returned.
 	Time *time.Time
 }
 
