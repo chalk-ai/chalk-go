@@ -261,17 +261,21 @@ func (c *clientImpl) refreshJwt(forceRefresh bool) *ClientError {
 	return nil
 }
 
-func (c *clientImpl) sendRequest(args sendRequestParams) error {
-	jsonBytes, jsonErr := json.Marshal(args.Body)
-	if jsonErr != nil {
-		return jsonErr
+func getBodyBuffer(body any) (io.Reader, error) {
+	if body == nil {
+		return nil, nil
 	}
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(jsonBytes), nil
+}
 
-	var body io.Reader
-	if args.Body == nil {
-		body = nil
-	} else {
-		body = bytes.NewBuffer(jsonBytes)
+func (c *clientImpl) sendRequest(args sendRequestParams) error {
+	body, getBufferErr := getBodyBuffer(args.Body)
+	if getBufferErr != nil {
+		return getBufferErr
 	}
 
 	request, newRequestErr := http.NewRequest(args.Method, args.URL, body)
@@ -310,7 +314,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	defer res.Body.Close()
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
-		res, err = c.retryRequest(*request, jsonBytes, res, err)
+		res, err = c.retryRequest(*request, args.Body, res, err)
 		if err != nil {
 			return err
 		}
@@ -328,7 +332,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 }
 
 func (c *clientImpl) retryRequest(
-	originalRequest http.Request, originalBodyBytes []byte,
+	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
 	upsertJwtUpon401Err := c.refreshJwt(true)
@@ -337,9 +341,14 @@ func (c *clientImpl) retryRequest(
 		return originalResponse, originalError
 	}
 
+	originalBodyBuffer, getBufferErr := getBodyBuffer(originalBody)
+	if getBufferErr != nil {
+		return nil, getBufferErr
+	}
+
 	// New request needs to be constructed otherwise we were getting the error:
 	//     HTTP/1.x transport connection broken
-	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), bytes.NewBuffer(originalBodyBytes))
+	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), originalBodyBuffer)
 	if err != nil {
 		return nil, err
 	}
