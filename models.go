@@ -439,10 +439,6 @@ type GetOfflineQueryJobResponse struct {
 	Columns    []ColumnMetadata `json:"columns"`
 }
 
-type IDatasetRevision interface {
-	DownloadData()
-}
-
 func deferFunctionWithError(function func() error, originalError error) error {
 	err := originalError
 	if bodyCloseErr := function(); bodyCloseErr != nil && err == nil {
