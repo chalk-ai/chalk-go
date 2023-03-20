@@ -27,6 +27,18 @@ type Client interface {
 	//
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
+	// OfflineQuery computes feature values from the offline store.
+	// See `Dataset` for more information.
+	//
+	// Example:
+	//
+	//		client.OfflineQuery(
+	//			OfflineQueryParams{
+	//				EnvironmentId: "pipkjlfc3gtmn",
+	//			}.
+	//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
+	//		)
+	//
 	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, *ErrorResponse)
 
 	// TriggerResolverRun triggers an offline resolver to run.
