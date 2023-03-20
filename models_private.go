@@ -120,35 +120,6 @@ type offlineQueryRequestSerialized struct {
 	ObservedAtUpperBound *time.Time                  `json:"observed_at_upper_bound"`
 }
 
-/*
-class DatasetResponse(BaseModel):
-    is_finished: bool = Field(description="Whether the export job is finished (it runs asynchronously)")
-    version: int = Field(
-        default=1,  # Backwards compatibility
-        description=(
-            "Version number representing the format of the data. The client uses this version number "
-            "to properly decode and load the query results into DataFrames."
-        ),
-    )
-    dataset_id: Optional[uuid.UUID] = None
-    dataset_name: Optional[str] = None
-    revisions: List[DatasetRevisionResponse]
-    errors: Optional[List[ChalkError]] = None
-
-*/
-/*
-class DatasetSampleFilter(BaseModel):
-    lower_bound: Optional[datetime] = None
-    upper_bound: Optional[datetime] = None
-    max_samples: Optional[int] = None
-
-
-class DatasetFilter(BaseModel):
-    sample_filters: DatasetSampleFilter = Field(default_factory=DatasetSampleFilter)
-    max_cache_age_secs: Optional[float] = None
-
-*/
-
 type DatasetSampleFilter struct {
 	LowerBound *time.Time
 	UpperBound *time.Time
@@ -159,59 +130,6 @@ type DatasetFilter struct {
 	SampleFilters DatasetSampleFilter `json:"sample_filters"`
 	MaxCacheAge   *float64            `json:"max_cache_age_secs"`
 }
-
-/*
-class DatasetRevision(Protocol):
-    """Class wrapper around revisions for Datasets."""
-
-    revision_id: uuid.UUID
-    """UUID for the revision job."""
-
-    creator_id: str
-    """UUID for the creator of the job."""
-
-    outputs: List[str]
-    """Output features for the dataset revision."""
-
-    givens_uri: str | None
-    """Location of the givens stored for the dataset."""
-
-    status: QueryStatus
-    """Status of the revision job."""
-
-    filters: DatasetFilter
-    """Filters performed on the dataset."""
-
-    num_partitions: int
-    """Number of partitions for revision job."""
-
-    output_uris: str
-    """Location of the outputs stored fo the dataset."""
-
-    output_version: int
-    """Storage version of the outputs."""
-
-    num_bytes: Optional[int] = None
-    """Number of bytes of the output, updated upon success."""
-
-    created_at: Optional[datetime] = None
-    """Timestamp for creation of revision job."""
-
-    started_at: Optional[datetime] = None
-    """Timestamp for start of revision job."""
-
-    terminated_at: Optional[datetime] = None
-    """Timestamp for end of revision job."""
-
-    dataset_name: Optional[str] = None
-    """Name of revision, if given."""
-
-    dataset_id: Optional[uuid.UUID] = None
-    """ID of revision, if name is given."""
-
-    data_as_polars: pl.LazyFrame
-    """Loads a `pl.LazyFrame` containing the output."""
-*/
 
 type chalkHttpException struct {
 	Detail *string `json:"detail"`

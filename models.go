@@ -286,17 +286,37 @@ type TsFeatureValue struct {
 type QueryStatus int
 
 const (
-	PENDING_SUBMISSION QueryStatus = 1
-	SUBMITTED          QueryStatus = 2
-	RUNNING            QueryStatus = 3
-	ERROR              QueryStatus = 4
-	EXPIRED            QueryStatus = 5
-	CANCELLED          QueryStatus = 6
-	SUCCESSFUL         QueryStatus = 7
+	// QueryStatusPendingSubmission to the database.
+	QueryStatusPendingSubmission QueryStatus = 1
+
+	// QueryStatusSubmitted to the database, but not yet running.
+	QueryStatusSubmitted QueryStatus = 2
+
+	// QueryStatusRunning in the database.
+	QueryStatusRunning QueryStatus = 3
+
+	// QueryStatusError with either submitting or running the job.
+	QueryStatusError QueryStatus = 4
+
+	// QueryStatusExpired indicates the job did not complete before an expiration
+	// deadline, so there are no results.
+	QueryStatusExpired QueryStatus = 5
+
+	// QueryStatusCancelled indicates the job was manually cancelled before it
+	// errored or finished successfully.
+	QueryStatusCancelled QueryStatus = 6
+
+	// QueryStatusSuccessful indicates the job successfully ran.
+	QueryStatusSuccessful QueryStatus = 7
 )
 
 type Dataset struct {
-	IsFinished  bool              `json:"is_finished"`
+	// Whether the export job is finished (it runs asynchronously)
+	IsFinished bool `json:"is_finished"`
+
+	// Version number representing the format of the data. The client
+	// uses this version number to properly decode and load the query
+	// results into DataFrames.
 	Version     int               `json:"version"`
 	DatasetId   *string           `json:"dataset_id"`
 	DatasetName *string           `json:"dataset_name"`
@@ -305,21 +325,50 @@ type Dataset struct {
 }
 
 type DatasetRevision struct {
-	RevisionId    string        `json:"revision_id"`
-	CreatorId     string        `json:"creator_id"`
-	Outputs       []string      `json:"outputs"`
-	GivensUri     *string       `json:"givens_uri"`
-	Status        QueryStatus   `json:"status"`
-	Filters       DatasetFilter `json:"filters"`
-	NumPartitions int           `json:"num_partitions"`
-	OutputUris    string        `json:"output_uris"`
-	OutputVersion int           `json:"output_version"`
-	NumBytes      *int          `json:"num_bytes"`
-	CreatedAt     *time.Time    `json:"created_at"`
-	StartedAt     *string       `json:"started_at"`
-	TerminatedAt  *time.Time    `json:"terminated_at"`
-	DatasetName   *string       `json:"dataset_name"`
-	DatasetId     *string       `json:"dataset_id"`
+	// UUID for the revision job.
+	RevisionId string `json:"revision_id"`
+
+	// UUID for the creator of the job.
+	CreatorId string `json:"creator_id"`
+
+	// Output features for the dataset revision.
+	Outputs []string `json:"outputs"`
+
+	// Location of the givens stored for the dataset.
+	GivensUri *string `json:"givens_uri"`
+
+	// Status of the revision job.
+	Status QueryStatus `json:"status"`
+
+	// Filters performed on the dataset.
+	Filters DatasetFilter `json:"filters"`
+
+	// Number of partitions for revision job.
+	NumPartitions int `json:"num_partitions"`
+
+	// Location of the outputs stored fo the dataset.
+	OutputUris string `json:"output_uris"`
+
+	// Storage version of the outputs.
+	OutputVersion int `json:"output_version"`
+
+	// Number of bytes of the output, updated upon success.
+	NumBytes *int `json:"num_bytes"`
+
+	// Timestamp for creation of revision job.
+	CreatedAt *time.Time `json:"created_at"`
+
+	// Timestamp for start of revision job.
+	StartedAt *string `json:"started_at"`
+
+	// Timestamp for end of revision job.
+	TerminatedAt *time.Time `json:"terminated_at"`
+
+	// Name of revision, if given.
+	DatasetName *string `json:"dataset_name"`
+
+	// ID of revision, if name is given.
+	DatasetId *string `json:"dataset_id"`
 
 	client *clientImpl
 }
