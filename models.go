@@ -284,6 +284,9 @@ type OfflineQueryParams struct {
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
 // For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
+// The "values" argument can be a list of a raw value (int or string) if you want to
+// query for the most recent feature values, or it can be a list of [TsFeatureValue]
+// if you want feature values from a specific observation time.
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, getTsFeatures(values))}
 }
