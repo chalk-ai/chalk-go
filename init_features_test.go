@@ -41,7 +41,7 @@ func TestInitFeatures(t *testing.T) {
 	// Make sure each one can be unwrapped into a feature.
 	assert.Equal(t, "user.id", internal.UnwrapFeature(testFeatures.User.Id).Fqn)
 	assert.Equal(t, "user.name", internal.UnwrapFeature(testFeatures.User.Name).Fqn)
-	assert.Equal(t, "user.card.id", internal.UnwrapFeature(testFeatures.User.Id).Fqn)
+	assert.Equal(t, "user.card.id", internal.UnwrapFeature(testFeatures.User.Card.Id).Fqn)
 	assert.Equal(t, "user.card.number", internal.UnwrapFeature(testFeatures.User.Card.Number).Fqn)
 	assert.Equal(t, "user.address.id", internal.UnwrapFeature(testFeatures.User.Address.Id).Fqn)
 	assert.Equal(t, "user.address.city", internal.UnwrapFeature(testFeatures.User.Address.City).Fqn)
