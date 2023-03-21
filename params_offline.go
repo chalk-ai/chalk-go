@@ -1,7 +1,6 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/internal"
 	"time"
 )
 
@@ -93,14 +92,14 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	if p.inputs == nil {
 		p.inputs = make(map[string][]TsFeatureValue)
 	}
-	castedFeature := internal.UnwrapFeature(feature)
+	castedFeature := UnwrapFeature(feature)
 	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], timestampedValues...)
 	return p
 }
 
 func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 	for _, feature := range features {
-		castedFeature := internal.UnwrapFeature(feature)
+		castedFeature := UnwrapFeature(feature)
 		p.outputs = append(p.outputs, castedFeature.Fqn)
 	}
 	return p
@@ -108,7 +107,7 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 
 func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryParams {
 	for _, feature := range features {
-		castedFeature := internal.UnwrapFeature(feature)
+		castedFeature := UnwrapFeature(feature)
 		p.requiredOutputs = append(p.requiredOutputs, castedFeature.Fqn)
 	}
 	return p

@@ -3,7 +3,6 @@ package chalk
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
 	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
@@ -101,7 +100,7 @@ type OnlineQueryResult struct {
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
-	castedFeature := internal.UnwrapFeature(feature)
+	castedFeature := UnwrapFeature(feature)
 	featureResult, found := result.features[castedFeature.Fqn]
 	if !found {
 		return nil

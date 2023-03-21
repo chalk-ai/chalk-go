@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 )
 
@@ -57,7 +56,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
-				feature := internal.Feature{Fqn: updatedFqn}
+				feature := Feature{Fqn: updatedFqn}
 				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
 				f.Set(ptrInDisguiseToFeature)
 			}
