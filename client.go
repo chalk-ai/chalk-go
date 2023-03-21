@@ -16,7 +16,7 @@ type Client interface {
 	// For instance, in the example below, 'user' is the root output
 	// namespace, so a pointer to a 'User' struct is passed in.
 	// You can also choose to pass 'nil' as the resultHolder, in which case
-	// you should use [OnlineQueryResult.UnmarshalInto] to populate a struct.
+	// you should use OnlineQueryResult.UnmarshalInto to populate a struct.
 	//
 	// Example:
 	//
