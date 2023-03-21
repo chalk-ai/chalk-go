@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -23,6 +25,35 @@ type clientImpl struct {
 	httpClient         *http.Client
 	logger             *LeveledLogger
 	initialEnvironment auth2.SourcedConfig
+}
+
+func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
+	request := params.underlying
+	emptyResult := Dataset{}
+	response := Dataset{}
+
+	err := c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v3/offline_query",
+			Body:                request,
+			Response:            &response,
+			EnvironmentOverride: request.EnvironmentId,
+		},
+	)
+	if err != nil {
+		return emptyResult, getErrorResponse(err)
+	}
+
+	if len(response.Errors) > 0 {
+		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
+	}
+
+	for idx, _ := range response.Revisions {
+		response.Revisions[idx].client = c
+	}
+
+	return response, nil
 }
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
@@ -110,6 +141,58 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 	return response, nil
 }
 
+func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+	response := GetOfflineQueryJobResponse{}
+
+	for !response.IsFinished {
+		err := c.sendRequest(
+			sendRequestParams{
+				Method:              "GET",
+				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
+				EnvironmentOverride: EnvironmentId,
+				Response:            &response,
+			},
+		)
+		if err != nil {
+			return []string{}, getErrorResponse(err)
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	return response.Urls, nil
+}
+
+func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
+	resp, err := c.httpClient.Get(URL)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err = deferFunctionWithError(resp.Body.Close, err)
+	}()
+
+	parsedUrl, urlParseErr := url.Parse(URL)
+	if urlParseErr != nil {
+		return urlParseErr
+	}
+	destinationFilepath := filepath.Join(parsedUrl.Path[4:])
+	destinationDirectory := filepath.Join(directory, filepath.Dir(destinationFilepath))
+
+	if err = os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
+		return err
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	destinationPath := filepath.Join(directory, destinationFilepath)
+	err = os.WriteFile(destinationPath, data, os.ModePerm)
+
+	return err
+}
+
 func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
@@ -176,13 +259,24 @@ func (c *clientImpl) refreshJwt(forceRefresh bool) *ClientError {
 	return nil
 }
 
+func getBodyBuffer(body any) (io.Reader, error) {
+	if body == nil {
+		return nil, nil
+	}
+	jsonBytes, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(jsonBytes), nil
+}
+
 func (c *clientImpl) sendRequest(args sendRequestParams) error {
-	jsonBytes, jsonErr := json.Marshal(args.Body)
-	if jsonErr != nil {
-		return jsonErr
+	body, getBufferErr := getBodyBuffer(args.Body)
+	if getBufferErr != nil {
+		return getBufferErr
 	}
 
-	request, newRequestErr := http.NewRequest(args.Method, args.URL, bytes.NewBuffer(jsonBytes))
+	request, newRequestErr := http.NewRequest(args.Method, args.URL, body)
 	if newRequestErr != nil {
 		return newRequestErr
 	}
@@ -218,7 +312,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	defer res.Body.Close()
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
-		res, err = c.retryRequest(*request, jsonBytes, res, err)
+		res, err = c.retryRequest(*request, args.Body, res, err)
 		if err != nil {
 			return err
 		}
@@ -230,13 +324,13 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	out, _ := io.ReadAll(res.Body)
-	err = json.Unmarshal(out, &args.Response)
+	err = json.Unmarshal(out, args.Response)
 
 	return err
 }
 
 func (c *clientImpl) retryRequest(
-	originalRequest http.Request, originalBodyBytes []byte,
+	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
 	upsertJwtUpon401Err := c.refreshJwt(true)
@@ -245,9 +339,14 @@ func (c *clientImpl) retryRequest(
 		return originalResponse, originalError
 	}
 
+	originalBodyBuffer, getBufferErr := getBodyBuffer(originalBody)
+	if getBufferErr != nil {
+		return nil, getBufferErr
+	}
+
 	// New request needs to be constructed otherwise we were getting the error:
 	//     HTTP/1.x transport connection broken
-	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), bytes.NewBuffer(originalBodyBytes))
+	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), originalBodyBuffer)
 	if err != nil {
 		return nil, err
 	}

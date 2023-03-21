@@ -10,6 +10,14 @@ type Client interface {
 	// OnlineQuery computes features values using online resolvers.
 	// See https://docs.chalk.ai/docs/query-basics for more information.
 	//
+	// resultHolder is a pointer to the struct that the result should be
+	// unmarshalled into. The struct passed in should be the struct that
+	// represents the feature set corresponding to the root output namespace.
+	// For instance, in the example below, 'user' is the root output
+	// namespace, so a pointer to a 'User' struct is passed in.
+	// You can also choose to pass 'nil' as the resultHolder, in which case
+	// you should use OnlineQueryResult.UnmarshalInto to populate a struct.
+	//
 	// Example:
 	//
 	//		user := User{}
@@ -27,11 +35,25 @@ type Client interface {
 	//
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
+	// OfflineQuery queries feature values from the offline store.
+	// See `Dataset` for more information.
+	//
+	// Example:
+	//
+	//		client.OfflineQuery(
+	//			OfflineQueryParams{
+	//				EnvironmentId: "pipkjlfc3gtmn",
+	//			}.
+	//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
+	//		)
+	//
+	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, *ErrorResponse)
+
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
 
-	// GetRunStatus triggers an offline resolver to run.
+	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, *ErrorResponse)
 }

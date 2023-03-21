@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"encoding/json"
 	"github.com/chalk-ai/chalk-go/internal"
 	"strconv"
 	"time"
@@ -120,6 +121,80 @@ func (e *ServerError) serialize() (chalkErrorSerialized, error) {
 		Feature:   e.Feature,
 		Resolver:  e.Resolver,
 	}, nil
+}
+
+func (e *ErrorCode) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+
+	errorCode, getErrorCodeErr := getErrorCode(str)
+	if getErrorCodeErr != nil {
+		return getErrorCodeErr
+	}
+
+	*e = *errorCode
+	return nil
+}
+
+func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
+	var str string
+	err := json.Unmarshal(data, &str)
+	if err != nil {
+		return err
+	}
+
+	errorCodeCategory, getCategoryErr := getErrorCodeCategory(str)
+	if getCategoryErr != nil {
+		return getCategoryErr
+	}
+
+	*c = *errorCodeCategory
+	return nil
+}
+
+func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
+	queryInput := offlineQueryInputSerialized{}
+	globalInputTimes := make([]any, 0)
+
+	for fqn, tsFeatureValues := range p.inputs {
+		var inputValues []any
+		var inputTimes []any
+		for _, v := range tsFeatureValues {
+			inputTimes = append(inputTimes, v.ObservationTime.Format(time.RFC3339))
+			inputValues = append(inputValues, v.Value)
+		}
+		queryInput.Columns = append(queryInput.Columns, fqn)
+		queryInput.Values = append(queryInput.Values, inputValues)
+		globalInputTimes = inputTimes
+	}
+
+	queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
+	queryInput.Values = append(queryInput.Values, globalInputTimes)
+
+	output := p.outputs
+	if output == nil {
+		output = make([]string, 0)
+	}
+
+	requiredOutput := p.requiredOutputs
+	if requiredOutput == nil {
+		requiredOutput = make([]string, 0)
+	}
+
+	serializedObj := offlineQueryRequestSerialized{
+		Input:             queryInput,
+		Output:            output,
+		RequiredOutput:    requiredOutput,
+		DatasetName:       internal.StringOrNil(p.DatasetName),
+		Branch:            internal.StringOrNil(p.Branch),
+		MaxSamples:        p.MaxSamples,
+		DestinationFormat: "PARQUET",
+	}
+
+	return json.Marshal(serializedObj)
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {

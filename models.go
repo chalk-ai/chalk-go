@@ -1,7 +1,9 @@
 package chalk
 
 import (
+	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
 )
@@ -241,6 +243,223 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
+// OfflineQueryParams defines the parameters
+// that help you execute an online query.
+// OfflineQueryParams is the starting point
+// of the method chain that can help you
+// obtain an object of type [OfflineQueryParamsComplete]
+// that you can pass into Client.OfflineQuery.
+type OfflineQueryParams struct {
+	/**************
+	 PUBLIC FIELDS
+	**************/
+
+	// The environment under which to run the resolvers.
+	// API tokens can be scoped to an environment.
+	// If no environment is specified in the query,
+	// but the token supports only a single environment,
+	// then that environment will be taken as the scope
+	// for executing the request.
+	EnvironmentId string
+
+	// A unique name that if provided will be used to generate and
+	// save a Dataset constructed from the list of features computed
+	// from the inputs.
+	DatasetName string
+
+	// The branch under which to run the resolvers.
+	Branch string
+
+	// The maximum number of samples to include in the `DataFrame`.
+	MaxSamples *int
+
+	// DefaultTime indicates the default time at which you would like to observe the features.
+	// If not specified, the current time will be used as the default observation time.
+	// The default observation time will be used when:
+	// 1. A feature value is passed into [OfflineQueryParams.WithInput] as a [TsFeatureValue] with a nil time.
+	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
+	// For more information about observation time, see https://docs.chalk.ai/docs/temporal-consistency
+	DefaultTime *time.Time
+
+	/***************
+	 PRIVATE FIELDS
+	***************/
+
+	inputs          map[string][]TsFeatureValue
+	outputs         []string
+	requiredOutputs []string
+}
+
+// WithInput returns a copy of Offline Query parameters with the specified inputs added.
+// For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
+// The "values" argument can contain a raw value (int or string), or it can also contain
+// a [TsFeatureValue] if you want to query with a specific observation time. The observation
+// time for raw values will be the default observation time specified as [OfflineQueryParams.DefaultTime].
+// If no default observation time is specified, the current time will be used.
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
+func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
+	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
+}
+
+// WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParams) WithOutputs(features ...any) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{underlying: p.withOutputs(features...)}
+}
+
+// WithRequiredOutputs returns a copy of Offline Query parameters with the specified outputs added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{underlying: p.withRequiredOutputs(features...)}
+}
+
+// TsFeatureValue is a struct that can be passed to OfflineQueryParams.WithInput
+// to specify the value of a feature along with a timestamp. This timestamp indicates
+// the observation time at which you would like the output feature values to be queried.
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
+type TsFeatureValue struct {
+	// The value of the feature. In the context of offline query,
+	// this is always a value of a primary feature.
+	Value any
+
+	// The observation time at which you would like the output
+	// feature values to be queried. If nil, [OfflineQueryParams.DefaultTime]
+	// will be used as the observation time. If [OfflineQueryParams.DefaultTime]
+	// is also nil, the current time will be used as the observation time.
+	ObservationTime *time.Time
+}
+
+// QueryStatus represents the status of an offline query.
+type QueryStatus int
+
+const (
+	// QueryStatusPendingSubmission to the database.
+	QueryStatusPendingSubmission QueryStatus = 1
+
+	// QueryStatusSubmitted to the database, but not yet running.
+	QueryStatusSubmitted QueryStatus = 2
+
+	// QueryStatusRunning in the database.
+	QueryStatusRunning QueryStatus = 3
+
+	// QueryStatusError with either submitting or running the job.
+	QueryStatusError QueryStatus = 4
+
+	// QueryStatusExpired indicates the job did not complete before an expiration
+	// deadline, so there are no results.
+	QueryStatusExpired QueryStatus = 5
+
+	// QueryStatusCancelled indicates the job was manually cancelled before it
+	// errored or finished successfully.
+	QueryStatusCancelled QueryStatus = 6
+
+	// QueryStatusSuccessful indicates the job successfully ran.
+	QueryStatusSuccessful QueryStatus = 7
+)
+
+type Dataset struct {
+	// Whether the export job is finished (it runs asynchronously)
+	IsFinished bool `json:"is_finished"`
+
+	// Version number representing the format of the data. The client
+	// uses this version number to properly decode and load the query
+	// results into DataFrames.
+	Version     int               `json:"version"`
+	DatasetId   *string           `json:"dataset_id"`
+	DatasetName *string           `json:"dataset_name"`
+	Revisions   []DatasetRevision `json:"revisions"`
+	Errors      []ServerError     `json:"errors"`
+}
+
+type DatasetRevision struct {
+	// UUID for the revision job.
+	RevisionId string `json:"revision_id"`
+
+	// UUID for the creator of the job.
+	CreatorId string `json:"creator_id"`
+
+	// Output features for the dataset revision.
+	Outputs []string `json:"outputs"`
+
+	// Location of the givens stored for the dataset.
+	GivensUri *string `json:"givens_uri"`
+
+	// Status of the revision job.
+	Status QueryStatus `json:"status"`
+
+	// Filters performed on the dataset.
+	Filters DatasetFilter `json:"filters"`
+
+	// Number of partitions for revision job.
+	NumPartitions int `json:"num_partitions"`
+
+	// Location of the outputs stored fo the dataset.
+	OutputUris string `json:"output_uris"`
+
+	// Storage version of the outputs.
+	OutputVersion int `json:"output_version"`
+
+	// Number of bytes of the output, updated upon success.
+	NumBytes *int `json:"num_bytes"`
+
+	// Timestamp for creation of revision job.
+	CreatedAt *time.Time `json:"created_at"`
+
+	// Timestamp for start of revision job.
+	StartedAt *string `json:"started_at"`
+
+	// Timestamp for end of revision job.
+	TerminatedAt *time.Time `json:"terminated_at"`
+
+	// Name of revision, if given.
+	DatasetName *string `json:"dataset_name"`
+
+	// ID of revision, if name is given.
+	DatasetId *string `json:"dataset_id"`
+
+	client *clientImpl
+}
+
+// DownloadData downloads output files pertaining to the revision to given path.
+// Datasets are stored in Chalk as sharded Parquet files. With this
+// method, you can download those raw files into a directory for processing
+// with other tools.
+func (d *DatasetRevision) DownloadData(path string) *ErrorResponse {
+	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+	if getUrlsErr != nil {
+		return getUrlsErr
+	}
+	g, _ := errgroup.WithContext(context.Background())
+	for _, url := range urls {
+		g.Go(func() error {
+			return d.client.saveUrlToDirectory(url, path)
+		})
+	}
+	saveErr := g.Wait()
+	if saveErr != nil {
+		return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
+	}
+	return nil
+}
+
+type ColumnMetadata struct {
+	FeatureFqn string `json:"feature_fqn"`
+	ColumnName string `json:"column_name"`
+	Dtype      string `json:"dtype"`
+}
+
+type GetOfflineQueryJobResponse struct {
+	IsFinished bool             `json:"is_finished"`
+	Version    int              `json:"version"`
+	Urls       []string         `json:"urls"`
+	Errors     []ServerError    `json:"errors"`
+	Columns    []ColumnMetadata `json:"columns"`
+}
+
 type TriggerResolverRunParams struct {
 	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
@@ -304,23 +523,23 @@ type ErrorResponse struct {
 // for example, when a resolver unexpectedly fails to run.
 type ServerError struct {
 	// The type of the error.
-	Code ErrorCode
+	Code ErrorCode `json:"code"`
 
 	// The category of the error, given in the type field for the error codes.
 	// This will be one of "REQUEST", "NETWORK", and "FIELD".
-	Category ErrorCodeCategory
+	Category ErrorCodeCategory `json:"category"`
 
 	// A readable description of the error message.
-	Message string
+	Message string `json:"message"`
 
 	// The exception that caused the failure, if applicable.
-	Exception *ResolverException
+	Exception *ResolverException `json:"exception"`
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
-	Feature string
+	Feature string `json:"12feature"`
 
 	// The fully qualified name of the failing resolver, e.g. `my.project.get_fraud_score`.
-	Resolver string
+	Resolver string `json:"resolver"`
 }
 
 // HTTPError is a wrapper around a standard HTTP error such as missing authorization.

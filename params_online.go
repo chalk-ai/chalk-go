@@ -53,6 +53,10 @@ func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Dura
 	return p
 }
 
+/*****************************************
+ Definitions for OnlineQueryParams
+******************************************/
+
 func (p OnlineQueryParams) withInput(feature any, value any) OnlineQueryParams {
 	if p.inputs == nil {
 		p.inputs = make(map[string]any)
