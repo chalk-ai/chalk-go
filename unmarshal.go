@@ -17,8 +17,8 @@ type Numbers interface {
 }
 
 func convertSliceyNumbers[T Numbers](anySlice []any) []T {
-	// TODO: Possibly unmarshal float numbers as the correct type into FeatureResult,
-	// instead of converting them here.
+	// TODO: Possibly unmarshal numbers as the correct type (instead of float64)
+	// into FeatureResult, instead of converting them here.
 	typedSlice := make([]T, len(anySlice))
 
 	for i, v := range anySlice {
