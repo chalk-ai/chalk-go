@@ -5,6 +5,10 @@ import (
 	"reflect"
 )
 
+type Feature struct {
+	Fqn string
+}
+
 func unwrapFeature(t any) *Feature {
 	ptrInDisguiseToFeature := reflect.ValueOf(t)
 	if ptrInDisguiseToFeature.Kind() == reflect.Ptr {
@@ -15,6 +19,6 @@ func unwrapFeature(t any) *Feature {
 	panic(fmt.Sprintf("unsupported type: %s", typePointedTo))
 }
 
-func unwrapFeatureInterface(t any) *Feature {
+func UnwrapFeature(t any) *Feature {
 	return unwrapFeature(t)
 }

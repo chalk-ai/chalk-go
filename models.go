@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-type Feature struct {
-	Fqn string
-}
-
 // OnlineQueryParams defines the parameters
 // that help you execute an online query.
 // OnlineQueryParams is the starting point
@@ -104,7 +100,7 @@ type OnlineQueryResult struct {
 }
 
 func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
-	castedFeature := unwrapFeatureInterface(feature)
+	castedFeature := UnwrapFeature(feature)
 	featureResult, found := result.features[castedFeature.Fqn]
 	if !found {
 		return nil
