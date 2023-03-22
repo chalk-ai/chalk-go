@@ -16,18 +16,26 @@ type Numbers interface {
 	int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
-func convertSliceyNumbers[T Numbers](anySlice []any) []T {
+func convertNumber[T Numbers](anyNumber any) T {
 	// TODO: Possibly unmarshal numbers as the correct type (instead of float64)
 	// into FeatureResult, instead of converting them here.
-	typedSlice := make([]T, len(anySlice))
-
-	for i, v := range anySlice {
-		switch typedV := v.(type) {
-		case float64:
-			typedSlice[i] = T(typedV)
-		default:
-			typedSlice[i] = v.(T)
+	switch typedNumber := anyNumber.(type) {
+	case float64:
+		return T(typedNumber)
+	default:
+		castedNumber, ok := anyNumber.(T)
+		if !ok {
+			var t T
+			panic(fmt.Sprintf("exception occurred while unmarshaling online query result: cannot cast the number '%s' of type '%s' to the specified type '%s'", anyNumber, reflect.TypeOf(typedNumber), reflect.TypeOf(t)))
 		}
+		return castedNumber
+	}
+}
+
+func convertSliceyNumbers[T Numbers](anySlice []any) []T {
+	typedSlice := make([]T, len(anySlice))
+	for i, v := range anySlice {
+		typedSlice[i] = convertNumber[T](v)
 	}
 	return typedSlice
 }
@@ -53,12 +61,29 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 		return FieldNotFoundError
 	}
 
-	if field.Type().Elem().Kind() == reflect.Int {
-		switch typed := value.(type) {
-		case float64:
-			value = int(typed)
-		}
+	switch field.Type().Elem().Kind() {
+	case reflect.Int8:
+		value = convertNumber[int8](value)
+	case reflect.Int16:
+		value = convertNumber[int16](value)
+	case reflect.Int32:
+		value = convertNumber[int32](value)
+	case reflect.Int64:
+		value = convertNumber[int64](value)
+	case reflect.Uint8:
+		value = convertNumber[uint8](value)
+	case reflect.Uint16:
+		value = convertNumber[uint16](value)
+	case reflect.Uint32:
+		value = convertNumber[uint32](value)
+	case reflect.Uint64:
+		value = convertNumber[uint64](value)
+	case reflect.Float32:
+		value = convertNumber[float32](value)
+	case reflect.Float64:
+		value = convertNumber[float64](value)
 	}
+
 	if field.Type().Elem().String() == "time.Time" {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
