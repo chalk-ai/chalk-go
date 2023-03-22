@@ -1,8 +1,6 @@
 package chalk
 
-import (
-	"time"
-)
+import "time"
 
 /*****************************************
  Definitions for OfflineQueryParamsComplete
