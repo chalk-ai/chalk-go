@@ -61,6 +61,9 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 		return FieldNotFoundError
 	}
 
+	// TODO: Figure out if we could possibly
+	// do the equivalent by creating a new
+	// reflect.Value with reflect.NewAt
 	switch field.Type().Elem().Kind() {
 	case reflect.Int8:
 		value = convertNumber[int8](value)
