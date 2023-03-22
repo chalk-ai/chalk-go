@@ -10,10 +10,12 @@ import (
 
 type fqnToField map[string]reflect.Value
 
+var FieldNotFoundError = errors.New("field not found")
+
 func (t fqnToField) setFeature(fqn string, value any) error {
 	field, fieldFound := t[fqn]
 	if !fieldFound {
-		return errors.New("field not found")
+		return FieldNotFoundError
 	}
 
 	if field.Type().Elem().Kind() == reflect.Int {
@@ -57,14 +59,21 @@ func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
 		fqn := featureResult.Field
 		err := fieldMap.setFeature(fqn, featureResult.Value)
 		if err != nil {
+			structName := structValue.Type().String()
 			outputNamespace := "unknown namespace"
 			sections := strings.Split(fqn, ".")
 			if len(sections) > 0 {
 				outputNamespace = sections[0]
 			}
-			detailedErr := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structValue.Type().String())
-			detailedErr += fmt.Sprintf("Please check if you are passing a pointer to a struct that represents the output namespace '%s'.", outputNamespace)
-			return &ClientError{Message: detailedErr}
+			if errors.Is(err, FieldNotFoundError) {
+				fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+				fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+				return &ClientError{Message: fieldError}
+			} else {
+				return &ClientError{Message: fmt.Sprintf("Unknown error unmarshaling feature '%s' into the struct '%s'.", fqn, structName)}
+			}
+
 		}
 	}
 	for _, expectedOutput := range result.expectedOutputs {
