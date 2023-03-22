@@ -63,7 +63,8 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 
 	// TODO: Figure out if we could possibly
 	// do the equivalent by creating a new
-	// reflect.Value with reflect.NewAt
+	// reflect.Value with reflect.New
+	// and reflect.Value.Set.
 	switch field.Type().Elem().Kind() {
 	case reflect.Int8:
 		value = convertNumber[int8](value)
