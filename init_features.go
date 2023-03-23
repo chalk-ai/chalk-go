@@ -60,11 +60,20 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 					panic(fmt.Sprintf("error parsing bucket duration: %s", parseErr))
 				}
 				windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
-				feature := Feature{Fqn: windowFqn}
-				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem().Elem(), reflect.ValueOf(&feature).UnsafePointer())
-				newMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+				if fieldMap == nil {
+					feature := Feature{Fqn: windowFqn}
+					ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+					newMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+				} else {
+					nilPointer := reflect.New(f.Type().Elem()).Elem()
+					nilPointer.Set(reflect.Zero(nilPointer.Type()))
+					newMap.SetMapIndex(reflect.ValueOf(tag), nilPointer)
+				}
 			}
 			f.Set(newMap)
+			if fieldMap != nil {
+				fieldMap[updatedFqn] = f
+			}
 		} else {
 			// Create new Feature instance and point to it.
 			// The equivalent way of doing it without 'reflect':

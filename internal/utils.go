@@ -21,6 +21,25 @@ func StringOrNil(value string) *string {
 	return &value
 }
 
+// FormatBucketDuration takes an integer number of seconds and
+// returns a string representation that satisfies these conditions:
+//   - the largest possible unit of time (e.g. "10m" instead of "600s")
+//   - a single unit of time (e.g. "601s" instead of "10m1s")
+func FormatBucketDuration(duration int) string {
+	units := []string{"s", "m", "h", "d"}
+	divisors := []int{60, 60, 24, 7}
+
+	for i, unit := range units {
+		div := divisors[i]
+		if duration%div != 0 {
+			return fmt.Sprintf("%d%s", duration, unit)
+		}
+		duration = duration / div
+	}
+
+	return fmt.Sprintf("%dw", duration)
+}
+
 // ParseBucketDuration parses a bucket duration string
 // and returns the duration in seconds.
 // The input string must be of the form "Nunit" where

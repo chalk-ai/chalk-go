@@ -3,7 +3,9 @@ package chalk
 import (
 	"errors"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -55,17 +57,24 @@ func fieldSetConvertedValue(field reflect.Value, value any) {
 	field.Set(castedPointer)
 }
 
-func (t fqnToField) setFeature(fqn string, value any) error {
-	field, fieldFound := t[fqn]
-	if !fieldFound {
-		return FieldNotFoundError
+func setWindowedFeature(fqn string, field reflect.Value, value any, duration int) {
+	if field.Kind() != reflect.Map {
+		panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
 	}
+	value = convertIfNumber(value, field.Type().Elem().Elem().Kind())
+	tagValue := reflect.ValueOf(internal.FormatBucketDuration(duration))
+	copied := reflect.New(reflect.TypeOf(value))
+	copied.Elem().Set(reflect.ValueOf(value))
+	castedPointer := reflect.NewAt(field.Type().Elem().Elem(), copied.UnsafePointer())
+	field.SetMapIndex(tagValue, castedPointer)
+}
 
+func convertIfNumber(value any, kind reflect.Kind) any {
 	// TODO: Figure out if we could possibly
 	// do the equivalent by creating a new
 	// reflect.Value with reflect.New
 	// and reflect.Value.Set.
-	switch field.Type().Elem().Kind() {
+	switch kind {
 	case reflect.Int8:
 		value = convertNumber[int8](value)
 	case reflect.Int16:
@@ -87,6 +96,23 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 	case reflect.Float64:
 		value = convertNumber[float64](value)
 	}
+
+	return value
+}
+
+func (t fqnToField) setFeature(fqn string, value any) error {
+	if bucketDuration, baseFqn := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFqn != nil {
+		baseFeatureField := t[*baseFqn]
+		setWindowedFeature(fqn, baseFeatureField, value, *bucketDuration)
+		return nil
+	}
+
+	field, fieldFound := t[fqn]
+	if !fieldFound {
+		return FieldNotFoundError
+	}
+
+	value = convertIfNumber(value, field.Type().Elem().Kind())
 
 	if field.Type().Elem().String() == "time.Time" {
 		stringValue := reflect.ValueOf(value).String()
@@ -151,6 +177,28 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 	}
 
 	return nil
+}
+
+func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *string) {
+	sections := strings.Split(fqn, ".")
+	lastSection := sections[len(sections)-1]
+
+	lastSectionSplit := strings.Split(lastSection, "__")
+	if len(lastSectionSplit) < 2 {
+		return nil, nil
+	}
+	secondsStr := lastSectionSplit[1]
+	seconds, err := strconv.Atoi(secondsStr)
+	if err != nil {
+		return nil, nil
+	}
+
+	baseFeatureFqn := strings.Join(sections[:len(sections)-1], ".") + "." + lastSectionSplit[0]
+	if _, ok := fieldMap[baseFeatureFqn]; !ok {
+		return nil, nil
+	}
+
+	return &seconds, &baseFeatureFqn
 }
 
 func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
