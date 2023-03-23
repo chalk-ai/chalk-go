@@ -16,7 +16,12 @@ func unwrapFeature(t any) *Feature {
 		// Everything but windowed features
 		return (*Feature)(reflectValue.UnsafePointer())
 	} else if reflectValue.Kind() == reflect.Map {
-		// Windowed feature
+		// Base windowed feature is typed as a Map.
+		// But it is natural for a user to try querying
+		// a base windowed feature when they want to query
+		// every pseudofeature in the windowed feature.
+		// So here we return the base windowed feature
+		// with a valid FQN.
 		windowedFeatureMap := reflectValue
 		keys := windowedFeatureMap.MapKeys()
 		if len(keys) == 0 {
