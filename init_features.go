@@ -12,6 +12,9 @@ func InitFeatures[T any](t *T) {
 	initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
+// initFeatures is a recursive function that initializes all features
+// in the struct that is passed in. Each feature is initialized as
+// a pointer to a Feature struct with the appropriate FQN.
 func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) {
 	if structValue.Kind() != reflect.Struct {
 		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String()))
@@ -41,6 +44,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		}
 
 		if f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() != "time.Time" {
+			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':
 			//
@@ -52,6 +56,19 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
 		} else if f.Kind() == reflect.Map {
+			// Creates a map of tag values to pointers to Features.
+			// For example, if we have the tag "windows=6h,12h,1d",
+			// then the map will be:
+			//
+			//      map[string]*int64{
+			//          "6h": &Feature{Fqn: "user.clicks__21600__"},
+			// 	        "12h": &Feature{Fqn: "user.clicks__43200__"},
+			//          "1d": &Feature{Fqn: "user.clicks__86400__"},
+			//      }
+			//
+			// Notice that while the values is typed as *int64, it is
+			// actually a pointer to a Feature struct. See BASE CASE
+			// section below.
 			newMap := reflect.MakeMap(f.Type())
 			windows := fieldMeta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
@@ -75,6 +92,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				fieldMap[updatedFqn] = f
 			}
 		} else {
+			// BASE CASE.
 			// Create new Feature instance and point to it.
 			// The equivalent way of doing it without 'reflect':
 			//
@@ -87,7 +105,6 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
 				f.Set(ptrInDisguiseToFeature)
 			}
-
 		}
 	}
 
