@@ -26,11 +26,14 @@ func StringOrNil(value string) *string {
 //   - the largest possible unit of time (e.g. "10m" instead of "600s")
 //   - a single unit of time (e.g. "601s" instead of "10m1s")
 func FormatBucketDuration(duration int) string {
-	units := []string{"s", "m", "h", "d"}
-	divisors := []int{60, 60, 24, 7}
+	unitToDivisor := map[string]int{
+		"s": 60,
+		"m": 60,
+		"h": 24,
+		"d": 7,
+	}
 
-	for i, unit := range units {
-		div := divisors[i]
+	for unit, div := range unitToDivisor {
 		if duration%div != 0 {
 			return fmt.Sprintf("%d%s", duration, unit)
 		}
