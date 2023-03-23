@@ -50,6 +50,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			//
 			//      Features.User.CreditReport = new(CreditReport)
 			//
+			pointerCheck(f)
 			featureSet := reflect.New(f.Type().Elem())
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
@@ -69,6 +70,10 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			// Notice that while the values is typed as *int64, it is
 			// actually a pointer to a Feature struct. See BASE CASE
 			// section below.
+			mapValueType := f.Type().Elem()
+			if mapValueType.Kind() != reflect.Pointer {
+				panic(fmt.Sprintf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind()))
+			}
 			newMap := reflect.MakeMap(f.Type())
 			windows := fieldMeta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
@@ -79,7 +84,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
 				if fieldMap == nil {
 					feature := Feature{Fqn: windowFqn}
-					ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
 					newMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 				} else {
 					nilPointer := reflect.New(f.Type().Elem()).Elem()
@@ -98,6 +103,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			//
 			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
 			//
+			pointerCheck(f)
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
@@ -109,6 +115,12 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 
 	visited[namespace] = false
+}
+
+func pointerCheck(field reflect.Value) {
+	if field.Kind() != reflect.Ptr {
+		panic(fmt.Sprintf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind()))
+	}
 }
 
 func snakeCase(s string) string {
