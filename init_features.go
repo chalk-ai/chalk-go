@@ -2,7 +2,9 @@ package chalk
 
 import (
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
+	"strings"
 )
 
 func InitFeatures[T any](t *T) {
@@ -28,11 +30,13 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 
 	for i := 0; i < structValue.NumField(); i++ {
-		attributeName := structValue.Type().Field(i).Name
+		f := structValue.Field(i)
+		fieldMeta := structValue.Type().Field(i)
+
+		attributeName := fieldMeta.Name
 		updatedFqn := fqn + snakeCase(attributeName)
 
-		f := structValue.Field(i)
-		if !f.CanSet() || f.Kind() != reflect.Pointer {
+		if !f.CanSet() {
 			continue
 		}
 
@@ -47,6 +51,20 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+		} else if f.Kind() == reflect.Map {
+			newMap := reflect.MakeMap(f.Type())
+			windows := fieldMeta.Tag.Get("windows")
+			for _, tag := range strings.Split(windows, ",") {
+				seconds, parseErr := internal.ParseBucketDuration(tag)
+				if parseErr != nil {
+					panic(fmt.Sprintf("error parsing bucket duration: %s", parseErr))
+				}
+				windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
+				feature := Feature{Fqn: windowFqn}
+				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+				newMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+			}
+			f.Set(newMap)
 		} else {
 			// Create new Feature instance and point to it.
 			// The equivalent way of doing it without 'reflect':
