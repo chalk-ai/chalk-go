@@ -50,23 +50,11 @@ func convertSliceyNonNumbers[T any](anySlice []any) []T {
 	return typedSlice
 }
 
-func fieldSetConvertedValue(field reflect.Value, value any) {
+func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 	copied := reflect.New(reflect.TypeOf(value))
 	copied.Elem().Set(reflect.ValueOf(value))
-	castedPointer := reflect.NewAt(field.Type().Elem(), copied.UnsafePointer())
-	field.Set(castedPointer)
-}
-
-func setWindowedFeature(fqn string, field reflect.Value, value any, duration int) {
-	if field.Kind() != reflect.Map {
-		panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
-	}
-	value = convertIfNumber(value, field.Type().Elem().Elem().Kind())
-	tagValue := reflect.ValueOf(internal.FormatBucketDuration(duration))
-	copied := reflect.New(reflect.TypeOf(value))
-	copied.Elem().Set(reflect.ValueOf(value))
-	castedPointer := reflect.NewAt(field.Type().Elem().Elem(), copied.UnsafePointer())
-	field.SetMapIndex(tagValue, castedPointer)
+	castedPointer := reflect.NewAt(elemType, copied.UnsafePointer())
+	return castedPointer
 }
 
 func convertIfNumber(value any, kind reflect.Kind) any {
@@ -100,86 +88,92 @@ func convertIfNumber(value any, kind reflect.Kind) any {
 	return value
 }
 
-func (t fqnToField) setFeature(fqn string, value any) error {
-	if bucketDuration, baseFqn := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFqn != nil {
-		baseFeatureField := t[*baseFqn]
-		setWindowedFeature(fqn, baseFeatureField, value, *bucketDuration)
-		return nil
+func convertNumberSlice(sliceElemKind reflect.Kind, value any) any {
+	anySlice := value.([]any)
+	switch sliceElemKind {
+	case reflect.Int8:
+		return convertSliceyNumbers[int8](anySlice)
+	case reflect.Int16:
+		return convertSliceyNumbers[int16](anySlice)
+	case reflect.Int32:
+		return convertSliceyNumbers[int32](anySlice)
+	case reflect.Int64:
+		return convertSliceyNumbers[int64](anySlice)
+	case reflect.Uint8:
+		return convertSliceyNumbers[uint8](anySlice)
+	case reflect.Uint16:
+		return convertSliceyNumbers[uint16](anySlice)
+	case reflect.Uint32:
+		return convertSliceyNumbers[uint32](anySlice)
+	case reflect.Uint64:
+		return convertSliceyNumbers[uint64](anySlice)
+	case reflect.Float32:
+		return convertSliceyNumbers[float32](anySlice)
+	case reflect.Float64:
+		return convertSliceyNumbers[float64](anySlice)
+	case reflect.String:
+		return convertSliceyNonNumbers[string](anySlice)
+	case reflect.Bool:
+		return convertSliceyNonNumbers[bool](anySlice)
+	default:
+		// TODO: Support non-primitive types?
+		panic(fmt.Sprintf("unsupported slice type: %s", sliceElemKind))
 	}
+}
 
-	field, fieldFound := t[fqn]
-	if !fieldFound {
-		return FieldNotFoundError
-	}
-
-	value = convertIfNumber(value, field.Type().Elem().Kind())
-
-	if field.Type().Elem().String() == "time.Time" {
+func getReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
+	value = convertIfNumber(value, elemType.Kind())
+	if elemType.String() == "time.Time" {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
-			field.Set(reflect.ValueOf(&timeValue))
-			return nil
+			return reflect.ValueOf(&timeValue), nil
 		}
 
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
-			return timeErr
+			return reflect.Value{}, timeErr
 		}
-		field.Set(reflect.ValueOf(&dateValue))
-	} else if field.Type().Elem().Kind() == reflect.Slice || field.Type().Elem().Kind() == reflect.Array {
-		elementKind := field.Type().Elem().Elem().Kind()
-		anySlice := value.([]any)
-
-		switch elementKind {
-		case reflect.Int8:
-			typedSlice := convertSliceyNumbers[int8](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Int16:
-			typedSlice := convertSliceyNumbers[int16](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Int32:
-			typedSlice := convertSliceyNumbers[int32](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Int64:
-			typedSlice := convertSliceyNumbers[int64](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Uint8:
-			typedSlice := convertSliceyNumbers[uint8](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Uint16:
-			typedSlice := convertSliceyNumbers[uint16](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Uint32:
-			typedSlice := convertSliceyNumbers[uint32](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Uint64:
-			typedSlice := convertSliceyNumbers[uint64](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Float32:
-			typedSlice := convertSliceyNumbers[float32](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Float64:
-			typedSlice := convertSliceyNumbers[float64](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.String:
-			typedSlice := convertSliceyNonNumbers[string](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		case reflect.Bool:
-			typedSlice := convertSliceyNonNumbers[bool](anySlice)
-			fieldSetConvertedValue(field, typedSlice)
-		default:
-			panic(fmt.Sprintf("unsupported slice type: %s", field.Type().Elem().Elem().String()))
-		}
+		return reflect.ValueOf(&dateValue), nil
+	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
+		value = convertNumberSlice(elemType.Elem().Kind(), value)
+		return getPointerToCopied(elemType, value), nil
 	} else {
-		fieldSetConvertedValue(field, value)
+		return getPointerToCopied(elemType, value), nil
+	}
+}
+
+func (t fqnToField) setFeature(fqn string, value any) error {
+	if bucketDuration, baseFeatureField := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFeatureField != nil {
+		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
+
+		if baseFeatureField.Kind() != reflect.Map {
+			panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
+		}
+
+		reflectValue, err := getReflectValue(value, baseFeatureField.Type().Elem().Elem())
+		if err != nil {
+			return fmt.Errorf("error unmarshalling value for windowed feature %s: %w", fqn, err)
+		}
+
+		baseFeatureField.SetMapIndex(tagValue, reflectValue)
+	} else {
+		field, fieldFound := t[fqn]
+		if !fieldFound {
+			return FieldNotFoundError
+		}
+		reflectValue, err := getReflectValue(value, field.Type().Elem())
+		if err != nil {
+			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
+		}
+		field.Set(reflectValue)
 	}
 
 	return nil
 }
 
-func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *string) {
+func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *reflect.Value) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]
 
@@ -194,11 +188,12 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *strin
 	}
 
 	baseFeatureFqn := strings.Join(sections[:len(sections)-1], ".") + "." + lastSectionSplit[0]
-	if _, ok := fieldMap[baseFeatureFqn]; !ok {
+	baseFeatureField, ok := fieldMap[baseFeatureFqn]
+	if !ok {
 		return nil, nil
 	}
 
-	return &seconds, &baseFeatureFqn
+	return &seconds, &baseFeatureField
 }
 
 func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
