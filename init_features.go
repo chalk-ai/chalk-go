@@ -60,11 +60,11 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			// For example, if we have the tag "windows=6h,12h,1d",
 			// then the map will be:
 			//
-			//      map[string]*int64{
-			//          "6h": &Feature{Fqn: "user.clicks__21600__"},
-			// 	        "12h": &Feature{Fqn: "user.clicks__43200__"},
-			//          "1d": &Feature{Fqn: "user.clicks__86400__"},
-			//      }
+			// 		map[string]*int64{
+			// 			"6h": &Feature{Fqn: "user.clicks__21600__"},
+			// 			"12h": &Feature{Fqn: "user.clicks__43200__"},
+			// 			"1d": &Feature{Fqn: "user.clicks__86400__"},
+			// 		}
 			//
 			// Notice that while the values is typed as *int64, it is
 			// actually a pointer to a Feature struct. See BASE CASE
