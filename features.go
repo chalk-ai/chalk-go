@@ -11,7 +11,7 @@ type Feature struct {
 }
 
 func getFeatureClassFromMember(field reflect.Value) *Feature {
-	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct {
+	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem().String() != "time.Time" {
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)
