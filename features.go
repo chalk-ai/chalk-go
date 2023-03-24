@@ -10,6 +10,11 @@ type Feature struct {
 	Fqn string
 }
 
+func DesuffixFqn(fqn string) string {
+	sections := strings.Split(fqn, ".")
+	return strings.Join(sections[:len(sections)-1], ".")
+}
+
 func getFeatureClassFromMember(field reflect.Value) *Feature {
 	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem().String() != "time.Time" {
 		structValue := field.Elem()
@@ -20,11 +25,16 @@ func getFeatureClassFromMember(field reflect.Value) *Feature {
 				panic(fmt.Sprintf("feature class %s member %s must be a pointer", structValue.Type().Name(), fieldMeta.Name))
 			}
 			memberFqn := UnwrapFeature(memberField.Interface()).Fqn
-
-			sections := strings.Split(memberFqn, ".")
-			desuffixedFqn := strings.Join(sections[:len(sections)-1], ".")
+			var featureClassFqn string
+			if isDataclass(structValue) {
+				// Dataclass feature classes have members
+				// that share the same FQN as the feature class.
+				featureClassFqn = memberFqn
+			} else {
+				featureClassFqn = DesuffixFqn(memberFqn)
+			}
 			return &Feature{
-				Fqn: desuffixedFqn,
+				Fqn: featureClassFqn,
 			}
 		}
 	}

@@ -158,7 +158,8 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *refle
 		return nil, nil
 	}
 
-	baseFeatureFqn := strings.Join(sections[:len(sections)-1], ".") + "." + lastSectionSplit[0]
+	featureClassFqn := DesuffixFqn(fqn)
+	baseFeatureFqn := featureClassFqn + "." + lastSectionSplit[0]
 	baseFeatureField, ok := fieldMap[baseFeatureFqn]
 	if !ok {
 		return nil, nil
@@ -167,17 +168,23 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *refle
 	return &seconds, &baseFeatureField
 }
 
-func isDataclassPointer(field reflect.Value) bool {
-	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct {
-		structValue := field.Elem()
-		for i := 0; i < structValue.NumField(); i++ {
-			fieldMeta := structValue.Type().Field(i)
+func isDataclass(field reflect.Value) bool {
+	if field.Kind() == reflect.Struct {
+		for i := 0; i < field.NumField(); i++ {
+			fieldMeta := field.Type().Field(i)
 			if fieldMeta.Tag.Get("dataclass_field") == "true" {
 				return true
 			} else {
 				return false
 			}
 		}
+	}
+	return false
+}
+
+func isDataclassPointer(field reflect.Value) bool {
+	if field.Kind() == reflect.Ptr && isDataclass(field.Elem()) {
+		return true
 	}
 	return false
 }

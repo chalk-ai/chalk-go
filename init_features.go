@@ -103,15 +103,24 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 		} else {
 			// BASE CASE.
-			// Create new Feature instance and point to it.
-			// The equivalent way of doing it without 'reflect':
-			//
-			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
-			//
 			pointerCheck(f)
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
+				// Create new Feature instance and point to it.
+				// The equivalent way of doing it without 'reflect':
+				//
+				//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
+				//
+
+				// Dataclass fields are not actually real features,
+				// so when we are initializing the root Features struct (fieldMap == nil),
+				// we want to return the parent (real) feature FQN
+				// instead of the fake FQN of the dataclass field.
+				if isDataclass(structValue) {
+					updatedFqn = DesuffixFqn(updatedFqn)
+				}
+
 				feature := Feature{Fqn: updatedFqn}
 				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
 				f.Set(ptrInDisguiseToFeature)
