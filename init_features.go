@@ -58,6 +58,9 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			if fieldMap != nil {
+				fieldMap[updatedFqn] = f
+			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
 			// For example, if we have the tag "windows=6h,12h,1d",
