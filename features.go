@@ -10,9 +10,44 @@ type Feature struct {
 	Fqn string
 }
 
+func DesuffixFqn(fqn string) string {
+	sections := strings.Split(fqn, ".")
+	return strings.Join(sections[:len(sections)-1], ".")
+}
+
+func getFeatureClassFromMember(field reflect.Value) *Feature {
+	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem().String() != "time.Time" {
+		structValue := field.Elem()
+		for i := 0; i < structValue.NumField(); i++ {
+			memberField := structValue.Field(i)
+			fieldMeta := structValue.Type().Field(i)
+			if memberField.Kind() != reflect.Ptr {
+				panic(fmt.Sprintf("feature class %s member %s must be a pointer", structValue.Type().Name(), fieldMeta.Name))
+			}
+			memberFqn := UnwrapFeature(memberField.Interface()).Fqn
+			var featureClassFqn string
+			if isDataclass(structValue) {
+				// Dataclass feature classes have members
+				// that share the same FQN as the feature class.
+				featureClassFqn = memberFqn
+			} else {
+				featureClassFqn = DesuffixFqn(memberFqn)
+			}
+			return &Feature{
+				Fqn: featureClassFqn,
+			}
+		}
+	}
+	return nil
+}
+
 func unwrapFeature(t any) *Feature {
 	reflectValue := reflect.ValueOf(t)
-	if reflectValue.Kind() == reflect.Ptr {
+	if featureClass := getFeatureClassFromMember(reflectValue); featureClass != nil {
+		// If the user is querying a feature class, e.g.
+		//   Features.User.CreditReport instead of Features.User.CreditReport.CreditScore
+		return featureClass
+	} else if reflectValue.Kind() == reflect.Ptr {
 		// Everything but windowed features
 		return (*Feature)(reflectValue.UnsafePointer())
 	} else if reflectValue.Kind() == reflect.Map {
@@ -34,7 +69,6 @@ func unwrapFeature(t any) *Feature {
 		baseWindowedFeatureFqn := strings.Split(castedPtrToPseudofeature.Fqn, "__")[0]
 		baseWindowedFeature := Feature{Fqn: baseWindowedFeatureFqn}
 		return &baseWindowedFeature
-
 	}
 	typePointedTo := reflect.ValueOf(t).Elem().Type()
 	panic(fmt.Sprintf("unsupported type: %s", typePointedTo))

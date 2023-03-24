@@ -50,13 +50,6 @@ func convertSliceyNonNumbers[T any](anySlice []any) []T {
 	return typedSlice
 }
 
-func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
-	copied := reflect.New(reflect.TypeOf(value))
-	copied.Elem().Set(reflect.ValueOf(value))
-	castedPointer := reflect.NewAt(elemType, copied.UnsafePointer())
-	return castedPointer
-}
-
 func convertIfNumber(value any, kind reflect.Kind) any {
 	// TODO: Figure out if we could possibly
 	// do the equivalent by creating a new
@@ -121,6 +114,13 @@ func convertNumberSlice(sliceElemKind reflect.Kind, value any) any {
 	}
 }
 
+func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
+	copied := reflect.New(reflect.TypeOf(value))
+	copied.Elem().Set(reflect.ValueOf(value))
+	castedPointer := reflect.NewAt(elemType, copied.UnsafePointer())
+	return castedPointer
+}
+
 func getReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	value = convertIfNumber(value, elemType.Kind())
 	if elemType.String() == "time.Time" {
@@ -144,35 +144,6 @@ func getReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	}
 }
 
-func (t fqnToField) setFeature(fqn string, value any) error {
-	if bucketDuration, baseFeatureField := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFeatureField != nil {
-		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
-
-		if baseFeatureField.Kind() != reflect.Map {
-			panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
-		}
-
-		reflectValue, err := getReflectValue(value, baseFeatureField.Type().Elem().Elem())
-		if err != nil {
-			return fmt.Errorf("error unmarshalling value for windowed feature %s: %w", fqn, err)
-		}
-
-		baseFeatureField.SetMapIndex(tagValue, reflectValue)
-	} else {
-		field, fieldFound := t[fqn]
-		if !fieldFound {
-			return FieldNotFoundError
-		}
-		reflectValue, err := getReflectValue(value, field.Type().Elem())
-		if err != nil {
-			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
-		}
-		field.Set(reflectValue)
-	}
-
-	return nil
-}
-
 func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *reflect.Value) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]
@@ -187,13 +158,85 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *refle
 		return nil, nil
 	}
 
-	baseFeatureFqn := strings.Join(sections[:len(sections)-1], ".") + "." + lastSectionSplit[0]
+	featureClassFqn := DesuffixFqn(fqn)
+	baseFeatureFqn := featureClassFqn + "." + lastSectionSplit[0]
 	baseFeatureField, ok := fieldMap[baseFeatureFqn]
 	if !ok {
 		return nil, nil
 	}
 
 	return &seconds, &baseFeatureField
+}
+
+func isDataclass(field reflect.Value) bool {
+	if field.Kind() == reflect.Struct {
+		for i := 0; i < field.NumField(); i++ {
+			fieldMeta := field.Type().Field(i)
+			if fieldMeta.Tag.Get("dataclass_field") == "true" {
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return false
+}
+
+func isDataclassPointer(field reflect.Value) bool {
+	if field.Kind() == reflect.Ptr && isDataclass(field.Elem()) {
+		return true
+	}
+	return false
+}
+
+func (t fqnToField) setFeature(fqn string, value any) error {
+	if field, fieldFound := t[fqn]; fieldFound && isDataclassPointer(field) {
+		structValue := field.Elem()
+		dataclassValues, ok := value.([]any)
+		if !ok {
+			return fmt.Errorf("error unmarshalling value for dataclass feature %s: value is not a slice", fqn)
+		}
+		if len(dataclassValues) != structValue.NumField() {
+			return fmt.Errorf("error unmarshalling value for dataclass feature %s: expected %d fields, got %s", fqn, structValue.NumField(), dataclassValues)
+		}
+		for idx, memberValue := range dataclassValues {
+			memberFieldMeta := structValue.Type().Field(idx)
+			memberField := structValue.Field(idx)
+			pythonName := snakeCase(memberFieldMeta.Name)
+			if memberField == (reflect.Value{}) {
+				return fmt.Errorf("error unmarshalling value for dataclass feature %s: field %s not found in struct %s", fqn, pythonName, structValue.Type().Name())
+			}
+			memberFqn := fqn + "." + pythonName
+			if err := t.setFeature(memberFqn, memberValue); err != nil {
+				return fmt.Errorf("error unmarshalling value '%s' for dataclass feature '%s': %w", pythonName, fqn, err)
+			}
+		}
+	} else if bucketDuration, baseFeatureField := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFeatureField != nil {
+		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
+
+		if baseFeatureField.Kind() != reflect.Map {
+			panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
+		}
+
+		reflectValue, err := getReflectValue(value, baseFeatureField.Type().Elem().Elem())
+		if err != nil {
+			return fmt.Errorf("error unmarshalling value for windowed feature %s: %w", fqn, err)
+		}
+
+		baseFeatureField.SetMapIndex(tagValue, reflectValue)
+	} else {
+		field, fieldFound = t[fqn]
+		if !fieldFound {
+			return FieldNotFoundError
+		}
+		reflectValue, err := getReflectValue(value, field.Type().Elem())
+		if err != nil {
+			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
+		}
+		field.Set(reflectValue)
+	}
+
+	return nil
 }
 
 func (result *OnlineQueryResult) unmarshal(t any) *ClientError {

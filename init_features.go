@@ -36,6 +36,8 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		f := structValue.Field(i)
 		fieldMeta := structValue.Type().Field(i)
 
+		isTimeField := f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() == "time.Time"
+
 		attributeName := fieldMeta.Name
 		updatedFqn := fqn + snakeCase(attributeName)
 
@@ -43,7 +45,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			continue
 		}
 
-		if f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() != "time.Time" {
+		if f.Type().Elem().Kind() == reflect.Struct && !isTimeField {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':
@@ -56,6 +58,9 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
 			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			if fieldMap != nil {
+				fieldMap[updatedFqn] = f
+			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
 			// For example, if we have the tag "windows=6h,12h,1d",
@@ -98,15 +103,24 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 		} else {
 			// BASE CASE.
-			// Create new Feature instance and point to it.
-			// The equivalent way of doing it without 'reflect':
-			//
-			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
-			//
 			pointerCheck(f)
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
+				// Create new Feature instance and point to it.
+				// The equivalent way of doing it without 'reflect':
+				//
+				//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
+				//
+
+				// Dataclass fields are not actually real features,
+				// so when we are initializing the root Features struct (fieldMap == nil),
+				// we want to return the parent (real) feature FQN
+				// instead of the fake FQN of the dataclass field.
+				if isDataclass(structValue) {
+					updatedFqn = DesuffixFqn(updatedFqn)
+				}
+
 				feature := Feature{Fqn: updatedFqn}
 				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
 				f.Set(ptrInDisguiseToFeature)
