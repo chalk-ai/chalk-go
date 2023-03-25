@@ -1,6 +1,6 @@
 ## Security
 
-If you believe you have found a security vulnerability in Chalk's Python package, please report it to us!
+If you believe you have found a security vulnerability in Chalk's Go package, please report it to us!
 
 ### Reporting Security Issues
 
