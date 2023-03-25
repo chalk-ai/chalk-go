@@ -101,6 +101,8 @@ type OnlineQueryResult struct {
 	expectedOutputs []string
 }
 
+// GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
+// To get the value of a feature as a Go type, use the UnmarshalInto method.
 func (result *OnlineQueryResult) GetFeature(feature any) (*FeatureResult, error) {
 	castedFeature, err := UnwrapFeature(feature)
 	if err != nil {
@@ -113,6 +115,8 @@ func (result *OnlineQueryResult) GetFeature(feature any) (*FeatureResult, error)
 	return &featureResult, nil
 }
 
+// GetFeatureValue returns the raw, uncasted value of the specified feature.
+// To get the value of a feature as a Go type, use the UnmarshalInto method.
 func (result *OnlineQueryResult) GetFeatureValue(feature any) (any, error) {
 	featureResult, err := result.GetFeature(feature)
 	if err != nil {
