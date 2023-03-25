@@ -78,7 +78,7 @@ type ClientConfig struct {
 	// To set a logger that logs nothing, set this to a chalk.LeveledLogger
 	// with a Level of LevelNull (simply setting this field to nil will not
 	// work).
-	Logger *LeveledLogger
+	Logger LeveledLogger
 
 	// HTTPClient is an HTTP client instance to use when making API requests.
 	//
