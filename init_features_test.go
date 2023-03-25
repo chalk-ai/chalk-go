@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+var initFeaturesErr error
+
 type goAddress struct {
 	Id   *string
 	City *string
@@ -33,24 +35,61 @@ var testFeatures struct {
 }
 
 func init() {
-	chalk.InitFeatures(&testFeatures)
+	initFeaturesErr = chalk.InitFeatures(&testFeatures)
 }
 
 func TestInitFeatures(t *testing.T) {
-	// Make sure each one can be unwrapped into a feature.
-	assert.Equal(t, "user.id", chalk.UnwrapFeature(testFeatures.User.Id).Fqn)
-	assert.Equal(t, "user.name", chalk.UnwrapFeature(testFeatures.User.Name).Fqn)
-	assert.Equal(t, "user.card.id", chalk.UnwrapFeature(testFeatures.User.Card.Id).Fqn)
-	assert.Equal(t, "user.card.number", chalk.UnwrapFeature(testFeatures.User.Card.Number).Fqn)
-	assert.Equal(t, "user.address.id", chalk.UnwrapFeature(testFeatures.User.Address.Id).Fqn)
-	assert.Equal(t, "user.address.city", chalk.UnwrapFeature(testFeatures.User.Address.City).Fqn)
-	assert.Equal(t, "user.family_size", chalk.UnwrapFeature(testFeatures.User.FamilySize).Fqn)
-	assert.Equal(t, "user.has_family", chalk.UnwrapFeature(testFeatures.User.HasFamily).Fqn)
-	assert.Equal(t, "user.family_income", chalk.UnwrapFeature(testFeatures.User.FamilyIncome).Fqn)
+	assert.Nil(t, initFeaturesErr)
 
-	assert.Equal(t, "card.id", chalk.UnwrapFeature(testFeatures.Card.Id).Fqn)
-	assert.Equal(t, "card.number", chalk.UnwrapFeature(testFeatures.Card.Number).Fqn)
+	userId, err := chalk.UnwrapFeature(testFeatures.User.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.id", userId.Fqn)
 
-	assert.Equal(t, "address.id", chalk.UnwrapFeature(testFeatures.Address.Id).Fqn)
-	assert.Equal(t, "address.city", chalk.UnwrapFeature(testFeatures.Address.City).Fqn)
+	userName, err := chalk.UnwrapFeature(testFeatures.User.Name)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.name", userName.Fqn)
+
+	userCardId, err := chalk.UnwrapFeature(testFeatures.User.Card.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.card.id", userCardId.Fqn)
+
+	userCardNumber, err := chalk.UnwrapFeature(testFeatures.User.Card.Number)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.card.number", userCardNumber.Fqn)
+
+	userAddressId, err := chalk.UnwrapFeature(testFeatures.User.Address.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.address.id", userAddressId.Fqn)
+
+	userAddressCity, err := chalk.UnwrapFeature(testFeatures.User.Address.City)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.address.city", userAddressCity.Fqn)
+
+	userFamilySize, err := chalk.UnwrapFeature(testFeatures.User.FamilySize)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.family_size", userFamilySize.Fqn)
+
+	userHasFamily, err := chalk.UnwrapFeature(testFeatures.User.HasFamily)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.has_family", userHasFamily.Fqn)
+
+	userFamilyIncome, err := chalk.UnwrapFeature(testFeatures.User.FamilyIncome)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.family_income", userFamilyIncome.Fqn)
+
+	cardId, err := chalk.UnwrapFeature(testFeatures.Card.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, "card.id", cardId.Fqn)
+
+	cardNumber, err := chalk.UnwrapFeature(testFeatures.Card.Number)
+	assert.Nil(t, err)
+	assert.Equal(t, "card.number", cardNumber.Fqn)
+
+	addressId, err := chalk.UnwrapFeature(testFeatures.Address.Id)
+	assert.Nil(t, err)
+	assert.Equal(t, "address.id", addressId.Fqn)
+
+	addressCity, err := chalk.UnwrapFeature(testFeatures.Address.City)
+	assert.Nil(t, err)
+	assert.Equal(t, "address.city", addressCity.Fqn)
 }

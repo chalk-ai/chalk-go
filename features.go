@@ -20,11 +20,15 @@ func getFeatureClassFromMember(field reflect.Value) *Feature {
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)
-			fieldMeta := structValue.Type().Field(i)
 			if memberField.Kind() != reflect.Ptr {
-				panic(fmt.Sprintf("feature class %s member %s must be a pointer", structValue.Type().Name(), fieldMeta.Name))
+				continue
 			}
-			memberFqn := UnwrapFeature(memberField.Interface()).Fqn
+			memberFeature, unwrapErr := UnwrapFeature(memberField.Interface())
+			if unwrapErr != nil {
+				continue
+			}
+			memberFqn := memberFeature.Fqn
+
 			var featureClassFqn string
 			if isDataclass(structValue) {
 				// Dataclass feature classes have members
@@ -41,15 +45,15 @@ func getFeatureClassFromMember(field reflect.Value) *Feature {
 	return nil
 }
 
-func unwrapFeature(t any) *Feature {
+func unwrapFeature(t any) (*Feature, error) {
 	reflectValue := reflect.ValueOf(t)
 	if featureClass := getFeatureClassFromMember(reflectValue); featureClass != nil {
 		// If the user is querying a feature class, e.g.
 		//   Features.User.CreditReport instead of Features.User.CreditReport.CreditScore
-		return featureClass
+		return featureClass, nil
 	} else if reflectValue.Kind() == reflect.Ptr {
 		// Everything but windowed features
-		return (*Feature)(reflectValue.UnsafePointer())
+		return (*Feature)(reflectValue.UnsafePointer()), nil
 	} else if reflectValue.Kind() == reflect.Map {
 		// Base windowed feature is typed as a Map.
 		// But it is natural for a user to try querying
@@ -60,7 +64,7 @@ func unwrapFeature(t any) *Feature {
 		windowedFeatureMap := reflectValue
 		keys := windowedFeatureMap.MapKeys()
 		if len(keys) == 0 {
-			panic("exception occurred obtaining all buckets for windowed feature - no buckets found")
+			return nil, fmt.Errorf("exception occurred obtaining buckets for windowed feature - no buckets found")
 		}
 		key := keys[0]
 		ptrToPseudofeature := windowedFeatureMap.MapIndex(key)
@@ -68,12 +72,12 @@ func unwrapFeature(t any) *Feature {
 
 		baseWindowedFeatureFqn := strings.Split(castedPtrToPseudofeature.Fqn, "__")[0]
 		baseWindowedFeature := Feature{Fqn: baseWindowedFeatureFqn}
-		return &baseWindowedFeature
+		return &baseWindowedFeature, nil
 	}
 	typePointedTo := reflect.ValueOf(t).Elem().Type()
-	panic(fmt.Sprintf("unsupported type: %s", typePointedTo))
+	return nil, fmt.Errorf("cannot unwrap object of unsupported type: %s", typePointedTo)
 }
 
-func UnwrapFeature(t any) *Feature {
+func UnwrapFeature(t any) (*Feature, error) {
 	return unwrapFeature(t)
 }

@@ -31,6 +31,8 @@ type OnlineQueryParams struct {
 	// Set by OnlineQueryParams.WithStaleness.
 	staleness map[string]time.Duration
 
+	builderErrors BuilderErrors
+
 	/*************
 	 PUBLIC FIELDS
 	**************/
@@ -99,21 +101,27 @@ type OnlineQueryResult struct {
 	expectedOutputs []string
 }
 
-func (result *OnlineQueryResult) GetFeature(feature any) *FeatureResult {
-	castedFeature := UnwrapFeature(feature)
+func (result *OnlineQueryResult) GetFeature(feature any) (*FeatureResult, error) {
+	castedFeature, err := UnwrapFeature(feature)
+	if err != nil {
+		return nil, fmt.Errorf("exception occurred while getting feature: %w", err)
+	}
 	featureResult, found := result.features[castedFeature.Fqn]
 	if !found {
-		return nil
+		return nil, fmt.Errorf("feature '%s' not found in OnlineQueryResult.Data", castedFeature.Fqn)
 	}
-	return &featureResult
+	return &featureResult, nil
 }
 
-func (result *OnlineQueryResult) GetFeatureValue(feature any) any {
-	featureResult := result.GetFeature(feature)
-	if featureResult == nil {
-		return nil
+func (result *OnlineQueryResult) GetFeatureValue(feature any) (any, error) {
+	featureResult, err := result.GetFeature(feature)
+	if err != nil {
+		return nil, err
 	}
-	return featureResult.Value
+	if featureResult == nil {
+		return nil, fmt.Errorf("feature object unexpectedly nil")
+	}
+	return featureResult.Value, nil
 }
 
 type FeatureResult struct {
@@ -284,6 +292,7 @@ type OfflineQueryParams struct {
 	inputs          map[string][]TsFeatureValue
 	outputs         []string
 	requiredOutputs []string
+	builderErrors   BuilderErrors
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.

@@ -29,6 +29,13 @@ type clientImpl struct {
 
 func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
 	request := params.underlying
+
+	if len(request.builderErrors) > 0 {
+		builderErrString := request.builderErrors.Error()
+		clientErrString := "error building offline query params:\n" + builderErrString
+		return Dataset{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
 	emptyResult := Dataset{}
 	response := Dataset{}
 
@@ -58,6 +65,13 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
+
+	if len(request.builderErrors) > 0 {
+		builderErrString := request.builderErrors.Error()
+		clientErrString := "error building online query params:\n" + builderErrString
+		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
 	emptyResult := OnlineQueryResult{}
 
 	var serializedResponse onlineQueryResponseSerialized
