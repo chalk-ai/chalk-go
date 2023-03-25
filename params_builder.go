@@ -18,6 +18,7 @@ const (
 	ParamTypeUnknown    ParamType = "unknown param"
 	ParamOutput         ParamType = "output"
 	ParamInput          ParamType = "input"
+	ParamStaleness      ParamType = "staleness"
 	ParamRequiredOutput ParamType = "required output"
 )
 

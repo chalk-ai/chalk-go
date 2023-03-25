@@ -104,6 +104,7 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 			Err:        castErr,
 			Type:       BuilderErrorInvalidFeature,
 			FeatureArg: castedFeature,
+			ParamType:  ParamStaleness,
 		}
 		p.builderErrors = append(p.builderErrors, &builderError)
 	}
