@@ -18,70 +18,80 @@ type Numbers interface {
 	int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
-func convertNumber[T Numbers](anyNumber any) T {
+func convertNumber[T Numbers](anyNumber any) (T, error) {
 	// TODO: Possibly unmarshal numbers as the correct type (instead of float64)
 	// into FeatureResult, instead of converting them here.
 	switch typedNumber := anyNumber.(type) {
 	case float64:
-		return T(typedNumber)
+		return T(typedNumber), nil
 	default:
 		castedNumber, ok := anyNumber.(T)
 		if !ok {
 			var t T
-			panic(fmt.Sprintf("exception occurred while unmarshaling online query result: cannot cast the number '%s' of type '%s' to the specified type '%s'", anyNumber, reflect.TypeOf(typedNumber), reflect.TypeOf(t)))
+			return t, fmt.Errorf("cannot cast the number '%s' of type '%s' to the specified type '%s'", anyNumber, reflect.TypeOf(typedNumber), reflect.TypeOf(t))
 		}
-		return castedNumber
+		return castedNumber, nil
 	}
 }
 
-func convertSliceyNumbers[T Numbers](anySlice []any) []T {
+func convertSliceyNumbers[T Numbers](anySlice []any) ([]T, error) {
 	typedSlice := make([]T, len(anySlice))
 	for i, v := range anySlice {
-		typedSlice[i] = convertNumber[T](v)
+		convRes, convErr := convertNumber[T](v)
+		if convErr != nil {
+			return nil, fmt.Errorf("error converting number-slice element: %w", convErr)
+		}
+		typedSlice[i] = convRes
 	}
-	return typedSlice
+	return typedSlice, nil
 }
 
-func convertSliceyNonNumbers[T any](anySlice []any) []T {
+func convertSliceyNonNumbers[T any](anySlice []any) ([]T, error) {
 	typedSlice := make([]T, len(anySlice))
 	for i, v := range anySlice {
-		typedSlice[i] = v.(T)
+		castRes, ok := v.(T)
+		if !ok {
+			var t T
+			return []T{}, fmt.Errorf("cannot cast the slice element '%s' of type '%s' to the specified type '%s'", v, reflect.TypeOf(v), reflect.TypeOf(t))
+		}
+		typedSlice[i] = castRes
 	}
-	return typedSlice
+	return typedSlice, nil
 }
 
-func convertIfNumber(value any, kind reflect.Kind) any {
+func convertIfNumber(value any, kind reflect.Kind) (any, error) {
 	// TODO: Figure out if we could possibly
 	// do the equivalent by creating a new
 	// reflect.Value with reflect.New
 	// and reflect.Value.Set.
+	var err error
 	switch kind {
 	case reflect.Int8:
-		value = convertNumber[int8](value)
+		value, err = convertNumber[int8](value)
 	case reflect.Int16:
-		value = convertNumber[int16](value)
+		value, err = convertNumber[int16](value)
 	case reflect.Int32:
-		value = convertNumber[int32](value)
+		value, err = convertNumber[int32](value)
 	case reflect.Int64:
-		value = convertNumber[int64](value)
+		value, err = convertNumber[int64](value)
 	case reflect.Uint8:
-		value = convertNumber[uint8](value)
+		value, err = convertNumber[uint8](value)
 	case reflect.Uint16:
-		value = convertNumber[uint16](value)
+		value, err = convertNumber[uint16](value)
 	case reflect.Uint32:
-		value = convertNumber[uint32](value)
+		value, err = convertNumber[uint32](value)
 	case reflect.Uint64:
-		value = convertNumber[uint64](value)
+		value, err = convertNumber[uint64](value)
 	case reflect.Float32:
-		value = convertNumber[float32](value)
+		value, err = convertNumber[float32](value)
 	case reflect.Float64:
-		value = convertNumber[float64](value)
+		value, err = convertNumber[float64](value)
 	}
 
-	return value
+	return value, err
 }
 
-func convertNumberSlice(sliceElemKind reflect.Kind, value any) any {
+func convertNumberSlice(sliceElemKind reflect.Kind, value any) (any, error) {
 	anySlice := value.([]any)
 	switch sliceElemKind {
 	case reflect.Int8:
@@ -109,8 +119,7 @@ func convertNumberSlice(sliceElemKind reflect.Kind, value any) any {
 	case reflect.Bool:
 		return convertSliceyNonNumbers[bool](anySlice)
 	default:
-		// TODO: Support non-primitive types?
-		panic(fmt.Sprintf("unsupported slice type: %s", sliceElemKind))
+		return nil, fmt.Errorf("unsupported slice type '%s' when converting number slice", sliceElemKind)
 	}
 }
 
@@ -122,7 +131,10 @@ func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 }
 
 func getReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
-	value = convertIfNumber(value, elemType.Kind())
+	value, convErr := convertIfNumber(value, elemType.Kind())
+	if convErr != nil {
+		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
+	}
 	if elemType.String() == "time.Time" {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
@@ -137,7 +149,10 @@ func getReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
-		value = convertNumberSlice(elemType.Elem().Kind(), value)
+		value, convErr = convertNumberSlice(elemType.Elem().Kind(), value)
+		if convErr != nil {
+			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
+		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
 		return getPointerToCopied(elemType, value), nil
@@ -170,15 +185,18 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *refle
 
 func isDataclass(field reflect.Value) bool {
 	if field.Kind() == reflect.Struct {
+		if field.NumField() == 0 {
+			return false
+		}
 		for i := 0; i < field.NumField(); i++ {
 			fieldMeta := field.Type().Field(i)
-			if fieldMeta.Tag.Get("dataclass_field") == "true" {
-				return true
-			} else {
+			if fieldMeta.Tag.Get("dataclass_field") != "true" {
 				return false
 			}
 		}
+		return true
 	}
+
 	return false
 }
 
@@ -215,7 +233,7 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
 
 		if baseFeatureField.Kind() != reflect.Map {
-			panic(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
+			return fmt.Errorf(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
 		}
 
 		reflectValue, err := getReflectValue(value, baseFeatureField.Type().Elem().Elem())

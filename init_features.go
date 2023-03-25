@@ -7,17 +7,17 @@ import (
 	"strings"
 )
 
-func InitFeatures[T any](t *T) {
+func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	initFeatures(structValue, "", make(map[string]bool), nil)
+	return initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) error {
 	if structValue.Kind() != reflect.Struct {
-		panic(fmt.Sprintf("Feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String()))
+		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
 	}
 
 	namespace := structValue.Type().Name()
@@ -27,7 +27,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
 		// This is not memoization. Simply a cycle checker while DFSing.
-		return
+		return nil
 	} else {
 		visited[namespace] = true
 	}
@@ -52,12 +52,17 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			//
 			//      Features.User.CreditReport = new(CreditReport)
 			//
-			pointerCheck(f)
+			if ptrErr := pointerCheck(f); ptrErr != nil {
+				return ptrErr
+			}
 			featureSet := reflect.New(f.Type().Elem())
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			if initErr != nil {
+				return initErr
+			}
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			}
@@ -77,14 +82,14 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			// section below.
 			mapValueType := f.Type().Elem()
 			if mapValueType.Kind() != reflect.Pointer {
-				panic(fmt.Sprintf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind()))
+				return fmt.Errorf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind())
 			}
 			newMap := reflect.MakeMap(f.Type())
 			windows := fieldMeta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
 				seconds, parseErr := internal.ParseBucketDuration(tag)
 				if parseErr != nil {
-					panic(fmt.Sprintf("error parsing bucket duration: %s", parseErr))
+					return fmt.Errorf("error parsing bucket duration: %s", parseErr)
 				}
 				windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
 				if fieldMap == nil {
@@ -103,7 +108,9 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 		} else {
 			// BASE CASE.
-			pointerCheck(f)
+			if ptrErr := pointerCheck(f); ptrErr != nil {
+				return ptrErr
+			}
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
@@ -129,12 +136,14 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 
 	visited[namespace] = false
+	return nil
 }
 
-func pointerCheck(field reflect.Value) {
+func pointerCheck(field reflect.Value) error {
 	if field.Kind() != reflect.Ptr {
-		panic(fmt.Sprintf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind()))
+		return fmt.Errorf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind())
 	}
+	return nil
 }
 
 func snakeCase(s string) string {
