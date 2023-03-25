@@ -23,7 +23,7 @@ type clientImpl struct {
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
 	httpClient         *http.Client
-	logger             *LeveledLogger
+	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
 }
 
@@ -301,7 +301,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	if !args.DontRefresh {
 		upsertJwtErr := c.refreshJwt(false)
 		if upsertJwtErr != nil {
-			(*c.logger).Debugf(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
+			(c.logger).Debugf(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
 		}
 	}
 	if c.jwt != nil && c.jwt.Token != "" {
@@ -316,13 +316,13 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		}
 	}
 
-	(*c.logger).Debugf("Sending request to ", request.URL)
+	(c.logger).Debugf("Sending request to ", request.URL)
 	res, err := c.httpClient.Do(request)
 	if err != nil {
 		return err
 	}
 
-	(*c.logger).Debugf("Response Status: ", res.Status)
+	(c.logger).Debugf("Response Status: ", res.Status)
 	defer res.Body.Close()
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
@@ -349,7 +349,7 @@ func (c *clientImpl) retryRequest(
 ) (*http.Response, error) {
 	upsertJwtUpon401Err := c.refreshJwt(true)
 	if upsertJwtUpon401Err != nil {
-		(*c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
+		(c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
 		return originalResponse, originalError
 	}
 
@@ -373,7 +373,7 @@ func (c *clientImpl) retryRequest(
 	if err != nil {
 		return nil, err
 	}
-	(*c.logger).Debugf("Response Status for retried request: ", res.Status)
+	(c.logger).Debugf("Response Status for retried request: ", res.Status)
 
 	return res, nil
 }
@@ -398,11 +398,11 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	return headers
 }
 
-func getHttpError(logger *LeveledLogger, res http.Response, req http.Request) HTTPError {
+func getHttpError(logger LeveledLogger, res http.Response, req http.Request) HTTPError {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
-	(*logger).Errorf("API error response", err, errorResponse, string(out))
+	logger.Errorf("API error response", err, errorResponse, string(out))
 
 	clientError := HTTPError{
 		Message:       "Unknown Chalk Server Error",
@@ -475,7 +475,7 @@ func newClientImpl(
 	}
 
 	if client.logger == nil {
-		client.logger = &DefaultLeveledLogger
+		client.logger = DefaultLeveledLogger
 	}
 
 	if client.httpClient == nil {
