@@ -2,11 +2,12 @@
 
 The official [Chalk](https://chalk.ai) client library.
 
-## Requirements
+## Usage
+### Requirements
 
 - Go 1.19 or later
 
-## Installation
+### Installation
 
 Make sure your project is using Go Modules (it will have a `go.mod` file in its
 root if it already is):
@@ -31,9 +32,24 @@ Alternatively, you can also explicitly `go get` the package into a project:
 ```bash
 go get -u github.com/chalk-ai/chalk-go
 ```
+### Codegen
 
-## Quickstart
+Chalk generates Go structs from your python feature definitions, which makes executing online and offline queries from Go very straightforward.
 
+Run the code-gen command inside your chalk project to generate a file containing your generated structs, then copy that file into your go project.
+
+```sh
+chalk codegen go --out=<OUTPUT_FILEPATH> 
+```
+
+
+### Connect to chalk
+
+Create a client using the `NewClient` method.  The retruned client gets its configuration:
+
+1. From the contructor arguments
+2. From environment variables if no arguments are passed
+3. From a ~/.chalk.yml file if neither 1 nor 2 are available
 ```go
 import (
     "github.com/chalk-ai/chalk-go"
@@ -42,9 +58,36 @@ import (
 client := chalk.NewClient()
 ```
 
+### Online Query
+
+Query online features using the generated feature structs.  Access the results in the returned object or by passing the address of a variable with the correct type.
+
+```go
+user := User{}
+_, err = client.OnlineQuery(
+    chalk.OnlineQueryParams{}.
+        WithInput(Features.User.Id, "<INPUT_VALUE>").
+        WithOutputs(Features.User.Id, Features.User.LastName),
+    &user,
+)
+```
 
 
-## Configuring Logging
+### Offline Query
+
+When executing an offline query, a dataset is returned and can be downloaded as parquet files using the `DownloadData` method.
+
+```py
+res, _ := client.OfflineQuery(
+    chalk.OfflineQueryParams{}.
+        WithInput(Features.User.Id, []any{...}).
+        WithOutputs(Features.User),
+)
+
+err = res.Revisions[0].DownloadData(<FILE_DIRECTORY>)
+```
+
+### Configuring Logging
 
 By default, Chalk logs error messages only (which are sent to `stderr`).
 Configure default logging using the global `DefaultLeveledLogger` variable:
@@ -82,3 +125,29 @@ Some loggers like Logrus and Zap's `SugaredLogger`
 support this interface natively, so it's possible to set
 `DefaultLeveledLogger` to a `*logrus.Logger` or `*zap.SugaredLogger` directly.
 To use other loggers, you may need a shim layer.
+
+
+## Contributing
+
+We'd love to accept your patches!  If you submit a pull request, please keep the following guidelines in mind:
+
+1. Fork the repo, develop and test your code changes.
+2. Ensure your code adheres to the existing style. 
+3. Ensure that your code has an appropriate set of tests that pass.
+4. Submit a pull request.
+
+
+### Development
+
+Clone the git repo from github.com/chalk-ai/chalk-go.
+
+1. All patches must be `go fmt` compatible.
+2. All types, structs, and functions should be documented.
+
+### Testing
+
+To execute the tests: `go test ./...`.  Enure all tests pass
+
+## License
+
+Apache 2.0 - See [LICENSE](LICENSE) for more information.
