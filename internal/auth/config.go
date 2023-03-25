@@ -16,7 +16,7 @@ func GetProjectAuthConfig() (ProjectToken, error) {
 		return ProjectToken{}, errors.New("unexpected error getting auth config file")
 	}
 
-	projectAuthConfig, projectAuthConfigErr := getProjectAuthConfigForWD(*authConfigFromFile, *configFilepath)
+	projectAuthConfig, projectAuthConfigErr := getProjectAuthConfigForProjectRoot(*authConfigFromFile, *configFilepath)
 	if projectAuthConfigErr != nil {
 		return ProjectToken{}, projectAuthConfigErr
 	}

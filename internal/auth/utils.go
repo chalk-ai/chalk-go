@@ -3,12 +3,40 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 )
 
 var authConfigFileName = ".chalk.yml"
+
+func loadProjectDirectory() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	currentDirectory := wd
+	rootChecked := false
+	for currentDirectory != "/" && !rootChecked {
+		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
+			chalkYamlExists := internal.FileExists(filepath.Join(currentDirectory, filename))
+			if chalkYamlExists {
+				return currentDirectory, nil
+			}
+		}
+
+		if currentDirectory == "/" {
+			rootChecked = true
+		} else {
+			currentDirectory = filepath.Dir(currentDirectory)
+		}
+	}
+
+	return "", fmt.Errorf("cannot determine project root directory: "+
+		"failed to find chalk.yml in the working directory '%s' or any of its parent directories", wd,
+	)
+}
 
 func getConfigPath() (*string, error) {
 	var err error
@@ -23,10 +51,10 @@ func getConfigPath() (*string, error) {
 	return &path, nil
 }
 
-func getProjectAuthConfigForWD(config ProjectTokens, configPath string) (ProjectToken, error) {
-	getwd, err := os.Getwd()
+func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string) (ProjectToken, error) {
+	projectRoot, err := loadProjectDirectory()
 	if err != nil {
-		return ProjectToken{}, errors.New(fmt.Sprintf("error determining working directory: %s", err))
+		return ProjectToken{}, fmt.Errorf("error loading auth config: %s", err)
 	}
 
 	if config.Tokens == nil {
@@ -37,7 +65,7 @@ func getProjectAuthConfigForWD(config ProjectTokens, configPath string) (Project
 	var returnToken *ProjectToken = nil
 
 	tokens := *config.Tokens
-	if token, ok := tokens[getwd]; ok {
+	if token, ok := tokens[projectRoot]; ok {
 		returnToken = token
 	}
 
@@ -46,7 +74,7 @@ func getProjectAuthConfigForWD(config ProjectTokens, configPath string) (Project
 	}
 
 	if returnToken == nil {
-		return ProjectToken{}, errors.New(fmt.Sprintf("working directory '%s' does not exist as a key in the collection 'tokens' in the config file '%s', and the fallback key 'default' is also missing. Please try to 'chalk login' again", getwd, configPath))
+		return ProjectToken{}, errors.New(fmt.Sprintf("project root '%s' does not exist as a key in the collection 'tokens' in the config file '%s', and the fallback key 'default' is also missing. Please try to 'chalk login' again", projectRoot, configPath))
 	}
 
 	return *returnToken, nil
