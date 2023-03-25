@@ -39,7 +39,7 @@ import (
     "github.com/chalk-ai/chalk-go"
 )
 
-client := chalk.Client()
+client := chalk.NewClient()
 ```
 
 
