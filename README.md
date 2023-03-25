@@ -98,7 +98,7 @@ chalk.DefaultLeveledLogger = &chalk.StdOutLeveledLogger{
 }
 ```
 
-Or on a per-client basis:
+<!-- Or on a per-client basis:
 
 ```go
 config := &chalk.ClientConfig{
@@ -107,7 +107,7 @@ config := &chalk.ClientConfig{
     },
 }
 client := chalk.Client(config)
-```
+``` -->
 
 It's possible to use non-Chalk leveled loggers as well. Chalk expects loggers
 to comply to the following interface:
