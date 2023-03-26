@@ -37,7 +37,7 @@ go get -u github.com/chalk-ai/chalk-go
 ```
 ### Codegen
 
-Chalk generates Go structs from your python feature definitions, which makes executing online and offline queries from Go very straightforward.
+Chalk generates Go structs from your python feature definitions, which makes it easy to use your features from Go.
 
 Run the code-gen command inside your chalk project to generate a file containing your generated structs, then copy that file into your go project.
 
