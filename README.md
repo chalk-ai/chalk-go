@@ -1,3 +1,6 @@
+
+[![Test](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml)
+
 # Go Chalk
 
 The official [Chalk](https://chalk.ai) client library.
