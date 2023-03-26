@@ -190,6 +190,11 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 		return urlParseErr
 	}
 	destinationFilepath := filepath.Join(parsedUrl.Path[4:])
+
+	directory, expandErr := internal.ExpandTilde(directory)
+	if expandErr != nil {
+		return fmt.Errorf("error getting home directory for path '%s' - please try an absolute path", directory)
+	}
 	destinationDirectory := filepath.Join(directory, filepath.Dir(destinationFilepath))
 
 	if err = os.MkdirAll(destinationDirectory, os.ModePerm); err != nil {
@@ -292,6 +297,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 
 	request, newRequestErr := http.NewRequest(args.Method, args.URL, body)
 	if newRequestErr != nil {
+		(c.logger).Debugf("error sending request: %s", newRequestErr.Error())
 		return newRequestErr
 	}
 
@@ -301,7 +307,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	if !args.DontRefresh {
 		upsertJwtErr := c.refreshJwt(false)
 		if upsertJwtErr != nil {
-			(c.logger).Debugf(fmt.Sprintf("Error pre-emptively refreshing access token: %s", upsertJwtErr.Error()))
+			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
 		}
 	}
 	if c.jwt != nil && c.jwt.Token != "" {

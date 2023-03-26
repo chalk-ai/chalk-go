@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func FileExists(path string) bool {
@@ -68,4 +69,17 @@ func ParseBucketDuration(durationStr string) (int, error) {
 	unit := matches[2]
 	seconds := duration * unitMap[unit]
 	return seconds, nil
+}
+
+func ExpandTilde(path string) (string, error) {
+	if !strings.HasPrefix(path, "~") {
+		return path, nil
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Replace(path, "~", homeDir, 1), nil
 }
