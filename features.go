@@ -78,21 +78,21 @@ func unwrapFeature(t any) (*Feature, error) {
 	return nil, fmt.Errorf("cannot unwrap object of unsupported type: %s", typePointedTo)
 }
 
-func UnwrapFeature(t any) (result *Feature, err error) {
+func UnwrapFeature(t any) (result *Feature, returnErr error) {
 	defer func() {
-		panicErr := recover()
-		if panicErr == nil {
+		panicContents := recover()
+		if panicContents == nil {
 			return
 		}
-
-		errorStr := "unexpected unwrap feature internal error"
-		panicStr, ok := panicErr.(string)
-		if ok {
-			errorStr = panicStr
+		detail := "details irretrievable"
+		switch typedContents := panicContents.(type) {
+		case *reflect.ValueError:
+			detail = typedContents.Error()
+		case string:
+			detail = typedContents
 		}
-
 		result = nil
-		err = fmt.Errorf(errorStr)
+		returnErr = fmt.Errorf("unexpected unwrap feature internal error: %s", detail)
 	}()
 	return unwrapFeature(t)
 }
