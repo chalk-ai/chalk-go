@@ -257,12 +257,15 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 	return nil
 }
 
-func (result *OnlineQueryResult) unmarshal(t any) *ClientError {
+func (result *OnlineQueryResult) unmarshal(t any) (returnErr *ClientError) {
 	fieldMap := make(fqnToField)
 	structValue := reflect.ValueOf(t).Elem()
 
 	// Has a side effect: fieldMap will be populated.
-	initFeatures(structValue, "", make(map[string]bool), fieldMap)
+	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
+	if initErr != nil {
+		return &ClientError{Message: "exception occurred while initializing result holder"}
+	}
 
 	for _, featureResult := range result.Data {
 		fqn := featureResult.Field
