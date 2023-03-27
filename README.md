@@ -1,5 +1,5 @@
 
-[![Go Reference](https://pkg.go.dev/github.com/chalk-ai/chalk-go)](https://pkg.go.dev/github.com/chalk-ai/chalk-go@v0.3.4)
+[![Go Reference](https://pkg.go.dev/badge/github.com/chalk-ai/chalk-go.svg)](https://pkg.go.dev/github.com/chalk-ai/chalk-go)
 [![Test](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml)
 
 # Go Chalk
