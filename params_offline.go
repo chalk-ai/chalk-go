@@ -96,6 +96,7 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 			Err:       castErr,
 			Type:      BuilderErrorInvalidFeature,
 			Feature:   castedFeature,
+			Value:     values,
 			ParamType: ParamInput,
 		}
 		p.builderErrors = append(p.builderErrors, &builderError)

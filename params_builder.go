@@ -33,8 +33,6 @@ type BuilderError struct {
 func (e *BuilderError) Error() string {
 	switch e.Type {
 	case BuilderErrorInvalidFeature:
-		return fmt.Errorf("error occurred while adding %s feature '%s': %w", e.ParamType, e.Feature, e.Err).Error()
-	case BuilderErrorUnknown:
 		err1 := fmt.Errorf("error occured while adding %s feature '%s' with value '%s': %w", e.ParamType, e.Feature, e.Value, e.Err)
 		err2 := "Please make sure you are referencing a feature from the root 'Features' struct, for example: Features.MyFeatureClass.NestedFeatureClass.Id"
 		err3 := "Please also make sure chalk.InitFeatures() has been called on the root 'Features' struct, and the global variable 'InitFeaturesErr' is nil"
