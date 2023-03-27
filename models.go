@@ -192,7 +192,20 @@ type FeatureResult struct {
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)
 //	}
-func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) *ClientError {
+func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *ClientError) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = &ClientError{Message: fmt.Sprintf("exception occurred while unmarshalling result: %s", detail)}
+		}
+	}()
+
 	value := reflect.ValueOf(resultHolder)
 	kind := value.Type().Kind()
 	if kind != reflect.Pointer {
