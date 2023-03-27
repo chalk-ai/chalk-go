@@ -48,7 +48,7 @@ chalk codegen go --out=<OUTPUT_FILEPATH>
 
 ### Connect to chalk
 
-Create a client using the `NewClient` method.  The retruned client gets its configuration:
+Create a client using the `NewClient` method.  The returned client gets its configuration:
 
 1. From the contructor arguments
 2. From environment variables if no arguments are passed
