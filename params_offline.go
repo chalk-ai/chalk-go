@@ -1,6 +1,8 @@
 package chalk
 
-import "time"
+import (
+	"time"
+)
 
 /*****************************************
  Definitions for OfflineQueryParamsComplete
@@ -85,6 +87,12 @@ func (p offlineQueryParamsWithInputs) WithRequiredOutputs(features ...any) Offli
 ***********************************/
 
 func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryParams {
+	validateErr := validateFeature(feature, ParamInput)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
+
 	timestampedValues := p.getTimestampedFeatures(values)
 
 	if p.inputs == nil {
@@ -99,8 +107,8 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
-				Type:      BuilderErrorInvalidFeature,
-				Feature:   castedFeature,
+				Type:      UnwrapFeatureError,
+				Feature:   feature,
 				Value:     values,
 				ParamType: ParamInput,
 			}
@@ -114,6 +122,12 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 }
 
 func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
+	validateErr := validateFeatures(features, ParamOutput)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
+
 	for _, feature := range features {
 		var key string
 		if fqn, ok := feature.(string); ok {
@@ -123,8 +137,8 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 			if castErr != nil {
 				builderError := BuilderError{
 					Err:       castErr,
-					Type:      BuilderErrorInvalidFeature,
-					Feature:   castedFeature,
+					Type:      UnwrapFeatureError,
+					Feature:   feature,
 					ParamType: ParamOutput,
 				}
 				p.builderErrors = append(p.builderErrors, &builderError)
@@ -138,6 +152,12 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 }
 
 func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryParams {
+	validateErr := validateFeatures(features, ParamRequiredOutput)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
+
 	for _, feature := range features {
 		var key string
 		if fqn, ok := feature.(string); ok {
@@ -147,8 +167,8 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 			if castErr != nil {
 				builderError := BuilderError{
 					Err:       castErr,
-					Type:      BuilderErrorInvalidFeature,
-					Feature:   castedFeature,
+					Type:      UnwrapFeatureError,
+					Feature:   feature,
 					ParamType: ParamRequiredOutput,
 				}
 				p.builderErrors = append(p.builderErrors, &builderError)

@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -9,7 +10,8 @@ type BuilderErrorType int
 
 const (
 	BuilderErrorUnknown BuilderErrorType = iota
-	BuilderErrorInvalidFeature
+	InvalidFeatureType
+	UnwrapFeatureError
 )
 
 type ParamType string
@@ -32,10 +34,10 @@ type BuilderError struct {
 
 func (e *BuilderError) Error() string {
 	switch e.Type {
-	case BuilderErrorInvalidFeature:
+	case UnwrapFeatureError:
 		err1 := fmt.Errorf("error occured while adding %s feature '%s' with value '%s': %w", e.ParamType, e.Feature, e.Value, e.Err)
-		err2 := "Please make sure you are referencing a feature from the root 'Features' struct, for example: Features.MyFeatureClass.NestedFeatureClass.Id"
-		err3 := "Please also make sure chalk.InitFeatures() has been called on the root 'Features' struct, and the global variable 'InitFeaturesErr' is nil"
+		err2 := "Please make sure you are referencing a feature by string or by passing a feature rooted in the 'Features' struct"
+		err3 := "If using 'Features', please make sure to use InitFeatures and ensure InitFeaturesErr is nil"
 		return strings.Join([]string{err1.Error(), err2, err3}, "\n")
 	}
 
@@ -55,22 +57,24 @@ func (e BuilderErrors) Error() string {
 	return strings.Join(errStrings, "\n")
 }
 
-func convertPanicToError(panicContents any, paramType ParamType, feature any, value any) *BuilderError {
-	if panicContents == nil {
+func validateFeature(feature any, paramType ParamType) *BuilderError {
+	value := reflect.ValueOf(feature)
+	kind := value.Kind()
+	if kind == reflect.String || kind == reflect.Ptr || kind == reflect.Map {
 		return nil
 	}
-
-	errorStr := "unexpected param builder internal error"
-	panicStr, ok := panicContents.(string)
-	if ok {
-		errorStr = panicStr
-	}
-
 	return &BuilderError{
-		Err:       fmt.Errorf(errorStr),
-		Type:      BuilderErrorUnknown,
+		Err:       fmt.Errorf("expected string or pointer, but found invalid feature type: %s. If using 'Features', please make sure to use InitFeatures and ensure InitFeaturesErr is nil", kind),
+		Type:      InvalidFeatureType,
 		ParamType: paramType,
-		Feature:   feature,
-		Value:     value,
 	}
+}
+
+func validateFeatures(features []any, paramType ParamType) *BuilderError {
+	for _, feature := range features {
+		if err := validateFeature(feature, paramType); err != nil {
+			return err
+		}
+	}
+	return nil
 }
