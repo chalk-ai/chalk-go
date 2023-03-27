@@ -6,20 +6,6 @@ import (
 	"time"
 )
 
-/*
-	type allTypes struct {
-		Int          *int64
-		Float        *float64
-		String       *string
-		Bool         *bool
-		Timestamp    *time.Time
-		IntList      *[]int64
-		WindowedInt  map[string]*int64   `windows:"1m,5m,1h"`
-		WindowedList map[string]*[]int64 `windows:"1m"`
-		Dataclass    *testLatLng         `dataclass:"true"`
-		Nested       *anotherFeature
-	}
-*/
 func TestOfflineQueryParamsAllTypes(t *testing.T) {
 	// Tests that all types of input, output, and required output parameters can be passed
 	// without error.
