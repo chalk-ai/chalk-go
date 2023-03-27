@@ -6,6 +6,52 @@ import (
 	"time"
 )
 
+/*
+	type allTypes struct {
+		Int          *int64
+		Float        *float64
+		String       *string
+		Bool         *bool
+		Timestamp    *time.Time
+		IntList      *[]int64
+		WindowedInt  map[string]*int64   `windows:"1m,5m,1h"`
+		WindowedList map[string]*[]int64 `windows:"1m"`
+		Dataclass    *testLatLng         `dataclass:"true"`
+		Nested       *anotherFeature
+	}
+*/
+func TestOfflineQueryParamsAllTypes(t *testing.T) {
+	// Tests that all types of input, output, and required output parameters can be passed
+	// without error.
+	initErr := InitFeatures(&ptf)
+	assert.Nil(t, initErr)
+	params := OfflineQueryParams{}.
+		WithInput(ptf.AllTypes.String, []any{1}).
+		WithOutputs(
+			"all_types.string",
+			ptf.AllTypes.Bool,
+			ptf.AllTypes.Float,
+			ptf.AllTypes.String,
+			ptf.AllTypes.Int,
+			ptf.AllTypes.Timestamp,
+			ptf.AllTypes.IntList,
+		).
+		WithRequiredOutputs(
+			ptf.AllTypes.WindowedInt,
+			ptf.AllTypes.WindowedInt["1m"],
+			ptf.AllTypes.WindowedInt["5m"],
+			ptf.AllTypes.WindowedInt["1h"],
+			ptf.AllTypes.WindowedList,
+			ptf.AllTypes.WindowedList["1m"],
+			ptf.AllTypes.Nested,
+			ptf.AllTypes.Nested.Id,
+			ptf.AllTypes.Dataclass,
+			ptf.AllTypes.Dataclass.Lat,
+			ptf.AllTypes.Dataclass.Lng,
+		)
+	assert.Empty(t, params.underlying.builderErrors)
+}
+
 func TestOfflineQueryInputParamInteger(t *testing.T) {
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
