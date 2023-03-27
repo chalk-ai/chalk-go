@@ -59,54 +59,58 @@ func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Dura
  Definitions for OnlineQueryParams
 ******************************************/
 
-func (p OnlineQueryParams) withInput(feature any, value any) OnlineQueryParams {
+func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQueryParams) {
 	if p.inputs == nil {
 		p.inputs = make(map[string]any)
 	}
 	castedFeature, castErr := UnwrapFeature(feature)
 	if castErr != nil {
 		builderError := BuilderError{
-			Err:        castErr,
-			Type:       BuilderErrorInvalidFeature,
-			FeatureArg: castedFeature,
-			ParamType:  ParamInput,
+			Err:       castErr,
+			Type:      BuilderErrorInvalidFeature,
+			Feature:   castedFeature,
+			ParamType: ParamInput,
 		}
 		p.builderErrors = append(p.builderErrors, &builderError)
+		return p
 	}
 	p.inputs[castedFeature.Fqn] = value
 	return p
 }
 
-func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
+func (p OnlineQueryParams) withOutputs(features ...any) (result OnlineQueryParams) {
 	for _, feature := range features {
 		castedFeature, castErr := UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
-				Err:        castErr,
-				Type:       BuilderErrorInvalidFeature,
-				FeatureArg: castedFeature,
-				ParamType:  ParamOutput,
+				Err:       castErr,
+				Type:      BuilderErrorInvalidFeature,
+				Feature:   castedFeature,
+				ParamType: ParamOutput,
 			}
 			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
 		}
 		p.outputs = append(p.outputs, castedFeature.Fqn)
 	}
 	return p
 }
 
-func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) OnlineQueryParams {
+func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) (result OnlineQueryParams) {
 	if p.staleness == nil {
 		p.staleness = make(map[string]time.Duration)
 	}
 	castedFeature, castErr := UnwrapFeature(feature)
 	if castErr != nil {
 		builderError := BuilderError{
-			Err:        castErr,
-			Type:       BuilderErrorInvalidFeature,
-			FeatureArg: castedFeature,
-			ParamType:  ParamStaleness,
+			Err:       castErr,
+			Type:      BuilderErrorInvalidFeature,
+			Feature:   castedFeature,
+			Value:     duration,
+			ParamType: ParamStaleness,
 		}
 		p.builderErrors = append(p.builderErrors, &builderError)
+		return p
 	}
 	p.staleness[castedFeature.Fqn] = duration
 	return p

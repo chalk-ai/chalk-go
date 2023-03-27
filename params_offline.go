@@ -93,12 +93,13 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	castedFeature, castErr := UnwrapFeature(feature)
 	if castErr != nil {
 		builderError := BuilderError{
-			Err:        castErr,
-			Type:       BuilderErrorInvalidFeature,
-			FeatureArg: castedFeature,
-			ParamType:  ParamInput,
+			Err:       castErr,
+			Type:      BuilderErrorInvalidFeature,
+			Feature:   castedFeature,
+			ParamType: ParamInput,
 		}
 		p.builderErrors = append(p.builderErrors, &builderError)
+		return p
 	}
 	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], timestampedValues...)
 	return p
@@ -109,12 +110,13 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 		castedFeature, castErr := UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
-				Err:        castErr,
-				Type:       BuilderErrorInvalidFeature,
-				FeatureArg: castedFeature,
-				ParamType:  ParamOutput,
+				Err:       castErr,
+				Type:      BuilderErrorInvalidFeature,
+				Feature:   castedFeature,
+				ParamType: ParamOutput,
 			}
 			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
 		}
 		p.outputs = append(p.outputs, castedFeature.Fqn)
 	}
@@ -126,12 +128,13 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 		castedFeature, castErr := UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
-				Err:        castErr,
-				Type:       BuilderErrorInvalidFeature,
-				FeatureArg: castedFeature,
-				ParamType:  ParamRequiredOutput,
+				Err:       castErr,
+				Type:      BuilderErrorInvalidFeature,
+				Feature:   castedFeature,
+				ParamType: ParamRequiredOutput,
 			}
 			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
 		}
 		p.requiredOutputs = append(p.requiredOutputs, castedFeature.Fqn)
 	}
