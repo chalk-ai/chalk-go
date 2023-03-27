@@ -8,7 +8,7 @@ import (
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
 	// OnlineQuery computes features values using online resolvers.
-	// See https://docs.chalk.ai/docs/query-basics for more information.
+	// See [query basics] for more information.
 	//
 	// resultHolder is a pointer to the struct that the result should be
 	// unmarshalled into. The struct passed in should be the struct that
@@ -17,6 +17,9 @@ type Client interface {
 	// namespace, so a pointer to a 'User' struct is passed in.
 	// You can also choose to pass 'nil' as the resultHolder, in which case
 	// you should use OnlineQueryResult.UnmarshalInto to populate a struct.
+	//
+	// The Chalk CLI can codegen structs for all available features with
+	// the [chalk codegen] command.
 	//
 	// Example:
 	//
@@ -33,10 +36,12 @@ type Client interface {
 	//		fmt.Println("User email: ", user.Email)
 	//		fmt.Println("User card ID: ", user.Card.Id)
 	//
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
+	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
 	// OfflineQuery queries feature values from the offline store.
-	// See `Dataset` for more information.
+	// See Dataset for more information.
 	//
 	// Example:
 	//
@@ -98,10 +103,12 @@ type ClientConfig struct {
 //	CHALK_CLIENT_SECRET
 //
 // For each config variable, if it is still not found, NewClient will look for a
-// `~/.chalk.yml` file, which is updated when you run `chalk login`.
+// `~/.chalk.yml` file, which is updated when you run [chalk login].
 // If a configuration for the specific project directory if found,
 // that configuration will be used. Otherwise, the configuration under
 // the key `default` will be used.
+//
+// [chalk login]: https://docs.chalk.ai/cli#login
 func NewClient(config ...*ClientConfig) (Client, error) {
 	return newClientImpl(config...)
 }
