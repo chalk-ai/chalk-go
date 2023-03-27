@@ -33,7 +33,8 @@ var testFeatures struct {
 }
 
 func TestInitFeaturesToNil(t *testing.T) {
-	initFeatures(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(fqnToField))
+	initErr := initFeatures(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(fqnToField))
+	assert.Nil(t, initErr)
 	assert.Nil(t, testFeatures.User.Id)
 	assert.Nil(t, testFeatures.User.Name)
 	assert.Nil(t, testFeatures.User.Card.Id)

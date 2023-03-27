@@ -63,35 +63,49 @@ func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQuery
 	if p.inputs == nil {
 		p.inputs = make(map[string]any)
 	}
-	castedFeature, castErr := UnwrapFeature(feature)
-	if castErr != nil {
-		builderError := BuilderError{
-			Err:       castErr,
-			Type:      BuilderErrorInvalidFeature,
-			Feature:   castedFeature,
-			ParamType: ParamInput,
-		}
-		p.builderErrors = append(p.builderErrors, &builderError)
-		return p
-	}
-	p.inputs[castedFeature.Fqn] = value
-	return p
-}
 
-func (p OnlineQueryParams) withOutputs(features ...any) (result OnlineQueryParams) {
-	for _, feature := range features {
+	var key string
+	if fqn, ok := feature.(string); ok {
+		key = fqn
+	} else {
 		castedFeature, castErr := UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
 				Type:      BuilderErrorInvalidFeature,
 				Feature:   castedFeature,
-				ParamType: ParamOutput,
+				ParamType: ParamInput,
 			}
 			p.builderErrors = append(p.builderErrors, &builderError)
 			return p
 		}
-		p.outputs = append(p.outputs, castedFeature.Fqn)
+		key = castedFeature.Fqn
+	}
+
+	p.inputs[key] = value
+	return p
+}
+
+func (p OnlineQueryParams) withOutputs(features ...any) (result OnlineQueryParams) {
+	for _, feature := range features {
+		var key string
+		if fqn, ok := feature.(string); ok {
+			key = fqn
+		} else {
+			castedFeature, castErr := UnwrapFeature(feature)
+			if castErr != nil {
+				builderError := BuilderError{
+					Err:       castErr,
+					Type:      BuilderErrorInvalidFeature,
+					Feature:   castedFeature,
+					ParamType: ParamOutput,
+				}
+				p.builderErrors = append(p.builderErrors, &builderError)
+				return p
+			}
+			key = castedFeature.Fqn
+		}
+		p.outputs = append(p.outputs, key)
 	}
 	return p
 }
@@ -100,19 +114,26 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) (r
 	if p.staleness == nil {
 		p.staleness = make(map[string]time.Duration)
 	}
-	castedFeature, castErr := UnwrapFeature(feature)
-	if castErr != nil {
-		builderError := BuilderError{
-			Err:       castErr,
-			Type:      BuilderErrorInvalidFeature,
-			Feature:   castedFeature,
-			Value:     duration,
-			ParamType: ParamStaleness,
+
+	var key string
+	if fqn, ok := feature.(string); ok {
+		key = fqn
+	} else {
+		castedFeature, castErr := UnwrapFeature(feature)
+		if castErr != nil {
+			builderError := BuilderError{
+				Err:       castErr,
+				Type:      BuilderErrorInvalidFeature,
+				Feature:   castedFeature,
+				Value:     duration,
+				ParamType: ParamStaleness,
+			}
+			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
 		}
-		p.builderErrors = append(p.builderErrors, &builderError)
-		return p
+		key = castedFeature.Fqn
 	}
-	p.staleness[castedFeature.Fqn] = duration
+	p.staleness[key] = duration
 	return p
 }
 

@@ -90,54 +90,73 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	if p.inputs == nil {
 		p.inputs = make(map[string][]TsFeatureValue)
 	}
-	castedFeature, castErr := UnwrapFeature(feature)
-	if castErr != nil {
-		builderError := BuilderError{
-			Err:       castErr,
-			Type:      BuilderErrorInvalidFeature,
-			Feature:   castedFeature,
-			Value:     values,
-			ParamType: ParamInput,
-		}
-		p.builderErrors = append(p.builderErrors, &builderError)
-		return p
-	}
-	p.inputs[castedFeature.Fqn] = append(p.inputs[castedFeature.Fqn], timestampedValues...)
-	return p
-}
 
-func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
-	for _, feature := range features {
+	var key string
+	if fqn, ok := feature.(string); ok {
+		key = fqn
+	} else {
 		castedFeature, castErr := UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
 				Type:      BuilderErrorInvalidFeature,
 				Feature:   castedFeature,
-				ParamType: ParamOutput,
+				Value:     values,
+				ParamType: ParamInput,
 			}
 			p.builderErrors = append(p.builderErrors, &builderError)
 			return p
 		}
-		p.outputs = append(p.outputs, castedFeature.Fqn)
+		key = castedFeature.Fqn
+	}
+	p.inputs[key] = append(p.inputs[key], timestampedValues...)
+	return p
+}
+
+func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
+	for _, feature := range features {
+		var key string
+		if fqn, ok := feature.(string); ok {
+			key = fqn
+		} else {
+			castedFeature, castErr := UnwrapFeature(feature)
+			if castErr != nil {
+				builderError := BuilderError{
+					Err:       castErr,
+					Type:      BuilderErrorInvalidFeature,
+					Feature:   castedFeature,
+					ParamType: ParamOutput,
+				}
+				p.builderErrors = append(p.builderErrors, &builderError)
+				return p
+			}
+			key = castedFeature.Fqn
+		}
+		p.outputs = append(p.outputs, key)
 	}
 	return p
 }
 
 func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryParams {
 	for _, feature := range features {
-		castedFeature, castErr := UnwrapFeature(feature)
-		if castErr != nil {
-			builderError := BuilderError{
-				Err:       castErr,
-				Type:      BuilderErrorInvalidFeature,
-				Feature:   castedFeature,
-				ParamType: ParamRequiredOutput,
+		var key string
+		if fqn, ok := feature.(string); ok {
+			key = fqn
+		} else {
+			castedFeature, castErr := UnwrapFeature(feature)
+			if castErr != nil {
+				builderError := BuilderError{
+					Err:       castErr,
+					Type:      BuilderErrorInvalidFeature,
+					Feature:   castedFeature,
+					ParamType: ParamRequiredOutput,
+				}
+				p.builderErrors = append(p.builderErrors, &builderError)
+				return p
 			}
-			p.builderErrors = append(p.builderErrors, &builderError)
-			return p
+			key = castedFeature.Fqn
 		}
-		p.requiredOutputs = append(p.requiredOutputs, castedFeature.Fqn)
+		p.requiredOutputs = append(p.requiredOutputs, key)
 	}
 	return p
 }
