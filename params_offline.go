@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	"time"
 )
 
@@ -103,7 +104,7 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	if fqn, ok := feature.(string); ok {
 		key = fqn
 	} else {
-		castedFeature, castErr := UnwrapFeature(feature)
+		castedFeature, castErr := internal.UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
@@ -133,7 +134,7 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 		if fqn, ok := feature.(string); ok {
 			key = fqn
 		} else {
-			castedFeature, castErr := UnwrapFeature(feature)
+			castedFeature, castErr := internal.UnwrapFeature(feature)
 			if castErr != nil {
 				builderError := BuilderError{
 					Err:       castErr,
@@ -163,7 +164,7 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 		if fqn, ok := feature.(string); ok {
 			key = fqn
 		} else {
-			castedFeature, castErr := UnwrapFeature(feature)
+			castedFeature, castErr := internal.UnwrapFeature(feature)
 			if castErr != nil {
 				builderError := BuilderError{
 					Err:       castErr,

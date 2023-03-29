@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
@@ -33,7 +34,7 @@ var testFeatures struct {
 }
 
 func TestInitFeaturesToNil(t *testing.T) {
-	initErr := initFeatures(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(fqnToField))
+	initErr := internal.InitFeatureInternal(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(internal.FqnToField))
 	assert.Nil(t, initErr)
 	assert.Nil(t, testFeatures.User.Id)
 	assert.Nil(t, testFeatures.User.Name)

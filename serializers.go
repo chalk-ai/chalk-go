@@ -3,7 +3,6 @@ package chalk
 import (
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go/internal"
-	"strconv"
 	"time"
 )
 
@@ -17,7 +16,7 @@ func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 		Inputs:         p.inputs,
 		Outputs:        p.outputs,
 		Context:        context,
-		Staleness:      serializeStaleness(p.staleness),
+		Staleness:      internal.SerializeStaleness(p.staleness),
 		IncludeMeta:    p.IncludeMeta,
 		IncludeMetrics: p.IncludeMetrics,
 		DeploymentId:   internal.StringOrNil(p.PreviewDeploymentId),
@@ -27,14 +26,6 @@ func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	}
 
 	return body
-}
-
-func serializeStaleness(staleness map[string]time.Duration) map[string]string {
-	res := map[string]string{}
-	for k, v := range staleness {
-		res[k] = strconv.Itoa(int(v.Seconds())) + "s"
-	}
-	return res
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
