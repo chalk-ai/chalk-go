@@ -19,6 +19,7 @@ type clientImpl struct {
 	ApiServer     auth2.SourcedConfig
 	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
+	Branch        string
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
@@ -392,6 +393,10 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
 
+	if c.Branch != "" {
+		headers.Set("X-Chalk-Branch-Id", c.Branch)
+	}
+
 	if environmentOverride == "" {
 		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
 	} else {
@@ -470,13 +475,14 @@ func newClientImpl(
 	}
 
 	client := &clientImpl{
-		httpClient:    cfg.HTTPClient,
-		logger:        cfg.Logger,
 		ClientId:      clientId,
-		clientSecret:  clientSecret,
 		ApiServer:     apiServer,
 		EnvironmentId: environmentId,
+		Branch:        cfg.Branch,
 
+		logger:             cfg.Logger,
+		httpClient:         cfg.HTTPClient,
+		clientSecret:       clientSecret,
 		initialEnvironment: environmentId,
 	}
 
