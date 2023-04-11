@@ -69,6 +69,10 @@ type ClientConfig struct {
 	ApiServer     string
 	EnvironmentId string
 
+	// If specified, Chalk will route all requests from this client
+	// instance to the relevant branch.
+	Branch string
+
 	// Logger is the logger that the backend will use to log errors,
 	// warnings, and informational messages.
 	//

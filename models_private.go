@@ -85,6 +85,7 @@ type sendRequestParams struct {
 
 	EnvironmentOverride string
 	PreviewDeploymentId string
+	Branch              string
 }
 
 type getTokenRequest struct {

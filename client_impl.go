@@ -19,6 +19,7 @@ type clientImpl struct {
 	ApiServer     auth2.SourcedConfig
 	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
+	Branch        string
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
@@ -46,6 +47,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 			Body:                request,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
+			Branch:              request.Branch,
 		},
 	)
 	if err != nil {
@@ -301,7 +303,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId)
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, args.Branch)
 	request.Header = headers
 
 	if !args.DontRefresh {
@@ -384,13 +386,19 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string) http.Header {
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride string) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+
+	if branchOverride != "" {
+		headers.Set("X-Chalk-Branch-Id", branchOverride)
+	} else if c.Branch != "" {
+		headers.Set("X-Chalk-Branch-Id", c.Branch)
+	}
 
 	if environmentOverride == "" {
 		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
@@ -470,13 +478,14 @@ func newClientImpl(
 	}
 
 	client := &clientImpl{
-		httpClient:    cfg.HTTPClient,
-		logger:        cfg.Logger,
 		ClientId:      clientId,
-		clientSecret:  clientSecret,
 		ApiServer:     apiServer,
 		EnvironmentId: environmentId,
+		Branch:        cfg.Branch,
 
+		logger:             cfg.Logger,
+		httpClient:         cfg.HTTPClient,
+		clientSecret:       clientSecret,
 		initialEnvironment: environmentId,
 	}
 
