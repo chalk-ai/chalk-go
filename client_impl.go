@@ -47,6 +47,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 			Body:                request,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
+			Branch:              request.Branch,
 		},
 	)
 	if err != nil {
@@ -302,7 +303,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId)
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, args.Branch)
 	request.Header = headers
 
 	if !args.DontRefresh {
@@ -385,7 +386,7 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string) http.Header {
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride string) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
@@ -393,7 +394,9 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
 
-	if c.Branch != "" {
+	if branchOverride != "" {
+		headers.Set("X-Chalk-Branch-Id", branchOverride)
+	} else if c.Branch != "" {
 		headers.Set("X-Chalk-Branch-Id", c.Branch)
 	}
 
