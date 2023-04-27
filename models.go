@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
@@ -108,7 +109,7 @@ func (result *OnlineQueryResult) GetFeature(feature any) (*FeatureResult, error)
 	if fqn, ok := feature.(string); ok {
 		key = fqn
 	} else {
-		castedFeature, err := UnwrapFeature(feature)
+		castedFeature, err := internal.UnwrapFeature(feature)
 		if err != nil {
 			return nil, fmt.Errorf("exception occurred while getting feature: %w", err)
 		}

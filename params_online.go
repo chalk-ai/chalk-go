@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	"time"
 )
 
@@ -74,7 +75,7 @@ func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQuery
 	if fqn, ok := feature.(string); ok {
 		key = fqn
 	} else {
-		castedFeature, castErr := UnwrapFeature(feature)
+		castedFeature, castErr := internal.UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
@@ -104,7 +105,7 @@ func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
 		if fqn, ok := feature.(string); ok {
 			key = fqn
 		} else {
-			castedFeature, castErr := UnwrapFeature(feature)
+			castedFeature, castErr := internal.UnwrapFeature(feature)
 			if castErr != nil {
 				builderError := BuilderError{
 					Err:       castErr,
@@ -137,7 +138,7 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	if fqn, ok := feature.(string); ok {
 		key = fqn
 	} else {
-		castedFeature, castErr := UnwrapFeature(feature)
+		castedFeature, castErr := internal.UnwrapFeature(feature)
 		if castErr != nil {
 			builderError := BuilderError{
 				Err:       castErr,
