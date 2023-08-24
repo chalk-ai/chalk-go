@@ -3,11 +3,13 @@ package internal
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/apache/arrow/go/v12/arrow"
 	"github.com/apache/arrow/go/v12/arrow/ipc"
 )
 
-func CreateRequestBody(inputs arrow.Record) (*[]byte, error) {
+func CreateRequestBody(inputs arrow.Record, outputs []string) (*[]byte, error) {
 	// Serialize the message
 	var result bytes.Buffer
 	ioWriter := bufio.NewWriter(&result)
@@ -27,7 +29,14 @@ func CreateRequestBody(inputs arrow.Record) (*[]byte, error) {
 	}
 
 	// Header: TODO: get the other parameters for this.
-	headerLength, err := ioWriter.WriteString(`{"output": [...]}`)
+	header := map[string]any{
+		"outputs": outputs,
+	}
+	jsonString, err := json.Marshal(header)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize header to JSON: %w", err)
+	}
+	headerLength, err := ioWriter.Write(jsonString)
 	if err != nil {
 		return nil, err
 	}

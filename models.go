@@ -270,6 +270,24 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
+// OnlineQueryBulkResult holds the result of an bulk online query.
+type OnlineQueryBulkResult struct {
+	// The output features and any query metadata.
+	Data []FeatureResult
+
+	// Scalar feature table
+	// Group feature table
+
+	// Execution metadata for the query. See QueryMeta for details.
+	Meta *QueryMeta
+
+	// Used to efficiently get a FeatureResult by FQN.
+	features map[string]FeatureResult
+
+	// Used to validate result holder expected outputs are not nil.
+	expectedOutputs []string
+}
+
 // OfflineQueryParams defines the parameters
 // that help you execute an online query.
 // OfflineQueryParams is the starting point

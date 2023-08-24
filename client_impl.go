@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -65,6 +66,60 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 	return response, nil
 }
 
+func (c *clientImpl) onlineQueryBulk(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
+	// Call serialization method for `OnlineQueryParamsComplete`.
+	// SEND IT. (the bytes)
+	data, err := params.toBytes()
+	if err != nil {
+		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
+	}
+	var serializedResponse onlineQueryResponseSerialized
+	err = c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/query/feather",
+			Body:                data,
+			Response:            &serializedResponse,
+			EnvironmentOverride: params.underlying.EnvironmentId,
+			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
+		},
+	)
+
+	if err != nil {
+		return OnlineQueryResult{}, getErrorResponse(err)
+	}
+
+	if len(serializedResponse.Errors) > 0 {
+		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
+		if deserializationErr != nil {
+			return OnlineQueryResult{}, &ErrorResponse{
+				ClientError: &ClientError{deserializationErr.Error()},
+			}
+		}
+
+		return OnlineQueryResult{}, &ErrorResponse{ServerErrors: serverErrors}
+	}
+
+	response, err := serializedResponse.deserialize()
+	if err != nil {
+		return OnlineQueryResult{}, &ErrorResponse{
+			ClientError: &ClientError{err.Error()},
+		}
+	}
+
+	response.expectedOutputs = params.underlying.outputs
+	if resultHolder != nil {
+		unmarshalErr := response.UnmarshalInto(resultHolder)
+		if unmarshalErr != nil {
+			return response, &ErrorResponse{
+				ClientError: unmarshalErr,
+			}
+		}
+	}
+
+	return response, nil
+}
+
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 
@@ -72,6 +127,17 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		builderErrString := request.builderErrors.Error()
 		clientErrString := "error building online query params:\n" + builderErrString
 		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
+	validationErrors := params.validatePostBuild()
+	if len(validationErrors) > 0 {
+		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+	}
+
+	for _, input := range request.inputs {
+		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
+			return c.onlineQueryBulk(params, resultHolder)
+		}
 	}
 
 	emptyResult := OnlineQueryResult{}
@@ -284,11 +350,20 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	if body == nil {
 		return nil, nil
 	}
-	jsonBytes, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
+	var bodyBytes []byte
+	switch v := body.(type) {
+	case []byte:
+		bodyBytes = v
+		return bytes.NewBuffer(bodyBytes), nil
+	default:
+		jsonBytes, err := json.Marshal(body)
+		bodyBytes = jsonBytes
+		if err != nil {
+			return nil, err
+		}
 	}
-	return bytes.NewBuffer(jsonBytes), nil
+
+	return bytes.NewBuffer(bodyBytes), nil
 }
 
 func (c *clientImpl) sendRequest(args sendRequestParams) error {
