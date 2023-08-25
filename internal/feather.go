@@ -3,6 +3,7 @@ package internal
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v12/arrow"
@@ -13,7 +14,6 @@ func CreateRequestBody(inputs arrow.Record, outputs []string) (*[]byte, error) {
 	// Serialize the message
 	var result bytes.Buffer
 	ioWriter := bufio.NewWriter(&result)
-
 	ipcWriter := ipc.NewWriter(ioWriter, ipc.WithSchema(inputs.Schema()))
 
 	// Magic string header
@@ -23,26 +23,28 @@ func CreateRequestBody(inputs arrow.Record, outputs []string) (*[]byte, error) {
 	}
 
 	// Placeholder for the size of the header
-	err = ioWriter.WriteByte(0)
+	placeholder := make([]byte, 8)
+	_, err = ioWriter.Write(placeholder)
 	if err != nil {
 		return nil, err
 	}
 
 	// Header: TODO: get the other parameters for this.
 	header := map[string]any{
-		"outputs": outputs,
+		"outputs":           outputs,
+		"feather_body_type": "RECORD_BATCHES",
 	}
-	jsonString, err := json.Marshal(header)
+	jsonBytes, err := json.Marshal(header)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize header to JSON: %w", err)
 	}
-	headerLength, err := ioWriter.Write(jsonString)
+	headerLength, err := ioWriter.Write(jsonBytes)
 	if err != nil {
 		return nil, err
 	}
 
 	// Placeholder for the size of the body
-	err = ioWriter.WriteByte(0)
+	_, err = ioWriter.Write(placeholder)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +55,6 @@ func CreateRequestBody(inputs arrow.Record, outputs []string) (*[]byte, error) {
 		return nil, err
 	}
 
-	// Fill in the sizes
 	err = ipcWriter.Close()
 	if err != nil {
 		return nil, err
@@ -63,10 +64,12 @@ func CreateRequestBody(inputs arrow.Record, outputs []string) (*[]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Fill in the sizes
 	resultBytes := result.Bytes()
-	resultBytes[magicStringLen] = uint8(headerLength)
-	resultBytes[magicStringLen+1+headerLength] = uint8(
-		len(resultBytes) - magicStringLen - 1 - headerLength,
-	)
+	binary.BigEndian.PutUint64(resultBytes[magicStringLen:], uint64(headerLength))
+	nonBodyLength := magicStringLen + 8 + headerLength + 8
+	bodyLength := len(resultBytes) - nonBodyLength
+	binary.BigEndian.PutUint64(resultBytes[magicStringLen+8+headerLength:], uint64(bodyLength))
 	return &resultBytes, nil
 }

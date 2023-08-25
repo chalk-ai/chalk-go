@@ -352,8 +352,8 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	}
 	var bodyBytes []byte
 	switch v := body.(type) {
-	case []byte:
-		bodyBytes = v
+	case *[]byte:
+		bodyBytes = *v
 		return bytes.NewBuffer(bodyBytes), nil
 	default:
 		jsonBytes, err := json.Marshal(body)
