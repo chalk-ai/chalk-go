@@ -25,10 +25,10 @@ type onlineQueryResponseSerialized struct {
 	Meta   *QueryMeta                `json:"meta"`
 }
 
-type OnlineQueryResultFeather struct {
+type onlineQueryResultFeather struct {
 	HasData    bool
-	ScalarData arrow.Record
-	GroupsData map[Fqn]arrow.Record
+	ScalarData *arrow.Record
+	GroupsData map[Fqn]*arrow.Record
 	Errors     []ServerError
 	Meta       *QueryMeta
 }
@@ -37,7 +37,7 @@ type QueryName = string
 type Fqn = string
 
 type OnlineQueryBulkResponse struct {
-	QueryResults map[QueryName]OnlineQueryResultFeather
+	QueryResults map[QueryName]onlineQueryResultFeather
 }
 
 type onlineQueryContext struct {
