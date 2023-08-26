@@ -15,7 +15,7 @@ type fqnToField map[string]reflect.Value
 var FieldNotFoundError = errors.New("field not found")
 
 type Numbers interface {
-	int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
+	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {

@@ -73,7 +73,7 @@ func (c *clientImpl) onlineQueryBulk(params OnlineQueryParamsComplete, resultHol
 	if err != nil {
 		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
 	}
-	var serializedResponse onlineQueryResponseSerialized
+	var serializedResponse OnlineQueryBulkResponse
 	err = c.sendRequest(
 		sendRequestParams{
 			Method:              "POST",
@@ -89,35 +89,35 @@ func (c *clientImpl) onlineQueryBulk(params OnlineQueryParamsComplete, resultHol
 		return OnlineQueryResult{}, getErrorResponse(err)
 	}
 
-	if len(serializedResponse.Errors) > 0 {
-		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
-		if deserializationErr != nil {
-			return OnlineQueryResult{}, &ErrorResponse{
-				ClientError: &ClientError{deserializationErr.Error()},
-			}
-		}
+	//if len(serializedResponse.Errors) > 0 {
+	//	serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
+	//	if deserializationErr != nil {
+	//		return OnlineQueryResult{}, &ErrorResponse{
+	//			ClientError: &ClientError{deserializationErr.Error()},
+	//		}
+	//	}
+	//
+	//	return OnlineQueryResult{}, &ErrorResponse{ServerErrors: serverErrors}
+	//}
+	//
+	//response, err := serializedResponse.deserialize()
+	//if err != nil {
+	//	return OnlineQueryResult{}, &ErrorResponse{
+	//		ClientError: &ClientError{err.Error()},
+	//	}
+	//}
+	//
+	//response.expectedOutputs = params.underlying.outputs
+	//if resultHolder != nil {
+	//	unmarshalErr := response.UnmarshalInto(resultHolder)
+	//	if unmarshalErr != nil {
+	//		return response, &ErrorResponse{
+	//			ClientError: unmarshalErr,
+	//		}
+	//	}
+	//}
 
-		return OnlineQueryResult{}, &ErrorResponse{ServerErrors: serverErrors}
-	}
-
-	response, err := serializedResponse.deserialize()
-	if err != nil {
-		return OnlineQueryResult{}, &ErrorResponse{
-			ClientError: &ClientError{err.Error()},
-		}
-	}
-
-	response.expectedOutputs = params.underlying.outputs
-	if resultHolder != nil {
-		unmarshalErr := response.UnmarshalInto(resultHolder)
-		if unmarshalErr != nil {
-			return response, &ErrorResponse{
-				ClientError: unmarshalErr,
-			}
-		}
-	}
-
-	return response, nil
+	return OnlineQueryResult{}, nil
 }
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
@@ -421,7 +421,12 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	out, _ := io.ReadAll(res.Body)
-	err = json.Unmarshal(out, args.Response)
+	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
+	if isBulkResponse {
+		err = castResponse.Unmarshal(out)
+	} else {
+		err = json.Unmarshal(out, args.Response)
+	}
 
 	return err
 }
