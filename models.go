@@ -245,6 +245,9 @@ type FeatureResolutionMeta struct {
 
 // QueryMeta represents metadata about a Chalk query.
 type QueryMeta struct {
+	// Execution duration in seconds
+	ExecutionDurationS float64 `json:"execution_duration_s"`
+
 	// The id of the deployment that served this query.
 	DeploymentId string `json:"deployment_id"`
 
