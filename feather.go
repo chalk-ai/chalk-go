@@ -345,9 +345,14 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 	return nil
 }
 
-// Unmarhsal top level, we get byte dict populated
-// Unmarshal byte dict values, we get a dict of attrs: bytes and attrs: non-bytes
-// Unmarshal the attrs into Record batches
+func (r *onlineQueryResultFeather) UnmarshalInto(resultHolder any) error {
+	// Scalar data
+	// Loop through each row
+	// 	Call UnmarshalInto for each value using its column name
+	//
+
+	// Groups data
+}
 
 func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 	res, err := ChalkUnmarshal(body)

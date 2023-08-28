@@ -257,9 +257,17 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 	return nil
 }
 
-func (result *OnlineQueryResult) unmarshal(t any) (returnErr *ClientError) {
+func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
+	fqnToValueMap := map[Fqn]any{}
+	for _, featureResult := range result.Data {
+		fqnToValueMap[featureResult.Field] = featureResult.Value
+	}
+	return UnmarshalInto(resultHolder, fqnToValueMap, result.expectedOutputs)
+}
+
+func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	fieldMap := make(fqnToField)
-	structValue := reflect.ValueOf(t).Elem()
+	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
@@ -267,9 +275,8 @@ func (result *OnlineQueryResult) unmarshal(t any) (returnErr *ClientError) {
 		return &ClientError{Message: "exception occurred while initializing result holder"}
 	}
 
-	for _, featureResult := range result.Data {
-		fqn := featureResult.Field
-		err := fieldMap.setFeature(fqn, featureResult.Value)
+	for fqn, value := range fqnToValueMap {
+		err := fieldMap.setFeature(fqn, value)
 		if err != nil {
 			structName := structValue.Type().String()
 			outputNamespace := "unknown namespace"
@@ -288,7 +295,7 @@ func (result *OnlineQueryResult) unmarshal(t any) (returnErr *ClientError) {
 
 		}
 	}
-	for _, expectedOutput := range result.expectedOutputs {
+	for _, expectedOutput := range expectedOutputs {
 		if field, ok := fieldMap[expectedOutput]; ok {
 			if field.IsNil() {
 				// TODO: Handle optional fields
