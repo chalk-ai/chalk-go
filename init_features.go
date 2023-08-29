@@ -124,7 +124,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				// so when we are initializing the root Features struct (fieldMap == nil),
 				// we want to return the parent (real) feature FQN
 				// instead of the fake FQN of the dataclass field.
-				if isDataclass(structValue) {
+				if internal.IsDataclass(structValue) {
 					updatedFqn = DesuffixFqn(updatedFqn)
 				}
 

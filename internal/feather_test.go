@@ -26,6 +26,6 @@ func TestSerialization(t *testing.T) {
 	record := recordBuilder.NewRecord()
 	defer record.Release()
 
-	_, err := CreateRequestBody(record)
+	_, err := CreateOnlineQueryBulkBody(record)
 	assert.Nil(t, err)
 }

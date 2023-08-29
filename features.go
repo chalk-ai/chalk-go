@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strings"
 )
@@ -30,7 +31,7 @@ func getFeatureClassFromMember(field reflect.Value) *Feature {
 			memberFqn := memberFeature.Fqn
 
 			var featureClassFqn string
-			if isDataclass(structValue) {
+			if internal.IsDataclass(structValue) {
 				// Dataclass feature classes have members
 				// that share the same FQN as the feature class.
 				featureClassFqn = memberFqn
