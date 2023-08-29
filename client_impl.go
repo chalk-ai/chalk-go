@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -65,6 +66,66 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 	return response, nil
 }
 
+func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse) {
+	emptyResult := OnlineQueryBulkResult{}
+	request := params.underlying
+
+	if len(request.builderErrors) > 0 {
+		builderErrString := request.builderErrors.Error()
+		clientErrString := "error building bulk online query params:\n" + builderErrString
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
+	validationErrors := params.validatePostBuild()
+	if len(validationErrors) > 0 {
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+	}
+
+	for _, input := range request.inputs {
+		if !(reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array) {
+			return emptyResult, &ErrorResponse{
+				ClientError: &ClientError{
+					"inputs to bulk online query must be a slice or array",
+				},
+			}
+		}
+	}
+	data, err := params.toBytes()
+	if err != nil {
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
+	}
+	var response OnlineQueryBulkResponse
+	err = c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/query/feather",
+			Body:                data,
+			Response:            &response,
+			EnvironmentOverride: params.underlying.EnvironmentId,
+			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
+		},
+	)
+
+	if err != nil {
+		return emptyResult, getErrorResponse(err)
+	}
+
+	singleBulkResult, ok := response.QueryResults["0"]
+	if !ok {
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{"unexpected bulk online query response from server"}}
+	}
+
+	if len(singleBulkResult.Errors) > 0 {
+		return emptyResult, &ErrorResponse{ServerErrors: singleBulkResult.Errors}
+	}
+
+	return OnlineQueryBulkResult{
+		ScalarsDF: singleBulkResult.ScalarData,
+		GroupsDF:  singleBulkResult.GroupsData,
+		Meta:      singleBulkResult.Meta,
+	}, nil
+}
+
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
 	request := params.underlying
 
@@ -72,6 +133,21 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		builderErrString := request.builderErrors.Error()
 		clientErrString := "error building online query params:\n" + builderErrString
 		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
+	validationErrors := params.validatePostBuild()
+	if len(validationErrors) > 0 {
+		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+	}
+
+	for _, input := range request.inputs {
+		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
+			return OnlineQueryResult{}, &ErrorResponse{
+				ClientError: &ClientError{
+					"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
+				},
+			}
+		}
 	}
 
 	emptyResult := OnlineQueryResult{}
@@ -284,11 +360,20 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	if body == nil {
 		return nil, nil
 	}
-	jsonBytes, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
+	var bodyBytes []byte
+	switch v := body.(type) {
+	case *[]byte:
+		bodyBytes = *v
+		return bytes.NewBuffer(bodyBytes), nil
+	default:
+		jsonBytes, err := json.Marshal(body)
+		bodyBytes = jsonBytes
+		if err != nil {
+			return nil, err
+		}
 	}
-	return bytes.NewBuffer(jsonBytes), nil
+
+	return bytes.NewBuffer(bodyBytes), nil
 }
 
 func (c *clientImpl) sendRequest(args sendRequestParams) error {
@@ -346,7 +431,12 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	out, _ := io.ReadAll(res.Body)
-	err = json.Unmarshal(out, args.Response)
+	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
+	if isBulkResponse {
+		err = castResponse.Unmarshal(out)
+	} else {
+		err = json.Unmarshal(out, args.Response)
+	}
 
 	return err
 }

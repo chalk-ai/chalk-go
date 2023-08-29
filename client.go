@@ -40,6 +40,32 @@ type Client interface {
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
 
+	// OnlineQueryBulk computes features values using online resolvers,
+	// and has the ability to query multiple primary keys at once.
+	// OnlineQueryBulk also has the ability to return a has-many feature
+	// in the form of an arrow.Record. The usual features are returned
+	// in bulk in an arrow.Record too, with each column name corresponding
+	// to the feature name.
+	//
+	// The Chalk CLI can codegen structs for all available features with
+	// the [chalk codegen] command.
+	//
+	// Example:
+	//
+	//		res, err := client.OnlineQueryBulk(
+	//			OnlineQueryParams{
+	//				IncludeMeta: true,
+	//				EnvironmentId: "pipkjlfc3gtmn",
+	//			}.
+	//			WithInput(Features.User.Card.Id, []int{1, 2, 3, 4}).
+	//			WithOutputs(Features.User.Email, Features.User.Card.Id),
+	//		)
+	//
+	//      // fmt.Println((*result.ScalarData).Column(1).String())
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
+	// [query basics]: https://docs.chalk.ai/docs/query-basics
+	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)
+
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
 	//

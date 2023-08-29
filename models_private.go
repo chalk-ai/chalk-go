@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/apache/arrow/go/v12/arrow"
 	"net/http"
 	"time"
 )
@@ -22,6 +23,21 @@ type onlineQueryResponseSerialized struct {
 	Data   []featureResultSerialized `json:"data"`
 	Errors []chalkErrorSerialized    `json:"errors"`
 	Meta   *QueryMeta                `json:"meta"`
+}
+
+type onlineQueryResultFeather struct {
+	HasData    bool
+	ScalarData *arrow.Record
+	GroupsData map[Fqn]*arrow.Record
+	Errors     []ServerError
+	Meta       *QueryMeta
+}
+
+type QueryName = string
+type Fqn = string
+
+type OnlineQueryBulkResponse struct {
+	QueryResults map[QueryName]onlineQueryResultFeather
 }
 
 type onlineQueryContext struct {

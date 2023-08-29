@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"github.com/apache/arrow/go/v12/arrow"
 	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
@@ -245,6 +246,9 @@ type FeatureResolutionMeta struct {
 
 // QueryMeta represents metadata about a Chalk query.
 type QueryMeta struct {
+	// Execution duration in seconds
+	ExecutionDurationS float64 `json:"execution_duration_s"`
+
 	// The id of the deployment that served this query.
 	DeploymentId string `json:"deployment_id"`
 
@@ -268,6 +272,20 @@ type QueryMeta struct {
 	// input/output features will typically have the same hash; changes may be observed
 	// over time as we adjust implementation details.
 	QueryHash string `json:"query_hash"`
+}
+
+// OnlineQueryBulkResult holds the result of a bulk online query.
+type OnlineQueryBulkResult struct {
+	// ScalarsDF is an Arrow Record containing
+	// scalar features of the target feature class.
+	ScalarsDF *arrow.Record
+
+	// GroupsDF is a map from a has-many feature to its
+	// corresponding arrow.Record.
+	GroupsDF map[string]*arrow.Record
+
+	// Execution metadata for the query. See QueryMeta for details.
+	Meta *QueryMeta
 }
 
 // OfflineQueryParams defines the parameters

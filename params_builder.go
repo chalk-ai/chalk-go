@@ -12,6 +12,7 @@ const (
 	BuilderErrorUnknown BuilderErrorType = iota
 	InvalidFeatureType
 	UnwrapFeatureError
+	InvalidRequest
 )
 
 type ParamType string
@@ -60,7 +61,7 @@ func (e BuilderErrors) Error() string {
 func validateFeature(feature any, paramType ParamType) *BuilderError {
 	value := reflect.ValueOf(feature)
 	kind := value.Kind()
-	if kind == reflect.String || kind == reflect.Ptr || kind == reflect.Map {
+	if kind == reflect.String || kind == reflect.Ptr || kind == reflect.Map || kind == reflect.Slice || kind == reflect.Array {
 		return nil
 	}
 	return &BuilderError{
