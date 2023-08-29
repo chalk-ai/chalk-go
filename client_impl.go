@@ -7,6 +7,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -90,7 +91,6 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			}
 		}
 	}
-
 	data, err := params.toBytes()
 	if err != nil {
 		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
@@ -433,6 +433,10 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 
 	out, _ := io.ReadAll(res.Body)
 	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 	if isBulkResponse {
 		err = castResponse.Unmarshal(out)
 	} else {
