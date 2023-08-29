@@ -346,6 +346,7 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 }
 
 func (r *onlineQueryResultFeather) UnmarshalInto(resultHolder any) error {
+
 	// Scalar data
 	// Loop through each row
 	// 	Call UnmarshalInto for each value using its column name

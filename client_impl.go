@@ -66,58 +66,65 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 	return response, nil
 }
 
-func (c *clientImpl) onlineQueryBulk(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
-	// Call serialization method for `OnlineQueryParamsComplete`.
-	// SEND IT. (the bytes)
+func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse) {
+	emptyResult := OnlineQueryBulkResult{}
+	request := params.underlying
+
+	if len(request.builderErrors) > 0 {
+		builderErrString := request.builderErrors.Error()
+		clientErrString := "error building bulk online query params:\n" + builderErrString
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+	}
+
+	validationErrors := params.validatePostBuild()
+	if len(validationErrors) > 0 {
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+	}
+
+	for _, input := range request.inputs {
+		if !(reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array) {
+			return emptyResult, &ErrorResponse{
+				ClientError: &ClientError{
+					"inputs to bulk online query must be a slice or array",
+				},
+			}
+		}
+	}
+
 	data, err := params.toBytes()
 	if err != nil {
-		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
 	}
-	var serializedResponse OnlineQueryBulkResponse
+	var response OnlineQueryBulkResponse
 	err = c.sendRequest(
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/query/feather",
 			Body:                data,
-			Response:            &serializedResponse,
+			Response:            &response,
 			EnvironmentOverride: params.underlying.EnvironmentId,
 			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
 		},
 	)
 
 	if err != nil {
-		return OnlineQueryResult{}, getErrorResponse(err)
+		return emptyResult, getErrorResponse(err)
 	}
 
-	//if len(serializedResponse.Errors) > 0 {
-	//	serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
-	//	if deserializationErr != nil {
-	//		return OnlineQueryResult{}, &ErrorResponse{
-	//			ClientError: &ClientError{deserializationErr.Error()},
-	//		}
-	//	}
-	//
-	//	return OnlineQueryResult{}, &ErrorResponse{ServerErrors: serverErrors}
-	//}
-	//
-	//response, err := serializedResponse.deserialize()
-	//if err != nil {
-	//	return OnlineQueryResult{}, &ErrorResponse{
-	//		ClientError: &ClientError{err.Error()},
-	//	}
-	//}
-	//
-	//response.expectedOutputs = params.underlying.outputs
-	//if resultHolder != nil {
-	//	unmarshalErr := response.UnmarshalInto(resultHolder)
-	//	if unmarshalErr != nil {
-	//		return response, &ErrorResponse{
-	//			ClientError: unmarshalErr,
-	//		}
-	//	}
-	//}
+	singleBulkResult, ok := response.QueryResults["0"]
+	if !ok {
+		return emptyResult, &ErrorResponse{ClientError: &ClientError{"unexpected bulk online query response from server"}}
+	}
 
-	return OnlineQueryResult{}, nil
+	if len(singleBulkResult.Errors) > 0 {
+		return emptyResult, &ErrorResponse{ServerErrors: singleBulkResult.Errors}
+	}
+
+	return OnlineQueryBulkResult{
+		ScalarsDF: singleBulkResult.ScalarData,
+		GroupsDF:  singleBulkResult.GroupsData,
+		Meta:      singleBulkResult.Meta,
+	}, nil
 }
 
 func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
@@ -136,7 +143,11 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 
 	for _, input := range request.inputs {
 		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
-			return c.onlineQueryBulk(params, resultHolder)
+			return OnlineQueryResult{}, &ErrorResponse{
+				ClientError: &ClientError{
+					"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
+				},
+			}
 		}
 	}
 

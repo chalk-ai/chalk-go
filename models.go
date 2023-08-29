@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"github.com/apache/arrow/go/v12/arrow"
 	"golang.org/x/sync/errgroup"
 	"reflect"
 	"time"
@@ -273,22 +274,18 @@ type QueryMeta struct {
 	QueryHash string `json:"query_hash"`
 }
 
-// OnlineQueryBulkResult holds the result of an bulk online query.
+// OnlineQueryBulkResult holds the result of a bulk online query.
 type OnlineQueryBulkResult struct {
-	// The output features and any query metadata.
-	Data []FeatureResult
+	// ScalarsDF is an Arrow Record containing
+	// scalar features of the targe feature class.
+	ScalarsDF *arrow.Record
 
-	// Scalar feature table
-	// Group feature table
+	// GroupsDF is a map from a has-many feature to its
+	// corresponding Arrow Record.
+	GroupsDF map[string]*arrow.Record
 
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
-
-	// Used to efficiently get a FeatureResult by FQN.
-	features map[string]FeatureResult
-
-	// Used to validate result holder expected outputs are not nil.
-	expectedOutputs []string
 }
 
 // OfflineQueryParams defines the parameters
