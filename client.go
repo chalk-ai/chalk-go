@@ -61,6 +61,7 @@ type Client interface {
 	//			WithOutputs(Features.User.Email, Features.User.Card.Id),
 	//		)
 	//
+	//      // fmt.Println((*result.ScalarData).Column(1).String())
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)

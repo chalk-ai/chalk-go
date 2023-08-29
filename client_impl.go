@@ -2,11 +2,13 @@ package chalk
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -434,6 +436,14 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	out, _ := io.ReadAll(res.Body)
 	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
 
+	// Encode data to base64
+	encodedData := base64.StdEncoding.EncodeToString(out)
+
+	// Write encoded data to a file
+	err = ioutil.WriteFile("hello_base64_scalars.txt", []byte(encodedData), 0644)
+	if err != nil {
+		fmt.Println("HELLO")
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -343,7 +343,6 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 func ConvertBytesToRecord(byteArr []byte) (*arrow.Record, error) {
 	result := bytes.NewBuffer(byteArr)
 	reader, err := ipc.NewReader(result)
-	defer reader.Release()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create reader unmarshaling result table: %w", err)
 	}
