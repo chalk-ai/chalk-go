@@ -55,8 +55,6 @@ func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Dura
 	return p
 }
 
-// TO ARROW?
-
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/
