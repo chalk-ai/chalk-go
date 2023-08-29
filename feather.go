@@ -209,9 +209,6 @@ func consumeByteItems(startIdx int, bytes []byte) (int, error, map[string][]byte
 	if !ok {
 		fmt.Errorf("failed to process byte items length map")
 	}
-	fmt.Println(">>> BYTE ITEMS MAP CAST")
-	fmt.Println(byteItemsMapCast)
-	fmt.Println(">>> REAL SOHAI")
 	byteItemsMapInt := map[string]int{}
 	for key, val := range byteItemsMapCast {
 		intVal, err := convertNumber[int](val)
@@ -246,29 +243,21 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume json attrs: %w", err)
 	}
-	fmt.Println(">>> THE JSON ATTRIBUTES")
-	fmt.Println(jsonBody)
 
 	idx, err, pydanticJsonBody := consumePydanticAttrs(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume pydantic attrs: %w", err)
 	}
-	fmt.Println(">>> THE PYDANTIC ATTRIBUTES")
-	fmt.Println(pydanticJsonBody)
 
 	idx, err, byteItems := consumeByteItems(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume raw byte items: %w", err)
 	}
-	fmt.Println(">>> THE BYTE ITEMS")
-	fmt.Println(byteItems)
 
 	idx, err, deserializableByteItems := consumeByteItems(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume deserializable byte items: %w", err)
 	}
-	fmt.Println(">>> THE DESERIALIZABLE BYTE ITEMS")
-	fmt.Println(deserializableByteItems)
 
 	res := map[string]any{}
 	if jsonBody != nil {
@@ -340,8 +329,6 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 	}
 
 	r.QueryResults = resultMap
-	fmt.Println(">>> HELLO")
-	fmt.Println(res)
 	return nil
 }
 
@@ -419,7 +406,10 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 			return fmt.Errorf("'meta' attribute cannot be casted to string")
 		}
 		meta := QueryMeta{}
-		json.Unmarshal([]byte(metaStringCast), &meta)
+		err = json.Unmarshal([]byte(metaStringCast), &meta)
+		if err != nil {
+			return fmt.Errorf("failed to unmarshal query 'meta' attribute: %w", err)
+		}
 		r.Meta = &meta
 	}
 

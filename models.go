@@ -277,11 +277,11 @@ type QueryMeta struct {
 // OnlineQueryBulkResult holds the result of a bulk online query.
 type OnlineQueryBulkResult struct {
 	// ScalarsDF is an Arrow Record containing
-	// scalar features of the targe feature class.
+	// scalar features of the target feature class.
 	ScalarsDF *arrow.Record
 
 	// GroupsDF is a map from a has-many feature to its
-	// corresponding Arrow Record.
+	// corresponding arrow.Record.
 	GroupsDF map[string]*arrow.Record
 
 	// Execution metadata for the query. See QueryMeta for details.
