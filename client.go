@@ -52,16 +52,31 @@ type Client interface {
 	//
 	// Example:
 	//
+	// import "github.com/apache/arrow/go/v12/arrow/array"
+	//
+	//
 	//		res, err := client.OnlineQueryBulk(
 	//			OnlineQueryParams{
 	//				IncludeMeta: true,
 	//				EnvironmentId: "pipkjlfc3gtmn",
 	//			}.
-	//			WithInput(Features.User.Card.Id, []int{1, 2, 3, 4}).
-	//			WithOutputs(Features.User.Email, Features.User.Card.Id),
+	//			WithInput("user.id", []int{1, 2, 3, 4}).
+	//			WithOutputs("user.email", "user.transactions"),
 	//		)
+	//      defer res.Release()
 	//
-	//      // fmt.Println((*result.ScalarData).Column(1).String())
+	//	    reader := array.NewTableReader(res.ScalarsTable, 10_000)
+	//      defer reader.Release()
+	//      for reader.Next() {
+	//          record := reader.Record()
+	//          // Do something with the record
+	// 	    }
+	//
+	//      txnTable := res.GroupsTables["user.transactions"]
+	//      txnReader := array.NewTableReader(txnTable, 10_000)
+	//      // Do something with the txnReader
+	//	    defer txnReader.Release()
+	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)

@@ -7,6 +7,13 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 )
 
+func (r OnlineQueryBulkResult) Release() {
+	r.ScalarsTable.Release()
+	for _, table := range r.GroupsTables {
+		table.Release()
+	}
+}
+
 func (p OnlineQueryParamsComplete) toBytes() (*[]byte, error) {
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, p.underlying.outputs)
 }
