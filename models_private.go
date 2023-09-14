@@ -27,8 +27,8 @@ type onlineQueryResponseSerialized struct {
 
 type onlineQueryResultFeather struct {
 	HasData    bool
-	ScalarData *arrow.Record
-	GroupsData map[Fqn]*arrow.Record
+	ScalarData arrow.Table
+	GroupsData map[Fqn]arrow.Table
 	Errors     []ServerError
 	Meta       *QueryMeta
 }
