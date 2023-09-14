@@ -370,16 +370,3 @@ func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 	}
 	return result, err
 }
-
-func ConvertBytesToRecord(byteArr []byte) (*arrow.Record, error) {
-	result := bytes.NewBuffer(byteArr)
-	reader, err := ipc.NewReader(result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create reader unmarshaling result table: %w", err)
-	}
-	record, err := reader.Read()
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal result table: %w", err)
-	}
-	return &record, nil
-}
