@@ -61,8 +61,8 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 		return fmt.Errorf("cannot cast attribute 'has_data' to bool")
 	}
 
-	var record *arrow.Record
-	var groupsRecords map[string]*arrow.Record
+	var table arrow.Table
+	var groupsTables map[string]arrow.Table
 	if hasDataBool {
 		scalarDataBytes, ok := res["scalar_data"]
 		if !ok {
@@ -72,9 +72,9 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 		if !ok {
 			return fmt.Errorf("failed to cast scalar data bytes to bytes array")
 		}
-		record, err = internal.ConvertBytesToRecord(scalarDataBytesCast)
+		table, err = internal.ConvertBytesToTable(scalarDataBytesCast)
 		if err != nil {
-			return fmt.Errorf("failed to convert scalar data bytes to an Arrow IPC Record: %w", err)
+			return fmt.Errorf("failed to convert scalar data bytes to an Arrow Table: %w", err)
 		}
 
 		groupsDataBytes, ok := res["groups_data"]
@@ -90,23 +90,23 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 			return fmt.Errorf("failed to unmarshal 'groups_data' value: %w", err)
 		}
 
-		groupsRecords = map[string]*arrow.Record{}
+		groupsTables = map[string]arrow.Table{}
 		for k, v := range groupsDataMap {
 			vBytes, ok := v.([]byte)
 			if !ok {
 				return fmt.Errorf("failed to cast data for has-many feature '%s': %w", k, err)
 			}
-			vRecord, err := internal.ConvertBytesToRecord(vBytes)
+			vTable, err := internal.ConvertBytesToTable(vBytes)
 			if err != nil {
-				return fmt.Errorf("failed to convert bytes for has-many feature '%s' to Arrow record batch: %w", k, err)
+				return fmt.Errorf("failed to convert bytes for has-many feature '%s' to Arrow table batch: %w", k, err)
 			}
-			groupsRecords[k] = vRecord
+			groupsTables[k] = vTable
 		}
 	}
 
 	r.HasData = hasDataBool
-	r.ScalarData = record
-	r.GroupsData = groupsRecords
+	r.ScalarData = table
+	r.GroupsData = groupsTables
 
 	metaString, ok := res["meta"]
 	if !ok {

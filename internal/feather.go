@@ -340,6 +340,27 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	return res, nil
 }
 
+func ConvertBytesToTable(byteArr []byte) (arrow.Table, error) {
+	buf := bytes.NewBuffer(byteArr)
+	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
+	reader, err := ipc.NewReader(buf, ipc.WithAllocator(alloc))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create reader: %w", err)
+	}
+	defer reader.Release()
+	records := make([]arrow.Record, 0)
+	for reader.Next() {
+		rec := reader.Record()
+		rec.Retain()
+		defer rec.Release()
+		records = append(records, rec)
+	}
+	if err := reader.Err(); err != nil {
+		return nil, fmt.Errorf("failed to read records: %w", err)
+	}
+	return array.NewTableFromRecords(reader.Schema(), records), nil
+}
+
 func ConvertBytesToRecord(byteArr []byte) (*arrow.Record, error) {
 	result := bytes.NewBuffer(byteArr)
 	reader, err := ipc.NewReader(result)

@@ -120,9 +120,9 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	}
 
 	return OnlineQueryBulkResult{
-		ScalarsDF: singleBulkResult.ScalarData,
-		GroupsDF:  singleBulkResult.GroupsData,
-		Meta:      singleBulkResult.Meta,
+		ScalarsTable: singleBulkResult.ScalarData,
+		GroupsTables: singleBulkResult.GroupsData,
+		Meta:         singleBulkResult.Meta,
 	}, nil
 }
 
