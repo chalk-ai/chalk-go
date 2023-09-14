@@ -63,19 +63,19 @@ type Client interface {
 	//			WithInput("user.id", []int{1, 2, 3, 4}).
 	//			WithOutputs("user.email", "user.transactions"),
 	//		)
-	//      defer res.Release()
+	//		defer res.Release()
 	//
-	//	    reader := array.NewTableReader(res.ScalarsTable, 10_000)
-	//      defer reader.Release()
-	//      for reader.Next() {
-	//          record := reader.Record()
-	//          // Do something with the record
-	// 	    }
+	//		reader := array.NewTableReader(res.ScalarsTable, 10_000)
+	//		defer reader.Release()
+	//		for reader.Next() {
+	//		    record := reader.Record()
+	//		    // Do something with the record
+	//		}
 	//
-	//      txnTable := res.GroupsTables["user.transactions"]
-	//      txnReader := array.NewTableReader(txnTable, 10_000)
-	//      // Do something with the txnReader
-	//	    defer txnReader.Release()
+	//		txnTable := res.GroupsTables["user.transactions"]
+	//		txnReader := array.NewTableReader(txnTable, 10_000)
+	//		// Do something with the txnReader
+	//		defer txnReader.Release()
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
