@@ -231,7 +231,17 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	// Serialize the message
 	var result bytes.Buffer
 	ioWriter := bufio.NewWriter(&result)
-	ipcWriter := ipc.NewWriter(ioWriter, ipc.WithSchema(arrowInputs.Schema()))
+	//ipcWriter := ipc.NewWriter(ioWriter, ipc.WithSchema(arrowInputs.Schema()))
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(arrowInputs.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	err = fileWriter.Write(arrowInputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
+	}
 
 	// Magic string header
 	magicStringLen, err := ioWriter.WriteString("chal1")
@@ -248,8 +258,7 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 
 	// Header: TODO: get the other parameters for this.
 	header := map[string]any{
-		"outputs":           outputs,
-		"feather_body_type": "RECORD_BATCHES",
+		"outputs": outputs,
 	}
 	jsonBytes, err := json.Marshal(header)
 	if err != nil {
@@ -267,14 +276,9 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	}
 
 	// Body
-	err = ipcWriter.Write(arrowInputs)
+	_, err = ioWriter.Write(bws.Bytes())
 	if err != nil {
-		return nil, err
-	}
-
-	err = ipcWriter.Close()
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write Arrow Table bytes to request: %w", err)
 	}
 
 	err = ioWriter.Flush()
@@ -340,25 +344,31 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	return res, nil
 }
 
-func ConvertBytesToTable(byteArr []byte) (arrow.Table, error) {
-	buf := bytes.NewBuffer(byteArr)
+func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
+	bytesReader := bytes.NewReader(byteArr)
 	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
-	reader, err := ipc.NewReader(buf, ipc.WithAllocator(alloc))
+	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(alloc))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create reader: %w", err)
+		return nil, fmt.Errorf("failed to create Arrow file reader: %w", err)
 	}
-	defer reader.Release()
-	records := make([]arrow.Record, 0)
-	for reader.Next() {
-		rec := reader.Record()
+	defer func() {
+		err = fileReader.Close()
+	}()
+
+	records := make([]arrow.Record, fileReader.NumRecords())
+	for i := 0; i < fileReader.NumRecords(); i++ {
+		rec, err := fileReader.Record(i)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read record: %w", err)
+		}
 		rec.Retain()
-		defer rec.Release()
-		records = append(records, rec)
+		records[i] = rec
 	}
-	if err := reader.Err(); err != nil {
-		return nil, fmt.Errorf("failed to read records: %w", err)
+	result = array.NewTableFromRecords(fileReader.Schema(), records)
+	for _, rec := range records {
+		rec.Release()
 	}
-	return array.NewTableFromRecords(reader.Schema(), records), nil
+	return result, err
 }
 
 func ConvertBytesToRecord(byteArr []byte) (*arrow.Record, error) {
