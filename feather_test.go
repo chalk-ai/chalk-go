@@ -37,8 +37,8 @@ func TestFeatherDeserialization(t *testing.T) {
 	assert.Equal(t, 1, len(bulkResponse.QueryResults))
 	result := bulkResponse.QueryResults["0"]
 	assert.NotNil(t, result.ScalarData)
-	assert.Equal(t, 5, result.ScalarData.NumRows())
+	assert.Equal(t, int64(5), result.ScalarData.NumRows())
 	assert.NotNil(t, result.GroupsData)
 	assert.NotNil(t, result.GroupsData["user.cups"])
-	assert.Equal(t, 4, result.GroupsData["user.cups"].NumRows())
+	assert.Equal(t, int64(4), result.GroupsData["user.cups"].NumRows())
 }

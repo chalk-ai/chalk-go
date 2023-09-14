@@ -231,7 +231,6 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	// Serialize the message
 	var result bytes.Buffer
 	ioWriter := bufio.NewWriter(&result)
-	//ipcWriter := ipc.NewWriter(ioWriter, ipc.WithSchema(arrowInputs.Schema()))
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(arrowInputs.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
 	err = fileWriter.Write(arrowInputs)
