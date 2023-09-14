@@ -231,16 +231,6 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	// Serialize the message
 	var result bytes.Buffer
 	ioWriter := bufio.NewWriter(&result)
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(arrowInputs.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	err = fileWriter.Write(arrowInputs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
-	}
 
 	// Magic string header
 	magicStringLen, err := ioWriter.WriteString("chal1")
@@ -275,6 +265,18 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	}
 
 	// Body
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(arrowInputs.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	err = fileWriter.Write(arrowInputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
+	}
+	arrowInputs.Release()
+
 	_, err = ioWriter.Write(bws.Bytes())
 	if err != nil {
 		return nil, fmt.Errorf("failed to write Arrow Table bytes to request: %w", err)
