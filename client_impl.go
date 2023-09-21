@@ -24,12 +24,12 @@ type clientImpl struct {
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
-	httpClient         HttpClient
+	httpClient         HTTPClient
 	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
 }
 
-type HttpClient interface {
+type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	Get(url string) (resp *http.Response, err error)
 }
