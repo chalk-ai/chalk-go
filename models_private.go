@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"github.com/apache/arrow/go/v12/arrow"
-	"net/http"
 	"time"
 )
 
@@ -90,8 +89,6 @@ type chalkHttpException struct {
 }
 
 type sendRequestParams struct {
-	Request *http.Request
-
 	Body   any
 	Method string
 	URL    string

@@ -1,9 +1,5 @@
 package chalk
 
-import (
-	"net/http"
-)
-
 // Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
@@ -133,7 +129,7 @@ type ClientConfig struct {
 	// HTTPClient is an HTTP client instance to use when making API requests.
 	//
 	// If left unset, it'll be set to a default HTTP client for the package.
-	HTTPClient *http.Client
+	HTTPClient HTTPClient
 }
 
 // NewClient creates a Client with authentication settings configured.

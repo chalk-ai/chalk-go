@@ -24,9 +24,14 @@ type clientImpl struct {
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
-	httpClient         *http.Client
+	httpClient         HTTPClient
 	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
+}
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+	Get(url string) (resp *http.Response, err error)
 }
 
 func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
