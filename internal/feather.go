@@ -27,7 +27,7 @@ func inputsToArrow(inputs map[string]any) (arrow.Record, error) {
 		reflect.Uint64:  arrow.PrimitiveTypes.Uint64,
 		reflect.Float32: arrow.PrimitiveTypes.Float32,
 		reflect.Float64: arrow.PrimitiveTypes.Float64,
-		reflect.String:  arrow.BinaryTypes.String,
+		reflect.String:  arrow.BinaryTypes.LargeString,
 		reflect.Bool:    arrow.FixedWidthTypes.Boolean,
 	}
 
@@ -101,7 +101,7 @@ func inputsToArrow(inputs map[string]any) (arrow.Record, error) {
 		case reflect.Float64:
 			recordBuilder.Field(idx).(*array.Float64Builder).AppendValues(values.([]float64), nil)
 		case reflect.String:
-			recordBuilder.Field(idx).(*array.StringBuilder).AppendValues(values.([]string), nil)
+			recordBuilder.Field(idx).(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
 		case reflect.Bool:
 			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
 		default:
