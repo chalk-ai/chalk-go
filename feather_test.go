@@ -18,6 +18,28 @@ func TestFeatherSerialization(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestErrorDeserialization(t *testing.T) {
+	stringData, err := os.ReadFile("./internal/sample_data/bulk_response_with_err.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	bytesData, err := base64.StdEncoding.DecodeString(string(stringData))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	bulkResponse := OnlineQueryBulkResponse{}
+	err = bulkResponse.Unmarshal(bytesData)
+	assert.Nil(t, err)
+
+	result := bulkResponse.QueryResults["0"]
+	assert.NotNil(t, result.Errors)
+	assert.Equal(t, 2, len(result.Errors))
+	assert.Equal(t, result.Errors[0].Message, "Query abc referenced undefined feature 'def'")
+	assert.Equal(t, result.Errors[1].Message, "query.ghi referenced invalid feature 'jkl'")
+}
+
 func TestFeatherDeserialization(t *testing.T) {
 	// TODO: Add test for all data types
 	stringData, err := os.ReadFile("./internal/sample_data/bulk_query_response.txt")
