@@ -115,6 +115,33 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 	r.ScalarData = table
 	r.GroupsData = groupsTables
 
+	errorsAny, ok := res["errors"]
+	if !ok {
+		return fmt.Errorf("missing attribute 'errors'")
+	}
+	errorsAnyArr, ok := errorsAny.([]any)
+	if !ok {
+		return fmt.Errorf("cannot cast attribute 'errors' to an array")
+	}
+	errorsStrArr := make([]string, len(errorsAnyArr))
+	for i, errorAny := range errorsAnyArr {
+		errorStr, ok := errorAny.(string)
+		if !ok {
+			return fmt.Errorf("cannot cast error to string")
+		}
+		errorsStrArr[i] = errorStr
+	}
+
+	errorsArr := make([]ServerError, len(errorsStrArr))
+	for i, errorStr := range errorsStrArr {
+		errorsArr[i] = ServerError{}
+		err = json.Unmarshal([]byte(errorStr), &errorsArr[i])
+		if err != nil {
+			return fmt.Errorf("failed to unmarshal error string: %w", err)
+		}
+	}
+	r.Errors = errorsArr
+
 	metaString, ok := res["meta"]
 	if !ok {
 		return fmt.Errorf("missing attribute 'meta'")
