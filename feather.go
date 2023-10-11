@@ -119,7 +119,17 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 	if !ok {
 		return fmt.Errorf("missing attribute 'errors'")
 	}
-	errorsAnyArr, ok := errorsAny.([]any)
+
+	var errorsAnyArr []any
+	if errorsAny == nil {
+		errorsAnyArr = []any{}
+	} else {
+		errorsAnyArr, ok = errorsAny.([]any)
+		if !ok {
+			return fmt.Errorf("cannot cast attribute 'errors' to an array")
+		}
+	}
+
 	if !ok {
 		return fmt.Errorf("cannot cast attribute 'errors' to an array")
 	}
