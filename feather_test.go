@@ -18,6 +18,8 @@ func TestFeatherSerialization(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+// TestErrorDeserialization tests that we can successfully deserialize
+// a feather response that contains errors.
 func TestErrorDeserialization(t *testing.T) {
 	stringData, err := os.ReadFile("./internal/sample_data/bulk_response_with_err.txt")
 	if err != nil {
@@ -40,6 +42,8 @@ func TestErrorDeserialization(t *testing.T) {
 	assert.Equal(t, result.Errors[1].Message, "query.ghi referenced invalid feature 'jkl'")
 }
 
+// TestFeatherDeserialization tests that we can successfully deserialize
+// a feather response that contains no errors.
 func TestFeatherDeserialization(t *testing.T) {
 	// TODO: Add test for all data types
 	stringData, err := os.ReadFile("./internal/sample_data/bulk_query_response.txt")
