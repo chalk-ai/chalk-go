@@ -51,9 +51,12 @@ chalk codegen go --out=<OUTPUT_FILEPATH>
 
 Create a client using the `NewClient` method.  The returned client gets its configuration:
 
-1. From the contructor arguments
-2. From environment variables if no arguments are passed
+1. From overrides configured by passing in a `*chalk.ClientConfig`
+2. From environment variables if no arguments are passed 
 3. From a ~/.chalk.yml file if neither 1 nor 2 are available
+
+(2) and (3) are applicable only for these [options](https://github.com/chalk-ai/chalk-go/blob/main/internal/constants.go).
+#### Without overrides
 ```go
 import (
     "github.com/chalk-ai/chalk-go"
@@ -61,6 +64,18 @@ import (
 
 client := chalk.NewClient()
 ```
+
+#### With overrides
+```go
+     client, err := chalk.NewClient(&chalk.ClientConfig{
+            ClientId:      "id-89140a6614886982a6782106759e30",
+            ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+            ApiServer:     "https://api.chalk.ai",
+            EnvironmentId: "qa",
+            Branch:        "jorges-december",
+	 })
+```
+
 
 ### Online Query
 
@@ -89,6 +104,16 @@ res, _ := client.OfflineQuery(
 )
 
 err = res.Revisions[0].DownloadData(<FILE_DIRECTORY>)
+```
+
+
+### Querying against a branch
+
+To query against a branch, create a `ChalkClient` with a `Branch` specified, and then make queries using that client.
+```go
+     client, err := chalk.NewClient(&chalk.ClientConfig{
+            Branch:        "jorges-december",
+	 })
 ```
 
 ### Configuring Logging
