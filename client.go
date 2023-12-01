@@ -156,7 +156,7 @@ type ClientConfig struct {
 //		        ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
 //		        ApiServer:     "https://api.chalk.ai",
 //		        EnvironmentId: "qa",
-//	            Branch:        "jorges-december",
+//		        Branch:        "jorges-december",
 //	})
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
