@@ -67,13 +67,13 @@ client := chalk.NewClient()
 
 #### With overrides
 ```go
- client, err := chalk.NewClient(&chalk.ClientConfig{
-        ClientId:      "id-89140a6614886982a6782106759e30",
-        ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-        ApiServer:     "https://api.chalk.ai",
-        EnvironmentId: "qa",
-        Branch:        "jorges-december",
- })
+client, err := chalk.NewClient(&chalk.ClientConfig{
+    ClientId:      "id-89140a6614886982a6782106759e30",
+    ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+    ApiServer:     "https://api.chalk.ai",
+    EnvironmentId: "qa",
+    Branch:        "jorges-december",
+})
 ```
 
 
@@ -143,10 +143,10 @@ to comply to the following interface:
 
 ```go
 type LeveledLogger interface {
-	Debugf(format string, v ...interface{})
-	Errorf(format string, v ...interface{})
-	Infof(format string, v ...interface{})
-	Warnf(format string, v ...interface{})
+    Debugf(format string, v ...interface{})
+    Errorf(format string, v ...interface{})
+    Infof(format string, v ...interface{})
+    Warnf(format string, v ...interface{})
 }
 ```
 
