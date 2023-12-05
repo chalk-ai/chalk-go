@@ -65,13 +65,18 @@ func TestUploadFeatures(t *testing.T) {
 		record := reader.Record()
 		socureStrings := colls.Map(socureScores, func(val float64) string { return fmt.Sprintf("%v", val) })
 		expectedString := "[" + strings.Join(socureStrings, " ") + "]"
+		foundColumn := false
 		for i, col := range record.Columns() {
 			colName := record.ColumnName(i)
 			if colName == "user.socure_score" {
+				foundColumn = true
 				if col.String() != expectedString {
 					t.Fatal(fmt.Sprintf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", col.String(), expectedString))
 				}
 			}
+		}
+		if !foundColumn {
+			t.Fatal("Failed to find expected column 'user.socure_score'")
 		}
 	}
 }
