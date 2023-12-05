@@ -14,7 +14,7 @@ import (
 	"reflect"
 )
 
-func inputsToArrow(inputs map[string]any) (arrow.Record, error) {
+func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	golangToArrowType := map[reflect.Kind]arrow.DataType{
 		reflect.Int:     arrow.PrimitiveTypes.Int64,
 		reflect.Int8:    arrow.PrimitiveTypes.Int8,
@@ -113,7 +113,7 @@ func inputsToArrow(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())
 		}
 	}
-	return recordBuilder.NewRecord(), nil
+	return recordToBytes(recordBuilder.NewRecord())
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {
@@ -340,19 +340,13 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 		return nil, err
 	}
 
-	// Fill in the sizes
 	return result.Bytes(), nil
 }
 
 func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
-	record, err := inputsToArrow(inputs)
+	recordBytes, err := inputsToArrowBytes(inputs)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert inputs to Arrow Record Batch: %w", err)
-	}
-
-	recordBytes, err := recordToBytes(record)
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert Arrow Record Batch to bytes: %w", err)
+		return nil, fmt.Errorf("failed to convert inputs to Arrow Record bytes: %w", err)
 	}
 
 	attrs := map[string]any{
@@ -365,7 +359,7 @@ func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte, error) {
-	arrowInputs, err := inputsToArrow(inputs)
+	arrowBytes, err := inputsToArrowBytes(inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert inputs to Arrow: %w", err)
 	}
@@ -407,19 +401,7 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte,
 	}
 
 	// Body
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(arrowInputs.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	err = fileWriter.Write(arrowInputs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
-	}
-	arrowInputs.Release()
-
-	_, err = ioWriter.Write(bws.Bytes())
+	_, err = ioWriter.Write(arrowBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write Arrow Table bytes to request: %w", err)
 	}

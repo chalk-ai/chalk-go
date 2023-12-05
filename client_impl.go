@@ -34,7 +34,7 @@ type HTTPClient interface {
 	Get(url string) (resp *http.Response, err error)
 }
 
-func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
+func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -71,7 +71,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 	return response, nil
 }
 
-func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
@@ -192,7 +192,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 	return response, nil
 }
 
-func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -264,7 +264,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	return response, nil
 }
 
-func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
+func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
 	response := TriggerResolverRunResult{}
 	err := c.sendRequest(
 		sendRequestParams{
@@ -282,7 +282,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 	return response, nil
 }
 
-func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
+func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, error) {
 	response := GetRunStatusResult{}
 	err := c.sendRequest(
 		sendRequestParams{
@@ -299,7 +299,7 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 	return response, nil
 }
 
-func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 
 	for !response.IsFinished {

@@ -1,8 +1,13 @@
 package integration
 
 import (
+	"fmt"
+	"github.com/apache/arrow/go/v12/arrow/array"
 	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"math/rand"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -12,21 +17,61 @@ func SkipIfNotIntegrationTester(t *testing.T) {
 	}
 }
 
-// TestUploadFeatures tests a basic features upload
-// with all primitive data types
+// TestUploadFeatures tests a basic features upload and
+// also tests the two flavors of online query.
 func TestUploadFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient() // Implicitly sources config from env var
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
+
+	userIds := []int{111, 222, 333}
+	socureScores := []float64{rand.Float64(), rand.Float64(), rand.Float64()}
+
 	_, err = client.UploadFeatures(chalk.UploadFeaturesParams{
 		Inputs: map[any]any{
-			"user.id":           []string{"1", "2", "3"},
-			"user.socure_score": []float64{625.0, 636.0, 5525.0},
+			"user.id":           userIds,
+			"user.socure_score": socureScores,
 		},
 	})
 	if err != nil {
 		t.Fatal("Failed uploading features", err)
+	}
+
+	res, err := client.OnlineQuery(chalk.OnlineQueryParams{}.WithInput("user.id", userIds[0]).WithOutputs("user.socure_score"), nil)
+	if err != nil {
+		t.Fatal("Failed querying features", err)
+	}
+	ans, err := res.GetFeatureValue("user.socure_score")
+	if err != nil {
+		t.Fatal("Failed getting feature value for `user.socure_score`", err)
+	}
+	castAns, ok := ans.(float64)
+	if !ok {
+		t.Fatal("Failed casting feature value to float64")
+	}
+	if castAns != socureScores[0] {
+		t.Fatal(fmt.Sprintf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", castAns, socureScores[0]))
+	}
+
+	bulkRes, err := client.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithInput("user.id", userIds).WithOutputs("user.socure_score"))
+	if err != nil {
+		t.Fatal("Failed querying features", err)
+	}
+	reader := array.NewTableReader(bulkRes.ScalarsTable, 10_000)
+	defer reader.Release()
+	for reader.Next() {
+		record := reader.Record()
+		socureStrings := colls.Map(socureScores, func(val float64) string { return fmt.Sprintf("%v", val) })
+		expectedString := "[" + strings.Join(socureStrings, " ") + "]"
+		for i, col := range record.Columns() {
+			colName := record.ColumnName(i)
+			if colName == "user.socure_score" {
+				if col.String() != expectedString {
+					t.Fatal(fmt.Sprintf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", col.String(), expectedString))
+				}
+			}
+		}
 	}
 }

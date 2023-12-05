@@ -479,7 +479,7 @@ type DatasetRevision struct {
 // Datasets are stored in Chalk as sharded Parquet files. With this
 // method, you can download those raw files into a directory for processing
 // with other tools.
-func (d *DatasetRevision) DownloadData(directory string) *ErrorResponse {
+func (d *DatasetRevision) DownloadData(directory string) error {
 	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
 	if getUrlsErr != nil {
 		return getUrlsErr

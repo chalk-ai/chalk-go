@@ -34,7 +34,7 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
+	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error)
 
 	// OnlineQueryBulk computes features values using online resolvers,
 	// and has the ability to query multiple primary keys at once.
@@ -75,7 +75,7 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)
+	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error)
 
 	// UploadFeatures synchronously persists feature values to the online store and
 	// offline store.
@@ -109,15 +109,15 @@ type Client interface {
 	//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
 	//		)
 	//
-	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, *ErrorResponse)
+	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error)
 
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
+	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, error)
 
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, *ErrorResponse)
+	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error)
 }
 
 type ClientConfig struct {
