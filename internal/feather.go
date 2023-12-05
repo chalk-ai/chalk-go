@@ -10,6 +10,7 @@ import (
 	"github.com/apache/arrow/go/v12/arrow/array"
 	"github.com/apache/arrow/go/v12/arrow/ipc"
 	"github.com/apache/arrow/go/v12/arrow/memory"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"reflect"
 )
 
@@ -51,7 +52,7 @@ func inputsToArrow(inputs map[string]any) (arrow.Record, error) {
 	for k, v := range inputs {
 		arrowType, ok := golangToArrowType[reflect.ValueOf(v).Type().Elem().Kind()]
 		if !ok {
-			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", k, reflect.TypeOf(v).Kind())
+			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", k, reflect.ValueOf(v).Type().Elem().Kind())
 		}
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
@@ -222,7 +223,139 @@ func checkLen(startIdx int, bytes []byte, length int) error {
 	return nil
 }
 
-func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte, error) {
+func produceLen(length int, ioWriter *bufio.Writer) error {
+	lengthBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(lengthBytes, uint64(length))
+	_, err := ioWriter.Write(lengthBytes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func produceJsonAttrs(jsonAttrs map[string]any, ioWriter *bufio.Writer) error {
+	jsonBytes, err := json.Marshal(jsonAttrs)
+	if err != nil {
+		return fmt.Errorf("failed to serialize JSON attributes to JSON: %w", err)
+	}
+	err = produceLen(len(jsonBytes), ioWriter)
+	_, err = ioWriter.Write(jsonBytes)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error {
+	byteAttrsMap := map[string]any{}
+	for k, v := range byteAttrs {
+		byteAttrsMap[k] = len(v)
+	}
+	err := produceJsonAttrs(byteAttrsMap, ioWriter)
+	if err != nil {
+		return err
+	}
+	for _, v := range byteAttrs {
+		_, err = ioWriter.Write(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func recordToBytes(record arrow.Record) ([]byte, error) {
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	err = fileWriter.Write(record)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
+	}
+	record.Release()
+
+	return bws.Bytes(), nil
+}
+
+// GenericSerialize converts a Golang struct to a byte array.
+// Follows the byte-packing format as described in the Chalk
+// Python repo's `byte_transmit.serialize()` function.
+func GenericSerialize(byteAttrs map[string][]byte, jsonAttrs map[string]any) ([]byte, error) {
+	// Magic str
+	// attrs json len
+	// attrs json
+	// pydantic len
+	// pydantic json
+	// attr and byte offset json len
+	// attr and byte offset json
+	// concatenated byte objects
+	// attr and byte offset json len
+	// attr and byte offsets for serializables
+	// concatenated byte objects
+
+	// Serialize the message
+	var result bytes.Buffer
+	ioWriter := bufio.NewWriter(&result)
+
+	// Magic string header
+	_, err := ioWriter.WriteString("CHALK_BYTE_TRANSMISSION")
+	if err != nil {
+		return nil, err
+	}
+
+	// JSON attrs
+	err = produceJsonAttrs(jsonAttrs, ioWriter)
+	if err != nil {
+		return nil, err
+	}
+
+	// Pydantic attrs
+	err = produceJsonAttrs(map[string]any{}, ioWriter)
+	if err != nil {
+		return nil, err
+	}
+
+	// Byte attrs
+	err = produceByteAttrs(byteAttrs, ioWriter)
+
+	// ByteSerializables
+	err = produceJsonAttrs(map[string]any{}, ioWriter)
+
+	err = ioWriter.Flush()
+	if err != nil {
+		return nil, err
+	}
+
+	// Fill in the sizes
+	return result.Bytes(), nil
+}
+
+func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
+	record, err := inputsToArrow(inputs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert inputs to Arrow Record Batch: %w", err)
+	}
+
+	recordBytes, err := recordToBytes(record)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert Arrow Record Batch to bytes: %w", err)
+	}
+
+	byteAttrs := map[string][]byte{
+		"table_bytes": recordBytes,
+	}
+	jsonAttrs := map[string]any{
+		"features":          colls.Keys(inputs),
+		"table_compression": "uncompressed",
+	}
+
+	return GenericSerialize(byteAttrs, jsonAttrs)
+}
+
+func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte, error) {
 	arrowInputs, err := inputsToArrow(inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert inputs to Arrow: %w", err)
@@ -293,7 +426,7 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) (*[]byte
 	nonBodyLength := magicStringLen + 8 + headerLength + 8
 	bodyLength := len(resultBytes) - nonBodyLength
 	binary.BigEndian.PutUint64(resultBytes[magicStringLen+8+headerLength:], uint64(bodyLength))
-	return &resultBytes, nil
+	return resultBytes, nil
 }
 
 func ChalkUnmarshal(body []byte) (map[string]any, error) {

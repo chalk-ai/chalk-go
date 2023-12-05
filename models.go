@@ -68,7 +68,7 @@ type OnlineQueryParams struct {
 	Meta map[string]string
 }
 
-// WithInput returns a copy of Online Query parameters with the specified inputs added.
+// WithInput returns a copy of Online Query parameters with the specified Inputs added.
 // For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
 func (p OnlineQueryParams) WithInput(feature any, value any) onlineQueryParamsWithInputs {
 	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
@@ -286,6 +286,11 @@ type OnlineQueryBulkResult struct {
 
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
+}
+
+// UploadFeaturesResult holds the result of an upload features request.
+type UploadFeaturesResult struct {
+	OperationId string `json:"operation_id"`
 }
 
 // OfflineQueryParams defines the parameters

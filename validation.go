@@ -53,7 +53,7 @@ func (p OnlineQueryParamsComplete) validateAllListsOrAllScalars() BuilderErrors 
 
 	return BuilderErrors{
 		&BuilderError{
-			Err:       fmt.Errorf("inputs must be all scalars or all lists"),
+			Err:       fmt.Errorf("Inputs must be all scalars or all lists"),
 			Type:      InvalidRequest,
 			ParamType: ParamInput,
 			Feature:   nil,

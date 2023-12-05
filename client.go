@@ -77,6 +77,8 @@ type Client interface {
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)
 
+	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, *ErrorResponse)
+
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
 	//
