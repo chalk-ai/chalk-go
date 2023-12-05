@@ -136,15 +136,18 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 
 	allLength := -1
 	for k, v := range params.Inputs {
+		var fqn string
 		if _, ok := k.(string); ok {
-			castMap[k.(string)] = v
-			continue
+			fqn = k.(string)
+		} else {
+			feature, err := UnwrapFeature(k)
+			if err != nil {
+				msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
+				return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: msg}}
+			}
+			fqn = feature.Fqn
 		}
-		feature, err := UnwrapFeature(k)
-		if err != nil {
-			msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
-			return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: msg}}
-		}
+		castMap[fqn] = v
 
 		currLength := -1
 		if reflect.TypeOf(v).Kind() == reflect.Slice || reflect.TypeOf(v).Kind() == reflect.Array {
@@ -152,7 +155,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		} else {
 			return UploadFeaturesResult{}, &ErrorResponse{
 				ClientError: &ClientError{
-					Message: fmt.Sprintf("Values for feature '%s' must be a slice or array", feature.Fqn),
+					Message: fmt.Sprintf("Values for feature '%s' must be a slice or array", fqn),
 				},
 			}
 		}
@@ -162,17 +165,16 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		}
 		if allLength != currLength {
 			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, feature.Fqn, allLength),
+				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, fqn, allLength),
 			}
 			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
 		}
 		if currLength == 0 {
 			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, feature.Fqn),
+				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, fqn),
 			}
 			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
 		}
-		castMap[feature.Fqn] = v
 	}
 
 	body, err := internal.CreateUploadFeaturesBody(castMap)
