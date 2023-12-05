@@ -68,7 +68,7 @@ type OnlineQueryParams struct {
 	Meta map[string]string
 }
 
-// WithInput returns a copy of Online Query parameters with the specified Inputs added.
+// WithInput returns a copy of Online Query parameters with the specified inputs added.
 // For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
 func (p OnlineQueryParams) WithInput(feature any, value any) onlineQueryParamsWithInputs {
 	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}

@@ -216,7 +216,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
 			return OnlineQueryResult{}, &ErrorResponse{
 				ClientError: &ClientError{
-					"Inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
+					"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
 				},
 			}
 		}
