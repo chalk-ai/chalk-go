@@ -280,10 +280,10 @@ func recordToBytes(record arrow.Record) ([]byte, error) {
 	return bws.Bytes(), nil
 }
 
-// GenericSerialize converts a Golang struct to a byte array.
+// ChalkMarshal converts a map to a byte array.
 // Follows the byte-packing format as described in the Chalk
 // Python repo's `byte_transmit.serialize()` function.
-func GenericSerialize(byteAttrs map[string][]byte, jsonAttrs map[string]any) ([]byte, error) {
+func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 	// Magic str
 	// attrs json len
 	// attrs json
@@ -295,6 +295,17 @@ func GenericSerialize(byteAttrs map[string][]byte, jsonAttrs map[string]any) ([]
 	// attr and byte offset json len
 	// attr and byte offsets for serializables
 	// concatenated byte objects
+
+	jsonAttrs := map[string]any{}
+	byteAttrs := map[string][]byte{}
+
+	for k, v := range attrs {
+		if byteList, ok := v.([]byte); ok {
+			byteAttrs[k] = byteList
+		} else {
+			jsonAttrs[k] = v
+		}
+	}
 
 	// Serialize the message
 	var result bytes.Buffer
@@ -344,15 +355,13 @@ func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
 		return nil, fmt.Errorf("failed to convert Arrow Record Batch to bytes: %w", err)
 	}
 
-	byteAttrs := map[string][]byte{
-		"table_bytes": recordBytes,
-	}
-	jsonAttrs := map[string]any{
+	attrs := map[string]any{
 		"features":          colls.Keys(inputs),
 		"table_compression": "uncompressed",
+		"table_bytes":       recordBytes,
 	}
 
-	return GenericSerialize(byteAttrs, jsonAttrs)
+	return ChalkMarshal(attrs)
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte, error) {
