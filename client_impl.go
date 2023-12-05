@@ -131,7 +131,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	}, nil
 }
 
-func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, *ErrorResponse) {
+func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	castMap := make(map[string]any)
 
 	allLength := -1

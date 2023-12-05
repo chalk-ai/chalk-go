@@ -88,14 +88,14 @@ type Client interface {
 	// 					Features.User.Card.Id: "5555-5555-5555-5555",
 	// 				    "new_user_model.card_id": "5555-5555-5555-5555",
 	// 				},
-	//              BranchOverride: "jorges-december",
+	//              BranchOverride: "jorge-december",
 	// 			}
 	// 		)
 	//      if err != nil {
 	//          return err.Error()
 	//      }
 	//
-	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, *ErrorResponse)
+	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
 
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
