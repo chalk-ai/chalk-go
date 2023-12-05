@@ -295,7 +295,7 @@ type UploadFeaturesParams struct {
 	// either be a string or codegen-ed Feature object. The values
 	// should be a slice of the appropriate type. All slices should
 	// be the same length as the number of entities you want to upload
-	//features for.
+	// features for.
 	Inputs map[any]any
 
 	// EnvironmentOverride is the environment to which you want to upload
