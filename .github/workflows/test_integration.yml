@@ -3,30 +3,24 @@ name: Integration Test (fraud-template)
 on: push
 
 jobs:
-  test_apply:
+  test_integration:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19
 
-      - name: Echo deploy key
-        run: echo ${{ secrets.CHALK_GH_DEPLOY_KEY }}
-
-      - name: Checkout fraud-template
-        uses: actions/checkout@v4
-        with:
-          repository: chalk-ai/fraud-template
-          path: "fraud-template/"
-          ssh-key: ${{ secrets.CHALK_GH_DEPLOY_KEY }}
-
       - name: Run integration tests
         run: |
           go test -v $GITHUB_WORKSPACE/internal/tests/integration/upload_test.go
         env:
           INTEGRATION_TESTER: "true"
+          CHALK_ACTIVE_ENVIRONMENT: ${{ secrets.CHALK_ACTIVE_ENVIRONMENT }}
+          CHALK_CLIENT_ID: ${{ secrets.CHALK_CLIENT_ID }}
+          CHALK_CLIENT_SECRET: ${{ secrets.CHALK_CLIENT_SECRET }}
+          CHALK_API_SERVER: ${{ secrets.CHALK_API_SERVER }}
