@@ -183,6 +183,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 			Response:            &response,
 			EnvironmentOverride: params.EnvironmentOverride,
 			PreviewDeploymentId: params.PreviewDeploymentId,
+			Branch:              params.BranchOverride,
 		},
 	)
 	if err != nil {

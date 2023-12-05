@@ -77,6 +77,24 @@ type Client interface {
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)
 
+	// UploadFeatures synchronously persists feature values to the online store and
+	// offline store.
+	//
+	// Example:
+	//
+	// 		res, err := client.UploadFeatures(
+	// 			UploadFeaturesParams{
+	// 				Inputs: map[any]any{
+	// 					Features.User.Card.Id: "5555-5555-5555-5555",
+	// 				    "new_user_model.card_id": "5555-5555-5555-5555",
+	// 				},
+	//              BranchOverride: "jorges-december",
+	// 			}
+	// 		)
+	//      if err != nil {
+	//          return err.Error()
+	//      }
+	//
 	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, *ErrorResponse)
 
 	// OfflineQuery queries feature values from the offline store.
