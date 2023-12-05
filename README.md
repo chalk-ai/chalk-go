@@ -96,7 +96,7 @@ _, err = client.OnlineQuery(
 
 When executing an offline query, a dataset is returned and can be downloaded as parquet files using the `DownloadData` method.
 
-```py
+```go
 res, _ := client.OfflineQuery(
     chalk.OfflineQueryParams{}.
         WithInput(Features.User.Id, []any{...}).
@@ -105,6 +105,23 @@ res, _ := client.OfflineQuery(
 
 err = res.Revisions[0].DownloadData(<FILE_DIRECTORY>)
 ```
+
+
+### Upload Features
+
+Chalk allows you to synchronously persist features directly to your online and offline stores.
+
+```go
+res, err := client.UploadFeatures(
+    chalk.UploadFeaturesParams{
+        Inputs: map[any]any{
+            Features.User.Id: []string{"user-1", "user-2"},
+            "user.last_name": []string{"Borges", "Paris"},
+        },
+    },
+)
+```
+
 
 
 ### Querying against a branch

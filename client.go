@@ -34,7 +34,7 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse)
+	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error)
 
 	// OnlineQueryBulk computes features values using online resolvers,
 	// and has the ability to query multiple primary keys at once.
@@ -75,7 +75,34 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse)
+	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error)
+
+	// UploadFeatures synchronously persists feature values to the online store and
+	// offline store. The `Inputs` parameter should be a map of features to values.
+	// The features should either be a string or codegen-ed Feature object. The values
+	// should be a slice of the appropriate type. All slices should be the same length
+	// as the number of entities you want to upload features for.
+	//
+	// The upload is successful if the response contains no errors.
+	//
+	// Example:
+	//
+	// 		res, err := client.UploadFeatures(
+	// 			UploadFeaturesParams{
+	// 				Inputs: map[any]any{
+	// 					Features.User.Card.Id: []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
+	// 				    "new_user_model.card_id": []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
+	//					"new_user_model.email": []string{"borges@chalk.ai", "jorge@chalk.ai"},
+	// 				},
+	//              BranchOverride: "jorge-december",
+	// 			}
+	// 		)
+	//      if err != nil {
+	//          return err.Error()
+	//      }
+	//
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
+	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
 
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
@@ -89,15 +116,15 @@ type Client interface {
 	//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
 	//		)
 	//
-	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, *ErrorResponse)
+	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error)
 
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse)
+	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, error)
 
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, *ErrorResponse)
+	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error)
 }
 
 type ClientConfig struct {

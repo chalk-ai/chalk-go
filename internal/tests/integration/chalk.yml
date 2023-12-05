@@ -1,0 +1,6 @@
+project: fraud-template
+environments:
+  default:
+    runtime: "python310"
+    requirements: requirements.txt
+    dockerfile: null

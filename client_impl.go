@@ -34,7 +34,7 @@ type HTTPClient interface {
 	Get(url string) (resp *http.Response, err error)
 }
 
-func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *ErrorResponse) {
+func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -71,7 +71,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, *
 	return response, nil
 }
 
-func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, *ErrorResponse) {
+func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
@@ -90,7 +90,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 		if !(reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array) {
 			return emptyResult, &ErrorResponse{
 				ClientError: &ClientError{
-					"inputs to bulk online query must be a slice or array",
+					"Inputs to bulk online query must be a slice or array",
 				},
 			}
 		}
@@ -131,7 +131,75 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	}, nil
 }
 
-func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, *ErrorResponse) {
+func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
+	castMap := make(map[string]any)
+
+	allLength := -1
+	for k, v := range params.Inputs {
+		var fqn string
+		if _, ok := k.(string); ok {
+			fqn = k.(string)
+		} else {
+			feature, err := UnwrapFeature(k)
+			if err != nil {
+				msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
+				return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: msg}}
+			}
+			fqn = feature.Fqn
+		}
+		castMap[fqn] = v
+
+		currLength := -1
+		if reflect.TypeOf(v).Kind() == reflect.Slice || reflect.TypeOf(v).Kind() == reflect.Array {
+			currLength = reflect.ValueOf(v).Len()
+		} else {
+			return UploadFeaturesResult{}, &ErrorResponse{
+				ClientError: &ClientError{
+					Message: fmt.Sprintf("Values for feature '%s' must be a slice or array", fqn),
+				},
+			}
+		}
+
+		if allLength == -1 {
+			allLength = currLength
+		}
+		if allLength != currLength {
+			err := &ClientError{
+				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, fqn, allLength),
+			}
+			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
+		}
+		if currLength == 0 {
+			err := &ClientError{
+				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, fqn),
+			}
+			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
+		}
+	}
+
+	body, err := internal.CreateUploadFeaturesBody(castMap)
+	if err != nil {
+		return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
+	}
+
+	response := UploadFeaturesResult{}
+	err = c.sendRequest(
+		sendRequestParams{
+			Method:              "POST",
+			URL:                 "v1/upload_features/multi",
+			Body:                body,
+			Response:            &response,
+			EnvironmentOverride: params.EnvironmentOverride,
+			PreviewDeploymentId: params.PreviewDeploymentId,
+		},
+	)
+	if err != nil {
+		return UploadFeaturesResult{}, getErrorResponse(err)
+	}
+	return response, nil
+}
+
+func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -203,7 +271,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	return response, nil
 }
 
-func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, *ErrorResponse) {
+func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
 	response := TriggerResolverRunResult{}
 	err := c.sendRequest(
 		sendRequestParams{
@@ -221,7 +289,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 	return response, nil
 }
 
-func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, *ErrorResponse) {
+func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, error) {
 	response := GetRunStatusResult{}
 	err := c.sendRequest(
 		sendRequestParams{
@@ -238,7 +306,7 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 	return response, nil
 }
 
-func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, *ErrorResponse) {
+func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 
 	for !response.IsFinished {
@@ -365,20 +433,17 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	if body == nil {
 		return nil, nil
 	}
-	var bodyBytes []byte
 	switch v := body.(type) {
-	case *[]byte:
-		bodyBytes = *v
-		return bytes.NewBuffer(bodyBytes), nil
+	case []byte:
+		return bytes.NewBuffer(v), nil
 	default:
 		jsonBytes, err := json.Marshal(body)
-		bodyBytes = jsonBytes
 		if err != nil {
 			return nil, err
 		}
-	}
+		return bytes.NewBuffer(jsonBytes), nil
 
-	return bytes.NewBuffer(bodyBytes), nil
+	}
 }
 
 func (c *clientImpl) sendRequest(args sendRequestParams) error {

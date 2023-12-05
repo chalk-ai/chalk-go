@@ -83,7 +83,7 @@ func convertIfNumber(value any, kind reflect.Kind) (any, error) {
 	return value, err
 }
 
-func convertNumberSlice(sliceElemKind reflect.Kind, value any) (any, error) {
+func convertSlice(sliceElemKind reflect.Kind, value any) (any, error) {
 	anySlice := value.([]any)
 	switch sliceElemKind {
 	case reflect.Int8:
@@ -141,7 +141,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
-		value, convErr = convertNumberSlice(elemType.Elem().Kind(), value)
+		value, convErr = convertSlice(elemType.Elem().Kind(), value)
 		if convErr != nil {
 			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 		}
