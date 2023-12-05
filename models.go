@@ -288,6 +288,26 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
+// UploadFeaturesParams defines the parameters
+// that help you execute an upload features request.
+type UploadFeaturesParams struct {
+	// Inputs is a map of features to values. The features should
+	// either be a string or codegen-ed Feature object. The values
+	// should be a slice of the appropriate type. All slices should
+	// be the same length as the number of entities you want to upload
+	//features for.
+	Inputs map[any]any
+
+	// EnvironmentOverride is the environment to which you want to upload
+	// features. If not specified, defaults to the environment specified
+	// in the client configuration.
+	EnvironmentOverride string
+
+	// PreviewDeploymentId is the preview deployment to which you want to upload
+	// features. If not specified, defaults to the main deployment.
+	PreviewDeploymentId string
+}
+
 // UploadFeaturesResult holds the result of an upload features request.
 type UploadFeaturesResult struct {
 	OperationId string `json:"operation_id"`
