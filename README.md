@@ -120,13 +120,6 @@ res, err := client.UploadFeatures(
         },
     },
 )
-
-if err == nil {
-    fmt.Println("Successfully uploaded features")
-} else {
-    return err
-}
-
 ```
 
 

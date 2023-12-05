@@ -83,6 +83,8 @@ type Client interface {
 	// should be a slice of the appropriate type. All slices should be the same length
 	// as the number of entities you want to upload features for.
 	//
+	// The upload is successful if the response contains no errors.
+	//
 	// Example:
 	//
 	// 		res, err := client.UploadFeatures(
