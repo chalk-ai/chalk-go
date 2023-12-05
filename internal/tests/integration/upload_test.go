@@ -26,7 +26,7 @@ func TestUploadFeatures(t *testing.T) {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 
-	userIds := []int{111, 222, 333}
+	userIds := []int{}
 	socureScores := []float64{rand.Float64(), rand.Float64(), rand.Float64()}
 
 	_, err = client.UploadFeatures(chalk.UploadFeaturesParams{

@@ -142,7 +142,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		}
 		feature, err := UnwrapFeature(k)
 		if err != nil {
-			msg := fmt.Sprintf("Invalid key type '%T' for inputs map key '%s'. Expected `string` or `Feature`", k, k)
+			msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
 			return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: msg}}
 		}
 
@@ -163,6 +163,12 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		if allLength != currLength {
 			err := &ClientError{
 				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, feature.Fqn, allLength),
+			}
+			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
+		}
+		if currLength == 0 {
+			err := &ClientError{
+				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, feature.Fqn),
 			}
 			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
 		}
