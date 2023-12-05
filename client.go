@@ -78,15 +78,19 @@ type Client interface {
 	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error)
 
 	// UploadFeatures synchronously persists feature values to the online store and
-	// offline store.
+	// offline store. The `Inputs` parameter should be a map of features to values.
+	// The features should either be a string or codegen-ed Feature object. The values
+	// should be a slice of the appropriate type. All slices should be the same length
+	// as the number of entities you want to upload features for.
 	//
 	// Example:
 	//
 	// 		res, err := client.UploadFeatures(
 	// 			UploadFeaturesParams{
 	// 				Inputs: map[any]any{
-	// 					Features.User.Card.Id: "5555-5555-5555-5555",
-	// 				    "new_user_model.card_id": "5555-5555-5555-5555",
+	// 					Features.User.Card.Id: []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
+	// 				    "new_user_model.card_id": []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
+	//					"new_user_model.email": []string{"borges@chalk.ai", "jorge@chalk.ai"},
 	// 				},
 	//              BranchOverride: "jorge-december",
 	// 			}
@@ -95,6 +99,7 @@ type Client interface {
 	//          return err.Error()
 	//      }
 	//
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
 
 	// OfflineQuery queries feature values from the offline store.
