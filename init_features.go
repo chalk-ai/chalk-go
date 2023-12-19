@@ -155,10 +155,20 @@ func snakeCase(s string) string {
 				b = append(b, '_')
 			}
 			c += 'a' - 'A'
+		} else if isASCIIDigit(c) && i > 0 && isASCIILower(s[i-1]) {
+			b = append(b, '_')
 		}
 		b = append(b, c)
 	}
 	return string(b)
+}
+
+func isASCIILower(c byte) bool {
+	return 'a' <= c && c <= 'z'
+}
+
+func isASCIIDigit(c byte) bool {
+	return '0' <= c && c <= '9'
 }
 
 func isASCIIUpper(c byte) bool {

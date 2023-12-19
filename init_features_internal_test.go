@@ -117,3 +117,34 @@ func TestUnmarshal(t *testing.T) {
 	// Not in the result
 	assert.Nil(t, user.Card.Number)
 }
+
+func TestSnakeCase(t *testing.T) {
+	testCases := []struct {
+		input    string
+		expected string
+		success  bool // indicates whether the test should succeed
+	}{
+		// Success cases
+		{"ThisIsATest", "this_is_a_test", true},
+		{"ContactsDeliveredAl7dHow", "contacts_delivered_al_7d_how", true},
+		{"test123", "test_123", true},
+		{"WithNumbers123Here", "with_numbers_123_here", true},
+		{"WithADot.Here", "with_a_dot.here", true},
+
+		// Failure cases
+		{"no_Snake_Case", "NoSnakeCase", false},       // should fail due to incorrect conversion
+		{"contains spaces", "contains_spaces", false}, // should fail, contains spaces
+		{"", "non_empty_string", false},               // should fail, input is empty
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.input, func(t *testing.T) {
+			result := snakeCase(tc.input)
+			if tc.success && result != tc.expected {
+				t.Errorf("SnakeCase(%q) = %q, want %q", tc.input, result, tc.expected)
+			} else if !tc.success && result == tc.expected {
+				t.Errorf("SnakeCase(%q) = %q, expected to fail", tc.input, result)
+			}
+		})
+	}
+}
