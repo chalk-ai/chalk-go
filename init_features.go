@@ -38,8 +38,12 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 
 		isTimeField := f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() == "time.Time"
 
-		attributeName := fieldMeta.Name
-		updatedFqn := fqn + snakeCase(attributeName)
+		attributeName := snakeCase(fieldMeta.Name)
+		nameOverride := fieldMeta.Tag.Get("name")
+		if nameOverride != "" {
+			attributeName = nameOverride
+		}
+		updatedFqn := fqn + attributeName
 
 		if !f.CanSet() {
 			continue
