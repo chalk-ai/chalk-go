@@ -26,6 +26,8 @@ type goUser struct {
 	FamilySize   *int
 	HasFamily    *bool
 	FamilyIncome *float32
+
+	CustomUnderscoresL90DP90DAustralia *int `name:"custom_underscores_l90d_p90d_australia"`
 }
 
 var testFeatures struct {
@@ -92,4 +94,8 @@ func TestInitFeatures(t *testing.T) {
 	addressCity, err := chalk.UnwrapFeature(testFeatures.Address.City)
 	assert.Nil(t, err)
 	assert.Equal(t, "address.city", addressCity.Fqn)
+
+	customUnderscore, err := chalk.UnwrapFeature(testFeatures.User.CustomUnderscoresL90DP90DAustralia)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.custom_underscores_l90d_p90d_australia", customUnderscore.Fqn)
 }
