@@ -106,6 +106,11 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 	}
 
 	for fqn, value := range fqnToValueMap {
+		if value == nil {
+			// Some fields are optional, so we leave the field as nil
+			// TODO: Add validation for optional fields
+			continue
+		}
 		err := fieldMap.setFeature(fqn, value)
 		if err != nil {
 			structName := structValue.Type().String()
@@ -129,7 +134,7 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 		if field, ok := fieldMap[expectedOutput]; ok {
 			if field.IsNil() {
 				// TODO: Handle optional fields
-				return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
+				//return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
 			}
 		}
 	}
