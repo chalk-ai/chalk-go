@@ -6,16 +6,9 @@ import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"math/rand"
-	"os"
 	"strings"
 	"testing"
 )
-
-func SkipIfNotIntegrationTester(t *testing.T) {
-	if os.Getenv("INTEGRATION_TESTER") != "true" {
-		t.Skip()
-	}
-}
 
 // TestUploadFeatures tests a basic features upload and
 // also tests the two flavors of online query.
