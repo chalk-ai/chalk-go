@@ -14,7 +14,7 @@ func (r OnlineQueryBulkResult) Release() {
 	}
 }
 
-func (p OnlineQueryParamsComplete) toBytes() ([]byte, error) {
+func (p OnlineQueryParamsComplete) ToBytes() ([]byte, error) {
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, p.underlying.outputs)
 }
 
