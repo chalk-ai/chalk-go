@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 )
 
 func GetProjectAuthConfig() (ProjectToken, error) {
