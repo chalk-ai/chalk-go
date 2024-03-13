@@ -5,10 +5,10 @@
 package serverv1connect
 
 import (
-	v1 "chalk/chalk/server/v1"
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	http "net/http"
 	strings "strings"
 )

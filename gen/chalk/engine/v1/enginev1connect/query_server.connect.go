@@ -5,11 +5,11 @@
 package enginev1connect
 
 import (
-	v11 "chalk/chalk/common/v1"
-	v1 "chalk/chalk/engine/v1"
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	http "net/http"
 	strings "strings"
 )

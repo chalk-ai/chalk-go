@@ -3,7 +3,7 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/arrow/go/v12/arrow"
+	"github.com/apache/arrow/go/v15/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
 )
 
