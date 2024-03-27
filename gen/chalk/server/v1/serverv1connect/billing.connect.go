@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	v1 "github.com/chalk-ai/chalk-private/go-api-server/gen/chalk/server/v1"
 	http "net/http"
 	strings "strings"
 )
@@ -35,17 +35,22 @@ const (
 const (
 	// BillingServiceGetNodesProcedure is the fully-qualified name of the BillingService's GetNodes RPC.
 	BillingServiceGetNodesProcedure = "/chalk.server.v1.BillingService/GetNodes"
+	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
+	// GetUsageChart RPC.
+	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	billingServiceServiceDescriptor        = v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService")
-	billingServiceGetNodesMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetNodes")
+	billingServiceServiceDescriptor             = v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService")
+	billingServiceGetNodesMethodDescriptor      = billingServiceServiceDescriptor.Methods().ByName("GetNodes")
+	billingServiceGetUsageChartMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetUsageChart")
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
 type BillingServiceClient interface {
 	GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error)
+	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -65,12 +70,20 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getUsageChart: connect.NewClient[v1.GetUsageChartRequest, v1.GetUsageChartResponse](
+			httpClient,
+			baseURL+BillingServiceGetUsageChartProcedure,
+			connect.WithSchema(billingServiceGetUsageChartMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // billingServiceClient implements BillingServiceClient.
 type billingServiceClient struct {
-	getNodes *connect.Client[v1.GetNodesRequest, v1.GetNodesResponse]
+	getNodes      *connect.Client[v1.GetNodesRequest, v1.GetNodesResponse]
+	getUsageChart *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 }
 
 // GetNodes calls chalk.server.v1.BillingService.GetNodes.
@@ -78,9 +91,15 @@ func (c *billingServiceClient) GetNodes(ctx context.Context, req *connect.Reques
 	return c.getNodes.CallUnary(ctx, req)
 }
 
+// GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
+func (c *billingServiceClient) GetUsageChart(ctx context.Context, req *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
+	return c.getUsageChart.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error)
+	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -96,10 +115,19 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetUsageChartHandler := connect.NewUnaryHandler(
+		BillingServiceGetUsageChartProcedure,
+		svc.GetUsageChart,
+		connect.WithSchema(billingServiceGetUsageChartMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesProcedure:
 			billingServiceGetNodesHandler.ServeHTTP(w, r)
+		case BillingServiceGetUsageChartProcedure:
+			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -111,4 +139,8 @@ type UnimplementedBillingServiceHandler struct{}
 
 func (UnimplementedBillingServiceHandler) GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodes is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUsageChart is not implemented"))
 }
