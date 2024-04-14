@@ -55,6 +55,11 @@ func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Dura
 	return p
 }
 
+func (p OnlineQueryParamsComplete) WithBranchId(branchId string) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.WithBranchId(branchId)
+	return p
+}
+
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/

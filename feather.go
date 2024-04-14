@@ -15,7 +15,11 @@ func (r OnlineQueryBulkResult) Release() {
 }
 
 func (p OnlineQueryParamsComplete) ToBytes() ([]byte, error) {
-	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, p.underlying.outputs)
+	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
+		Outputs:  p.underlying.outputs,
+		Explain:  false,
+		BranchId: p.underlying.BranchId,
+	})
 }
 
 func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
