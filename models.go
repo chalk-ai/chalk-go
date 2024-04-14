@@ -66,6 +66,9 @@ type OnlineQueryParams struct {
 
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
+
+	// The branch id
+	BranchId string
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -85,6 +88,11 @@ func (p OnlineQueryParams) WithOutputs(features ...any) onlineQueryParamsWithOut
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) OnlineQueryParams {
 	return p.withStaleness(feature, duration)
+}
+
+func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
+	p.BranchId = branchId
+	return p
 }
 
 // OnlineQueryResult holds the result of an online query.

@@ -358,7 +358,13 @@ func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
 	return ChalkMarshal(attrs)
 }
 
-func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte, error) {
+type FeatherRequestHeader struct {
+	Outputs  []string `json:"outputs"`
+	BranchId *string  `json:"branch_id"`
+	Explain  bool     `json:"explain"`
+}
+
+func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
 	arrowBytes, err := inputsToArrowBytes(inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert inputs to Arrow: %w", err)
@@ -382,9 +388,6 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, outputs []string) ([]byte,
 	}
 
 	// Header: TODO: get the other parameters for this.
-	header := map[string]any{
-		"outputs": outputs,
-	}
 	jsonBytes, err := json.Marshal(header)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize header to JSON: %w", err)
