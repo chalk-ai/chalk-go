@@ -18,7 +18,7 @@ func (p OnlineQueryParamsComplete) ToBytes() ([]byte, error) {
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
 		Outputs:  p.underlying.outputs,
 		Explain:  false,
-		BranchId: &p.underlying.BranchId,
+		BranchId: p.underlying.BranchId,
 	})
 }
 

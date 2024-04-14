@@ -68,7 +68,7 @@ type OnlineQueryParams struct {
 	Meta map[string]string
 
 	// The branch id
-	BranchId string
+	BranchId *string
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -91,7 +91,7 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 }
 
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
-	p.BranchId = branchId
+	p.BranchId = &branchId
 	return p
 }
 
