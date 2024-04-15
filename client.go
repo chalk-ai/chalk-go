@@ -48,7 +48,7 @@ type Client interface {
 	//
 	// Example:
 	//
-	// import "github.com/apache/arrow/go/v15/arrow/array"
+	// import "github.com/apache/arrow/go/v16/arrow/array"
 	//
 	//
 	//		res, err := client.OnlineQueryBulk(
