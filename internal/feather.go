@@ -196,7 +196,7 @@ func consumeByteItems(startIdx int, bytes []byte) (int, error, map[string][]byte
 	}
 	byteItemsMapCast, ok := byteItemsMap.(map[string]any)
 	if !ok {
-		fmt.Errorf("failed to process byte items length map")
+		return idx, fmt.Errorf("failed to process byte items length map"), nil
 	}
 	byteItemsMapInt := map[string]int{}
 	for key, val := range byteItemsMapCast {

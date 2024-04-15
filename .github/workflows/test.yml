@@ -11,13 +11,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - name: Setup Go
+      uses: actions/setup-go@v5
       with:
+        cache: true
         go-version: 1.19
 
     - name: Build
       run: go build -v
 
     - name: Test
-      run: go test -v ./...
+      run: |
+        CGO_ENABLED=0 \
+        go run gotest.tools/gotestsum@latest \
+          --junitfile ../tests.xml \
+          --hide-summary=skipped \
+          --format-hide-empty-pkg \
+          --junitfile-hide-empty-pkg \
+          --format=github-actions -- \
+            -shuffle=on -vet=all ./...

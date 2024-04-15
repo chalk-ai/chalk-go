@@ -514,8 +514,10 @@ func (d *DatasetRevision) DownloadData(directory string) error {
 	}
 	g, _ := errgroup.WithContext(context.Background())
 	for _, url := range urls {
+		// Capture the loop variables in the closure.
+		u := url
 		g.Go(func() error {
-			return d.client.saveUrlToDirectory(url, directory)
+			return d.client.saveUrlToDirectory(u, directory)
 		})
 	}
 	saveErr := g.Wait()
