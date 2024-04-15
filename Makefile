@@ -11,6 +11,9 @@ test:  ## Run tests. Needs bash > 4.0, gotestsum, panicparse, and script
 	@which panicparse > /dev/null || go install github.com/maruel/panicparse/v2@latest
 	@bash -c "CGO_ENABLED=0 GOTRACEBACK=all script -q /dev/null gotestsum --hide-summary=skipped --format-hide-empty-pkg -- -vet=all -shuffle=on ./... |& panicparse -rel-path"
 
+release:  ## Release the go client
+	@bash ./release.sh
+
 cloc:
 	cloc . --vcs=git --exclude-lang JSON,SVG,.pyi --not-match-f generated.go
 
