@@ -2,7 +2,7 @@ package integration
 
 import (
 	"fmt"
-	"github.com/apache/arrow/go/v15/arrow/array"
+	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"math/rand"

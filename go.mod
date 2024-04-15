@@ -1,12 +1,14 @@
 module github.com/chalk-ai/chalk-go
 
-go 1.19
+go 1.21
 
 require (
-	github.com/apache/arrow/go/v15 v15.0.2
+	connectrpc.com/connect v1.16.0
+	github.com/apache/arrow/go/v16 v16.0.0-20240415180010-b98763ad079f
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/sync v0.7.0
+	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
