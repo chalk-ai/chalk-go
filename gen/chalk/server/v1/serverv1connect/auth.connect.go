@@ -44,23 +44,15 @@ const (
 	// AuthServiceUpdateLinkSessionProcedure is the fully-qualified name of the AuthService's
 	// UpdateLinkSession RPC.
 	AuthServiceUpdateLinkSessionProcedure = "/chalk.server.v1.AuthService/UpdateLinkSession"
-	// AuthServiceCreateServiceTokenProcedure is the fully-qualified name of the AuthService's
-	// CreateServiceToken RPC.
-	AuthServiceCreateServiceTokenProcedure = "/chalk.server.v1.AuthService/CreateServiceToken"
-	// AuthServiceDeleteServiceTokenProcedure is the fully-qualified name of the AuthService's
-	// DeleteServiceToken RPC.
-	AuthServiceDeleteServiceTokenProcedure = "/chalk.server.v1.AuthService/DeleteServiceToken"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	authServiceServiceDescriptor                  = v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService")
-	authServiceGetTokenMethodDescriptor           = authServiceServiceDescriptor.Methods().ByName("GetToken")
-	authServiceCreateLinkSessionMethodDescriptor  = authServiceServiceDescriptor.Methods().ByName("CreateLinkSession")
-	authServiceGetLinkSessionMethodDescriptor     = authServiceServiceDescriptor.Methods().ByName("GetLinkSession")
-	authServiceUpdateLinkSessionMethodDescriptor  = authServiceServiceDescriptor.Methods().ByName("UpdateLinkSession")
-	authServiceCreateServiceTokenMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("CreateServiceToken")
-	authServiceDeleteServiceTokenMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("DeleteServiceToken")
+	authServiceServiceDescriptor                 = v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService")
+	authServiceGetTokenMethodDescriptor          = authServiceServiceDescriptor.Methods().ByName("GetToken")
+	authServiceCreateLinkSessionMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("CreateLinkSession")
+	authServiceGetLinkSessionMethodDescriptor    = authServiceServiceDescriptor.Methods().ByName("GetLinkSession")
+	authServiceUpdateLinkSessionMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("UpdateLinkSession")
 )
 
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
@@ -69,8 +61,6 @@ type AuthServiceClient interface {
 	CreateLinkSession(context.Context, *connect.Request[v1.CreateLinkSessionRequest]) (*connect.Response[v1.CreateLinkSessionResponse], error)
 	GetLinkSession(context.Context, *connect.Request[v1.GetLinkSessionRequest]) (*connect.Response[v1.GetLinkSessionResponse], error)
 	UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error)
-	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
-	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the chalk.server.v1.AuthService service. By default,
@@ -107,29 +97,15 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceUpdateLinkSessionMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
-		createServiceToken: connect.NewClient[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse](
-			httpClient,
-			baseURL+AuthServiceCreateServiceTokenProcedure,
-			connect.WithSchema(authServiceCreateServiceTokenMethodDescriptor),
-			connect.WithClientOptions(opts...),
-		),
-		deleteServiceToken: connect.NewClient[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse](
-			httpClient,
-			baseURL+AuthServiceDeleteServiceTokenProcedure,
-			connect.WithSchema(authServiceDeleteServiceTokenMethodDescriptor),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getToken           *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
-	createLinkSession  *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
-	getLinkSession     *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
-	updateLinkSession  *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
-	createServiceToken *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
-	deleteServiceToken *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
+	getToken          *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
+	createLinkSession *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
+	getLinkSession    *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
+	updateLinkSession *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -152,24 +128,12 @@ func (c *authServiceClient) UpdateLinkSession(ctx context.Context, req *connect.
 	return c.updateLinkSession.CallUnary(ctx, req)
 }
 
-// CreateServiceToken calls chalk.server.v1.AuthService.CreateServiceToken.
-func (c *authServiceClient) CreateServiceToken(ctx context.Context, req *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
-	return c.createServiceToken.CallUnary(ctx, req)
-}
-
-// DeleteServiceToken calls chalk.server.v1.AuthService.DeleteServiceToken.
-func (c *authServiceClient) DeleteServiceToken(ctx context.Context, req *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
-	return c.deleteServiceToken.CallUnary(ctx, req)
-}
-
 // AuthServiceHandler is an implementation of the chalk.server.v1.AuthService service.
 type AuthServiceHandler interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
 	CreateLinkSession(context.Context, *connect.Request[v1.CreateLinkSessionRequest]) (*connect.Response[v1.CreateLinkSessionResponse], error)
 	GetLinkSession(context.Context, *connect.Request[v1.GetLinkSessionRequest]) (*connect.Response[v1.GetLinkSessionResponse], error)
 	UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error)
-	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
-	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -202,18 +166,6 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceUpdateLinkSessionMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	authServiceCreateServiceTokenHandler := connect.NewUnaryHandler(
-		AuthServiceCreateServiceTokenProcedure,
-		svc.CreateServiceToken,
-		connect.WithSchema(authServiceCreateServiceTokenMethodDescriptor),
-		connect.WithHandlerOptions(opts...),
-	)
-	authServiceDeleteServiceTokenHandler := connect.NewUnaryHandler(
-		AuthServiceDeleteServiceTokenProcedure,
-		svc.DeleteServiceToken,
-		connect.WithSchema(authServiceDeleteServiceTokenMethodDescriptor),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceGetTokenProcedure:
@@ -224,10 +176,6 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetLinkSessionHandler.ServeHTTP(w, r)
 		case AuthServiceUpdateLinkSessionProcedure:
 			authServiceUpdateLinkSessionHandler.ServeHTTP(w, r)
-		case AuthServiceCreateServiceTokenProcedure:
-			authServiceCreateServiceTokenHandler.ServeHTTP(w, r)
-		case AuthServiceDeleteServiceTokenProcedure:
-			authServiceDeleteServiceTokenHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -251,12 +199,4 @@ func (UnimplementedAuthServiceHandler) GetLinkSession(context.Context, *connect.
 
 func (UnimplementedAuthServiceHandler) UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateLinkSession is not implemented"))
-}
-
-func (UnimplementedAuthServiceHandler) CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CreateServiceToken is not implemented"))
-}
-
-func (UnimplementedAuthServiceHandler) DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.DeleteServiceToken is not implemented"))
 }

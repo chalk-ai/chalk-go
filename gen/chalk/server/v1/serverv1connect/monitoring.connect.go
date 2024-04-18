@@ -51,6 +51,9 @@ const (
 	// MonitoringServiceGetAllPagerDutyIntegrationsProcedure is the fully-qualified name of the
 	// MonitoringService's GetAllPagerDutyIntegrations RPC.
 	MonitoringServiceGetAllPagerDutyIntegrationsProcedure = "/chalk.server.v1.MonitoringService/GetAllPagerDutyIntegrations"
+	// MonitoringServiceGetPagerDutyIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's GetPagerDutyIntegration RPC.
+	MonitoringServiceGetPagerDutyIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetPagerDutyIntegration"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -62,6 +65,7 @@ var (
 	monitoringServiceSetDefaultPagerDutyIntegrationMethodDescriptor = monitoringServiceServiceDescriptor.Methods().ByName("SetDefaultPagerDutyIntegration")
 	monitoringServiceUpdatePagerDutyIntegrationMethodDescriptor     = monitoringServiceServiceDescriptor.Methods().ByName("UpdatePagerDutyIntegration")
 	monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor    = monitoringServiceServiceDescriptor.Methods().ByName("GetAllPagerDutyIntegrations")
+	monitoringServiceGetPagerDutyIntegrationMethodDescriptor        = monitoringServiceServiceDescriptor.Methods().ByName("GetPagerDutyIntegration")
 )
 
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
@@ -72,6 +76,7 @@ type MonitoringServiceClient interface {
 	SetDefaultPagerDutyIntegration(context.Context, *connect.Request[v1.SetDefaultPagerDutyIntegrationRequest]) (*connect.Response[v1.SetDefaultPagerDutyIntegrationResponse], error)
 	UpdatePagerDutyIntegration(context.Context, *connect.Request[v1.UpdatePagerDutyIntegrationRequest]) (*connect.Response[v1.UpdatePagerDutyIntegrationResponse], error)
 	GetAllPagerDutyIntegrations(context.Context, *connect.Request[v1.GetAllPagerDutyIntegrationsRequest]) (*connect.Response[v1.GetAllPagerDutyIntegrationsResponse], error)
+	GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error)
 }
 
 // NewMonitoringServiceClient constructs a client for the chalk.server.v1.MonitoringService service.
@@ -88,21 +93,18 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+MonitoringServiceTestPagerDutyIntegrationProcedure,
 			connect.WithSchema(monitoringServiceTestPagerDutyIntegrationMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		addPagerDutyIntegration: connect.NewClient[v1.AddPagerDutyIntegrationRequest, v1.AddPagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceAddPagerDutyIntegrationProcedure,
 			connect.WithSchema(monitoringServiceAddPagerDutyIntegrationMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		deletePagerDutyIntegration: connect.NewClient[v1.DeletePagerDutyIntegrationRequest, v1.DeletePagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceDeletePagerDutyIntegrationProcedure,
 			connect.WithSchema(monitoringServiceDeletePagerDutyIntegrationMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		setDefaultPagerDutyIntegration: connect.NewClient[v1.SetDefaultPagerDutyIntegrationRequest, v1.SetDefaultPagerDutyIntegrationResponse](
@@ -123,7 +125,14 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+MonitoringServiceGetAllPagerDutyIntegrationsProcedure,
 			connect.WithSchema(monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getPagerDutyIntegration: connect.NewClient[v1.GetPagerDutyIntegrationRequest, v1.GetPagerDutyIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetPagerDutyIntegrationProcedure,
+			connect.WithSchema(monitoringServiceGetPagerDutyIntegrationMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -137,6 +146,7 @@ type monitoringServiceClient struct {
 	setDefaultPagerDutyIntegration *connect.Client[v1.SetDefaultPagerDutyIntegrationRequest, v1.SetDefaultPagerDutyIntegrationResponse]
 	updatePagerDutyIntegration     *connect.Client[v1.UpdatePagerDutyIntegrationRequest, v1.UpdatePagerDutyIntegrationResponse]
 	getAllPagerDutyIntegrations    *connect.Client[v1.GetAllPagerDutyIntegrationsRequest, v1.GetAllPagerDutyIntegrationsResponse]
+	getPagerDutyIntegration        *connect.Client[v1.GetPagerDutyIntegrationRequest, v1.GetPagerDutyIntegrationResponse]
 }
 
 // TestPagerDutyIntegration calls chalk.server.v1.MonitoringService.TestPagerDutyIntegration.
@@ -170,6 +180,11 @@ func (c *monitoringServiceClient) GetAllPagerDutyIntegrations(ctx context.Contex
 	return c.getAllPagerDutyIntegrations.CallUnary(ctx, req)
 }
 
+// GetPagerDutyIntegration calls chalk.server.v1.MonitoringService.GetPagerDutyIntegration.
+func (c *monitoringServiceClient) GetPagerDutyIntegration(ctx context.Context, req *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error) {
+	return c.getPagerDutyIntegration.CallUnary(ctx, req)
+}
+
 // MonitoringServiceHandler is an implementation of the chalk.server.v1.MonitoringService service.
 type MonitoringServiceHandler interface {
 	TestPagerDutyIntegration(context.Context, *connect.Request[v1.TestPagerDutyIntegrationRequest]) (*connect.Response[v1.TestPagerDutyIntegrationResponse], error)
@@ -178,6 +193,7 @@ type MonitoringServiceHandler interface {
 	SetDefaultPagerDutyIntegration(context.Context, *connect.Request[v1.SetDefaultPagerDutyIntegrationRequest]) (*connect.Response[v1.SetDefaultPagerDutyIntegrationResponse], error)
 	UpdatePagerDutyIntegration(context.Context, *connect.Request[v1.UpdatePagerDutyIntegrationRequest]) (*connect.Response[v1.UpdatePagerDutyIntegrationResponse], error)
 	GetAllPagerDutyIntegrations(context.Context, *connect.Request[v1.GetAllPagerDutyIntegrationsRequest]) (*connect.Response[v1.GetAllPagerDutyIntegrationsResponse], error)
+	GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error)
 }
 
 // NewMonitoringServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -190,21 +206,18 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		MonitoringServiceTestPagerDutyIntegrationProcedure,
 		svc.TestPagerDutyIntegration,
 		connect.WithSchema(monitoringServiceTestPagerDutyIntegrationMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceAddPagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceAddPagerDutyIntegrationProcedure,
 		svc.AddPagerDutyIntegration,
 		connect.WithSchema(monitoringServiceAddPagerDutyIntegrationMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceDeletePagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceDeletePagerDutyIntegrationProcedure,
 		svc.DeletePagerDutyIntegration,
 		connect.WithSchema(monitoringServiceDeletePagerDutyIntegrationMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceSetDefaultPagerDutyIntegrationHandler := connect.NewUnaryHandler(
@@ -225,7 +238,14 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		MonitoringServiceGetAllPagerDutyIntegrationsProcedure,
 		svc.GetAllPagerDutyIntegrations,
 		connect.WithSchema(monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetPagerDutyIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetPagerDutyIntegrationProcedure,
+		svc.GetPagerDutyIntegration,
+		connect.WithSchema(monitoringServiceGetPagerDutyIntegrationMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.MonitoringService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -242,6 +262,8 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 			monitoringServiceUpdatePagerDutyIntegrationHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetAllPagerDutyIntegrationsProcedure:
 			monitoringServiceGetAllPagerDutyIntegrationsHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetPagerDutyIntegrationProcedure:
+			monitoringServiceGetPagerDutyIntegrationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -273,4 +295,8 @@ func (UnimplementedMonitoringServiceHandler) UpdatePagerDutyIntegration(context.
 
 func (UnimplementedMonitoringServiceHandler) GetAllPagerDutyIntegrations(context.Context, *connect.Request[v1.GetAllPagerDutyIntegrationsRequest]) (*connect.Response[v1.GetAllPagerDutyIntegrationsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetAllPagerDutyIntegrations is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetPagerDutyIntegration is not implemented"))
 }
