@@ -39,24 +39,24 @@ const (
 	// QueryServiceOnlineQueryProcedure is the fully-qualified name of the QueryService's OnlineQuery
 	// RPC.
 	QueryServiceOnlineQueryProcedure = "/chalk.engine.v1.QueryService/OnlineQuery"
-	// QueryServiceOnlineQueryFeatherProcedure is the fully-qualified name of the QueryService's
-	// OnlineQueryFeather RPC.
-	QueryServiceOnlineQueryFeatherProcedure = "/chalk.engine.v1.QueryService/OnlineQueryFeather"
+	// QueryServiceOnlineQueryBulkProcedure is the fully-qualified name of the QueryService's
+	// OnlineQueryBulk RPC.
+	QueryServiceOnlineQueryBulkProcedure = "/chalk.engine.v1.QueryService/OnlineQueryBulk"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	queryServiceServiceDescriptor                  = v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService")
-	queryServicePingMethodDescriptor               = queryServiceServiceDescriptor.Methods().ByName("Ping")
-	queryServiceOnlineQueryMethodDescriptor        = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
-	queryServiceOnlineQueryFeatherMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryFeather")
+	queryServiceServiceDescriptor               = v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService")
+	queryServicePingMethodDescriptor            = queryServiceServiceDescriptor.Methods().ByName("Ping")
+	queryServiceOnlineQueryMethodDescriptor     = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
+	queryServiceOnlineQueryBulkMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryBulk")
 )
 
 // QueryServiceClient is a client for the chalk.engine.v1.QueryService service.
 type QueryServiceClient interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
 	OnlineQuery(context.Context, *connect.Request[v11.OnlineQueryRequest]) (*connect.Response[v11.OnlineQueryResponse], error)
-	OnlineQueryFeather(context.Context, *connect.Request[v11.OnlineQueryFeatherRequest]) (*connect.Response[v11.OnlineQueryFeatherResponse], error)
+	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 }
 
 // NewQueryServiceClient constructs a client for the chalk.engine.v1.QueryService service. By
@@ -81,10 +81,10 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(queryServiceOnlineQueryMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
-		onlineQueryFeather: connect.NewClient[v11.OnlineQueryFeatherRequest, v11.OnlineQueryFeatherResponse](
+		onlineQueryBulk: connect.NewClient[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse](
 			httpClient,
-			baseURL+QueryServiceOnlineQueryFeatherProcedure,
-			connect.WithSchema(queryServiceOnlineQueryFeatherMethodDescriptor),
+			baseURL+QueryServiceOnlineQueryBulkProcedure,
+			connect.WithSchema(queryServiceOnlineQueryBulkMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -92,9 +92,9 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // queryServiceClient implements QueryServiceClient.
 type queryServiceClient struct {
-	ping               *connect.Client[v1.PingRequest, v1.PingResponse]
-	onlineQuery        *connect.Client[v11.OnlineQueryRequest, v11.OnlineQueryResponse]
-	onlineQueryFeather *connect.Client[v11.OnlineQueryFeatherRequest, v11.OnlineQueryFeatherResponse]
+	ping            *connect.Client[v1.PingRequest, v1.PingResponse]
+	onlineQuery     *connect.Client[v11.OnlineQueryRequest, v11.OnlineQueryResponse]
+	onlineQueryBulk *connect.Client[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse]
 }
 
 // Ping calls chalk.engine.v1.QueryService.Ping.
@@ -107,16 +107,16 @@ func (c *queryServiceClient) OnlineQuery(ctx context.Context, req *connect.Reque
 	return c.onlineQuery.CallUnary(ctx, req)
 }
 
-// OnlineQueryFeather calls chalk.engine.v1.QueryService.OnlineQueryFeather.
-func (c *queryServiceClient) OnlineQueryFeather(ctx context.Context, req *connect.Request[v11.OnlineQueryFeatherRequest]) (*connect.Response[v11.OnlineQueryFeatherResponse], error) {
-	return c.onlineQueryFeather.CallUnary(ctx, req)
+// OnlineQueryBulk calls chalk.engine.v1.QueryService.OnlineQueryBulk.
+func (c *queryServiceClient) OnlineQueryBulk(ctx context.Context, req *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error) {
+	return c.onlineQueryBulk.CallUnary(ctx, req)
 }
 
 // QueryServiceHandler is an implementation of the chalk.engine.v1.QueryService service.
 type QueryServiceHandler interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
 	OnlineQuery(context.Context, *connect.Request[v11.OnlineQueryRequest]) (*connect.Response[v11.OnlineQueryResponse], error)
-	OnlineQueryFeather(context.Context, *connect.Request[v11.OnlineQueryFeatherRequest]) (*connect.Response[v11.OnlineQueryFeatherResponse], error)
+	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 }
 
 // NewQueryServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -137,10 +137,10 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(queryServiceOnlineQueryMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	queryServiceOnlineQueryFeatherHandler := connect.NewUnaryHandler(
-		QueryServiceOnlineQueryFeatherProcedure,
-		svc.OnlineQueryFeather,
-		connect.WithSchema(queryServiceOnlineQueryFeatherMethodDescriptor),
+	queryServiceOnlineQueryBulkHandler := connect.NewUnaryHandler(
+		QueryServiceOnlineQueryBulkProcedure,
+		svc.OnlineQueryBulk,
+		connect.WithSchema(queryServiceOnlineQueryBulkMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.engine.v1.QueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -149,8 +149,8 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 			queryServicePingHandler.ServeHTTP(w, r)
 		case QueryServiceOnlineQueryProcedure:
 			queryServiceOnlineQueryHandler.ServeHTTP(w, r)
-		case QueryServiceOnlineQueryFeatherProcedure:
-			queryServiceOnlineQueryFeatherHandler.ServeHTTP(w, r)
+		case QueryServiceOnlineQueryBulkProcedure:
+			queryServiceOnlineQueryBulkHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -168,6 +168,6 @@ func (UnimplementedQueryServiceHandler) OnlineQuery(context.Context, *connect.Re
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.OnlineQuery is not implemented"))
 }
 
-func (UnimplementedQueryServiceHandler) OnlineQueryFeather(context.Context, *connect.Request[v11.OnlineQueryFeatherRequest]) (*connect.Response[v11.OnlineQueryFeatherResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.OnlineQueryFeather is not implemented"))
+func (UnimplementedQueryServiceHandler) OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.OnlineQueryBulk is not implemented"))
 }
