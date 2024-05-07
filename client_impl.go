@@ -95,7 +95,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			}
 		}
 	}
-	data, err := params.ToBytes()
+	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
 	if err != nil {
 		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
 	}
