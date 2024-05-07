@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -118,7 +119,31 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 
 			versioned := fieldMeta.Tag.Get("versioned")
 			if versioned == "true" {
-
+				parts := strings.Split(updatedFqn, "_")
+				nameErr := fmt.Errorf("versioned feature must have a version suffix `VN` at the end of the attribute name, but found '%s' instead", fieldMeta.Name)
+				if len(parts) == 1 {
+					return nameErr
+				}
+				lastPart := parts[len(parts)-1]
+				if !strings.HasPrefix(lastPart, "v") {
+					return nameErr
+				}
+				version := lastPart[1:]
+				baseFqn := strings.Join(parts[:len(parts)-1], "_")
+				if version == "1" {
+					updatedFqn = baseFqn
+				} else {
+					updatedFqn = baseFqn + "@" + version
+				}
+			} else if strings.HasPrefix(versioned, "default(") && strings.HasSuffix(versioned, ")") {
+				version := versioned[len("default(") : len(versioned)-len(")")]
+				_, convertErr := strconv.Atoi(version)
+				if convertErr != nil {
+					return fmt.Errorf("Expected struct tag `versioned:\"default(N)\"` where N is an integer, but found %s instead", versioned)
+				}
+				if version != "1" {
+					updatedFqn = updatedFqn + "@" + version
+				}
 			}
 
 			if fieldMap != nil {

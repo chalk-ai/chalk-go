@@ -28,6 +28,11 @@ type goUser struct {
 	FamilyIncome *float32
 
 	CustomUnderscoresL90DP90DAustralia *int `name:"custom_underscores_l90d_p90d_australia"`
+
+	// Versioned features
+	Grade     *int `versioned:"default(2)"`
+	GradeV1   *int `versioned:"true"`
+	Gradebabe *int `versioned:"true"`
 }
 
 var testFeatures struct {
@@ -98,4 +103,16 @@ func TestInitFeatures(t *testing.T) {
 	customUnderscore, err := chalk.UnwrapFeature(testFeatures.User.CustomUnderscoresL90DP90DAustralia)
 	assert.Nil(t, err)
 	assert.Equal(t, "user.custom_underscores_l90d_p90d_australia", customUnderscore.Fqn)
+
+	grade, err := chalk.UnwrapFeature(testFeatures.User.Grade)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade@2", grade.Fqn)
+
+	gradeV1, err := chalk.UnwrapFeature(testFeatures.User.GradeV1)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade", gradeV1.Fqn)
+
+	gradeV2, err := chalk.UnwrapFeature(testFeatures.User.Gradebabe)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade@2", gradeV2.Fqn)
 }
