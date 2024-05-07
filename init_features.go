@@ -115,6 +115,12 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			if ptrErr := pointerCheck(f); ptrErr != nil {
 				return ptrErr
 			}
+
+			versioned := fieldMeta.Tag.Get("versioned")
+			if versioned == "true" {
+
+			}
+
 			if fieldMap != nil {
 				fieldMap[updatedFqn] = f
 			} else {
