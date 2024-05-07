@@ -53,7 +53,15 @@ func TestOnlineQueryBranch(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
-	res := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(res, nil)
+	req := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.SocureScore)
+	_, _ = client.OnlineQuery(req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
+
+	bulkBranchId := "bulk-branch-id"
+	bulkReq := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, userIds).
+		WithOutputs(testFeatures.User.SocureScore).
+		WithBranchId(bulkBranchId)
+	_, _ = client.OnlineQueryBulk(bulkReq)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
 }
