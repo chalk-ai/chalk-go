@@ -14,11 +14,24 @@ func (r OnlineQueryBulkResult) Release() {
 	}
 }
 
-func (p OnlineQueryParamsComplete) ToBytes() ([]byte, error) {
+type SerializationOptions struct {
+	ClientConfigBranchId string
+}
+
+func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]byte, error) {
+	branchId := p.underlying.BranchId
+	if len(options) > 1 {
+		return nil, fmt.Errorf("expected 1 SerializationOptions, got %d", len(options))
+	} else if len(options) == 1 {
+		if branchId == nil || *branchId == "" && options[0].ClientConfigBranchId != "" {
+			branchId = &options[0].ClientConfigBranchId
+		}
+	}
+
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
 		Outputs:  p.underlying.outputs,
 		Explain:  false,
-		BranchId: p.underlying.BranchId,
+		BranchId: branchId,
 	})
 }
 
