@@ -34,16 +34,15 @@ func (c *InterceptorHTTPClient) Get(url string) (*http.Response, error) {
 	return actualClient.Get(url)
 }
 
-// TestOnlineQueryAndQueryBulkBranch tests that when we
+// TestOnlineQueryAndQueryBulkBranchInRequest tests that when we
 // specify a branch ID in online query params, the request
 // includes the branch ID header.
-func TestOnlineQueryAndQueryBulkBranch(t *testing.T) {
+func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewCovertHTTPClient()
 	branchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
-		Branch:     branchId,
 	})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
@@ -53,7 +52,10 @@ func TestOnlineQueryAndQueryBulkBranch(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
-	req := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.SocureScore)
+	req := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, userIds[0]).
+		WithOutputs(testFeatures.User.SocureScore).
+		WithBranchId(branchId)
 	_, _ = client.OnlineQuery(req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 
