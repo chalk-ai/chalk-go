@@ -38,6 +38,9 @@ func (c *InterceptorHTTPClient) Get(url string) (*http.Response, error) {
 // specify a branch ID in online query params, the request
 // includes the branch ID header.
 func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
+	// TODO: This can be a non-integration test if we can make
+	//       the mock client return a fake JWT when auth is
+	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewCovertHTTPClient()
 	branchId := "test-branch-id"
@@ -66,4 +69,62 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 		WithBranchId(bulkBranchId)
 	_, _ = client.OnlineQueryBulk(bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
+}
+
+// TestOnlineQueryBranchInClient tests that when we
+// specify a branch ID in the client, the online query
+// request includes the branch ID header.
+func TestOnlineQueryBranchInClient(t *testing.T) {
+	// TODO: This can be a non-integration test if we can make
+	//       the mock client return a fake JWT when auth is
+	//       being performed.
+	SkipIfNotIntegrationTester(t)
+	httpClient := NewCovertHTTPClient()
+	branchId := "test-branch-id"
+	client, err := chalk.NewClient(&chalk.ClientConfig{
+		HTTPClient: httpClient,
+		Branch:     branchId,
+	})
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	userIds := []int{1}
+	err = chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+	req := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, userIds[0]).
+		WithOutputs(testFeatures.User.SocureScore)
+	_, _ = client.OnlineQuery(req, nil)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
+}
+
+// TestOnlineQueryBulkBranchInClient tests that when we
+// specify a branch ID in the client, the bulk online query
+// request includes the branch ID header.
+func TestOnlineQueryBulkBranchInClient(t *testing.T) {
+	// TODO: This can be a non-integration test if we can make
+	//       the mock client return a fake JWT when auth is
+	//       being performed.
+	SkipIfNotIntegrationTester(t)
+	httpClient := NewCovertHTTPClient()
+	branchId := "test-branch-id"
+	client, err := chalk.NewClient(&chalk.ClientConfig{
+		HTTPClient: httpClient,
+		Branch:     branchId,
+	})
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	userIds := []int{1}
+	err = chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+	req := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, userIds[0]).
+		WithOutputs(testFeatures.User.SocureScore)
+	_, _ = client.OnlineQueryBulk(req)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
