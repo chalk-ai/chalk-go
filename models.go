@@ -32,6 +32,10 @@ type OnlineQueryParams struct {
 	// Set by OnlineQueryParams.WithStaleness.
 	staleness map[string]time.Duration
 
+	// Whether input features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify the inputs.
+	versioned bool
+
 	builderErrors BuilderErrors
 
 	/*************
