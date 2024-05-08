@@ -13,10 +13,6 @@ func InitFeatures[T any](t *T) error {
 	return initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
-type initContext struct {
-	IsParentWindowedFeature bool
-}
-
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.

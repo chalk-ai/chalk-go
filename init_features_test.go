@@ -43,7 +43,7 @@ type goUser struct {
 	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
 
 	// Dataclass features
-	LatLng *goLatLng
+	LatLng *goLatLng `dataclass:"true"`
 }
 
 var testFeatures struct {

@@ -9,8 +9,6 @@ import (
 
 type Feature struct {
 	Fqn string
-
-	isWindowedPseudoFeature *bool
 }
 
 func DesuffixFqn(fqn string) string {
