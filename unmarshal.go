@@ -9,35 +9,69 @@ import (
 	"strings"
 )
 
-type fqnToField map[string]reflect.Value
+type fqnToFields map[string][]reflect.Value
 
 var FieldNotFoundError = errors.New("field not found")
 
-func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *reflect.Value) {
+func (f fqnToFields) addField(fqn string, field reflect.Value) {
+	if _, ok := f[fqn]; !ok {
+		f[fqn] = []reflect.Value{}
+	}
+	f[fqn] = append(f[fqn], field)
+}
+
+func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToFields) (*int, *reflect.Value, error) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]
 
 	lastSectionSplit := strings.Split(lastSection, "__")
 	if len(lastSectionSplit) < 2 {
-		return nil, nil
+		return nil, nil, nil
 	}
 	secondsStr := lastSectionSplit[1]
 	seconds, err := strconv.Atoi(secondsStr)
 	if err != nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	featureClassFqn := DesuffixFqn(fqn)
 	baseFeatureFqn := featureClassFqn + "." + lastSectionSplit[0]
-	baseFeatureField, ok := fieldMap[baseFeatureFqn]
+	baseFeatureFields, ok := fieldMap[baseFeatureFqn]
 	if !ok {
-		return nil, nil
+		return nil, nil, nil
 	}
 
-	return &seconds, &baseFeatureField
+	if len(baseFeatureFields) != 1 {
+		return nil, nil, fmt.Errorf(
+			"found more than one base feature field for windowed feature '%s', "+
+				"likely because the windowed feature is versioned but we currently "+
+				"do not support that",
+			fqn,
+		)
+	}
+
+	return &seconds, &baseFeatureFields[0], nil
 }
 
-func (t fqnToField) setFeature(fqn string, value any) error {
+func (t fqnToFields) setFeature(fqn string, value any) error {
+	// Multiple versioned features can share the same fqn.
+	// e.g. "Features.user.grade" and "Features.user.grade_v2" share
+	//      the same fqn "user.grade@2" if the default version is 2.
+
+	// Get the fields from the map
+	// 1. Handle the different types of fields
+	// 1a. WIndowed features
+	//     - if the first field is a windowed feature, every field is a windowed feature.
+	//     - if the first field is a windowed feautre, call setWindowedFeatureSingle on it.
+	// 1b. Windowed features
+	//     - if the first field is a
+
+	if fields, ok := t[fqn]; ok {
+
+	}
+}
+
+func (t fqnToFields) setFeatureSingle(fqn string, value any) error {
 	if field, fieldFound := t[fqn]; fieldFound && internal.IsDataclassPointer(field) {
 		structValue := field.Elem()
 		dataclassValues, ok := value.([]any)
@@ -59,7 +93,11 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 				return fmt.Errorf("error unmarshalling value '%s' for dataclass feature '%s': %w", pythonName, fqn, err)
 			}
 		}
-	} else if bucketDuration, baseFeatureField := getWindowedPseudofeatureMeta(fqn, t); bucketDuration != nil && baseFeatureField != nil {
+	} else if bucketDuration, baseFeatureField, windowedErr := getWindowedPseudofeatureMeta(fqn, t); (bucketDuration != nil && baseFeatureField != nil) || windowedErr != nil {
+		if windowedErr != nil {
+			return windowedErr
+		}
+
 		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
 
 		if baseFeatureField.Kind() != reflect.Map {
@@ -96,7 +134,7 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 }
 
 func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	fieldMap := make(fqnToField)
+	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	// Has a side effect: fieldMap will be populated.

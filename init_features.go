@@ -13,10 +13,14 @@ func InitFeatures[T any](t *T) error {
 	return initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
+type initContext struct {
+	IsParentWindowedFeature bool
+}
+
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) error {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToFields) error {
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
 	}
@@ -69,7 +73,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				return initErr
 			}
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -109,7 +113,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 			f.Set(newMap)
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			}
 		} else {
 			// BASE CASE.
@@ -149,7 +153,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':
