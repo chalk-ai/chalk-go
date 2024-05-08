@@ -144,6 +144,8 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				if version != "1" {
 					updatedFqn = updatedFqn + "@" + version
 				}
+			} else if versioned != "" {
+				return fmt.Errorf("Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` where N is an integer, but found '%s' instead", versioned)
 			}
 
 			if fieldMap != nil {
