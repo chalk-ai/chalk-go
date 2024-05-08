@@ -126,8 +126,8 @@ func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {
 	return startIdx + numBytesThatRepresentsLength, nil, length
 }
 
-func consumeMagicStr(startIdx int, bytes []byte) (int, error) {
-	magicBytes := []byte("CHALK_BYTE_TRANSMISSION")
+func consumeMagicStr(magicStr string, startIdx int, bytes []byte) (int, error) {
+	magicBytes := []byte(magicStr)
 	err := checkLen(startIdx, bytes, len(magicBytes))
 	if err != nil {
 		return startIdx, fmt.Errorf("failed to find enough bytes to consume magic string")
@@ -423,8 +423,25 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeade
 	return resultBytes, nil
 }
 
+func GetHeaderFromSerializedOnlineQueryBulkBody(body []byte) (map[string]any, error) {
+	idx, err := consumeMagicStr("chal1", 0, body)
+	if err != nil {
+		return nil, err
+	}
+
+	idx, err, header := consumeJsonAttrs(idx, body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to consume header: %w", err)
+	}
+	headerMap, ok := header.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("failed to cast header to map")
+	}
+	return headerMap, nil
+}
+
 func ChalkUnmarshal(body []byte) (map[string]any, error) {
-	idx, err := consumeMagicStr(0, body)
+	idx, err := consumeMagicStr("CHALK_BYTE_TRANSMISSION", 0, body)
 	if err != nil {
 		return nil, err
 	}

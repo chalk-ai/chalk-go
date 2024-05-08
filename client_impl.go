@@ -53,8 +53,8 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 			Body:                request,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
-			Branch:              request.Branch,
 			Versioned:           params.underlying.versioned,
+			Branch:              &request.Branch,
 		},
 	)
 	if err != nil {
@@ -96,7 +96,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			}
 		}
 	}
-	data, err := params.ToBytes()
+	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
 	if err != nil {
 		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
 	}
@@ -110,6 +110,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			EnvironmentOverride: params.underlying.EnvironmentId,
 			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
+			Branch:              params.underlying.BranchId,
 		},
 	)
 
@@ -238,6 +239,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			EnvironmentOverride: request.EnvironmentId,
 			PreviewDeploymentId: request.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
+			Branch:              params.underlying.BranchId,
 		},
 	)
 	if err != nil {
@@ -552,7 +554,7 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride string) http.Header {
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
@@ -560,8 +562,8 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
 
-	if branchOverride != "" {
-		headers.Set("X-Chalk-Branch-Id", branchOverride)
+	if branchOverride != nil && *branchOverride != "" {
+		headers.Set("X-Chalk-Branch-Id", *branchOverride)
 	} else if c.Branch != "" {
 		headers.Set("X-Chalk-Branch-Id", c.Branch)
 	}
