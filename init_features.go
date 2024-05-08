@@ -110,6 +110,9 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 					nilPointer.Set(reflect.Zero(nilPointer.Type()))
 					newMap.SetMapIndex(reflect.ValueOf(tag), nilPointer)
 				}
+				if fieldMap != nil {
+					fieldMap.addField(windowFqn, f)
+				}
 			}
 			f.Set(newMap)
 			if fieldMap != nil {

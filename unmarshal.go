@@ -101,22 +101,29 @@ func (t fqnToField) setFeature(fqn string, value any) error {
 				return fmt.Errorf("error unmarshalling value '%s' for dataclass feature '%s': %w", pythonName, fqn, err)
 			}
 		}
-	} else if bucketDuration, baseFeatureField, windowedErr := getWindowedPseudofeatureMeta(fqn, t); (bucketDuration != nil && baseFeatureField != nil) || windowedErr != nil {
-		if windowedErr != nil {
-			return windowedErr
+	} else if baseFeatureField, ok := t[fqn]; ok && field.Kind() == reflect.Map {
+		sections := strings.Split(fqn, ".")
+		lastSection := sections[len(sections)-1]
+		lastSectionSplit := strings.Split(lastSection, "__")
+		formatErr := fmt.Errorf(
+			"error unmarshalling value for windowed bucket feature %s: "+
+				"expected windowed bucket feature to have fqn of the format "+
+				"`{fqn}__{bucket seconds}__` ",
+			fqn,
+		)
+		if len(lastSectionSplit) < 2 {
+			return formatErr
 		}
-
-		tagValue := reflect.ValueOf(internal.FormatBucketDuration(*bucketDuration))
-
-		if baseFeatureField.Kind() != reflect.Map {
-			return fmt.Errorf(fmt.Sprintf("exception setting windowed feature '%s'", fqn))
+		secondsStr := lastSectionSplit[1]
+		seconds, err := strconv.Atoi(secondsStr)
+		if err != nil {
+			return formatErr
 		}
-
+		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
 		reflectValue, err := internal.GetReflectValue(value, baseFeatureField.Type().Elem().Elem())
 		if err != nil {
-			return fmt.Errorf("error unmarshalling value for windowed feature %s: %w", fqn, err)
+			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
 		}
-
 		baseFeatureField.SetMapIndex(tagValue, reflectValue)
 	} else {
 		field, fieldFound = t[fqn]
