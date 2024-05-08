@@ -33,6 +33,9 @@ type goUser struct {
 	Grade   *int `versioned:"default(2)"`
 	GradeV1 *int `versioned:"true"`
 	GradeV2 *int `versioned:"true"`
+
+	// Windowed features
+	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
 }
 
 var testFeatures struct {
@@ -115,4 +118,16 @@ func TestInitFeatures(t *testing.T) {
 	gradeV2, err := chalk.UnwrapFeature(testFeatures.User.GradeV2)
 	assert.Nil(t, err)
 	assert.Equal(t, "user.grade@2", gradeV2.Fqn)
+
+	avgSpend1m, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["1m"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__60__", avgSpend1m.Fqn)
+
+	avgSpend5m, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["5m"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__300__", avgSpend5m.Fqn)
+
+	avgSpend1h, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["1h"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__3600__", avgSpend1h.Fqn)
 }
