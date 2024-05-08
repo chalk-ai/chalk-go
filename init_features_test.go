@@ -8,6 +8,11 @@ import (
 
 var initFeaturesErr error
 
+type goLatLng struct {
+	Lat *float64 `dataclass_field:"true"`
+	Lng *float64 `dataclass_field:"true"`
+}
+
 type goAddress struct {
 	Id   *string
 	City *string
@@ -36,6 +41,9 @@ type goUser struct {
 
 	// Windowed features
 	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
+
+	// Dataclass features
+	LatLng *goLatLng
 }
 
 var testFeatures struct {
@@ -130,4 +138,12 @@ func TestInitFeatures(t *testing.T) {
 	avgSpend1h, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["1h"])
 	assert.Nil(t, err)
 	assert.Equal(t, "user.avg_spend__3600__", avgSpend1h.Fqn)
+
+	latLngLat, err := chalk.UnwrapFeature(testFeatures.User.LatLng.Lat)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.lat_lng", latLngLat.Fqn)
+
+	latLngLng, err := chalk.UnwrapFeature(testFeatures.User.LatLng.Lng)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.lat_lng", latLngLng.Fqn)
 }

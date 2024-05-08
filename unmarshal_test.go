@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type unmarshalLatLng struct {
+	Lat *float64 `dataclass_field:"true"`
+	Lng *float64 `dataclass_field:"true"`
+}
+
 type unmarshalUser struct {
 	Id *string
 
@@ -16,6 +21,9 @@ type unmarshalUser struct {
 
 	// Windowed features
 	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
+
+	// Dataclass features
+	LatLng *unmarshalLatLng
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
@@ -96,4 +104,31 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 	assert.Equal(t, 60.0, *user.AvgSpend["1m"])
 	assert.Equal(t, 300.0, *user.AvgSpend["5m"])
 	assert.Equal(t, 3600.0, *user.AvgSpend["1h"])
+}
+
+func TestUnmarshalDataclassFeatures(t *testing.T) {
+	data := []FeatureResult{
+		{
+			Field:     "unmarshal_user.lat_lng",
+			Value:     []any{1.0, 2.0},
+			Pkey:      "khjdsfjhdksjfh",
+			Timestamp: time.Time{},
+			Meta:      nil,
+			Error:     nil,
+		},
+	}
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	user := unmarshalUser{}
+	unmarshalErr := result.UnmarshalInto(&user)
+	if unmarshalErr != nil {
+		t.Fatal(unmarshalErr)
+	}
+	assert.Nil(t, unmarshalErr)
+	assert.Equal(t, 1.0, *user.LatLng.Lat)
+	assert.Equal(t, 2.0, *user.LatLng.Lng)
 }

@@ -25,7 +25,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		structValue := field.Elem()
 		dataclassValues, ok := value.([]any)
 		if !ok {
-			return fmt.Errorf("error unmarshalling value for dataclass feature %s: value is not a slice", fqn)
+			return fmt.Errorf("error unmarshalling value for dataclass feature %s: value is not an `any` slice", fqn)
 		}
 		if len(dataclassValues) != structValue.NumField() {
 			return fmt.Errorf("error unmarshalling value for dataclass feature %s: expected %d fields, got %s", fqn, structValue.NumField(), dataclassValues)
@@ -130,7 +130,7 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 				return &ClientError{Message: fieldError}
 			} else {
-				return &ClientError{Message: fmt.Sprintf("Unknown error unmarshaling feature '%s' into the struct '%s'.", fqn, structName)}
+				return &ClientError{Message: fmt.Errorf("error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName, err).Error()}
 			}
 
 		}
