@@ -9,18 +9,25 @@ import (
 	"strings"
 )
 
-type fqnToFields map[string][]reflect.Value
+type fqnToField map[string]reflect.Value
 
 var FieldNotFoundError = errors.New("field not found")
 
-func (f fqnToFields) addField(fqn string, field reflect.Value) {
-	if _, ok := f[fqn]; !ok {
-		f[fqn] = []reflect.Value{}
-	}
-	f[fqn] = append(f[fqn], field)
+func (f fqnToField) addField(fqn string, value reflect.Value) {
+	//if _, ok := f[fqn]; !ok {
+	//	f[fqn] = []reflect.Value{}
+	//}
+	//f[fqn] = append(f[fqn], field)
+
+	//field, ok := f[fqn]
+	//if !ok {
+	//	f[fqn] = value
+	//	return
+	//}
+	f[fqn] = value
 }
 
-func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToFields) (*int, *reflect.Value, error) {
+func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToField) (*int, *reflect.Value, error) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]
 
@@ -36,24 +43,24 @@ func getWindowedPseudofeatureMeta(fqn string, fieldMap fqnToFields) (*int, *refl
 
 	featureClassFqn := DesuffixFqn(fqn)
 	baseFeatureFqn := featureClassFqn + "." + lastSectionSplit[0]
-	baseFeatureFields, ok := fieldMap[baseFeatureFqn]
+	baseFeatureField, ok := fieldMap[baseFeatureFqn]
 	if !ok {
 		return nil, nil, nil
 	}
 
-	if len(baseFeatureFields) != 1 {
-		return nil, nil, fmt.Errorf(
-			"found more than one base feature field for windowed feature '%s', "+
-				"likely because the windowed feature is versioned but we currently "+
-				"do not support that",
-			fqn,
-		)
-	}
+	//if len(baseFeatureField) != 1 {
+	//	return nil, nil, fmt.Errorf(
+	//		"found more than one base feature field for windowed feature '%s', "+
+	//			"likely because the windowed feature is versioned but we currently "+
+	//			"do not support that",
+	//		fqn,
+	//	)
+	//}
 
-	return &seconds, &baseFeatureFields[0], nil
+	return &seconds, &baseFeatureField, nil
 }
 
-func (t fqnToFields) setFeature(fqn string, value any) error {
+func (t fqnToField) setFeatureNew(fqn string, value any) error {
 	// Multiple versioned features can share the same fqn.
 	// e.g. "Features.user.grade" and "Features.user.grade_v2" share
 	//      the same fqn "user.grade@2" if the default version is 2.
@@ -65,13 +72,14 @@ func (t fqnToFields) setFeature(fqn string, value any) error {
 	//     - if the first field is a windowed feautre, call setWindowedFeatureSingle on it.
 	// 1b. Windowed features
 	//     - if the first field is a
-
-	if fields, ok := t[fqn]; ok {
-
-	}
+	//
+	//if fields, ok := t[fqn]; ok {
+	//
+	//}
+	return nil
 }
 
-func (t fqnToFields) setFeatureSingle(fqn string, value any) error {
+func (t fqnToField) setFeature(fqn string, value any) error {
 	if field, fieldFound := t[fqn]; fieldFound && internal.IsDataclassPointer(field) {
 		structValue := field.Elem()
 		dataclassValues, ok := value.([]any)
@@ -134,7 +142,7 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 }
 
 func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	fieldMap := make(fqnToFields)
+	fieldMap := make(fqnToField)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	// Has a side effect: fieldMap will be populated.
