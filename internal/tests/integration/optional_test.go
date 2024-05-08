@@ -6,16 +6,6 @@ import (
 	"testing"
 )
 
-type user struct {
-	Id               *int
-	FullNameOptional *string
-	SocureScore      *float64
-}
-
-var testFeatures struct {
-	User *user
-}
-
 func TestQueryOptionalFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient()
