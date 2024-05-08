@@ -30,9 +30,9 @@ type goUser struct {
 	CustomUnderscoresL90DP90DAustralia *int `name:"custom_underscores_l90d_p90d_australia"`
 
 	// Versioned features
-	Grade     *int `versioned:"default(2)"`
-	GradeV1   *int `versioned:"true"`
-	Gradebabe *int `versioned:"true"`
+	Grade   *int `versioned:"default(2)"`
+	GradeV1 *int `versioned:"true"`
+	GradeV2 *int `versioned:"true"`
 }
 
 var testFeatures struct {
@@ -112,7 +112,7 @@ func TestInitFeatures(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "user.grade", gradeV1.Fqn)
 
-	gradeV2, err := chalk.UnwrapFeature(testFeatures.User.Gradebabe)
+	gradeV2, err := chalk.UnwrapFeature(testFeatures.User.GradeV2)
 	assert.Nil(t, err)
 	assert.Equal(t, "user.grade@2", gradeV2.Fqn)
 }
