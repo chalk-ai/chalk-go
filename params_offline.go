@@ -115,6 +115,7 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 			p.builderErrors = append(p.builderErrors, &builderError)
 			return p
 		}
+		p.versioned = true
 		key = castedFeature.Fqn
 	}
 	p.inputs[key] = append(p.inputs[key], timestampedValues...)
@@ -144,6 +145,7 @@ func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 				p.builderErrors = append(p.builderErrors, &builderError)
 				return p
 			}
+			p.versioned = true
 			key = castedFeature.Fqn
 		}
 		p.outputs = append(p.outputs, key)
@@ -174,6 +176,7 @@ func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryPar
 				p.builderErrors = append(p.builderErrors, &builderError)
 				return p
 			}
+			p.versioned = true
 			key = castedFeature.Fqn
 		}
 		p.requiredOutputs = append(p.requiredOutputs, key)

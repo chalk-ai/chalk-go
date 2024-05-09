@@ -1,46 +1,11 @@
 package integration
 
 import (
-	"bytes"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
-	"io"
-	"net/http"
 	"testing"
 )
-
-type Intercepted struct {
-	Header http.Header
-	Body   []byte
-}
-
-type InterceptorHTTPClient struct {
-	Intercepted Intercepted
-}
-
-func NewCovertHTTPClient() *InterceptorHTTPClient {
-	return &InterceptorHTTPClient{}
-}
-
-func (c *InterceptorHTTPClient) Do(req *http.Request) (*http.Response, error) {
-	bodyBytes, bodyBytesErr := io.ReadAll(req.Body)
-	if bodyBytesErr != nil {
-		return nil, bodyBytesErr
-	}
-	req.Body.Close()
-	c.Intercepted = Intercepted{
-		Header: req.Header,
-		Body:   bodyBytes,
-	}
-	body := io.NopCloser(bytes.NewBufferString(`{"data": {"something": "exciting"}}`))
-	return &http.Response{StatusCode: 200, Body: body}, nil
-}
-
-func (c *InterceptorHTTPClient) Get(url string) (*http.Response, error) {
-	actualClient := &http.Client{}
-	return actualClient.Get(url)
-}
 
 // TestOnlineQueryAndQueryBulkBranchInRequest tests that when we
 // specify a branch ID in online query params, the request
@@ -50,7 +15,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewCovertHTTPClient()
+	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -87,7 +52,7 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewCovertHTTPClient()
+	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -116,7 +81,7 @@ func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewCovertHTTPClient()
+	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -142,7 +107,7 @@ func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 // header that we serialize includes the branch ID header.
 func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewCovertHTTPClient()
+	httpClient := NewInterceptorHTTPClient()
 	expectedBranchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -172,7 +137,7 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 // header that we serialize includes the branch ID header.
 func TestParamsBranchSetInFeatherHeader(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewCovertHTTPClient()
+	httpClient := NewInterceptorHTTPClient()
 	expectedBranchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,

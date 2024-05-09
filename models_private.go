@@ -98,6 +98,7 @@ type sendRequestParams struct {
 
 	EnvironmentOverride string
 	PreviewDeploymentId string
+	Versioned           bool
 	Branch              *string
 }
 

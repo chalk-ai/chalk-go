@@ -8,6 +8,11 @@ import (
 
 var initFeaturesErr error
 
+type goLatLng struct {
+	Lat *float64 `dataclass_field:"true"`
+	Lng *float64 `dataclass_field:"true"`
+}
+
 type goAddress struct {
 	Id   *string
 	City *string
@@ -28,6 +33,17 @@ type goUser struct {
 	FamilyIncome *float32
 
 	CustomUnderscoresL90DP90DAustralia *int `name:"custom_underscores_l90d_p90d_australia"`
+
+	// Versioned features
+	Grade   *int `versioned:"default(2)"`
+	GradeV1 *int `versioned:"true"`
+	GradeV2 *int `versioned:"true"`
+
+	// Windowed features
+	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
+
+	// Dataclass features
+	LatLng *goLatLng `dataclass:"true"`
 }
 
 var testFeatures struct {
@@ -98,4 +114,36 @@ func TestInitFeatures(t *testing.T) {
 	customUnderscore, err := chalk.UnwrapFeature(testFeatures.User.CustomUnderscoresL90DP90DAustralia)
 	assert.Nil(t, err)
 	assert.Equal(t, "user.custom_underscores_l90d_p90d_australia", customUnderscore.Fqn)
+
+	grade, err := chalk.UnwrapFeature(testFeatures.User.Grade)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade@2", grade.Fqn)
+
+	gradeV1, err := chalk.UnwrapFeature(testFeatures.User.GradeV1)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade", gradeV1.Fqn)
+
+	gradeV2, err := chalk.UnwrapFeature(testFeatures.User.GradeV2)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.grade@2", gradeV2.Fqn)
+
+	avgSpend1m, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["1m"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__60__", avgSpend1m.Fqn)
+
+	avgSpend5m, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["5m"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__300__", avgSpend5m.Fqn)
+
+	avgSpend1h, err := chalk.UnwrapFeature(testFeatures.User.AvgSpend["1h"])
+	assert.Nil(t, err)
+	assert.Equal(t, "user.avg_spend__3600__", avgSpend1h.Fqn)
+
+	latLngLat, err := chalk.UnwrapFeature(testFeatures.User.LatLng.Lat)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.lat_lng", latLngLat.Fqn)
+
+	latLngLng, err := chalk.UnwrapFeature(testFeatures.User.LatLng.Lng)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.lat_lng", latLngLng.Fqn)
 }
