@@ -175,10 +175,7 @@ type FeatureResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
-//     are not nil pointers, and returns a ClientError otherwise.
-//
-//  3. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
