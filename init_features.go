@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -15,7 +16,7 @@ func InitFeatures[T any](t *T) error {
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToField) error {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToFields) error {
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
 	}
@@ -68,7 +69,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				return initErr
 			}
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -105,18 +106,53 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 					nilPointer.Set(reflect.Zero(nilPointer.Type()))
 					newMap.SetMapIndex(reflect.ValueOf(tag), nilPointer)
 				}
+				if fieldMap != nil {
+					fieldMap.addField(windowFqn, f)
+				}
 			}
 			f.Set(newMap)
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			}
 		} else {
 			// BASE CASE.
 			if ptrErr := pointerCheck(f); ptrErr != nil {
 				return ptrErr
 			}
+
+			versioned := fieldMeta.Tag.Get("versioned")
+			if versioned == "true" {
+				parts := strings.Split(updatedFqn, "_")
+				nameErr := fmt.Errorf("versioned feature must have a version suffix `VN` at the end of the attribute name, but found '%s' instead", fieldMeta.Name)
+				if len(parts) == 1 {
+					return nameErr
+				}
+				lastPart := parts[len(parts)-1]
+				if !strings.HasPrefix(lastPart, "v") {
+					return nameErr
+				}
+				version := lastPart[1:]
+				baseFqn := strings.Join(parts[:len(parts)-1], "_")
+				if version == "1" {
+					updatedFqn = baseFqn
+				} else {
+					updatedFqn = baseFqn + "@" + version
+				}
+			} else if strings.HasPrefix(versioned, "default(") && strings.HasSuffix(versioned, ")") {
+				version := versioned[len("default(") : len(versioned)-len(")")]
+				_, convertErr := strconv.Atoi(version)
+				if convertErr != nil {
+					return fmt.Errorf("Expected struct tag `versioned:\"default(N)\"` where N is an integer, but found %s instead", versioned)
+				}
+				if version != "1" {
+					updatedFqn = updatedFqn + "@" + version
+				}
+			} else if versioned != "" {
+				return fmt.Errorf("Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` where N is an integer, but found '%s' instead", versioned)
+			}
+
 			if fieldMap != nil {
-				fieldMap[updatedFqn] = f
+				fieldMap.addField(updatedFqn, f)
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':

@@ -53,6 +53,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 			Body:                request,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
+			Versioned:           params.underlying.versioned,
 			Branch:              &request.Branch,
 		},
 	)
@@ -108,6 +109,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			Response:            &response,
 			EnvironmentOverride: params.underlying.EnvironmentId,
 			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
+			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
 		},
 	)
@@ -236,6 +238,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			Response:            &serializedResponse,
 			EnvironmentOverride: request.EnvironmentId,
 			PreviewDeploymentId: request.PreviewDeploymentId,
+			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
 		},
 	)
@@ -471,6 +474,9 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 	if c.jwt != nil && c.jwt.Token != "" {
 		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	}
+	if args.Versioned {
+		request.Header.Set("X-Chalk-Features-Versioned", "true")
 	}
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {

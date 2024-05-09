@@ -16,24 +16,6 @@ import (
 // obtain an object of type [OnlineQueryParamsComplete]
 // that you can pass into Client.OnlineQuery.
 type OnlineQueryParams struct {
-	/**************
-	 PRIVATE FIELDS
-	***************/
-
-	// The features for which there are known values, mapped to those values.
-	// Set by OnlineQueryParams.WithInput.
-	inputs map[string]any
-
-	// The features that you'd like to compute from the inputs.
-	// Set by OnlineQueryParams.WithOutputs.
-	outputs []string
-
-	// Maximum staleness overrides for any output features or intermediate features.
-	// Set by OnlineQueryParams.WithStaleness.
-	staleness map[string]time.Duration
-
-	builderErrors BuilderErrors
-
 	/*************
 	 PUBLIC FIELDS
 	**************/
@@ -69,6 +51,28 @@ type OnlineQueryParams struct {
 
 	// The branch id
 	BranchId *string
+
+	/**************
+	 PRIVATE FIELDS
+	***************/
+
+	// The features for which there are known values, mapped to those values.
+	// Set by OnlineQueryParams.WithInput.
+	inputs map[string]any
+
+	// The features that you'd like to compute from the inputs.
+	// Set by OnlineQueryParams.WithOutputs.
+	outputs []string
+
+	// Maximum staleness overrides for any output features or intermediate features.
+	// Set by OnlineQueryParams.WithStaleness.
+	staleness map[string]time.Duration
+
+	builderErrors BuilderErrors
+
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs.
+	versioned bool
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -364,6 +368,9 @@ type OfflineQueryParams struct {
 	outputs         []string
 	requiredOutputs []string
 	builderErrors   BuilderErrors
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs.
+	versioned bool
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.

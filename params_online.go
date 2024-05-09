@@ -90,6 +90,7 @@ func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQuery
 			p.builderErrors = append(p.builderErrors, &builderError)
 			return p
 		}
+		p.versioned = true
 		key = castedFeature.Fqn
 	}
 
@@ -120,6 +121,7 @@ func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
 				p.builderErrors = append(p.builderErrors, &builderError)
 				return p
 			}
+			p.versioned = true
 			key = castedFeature.Fqn
 		}
 		p.outputs = append(p.outputs, key)
@@ -154,6 +156,7 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 			p.builderErrors = append(p.builderErrors, &builderError)
 			return p
 		}
+		p.versioned = true
 		key = castedFeature.Fqn
 	}
 	p.staleness[key] = duration
