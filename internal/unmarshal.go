@@ -111,7 +111,7 @@ func convertSlice(sliceElemKind reflect.Kind, value any) (any, error) {
 	case reflect.Bool:
 		return convertSliceyNonNumbers[bool](anySlice)
 	default:
-		return nil, fmt.Errorf("unsupported slice type '%s' when converting number slice", sliceElemKind)
+		return nil, fmt.Errorf("unsupported slice type '%s' when converting slice", sliceElemKind)
 	}
 }
 
@@ -141,12 +141,28 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
+		// FIXME: This needs to recurse
+		// The element type might be:
+		// - primitive
+		// - dataclass
+		// - NOT FeaturesClass
 		value, convErr = convertSlice(elemType.Elem().Kind(), value)
 		if convErr != nil {
 			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
+		// Do a switch on the type of the value and then validate it with the elemType
+		// to ensure that the value is of the correct type.
+		// FIXME: Validate for all types
+		switch elemType.Kind() {
+		case reflect.String:
+			strVal, ok := value.(string)
+			if !ok {
+				return reflect.Value{}, fmt.Errorf("error getting reflect value: expected string, got %s", reflect.TypeOf(value))
+			}
+			return getPointerToCopied(elemType, strVal), nil
+		}
 		return getPointerToCopied(elemType, value), nil
 	}
 }

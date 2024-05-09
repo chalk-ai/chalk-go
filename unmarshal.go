@@ -67,6 +67,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		}
 		field.SetMapIndex(tagValue, reflectValue)
 	} else {
+		// Do some validation of the types
 		reflectValue, err := internal.GetReflectValue(value, field.Type().Elem())
 		if err != nil {
 			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
@@ -93,14 +94,14 @@ func (f fqnToFields) setFeature(fqn string, value any) error {
 }
 
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
-	fqnToValueMap := map[Fqn]any{}
+	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range result.Data {
-		fqnToValueMap[featureResult.Field] = featureResult.Value
+		fqnToValue[featureResult.Field] = featureResult.Value
 	}
-	return UnmarshalInto(resultHolder, fqnToValueMap, result.expectedOutputs)
+	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
-func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
+func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
@@ -110,7 +111,7 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 		return &ClientError{Message: "exception occurred while initializing result holder"}
 	}
 
-	for fqn, value := range fqnToValueMap {
+	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
 			// TODO: Add validation for optional fields

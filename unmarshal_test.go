@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"fmt"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -131,4 +132,31 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 	assert.Nil(t, unmarshalErr)
 	assert.Equal(t, 1.0, *user.LatLng.Lat)
 	assert.Equal(t, 2.0, *user.LatLng.Lng)
+}
+
+func TestUnmarshalWrongType(t *testing.T) {
+	data := []FeatureResult{
+		{
+			Field:     "unmarshal_user.id",
+			Value:     1,
+			Pkey:      "abc",
+			Timestamp: time.Time{},
+			Meta:      nil,
+			Error:     nil,
+		},
+	}
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	user := unmarshalUser{}
+	unmarshalErr := result.UnmarshalInto(&user)
+	if unmarshalErr == nil {
+		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Id)
+		t.Fatal("Expected an error when unmarshalling the wrong type into a struct field")
+	} else {
+		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
+	}
 }
