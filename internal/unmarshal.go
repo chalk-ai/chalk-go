@@ -154,7 +154,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	} else {
 		// Do a switch on the type of the value and then validate it with the elemType
 		// to ensure that the value is of the correct type.
-		// FIXME: Validate for all types
+		// TODO: Validate for all types
 		switch elemType.Kind() {
 		case reflect.String:
 			strVal, ok := value.(string)

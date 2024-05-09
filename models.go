@@ -297,6 +297,39 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
+func (result *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) (returnErr *ClientError) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = &ClientError{Message: fmt.Sprintf("exception occurred while unmarshalling result: %s", detail)}
+		}
+	}()
+
+	value := reflect.ValueOf(resultHolders)
+	kind := value.Type().Kind()
+	if kind != reflect.Slice && kind != reflect.Array {
+		return &ClientError{Message: fmt.Sprintf("argument should be a slice of structs, got '%s' instead", kind.String())}
+	}
+
+	elemKind := value.Type().Elem().Kind()
+	if elemKind != reflect.Struct {
+		return &ClientError{Message: fmt.Sprintf("argument should be a slice of structs, got a slice of '%s' instead", elemKind.String())}
+	}
+
+	castHolder, ok := resultHolders.([]any)
+	if !ok {
+		return &ClientError{Message: "failed to cast result holders to []any"}
+	}
+	
+	return result.unmarshal(castHolder)
+}
+
 // UploadFeaturesParams defines the parameters
 // that help you execute an upload features request.
 type UploadFeaturesParams struct {
