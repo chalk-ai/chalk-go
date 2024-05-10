@@ -297,37 +297,11 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
-func (result *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) (returnErr *ClientError) {
-	defer func() {
-		if panicContents := recover(); panicContents != nil {
-			detail := "details irretrievable"
-			switch typedContents := panicContents.(type) {
-			case *reflect.ValueError:
-				detail = typedContents.Error()
-			case string:
-				detail = typedContents
-			}
-			returnErr = &ClientError{Message: fmt.Sprintf("exception occurred while unmarshalling result: %s", detail)}
-		}
-	}()
-
-	value := reflect.ValueOf(resultHolders)
-	kind := value.Type().Kind()
-	if kind != reflect.Slice && kind != reflect.Array {
-		return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct , got '%s' instead", kind)}
+func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
+	if err := r.unmarshal(resultHolders); err != nil {
+		return &ClientError{Message: err.Error()}
 	}
-
-	anyHolders := make([]any, value.Len())
-	for i := 0; i < value.Len(); i++ {
-		if value.Index(i).Kind() != reflect.Ptr {
-			return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct, got a slice of '%s' instead", value.Index(i).Kind())}
-		}
-		if value.Index(i).Type().Elem().Kind() != reflect.Struct {
-			return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct, got a slice of pointers to a '%s' instead", value.Index(i).Elem().Kind())}
-		}
-		anyHolders[i] = value.Index(i).Interface()
-	}
-	return result.unmarshal(anyHolders)
+	return nil
 }
 
 // UploadFeaturesParams defines the parameters

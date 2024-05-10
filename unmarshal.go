@@ -104,18 +104,60 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
-func (result *OnlineQueryBulkResult) unmarshal(resultHolders []any) *ClientError {
-	rows, scalarsErr := extractFeaturesFromTable(result.ScalarsTable)
-	if scalarsErr != nil {
-		return &ClientError{scalarsErr.Error()}
+func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = fmt.Errorf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
 	}
-	for i, row := range rows {
-		// resultHolders holds a slice of structs,
-		// so here we pass the pointer to each struct
-		if err := UnmarshalInto(resultHolders[i], row, nil); err != nil {
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice && slice.Kind() != reflect.Array {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceType := slice.Type().Elem()
+	if sliceType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceType.Kind(),
+		)
+	}
+
+	rows, scalarsErr := extractFeaturesFromTable(r.ScalarsTable)
+	if scalarsErr != nil {
+		return scalarsErr
+	}
+
+	for _, row := range rows {
+		res := reflect.New(sliceType)
+		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
 			return err
 		}
+		internal.AppendToSlice(resultHolders, res.Elem())
 	}
+
 	return nil
 }
 
@@ -175,16 +217,6 @@ func extractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
-
-	if structValue.Kind() == reflect.Interface && structValue.Elem().Kind() == reflect.Ptr && structValue.Elem().Type().Elem().Kind() == reflect.Struct {
-		// When the struct is passed in as an `any`,
-		// in the case of unmarshalling into an OnlineQueryBulk
-		// result holder that was cast from `[]*MyFeaturesClass` to `[]any`,
-		// So here we unwrap twice, first to access the pointer underneath
-		// the interface, and then to access the object pointed to by the
-		// pointer.
-		structValue = structValue.Elem().Elem()
-	}
 
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
