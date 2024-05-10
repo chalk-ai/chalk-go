@@ -196,6 +196,8 @@ func extractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 					m[name] = arr.Value(i)
 				case *array.Boolean:
 					m[name] = arr.Value(i)
+				case *array.LargeList:
+					// FIXME: Deserialize lists
 				case *array.Struct:
 					// FIXME: Deserialize Structs
 				case *array.Date32:
@@ -246,7 +248,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			} else {
 				return &ClientError{Message: fmt.Errorf("error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName, err).Error()}
 			}
-
 		}
 	}
 	for _, expectedOutput := range expectedOutputs {
