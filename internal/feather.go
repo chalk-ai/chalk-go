@@ -14,7 +14,18 @@ import (
 	"reflect"
 )
 
+// inputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+	record, recordErr := ColumnMapToRecord(inputs)
+	if recordErr != nil {
+		return nil, recordErr
+	}
+	defer record.Release()
+	return recordToBytes(record)
+}
+
+// ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
+func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	golangToArrowType := map[reflect.Kind]arrow.DataType{
 		reflect.Int:     arrow.PrimitiveTypes.Int64,
 		reflect.Int8:    arrow.PrimitiveTypes.Int8,
@@ -113,7 +124,7 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())
 		}
 	}
-	return recordToBytes(recordBuilder.NewRecord())
+	return recordBuilder.NewRecord(), nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {
@@ -275,7 +286,6 @@ func recordToBytes(record arrow.Record) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
 	}
-	record.Release()
 
 	return bws.Bytes(), nil
 }

@@ -160,3 +160,41 @@ func TestUnmarshalWrongType(t *testing.T) {
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
 }
+
+// Test primitives unmarshalling only.
+func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.String: []string{"abc", "def"},
+		testRootFeatures.AllTypes.Float:  []float64{1.0, 2.0},
+		testRootFeatures.AllTypes.Bool:   []bool{true, false},
+		testRootFeatures.AllTypes.Int:    []int{1, 2},
+		//testRootFeatures.AllTypes.Timestamp: []time.Time{
+		//	time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
+		//},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, "abc", *resultHolders[0].String)
+	assert.Equal(t, "def", *resultHolders[1].String)
+	assert.Equal(t, 1.0, *resultHolders[0].Float)
+	assert.Equal(t, 2.0, *resultHolders[1].Float)
+	assert.Equal(t, true, *resultHolders[0].Bool)
+	assert.Equal(t, false, *resultHolders[1].Bool)
+	assert.Equal(t, int64(1), *resultHolders[0].Int)
+	assert.Equal(t, int64(2), *resultHolders[1].Int)
+}
