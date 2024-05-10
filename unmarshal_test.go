@@ -170,9 +170,9 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 		testRootFeatures.AllTypes.Float:  []float64{1.0, 2.0},
 		testRootFeatures.AllTypes.Bool:   []bool{true, false},
 		testRootFeatures.AllTypes.Int:    []int{1, 2},
-		//testRootFeatures.AllTypes.Timestamp: []time.Time{
-		//	time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
-		//},
+		testRootFeatures.AllTypes.Timestamp: []time.Time{
+			time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
+		},
 	}
 	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
 	assert.Nil(t, scalarsErr)

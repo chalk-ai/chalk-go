@@ -20,7 +20,7 @@ func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table,
 	}
 	record, recordErr := internal.ColumnMapToRecord(fqnToValues)
 	if recordErr != nil {
-		return nil, fmt.Errorf("Error converting col")
+		return nil, fmt.Errorf("error converting a map of column values to an Arrow Record: %w", recordErr)
 	}
 	defer record.Release()
 	return array.NewTableFromRecords(record.Schema(), []arrow.Record{record}), nil

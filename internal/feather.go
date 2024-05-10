@@ -14,6 +14,23 @@ import (
 	"reflect"
 )
 
+var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
+	reflect.Int:     arrow.PrimitiveTypes.Int64,
+	reflect.Int8:    arrow.PrimitiveTypes.Int8,
+	reflect.Int16:   arrow.PrimitiveTypes.Int16,
+	reflect.Int32:   arrow.PrimitiveTypes.Int32,
+	reflect.Int64:   arrow.PrimitiveTypes.Int64,
+	reflect.Uint:    arrow.PrimitiveTypes.Uint64,
+	reflect.Uint8:   arrow.PrimitiveTypes.Uint8,
+	reflect.Uint16:  arrow.PrimitiveTypes.Uint16,
+	reflect.Uint32:  arrow.PrimitiveTypes.Uint32,
+	reflect.Uint64:  arrow.PrimitiveTypes.Uint64,
+	reflect.Float32: arrow.PrimitiveTypes.Float32,
+	reflect.Float64: arrow.PrimitiveTypes.Float64,
+	reflect.String:  arrow.BinaryTypes.LargeString,
+	reflect.Bool:    arrow.FixedWidthTypes.Boolean,
+}
+
 // inputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	record, recordErr := ColumnMapToRecord(inputs)
@@ -24,25 +41,36 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	return recordToBytes(record)
 }
 
+func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
+	kind := value.Kind()
+	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
+		return arrowType, nil
+	} else if kind == reflect.Slice || kind == reflect.Array {
+		elemKind := value.Elem()
+		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
+			return arrow.ListOf(elemType), nil
+		} else {
+			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
+				"but primitives is currently unsupported, found type: %s",
+				elemKind,
+			)
+		}
+	} else if kind == reflect.Struct {
+		if kind.String() != "time.Time" {
+			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
+				"but primitives is currently unsupported, found type: %s",
+				kind,
+			)
+		}
+		// FIXME: Implement this
+		return nil, fmt.Errorf("arrow conversion failed - `Time` not yet supported")
+	} else {
+		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
+	}
+}
+
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
-	golangToArrowType := map[reflect.Kind]arrow.DataType{
-		reflect.Int:     arrow.PrimitiveTypes.Int64,
-		reflect.Int8:    arrow.PrimitiveTypes.Int8,
-		reflect.Int16:   arrow.PrimitiveTypes.Int16,
-		reflect.Int32:   arrow.PrimitiveTypes.Int32,
-		reflect.Int64:   arrow.PrimitiveTypes.Int64,
-		reflect.Uint:    arrow.PrimitiveTypes.Uint64,
-		reflect.Uint8:   arrow.PrimitiveTypes.Uint8,
-		reflect.Uint16:  arrow.PrimitiveTypes.Uint16,
-		reflect.Uint32:  arrow.PrimitiveTypes.Uint32,
-		reflect.Uint64:  arrow.PrimitiveTypes.Uint64,
-		reflect.Float32: arrow.PrimitiveTypes.Float32,
-		reflect.Float64: arrow.PrimitiveTypes.Float64,
-		reflect.String:  arrow.BinaryTypes.LargeString,
-		reflect.Bool:    arrow.FixedWidthTypes.Boolean,
-	}
-
 	for k, v := range inputs {
 		if reflect.TypeOf(v).Kind() != reflect.Array && reflect.TypeOf(v).Kind() != reflect.Slice {
 			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be an array, instead found type '%s' for feature '%s': ", reflect.TypeOf(v).Kind(), k)
@@ -61,9 +89,11 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	// Create the input values
 	var schema []arrow.Field
 	for k, v := range inputs {
-		arrowType, ok := golangToArrowType[reflect.ValueOf(v).Type().Elem().Kind()]
-		if !ok {
-			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", k, reflect.ValueOf(v).Type().Elem().Kind())
+		columnVal := reflect.ValueOf(v)
+		columnElemType := columnVal.Type().Elem()
+		arrowType, convErr := convertReflectToArrowType(columnElemType)
+		if convErr != nil {
+			return nil, fmt.Errorf("failed to convert values for column '%s': %w", k, convErr)
 		}
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
