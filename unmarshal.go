@@ -112,7 +112,7 @@ func (result *OnlineQueryBulkResult) unmarshal(resultHolders []any) *ClientError
 	for i, row := range rows {
 		// resultHolders holds a slice of structs,
 		// so here we pass the pointer to each struct
-		if err := UnmarshalInto(&resultHolders[i], row, nil); err != nil {
+		if err := UnmarshalInto(resultHolders[i], row, nil); err != nil {
 			return err
 		}
 	}
@@ -176,10 +176,20 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
+	if structValue.Kind() == reflect.Interface && structValue.Elem().Kind() == reflect.Ptr && structValue.Elem().Type().Elem().Kind() == reflect.Struct {
+		// When the struct is passed in as an `any`,
+		// in the case of unmarshalling into an OnlineQueryBulk
+		// result holder that was cast from `[]*MyFeaturesClass` to `[]any`,
+		// So here we unwrap twice, first to access the pointer underneath
+		// the interface, and then to access the object pointed to by the
+		// pointer.
+		structValue = structValue.Elem().Elem()
+	}
+
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
 	if initErr != nil {
-		return &ClientError{Message: "exception occurred while initializing result holder"}
+		return &ClientError{Message: fmt.Errorf("exception occurred while initializing result holder: %w", initErr).Error()}
 	}
 
 	for fqn, value := range fqnToValue {

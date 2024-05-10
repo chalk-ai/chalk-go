@@ -314,20 +314,20 @@ func (result *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) (returnErr
 	value := reflect.ValueOf(resultHolders)
 	kind := value.Type().Kind()
 	if kind != reflect.Slice && kind != reflect.Array {
-		return &ClientError{Message: fmt.Sprintf("argument should be a slice of structs, got '%s' instead", kind.String())}
+		return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct , got '%s' instead", kind)}
 	}
 
-	elemKind := value.Type().Elem().Kind()
-	if elemKind != reflect.Struct {
-		return &ClientError{Message: fmt.Sprintf("argument should be a slice of structs, got a slice of '%s' instead", elemKind.String())}
+	anyHolders := make([]any, value.Len())
+	for i := 0; i < value.Len(); i++ {
+		if value.Index(i).Kind() != reflect.Ptr {
+			return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct, got a slice of '%s' instead", value.Index(i).Kind())}
+		}
+		if value.Index(i).Type().Elem().Kind() != reflect.Struct {
+			return &ClientError{Message: fmt.Sprintf("argument should be a slice of pointers to a struct, got a slice of pointers to a '%s' instead", value.Index(i).Elem().Kind())}
+		}
+		anyHolders[i] = value.Index(i).Interface()
 	}
-
-	castHolder, ok := resultHolders.([]any)
-	if !ok {
-		return &ClientError{Message: "failed to cast result holders to []any"}
-	}
-	
-	return result.unmarshal(castHolder)
+	return result.unmarshal(anyHolders)
 }
 
 // UploadFeaturesParams defines the parameters
