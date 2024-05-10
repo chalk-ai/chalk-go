@@ -155,7 +155,7 @@ func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
 		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
 			return err
 		}
-		internal.AppendToSlice(resultHolders, res.Elem())
+		internal.SliceAppend(resultHolders, res.Elem())
 	}
 
 	return nil

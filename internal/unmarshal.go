@@ -122,7 +122,7 @@ func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 	return castedPointer
 }
 
-func AppendToSlice(slicePtr any, value reflect.Value) {
+func SliceAppend(slicePtr any, value reflect.Value) {
 	slicePtrValue := reflect.ValueOf(slicePtr)
 	sliceValue := slicePtrValue.Elem()
 	sliceValue.Set(reflect.Append(sliceValue, value))
