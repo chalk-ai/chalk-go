@@ -2,9 +2,13 @@ package internal
 
 import (
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
 	"reflect"
 	"time"
 )
+
+var TableReaderChunkSize = 10_000
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -120,6 +124,86 @@ func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 	copied.Elem().Set(reflect.ValueOf(value))
 	castedPointer := reflect.NewAt(elemType, copied.UnsafePointer())
 	return castedPointer
+}
+
+func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
+	switch castArr := arr.(type) {
+	case *array.String:
+		return castArr.Value(idx), nil
+	case *array.LargeString:
+		return castArr.Value(idx), nil
+	case *array.Uint8:
+		return castArr.Value(idx), nil
+	case *array.Uint16:
+		return castArr.Value(idx), nil
+	case *array.Uint32:
+		return castArr.Value(idx), nil
+	case *array.Uint64:
+		return castArr.Value(idx), nil
+	case *array.Int16:
+		return castArr.Value(idx), nil
+	case *array.Int32:
+		return castArr.Value(idx), nil
+	case *array.Int64:
+		return castArr.Value(idx), nil
+	case *array.Float64:
+		return castArr.Value(idx), nil
+	case *array.Boolean:
+		return castArr.Value(idx), nil
+	case *array.Date32:
+		// FIXME: Needs conversion from int
+	case *array.Date64:
+		// FIXME: Needs conversion from int
+	case *array.Timestamp:
+		// FIXME: Needs conversion from int
+	default:
+		return nil, fmt.Errorf("unsupported array type: %T", castArr)
+	}
+	return nil, fmt.Errorf("unsupported array type: %T", arr)
+}
+
+func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
+	res := make([]map[string]any, 0)
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+	for reader.Next() {
+		record := reader.Record()
+		for i := 0; i < int(record.NumRows()); i++ {
+			m := map[string]any{}
+			for j, col := range record.Columns() {
+				name := record.ColumnName(j)
+				switch arr := col.(type) {
+				case *array.Date32:
+					// FIXME: Needs conversion from int
+				case *array.Date64:
+					// FIXME: Needs conversion from int
+				case *array.Timestamp:
+					// FIXME: Needs conversion from int
+				case *array.LargeList:
+					newSlice := make([]any, 0)
+					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
+						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+						if valueErr != nil {
+							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
+						}
+						newSlice = append(newSlice, anyVal)
+					}
+					m[name] = newSlice
+				case *array.Struct:
+					// TODO: Deserialize structs to support dataclasses
+				default:
+					// Primitives
+					anyVal, valueErr := GetValueFromArrowArray(arr, i)
+					if valueErr != nil {
+						return nil, fmt.Errorf("error getting value from Arrow array: %w", valueErr)
+					}
+					m[name] = anyVal
+				}
+			}
+			res = append(res, m)
+		}
+	}
+	return res, nil
 }
 
 func SliceAppend(slicePtr any, value reflect.Value) {

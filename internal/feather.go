@@ -48,7 +48,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	} else if kind == reflect.Slice || kind == reflect.Array {
 		elemKind := value.Elem()
 		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
-			return arrow.ListOf(elemType), nil
+			return arrow.LargeListOf(elemType), nil
 		} else {
 			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
 				"but primitives is currently unsupported, found type: %s",
@@ -146,6 +146,33 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			recordBuilder.Field(idx).(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
 		case reflect.Bool:
 			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
+		case reflect.Slice:
+			castValues, castOk := values.([][]int64)
+			if !castOk {
+				return nil, fmt.Errorf("failed to cast slice of slice of int64 for feature '%s'", field.Name)
+			}
+
+			offsets := make([]int64, len(castValues)+1) // +1 for the final offset marking the end
+			valid := make([]bool, len(castValues))
+
+			var totalLength int64 = 0
+			for i, subSlice := range castValues {
+				offsets[i] = totalLength
+				totalLength += int64(len(subSlice))
+				valid[i] = (subSlice != nil) // Mark validity as false if the subSlice is nil
+			}
+			offsets[len(castValues)] = totalLength // Set the final offset
+
+			// Assuming recordBuilder.Field(idx) returns a *array.LargeListBuilder
+			largeListBuilder := recordBuilder.Field(idx).(*array.LargeListBuilder)
+			largeListBuilder.AppendValues(offsets, valid)
+
+			// Now, append all sub-slice values into the child builder
+			for _, subSlice := range castValues {
+				if subSlice != nil {
+					largeListBuilder.ValueBuilder().(*array.Int64Builder).AppendValues(subSlice, nil)
+				}
+			}
 		default:
 			if reflectKind.String() == "time.Time" {
 				// TODO: Support this

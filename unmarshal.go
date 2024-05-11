@@ -3,8 +3,6 @@ package chalk
 import (
 	"errors"
 	"fmt"
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strconv"
@@ -14,7 +12,6 @@ import (
 type fqnToFields map[string][]reflect.Value
 
 var FieldNotFoundError = errors.New("field not found")
-var TableReaderChunkSize = 10_000
 
 func (f fqnToFields) addField(fqn string, field reflect.Value) {
 	if _, ok := f[fqn]; !ok {
@@ -145,7 +142,7 @@ func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
 		)
 	}
 
-	rows, scalarsErr := extractFeaturesFromTable(r.ScalarsTable)
+	rows, scalarsErr := internal.ExtractFeaturesFromTable(r.ScalarsTable)
 	if scalarsErr != nil {
 		return scalarsErr
 	}
@@ -159,61 +156,6 @@ func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
 	}
 
 	return nil
-}
-
-func extractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
-	res := make([]map[string]any, 0)
-	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
-	defer reader.Release()
-	for reader.Next() {
-		record := reader.Record()
-		for i := 0; i < int(record.NumRows()); i++ {
-			m := map[string]any{}
-			for j, col := range record.Columns() {
-				name := record.ColumnName(j)
-				switch arr := col.(type) {
-				case *array.String:
-					m[name] = arr.Value(i)
-				case *array.LargeString:
-					m[name] = arr.Value(i)
-				case *array.Uint8:
-					m[name] = arr.Value(i)
-				case *array.Uint16:
-					m[name] = arr.Value(i)
-				case *array.Uint32:
-					m[name] = arr.Value(i)
-				case *array.Uint64:
-					m[name] = arr.Value(i)
-				case *array.Int8:
-					m[name] = arr.Value(i)
-				case *array.Int16:
-					m[name] = arr.Value(i)
-				case *array.Int32:
-					m[name] = arr.Value(i)
-				case *array.Int64:
-					m[name] = arr.Value(i)
-				case *array.Float64:
-					m[name] = arr.Value(i)
-				case *array.Boolean:
-					m[name] = arr.Value(i)
-				case *array.LargeList:
-					// FIXME: Deserialize lists
-				case *array.Struct:
-					// FIXME: Deserialize Structs
-				case *array.Date32:
-					// FIXME: Needs conversion from int
-				case *array.Date64:
-					// FIXME: Needs conversion from int
-				case *array.Timestamp:
-					// FIXME: Needs conversion from int
-				default:
-					return nil, fmt.Errorf("unsupported column type: %T", col)
-				}
-			}
-			res = append(res, m)
-		}
-	}
-	return res, nil
 }
 
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {

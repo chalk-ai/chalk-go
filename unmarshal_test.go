@@ -172,6 +172,7 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 		testRootFeatures.AllTypes.Int:    []int{1, 2},
 		testRootFeatures.AllTypes.Timestamp: []time.Time{
 			time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
+			time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC),
 		},
 	}
 	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
@@ -197,4 +198,40 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	assert.Equal(t, false, *resultHolders[1].Bool)
 	assert.Equal(t, int64(1), *resultHolders[0].Int)
 	assert.Equal(t, int64(2), *resultHolders[1].Int)
+	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *resultHolders[0].Timestamp)
+	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *resultHolders[1].Timestamp)
+}
+
+// TestListOfPrimitives list of primitives
+func TestListOfPrimitives(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.IntList: [][]int64{
+			{1, 2},
+			{3, 4},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].IntList))
+	assert.Equal(t, int64(1), (*resultHolders[0].IntList)[0])
+	assert.Equal(t, int64(2), (*resultHolders[0].IntList)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].IntList))
+	assert.Equal(t, int64(3), (*resultHolders[1].IntList)[0])
+	assert.Equal(t, int64(4), (*resultHolders[1].IntList)[1])
 }
