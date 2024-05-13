@@ -159,6 +159,23 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	return nil
 }
 
+// UnmarshalTableInto unmarshals the given Arrow table into the given result holders.
+// The result holders should be a pointer to a slice of structs.
+//
+// Usage:
+//
+//		func printNumRelatives(chalkClient chalk.Client) {
+//			result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
+//				Features.User.Relatives,
+//			).WithInput(Features.User.Id, []int{1, 2}), nil)
+//
+//			relatives := make([]Relative, 0)
+//			result.UnmarshalInto(&relatives)
+//
+//	     feature, _ := chalk.UnwrapFeature(Features.User.Relatives)
+//			fmt.Println("Number of relatives for all users: ", len(result.GroupsTable[feature.Fqn]))
+//
+//		}
 func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 	if err := unmarshalTableInto(table, resultHolders); err != nil {
 		return &ClientError{err.Error()}
