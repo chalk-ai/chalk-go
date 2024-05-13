@@ -235,7 +235,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	}
 	if elemType == reflect.TypeOf(time.Time{}) {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
-		if reflect.ValueOf(value).Type() == elemType {
+		if reflect.TypeOf(value) == elemType {
 			if timeValue, ok := value.(time.Time); ok {
 				// Need to cast to time type, otherwise
 				// reflect.ValueOf(&timeValue) will give
