@@ -297,16 +297,17 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
-// UnmarshalInto unmarshals fields in OnlineQueryBulkResult into the specified slice of structs
-// (passed by pointer). The input argument should be a pointer to the empty slice of structs
-// that represents the output namespace.
+// UnmarshalInto unmarshals Arrow tables in OnlineQueryBulkResult into the specified slice of
+// structs (passed by pointer). The input argument should be a pointer to the empty slice of
+// structs that represents the output namespace.
 //
 //  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
 //     while leaving all other fields as nil. If the struct has fields that point to other
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of structs.
+//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of
+//     structs.
 //
 //  3. UnmarshalInto does not currently handle unmarshalling:
 //     a. has-many features
