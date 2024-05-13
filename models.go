@@ -308,9 +308,11 @@ type OnlineQueryBulkResult struct {
 //
 //  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of structs.
 //
-//  3. UnmarshalInto does not currently handle unmarshalling has-many features into each struct in the
-//     root namespace. In the meantime, you can manually unmarshal a has-many feature across all root
+//  3. UnmarshalInto does not currently handle unmarshalling:
+//     a. has-many features
+//     In the meantime, you can manually unmarshal a has-many feature across all root
 //     structs by using the UnmarshalTableInto function.
+//     b. struct-like features, such as Python `dataclass` or Pydantic models
 //
 // Usage example:
 //
