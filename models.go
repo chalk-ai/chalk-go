@@ -322,7 +322,7 @@ type OnlineQueryBulkResult struct {
 //			Features.User.SocureScore
 //		).WithInput(Features.User.Id, []int{1, 2}), nil)
 //
-//		users := make([]User, 0)
+//		var users []User
 //		result.UnmarshalInto(&users)
 //
 //		fmt.Println("User 1 family size: ", *user[0].Family.Size)

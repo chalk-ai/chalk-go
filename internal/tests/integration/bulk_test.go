@@ -29,7 +29,7 @@ func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
 		t.Fatal("Failed querying features", queryErr)
 	}
 
-	users := make([]user, 0)
+	var users []user
 	assert.Nil(t, res.UnmarshalInto(&users))
 	assert.Equal(t, 2, len(users))
 
