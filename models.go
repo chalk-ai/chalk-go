@@ -301,8 +301,8 @@ type OnlineQueryBulkResult struct {
 // of fields in OnlineQueryBulkResult into the given slice of structs.
 type BulkUnmarshalParams struct {
 	// ResultHolders is a pointer to the slice of structs that the result should be
-	// unmarshalled into. The slice should be empty and should represent the output
-	// namespace.
+	// unmarshalled into. The slice should be empty and the slice type should
+	// be a struct that is codegen-ed for the output root feature set.
 	ResultHolders any
 }
 
