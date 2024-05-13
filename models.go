@@ -298,7 +298,7 @@ type OnlineQueryBulkResult struct {
 }
 
 // UnmarshalInto unmarshals fields in OnlineQueryBulkResult into the specified slice of structs
-// (passed by pointer). The input argument should be a pointer to the empty list of structs
+// (passed by pointer). The input argument should be a pointer to the empty slice of structs
 // that represents the output namespace.
 //
 //  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
