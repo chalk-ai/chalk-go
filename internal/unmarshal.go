@@ -185,6 +185,12 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
 					continue
 				}
+
+				if col.IsNull(i) {
+					m[name] = nil
+					continue
+				}
+
 				switch arr := col.(type) {
 				case *array.LargeList:
 					newSlice := make([]any, 0)

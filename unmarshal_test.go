@@ -3,6 +3,9 @@ package chalk
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
@@ -32,6 +35,11 @@ type unmarshalUser struct {
 }
 
 type user struct {
+	// TODO: This has to be "user" and not any other name,
+	//       otherwise unmarshalling returns a validation error.
+	//       But we really shouldn't need this struct to be
+	//       named "user" in order to unmarshal features in the
+	//       namespace "user".
 	Id              *int64
 	FavoriteNumbers *[]int64
 	FavoriteColors  *[]string
@@ -212,9 +220,44 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *resultHolders[1].Timestamp)
 }
 
-// TestUnmarshalListOfPrimitives tests unmarshalling a column whose
+// TestUnmarshalBulkQueryOptionalValues tests that when a
+// feature is optional, we can still unmarshal a bulk query
+// result successfully.
+func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
+	schema := arrow.NewSchema([]arrow.Field{
+		{Name: "all_types.string", Type: arrow.BinaryTypes.LargeString},
+	}, nil)
+	recordBuilder := array.NewRecordBuilder(
+		memory.NewGoAllocator(),
+		schema,
+	)
+	defer recordBuilder.Release()
+	recordBuilder.Field(0).(*array.LargeStringBuilder).AppendValues(
+		[]string{"abc", "def", "ghi"},
+		[]bool{true, false, true},
+	)
+	table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 3, len(resultHolders))
+	assert.Equal(t, "abc", *resultHolders[0].String)
+	assert.Nil(t, resultHolders[1].String)
+	assert.Equal(t, "ghi", *resultHolders[2].String)
+
+}
+
+// TestUnmarshalQueryBulkListOfPrimitives tests unmarshalling a column whose
 // data type is a list of primitives.
-func TestUnmarshalListOfPrimitives(t *testing.T) {
+func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	// Not using `buildTableFromFeatureToValuesMap` like the scalar
 	// primitives test above because `buildTableFromFeatureToValuesMap`
 	// does not yet support converting a 2D list of primitives to an Arrow
