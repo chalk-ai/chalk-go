@@ -151,11 +151,13 @@ func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
 	case *array.Boolean:
 		return castArr.Value(idx), nil
 	case *array.Date32:
-		// FIXME: Needs conversion from int
+		// TODO
+		return nil, fmt.Errorf("date not yet supported")
 	case *array.Date64:
-		// FIXME: Needs conversion from int
+		// TODO
+		return nil, fmt.Errorf("date not yet supported")
 	case *array.Timestamp:
-		// FIXME: Needs conversion from int
+		return castArr.Value(idx).ToTime(arrow.Nanosecond), nil
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", castArr)
 	}
@@ -173,12 +175,6 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 			for j, col := range record.Columns() {
 				name := record.ColumnName(j)
 				switch arr := col.(type) {
-				case *array.Date32:
-					// FIXME: Needs conversion from int
-				case *array.Date64:
-					// FIXME: Needs conversion from int
-				case *array.Timestamp:
-					// FIXME: Needs conversion from int
 				case *array.LargeList:
 					newSlice := make([]any, 0)
 					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
@@ -217,13 +213,31 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	if convErr != nil {
 		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 	}
-	if elemType.String() == "time.Time" {
+	if elemType.Kind() == reflect.Struct && elemType.String() == "time.Time" {
+		// Datetimes have already been unmarshalled into time.Time in bulk query
+		if reflect.ValueOf(value).Type() == elemType {
+			if timeValue, ok := value.(time.Time); ok {
+				// Need to cast to time type, otherwise
+				// reflect.ValueOf(&timeValue) will give
+				// us a reflect value of the pointer to
+				// an interface.
+				return reflect.ValueOf(&timeValue), nil
+			} else {
+				return reflect.Value{}, fmt.Errorf(
+					"error getting reflect value: expected `time.Time`, got %s",
+					reflect.TypeOf(value),
+				)
+			}
+		}
+
+		// Datetimes are returned as strings in online query (non-bulk)
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
 			return reflect.ValueOf(&timeValue), nil
 		}
 
+		// Dates are returned as strings in online query (non-bulk)
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
@@ -231,19 +245,12 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
-		// FIXME: This needs to recurse
-		// The element type might be:
-		// - primitive
-		// - dataclass
-		// - NOT FeaturesClass
 		value, convErr = convertSlice(elemType.Elem().Kind(), value)
 		if convErr != nil {
 			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
-		// Do a switch on the type of the value and then validate it with the elemType
-		// to ensure that the value is of the correct type.
 		// TODO: Validate for all types
 		switch elemType.Kind() {
 		case reflect.String:

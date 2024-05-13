@@ -12,6 +12,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"reflect"
+	"time"
 )
 
 var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
@@ -56,14 +57,16 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			)
 		}
 	} else if kind == reflect.Struct {
-		if kind.String() != "time.Time" {
+		if value.String() != "time.Time" {
 			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
 				"but primitives is currently unsupported, found type: %s",
 				kind,
 			)
 		}
-		// FIXME: Implement this
-		return nil, fmt.Errorf("arrow conversion failed - `Time` not yet supported")
+		return &arrow.TimestampType{
+			Unit:     arrow.Nanosecond,
+			TimeZone: "UTC",
+		}, nil
 	} else {
 		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
@@ -106,7 +109,8 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		if !ok {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
-		reflectKind := reflect.ValueOf(values).Type().Elem().Kind()
+		elem := reflect.ValueOf(values).Type().Elem()
+		reflectKind := elem.Kind()
 		switch reflectKind {
 		case reflect.Int:
 			arrayValues := values.([]int)
@@ -146,38 +150,16 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			recordBuilder.Field(idx).(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
 		case reflect.Bool:
 			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
-		case reflect.Slice:
-			castValues, castOk := values.([][]int64)
-			if !castOk {
-				return nil, fmt.Errorf("failed to cast slice of slice of int64 for feature '%s'", field.Name)
-			}
-
-			offsets := make([]int64, len(castValues)+1) // +1 for the final offset marking the end
-			valid := make([]bool, len(castValues))
-
-			var totalLength int64 = 0
-			for i, subSlice := range castValues {
-				offsets[i] = totalLength
-				totalLength += int64(len(subSlice))
-				valid[i] = (subSlice != nil) // Mark validity as false if the subSlice is nil
-			}
-			offsets[len(castValues)] = totalLength // Set the final offset
-
-			// Assuming recordBuilder.Field(idx) returns a *array.LargeListBuilder
-			largeListBuilder := recordBuilder.Field(idx).(*array.LargeListBuilder)
-			largeListBuilder.AppendValues(offsets, valid)
-
-			// Now, append all sub-slice values into the child builder
-			for _, subSlice := range castValues {
-				if subSlice != nil {
-					largeListBuilder.ValueBuilder().(*array.Int64Builder).AppendValues(subSlice, nil)
+		case reflect.Struct:
+			if elem.String() == "time.Time" {
+				timeSlice := values.([]time.Time)
+				timestampSlice := make([]arrow.Timestamp, 0)
+				for _, t := range timeSlice {
+					timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
 				}
+				recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
 			}
 		default:
-			if reflectKind.String() == "time.Time" {
-				// TODO: Support this
-				//recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(values.([]time.Time), nil)
-			}
 			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())
 		}
 	}
