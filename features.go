@@ -5,6 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strings"
+	"time"
 )
 
 type Feature struct {
@@ -17,7 +18,7 @@ func DesuffixFqn(fqn string) string {
 }
 
 func getFeatureClassFromMember(field reflect.Value) *Feature {
-	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem().String() != "time.Time" {
+	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != reflect.TypeOf(time.Time{}) {
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)

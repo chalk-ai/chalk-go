@@ -83,3 +83,8 @@ func ExpandTilde(path string) (string, error) {
 
 	return strings.Replace(path, "~", homeDir, 1), nil
 }
+
+func getFeatureNameFromFqn(fqn string) string {
+	lastPart := strings.Split(fqn, ".")
+	return lastPart[len(lastPart)-1]
+}

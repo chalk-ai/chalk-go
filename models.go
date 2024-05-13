@@ -179,10 +179,7 @@ type FeatureResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto validates that all expected output features (as specified in OnlineQueryParams)
-//     are not nil pointers, and returns a ClientError otherwise.
-//
-//  3. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
@@ -298,6 +295,45 @@ type OnlineQueryBulkResult struct {
 
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
+}
+
+// UnmarshalInto unmarshals Arrow tables in OnlineQueryBulkResult into the specified slice of
+// structs (passed by pointer). The input argument should be a pointer to the empty slice of
+// structs that represents the output namespace.
+//
+//  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
+//     while leaving all other fields as nil. If the struct has fields that point to other
+//     structs (has-one relations), those nested structs will also be populated with their
+//     respective feature values.
+//
+//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of
+//     structs.
+//
+//  3. UnmarshalInto does not currently handle unmarshalling:
+//     a. has-many features
+//     In the meantime, you can manually unmarshal a has-many feature across all root
+//     structs by using the UnmarshalTableInto function.
+//     b. struct-like features, such as Python `dataclass` or Pydantic models
+//
+// Usage example:
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Family.Size,
+//			Features.User.SocureScore
+//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//
+//		var users []User
+//		result.UnmarshalInto(&users)
+//
+//		fmt.Println("User 1 family size: ", *user[0].Family.Size)
+//		fmt.Println("User 2 Socure score: ", *user[1].SocureScore)
+//	}
+func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
+	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
+		return &ClientError{Message: err.Error()}
+	}
+	return nil
 }
 
 // UploadFeaturesParams defines the parameters

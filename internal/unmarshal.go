@@ -2,12 +2,24 @@ package internal
 
 import (
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
 	"reflect"
 	"time"
 )
 
+var tableReaderChunkSize = 10_000
+
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
+}
+
+var skipUnmarshalFeatureNames = map[string]bool{
+	"__chalk_observed_at__": true,
+}
+
+var skipUnmarshalFields = map[string]bool{
+	"__ts__": true,
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
@@ -111,7 +123,7 @@ func convertSlice(sliceElemKind reflect.Kind, value any) (any, error) {
 	case reflect.Bool:
 		return convertSliceyNonNumbers[bool](anySlice)
 	default:
-		return nil, fmt.Errorf("unsupported slice type '%s' when converting number slice", sliceElemKind)
+		return nil, fmt.Errorf("unsupported slice type '%s' when converting slice", sliceElemKind)
 	}
 }
 
@@ -122,18 +134,130 @@ func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 	return castedPointer
 }
 
+func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
+	switch castArr := arr.(type) {
+	case *array.String:
+		return castArr.Value(idx), nil
+	case *array.LargeString:
+		return castArr.Value(idx), nil
+	case *array.Uint8:
+		return castArr.Value(idx), nil
+	case *array.Uint16:
+		return castArr.Value(idx), nil
+	case *array.Uint32:
+		return castArr.Value(idx), nil
+	case *array.Uint64:
+		return castArr.Value(idx), nil
+	case *array.Int16:
+		return castArr.Value(idx), nil
+	case *array.Int32:
+		return castArr.Value(idx), nil
+	case *array.Int64:
+		return castArr.Value(idx), nil
+	case *array.Float64:
+		return castArr.Value(idx), nil
+	case *array.Boolean:
+		return castArr.Value(idx), nil
+	case *array.Date32:
+		return castArr.Value(idx).ToTime(), nil
+	case *array.Date64:
+		return castArr.Value(idx).ToTime(), nil
+	case *array.Timestamp:
+		return castArr.Value(idx).ToTime(arrow.Nanosecond), nil
+	default:
+		return nil, fmt.Errorf("unsupported array type: %T", castArr)
+	}
+}
+
+func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
+	res := make([]map[string]any, 0)
+	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	defer reader.Release()
+	for reader.Next() {
+		record := reader.Record()
+		for i := 0; i < int(record.NumRows()); i++ {
+			m := map[string]any{}
+			for j, col := range record.Columns() {
+				name := record.ColumnName(j)
+				if _, ok := skipUnmarshalFields[name]; ok {
+					continue
+				}
+				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
+					continue
+				}
+
+				if col.IsNull(i) {
+					m[name] = nil
+					continue
+				}
+
+				switch arr := col.(type) {
+				case *array.LargeList:
+					newSlice := make([]any, 0)
+					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
+						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+						if valueErr != nil {
+							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
+						}
+						newSlice = append(newSlice, anyVal)
+					}
+					m[name] = newSlice
+				case *array.Struct:
+					// TODO: Deserialize structs to support dataclasses
+					return nil, fmt.Errorf(
+						"dataclasses or struct-like features are not yet supported in unmarshalling",
+					)
+				default:
+					// Primitives
+					anyVal, valueErr := GetValueFromArrowArray(arr, i)
+					if valueErr != nil {
+						return nil, fmt.Errorf("error getting value from Arrow array: %w", valueErr)
+					}
+					m[name] = anyVal
+				}
+			}
+			res = append(res, m)
+		}
+	}
+	return res, nil
+}
+
+func SliceAppend(slicePtr any, value reflect.Value) {
+	slicePtrValue := reflect.ValueOf(slicePtr)
+	sliceValue := slicePtrValue.Elem()
+	sliceValue.Set(reflect.Append(sliceValue, value))
+}
+
 func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	value, convErr := convertIfNumber(value, elemType.Kind())
 	if convErr != nil {
 		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 	}
-	if elemType.String() == "time.Time" {
+	if elemType == reflect.TypeOf(time.Time{}) {
+		// Datetimes have already been unmarshalled into time.Time in bulk online query
+		if reflect.TypeOf(value) == elemType {
+			if timeValue, ok := value.(time.Time); ok {
+				// Need to cast to time type, otherwise
+				// reflect.ValueOf(&timeValue) will give
+				// us a reflect value of the pointer to
+				// an interface.
+				return reflect.ValueOf(&timeValue), nil
+			} else {
+				return reflect.Value{}, fmt.Errorf(
+					"error getting reflect value: expected `time.Time`, got %s",
+					reflect.TypeOf(value),
+				)
+			}
+		}
+
+		// Datetimes are returned as strings in online query (non-bulk)
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
 			return reflect.ValueOf(&timeValue), nil
 		}
 
+		// Dates are returned as strings in online query (non-bulk)
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
@@ -147,6 +271,13 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
+		if reflect.ValueOf(value).Kind() != elemType.Kind() {
+			return reflect.Value{}, fmt.Errorf(
+				"expected reflect value of kind '%s', got '%s'",
+				elemType.Kind(),
+				reflect.ValueOf(value).Kind(),
+			)
+		}
 		return getPointerToCopied(elemType, value), nil
 	}
 }

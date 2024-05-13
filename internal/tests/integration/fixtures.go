@@ -7,7 +7,7 @@ import (
 )
 
 type user struct {
-	Id               *int
+	Id               *int64
 	FullNameOptional *string
 	SocureScore      *float64
 }

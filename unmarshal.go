@@ -3,6 +3,7 @@ package chalk
 import (
 	"errors"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strconv"
@@ -93,24 +94,105 @@ func (f fqnToFields) setFeature(fqn string, value any) error {
 }
 
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
-	fqnToValueMap := map[Fqn]any{}
+	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range result.Data {
-		fqnToValueMap[featureResult.Field] = featureResult.Value
+		fqnToValue[featureResult.Field] = featureResult.Value
 	}
-	return UnmarshalInto(resultHolder, fqnToValueMap, result.expectedOutputs)
+	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
-func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
+func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = fmt.Errorf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
+	}
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceElemType.Kind(),
+		)
+	}
+
+	rows, scalarsErr := internal.ExtractFeaturesFromTable(table)
+	if scalarsErr != nil {
+		return scalarsErr
+	}
+
+	for _, row := range rows {
+		res := reflect.New(sliceElemType)
+		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
+			return err
+		}
+		internal.SliceAppend(resultHolders, res.Elem())
+	}
+
+	return nil
+}
+
+// UnmarshalTableInto unmarshals the given Arrow table into the given result holders.
+// The result holders should be a pointer to a slice of structs.
+//
+// Usage:
+//
+//	func printNumRelatives(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Relatives,
+//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//
+//		relatives := make([]Relative, 0)
+//		result.UnmarshalInto(&relatives)
+//
+//		feature, _ := chalk.UnwrapFeature(Features.User.Relatives)
+//		fmt.Println("Number of relatives for all users: ", len(result.GroupsTable[feature.Fqn]))
+//
+//	}
+func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
+	if err := unmarshalTableInto(table, resultHolders); err != nil {
+		return &ClientError{err.Error()}
+	}
+	return nil
+}
+
+func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
 	if initErr != nil {
-		return &ClientError{Message: "exception occurred while initializing result holder"}
+		return &ClientError{Message: fmt.Errorf("exception occurred while initializing result holder: %w", initErr).Error()}
 	}
 
-	for fqn, value := range fqnToValueMap {
+	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
 			// TODO: Add validation for optional fields
@@ -132,7 +214,6 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 			} else {
 				return &ClientError{Message: fmt.Errorf("error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName, err).Error()}
 			}
-
 		}
 	}
 	for _, expectedOutput := range expectedOutputs {
@@ -140,7 +221,11 @@ func UnmarshalInto(resultHolder any, fqnToValueMap map[Fqn]any, expectedOutputs 
 			for _, field := range fields {
 				if field.IsNil() {
 					// TODO: Handle optional fields
-					//return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
+					//return &ClientError{Message: fmt.Sprintf(
+					//	"Unexpected error unmarshaling output feature '%s'. "+
+					//		"Feature is still nil after unmarshaling",
+					//	expectedOutput,
+					//)}
 				}
 			}
 		}

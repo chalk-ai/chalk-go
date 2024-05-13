@@ -12,47 +12,76 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"reflect"
+	"time"
 )
 
+var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
+	reflect.Int:     arrow.PrimitiveTypes.Int64,
+	reflect.Int8:    arrow.PrimitiveTypes.Int8,
+	reflect.Int16:   arrow.PrimitiveTypes.Int16,
+	reflect.Int32:   arrow.PrimitiveTypes.Int32,
+	reflect.Int64:   arrow.PrimitiveTypes.Int64,
+	reflect.Uint:    arrow.PrimitiveTypes.Uint64,
+	reflect.Uint8:   arrow.PrimitiveTypes.Uint8,
+	reflect.Uint16:  arrow.PrimitiveTypes.Uint16,
+	reflect.Uint32:  arrow.PrimitiveTypes.Uint32,
+	reflect.Uint64:  arrow.PrimitiveTypes.Uint64,
+	reflect.Float32: arrow.PrimitiveTypes.Float32,
+	reflect.Float64: arrow.PrimitiveTypes.Float64,
+	reflect.String:  arrow.BinaryTypes.LargeString,
+	reflect.Bool:    arrow.FixedWidthTypes.Boolean,
+}
+
+// inputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
-	golangToArrowType := map[reflect.Kind]arrow.DataType{
-		reflect.Int:     arrow.PrimitiveTypes.Int64,
-		reflect.Int8:    arrow.PrimitiveTypes.Int8,
-		reflect.Int16:   arrow.PrimitiveTypes.Int16,
-		reflect.Int32:   arrow.PrimitiveTypes.Int32,
-		reflect.Int64:   arrow.PrimitiveTypes.Int64,
-		reflect.Uint:    arrow.PrimitiveTypes.Uint64,
-		reflect.Uint8:   arrow.PrimitiveTypes.Uint8,
-		reflect.Uint16:  arrow.PrimitiveTypes.Uint16,
-		reflect.Uint32:  arrow.PrimitiveTypes.Uint32,
-		reflect.Uint64:  arrow.PrimitiveTypes.Uint64,
-		reflect.Float32: arrow.PrimitiveTypes.Float32,
-		reflect.Float64: arrow.PrimitiveTypes.Float64,
-		reflect.String:  arrow.BinaryTypes.LargeString,
-		reflect.Bool:    arrow.FixedWidthTypes.Boolean,
+	record, recordErr := ColumnMapToRecord(inputs)
+	if recordErr != nil {
+		return nil, recordErr
 	}
+	defer record.Release()
+	return recordToBytes(record)
+}
 
-	for k, v := range inputs {
-		if reflect.TypeOf(v).Kind() != reflect.Array && reflect.TypeOf(v).Kind() != reflect.Slice {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be an array, instead found type '%s' for feature '%s': ", reflect.TypeOf(v).Kind(), k)
-		}
-		length := 0
-		if reflect.TypeOf(v).Kind() == reflect.Slice {
-			length = reflect.ValueOf(v).Len()
+func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
+	kind := value.Kind()
+	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
+		return arrowType, nil
+	} else if kind == reflect.Slice || kind == reflect.Array {
+		elemKind := value.Elem()
+		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
+			return arrow.LargeListOf(elemType), nil
 		} else {
-			length = reflect.ValueOf(v).Type().Len()
+			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
+				"but primitives is currently unsupported, found type: %s",
+				elemKind,
+			)
 		}
-		if length == 0 {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be non-empty, instead found empty array for feature '%s': ", k)
+	} else if kind == reflect.Struct {
+		if value != reflect.TypeOf(time.Time{}) {
+			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
+				"but primitives is currently unsupported, found type: %s",
+				kind,
+			)
 		}
+		return &arrow.TimestampType{
+			Unit:     arrow.Nanosecond,
+			TimeZone: "UTC",
+		}, nil
+	} else {
+		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
+}
 
+// ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
+func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	// Create the input values
 	var schema []arrow.Field
 	for k, v := range inputs {
-		arrowType, ok := golangToArrowType[reflect.ValueOf(v).Type().Elem().Kind()]
-		if !ok {
-			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", k, reflect.ValueOf(v).Type().Elem().Kind())
+		columnVal := reflect.ValueOf(v)
+		columnElemType := columnVal.Type().Elem()
+		arrowType, convErr := convertReflectToArrowType(columnElemType)
+		if convErr != nil {
+			return nil, fmt.Errorf("failed to convert values for column '%s': %w", k, convErr)
 		}
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
@@ -65,8 +94,27 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 		if !ok {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
-		reflectKind := reflect.ValueOf(values).Type().Elem().Kind()
-		switch reflectKind {
+
+		valuesType := reflect.TypeOf(values)
+		if valuesType.Kind() != reflect.Slice {
+			return nil, fmt.Errorf(
+				"conversion of inputs to Arrow requires all input values "+
+					"to be a slice, instead found type '%s' for feature '%s': ",
+				reflect.TypeOf(values).Kind(),
+				field.Name,
+			)
+		}
+		if reflect.ValueOf(values).Len() == 0 {
+			return nil, fmt.Errorf(
+				"conversion of inputs to Arrow requires all input values to "+
+					"be non-empty, instead found empty array for feature '%s': ",
+				field.Name,
+			)
+		}
+
+		elem := valuesType.Elem()
+		elemKind := elem.Kind()
+		switch elemKind {
 		case reflect.Int:
 			arrayValues := values.([]int)
 			convertedValues := []int64{}
@@ -105,15 +153,32 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 			recordBuilder.Field(idx).(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
 		case reflect.Bool:
 			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
-		default:
-			if reflectKind.String() == "time.Time" {
-				// TODO: Support this
-				//recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(values.([]time.Time), nil)
+		case reflect.Struct:
+			if elem == reflect.TypeOf(time.Time{}) {
+				timeSlice := values.([]time.Time)
+				timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
+				for _, t := range timeSlice {
+					timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
+				}
+				recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
+			} else {
+				return nil, fmt.Errorf(
+					"unsupported struct type found for feature '%s' "+
+						"when converting to arrow: %s",
+					field.Name,
+					elem.String(),
+				)
 			}
-			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())
+		default:
+			return nil, fmt.Errorf(
+				"unsupported input type found for feature '%s' "+
+					"when converting to arrow: %s",
+				field.Name,
+				elemKind.String(),
+			)
 		}
 	}
-	return recordToBytes(recordBuilder.NewRecord())
+	return recordBuilder.NewRecord(), nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {
@@ -275,7 +340,6 @@ func recordToBytes(record arrow.Record) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
 	}
-	record.Release()
 
 	return bws.Bytes(), nil
 }

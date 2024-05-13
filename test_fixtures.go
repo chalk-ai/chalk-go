@@ -24,7 +24,6 @@ type allTypes struct {
 	Nested       *anotherFeature
 }
 
-// ptf is short for "params test features"
-var ptf struct {
+var testRootFeatures struct {
 	AllTypes *allTypes
 }
