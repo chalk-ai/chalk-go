@@ -1,8 +1,12 @@
 package chalk
 
 import (
+	"encoding/base64"
 	"fmt"
 	assert "github.com/stretchr/testify/require"
+	"log"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -25,6 +29,12 @@ type unmarshalUser struct {
 
 	// Dataclass features
 	LatLng *unmarshalLatLng
+}
+
+type user struct {
+	Id              *int64
+	FavoriteNumbers *[]int64
+	FavoriteColors  *[]string
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
@@ -204,34 +214,41 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 
 // TestListOfPrimitives list of primitives
 func TestListOfPrimitives(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
-	assert.Nil(t, initErr)
-
-	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.IntList: [][]int64{
-			{1, 2},
-			{3, 4},
-		},
+	encoded, readErr := os.ReadFile(filepath.Join(".", "internal", "sample_data", "list_of_primitives.txt"))
+	if readErr != nil {
+		log.Fatal(readErr)
 	}
-	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
-	assert.Nil(t, scalarsErr)
+
+	bytesData, decodeErr := base64.StdEncoding.DecodeString(string(encoded))
+	if decodeErr != nil {
+		log.Fatal(decodeErr)
+	}
+
+	bulkResponse := OnlineQueryBulkResponse{}
+	assert.Nil(t, bulkResponse.Unmarshal(bytesData))
+	singleResponse := bulkResponse.QueryResults["0"]
+	assert.Equal(t, len(singleResponse.Errors), 0)
 
 	bulkRes := OnlineQueryBulkResult{
-		ScalarsTable: scalarsTable,
+		ScalarsTable: singleResponse.ScalarData,
+		GroupsTables: singleResponse.GroupsData,
+		Meta:         singleResponse.Meta,
 	}
 	defer bulkRes.Release()
-
-	resultHolders := make([]allTypes, 0)
-
+	resultHolders := make([]user, 0)
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
 
 	assert.Equal(t, 2, len(resultHolders))
-	assert.Equal(t, 2, len(*resultHolders[0].IntList))
-	assert.Equal(t, int64(1), (*resultHolders[0].IntList)[0])
-	assert.Equal(t, int64(2), (*resultHolders[0].IntList)[1])
-	assert.Equal(t, 2, len(*resultHolders[1].IntList))
-	assert.Equal(t, int64(3), (*resultHolders[1].IntList)[0])
-	assert.Equal(t, int64(4), (*resultHolders[1].IntList)[1])
+
+	assert.Equal(t, 3, len(*resultHolders[0].FavoriteNumbers))
+	assert.Equal(t, int64(1), (*resultHolders[0].FavoriteNumbers)[0])
+	assert.Equal(t, int64(2), (*resultHolders[0].FavoriteNumbers)[1])
+	assert.Equal(t, int64(3), (*resultHolders[0].FavoriteNumbers)[2])
+
+	assert.Equal(t, 3, len(*resultHolders[1].FavoriteColors))
+	assert.Equal(t, "red", (*resultHolders[1].FavoriteColors)[0])
+	assert.Equal(t, "green", (*resultHolders[1].FavoriteColors)[1])
+	assert.Equal(t, "blue", (*resultHolders[1].FavoriteColors)[2])
 }

@@ -8,10 +8,18 @@ import (
 	"time"
 )
 
-var TableReaderChunkSize = 10_000
+var tableReaderChunkSize = 10_000
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
+}
+
+var skipUnmarshalFeatureNames = map[string]bool{
+	"__chalk_observed_at__": true,
+}
+
+var skipUnmarshalFields = map[string]bool{
+	"__ts__": true,
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
@@ -163,7 +171,7 @@ func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
 
 func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 	res := make([]map[string]any, 0)
-	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
 	for reader.Next() {
 		record := reader.Record()
@@ -171,6 +179,12 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 			m := map[string]any{}
 			for j, col := range record.Columns() {
 				name := record.ColumnName(j)
+				if _, ok := skipUnmarshalFields[name]; ok {
+					continue
+				}
+				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
+					continue
+				}
 				switch arr := col.(type) {
 				case *array.LargeList:
 					newSlice := make([]any, 0)
