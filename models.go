@@ -323,7 +323,7 @@ type OnlineQueryBulkResult struct {
 //		fmt.Println("User 2 Socure score: ", *user[1].SocureScore)
 //	}
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
-	if err := r.unmarshal(resultHolders); err != nil {
+	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
 		return &ClientError{Message: err.Error()}
 	}
 	return nil

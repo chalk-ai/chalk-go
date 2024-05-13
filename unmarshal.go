@@ -3,6 +3,7 @@ package chalk
 import (
 	"errors"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strconv"
@@ -101,7 +102,7 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
-func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
+func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
 			detail := "details irretrievable"
@@ -142,7 +143,7 @@ func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
 		)
 	}
 
-	rows, scalarsErr := internal.ExtractFeaturesFromTable(r.ScalarsTable)
+	rows, scalarsErr := internal.ExtractFeaturesFromTable(table)
 	if scalarsErr != nil {
 		return scalarsErr
 	}
@@ -155,6 +156,13 @@ func (r *OnlineQueryBulkResult) unmarshal(resultHolders any) (returnErr error) {
 		internal.SliceAppend(resultHolders, res.Elem())
 	}
 
+	return nil
+}
+
+func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
+	if err := unmarshalTableInto(table, resultHolders); err != nil {
+		return &ClientError{err.Error()}
+	}
 	return nil
 }
 
