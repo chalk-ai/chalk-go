@@ -297,6 +297,15 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
+// BulkUnmarshalParams defines the parameters that configures the unmarshalling
+// of fields in OnlineQueryBulkResult into the given slice of structs.
+type BulkUnmarshalParams struct {
+	// ResultHolders is a pointer to the slice of structs that the result should be
+	// unmarshalled into. The slice should be empty and should represent the output
+	// namespace.
+	ResultHolders any
+}
+
 // UnmarshalInto unmarshals fields in OnlineQueryBulkResult into the specified slice of structs
 // (passed by pointer). The input argument should be a pointer to the empty slice of structs
 // that represents the output namespace.
@@ -323,13 +332,13 @@ type OnlineQueryBulkResult struct {
 //		).WithInput(Features.User.Id, []int{1, 2}), nil)
 //
 //		users := make([]User, 0)
-//		result.UnmarshalInto(&users)
+//		result.UnmarshalInto(chalk.BulkUnmarshalParams{&users})
 //
 //		fmt.Println("User 1 family size: ", *user[0].Family.Size)
 //		fmt.Println("User 2 Socure score: ", *user[1].SocureScore)
 //	}
-func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
-	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
+func (r *OnlineQueryBulkResult) UnmarshalInto(params BulkUnmarshalParams) *ClientError {
+	if err := unmarshalTableInto(r.ScalarsTable, params.ResultHolders); err != nil {
 		return &ClientError{Message: err.Error()}
 	}
 	return nil
