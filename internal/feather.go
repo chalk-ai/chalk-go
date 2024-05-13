@@ -57,7 +57,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			)
 		}
 	} else if kind == reflect.Struct {
-		if value.String() != "time.Time" {
+		if value != reflect.TypeOf(time.Time{}) {
 			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
 				"but primitives is currently unsupported, found type: %s",
 				kind,
@@ -151,7 +151,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		case reflect.Bool:
 			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
 		case reflect.Struct:
-			if elem.String() == "time.Time" {
+			if elem == reflect.TypeOf(time.Time{}) {
 				timeSlice := values.([]time.Time)
 				timestampSlice := make([]arrow.Timestamp, 0)
 				for _, t := range timeSlice {

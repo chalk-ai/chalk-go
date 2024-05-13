@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func InitFeatures[T any](t *T) error {
@@ -37,8 +38,6 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		f := structValue.Field(i)
 		fieldMeta := structValue.Type().Field(i)
 
-		isTimeField := f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem().String() == "time.Time"
-
 		attributeName := snakeCase(fieldMeta.Name)
 		nameOverride := fieldMeta.Tag.Get("name")
 		if nameOverride != "" {
@@ -50,7 +49,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			continue
 		}
 
-		if f.Type().Elem().Kind() == reflect.Struct && !isTimeField {
+		if f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':

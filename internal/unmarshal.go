@@ -230,7 +230,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	if convErr != nil {
 		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 	}
-	if elemType.Kind() == reflect.Struct && elemType.String() == "time.Time" {
+	if elemType == reflect.TypeOf(time.Time{}) {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
 		if reflect.ValueOf(value).Type() == elemType {
 			if timeValue, ok := value.(time.Time); ok {
