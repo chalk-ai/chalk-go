@@ -221,7 +221,11 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			for _, field := range fields {
 				if field.IsNil() {
 					// TODO: Handle optional fields
-					//return &ClientError{Message: fmt.Sprintf("Unexpected error unmarshaling output feature '%s'. Feature is still nil after unmarshaling", expectedOutput)}
+					//return &ClientError{Message: fmt.Sprintf(
+					//	"Unexpected error unmarshaling output feature '%s'. "+
+					//		"Feature is still nil after unmarshaling",
+					//	expectedOutput,
+					//)}
 				}
 			}
 		}
