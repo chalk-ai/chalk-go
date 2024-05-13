@@ -125,7 +125,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	slice := reflect.Indirect(slicePtr)
-	if slice.Kind() != reflect.Slice && slice.Kind() != reflect.Array {
+	if slice.Kind() != reflect.Slice {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got '%s' instead",
@@ -133,12 +133,12 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		)
 	}
 
-	sliceType := slice.Type().Elem()
-	if sliceType.Kind() != reflect.Struct {
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got a pointer to a slice of '%s' instead",
-			sliceType.Kind(),
+			sliceElemType.Kind(),
 		)
 	}
 
@@ -148,7 +148,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	for _, row := range rows {
-		res := reflect.New(sliceType)
+		res := reflect.New(sliceElemType)
 		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
 			return err
 		}

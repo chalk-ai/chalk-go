@@ -153,7 +153,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		case reflect.Struct:
 			if elem == reflect.TypeOf(time.Time{}) {
 				timeSlice := values.([]time.Time)
-				timestampSlice := make([]arrow.Timestamp, 0)
+				timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
 				for _, t := range timeSlice {
 					timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
 				}
