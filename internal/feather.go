@@ -74,21 +74,6 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
-	for k, v := range inputs {
-		if reflect.TypeOf(v).Kind() != reflect.Array && reflect.TypeOf(v).Kind() != reflect.Slice {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be an array, instead found type '%s' for feature '%s': ", reflect.TypeOf(v).Kind(), k)
-		}
-		length := 0
-		if reflect.TypeOf(v).Kind() == reflect.Slice {
-			length = reflect.ValueOf(v).Len()
-		} else {
-			length = reflect.ValueOf(v).Type().Len()
-		}
-		if length == 0 {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be non-empty, instead found empty array for feature '%s': ", k)
-		}
-	}
-
 	// Create the input values
 	var schema []arrow.Field
 	for k, v := range inputs {
@@ -109,6 +94,20 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		if !ok {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
+
+		if reflect.TypeOf(values).Kind() != reflect.Array && reflect.TypeOf(values).Kind() != reflect.Slice {
+			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be an array, instead found type '%s' for feature '%s': ", reflect.TypeOf(values).Kind(), field.Name)
+		}
+		length := 0
+		if reflect.TypeOf(values).Kind() == reflect.Slice {
+			length = reflect.ValueOf(values).Len()
+		} else {
+			length = reflect.ValueOf(values).Type().Len()
+		}
+		if length == 0 {
+			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be non-empty, instead found empty array for feature '%s': ", field.Name)
+		}
+
 		elem := reflect.ValueOf(values).Type().Elem()
 		reflectKind := elem.Kind()
 		switch reflectKind {
