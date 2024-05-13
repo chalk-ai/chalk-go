@@ -95,7 +95,8 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		if reflect.TypeOf(values).Kind() != reflect.Slice {
+		valuesType := reflect.TypeOf(values)
+		if valuesType.Kind() != reflect.Slice {
 			return nil, fmt.Errorf(
 				"conversion of inputs to Arrow requires all input values "+
 					"to be a slice, instead found type '%s' for feature '%s': ",
@@ -103,13 +104,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 				field.Name,
 			)
 		}
-		length := 0
-		if reflect.TypeOf(values).Kind() == reflect.Slice {
-			length = reflect.ValueOf(values).Len()
-		} else {
-			length = reflect.ValueOf(values).Type().Len()
-		}
-		if length == 0 {
+		if reflect.ValueOf(values).Len() == 0 {
 			return nil, fmt.Errorf(
 				"conversion of inputs to Arrow requires all input values to "+
 					"be non-empty, instead found empty array for feature '%s': ",
@@ -117,9 +112,9 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			)
 		}
 
-		elem := reflect.ValueOf(values).Type().Elem()
-		reflectKind := elem.Kind()
-		switch reflectKind {
+		elem := valuesType.Elem()
+		elemKind := elem.Kind()
+		switch elemKind {
 		case reflect.Int:
 			arrayValues := values.([]int)
 			convertedValues := []int64{}
@@ -179,7 +174,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 				"unsupported input type found for feature '%s' "+
 					"when converting to arrow: %s",
 				field.Name,
-				reflectKind.String(),
+				elemKind.String(),
 			)
 		}
 	}
