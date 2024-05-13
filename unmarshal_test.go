@@ -212,8 +212,13 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *resultHolders[1].Timestamp)
 }
 
-// TestListOfPrimitives list of primitives
-func TestListOfPrimitives(t *testing.T) {
+// TestUnmarshalListOfPrimitives tests unmarshalling a column whose
+// data type is a list of primitives.
+func TestUnmarshalListOfPrimitives(t *testing.T) {
+	// Not using `buildTableFromFeatureToValuesMap` like the scalar
+	// primitives test above because `buildTableFromFeatureToValuesMap`
+	// does not yet support converting a 2D list of primitives to an Arrow
+	// array.
 	encoded, readErr := os.ReadFile(filepath.Join(".", "internal", "sample_data", "list_of_primitives.txt"))
 	if readErr != nil {
 		log.Fatal(readErr)

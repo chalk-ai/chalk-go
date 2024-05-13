@@ -297,6 +297,31 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 }
 
+// UnmarshalInto unmarshals fields in OnlineQueryBulkResult into the specified slice of structs
+// (passed by pointer). The input argument should be a pointer to the empty list of structs
+// that represents the output namespace.
+//
+//  1. UnmarshalInto populates fields corresponding to outputs specified in OnlineQueryParams,
+//     while leaving all other fields as nil. If the struct has fields that point to other
+//     structs (has-one relations), those nested structs will also be populated with their
+//     respective feature values.
+//
+//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of structs.
+//
+// Usage example:
+//
+//	func printUserDetails(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Family.Size,
+//			Features.User.SocureScore
+//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//
+//		users := make([]User, 0)
+//		result.UnmarshalInto(&users)
+//
+//		fmt.Println("User 1 family size: ", *user[0].Family.Size)
+//		fmt.Println("User 2 Socure score: ", *user[1].SocureScore)
+//	}
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
 	if err := r.unmarshal(resultHolders); err != nil {
 		return &ClientError{Message: err.Error()}
