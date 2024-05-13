@@ -211,7 +211,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
 	}
 	if elemType.Kind() == reflect.Struct && elemType.String() == "time.Time" {
-		// Datetimes have already been unmarshalled into time.Time in bulk query
+		// Datetimes have already been unmarshalled into time.Time in bulk online query
 		if reflect.ValueOf(value).Type() == elemType {
 			if timeValue, ok := value.(time.Time); ok {
 				// Need to cast to time type, otherwise
@@ -234,6 +234,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 			return reflect.ValueOf(&timeValue), nil
 		}
 
+		// Dates are returned as strings in online query (non-bulk)
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
