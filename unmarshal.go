@@ -68,7 +68,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		}
 		field.SetMapIndex(tagValue, reflectValue)
 	} else {
-		// Do some validation of the types
 		reflectValue, err := internal.GetReflectValue(value, field.Type().Elem())
 		if err != nil {
 			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
@@ -164,18 +163,18 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 //
 // Usage:
 //
-//		func printNumRelatives(chalkClient chalk.Client) {
-//			result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
-//				Features.User.Relatives,
-//			).WithInput(Features.User.Id, []int{1, 2}), nil)
+//	func printNumRelatives(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
+//			Features.User.Relatives,
+//		).WithInput(Features.User.Id, []int{1, 2}), nil)
 //
-//			relatives := make([]Relative, 0)
-//			result.UnmarshalInto(&relatives)
+//		relatives := make([]Relative, 0)
+//		result.UnmarshalInto(&relatives)
 //
-//	     feature, _ := chalk.UnwrapFeature(Features.User.Relatives)
-//			fmt.Println("Number of relatives for all users: ", len(result.GroupsTable[feature.Fqn]))
+//		feature, _ := chalk.UnwrapFeature(Features.User.Relatives)
+//		fmt.Println("Number of relatives for all users: ", len(result.GroupsTable[feature.Fqn]))
 //
-//		}
+//	}
 func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 	if err := unmarshalTableInto(table, resultHolders); err != nil {
 		return &ClientError{err.Error()}

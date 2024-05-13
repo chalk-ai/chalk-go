@@ -268,14 +268,12 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
-		// TODO: Validate for all types
-		switch elemType.Kind() {
-		case reflect.String:
-			strVal, ok := value.(string)
-			if !ok {
-				return reflect.Value{}, fmt.Errorf("error getting reflect value: expected string, got %s", reflect.TypeOf(value))
-			}
-			return getPointerToCopied(elemType, strVal), nil
+		if reflect.ValueOf(value).Kind() != elemType.Kind() {
+			return reflect.Value{}, fmt.Errorf(
+				"expected reflect value of kind '%s', got '%s'",
+				elemType.Kind(),
+				reflect.ValueOf(value).Kind(),
+			)
 		}
 		return getPointerToCopied(elemType, value), nil
 	}
