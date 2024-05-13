@@ -30,7 +30,7 @@ func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
 	}
 
 	users := make([]user, 0)
-	assert.Nil(t, res.UnmarshalInto(chalk.BulkUnmarshalParams{&users}))
+	assert.Nil(t, res.UnmarshalInto(&users))
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
