@@ -95,8 +95,13 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		if reflect.TypeOf(values).Kind() != reflect.Array && reflect.TypeOf(values).Kind() != reflect.Slice {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be an array, instead found type '%s' for feature '%s': ", reflect.TypeOf(values).Kind(), field.Name)
+		if reflect.TypeOf(values).Kind() != reflect.Slice {
+			return nil, fmt.Errorf(
+				"conversion of inputs to Arrow requires all input values "+
+					"to be a slice, instead found type '%s' for feature '%s': ",
+				reflect.TypeOf(values).Kind(),
+				field.Name,
+			)
 		}
 		length := 0
 		if reflect.TypeOf(values).Kind() == reflect.Slice {
@@ -105,7 +110,11 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			length = reflect.ValueOf(values).Type().Len()
 		}
 		if length == 0 {
-			return nil, fmt.Errorf("conversion of inputs to Arrow requires all input values to be non-empty, instead found empty array for feature '%s': ", field.Name)
+			return nil, fmt.Errorf(
+				"conversion of inputs to Arrow requires all input values to "+
+					"be non-empty, instead found empty array for feature '%s': ",
+				field.Name,
+			)
 		}
 
 		elem := reflect.ValueOf(values).Type().Elem()
@@ -158,10 +167,20 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 				}
 				recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
 			} else {
-				return nil, fmt.Errorf("unsupported struct type found for feature '%s' when converting to arrow: %s", field.Name, elem.String())
+				return nil, fmt.Errorf(
+					"unsupported struct type found for feature '%s' "+
+						"when converting to arrow: %s",
+					field.Name,
+					elem.String(),
+				)
 			}
 		default:
-			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())
+			return nil, fmt.Errorf(
+				"unsupported input type found for feature '%s' "+
+					"when converting to arrow: %s",
+				field.Name,
+				reflectKind.String(),
+			)
 		}
 	}
 	return recordBuilder.NewRecord(), nil
