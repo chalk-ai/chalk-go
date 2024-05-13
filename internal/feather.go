@@ -158,6 +158,8 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 					timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
 				}
 				recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
+			} else {
+				return nil, fmt.Errorf("unsupported struct type found for feature '%s' when converting to arrow: %s", field.Name, elem.String())
 			}
 		default:
 			return nil, fmt.Errorf("unsupported input type found for feature '%s' when converting to arrow: %s", field.Name, reflectKind.String())

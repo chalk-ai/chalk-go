@@ -151,17 +151,14 @@ func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
 	case *array.Boolean:
 		return castArr.Value(idx), nil
 	case *array.Date32:
-		// TODO
-		return nil, fmt.Errorf("date not yet supported")
+		return castArr.Value(idx).ToTime(), nil
 	case *array.Date64:
-		// TODO
-		return nil, fmt.Errorf("date not yet supported")
+		return castArr.Value(idx).ToTime(), nil
 	case *array.Timestamp:
 		return castArr.Value(idx).ToTime(arrow.Nanosecond), nil
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", castArr)
 	}
-	return nil, fmt.Errorf("unsupported array type: %T", arr)
 }
 
 func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
@@ -237,7 +234,6 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 			return reflect.ValueOf(&timeValue), nil
 		}
 
-		// Dates are returned as strings in online query (non-bulk)
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
