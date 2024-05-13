@@ -203,7 +203,7 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 
 	resultHolders := make([]allTypes, 0)
 
-	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+	if err := bulkRes.UnmarshalInto(BulkUnmarshalParams{&resultHolders}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -244,7 +244,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 	defer bulkRes.Release()
 
 	resultHolders := make([]allTypes, 0)
-	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+	if err := bulkRes.UnmarshalInto(BulkUnmarshalParams{&resultHolders}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -284,7 +284,7 @@ func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	}
 	defer bulkRes.Release()
 	resultHolders := make([]user, 0)
-	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+	if err := bulkRes.UnmarshalInto(BulkUnmarshalParams{&resultHolders}); err != nil {
 		t.Fatal(err)
 	}
 
