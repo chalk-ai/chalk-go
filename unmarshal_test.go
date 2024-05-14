@@ -316,7 +316,6 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 			assert.Equal(t, fixture.expectedTime, *resultHolders[0].Timestamp)
 		})
 	}
-
 }
 
 // TestUnmarshalQueryBulkListOfPrimitives tests unmarshalling a column whose
