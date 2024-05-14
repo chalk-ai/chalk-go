@@ -252,6 +252,70 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 	assert.Equal(t, "abc", *resultHolders[0].String)
 	assert.Nil(t, resultHolders[1].String)
 	assert.Equal(t, "ghi", *resultHolders[2].String)
+}
+
+// TestUnmarshalBulkQueryTimestampsWithUnitVariety tests that when features
+// are timestamps, we correctly use the time unit to unmarshal the timestamps.
+func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
+	for _, fixture := range []struct {
+		unit           arrow.TimeUnit
+		expectedTime   time.Time
+		timestampValue int64
+	}{
+		{
+			unit:           arrow.Microsecond,
+			expectedTime:   time.Date(2024, 5, 9, 22, 29, 0, 111222000, time.UTC),
+			timestampValue: time.Date(2024, 5, 9, 22, 29, 0, 111222333, time.UTC).UnixMicro(),
+		},
+		{
+			unit:           arrow.Millisecond,
+			expectedTime:   time.Date(2024, 5, 9, 22, 29, 0, 111000000, time.UTC),
+			timestampValue: time.Date(2024, 5, 9, 22, 29, 0, 111222333, time.UTC).UnixMilli(),
+		},
+		{
+			unit:           arrow.Second,
+			expectedTime:   time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
+			timestampValue: time.Date(2024, 5, 9, 22, 29, 0, 111222333, time.UTC).Unix(),
+		},
+		{
+			unit:           arrow.Nanosecond,
+			expectedTime:   time.Date(2024, 5, 9, 22, 29, 0, 111222333, time.UTC),
+			timestampValue: time.Date(2024, 5, 9, 22, 29, 0, 111222333, time.UTC).UnixNano(),
+		},
+	} {
+		t.Run(fmt.Sprintf("unit=%s", fixture.unit), func(t *testing.T) {
+			schema := arrow.NewSchema([]arrow.Field{
+				{Name: "all_types.timestamp", Type: &arrow.TimestampType{
+					Unit:     fixture.unit,
+					TimeZone: "UTC",
+				}},
+			}, nil)
+			recordBuilder := array.NewRecordBuilder(
+				memory.NewGoAllocator(),
+				schema,
+			)
+			defer recordBuilder.Release()
+			recordBuilder.Field(0).(*array.TimestampBuilder).AppendValues(
+				[]arrow.Timestamp{
+					arrow.Timestamp(fixture.timestampValue),
+				}, nil,
+			)
+			table := array.NewTableFromRecords(schema, []arrow.Record{recordBuilder.NewRecord()})
+
+			bulkRes := OnlineQueryBulkResult{
+				ScalarsTable: table,
+			}
+			defer bulkRes.Release()
+
+			resultHolders := make([]allTypes, 0)
+			if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+				t.Fatal(err)
+			}
+
+			assert.Equal(t, 1, len(resultHolders))
+			assert.Equal(t, fixture.expectedTime, *resultHolders[0].Timestamp)
+		})
+	}
 
 }
 
