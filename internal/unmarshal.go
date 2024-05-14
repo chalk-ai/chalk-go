@@ -163,7 +163,8 @@ func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
 	case *array.Date64:
 		return castArr.Value(idx).ToTime(), nil
 	case *array.Timestamp:
-		return castArr.Value(idx).ToTime(arrow.Nanosecond), nil
+		timeUnit := castArr.DataType().(*arrow.TimestampType).TimeUnit()
+		return castArr.Value(idx).ToTime(timeUnit), nil
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", castArr)
 	}
