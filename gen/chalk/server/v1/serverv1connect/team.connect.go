@@ -53,15 +53,21 @@ const (
 	// TeamServiceCreateEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// CreateEnvironment RPC.
 	TeamServiceCreateEnvironmentProcedure = "/chalk.server.v1.TeamService/CreateEnvironment"
-	// TeamServiceCreateServiceTokenProcedure is the fully-qualified name of the TeamService's
-	// CreateServiceToken RPC.
-	TeamServiceCreateServiceTokenProcedure = "/chalk.server.v1.TeamService/CreateServiceToken"
 	// TeamServiceGetAvailablePermissionsProcedure is the fully-qualified name of the TeamService's
 	// GetAvailablePermissions RPC.
 	TeamServiceGetAvailablePermissionsProcedure = "/chalk.server.v1.TeamService/GetAvailablePermissions"
+	// TeamServiceCreateServiceTokenProcedure is the fully-qualified name of the TeamService's
+	// CreateServiceToken RPC.
+	TeamServiceCreateServiceTokenProcedure = "/chalk.server.v1.TeamService/CreateServiceToken"
 	// TeamServiceDeleteServiceTokenProcedure is the fully-qualified name of the TeamService's
 	// DeleteServiceToken RPC.
 	TeamServiceDeleteServiceTokenProcedure = "/chalk.server.v1.TeamService/DeleteServiceToken"
+	// TeamServiceListServiceTokensProcedure is the fully-qualified name of the TeamService's
+	// ListServiceTokens RPC.
+	TeamServiceListServiceTokensProcedure = "/chalk.server.v1.TeamService/ListServiceTokens"
+	// TeamServiceUpdateServiceTokenProcedure is the fully-qualified name of the TeamService's
+	// UpdateServiceToken RPC.
+	TeamServiceUpdateServiceTokenProcedure = "/chalk.server.v1.TeamService/UpdateServiceToken"
 	// TeamServiceUpsertFeaturePermissionsProcedure is the fully-qualified name of the TeamService's
 	// UpsertFeaturePermissions RPC.
 	TeamServiceUpsertFeaturePermissionsProcedure = "/chalk.server.v1.TeamService/UpsertFeaturePermissions"
@@ -78,9 +84,11 @@ var (
 	teamServiceCreateTeamMethodDescriptor               = teamServiceServiceDescriptor.Methods().ByName("CreateTeam")
 	teamServiceCreateProjectMethodDescriptor            = teamServiceServiceDescriptor.Methods().ByName("CreateProject")
 	teamServiceCreateEnvironmentMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("CreateEnvironment")
-	teamServiceCreateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("CreateServiceToken")
 	teamServiceGetAvailablePermissionsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("GetAvailablePermissions")
+	teamServiceCreateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("CreateServiceToken")
 	teamServiceDeleteServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("DeleteServiceToken")
+	teamServiceListServiceTokensMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("ListServiceTokens")
+	teamServiceUpdateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("UpdateServiceToken")
 	teamServiceUpsertFeaturePermissionsMethodDescriptor = teamServiceServiceDescriptor.Methods().ByName("UpsertFeaturePermissions")
 )
 
@@ -94,9 +102,11 @@ type TeamServiceClient interface {
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
-	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
+	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
+	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
+	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 }
 
@@ -163,12 +173,6 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
-		createServiceToken: connect.NewClient[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse](
-			httpClient,
-			baseURL+TeamServiceCreateServiceTokenProcedure,
-			connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
-			connect.WithClientOptions(opts...),
-		),
 		getAvailablePermissions: connect.NewClient[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse](
 			httpClient,
 			baseURL+TeamServiceGetAvailablePermissionsProcedure,
@@ -176,10 +180,28 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		createServiceToken: connect.NewClient[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse](
+			httpClient,
+			baseURL+TeamServiceCreateServiceTokenProcedure,
+			connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		deleteServiceToken: connect.NewClient[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse](
 			httpClient,
 			baseURL+TeamServiceDeleteServiceTokenProcedure,
 			connect.WithSchema(teamServiceDeleteServiceTokenMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		listServiceTokens: connect.NewClient[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse](
+			httpClient,
+			baseURL+TeamServiceListServiceTokensProcedure,
+			connect.WithSchema(teamServiceListServiceTokensMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		updateServiceToken: connect.NewClient[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse](
+			httpClient,
+			baseURL+TeamServiceUpdateServiceTokenProcedure,
+			connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		upsertFeaturePermissions: connect.NewClient[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse](
@@ -201,9 +223,11 @@ type teamServiceClient struct {
 	createTeam               *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
 	createProject            *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
 	createEnvironment        *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
-	createServiceToken       *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
 	getAvailablePermissions  *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
+	createServiceToken       *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
 	deleteServiceToken       *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
+	listServiceTokens        *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
+	updateServiceToken       *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
 	upsertFeaturePermissions *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
 }
 
@@ -247,19 +271,29 @@ func (c *teamServiceClient) CreateEnvironment(ctx context.Context, req *connect.
 	return c.createEnvironment.CallUnary(ctx, req)
 }
 
-// CreateServiceToken calls chalk.server.v1.TeamService.CreateServiceToken.
-func (c *teamServiceClient) CreateServiceToken(ctx context.Context, req *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
-	return c.createServiceToken.CallUnary(ctx, req)
-}
-
 // GetAvailablePermissions calls chalk.server.v1.TeamService.GetAvailablePermissions.
 func (c *teamServiceClient) GetAvailablePermissions(ctx context.Context, req *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error) {
 	return c.getAvailablePermissions.CallUnary(ctx, req)
 }
 
+// CreateServiceToken calls chalk.server.v1.TeamService.CreateServiceToken.
+func (c *teamServiceClient) CreateServiceToken(ctx context.Context, req *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
+	return c.createServiceToken.CallUnary(ctx, req)
+}
+
 // DeleteServiceToken calls chalk.server.v1.TeamService.DeleteServiceToken.
 func (c *teamServiceClient) DeleteServiceToken(ctx context.Context, req *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
 	return c.deleteServiceToken.CallUnary(ctx, req)
+}
+
+// ListServiceTokens calls chalk.server.v1.TeamService.ListServiceTokens.
+func (c *teamServiceClient) ListServiceTokens(ctx context.Context, req *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error) {
+	return c.listServiceTokens.CallUnary(ctx, req)
+}
+
+// UpdateServiceToken calls chalk.server.v1.TeamService.UpdateServiceToken.
+func (c *teamServiceClient) UpdateServiceToken(ctx context.Context, req *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error) {
+	return c.updateServiceToken.CallUnary(ctx, req)
 }
 
 // UpsertFeaturePermissions calls chalk.server.v1.TeamService.UpsertFeaturePermissions.
@@ -277,9 +311,11 @@ type TeamServiceHandler interface {
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
-	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
+	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
+	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
+	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 }
 
@@ -342,12 +378,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	teamServiceCreateServiceTokenHandler := connect.NewUnaryHandler(
-		TeamServiceCreateServiceTokenProcedure,
-		svc.CreateServiceToken,
-		connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
-		connect.WithHandlerOptions(opts...),
-	)
 	teamServiceGetAvailablePermissionsHandler := connect.NewUnaryHandler(
 		TeamServiceGetAvailablePermissionsProcedure,
 		svc.GetAvailablePermissions,
@@ -355,10 +385,28 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceCreateServiceTokenHandler := connect.NewUnaryHandler(
+		TeamServiceCreateServiceTokenProcedure,
+		svc.CreateServiceToken,
+		connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceDeleteServiceTokenHandler := connect.NewUnaryHandler(
 		TeamServiceDeleteServiceTokenProcedure,
 		svc.DeleteServiceToken,
 		connect.WithSchema(teamServiceDeleteServiceTokenMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceListServiceTokensHandler := connect.NewUnaryHandler(
+		TeamServiceListServiceTokensProcedure,
+		svc.ListServiceTokens,
+		connect.WithSchema(teamServiceListServiceTokensMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceUpdateServiceTokenHandler := connect.NewUnaryHandler(
+		TeamServiceUpdateServiceTokenProcedure,
+		svc.UpdateServiceToken,
+		connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceUpsertFeaturePermissionsHandler := connect.NewUnaryHandler(
@@ -385,12 +433,16 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceCreateProjectHandler.ServeHTTP(w, r)
 		case TeamServiceCreateEnvironmentProcedure:
 			teamServiceCreateEnvironmentHandler.ServeHTTP(w, r)
-		case TeamServiceCreateServiceTokenProcedure:
-			teamServiceCreateServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceGetAvailablePermissionsProcedure:
 			teamServiceGetAvailablePermissionsHandler.ServeHTTP(w, r)
+		case TeamServiceCreateServiceTokenProcedure:
+			teamServiceCreateServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteServiceTokenProcedure:
 			teamServiceDeleteServiceTokenHandler.ServeHTTP(w, r)
+		case TeamServiceListServiceTokensProcedure:
+			teamServiceListServiceTokensHandler.ServeHTTP(w, r)
+		case TeamServiceUpdateServiceTokenProcedure:
+			teamServiceUpdateServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceUpsertFeaturePermissionsProcedure:
 			teamServiceUpsertFeaturePermissionsHandler.ServeHTTP(w, r)
 		default:
@@ -434,16 +486,24 @@ func (UnimplementedTeamServiceHandler) CreateEnvironment(context.Context, *conne
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateEnvironment is not implemented"))
 }
 
-func (UnimplementedTeamServiceHandler) CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateServiceToken is not implemented"))
-}
-
 func (UnimplementedTeamServiceHandler) GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetAvailablePermissions is not implemented"))
 }
 
+func (UnimplementedTeamServiceHandler) CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateServiceToken is not implemented"))
+}
+
 func (UnimplementedTeamServiceHandler) DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteServiceToken is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ListServiceTokens is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateServiceToken is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error) {
