@@ -3,6 +3,7 @@ module github.com/chalk-ai/chalk-go
 go 1.21
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.34.1-20240508200655-46a4cf4ba109.1
 	connectrpc.com/connect v1.16.2
 	github.com/apache/arrow/go/v16 v16.1.0
 	github.com/pkg/errors v0.9.1
