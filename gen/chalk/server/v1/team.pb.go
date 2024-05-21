@@ -1357,8 +1357,9 @@ type GetAvailablePermissionsResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Permissions []*PermissionDescription `protobuf:"bytes,1,rep,name=permissions,proto3" json:"permissions,omitempty"`
-	Roles       []*RoleDescription       `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	Permissions                      []*PermissionDescription `protobuf:"bytes,1,rep,name=permissions,proto3" json:"permissions,omitempty"`
+	Roles                            []*RoleDescription       `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	AvailableServiceTokenPermissions []v1.Permission          `protobuf:"varint,3,rep,packed,name=available_service_token_permissions,json=availableServiceTokenPermissions,proto3,enum=chalk.auth.v1.Permission" json:"available_service_token_permissions,omitempty"`
 }
 
 func (x *GetAvailablePermissionsResponse) Reset() {
@@ -1407,87 +1408,9 @@ func (x *GetAvailablePermissionsResponse) GetRoles() []*RoleDescription {
 	return nil
 }
 
-type GetAvailableServiceTokenPermissionsRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *GetAvailableServiceTokenPermissionsRequest) Reset() {
-	*x = GetAvailableServiceTokenPermissionsRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[26]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *GetAvailableServiceTokenPermissionsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAvailableServiceTokenPermissionsRequest) ProtoMessage() {}
-
-func (x *GetAvailableServiceTokenPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[26]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAvailableServiceTokenPermissionsRequest.ProtoReflect.Descriptor instead.
-func (*GetAvailableServiceTokenPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{26}
-}
-
-type GetAvailableServiceTokenPermissionsResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Permissions []v1.Permission `protobuf:"varint,1,rep,packed,name=permissions,proto3,enum=chalk.auth.v1.Permission" json:"permissions,omitempty"`
-}
-
-func (x *GetAvailableServiceTokenPermissionsResponse) Reset() {
-	*x = GetAvailableServiceTokenPermissionsResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[27]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *GetAvailableServiceTokenPermissionsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAvailableServiceTokenPermissionsResponse) ProtoMessage() {}
-
-func (x *GetAvailableServiceTokenPermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[27]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAvailableServiceTokenPermissionsResponse.ProtoReflect.Descriptor instead.
-func (*GetAvailableServiceTokenPermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{27}
-}
-
-func (x *GetAvailableServiceTokenPermissionsResponse) GetPermissions() []v1.Permission {
+func (x *GetAvailablePermissionsResponse) GetAvailableServiceTokenPermissions() []v1.Permission {
 	if x != nil {
-		return x.Permissions
+		return x.AvailableServiceTokenPermissions
 	}
 	return nil
 }
@@ -1504,7 +1427,7 @@ type UpsertFeaturePermissionsRequest struct {
 func (x *UpsertFeaturePermissionsRequest) Reset() {
 	*x = UpsertFeaturePermissionsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[28]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[26]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1517,7 +1440,7 @@ func (x *UpsertFeaturePermissionsRequest) String() string {
 func (*UpsertFeaturePermissionsRequest) ProtoMessage() {}
 
 func (x *UpsertFeaturePermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[26]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1530,7 +1453,7 @@ func (x *UpsertFeaturePermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertFeaturePermissionsRequest.ProtoReflect.Descriptor instead.
 func (*UpsertFeaturePermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UpsertFeaturePermissionsRequest) GetRole() string {
@@ -1559,7 +1482,7 @@ type UpsertFeaturePermissionsResponse struct {
 func (x *UpsertFeaturePermissionsResponse) Reset() {
 	*x = UpsertFeaturePermissionsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[29]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[27]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1572,7 +1495,7 @@ func (x *UpsertFeaturePermissionsResponse) String() string {
 func (*UpsertFeaturePermissionsResponse) ProtoMessage() {}
 
 func (x *UpsertFeaturePermissionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[27]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1585,7 +1508,7 @@ func (x *UpsertFeaturePermissionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertFeaturePermissionsResponse.ProtoReflect.Descriptor instead.
 func (*UpsertFeaturePermissionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *UpsertFeaturePermissionsResponse) GetRole() string {
@@ -1611,7 +1534,7 @@ type ListServiceTokensRequest struct {
 func (x *ListServiceTokensRequest) Reset() {
 	*x = ListServiceTokensRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[30]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1624,7 +1547,7 @@ func (x *ListServiceTokensRequest) String() string {
 func (*ListServiceTokensRequest) ProtoMessage() {}
 
 func (x *ListServiceTokensRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1637,7 +1560,7 @@ func (x *ListServiceTokensRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceTokensRequest.ProtoReflect.Descriptor instead.
 func (*ListServiceTokensRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{28}
 }
 
 type ListServiceTokensResponse struct {
@@ -1651,7 +1574,7 @@ type ListServiceTokensResponse struct {
 func (x *ListServiceTokensResponse) Reset() {
 	*x = ListServiceTokensResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[31]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1664,7 +1587,7 @@ func (x *ListServiceTokensResponse) String() string {
 func (*ListServiceTokensResponse) ProtoMessage() {}
 
 func (x *ListServiceTokensResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1677,7 +1600,7 @@ func (x *ListServiceTokensResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServiceTokensResponse.ProtoReflect.Descriptor instead.
 func (*ListServiceTokensResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListServiceTokensResponse) GetAgents() []*v1.DisplayServiceTokenAgent {
@@ -1702,7 +1625,7 @@ type UpdateServiceTokenRequest struct {
 func (x *UpdateServiceTokenRequest) Reset() {
 	*x = UpdateServiceTokenRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[32]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1715,7 +1638,7 @@ func (x *UpdateServiceTokenRequest) String() string {
 func (*UpdateServiceTokenRequest) ProtoMessage() {}
 
 func (x *UpdateServiceTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1728,7 +1651,7 @@ func (x *UpdateServiceTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateServiceTokenRequest.ProtoReflect.Descriptor instead.
 func (*UpdateServiceTokenRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *UpdateServiceTokenRequest) GetClientId() string {
@@ -1777,7 +1700,7 @@ type UpdateServiceTokenResponse struct {
 func (x *UpdateServiceTokenResponse) Reset() {
 	*x = UpdateServiceTokenResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_chalk_server_v1_team_proto_msgTypes[33]
+		mi := &file_chalk_server_v1_team_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1790,7 +1713,7 @@ func (x *UpdateServiceTokenResponse) String() string {
 func (*UpdateServiceTokenResponse) ProtoMessage() {}
 
 func (x *UpdateServiceTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_team_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_team_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1803,7 +1726,7 @@ func (x *UpdateServiceTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateServiceTokenResponse.ProtoReflect.Descriptor instead.
 func (*UpdateServiceTokenResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_team_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *UpdateServiceTokenResponse) GetAgent() *v1.DisplayServiceTokenAgent {
@@ -1983,7 +1906,7 @@ var file_chalk_server_v1_team_proto_rawDesc = []byte{
 	0x75, 0x6c, 0x74, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08, 0x52, 0x09, 0x69, 0x73, 0x44, 0x65, 0x66,
 	0x61, 0x75, 0x6c, 0x74, 0x22, 0x20, 0x0a, 0x1e, 0x47, 0x65, 0x74, 0x41, 0x76, 0x61, 0x69, 0x6c,
 	0x61, 0x62, 0x6c, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xa3, 0x01, 0x0a, 0x1f, 0x47, 0x65, 0x74, 0x41, 0x76,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x8d, 0x02, 0x0a, 0x1f, 0x47, 0x65, 0x74, 0x41, 0x76,
 	0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f,
 	0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x48, 0x0a, 0x0b, 0x70, 0x65,
 	0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
@@ -1993,16 +1916,13 @@ var file_chalk_server_v1_team_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x73, 0x12, 0x36, 0x0a, 0x05, 0x72, 0x6f, 0x6c, 0x65, 0x73, 0x18, 0x02, 0x20,
 	0x03, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76,
 	0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x6f, 0x6c, 0x65, 0x44, 0x65, 0x73, 0x63, 0x72, 0x69,
-	0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x05, 0x72, 0x6f, 0x6c, 0x65, 0x73, 0x22, 0x2c, 0x0a, 0x2a,
-	0x47, 0x65, 0x74, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69,
-	0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x6a, 0x0a, 0x2b, 0x47, 0x65,
-	0x74, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x0b, 0x70, 0x65, 0x72,
-	0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0e, 0x32, 0x19,
-	0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x76, 0x31, 0x2e, 0x50,
-	0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x0b, 0x70, 0x65, 0x72, 0x6d, 0x69,
+	0x70, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x05, 0x72, 0x6f, 0x6c, 0x65, 0x73, 0x12, 0x68, 0x0a, 0x23,
+	0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x5f, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x5f, 0x70, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x63, 0x68, 0x61, 0x6c,
+	0x6b, 0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73,
+	0x73, 0x69, 0x6f, 0x6e, 0x52, 0x20, 0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x53,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50, 0x65, 0x72, 0x6d, 0x69,
 	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x7a, 0x0a, 0x1f, 0x55, 0x70, 0x73, 0x65, 0x72, 0x74,
 	0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f,
 	0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x72, 0x6f, 0x6c,
@@ -2060,7 +1980,7 @@ var file_chalk_server_v1_team_proto_rawDesc = []byte{
 	0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b,
 	0x2e, 0x61, 0x75, 0x74, 0x68, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x69, 0x73, 0x70, 0x6c, 0x61, 0x79,
 	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x41, 0x67, 0x65, 0x6e,
-	0x74, 0x52, 0x05, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x32, 0xa3, 0x0d, 0x0a, 0x0b, 0x54, 0x65, 0x61,
+	0x74, 0x52, 0x05, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x32, 0xf8, 0x0b, 0x0a, 0x0b, 0x54, 0x65, 0x61,
 	0x6d, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x51, 0x0a, 0x06, 0x47, 0x65, 0x74, 0x45,
 	0x6e, 0x76, 0x12, 0x1e, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65,
 	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x45, 0x6e, 0x76, 0x52, 0x65, 0x71, 0x75, 0x65,
@@ -2119,67 +2039,56 @@ var file_chalk_server_v1_team_proto_rawDesc = []byte{
 	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x76, 0x61, 0x69, 0x6c,
 	0x61, 0x62, 0x6c, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52,
 	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x06, 0x80, 0x7d, 0x02, 0x90, 0x02, 0x01, 0x12,
-	0xa8, 0x01, 0x0a, 0x23, 0x47, 0x65, 0x74, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65,
-	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50, 0x65, 0x72, 0x6d,
-	0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x3b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
-	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x76, 0x61,
-	0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b,
-	0x65, 0x6e, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x3c, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61,
-	0x62, 0x6c, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x50,
-	0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x06, 0x80, 0x7d, 0x02, 0x90, 0x02, 0x01, 0x12, 0x72, 0x0a, 0x12, 0x43, 0x72,
-	0x65, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e,
-	0x12, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
-	0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b, 0x2e, 0x63,
-	0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x43,
-	0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65,
-	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x15, 0x12, 0x72,
-	0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54,
-	0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x65, 0x72,
-	0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x2b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
-	0x76, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80,
-	0x7d, 0x15, 0x12, 0x6f, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73, 0x12, 0x29, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
-	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65,
-	0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65,
-	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03,
-	0x80, 0x7d, 0x16, 0x12, 0x72, 0x0a, 0x12, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72,
+	0x72, 0x0a, 0x12, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x2b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
+	0x2e, 0x76, 0x31, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03,
+	0x80, 0x7d, 0x15, 0x12, 0x72, 0x0a, 0x12, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x65, 0x72,
 	0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c,
-	0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61,
+	0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65,
 	0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65,
-	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x53, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x15, 0x12, 0x84, 0x01, 0x0a, 0x18, 0x55, 0x70, 0x73, 0x65,
+	0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x15, 0x12, 0x6f, 0x0a, 0x11, 0x4c, 0x69, 0x73, 0x74, 0x53,
+	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73, 0x12, 0x29, 0x2e, 0x63,
+	0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c,
+	0x69, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x16, 0x12, 0x72, 0x0a, 0x12, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x2a,
+	0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31,
+	0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f,
+	0x6b, 0x65, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b, 0x2e, 0x63, 0x68, 0x61,
+	0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x15, 0x12, 0x84, 0x01, 0x0a,
+	0x18, 0x55, 0x70, 0x73, 0x65, 0x72, 0x74, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x50, 0x65,
+	0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x30, 0x2e, 0x63, 0x68, 0x61, 0x6c,
+	0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x73, 0x65,
 	0x72, 0x74, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73,
-	0x69, 0x6f, 0x6e, 0x73, 0x12, 0x30, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x73, 0x65, 0x72, 0x74, 0x46, 0x65, 0x61,
-	0x74, 0x75, 0x72, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x31, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x73, 0x65, 0x72, 0x74, 0x46,
-	0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x15, 0x42, 0xb9,
-	0x01, 0x0a, 0x13, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x42, 0x09, 0x54, 0x65, 0x61, 0x6d, 0x50, 0x72, 0x6f, 0x74,
-	0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61, 0x69, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x67,
-	0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2f, 0x73, 0x65, 0x72, 0x76,
-	0x65, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x76, 0x31, 0xa2, 0x02,
-	0x03, 0x43, 0x53, 0x58, 0xaa, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x53, 0x65, 0x72,
-	0x76, 0x65, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x53,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1b, 0x43, 0x68, 0x61, 0x6c, 0x6b,
-	0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
-	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x11, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x3a, 0x3a,
-	0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x31, 0x2e, 0x63, 0x68,
+	0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70,
+	0x73, 0x65, 0x72, 0x74, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x50, 0x65, 0x72, 0x6d, 0x69,
+	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03,
+	0x80, 0x7d, 0x15, 0x42, 0xb9, 0x01, 0x0a, 0x13, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c,
+	0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x42, 0x09, 0x54, 0x65, 0x61,
+	0x6d, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
+	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61, 0x69, 0x2f, 0x63, 0x68,
+	0x61, 0x6c, 0x6b, 0x2d, 0x67, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b,
+	0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x73, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x53, 0x58, 0xaa, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c,
+	0x6b, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0f, 0x43, 0x68,
+	0x61, 0x6c, 0x6b, 0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1b,
+	0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0x5c,
+	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x11, 0x43, 0x68,
+	0x61, 0x6c, 0x6b, 0x3a, 0x3a, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2194,84 +2103,82 @@ func file_chalk_server_v1_team_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_team_proto_rawDescData
 }
 
-var file_chalk_server_v1_team_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_chalk_server_v1_team_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_chalk_server_v1_team_proto_goTypes = []interface{}{
-	(*GetEnvRequest)(nil),                               // 0: chalk.server.v1.GetEnvRequest
-	(*GetEnvResponse)(nil),                              // 1: chalk.server.v1.GetEnvResponse
-	(*GetEnvironmentsRequest)(nil),                      // 2: chalk.server.v1.GetEnvironmentsRequest
-	(*GetEnvironmentsResponse)(nil),                     // 3: chalk.server.v1.GetEnvironmentsResponse
-	(*GetAgentRequest)(nil),                             // 4: chalk.server.v1.GetAgentRequest
-	(*GetAgentResponse)(nil),                            // 5: chalk.server.v1.GetAgentResponse
-	(*GetDisplayAgentRequest)(nil),                      // 6: chalk.server.v1.GetDisplayAgentRequest
-	(*GetDisplayAgentResponse)(nil),                     // 7: chalk.server.v1.GetDisplayAgentResponse
-	(*Team)(nil),                                        // 8: chalk.server.v1.Team
-	(*Project)(nil),                                     // 9: chalk.server.v1.Project
-	(*CreateTeamRequest)(nil),                           // 10: chalk.server.v1.CreateTeamRequest
-	(*CreateTeamResponse)(nil),                          // 11: chalk.server.v1.CreateTeamResponse
-	(*CreateProjectRequest)(nil),                        // 12: chalk.server.v1.CreateProjectRequest
-	(*CreateProjectResponse)(nil),                       // 13: chalk.server.v1.CreateProjectResponse
-	(*CreateEnvironmentRequest)(nil),                    // 14: chalk.server.v1.CreateEnvironmentRequest
-	(*CreateEnvironmentResponse)(nil),                   // 15: chalk.server.v1.CreateEnvironmentResponse
-	(*GetTeamRequest)(nil),                              // 16: chalk.server.v1.GetTeamRequest
-	(*GetTeamResponse)(nil),                             // 17: chalk.server.v1.GetTeamResponse
-	(*CreateServiceTokenRequest)(nil),                   // 18: chalk.server.v1.CreateServiceTokenRequest
-	(*CreateServiceTokenResponse)(nil),                  // 19: chalk.server.v1.CreateServiceTokenResponse
-	(*DeleteServiceTokenRequest)(nil),                   // 20: chalk.server.v1.DeleteServiceTokenRequest
-	(*DeleteServiceTokenResponse)(nil),                  // 21: chalk.server.v1.DeleteServiceTokenResponse
-	(*PermissionDescription)(nil),                       // 22: chalk.server.v1.PermissionDescription
-	(*RoleDescription)(nil),                             // 23: chalk.server.v1.RoleDescription
-	(*GetAvailablePermissionsRequest)(nil),              // 24: chalk.server.v1.GetAvailablePermissionsRequest
-	(*GetAvailablePermissionsResponse)(nil),             // 25: chalk.server.v1.GetAvailablePermissionsResponse
-	(*GetAvailableServiceTokenPermissionsRequest)(nil),  // 26: chalk.server.v1.GetAvailableServiceTokenPermissionsRequest
-	(*GetAvailableServiceTokenPermissionsResponse)(nil), // 27: chalk.server.v1.GetAvailableServiceTokenPermissionsResponse
-	(*UpsertFeaturePermissionsRequest)(nil),             // 28: chalk.server.v1.UpsertFeaturePermissionsRequest
-	(*UpsertFeaturePermissionsResponse)(nil),            // 29: chalk.server.v1.UpsertFeaturePermissionsResponse
-	(*ListServiceTokensRequest)(nil),                    // 30: chalk.server.v1.ListServiceTokensRequest
-	(*ListServiceTokensResponse)(nil),                   // 31: chalk.server.v1.ListServiceTokensResponse
-	(*UpdateServiceTokenRequest)(nil),                   // 32: chalk.server.v1.UpdateServiceTokenRequest
-	(*UpdateServiceTokenResponse)(nil),                  // 33: chalk.server.v1.UpdateServiceTokenResponse
-	nil,                                                 // 34: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
-	nil,                                                 // 35: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
-	(*Environment)(nil),                                 // 36: chalk.server.v1.Environment
-	(*v1.Agent)(nil),                                    // 37: chalk.auth.v1.Agent
-	(*v1.DisplayAgent)(nil),                             // 38: chalk.auth.v1.DisplayAgent
-	(v1.Permission)(0),                                  // 39: chalk.auth.v1.Permission
-	(*v1.CustomClaim)(nil),                              // 40: chalk.auth.v1.CustomClaim
-	(*v1.ServiceTokenAgent)(nil),                        // 41: chalk.auth.v1.ServiceTokenAgent
-	(*v1.FeaturePermissions)(nil),                       // 42: chalk.auth.v1.FeaturePermissions
-	(*v1.DisplayServiceTokenAgent)(nil),                 // 43: chalk.auth.v1.DisplayServiceTokenAgent
-	(v1.FeaturePermission)(0),                           // 44: chalk.auth.v1.FeaturePermission
+	(*GetEnvRequest)(nil),                    // 0: chalk.server.v1.GetEnvRequest
+	(*GetEnvResponse)(nil),                   // 1: chalk.server.v1.GetEnvResponse
+	(*GetEnvironmentsRequest)(nil),           // 2: chalk.server.v1.GetEnvironmentsRequest
+	(*GetEnvironmentsResponse)(nil),          // 3: chalk.server.v1.GetEnvironmentsResponse
+	(*GetAgentRequest)(nil),                  // 4: chalk.server.v1.GetAgentRequest
+	(*GetAgentResponse)(nil),                 // 5: chalk.server.v1.GetAgentResponse
+	(*GetDisplayAgentRequest)(nil),           // 6: chalk.server.v1.GetDisplayAgentRequest
+	(*GetDisplayAgentResponse)(nil),          // 7: chalk.server.v1.GetDisplayAgentResponse
+	(*Team)(nil),                             // 8: chalk.server.v1.Team
+	(*Project)(nil),                          // 9: chalk.server.v1.Project
+	(*CreateTeamRequest)(nil),                // 10: chalk.server.v1.CreateTeamRequest
+	(*CreateTeamResponse)(nil),               // 11: chalk.server.v1.CreateTeamResponse
+	(*CreateProjectRequest)(nil),             // 12: chalk.server.v1.CreateProjectRequest
+	(*CreateProjectResponse)(nil),            // 13: chalk.server.v1.CreateProjectResponse
+	(*CreateEnvironmentRequest)(nil),         // 14: chalk.server.v1.CreateEnvironmentRequest
+	(*CreateEnvironmentResponse)(nil),        // 15: chalk.server.v1.CreateEnvironmentResponse
+	(*GetTeamRequest)(nil),                   // 16: chalk.server.v1.GetTeamRequest
+	(*GetTeamResponse)(nil),                  // 17: chalk.server.v1.GetTeamResponse
+	(*CreateServiceTokenRequest)(nil),        // 18: chalk.server.v1.CreateServiceTokenRequest
+	(*CreateServiceTokenResponse)(nil),       // 19: chalk.server.v1.CreateServiceTokenResponse
+	(*DeleteServiceTokenRequest)(nil),        // 20: chalk.server.v1.DeleteServiceTokenRequest
+	(*DeleteServiceTokenResponse)(nil),       // 21: chalk.server.v1.DeleteServiceTokenResponse
+	(*PermissionDescription)(nil),            // 22: chalk.server.v1.PermissionDescription
+	(*RoleDescription)(nil),                  // 23: chalk.server.v1.RoleDescription
+	(*GetAvailablePermissionsRequest)(nil),   // 24: chalk.server.v1.GetAvailablePermissionsRequest
+	(*GetAvailablePermissionsResponse)(nil),  // 25: chalk.server.v1.GetAvailablePermissionsResponse
+	(*UpsertFeaturePermissionsRequest)(nil),  // 26: chalk.server.v1.UpsertFeaturePermissionsRequest
+	(*UpsertFeaturePermissionsResponse)(nil), // 27: chalk.server.v1.UpsertFeaturePermissionsResponse
+	(*ListServiceTokensRequest)(nil),         // 28: chalk.server.v1.ListServiceTokensRequest
+	(*ListServiceTokensResponse)(nil),        // 29: chalk.server.v1.ListServiceTokensResponse
+	(*UpdateServiceTokenRequest)(nil),        // 30: chalk.server.v1.UpdateServiceTokenRequest
+	(*UpdateServiceTokenResponse)(nil),       // 31: chalk.server.v1.UpdateServiceTokenResponse
+	nil,                                      // 32: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
+	nil,                                      // 33: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
+	(*Environment)(nil),                      // 34: chalk.server.v1.Environment
+	(*v1.Agent)(nil),                         // 35: chalk.auth.v1.Agent
+	(*v1.DisplayAgent)(nil),                  // 36: chalk.auth.v1.DisplayAgent
+	(v1.Permission)(0),                       // 37: chalk.auth.v1.Permission
+	(*v1.CustomClaim)(nil),                   // 38: chalk.auth.v1.CustomClaim
+	(*v1.ServiceTokenAgent)(nil),             // 39: chalk.auth.v1.ServiceTokenAgent
+	(*v1.FeaturePermissions)(nil),            // 40: chalk.auth.v1.FeaturePermissions
+	(*v1.DisplayServiceTokenAgent)(nil),      // 41: chalk.auth.v1.DisplayServiceTokenAgent
+	(v1.FeaturePermission)(0),                // 42: chalk.auth.v1.FeaturePermission
 }
 var file_chalk_server_v1_team_proto_depIdxs = []int32{
-	36, // 0: chalk.server.v1.GetEnvResponse.environment:type_name -> chalk.server.v1.Environment
-	36, // 1: chalk.server.v1.GetEnvironmentsResponse.environments:type_name -> chalk.server.v1.Environment
-	37, // 2: chalk.server.v1.GetAgentResponse.agent:type_name -> chalk.auth.v1.Agent
-	38, // 3: chalk.server.v1.GetDisplayAgentResponse.agent:type_name -> chalk.auth.v1.DisplayAgent
+	34, // 0: chalk.server.v1.GetEnvResponse.environment:type_name -> chalk.server.v1.Environment
+	34, // 1: chalk.server.v1.GetEnvironmentsResponse.environments:type_name -> chalk.server.v1.Environment
+	35, // 2: chalk.server.v1.GetAgentResponse.agent:type_name -> chalk.auth.v1.Agent
+	36, // 3: chalk.server.v1.GetDisplayAgentResponse.agent:type_name -> chalk.auth.v1.DisplayAgent
 	9,  // 4: chalk.server.v1.Team.projects:type_name -> chalk.server.v1.Project
-	36, // 5: chalk.server.v1.Project.environments:type_name -> chalk.server.v1.Environment
+	34, // 5: chalk.server.v1.Project.environments:type_name -> chalk.server.v1.Environment
 	8,  // 6: chalk.server.v1.CreateTeamResponse.team:type_name -> chalk.server.v1.Team
 	9,  // 7: chalk.server.v1.CreateProjectResponse.project:type_name -> chalk.server.v1.Project
-	36, // 8: chalk.server.v1.CreateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
+	34, // 8: chalk.server.v1.CreateEnvironmentResponse.environment:type_name -> chalk.server.v1.Environment
 	8,  // 9: chalk.server.v1.GetTeamResponse.team:type_name -> chalk.server.v1.Team
-	39, // 10: chalk.server.v1.CreateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
-	40, // 11: chalk.server.v1.CreateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	34, // 12: chalk.server.v1.CreateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
-	41, // 13: chalk.server.v1.CreateServiceTokenResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	39, // 14: chalk.server.v1.PermissionDescription.id:type_name -> chalk.auth.v1.Permission
-	39, // 15: chalk.server.v1.RoleDescription.permissions:type_name -> chalk.auth.v1.Permission
-	42, // 16: chalk.server.v1.RoleDescription.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	37, // 10: chalk.server.v1.CreateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
+	38, // 11: chalk.server.v1.CreateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	32, // 12: chalk.server.v1.CreateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry
+	39, // 13: chalk.server.v1.CreateServiceTokenResponse.agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	37, // 14: chalk.server.v1.PermissionDescription.id:type_name -> chalk.auth.v1.Permission
+	37, // 15: chalk.server.v1.RoleDescription.permissions:type_name -> chalk.auth.v1.Permission
+	40, // 16: chalk.server.v1.RoleDescription.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	22, // 17: chalk.server.v1.GetAvailablePermissionsResponse.permissions:type_name -> chalk.server.v1.PermissionDescription
 	23, // 18: chalk.server.v1.GetAvailablePermissionsResponse.roles:type_name -> chalk.server.v1.RoleDescription
-	39, // 19: chalk.server.v1.GetAvailableServiceTokenPermissionsResponse.permissions:type_name -> chalk.auth.v1.Permission
-	42, // 20: chalk.server.v1.UpsertFeaturePermissionsRequest.permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	42, // 21: chalk.server.v1.UpsertFeaturePermissionsResponse.permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	43, // 22: chalk.server.v1.ListServiceTokensResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	39, // 23: chalk.server.v1.UpdateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
-	40, // 24: chalk.server.v1.UpdateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	35, // 25: chalk.server.v1.UpdateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
-	43, // 26: chalk.server.v1.UpdateServiceTokenResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
-	44, // 27: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
-	44, // 28: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	37, // 19: chalk.server.v1.GetAvailablePermissionsResponse.available_service_token_permissions:type_name -> chalk.auth.v1.Permission
+	40, // 20: chalk.server.v1.UpsertFeaturePermissionsRequest.permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	40, // 21: chalk.server.v1.UpsertFeaturePermissionsResponse.permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	41, // 22: chalk.server.v1.ListServiceTokensResponse.agents:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	37, // 23: chalk.server.v1.UpdateServiceTokenRequest.permissions:type_name -> chalk.auth.v1.Permission
+	38, // 24: chalk.server.v1.UpdateServiceTokenRequest.customer_claims:type_name -> chalk.auth.v1.CustomClaim
+	33, // 25: chalk.server.v1.UpdateServiceTokenRequest.feature_tag_to_permission:type_name -> chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry
+	41, // 26: chalk.server.v1.UpdateServiceTokenResponse.agent:type_name -> chalk.auth.v1.DisplayServiceTokenAgent
+	42, // 27: chalk.server.v1.CreateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
+	42, // 28: chalk.server.v1.UpdateServiceTokenRequest.FeatureTagToPermissionEntry.value:type_name -> chalk.auth.v1.FeaturePermission
 	0,  // 29: chalk.server.v1.TeamService.GetEnv:input_type -> chalk.server.v1.GetEnvRequest
 	2,  // 30: chalk.server.v1.TeamService.GetEnvironments:input_type -> chalk.server.v1.GetEnvironmentsRequest
 	4,  // 31: chalk.server.v1.TeamService.GetAgent:input_type -> chalk.server.v1.GetAgentRequest
@@ -2281,29 +2188,27 @@ var file_chalk_server_v1_team_proto_depIdxs = []int32{
 	12, // 35: chalk.server.v1.TeamService.CreateProject:input_type -> chalk.server.v1.CreateProjectRequest
 	14, // 36: chalk.server.v1.TeamService.CreateEnvironment:input_type -> chalk.server.v1.CreateEnvironmentRequest
 	24, // 37: chalk.server.v1.TeamService.GetAvailablePermissions:input_type -> chalk.server.v1.GetAvailablePermissionsRequest
-	26, // 38: chalk.server.v1.TeamService.GetAvailableServiceTokenPermissions:input_type -> chalk.server.v1.GetAvailableServiceTokenPermissionsRequest
-	18, // 39: chalk.server.v1.TeamService.CreateServiceToken:input_type -> chalk.server.v1.CreateServiceTokenRequest
-	20, // 40: chalk.server.v1.TeamService.DeleteServiceToken:input_type -> chalk.server.v1.DeleteServiceTokenRequest
-	30, // 41: chalk.server.v1.TeamService.ListServiceTokens:input_type -> chalk.server.v1.ListServiceTokensRequest
-	32, // 42: chalk.server.v1.TeamService.UpdateServiceToken:input_type -> chalk.server.v1.UpdateServiceTokenRequest
-	28, // 43: chalk.server.v1.TeamService.UpsertFeaturePermissions:input_type -> chalk.server.v1.UpsertFeaturePermissionsRequest
-	1,  // 44: chalk.server.v1.TeamService.GetEnv:output_type -> chalk.server.v1.GetEnvResponse
-	3,  // 45: chalk.server.v1.TeamService.GetEnvironments:output_type -> chalk.server.v1.GetEnvironmentsResponse
-	5,  // 46: chalk.server.v1.TeamService.GetAgent:output_type -> chalk.server.v1.GetAgentResponse
-	7,  // 47: chalk.server.v1.TeamService.GetDisplayAgent:output_type -> chalk.server.v1.GetDisplayAgentResponse
-	17, // 48: chalk.server.v1.TeamService.GetTeam:output_type -> chalk.server.v1.GetTeamResponse
-	11, // 49: chalk.server.v1.TeamService.CreateTeam:output_type -> chalk.server.v1.CreateTeamResponse
-	13, // 50: chalk.server.v1.TeamService.CreateProject:output_type -> chalk.server.v1.CreateProjectResponse
-	15, // 51: chalk.server.v1.TeamService.CreateEnvironment:output_type -> chalk.server.v1.CreateEnvironmentResponse
-	25, // 52: chalk.server.v1.TeamService.GetAvailablePermissions:output_type -> chalk.server.v1.GetAvailablePermissionsResponse
-	27, // 53: chalk.server.v1.TeamService.GetAvailableServiceTokenPermissions:output_type -> chalk.server.v1.GetAvailableServiceTokenPermissionsResponse
-	19, // 54: chalk.server.v1.TeamService.CreateServiceToken:output_type -> chalk.server.v1.CreateServiceTokenResponse
-	21, // 55: chalk.server.v1.TeamService.DeleteServiceToken:output_type -> chalk.server.v1.DeleteServiceTokenResponse
-	31, // 56: chalk.server.v1.TeamService.ListServiceTokens:output_type -> chalk.server.v1.ListServiceTokensResponse
-	33, // 57: chalk.server.v1.TeamService.UpdateServiceToken:output_type -> chalk.server.v1.UpdateServiceTokenResponse
-	29, // 58: chalk.server.v1.TeamService.UpsertFeaturePermissions:output_type -> chalk.server.v1.UpsertFeaturePermissionsResponse
-	44, // [44:59] is the sub-list for method output_type
-	29, // [29:44] is the sub-list for method input_type
+	18, // 38: chalk.server.v1.TeamService.CreateServiceToken:input_type -> chalk.server.v1.CreateServiceTokenRequest
+	20, // 39: chalk.server.v1.TeamService.DeleteServiceToken:input_type -> chalk.server.v1.DeleteServiceTokenRequest
+	28, // 40: chalk.server.v1.TeamService.ListServiceTokens:input_type -> chalk.server.v1.ListServiceTokensRequest
+	30, // 41: chalk.server.v1.TeamService.UpdateServiceToken:input_type -> chalk.server.v1.UpdateServiceTokenRequest
+	26, // 42: chalk.server.v1.TeamService.UpsertFeaturePermissions:input_type -> chalk.server.v1.UpsertFeaturePermissionsRequest
+	1,  // 43: chalk.server.v1.TeamService.GetEnv:output_type -> chalk.server.v1.GetEnvResponse
+	3,  // 44: chalk.server.v1.TeamService.GetEnvironments:output_type -> chalk.server.v1.GetEnvironmentsResponse
+	5,  // 45: chalk.server.v1.TeamService.GetAgent:output_type -> chalk.server.v1.GetAgentResponse
+	7,  // 46: chalk.server.v1.TeamService.GetDisplayAgent:output_type -> chalk.server.v1.GetDisplayAgentResponse
+	17, // 47: chalk.server.v1.TeamService.GetTeam:output_type -> chalk.server.v1.GetTeamResponse
+	11, // 48: chalk.server.v1.TeamService.CreateTeam:output_type -> chalk.server.v1.CreateTeamResponse
+	13, // 49: chalk.server.v1.TeamService.CreateProject:output_type -> chalk.server.v1.CreateProjectResponse
+	15, // 50: chalk.server.v1.TeamService.CreateEnvironment:output_type -> chalk.server.v1.CreateEnvironmentResponse
+	25, // 51: chalk.server.v1.TeamService.GetAvailablePermissions:output_type -> chalk.server.v1.GetAvailablePermissionsResponse
+	19, // 52: chalk.server.v1.TeamService.CreateServiceToken:output_type -> chalk.server.v1.CreateServiceTokenResponse
+	21, // 53: chalk.server.v1.TeamService.DeleteServiceToken:output_type -> chalk.server.v1.DeleteServiceTokenResponse
+	29, // 54: chalk.server.v1.TeamService.ListServiceTokens:output_type -> chalk.server.v1.ListServiceTokensResponse
+	31, // 55: chalk.server.v1.TeamService.UpdateServiceToken:output_type -> chalk.server.v1.UpdateServiceTokenResponse
+	27, // 56: chalk.server.v1.TeamService.UpsertFeaturePermissions:output_type -> chalk.server.v1.UpsertFeaturePermissionsResponse
+	43, // [43:57] is the sub-list for method output_type
+	29, // [29:43] is the sub-list for method input_type
 	29, // [29:29] is the sub-list for extension type_name
 	29, // [29:29] is the sub-list for extension extendee
 	0,  // [0:29] is the sub-list for field type_name
@@ -2629,30 +2534,6 @@ func file_chalk_server_v1_team_proto_init() {
 			}
 		}
 		file_chalk_server_v1_team_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetAvailableServiceTokenPermissionsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_chalk_server_v1_team_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetAvailableServiceTokenPermissionsResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_chalk_server_v1_team_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpsertFeaturePermissionsRequest); i {
 			case 0:
 				return &v.state
@@ -2664,7 +2545,7 @@ func file_chalk_server_v1_team_proto_init() {
 				return nil
 			}
 		}
-		file_chalk_server_v1_team_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_chalk_server_v1_team_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpsertFeaturePermissionsResponse); i {
 			case 0:
 				return &v.state
@@ -2676,7 +2557,7 @@ func file_chalk_server_v1_team_proto_init() {
 				return nil
 			}
 		}
-		file_chalk_server_v1_team_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+		file_chalk_server_v1_team_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListServiceTokensRequest); i {
 			case 0:
 				return &v.state
@@ -2688,7 +2569,7 @@ func file_chalk_server_v1_team_proto_init() {
 				return nil
 			}
 		}
-		file_chalk_server_v1_team_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+		file_chalk_server_v1_team_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListServiceTokensResponse); i {
 			case 0:
 				return &v.state
@@ -2700,7 +2581,7 @@ func file_chalk_server_v1_team_proto_init() {
 				return nil
 			}
 		}
-		file_chalk_server_v1_team_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+		file_chalk_server_v1_team_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateServiceTokenRequest); i {
 			case 0:
 				return &v.state
@@ -2712,7 +2593,7 @@ func file_chalk_server_v1_team_proto_init() {
 				return nil
 			}
 		}
-		file_chalk_server_v1_team_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
+		file_chalk_server_v1_team_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateServiceTokenResponse); i {
 			case 0:
 				return &v.state
@@ -2733,7 +2614,7 @@ func file_chalk_server_v1_team_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_server_v1_team_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   36,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
