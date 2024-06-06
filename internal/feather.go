@@ -93,8 +93,8 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 }
 
 func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []bool) error {
-	valType := slice.Type()
-	if valType.Kind() != reflect.Slice {
+	sliceType := slice.Type()
+	if sliceType.Kind() != reflect.Slice {
 		return errors.Errorf(
 			"conversion of inputs to Arrow requires all input values "+
 				"to be a slice, instead found type '%s'",
@@ -105,7 +105,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 		return nil // No values to append
 	}
 
-	elemType := valType.Elem()
+	elemType := sliceType.Elem()
 	elemKind := elemType.Kind()
 	values := slice.Interface()
 	switch elemKind {
@@ -176,7 +176,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
 			}
 
-			numFieldsReflect := slice.Index(0).NumField()
+			numFieldsReflect := elemType.NumField()
 			numFieldsArrow := sBuilder.NumField()
 			if numFieldsReflect != numFieldsArrow {
 				return errors.Errorf(
@@ -190,12 +190,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			var columns []reflect.Value
 			for j := 0; j < numFieldsReflect; j++ {
 				firstStruct := slice.Index(0)
-				sliceType := reflect.SliceOf(firstStruct.Field(j).Type())
-				col := reflect.MakeSlice(sliceType, 0, slice.Len())
+				fieldSliceType := reflect.SliceOf(firstStruct.Field(j).Type())
+				fieldSlice := reflect.MakeSlice(fieldSliceType, 0, slice.Len())
 				for i := 0; i < slice.Len(); i++ {
-					col = reflect.Append(col, slice.Index(i).Field(j))
+					fieldSlice = reflect.Append(fieldSlice, slice.Index(i).Field(j))
 				}
-				columns = append(columns, col)
+				columns = append(columns, fieldSlice)
 			}
 
 			for i := 0; i < sBuilder.NumField(); i++ {
