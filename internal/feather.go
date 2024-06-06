@@ -171,8 +171,8 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			}
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nullMask)
 		} else {
-			sBuilder, ok := builder.(*array.StructBuilder)
-			if !ok {
+			sBuilder, builderOk := builder.(*array.StructBuilder)
+			if !builderOk {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
 			}
 
@@ -185,6 +185,39 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 					numFieldsReflect,
 					numFieldsArrow,
 				)
+			}
+
+			var namesReflect []string
+			var namesArrow []string
+			structType, typeOk := sBuilder.Type().(*arrow.StructType)
+			if !typeOk {
+				return errors.Errorf(
+					"internal error: expected struct type as StructBuilder type, found %T",
+					sBuilder.Type(),
+				)
+			}
+			for i := 0; i < numFieldsReflect; i++ {
+				namesReflect = append(namesReflect, elemType.Field(i).Name)
+				namesArrow = append(namesArrow, structType.Field(i).Name)
+			}
+			if !reflect.DeepEqual(namesReflect, namesArrow) {
+				return errors.Errorf(
+					"expected field names and their ordering in struct to match field names in Arrow struct schema, "+
+						"found %v in struct and %v in Arrow struct schema",
+					namesReflect,
+					namesArrow,
+				)
+			}
+
+			for i := 0; i < numFieldsReflect; i++ {
+				if elemType.Field(i).Name != structType.Field(i).Name {
+					return errors.Errorf(
+						"expected field name in struct to match field name in Arrow struct schema, "+
+							"found '%s' in struct and '%s' in Arrow struct schema",
+						elemType.Field(i).Name,
+						structType.Field(i).Name,
+					)
+				}
 			}
 
 			var columns []reflect.Value
