@@ -227,18 +227,20 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
-	coord := 1.09
+	lat := 37.7749
+	lng := 122.4194
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.Dataclass: []testLatLng{
 			{
-				Lat: &coord,
-				Lng: &coord,
+				Lat: &lat,
+				Lng: &lng,
 			},
 		},
 	}
 	_, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
 	assert.Nil(t, scalarsErr)
 
+	// TODO: Uncomment once we support deserializing dataclass features.
 	//bulkRes := OnlineQueryBulkResult{
 	//	ScalarsTable: scalarsTable,
 	//}
