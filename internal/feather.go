@@ -189,8 +189,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 
 			var columns []reflect.Value
 			for j := 0; j < numFieldsReflect; j++ {
-				firstStruct := slice.Index(0)
-				fieldSliceType := reflect.SliceOf(firstStruct.Field(j).Type())
+				fieldSliceType := reflect.SliceOf(elemType.Field(j).Type)
 				fieldSlice := reflect.MakeSlice(fieldSliceType, 0, slice.Len())
 				for i := 0; i < slice.Len(); i++ {
 					fieldSlice = reflect.Append(fieldSlice, slice.Index(i).Field(j))
@@ -199,7 +198,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			}
 
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nullMask); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
