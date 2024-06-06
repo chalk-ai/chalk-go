@@ -39,7 +39,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		fieldMeta := structValue.Type().Field(i)
 
 		attributeName := SnakeCase(fieldMeta.Name)
-		nameOverride := fieldMeta.Tag.Get("name")
+		nameOverride := fieldMeta.Tag.Get(internal.NameTag)
 		if nameOverride != "" {
 			attributeName = nameOverride
 		}

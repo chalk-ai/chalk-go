@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var NameTag = "name"
+
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
@@ -123,7 +125,7 @@ func isASCIIUpper(c byte) bool {
 }
 
 func resolveFeatureName(field reflect.StructField) string {
-	if tag := field.Tag.Get("name"); tag != "" {
+	if tag := field.Tag.Get(NameTag); tag != "" {
 		return tag
 	}
 	return ChalkpySnakeCase(field.Name)
