@@ -92,77 +92,126 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	}
 }
 
-func setBuilderValues(builder array.Builder, values any) error {
-	valuesType := reflect.TypeOf(values)
-	if valuesType.Kind() != reflect.Slice {
+func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []bool) error {
+	valType := slice.Type()
+	if valType.Kind() != reflect.Slice {
 		return errors.Errorf(
 			"conversion of inputs to Arrow requires all input values "+
 				"to be a slice, instead found type '%s'",
-			reflect.TypeOf(values).Kind(),
+			slice.Kind(),
 		)
 	}
-	if reflect.ValueOf(values).Len() == 0 {
-		return errors.Errorf(
-			"conversion of inputs to Arrow requires all input values to " +
-				"be non-empty, instead found empty array",
-		)
+	if slice.Len() == 0 {
+		return nil // No values to append
 	}
 
-	elem := valuesType.Elem()
-	elemKind := elem.Kind()
+	elemType := valType.Elem()
+	elemKind := elemType.Kind()
+	values := slice.Interface()
 	switch elemKind {
+	case reflect.Ptr:
+		// elemType is `*T`, so we need to get the type `T`
+		nonPtrSliceType := reflect.SliceOf(elemType.Elem())
+		nonPtrSlice := reflect.MakeSlice(nonPtrSliceType, 0, slice.Len())
+		nilMask := make([]bool, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			v := slice.Index(i)
+			if v.IsNil() {
+				nilMask[i] = true
+				nonPtrSlice = reflect.Append(nonPtrSlice, reflect.Zero(elemType.Elem()))
+			} else {
+				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
+			}
+		}
+		return setBuilderValues(builder, nonPtrSlice, nilMask)
 	case reflect.Int:
 		arrayValues := values.([]int)
 		convertedValues := []int64{}
 		for _, value := range arrayValues {
 			convertedValues = append(convertedValues, int64(value))
 		}
-		builder.(*array.Int64Builder).AppendValues(convertedValues, nil)
+		builder.(*array.Int64Builder).AppendValues(convertedValues, nullMask)
 	case reflect.Int8:
-		builder.(*array.Int8Builder).AppendValues(values.([]int8), nil)
+		builder.(*array.Int8Builder).AppendValues(values.([]int8), nullMask)
 	case reflect.Int16:
-		builder.(*array.Int16Builder).AppendValues(values.([]int16), nil)
+		builder.(*array.Int16Builder).AppendValues(values.([]int16), nullMask)
 	case reflect.Int32:
-		builder.(*array.Int32Builder).AppendValues(values.([]int32), nil)
+		builder.(*array.Int32Builder).AppendValues(values.([]int32), nullMask)
 	case reflect.Int64:
-		builder.(*array.Int64Builder).AppendValues(values.([]int64), nil)
+		builder.(*array.Int64Builder).AppendValues(values.([]int64), nullMask)
 	case reflect.Uint:
 		arrayValues := values.([]uint)
 		convertedValues := []uint64{}
 		for _, value := range arrayValues {
 			convertedValues = append(convertedValues, uint64(value))
 		}
-		builder.(*array.Uint64Builder).AppendValues(convertedValues, nil)
+		builder.(*array.Uint64Builder).AppendValues(convertedValues, nullMask)
 	case reflect.Uint8:
-		builder.(*array.Uint8Builder).AppendValues(values.([]uint8), nil)
+		builder.(*array.Uint8Builder).AppendValues(values.([]uint8), nullMask)
 	case reflect.Uint16:
-		builder.(*array.Uint16Builder).AppendValues(values.([]uint16), nil)
+		builder.(*array.Uint16Builder).AppendValues(values.([]uint16), nullMask)
 	case reflect.Uint32:
-		builder.(*array.Uint32Builder).AppendValues(values.([]uint32), nil)
+		builder.(*array.Uint32Builder).AppendValues(values.([]uint32), nullMask)
 	case reflect.Uint64:
-		builder.(*array.Uint64Builder).AppendValues(values.([]uint64), nil)
+		builder.(*array.Uint64Builder).AppendValues(values.([]uint64), nullMask)
 	case reflect.Float32:
-		builder.(*array.Float32Builder).AppendValues(values.([]float32), nil)
+		builder.(*array.Float32Builder).AppendValues(values.([]float32), nullMask)
 	case reflect.Float64:
-		builder.(*array.Float64Builder).AppendValues(values.([]float64), nil)
+		builder.(*array.Float64Builder).AppendValues(values.([]float64), nullMask)
 	case reflect.String:
-		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
+		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), nullMask)
 	case reflect.Bool:
-		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
+		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), nullMask)
 	case reflect.Struct:
-		if elem == reflect.TypeOf(time.Time{}) {
+		if elemType == reflect.TypeOf(time.Time{}) {
 			timeSlice := values.([]time.Time)
 			timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
 			for _, t := range timeSlice {
 				timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
 			}
-			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
+			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nullMask)
 		} else {
-			// So we have a list of structs
-			// we want to loop through each of them, access the ith field,
-			// append that to the ith arrow builder.
-			// Or actually, we want to build a
+			slice := reflect.ValueOf(values)
+			if slice.Kind() != reflect.Slice {
+				return errors.Errorf("expected slice of structs, found %s", slice.Kind())
+			}
+			if slice.Len() == 0 {
+				return nil // Should have been caught by validation above
+			}
 
+			structBuilder, ok := builder.(*array.StructBuilder)
+			if !ok {
+				return errors.Errorf("internal error: expected struct builder, found %T", builder)
+			}
+
+			numFieldsReflect := slice.Index(0).NumField()
+			numFieldsArrow := structBuilder.NumField()
+			if numFieldsReflect != numFieldsArrow {
+				return errors.Errorf(
+					"expected number of fields in struct to match number of fields in Arrow struct schema, "+
+						"found %d fields in struct and %d fields in Arrow struct schema",
+					numFieldsReflect,
+					numFieldsArrow,
+				)
+			}
+
+			var columns []reflect.Value
+			for j := 0; j < numFieldsReflect; j++ {
+				structz := slice.Index(0)
+				sliceType := reflect.SliceOf(structz.Field(j).Type())
+				col := reflect.MakeSlice(sliceType, 0, slice.Len())
+				for i := 0; i < slice.Len(); i++ {
+					col = reflect.Append(col, structz.Field(j))
+				}
+				columns = append(columns, col)
+			}
+
+			for i := 0; i < structBuilder.NumField(); i++ {
+				fieldBuilder := structBuilder.FieldBuilder(i)
+				if err := setBuilderValues(fieldBuilder, columns[i], nil); err != nil {
+					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
+				}
+			}
 		}
 	default:
 		return errors.Errorf(
@@ -196,7 +245,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		if err := setBuilderValues(recordBuilder.Field(idx), values); err != nil {
+		if err := setBuilderValues(recordBuilder.Field(idx), reflect.ValueOf(values), nil); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
