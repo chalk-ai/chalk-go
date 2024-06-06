@@ -220,6 +220,37 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *resultHolders[1].Timestamp)
 }
 
+// TestUnmarshalOnlineQueryBulkResultDataclasses does what it says it does.
+func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	coord := 1.09
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.Dataclass: []testLatLng{
+			{
+				Lat: &coord,
+				Lng: &coord,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, testLatLng{&coord, &coord}, *resultHolders[0].Dataclass)
+}
+
 // TestUnmarshalBulkQueryOptionalValues tests that when a
 // feature is optional, we can still unmarshal a bulk query
 // result successfully.
