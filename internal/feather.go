@@ -209,17 +209,6 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 				)
 			}
 
-			for i := 0; i < numFieldsReflect; i++ {
-				if elemType.Field(i).Name != arrowStructType.Field(i).Name {
-					return errors.Errorf(
-						"expected field name in struct to match field name in Arrow struct schema, "+
-							"found '%s' in struct and '%s' in Arrow struct schema",
-						elemType.Field(i).Name,
-						arrowStructType.Field(i).Name,
-					)
-				}
-			}
-
 			var columns []reflect.Value
 			for j := 0; j < numFieldsReflect; j++ {
 				fieldSliceType := reflect.SliceOf(elemType.Field(j).Type)
