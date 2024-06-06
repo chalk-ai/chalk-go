@@ -34,7 +34,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		for idx, memberValue := range dataclassValues {
 			memberFieldMeta := structValue.Type().Field(idx)
 			memberField := structValue.Field(idx)
-			pythonName := snakeCase(memberFieldMeta.Name)
+			pythonName := SnakeCase(memberFieldMeta.Name)
 			if memberField == (reflect.Value{}) {
 				return fmt.Errorf("error unmarshalling value for dataclass feature %s: field %s not found in struct %s", fqn, pythonName, structValue.Type().Name())
 			}

@@ -81,7 +81,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 				)
 			}
 			arrowFields = append(arrowFields, arrow.Field{
-				Name:     value.Field(i).Name,
+				Name:     resolveFeatureName(field),
 				Type:     dtype,
 				Nullable: isPointer,
 			})
@@ -189,7 +189,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 
 			var namesReflect []string
 			var namesArrow []string
-			structType, typeOk := sBuilder.Type().(*arrow.StructType)
+			arrowStructType, typeOk := sBuilder.Type().(*arrow.StructType)
 			if !typeOk {
 				return errors.Errorf(
 					"internal error: expected struct type as StructBuilder type, found %T",
@@ -197,8 +197,8 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 				)
 			}
 			for i := 0; i < numFieldsReflect; i++ {
-				namesReflect = append(namesReflect, elemType.Field(i).Name)
-				namesArrow = append(namesArrow, structType.Field(i).Name)
+				namesReflect = append(namesReflect, resolveFeatureName(elemType.Field(i)))
+				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
 			}
 			if !reflect.DeepEqual(namesReflect, namesArrow) {
 				return errors.Errorf(
@@ -210,12 +210,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			}
 
 			for i := 0; i < numFieldsReflect; i++ {
-				if elemType.Field(i).Name != structType.Field(i).Name {
+				if elemType.Field(i).Name != arrowStructType.Field(i).Name {
 					return errors.Errorf(
 						"expected field name in struct to match field name in Arrow struct schema, "+
 							"found '%s' in struct and '%s' in Arrow struct schema",
 						elemType.Field(i).Name,
-						structType.Field(i).Name,
+						arrowStructType.Field(i).Name,
 					)
 				}
 			}
