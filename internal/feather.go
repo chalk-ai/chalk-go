@@ -117,9 +117,10 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 		for i := 0; i < slice.Len(); i++ {
 			v := slice.Index(i)
 			if v.IsNil() {
-				nilMask[i] = true
+				nilMask[i] = false
 				nonPtrSlice = reflect.Append(nonPtrSlice, reflect.Zero(elemType.Elem()))
 			} else {
+				nilMask[i] = true
 				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
 			}
 		}
