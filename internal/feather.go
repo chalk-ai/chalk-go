@@ -171,21 +171,13 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			}
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nullMask)
 		} else {
-			slice := reflect.ValueOf(values)
-			if slice.Kind() != reflect.Slice {
-				return errors.Errorf("expected slice of structs, found %s", slice.Kind())
-			}
-			if slice.Len() == 0 {
-				return nil // Should have been caught by validation above
-			}
-
-			structBuilder, ok := builder.(*array.StructBuilder)
+			sBuilder, ok := builder.(*array.StructBuilder)
 			if !ok {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
 			}
 
 			numFieldsReflect := slice.Index(0).NumField()
-			numFieldsArrow := structBuilder.NumField()
+			numFieldsArrow := sBuilder.NumField()
 			if numFieldsReflect != numFieldsArrow {
 				return errors.Errorf(
 					"expected number of fields in struct to match number of fields in Arrow struct schema, "+
@@ -197,18 +189,17 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 
 			var columns []reflect.Value
 			for j := 0; j < numFieldsReflect; j++ {
-				structz := slice.Index(0)
-				sliceType := reflect.SliceOf(structz.Field(j).Type())
+				firstStruct := slice.Index(0)
+				sliceType := reflect.SliceOf(firstStruct.Field(j).Type())
 				col := reflect.MakeSlice(sliceType, 0, slice.Len())
 				for i := 0; i < slice.Len(); i++ {
-					col = reflect.Append(col, structz.Field(j))
+					col = reflect.Append(col, slice.Index(i).Field(j))
 				}
 				columns = append(columns, col)
 			}
 
-			for i := 0; i < structBuilder.NumField(); i++ {
-				fieldBuilder := structBuilder.FieldBuilder(i)
-				if err := setBuilderValues(fieldBuilder, columns[i], nil); err != nil {
+			for i := 0; i < sBuilder.NumField(); i++ {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
