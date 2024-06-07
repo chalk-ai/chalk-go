@@ -3,28 +3,58 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func InitFeatures[T any](t *T) error {
+type InitFeaturesConfig struct {
+	Version string
+}
+
+func InitFeatures[T any](t *T, configs ...*InitFeaturesConfig) error {
+	if len(configs) > 1 {
+		return errors.Errorf("expected at most one config argument, but found %d", len(configs))
+	}
+	var config *InitFeaturesConfig
+	if len(configs) == 1 {
+		config = configs[0]
+	}
+
 	structValue := reflect.ValueOf(t).Elem()
-	return initFeatures(structValue, "", make(map[string]bool), nil)
+	return initFeatures(structValue, "", make(map[string]bool), nil, config)
 }
 
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToFields) error {
+func initFeatures(
+	structValue reflect.Value,
+	fqn string,
+	visited map[string]bool,
+	fieldMap fqnToFields,
+	config *InitFeaturesConfig,
+) error {
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
 	}
 
 	namespace := structValue.Type().Name()
+	useChalkpySnakeCase := false
+	if config != nil {
+		cliVersion, parseErr := internal.ParseVersion(config.Version)
+		if parseErr != nil {
+			return errors.Errorf("error parsing CLI version: %w", parseErr)
+		}
+		useChalkpySnakeCase = internal.CompareVersions(
+			internal.Version{1, 18, 0},
+			cliVersion,
+		) >= 0
+	}
 	if fqn == "" && namespace != "" {
-		fqn = SnakeCase(namespace) + "."
+		fqn = resolvedSnakeCase(namespace, useChalkpySnakeCase) + "."
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
@@ -38,7 +68,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		f := structValue.Field(i)
 		fieldMeta := structValue.Type().Field(i)
 
-		attributeName := SnakeCase(fieldMeta.Name)
+		attributeName := resolvedSnakeCase(fieldMeta.Name, useChalkpySnakeCase)
 		nameOverride := fieldMeta.Tag.Get(internal.NameTag)
 		if nameOverride != "" {
 			attributeName = nameOverride
@@ -63,7 +93,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap, config)
 			if initErr != nil {
 				return initErr
 			}
@@ -183,6 +213,13 @@ func pointerCheck(field reflect.Value) error {
 		return fmt.Errorf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind())
 	}
 	return nil
+}
+
+func resolvedSnakeCase(s string, useChalkpySnakeCase bool) string {
+	if useChalkpySnakeCase {
+		return internal.ChalkpySnakeCase(s)
+	}
+	return internal.SnakeCase(s)
 }
 
 func SnakeCase(s string) string {

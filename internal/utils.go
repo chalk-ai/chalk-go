@@ -104,6 +104,36 @@ func ChalkpySnakeCase(s string) string {
 	return strings.ToLower(s)
 }
 
+// Deprecated: Use ChalkpySnakeCase instead
+func SnakeCase(s string) string {
+	var b []byte
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if isASCIIUpper(c) {
+			if i > 0 && s[i-1] != '.' {
+				b = append(b, '_')
+			}
+			c += 'a' - 'A'
+		} else if isASCIIDigit(c) && i > 0 && isASCIILower(s[i-1]) {
+			b = append(b, '_')
+		}
+		b = append(b, c)
+	}
+	return string(b)
+}
+
+func isASCIILower(c byte) bool {
+	return 'a' <= c && c <= 'z'
+}
+
+func isASCIIDigit(c byte) bool {
+	return '0' <= c && c <= '9'
+}
+
+func isASCIIUpper(c byte) bool {
+	return 'A' <= c && c <= 'Z'
+}
+
 func resolveFeatureName(field reflect.StructField) string {
 	if tag := field.Tag.Get(NameTag); tag != "" {
 		return tag
