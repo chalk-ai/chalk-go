@@ -196,6 +196,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				case *array.LargeList:
 					newSlice := make([]any, 0)
 					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
+						// TODO: This does not handle nested lists (CHA-3656)
 						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
 						if valueErr != nil {
 							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
@@ -204,10 +205,20 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 					}
 					m[name] = newSlice
 				case *array.Struct:
-					// TODO: Deserialize structs to support dataclasses
-					return nil, fmt.Errorf(
-						"dataclasses or struct-like features are not yet supported in unmarshalling",
-					)
+					newMap := map[string]any{}
+					structType, typeOk := arr.DataType().(*arrow.StructType)
+					if !typeOk {
+						return nil, fmt.Errorf("error getting struct type")
+					}
+					for k := 0; k < arr.NumField(); k++ {
+						// TODO: This does not handle nested structs (CHA-3656)
+						anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), i)
+						if valueErr != nil {
+							return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
+						}
+						newMap[structType.Field(k).Name] = anyVal
+					}
+					m[name] = newMap
 				default:
 					// Primitives
 					anyVal, valueErr := GetValueFromArrowArray(arr, i)

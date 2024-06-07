@@ -45,6 +45,10 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
+	if kind == reflect.Ptr {
+		// e.g. Pointers to an int are stored in an Arrow table the same as an int
+		return convertReflectToArrowType(value.Elem())
+	}
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
 		return arrowType, nil
 	} else if kind == reflect.Slice || kind == reflect.Array {
@@ -67,23 +71,18 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		var arrowFields []arrow.Field
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
-			isPointer := field.Type.Kind() == reflect.Ptr
-			rType := field.Type
-			if isPointer {
-				rType = field.Type.Elem()
-			}
-			dtype, dtypeErr := convertReflectToArrowType(rType)
+			dtype, dtypeErr := convertReflectToArrowType(field.Type)
 			if dtypeErr != nil {
 				return nil, errors.Wrapf(
 					dtypeErr,
 					"arrow conversion failed - failed to convert struct field type '%v' to arrow type",
-					rType,
+					field.Type,
 				)
 			}
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolveFeatureName(field),
 				Type:     dtype,
-				Nullable: isPointer,
+				Nullable: field.Type.Kind() == reflect.Ptr,
 			})
 		}
 		return arrow.StructOf(arrowFields...), nil
