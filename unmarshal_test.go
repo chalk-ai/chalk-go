@@ -237,23 +237,23 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 			},
 		},
 	}
-	_, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
 	assert.Nil(t, scalarsErr)
 
-	// TODO: Uncomment once we support deserializing dataclass features.
-	//bulkRes := OnlineQueryBulkResult{
-	//	ScalarsTable: scalarsTable,
-	//}
-	//defer bulkRes.Release()
-	//
-	//resultHolders := make([]allTypes, 0)
-	//
-	//if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
-	//	t.Fatal(err)
-	//}
-	//
-	//assert.Equal(t, 1, len(resultHolders))
-	//assert.Equal(t, testLatLng{&coord, &coord}, *resultHolders[0].Dataclass)
+	//TODO: Uncomment once we support deserializing dataclass features.
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a
