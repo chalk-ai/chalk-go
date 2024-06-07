@@ -260,8 +260,10 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 
 	assert.Equal(t, 3, len(resultHolders))
 	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
-	//assert.Nil(t, resultHolders[1].Dataclass)
 	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
+
+	// TODO: Handle optional dataclasses in CHA-3655
+	//assert.Nil(t, resultHolders[1].Dataclass)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a
