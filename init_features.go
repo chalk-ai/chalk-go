@@ -23,8 +23,22 @@ func InitFeatures[T any](t *T, configs ...*InitFeaturesConfig) error {
 		config = configs[0]
 	}
 
+	snakeCaseMode := internal.SnakeCaseModeLegacy
+	if config != nil {
+		cliVersion, parseErr := internal.ParseVersion(config.Version)
+		if parseErr != nil {
+			return errors.Wrap(parseErr, "error parsing CLI version")
+		}
+		if internal.CompareVersions(
+			internal.Version{1, 18, 0},
+			cliVersion,
+		) >= 0 {
+			snakeCaseMode = internal.SnakeCaseModeChalkpy
+		}
+	}
+
 	structValue := reflect.ValueOf(t).Elem()
-	return initFeatures(structValue, "", make(map[string]bool), nil, config)
+	return initFeatures(structValue, "", make(map[string]bool), nil, snakeCaseMode)
 }
 
 // initFeatures is a recursive function that initializes all features
@@ -35,26 +49,15 @@ func initFeatures(
 	fqn string,
 	visited map[string]bool,
 	fieldMap fqnToFields,
-	config *InitFeaturesConfig,
+	snakeMode internal.SnakeCaseMode,
 ) error {
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
 	}
 
 	namespace := structValue.Type().Name()
-	useChalkpySnakeCase := false
-	if config != nil {
-		cliVersion, parseErr := internal.ParseVersion(config.Version)
-		if parseErr != nil {
-			return errors.Errorf("error parsing CLI version: %w", parseErr)
-		}
-		useChalkpySnakeCase = internal.CompareVersions(
-			internal.Version{1, 18, 0},
-			cliVersion,
-		) >= 0
-	}
 	if fqn == "" && namespace != "" {
-		fqn = resolvedSnakeCase(namespace, useChalkpySnakeCase) + "."
+		fqn = SnakeCase(namespace) + "."
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
@@ -68,7 +71,7 @@ func initFeatures(
 		f := structValue.Field(i)
 		fieldMeta := structValue.Type().Field(i)
 
-		attributeName := resolvedSnakeCase(fieldMeta.Name, useChalkpySnakeCase)
+		attributeName := SnakeCase(fieldMeta.Name)
 		nameOverride := fieldMeta.Tag.Get(internal.NameTag)
 		if nameOverride != "" {
 			attributeName = nameOverride
@@ -93,7 +96,7 @@ func initFeatures(
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap, config)
+			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap, snakeMode)
 			if initErr != nil {
 				return initErr
 			}
@@ -215,13 +218,6 @@ func pointerCheck(field reflect.Value) error {
 	return nil
 }
 
-func resolvedSnakeCase(s string, useChalkpySnakeCase bool) string {
-	if useChalkpySnakeCase {
-		return internal.ChalkpySnakeCase(s)
-	}
-	return internal.SnakeCase(s)
-}
-
 func SnakeCase(s string) string {
-	return internal.ChalkpySnakeCase(s)
+	return internal.SnakeCase(s)
 }

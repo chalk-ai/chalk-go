@@ -21,7 +21,7 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 	f[fqn] = append(f[fqn], field)
 }
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnakeCase bool) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if internal.IsDataclassPointer(field) {
 		structValue := field.Elem()
 		if slice, isSlice := value.([]any); isSlice {
@@ -37,7 +37,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnak
 			for idx, memberValue := range slice {
 				memberFieldMeta := structValue.Type().Field(idx)
 				memberField := structValue.Field(idx)
-				pythonName := resolvedSnakeCase(memberFieldMeta.Name)
+				pythonName := SnakeCase(memberFieldMeta.Name)
 				if memberField == (reflect.Value{}) {
 					return fmt.Errorf(
 						"error unmarshalling value for dataclass feature %s: "+
@@ -46,7 +46,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnak
 					)
 				}
 				memberFqn := fqn + "." + pythonName
-				if err := setFeatureSingle(memberField, memberFqn, memberValue, useChalkpySnakeCase); err != nil {
+				if err := setFeatureSingle(memberField, memberFqn, memberValue); err != nil {
 					return fmt.Errorf(
 						"error unmarshalling value '%s' "+
 							"for dataclass feature '%s': %w",
@@ -57,7 +57,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnak
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
-				nameToField[resolvedSnakeCase(structValue.Type().Field(i).Name, useChalkpySnakeCase)] = structValue.Field(i)
+				nameToField[SnakeCase(structValue.Type().Field(i).Name)] = structValue.Field(i)
 			}
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
@@ -68,7 +68,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnak
 						fqn, k, structValue.Type().Name(),
 					)
 				}
-				if err := setFeatureSingle(memberField, fqn+"."+k, v, useChalkpySnakeCase); err != nil {
+				if err := setFeatureSingle(memberField, fqn+"."+k, v); err != nil {
 					return fmt.Errorf(
 						"error unmarshalling value '%s' for dataclass feature '%s': %w",
 						k, fqn, err,
@@ -116,7 +116,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, useChalkpySnak
 	return nil
 }
 
-func (f fqnToFields) setFeature(fqn string, value any, useChalkpySnakeCase bool) error {
+func (f fqnToFields) setFeature(fqn string, value any) error {
 	fields, ok := f[fqn]
 	if !ok {
 		return FieldNotFoundError
@@ -125,7 +125,7 @@ func (f fqnToFields) setFeature(fqn string, value any, useChalkpySnakeCase bool)
 	// Versioned features can have multiple fields with the same FQN.
 	// We need to set the value for each field.
 	for _, field := range fields {
-		if err := setFeatureSingle(field, fqn, value, useChalkpySnakeCase); err != nil {
+		if err := setFeatureSingle(field, fqn, value); err != nil {
 			return err
 		}
 	}
@@ -226,7 +226,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	// Has a side effect: fieldMap will be populated.
-	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
+	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap, nil)
 	if initErr != nil {
 		return &ClientError{Message: fmt.Errorf("exception occurred while initializing result holder: %w", initErr).Error()}
 	}
@@ -237,7 +237,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			// TODO: Add validation for optional fields
 			continue
 		}
-		err := fieldMap.setFeature(fqn, value, useChalkpySnakeCase)
+		err := fieldMap.setFeature(fqn, value)
 		if err != nil {
 			structName := structValue.Type().String()
 			outputNamespace := "unknown namespace"

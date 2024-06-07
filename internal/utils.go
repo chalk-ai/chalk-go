@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+type SnakeCaseMode = string
+
+var (
+	SnakeCaseModeLegacy  = SnakeCaseMode("legacy")
+	SnakeCaseModeChalkpy = SnakeCaseMode("chalkpy")
+)
 var camelHumps = regexp.MustCompile("(.)([A-Z][a-z]+)")
 var dunderUpper = regexp.MustCompile("(__)([A-Z])")
 var trailingUpper = regexp.MustCompile("([a-z0-9])([A-Z])")
