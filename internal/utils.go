@@ -9,6 +9,9 @@ import (
 	"strings"
 )
 
+var camelHumps = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var dunderUpper = regexp.MustCompile("(__)([A-Z])")
+var trailingUpper = regexp.MustCompile("([a-z0-9])([A-Z])")
 var NameTag = "name"
 
 func FileExists(path string) bool {
@@ -95,32 +98,10 @@ func getFeatureNameFromFqn(fqn string) string {
 // ChalkpySnakeCase aims to be in parity with
 // our Python implementation of snake_case
 func ChalkpySnakeCase(s string) string {
-	var b []byte
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if isASCIIUpper(c) {
-			if i > 0 && s[i-1] != '.' {
-				b = append(b, '_')
-			}
-			c += 'a' - 'A'
-		} else if isASCIIDigit(c) && i > 0 && isASCIILower(s[i-1]) {
-			b = append(b, '_')
-		}
-		b = append(b, c)
-	}
-	return string(b)
-}
-
-func isASCIILower(c byte) bool {
-	return 'a' <= c && c <= 'z'
-}
-
-func isASCIIDigit(c byte) bool {
-	return '0' <= c && c <= '9'
-}
-
-func isASCIIUpper(c byte) bool {
-	return 'A' <= c && c <= 'Z'
+	s = camelHumps.ReplaceAllString(s, "${1}_${2}")
+	s = dunderUpper.ReplaceAllString(s, "_${2}")
+	s = trailingUpper.ReplaceAllString(s, "${1}_${2}")
+	return strings.ToLower(s)
 }
 
 func resolveFeatureName(field reflect.StructField) string {
