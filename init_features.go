@@ -24,7 +24,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 
 	namespace := structValue.Type().Name()
 	if fqn == "" && namespace != "" {
-		fqn = snakeCase(namespace) + "."
+		fqn = SnakeCase(namespace) + "."
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
@@ -38,8 +38,8 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 		f := structValue.Field(i)
 		fieldMeta := structValue.Type().Field(i)
 
-		attributeName := snakeCase(fieldMeta.Name)
-		nameOverride := fieldMeta.Tag.Get("name")
+		attributeName := SnakeCase(fieldMeta.Name)
+		nameOverride := fieldMeta.Tag.Get(internal.NameTag)
 		if nameOverride != "" {
 			attributeName = nameOverride
 		}
@@ -185,31 +185,6 @@ func pointerCheck(field reflect.Value) error {
 	return nil
 }
 
-func snakeCase(s string) string {
-	var b []byte
-	for i := 0; i < len(s); i++ {
-		c := s[i]
-		if isASCIIUpper(c) {
-			if i > 0 && s[i-1] != '.' {
-				b = append(b, '_')
-			}
-			c += 'a' - 'A'
-		} else if isASCIIDigit(c) && i > 0 && isASCIILower(s[i-1]) {
-			b = append(b, '_')
-		}
-		b = append(b, c)
-	}
-	return string(b)
-}
-
-func isASCIILower(c byte) bool {
-	return 'a' <= c && c <= 'z'
-}
-
-func isASCIIDigit(c byte) bool {
-	return '0' <= c && c <= '9'
-}
-
-func isASCIIUpper(c byte) bool {
-	return 'A' <= c && c <= 'Z'
+func SnakeCase(s string) string {
+	return internal.ChalkpySnakeCase(s)
 }

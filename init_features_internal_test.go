@@ -139,7 +139,7 @@ func TestSnakeCase(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.input, func(t *testing.T) {
-			result := snakeCase(tc.input)
+			result := SnakeCase(tc.input)
 			if tc.success && result != tc.expected {
 				t.Errorf("SnakeCase(%q) = %q, want %q", tc.input, result, tc.expected)
 			} else if !tc.success && result == tc.expected {

@@ -11,6 +11,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/pkg/errors"
 	"reflect"
 	"time"
 )
@@ -44,6 +45,10 @@ func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
+	if kind == reflect.Ptr {
+		// e.g. Pointers to an int are stored in an Arrow table the same as an int
+		return convertReflectToArrowType(value.Elem())
+	}
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
 		return arrowType, nil
 	} else if kind == reflect.Slice || kind == reflect.Array {
@@ -57,19 +62,182 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			)
 		}
 	} else if kind == reflect.Struct {
-		if value != reflect.TypeOf(time.Time{}) {
-			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
-				"but primitives is currently unsupported, found type: %s",
-				kind,
-			)
+		if value == reflect.TypeOf(time.Time{}) {
+			return &arrow.TimestampType{
+				Unit:     arrow.Nanosecond,
+				TimeZone: "UTC",
+			}, nil
 		}
-		return &arrow.TimestampType{
-			Unit:     arrow.Nanosecond,
-			TimeZone: "UTC",
-		}, nil
+		var arrowFields []arrow.Field
+		for i := 0; i < value.NumField(); i++ {
+			field := value.Field(i)
+			dtype, dtypeErr := convertReflectToArrowType(field.Type)
+			if dtypeErr != nil {
+				return nil, errors.Wrapf(
+					dtypeErr,
+					"arrow conversion failed - failed to convert struct field type '%v' to arrow type",
+					field.Type,
+				)
+			}
+			arrowFields = append(arrowFields, arrow.Field{
+				Name:     resolveFeatureName(field),
+				Type:     dtype,
+				Nullable: field.Type.Kind() == reflect.Ptr,
+			})
+		}
+		return arrow.StructOf(arrowFields...), nil
 	} else {
 		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
+}
+
+func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []bool) error {
+	sliceType := slice.Type()
+	if sliceType.Kind() != reflect.Slice {
+		return errors.Errorf(
+			"conversion of inputs to Arrow requires all input values "+
+				"to be a slice, instead found type '%s'",
+			slice.Kind(),
+		)
+	}
+	if slice.Len() == 0 {
+		return nil // No values to append
+	}
+
+	elemType := sliceType.Elem()
+	elemKind := elemType.Kind()
+	values := slice.Interface()
+	switch elemKind {
+	case reflect.Ptr:
+		// elemType is `*T`, so we need to get the type `T`
+		nonPtrSliceType := reflect.SliceOf(elemType.Elem())
+		nonPtrSlice := reflect.MakeSlice(nonPtrSliceType, 0, slice.Len())
+		nilMask := make([]bool, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			v := slice.Index(i)
+			if v.IsNil() {
+				nilMask[i] = false
+				nonPtrSlice = reflect.Append(nonPtrSlice, reflect.Zero(elemType.Elem()))
+			} else {
+				nilMask[i] = true
+				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
+			}
+		}
+		return setBuilderValues(builder, nonPtrSlice, nilMask)
+	case reflect.Int:
+		arrayValues := values.([]int)
+		convertedValues := []int64{}
+		for _, value := range arrayValues {
+			convertedValues = append(convertedValues, int64(value))
+		}
+		builder.(*array.Int64Builder).AppendValues(convertedValues, nullMask)
+	case reflect.Int8:
+		builder.(*array.Int8Builder).AppendValues(values.([]int8), nullMask)
+	case reflect.Int16:
+		builder.(*array.Int16Builder).AppendValues(values.([]int16), nullMask)
+	case reflect.Int32:
+		builder.(*array.Int32Builder).AppendValues(values.([]int32), nullMask)
+	case reflect.Int64:
+		builder.(*array.Int64Builder).AppendValues(values.([]int64), nullMask)
+	case reflect.Uint:
+		arrayValues := values.([]uint)
+		convertedValues := []uint64{}
+		for _, value := range arrayValues {
+			convertedValues = append(convertedValues, uint64(value))
+		}
+		builder.(*array.Uint64Builder).AppendValues(convertedValues, nullMask)
+	case reflect.Uint8:
+		builder.(*array.Uint8Builder).AppendValues(values.([]uint8), nullMask)
+	case reflect.Uint16:
+		builder.(*array.Uint16Builder).AppendValues(values.([]uint16), nullMask)
+	case reflect.Uint32:
+		builder.(*array.Uint32Builder).AppendValues(values.([]uint32), nullMask)
+	case reflect.Uint64:
+		builder.(*array.Uint64Builder).AppendValues(values.([]uint64), nullMask)
+	case reflect.Float32:
+		builder.(*array.Float32Builder).AppendValues(values.([]float32), nullMask)
+	case reflect.Float64:
+		builder.(*array.Float64Builder).AppendValues(values.([]float64), nullMask)
+	case reflect.String:
+		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), nullMask)
+	case reflect.Bool:
+		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), nullMask)
+	case reflect.Struct:
+		if elemType == reflect.TypeOf(time.Time{}) {
+			timeSlice := values.([]time.Time)
+			timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
+			for _, t := range timeSlice {
+				timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
+			}
+			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nullMask)
+		} else {
+			sBuilder, builderOk := builder.(*array.StructBuilder)
+			if !builderOk {
+				return errors.Errorf("internal error: expected struct builder, found %T", builder)
+			}
+
+			numFieldsReflect := elemType.NumField()
+			numFieldsArrow := sBuilder.NumField()
+			if numFieldsReflect != numFieldsArrow {
+				return errors.Errorf(
+					"expected number of fields in struct to match number of fields in Arrow struct schema, "+
+						"found %d fields in struct and %d fields in Arrow struct schema",
+					numFieldsReflect,
+					numFieldsArrow,
+				)
+			}
+
+			var namesReflect []string
+			var namesArrow []string
+			arrowStructType, typeOk := sBuilder.Type().(*arrow.StructType)
+			if !typeOk {
+				return errors.Errorf(
+					"internal error: expected struct type as StructBuilder type, found %T",
+					sBuilder.Type(),
+				)
+			}
+			for i := 0; i < numFieldsReflect; i++ {
+				namesReflect = append(namesReflect, resolveFeatureName(elemType.Field(i)))
+				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
+			}
+			if !reflect.DeepEqual(namesReflect, namesArrow) {
+				return errors.Errorf(
+					"expected field names and their ordering in struct to match field names in Arrow struct schema, "+
+						"found %v in struct and %v in Arrow struct schema",
+					namesReflect,
+					namesArrow,
+				)
+			}
+
+			var columns []reflect.Value
+			for j := 0; j < numFieldsReflect; j++ {
+				fieldSliceType := reflect.SliceOf(elemType.Field(j).Type)
+				fieldSlice := reflect.MakeSlice(fieldSliceType, 0, slice.Len())
+				for i := 0; i < slice.Len(); i++ {
+					fieldSlice = reflect.Append(fieldSlice, slice.Index(i).Field(j))
+				}
+				columns = append(columns, fieldSlice)
+			}
+			for i := 0; i < sBuilder.NumField(); i++ {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
+					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
+				}
+			}
+			for i := 0; i < slice.Len(); i++ {
+				if nullMask == nil {
+					sBuilder.Append(true)
+				} else {
+					sBuilder.Append(nullMask[i])
+				}
+			}
+		}
+	default:
+		return errors.Errorf(
+			"unsupported input type found when converting to arrow: %s",
+			elemKind.String(),
+		)
+	}
+	return nil
 }
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
@@ -95,87 +263,8 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		valuesType := reflect.TypeOf(values)
-		if valuesType.Kind() != reflect.Slice {
-			return nil, fmt.Errorf(
-				"conversion of inputs to Arrow requires all input values "+
-					"to be a slice, instead found type '%s' for feature '%s': ",
-				reflect.TypeOf(values).Kind(),
-				field.Name,
-			)
-		}
-		if reflect.ValueOf(values).Len() == 0 {
-			return nil, fmt.Errorf(
-				"conversion of inputs to Arrow requires all input values to "+
-					"be non-empty, instead found empty array for feature '%s': ",
-				field.Name,
-			)
-		}
-
-		elem := valuesType.Elem()
-		elemKind := elem.Kind()
-		switch elemKind {
-		case reflect.Int:
-			arrayValues := values.([]int)
-			convertedValues := []int64{}
-			for _, value := range arrayValues {
-				convertedValues = append(convertedValues, int64(value))
-			}
-			recordBuilder.Field(idx).(*array.Int64Builder).AppendValues(convertedValues, nil)
-		case reflect.Int8:
-			recordBuilder.Field(idx).(*array.Int8Builder).AppendValues(values.([]int8), nil)
-		case reflect.Int16:
-			recordBuilder.Field(idx).(*array.Int16Builder).AppendValues(values.([]int16), nil)
-		case reflect.Int32:
-			recordBuilder.Field(idx).(*array.Int32Builder).AppendValues(values.([]int32), nil)
-		case reflect.Int64:
-			recordBuilder.Field(idx).(*array.Int64Builder).AppendValues(values.([]int64), nil)
-		case reflect.Uint:
-			arrayValues := values.([]uint)
-			convertedValues := []uint64{}
-			for _, value := range arrayValues {
-				convertedValues = append(convertedValues, uint64(value))
-			}
-			recordBuilder.Field(idx).(*array.Uint64Builder).AppendValues(convertedValues, nil)
-		case reflect.Uint8:
-			recordBuilder.Field(idx).(*array.Uint8Builder).AppendValues(values.([]uint8), nil)
-		case reflect.Uint16:
-			recordBuilder.Field(idx).(*array.Uint16Builder).AppendValues(values.([]uint16), nil)
-		case reflect.Uint32:
-			recordBuilder.Field(idx).(*array.Uint32Builder).AppendValues(values.([]uint32), nil)
-		case reflect.Uint64:
-			recordBuilder.Field(idx).(*array.Uint64Builder).AppendValues(values.([]uint64), nil)
-		case reflect.Float32:
-			recordBuilder.Field(idx).(*array.Float32Builder).AppendValues(values.([]float32), nil)
-		case reflect.Float64:
-			recordBuilder.Field(idx).(*array.Float64Builder).AppendValues(values.([]float64), nil)
-		case reflect.String:
-			recordBuilder.Field(idx).(*array.LargeStringBuilder).AppendValues(values.([]string), nil)
-		case reflect.Bool:
-			recordBuilder.Field(idx).(*array.BooleanBuilder).AppendValues(values.([]bool), nil)
-		case reflect.Struct:
-			if elem == reflect.TypeOf(time.Time{}) {
-				timeSlice := values.([]time.Time)
-				timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
-				for _, t := range timeSlice {
-					timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
-				}
-				recordBuilder.Field(idx).(*array.TimestampBuilder).AppendValues(timestampSlice, nil)
-			} else {
-				return nil, fmt.Errorf(
-					"unsupported struct type found for feature '%s' "+
-						"when converting to arrow: %s",
-					field.Name,
-					elem.String(),
-				)
-			}
-		default:
-			return nil, fmt.Errorf(
-				"unsupported input type found for feature '%s' "+
-					"when converting to arrow: %s",
-				field.Name,
-				elemKind.String(),
-			)
+		if err := setBuilderValues(recordBuilder.Field(idx), reflect.ValueOf(values), nil); err != nil {
+			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
 	return recordBuilder.NewRecord(), nil

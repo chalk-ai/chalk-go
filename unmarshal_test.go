@@ -220,6 +220,52 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *resultHolders[1].Timestamp)
 }
 
+// TestUnmarshalOnlineQueryBulkResultDataclasses tests unmarshalling
+// a bulk query result with dataclass features. This test first
+// builds an Arrow table that contains a column of dataclass features,
+// then unmarshals the table into appropriate structs.
+func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	lat := 37.7749
+	lng := 122.4194
+	lat2 := 47.6062
+	lng2 := 122.3321
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.Dataclass: []*testLatLng{
+			{
+				Lat: &lat,
+				Lng: &lng,
+			},
+			nil,
+			{
+				Lat: &lat2,
+				Lng: &lng2,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 3, len(resultHolders))
+	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
+	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
+
+	// TODO: Handle optional dataclasses in CHA-3655
+	//assert.Nil(t, resultHolders[1].Dataclass)
+}
+
 // TestUnmarshalBulkQueryOptionalValues tests that when a
 // feature is optional, we can still unmarshal a bulk query
 // result successfully.
