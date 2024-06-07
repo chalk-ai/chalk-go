@@ -93,8 +93,7 @@ func getFeatureNameFromFqn(fqn string) string {
 }
 
 // ChalkpySnakeCase aims to be in parity with
-//
-//	our Python implementation of snake_case
+// our Python implementation of snake_case
 func ChalkpySnakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
