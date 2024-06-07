@@ -232,11 +232,12 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	lat2 := 47.6062
 	lng2 := 122.3321
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.Dataclass: []testLatLng{
+		testRootFeatures.AllTypes.Dataclass: []*testLatLng{
 			{
 				Lat: &lat,
 				Lng: &lng,
 			},
+			nil,
 			{
 				Lat: &lat2,
 				Lng: &lng2,
@@ -257,9 +258,10 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 3, len(resultHolders))
 	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
-	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[1].Dataclass)
+	//assert.Nil(t, resultHolders[1].Dataclass)
+	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a
