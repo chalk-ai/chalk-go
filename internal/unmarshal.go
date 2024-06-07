@@ -204,10 +204,19 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 					}
 					m[name] = newSlice
 				case *array.Struct:
-					// TODO: Deserialize structs to support dataclasses
-					return nil, fmt.Errorf(
-						"dataclasses or struct-like features are not yet supported in unmarshalling",
-					)
+					newMap := map[string]any{}
+					structType, typeOk := arr.DataType().(*arrow.StructType)
+					if !typeOk {
+						return nil, fmt.Errorf("error getting struct type")
+					}
+					for k := 0; k < arr.NumField(); k++ {
+						anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), i)
+						if valueErr != nil {
+							return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
+						}
+						newMap[structType.Field(k).Name] = anyVal
+					}
+					m[name] = newMap
 				default:
 					// Primitives
 					anyVal, valueErr := GetValueFromArrowArray(arr, i)
