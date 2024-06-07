@@ -26,18 +26,32 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		structValue := field.Elem()
 		if slice, isSlice := value.([]any); isSlice {
 			if len(slice) != structValue.NumField() {
-				return fmt.Errorf("error unmarshalling value for dataclass feature %s: expected %d fields, got %s", fqn, structValue.NumField(), slice)
+				return fmt.Errorf(
+					"error unmarshalling value for dataclass "+
+						"feature %s: expected %d fields, got %s",
+					fqn,
+					structValue.NumField(),
+					slice,
+				)
 			}
 			for idx, memberValue := range slice {
 				memberFieldMeta := structValue.Type().Field(idx)
 				memberField := structValue.Field(idx)
 				pythonName := SnakeCase(memberFieldMeta.Name)
 				if memberField == (reflect.Value{}) {
-					return fmt.Errorf("error unmarshalling value for dataclass feature %s: field %s not found in struct %s", fqn, pythonName, structValue.Type().Name())
+					return fmt.Errorf(
+						"error unmarshalling value for dataclass feature %s: "+
+							"field %s not found in struct %s",
+						fqn, pythonName, structValue.Type().Name(),
+					)
 				}
 				memberFqn := fqn + "." + pythonName
 				if err := setFeatureSingle(memberField, memberFqn, memberValue); err != nil {
-					return fmt.Errorf("error unmarshalling value '%s' for dataclass feature '%s': %w", pythonName, fqn, err)
+					return fmt.Errorf(
+						"error unmarshalling value '%s' "+
+							"for dataclass feature '%s': %w",
+						pythonName, fqn, err,
+					)
 				}
 			}
 		} else if mapz, isMap := value.(map[string]any); isMap {
@@ -48,14 +62,25 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
-					return fmt.Errorf("error unmarshalling value for dataclass feature %s: field %s not found in struct %s", fqn, k, structValue.Type().Name())
+					return fmt.Errorf(
+						"error unmarshalling value for dataclass feature %s: "+
+							"field %s not found in struct %s",
+						fqn, k, structValue.Type().Name(),
+					)
 				}
 				if err := setFeatureSingle(memberField, fqn+"."+k, v); err != nil {
-					return fmt.Errorf("error unmarshalling value '%s' for dataclass feature '%s': %w", k, fqn, err)
+					return fmt.Errorf(
+						"error unmarshalling value '%s' for dataclass feature '%s': %w",
+						k, fqn, err,
+					)
 				}
 			}
 		} else {
-			return fmt.Errorf("error unmarshalling value for dataclass feature %s: value is not an `any` slice", fqn)
+			return fmt.Errorf(
+				"error unmarshalling value for dataclass "+
+					"feature %s: value is not an `any` slice",
+				fqn,
+			)
 		}
 	} else if field.Kind() == reflect.Map {
 		sections := strings.Split(fqn, ".")
