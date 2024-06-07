@@ -229,18 +229,23 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	assert.Nil(t, initErr)
 	lat := 37.7749
 	lng := 122.4194
+	lat2 := 47.6062
+	lng2 := 122.3321
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.Dataclass: []testLatLng{
 			{
 				Lat: &lat,
 				Lng: &lng,
 			},
+			{
+				Lat: &lat2,
+				Lng: &lng2,
+			},
 		},
 	}
 	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
 	assert.Nil(t, scalarsErr)
 
-	//TODO: Uncomment once we support deserializing dataclass features.
 	bulkRes := OnlineQueryBulkResult{
 		ScalarsTable: scalarsTable,
 	}
@@ -252,8 +257,9 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, 2, len(resultHolders))
 	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
+	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[1].Dataclass)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a
