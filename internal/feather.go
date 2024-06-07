@@ -220,7 +220,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 				columns = append(columns, fieldSlice)
 			}
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nullMask); err != nil {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
