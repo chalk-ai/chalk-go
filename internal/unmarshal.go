@@ -196,6 +196,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				case *array.LargeList:
 					newSlice := make([]any, 0)
 					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
+						// TODO: This does not handle nested lists (CHA-3656)
 						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
 						if valueErr != nil {
 							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
@@ -210,6 +211,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 						return nil, fmt.Errorf("error getting struct type")
 					}
 					for k := 0; k < arr.NumField(); k++ {
+						// TODO: This does not handle nested structs (CHA-3656)
 						anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), i)
 						if valueErr != nil {
 							return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
