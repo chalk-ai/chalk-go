@@ -266,6 +266,65 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	//assert.Nil(t, resultHolders[1].Dataclass)
 }
 
+func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	lat1a := 37.7749
+	lng1a := 122.4194
+	lat1b := 47.6062
+	lng1b := 122.3321
+	lat2a := 43.6532
+	lng2a := 79.3832
+	lat2b := 40.7128
+	lng2b := 74.0060
+
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassList: [][]testLatLng{
+			{
+				{
+					Lat: &lat1a,
+					Lng: &lng1a,
+				},
+				{
+					Lat: &lat1b,
+					Lng: &lng1b,
+				},
+			},
+			{
+				{
+					Lat: &lat2a,
+					Lng: &lng2a,
+				},
+				{
+					Lat: &lat2b,
+					Lng: &lng2b,
+				},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].DataclassList))
+	assert.Equal(t, testLatLng{&lat1a, &lng1a}, (*resultHolders[0].DataclassList)[0])
+	assert.Equal(t, testLatLng{&lat1b, &lng1b}, (*resultHolders[0].DataclassList)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].DataclassList))
+	assert.Equal(t, testLatLng{&lat2a, &lng2a}, (*resultHolders[1].DataclassList)[0])
+	assert.Equal(t, testLatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
+}
+
 // TestUnmarshalBulkQueryOptionalValues tests that when a
 // feature is optional, we can still unmarshal a bulk query
 // result successfully.

@@ -56,8 +56,8 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
 			return arrow.LargeListOf(elemType), nil
 		} else {
-			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
-				"but primitives is currently unsupported, found type: %s",
+			return nil, fmt.Errorf(
+				"arrow conversion failed - a slice of '%s' is currently unsupported",
 				elemKind,
 			)
 		}
@@ -162,6 +162,29 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), nullMask)
 	case reflect.Bool:
 		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), nullMask)
+	case reflect.Slice:
+		var offsets []int64
+		innerSliceType := slice.Type().Elem()
+		if innerSliceType.Kind() != reflect.Slice {
+			return errors.Errorf(
+				"expected slice of slices, instead found slice of '%s'",
+				innerSliceType.Kind(),
+			)
+		}
+		flatSlice := reflect.MakeSlice(innerSliceType, 0, slice.Len())
+		for i := 0; i < slice.Len(); i++ {
+			innerSlice := slice.Index(i)
+			offsets = append(offsets, int64(innerSlice.Len()))
+			flatSlice = reflect.AppendSlice(flatSlice, innerSlice)
+		}
+		if err := setBuilderValues(
+			builder.(*array.LargeListBuilder).ValueBuilder(),
+			flatSlice,
+			nil,
+		); err != nil {
+			return errors.Wrap(err, "failed to set values for slice of slices")
+		}
+		builder.(*array.LargeListBuilder).AppendValues(offsets, nullMask)
 	case reflect.Struct:
 		if elemType == reflect.TypeOf(time.Time{}) {
 			timeSlice := values.([]time.Time)
