@@ -134,39 +134,76 @@ func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
 	return castedPointer
 }
 
-func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
-	switch castArr := arr.(type) {
+func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
+	if a.IsNull(idx) {
+		return nil, nil
+	}
+	switch arr := a.(type) {
+	case *array.LargeList:
+		newSlice := make([]any, 0)
+		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
+			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+			if valueErr != nil {
+				return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
+			}
+			newSlice = append(newSlice, anyVal)
+		}
+		return newSlice, nil
+	case *array.List:
+		newSlice := make([]any, 0)
+		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
+			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+			if valueErr != nil {
+				return nil, fmt.Errorf("error getting value for List column: %w", valueErr)
+			}
+			newSlice = append(newSlice, anyVal)
+		}
+		return newSlice, nil
+	case *array.Struct:
+		newMap := map[string]any{}
+		structType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return nil, fmt.Errorf("error getting struct type")
+		}
+		for k := 0; k < arr.NumField(); k++ {
+			anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), idx)
+			if valueErr != nil {
+				return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
+			}
+			newMap[structType.Field(k).Name] = anyVal
+		}
+		return newMap, nil
 	case *array.String:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.LargeString:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint8:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint16:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint32:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int16:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int32:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Float64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Boolean:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Date32:
-		return castArr.Value(idx).ToTime(), nil
+		return arr.Value(idx).ToTime(), nil
 	case *array.Date64:
-		return castArr.Value(idx).ToTime(), nil
+		return arr.Value(idx).ToTime(), nil
 	case *array.Timestamp:
-		timeUnit := castArr.DataType().(*arrow.TimestampType).TimeUnit()
-		return castArr.Value(idx).ToTime(timeUnit), nil
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		return arr.Value(idx).ToTime(timeUnit), nil
 	default:
-		return nil, fmt.Errorf("unsupported array type: %T", castArr)
+		return nil, fmt.Errorf("unsupported array type: %T", arr)
 	}
 }
 
@@ -186,47 +223,11 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
 					continue
 				}
-
-				if col.IsNull(i) {
-					m[name] = nil
-					continue
+				value, valueErr := GetValueFromArrowArray(col, i)
+				if valueErr != nil {
+					return nil, fmt.Errorf("error getting value from arrow array: %w", valueErr)
 				}
-
-				switch arr := col.(type) {
-				case *array.LargeList:
-					newSlice := make([]any, 0)
-					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
-						// TODO: This does not handle nested lists (CHA-3656)
-						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-						if valueErr != nil {
-							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
-						}
-						newSlice = append(newSlice, anyVal)
-					}
-					m[name] = newSlice
-				case *array.Struct:
-					newMap := map[string]any{}
-					structType, typeOk := arr.DataType().(*arrow.StructType)
-					if !typeOk {
-						return nil, fmt.Errorf("error getting struct type")
-					}
-					for k := 0; k < arr.NumField(); k++ {
-						// TODO: This does not handle nested structs (CHA-3656)
-						anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), i)
-						if valueErr != nil {
-							return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
-						}
-						newMap[structType.Field(k).Name] = anyVal
-					}
-					m[name] = newMap
-				default:
-					// Primitives
-					anyVal, valueErr := GetValueFromArrowArray(arr, i)
-					if valueErr != nil {
-						return nil, fmt.Errorf("error getting value from Arrow array: %w", valueErr)
-					}
-					m[name] = anyVal
-				}
+				m[name] = value
 			}
 			res = append(res, m)
 		}

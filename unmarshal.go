@@ -78,7 +78,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		} else {
 			return fmt.Errorf(
 				"error unmarshalling value for dataclass "+
-					"feature %s: value is not an `any` slice",
+					"feature %s: value is not an `any` slice or a `mpap[string]any`",
 				fqn,
 			)
 		}
