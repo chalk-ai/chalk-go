@@ -106,6 +106,24 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
 		}
 		field.SetMapIndex(tagValue, reflectValue)
+	} else if field.Kind() == reflect.Ptr && field.Type().Elem().Kind() == reflect.Slice {
+		actualSlice := reflect.ValueOf(value)
+		sliceType := field.Type().Elem()
+		elemType := sliceType.Elem()
+		newSlice := reflect.MakeSlice(sliceType, 0, actualSlice.Len())
+		for i := 0; i < actualSlice.Len(); i++ {
+			newSliceElem := reflect.New(elemType)
+			// To make sure that we pass an addressable value to setFeatureSingle
+			ptrToNewSliceElem := reflect.New(newSliceElem.Type())
+			ptrToNewSliceElem.Elem().Set(newSliceElem)
+			if err := setFeatureSingle(ptrToNewSliceElem.Elem(), fqn, actualSlice.Index(i).Interface()); err != nil {
+				return fmt.Errorf("error setting slice element for slice feature %s: %w", fqn, err)
+			}
+			newSlice = reflect.Append(newSlice, reflect.Indirect(ptrToNewSliceElem.Elem()))
+		}
+		ptrToNewSlice := reflect.New(newSlice.Type())
+		ptrToNewSlice.Elem().Set(newSlice)
+		field.Set(ptrToNewSlice)
 	} else {
 		reflectValue, err := internal.GetReflectValue(value, field.Type().Elem())
 		if err != nil {

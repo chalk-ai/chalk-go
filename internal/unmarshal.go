@@ -278,6 +278,8 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return reflect.ValueOf(&dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
+		// TODO: This can entirely be made redundant by consolidating
+		//       with new handling of slices in setFeatureSingle.
 		value, convErr = convertSlice(elemType.Elem().Kind(), value)
 		if convErr != nil {
 			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
