@@ -63,7 +63,9 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
 		}
-		field.SetMapIndex(tagValue, *rVal)
+		ptrToVal := reflect.New(rVal.Type())
+		ptrToVal.Elem().Set(*rVal)
+		field.SetMapIndex(tagValue, ptrToVal)
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
