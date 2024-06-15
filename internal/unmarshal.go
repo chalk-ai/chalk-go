@@ -241,6 +241,141 @@ func SliceAppend(slicePtr any, value reflect.Value) {
 	sliceValue.Set(reflect.Append(sliceValue, value))
 }
 
+func ValidatePointer(value any, typ reflect.Type) error {
+	if typ.Kind() != reflect.Ptr {
+		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
+	}
+	if typ.Elem() != reflect.TypeOf(value) {
+		return fmt.Errorf(
+			"expected type '%s', got '%s'",
+			typ.Elem().Kind().String(),
+			reflect.TypeOf(value).Kind().String(),
+		)
+	}
+	return nil
+}
+
+func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) {
+	if typ.Kind() == reflect.Ptr && IsTypeDataclass(typ.Elem()) {
+		structValue := reflect.New(typ.Elem())
+		if slice, isSlice := value.([]any); isSlice {
+			if len(slice) != structValue.Elem().NumField() {
+				return nil, fmt.Errorf(
+					"error unmarshalling value for struct %s"+
+						": expected %d fields, got %d",
+					structValue.Type().Name(),
+					structValue.NumField(),
+					len(slice),
+				)
+			}
+			for idx, memberValue := range slice {
+				memberFieldMeta := structValue.Type().Field(idx)
+				memberField := structValue.Field(idx)
+				pythonName := ChalkpySnakeCase(memberFieldMeta.Name)
+				if memberField == (reflect.Value{}) {
+					return nil, fmt.Errorf(
+						"field %s not found in struct %s",
+						pythonName, structValue.Type().Name(),
+					)
+				}
+				if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
+					return nil, err
+				}
+				rVal, err := GetReflectValueNonPtr(value, memberField.Type().Elem())
+				if err != nil {
+					return nil, fmt.Errorf(
+						"error unmarshalling struct value for field '%s' in struct '%s': %w",
+						pythonName, structValue.Type().Name(), err,
+					)
+				}
+				memberField.Elem().Set(*rVal)
+			}
+		} else if mapz, isMap := value.(map[string]any); isMap {
+			nameToField := make(map[string]reflect.Value)
+			for i := 0; i < structValue.NumField(); i++ {
+				nameToField[ChalkpySnakeCase(structValue.Type().Field(i).Name)] = structValue.Field(i)
+			}
+			for k, v := range mapz {
+				memberField, fieldOk := nameToField[k]
+				if !fieldOk {
+					return nil, fmt.Errorf(
+						"field %s not found in struct %s",
+						k, structValue.Type().Name(),
+					)
+				}
+				if err := ValidatePointer(v, memberField.Type()); err != nil {
+					return nil, err
+				}
+				rVal, err := GetReflectValueNonPtr(v, memberField.Type().Elem())
+				if err != nil {
+					return nil, fmt.Errorf(
+						"error unmarshalling struct value '%s' for struct '%s': %w",
+						k, structValue.Type().Name(), err,
+					)
+				}
+				memberField.Elem().Set(*rVal)
+			}
+		} else {
+			return nil, fmt.Errorf(
+				"struct value is not an `any` slice or a `map[string]any`",
+			)
+		}
+	} else if typ == reflect.TypeOf(time.Time{}) {
+		// Datetimes have already been unmarshalled into time.Time in bulk online query
+		if reflect.TypeOf(value) == typ {
+			if timeValue, ok := value.(time.Time); ok {
+				// Need to cast to time type, otherwise
+				// reflect.ValueOf(&timeValue) will give
+				// us a reflect value of the pointer to
+				// an interface.
+				return Ptr(reflect.ValueOf(timeValue)), nil
+			} else {
+				return nil, fmt.Errorf(
+					"error getting reflect value: expected `time.Time`, got %s",
+					reflect.TypeOf(value),
+				)
+			}
+		}
+
+		// Datetimes are returned as strings in online query (non-bulk)
+		stringValue := reflect.ValueOf(value).String()
+		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
+		if timeErr == nil {
+			return Ptr(reflect.ValueOf(timeValue)), nil
+		}
+
+		// Dates are returned as strings in online query (non-bulk)
+		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
+		if dateErr != nil {
+			// Return original datetime parsing error
+			return nil, fmt.Errorf("error parsing date string: %w", timeErr)
+		}
+		return Ptr(reflect.ValueOf(dateValue)), nil
+	} else if typ.Kind() == reflect.Slice {
+		actualSlice := reflect.ValueOf(value)
+		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
+		for i := 0; i < actualSlice.Len(); i++ {
+			rVal, err := GetReflectValueNonPtr(actualSlice.Index(i).Interface(), typ.Elem())
+			if err != nil {
+				return nil, fmt.Errorf("error getting reflect value for slice: %w", err)
+			}
+			newSlice = reflect.Append(newSlice, *rVal)
+		}
+		return &newSlice, nil
+	} else {
+		rVal := reflect.ValueOf(value)
+		if rVal.Kind() != typ.Kind() {
+			return nil, fmt.Errorf(
+				"expected reflect value of kind '%s', got '%s'",
+				typ.Kind(),
+				reflect.ValueOf(value).Kind(),
+			)
+		}
+		return Ptr(rVal), nil
+	}
+	return nil, nil
+}
+
 func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 	value, convErr := convertIfNumber(value, elemType.Kind())
 	if convErr != nil {
@@ -254,7 +389,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 				// reflect.ValueOf(&timeValue) will give
 				// us a reflect value of the pointer to
 				// an interface.
-				return reflect.ValueOf(&timeValue), nil
+				return reflect.ValueOf(timeValue), nil
 			} else {
 				return reflect.Value{}, fmt.Errorf(
 					"error getting reflect value: expected `time.Time`, got %s",
@@ -267,7 +402,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
-			return reflect.ValueOf(&timeValue), nil
+			return reflect.ValueOf(timeValue), nil
 		}
 
 		// Dates are returned as strings in online query (non-bulk)
@@ -276,7 +411,7 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 			// Return original datetime parsing error
 			return reflect.Value{}, timeErr
 		}
-		return reflect.ValueOf(&dateValue), nil
+		return reflect.ValueOf(dateValue), nil
 	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
 		// TODO: This can entirely be made redundant by consolidating
 		//       with new handling of slices in setFeatureSingle.
@@ -286,15 +421,32 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		}
 		return getPointerToCopied(elemType, value), nil
 	} else {
-		if reflect.ValueOf(value).Kind() != elemType.Kind() {
+		rVal := reflect.ValueOf(value)
+		if rVal.Kind() != elemType.Kind() {
 			return reflect.Value{}, fmt.Errorf(
 				"expected reflect value of kind '%s', got '%s'",
 				elemType.Kind(),
 				reflect.ValueOf(value).Kind(),
 			)
 		}
-		return getPointerToCopied(elemType, value), nil
+		return rVal, nil
 	}
+}
+
+func IsTypeDataclass(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Struct {
+		if typ.NumField() == 0 {
+			return false
+		}
+		for i := 0; i < typ.NumField(); i++ {
+			fieldMeta := typ.Field(i)
+			if fieldMeta.Tag.Get("dataclass_field") == "true" {
+				return true
+			}
+		}
+		return false
+	}
+	return true
 }
 
 func IsDataclass(field reflect.Value) bool {

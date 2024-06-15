@@ -22,6 +22,55 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 }
 
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
+	if field.Type().Kind() == reflect.Ptr {
+		if err := internal.ValidatePointer(value, field.Type()); err != nil {
+			return fmt.Errorf("error getting pointed to value for feature '%s': %w", fqn, err)
+		}
+		rVal, err := internal.GetReflectValueNonPtr(value, field.Type().Elem())
+		if err != nil {
+			return fmt.Errorf("error getting reflect value for feature '%s': %w", fqn, err)
+		}
+		ptrToVal := reflect.New(rVal.Type())
+		ptrToVal.Elem().Set(*rVal)
+		field.Set(ptrToVal)
+		return nil
+	} else if field.Kind() == reflect.Map {
+		// We are handling maps differently because they are typed as `map`
+		// instead of a pointer to a `map` like all other types are.
+		//
+		// And handling it in setFeaturesSingleNew instead of in the recursive
+		// GetReflectValueNonPtr function checks out because we never encounter
+		// maps in slices, other maps, or structs.
+		sections := strings.Split(fqn, ".")
+		lastSection := sections[len(sections)-1]
+		lastSectionSplit := strings.Split(lastSection, "__")
+		formatErr := fmt.Errorf(
+			"error unmarshalling value for windowed bucket feature %s: "+
+				"expected windowed bucket feature to have fqn of the format "+
+				"`{fqn}__{bucket seconds}__` ",
+			fqn,
+		)
+		if len(lastSectionSplit) < 2 {
+			return formatErr
+		}
+		secondsStr := lastSectionSplit[1]
+		seconds, err := strconv.Atoi(secondsStr)
+		if err != nil {
+			return formatErr
+		}
+		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
+		rVal, err := internal.GetReflectValueNonPtr(value, field.Type().Elem().Elem())
+		if err != nil {
+			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
+		}
+		field.SetMapIndex(tagValue, *rVal)
+		return nil
+	} else {
+		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
+	}
+}
+
+func setFeatureSingleOld(field reflect.Value, fqn string, value any) error {
 	if internal.IsDataclassPointer(field) {
 		structValue := field.Elem()
 		if slice, isSlice := value.([]any); isSlice {
