@@ -245,7 +245,7 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	if typ.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
 	}
-	if IsTypeDataclass(typ.Elem()) && reflect.TypeOf(value).Kind() == reflect.Slice {
+	if IsTypeDataclass(typ.Elem()) && (reflect.TypeOf(value).Kind() == reflect.Slice || reflect.TypeOf(value).Kind() == reflect.Map) {
 		return nil
 	}
 	if typ.Elem() != reflect.TypeOf(value) {
@@ -256,6 +256,12 @@ func ValidatePointer(value any, typ reflect.Type) error {
 		)
 	}
 	return nil
+}
+
+func setIndirectValueToPointerValue(indirectValue reflect.Value, pointerValue reflect.Value) {
+	ptrToVal := reflect.New(indirectValue.Type())
+	ptrToVal.Elem().Set(indirectValue)
+	pointerValue.Set(ptrToVal)
 }
 
 func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) {
@@ -319,7 +325,7 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 						k, structValue.Type().Name(), err,
 					)
 				}
-				memberField.Elem().Set(*rVal)
+				setIndirectValueToPointerValue(*rVal, memberField)
 			}
 			return &structValue, nil
 		} else {
