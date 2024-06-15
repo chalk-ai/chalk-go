@@ -18,6 +18,7 @@ type allTypes struct {
 	Bool          *bool
 	Timestamp     *time.Time
 	IntList       *[]int64
+	NestedIntList *[][]int64
 	WindowedInt   map[string]*int64   `windows:"1m,5m,1h"`
 	WindowedList  map[string]*[]int64 `windows:"1m"`
 	Dataclass     *testLatLng         `dataclass:"true"`

@@ -325,6 +325,39 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	assert.Equal(t, testLatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
 }
 
+func TestUnmarshalBulkQueryNestedList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntList: [][]int64{
+			{1, 2},
+			{3, 4},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].NestedIntList))
+	assert.Equal(t, int64(1), (*resultHolders[0].NestedIntList)[0][0])
+	assert.Equal(t, int64(2), (*resultHolders[0].NestedIntList)[0][1])
+	assert.Equal(t, 2, len(*resultHolders[1].NestedIntList))
+	assert.Equal(t, int64(3), (*resultHolders[1].NestedIntList)[0][0])
+	assert.Equal(t, int64(4), (*resultHolders[1].NestedIntList)[0][1])
+
+}
+
 // TestUnmarshalBulkQueryOptionalValues tests that when a
 // feature is optional, we can still unmarshal a bulk query
 // result successfully.
