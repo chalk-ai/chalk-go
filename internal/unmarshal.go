@@ -38,6 +38,22 @@ func convertNumber[T Numbers](anyNumber any) (T, error) {
 	}
 }
 
+func isTypeDataclass(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Struct {
+		for i := 0; i < typ.NumField(); i++ {
+			fieldMeta := typ.Field(i)
+			if fieldMeta.Tag.Get("dataclass_field") == "true" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func IsDataclass(field reflect.Value) bool {
+	return isTypeDataclass(field.Type())
+}
+
 func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
@@ -150,7 +166,7 @@ func ValidatePointer(value any, typ reflect.Type) error {
 		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
 	}
 	valType := reflect.TypeOf(value)
-	if IsTypeDataclass(typ.Elem()) && (valType.Kind() == reflect.Slice || valType.Kind() == reflect.Map) {
+	if isTypeDataclass(typ.Elem()) && (valType.Kind() == reflect.Slice || valType.Kind() == reflect.Map) {
 		return nil
 	}
 	if typ.Elem().Kind() != valType.Kind() {
@@ -170,7 +186,7 @@ func setIndirectValueToPointerValue(indirectValue reflect.Value, pointerValue re
 }
 
 func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) {
-	if IsTypeDataclass(typ) {
+	if isTypeDataclass(typ) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
 			if len(slice) != structValue.NumField() {
@@ -289,42 +305,6 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 				reflect.ValueOf(value).Kind(),
 			)
 		}
-		return Ptr(rVal), nil
+		return &rVal, nil
 	}
-}
-
-func IsTypeDataclass(typ reflect.Type) bool {
-	if typ.Kind() == reflect.Struct {
-		for i := 0; i < typ.NumField(); i++ {
-			fieldMeta := typ.Field(i)
-			if fieldMeta.Tag.Get("dataclass_field") == "true" {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func IsDataclass(field reflect.Value) bool {
-	if field.Kind() == reflect.Struct {
-		if field.NumField() == 0 {
-			return false
-		}
-		for i := 0; i < field.NumField(); i++ {
-			fieldMeta := field.Type().Field(i)
-			if fieldMeta.Tag.Get("dataclass_field") != "true" {
-				return false
-			}
-		}
-		return true
-	}
-
-	return false
-}
-
-func IsDataclassPointer(field reflect.Value) bool {
-	if field.Kind() == reflect.Ptr && IsDataclass(field.Elem()) {
-		return true
-	}
-	return false
 }
