@@ -245,6 +245,9 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	if typ.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
 	}
+	if IsTypeDataclass(typ.Elem()) && reflect.TypeOf(value).Kind() == reflect.Slice {
+		return nil
+	}
 	if typ.Elem() != reflect.TypeOf(value) {
 		return fmt.Errorf(
 			"expected type '%s', got '%s'",
@@ -256,10 +259,10 @@ func ValidatePointer(value any, typ reflect.Type) error {
 }
 
 func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) {
-	if typ.Kind() == reflect.Ptr && IsTypeDataclass(typ.Elem()) {
-		structValue := reflect.New(typ.Elem())
+	if IsTypeDataclass(typ) {
+		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
-			if len(slice) != structValue.Elem().NumField() {
+			if len(slice) != structValue.NumField() {
 				return nil, fmt.Errorf(
 					"error unmarshalling value for struct %s"+
 						": expected %d fields, got %d",
@@ -281,14 +284,16 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 				if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
 					return nil, err
 				}
-				rVal, err := GetReflectValueNonPtr(value, memberField.Type().Elem())
+				rVal, err := GetReflectValueNonPtr(memberValue, memberField.Type().Elem())
 				if err != nil {
 					return nil, fmt.Errorf(
 						"error unmarshalling struct value for field '%s' in struct '%s': %w",
 						pythonName, structValue.Type().Name(), err,
 					)
 				}
-				memberField.Elem().Set(*rVal)
+				ptrToVal := reflect.New(rVal.Type())
+				ptrToVal.Set(*rVal)
+				memberField.Set(ptrToVal)
 			}
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			nameToField := make(map[string]reflect.Value)
@@ -435,18 +440,14 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 
 func IsTypeDataclass(typ reflect.Type) bool {
 	if typ.Kind() == reflect.Struct {
-		if typ.NumField() == 0 {
-			return false
-		}
 		for i := 0; i < typ.NumField(); i++ {
 			fieldMeta := typ.Field(i)
 			if fieldMeta.Tag.Get("dataclass_field") == "true" {
 				return true
 			}
 		}
-		return false
 	}
-	return true
+	return false
 }
 
 func IsDataclass(field reflect.Value) bool {
