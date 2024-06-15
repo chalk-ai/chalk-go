@@ -292,9 +292,10 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 					)
 				}
 				ptrToVal := reflect.New(rVal.Type())
-				ptrToVal.Set(*rVal)
+				ptrToVal.Elem().Set(*rVal)
 				memberField.Set(ptrToVal)
 			}
+			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
@@ -320,6 +321,7 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 				}
 				memberField.Elem().Set(*rVal)
 			}
+			return &structValue, nil
 		} else {
 			return nil, fmt.Errorf(
 				"struct value is not an `any` slice or a `map[string]any`",
@@ -378,7 +380,6 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 		}
 		return Ptr(rVal), nil
 	}
-	return nil, nil
 }
 
 func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
