@@ -245,14 +245,15 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	if typ.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
 	}
-	if IsTypeDataclass(typ.Elem()) && (reflect.TypeOf(value).Kind() == reflect.Slice || reflect.TypeOf(value).Kind() == reflect.Map) {
+	valType := reflect.TypeOf(value)
+	if IsTypeDataclass(typ.Elem()) && (valType.Kind() == reflect.Slice || valType.Kind() == reflect.Map) {
 		return nil
 	}
-	if typ.Elem() != reflect.TypeOf(value) {
+	if typ.Elem().Kind() != valType.Kind() {
 		return fmt.Errorf(
 			"expected type '%s', got '%s'",
 			typ.Elem().Kind().String(),
-			reflect.TypeOf(value).Kind().String(),
+			valType.Kind().String(),
 		)
 	}
 	return nil
