@@ -26,7 +26,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err := internal.ValidatePointer(value, field.Type()); err != nil {
 			return fmt.Errorf("error getting pointed to value for feature '%s': %w", fqn, err)
 		}
-		rVal, err := internal.GetReflectValueNonPtr(value, field.Type().Elem())
+		rVal, err := internal.GetReflectValue(value, field.Type().Elem())
 		if err != nil {
 			return fmt.Errorf("error getting reflect value for feature '%s': %w", fqn, err)
 		}
@@ -39,7 +39,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		// instead of a pointer to a `map` like all other types are.
 		//
 		// And handling it in setFeaturesSingleNew instead of in the recursive
-		// GetReflectValueNonPtr function checks out because we never encounter
+		// GetReflectValue function checks out because we never encounter
 		// maps in slices, other maps, or structs.
 		sections := strings.Split(fqn, ".")
 		lastSection := sections[len(sections)-1]
@@ -59,7 +59,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 			return formatErr
 		}
 		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
-		rVal, err := internal.GetReflectValueNonPtr(value, field.Type().Elem().Elem())
+		rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
 		if err != nil {
 			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
 		}

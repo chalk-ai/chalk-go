@@ -326,13 +326,18 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryNestedList(t *testing.T) {
-	t.Skip("Not yet implemented")
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.NestedIntList: [][]int64{
-			{1, 2},
-			{3, 4},
+		testRootFeatures.AllTypes.NestedIntList: [][][]int64{
+			{
+				{1, 2},
+				{3, 4},
+			},
+			{
+				{5, 6},
+				{7, 8},
+			},
 		},
 	}
 	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
@@ -351,12 +356,11 @@ func TestUnmarshalBulkQueryNestedList(t *testing.T) {
 
 	assert.Equal(t, 2, len(resultHolders))
 	assert.Equal(t, 2, len(*resultHolders[0].NestedIntList))
-	assert.Equal(t, int64(1), (*resultHolders[0].NestedIntList)[0][0])
-	assert.Equal(t, int64(2), (*resultHolders[0].NestedIntList)[0][1])
+	assert.Equal(t, []int64{1, 2}, (*resultHolders[0].NestedIntList)[0])
+	assert.Equal(t, []int64{3, 4}, (*resultHolders[0].NestedIntList)[1])
 	assert.Equal(t, 2, len(*resultHolders[1].NestedIntList))
-	assert.Equal(t, int64(3), (*resultHolders[1].NestedIntList)[0][0])
-	assert.Equal(t, int64(4), (*resultHolders[1].NestedIntList)[0][1])
-
+	assert.Equal(t, []int64{5, 6}, (*resultHolders[1].NestedIntList)[0])
+	assert.Equal(t, []int64{7, 8}, (*resultHolders[1].NestedIntList)[1])
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a

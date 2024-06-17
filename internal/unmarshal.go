@@ -185,7 +185,10 @@ func setIndirectValueToPointerValue(indirectValue reflect.Value, pointerValue re
 	pointerValue.Set(ptrToVal)
 }
 
-func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) {
+// GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
+// In particular `GetReflectValue` does not accept pointers. All pointers should be pre-processed
+// by the caller.
+func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	if isTypeDataclass(typ) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
@@ -211,7 +214,7 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 				if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
 					return nil, err
 				}
-				rVal, err := GetReflectValueNonPtr(memberValue, memberField.Type().Elem())
+				rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
 				if err != nil {
 					return nil, fmt.Errorf(
 						"error unmarshalling struct value for field '%s' in struct '%s': %w",
@@ -239,7 +242,7 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 				if err := ValidatePointer(v, memberField.Type()); err != nil {
 					return nil, err
 				}
-				rVal, err := GetReflectValueNonPtr(v, memberField.Type().Elem())
+				rVal, err := GetReflectValue(v, memberField.Type().Elem())
 				if err != nil {
 					return nil, fmt.Errorf(
 						"error unmarshalling struct value '%s' for struct '%s': %w",
@@ -289,7 +292,7 @@ func GetReflectValueNonPtr(value any, typ reflect.Type) (*reflect.Value, error) 
 		actualSlice := reflect.ValueOf(value)
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
-			rVal, err := GetReflectValueNonPtr(actualSlice.Index(i).Interface(), typ.Elem())
+			rVal, err := GetReflectValue(actualSlice.Index(i).Interface(), typ.Elem())
 			if err != nil {
 				return nil, fmt.Errorf("error getting reflect value for slice: %w", err)
 			}
