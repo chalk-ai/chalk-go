@@ -203,7 +203,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 				return &ClientError{Message: fieldError}
 			} else {
-				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName).Error()}
+				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
 			}
 		}
 	}
