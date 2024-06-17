@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	errors "github.com/pkg/errors"
 	"reflect"
 	"time"
 )
@@ -64,7 +65,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
 			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
 			if valueErr != nil {
-				return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
+				return nil, errors.Wrap(valueErr, "error getting value for LargeList column")
 			}
 			newSlice = append(newSlice, anyVal)
 		}
@@ -74,7 +75,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
 			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
 			if valueErr != nil {
-				return nil, fmt.Errorf("error getting value for List column: %w", valueErr)
+				return nil, errors.Wrap(valueErr, "error getting value for List column")
 			}
 			newSlice = append(newSlice, anyVal)
 		}
@@ -88,7 +89,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 		for k := 0; k < arr.NumField(); k++ {
 			anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), idx)
 			if valueErr != nil {
-				return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
+				return nil, errors.Wrap(valueErr, "error getting value for Struct column")
 			}
 			newMap[structType.Field(k).Name] = anyVal
 		}
@@ -145,7 +146,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				}
 				value, valueErr := GetValueFromArrowArray(col, i)
 				if valueErr != nil {
-					return nil, fmt.Errorf("error getting value from arrow array: %w", valueErr)
+					return nil, errors.Wrap(valueErr, "error getting value from arrow array")
 				}
 				m[name] = value
 			}
@@ -216,9 +217,10 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
 				if err != nil {
-					return nil, fmt.Errorf(
-						"error unmarshalling struct value for field '%s' in struct '%s': %w",
-						pythonName, structValue.Type().Name(), err,
+					return nil, errors.Wrap(
+						err,
+						"error unmarshalling struct value for field '%s' in struct '%s',
+						pythonName, structValue.Type().Name(),
 					)
 				}
 				ptrToVal := reflect.New(rVal.Type())
@@ -244,9 +246,10 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				rVal, err := GetReflectValue(v, memberField.Type().Elem())
 				if err != nil {
-					return nil, fmt.Errorf(
+					return nil, errors.Wrap(
+						err,
 						"error unmarshalling struct value '%s' for struct '%s': %w",
-						k, structValue.Type().Name(), err,
+						k, structValue.Type().Name(),
 					)
 				}
 				memberField.Set(GetPointer(*rVal))
