@@ -6,6 +6,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
@@ -512,6 +513,47 @@ func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 	assert.Equal(t, 2, len(*resultHolders[1].DataclassWithList.Words))
 	assert.Equal(t, "ghi", (*resultHolders[1].DataclassWithList.Words)[0])
 	assert.Equal(t, "jkl", (*resultHolders[1].DataclassWithList.Words)[1])
+}
+
+func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassWithNils: []possessions{
+			{
+				Car:   internal.Ptr("Toyota"),
+				Yacht: nil,
+				Plane: internal.Ptr("Boeing"),
+			},
+			{
+				Car:   internal.Ptr("Honda"),
+				Yacht: internal.Ptr("Yamaha"),
+				Plane: nil,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, "Toyota", *resultHolders[0].DataclassWithNils.Car)
+	assert.Nil(t, resultHolders[0].DataclassWithNils.Yacht)
+	assert.Equal(t, "Boeing", *resultHolders[0].DataclassWithNils.Plane)
+
+	assert.Equal(t, "Honda", *resultHolders[1].DataclassWithNils.Car)
+	assert.Equal(t, "Yamaha", *resultHolders[1].DataclassWithNils.Yacht)
+	assert.Nil(t, resultHolders[1].DataclassWithNils.Plane)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a

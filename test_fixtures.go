@@ -12,6 +12,12 @@ type favoriteThings struct {
 	Words   *[]string
 }
 
+type possessions struct {
+	Car   *string `dataclass_field:"true"`
+	Yacht *string
+	Plane *string
+}
+
 type anotherFeature struct {
 	Id *string
 }
@@ -30,6 +36,7 @@ type allTypes struct {
 	Dataclass            *testLatLng         `dataclass:"true"`
 	DataclassList        *[]testLatLng
 	DataclassWithList    *favoriteThings
+	DataclassWithNils    *possessions
 	Nested               *anotherFeature
 }
 

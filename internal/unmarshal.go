@@ -162,27 +162,6 @@ func SliceAppend(slicePtr any, value reflect.Value) {
 	sliceValue.Set(reflect.Append(sliceValue, value))
 }
 
-func ValidatePointer(value any, typ reflect.Type) error {
-	if typ.Kind() != reflect.Ptr {
-		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
-	}
-	if reflect.TypeOf(value).Kind() == reflect.Ptr {
-		value = reflect.ValueOf(value).Elem().Interface()
-	}
-	valType := reflect.TypeOf(value)
-	if isTypeDataclass(typ.Elem()) && (valType.Kind() == reflect.Slice || valType.Kind() == reflect.Map) {
-		return nil
-	}
-	if typ.Elem().Kind() != valType.Kind() {
-		return fmt.Errorf(
-			"expected type '%s', got '%s'",
-			typ.Elem().Kind().String(),
-			valType.Kind().String(),
-		)
-	}
-	return nil
-}
-
 func ReflectPtr(value reflect.Value) reflect.Value {
 	ptr := reflect.New(value.Type())
 	ptr.Elem().Set(value)
@@ -223,10 +202,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						pythonName, structValue.Type().Name(),
 					)
 				}
-				//if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
-				//	return nil, err
-				//}
-				//rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
 				rVal, err := GetReflectValue(&memberValue, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(
@@ -235,9 +210,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						pythonName, structValue.Type().Name(),
 					)
 				}
-				//ptrToVal := reflect.New(rVal.Type())
-				//ptrToVal.Elem().Set(*rVal)
-				//memberField.Set(ptrToVal)
 				memberField.Set(*rVal)
 			}
 			return &structValue, nil
@@ -254,10 +226,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(),
 					)
 				}
-				//if err := ValidatePointer(v, memberField.Type()); err != nil {
-				//	return nil, err
-				//}
-				//rVal, err := GetReflectValue(v, memberField.Type().Elem())
 				rVal, err := GetReflectValue(&v, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(
@@ -266,7 +234,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(),
 					)
 				}
-				//memberField.Set(ReflectPtr(*rVal))
 				memberField.Set(*rVal)
 			}
 			return &structValue, nil

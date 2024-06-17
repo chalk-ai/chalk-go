@@ -23,15 +23,10 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
-		//if err := internal.ValidatePointer(value, field.Type()); err != nil {
-		//	return errors.Wrapf(err, "error getting pointed to value for feature '%s'", fqn)
-		//}
-		//rVal, err := internal.GetReflectValue(value, field.Type().Elem())
 		rVal, err := internal.GetReflectValue(&value, field.Type())
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
-		//field.Set(internal.ReflectPtr(*rVal))
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
