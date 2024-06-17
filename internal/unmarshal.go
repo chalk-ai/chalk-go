@@ -63,9 +63,9 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	case *array.LargeList:
 		newSlice := make([]any, 0)
 		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
-			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-			if valueErr != nil {
-				return nil, errors.Wrap(valueErr, "error getting value for LargeList column")
+			anyVal, err := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting value for LargeList column")
 			}
 			newSlice = append(newSlice, anyVal)
 		}
@@ -73,9 +73,9 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	case *array.List:
 		newSlice := make([]any, 0)
 		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
-			anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-			if valueErr != nil {
-				return nil, errors.Wrap(valueErr, "error getting value for List column")
+			anyVal, err := GetValueFromArrowArray(arr.ListValues(), int(ptr))
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting value for List column")
 			}
 			newSlice = append(newSlice, anyVal)
 		}
@@ -87,9 +87,9 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 			return nil, fmt.Errorf("error getting struct type")
 		}
 		for k := 0; k < arr.NumField(); k++ {
-			anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), idx)
-			if valueErr != nil {
-				return nil, errors.Wrap(valueErr, "error getting value for Struct column")
+			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx)
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting value for Struct column")
 			}
 			newMap[structType.Field(k).Name] = anyVal
 		}
@@ -144,9 +144,9 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
 					continue
 				}
-				value, valueErr := GetValueFromArrowArray(col, i)
-				if valueErr != nil {
-					return nil, errors.Wrap(valueErr, "error getting value from arrow array")
+				value, err := GetValueFromArrowArray(col, i)
+				if err != nil {
+					return nil, errors.Wrap(err, "error getting value from arrow array")
 				}
 				m[name] = value
 			}
