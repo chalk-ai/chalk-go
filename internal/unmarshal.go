@@ -55,31 +55,32 @@ func IsDataclass(field reflect.Value) bool {
 	return isTypeDataclass(field.Type())
 }
 
+func getSlice(arr arrow.Array, offsets []int64, idx int) (any, error) {
+	newSlice := make([]any, 0)
+	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
+		anyVal, err := GetValueFromArrowArray(arr, int(ptr))
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting value for LargeList column")
+		}
+		newSlice = append(newSlice, anyVal)
+	}
+	return newSlice, nil
+}
+
 func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
 	}
 	switch arr := a.(type) {
 	case *array.LargeList:
-		newSlice := make([]any, 0)
-		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
-			anyVal, err := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-			if err != nil {
-				return nil, errors.Wrap(err, "error getting value for LargeList column")
-			}
-			newSlice = append(newSlice, anyVal)
-		}
-		return newSlice, nil
+		return getSlice(arr.ListValues(), arr.Offsets(), idx)
 	case *array.List:
-		newSlice := make([]any, 0)
-		for ptr := arr.Offsets()[idx]; ptr < arr.Offsets()[idx+1]; ptr++ {
-			anyVal, err := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-			if err != nil {
-				return nil, errors.Wrap(err, "error getting value for List column")
-			}
-			newSlice = append(newSlice, anyVal)
+		o32 := arr.Offsets()
+		o64 := make([]int64, len(o32))
+		for i := 0; i < len(o32); i++ {
+			o64[i] = int64(arr.Offsets()[i])
 		}
-		return newSlice, nil
+		return getSlice(arr.ListValues(), o64, idx)
 	case *array.Struct:
 		newMap := map[string]any{}
 		structType, typeOk := arr.DataType().(*arrow.StructType)
