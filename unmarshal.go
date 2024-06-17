@@ -30,9 +30,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err != nil {
 			return fmt.Errorf("error getting reflect value for feature '%s': %w", fqn, err)
 		}
-		ptrToVal := reflect.New(rVal.Type())
-		ptrToVal.Elem().Set(*rVal)
-		field.Set(ptrToVal)
+		field.Set(internal.GetPointer(*rVal))
 		return nil
 	} else if field.Kind() == reflect.Map {
 		// We are handling maps differently because they are typed as `map`
@@ -63,9 +61,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err != nil {
 			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
 		}
-		ptrToVal := reflect.New(rVal.Type())
-		ptrToVal.Elem().Set(*rVal)
-		field.SetMapIndex(tagValue, ptrToVal)
+		field.SetMapIndex(tagValue, internal.GetPointer(*rVal))
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())

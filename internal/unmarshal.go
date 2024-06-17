@@ -179,10 +179,10 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	return nil
 }
 
-func setIndirectValueToPointerValue(indirectValue reflect.Value, pointerValue reflect.Value) {
-	ptrToVal := reflect.New(indirectValue.Type())
-	ptrToVal.Elem().Set(indirectValue)
-	pointerValue.Set(ptrToVal)
+func GetPointer(value reflect.Value) reflect.Value {
+	ptrToVal := reflect.New(value.Type())
+	ptrToVal.Elem().Set(value)
+	return value
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
@@ -249,7 +249,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(), err,
 					)
 				}
-				setIndirectValueToPointerValue(*rVal, memberField)
+				memberField.Set(GetPointer(*rVal))
 			}
 			return &structValue, nil
 		} else {
