@@ -56,7 +56,8 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
 			return arrow.LargeListOf(elemType), nil
 		} else {
-			return nil, fmt.Errorf(
+			return nil, errors.Wrapf(
+				err,
 				"arrow conversion failed - a slice of '%s' is currently unsupported",
 				elemKind,
 			)
