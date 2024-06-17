@@ -288,7 +288,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
-			return nil, fmt.Errorf("error parsing date string: %w", timeErr)
+			return nil, errors.Wrap(timeErr, "error parsing date string")
 		}
 		return Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
@@ -297,7 +297,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		for i := 0; i < actualSlice.Len(); i++ {
 			rVal, err := GetReflectValue(actualSlice.Index(i).Interface(), typ.Elem())
 			if err != nil {
-				return nil, fmt.Errorf("error getting reflect value for slice: %w", err)
+				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
 			newSlice = reflect.Append(newSlice, *rVal)
 		}
