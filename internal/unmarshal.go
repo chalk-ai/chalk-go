@@ -55,14 +55,16 @@ func IsDataclass(field reflect.Value) bool {
 	return isTypeDataclass(field.Type())
 }
 
-func getSlice(arr arrow.Array, offsets []int64, idx int) (any, error) {
-	newSlice := make([]any, 0)
+func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
+	newSlice := make([]any, offsets[idx+1]-offsets[idx])
+	newSliceIdx := 0
 	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
 		anyVal, err := GetValueFromArrowArray(arr, int(ptr))
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting value for LargeList column")
 		}
-		newSlice = append(newSlice, anyVal)
+		newSlice[newSliceIdx] = anyVal
+		newSliceIdx += 1
 	}
 	return newSlice, nil
 }
@@ -73,14 +75,14 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	}
 	switch arr := a.(type) {
 	case *array.LargeList:
-		return getSlice(arr.ListValues(), arr.Offsets(), idx)
+		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx)
 	case *array.List:
 		o32 := arr.Offsets()
 		o64 := make([]int64, len(o32))
 		for i := 0; i < len(o32); i++ {
 			o64[i] = int64(arr.Offsets()[i])
 		}
-		return getSlice(arr.ListValues(), o64, idx)
+		return getInnerSliceFromArray(arr.ListValues(), o64, idx)
 	case *array.Struct:
 		newMap := map[string]any{}
 		structType, typeOk := arr.DataType().(*arrow.StructType)
