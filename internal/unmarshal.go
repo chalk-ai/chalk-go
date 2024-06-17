@@ -180,9 +180,9 @@ func ValidatePointer(value any, typ reflect.Type) error {
 }
 
 func GetPointer(value reflect.Value) reflect.Value {
-	ptrToVal := reflect.New(value.Type())
-	ptrToVal.Elem().Set(value)
-	return value
+	ptr := reflect.New(value.Type())
+	ptr.Elem().Set(value)
+	return ptr
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
