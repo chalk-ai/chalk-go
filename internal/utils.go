@@ -133,3 +133,11 @@ func resolveFeatureName(field reflect.StructField) string {
 func Ptr[T any](value T) *T {
 	return &value
 }
+
+func allValid(l int) []bool {
+	valid := make([]bool, l)
+	for i := range valid {
+		valid[i] = true
+	}
+	return valid
+}

@@ -93,12 +93,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 }
 
 func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) error {
-	if valid == nil {
-		valid = make([]bool, slice.Len())
-		for i := range valid {
-			valid[i] = true
-		}
-	} else if len(valid) != slice.Len() {
+	if len(valid) != slice.Len() {
 		return errors.Errorf(
 			"expected null mask to have length %d, instead found length %d",
 			slice.Len(),
@@ -197,7 +192,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 		if err := setBuilderValues(
 			builder.(*array.LargeListBuilder).ValueBuilder(),
 			flatSlice,
-			nil,
+			allValid(flatSlice.Len()),
 		); err != nil {
 			return errors.Wrap(err, "failed to set values for slice of slices")
 		}
@@ -259,7 +254,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				columns = append(columns, fieldSlice)
 			}
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], allValid(columns[i].Len())); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
@@ -303,7 +298,12 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		if err := setBuilderValues(recordBuilder.Field(idx), reflect.ValueOf(values), nil); err != nil {
+		rValues := reflect.ValueOf(values)
+		if rValues.Kind() != reflect.Slice {
+			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
+		}
+
+		if err := setBuilderValues(recordBuilder.Field(idx), rValues, allValid(rValues.Len())); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
