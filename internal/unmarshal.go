@@ -166,6 +166,9 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	if typ.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected field to be a pointer, found %s", typ.Kind().String())
 	}
+	if reflect.TypeOf(value).Kind() == reflect.Ptr {
+		value = reflect.ValueOf(value).Elem().Interface()
+	}
 	valType := reflect.TypeOf(value)
 	if isTypeDataclass(typ.Elem()) && (valType.Kind() == reflect.Slice || valType.Kind() == reflect.Map) {
 		return nil
@@ -180,16 +183,24 @@ func ValidatePointer(value any, typ reflect.Type) error {
 	return nil
 }
 
-func GetPointer(value reflect.Value) reflect.Value {
+func ReflectPtr(value reflect.Value) reflect.Value {
 	ptr := reflect.New(value.Type())
 	ptr.Elem().Set(value)
 	return ptr
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-// In particular `GetReflectValue` does not accept pointers. All pointers should be pre-processed
-// by the caller.
 func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
+	if value == nil {
+		return Ptr(reflect.Zero(typ)), nil
+	}
+	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem())
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
+		}
+		return Ptr(ReflectPtr(*indirectValue)), nil
+	}
 	if isTypeDataclass(typ) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
@@ -212,10 +223,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						pythonName, structValue.Type().Name(),
 					)
 				}
-				if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
-					return nil, err
-				}
-				rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
+				//if err := ValidatePointer(memberValue, memberField.Type()); err != nil {
+				//	return nil, err
+				//}
+				//rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
+				rVal, err := GetReflectValue(&memberValue, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -223,9 +235,10 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						pythonName, structValue.Type().Name(),
 					)
 				}
-				ptrToVal := reflect.New(rVal.Type())
-				ptrToVal.Elem().Set(*rVal)
-				memberField.Set(ptrToVal)
+				//ptrToVal := reflect.New(rVal.Type())
+				//ptrToVal.Elem().Set(*rVal)
+				//memberField.Set(ptrToVal)
+				memberField.Set(*rVal)
 			}
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
@@ -241,10 +254,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(),
 					)
 				}
-				if err := ValidatePointer(v, memberField.Type()); err != nil {
-					return nil, err
-				}
-				rVal, err := GetReflectValue(v, memberField.Type().Elem())
+				//if err := ValidatePointer(v, memberField.Type()); err != nil {
+				//	return nil, err
+				//}
+				//rVal, err := GetReflectValue(v, memberField.Type().Elem())
+				rVal, err := GetReflectValue(&v, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -252,7 +266,8 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(),
 					)
 				}
-				memberField.Set(GetPointer(*rVal))
+				//memberField.Set(ReflectPtr(*rVal))
+				memberField.Set(*rVal)
 			}
 			return &structValue, nil
 		} else {
@@ -292,10 +307,27 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
+		// TODO: Nil value handling
+		// 1. Check whether slice can have nullable values.
+		// 1a. If yes, return a slice of pointers.
+		// 1b. If no, return a slice of values.
+		// 2. How do we determine whether a slice can have nullable values?
+		// 2a. Check the type of the field.
+		// 2aa. But GetReflectValue is independent of the field. No it is not.
+		// 2ab. Find out why we don't get a slice of a poitner to a field.
+		// 2b. This means we need to accept a pointer to the slice,
+		//     or we introduce a param that says whether the slice
+		//     is nullable.
 		actualSlice := reflect.ValueOf(value)
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
-			rVal, err := GetReflectValue(actualSlice.Index(i).Interface(), typ.Elem())
+			actualValue := actualSlice.Index(i).Interface()
+			if typ.Elem().Kind() == reflect.Ptr && actualValue != nil {
+				if actualSlice.Index(i).Kind() == reflect.Interface {
+					actualValue = ReflectPtr(actualSlice.Index(i).Elem()).Interface()
+				}
+			}
+			rVal, err := GetReflectValue(actualValue, typ.Elem())
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}

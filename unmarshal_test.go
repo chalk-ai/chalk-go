@@ -325,11 +325,44 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	assert.Equal(t, testLatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
 }
 
-func TestUnmarshalBulkQueryNestedList(t *testing.T) {
+func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.NestedIntList: [][][]int64{
+			{
+				{1, 2},
+				nil,
+				{3, 4},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, 3, len(*resultHolders[0].NestedIntList))
+	assert.Equal(t, []int64{1, 2}, (*resultHolders[0].NestedIntList)[0])
+	assert.Equal(t, len((*resultHolders[0].NestedIntList)[1]), 0)
+	assert.Equal(t, []int64{3, 4}, (*resultHolders[0].NestedIntList)[2])
+}
+
+func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				{3, 4},
@@ -355,12 +388,85 @@ func TestUnmarshalBulkQueryNestedList(t *testing.T) {
 	}
 
 	assert.Equal(t, 2, len(resultHolders))
-	assert.Equal(t, 2, len(*resultHolders[0].NestedIntList))
-	assert.Equal(t, []int64{1, 2}, (*resultHolders[0].NestedIntList)[0])
-	assert.Equal(t, []int64{3, 4}, (*resultHolders[0].NestedIntList)[1])
-	assert.Equal(t, 2, len(*resultHolders[1].NestedIntList))
-	assert.Equal(t, []int64{5, 6}, (*resultHolders[1].NestedIntList)[0])
-	assert.Equal(t, []int64{7, 8}, (*resultHolders[1].NestedIntList)[1])
+	assert.Equal(t, 2, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*resultHolders[0].NestedIntPointerList)[0])
+	assert.Equal(t, []int64{3, 4}, *(*resultHolders[0].NestedIntPointerList)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].NestedIntPointerList))
+	assert.Equal(t, []int64{5, 6}, *(*resultHolders[1].NestedIntPointerList)[0])
+	assert.Equal(t, []int64{7, 8}, *(*resultHolders[1].NestedIntPointerList)[1])
+}
+
+func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+			{
+				{1, 2},
+				{3, 4},
+			},
+			nil,
+			{
+				{5, 6},
+				{7, 8},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 3, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *((*resultHolders[0].NestedIntPointerList)[0]))
+	assert.Equal(t, []int64{3, 4}, *((*resultHolders[0].NestedIntPointerList)[1]))
+	assert.Nil(t, resultHolders[1].NestedIntPointerList)
+	assert.Equal(t, 2, len(*resultHolders[2].NestedIntPointerList))
+	assert.Equal(t, []int64{5, 6}, *((*resultHolders[2].NestedIntPointerList)[0]))
+	assert.Equal(t, []int64{7, 8}, *((*resultHolders[2].NestedIntPointerList)[1]))
+}
+
+func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+			{
+				{1, 2},
+				nil,
+				{3, 4},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, 3, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*resultHolders[0].NestedIntPointerList)[0])
+	assert.Nil(t, (*resultHolders[0].NestedIntPointerList)[1])
+	assert.Equal(t, []int64{3, 4}, *(*resultHolders[0].NestedIntPointerList)[2])
 }
 
 func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {

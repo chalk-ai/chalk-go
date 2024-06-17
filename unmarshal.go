@@ -23,14 +23,16 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
-		if err := internal.ValidatePointer(value, field.Type()); err != nil {
-			return errors.Wrapf(err, "error getting pointed to value for feature '%s'", fqn)
-		}
-		rVal, err := internal.GetReflectValue(value, field.Type().Elem())
+		//if err := internal.ValidatePointer(value, field.Type()); err != nil {
+		//	return errors.Wrapf(err, "error getting pointed to value for feature '%s'", fqn)
+		//}
+		//rVal, err := internal.GetReflectValue(value, field.Type().Elem())
+		rVal, err := internal.GetReflectValue(&value, field.Type())
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
-		field.Set(internal.GetPointer(*rVal))
+		//field.Set(internal.ReflectPtr(*rVal))
+		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
 		// We are handling maps differently because they are typed as `map`
@@ -61,7 +63,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err != nil {
 			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature %s", fqn)
 		}
-		field.SetMapIndex(tagValue, internal.GetPointer(*rVal))
+		field.SetMapIndex(tagValue, internal.ReflectPtr(*rVal))
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())

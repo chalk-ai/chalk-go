@@ -113,6 +113,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			slice.Kind(),
 		)
 	}
+
 	if slice.Len() == 0 {
 		return nil // No values to append
 	}
