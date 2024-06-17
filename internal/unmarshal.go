@@ -226,6 +226,9 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						k, structValue.Type().Name(),
 					)
 				}
+				if v == nil {
+					continue
+				}
 				rVal, err := GetReflectValue(&v, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(
@@ -274,17 +277,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
-		// TODO: Nil value handling
-		// 1. Check whether slice can have nullable values.
-		// 1a. If yes, return a slice of pointers.
-		// 1b. If no, return a slice of values.
-		// 2. How do we determine whether a slice can have nullable values?
-		// 2a. Check the type of the field.
-		// 2aa. But GetReflectValue is independent of the field. No it is not.
-		// 2ab. Find out why we don't get a slice of a poitner to a field.
-		// 2b. This means we need to accept a pointer to the slice,
-		//     or we introduce a param that says whether the slice
-		//     is nullable.
 		actualSlice := reflect.ValueOf(value)
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
@@ -292,6 +284,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			if typ.Elem().Kind() == reflect.Ptr && actualValue != nil {
 				if actualSlice.Index(i).Kind() == reflect.Interface {
 					actualValue = ReflectPtr(actualSlice.Index(i).Elem()).Interface()
+				} else {
+					return nil, fmt.Errorf(
+						"expected reflect value of kind 'interface', got '%s'",
+						actualSlice.Index(i).Kind(),
+					)
 				}
 			}
 			rVal, err := GetReflectValue(actualValue, typ.Elem())
