@@ -217,9 +217,9 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				rVal, err := GetReflectValue(memberValue, memberField.Type().Elem())
 				if err != nil {
-					return nil, errors.Wrap(
+					return nil, errors.Wrapf(
 						err,
-						"error unmarshalling struct value for field '%s' in struct '%s',
+						"error unmarshalling struct value for field '%s' in struct '%s'",
 						pythonName, structValue.Type().Name(),
 					)
 				}
@@ -246,9 +246,9 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				rVal, err := GetReflectValue(v, memberField.Type().Elem())
 				if err != nil {
-					return nil, errors.Wrap(
+					return nil, errors.Wrapf(
 						err,
-						"error unmarshalling struct value '%s' for struct '%s': %w",
+						"error unmarshalling struct value '%s' for struct '%s'",
 						k, structValue.Type().Name(),
 					)
 				}

@@ -1,10 +1,10 @@
 package chalk
 
 import (
-	"errors"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 	"strings"
@@ -24,11 +24,11 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
 		if err := internal.ValidatePointer(value, field.Type()); err != nil {
-			return fmt.Errorf("error getting pointed to value for feature '%s': %w", fqn, err)
+			return errors.Wrapf(err, "error getting pointed to value for feature '%s'", fqn)
 		}
 		rVal, err := internal.GetReflectValue(value, field.Type().Elem())
 		if err != nil {
-			return fmt.Errorf("error getting reflect value for feature '%s': %w", fqn, err)
+			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
 		field.Set(internal.GetPointer(*rVal))
 		return nil
@@ -59,7 +59,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
 		rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
 		if err != nil {
-			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
+			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature %s", fqn)
 		}
 		field.SetMapIndex(tagValue, internal.GetPointer(*rVal))
 		return nil
@@ -180,7 +180,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
 	if initErr != nil {
-		return &ClientError{Message: fmt.Errorf("exception occurred while initializing result holder: %w", initErr).Error()}
+		return &ClientError{Message: errors.Wrap(initErr, "exception occurred while initializing result holder").Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -203,7 +203,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 				return &ClientError{Message: fieldError}
 			} else {
-				return &ClientError{Message: fmt.Errorf("error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName, err).Error()}
+				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName).Error()}
 			}
 		}
 	}
