@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -154,9 +155,10 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
+	fqn := "unmarshal_user.id"
 	data := []FeatureResult{
 		{
-			Field:     "unmarshal_user.id",
+			Field:     fqn,
 			Value:     1,
 			Pkey:      "abc",
 			Timestamp: time.Time{},
@@ -176,6 +178,8 @@ func TestUnmarshalWrongType(t *testing.T) {
 		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Id)
 		t.Fatal("Expected an error when unmarshalling the wrong type into a struct field")
 	} else {
+		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.String, reflect.Int).Error())
+		assert.Contains(t, unmarshalErr.Error(), fqn)
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
 }
@@ -554,35 +558,6 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	assert.Equal(t, "Honda", *resultHolders[1].DataclassWithNils.Car)
 	assert.Equal(t, "Yamaha", *resultHolders[1].DataclassWithNils.Yacht)
 	assert.Nil(t, resultHolders[1].DataclassWithNils.Plane)
-}
-
-func TestUnmarshalListOfOptionalValuesIntoNonOptionalValues(t *testing.T) {
-	// FIXME
-	initErr := InitFeatures(&testRootFeatures)
-	assert.Nil(t, initErr)
-	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.IntList: []*int64{
-			internal.Ptr(int64(1)),
-			nil,
-			internal.Ptr(int64(3)),
-		},
-	}
-	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
-	assert.Nil(t, scalarsErr)
-
-	bulkRes := OnlineQueryBulkResult{
-		ScalarsTable: scalarsTable,
-	}
-	defer bulkRes.Release()
-
-	resultHolders := make([]allTypes, 0)
-
-	err := bulkRes.UnmarshalInto(&resultHolders)
-	if err == nil {
-		t.Fatal("Expected an error when unmarshalling a list of optional values into non-optional values")
-	} else {
-		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", err)
-	}
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a

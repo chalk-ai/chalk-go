@@ -304,11 +304,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	} else {
 		rVal := reflect.ValueOf(value)
 		if rVal.Kind() != typ.Kind() {
-			return nil, fmt.Errorf(
-				"expected reflect value of kind '%s', got '%s'",
-				typ.Kind(),
-				reflect.ValueOf(value).Kind(),
-			)
+			return nil, KindMismatchError(typ.Kind(), reflect.TypeOf(value).Kind())
 		}
 		return &rVal, nil
 	}
