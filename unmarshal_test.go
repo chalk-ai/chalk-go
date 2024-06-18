@@ -556,6 +556,35 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	assert.Nil(t, resultHolders[1].DataclassWithNils.Plane)
 }
 
+func TestUnmarshalListOfOptionalValuesIntoNonOptionalValues(t *testing.T) {
+	// FIXME
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.IntList: []*int64{
+			internal.Ptr(int64(1)),
+			nil,
+			internal.Ptr(int64(3)),
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	err := bulkRes.UnmarshalInto(&resultHolders)
+	if err == nil {
+		t.Fatal("Expected an error when unmarshalling a list of optional values into non-optional values")
+	} else {
+		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", err)
+	}
+}
+
 // TestUnmarshalBulkQueryOptionalValues tests that when a
 // feature is optional, we can still unmarshal a bulk query
 // result successfully.
