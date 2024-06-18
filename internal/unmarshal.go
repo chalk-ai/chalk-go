@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	errors "github.com/pkg/errors"
 	"reflect"
 	"time"
 )
@@ -38,135 +39,95 @@ func convertNumber[T Numbers](anyNumber any) (T, error) {
 	}
 }
 
-func convertSliceyNumbers[T Numbers](anySlice []any) ([]T, error) {
-	typedSlice := make([]T, len(anySlice))
-	for i, v := range anySlice {
-		convRes, convErr := convertNumber[T](v)
-		if convErr != nil {
-			return nil, fmt.Errorf("error converting number-slice element: %w", convErr)
+func isTypeDataclass(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Struct {
+		for i := 0; i < typ.NumField(); i++ {
+			fieldMeta := typ.Field(i)
+			if fieldMeta.Tag.Get("dataclass_field") == "true" {
+				return true
+			}
 		}
-		typedSlice[i] = convRes
 	}
-	return typedSlice, nil
+	return false
 }
 
-func convertSliceyNonNumbers[T any](anySlice []any) ([]T, error) {
-	typedSlice := make([]T, len(anySlice))
-	for i, v := range anySlice {
-		castRes, ok := v.(T)
-		if !ok {
-			var t T
-			return []T{}, fmt.Errorf("cannot cast the slice element '%s' of type '%s' to the specified type '%s'", v, reflect.TypeOf(v), reflect.TypeOf(t))
+func IsDataclass(field reflect.Value) bool {
+	return isTypeDataclass(field.Type())
+}
+
+func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
+	newSlice := make([]any, offsets[idx+1]-offsets[idx])
+	newSliceIdx := 0
+	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
+		anyVal, err := GetValueFromArrowArray(arr, int(ptr))
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting value for LargeList column")
 		}
-		typedSlice[i] = castRes
+		newSlice[newSliceIdx] = anyVal
+		newSliceIdx += 1
 	}
-	return typedSlice, nil
+	return newSlice, nil
 }
 
-func convertIfNumber(value any, kind reflect.Kind) (any, error) {
-	// TODO: Figure out if we could possibly
-	// do the equivalent by creating a new
-	// reflect.Value with reflect.New
-	// and reflect.Value.Set.
-	var err error
-	switch kind {
-	case reflect.Int8:
-		value, err = convertNumber[int8](value)
-	case reflect.Int16:
-		value, err = convertNumber[int16](value)
-	case reflect.Int32:
-		value, err = convertNumber[int32](value)
-	case reflect.Int64:
-		value, err = convertNumber[int64](value)
-	case reflect.Uint8:
-		value, err = convertNumber[uint8](value)
-	case reflect.Uint16:
-		value, err = convertNumber[uint16](value)
-	case reflect.Uint32:
-		value, err = convertNumber[uint32](value)
-	case reflect.Uint64:
-		value, err = convertNumber[uint64](value)
-	case reflect.Float32:
-		value, err = convertNumber[float32](value)
-	case reflect.Float64:
-		value, err = convertNumber[float64](value)
+func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
+	if a.IsNull(idx) {
+		return nil, nil
 	}
-
-	return value, err
-}
-
-func convertSlice(sliceElemKind reflect.Kind, value any) (any, error) {
-	anySlice := value.([]any)
-	switch sliceElemKind {
-	case reflect.Int8:
-		return convertSliceyNumbers[int8](anySlice)
-	case reflect.Int16:
-		return convertSliceyNumbers[int16](anySlice)
-	case reflect.Int32:
-		return convertSliceyNumbers[int32](anySlice)
-	case reflect.Int64:
-		return convertSliceyNumbers[int64](anySlice)
-	case reflect.Uint8:
-		return convertSliceyNumbers[uint8](anySlice)
-	case reflect.Uint16:
-		return convertSliceyNumbers[uint16](anySlice)
-	case reflect.Uint32:
-		return convertSliceyNumbers[uint32](anySlice)
-	case reflect.Uint64:
-		return convertSliceyNumbers[uint64](anySlice)
-	case reflect.Float32:
-		return convertSliceyNumbers[float32](anySlice)
-	case reflect.Float64:
-		return convertSliceyNumbers[float64](anySlice)
-	case reflect.String:
-		return convertSliceyNonNumbers[string](anySlice)
-	case reflect.Bool:
-		return convertSliceyNonNumbers[bool](anySlice)
-	default:
-		return nil, fmt.Errorf("unsupported slice type '%s' when converting slice", sliceElemKind)
-	}
-}
-
-func getPointerToCopied(elemType reflect.Type, value any) reflect.Value {
-	copied := reflect.New(reflect.TypeOf(value))
-	copied.Elem().Set(reflect.ValueOf(value))
-	castedPointer := reflect.NewAt(elemType, copied.UnsafePointer())
-	return castedPointer
-}
-
-func GetValueFromArrowArray(arr arrow.Array, idx int) (any, error) {
-	switch castArr := arr.(type) {
+	switch arr := a.(type) {
+	case *array.LargeList:
+		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx)
+	case *array.List:
+		o32 := arr.Offsets()
+		o64 := make([]int64, len(o32))
+		for i := 0; i < len(o32); i++ {
+			o64[i] = int64(arr.Offsets()[i])
+		}
+		return getInnerSliceFromArray(arr.ListValues(), o64, idx)
+	case *array.Struct:
+		newMap := map[string]any{}
+		structType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return nil, fmt.Errorf("error getting struct type")
+		}
+		for k := 0; k < arr.NumField(); k++ {
+			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx)
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting value for Struct column")
+			}
+			newMap[structType.Field(k).Name] = anyVal
+		}
+		return newMap, nil
 	case *array.String:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.LargeString:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint8:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint16:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint32:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Uint64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int16:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int32:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Int64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Float64:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Boolean:
-		return castArr.Value(idx), nil
+		return arr.Value(idx), nil
 	case *array.Date32:
-		return castArr.Value(idx).ToTime(), nil
+		return arr.Value(idx).ToTime(), nil
 	case *array.Date64:
-		return castArr.Value(idx).ToTime(), nil
+		return arr.Value(idx).ToTime(), nil
 	case *array.Timestamp:
-		timeUnit := castArr.DataType().(*arrow.TimestampType).TimeUnit()
-		return castArr.Value(idx).ToTime(timeUnit), nil
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		return arr.Value(idx).ToTime(timeUnit), nil
 	default:
-		return nil, fmt.Errorf("unsupported array type: %T", castArr)
+		return nil, fmt.Errorf("unsupported array type: %T", arr)
 	}
 }
 
@@ -186,47 +147,11 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
 					continue
 				}
-
-				if col.IsNull(i) {
-					m[name] = nil
-					continue
+				value, err := GetValueFromArrowArray(col, i)
+				if err != nil {
+					return nil, errors.Wrap(err, "error getting value from arrow array")
 				}
-
-				switch arr := col.(type) {
-				case *array.LargeList:
-					newSlice := make([]any, 0)
-					for ptr := arr.Offsets()[i]; ptr < arr.Offsets()[i+1]; ptr++ {
-						// TODO: This does not handle nested lists (CHA-3656)
-						anyVal, valueErr := GetValueFromArrowArray(arr.ListValues(), int(ptr))
-						if valueErr != nil {
-							return nil, fmt.Errorf("error getting value for LargeList column: %w", valueErr)
-						}
-						newSlice = append(newSlice, anyVal)
-					}
-					m[name] = newSlice
-				case *array.Struct:
-					newMap := map[string]any{}
-					structType, typeOk := arr.DataType().(*arrow.StructType)
-					if !typeOk {
-						return nil, fmt.Errorf("error getting struct type")
-					}
-					for k := 0; k < arr.NumField(); k++ {
-						// TODO: This does not handle nested structs (CHA-3656)
-						anyVal, valueErr := GetValueFromArrowArray(arr.Field(k), i)
-						if valueErr != nil {
-							return nil, fmt.Errorf("error getting value for Struct column: %w", valueErr)
-						}
-						newMap[structType.Field(k).Name] = anyVal
-					}
-					m[name] = newMap
-				default:
-					// Primitives
-					anyVal, valueErr := GetValueFromArrowArray(arr, i)
-					if valueErr != nil {
-						return nil, fmt.Errorf("error getting value from Arrow array: %w", valueErr)
-					}
-					m[name] = anyVal
-				}
+				m[name] = value
 			}
 			res = append(res, m)
 		}
@@ -240,22 +165,100 @@ func SliceAppend(slicePtr any, value reflect.Value) {
 	sliceValue.Set(reflect.Append(sliceValue, value))
 }
 
-func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
-	value, convErr := convertIfNumber(value, elemType.Kind())
-	if convErr != nil {
-		return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
+func ReflectPtr(value reflect.Value) reflect.Value {
+	ptr := reflect.New(value.Type())
+	ptr.Elem().Set(value)
+	return ptr
+}
+
+// GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
+func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
+	if value == nil {
+		return Ptr(reflect.Zero(typ)), nil
 	}
-	if elemType == reflect.TypeOf(time.Time{}) {
+	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem())
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
+		}
+		return Ptr(ReflectPtr(*indirectValue)), nil
+	}
+	if isTypeDataclass(typ) {
+		structValue := reflect.New(typ).Elem()
+		if slice, isSlice := value.([]any); isSlice {
+			if len(slice) != structValue.NumField() {
+				return nil, fmt.Errorf(
+					"error unmarshalling value for struct %s"+
+						": expected %d fields, got %d",
+					structValue.Type().Name(),
+					structValue.NumField(),
+					len(slice),
+				)
+			}
+			for idx, memberValue := range slice {
+				memberFieldMeta := structValue.Type().Field(idx)
+				memberField := structValue.Field(idx)
+				pythonName := ChalkpySnakeCase(memberFieldMeta.Name)
+				if memberField == (reflect.Value{}) {
+					return nil, fmt.Errorf(
+						"field %s not found in struct %s",
+						pythonName, structValue.Type().Name(),
+					)
+				}
+				rVal, err := GetReflectValue(&memberValue, memberField.Type())
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error unmarshalling struct value for field '%s' in struct '%s'",
+						pythonName, structValue.Type().Name(),
+					)
+				}
+				memberField.Set(*rVal)
+			}
+			return &structValue, nil
+		} else if mapz, isMap := value.(map[string]any); isMap {
+			nameToField := make(map[string]reflect.Value)
+			for i := 0; i < structValue.NumField(); i++ {
+				nameToField[ChalkpySnakeCase(structValue.Type().Field(i).Name)] = structValue.Field(i)
+			}
+			for k, v := range mapz {
+				memberField, fieldOk := nameToField[k]
+				if !fieldOk {
+					return nil, fmt.Errorf(
+						"field %s not found in struct %s",
+						k, structValue.Type().Name(),
+					)
+				}
+				if v == nil {
+					continue
+				}
+				rVal, err := GetReflectValue(&v, memberField.Type())
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error unmarshalling struct value '%s' for struct '%s'",
+						k, structValue.Type().Name(),
+					)
+				}
+				memberField.Set(*rVal)
+			}
+			return &structValue, nil
+		} else {
+			return nil, fmt.Errorf(
+				"struct value is not an `any` slice or a `map[string]any`",
+			)
+		}
+	} else if typ == reflect.TypeOf(time.Time{}) {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
-		if reflect.TypeOf(value) == elemType {
+		if reflect.TypeOf(value) == typ {
 			if timeValue, ok := value.(time.Time); ok {
 				// Need to cast to time type, otherwise
 				// reflect.ValueOf(&timeValue) will give
 				// us a reflect value of the pointer to
 				// an interface.
-				return reflect.ValueOf(&timeValue), nil
+				return Ptr(reflect.ValueOf(timeValue)), nil
 			} else {
-				return reflect.Value{}, fmt.Errorf(
+				return nil, fmt.Errorf(
 					"error getting reflect value: expected `time.Time`, got %s",
 					reflect.TypeOf(value),
 				)
@@ -266,54 +269,43 @@ func GetReflectValue(value any, elemType reflect.Type) (reflect.Value, error) {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
-			return reflect.ValueOf(&timeValue), nil
+			return Ptr(reflect.ValueOf(timeValue)), nil
 		}
 
 		// Dates are returned as strings in online query (non-bulk)
 		dateValue, dateErr := time.Parse("2006-01-02", stringValue)
 		if dateErr != nil {
 			// Return original datetime parsing error
-			return reflect.Value{}, timeErr
+			return nil, errors.Wrap(timeErr, "error parsing date string")
 		}
-		return reflect.ValueOf(&dateValue), nil
-	} else if elemType.Kind() == reflect.Slice || elemType.Kind() == reflect.Array {
-		value, convErr = convertSlice(elemType.Elem().Kind(), value)
-		if convErr != nil {
-			return reflect.Value{}, fmt.Errorf("error getting reflect value: %w", convErr)
-		}
-		return getPointerToCopied(elemType, value), nil
-	} else {
-		if reflect.ValueOf(value).Kind() != elemType.Kind() {
-			return reflect.Value{}, fmt.Errorf(
-				"expected reflect value of kind '%s', got '%s'",
-				elemType.Kind(),
-				reflect.ValueOf(value).Kind(),
-			)
-		}
-		return getPointerToCopied(elemType, value), nil
-	}
-}
-
-func IsDataclass(field reflect.Value) bool {
-	if field.Kind() == reflect.Struct {
-		if field.NumField() == 0 {
-			return false
-		}
-		for i := 0; i < field.NumField(); i++ {
-			fieldMeta := field.Type().Field(i)
-			if fieldMeta.Tag.Get("dataclass_field") != "true" {
-				return false
+		return Ptr(reflect.ValueOf(dateValue)), nil
+	} else if typ.Kind() == reflect.Slice {
+		actualSlice := reflect.ValueOf(value)
+		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
+		for i := 0; i < actualSlice.Len(); i++ {
+			actualValue := actualSlice.Index(i).Interface()
+			if typ.Elem().Kind() == reflect.Ptr && actualValue != nil {
+				if actualSlice.Index(i).Kind() == reflect.Interface {
+					actualValue = ReflectPtr(actualSlice.Index(i).Elem()).Interface()
+				} else {
+					return nil, fmt.Errorf(
+						"expected reflect value of kind 'interface', got '%s'",
+						actualSlice.Index(i).Kind(),
+					)
+				}
 			}
+			rVal, err := GetReflectValue(actualValue, typ.Elem())
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting reflect value for slice")
+			}
+			newSlice = reflect.Append(newSlice, *rVal)
 		}
-		return true
+		return &newSlice, nil
+	} else {
+		rVal := reflect.ValueOf(value)
+		if rVal.Kind() != typ.Kind() {
+			return nil, KindMismatchError(typ.Kind(), reflect.TypeOf(value).Kind())
+		}
+		return &rVal, nil
 	}
-
-	return false
-}
-
-func IsDataclassPointer(field reflect.Value) bool {
-	if field.Kind() == reflect.Ptr && IsDataclass(field.Elem()) {
-		return true
-	}
-	return false
 }

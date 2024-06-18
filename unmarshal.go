@@ -1,10 +1,10 @@
 package chalk
 
 import (
-	"errors"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 	"strings"
@@ -22,67 +22,20 @@ func (f fqnToFields) addField(fqn string, field reflect.Value) {
 }
 
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
-	if internal.IsDataclassPointer(field) {
-		structValue := field.Elem()
-		if slice, isSlice := value.([]any); isSlice {
-			if len(slice) != structValue.NumField() {
-				return fmt.Errorf(
-					"error unmarshalling value for dataclass "+
-						"feature %s: expected %d fields, got %s",
-					fqn,
-					structValue.NumField(),
-					slice,
-				)
-			}
-			for idx, memberValue := range slice {
-				memberFieldMeta := structValue.Type().Field(idx)
-				memberField := structValue.Field(idx)
-				pythonName := SnakeCase(memberFieldMeta.Name)
-				if memberField == (reflect.Value{}) {
-					return fmt.Errorf(
-						"error unmarshalling value for dataclass feature %s: "+
-							"field %s not found in struct %s",
-						fqn, pythonName, structValue.Type().Name(),
-					)
-				}
-				memberFqn := fqn + "." + pythonName
-				if err := setFeatureSingle(memberField, memberFqn, memberValue); err != nil {
-					return fmt.Errorf(
-						"error unmarshalling value '%s' "+
-							"for dataclass feature '%s': %w",
-						pythonName, fqn, err,
-					)
-				}
-			}
-		} else if mapz, isMap := value.(map[string]any); isMap {
-			nameToField := make(map[string]reflect.Value)
-			for i := 0; i < structValue.NumField(); i++ {
-				nameToField[SnakeCase(structValue.Type().Field(i).Name)] = structValue.Field(i)
-			}
-			for k, v := range mapz {
-				memberField, fieldOk := nameToField[k]
-				if !fieldOk {
-					return fmt.Errorf(
-						"error unmarshalling value for dataclass feature %s: "+
-							"field %s not found in struct %s",
-						fqn, k, structValue.Type().Name(),
-					)
-				}
-				if err := setFeatureSingle(memberField, fqn+"."+k, v); err != nil {
-					return fmt.Errorf(
-						"error unmarshalling value '%s' for dataclass feature '%s': %w",
-						k, fqn, err,
-					)
-				}
-			}
-		} else {
-			return fmt.Errorf(
-				"error unmarshalling value for dataclass "+
-					"feature %s: value is not an `any` slice",
-				fqn,
-			)
+	if field.Type().Kind() == reflect.Ptr {
+		rVal, err := internal.GetReflectValue(&value, field.Type())
+		if err != nil {
+			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
+		field.Set(*rVal)
+		return nil
 	} else if field.Kind() == reflect.Map {
+		// We are handling maps differently because they are typed as `map`
+		// instead of a pointer to a `map` like all other types are.
+		//
+		// And handling it in setFeaturesSingleNew instead of in the recursive
+		// GetReflectValue function checks out because we never encounter
+		// maps in slices, other maps, or structs.
 		sections := strings.Split(fqn, ".")
 		lastSection := sections[len(sections)-1]
 		lastSectionSplit := strings.Split(lastSection, "__")
@@ -101,19 +54,15 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 			return formatErr
 		}
 		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
-		reflectValue, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
+		rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
 		if err != nil {
-			return fmt.Errorf("error unmarshalling value for windowed bucket feature %s: %w", fqn, err)
+			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature %s", fqn)
 		}
-		field.SetMapIndex(tagValue, reflectValue)
+		field.SetMapIndex(tagValue, internal.ReflectPtr(*rVal))
+		return nil
 	} else {
-		reflectValue, err := internal.GetReflectValue(value, field.Type().Elem())
-		if err != nil {
-			return fmt.Errorf("error unmarshalling value for feature %s: %w", fqn, err)
-		}
-		field.Set(reflectValue)
+		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
-	return nil
 }
 
 func (f fqnToFields) setFeature(fqn string, value any) error {
@@ -228,7 +177,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	// Has a side effect: fieldMap will be populated.
 	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
 	if initErr != nil {
-		return &ClientError{Message: fmt.Errorf("exception occurred while initializing result holder: %w", initErr).Error()}
+		return &ClientError{Message: errors.Wrap(initErr, "exception occurred while initializing result holder").Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -251,7 +200,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 				return &ClientError{Message: fieldError}
 			} else {
-				return &ClientError{Message: fmt.Errorf("error unmarshaling feature '%s' into the struct '%s': %w", fqn, structName, err).Error()}
+				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
 			}
 		}
 	}

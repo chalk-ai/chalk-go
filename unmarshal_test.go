@@ -6,10 +6,12 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -153,9 +155,10 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
+	fqn := "unmarshal_user.id"
 	data := []FeatureResult{
 		{
-			Field:     "unmarshal_user.id",
+			Field:     fqn,
 			Value:     1,
 			Pkey:      "abc",
 			Timestamp: time.Time{},
@@ -175,6 +178,8 @@ func TestUnmarshalWrongType(t *testing.T) {
 		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Id)
 		t.Fatal("Expected an error when unmarshalling the wrong type into a struct field")
 	} else {
+		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.String, reflect.Int).Error())
+		assert.Contains(t, unmarshalErr.Error(), fqn)
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
 }
@@ -264,6 +269,295 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 
 	// TODO: Handle optional dataclasses in CHA-3655
 	//assert.Nil(t, resultHolders[1].Dataclass)
+}
+
+func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	lat1a := 37.7749
+	lng1a := 122.4194
+	lat1b := 47.6062
+	lng1b := 122.3321
+	lat2a := 43.6532
+	lng2a := 79.3832
+	lat2b := 40.7128
+	lng2b := 74.0060
+
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassList: [][]testLatLng{
+			{
+				{
+					Lat: &lat1a,
+					Lng: &lng1a,
+				},
+				{
+					Lat: &lat1b,
+					Lng: &lng1b,
+				},
+			},
+			{
+				{
+					Lat: &lat2a,
+					Lng: &lng2a,
+				},
+				{
+					Lat: &lat2b,
+					Lng: &lng2b,
+				},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].DataclassList))
+	assert.Equal(t, testLatLng{&lat1a, &lng1a}, (*resultHolders[0].DataclassList)[0])
+	assert.Equal(t, testLatLng{&lat1b, &lng1b}, (*resultHolders[0].DataclassList)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].DataclassList))
+	assert.Equal(t, testLatLng{&lat2a, &lng2a}, (*resultHolders[1].DataclassList)[0])
+	assert.Equal(t, testLatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
+}
+
+func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntList: [][][]int64{
+			{
+				{1, 2},
+				nil,
+				{3, 4},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, 3, len(*resultHolders[0].NestedIntList))
+	assert.Equal(t, []int64{1, 2}, (*resultHolders[0].NestedIntList)[0])
+	assert.Equal(t, len((*resultHolders[0].NestedIntList)[1]), 0)
+	assert.Equal(t, []int64{3, 4}, (*resultHolders[0].NestedIntList)[2])
+}
+
+func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+			{
+				{1, 2},
+				{3, 4},
+			},
+			{
+				{5, 6},
+				{7, 8},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*resultHolders[0].NestedIntPointerList)[0])
+	assert.Equal(t, []int64{3, 4}, *(*resultHolders[0].NestedIntPointerList)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].NestedIntPointerList))
+	assert.Equal(t, []int64{5, 6}, *(*resultHolders[1].NestedIntPointerList)[0])
+	assert.Equal(t, []int64{7, 8}, *(*resultHolders[1].NestedIntPointerList)[1])
+}
+
+func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+			{
+				{1, 2},
+				{3, 4},
+			},
+			nil,
+			{
+				{5, 6},
+				{7, 8},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 3, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *((*resultHolders[0].NestedIntPointerList)[0]))
+	assert.Equal(t, []int64{3, 4}, *((*resultHolders[0].NestedIntPointerList)[1]))
+	assert.Nil(t, resultHolders[1].NestedIntPointerList)
+	assert.Equal(t, 2, len(*resultHolders[2].NestedIntPointerList))
+	assert.Equal(t, []int64{5, 6}, *((*resultHolders[2].NestedIntPointerList)[0]))
+	assert.Equal(t, []int64{7, 8}, *((*resultHolders[2].NestedIntPointerList)[1]))
+}
+
+func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+			{
+				{1, 2},
+				nil,
+				{3, 4},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, 3, len(*resultHolders[0].NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*resultHolders[0].NestedIntPointerList)[0])
+	assert.Nil(t, (*resultHolders[0].NestedIntPointerList)[1])
+	assert.Equal(t, []int64{3, 4}, *(*resultHolders[0].NestedIntPointerList)[2])
+}
+
+func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassWithList: []*favoriteThings{
+			{
+				Numbers: &[]int64{1, 2},
+				Words:   &[]string{"abc", "def"},
+			},
+			{
+				Numbers: &[]int64{3, 4},
+				Words:   &[]string{"ghi", "jkl"},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, 2, len(*resultHolders[0].DataclassWithList.Numbers))
+	assert.Equal(t, int64(1), (*resultHolders[0].DataclassWithList.Numbers)[0])
+	assert.Equal(t, int64(2), (*resultHolders[0].DataclassWithList.Numbers)[1])
+	assert.Equal(t, 2, len(*resultHolders[0].DataclassWithList.Words))
+	assert.Equal(t, "abc", (*resultHolders[0].DataclassWithList.Words)[0])
+	assert.Equal(t, "def", (*resultHolders[0].DataclassWithList.Words)[1])
+
+	assert.Equal(t, 2, len(*resultHolders[1].DataclassWithList.Numbers))
+	assert.Equal(t, int64(3), (*resultHolders[1].DataclassWithList.Numbers)[0])
+	assert.Equal(t, int64(4), (*resultHolders[1].DataclassWithList.Numbers)[1])
+	assert.Equal(t, 2, len(*resultHolders[1].DataclassWithList.Words))
+	assert.Equal(t, "ghi", (*resultHolders[1].DataclassWithList.Words)[0])
+	assert.Equal(t, "jkl", (*resultHolders[1].DataclassWithList.Words)[1])
+}
+
+func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassWithNils: []possessions{
+			{
+				Car:   internal.Ptr("Toyota"),
+				Yacht: nil,
+				Plane: internal.Ptr("Boeing"),
+			},
+			{
+				Car:   internal.Ptr("Honda"),
+				Yacht: internal.Ptr("Yamaha"),
+				Plane: nil,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 2, len(resultHolders))
+	assert.Equal(t, "Toyota", *resultHolders[0].DataclassWithNils.Car)
+	assert.Nil(t, resultHolders[0].DataclassWithNils.Yacht)
+	assert.Equal(t, "Boeing", *resultHolders[0].DataclassWithNils.Plane)
+
+	assert.Equal(t, "Honda", *resultHolders[1].DataclassWithNils.Car)
+	assert.Equal(t, "Yamaha", *resultHolders[1].DataclassWithNils.Yacht)
+	assert.Nil(t, resultHolders[1].DataclassWithNils.Plane)
 }
 
 // TestUnmarshalBulkQueryOptionalValues tests that when a

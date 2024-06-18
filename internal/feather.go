@@ -56,8 +56,9 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
 			return arrow.LargeListOf(elemType), nil
 		} else {
-			return nil, fmt.Errorf("arrow conversion failed - a slice of anything "+
-				"but primitives is currently unsupported, found type: %s",
+			return nil, errors.Wrapf(
+				err,
+				"arrow conversion failed - a slice of '%s' is currently unsupported",
 				elemKind,
 			)
 		}
@@ -91,7 +92,14 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	}
 }
 
-func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []bool) error {
+func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) error {
+	if len(valid) != slice.Len() {
+		return errors.Errorf(
+			"expected null mask to have length %d, instead found length %d",
+			slice.Len(),
+			len(valid),
+		)
+	}
 	sliceType := slice.Type()
 	if sliceType.Kind() != reflect.Slice {
 		return errors.Errorf(
@@ -100,6 +108,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			slice.Kind(),
 		)
 	}
+
 	if slice.Len() == 0 {
 		return nil // No values to append
 	}
@@ -112,56 +121,82 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 		// elemType is `*T`, so we need to get the type `T`
 		nonPtrSliceType := reflect.SliceOf(elemType.Elem())
 		nonPtrSlice := reflect.MakeSlice(nonPtrSliceType, 0, slice.Len())
-		nilMask := make([]bool, slice.Len())
+		innerValid := make([]bool, slice.Len())
 		for i := 0; i < slice.Len(); i++ {
 			v := slice.Index(i)
 			if v.IsNil() {
-				nilMask[i] = false
+				innerValid[i] = false
 				nonPtrSlice = reflect.Append(nonPtrSlice, reflect.Zero(elemType.Elem()))
 			} else {
-				nilMask[i] = true
+				innerValid[i] = true
 				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
 			}
 		}
-		return setBuilderValues(builder, nonPtrSlice, nilMask)
+		return setBuilderValues(builder, nonPtrSlice, innerValid)
 	case reflect.Int:
 		arrayValues := values.([]int)
 		convertedValues := []int64{}
 		for _, value := range arrayValues {
 			convertedValues = append(convertedValues, int64(value))
 		}
-		builder.(*array.Int64Builder).AppendValues(convertedValues, nullMask)
+		builder.(*array.Int64Builder).AppendValues(convertedValues, valid)
 	case reflect.Int8:
-		builder.(*array.Int8Builder).AppendValues(values.([]int8), nullMask)
+		builder.(*array.Int8Builder).AppendValues(values.([]int8), valid)
 	case reflect.Int16:
-		builder.(*array.Int16Builder).AppendValues(values.([]int16), nullMask)
+		builder.(*array.Int16Builder).AppendValues(values.([]int16), valid)
 	case reflect.Int32:
-		builder.(*array.Int32Builder).AppendValues(values.([]int32), nullMask)
+		builder.(*array.Int32Builder).AppendValues(values.([]int32), valid)
 	case reflect.Int64:
-		builder.(*array.Int64Builder).AppendValues(values.([]int64), nullMask)
+		builder.(*array.Int64Builder).AppendValues(values.([]int64), valid)
 	case reflect.Uint:
 		arrayValues := values.([]uint)
 		convertedValues := []uint64{}
 		for _, value := range arrayValues {
 			convertedValues = append(convertedValues, uint64(value))
 		}
-		builder.(*array.Uint64Builder).AppendValues(convertedValues, nullMask)
+		builder.(*array.Uint64Builder).AppendValues(convertedValues, valid)
 	case reflect.Uint8:
-		builder.(*array.Uint8Builder).AppendValues(values.([]uint8), nullMask)
+		builder.(*array.Uint8Builder).AppendValues(values.([]uint8), valid)
 	case reflect.Uint16:
-		builder.(*array.Uint16Builder).AppendValues(values.([]uint16), nullMask)
+		builder.(*array.Uint16Builder).AppendValues(values.([]uint16), valid)
 	case reflect.Uint32:
-		builder.(*array.Uint32Builder).AppendValues(values.([]uint32), nullMask)
+		builder.(*array.Uint32Builder).AppendValues(values.([]uint32), valid)
 	case reflect.Uint64:
-		builder.(*array.Uint64Builder).AppendValues(values.([]uint64), nullMask)
+		builder.(*array.Uint64Builder).AppendValues(values.([]uint64), valid)
 	case reflect.Float32:
-		builder.(*array.Float32Builder).AppendValues(values.([]float32), nullMask)
+		builder.(*array.Float32Builder).AppendValues(values.([]float32), valid)
 	case reflect.Float64:
-		builder.(*array.Float64Builder).AppendValues(values.([]float64), nullMask)
+		builder.(*array.Float64Builder).AppendValues(values.([]float64), valid)
 	case reflect.String:
-		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), nullMask)
+		builder.(*array.LargeStringBuilder).AppendValues(values.([]string), valid)
 	case reflect.Bool:
-		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), nullMask)
+		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), valid)
+	case reflect.Slice:
+		var offsets []int64
+		innerSliceType := slice.Type().Elem()
+		if innerSliceType.Kind() != reflect.Slice {
+			return errors.Errorf(
+				"expected slice of slices, instead found slice of '%s'",
+				innerSliceType.Kind(),
+			)
+		}
+		flatSlice := reflect.MakeSlice(innerSliceType, 0, slice.Len())
+		highwaterMark := 0
+		offsets = append(offsets, 0)
+		for i := 0; i < slice.Len(); i++ {
+			innerSlice := slice.Index(i)
+			highwaterMark += innerSlice.Len()
+			offsets = append(offsets, int64(highwaterMark))
+			flatSlice = reflect.AppendSlice(flatSlice, innerSlice)
+		}
+		if err := setBuilderValues(
+			builder.(*array.LargeListBuilder).ValueBuilder(),
+			flatSlice,
+			allValid(flatSlice.Len()),
+		); err != nil {
+			return errors.Wrap(err, "failed to set values for slice of slices")
+		}
+		builder.(*array.LargeListBuilder).AppendValues(offsets, valid)
 	case reflect.Struct:
 		if elemType == reflect.TypeOf(time.Time{}) {
 			timeSlice := values.([]time.Time)
@@ -169,7 +204,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 			for _, t := range timeSlice {
 				timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
 			}
-			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, nullMask)
+			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, valid)
 		} else {
 			sBuilder, builderOk := builder.(*array.StructBuilder)
 			if !builderOk {
@@ -219,15 +254,15 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, nullMask []boo
 				columns = append(columns, fieldSlice)
 			}
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], nil); err != nil {
+				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], allValid(columns[i].Len())); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
 			for i := 0; i < slice.Len(); i++ {
-				if nullMask == nil {
+				if valid == nil {
 					sBuilder.Append(true)
 				} else {
-					sBuilder.Append(nullMask[i])
+					sBuilder.Append(valid[i])
 				}
 			}
 		}
@@ -263,7 +298,12 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
 		}
 
-		if err := setBuilderValues(recordBuilder.Field(idx), reflect.ValueOf(values), nil); err != nil {
+		rValues := reflect.ValueOf(values)
+		if rValues.Kind() != reflect.Slice {
+			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
+		}
+
+		if err := setBuilderValues(recordBuilder.Field(idx), rValues, allValid(rValues.Len())); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
