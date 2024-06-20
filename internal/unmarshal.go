@@ -304,7 +304,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	} else {
 		rVal := reflect.ValueOf(value)
 		if rVal.Kind() != typ.Kind() {
-			return nil, KindMismatchError(typ.Kind(), reflect.TypeOf(value).Kind())
+			if rVal.Type().ConvertibleTo(typ) {
+				rVal = rVal.Convert(typ)
+			} else {
+				return nil, KindMismatchError(typ.Kind(), rVal.Kind())
+			}
 		}
 		return &rVal, nil
 	}
