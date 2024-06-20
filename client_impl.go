@@ -21,6 +21,7 @@ type clientImpl struct {
 	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
 	Branch        string
+	QueryServer   string
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
@@ -576,9 +577,9 @@ func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) 
 		return c.ApiServer.Value
 	}
 
-	//if c.QueryServer != "" {
-	//
-	//}
+	if c.QueryServer != "" {
+		return c.QueryServer
+	}
 
 	env := c.getResolvedEnvironment(envOverride)
 	if engine, foundEngine := c.engines[env]; foundEngine && env != "" {
@@ -688,6 +689,7 @@ func newClientImpl(
 		ApiServer:     apiServer,
 		EnvironmentId: environmentId,
 		Branch:        cfg.Branch,
+		QueryServer:   cfg.QueryServer,
 
 		logger:             cfg.Logger,
 		httpClient:         cfg.HTTPClient,
