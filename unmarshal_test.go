@@ -16,6 +16,26 @@ import (
 	"time"
 )
 
+/*
+type allTypes struct {
+	Int                  *int64
+	Float                *float64
+	String               *string
+	Bool                 *bool
+	Timestamp            *time.Time
+	IntList              *[]int64
+	NestedIntPointerList *[]*[]int64
+	NestedIntList        *[][]int64
+	WindowedInt          map[string]*int64   `windows:"1m,5m,1h"`
+	WindowedList         map[string]*[]int64 `windows:"1m"`
+	Dataclass            *testLatLng         `dataclass:"true"`
+	DataclassList        *[]testLatLng
+	DataclassWithList    *favoriteThings
+	DataclassWithNils    *possessions
+	Nested               *anotherFeature
+}
+*/
+
 type unmarshalLatLng struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
@@ -45,6 +65,104 @@ type user struct {
 	Id              *int64
 	FavoriteNumbers *[]int64
 	FavoriteColors  *[]string
+}
+
+func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	data := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
+	}
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	features := allTypes{}
+	unmarshalErr := result.UnmarshalInto(&features)
+	if unmarshalErr != nil {
+		t.Fatal(unmarshalErr)
+	}
+	assert.Nil(t, unmarshalErr)
+	assert.Equal(t, int64(123), *features.Int)
+	assert.Equal(t, float64(123), *features.Float)
+	assert.Equal(t, "abc", *features.String)
+	assert.Equal(t, true, *features.Bool)
+	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *features.Timestamp)
+	assert.Equal(t, []int64{1, 2, 3}, *features.IntList)
+	assert.Equal(t, 2, len(*features.NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*features.NestedIntPointerList)[0])
+	assert.Equal(t, []int64{3, 4}, *(*features.NestedIntPointerList)[1])
+	assert.Equal(t, 2, len(*features.NestedIntList))
+	assert.Equal(t, []int64{1, 2}, (*features.NestedIntList)[0])
+	assert.Equal(t, []int64{3, 4}, (*features.NestedIntList)[1])
+	assert.Equal(t, 1, features.WindowedInt["1m"])
+	assert.Equal(t, 2, features.WindowedInt["5m"])
+	assert.Equal(t, 3, features.WindowedInt["1h"])
+	assert.Equal(t, 1.0, *features.Dataclass.Lat)
+	assert.Equal(t, 2.0, *features.Dataclass.Lng)
+	assert.Equal(t, 2, len(*features.DataclassList))
+	assert.Equal(t, 1.0, *(*features.DataclassList)[0].Lat)
+	assert.Equal(t, 2.0, *(*features.DataclassList)[0].Lng)
+	assert.Equal(t, 3.0, *(*features.DataclassList)[1].Lat)
+	assert.Equal(t, 4.0, *(*features.DataclassList)[1].Lng)
+	assert.Equal(t, "nested_id", *features.Nested.Id)
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
