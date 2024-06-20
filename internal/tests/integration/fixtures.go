@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type user struct {
@@ -19,6 +20,7 @@ var testFeatures struct {
 type Intercepted struct {
 	Header http.Header
 	Body   []byte
+	URL    *url.URL
 }
 
 type InterceptorHTTPClient struct {
@@ -38,6 +40,7 @@ func (c *InterceptorHTTPClient) Do(req *http.Request) (*http.Response, error) {
 	c.Intercepted = Intercepted{
 		Header: req.Header,
 		Body:   bodyBytes,
+		URL:    req.URL,
 	}
 	body := io.NopCloser(bytes.NewBufferString(`{"data": {"something": "exciting"}}`))
 	return &http.Response{StatusCode: 200, Body: body}, nil
