@@ -27,6 +27,7 @@ type clientImpl struct {
 	httpClient         HTTPClient
 	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
+	engines            map[string]string
 }
 
 type HTTPClient interface {
@@ -111,6 +112,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
+			IsEngineRequest:     true,
 		},
 	)
 
@@ -194,6 +196,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 			Response:            &response,
 			EnvironmentOverride: params.EnvironmentOverride,
 			PreviewDeploymentId: params.PreviewDeploymentId,
+			IsEngineRequest:     true,
 		},
 	)
 	if err != nil {
@@ -240,6 +243,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			PreviewDeploymentId: request.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
+			IsEngineRequest:     true,
 		},
 	)
 	if err != nil {
@@ -368,7 +372,7 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
-func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
+func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 	body := getTokenRequest{
 		ClientId:     c.ClientId.Value,
 		ClientSecret: c.clientSecret.Value,
@@ -402,35 +406,37 @@ func (c *clientImpl) getJwt() (*auth2.JWT, *ClientError) {
 			c.EnvironmentId.Source,
 		)}
 	}
+	return &response, nil
+}
+
+func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
+	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
+		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
+		return nil
+	}
+
+	config, getTokenErr := c.getToken()
+	if getTokenErr != nil {
+		return getTokenErr
+	}
 
 	if c.initialEnvironment.Value == "" {
 		c.EnvironmentId = auth2.SourcedConfig{
-			Value:  response.PrimaryEnvironment,
+			Value:  config.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
 		c.EnvironmentId = c.initialEnvironment
 	}
 
-	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
-	jwt := &auth2.JWT{
-		Token:      response.AccessToken,
+	expiry := time.Now().UTC().Add(time.Duration(config.ExpiresIn) * time.Second)
+	c.jwt = &auth2.JWT{
+		Token:      config.AccessToken,
 		ValidUntil: expiry,
 	}
-	return jwt, nil
-}
 
-func (c *clientImpl) refreshJwt(forceRefresh bool) *ClientError {
-	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
-		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
-		return nil
-	}
+	c.engines = config.Engines
 
-	jwt, getJwtErr := c.getJwt()
-	if getJwtErr != nil {
-		return getJwtErr
-	}
-	c.jwt = jwt
 	return nil
 }
 
@@ -467,7 +473,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	request.Header = headers
 
 	if !args.DontRefresh {
-		upsertJwtErr := c.refreshJwt(false)
+		upsertJwtErr := c.refreshConfig(false)
 		if upsertJwtErr != nil {
 			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
 		}
@@ -481,7 +487,11 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		var err error
-		request.URL, err = url.Parse(fmt.Sprintf("%s/%s", c.ApiServer.Value, request.URL.String()))
+		request.URL, err = url.Parse(fmt.Sprintf(
+			"%s/%s",
+			c.GetResolvedServer(args.EnvironmentOverride, args.IsEngineRequest),
+			request.URL.String(),
+		))
 		if err != nil {
 			return err
 		}
@@ -523,7 +533,7 @@ func (c *clientImpl) retryRequest(
 	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
-	upsertJwtUpon401Err := c.refreshJwt(true)
+	upsertJwtUpon401Err := c.refreshConfig(true)
 	if upsertJwtUpon401Err != nil {
 		(c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
 		return originalResponse, originalError
@@ -554,6 +564,30 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
+func (c *clientImpl) getResolvedEnvironment(envOverride string) string {
+	if envOverride == "" {
+		return c.EnvironmentId.Value
+	}
+	return envOverride
+}
+
+func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) string {
+	if !useQueryServer {
+		return c.ApiServer.Value
+	}
+
+	//if c.QueryServer != "" {
+	//
+	//}
+
+	env := c.getResolvedEnvironment(envOverride)
+	if engine, foundEngine := c.engines[env]; foundEngine && env != "" {
+		return engine
+	}
+
+	return c.ApiServer.Value
+}
+
 func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string) http.Header {
 	headers := http.Header{}
 
@@ -562,17 +596,21 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
 
+	var branchResolved string
 	if branchOverride != nil && *branchOverride != "" {
-		headers.Set("X-Chalk-Branch-Id", *branchOverride)
+		branchResolved = *branchOverride
 	} else if c.Branch != "" {
-		headers.Set("X-Chalk-Branch-Id", c.Branch)
+		branchResolved = c.Branch
 	}
 
-	if environmentOverride == "" {
-		headers.Set("X-Chalk-Env-Id", c.EnvironmentId.Value)
+	if branchResolved == "" {
+		headers.Set("X-Chalk-Deployment-Type", "engine")
 	} else {
-		headers.Set("X-Chalk-Env-Id", environmentOverride)
+		headers.Set("X-Chalk-Deployment-Type", "branch")
+		headers.Set("X-Chalk-Branch-Id", branchResolved)
 	}
+
+	headers.Set("X-Chalk-Env-Id", c.getResolvedEnvironment(environmentOverride))
 	if previewDeploymentId != "" {
 		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
 	}
@@ -665,7 +703,7 @@ func newClientImpl(
 		client.httpClient = &http.Client{}
 	}
 
-	err := client.refreshJwt(false)
+	err := client.refreshConfig(false)
 	if cfg.Logger != nil {
 		client.logger = cfg.Logger
 	}

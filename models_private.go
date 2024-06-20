@@ -100,6 +100,8 @@ type sendRequestParams struct {
 	PreviewDeploymentId string
 	Versioned           bool
 	Branch              *string
+
+	IsEngineRequest bool
 }
 
 type getTokenRequest struct {
@@ -109,11 +111,12 @@ type getTokenRequest struct {
 }
 
 type getTokenResponse struct {
-	AccessToken        string `json:"access_token"`
-	TokenType          string `json:"token_type"`
-	ExpiresIn          int    `json:"expires_in"`
-	ApiServer          string `json:"api_server"`
-	PrimaryEnvironment string `json:"primary_environment"`
+	AccessToken        string            `json:"access_token"`
+	TokenType          string            `json:"token_type"`
+	ExpiresIn          int               `json:"expires_in"`
+	ApiServer          string            `json:"api_server"`
+	PrimaryEnvironment string            `json:"primary_environment"`
+	Engines            map[string]string `json:"engines"`
 }
 
 type chalkErrorSerialized struct {
