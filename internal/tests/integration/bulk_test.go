@@ -6,9 +6,10 @@ import (
 	"testing"
 )
 
-// TestOnlineQueryBulkResultUnmarshal tests that we can unmarshal
-// the result of an online query bulk request into structs.
-func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
+// TestOnlineQueryBulk mainly tests that a
+// real query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryBulk(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient()
 	if err != nil {
