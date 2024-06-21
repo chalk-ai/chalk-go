@@ -52,6 +52,8 @@ type user struct {
 func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
+
+	// Mimic JSON deser which returns all numbers as `float64`
 	data := []FeatureResult{
 		{
 			Field: "all_types.int",
