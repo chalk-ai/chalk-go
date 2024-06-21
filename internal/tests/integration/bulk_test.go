@@ -3,7 +3,6 @@ package integration
 import (
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
-	"reflect"
 	"testing"
 )
 
@@ -34,6 +33,8 @@ func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
-	assert.True(t, reflect.DeepEqual(users[0], user{Id: &userIds[0], SocureScore: &socureScore}))
-	assert.True(t, reflect.DeepEqual(users[1], user{Id: &userIds[1], SocureScore: &socureScore}))
+	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.Equal(t, *users[1].SocureScore, socureScore)
 }
