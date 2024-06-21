@@ -2,13 +2,14 @@ package integration
 
 import (
 	"github.com/chalk-ai/chalk-go"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-// TestOnlineQueryAllTypesUnmarshalling only tests
+// TestOnlineQueryAllTypesUnmarshalling mainly tests
 // unmarshalling real data from the staging server
-// does not crash. Correctness is tested in
-// TestOnlineQueryUnmarshalNonBulkAllTypes.
+// does not crash. Correctness is partially tested here,
+// but is mainly tested in TestOnlineQueryUnmarshalNonBulkAllTypes.
 func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient()
@@ -25,6 +26,7 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 			testFeatures.User.Id,
 			testFeatures.User.Gender,
 			testFeatures.User.Today,
+			testFeatures.User.NiceNewFeature,
 			testFeatures.User.SocureScore,
 			testFeatures.User.FavoriteNumbers,
 			testFeatures.User.FavoriteColors,
@@ -42,4 +44,13 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 	if err != (*chalk.ClientError)(nil) {
 		t.Fatal("Failed unmarshaling result", err)
 	}
+	assert.Equal(t, *testUser.Id, int64(1))
+	assert.Equal(t, *testUser.Gender, "f")
+	assert.NotNil(t, testUser.Today)
+	assert.Equal(t, *testUser.NiceNewFeature, int64(9))
+	assert.Equal(t, *testUser.SocureScore, 123.0)
+	assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
+	assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
+	assert.NotNil(t, testUser.FranchiseSet)
+
 }
