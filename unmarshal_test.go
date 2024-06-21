@@ -16,26 +16,6 @@ import (
 	"time"
 )
 
-/*
-type allTypes struct {
-	Int                  *int64
-	Float                *float64
-	String               *string
-	Bool                 *bool
-	Timestamp            *time.Time
-	IntList              *[]int64
-	NestedIntPointerList *[]*[]int64
-	NestedIntList        *[][]int64
-	WindowedInt          map[string]*int64   `windows:"1m,5m,1h"`
-	WindowedList         map[string]*[]int64 `windows:"1m"`
-	Dataclass            *testLatLng         `dataclass:"true"`
-	DataclassList        *[]testLatLng
-	DataclassWithList    *favoriteThings
-	DataclassWithNils    *possessions
-	Nested               *anotherFeature
-}
-*/
-
 type unmarshalLatLng struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
@@ -43,6 +23,8 @@ type unmarshalLatLng struct {
 
 type unmarshalUser struct {
 	Id *string
+
+	Int *int64
 
 	// Versioned features
 	Grade   *int `versioned:"default(2)"`
@@ -273,11 +255,11 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
-	fqn := "unmarshal_user.id"
+	fqn := "unmarshal_user.int"
 	data := []FeatureResult{
 		{
 			Field:     fqn,
-			Value:     1,
+			Value:     "1",
 			Pkey:      "abc",
 			Timestamp: time.Time{},
 			Meta:      nil,
@@ -293,11 +275,11 @@ func TestUnmarshalWrongType(t *testing.T) {
 	user := unmarshalUser{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr == nil {
-		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Id)
+		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Int)
 		t.Fatal("Expected an error when unmarshalling the wrong type into a struct field")
 	} else {
-		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.String, reflect.Int).Error())
 		assert.Contains(t, unmarshalErr.Error(), fqn)
+		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.Int64, reflect.String).Error())
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
 }
