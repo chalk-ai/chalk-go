@@ -137,6 +137,13 @@ type ClientConfig struct {
 	// instance to the relevant branch.
 	Branch string
 
+	// Chalk routes performance sensitive requests like online query
+	// directly to the query server that runs the engine. Populate
+	// this field if you would like to route these requests to a
+	// different query server than the one automatically resolved
+	// by Chalk.
+	QueryServer string
+
 	// Logger is the logger that the backend will use to log errors,
 	// warnings, and informational messages.
 	//
