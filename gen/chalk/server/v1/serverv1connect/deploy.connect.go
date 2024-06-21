@@ -39,19 +39,24 @@ const (
 	// DeployServiceGetDeploymentProcedure is the fully-qualified name of the DeployService's
 	// GetDeployment RPC.
 	DeployServiceGetDeploymentProcedure = "/chalk.server.v1.DeployService/GetDeployment"
+	// DeployServiceListDeploymentsProcedure is the fully-qualified name of the DeployService's
+	// ListDeployments RPC.
+	DeployServiceListDeploymentsProcedure = "/chalk.server.v1.DeployService/ListDeployments"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	deployServiceServiceDescriptor             = v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService")
-	deployServiceDeployBranchMethodDescriptor  = deployServiceServiceDescriptor.Methods().ByName("DeployBranch")
-	deployServiceGetDeploymentMethodDescriptor = deployServiceServiceDescriptor.Methods().ByName("GetDeployment")
+	deployServiceServiceDescriptor               = v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService")
+	deployServiceDeployBranchMethodDescriptor    = deployServiceServiceDescriptor.Methods().ByName("DeployBranch")
+	deployServiceGetDeploymentMethodDescriptor   = deployServiceServiceDescriptor.Methods().ByName("GetDeployment")
+	deployServiceListDeploymentsMethodDescriptor = deployServiceServiceDescriptor.Methods().ByName("ListDeployments")
 )
 
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
 type DeployServiceClient interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
+	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 }
 
 // NewDeployServiceClient constructs a client for the chalk.server.v1.DeployService service. By
@@ -76,13 +81,20 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deployServiceGetDeploymentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		listDeployments: connect.NewClient[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse](
+			httpClient,
+			baseURL+DeployServiceListDeploymentsProcedure,
+			connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // deployServiceClient implements DeployServiceClient.
 type deployServiceClient struct {
-	deployBranch  *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
-	getDeployment *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
+	deployBranch    *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
+	getDeployment   *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
+	listDeployments *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
@@ -95,10 +107,16 @@ func (c *deployServiceClient) GetDeployment(ctx context.Context, req *connect.Re
 	return c.getDeployment.CallUnary(ctx, req)
 }
 
+// ListDeployments calls chalk.server.v1.DeployService.ListDeployments.
+func (c *deployServiceClient) ListDeployments(ctx context.Context, req *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error) {
+	return c.listDeployments.CallUnary(ctx, req)
+}
+
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
+	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 }
 
 // NewDeployServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -119,12 +137,20 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deployServiceGetDeploymentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	deployServiceListDeploymentsHandler := connect.NewUnaryHandler(
+		DeployServiceListDeploymentsProcedure,
+		svc.ListDeployments,
+		connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
 			deployServiceDeployBranchHandler.ServeHTTP(w, r)
 		case DeployServiceGetDeploymentProcedure:
 			deployServiceGetDeploymentHandler.ServeHTTP(w, r)
+		case DeployServiceListDeploymentsProcedure:
+			deployServiceListDeploymentsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -140,4 +166,8 @@ func (UnimplementedDeployServiceHandler) DeployBranch(context.Context, *connect.
 
 func (UnimplementedDeployServiceHandler) GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetDeployment is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.ListDeployments is not implemented"))
 }
