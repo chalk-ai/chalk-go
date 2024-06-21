@@ -3,13 +3,13 @@ package integration
 import (
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
-	"reflect"
 	"testing"
 )
 
-// TestOnlineQueryBulkResultUnmarshal tests that we can unmarshal
-// the result of an online query bulk request into structs.
-func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
+// TestOnlineQueryBulk mainly tests that a
+// real query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryBulk(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient()
 	if err != nil {
@@ -34,6 +34,8 @@ func TestOnlineQueryBulkResultUnmarshal(t *testing.T) {
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
-	assert.True(t, reflect.DeepEqual(users[0], user{Id: &userIds[0], SocureScore: &socureScore}))
-	assert.True(t, reflect.DeepEqual(users[1], user{Id: &userIds[1], SocureScore: &socureScore}))
+	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.Equal(t, *users[1].SocureScore, socureScore)
 }

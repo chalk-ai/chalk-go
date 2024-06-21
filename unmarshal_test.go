@@ -24,6 +24,8 @@ type unmarshalLatLng struct {
 type unmarshalUser struct {
 	Id *string
 
+	Int *int64
+
 	// Versioned features
 	Grade   *int `versioned:"default(2)"`
 	GradeV1 *int `versioned:"true"`
@@ -45,6 +47,106 @@ type user struct {
 	Id              *int64
 	FavoriteNumbers *[]int64
 	FavoriteColors  *[]string
+}
+
+func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+
+	// Mimic JSON deser which returns all numbers as `float64`
+	data := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
+	}
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	features := allTypes{}
+	unmarshalErr := result.UnmarshalInto(&features)
+	if unmarshalErr != nil {
+		t.Fatal(unmarshalErr)
+	}
+	assert.Nil(t, unmarshalErr)
+	assert.Equal(t, int64(123), *features.Int)
+	assert.Equal(t, float64(123), *features.Float)
+	assert.Equal(t, "abc", *features.String)
+	assert.Equal(t, true, *features.Bool)
+	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *features.Timestamp)
+	assert.Equal(t, []int64{1, 2, 3}, *features.IntList)
+	assert.Equal(t, 2, len(*features.NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*features.NestedIntPointerList)[0])
+	assert.Equal(t, []int64{3, 4}, *(*features.NestedIntPointerList)[1])
+	assert.Equal(t, 2, len(*features.NestedIntList))
+	assert.Equal(t, []int64{1, 2}, (*features.NestedIntList)[0])
+	assert.Equal(t, []int64{3, 4}, (*features.NestedIntList)[1])
+	assert.Equal(t, int64(1), *features.WindowedInt["1m"])
+	assert.Equal(t, int64(2), *features.WindowedInt["5m"])
+	assert.Equal(t, int64(3), *features.WindowedInt["1h"])
+	assert.Equal(t, float64(1.0), *features.Dataclass.Lat)
+	assert.Equal(t, float64(2.0), *features.Dataclass.Lng)
+	assert.Equal(t, 2, len(*features.DataclassList))
+	assert.Equal(t, float64(1.0), *(*features.DataclassList)[0].Lat)
+	assert.Equal(t, float64(2.0), *(*features.DataclassList)[0].Lng)
+	assert.Equal(t, float64(3.0), *(*features.DataclassList)[1].Lat)
+	assert.Equal(t, float64(4.0), *(*features.DataclassList)[1].Lng)
+	assert.Equal(t, "nested_id", *features.Nested.Id)
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
@@ -155,11 +257,11 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
-	fqn := "unmarshal_user.id"
+	fqn := "unmarshal_user.int"
 	data := []FeatureResult{
 		{
 			Field:     fqn,
-			Value:     1,
+			Value:     "1",
 			Pkey:      "abc",
 			Timestamp: time.Time{},
 			Meta:      nil,
@@ -175,11 +277,11 @@ func TestUnmarshalWrongType(t *testing.T) {
 	user := unmarshalUser{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr == nil {
-		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Id)
+		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Int)
 		t.Fatal("Expected an error when unmarshalling the wrong type into a struct field")
 	} else {
-		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.String, reflect.Int).Error())
 		assert.Contains(t, unmarshalErr.Error(), fqn)
+		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.Int64, reflect.String).Error())
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
 }
