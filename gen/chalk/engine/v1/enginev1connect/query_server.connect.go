@@ -45,6 +45,9 @@ const (
 	// QueryServiceOnlineQueryMultiProcedure is the fully-qualified name of the QueryService's
 	// OnlineQueryMulti RPC.
 	QueryServiceOnlineQueryMultiProcedure = "/chalk.engine.v1.QueryService/OnlineQueryMulti"
+	// QueryServiceQueryFromPlanProcedure is the fully-qualified name of the QueryService's
+	// QueryFromPlan RPC.
+	QueryServiceQueryFromPlanProcedure = "/chalk.engine.v1.QueryService/QueryFromPlan"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -54,6 +57,7 @@ var (
 	queryServiceOnlineQueryMethodDescriptor      = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
 	queryServiceOnlineQueryBulkMethodDescriptor  = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryBulk")
 	queryServiceOnlineQueryMultiMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryMulti")
+	queryServiceQueryFromPlanMethodDescriptor    = queryServiceServiceDescriptor.Methods().ByName("QueryFromPlan")
 )
 
 // QueryServiceClient is a client for the chalk.engine.v1.QueryService service.
@@ -62,6 +66,7 @@ type QueryServiceClient interface {
 	OnlineQuery(context.Context, *connect.Request[v11.OnlineQueryRequest]) (*connect.Response[v11.OnlineQueryResponse], error)
 	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 	OnlineQueryMulti(context.Context, *connect.Request[v11.OnlineQueryMultiRequest]) (*connect.Response[v11.OnlineQueryMultiResponse], error)
+	QueryFromPlan(context.Context, *connect.Request[v1.QueryFromPlanRequest]) (*connect.Response[v1.QueryFromPlanResponse], error)
 }
 
 // NewQueryServiceClient constructs a client for the chalk.engine.v1.QueryService service. By
@@ -98,6 +103,12 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(queryServiceOnlineQueryMultiMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		queryFromPlan: connect.NewClient[v1.QueryFromPlanRequest, v1.QueryFromPlanResponse](
+			httpClient,
+			baseURL+QueryServiceQueryFromPlanProcedure,
+			connect.WithSchema(queryServiceQueryFromPlanMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -107,6 +118,7 @@ type queryServiceClient struct {
 	onlineQuery      *connect.Client[v11.OnlineQueryRequest, v11.OnlineQueryResponse]
 	onlineQueryBulk  *connect.Client[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse]
 	onlineQueryMulti *connect.Client[v11.OnlineQueryMultiRequest, v11.OnlineQueryMultiResponse]
+	queryFromPlan    *connect.Client[v1.QueryFromPlanRequest, v1.QueryFromPlanResponse]
 }
 
 // Ping calls chalk.engine.v1.QueryService.Ping.
@@ -129,12 +141,18 @@ func (c *queryServiceClient) OnlineQueryMulti(ctx context.Context, req *connect.
 	return c.onlineQueryMulti.CallUnary(ctx, req)
 }
 
+// QueryFromPlan calls chalk.engine.v1.QueryService.QueryFromPlan.
+func (c *queryServiceClient) QueryFromPlan(ctx context.Context, req *connect.Request[v1.QueryFromPlanRequest]) (*connect.Response[v1.QueryFromPlanResponse], error) {
+	return c.queryFromPlan.CallUnary(ctx, req)
+}
+
 // QueryServiceHandler is an implementation of the chalk.engine.v1.QueryService service.
 type QueryServiceHandler interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
 	OnlineQuery(context.Context, *connect.Request[v11.OnlineQueryRequest]) (*connect.Response[v11.OnlineQueryResponse], error)
 	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 	OnlineQueryMulti(context.Context, *connect.Request[v11.OnlineQueryMultiRequest]) (*connect.Response[v11.OnlineQueryMultiResponse], error)
+	QueryFromPlan(context.Context, *connect.Request[v1.QueryFromPlanRequest]) (*connect.Response[v1.QueryFromPlanResponse], error)
 }
 
 // NewQueryServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -167,6 +185,12 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(queryServiceOnlineQueryMultiMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	queryServiceQueryFromPlanHandler := connect.NewUnaryHandler(
+		QueryServiceQueryFromPlanProcedure,
+		svc.QueryFromPlan,
+		connect.WithSchema(queryServiceQueryFromPlanMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v1.QueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueryServicePingProcedure:
@@ -177,6 +201,8 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 			queryServiceOnlineQueryBulkHandler.ServeHTTP(w, r)
 		case QueryServiceOnlineQueryMultiProcedure:
 			queryServiceOnlineQueryMultiHandler.ServeHTTP(w, r)
+		case QueryServiceQueryFromPlanProcedure:
+			queryServiceQueryFromPlanHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -200,4 +226,8 @@ func (UnimplementedQueryServiceHandler) OnlineQueryBulk(context.Context, *connec
 
 func (UnimplementedQueryServiceHandler) OnlineQueryMulti(context.Context, *connect.Request[v11.OnlineQueryMultiRequest]) (*connect.Response[v11.OnlineQueryMultiResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.OnlineQueryMulti is not implemented"))
+}
+
+func (UnimplementedQueryServiceHandler) QueryFromPlan(context.Context, *connect.Request[v1.QueryFromPlanRequest]) (*connect.Response[v1.QueryFromPlanResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.QueryFromPlan is not implemented"))
 }
