@@ -19,7 +19,11 @@ func InitFeatures[T any](t *T) error {
 // a pointer to a Feature struct with the appropriate FQN.
 func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToFields) error {
 	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf("feature initialization function argument must be a reflect.Value of the kind reflect.Struct, found %s instead", structValue.Kind().String())
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
 	}
 
 	namespace := structValue.Type().Name()
