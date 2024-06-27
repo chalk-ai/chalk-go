@@ -2,7 +2,6 @@ package chalk
 
 import (
 	assert "github.com/stretchr/testify/require"
-	"reflect"
 	"testing"
 )
 
@@ -30,27 +29,6 @@ var testFeatures struct {
 	User    *goUser
 	Card    *goCard
 	Address *goAddress
-}
-
-func TestInitFeaturesToNil(t *testing.T) {
-	initErr := initFeatures(reflect.ValueOf(&testFeatures).Elem(), "", make(map[string]bool), make(fqnToFields))
-	assert.Nil(t, initErr)
-	assert.Nil(t, testFeatures.User.Id)
-	assert.Nil(t, testFeatures.User.Name)
-	assert.Nil(t, testFeatures.User.Card.Id)
-	assert.Nil(t, testFeatures.User.Card.Number)
-	assert.Nil(t, testFeatures.User.Address.Id)
-	assert.Nil(t, testFeatures.User.Address.City)
-	assert.Nil(t, testFeatures.User.FamilySize)
-	assert.Nil(t, testFeatures.User.HasFamily)
-	assert.Nil(t, testFeatures.User.FamilyIncome)
-
-	assert.Nil(t, testFeatures.Card.Id)
-	assert.Nil(t, testFeatures.Card.Number)
-
-	assert.Nil(t, testFeatures.Address.Id)
-	assert.Nil(t, testFeatures.Address.City)
-
 }
 
 func TestUnmarshal(t *testing.T) {

@@ -65,6 +65,17 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	}
 }
 
+func SetFeature(fields []reflect.Value, fqn string, value any) error {
+	// Versioned features can have multiple fields with the same FQN.
+	// We need to set the value for each field.
+	for _, field := range fields {
+		if err := setFeatureSingle(field, fqn, value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (f fqnToFields) setFeature(fqn string, value any) error {
 	fields, ok := f[fqn]
 	if !ok {
@@ -171,23 +182,30 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 }
 
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	fieldMap := make(fqnToFields)
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
-	// Has a side effect: fieldMap will be populated.
-	initErr := initFeatures(structValue, "", make(map[string]bool), fieldMap)
-	if initErr != nil {
-		return &ClientError{Message: errors.Wrap(initErr, "exception occurred while initializing result holder").Error()}
-	}
-
+	fieldMap := fqnToFields{}
 	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
 			// TODO: Add validation for optional fields
 			continue
 		}
-		err := fieldMap.setFeature(fqn, value)
+		targetFields, err := initFeatures(structValue, "", make(map[string]bool), fqn)
 		if err != nil {
+			err = errors.Wrapf(
+				err,
+				"error initializing feature field '%s' in the struct '%s'",
+				fqn,
+				structValue.Type().String(),
+			)
+			return &ClientError{Message: err.Error()}
+		}
+		for _, field := range targetFields {
+			fieldMap.addField(fqn, field)
+		}
+
+		if err := SetFeature(targetFields, fqn, value); err != nil {
 			structName := structValue.Type().String()
 			outputNamespace := "unknown namespace"
 			sections := strings.Split(fqn, ".")
@@ -203,6 +221,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
 			}
 		}
+
 	}
 	for _, expectedOutput := range expectedOutputs {
 		if fields, ok := fieldMap[expectedOutput]; ok {

@@ -11,15 +11,16 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	return initFeatures(structValue, "", make(map[string]bool), nil)
+	_, err := initFeatures(structValue, "", make(map[string]bool), "")
+	return err
 }
 
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, fieldMap fqnToFields) error {
+func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, initFqn string) ([]reflect.Value, error) {
 	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf(
+		return nil, fmt.Errorf(
 			"feature initialization function argument must be a reflect.Value"+
 				" of the kind reflect.Struct, found %s instead",
 			structValue.Kind().String(),
@@ -32,11 +33,13 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
-		// This is not memoization. Simply a cycle checker while DFSing.
-		return nil
-	} else {
-		visited[namespace] = true
+		// Found a cycle. Just return.
+		return nil, nil
 	}
+	visited[namespace] = true
+	defer func() {
+		visited[namespace] = false
+	}()
 
 	for i := 0; i < structValue.NumField(); i++ {
 		f := structValue.Field(i)
@@ -61,18 +64,18 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			//      Features.User.CreditReport = new(CreditReport)
 			//
 			if ptrErr := pointerCheck(f); ptrErr != nil {
-				return ptrErr
+				return nil, ptrErr
 			}
 			featureSet := reflect.New(f.Type().Elem())
 			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 			f.Set(ptrInDisguiseToFeatureSet)
 			featureSetInDisguise := f.Elem()
-			initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, fieldMap)
+			targetFields, initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, initFqn)
 			if initErr != nil {
-				return initErr
+				return nil, initErr
 			}
-			if fieldMap != nil {
-				fieldMap.addField(updatedFqn, f)
+			if initFqn != "" {
+				return targetFields, nil
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -90,37 +93,37 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			// section below.
 			mapValueType := f.Type().Elem()
 			if mapValueType.Kind() != reflect.Pointer {
-				return fmt.Errorf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind())
+				return nil, fmt.Errorf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind())
 			}
 			newMap := reflect.MakeMap(f.Type())
 			windows := fieldMeta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
 				seconds, parseErr := internal.ParseBucketDuration(tag)
 				if parseErr != nil {
-					return fmt.Errorf("error parsing bucket duration: %s", parseErr)
+					return nil, fmt.Errorf("error parsing bucket duration: %s", parseErr)
 				}
 				windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
-				if fieldMap == nil {
+				if initFqn == "" {
 					feature := Feature{Fqn: windowFqn}
 					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
 					newMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 				} else {
+					// FIXME: This should be removed, I think, because we don't want
+					// 		  to initialize windowed features for which we don't have
+					//		  values.
 					nilPointer := reflect.New(f.Type().Elem()).Elem()
 					nilPointer.Set(reflect.Zero(nilPointer.Type()))
 					newMap.SetMapIndex(reflect.ValueOf(tag), nilPointer)
 				}
-				if fieldMap != nil {
-					fieldMap.addField(windowFqn, f)
-				}
 			}
 			f.Set(newMap)
-			if fieldMap != nil {
-				fieldMap.addField(updatedFqn, f)
+			if initFqn != "" {
+				return []reflect.Value{f}, nil
 			}
 		} else {
 			// BASE CASE.
 			if ptrErr := pointerCheck(f); ptrErr != nil {
-				return ptrErr
+				return nil, ptrErr
 			}
 
 			versioned := fieldMeta.Tag.Get("versioned")
@@ -128,11 +131,11 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				parts := strings.Split(updatedFqn, "_")
 				nameErr := fmt.Errorf("versioned feature must have a version suffix `VN` at the end of the attribute name, but found '%s' instead", fieldMeta.Name)
 				if len(parts) == 1 {
-					return nameErr
+					return nil, nameErr
 				}
 				lastPart := parts[len(parts)-1]
 				if !strings.HasPrefix(lastPart, "v") {
-					return nameErr
+					return nil, nameErr
 				}
 				version := lastPart[1:]
 				baseFqn := strings.Join(parts[:len(parts)-1], "_")
@@ -145,17 +148,17 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				version := versioned[len("default(") : len(versioned)-len(")")]
 				_, convertErr := strconv.Atoi(version)
 				if convertErr != nil {
-					return fmt.Errorf("Expected struct tag `versioned:\"default(N)\"` where N is an integer, but found %s instead", versioned)
+					return nil, fmt.Errorf("Expected struct tag `versioned:\"default(N)\"` where N is an integer, but found %s instead", versioned)
 				}
 				if version != "1" {
 					updatedFqn = updatedFqn + "@" + version
 				}
 			} else if versioned != "" {
-				return fmt.Errorf("Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` where N is an integer, but found '%s' instead", versioned)
+				return nil, fmt.Errorf("Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` where N is an integer, but found '%s' instead", versioned)
 			}
 
-			if fieldMap != nil {
-				fieldMap.addField(updatedFqn, f)
+			if initFqn != "" {
+				return []reflect.Value{f}, nil
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':
@@ -177,9 +180,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			}
 		}
 	}
-
-	visited[namespace] = false
-	return nil
+	return nil, nil
 }
 
 func pointerCheck(field reflect.Value) error {
