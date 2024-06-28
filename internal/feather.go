@@ -80,8 +80,12 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 					field.Type,
 				)
 			}
+			resolved, err := ResolveFeatureName(field)
+			if err != nil {
+				return nil, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+			}
 			arrowFields = append(arrowFields, arrow.Field{
-				Name:     ResolveFeatureName(field),
+				Name:     resolved,
 				Type:     dtype,
 				Nullable: field.Type.Kind() == reflect.Ptr,
 			})
@@ -232,7 +236,11 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 			for i := 0; i < numFieldsReflect; i++ {
-				namesReflect = append(namesReflect, ResolveFeatureName(elemType.Field(i)))
+				resolved, err := ResolveFeatureName(elemType.Field(i))
+				if err != nil {
+					return errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+				}
+				namesReflect = append(namesReflect, resolved)
 				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
 			}
 			if !reflect.DeepEqual(namesReflect, namesArrow) {

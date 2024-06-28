@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -71,8 +70,12 @@ func initFeatures(
 			},
 		)
 	}
+	var resFields []reflect.Value
 	for _, fm := range fms {
-		resolvedName := internal.ResolveFeatureName(fm.Meta)
+		resolvedName, err := internal.ResolveFeatureName(fm.Meta)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
+		}
 		updatedFqn := cumulativeFqn + resolvedName
 
 		f := fm.Field
@@ -215,51 +218,8 @@ func initFeatures(
 				return nil, ptrErr
 			}
 
-			versioned := fm.Meta.Tag.Get("versioned")
-			if versioned == "true" {
-				parts := strings.Split(updatedFqn, "_")
-				nameErr := fmt.Errorf(
-					"versioned feature must have a version suffix `VN` at the"+
-						" end of the attribute name, but found '%s' instead",
-					fm.Meta.Name,
-				)
-				if len(parts) == 1 {
-					return nil, nameErr
-				}
-				lastPart := parts[len(parts)-1]
-				if !strings.HasPrefix(lastPart, "v") {
-					return nil, nameErr
-				}
-				version := lastPart[1:]
-				baseFqn := strings.Join(parts[:len(parts)-1], "_")
-				if version == "1" {
-					updatedFqn = baseFqn
-				} else {
-					updatedFqn = baseFqn + "@" + version
-				}
-			} else if strings.HasPrefix(versioned, "default(") && strings.HasSuffix(versioned, ")") {
-				version := versioned[len("default(") : len(versioned)-len(")")]
-				_, convertErr := strconv.Atoi(version)
-				if convertErr != nil {
-					return nil, fmt.Errorf(
-						"Expected struct tag `versioned:\"default(N)\"` "+
-							"where N is an integer, but found %s instead",
-						versioned,
-					)
-				}
-				if version != "1" {
-					updatedFqn = updatedFqn + "@" + version
-				}
-			} else if versioned != "" {
-				return nil, fmt.Errorf(
-					"Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` "+
-						"where N is an integer, but found '%s' instead",
-					versioned,
-				)
-			}
-
 			if targetFqn != "" {
-				return []reflect.Value{f}, nil
+				resFields = append(resFields, f)
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':
@@ -281,7 +241,7 @@ func initFeatures(
 			}
 		}
 	}
-	return nil, nil
+	return resFields, nil
 }
 
 func getFqnRoot(s string) string {
