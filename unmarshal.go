@@ -10,16 +10,7 @@ import (
 	"strings"
 )
 
-type fqnToFields map[string][]reflect.Value
-
 var FieldNotFoundError = errors.New("field not found")
-
-func (f fqnToFields) addField(fqn string, field reflect.Value) {
-	if _, ok := f[fqn]; !ok {
-		f[fqn] = []reflect.Value{}
-	}
-	f[fqn] = append(f[fqn], field)
-}
 
 func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
@@ -63,33 +54,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
-}
-
-func SetFeature(fields []reflect.Value, fqn string, value any) error {
-	// Versioned features can have multiple fields with the same FQN.
-	// We need to set the value for each field.
-	for _, field := range fields {
-		if err := setFeatureSingle(field, fqn, value); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (f fqnToFields) setFeature(fqn string, value any) error {
-	fields, ok := f[fqn]
-	if !ok {
-		return FieldNotFoundError
-	}
-
-	// Versioned features can have multiple fields with the same FQN.
-	// We need to set the value for each field.
-	for _, field := range fields {
-		if err := setFeatureSingle(field, fqn, value); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
@@ -184,7 +148,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
-	fieldMap := fqnToFields{}
+	fieldMap := map[string][]reflect.Value{}
 	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
@@ -202,23 +166,25 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			return &ClientError{Message: err.Error()}
 		}
 		for _, field := range targetFields {
-			fieldMap.addField(fqn, field)
-		}
-
-		if err := SetFeature(targetFields, fqn, value); err != nil {
-			structName := structValue.Type().String()
-			outputNamespace := "unknown namespace"
-			sections := strings.Split(fqn, ".")
-			if len(sections) > 0 {
-				outputNamespace = sections[0]
+			if _, ok := fieldMap[fqn]; !ok {
+				fieldMap[fqn] = []reflect.Value{}
 			}
-			if errors.Is(err, FieldNotFoundError) {
-				fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
-				fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
-				fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
-				return &ClientError{Message: fieldError}
-			} else {
-				return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
+			fieldMap[fqn] = append(fieldMap[fqn], field)
+			if err := setFeatureSingle(field, fqn, value); err != nil {
+				structName := structValue.Type().String()
+				outputNamespace := "unknown namespace"
+				sections := strings.Split(fqn, ".")
+				if len(sections) > 0 {
+					outputNamespace = sections[0]
+				}
+				if errors.Is(err, FieldNotFoundError) {
+					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+					return &ClientError{Message: fieldError}
+				} else {
+					return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
+				}
 			}
 		}
 
