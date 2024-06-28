@@ -147,6 +147,8 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 	assert.Equal(t, float64(3.0), *(*features.DataclassList)[1].Lat)
 	assert.Equal(t, float64(4.0), *(*features.DataclassList)[1].Lng)
 	assert.Equal(t, "nested_id", *features.Nested.Id)
+	assert.Nil(t, features.Nested.ShouldAlwaysBeNil)
+	assert.Nil(t, features.Nested.Nested)
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {

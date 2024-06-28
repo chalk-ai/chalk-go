@@ -34,8 +34,15 @@ type child struct {
 	Dad  *parent
 }
 
-type anotherFeature struct {
-	Id *string
+type levelOneNest struct {
+	Id                *string
+	ShouldAlwaysBeNil *string
+	Nested            *levelTwoNest
+}
+
+type levelTwoNest struct {
+	Id                *string
+	ShouldAlwaysBeNil *string
 }
 
 type allTypes struct {
@@ -54,7 +61,7 @@ type allTypes struct {
 	DataclassWithList      *favoriteThings
 	DataclassWithNils      *possessions
 	DataclassWithDataclass *child
-	Nested                 *anotherFeature
+	Nested                 *levelOneNest
 }
 
 var testRootFeatures struct {
