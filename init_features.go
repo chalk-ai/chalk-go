@@ -99,7 +99,7 @@ func initFeatures(
 			if shouldNaivelySkip {
 				continue
 			}
-			return []reflect.Value{f}, nil
+			resFields = append(resFields, f)
 		} else if f.Type().Elem().Kind() == reflect.Struct &&
 			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
