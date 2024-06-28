@@ -39,7 +39,7 @@ func convertNumber[T Numbers](anyNumber any) (T, error) {
 	}
 }
 
-func isTypeDataclass(typ reflect.Type) bool {
+func IsTypeDataclass(typ reflect.Type) bool {
 	if typ.Kind() == reflect.Struct {
 		for i := 0; i < typ.NumField(); i++ {
 			fieldMeta := typ.Field(i)
@@ -52,7 +52,7 @@ func isTypeDataclass(typ reflect.Type) bool {
 }
 
 func IsDataclass(field reflect.Value) bool {
-	return isTypeDataclass(field.Type())
+	return IsTypeDataclass(field.Type())
 }
 
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
@@ -183,7 +183,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return Ptr(ReflectPtr(*indirectValue)), nil
 	}
-	if isTypeDataclass(typ) {
+	if IsTypeDataclass(typ) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
 			if len(slice) != structValue.NumField() {

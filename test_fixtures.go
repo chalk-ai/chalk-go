@@ -18,8 +18,31 @@ type possessions struct {
 	Plane *string
 }
 
-type anotherFeature struct {
-	Id *string
+type grandparent struct {
+	Name *string `dataclass_field:"true"`
+}
+
+type parent struct {
+	Name *string `dataclass_field:"true"`
+	Mom  *grandparent
+	Dad  *grandparent
+}
+
+type child struct {
+	Name *string `dataclass_field:"true"`
+	Mom  *parent
+	Dad  *parent
+}
+
+type levelOneNest struct {
+	Id                *string
+	ShouldAlwaysBeNil *string
+	Nested            *levelTwoNest
+}
+
+type levelTwoNest struct {
+	Id                *string
+	ShouldAlwaysBeNil *string
 }
 
 type dclassWithOverrides struct {
@@ -41,8 +64,9 @@ type allTypes struct {
 	DataclassList          *[]testLatLng
 	DataclassWithList      *favoriteThings
 	DataclassWithNils      *possessions
+	DataclassWithDataclass *child
 	DataclassWithOverrides *dclassWithOverrides
-	Nested                 *anotherFeature
+	Nested                 *levelOneNest
 }
 
 var testRootFeatures struct {

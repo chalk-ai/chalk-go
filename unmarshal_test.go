@@ -147,6 +147,8 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 	assert.Equal(t, float64(3.0), *(*features.DataclassList)[1].Lat)
 	assert.Equal(t, float64(4.0), *(*features.DataclassList)[1].Lng)
 	assert.Equal(t, "nested_id", *features.Nested.Id)
+	assert.Nil(t, features.Nested.ShouldAlwaysBeNil)
+	assert.Nil(t, features.Nested.Nested)
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
@@ -367,10 +369,47 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 
 	assert.Equal(t, 3, len(resultHolders))
 	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
+	assert.Nil(t, resultHolders[1].Dataclass)
 	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
+}
 
-	// TODO: Handle optional dataclasses in CHA-3655
-	//assert.Nil(t, resultHolders[1].Dataclass)
+// TestUnmarshalQueryBulkOptionalDataclassNested
+func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassWithDataclass: []*child{
+			{
+				Name: internal.Ptr("Alice"),
+				Mom: &parent{
+					Name: internal.Ptr("Alice's Mom"),
+					Dad: &grandparent{
+						Name: internal.Ptr("Alice's Grandpa"),
+					},
+				},
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, "Alice", *resultHolders[0].DataclassWithDataclass.Name)
+	assert.Equal(t, "Alice's Mom", *resultHolders[0].DataclassWithDataclass.Mom.Name)
+	assert.Equal(t, "Alice's Grandpa", *resultHolders[0].DataclassWithDataclass.Mom.Dad.Name)
+	assert.Nil(t, resultHolders[0].DataclassWithDataclass.Dad)
+	assert.Nil(t, resultHolders[0].DataclassWithDataclass.Mom.Mom)
 }
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
@@ -796,6 +835,8 @@ func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	// primitives test above because `buildTableFromFeatureToValuesMap`
 	// does not yet support converting a 2D list of primitives to an Arrow
 	// array.
+	// TODO: We can now use `buildTableFromFeatureToValuesMap` for this test.
+	//       Migrate.
 	encoded, readErr := os.ReadFile(filepath.Join(".", "internal", "sample_data", "list_of_primitives.txt"))
 	if readErr != nil {
 		log.Fatal(readErr)
