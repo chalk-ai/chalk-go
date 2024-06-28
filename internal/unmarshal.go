@@ -198,11 +198,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			for idx, memberValue := range slice {
 				memberFieldMeta := structValue.Type().Field(idx)
 				memberField := structValue.Field(idx)
-				pythonName := ChalkpySnakeCase(memberFieldMeta.Name)
+				resolvedName := resolveFeatureName(memberFieldMeta)
 				if memberField == (reflect.Value{}) {
 					return nil, fmt.Errorf(
 						"field %s not found in struct %s",
-						pythonName, structValue.Type().Name(),
+						resolvedName, structValue.Type().Name(),
 					)
 				}
 				rVal, err := GetReflectValue(&memberValue, memberField.Type())
@@ -210,7 +210,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					return nil, errors.Wrapf(
 						err,
 						"error unmarshalling struct value for field '%s' in struct '%s'",
-						pythonName, structValue.Type().Name(),
+						resolvedName, structValue.Type().Name(),
 					)
 				}
 				memberField.Set(*rVal)
@@ -219,7 +219,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
-				nameToField[ChalkpySnakeCase(structValue.Type().Field(i).Name)] = structValue.Field(i)
+				nameToField[resolveFeatureName(structValue.Type().Field(i))] = structValue.Field(i)
 			}
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
