@@ -198,7 +198,15 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			for idx, memberValue := range slice {
 				memberFieldMeta := structValue.Type().Field(idx)
 				memberField := structValue.Field(idx)
-				resolvedName := resolveFeatureName(memberFieldMeta)
+				resolvedName, err := ResolveFeatureName(memberFieldMeta)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error resolving name for field '%s' in struct '%s'",
+						memberFieldMeta.Name,
+						structValue.Type().Name(),
+					)
+				}
 				if memberField == (reflect.Value{}) {
 					return nil, fmt.Errorf(
 						"field %s not found in struct %s",
@@ -219,7 +227,16 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
-				nameToField[resolveFeatureName(structValue.Type().Field(i))] = structValue.Field(i)
+				resolved, err := ResolveFeatureName(structValue.Type().Field(i))
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error resolving name for field '%s' in struct '%s'",
+						structValue.Type().Field(i).Name,
+						structValue.Type().Name(),
+					)
+				}
+				nameToField[resolved] = structValue.Field(i)
 			}
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
