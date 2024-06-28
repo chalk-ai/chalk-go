@@ -28,7 +28,12 @@ func initFeatureSingle(structValue reflect.Value, fqn string) ([]reflect.Value, 
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as
 // a pointer to a Feature struct with the appropriate FQN.
-func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool, targetFqn string) ([]reflect.Value, error) {
+func initFeatures(
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	targetFqn string,
+) ([]reflect.Value, error) {
 	if structValue.Kind() != reflect.Struct {
 		return nil, fmt.Errorf(
 			"feature initialization function argument must be a reflect.Value"+
@@ -38,8 +43,8 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 
 	namespace := structValue.Type().Name()
-	if fqn == "" && namespace != "" {
-		fqn = SnakeCase(namespace) + "."
+	if cumulativeFqn == "" && namespace != "" {
+		cumulativeFqn = SnakeCase(namespace) + "."
 	}
 
 	if isVisited, ok := visited[namespace]; ok && isVisited {
@@ -69,7 +74,7 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 	}
 	for _, fm := range fms {
 		resolvedName := internal.ResolveFeatureName(fm.Meta)
-		updatedFqn := fqn + resolvedName
+		updatedFqn := cumulativeFqn + resolvedName
 
 		f := fm.Field
 		if !f.CanSet() {
@@ -137,7 +142,11 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 
 			mapValueType := f.Type().Elem()
 			if mapValueType.Kind() != reflect.Pointer {
-				return nil, fmt.Errorf("the map type for Windowed features should a pointer as its value type, but found %s instead", mapValueType.Kind())
+				return nil, fmt.Errorf(
+					"the map type for Windowed features should a pointer"+
+						" as its value type, but found %s instead",
+					mapValueType.Kind(),
+				)
 			}
 
 			targetMap := f
@@ -160,9 +169,9 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 					}
 				}
 			} else {
+				// Selectively initializing features,
+				// use a new map only if the map is nil.
 				if targetMap.IsNil() {
-					// Selectively initializing features,
-					// use a new map only if the map is nil.
 					targetMap = reflect.MakeMap(f.Type())
 					f.Set(targetMap)
 				}
@@ -180,7 +189,11 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 			versioned := fm.Meta.Tag.Get("versioned")
 			if versioned == "true" {
 				parts := strings.Split(updatedFqn, "_")
-				nameErr := fmt.Errorf("versioned feature must have a version suffix `VN` at the end of the attribute name, but found '%s' instead", fm.Meta.Name)
+				nameErr := fmt.Errorf(
+					"versioned feature must have a version suffix `VN` at the"+
+						" end of the attribute name, but found '%s' instead",
+					fm.Meta.Name,
+				)
 				if len(parts) == 1 {
 					return nil, nameErr
 				}
@@ -199,13 +212,21 @@ func initFeatures(structValue reflect.Value, fqn string, visited map[string]bool
 				version := versioned[len("default(") : len(versioned)-len(")")]
 				_, convertErr := strconv.Atoi(version)
 				if convertErr != nil {
-					return nil, fmt.Errorf("Expected struct tag `versioned:\"default(N)\"` where N is an integer, but found %s instead", versioned)
+					return nil, fmt.Errorf(
+						"Expected struct tag `versioned:\"default(N)\"` "+
+							"where N is an integer, but found %s instead",
+						versioned,
+					)
 				}
 				if version != "1" {
 					updatedFqn = updatedFqn + "@" + version
 				}
 			} else if versioned != "" {
-				return nil, fmt.Errorf("Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` where N is an integer, but found '%s' instead", versioned)
+				return nil, fmt.Errorf(
+					"Expected struct tag `versioned:\"true\"` or `versioned:\"default(N)\"` "+
+						"where N is an integer, but found '%s' instead",
+					versioned,
+				)
 			}
 
 			if targetFqn != "" {
