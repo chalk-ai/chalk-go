@@ -91,7 +91,8 @@ func initFeatures(
 			// If dataclass child fields are being selectively
 			// initialized for purposes of deserialization of
 			// query results, we simply return the field, as we
-			// do in this block.
+			// do in this block, and let the feature setter set
+			// the value of the dataclass down the line.
 			if shouldNaivelySkip {
 				continue
 			}
