@@ -413,8 +413,7 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
-	assert.Nil(t, initErr)
+	assert.Nil(t, InitFeatures(&testRootFeatures))
 	name := "abc"
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithOverrides: []dclassWithOverrides{
