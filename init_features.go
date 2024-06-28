@@ -62,7 +62,6 @@ func initFeatures(
 	}
 
 	var fms []fieldAndMeta
-	var nextInitFqn string
 	for i := 0; i < structValue.NumField(); i++ {
 		fms = append(
 			fms,
@@ -83,7 +82,9 @@ func initFeatures(
 
 		shouldNaivelySkip := targetFqn != "" && getFqnRoot(targetFqn) != resolvedName
 
-		if f.Type().Elem().Kind() == reflect.Struct && f.Type().Elem() != reflect.TypeOf(time.Time{}) {
+		if f.Type().Elem().Kind() == reflect.Struct &&
+			f.Type().Elem() != reflect.TypeOf(time.Time{}) &&
+			!internal.IsTypeDataclass(f.Type().Elem()) {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':
@@ -96,16 +97,30 @@ func initFeatures(
 			if ptrErr := pointerCheck(f); ptrErr != nil {
 				return nil, ptrErr
 			}
-			featureSet := reflect.New(f.Type().Elem())
-			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
-			f.Set(ptrInDisguiseToFeatureSet)
-			featureSetInDisguise := f.Elem()
-			targetFields, initErr := initFeatures(featureSetInDisguise, updatedFqn+".", visited, nextInitFqn)
-			if initErr != nil {
-				return nil, initErr
-			}
-			if targetFqn != "" {
-				return targetFields, nil
+
+			if targetFqn == "" {
+				featureSet := reflect.New(f.Type().Elem())
+				// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
+				ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
+				f.Set(ptrInDisguiseToFeatureSet)
+				featureSetInDisguise := f.Elem()
+				if _, err := initFeatures(featureSetInDisguise, updatedFqn+".", visited, targetFqn); err != nil {
+					return nil, err
+				}
+			} else {
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				parts := strings.Split(targetFqn, ".")
+				if len(parts) < 2 {
+					return nil, fmt.Errorf(
+						"feature fqn should have at least two parts, found: '%s'",
+						targetFqn,
+					)
+				}
+				nextTargetFqn := strings.Join(parts[1:], ".")
+				return initFeatures(f.Elem(), updatedFqn+".", visited, nextTargetFqn)
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -239,9 +254,9 @@ func initFeatures(
 				//
 
 				// Dataclass fields are not actually real features,
-				// so when we are initializing the root Features struct (fieldMap == nil),
+				// so when we are initializing the root Features struct,
 				// we want to return the parent (real) feature FQN
-				// instead of the fake FQN of the dataclass field.
+				// instead of the fake FQN of the dataclass child field.
 				if internal.IsDataclass(structValue) {
 					updatedFqn = DesuffixFqn(updatedFqn)
 				}
