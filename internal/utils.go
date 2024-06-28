@@ -123,7 +123,7 @@ func isASCIIUpper(c byte) bool {
 	return 'A' <= c && c <= 'Z'
 }
 
-func resolveFeatureName(field reflect.StructField) string {
+func ResolveFeatureName(field reflect.StructField) string {
 	if tag := field.Tag.Get(NameTag); tag != "" {
 		return tag
 	}

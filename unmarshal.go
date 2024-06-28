@@ -191,7 +191,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			// TODO: Add validation for optional fields
 			continue
 		}
-		targetFields, err := initFeatures(structValue, "", make(map[string]bool), fqn)
+		targetFields, err := initFeatureSingle(structValue, fqn)
 		if err != nil {
 			err = errors.Wrapf(
 				err,

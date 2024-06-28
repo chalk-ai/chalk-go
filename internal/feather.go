@@ -81,7 +81,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 				)
 			}
 			arrowFields = append(arrowFields, arrow.Field{
-				Name:     resolveFeatureName(field),
+				Name:     ResolveFeatureName(field),
 				Type:     dtype,
 				Nullable: field.Type.Kind() == reflect.Ptr,
 			})
@@ -232,7 +232,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 			for i := 0; i < numFieldsReflect; i++ {
-				namesReflect = append(namesReflect, resolveFeatureName(elemType.Field(i)))
+				namesReflect = append(namesReflect, ResolveFeatureName(elemType.Field(i)))
 				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
 			}
 			if !reflect.DeepEqual(namesReflect, namesArrow) {
