@@ -24,9 +24,14 @@ func initFeatureSingle(structValue reflect.Value, fqn string) ([]reflect.Value, 
 	return initFeatures(structValue, "", make(map[string]bool), strings.Join(parts[1:], "."))
 }
 
-// initFeatures is a recursive function that initializes all features
-// in the struct that is passed in. Each feature is initialized as
-// a pointer to a Feature struct with the appropriate FQN.
+// initFeatures is a recursive function that:
+//
+//  1. If `targetFqn == ""`:
+//     Recursively initializes features in the struct that is passed in. Each feature is initialized as
+//     a pointer to a Feature struct with the appropriate FQN.
+//
+//  2. If `targetFqn != ""`:
+//     Only the feature that matches the targetFqn is initialized
 func initFeatures(
 	structValue reflect.Value,
 	cumulativeFqn string,
@@ -155,7 +160,6 @@ func initFeatures(
 			// section below.
 
 			if targetFqn != "" {
-				fqnRoot := getFqnRoot(targetFqn)
 				// The target fqn here could be
 				//    - "some_other_feature_in_this_feature_class"
 				//    - "this_windowed_feature__600__"
@@ -166,7 +170,7 @@ func initFeatures(
 				if err != nil {
 					return nil, errors.Wrap(err, "error compiling regex to match windowed feature names")
 				}
-				if !pattern.Match([]byte(fqnRoot)) {
+				if !pattern.Match([]byte(getFqnRoot(targetFqn))) {
 					// Not any bucket feature in this windowed feature class
 					continue
 				}
@@ -181,12 +185,10 @@ func initFeatures(
 				)
 			}
 
-			targetMap := f
 			if targetFqn == "" {
 				// Initializing all features, always
 				// make a new map.
-				targetMap = reflect.MakeMap(f.Type())
-				f.Set(targetMap)
+				f.Set(reflect.MakeMap(f.Type()))
 				windows := fm.Meta.Tag.Get("windows")
 				for _, tag := range strings.Split(windows, ",") {
 					seconds, parseErr := internal.ParseBucketDuration(tag)
@@ -197,15 +199,14 @@ func initFeatures(
 					if targetFqn == "" {
 						feature := Feature{Fqn: windowFqn}
 						ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
-						targetMap.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+						f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 					}
 				}
 			} else {
 				// Selectively initializing features,
 				// use a new map only if the map is nil.
-				if targetMap.IsNil() {
-					targetMap = reflect.MakeMap(f.Type())
-					f.Set(targetMap)
+				if f.IsNil() {
+					f.Set(reflect.MakeMap(f.Type()))
 				}
 				return []reflect.Value{f}, nil
 			}
