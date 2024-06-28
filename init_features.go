@@ -82,9 +82,22 @@ func initFeatures(
 
 		shouldNaivelySkip := targetFqn != "" && getFqnRoot(targetFqn) != resolvedName
 
-		if f.Type().Elem().Kind() == reflect.Struct &&
-			f.Type().Elem() != reflect.TypeOf(time.Time{}) &&
-			!internal.IsTypeDataclass(f.Type().Elem()) {
+		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && targetFqn != "" {
+			// If dataclasses are being initialized for purposes
+			// of specifying query params, we want it to go to
+			// the next block where we initialize it the same way
+			// as a struct.
+			//
+			// If dataclass child fields are being selectively
+			// initialized for purposes of deserialization of
+			// query results, we simply return the field, as we
+			// do in this block.
+			if shouldNaivelySkip {
+				continue
+			}
+			return []reflect.Value{f}, nil
+		} else if f.Type().Elem().Kind() == reflect.Struct &&
+			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':
