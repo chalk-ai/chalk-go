@@ -412,6 +412,34 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	assert.Nil(t, resultHolders[0].DataclassWithDataclass.Mom.Mom)
 }
 
+func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
+	assert.Nil(t, InitFeatures(&testRootFeatures))
+	name := "abc"
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.DataclassWithOverrides: []dclassWithOverrides{
+			{
+				CamelName: &name,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, "abc", *resultHolders[0].DataclassWithOverrides.CamelName)
+}
+
 func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
