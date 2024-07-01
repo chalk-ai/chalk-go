@@ -45,15 +45,19 @@ const (
 	// TopicPushServiceDeleteJobProcedure is the fully-qualified name of the TopicPushService's
 	// DeleteJob RPC.
 	TopicPushServiceDeleteJobProcedure = "/chalk.server.v1.TopicPushService/DeleteJob"
+	// TopicPushServiceGetJobByNameProcedure is the fully-qualified name of the TopicPushService's
+	// GetJobByName RPC.
+	TopicPushServiceGetJobByNameProcedure = "/chalk.server.v1.TopicPushService/GetJobByName"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	topicPushServiceServiceDescriptor         = v1.File_chalk_server_v1_topicpush_proto.Services().ByName("TopicPushService")
-	topicPushServiceListJobsMethodDescriptor  = topicPushServiceServiceDescriptor.Methods().ByName("ListJobs")
-	topicPushServiceCreateJobMethodDescriptor = topicPushServiceServiceDescriptor.Methods().ByName("CreateJob")
-	topicPushServiceUpdateJobMethodDescriptor = topicPushServiceServiceDescriptor.Methods().ByName("UpdateJob")
-	topicPushServiceDeleteJobMethodDescriptor = topicPushServiceServiceDescriptor.Methods().ByName("DeleteJob")
+	topicPushServiceServiceDescriptor            = v1.File_chalk_server_v1_topicpush_proto.Services().ByName("TopicPushService")
+	topicPushServiceListJobsMethodDescriptor     = topicPushServiceServiceDescriptor.Methods().ByName("ListJobs")
+	topicPushServiceCreateJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("CreateJob")
+	topicPushServiceUpdateJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("UpdateJob")
+	topicPushServiceDeleteJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("DeleteJob")
+	topicPushServiceGetJobByNameMethodDescriptor = topicPushServiceServiceDescriptor.Methods().ByName("GetJobByName")
 )
 
 // TopicPushServiceClient is a client for the chalk.server.v1.TopicPushService service.
@@ -62,6 +66,7 @@ type TopicPushServiceClient interface {
 	CreateJob(context.Context, *connect.Request[v1.CreateJobRequest]) (*connect.Response[v1.CreateJobResponse], error)
 	UpdateJob(context.Context, *connect.Request[v1.UpdateJobRequest]) (*connect.Response[v1.UpdateJobResponse], error)
 	DeleteJob(context.Context, *connect.Request[v1.DeleteJobRequest]) (*connect.Response[v1.DeleteJobResponse], error)
+	GetJobByName(context.Context, *connect.Request[v1.GetJobByNameRequest]) (*connect.Response[v1.GetJobByNameResponse], error)
 }
 
 // NewTopicPushServiceClient constructs a client for the chalk.server.v1.TopicPushService service.
@@ -100,15 +105,23 @@ func NewTopicPushServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(topicPushServiceDeleteJobMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getJobByName: connect.NewClient[v1.GetJobByNameRequest, v1.GetJobByNameResponse](
+			httpClient,
+			baseURL+TopicPushServiceGetJobByNameProcedure,
+			connect.WithSchema(topicPushServiceGetJobByNameMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // topicPushServiceClient implements TopicPushServiceClient.
 type topicPushServiceClient struct {
-	listJobs  *connect.Client[v1.ListJobsRequest, v1.ListJobsResponse]
-	createJob *connect.Client[v1.CreateJobRequest, v1.CreateJobResponse]
-	updateJob *connect.Client[v1.UpdateJobRequest, v1.UpdateJobResponse]
-	deleteJob *connect.Client[v1.DeleteJobRequest, v1.DeleteJobResponse]
+	listJobs     *connect.Client[v1.ListJobsRequest, v1.ListJobsResponse]
+	createJob    *connect.Client[v1.CreateJobRequest, v1.CreateJobResponse]
+	updateJob    *connect.Client[v1.UpdateJobRequest, v1.UpdateJobResponse]
+	deleteJob    *connect.Client[v1.DeleteJobRequest, v1.DeleteJobResponse]
+	getJobByName *connect.Client[v1.GetJobByNameRequest, v1.GetJobByNameResponse]
 }
 
 // ListJobs calls chalk.server.v1.TopicPushService.ListJobs.
@@ -131,12 +144,18 @@ func (c *topicPushServiceClient) DeleteJob(ctx context.Context, req *connect.Req
 	return c.deleteJob.CallUnary(ctx, req)
 }
 
+// GetJobByName calls chalk.server.v1.TopicPushService.GetJobByName.
+func (c *topicPushServiceClient) GetJobByName(ctx context.Context, req *connect.Request[v1.GetJobByNameRequest]) (*connect.Response[v1.GetJobByNameResponse], error) {
+	return c.getJobByName.CallUnary(ctx, req)
+}
+
 // TopicPushServiceHandler is an implementation of the chalk.server.v1.TopicPushService service.
 type TopicPushServiceHandler interface {
 	ListJobs(context.Context, *connect.Request[v1.ListJobsRequest]) (*connect.Response[v1.ListJobsResponse], error)
 	CreateJob(context.Context, *connect.Request[v1.CreateJobRequest]) (*connect.Response[v1.CreateJobResponse], error)
 	UpdateJob(context.Context, *connect.Request[v1.UpdateJobRequest]) (*connect.Response[v1.UpdateJobResponse], error)
 	DeleteJob(context.Context, *connect.Request[v1.DeleteJobRequest]) (*connect.Response[v1.DeleteJobResponse], error)
+	GetJobByName(context.Context, *connect.Request[v1.GetJobByNameRequest]) (*connect.Response[v1.GetJobByNameResponse], error)
 }
 
 // NewTopicPushServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -171,6 +190,13 @@ func NewTopicPushServiceHandler(svc TopicPushServiceHandler, opts ...connect.Han
 		connect.WithSchema(topicPushServiceDeleteJobMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	topicPushServiceGetJobByNameHandler := connect.NewUnaryHandler(
+		TopicPushServiceGetJobByNameProcedure,
+		svc.GetJobByName,
+		connect.WithSchema(topicPushServiceGetJobByNameMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TopicPushService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TopicPushServiceListJobsProcedure:
@@ -181,6 +207,8 @@ func NewTopicPushServiceHandler(svc TopicPushServiceHandler, opts ...connect.Han
 			topicPushServiceUpdateJobHandler.ServeHTTP(w, r)
 		case TopicPushServiceDeleteJobProcedure:
 			topicPushServiceDeleteJobHandler.ServeHTTP(w, r)
+		case TopicPushServiceGetJobByNameProcedure:
+			topicPushServiceGetJobByNameHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -204,4 +232,8 @@ func (UnimplementedTopicPushServiceHandler) UpdateJob(context.Context, *connect.
 
 func (UnimplementedTopicPushServiceHandler) DeleteJob(context.Context, *connect.Request[v1.DeleteJobRequest]) (*connect.Response[v1.DeleteJobResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TopicPushService.DeleteJob is not implemented"))
+}
+
+func (UnimplementedTopicPushServiceHandler) GetJobByName(context.Context, *connect.Request[v1.GetJobByNameRequest]) (*connect.Response[v1.GetJobByNameResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TopicPushService.GetJobByName is not implemented"))
 }
