@@ -42,14 +42,26 @@ const (
 	// DeployServiceListDeploymentsProcedure is the fully-qualified name of the DeployService's
 	// ListDeployments RPC.
 	DeployServiceListDeploymentsProcedure = "/chalk.server.v1.DeployService/ListDeployments"
+	// DeployServiceSuspendDeploymentProcedure is the fully-qualified name of the DeployService's
+	// SuspendDeployment RPC.
+	DeployServiceSuspendDeploymentProcedure = "/chalk.server.v1.DeployService/SuspendDeployment"
+	// DeployServiceScaleDeploymentProcedure is the fully-qualified name of the DeployService's
+	// ScaleDeployment RPC.
+	DeployServiceScaleDeploymentProcedure = "/chalk.server.v1.DeployService/ScaleDeployment"
+	// DeployServiceTagDeploymentProcedure is the fully-qualified name of the DeployService's
+	// TagDeployment RPC.
+	DeployServiceTagDeploymentProcedure = "/chalk.server.v1.DeployService/TagDeployment"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	deployServiceServiceDescriptor               = v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService")
-	deployServiceDeployBranchMethodDescriptor    = deployServiceServiceDescriptor.Methods().ByName("DeployBranch")
-	deployServiceGetDeploymentMethodDescriptor   = deployServiceServiceDescriptor.Methods().ByName("GetDeployment")
-	deployServiceListDeploymentsMethodDescriptor = deployServiceServiceDescriptor.Methods().ByName("ListDeployments")
+	deployServiceServiceDescriptor                 = v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService")
+	deployServiceDeployBranchMethodDescriptor      = deployServiceServiceDescriptor.Methods().ByName("DeployBranch")
+	deployServiceGetDeploymentMethodDescriptor     = deployServiceServiceDescriptor.Methods().ByName("GetDeployment")
+	deployServiceListDeploymentsMethodDescriptor   = deployServiceServiceDescriptor.Methods().ByName("ListDeployments")
+	deployServiceSuspendDeploymentMethodDescriptor = deployServiceServiceDescriptor.Methods().ByName("SuspendDeployment")
+	deployServiceScaleDeploymentMethodDescriptor   = deployServiceServiceDescriptor.Methods().ByName("ScaleDeployment")
+	deployServiceTagDeploymentMethodDescriptor     = deployServiceServiceDescriptor.Methods().ByName("TagDeployment")
 )
 
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
@@ -57,6 +69,9 @@ type DeployServiceClient interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
+	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
+	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
+	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
 }
 
 // NewDeployServiceClient constructs a client for the chalk.server.v1.DeployService service. By
@@ -87,14 +102,35 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		suspendDeployment: connect.NewClient[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse](
+			httpClient,
+			baseURL+DeployServiceSuspendDeploymentProcedure,
+			connect.WithSchema(deployServiceSuspendDeploymentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		scaleDeployment: connect.NewClient[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse](
+			httpClient,
+			baseURL+DeployServiceScaleDeploymentProcedure,
+			connect.WithSchema(deployServiceScaleDeploymentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		tagDeployment: connect.NewClient[v1.TagDeploymentRequest, v1.TagDeploymentResponse](
+			httpClient,
+			baseURL+DeployServiceTagDeploymentProcedure,
+			connect.WithSchema(deployServiceTagDeploymentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // deployServiceClient implements DeployServiceClient.
 type deployServiceClient struct {
-	deployBranch    *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
-	getDeployment   *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
-	listDeployments *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	deployBranch      *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
+	getDeployment     *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
+	listDeployments   *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	suspendDeployment *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
+	scaleDeployment   *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
+	tagDeployment     *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
@@ -112,11 +148,29 @@ func (c *deployServiceClient) ListDeployments(ctx context.Context, req *connect.
 	return c.listDeployments.CallUnary(ctx, req)
 }
 
+// SuspendDeployment calls chalk.server.v1.DeployService.SuspendDeployment.
+func (c *deployServiceClient) SuspendDeployment(ctx context.Context, req *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error) {
+	return c.suspendDeployment.CallUnary(ctx, req)
+}
+
+// ScaleDeployment calls chalk.server.v1.DeployService.ScaleDeployment.
+func (c *deployServiceClient) ScaleDeployment(ctx context.Context, req *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error) {
+	return c.scaleDeployment.CallUnary(ctx, req)
+}
+
+// TagDeployment calls chalk.server.v1.DeployService.TagDeployment.
+func (c *deployServiceClient) TagDeployment(ctx context.Context, req *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error) {
+	return c.tagDeployment.CallUnary(ctx, req)
+}
+
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
+	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
+	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
+	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
 }
 
 // NewDeployServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -143,6 +197,24 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	deployServiceSuspendDeploymentHandler := connect.NewUnaryHandler(
+		DeployServiceSuspendDeploymentProcedure,
+		svc.SuspendDeployment,
+		connect.WithSchema(deployServiceSuspendDeploymentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	deployServiceScaleDeploymentHandler := connect.NewUnaryHandler(
+		DeployServiceScaleDeploymentProcedure,
+		svc.ScaleDeployment,
+		connect.WithSchema(deployServiceScaleDeploymentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	deployServiceTagDeploymentHandler := connect.NewUnaryHandler(
+		DeployServiceTagDeploymentProcedure,
+		svc.TagDeployment,
+		connect.WithSchema(deployServiceTagDeploymentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
@@ -151,6 +223,12 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 			deployServiceGetDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceListDeploymentsProcedure:
 			deployServiceListDeploymentsHandler.ServeHTTP(w, r)
+		case DeployServiceSuspendDeploymentProcedure:
+			deployServiceSuspendDeploymentHandler.ServeHTTP(w, r)
+		case DeployServiceScaleDeploymentProcedure:
+			deployServiceScaleDeploymentHandler.ServeHTTP(w, r)
+		case DeployServiceTagDeploymentProcedure:
+			deployServiceTagDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -170,4 +248,16 @@ func (UnimplementedDeployServiceHandler) GetDeployment(context.Context, *connect
 
 func (UnimplementedDeployServiceHandler) ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.ListDeployments is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.SuspendDeployment is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.ScaleDeployment is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.TagDeployment is not implemented"))
 }
