@@ -16,3 +16,5 @@ confirm() {
     esac
 }
 confirm "Submit to GitHub (Y/n)?" && echo "Submitting..." && gh release create "${NEXT_TAG}" --generate-notes
+sed -i '' -e "s/chalk-go.*/chalk-go ${NEXT_TAG}/g" ../chalk-private/go-api-server/go.mod ../chalk-private/inttest/go.mod
+cd ../chalk-private/go-api-server && go mod tidy && cd ../inttest && go mod tidy
