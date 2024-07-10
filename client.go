@@ -132,6 +132,7 @@ type ClientConfig struct {
 	ClientSecret  string
 	ApiServer     string
 	EnvironmentId string
+  DeploymentTag string
 
 	// If specified, Chalk will route all requests from this client
 	// instance to the relevant branch.
