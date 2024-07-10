@@ -22,7 +22,7 @@ type clientImpl struct {
 	EnvironmentId auth2.SourcedConfig
 	Branch        string
 	QueryServer   string
-  DeploymentTag string
+	DeploymentTag string
 
 	clientSecret       auth2.SourcedConfig
 	jwt                *auth2.JWT
@@ -617,10 +617,10 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
 	}
 
-  if c.DeploymentTag != "" {
-    headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
+	if c.DeploymentTag != "" {
+		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 
-  }
+	}
 
 	return headers
 }
@@ -696,7 +696,7 @@ func newClientImpl(
 		EnvironmentId: environmentId,
 		Branch:        cfg.Branch,
 		QueryServer:   cfg.QueryServer,
-    DeploymentTag: cfg.DeploymentTag,
+		DeploymentTag: cfg.DeploymentTag,
 
 		logger:             cfg.Logger,
 		httpClient:         cfg.HTTPClient,
