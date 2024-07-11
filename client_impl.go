@@ -619,7 +619,6 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 
 	if c.DeploymentTag != "" {
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
-
 	}
 
 	return headers
@@ -691,13 +690,12 @@ func newClientImpl(
 	}
 
 	client := &clientImpl{
-		ClientId:      clientId,
-		ApiServer:     apiServer,
-		EnvironmentId: environmentId,
-		Branch:        cfg.Branch,
-		QueryServer:   cfg.QueryServer,
-		DeploymentTag: cfg.DeploymentTag,
-
+		ClientId:           clientId,
+		ApiServer:          apiServer,
+		EnvironmentId:      environmentId,
+		Branch:             cfg.Branch,
+		QueryServer:        cfg.QueryServer,
+		DeploymentTag:      cfg.DeploymentTag,
 		logger:             cfg.Logger,
 		httpClient:         cfg.HTTPClient,
 		clientSecret:       clientSecret,
