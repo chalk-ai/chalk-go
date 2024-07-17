@@ -629,13 +629,13 @@ func newClientImpl(
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
 
-	var logger LeveledLogger
-	if cfg.Logger == nil {
+	logger := cfg.Logger
+	if logger == nil {
 		logger = DefaultLeveledLogger
 	}
 
-	var httpClient HTTPClient
-	if cfg.HTTPClient == nil {
+	httpClient := cfg.HTTPClient
+	if httpClient == nil {
 		httpClient = &http.Client{}
 	}
 
