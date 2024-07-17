@@ -11,18 +11,18 @@ func (e *ErrorResponse) Error() string {
 		for _, err := range e.ServerErrors {
 			stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
 		}
-		return fmt.Sprintf("Server Error: %s", strings.Join(stringifiedServerErrors, "\n"))
+		return fmt.Sprintf("Server Errors: %s", strings.Join(stringifiedServerErrors, "\n"))
 	} else if e.HttpError != nil {
-		return fmt.Sprintf("HTTP Error: %s", e.HttpError.Error())
+		return e.HttpError.Error()
 	} else if e.ClientError != nil {
-		return fmt.Sprintf("Client Error: %s", e.ClientError.Error())
+		return e.ClientError.Error()
 	} else {
 		return "Unexpected chalk.Client error. Please contact Chalk if this persists."
 	}
 }
 
 func (e *ClientError) Error() string {
-	return e.Message
+	return fmt.Sprintf("Client Error: %s", e.Message)
 }
 
 func (e *ServerError) Error() string {
