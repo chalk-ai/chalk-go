@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
@@ -202,12 +201,6 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 	staleness := lo.MapValues(args.underlying.staleness, func(v time.Duration, k string) string {
 		return internal.FormatBucketDuration(int(v.Seconds()))
 	})
-
-	pingRes, err := c.queryClient.Ping(context.Background(), connect.NewRequest(&enginev1.PingRequest{Num: 5525}))
-	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error pinging server")
-	}
-	fmt.Println("Ping response:", pingRes.Msg.Num)
 
 	req := connect.NewRequest(
 		&commonv1.OnlineQueryBulkRequest{
