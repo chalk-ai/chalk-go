@@ -14,10 +14,10 @@ type configManager struct {
 	jwt                *auth2.JWT
 	initialEnvironment auth2.SourcedConfig
 	engines            map[string]string
-	getToken           func() (*getTokenResponse, *ClientError)
+	getToken           func() (*getTokenResponse, error)
 }
 
-func (r *configManager) refresh(force bool) *ClientError {
+func (r *configManager) refresh(force bool) error {
 	if !force && r.jwt != nil && r.jwt.IsValid() {
 		return nil
 	}

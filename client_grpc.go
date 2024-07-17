@@ -8,10 +8,8 @@ import (
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
-	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
-	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
 	"net/http"
@@ -28,18 +26,14 @@ var (
 )
 
 type clientGrpc struct {
-	apiServer     auth2.SourcedConfig
-	clientId      auth2.SourcedConfig
-	environmentId auth2.SourcedConfig
-	branch        string
+	configManager *configManager
 
-	httpClient  *http.Client
+	branch     string
+	logger     LeveledLogger
+	httpClient *http.Client
+
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
-
-	clientSecret auth2.SourcedConfig
-	jwt          *auth2.JWT
-	logger       LeveledLogger
 }
 
 func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
@@ -52,15 +46,21 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		logger = DefaultLeveledLogger
 	}
 	client := &clientGrpc{
-		apiServer:     resolved.ApiServer,
-		clientId:      resolved.ClientId,
-		clientSecret:  resolved.ClientSecret,
-		environmentId: resolved.EnvironmentId,
-		branch:        cfg.Branch,
-		httpClient:    http.DefaultClient,
-		logger:        logger,
+		branch:     cfg.Branch,
+		httpClient: http.DefaultClient,
+		logger:     logger,
+
+		configManager: &configManager{
+			apiServer:          resolved.ApiServer,
+			clientId:           resolved.ClientId,
+			clientSecret:       resolved.ClientSecret,
+			environmentId:      resolved.EnvironmentId,
+			initialEnvironment: resolved.EnvironmentId,
+		},
 	}
-	client.init()
+	if err := client.init(); err != nil {
+		return nil, errors.Wrap(err, "error initializing gRPC service clients")
+	}
 	return client, nil
 }
 
@@ -84,7 +84,7 @@ func withChalkInterceptors(serverType string, interceptors ...connect.Intercepto
 func (c *clientGrpc) NewAuthClient() serverv1connect.AuthServiceClient {
 	return serverv1connect.NewAuthServiceClient(
 		c.httpClient,
-		c.apiServer.Value,
+		c.configManager.apiServer.Value,
 		withChalkInterceptors(
 			serverTypeApi,
 			headerInterceptor(map[string]string{
@@ -100,7 +100,7 @@ func (c *clientGrpc) NewQueryClient() enginev1connect.QueryServiceClient {
 	}
 	return enginev1connect.NewQueryServiceClient(
 		c.httpClient,
-		c.apiServer.Value,
+		c.configManager.apiServer.Value,
 		withChalkInterceptors(
 			serverTypeEngine,
 			c.tokenInterceptor(c.authClient),
@@ -131,29 +131,9 @@ func (c *clientGrpc) tokenInterceptor(
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-			if c.jwt == nil || !c.jwt.IsValid() {
-				c.logger.Debugf("Getting new token")
-				authRequest := connect.NewRequest(
-					&serverv1.GetTokenRequest{
-						ClientId:     c.clientId.Value,
-						ClientSecret: c.clientSecret.Value,
-						GrantType:    "client_credentials",
-					},
-				)
-				req.Header().Set(headerKeyEnvironmentId, c.environmentId.Value)
-				newToken, err := authClient.GetToken(ctx, authRequest)
-				if err != nil {
-					c.logger.Debugf("Failed to get a new token: %s", err.Error())
-					return nil, err
-				}
-				c.jwt = &auth2.JWT{
-					Token:      newToken.Msg.AccessToken,
-					ValidUntil: newToken.Msg.ExpiresAt.AsTime(),
-				}
-			}
 
-			req.Header().Set(headerKeyEnvironmentId, c.environmentId.Value)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+			req.Header().Set(headerKeyEnvironmentId, c.configManager.environmentId.Value)
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", c.configManager.jwt.Token))
 			return next(ctx, req)
 		}
 	}

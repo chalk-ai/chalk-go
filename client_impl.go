@@ -372,7 +372,7 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
-func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
+func (c *clientImpl) getToken() (*getTokenResponse, error) {
 	body := getTokenRequest{
 		ClientId:     c.configManager.clientId.Value,
 		ClientSecret: c.configManager.clientSecret.Value,
@@ -623,12 +623,23 @@ func newClientImpl(
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
+
+	var logger LeveledLogger
+	if cfg.Logger == nil {
+		logger = DefaultLeveledLogger
+	}
+
+	var httpClient HTTPClient
+	if cfg.HTTPClient == nil {
+		httpClient = &http.Client{}
+	}
+
 	client := &clientImpl{
 		Branch:      cfg.Branch,
 		QueryServer: cfg.QueryServer,
 
-		logger:     cfg.Logger,
-		httpClient: cfg.HTTPClient,
+		logger:     logger,
+		httpClient: httpClient,
 
 		configManager: &configManager{
 			clientId:           resolved.ClientId,
@@ -638,19 +649,8 @@ func newClientImpl(
 			initialEnvironment: resolved.EnvironmentId,
 		},
 	}
-
-	if client.logger == nil {
-		client.logger = DefaultLeveledLogger
-	}
-
-	if client.httpClient == nil {
-		client.httpClient = &http.Client{}
-	}
-
+	client.configManager.getToken = client.getToken
 	err = client.configManager.refresh(false)
-	if cfg.Logger != nil {
-		client.logger = cfg.Logger
-	}
 	if err != nil {
 		return nil, err
 	}
