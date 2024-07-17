@@ -17,6 +17,10 @@ type ProjectToken struct {
 	JWT               JWT    `yaml:"jwt,omitempty"`
 }
 
+func (t *JWT) IsValid() bool {
+	return t.ValidUntil.After(time.Now().UTC().Add(-10 * time.Second))
+}
+
 type ProjectTokens struct {
 	Tokens *map[string]*ProjectToken `yaml:"tokens,omitempty"`
 }

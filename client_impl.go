@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/cockroachdb/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -411,8 +412,7 @@ func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 }
 
 func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
-	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
-		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
+	if !forceRefresh && c.jwt != nil && c.jwt.IsValid() {
 		return nil
 	}
 
@@ -649,52 +649,23 @@ func getErrorResponse(err error) *ErrorResponse {
 }
 
 func newClientImpl(
-	cfgs ...*ClientConfig,
+	cfg ClientConfig,
 ) (*clientImpl, error) {
-	var cfg *ClientConfig
-	if len(cfgs) == 0 {
-		cfg = &ClientConfig{}
-	} else {
-		cfg = cfgs[len(cfgs)-1]
+	resolved, err := getResolvedConfig(cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting resolved config")
 	}
-
-	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
-
-	apiServerOverride := auth2.GetChalkClientArgConfig(cfg.ApiServer)
-	clientIdOverride := auth2.GetChalkClientArgConfig(cfg.ClientId)
-	clientSecretOverride := auth2.GetChalkClientArgConfig(cfg.ClientSecret)
-	environmentIdOverride := auth2.GetChalkClientArgConfig(cfg.EnvironmentId)
-
-	apiServerEnvVarConfig := auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey)
-	clientIdEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey)
-	clientSecretEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
-	environmentIdEnvVarConfig := auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
-
-	apiServerFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer)
-	clientIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId)
-	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
-	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
-
-	apiServer := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
-	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
-	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
-	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
-
-	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
-		return nil, chalkYamlErr
-	}
-
 	client := &clientImpl{
-		ClientId:      clientId,
-		ApiServer:     apiServer,
-		EnvironmentId: environmentId,
+		ClientId:      resolved.ClientId,
+		ApiServer:     resolved.ApiServer,
+		EnvironmentId: resolved.EnvironmentId,
 		Branch:        cfg.Branch,
 		QueryServer:   cfg.QueryServer,
 
 		logger:             cfg.Logger,
 		httpClient:         cfg.HTTPClient,
-		clientSecret:       clientSecret,
-		initialEnvironment: environmentId,
+		clientSecret:       resolved.ClientSecret,
+		initialEnvironment: resolved.EnvironmentId,
 	}
 
 	if client.logger == nil {
@@ -705,7 +676,7 @@ func newClientImpl(
 		client.httpClient = &http.Client{}
 	}
 
-	err := client.refreshConfig(false)
+	err = client.refreshConfig(false)
 	if cfg.Logger != nil {
 		client.logger = cfg.Logger
 	}

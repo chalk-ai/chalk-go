@@ -1,0 +1,77 @@
+package chalk
+
+import (
+	"fmt"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	"github.com/samber/lo"
+)
+
+func queryMetaFromProto(m *commonv1.OnlineQueryMetadata) *QueryMeta {
+	if m == nil {
+		return nil
+	}
+	return &QueryMeta{
+		ExecutionDurationS: m.ExecutionDuration.AsDuration().Seconds(),
+		DeploymentId:       m.DeploymentId,
+		EnvironmentId:      m.EnvironmentId,
+		EnvironmentName:    m.EnvironmentName,
+		QueryId:            m.QueryId,
+		QueryTimestamp:     lo.ToPtr(m.QueryTimestamp.AsTime()),
+		QueryHash:          m.QueryHash,
+	}
+}
+
+var errorCodeMap = map[commonv1.ErrorCode]ErrorCode{
+	commonv1.ErrorCode_ERROR_CODE_INTERNAL_SERVER_ERROR_UNSPECIFIED: InternalServerError,
+	commonv1.ErrorCode_ERROR_CODE_PARSE_FAILED:                      ParseFailed,
+	commonv1.ErrorCode_ERROR_CODE_RESOLVER_NOT_FOUND:                ResolverNotFound,
+	commonv1.ErrorCode_ERROR_CODE_INVALID_QUERY:                     InvalidQuery,
+	commonv1.ErrorCode_ERROR_CODE_VALIDATION_FAILED:                 ValidationFailed,
+	commonv1.ErrorCode_ERROR_CODE_RESOLVER_FAILED:                   ResolverFailed,
+	commonv1.ErrorCode_ERROR_CODE_RESOLVER_TIMED_OUT:                ResolverTimedOut,
+	commonv1.ErrorCode_ERROR_CODE_UPSTREAM_FAILED:                   UpstreamFailed,
+	commonv1.ErrorCode_ERROR_CODE_UNAUTHENTICATED:                   Unauthenticated,
+	commonv1.ErrorCode_ERROR_CODE_UNAUTHORIZED:                      Unauthorized,
+	commonv1.ErrorCode_ERROR_CODE_CANCELLED:                         Cancelled,
+	commonv1.ErrorCode_ERROR_CODE_DEADLINE_EXCEEDED:                 DeadlineExceeded,
+}
+
+var errorCodeCategoryMap = map[commonv1.ErrorCodeCategory]ErrorCodeCategory{
+	commonv1.ErrorCodeCategory_ERROR_CODE_CATEGORY_NETWORK_UNSPECIFIED: Network,
+	commonv1.ErrorCodeCategory_ERROR_CODE_CATEGORY_REQUEST:             Request,
+	commonv1.ErrorCodeCategory_ERROR_CODE_CATEGORY_FIELD:               Field,
+}
+
+func exceptionFromProto(e *commonv1.ChalkException) *ResolverException {
+	if e == nil {
+		return nil
+	}
+	return &ResolverException{
+		Stacktrace: e.GetStacktrace(),
+		Message:    e.GetMessage(),
+		Kind:       e.GetKind(),
+	}
+}
+
+func serverErrorFromProto(e *commonv1.ChalkError) (*ServerError, error) {
+	if e == nil {
+		return nil, nil
+	}
+	code, ok := errorCodeMap[e.GetCode()]
+	if !ok {
+		return nil, fmt.Errorf("unknown error code: %v", e.GetCode())
+	}
+	category, ok := errorCodeCategoryMap[e.GetCategory()]
+	if !ok {
+		return nil, fmt.Errorf("unknown error code category: %v", e.GetCategory())
+	}
+
+	return &ServerError{
+		Code:      code,
+		Message:   e.GetMessage(),
+		Category:  category,
+		Feature:   e.GetFeature(),
+		Resolver:  e.GetResolver(),
+		Exception: exceptionFromProto(e.GetException()),
+	}, nil
+}
