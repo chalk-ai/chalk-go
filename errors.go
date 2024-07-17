@@ -11,8 +11,7 @@ func (e *ErrorResponse) Error() string {
 		for _, err := range e.ServerErrors {
 			stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
 		}
-
-		return strings.Join(stringifiedServerErrors, "\n")
+		return fmt.Sprintf("Server Errors: %s", strings.Join(stringifiedServerErrors, "\n"))
 	} else if e.HttpError != nil {
 		return e.HttpError.Error()
 	} else if e.ClientError != nil {
@@ -23,7 +22,7 @@ func (e *ErrorResponse) Error() string {
 }
 
 func (e *ClientError) Error() string {
-	return e.Message
+	return fmt.Sprintf("Client Error: %s", e.Message)
 }
 
 func (e *ServerError) Error() string {

@@ -20,7 +20,8 @@ var skipUnmarshalFeatureNames = map[string]bool{
 }
 
 var skipUnmarshalFields = map[string]bool{
-	"__ts__": true,
+	"__ts__":    true,
+	"__index__": true,
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {

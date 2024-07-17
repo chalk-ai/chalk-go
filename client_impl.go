@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/cockroachdb/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -17,18 +18,15 @@ import (
 )
 
 type clientImpl struct {
-	ApiServer     auth2.SourcedConfig
-	ClientId      auth2.SourcedConfig
-	EnvironmentId auth2.SourcedConfig
-	Branch        string
-	QueryServer   string
+	config *configManager
 
-	clientSecret       auth2.SourcedConfig
+	Branch      string
+	QueryServer string
+
 	jwt                *auth2.JWT
 	httpClient         HTTPClient
 	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
-	engines            map[string]string
 }
 
 type HTTPClient interface {
@@ -373,10 +371,10 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
-func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
+func (c *clientImpl) getToken() (*getTokenResult, error) {
 	body := getTokenRequest{
-		ClientId:     c.ClientId.Value,
-		ClientSecret: c.clientSecret.Value,
+		ClientId:     c.config.clientId.Value,
+		ClientSecret: c.config.clientSecret.Value,
 		GrantType:    "client_credentials",
 	}
 	response := getTokenResponse{}
@@ -398,47 +396,22 @@ func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 				"    client_secret=*** (source: %s),\n"+
 				"    environment_id=%q (source: %s)\n",
 			err.Error(),
-			c.ApiServer.Value,
-			c.ApiServer.Source,
-			c.ClientId.Value,
-			c.ClientId.Source,
-			c.clientSecret.Source,
-			c.EnvironmentId.Value,
-			c.EnvironmentId.Source,
+			c.config.apiServer.Value,
+			c.config.apiServer.Source,
+			c.config.clientId.Value,
+			c.config.clientId.Source,
+			c.config.clientSecret.Source,
+			c.config.environmentId.Value,
+			c.config.environmentId.Source,
 		)}
 	}
-	return &response, nil
-}
-
-func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
-	if !forceRefresh && c.jwt != nil && !time.Time.IsZero(c.jwt.ValidUntil) &&
-		c.jwt.ValidUntil.After(time.Now().UTC().Add(-10*time.Second)) {
-		return nil
-	}
-
-	config, getTokenErr := c.getToken()
-	if getTokenErr != nil {
-		return getTokenErr
-	}
-
-	if c.initialEnvironment.Value == "" {
-		c.EnvironmentId = auth2.SourcedConfig{
-			Value:  config.PrimaryEnvironment,
-			Source: "Primary Environment from credentials exchange response",
-		}
-	} else {
-		c.EnvironmentId = c.initialEnvironment
-	}
-
-	expiry := time.Now().UTC().Add(time.Duration(config.ExpiresIn) * time.Second)
-	c.jwt = &auth2.JWT{
-		Token:      config.AccessToken,
-		ValidUntil: expiry,
-	}
-
-	c.engines = config.Engines
-
-	return nil
+	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
+	return &getTokenResult{
+		ValidUntil:         expiry,
+		AccessToken:        response.AccessToken,
+		PrimaryEnvironment: response.PrimaryEnvironment,
+		Engines:            response.Engines,
+	}, nil
 }
 
 func getBodyBuffer(body any) (io.Reader, error) {
@@ -474,13 +447,12 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	request.Header = headers
 
 	if !args.DontRefresh {
-		upsertJwtErr := c.refreshConfig(false)
-		if upsertJwtErr != nil {
-			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
+		if err := c.config.refresh(false); err != nil {
+			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", err)
 		}
 	}
-	if c.jwt != nil && c.jwt.Token != "" {
-		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	if c.config.jwt != nil && c.config.jwt.Token != "" {
+		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.jwt.Token))
 	}
 	if args.Versioned {
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
@@ -534,9 +506,8 @@ func (c *clientImpl) retryRequest(
 	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
-	upsertJwtUpon401Err := c.refreshConfig(true)
-	if upsertJwtUpon401Err != nil {
-		(c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
+	if err := c.config.refresh(true); err != nil {
+		(c.logger).Debugf("Error refreshing access token upon 401: %s", err.Error())
 		return originalResponse, originalError
 	}
 
@@ -552,8 +523,8 @@ func (c *clientImpl) retryRequest(
 		return nil, err
 	}
 	newRequest.Header = originalRequest.Header
-	if c.jwt != nil && c.jwt.Token != "" {
-		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	if c.config.jwt != nil && c.config.jwt.Token != "" {
+		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.jwt.Token))
 	}
 
 	res, err := c.httpClient.Do(newRequest)
@@ -567,14 +538,14 @@ func (c *clientImpl) retryRequest(
 
 func (c *clientImpl) getResolvedEnvironment(envOverride string) string {
 	if envOverride == "" {
-		return c.EnvironmentId.Value
+		return c.config.environmentId.Value
 	}
 	return envOverride
 }
 
 func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) string {
 	if !useQueryServer {
-		return c.ApiServer.Value
+		return c.config.apiServer.Value
 	}
 
 	if c.QueryServer != "" {
@@ -582,11 +553,11 @@ func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) 
 	}
 
 	env := c.getResolvedEnvironment(envOverride)
-	if engine, foundEngine := c.engines[env]; foundEngine && env != "" {
+	if engine, foundEngine := c.config.engines[env]; foundEngine && env != "" {
 		return engine
 	}
 
-	return c.ApiServer.Value
+	return c.config.apiServer.Value
 }
 
 func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string) http.Header {
@@ -595,7 +566,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
-	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+	headers.Set("X-Chalk-Client-Id", c.config.clientId.Value)
 
 	var branchResolved string
 	if branchOverride != nil && *branchOverride != "" {
@@ -649,68 +620,35 @@ func getErrorResponse(err error) *ErrorResponse {
 }
 
 func newClientImpl(
-	cfgs ...*ClientConfig,
+	cfg ClientConfig,
 ) (*clientImpl, error) {
-	var cfg *ClientConfig
-	if len(cfgs) == 0 {
-		cfg = &ClientConfig{}
-	} else {
-		cfg = cfgs[len(cfgs)-1]
+	config, err := getConfigManager(cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting resolved config")
 	}
 
-	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
+	logger := cfg.Logger
+	if logger == nil {
+		logger = DefaultLeveledLogger
+	}
 
-	apiServerOverride := auth2.GetChalkClientArgConfig(cfg.ApiServer)
-	clientIdOverride := auth2.GetChalkClientArgConfig(cfg.ClientId)
-	clientSecretOverride := auth2.GetChalkClientArgConfig(cfg.ClientSecret)
-	environmentIdOverride := auth2.GetChalkClientArgConfig(cfg.EnvironmentId)
-
-	apiServerEnvVarConfig := auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey)
-	clientIdEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey)
-	clientSecretEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
-	environmentIdEnvVarConfig := auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
-
-	apiServerFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer)
-	clientIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId)
-	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
-	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
-
-	apiServer := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
-	clientId := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
-	clientSecret := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
-	environmentId := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
-
-	if chalkYamlErr != nil && clientId.Value == "" && clientSecret.Value == "" {
-		return nil, chalkYamlErr
+	httpClient := cfg.HTTPClient
+	if httpClient == nil {
+		httpClient = &http.Client{}
 	}
 
 	client := &clientImpl{
-		ClientId:      clientId,
-		ApiServer:     apiServer,
-		EnvironmentId: environmentId,
-		Branch:        cfg.Branch,
-		QueryServer:   cfg.QueryServer,
+		Branch:      cfg.Branch,
+		QueryServer: cfg.QueryServer,
 
-		logger:             cfg.Logger,
-		httpClient:         cfg.HTTPClient,
-		clientSecret:       clientSecret,
-		initialEnvironment: environmentId,
-	}
+		logger:     logger,
+		httpClient: httpClient,
 
-	if client.logger == nil {
-		client.logger = DefaultLeveledLogger
+		config: config,
 	}
-
-	if client.httpClient == nil {
-		client.httpClient = &http.Client{}
-	}
-
-	err := client.refreshConfig(false)
-	if cfg.Logger != nil {
-		client.logger = cfg.Logger
-	}
-	if err != nil {
-		return nil, err
+	client.config.getToken = client.getToken
+	if err := client.config.refresh(false); err != nil {
+		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 	return client, nil
 }

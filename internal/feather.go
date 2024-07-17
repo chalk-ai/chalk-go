@@ -33,8 +33,8 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 	reflect.Bool:    arrow.FixedWidthTypes.Boolean,
 }
 
-// inputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
-func inputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+// InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
+func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
@@ -545,7 +545,7 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 }
 
 func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
-	recordBytes, err := inputsToArrowBytes(inputs)
+	recordBytes, err := InputsToArrowBytes(inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert inputs to Arrow Record bytes: %w", err)
 	}
@@ -566,7 +566,7 @@ type FeatherRequestHeader struct {
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
-	arrowBytes, err := inputsToArrowBytes(inputs)
+	arrowBytes, err := InputsToArrowBytes(inputs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert inputs to Arrow: %w", err)
 	}

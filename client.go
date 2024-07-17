@@ -1,5 +1,9 @@
 package chalk
 
+import (
+	"github.com/cockroachdb/errors"
+)
+
 // Client is the primary interface for interacting with Chalk. You can use
 // it to query data, trigger resolver runs, gather offline data, and more.
 type Client interface {
@@ -164,6 +168,9 @@ type ClientConfig struct {
 	//
 	// If left unset, it'll be set to a default HTTP client for the package.
 	HTTPClient HTTPClient
+
+	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
+	UseGrpc bool
 }
 
 // NewClient creates a Client with authentication settings configured.
@@ -194,6 +201,19 @@ type ClientConfig struct {
 //	})
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
-func NewClient(config ...*ClientConfig) (Client, error) {
-	return newClientImpl(config...)
+func NewClient(configs ...*ClientConfig) (Client, error) {
+	var cfg *ClientConfig
+	if len(configs) == 0 {
+		cfg = &ClientConfig{}
+	} else if len(configs) > 1 {
+		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
+	} else {
+		cfg = configs[len(configs)-1]
+	}
+
+	if cfg.UseGrpc {
+		return newClientGrpc(*cfg)
+	}
+
+	return newClientImpl(*cfg)
 }
