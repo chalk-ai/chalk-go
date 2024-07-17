@@ -143,10 +143,3 @@ type SourcedConfig struct {
 	Value  string
 	Source string
 }
-
-type ResolvedConfig struct {
-	EnvironmentId SourcedConfig
-	ClientId      SourcedConfig
-	ClientSecret  SourcedConfig
-	ApiServer     SourcedConfig
-}
