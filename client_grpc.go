@@ -38,7 +38,7 @@ type clientGrpc struct {
 }
 
 func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
-	resolved, err := getResolvedConfig(cfg)
+	config, err := getConfigManager(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
@@ -50,14 +50,7 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		branch:     cfg.Branch,
 		httpClient: http.DefaultClient,
 		logger:     logger,
-
-		config: &configManager{
-			apiServer:          resolved.ApiServer,
-			clientId:           resolved.ClientId,
-			clientSecret:       resolved.ClientSecret,
-			environmentId:      resolved.EnvironmentId,
-			initialEnvironment: resolved.EnvironmentId,
-		},
+		config:     config,
 	}
 	if err := client.init(); err != nil {
 		return nil, errors.Wrap(err, "error initializing gRPC service clients")

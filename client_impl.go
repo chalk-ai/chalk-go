@@ -624,7 +624,7 @@ func getErrorResponse(err error) *ErrorResponse {
 func newClientImpl(
 	cfg ClientConfig,
 ) (*clientImpl, error) {
-	resolved, err := getResolvedConfig(cfg)
+	config, err := getConfigManager(cfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
@@ -646,13 +646,7 @@ func newClientImpl(
 		logger:     logger,
 		httpClient: httpClient,
 
-		config: &configManager{
-			clientId:           resolved.ClientId,
-			clientSecret:       resolved.ClientSecret,
-			apiServer:          resolved.ApiServer,
-			environmentId:      resolved.EnvironmentId,
-			initialEnvironment: resolved.EnvironmentId,
-		},
+		config: config,
 	}
 	client.config.getToken = client.getToken
 	err = client.config.refresh(false)
