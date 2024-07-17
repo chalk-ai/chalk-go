@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
@@ -18,9 +19,12 @@ import (
 )
 
 var (
-	headerDeploymentType = "X-Chalk-Deployment-Type"
-	headerEnvironmentId  = "X-Chalk-Env-Id"
-	headerServerType     = "X-Chalk-Server"
+	headerKeyDeploymentType = "x-chalk-deployment-type"
+	headerKeyEnvironmentId  = "x-chalk-env-id"
+	headerKeyServerType     = "x-chalk-server"
+
+	serverTypeApi    = "go-api"
+	serverTypeEngine = "engine"
 )
 
 type clientGrpc struct {
@@ -43,6 +47,10 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
+	var logger LeveledLogger
+	if cfg.Logger == nil {
+		logger = DefaultLeveledLogger
+	}
 	client := &clientGrpc{
 		apiServer:     resolved.ApiServer,
 		clientId:      resolved.ClientId,
@@ -50,23 +58,37 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		environmentId: resolved.EnvironmentId,
 		branch:        cfg.Branch,
 		httpClient:    http.DefaultClient,
+		logger:        logger,
 	}
+	client.init()
 	return client, nil
 }
 
-func (c *clientGrpc) initClients() error {
+func (c *clientGrpc) init() error {
 	c.authClient = c.NewAuthClient()
 	c.queryClient = c.NewQueryClient()
 	return nil
+}
+
+func withChalkInterceptors(serverType string, interceptors ...connect.Interceptor) connect.Option {
+	return connect.WithInterceptors(
+		append(
+			interceptors,
+			headerInterceptor(map[string]string{
+				headerKeyServerType: serverType,
+			}),
+		)...,
+	)
 }
 
 func (c *clientGrpc) NewAuthClient() serverv1connect.AuthServiceClient {
 	return serverv1connect.NewAuthServiceClient(
 		c.httpClient,
 		c.apiServer.Value,
-		connect.WithInterceptors(
+		withChalkInterceptors(
+			serverTypeApi,
 			headerInterceptor(map[string]string{
-				headerServerType: "go-api",
+				headerKeyServerType: "go-api",
 			}),
 		),
 	)
@@ -74,12 +96,13 @@ func (c *clientGrpc) NewAuthClient() serverv1connect.AuthServiceClient {
 
 func (c *clientGrpc) NewQueryClient() enginev1connect.QueryServiceClient {
 	headers := map[string]string{
-		headerDeploymentType: "engine-grpc",
+		headerKeyDeploymentType: "engine-grpc",
 	}
 	return enginev1connect.NewQueryServiceClient(
 		c.httpClient,
 		c.apiServer.Value,
-		connect.WithInterceptors(
+		withChalkInterceptors(
+			serverTypeEngine,
 			c.tokenInterceptor(c.authClient),
 			headerInterceptor(headers),
 		),
@@ -117,7 +140,7 @@ func (c *clientGrpc) tokenInterceptor(
 						GrantType:    "client_credentials",
 					},
 				)
-				req.Header().Set(headerEnvironmentId, c.environmentId.Value)
+				req.Header().Set(headerKeyEnvironmentId, c.environmentId.Value)
 				newToken, err := authClient.GetToken(ctx, authRequest)
 				if err != nil {
 					c.logger.Debugf("Failed to get a new token: %s", err.Error())
@@ -129,7 +152,7 @@ func (c *clientGrpc) tokenInterceptor(
 				}
 			}
 
-			req.Header().Set(headerEnvironmentId, c.environmentId.Value)
+			req.Header().Set(headerKeyEnvironmentId, c.environmentId.Value)
 			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
 			return next(ctx, req)
 		}
@@ -141,7 +164,7 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 }
 
 func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	inputsFeather, err := args.ToBytes()
+	inputsFeather, err := internal.InputsToArrowBytes(args.underlying.inputs)
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrap(err, "error serializing inputs as feather")
 	}
@@ -155,6 +178,12 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 	staleness := lo.MapValues(args.underlying.staleness, func(v time.Duration, k string) string {
 		return internal.FormatBucketDuration(int(v.Seconds()))
 	})
+
+	pingRes, err := c.queryClient.Ping(context.Background(), connect.NewRequest(&enginev1.PingRequest{Num: 5525}))
+	if err != nil {
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "error pinging server")
+	}
+	fmt.Println("Ping response:", pingRes.Msg.Num)
 
 	req := connect.NewRequest(
 		&commonv1.OnlineQueryBulkRequest{
@@ -174,9 +203,10 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 				Options:              nil,
 			},
 			ResponseOptions: &commonv1.OnlineQueryResponseOptions{
-				Explain:     nil,
-				IncludeMeta: args.underlying.IncludeMeta,
-				Metadata:    args.underlying.Meta,
+				IncludeMeta:     args.underlying.IncludeMeta,
+				Metadata:        args.underlying.Meta,
+				EncodingOptions: nil,
+				Explain:         nil,
 			},
 		},
 	)

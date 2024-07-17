@@ -18,18 +18,16 @@ import (
 )
 
 type clientImpl struct {
-	ApiServer     auth2.SourcedConfig
-	ClientId      auth2.SourcedConfig
 	EnvironmentId auth2.SourcedConfig
 	Branch        string
 	QueryServer   string
 
-	clientSecret       auth2.SourcedConfig
+	configManager *configManager
+
 	jwt                *auth2.JWT
 	httpClient         HTTPClient
 	logger             LeveledLogger
 	initialEnvironment auth2.SourcedConfig
-	engines            map[string]string
 }
 
 type HTTPClient interface {
@@ -376,8 +374,8 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 
 func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 	body := getTokenRequest{
-		ClientId:     c.ClientId.Value,
-		ClientSecret: c.clientSecret.Value,
+		ClientId:     c.configManager.clientId.Value,
+		ClientSecret: c.configManager.clientSecret.Value,
 		GrantType:    "client_credentials",
 	}
 	response := getTokenResponse{}
@@ -399,20 +397,20 @@ func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 				"    client_secret=*** (source: %s),\n"+
 				"    environment_id=%q (source: %s)\n",
 			err.Error(),
-			c.ApiServer.Value,
-			c.ApiServer.Source,
-			c.ClientId.Value,
-			c.ClientId.Source,
-			c.clientSecret.Source,
-			c.EnvironmentId.Value,
-			c.EnvironmentId.Source,
+			c.configManager.apiServer.Value,
+			c.configManager.apiServer.Source,
+			c.configManager.clientId.Value,
+			c.configManager.clientId.Source,
+			c.configManager.clientSecret.Source,
+			c.configManager.environmentId.Value,
+			c.configManager.environmentId.Source,
 		)}
 	}
 	return &response, nil
 }
 
 func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
-	if !forceRefresh && c.jwt != nil && c.jwt.IsValid() {
+	if !forceRefresh && c.configManager.jwt != nil && c.configManager.jwt.IsValid() {
 		return nil
 	}
 
@@ -421,22 +419,22 @@ func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
 		return getTokenErr
 	}
 
-	if c.initialEnvironment.Value == "" {
-		c.EnvironmentId = auth2.SourcedConfig{
+	if c.configManager.initialEnvironment.Value == "" {
+		c.configManager.environmentId = auth2.SourcedConfig{
 			Value:  config.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
-		c.EnvironmentId = c.initialEnvironment
+		c.configManager.environmentId = c.configManager.initialEnvironment
 	}
 
 	expiry := time.Now().UTC().Add(time.Duration(config.ExpiresIn) * time.Second)
-	c.jwt = &auth2.JWT{
+	c.configManager.jwt = &auth2.JWT{
 		Token:      config.AccessToken,
 		ValidUntil: expiry,
 	}
 
-	c.engines = config.Engines
+	c.configManager.engines = config.Engines
 
 	return nil
 }
@@ -479,8 +477,8 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
 		}
 	}
-	if c.jwt != nil && c.jwt.Token != "" {
-		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	if c.configManager.jwt != nil && c.configManager.jwt.Token != "" {
+		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.configManager.jwt.Token))
 	}
 	if args.Versioned {
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
@@ -552,8 +550,8 @@ func (c *clientImpl) retryRequest(
 		return nil, err
 	}
 	newRequest.Header = originalRequest.Header
-	if c.jwt != nil && c.jwt.Token != "" {
-		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.jwt.Token))
+	if c.configManager.jwt != nil && c.configManager.jwt.Token != "" {
+		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.configManager.jwt.Token))
 	}
 
 	res, err := c.httpClient.Do(newRequest)
@@ -567,14 +565,14 @@ func (c *clientImpl) retryRequest(
 
 func (c *clientImpl) getResolvedEnvironment(envOverride string) string {
 	if envOverride == "" {
-		return c.EnvironmentId.Value
+		return c.configManager.environmentId.Value
 	}
 	return envOverride
 }
 
 func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) string {
 	if !useQueryServer {
-		return c.ApiServer.Value
+		return c.configManager.apiServer.Value
 	}
 
 	if c.QueryServer != "" {
@@ -582,11 +580,11 @@ func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) 
 	}
 
 	env := c.getResolvedEnvironment(envOverride)
-	if engine, foundEngine := c.engines[env]; foundEngine && env != "" {
+	if engine, foundEngine := c.configManager.engines[env]; foundEngine && env != "" {
 		return engine
 	}
 
-	return c.ApiServer.Value
+	return c.configManager.apiServer.Value
 }
 
 func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string) http.Header {
@@ -595,7 +593,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
-	headers.Set("X-Chalk-Client-Id", c.ClientId.Value)
+	headers.Set("X-Chalk-Client-Id", c.configManager.clientId.Value)
 
 	var branchResolved string
 	if branchOverride != nil && *branchOverride != "" {
@@ -656,16 +654,19 @@ func newClientImpl(
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
 	client := &clientImpl{
-		ClientId:      resolved.ClientId,
-		ApiServer:     resolved.ApiServer,
-		EnvironmentId: resolved.EnvironmentId,
-		Branch:        cfg.Branch,
-		QueryServer:   cfg.QueryServer,
+		Branch:      cfg.Branch,
+		QueryServer: cfg.QueryServer,
 
-		logger:             cfg.Logger,
-		httpClient:         cfg.HTTPClient,
-		clientSecret:       resolved.ClientSecret,
-		initialEnvironment: resolved.EnvironmentId,
+		logger:     cfg.Logger,
+		httpClient: cfg.HTTPClient,
+
+		configManager: &configManager{
+			clientId:           resolved.ClientId,
+			clientSecret:       resolved.ClientSecret,
+			apiServer:          resolved.ApiServer,
+			environmentId:      resolved.EnvironmentId,
+			initialEnvironment: resolved.EnvironmentId,
+		},
 	}
 
 	if client.logger == nil {
