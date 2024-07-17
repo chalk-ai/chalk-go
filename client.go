@@ -1,7 +1,7 @@
 package chalk
 
 import (
-	"fmt"
+	"github.com/cockroachdb/errors"
 )
 
 // Client is the primary interface for interacting with Chalk. You can use
@@ -206,7 +206,7 @@ func NewClient(configs ...*ClientConfig) (Client, error) {
 	if len(configs) == 0 {
 		cfg = &ClientConfig{}
 	} else if len(configs) > 1 {
-		return nil, fmt.Errorf("expected at most one ClientConfig, got %d", len(configs))
+		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
 	} else {
 		cfg = configs[len(configs)-1]
 	}

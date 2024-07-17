@@ -447,9 +447,8 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	request.Header = headers
 
 	if !args.DontRefresh {
-		upsertJwtErr := c.config.refresh(false)
-		if upsertJwtErr != nil {
-			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
+		if err := c.config.refresh(false); err != nil {
+			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", err)
 		}
 	}
 	if c.config.jwt != nil && c.config.jwt.Token != "" {
@@ -507,9 +506,8 @@ func (c *clientImpl) retryRequest(
 	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
-	upsertJwtUpon401Err := c.config.refresh(true)
-	if upsertJwtUpon401Err != nil {
-		(c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
+	if err := c.config.refresh(true); err != nil {
+		(c.logger).Debugf("Error refreshing access token upon 401: %s", err.Error())
 		return originalResponse, originalError
 	}
 
@@ -649,9 +647,8 @@ func newClientImpl(
 		config: config,
 	}
 	client.config.getToken = client.getToken
-	err = client.config.refresh(false)
-	if err != nil {
-		return nil, err
+	if err := client.config.refresh(false); err != nil {
+		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 	return client, nil
 }

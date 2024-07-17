@@ -99,7 +99,7 @@ func (c *clientGrpc) NewAuthClient() (serverv1connect.AuthServiceClient, error) 
 		withChalkInterceptors(
 			serverTypeApi,
 			headerInterceptor(map[string]string{
-				headerKeyServerType: "go-api",
+				headerKeyServerType: serverTypeApi,
 			}),
 		),
 	), nil
@@ -166,8 +166,14 @@ func (c *clientGrpc) getToken() (*getTokenResult, error) {
 		c.logger.Debugf("Failed to get a new token: %s", err.Error())
 		return nil, err
 	}
+
+	expiresAt := token.Msg.GetExpiresAt()
+	if token.Msg.GetExpiresAt() == nil {
+		return nil, errors.New("token has no expiration date")
+	}
+
 	return &getTokenResult{
-		ValidUntil:         token.Msg.GetExpiresAt().AsTime(),
+		ValidUntil:         expiresAt.AsTime(),
 		AccessToken:        token.Msg.GetAccessToken(),
 		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
 		Engines:            token.Msg.GetGrpcEngines(),
