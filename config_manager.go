@@ -17,8 +17,8 @@ type configManager struct {
 	getToken           func() (*getTokenResponse, *ClientError)
 }
 
-func (r *configManager) refreshConfig(forceRefresh bool) *ClientError {
-	if !forceRefresh && r.jwt != nil && r.jwt.IsValid() {
+func (r *configManager) refresh(force bool) *ClientError {
+	if !force && r.jwt != nil && r.jwt.IsValid() {
 		return nil
 	}
 

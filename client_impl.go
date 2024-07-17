@@ -409,36 +409,6 @@ func (c *clientImpl) getToken() (*getTokenResponse, *ClientError) {
 	return &response, nil
 }
 
-func (c *clientImpl) refreshConfig(forceRefresh bool) *ClientError {
-	if !forceRefresh && c.configManager.jwt != nil && c.configManager.jwt.IsValid() {
-		return nil
-	}
-
-	config, getTokenErr := c.getToken()
-	if getTokenErr != nil {
-		return getTokenErr
-	}
-
-	if c.configManager.initialEnvironment.Value == "" {
-		c.configManager.environmentId = auth2.SourcedConfig{
-			Value:  config.PrimaryEnvironment,
-			Source: "Primary Environment from credentials exchange response",
-		}
-	} else {
-		c.configManager.environmentId = c.configManager.initialEnvironment
-	}
-
-	expiry := time.Now().UTC().Add(time.Duration(config.ExpiresIn) * time.Second)
-	c.configManager.jwt = &auth2.JWT{
-		Token:      config.AccessToken,
-		ValidUntil: expiry,
-	}
-
-	c.configManager.engines = config.Engines
-
-	return nil
-}
-
 func getBodyBuffer(body any) (io.Reader, error) {
 	if body == nil {
 		return nil, nil
@@ -472,7 +442,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	request.Header = headers
 
 	if !args.DontRefresh {
-		upsertJwtErr := c.refreshConfig(false)
+		upsertJwtErr := c.configManager.refresh(false)
 		if upsertJwtErr != nil {
 			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", upsertJwtErr)
 		}
@@ -532,7 +502,7 @@ func (c *clientImpl) retryRequest(
 	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
-	upsertJwtUpon401Err := c.refreshConfig(true)
+	upsertJwtUpon401Err := c.configManager.refresh(true)
 	if upsertJwtUpon401Err != nil {
 		(c.logger).Debugf("Error refreshing access token upon 401: %s", upsertJwtUpon401Err.Error())
 		return originalResponse, originalError
@@ -677,7 +647,7 @@ func newClientImpl(
 		client.httpClient = &http.Client{}
 	}
 
-	err = client.refreshConfig(false)
+	err = client.configManager.refresh(false)
 	if cfg.Logger != nil {
 		client.logger = cfg.Logger
 	}
