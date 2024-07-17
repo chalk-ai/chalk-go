@@ -13,6 +13,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -120,7 +121,7 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 
 	return enginev1connect.NewQueryServiceClient(
 		c.httpClient,
-		"https://"+endpoint,
+		ensureHTTPSPrefix(endpoint),
 		withChalkInterceptors(
 			serverTypeEngine,
 			c.tokenInterceptor(),
@@ -128,6 +129,13 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 		),
 		connect.WithGRPC(),
 	), nil
+}
+
+func ensureHTTPSPrefix(inputURL string) string {
+	if strings.HasPrefix(inputURL, "https://") || strings.HasPrefix(inputURL, "http://") {
+		return inputURL
+	}
+	return "https://" + inputURL
 }
 
 func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
