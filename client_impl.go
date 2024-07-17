@@ -372,7 +372,7 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
-func (c *clientImpl) getToken() (*getTokenResponse, error) {
+func (c *clientImpl) getToken() (*getTokenResult, error) {
 	body := getTokenRequest{
 		ClientId:     c.configManager.clientId.Value,
 		ClientSecret: c.configManager.clientSecret.Value,
@@ -406,7 +406,13 @@ func (c *clientImpl) getToken() (*getTokenResponse, error) {
 			c.configManager.environmentId.Source,
 		)}
 	}
-	return &response, nil
+	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
+	return &getTokenResult{
+		ValidUntil:         expiry,
+		AccessToken:        response.AccessToken,
+		PrimaryEnvironment: response.PrimaryEnvironment,
+		Engines:            response.Engines,
+	}, nil
 }
 
 func getBodyBuffer(body any) (io.Reader, error) {

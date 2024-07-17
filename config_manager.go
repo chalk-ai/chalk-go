@@ -5,6 +5,15 @@ import (
 	"time"
 )
 
+// getTokenResult is agnostic to whether the token
+// was obtained via gRPC or REST.
+type getTokenResult struct {
+	AccessToken        string
+	PrimaryEnvironment string
+	ValidUntil         time.Time
+	Engines            map[string]string
+}
+
 type configManager struct {
 	apiServer     auth2.SourcedConfig
 	clientId      auth2.SourcedConfig
@@ -14,7 +23,7 @@ type configManager struct {
 	jwt                *auth2.JWT
 	initialEnvironment auth2.SourcedConfig
 	engines            map[string]string
-	getToken           func() (*getTokenResponse, error)
+	getToken           func() (*getTokenResult, error)
 }
 
 func (r *configManager) refresh(force bool) error {
@@ -36,10 +45,9 @@ func (r *configManager) refresh(force bool) error {
 		r.environmentId = r.initialEnvironment
 	}
 
-	expiry := time.Now().UTC().Add(time.Duration(config.ExpiresIn) * time.Second)
 	r.jwt = &auth2.JWT{
 		Token:      config.AccessToken,
-		ValidUntil: expiry,
+		ValidUntil: config.ValidUntil,
 	}
 
 	r.engines = config.Engines

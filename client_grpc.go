@@ -8,6 +8,7 @@ import (
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
@@ -26,7 +27,7 @@ var (
 )
 
 type clientGrpc struct {
-	configManager *configManager
+	config *configManager
 
 	branch     string
 	logger     LeveledLogger
@@ -50,7 +51,7 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		httpClient: http.DefaultClient,
 		logger:     logger,
 
-		configManager: &configManager{
+		config: &configManager{
 			apiServer:          resolved.ApiServer,
 			clientId:           resolved.ClientId,
 			clientSecret:       resolved.ClientSecret,
@@ -61,12 +62,29 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 	if err := client.init(); err != nil {
 		return nil, errors.Wrap(err, "error initializing gRPC service clients")
 	}
+
 	return client, nil
 }
 
 func (c *clientGrpc) init() error {
-	c.authClient = c.NewAuthClient()
-	c.queryClient = c.NewQueryClient()
+	authClient, err := c.NewAuthClient()
+	if err != nil {
+		return errors.Wrap(err, "error creating auth client")
+	}
+	c.authClient = authClient
+
+	c.config.getToken = c.getToken
+	// Necessary to get GRPC engines URL
+	if err := c.config.refresh(false); err != nil {
+		return errors.Wrap(err, "error fetching initial config")
+	}
+
+	queryClient, err := c.NewQueryClient()
+	if err != nil {
+		return errors.Wrap(err, "error creating query client")
+	}
+	c.queryClient = queryClient
+
 	return nil
 }
 
@@ -81,32 +99,43 @@ func withChalkInterceptors(serverType string, interceptors ...connect.Intercepto
 	)
 }
 
-func (c *clientGrpc) NewAuthClient() serverv1connect.AuthServiceClient {
+func (c *clientGrpc) NewAuthClient() (serverv1connect.AuthServiceClient, error) {
 	return serverv1connect.NewAuthServiceClient(
 		c.httpClient,
-		c.configManager.apiServer.Value,
+		c.config.apiServer.Value,
 		withChalkInterceptors(
 			serverTypeApi,
 			headerInterceptor(map[string]string{
 				headerKeyServerType: "go-api",
 			}),
 		),
-	)
+	), nil
 }
 
-func (c *clientGrpc) NewQueryClient() enginev1connect.QueryServiceClient {
+func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error) {
 	headers := map[string]string{
 		headerKeyDeploymentType: "engine-grpc",
 	}
+
+	endpoint, ok := c.config.engines[c.config.environmentId.Value]
+	if !ok {
+		return nil, errors.Newf(
+			"no engine found for environment '%s' - engine map keys: '%s'",
+			c.config.environmentId.Value,
+			lo.Keys(c.config.engines),
+		)
+	}
+
 	return enginev1connect.NewQueryServiceClient(
 		c.httpClient,
-		c.configManager.apiServer.Value,
+		"https://"+endpoint,
 		withChalkInterceptors(
 			serverTypeEngine,
-			c.tokenInterceptor(c.authClient),
+			c.tokenInterceptor(),
 			headerInterceptor(headers),
 		),
-	)
+		connect.WithGRPC(),
+	), nil
 }
 
 func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
@@ -123,17 +152,39 @@ func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	}
 }
 
-func (c *clientGrpc) tokenInterceptor(
-	authClient serverv1connect.AuthServiceClient,
-) connect.UnaryInterceptorFunc {
+func (c *clientGrpc) getToken() (*getTokenResult, error) {
+	c.logger.Debugf("Getting new token via gRPC")
+	authRequest := connect.NewRequest(
+		&serverv1.GetTokenRequest{
+			ClientId:     c.config.clientId.Value,
+			ClientSecret: c.config.clientSecret.Value,
+			GrantType:    "client_credentials",
+		},
+	)
+	token, err := c.authClient.GetToken(context.Background(), authRequest)
+	if err != nil {
+		c.logger.Debugf("Failed to get a new token: %s", err.Error())
+		return nil, err
+	}
+	return &getTokenResult{
+		ValidUntil:         token.Msg.GetExpiresAt().AsTime(),
+		AccessToken:        token.Msg.GetAccessToken(),
+		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
+		Engines:            token.Msg.GetGrpcEngines(),
+	}, nil
+}
+
+func (c *clientGrpc) tokenInterceptor() connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-
-			req.Header().Set(headerKeyEnvironmentId, c.configManager.environmentId.Value)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", c.configManager.jwt.Token))
+			if err := c.config.refresh(false); err != nil {
+				return nil, errors.Wrap(err, "error refreshing config")
+			}
+			req.Header().Set(headerKeyEnvironmentId, c.config.environmentId.Value)
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", c.config.jwt.Token))
 			return next(ctx, req)
 		}
 	}
