@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -342,6 +343,49 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 		features[fqn] = FeatureResult{
 			Field: fqn,
 			Value: value,
+		}
+	}
+
+	for fqn, table := range bulkRes.GroupsTables {
+		rowsHm, err := internal.ExtractFeaturesFromTable(table)
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrapf(
+				err,
+				"error extracting features from has-many table for feature '%s'",
+				fqn,
+			)
+		}
+		if len(rowsHm) == 0 {
+			continue
+		}
+
+		colNames := lo.Keys(rowsHm[0])
+		colValues := make([][]any, 0, len(rowsHm))
+		for _, col := range colNames {
+			vals := lo.Map(rowsHm, func(row map[string]any, _ int) any {
+				return row[col]
+			})
+			colValues = append(colValues, vals)
+		}
+		result := struct {
+			Columns []string `json:"columns"`
+			Values  [][]any  `json:"values"`
+		}{
+			Columns: colNames,
+			Values:  colValues,
+		}
+
+		jsonRepr, err := json.Marshal(result)
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrapf(
+				err,
+				"error marshalling has-many table for feature '%s' to JSON",
+				fqn,
+			)
+		}
+		features[fqn] = FeatureResult{
+			Field: fqn,
+			Value: string(jsonRepr),
 		}
 	}
 
