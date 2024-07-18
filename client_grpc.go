@@ -13,6 +13,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -305,10 +306,13 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 }
 
 func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	var bulkInputs map[string]any
+	bulkInputs := make(map[string]any)
 	for k, singleValue := range args.underlying.inputs {
-		bulkInputs[k] = []any{singleValue}
+		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
+		slice.Index(0).Set(reflect.ValueOf(singleValue))
+		bulkInputs[k] = slice.Interface()
 	}
+	args.underlying.inputs = bulkInputs
 
 	bulkRes, err := c.onlineQueryBulk(args)
 	if err != nil {
@@ -327,7 +331,7 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 		return OnlineQueryResult{}, errors.Wrap(err, "error extracting features from scalars table")
 	}
 
-	var features map[string]FeatureResult
+	features := make(map[string]FeatureResult)
 	if len(rows) != 1 {
 		return OnlineQueryResult{}, errors.Newf(
 			"expected 1 row from scalars table, got %d",
