@@ -196,11 +196,7 @@ func (c *clientGrpc) tokenInterceptor() connect.UnaryInterceptorFunc {
 	}
 }
 
-func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	return OnlineQueryResult{}, errors.New("not implemented")
-}
-
-func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	inputsFeather, err := internal.InputsToArrowBytes(args.underlying.inputs)
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrap(err, "error serializing inputs as feather")
@@ -306,6 +302,54 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 		},
 	}, nil
 
+}
+
+func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
+	var bulkInputs map[string]any
+	for k, singleValue := range args.underlying.inputs {
+		bulkInputs[k] = []any{singleValue}
+	}
+
+	bulkRes, err := c.onlineQueryBulk(args)
+	if err != nil {
+		// intentionally don't wrap, original error is good enough
+		return OnlineQueryResult{}, err
+	}
+
+	if resultHolder != nil {
+		if err := bulkRes.UnmarshalInto([]any{resultHolder}); err != nil {
+			return OnlineQueryResult{}, errors.Wrap(err, "error unmarshalling result into result holder struct")
+		}
+	}
+
+	rows, err := internal.ExtractFeaturesFromTable(bulkRes.ScalarsTable)
+	if err != nil {
+		return OnlineQueryResult{}, errors.Wrap(err, "error extracting features from scalars table")
+	}
+
+	var features map[string]FeatureResult
+	if len(rows) != 1 {
+		return OnlineQueryResult{}, errors.Newf(
+			"expected 1 row from scalars table, got %d",
+			len(rows),
+		)
+	}
+	for fqn, value := range rows[0] {
+		features[fqn] = FeatureResult{
+			Field: fqn,
+			Value: value,
+		}
+	}
+
+	return OnlineQueryResult{
+		Data:     lo.Values(features),
+		Meta:     bulkRes.Meta,
+		features: features,
+	}, nil
+}
+
+func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+	return c.onlineQueryBulk(args)
 }
 
 func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
