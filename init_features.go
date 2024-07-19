@@ -207,24 +207,6 @@ func (fi *featureInitializer) initFeatures(
 			// actually a pointer to a Feature struct. See BASE CASE
 			// section below.
 
-			// FIXME: Should be removeable
-			//if fi.isScoped {
-			//	// The target fqn here could be
-			//	//    - "some_other_feature_in_this_feature_class"
-			//	//    - "this_windowed_feature__600__"
-			//	//    - "other_windowed_feature__600__"
-			//	// So let's extract "this_windowed_feature" from the target fqn
-			//	// and compare it with the current feature's name.
-			//	pattern, err := regexp.Compile(fmt.Sprintf(`^%s__\d+__$`, resolvedName))
-			//	if err != nil {
-			//		return nil, errors.Wrap(err, "error compiling regex to match windowed feature names")
-			//	}
-			//	if !pattern.Match([]byte(getFqnRoot(targetFqn))) {
-			//		// Not any bucket feature in this windowed feature class
-			//		continue
-			//	}
-			//}
-
 			mapValueType := f.Type().Elem()
 			if mapValueType.Kind() != reflect.Pointer {
 				return errors.Newf(
@@ -233,32 +215,6 @@ func (fi *featureInitializer) initFeatures(
 					mapValueType.Kind(),
 				)
 			}
-
-			//if fi.isScoped {
-			//	// Selectively initializing features,
-			//	// use a new map only if the map is nil.
-			//	if f.IsNil() {
-			//		f.Set(reflect.MakeMap(f.Type()))
-			//	}
-			//	return []reflect.Value{f}, nil
-			//} else {
-			//	// Initializing all features, always
-			//	// make a new map.
-			//	f.Set(reflect.MakeMap(f.Type()))
-			//	windows := fm.Meta.Tag.Get("windows")
-			//	for _, tag := range strings.Split(windows, ",") {
-			//		seconds, parseErr := internal.ParseBucketDuration(tag)
-			//		if parseErr != nil {
-			//			return nil, fmt.Errorf("error parsing bucket duration: %s", parseErr)
-			//		}
-			//		windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
-			//		if targetFqn == "" {
-			//			feature := Feature{Fqn: windowFqn}
-			//			ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
-			//			f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
-			//		}
-			//	}
-			//}
 
 			windows := fm.Meta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
