@@ -134,7 +134,7 @@ func (fi *featureInitializer) initFeatures(
 			if !inScope {
 				continue
 			}
-			fi.fieldsMap[cumulativeFqn] = append(fi.fieldsMap[cumulativeFqn], f)
+			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 		} else if f.Type().Elem().Kind() == reflect.Struct &&
 			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
@@ -238,7 +238,6 @@ func (fi *featureInitializer) initFeatures(
 			//	}
 			//}
 
-			f.Set(reflect.MakeMap(f.Type()))
 			windows := fm.Meta.Tag.Get("windows")
 			for _, tag := range strings.Split(windows, ",") {
 				seconds, err := internal.ParseBucketDuration(tag)
@@ -246,16 +245,25 @@ func (fi *featureInitializer) initFeatures(
 					return errors.Wrap(err, "error parsing bucket duration: %s")
 				}
 				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
+				windowFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
 				if fi.isScoped {
 					if _, bucketInScope := scope.Children[updatedResolvedName]; !bucketInScope {
 						continue
 					}
-					fi.fieldsMap[cumulativeFqn] = append(fi.fieldsMap[cumulativeFqn], f)
+					// Make map only if one of the bucket features need to be set
+					// If no bucket features need to be set, map is nil.
+					if f.IsNil() {
+						f.Set(reflect.MakeMap(f.Type()))
+					}
+					fi.fieldsMap[windowFqn] = append(fi.fieldsMap[windowFqn], f)
+				} else {
+					// Always make map
+					f.Set(reflect.MakeMap(f.Type()))
+					feature := Feature{Fqn: windowFqn}
+					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
+					f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 				}
-				windowFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
-				feature := Feature{Fqn: windowFqn}
-				ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
-				f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+
 			}
 		} else {
 			// BASE CASE.
@@ -267,7 +275,7 @@ func (fi *featureInitializer) initFeatures(
 			}
 
 			if fi.isScoped {
-				fi.fieldsMap[cumulativeFqn] = append(fi.fieldsMap[cumulativeFqn], f)
+				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':
