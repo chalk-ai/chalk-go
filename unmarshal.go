@@ -185,6 +185,9 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			// TODO: Add validation for optional fields
 			continue
 		}
+		if _, shouldSkip := internal.SkipUnmarshalFqnRoots[getFqnRoot(fqn)]; shouldSkip {
+			continue
+		}
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
 			return &ClientError{
