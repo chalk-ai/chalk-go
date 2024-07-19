@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -13,6 +14,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
 	"net/http"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -112,11 +114,13 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 
 	endpoint, ok := c.config.engines[c.config.environmentId.Value]
 	if !ok {
-		return nil, errors.Newf(
-			"no engine found for environment '%s' - engine map keys: '%s'",
+		c.logger.Errorf(
+			"query endpoint falling back to api server - no engine "+
+				"found for environment '%s' - engine map keys: '%s'",
 			c.config.environmentId.Value,
 			lo.Keys(c.config.engines),
 		)
+		endpoint = c.config.apiServer.Value
 	}
 
 	return enginev1connect.NewQueryServiceClient(
@@ -196,11 +200,19 @@ func (c *clientGrpc) tokenInterceptor() connect.UnaryInterceptorFunc {
 	}
 }
 
-func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	return OnlineQueryResult{}, errors.New("not implemented")
+func (c *clientGrpc) getHasManyJson(columns []string, values [][]any) (string, error) {
+	result := struct {
+		Columns []string `json:"columns"`
+		Values  [][]any  `json:"values"`
+	}{
+		Columns: columns,
+		Values:  values,
+	}
+	res, err := json.Marshal(result)
+	return string(res), err
 }
 
-func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	inputsFeather, err := internal.InputsToArrowBytes(args.underlying.inputs)
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrap(err, "error serializing inputs as feather")
@@ -306,6 +318,137 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 		},
 	}, nil
 
+}
+
+func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
+	bulkInputs := make(map[string]any)
+	for k, singleValue := range args.underlying.inputs {
+		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
+		slice.Index(0).Set(reflect.ValueOf(singleValue))
+		bulkInputs[k] = slice.Interface()
+	}
+	args.underlying.inputs = bulkInputs
+
+	bulkRes, err := c.onlineQueryBulk(args)
+	if err != nil {
+		// intentionally don't wrap, original error is good enough
+		return OnlineQueryResult{}, err
+	}
+
+	if resultHolder != nil {
+		// Create a pointer to an empty slice and unmarshal into that
+		var holderType = reflect.TypeOf(resultHolder)
+		if holderType.Kind() != reflect.Ptr {
+			return OnlineQueryResult{}, errors.Newf(
+				"result holder must be a pointer, found %s",
+				holderType.Kind(),
+			)
+		}
+		structType := holderType.Elem()
+		sliceType := reflect.SliceOf(structType)
+		ptrToSlice := reflect.New(sliceType)
+		if err := bulkRes.UnmarshalInto(ptrToSlice.Interface()); err != nil {
+			return OnlineQueryResult{}, errors.Wrap(err, "error unmarshalling result into result holder struct")
+		}
+
+		if ptrToSlice.Elem().Len() != 1 {
+			return OnlineQueryResult{}, errors.Newf(
+				"expected 1 element in the intermediate slice after unmarshalling, got %d",
+				ptrToSlice.Elem().Len(),
+			)
+		}
+
+		// Point the result holder to the first element of the slice
+		var holderValue = reflect.ValueOf(resultHolder)
+		holderValue.Elem().Set(ptrToSlice.Elem().Index(0))
+	}
+
+	rows, err := internal.ExtractFeaturesFromTable(bulkRes.ScalarsTable)
+	if err != nil {
+		return OnlineQueryResult{}, errors.Wrap(err, "error extracting features from scalars table")
+	}
+
+	features := make(map[string]FeatureResult)
+	if len(rows) != 1 {
+		return OnlineQueryResult{}, errors.Newf(
+			"expected 1 row from scalars table, got %d",
+			len(rows),
+		)
+	}
+	for fqn, value := range rows[0] {
+		features[fqn] = FeatureResult{
+			Field: fqn,
+			Value: value,
+		}
+	}
+
+	for fqn, table := range bulkRes.GroupsTables {
+		if table.NumRows() == 0 {
+			columns := lo.Map(
+				table.Schema().Fields(),
+				func(f arrow.Field, _ int) string {
+					return f.Name
+				},
+			)
+			values := make([][]any, len(columns))
+			jsonRepr, err := c.getHasManyJson(columns, values)
+			if err != nil {
+				return OnlineQueryResult{}, errors.Wrapf(
+					err,
+					"error creating JSON representation for 0-row has-many table for feature '%s'",
+					fqn,
+				)
+			}
+			features[fqn] = FeatureResult{
+				Field: fqn,
+				Value: jsonRepr,
+			}
+			continue
+		}
+
+		rowsHm, err := internal.ExtractFeaturesFromTable(table)
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrapf(
+				err,
+				"error extracting features from has-many table for feature '%s'",
+				fqn,
+			)
+		}
+
+		colNames := lo.Keys(rowsHm[0])
+		colValues := make([][]any, 0, len(rowsHm))
+		for _, col := range colNames {
+			colValues = append(
+				colValues,
+				lo.Map(rowsHm, func(row map[string]any, _ int) any {
+					return row[col]
+				}),
+			)
+		}
+		jsonRepr, err := c.getHasManyJson(colNames, colValues)
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrapf(
+				err,
+				"error creating JSON representation for has-many table for feature '%s'",
+				fqn,
+			)
+		}
+
+		features[fqn] = FeatureResult{
+			Field: fqn,
+			Value: jsonRepr,
+		}
+	}
+
+	return OnlineQueryResult{
+		Data:     lo.Values(features),
+		Meta:     bulkRes.Meta,
+		features: features,
+	}, nil
+}
+
+func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+	return c.onlineQueryBulk(args)
 }
 
 func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
