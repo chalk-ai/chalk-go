@@ -12,16 +12,8 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	_, err := initFeatures(structValue, "", make(map[string]bool), "")
-	return err
-}
-
-func initFeatureSingle(structValue reflect.Value, fqn string) ([]reflect.Value, error) {
-	parts := strings.Split(fqn, ".")
-	if len(parts) < 2 {
-		return nil, fmt.Errorf("feature fqn should have at least two parts, found: '%s'", fqn)
-	}
-	return initFeatures(structValue, "", make(map[string]bool), strings.Join(parts[1:], "."))
+	initializer := NewFeatureInitializer(initializerModeAsFeature)
+	return initializer.initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
 type scopeTrie struct {
@@ -69,13 +61,10 @@ var (
 )
 
 func NewFeatureInitializer(mode initializerMode) *featureInitializer {
-	if mode == initializerModeUnmarshal {
-		return &featureInitializer{
-			fieldsMap: map[string][]reflect.Value{},
-			isScoped:  true,
-		}
+	return &featureInitializer{
+		fieldsMap: map[string][]reflect.Value{},
+		isScoped:  mode == initializerModeUnmarshal,
 	}
-	return &featureInitializer{}
 }
 
 // initFeatures is a recursive function that:
@@ -143,7 +132,10 @@ func (fi *featureInitializer) initFeatures(
 			continue
 		}
 
-		_, inScope := scope.Children[resolvedName]
+		inScope := true
+		if scope != nil {
+			_, inScope = scope.Children[resolvedName]
+		}
 
 		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && fi.isScoped {
 			// If dataclasses are being initialized for purposes

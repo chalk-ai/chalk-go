@@ -151,9 +151,6 @@ func buildScope(fqns []string) (*scopeTrie, error) {
 	for _, fqn := range fqns {
 		root.addStr(fqn)
 	}
-	if len(root.Children) > 1 {
-		return nil, errors.Newf("more than one root namespace found: %v", lo.Keys(root.Children))
-	}
 	return root, nil
 }
 
