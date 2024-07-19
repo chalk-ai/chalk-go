@@ -125,7 +125,11 @@ func (fi *featureInitializer) initFeatures(
 		if err != nil {
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
+
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
+		if cumulativeFqn == "" {
+			updatedFqn = resolvedName
+		}
 
 		f := fm.Field
 		if !f.CanSet() {
@@ -276,8 +280,9 @@ func (fi *featureInitializer) initFeatures(
 					}
 					fi.fieldsMap[windowFqn] = append(fi.fieldsMap[windowFqn], f)
 				} else {
-					// Always make map
-					f.Set(reflect.MakeMap(f.Type()))
+					if f.IsNil() {
+						f.Set(reflect.MakeMap(f.Type()))
+					}
 					feature := Feature{Fqn: windowFqn}
 					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
 					f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
