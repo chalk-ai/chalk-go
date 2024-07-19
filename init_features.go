@@ -27,17 +27,13 @@ func (s *scopeTrie) add(fqnParts []string) {
 	if len(fqnParts) == 0 {
 		return
 	}
-
 	firstPart := fqnParts[0]
 	if s.Children == nil {
 		s.Children = map[string]*scopeTrie{}
 	}
-
-	kid := s.Children[firstPart]
-	if kid == nil {
+	if _, found := s.Children[firstPart]; !found {
 		s.Children[firstPart] = &scopeTrie{}
 	}
-
 	s.Children[firstPart].add(fqnParts[1:])
 }
 
