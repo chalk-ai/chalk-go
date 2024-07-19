@@ -997,7 +997,7 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	singleAvg := benchmarkUnmarshal(t, singleData, singleFeatures)
 	assert.Equal(t, int64(123), *singleFeatures.Int)
 
-	multiplier := multiAvg / singleAvg
+	multiplier := float64(multiAvg) / float64(singleAvg)
 	assert.True(
 		t,
 		multiplier < 2,
