@@ -184,7 +184,9 @@ func (fi *featureInitializer) initFeatures(
 				if newScope == nil {
 					return errors.Newf("scope not found for feature '%s'", cumulativeFqn)
 				}
-				return fi.initFeatures(f.Elem(), updatedFqn, visited, newScope)
+				if err := fi.initFeatures(f.Elem(), updatedFqn, visited, newScope); err != nil {
+					return err
+				}
 			} else {
 				featureSet := reflect.New(f.Type().Elem())
 				// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
