@@ -162,14 +162,23 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 	fieldMap := map[string][]reflect.Value{}
 
-	initializer := featureInitializer{isScoped: true}
+	initializer := NewFeatureInitializer(initializerModeUnmarshal)
 	scope, err := buildScope(lo.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
 		}
 	}
-	if err := initializer.initFeatures(structValue, structValue.Type().Name(), map[string]bool{}, scope); err != nil {
+
+	namespace := SnakeCase(structValue.Type().Name())
+	nsScope := scope.Children[namespace]
+	if nsScope == nil {
+		return &ClientError{
+			errors.Newf("Scope of fields to initialize not found for namespace '%s'", nsScope).Error(),
+		}
+	}
+
+	if err := initializer.initFeatures(structValue, namespace, map[string]bool{}, nsScope); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
 	}
 

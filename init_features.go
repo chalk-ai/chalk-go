@@ -24,11 +24,6 @@ func initFeatureSingle(structValue reflect.Value, fqn string) ([]reflect.Value, 
 	return initFeatures(structValue, "", make(map[string]bool), strings.Join(parts[1:], "."))
 }
 
-type featureInitializer struct {
-	fieldsMap map[string][]reflect.Value
-	isScoped  bool
-}
-
 type scopeTrie struct {
 	Children map[string]*scopeTrie
 }
@@ -55,14 +50,44 @@ func (s *scopeTrie) add(fqnParts []string) {
 	s.Children[firstPart].add(fqnParts[1:])
 }
 
-// initFeaturesScoped is a recursive function that:
+type featureInitializer struct {
+	fieldsMap map[string][]reflect.Value
+	isScoped  bool
+}
+
+type initializerMode string
+
+var (
+	// For creating `Feature` structs that contains
+	// an FQN field. Used for specifying query params.
+	initializerModeAsFeature = initializerMode("as_feature")
+
+	// For unmarshalling into feature structs. We initialize
+	// the fields, then another function takes care of setting
+	// the fields to the correct value.
+	initializerModeUnmarshal = initializerMode("unmarshal")
+)
+
+func NewFeatureInitializer(mode initializerMode) *featureInitializer {
+	if mode == initializerModeUnmarshal {
+		return &featureInitializer{
+			fieldsMap: map[string][]reflect.Value{},
+			isScoped:  true,
+		}
+	}
+	return &featureInitializer{}
+}
+
+// initFeatures is a recursive function that:
 //
-//  1. If `targetFqn == ""`:
-//     Recursively initializes features in the struct that is passed in. Each feature is initialized as
-//     a pointer to a Feature struct with the appropriate FQN.
+//  1. If not scoped:
+//     Initializes all features in the struct that is passed in. Each feature is initialized
+//     as a pointer to a Feature struct with the appropriate FQN.
 //
-//  2. If `targetFqn != ""`:
-//     Only the feature that matches the targetFqn is initialized
+//  2. If is scoped:
+//     Only the features that are in scope (stored in the form of a trie) are initialized.
+//     In scope means that the feature is requested as an output and is returned in the
+//     query response.
 func (fi *featureInitializer) initFeatures(
 	structValue reflect.Value,
 	cumulativeFqn string,
@@ -111,7 +136,7 @@ func (fi *featureInitializer) initFeatures(
 		if err != nil {
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
-		updatedFqn := cumulativeFqn + resolvedName
+		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
 
 		f := fm.Field
 		if !f.CanSet() {
@@ -159,14 +184,14 @@ func (fi *featureInitializer) initFeatures(
 				if newScope == nil {
 					return errors.Newf("scope not found for feature '%s'", cumulativeFqn)
 				}
-				return fi.initFeatures(f.Elem(), updatedFqn+".", visited, newScope)
+				return fi.initFeatures(f.Elem(), updatedFqn, visited, newScope)
 			} else {
 				featureSet := reflect.New(f.Type().Elem())
 				// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
 				ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 				f.Set(ptrInDisguiseToFeatureSet)
 				featureSetInDisguise := f.Elem()
-				if err := fi.initFeatures(featureSetInDisguise, updatedFqn+".", visited, nil); err != nil {
+				if err := fi.initFeatures(featureSetInDisguise, updatedFqn, visited, nil); err != nil {
 					return err
 				}
 			}
