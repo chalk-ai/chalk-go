@@ -344,9 +344,9 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 				holderType.Kind(),
 			)
 		}
-		var structType = holderType.Elem()
-		var sliceType = reflect.SliceOf(structType)
-		var ptrToSlice = reflect.New(sliceType)
+		structType := holderType.Elem()
+		sliceType := reflect.SliceOf(structType)
+		ptrToSlice := reflect.New(sliceType)
 		if err := bulkRes.UnmarshalInto(ptrToSlice.Interface()); err != nil {
 			return OnlineQueryResult{}, errors.Wrap(err, "error unmarshalling result into result holder struct")
 		}
