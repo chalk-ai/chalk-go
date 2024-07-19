@@ -33,6 +33,22 @@ type scopeTrie struct {
 	Children map[string]*scopeTrie
 }
 
+func (s *scopeTrie) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *scopeTrie) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
+	}
+	firstPart := fqnParts[0]
+	kid := s.Children[firstPart]
+	if kid == nil {
+		s.Children[firstPart] = &scopeTrie{}
+	}
+	s.Children[firstPart].add(fqnParts[1:])
+}
+
 // initFeaturesScoped is a recursive function that:
 //
 //  1. If `targetFqn == ""`:
@@ -60,10 +76,6 @@ func (fi *featureInitializer) initFeatures(
 	}
 
 	namespace := structValue.Type().Name()
-	if cumulativeFqn == "" && namespace != "" {
-		cumulativeFqn = SnakeCase(namespace) + "."
-	}
-
 	if isVisited, ok := visited[namespace]; ok && isVisited {
 		// Found a cycle. Just return.
 		return nil
