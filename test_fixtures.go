@@ -45,6 +45,10 @@ type levelTwoNest struct {
 	ShouldAlwaysBeNil *string
 }
 
+type dclassWithOverrides struct {
+	CamelName *string `dataclass_field:"true" name:"camelName"`
+}
+
 type allTypes struct {
 	Int                    *int64
 	Float                  *float64
@@ -61,6 +65,7 @@ type allTypes struct {
 	DataclassWithList      *favoriteThings
 	DataclassWithNils      *possessions
 	DataclassWithDataclass *child
+	DataclassWithOverrides *dclassWithOverrides
 	Nested                 *levelOneNest
 }
 
