@@ -1000,7 +1000,7 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	multiplier := float64(multiAvg) / float64(singleAvg)
 	assert.True(
 		t,
-		multiplier < 2,
+		multiplier < float64(len(multiData))/float64(len(singleData)),
 		"multiAvg/singleAvg: %v, multiAvg: %v, singleAvg: %v",
 		multiplier, multiAvg, singleAvg,
 	)
