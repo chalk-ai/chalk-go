@@ -322,9 +322,31 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 	}
 
 	if resultHolder != nil {
-		if err := bulkRes.UnmarshalInto([]any{resultHolder}); err != nil {
+		// Create a pointer to an empty slice and unmarshal into that
+		var holderType = reflect.TypeOf(resultHolder)
+		if holderType.Kind() != reflect.Ptr {
+			return OnlineQueryResult{}, errors.Newf(
+				"result holder must be a pointer, found %s",
+				holderType.Kind(),
+			)
+		}
+		var structType = holderType.Elem()
+		var sliceType = reflect.SliceOf(structType)
+		var ptrToSlice = reflect.New(sliceType)
+		if err := bulkRes.UnmarshalInto(ptrToSlice); err != nil {
 			return OnlineQueryResult{}, errors.Wrap(err, "error unmarshalling result into result holder struct")
 		}
+
+		if ptrToSlice.Elem().Len() != 1 {
+			return OnlineQueryResult{}, errors.Newf(
+				"expected 1 element in the intermediate slice after unmarshalling, got %d",
+				ptrToSlice.Elem().Len(),
+			)
+		}
+
+		// Point the result holder to the first element of the slice
+		var holderValue = reflect.ValueOf(resultHolder)
+		holderValue.Elem().Set(ptrToSlice.Elem().Index(0))
 	}
 
 	rows, err := internal.ExtractFeaturesFromTable(bulkRes.ScalarsTable)
