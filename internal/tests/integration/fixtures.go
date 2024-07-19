@@ -24,7 +24,7 @@ type franchiseSet struct {
 }
 
 type location struct {
-	LatLng      *latLng   `dataclass_field:"true"`
+	Latlng      *latLng   `dataclass_field:"true"`
 	Owners      *[]string `dataclass_field:"true"`
 	Coordinates *[]latLng `dataclass_field:"true"`
 }
