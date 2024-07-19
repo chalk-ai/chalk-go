@@ -200,6 +200,18 @@ func (c *clientGrpc) tokenInterceptor() connect.UnaryInterceptorFunc {
 	}
 }
 
+func (c *clientGrpc) getHasManyJson(columns []string, values [][]any) (string, error) {
+	result := struct {
+		Columns []string `json:"columns"`
+		Values  [][]any  `json:"values"`
+	}{
+		Columns: columns,
+		Values:  values,
+	}
+	res, err := json.Marshal(result)
+	return string(res), err
+}
+
 func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	inputsFeather, err := internal.InputsToArrowBytes(args.underlying.inputs)
 	if err != nil {
@@ -371,6 +383,29 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 	}
 
 	for fqn, table := range bulkRes.GroupsTables {
+		if table.NumRows() == 0 {
+			columns := lo.Map(
+				table.Schema().Fields(),
+				func(f arrow.Field, _ int) string {
+					return f.Name
+				},
+			)
+			values := make([][]any, len(columns))
+			jsonRepr, err := c.getHasManyJson(columns, values)
+			if err != nil {
+				return OnlineQueryResult{}, errors.Wrapf(
+					err,
+					"error creating JSON representation for 0-row has-many table for feature '%s'",
+					fqn,
+				)
+			}
+			features[fqn] = FeatureResult{
+				Field: fqn,
+				Value: jsonRepr,
+			}
+			continue
+		}
+
 		rowsHm, err := internal.ExtractFeaturesFromTable(table)
 		if err != nil {
 			return OnlineQueryResult{}, errors.Wrapf(
@@ -379,37 +414,29 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 				fqn,
 			)
 		}
-		if len(rowsHm) == 0 {
-			continue
-		}
 
 		colNames := lo.Keys(rowsHm[0])
 		colValues := make([][]any, 0, len(rowsHm))
 		for _, col := range colNames {
-			vals := lo.Map(rowsHm, func(row map[string]any, _ int) any {
-				return row[col]
-			})
-			colValues = append(colValues, vals)
+			colValues = append(
+				colValues,
+				lo.Map(rowsHm, func(row map[string]any, _ int) any {
+					return row[col]
+				}),
+			)
 		}
-		result := struct {
-			Columns []string `json:"columns"`
-			Values  [][]any  `json:"values"`
-		}{
-			Columns: colNames,
-			Values:  colValues,
-		}
-
-		jsonRepr, err := json.Marshal(result)
+		jsonRepr, err := c.getHasManyJson(colNames, colValues)
 		if err != nil {
 			return OnlineQueryResult{}, errors.Wrapf(
 				err,
-				"error marshalling has-many table for feature '%s' to JSON",
+				"error creating JSON representation for has-many table for feature '%s'",
 				fqn,
 			)
 		}
+
 		features[fqn] = FeatureResult{
 			Field: fqn,
-			Value: string(jsonRepr),
+			Value: jsonRepr,
 		}
 	}
 

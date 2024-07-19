@@ -56,7 +56,7 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 				t.Fatal("Failed unmarshaling result", err)
 			}
 
-			for _, testUser := range []user{implicitUser, explicitUser} {
+			testUserValues := func(testUser user) {
 				assert.Equal(t, *testUser.Id, int64(1))
 				assert.Equal(t, *testUser.Gender, "f")
 				assert.NotNil(t, testUser.Today)
@@ -66,6 +66,8 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 				assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
 				assert.NotNil(t, testUser.FranchiseSet)
 			}
+			testUserValues(implicitUser)
+			testUserValues(explicitUser)
 		})
 	}
 }
