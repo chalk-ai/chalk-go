@@ -874,3 +874,134 @@ func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	assert.Equal(t, "green", (*resultHolders[1].FavoriteColors)[1])
 	assert.Equal(t, "blue", (*resultHolders[1].FavoriteColors)[2])
 }
+
+func benchmarkUnmarshal(t *testing.T, data []FeatureResult, resultHolder any) time.Duration {
+	t.Helper()
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	var sum time.Duration
+	var unmarshalErr error
+	for i := 0; i < 100; i++ {
+		start := time.Now()
+		if unmarshalErr = result.UnmarshalInto(resultHolder); unmarshalErr != (*ClientError)(nil) {
+			t.Fatal(unmarshalErr)
+		}
+		sum += time.Since(start)
+	}
+	return sum / 100
+}
+
+// TestEnsureTimelyUnmarshal tests that we maintain a non-quadratic unmarshal.
+func TestEnsureTimelyUnmarshal(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+
+	// Mimic JSON deser which returns all numbers as `float64`
+	multiData := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
+	}
+	multiFeatures := &allTypes{}
+	multiAvg := benchmarkUnmarshal(t, multiData, multiFeatures)
+	assert.Equal(t, int64(123), *multiFeatures.Int)
+	assert.Equal(t, float64(123), *multiFeatures.Float)
+	assert.Equal(t, "abc", *multiFeatures.String)
+	assert.Equal(t, true, *multiFeatures.Bool)
+	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *multiFeatures.Timestamp)
+	assert.Equal(t, []int64{1, 2, 3}, *multiFeatures.IntList)
+	assert.Equal(t, 2, len(*multiFeatures.NestedIntPointerList))
+	assert.Equal(t, []int64{1, 2}, *(*multiFeatures.NestedIntPointerList)[0])
+	assert.Equal(t, []int64{3, 4}, *(*multiFeatures.NestedIntPointerList)[1])
+	assert.Equal(t, 2, len(*multiFeatures.NestedIntList))
+	assert.Equal(t, []int64{1, 2}, (*multiFeatures.NestedIntList)[0])
+	assert.Equal(t, []int64{3, 4}, (*multiFeatures.NestedIntList)[1])
+	assert.Equal(t, int64(1), *multiFeatures.WindowedInt["1m"])
+	assert.Equal(t, int64(2), *multiFeatures.WindowedInt["5m"])
+	assert.Equal(t, int64(3), *multiFeatures.WindowedInt["1h"])
+	assert.Equal(t, float64(1.0), *multiFeatures.Dataclass.Lat)
+	assert.Equal(t, float64(2.0), *multiFeatures.Dataclass.Lng)
+	assert.Equal(t, 2, len(*multiFeatures.DataclassList))
+	assert.Equal(t, float64(1.0), *(*multiFeatures.DataclassList)[0].Lat)
+	assert.Equal(t, float64(2.0), *(*multiFeatures.DataclassList)[0].Lng)
+	assert.Equal(t, float64(3.0), *(*multiFeatures.DataclassList)[1].Lat)
+	assert.Equal(t, float64(4.0), *(*multiFeatures.DataclassList)[1].Lng)
+	assert.Equal(t, "nested_id", *multiFeatures.Nested.Id)
+	assert.Nil(t, multiFeatures.Nested.ShouldAlwaysBeNil)
+	assert.Nil(t, multiFeatures.Nested.Nested)
+
+	singleData := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+	}
+	singleFeatures := &allTypes{}
+	singleAvg := benchmarkUnmarshal(t, singleData, singleFeatures)
+	assert.Equal(t, int64(123), *singleFeatures.Int)
+
+	multiplier := multiAvg / singleAvg
+	assert.True(
+		t,
+		multiplier < 2,
+		"multiAvg/singleAvg: %v, multiAvg: %v, singleAvg: %v",
+		multiplier, multiAvg, singleAvg,
+	)
+}
