@@ -17,7 +17,7 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 	for _, fixture := range []struct {
 		useGrpc bool
 	}{
-		//{useGrpc: false},
+		{useGrpc: false},
 		{useGrpc: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
@@ -42,25 +42,28 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 					testFeatures.User.FranchiseSet,
 				)
 
-			res, queryErr := client.OnlineQuery(req, nil)
+			var implicitUser user
+			res, queryErr := client.OnlineQuery(req, &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
-			var testUser user
-			err = res.UnmarshalInto(&testUser)
-			// TODO: We need to fix this nil check
-			//       to just be `!= nil`
-			if err != (*chalk.ClientError)(nil) {
+
+			var explicitUser user
+			err = res.UnmarshalInto(&explicitUser)
+			if err != nil {
 				t.Fatal("Failed unmarshaling result", err)
 			}
-			assert.Equal(t, *testUser.Id, int64(1))
-			assert.Equal(t, *testUser.Gender, "f")
-			assert.NotNil(t, testUser.Today)
-			assert.Equal(t, *testUser.NiceNewFeature, int64(9))
-			assert.Equal(t, *testUser.SocureScore, 123.0)
-			assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
-			assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
-			assert.NotNil(t, testUser.FranchiseSet)
+
+			for _, testUser := range []user{implicitUser, explicitUser} {
+				assert.Equal(t, *testUser.Id, int64(1))
+				assert.Equal(t, *testUser.Gender, "f")
+				assert.NotNil(t, testUser.Today)
+				assert.Equal(t, *testUser.NiceNewFeature, int64(9))
+				assert.Equal(t, *testUser.SocureScore, 123.0)
+				assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
+				assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
+				assert.NotNil(t, testUser.FranchiseSet)
+			}
 		})
 	}
 }
