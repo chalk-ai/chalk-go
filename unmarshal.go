@@ -168,7 +168,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	}
 
 	namespace := SnakeCase(structValue.Type().Name())
-	nsScope := scope.Children[namespace]
+	nsScope := scope.children[namespace]
 	if nsScope == nil {
 		return &ClientError{
 			errors.Newf("Scope of fields to initialize not found for namespace '%s'", nsScope).Error(),

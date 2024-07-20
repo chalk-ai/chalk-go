@@ -11,12 +11,11 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	initializer := NewFeatureInitializer()
-	return initializer.initFeatures(structValue, "", make(map[string]bool), nil)
+	return NewFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
 type scopeTrie struct {
-	Children map[string]*scopeTrie
+	children map[string]*scopeTrie
 }
 
 func (s *scopeTrie) addStr(fqn string) {
@@ -28,13 +27,13 @@ func (s *scopeTrie) add(fqnParts []string) {
 		return
 	}
 	firstPart := fqnParts[0]
-	if s.Children == nil {
-		s.Children = map[string]*scopeTrie{}
+	if s.children == nil {
+		s.children = map[string]*scopeTrie{}
 	}
-	if _, found := s.Children[firstPart]; !found {
-		s.Children[firstPart] = &scopeTrie{}
+	if _, found := s.children[firstPart]; !found {
+		s.children[firstPart] = &scopeTrie{}
 	}
-	s.Children[firstPart].add(fqnParts[1:])
+	s.children[firstPart].add(fqnParts[1:])
 }
 
 type featureInitializer struct {
@@ -115,7 +114,7 @@ func (fi *featureInitializer) initFeatures(
 
 		inScope := true
 		if scope != nil {
-			_, inScope = scope.Children[resolvedName]
+			_, inScope = scope.children[resolvedName]
 		}
 
 		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && isScoped {
@@ -153,7 +152,7 @@ func (fi *featureInitializer) initFeatures(
 					featureSet := reflect.New(f.Type().Elem())
 					f.Set(featureSet)
 				}
-				newScope := scope.Children[resolvedName]
+				newScope := scope.children[resolvedName]
 				if newScope == nil {
 					return errors.Newf("scope not found for feature '%s'", cumulativeFqn)
 				}
@@ -201,9 +200,9 @@ func (fi *featureInitializer) initFeatures(
 					return errors.Wrap(err, "error parsing bucket duration: %s")
 				}
 				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
-				windowFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
+				bucketFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
 				if isScoped {
-					if _, bucketInScope := scope.Children[updatedResolvedName]; !bucketInScope {
+					if _, bucketInScope := scope.children[updatedResolvedName]; !bucketInScope {
 						continue
 					}
 					// Make map only if one of the bucket features need to be set
@@ -211,12 +210,12 @@ func (fi *featureInitializer) initFeatures(
 					if f.IsNil() {
 						f.Set(reflect.MakeMap(f.Type()))
 					}
-					fi.fieldsMap[windowFqn] = append(fi.fieldsMap[windowFqn], f)
+					fi.fieldsMap[bucketFqn] = append(fi.fieldsMap[bucketFqn], f)
 				} else {
 					if f.IsNil() {
 						f.Set(reflect.MakeMap(f.Type()))
 					}
-					feature := Feature{Fqn: windowFqn}
+					feature := Feature{Fqn: bucketFqn}
 					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
 					f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 				}

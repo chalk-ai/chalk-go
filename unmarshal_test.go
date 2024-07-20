@@ -977,10 +977,9 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	deltaPerExtraItem := float64(delta) / float64(lenDelta)
 	singleItemDuration := float64(singleAvg)
 	multiplier := deltaPerExtraItem / singleItemDuration
-	assert.True(
-		t,
-		multiplier < 0.1,
+	t.Logf(
 		"multiplier: %f, deltaPerExtraItem: %f, singleItemDuration: %f",
 		multiplier, deltaPerExtraItem, singleItemDuration,
 	)
+	assert.True(t, multiplier < 0.1, "multiplier should be less than 0.1")
 }
