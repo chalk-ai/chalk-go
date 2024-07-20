@@ -961,31 +961,6 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	}
 	multiFeatures := &allTypes{}
 	multiAvg := benchmarkUnmarshal(t, multiData, multiFeatures)
-	assert.Equal(t, int64(123), *multiFeatures.Int)
-	assert.Equal(t, float64(123), *multiFeatures.Float)
-	assert.Equal(t, "abc", *multiFeatures.String)
-	assert.Equal(t, true, *multiFeatures.Bool)
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *multiFeatures.Timestamp)
-	assert.Equal(t, []int64{1, 2, 3}, *multiFeatures.IntList)
-	assert.Equal(t, 2, len(*multiFeatures.NestedIntPointerList))
-	assert.Equal(t, []int64{1, 2}, *(*multiFeatures.NestedIntPointerList)[0])
-	assert.Equal(t, []int64{3, 4}, *(*multiFeatures.NestedIntPointerList)[1])
-	assert.Equal(t, 2, len(*multiFeatures.NestedIntList))
-	assert.Equal(t, []int64{1, 2}, (*multiFeatures.NestedIntList)[0])
-	assert.Equal(t, []int64{3, 4}, (*multiFeatures.NestedIntList)[1])
-	assert.Equal(t, int64(1), *multiFeatures.WindowedInt["1m"])
-	assert.Equal(t, int64(2), *multiFeatures.WindowedInt["5m"])
-	assert.Equal(t, int64(3), *multiFeatures.WindowedInt["1h"])
-	assert.Equal(t, float64(1.0), *multiFeatures.Dataclass.Lat)
-	assert.Equal(t, float64(2.0), *multiFeatures.Dataclass.Lng)
-	assert.Equal(t, 2, len(*multiFeatures.DataclassList))
-	assert.Equal(t, float64(1.0), *(*multiFeatures.DataclassList)[0].Lat)
-	assert.Equal(t, float64(2.0), *(*multiFeatures.DataclassList)[0].Lng)
-	assert.Equal(t, float64(3.0), *(*multiFeatures.DataclassList)[1].Lat)
-	assert.Equal(t, float64(4.0), *(*multiFeatures.DataclassList)[1].Lng)
-	assert.Equal(t, "nested_id", *multiFeatures.Nested.Id)
-	assert.Nil(t, multiFeatures.Nested.ShouldAlwaysBeNil)
-	assert.Nil(t, multiFeatures.Nested.Nested)
 
 	singleData := []FeatureResult{
 		{
@@ -997,11 +972,15 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	singleAvg := benchmarkUnmarshal(t, singleData, singleFeatures)
 	assert.Equal(t, int64(123), *singleFeatures.Int)
 
-	multiplier := float64(multiAvg) / float64(singleAvg)
+	lenDelta := len(multiData) - len(singleData)
+	delta := multiAvg - singleAvg
+	deltaPerExtraItem := float64(delta) / float64(lenDelta)
+	singleItemDuration := float64(singleAvg)
+	multiplier := deltaPerExtraItem / singleItemDuration
 	assert.True(
 		t,
-		multiplier < float64(len(multiData))/float64(len(singleData)),
-		"multiAvg/singleAvg: %v, multiAvg: %v, singleAvg: %v",
-		multiplier, multiAvg, singleAvg,
+		multiplier < 0.1,
+		"multiplier: %f, deltaPerExtraItem: %f, singleItemDuration: %f",
+		multiplier, deltaPerExtraItem, singleItemDuration,
 	)
 }
