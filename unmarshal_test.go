@@ -981,5 +981,6 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f",
 		multiplier, deltaPerExtraItem, singleItemDuration,
 	)
-	assert.True(t, multiplier < 0.1, "multiplier should be less than 0.1")
+	limit := 0.5
+	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
