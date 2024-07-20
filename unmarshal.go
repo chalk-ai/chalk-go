@@ -159,7 +159,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 	fieldMap := map[string][]reflect.Value{}
 
-	initializer := NewFeatureInitializer(initializerModeUnmarshal)
+	initializer := NewFeatureInitializer()
 	scope, err := buildScope(lo.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{

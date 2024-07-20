@@ -11,7 +11,7 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	initializer := NewFeatureInitializer(initializerModeAsFeature)
+	initializer := NewFeatureInitializer()
 	return initializer.initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
@@ -39,26 +39,11 @@ func (s *scopeTrie) add(fqnParts []string) {
 
 type featureInitializer struct {
 	fieldsMap map[string][]reflect.Value
-	isScoped  bool
 }
 
-type initializerMode string
-
-var (
-	// For creating `Feature` structs that contains
-	// an FQN field. Used for specifying query params.
-	initializerModeAsFeature = initializerMode("as_feature")
-
-	// For unmarshalling into feature structs. We initialize
-	// the fields, then another function takes care of setting
-	// the fields to the correct value.
-	initializerModeUnmarshal = initializerMode("unmarshal")
-)
-
-func NewFeatureInitializer(mode initializerMode) *featureInitializer {
+func NewFeatureInitializer() *featureInitializer {
 	return &featureInitializer{
 		fieldsMap: map[string][]reflect.Value{},
-		isScoped:  mode == initializerModeUnmarshal,
 	}
 }
 
@@ -68,7 +53,7 @@ func NewFeatureInitializer(mode initializerMode) *featureInitializer {
 //     Initializes all features in the struct that is passed in. Each feature is initialized
 //     as a pointer to a Feature struct with the appropriate FQN.
 //
-//  2. If is scoped:
+//  2. If scoped:
 //     Only the features that are in scope (stored in the form of a trie) are initialized.
 //     In scope means that the feature is requested as an output and is returned in the
 //     query response.
@@ -78,10 +63,7 @@ func (fi *featureInitializer) initFeatures(
 	visited map[string]bool,
 	scope *scopeTrie,
 ) error {
-	if fi.isScoped && scope == nil {
-		return errors.New("scope cannot be nil when initializing features in a scoped manner")
-	}
-
+	isScoped := scope != nil
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"feature initialization function argument must be a reflect.Value"+
@@ -136,7 +118,7 @@ func (fi *featureInitializer) initFeatures(
 			_, inScope = scope.Children[resolvedName]
 		}
 
-		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && fi.isScoped {
+		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && isScoped {
 			// If dataclasses are being initialized for purposes
 			// of specifying query params, we want it to go to
 			// the next block where we initialize it the same way
@@ -166,7 +148,7 @@ func (fi *featureInitializer) initFeatures(
 				return ptrErr
 			}
 
-			if fi.isScoped {
+			if isScoped {
 				if f.IsNil() {
 					featureSet := reflect.New(f.Type().Elem())
 					f.Set(featureSet)
@@ -220,7 +202,7 @@ func (fi *featureInitializer) initFeatures(
 				}
 				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
 				windowFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
-				if fi.isScoped {
+				if isScoped {
 					if _, bucketInScope := scope.Children[updatedResolvedName]; !bucketInScope {
 						continue
 					}
@@ -249,7 +231,7 @@ func (fi *featureInitializer) initFeatures(
 				return ptrErr
 			}
 
-			if fi.isScoped {
+			if isScoped {
 				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 			} else {
 				// Create new Feature instance and point to it.
