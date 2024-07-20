@@ -35,9 +35,6 @@ const (
 const (
 	// BillingServiceGetNodesProcedure is the fully-qualified name of the BillingService's GetNodes RPC.
 	BillingServiceGetNodesProcedure = "/chalk.server.v1.BillingService/GetNodes"
-	// BillingServiceGetNodesAndPodsProcedure is the fully-qualified name of the BillingService's
-	// GetNodesAndPods RPC.
-	BillingServiceGetNodesAndPodsProcedure = "/chalk.server.v1.BillingService/GetNodesAndPods"
 	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
 	// GetUsageChart RPC.
 	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
@@ -50,7 +47,6 @@ const (
 var (
 	billingServiceServiceDescriptor                   = v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService")
 	billingServiceGetNodesMethodDescriptor            = billingServiceServiceDescriptor.Methods().ByName("GetNodes")
-	billingServiceGetNodesAndPodsMethodDescriptor     = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPods")
 	billingServiceGetUsageChartMethodDescriptor       = billingServiceServiceDescriptor.Methods().ByName("GetUsageChart")
 	billingServiceGetUtilizationRatesMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetUtilizationRates")
 )
@@ -58,7 +54,6 @@ var (
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
 type BillingServiceClient interface {
 	GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error)
-	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
 	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
 }
@@ -77,13 +72,6 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BillingServiceGetNodesProcedure,
 			connect.WithSchema(billingServiceGetNodesMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		getNodesAndPods: connect.NewClient[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse](
-			httpClient,
-			baseURL+BillingServiceGetNodesAndPodsProcedure,
-			connect.WithSchema(billingServiceGetNodesAndPodsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -107,7 +95,6 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 // billingServiceClient implements BillingServiceClient.
 type billingServiceClient struct {
 	getNodes            *connect.Client[v1.GetNodesRequest, v1.GetNodesResponse]
-	getNodesAndPods     *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
 	getUsageChart       *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 }
@@ -115,11 +102,6 @@ type billingServiceClient struct {
 // GetNodes calls chalk.server.v1.BillingService.GetNodes.
 func (c *billingServiceClient) GetNodes(ctx context.Context, req *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error) {
 	return c.getNodes.CallUnary(ctx, req)
-}
-
-// GetNodesAndPods calls chalk.server.v1.BillingService.GetNodesAndPods.
-func (c *billingServiceClient) GetNodesAndPods(ctx context.Context, req *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error) {
-	return c.getNodesAndPods.CallUnary(ctx, req)
 }
 
 // GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
@@ -135,7 +117,6 @@ func (c *billingServiceClient) GetUtilizationRates(ctx context.Context, req *con
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error)
-	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
 	GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error)
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
 }
@@ -150,13 +131,6 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		BillingServiceGetNodesProcedure,
 		svc.GetNodes,
 		connect.WithSchema(billingServiceGetNodesMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	billingServiceGetNodesAndPodsHandler := connect.NewUnaryHandler(
-		BillingServiceGetNodesAndPodsProcedure,
-		svc.GetNodesAndPods,
-		connect.WithSchema(billingServiceGetNodesAndPodsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -178,8 +152,6 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		switch r.URL.Path {
 		case BillingServiceGetNodesProcedure:
 			billingServiceGetNodesHandler.ServeHTTP(w, r)
-		case BillingServiceGetNodesAndPodsProcedure:
-			billingServiceGetNodesAndPodsHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
@@ -195,10 +167,6 @@ type UnimplementedBillingServiceHandler struct{}
 
 func (UnimplementedBillingServiceHandler) GetNodes(context.Context, *connect.Request[v1.GetNodesRequest]) (*connect.Response[v1.GetNodesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodes is not implemented"))
-}
-
-func (UnimplementedBillingServiceHandler) GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodesAndPods is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {
