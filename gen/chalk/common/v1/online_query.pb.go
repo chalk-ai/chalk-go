@@ -1359,6 +1359,117 @@ func (x *QueryExplainInfo) GetPlanString() string {
 	return ""
 }
 
+// UPLOAD FEATURES
+type UploadFeaturesBulkRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	InputsFeather []byte                   `protobuf:"bytes,1,opt,name=inputs_feather,json=inputsFeather,proto3" json:"inputs_feather,omitempty"`
+	Now           []*timestamppb.Timestamp `protobuf:"bytes,3,rep,name=now,proto3" json:"now,omitempty"`
+	BodyType      FeatherBodyType          `protobuf:"varint,7,opt,name=body_type,json=bodyType,proto3,enum=chalk.common.v1.FeatherBodyType" json:"body_type,omitempty"`
+}
+
+func (x *UploadFeaturesBulkRequest) Reset() {
+	*x = UploadFeaturesBulkRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_chalk_common_v1_online_query_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UploadFeaturesBulkRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadFeaturesBulkRequest) ProtoMessage() {}
+
+func (x *UploadFeaturesBulkRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_common_v1_online_query_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadFeaturesBulkRequest.ProtoReflect.Descriptor instead.
+func (*UploadFeaturesBulkRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_common_v1_online_query_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *UploadFeaturesBulkRequest) GetInputsFeather() []byte {
+	if x != nil {
+		return x.InputsFeather
+	}
+	return nil
+}
+
+func (x *UploadFeaturesBulkRequest) GetNow() []*timestamppb.Timestamp {
+	if x != nil {
+		return x.Now
+	}
+	return nil
+}
+
+func (x *UploadFeaturesBulkRequest) GetBodyType() FeatherBodyType {
+	if x != nil {
+		return x.BodyType
+	}
+	return FeatherBodyType_FEATHER_BODY_TYPE_UNSPECIFIED
+}
+
+type UploadFeaturesBulkResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Errors []*ChalkError `protobuf:"bytes,1,rep,name=errors,proto3" json:"errors,omitempty"`
+}
+
+func (x *UploadFeaturesBulkResponse) Reset() {
+	*x = UploadFeaturesBulkResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_chalk_common_v1_online_query_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UploadFeaturesBulkResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UploadFeaturesBulkResponse) ProtoMessage() {}
+
+func (x *UploadFeaturesBulkResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_common_v1_online_query_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UploadFeaturesBulkResponse.ProtoReflect.Descriptor instead.
+func (*UploadFeaturesBulkResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_common_v1_online_query_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *UploadFeaturesBulkResponse) GetErrors() []*ChalkError {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
 var File_chalk_common_v1_online_query_proto protoreflect.FileDescriptor
 
 var file_chalk_common_v1_online_query_proto_rawDesc = []byte{
@@ -1660,27 +1771,43 @@ var file_chalk_common_v1_online_query_proto_rawDesc = []byte{
 	0x70, 0x6c, 0x61, 0x6e, 0x5f, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x48, 0x00, 0x52, 0x0a, 0x70, 0x6c, 0x61, 0x6e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x88,
 	0x01, 0x01, 0x42, 0x0e, 0x0a, 0x0c, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x5f, 0x73, 0x74, 0x72, 0x69,
-	0x6e, 0x67, 0x2a, 0x77, 0x0a, 0x0f, 0x46, 0x65, 0x61, 0x74, 0x68, 0x65, 0x72, 0x42, 0x6f, 0x64,
-	0x79, 0x54, 0x79, 0x70, 0x65, 0x12, 0x21, 0x0a, 0x1d, 0x46, 0x45, 0x41, 0x54, 0x48, 0x45, 0x52,
-	0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45,
-	0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x1b, 0x0a, 0x17, 0x46, 0x45, 0x41, 0x54,
-	0x48, 0x45, 0x52, 0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x54, 0x41,
-	0x42, 0x4c, 0x45, 0x10, 0x01, 0x12, 0x24, 0x0a, 0x20, 0x46, 0x45, 0x41, 0x54, 0x48, 0x45, 0x52,
-	0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x52, 0x45, 0x43, 0x4f, 0x52,
-	0x44, 0x5f, 0x42, 0x41, 0x54, 0x43, 0x48, 0x45, 0x53, 0x10, 0x02, 0x42, 0xc0, 0x01, 0x0a, 0x13,
-	0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
-	0x2e, 0x76, 0x31, 0x42, 0x10, 0x4f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61, 0x69, 0x2f, 0x63, 0x68, 0x61,
-	0x6c, 0x6b, 0x2d, 0x67, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2f,
-	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x3b, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
-	0x76, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x43, 0x58, 0xaa, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b,
-	0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0f, 0x43, 0x68, 0x61,
-	0x6c, 0x6b, 0x5c, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1b, 0x43,
-	0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x5c, 0x56, 0x31, 0x5c, 0x47,
-	0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x11, 0x43, 0x68, 0x61,
-	0x6c, 0x6b, 0x3a, 0x3a, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x67, 0x22, 0xaf, 0x01, 0x0a, 0x19, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x46, 0x65, 0x61,
+	0x74, 0x75, 0x72, 0x65, 0x73, 0x42, 0x75, 0x6c, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x25, 0x0a, 0x0e, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x73, 0x5f, 0x66, 0x65, 0x61, 0x74, 0x68,
+	0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0d, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x73,
+	0x46, 0x65, 0x61, 0x74, 0x68, 0x65, 0x72, 0x12, 0x2c, 0x0a, 0x03, 0x6e, 0x6f, 0x77, 0x18, 0x03,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
+	0x52, 0x03, 0x6e, 0x6f, 0x77, 0x12, 0x3d, 0x0a, 0x09, 0x62, 0x6f, 0x64, 0x79, 0x5f, 0x74, 0x79,
+	0x70, 0x65, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x20, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b,
+	0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x46, 0x65, 0x61, 0x74, 0x68,
+	0x65, 0x72, 0x42, 0x6f, 0x64, 0x79, 0x54, 0x79, 0x70, 0x65, 0x52, 0x08, 0x62, 0x6f, 0x64, 0x79,
+	0x54, 0x79, 0x70, 0x65, 0x22, 0x51, 0x0a, 0x1a, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x46, 0x65,
+	0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x42, 0x75, 0x6c, 0x6b, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x33, 0x0a, 0x06, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f,
+	0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52,
+	0x06, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x2a, 0x77, 0x0a, 0x0f, 0x46, 0x65, 0x61, 0x74, 0x68,
+	0x65, 0x72, 0x42, 0x6f, 0x64, 0x79, 0x54, 0x79, 0x70, 0x65, 0x12, 0x21, 0x0a, 0x1d, 0x46, 0x45,
+	0x41, 0x54, 0x48, 0x45, 0x52, 0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f,
+	0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x1b, 0x0a,
+	0x17, 0x46, 0x45, 0x41, 0x54, 0x48, 0x45, 0x52, 0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59,
+	0x50, 0x45, 0x5f, 0x54, 0x41, 0x42, 0x4c, 0x45, 0x10, 0x01, 0x12, 0x24, 0x0a, 0x20, 0x46, 0x45,
+	0x41, 0x54, 0x48, 0x45, 0x52, 0x5f, 0x42, 0x4f, 0x44, 0x59, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f,
+	0x52, 0x45, 0x43, 0x4f, 0x52, 0x44, 0x5f, 0x42, 0x41, 0x54, 0x43, 0x48, 0x45, 0x53, 0x10, 0x02,
+	0x42, 0xc0, 0x01, 0x0a, 0x13, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63,
+	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x42, 0x10, 0x4f, 0x6e, 0x6c, 0x69, 0x6e, 0x65,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61,
+	0x69, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x67, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63,
+	0x68, 0x61, 0x6c, 0x6b, 0x2f, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x3b, 0x63,
+	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x43, 0x58, 0xaa, 0x02, 0x0f,
+	0x43, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x56, 0x31, 0xca,
+	0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x5c, 0x56,
+	0x31, 0xe2, 0x02, 0x1b, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
+	0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea,
+	0x02, 0x11, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x3a, 0x3a, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x3a,
+	0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1696,7 +1823,7 @@ func file_chalk_common_v1_online_query_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_common_v1_online_query_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_common_v1_online_query_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_chalk_common_v1_online_query_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_chalk_common_v1_online_query_proto_goTypes = []any{
 	(FeatherBodyType)(0),               // 0: chalk.common.v1.FeatherBodyType
 	(*OnlineQueryRequest)(nil),         // 1: chalk.common.v1.OnlineQueryRequest
@@ -1717,65 +1844,70 @@ var file_chalk_common_v1_online_query_proto_goTypes = []any{
 	(*FeatureMeta)(nil),                // 16: chalk.common.v1.FeatureMeta
 	(*OnlineQueryMetadata)(nil),        // 17: chalk.common.v1.OnlineQueryMetadata
 	(*QueryExplainInfo)(nil),           // 18: chalk.common.v1.QueryExplainInfo
-	nil,                                // 19: chalk.common.v1.OnlineQueryRequest.InputsEntry
-	nil,                                // 20: chalk.common.v1.OnlineQueryRequest.StalenessEntry
-	nil,                                // 21: chalk.common.v1.OnlineQueryBulkRequest.StalenessEntry
-	nil,                                // 22: chalk.common.v1.OnlineQueryContext.OptionsEntry
-	nil,                                // 23: chalk.common.v1.OnlineQueryResponseOptions.MetadataEntry
-	nil,                                // 24: chalk.common.v1.OnlineQueryBulkResponse.GroupsDataEntry
-	nil,                                // 25: chalk.common.v1.OnlineQueryMetadata.MetadataEntry
-	(*timestamppb.Timestamp)(nil),      // 26: google.protobuf.Timestamp
-	(*ChalkError)(nil),                 // 27: chalk.common.v1.ChalkError
-	(*structpb.Value)(nil),             // 28: google.protobuf.Value
-	(*durationpb.Duration)(nil),        // 29: google.protobuf.Duration
+	(*UploadFeaturesBulkRequest)(nil),  // 19: chalk.common.v1.UploadFeaturesBulkRequest
+	(*UploadFeaturesBulkResponse)(nil), // 20: chalk.common.v1.UploadFeaturesBulkResponse
+	nil,                                // 21: chalk.common.v1.OnlineQueryRequest.InputsEntry
+	nil,                                // 22: chalk.common.v1.OnlineQueryRequest.StalenessEntry
+	nil,                                // 23: chalk.common.v1.OnlineQueryBulkRequest.StalenessEntry
+	nil,                                // 24: chalk.common.v1.OnlineQueryContext.OptionsEntry
+	nil,                                // 25: chalk.common.v1.OnlineQueryResponseOptions.MetadataEntry
+	nil,                                // 26: chalk.common.v1.OnlineQueryBulkResponse.GroupsDataEntry
+	nil,                                // 27: chalk.common.v1.OnlineQueryMetadata.MetadataEntry
+	(*timestamppb.Timestamp)(nil),      // 28: google.protobuf.Timestamp
+	(*ChalkError)(nil),                 // 29: chalk.common.v1.ChalkError
+	(*structpb.Value)(nil),             // 30: google.protobuf.Value
+	(*durationpb.Duration)(nil),        // 31: google.protobuf.Duration
 }
 var file_chalk_common_v1_online_query_proto_depIdxs = []int32{
-	19, // 0: chalk.common.v1.OnlineQueryRequest.inputs:type_name -> chalk.common.v1.OnlineQueryRequest.InputsEntry
+	21, // 0: chalk.common.v1.OnlineQueryRequest.inputs:type_name -> chalk.common.v1.OnlineQueryRequest.InputsEntry
 	5,  // 1: chalk.common.v1.OnlineQueryRequest.outputs:type_name -> chalk.common.v1.OutputExpr
-	26, // 2: chalk.common.v1.OnlineQueryRequest.now:type_name -> google.protobuf.Timestamp
-	20, // 3: chalk.common.v1.OnlineQueryRequest.staleness:type_name -> chalk.common.v1.OnlineQueryRequest.StalenessEntry
+	28, // 2: chalk.common.v1.OnlineQueryRequest.now:type_name -> google.protobuf.Timestamp
+	22, // 3: chalk.common.v1.OnlineQueryRequest.staleness:type_name -> chalk.common.v1.OnlineQueryRequest.StalenessEntry
 	6,  // 4: chalk.common.v1.OnlineQueryRequest.context:type_name -> chalk.common.v1.OnlineQueryContext
 	7,  // 5: chalk.common.v1.OnlineQueryRequest.response_options:type_name -> chalk.common.v1.OnlineQueryResponseOptions
 	5,  // 6: chalk.common.v1.OnlineQueryBulkRequest.outputs:type_name -> chalk.common.v1.OutputExpr
-	26, // 7: chalk.common.v1.OnlineQueryBulkRequest.now:type_name -> google.protobuf.Timestamp
-	21, // 8: chalk.common.v1.OnlineQueryBulkRequest.staleness:type_name -> chalk.common.v1.OnlineQueryBulkRequest.StalenessEntry
+	28, // 7: chalk.common.v1.OnlineQueryBulkRequest.now:type_name -> google.protobuf.Timestamp
+	23, // 8: chalk.common.v1.OnlineQueryBulkRequest.staleness:type_name -> chalk.common.v1.OnlineQueryBulkRequest.StalenessEntry
 	6,  // 9: chalk.common.v1.OnlineQueryBulkRequest.context:type_name -> chalk.common.v1.OnlineQueryContext
 	7,  // 10: chalk.common.v1.OnlineQueryBulkRequest.response_options:type_name -> chalk.common.v1.OnlineQueryResponseOptions
 	0,  // 11: chalk.common.v1.OnlineQueryBulkRequest.body_type:type_name -> chalk.common.v1.FeatherBodyType
 	1,  // 12: chalk.common.v1.GenericSingleQuery.single_request:type_name -> chalk.common.v1.OnlineQueryRequest
 	2,  // 13: chalk.common.v1.GenericSingleQuery.bulk_request:type_name -> chalk.common.v1.OnlineQueryBulkRequest
 	3,  // 14: chalk.common.v1.OnlineQueryMultiRequest.queries:type_name -> chalk.common.v1.GenericSingleQuery
-	22, // 15: chalk.common.v1.OnlineQueryContext.options:type_name -> chalk.common.v1.OnlineQueryContext.OptionsEntry
+	24, // 15: chalk.common.v1.OnlineQueryContext.options:type_name -> chalk.common.v1.OnlineQueryContext.OptionsEntry
 	8,  // 16: chalk.common.v1.OnlineQueryResponseOptions.explain:type_name -> chalk.common.v1.ExplainOptions
 	9,  // 17: chalk.common.v1.OnlineQueryResponseOptions.encoding_options:type_name -> chalk.common.v1.FeatureEncodingOptions
-	23, // 18: chalk.common.v1.OnlineQueryResponseOptions.metadata:type_name -> chalk.common.v1.OnlineQueryResponseOptions.MetadataEntry
+	25, // 18: chalk.common.v1.OnlineQueryResponseOptions.metadata:type_name -> chalk.common.v1.OnlineQueryResponseOptions.MetadataEntry
 	14, // 19: chalk.common.v1.OnlineQueryResponse.data:type_name -> chalk.common.v1.OnlineQueryResult
-	27, // 20: chalk.common.v1.OnlineQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	29, // 20: chalk.common.v1.OnlineQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
 	17, // 21: chalk.common.v1.OnlineQueryResponse.response_meta:type_name -> chalk.common.v1.OnlineQueryMetadata
-	24, // 22: chalk.common.v1.OnlineQueryBulkResponse.groups_data:type_name -> chalk.common.v1.OnlineQueryBulkResponse.GroupsDataEntry
-	27, // 23: chalk.common.v1.OnlineQueryBulkResponse.errors:type_name -> chalk.common.v1.ChalkError
+	26, // 22: chalk.common.v1.OnlineQueryBulkResponse.groups_data:type_name -> chalk.common.v1.OnlineQueryBulkResponse.GroupsDataEntry
+	29, // 23: chalk.common.v1.OnlineQueryBulkResponse.errors:type_name -> chalk.common.v1.ChalkError
 	17, // 24: chalk.common.v1.OnlineQueryBulkResponse.response_meta:type_name -> chalk.common.v1.OnlineQueryMetadata
 	10, // 25: chalk.common.v1.GenericSingleResponse.single_response:type_name -> chalk.common.v1.OnlineQueryResponse
 	11, // 26: chalk.common.v1.GenericSingleResponse.bulk_response:type_name -> chalk.common.v1.OnlineQueryBulkResponse
 	12, // 27: chalk.common.v1.OnlineQueryMultiResponse.responses:type_name -> chalk.common.v1.GenericSingleResponse
-	27, // 28: chalk.common.v1.OnlineQueryMultiResponse.errors:type_name -> chalk.common.v1.ChalkError
+	29, // 28: chalk.common.v1.OnlineQueryMultiResponse.errors:type_name -> chalk.common.v1.ChalkError
 	15, // 29: chalk.common.v1.OnlineQueryResult.results:type_name -> chalk.common.v1.FeatureResult
-	28, // 30: chalk.common.v1.FeatureResult.pkey:type_name -> google.protobuf.Value
-	28, // 31: chalk.common.v1.FeatureResult.value:type_name -> google.protobuf.Value
-	27, // 32: chalk.common.v1.FeatureResult.error:type_name -> chalk.common.v1.ChalkError
-	26, // 33: chalk.common.v1.FeatureResult.ts:type_name -> google.protobuf.Timestamp
+	30, // 30: chalk.common.v1.FeatureResult.pkey:type_name -> google.protobuf.Value
+	30, // 31: chalk.common.v1.FeatureResult.value:type_name -> google.protobuf.Value
+	29, // 32: chalk.common.v1.FeatureResult.error:type_name -> chalk.common.v1.ChalkError
+	28, // 33: chalk.common.v1.FeatureResult.ts:type_name -> google.protobuf.Timestamp
 	16, // 34: chalk.common.v1.FeatureResult.meta:type_name -> chalk.common.v1.FeatureMeta
-	29, // 35: chalk.common.v1.OnlineQueryMetadata.execution_duration:type_name -> google.protobuf.Duration
-	26, // 36: chalk.common.v1.OnlineQueryMetadata.query_timestamp:type_name -> google.protobuf.Timestamp
+	31, // 35: chalk.common.v1.OnlineQueryMetadata.execution_duration:type_name -> google.protobuf.Duration
+	28, // 36: chalk.common.v1.OnlineQueryMetadata.query_timestamp:type_name -> google.protobuf.Timestamp
 	18, // 37: chalk.common.v1.OnlineQueryMetadata.explain_output:type_name -> chalk.common.v1.QueryExplainInfo
-	25, // 38: chalk.common.v1.OnlineQueryMetadata.metadata:type_name -> chalk.common.v1.OnlineQueryMetadata.MetadataEntry
-	28, // 39: chalk.common.v1.OnlineQueryRequest.InputsEntry.value:type_name -> google.protobuf.Value
-	28, // 40: chalk.common.v1.OnlineQueryContext.OptionsEntry.value:type_name -> google.protobuf.Value
-	41, // [41:41] is the sub-list for method output_type
-	41, // [41:41] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	27, // 38: chalk.common.v1.OnlineQueryMetadata.metadata:type_name -> chalk.common.v1.OnlineQueryMetadata.MetadataEntry
+	28, // 39: chalk.common.v1.UploadFeaturesBulkRequest.now:type_name -> google.protobuf.Timestamp
+	0,  // 40: chalk.common.v1.UploadFeaturesBulkRequest.body_type:type_name -> chalk.common.v1.FeatherBodyType
+	29, // 41: chalk.common.v1.UploadFeaturesBulkResponse.errors:type_name -> chalk.common.v1.ChalkError
+	30, // 42: chalk.common.v1.OnlineQueryRequest.InputsEntry.value:type_name -> google.protobuf.Value
+	30, // 43: chalk.common.v1.OnlineQueryContext.OptionsEntry.value:type_name -> google.protobuf.Value
+	44, // [44:44] is the sub-list for method output_type
+	44, // [44:44] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_chalk_common_v1_online_query_proto_init() }
@@ -2001,6 +2133,30 @@ func file_chalk_common_v1_online_query_proto_init() {
 				return nil
 			}
 		}
+		file_chalk_common_v1_online_query_proto_msgTypes[18].Exporter = func(v any, i int) any {
+			switch v := v.(*UploadFeaturesBulkRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_chalk_common_v1_online_query_proto_msgTypes[19].Exporter = func(v any, i int) any {
+			switch v := v.(*UploadFeaturesBulkResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_chalk_common_v1_online_query_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_common_v1_online_query_proto_msgTypes[2].OneofWrappers = []any{
@@ -2023,7 +2179,7 @@ func file_chalk_common_v1_online_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_common_v1_online_query_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   25,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
