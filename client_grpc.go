@@ -23,6 +23,7 @@ var (
 	headerKeyDeploymentType = "x-chalk-deployment-type"
 	headerKeyEnvironmentId  = "x-chalk-env-id"
 	headerKeyServerType     = "x-chalk-server"
+	headerKeyTraceId        = "x-chalk-trace-id"
 
 	serverTypeApi    = "go-api"
 	serverTypeEngine = "engine"
@@ -471,7 +472,10 @@ func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesRe
 		}
 		return UploadFeaturesResult{}, newServerError(convertedErrs)
 	}
-	return UploadFeaturesResult{}, nil
+	return UploadFeaturesResult{
+		// TODO: Replace with actual operation ID if we choose to have one for the GRPC endpoint.
+		res.Trailer().Get(headerKeyTraceId),
+	}, nil
 }
 
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
