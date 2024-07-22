@@ -1,7 +1,7 @@
 package chalk
 
 import (
-	"fmt"
+	"github.com/cockroachdb/errors"
 	"reflect"
 )
 
@@ -17,8 +17,10 @@ func (p *UploadFeaturesParams) getConvertedInputsMap() (map[string]any, error) {
 		} else {
 			feature, err := UnwrapFeature(k)
 			if err != nil {
-				msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
-				return nil, &ErrorResponse{ClientError: &ClientError{Message: msg}}
+				return nil, errors.Newf(
+					"Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`",
+					k, k,
+				)
 			}
 			fqn = feature.Fqn
 		}
@@ -28,27 +30,24 @@ func (p *UploadFeaturesParams) getConvertedInputsMap() (map[string]any, error) {
 		if reflect.TypeOf(v).Kind() == reflect.Slice || reflect.TypeOf(v).Kind() == reflect.Array {
 			currLength = reflect.ValueOf(v).Len()
 		} else {
-			return nil, &ErrorResponse{
-				ClientError: &ClientError{
-					Message: fmt.Sprintf("Values for feature '%s' must be a slice or array", fqn),
-				},
-			}
+			return nil, errors.Newf("Values for feature '%s' must be a slice or array", fqn)
 		}
 
 		if allLength == -1 {
 			allLength = currLength
 		}
 		if allLength != currLength {
-			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, fqn, allLength),
-			}
-			return nil, &ErrorResponse{ClientError: err}
+			return nil, errors.Newf(
+				"All input slices or arrays must be the same length - "+
+					"found length %d for feature '%s' but expected length %d",
+				currLength, fqn, allLength,
+			)
 		}
 		if currLength == 0 {
-			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, fqn),
-			}
-			return nil, &ErrorResponse{ClientError: err}
+			return nil, errors.Newf(
+				"All input slices or arrays must be non-empty - found length %d for feature '%s'",
+				currLength, fqn,
+			)
 		}
 	}
 	return res, nil
