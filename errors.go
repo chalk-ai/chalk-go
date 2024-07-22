@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"fmt"
+	"github.com/cockroachdb/errors"
 	"strings"
 )
 
@@ -66,4 +67,17 @@ func deferFunctionWithError(function func() error, originalError error) error {
 		err = bodyCloseErr
 	}
 	return err
+}
+
+func newServerError(errs []ServerError) *ErrorResponse {
+	return &ErrorResponse{ServerErrors: errs}
+}
+
+func newClientError(err error) *ErrorResponse {
+	return &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
+}
+
+func clientWrap(err error, message string) *ErrorResponse {
+	wrapped := errors.Wrap(err, message)
+	return newClientError(wrapped)
 }

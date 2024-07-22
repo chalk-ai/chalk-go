@@ -256,27 +256,20 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 
 	res, err := c.queryClient.OnlineQueryBulk(context.Background(), req)
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error executing online query")
+		return OnlineQueryBulkResult{}, clientWrap(err, "error executing online query")
 	}
 
 	if len(res.Msg.Errors) > 0 {
-		var serverErrs []ServerError
-
-		for _, e := range res.Msg.Errors {
-			serverErr, err := serverErrorFromProto(e)
-			if err != nil {
-				return OnlineQueryBulkResult{}, errors.Wrap(err, "error converting server error")
-			}
-			serverErrs = append(serverErrs, *serverErr)
+		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
+		if err != nil {
+			return OnlineQueryBulkResult{}, errors.Wrap(err, "error converting server errors")
 		}
-		return OnlineQueryBulkResult{}, &ErrorResponse{
-			ServerErrors: serverErrs,
-		}
+		return OnlineQueryBulkResult{}, newServerError(convertedErrs)
 	}
 
 	scalars, err := internal.ConvertBytesToTable(res.Msg.GetScalarsData())
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error deserializing scalars table")
+		return OnlineQueryBulkResult{}, clientWrap(err, "error deserializing scalars table")
 	}
 
 	groups := make(map[string]arrow.Table)
@@ -452,7 +445,33 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 }
 
 func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
-	return UploadFeaturesResult{}, errors.New("not implemented")
+	inputsConverted, err := args.getConvertedInputsMap()
+	if err != nil {
+		return UploadFeaturesResult{}, clientWrap(err, "error converting inputs map")
+	}
+	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
+	if err != nil {
+		return UploadFeaturesResult{}, clientWrap(err, "error serializing inputs as feather")
+	}
+	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
+		InputsFeather: inputsFeather,
+		Now:           nil,
+		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
+	})
+
+	res, err := c.queryClient.UploadFeaturesBulk(context.Background(), req)
+	if err != nil {
+		return UploadFeaturesResult{}, clientWrap(err, "error making upload features request")
+	}
+
+	if len(res.Msg.Errors) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
+		if err != nil {
+			return UploadFeaturesResult{}, errors.Wrap(err, "error converting server errors")
+		}
+		return UploadFeaturesResult{}, newServerError(convertedErrs)
+	}
+	return UploadFeaturesResult{}, nil
 }
 
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {

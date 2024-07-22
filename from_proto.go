@@ -75,3 +75,15 @@ func serverErrorFromProto(e *commonv1.ChalkError) (*ServerError, error) {
 		Exception: exceptionFromProto(e.GetException()),
 	}, nil
 }
+
+func serverErrorsFromProto(e []*commonv1.ChalkError) ([]ServerError, error) {
+	var errs []ServerError
+	for _, err := range e {
+		s, err := serverErrorFromProto(err)
+		if err != nil {
+			return nil, err
+		}
+		errs = append(errs, *s)
+	}
+	return errs, nil
+}

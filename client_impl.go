@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"io"
 	"net/http"
@@ -136,52 +137,21 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 }
 
 func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
-	castMap := make(map[string]any)
-
-	allLength := -1
-	for k, v := range params.Inputs {
-		var fqn string
-		if _, ok := k.(string); ok {
-			fqn = k.(string)
-		} else {
-			feature, err := UnwrapFeature(k)
-			if err != nil {
-				msg := fmt.Sprintf("Invalid inputs key '%v' with type '%T'. Expected `string` or `Feature`", k, k)
-				return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: msg}}
-			}
-			fqn = feature.Fqn
-		}
-		castMap[fqn] = v
-
-		currLength := -1
-		if reflect.TypeOf(v).Kind() == reflect.Slice || reflect.TypeOf(v).Kind() == reflect.Array {
-			currLength = reflect.ValueOf(v).Len()
-		} else {
-			return UploadFeaturesResult{}, &ErrorResponse{
-				ClientError: &ClientError{
-					Message: fmt.Sprintf("Values for feature '%s' must be a slice or array", fqn),
-				},
-			}
-		}
-
-		if allLength == -1 {
-			allLength = currLength
-		}
-		if allLength != currLength {
-			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be the same length - found length %d for feature '%s' but expected length %d", currLength, fqn, allLength),
-			}
-			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
-		}
-		if currLength == 0 {
-			err := &ClientError{
-				Message: fmt.Sprintf("All input slices or arrays must be non-empty - found length %d for feature '%s'", currLength, fqn),
-			}
-			return UploadFeaturesResult{}, &ErrorResponse{ClientError: err}
-		}
+	convertedInputs, err := params.getConvertedInputsMap()
+	if err != nil {
+		return UploadFeaturesResult{}, clientWrap(err, "failed to convert input map keys")
+	}
+	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
+	if err != nil {
+		return UploadFeaturesResult{}, clientWrap(err, "failed to convert inputs to Arrow Record bytes")
+	}
+	attrs := map[string]any{
+		"features":          colls.Keys(convertedInputs),
+		"table_compression": "uncompressed",
+		"table_bytes":       recordBytes,
 	}
 
-	body, err := internal.CreateUploadFeaturesBody(castMap)
+	body, err := internal.ChalkMarshal(attrs)
 	if err != nil {
 		return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
 	}
