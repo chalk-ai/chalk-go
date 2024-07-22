@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
 	"reflect"
 	"strconv"
 	"strings"
@@ -145,17 +146,54 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 	return nil
 }
 
+func buildScope(fqns []string) (*scopeTrie, error) {
+	root := &scopeTrie{}
+	for _, fqn := range fqns {
+		root.addStr(fqn)
+	}
+	return root, nil
+}
+
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	fieldMap := map[string][]reflect.Value{}
+
+	initializer := NewFeatureInitializer()
+	scope, err := buildScope(lo.Keys(fqnToValue))
+	if err != nil {
+		return &ClientError{
+			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
+		}
+	}
+
+	namespace := SnakeCase(structValue.Type().Name())
+	nsScope := scope.children[namespace]
+	if nsScope == nil {
+		return &ClientError{
+			errors.Newf("Scope of fields to initialize not found for namespace '%s'", nsScope).Error(),
+		}
+	}
+
+	if err := initializer.initFeatures(structValue, namespace, map[string]bool{}, nsScope); err != nil {
+		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	}
+
 	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
 			// TODO: Add validation for optional fields
 			continue
 		}
-		targetFields, err := initFeatureSingle(structValue, fqn)
+		if _, shouldSkip := internal.SkipUnmarshalFqnRoots[getFqnRoot(fqn)]; shouldSkip {
+			continue
+		}
+		targetFields, ok := initializer.fieldsMap[fqn]
+		if !ok {
+			return &ClientError{
+				errors.Newf("error locating fields associated with feature '%s'", fqn).Error(),
+			}
+		}
 		if err != nil {
 			err = errors.Wrapf(
 				err,
