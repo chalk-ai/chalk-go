@@ -24,6 +24,10 @@ var skipUnmarshalFields = map[string]bool{
 	"__index__": true,
 }
 
+var SkipUnmarshalFqnRoots = map[string]bool{
+	"__chalk__": true,
+}
+
 func convertNumber[T Numbers](anyNumber any) (T, error) {
 	// TODO: Possibly unmarshal numbers as the correct type (instead of float64)
 	// into FeatureResult, instead of converting them here.

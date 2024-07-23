@@ -3,43 +3,68 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 )
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	_, err := initFeatures(structValue, "", make(map[string]bool), "")
-	return err
+	return NewFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
-func initFeatureSingle(structValue reflect.Value, fqn string) ([]reflect.Value, error) {
-	parts := strings.Split(fqn, ".")
-	if len(parts) < 2 {
-		return nil, fmt.Errorf("feature fqn should have at least two parts, found: '%s'", fqn)
+type scopeTrie struct {
+	children map[string]*scopeTrie
+}
+
+func (s *scopeTrie) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *scopeTrie) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
 	}
-	return initFeatures(structValue, "", make(map[string]bool), strings.Join(parts[1:], "."))
+	firstPart := fqnParts[0]
+	if s.children == nil {
+		s.children = map[string]*scopeTrie{}
+	}
+	if _, found := s.children[firstPart]; !found {
+		s.children[firstPart] = &scopeTrie{}
+	}
+	s.children[firstPart].add(fqnParts[1:])
+}
+
+type featureInitializer struct {
+	fieldsMap map[string][]reflect.Value
+}
+
+func NewFeatureInitializer() *featureInitializer {
+	return &featureInitializer{
+		fieldsMap: map[string][]reflect.Value{},
+	}
 }
 
 // initFeatures is a recursive function that:
 //
-//  1. If `targetFqn == ""`:
-//     Recursively initializes features in the struct that is passed in. Each feature is initialized as
-//     a pointer to a Feature struct with the appropriate FQN.
+//  1. If not scoped:
+//     Initializes all features in the struct that is passed in. Each feature is initialized
+//     as a pointer to a Feature struct with the appropriate FQN.
 //
-//  2. If `targetFqn != ""`:
-//     Only the feature that matches the targetFqn is initialized
-func initFeatures(
+//  2. If scoped:
+//     Only the features that are in scope (stored in the form of a trie) are initialized.
+//     In scope means that the feature is requested as an output and is returned in the
+//     query response.
+func (fi *featureInitializer) initFeatures(
 	structValue reflect.Value,
 	cumulativeFqn string,
 	visited map[string]bool,
-	targetFqn string,
-) ([]reflect.Value, error) {
+	scope *scopeTrie,
+) error {
+	isScoped := scope != nil
 	if structValue.Kind() != reflect.Struct {
-		return nil, fmt.Errorf(
+		return fmt.Errorf(
 			"feature initialization function argument must be a reflect.Value"+
 				" of the kind reflect.Struct, found %s instead",
 			structValue.Kind().String(),
@@ -47,13 +72,9 @@ func initFeatures(
 	}
 
 	namespace := structValue.Type().Name()
-	if cumulativeFqn == "" && namespace != "" {
-		cumulativeFqn = SnakeCase(namespace) + "."
-	}
-
 	if isVisited, ok := visited[namespace]; ok && isVisited {
 		// Found a cycle. Just return.
-		return nil, nil
+		return nil
 	}
 	visited[namespace] = true
 	defer func() {
@@ -75,22 +96,28 @@ func initFeatures(
 			},
 		)
 	}
-	var resFields []reflect.Value
 	for _, fm := range fms {
 		resolvedName, err := internal.ResolveFeatureName(fm.Meta)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
+			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
-		updatedFqn := cumulativeFqn + resolvedName
+
+		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
+		if cumulativeFqn == "" {
+			updatedFqn = resolvedName
+		}
 
 		f := fm.Field
 		if !f.CanSet() {
 			continue
 		}
 
-		shouldNaivelySkip := targetFqn != "" && getFqnRoot(targetFqn) != resolvedName
+		inScope := true
+		if scope != nil {
+			_, inScope = scope.children[resolvedName]
+		}
 
-		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && targetFqn != "" {
+		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && isScoped {
 			// If dataclasses are being initialized for purposes
 			// of specifying query params, we want it to go to
 			// the next block where we initialize it the same way
@@ -101,10 +128,10 @@ func initFeatures(
 			// query results, we simply return the field, as we
 			// do in this block, and let the feature setter set
 			// the value of the dataclass down the line.
-			if shouldNaivelySkip {
+			if !inScope {
 				continue
 			}
-			resFields = append(resFields, f)
+			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 		} else if f.Type().Elem().Kind() == reflect.Struct &&
 			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
@@ -113,36 +140,34 @@ func initFeatures(
 			//
 			//      Features.User.CreditReport = new(CreditReport)
 			//
-			if shouldNaivelySkip {
+			if !inScope {
 				continue
 			}
 			if ptrErr := pointerCheck(f); ptrErr != nil {
-				return nil, ptrErr
+				return ptrErr
 			}
 
-			if targetFqn == "" {
+			if isScoped {
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				newScope := scope.children[resolvedName]
+				if newScope == nil {
+					return errors.Newf("scope not found for feature '%s'", cumulativeFqn)
+				}
+				if err := fi.initFeatures(f.Elem(), updatedFqn, visited, newScope); err != nil {
+					return err
+				}
+			} else {
 				featureSet := reflect.New(f.Type().Elem())
 				// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
 				ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
 				f.Set(ptrInDisguiseToFeatureSet)
 				featureSetInDisguise := f.Elem()
-				if _, err := initFeatures(featureSetInDisguise, updatedFqn+".", visited, targetFqn); err != nil {
-					return nil, err
+				if err := fi.initFeatures(featureSetInDisguise, updatedFqn, visited, nil); err != nil {
+					return err
 				}
-			} else {
-				if f.IsNil() {
-					featureSet := reflect.New(f.Type().Elem())
-					f.Set(featureSet)
-				}
-				parts := strings.Split(targetFqn, ".")
-				if len(parts) < 2 {
-					return nil, fmt.Errorf(
-						"feature fqn should have at least two parts, found: '%s'",
-						targetFqn,
-					)
-				}
-				nextTargetFqn := strings.Join(parts[1:], ".")
-				return initFeatures(f.Elem(), updatedFqn+".", visited, nextTargetFqn)
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -159,68 +184,54 @@ func initFeatures(
 			// actually a pointer to a Feature struct. See BASE CASE
 			// section below.
 
-			if targetFqn != "" {
-				// The target fqn here could be
-				//    - "some_other_feature_in_this_feature_class"
-				//    - "this_windowed_feature__600__"
-				//    - "other_windowed_feature__600__"
-				// So let's extract "this_windowed_feature" from the target fqn
-				// and compare it with the current feature's name.
-				pattern, err := regexp.Compile(fmt.Sprintf(`^%s__\d+__$`, resolvedName))
-				if err != nil {
-					return nil, errors.Wrap(err, "error compiling regex to match windowed feature names")
-				}
-				if !pattern.Match([]byte(getFqnRoot(targetFqn))) {
-					// Not any bucket feature in this windowed feature class
-					continue
-				}
-			}
-
 			mapValueType := f.Type().Elem()
 			if mapValueType.Kind() != reflect.Pointer {
-				return nil, fmt.Errorf(
+				return errors.Newf(
 					"the map type for Windowed features should a pointer"+
 						" as its value type, but found %s instead",
 					mapValueType.Kind(),
 				)
 			}
 
-			if targetFqn == "" {
-				// Initializing all features, always
-				// make a new map.
-				f.Set(reflect.MakeMap(f.Type()))
-				windows := fm.Meta.Tag.Get("windows")
-				for _, tag := range strings.Split(windows, ",") {
-					seconds, parseErr := internal.ParseBucketDuration(tag)
-					if parseErr != nil {
-						return nil, fmt.Errorf("error parsing bucket duration: %s", parseErr)
-					}
-					windowFqn := updatedFqn + fmt.Sprintf("__%d__", seconds)
-					if targetFqn == "" {
-						feature := Feature{Fqn: windowFqn}
-						ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
-						f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
-					}
+			windows := fm.Meta.Tag.Get("windows")
+			for _, tag := range strings.Split(windows, ",") {
+				seconds, err := internal.ParseBucketDuration(tag)
+				if err != nil {
+					return errors.Wrap(err, "error parsing bucket duration: %s")
 				}
-			} else {
-				// Selectively initializing features,
-				// use a new map only if the map is nil.
-				if f.IsNil() {
-					f.Set(reflect.MakeMap(f.Type()))
+				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
+				bucketFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
+				if isScoped {
+					if _, bucketInScope := scope.children[updatedResolvedName]; !bucketInScope {
+						continue
+					}
+					// Make map only if one of the bucket features need to be set
+					// If no bucket features need to be set, map is nil.
+					if f.IsNil() {
+						f.Set(reflect.MakeMap(f.Type()))
+					}
+					fi.fieldsMap[bucketFqn] = append(fi.fieldsMap[bucketFqn], f)
+				} else {
+					if f.IsNil() {
+						f.Set(reflect.MakeMap(f.Type()))
+					}
+					feature := Feature{Fqn: bucketFqn}
+					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
+					f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 				}
-				return []reflect.Value{f}, nil
+
 			}
 		} else {
 			// BASE CASE.
-			if shouldNaivelySkip {
+			if !inScope {
 				continue
 			}
 			if ptrErr := pointerCheck(f); ptrErr != nil {
-				return nil, ptrErr
+				return ptrErr
 			}
 
-			if targetFqn != "" {
-				resFields = append(resFields, f)
+			if isScoped {
+				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 			} else {
 				// Create new Feature instance and point to it.
 				// The equivalent way of doing it without 'reflect':
@@ -242,7 +253,7 @@ func initFeatures(
 			}
 		}
 	}
-	return resFields, nil
+	return nil
 }
 
 func getFqnRoot(s string) string {

@@ -874,3 +874,113 @@ func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	assert.Equal(t, "green", (*resultHolders[1].FavoriteColors)[1])
 	assert.Equal(t, "blue", (*resultHolders[1].FavoriteColors)[2])
 }
+
+func benchmarkUnmarshal(t *testing.T, data []FeatureResult, resultHolder any) time.Duration {
+	t.Helper()
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	var sum time.Duration
+	var unmarshalErr error
+	for i := 0; i < 100; i++ {
+		start := time.Now()
+		if unmarshalErr = result.UnmarshalInto(resultHolder); unmarshalErr != (*ClientError)(nil) {
+			t.Fatal(unmarshalErr)
+		}
+		sum += time.Since(start)
+	}
+	return sum / 100
+}
+
+// TestEnsureTimelyUnmarshal tests that we maintain a non-quadratic unmarshal.
+func TestEnsureTimelyUnmarshal(t *testing.T) {
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+
+	// Mimic JSON deser which returns all numbers as `float64`
+	multiData := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
+	}
+	multiFeatures := &allTypes{}
+	multiAvg := benchmarkUnmarshal(t, multiData, multiFeatures)
+
+	singleData := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+	}
+	singleFeatures := &allTypes{}
+	singleAvg := benchmarkUnmarshal(t, singleData, singleFeatures)
+	assert.Equal(t, int64(123), *singleFeatures.Int)
+
+	lenDelta := len(multiData) - len(singleData)
+	delta := multiAvg - singleAvg
+	deltaPerExtraItem := float64(delta) / float64(lenDelta)
+	singleItemDuration := float64(singleAvg)
+	multiplier := deltaPerExtraItem / singleItemDuration
+	t.Logf(
+		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f",
+		multiplier, deltaPerExtraItem, singleItemDuration,
+	)
+	limit := 0.5
+	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
+}
