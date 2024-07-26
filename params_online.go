@@ -1,7 +1,6 @@
 package chalk
 
 import (
-	"slices"
 	"time"
 )
 
@@ -168,7 +167,7 @@ func (p OnlineQueryParams) withTags(tags []string) OnlineQueryParams {
 	if p.Tags == nil {
 		p.Tags = tags
 	} else {
-		p.Tags = slices.Concat(p.Tags, tags)
+		p.Tags = append(p.Tags, tags...)
 	}
 	return p
 }
