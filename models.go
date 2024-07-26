@@ -94,13 +94,6 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 	return p.withStaleness(feature, duration)
 }
 
-// WithTags returns a copy of Online Query parameters with the specified tags added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-// See https://docs.chalk.ai/docs/resolver-tags for more information on tags.
-func (p OnlineQueryParams) WithTags(tags []string) OnlineQueryParams {
-	return p.withTags(tags)
-}
-
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
 	return p
