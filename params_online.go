@@ -164,6 +164,11 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 }
 
 func (p OnlineQueryParams) withTags(tags []string) OnlineQueryParams {
+	validateErr := validateTags(tags, ParamTags)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
 	if p.Tags == nil {
 		p.Tags = tags
 	} else {

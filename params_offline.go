@@ -41,6 +41,13 @@ func (p OfflineQueryParamsComplete) WithInput(feature any, values []any) Offline
 	return p
 }
 
+// WithInput returns a copy of Offline Query parameters with the specified tags added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithTags(tags []string) OfflineQueryParamsComplete {
+	p.underlying = p.underlying.withTags(tags)
+	return p
+}
+
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParamsComplete) WithOutputs(features ...any) OfflineQueryParamsComplete {
@@ -67,6 +74,13 @@ type offlineQueryParamsWithInputs struct {
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p offlineQueryParamsWithInputs) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withInput(feature, values)
+	return p
+}
+
+// WithTags returns a copy of Offline Query parameters with the specified tags added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p offlineQueryParamsWithInputs) WithTags(tags []string) offlineQueryParamsWithInputs {
+	p.underlying = p.underlying.withTags(tags)
 	return p
 }
 
@@ -119,6 +133,20 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 		key = castedFeature.Fqn
 	}
 	p.inputs[key] = append(p.inputs[key], timestampedValues...)
+	return p
+}
+
+func (p OfflineQueryParams) withTags(tags []string) OfflineQueryParams {
+	validateErr := validateTags(tags, ParamTags)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
+	if p.Tags == nil {
+		p.Tags = tags
+	} else {
+		p.Tags = append(p.Tags, tags...)
+	}
 	return p
 }
 

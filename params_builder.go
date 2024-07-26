@@ -13,6 +13,7 @@ const (
 	InvalidFeatureType
 	UnwrapFeatureError
 	InvalidRequest
+	InvalidTags
 )
 
 type ParamType string
@@ -23,6 +24,7 @@ const (
 	ParamInput          ParamType = "input"
 	ParamStaleness      ParamType = "staleness"
 	ParamRequiredOutput ParamType = "required output"
+	ParamTags           ParamType = "tags"
 )
 
 type BuilderError struct {
@@ -75,6 +77,19 @@ func validateFeatures(features []any, paramType ParamType) *BuilderError {
 	for _, feature := range features {
 		if err := validateFeature(feature, paramType); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func validateTags(tags []string, paramType ParamType) *BuilderError {
+	for _, tag := range tags {
+		if tag == "" {
+			return &BuilderError{
+				Err:       fmt.Errorf("tag cannot be empty"),
+				Type:      InvalidTags,
+				ParamType: paramType,
+			}
 		}
 	}
 	return nil
