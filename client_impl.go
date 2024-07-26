@@ -111,6 +111,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
+			Tags:                params.underlying.Tags,
 			IsEngineRequest:     true,
 		},
 	)
@@ -242,6 +243,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			PreviewDeploymentId: request.PreviewDeploymentId,
 			Versioned:           params.underlying.versioned,
 			Branch:              params.underlying.BranchId,
+			Tags:                params.underlying.Tags,
 			IsEngineRequest:     true,
 		},
 	)

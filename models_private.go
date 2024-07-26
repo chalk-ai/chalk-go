@@ -100,6 +100,7 @@ type sendRequestParams struct {
 	PreviewDeploymentId string
 	Versioned           bool
 	Branch              *string
+	Tags                []string
 
 	IsEngineRequest bool
 }

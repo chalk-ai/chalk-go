@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"slices"
 	"time"
 )
 
@@ -163,6 +164,15 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	return p
 }
 
+func (p OnlineQueryParams) withTags(tags []string) OnlineQueryParams {
+	if p.Tags == nil {
+		p.Tags = tags
+	} else {
+		p.Tags = slices.Concat(p.Tags, tags)
+	}
+	return p
+}
+
 /********************************************
  Definitions for onlineQueryParamsWithInputs
 *********************************************/
@@ -189,6 +199,14 @@ func (p onlineQueryParamsWithInputs) WithOutputs(features ...any) OnlineQueryPar
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Duration) onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
+	return p
+}
+
+// WithTags returns a copy of Online Query parameters with the specified tags added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+// See https://docs.chalk.ai/docs/resolver-tags for more information on tags.
+func (p onlineQueryParamsWithInputs) WithTags(tags []string) onlineQueryParamsWithInputs {
+	p.underlying = p.underlying.withTags(tags)
 	return p
 }
 
