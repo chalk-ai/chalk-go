@@ -55,6 +55,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 			EnvironmentOverride: request.EnvironmentId,
 			Versioned:           params.underlying.versioned,
 			Branch:              &request.Branch,
+			Tags:                request.Tags,
 		},
 	)
 	if err != nil {
