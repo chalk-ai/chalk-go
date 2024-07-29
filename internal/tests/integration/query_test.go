@@ -92,9 +92,8 @@ func TestOnlineQueryWithTags(t *testing.T) {
 			if err != nil {
 				t.Fatal("Failed initializing features", err)
 			}
-			req := chalk.OnlineQueryParams{}.
+			req := chalk.OnlineQueryParams{Tags: []string{"tag1"}}.
 				WithInput(testFeatures.User.Id, 1).
-				WithTags([]string{"tag1"}).
 				// WithOutputs has to be called last because it returns OnlineQueryParamsComplete
 				WithOutputs(
 					testFeatures.User.Id,
