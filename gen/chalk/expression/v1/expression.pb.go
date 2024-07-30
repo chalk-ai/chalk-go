@@ -3019,10 +3019,11 @@ type AggregateUDFExprNode struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	FunName string             `protobuf:"bytes,1,opt,name=fun_name,json=funName,proto3" json:"fun_name,omitempty"`
-	Args    []*LogicalExprNode `protobuf:"bytes,2,rep,name=args,proto3" json:"args,omitempty"`
-	Filter  *LogicalExprNode   `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
-	OrderBy []*LogicalExprNode `protobuf:"bytes,4,rep,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	FunName string                      `protobuf:"bytes,1,opt,name=fun_name,json=funName,proto3" json:"fun_name,omitempty"`
+	Args    []*LogicalExprNode          `protobuf:"bytes,2,rep,name=args,proto3" json:"args,omitempty"`
+	Filter  *LogicalExprNode            `protobuf:"bytes,3,opt,name=filter,proto3" json:"filter,omitempty"`
+	OrderBy []*LogicalExprNode          `protobuf:"bytes,4,rep,name=order_by,json=orderBy,proto3" json:"order_by,omitempty"`
+	Kwargs  map[string]*LogicalExprNode `protobuf:"bytes,5,rep,name=kwargs,proto3" json:"kwargs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 }
 
 func (x *AggregateUDFExprNode) Reset() {
@@ -3081,6 +3082,13 @@ func (x *AggregateUDFExprNode) GetFilter() *LogicalExprNode {
 func (x *AggregateUDFExprNode) GetOrderBy() []*LogicalExprNode {
 	if x != nil {
 		return x.OrderBy
+	}
+	return nil
+}
+
+func (x *AggregateUDFExprNode) GetKwargs() map[string]*LogicalExprNode {
+	if x != nil {
+		return x.Kwargs
 	}
 	return nil
 }
@@ -4324,7 +4332,7 @@ var file_chalk_expression_v1_expression_proto_rawDesc = []byte{
 	0x79, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
 	0x65, 0x78, 0x70, 0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x6f,
 	0x67, 0x69, 0x63, 0x61, 0x6c, 0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x07, 0x6f,
-	0x72, 0x64, 0x65, 0x72, 0x42, 0x79, 0x22, 0xea, 0x01, 0x0a, 0x14, 0x41, 0x67, 0x67, 0x72, 0x65,
+	0x72, 0x64, 0x65, 0x72, 0x42, 0x79, 0x22, 0x9a, 0x03, 0x0a, 0x14, 0x41, 0x67, 0x67, 0x72, 0x65,
 	0x67, 0x61, 0x74, 0x65, 0x55, 0x44, 0x46, 0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x12,
 	0x19, 0x0a, 0x08, 0x66, 0x75, 0x6e, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x07, 0x66, 0x75, 0x6e, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x38, 0x0a, 0x04, 0x61, 0x72,
@@ -4339,7 +4347,18 @@ var file_chalk_expression_v1_expression_proto_rawDesc = []byte{
 	0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x65, 0x78, 0x70,
 	0x72, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x63,
 	0x61, 0x6c, 0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x07, 0x6f, 0x72, 0x64, 0x65,
-	0x72, 0x42, 0x79, 0x22, 0x68, 0x0a, 0x11, 0x53, 0x63, 0x61, 0x6c, 0x61, 0x72, 0x55, 0x44, 0x46,
+	0x72, 0x42, 0x79, 0x12, 0x4d, 0x0a, 0x06, 0x6b, 0x77, 0x61, 0x72, 0x67, 0x73, 0x18, 0x05, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x35, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x65, 0x78, 0x70, 0x72,
+	0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x41, 0x67, 0x67, 0x72, 0x65, 0x67,
+	0x61, 0x74, 0x65, 0x55, 0x44, 0x46, 0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x2e, 0x4b,
+	0x77, 0x61, 0x72, 0x67, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x06, 0x6b, 0x77, 0x61, 0x72,
+	0x67, 0x73, 0x1a, 0x5f, 0x0a, 0x0b, 0x4b, 0x77, 0x61, 0x72, 0x67, 0x73, 0x45, 0x6e, 0x74, 0x72,
+	0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03,
+	0x6b, 0x65, 0x79, 0x12, 0x3a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x24, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x65, 0x78, 0x70, 0x72, 0x65,
+	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x4c, 0x6f, 0x67, 0x69, 0x63, 0x61, 0x6c,
+	0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a,
+	0x02, 0x38, 0x01, 0x22, 0x68, 0x0a, 0x11, 0x53, 0x63, 0x61, 0x6c, 0x61, 0x72, 0x55, 0x44, 0x46,
 	0x45, 0x78, 0x70, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x66, 0x75, 0x6e, 0x5f,
 	0x6e, 0x61, 0x6d, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x66, 0x75, 0x6e, 0x4e,
 	0x61, 0x6d, 0x65, 0x12, 0x38, 0x0a, 0x04, 0x61, 0x72, 0x67, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28,
@@ -4914,7 +4933,7 @@ func file_chalk_expression_v1_expression_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_expression_v1_expression_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_expression_v1_expression_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
+var file_chalk_expression_v1_expression_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_chalk_expression_v1_expression_proto_goTypes = []any{
 	(ScalarFunction)(0),           // 0: chalk.expression.v1.ScalarFunction
 	(AggregateFunction)(0),        // 1: chalk.expression.v1.AggregateFunction
@@ -4967,13 +4986,14 @@ var file_chalk_expression_v1_expression_proto_goTypes = []any{
 	(*SortExprNode)(nil),          // 48: chalk.expression.v1.SortExprNode
 	(*WindowFrame)(nil),           // 49: chalk.expression.v1.WindowFrame
 	(*WindowFrameBound)(nil),      // 50: chalk.expression.v1.WindowFrameBound
-	(*v1.ScalarValue)(nil),        // 51: chalk.arrow.v1.ScalarValue
-	(*v1.ArrowType)(nil),          // 52: chalk.arrow.v1.ArrowType
+	nil,                           // 51: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
+	(*v1.ScalarValue)(nil),        // 52: chalk.arrow.v1.ScalarValue
+	(*v1.ArrowType)(nil),          // 53: chalk.arrow.v1.ArrowType
 }
 var file_chalk_expression_v1_expression_proto_depIdxs = []int32{
 	7,   // 0: chalk.expression.v1.LogicalExprNode.column:type_name -> chalk.expression.v1.Column
 	27,  // 1: chalk.expression.v1.LogicalExprNode.alias:type_name -> chalk.expression.v1.AliasNode
-	51,  // 2: chalk.expression.v1.LogicalExprNode.literal:type_name -> chalk.arrow.v1.ScalarValue
+	52,  // 2: chalk.expression.v1.LogicalExprNode.literal:type_name -> chalk.arrow.v1.ScalarValue
 	32,  // 3: chalk.expression.v1.LogicalExprNode.binary_expr:type_name -> chalk.expression.v1.BinaryExprNode
 	36,  // 4: chalk.expression.v1.LogicalExprNode.aggregate_expr:type_name -> chalk.expression.v1.AggregateExprNode
 	18,  // 5: chalk.expression.v1.LogicalExprNode.is_null_expr:type_name -> chalk.expression.v1.IsNull
@@ -5006,12 +5026,12 @@ var file_chalk_expression_v1_expression_proto_depIdxs = []int32{
 	43,  // 32: chalk.expression.v1.LogicalExprNode.similar_to:type_name -> chalk.expression.v1.SimilarToNode
 	9,   // 33: chalk.expression.v1.LogicalExprNode.placeholder:type_name -> chalk.expression.v1.PlaceholderNode
 	6,   // 34: chalk.expression.v1.Column.relation:type_name -> chalk.expression.v1.ColumnRelation
-	52,  // 35: chalk.expression.v1.PlaceholderNode.data_type:type_name -> chalk.arrow.v1.ArrowType
+	53,  // 35: chalk.expression.v1.PlaceholderNode.data_type:type_name -> chalk.arrow.v1.ArrowType
 	5,   // 36: chalk.expression.v1.LogicalExprList.expr:type_name -> chalk.expression.v1.LogicalExprNode
 	10,  // 37: chalk.expression.v1.GroupingSetNode.expr:type_name -> chalk.expression.v1.LogicalExprList
 	5,   // 38: chalk.expression.v1.CubeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
 	5,   // 39: chalk.expression.v1.RollupNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	51,  // 40: chalk.expression.v1.NamedStructField.name:type_name -> chalk.arrow.v1.ScalarValue
+	52,  // 40: chalk.expression.v1.NamedStructField.name:type_name -> chalk.arrow.v1.ScalarValue
 	5,   // 41: chalk.expression.v1.ListIndex.key:type_name -> chalk.expression.v1.LogicalExprNode
 	5,   // 42: chalk.expression.v1.ListRange.start:type_name -> chalk.expression.v1.LogicalExprNode
 	5,   // 43: chalk.expression.v1.ListRange.stop:type_name -> chalk.expression.v1.LogicalExprNode
@@ -5046,42 +5066,44 @@ var file_chalk_expression_v1_expression_proto_depIdxs = []int32{
 	5,   // 72: chalk.expression.v1.AggregateUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
 	5,   // 73: chalk.expression.v1.AggregateUDFExprNode.filter:type_name -> chalk.expression.v1.LogicalExprNode
 	5,   // 74: chalk.expression.v1.AggregateUDFExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 75: chalk.expression.v1.ScalarUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
-	1,   // 76: chalk.expression.v1.WindowExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
-	2,   // 77: chalk.expression.v1.WindowExprNode.built_in_function:type_name -> chalk.expression.v1.BuiltInWindowFunction
-	5,   // 78: chalk.expression.v1.WindowExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 79: chalk.expression.v1.WindowExprNode.partition_by:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 80: chalk.expression.v1.WindowExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
-	49,  // 81: chalk.expression.v1.WindowExprNode.window_frame:type_name -> chalk.expression.v1.WindowFrame
-	5,   // 82: chalk.expression.v1.BetweenNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 83: chalk.expression.v1.BetweenNode.low:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 84: chalk.expression.v1.BetweenNode.high:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 85: chalk.expression.v1.LikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 86: chalk.expression.v1.LikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 87: chalk.expression.v1.ILikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 88: chalk.expression.v1.ILikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 89: chalk.expression.v1.SimilarToNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 90: chalk.expression.v1.SimilarToNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 91: chalk.expression.v1.CaseNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	45,  // 92: chalk.expression.v1.CaseNode.when_then_expr:type_name -> chalk.expression.v1.WhenThen
-	5,   // 93: chalk.expression.v1.CaseNode.else_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 94: chalk.expression.v1.WhenThen.when_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 95: chalk.expression.v1.WhenThen.then_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	5,   // 96: chalk.expression.v1.CastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	52,  // 97: chalk.expression.v1.CastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	5,   // 98: chalk.expression.v1.TryCastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	52,  // 99: chalk.expression.v1.TryCastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	5,   // 100: chalk.expression.v1.SortExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
-	3,   // 101: chalk.expression.v1.WindowFrame.window_frame_units:type_name -> chalk.expression.v1.WindowFrameUnits
-	50,  // 102: chalk.expression.v1.WindowFrame.start_bound:type_name -> chalk.expression.v1.WindowFrameBound
-	50,  // 103: chalk.expression.v1.WindowFrame.bound:type_name -> chalk.expression.v1.WindowFrameBound
-	4,   // 104: chalk.expression.v1.WindowFrameBound.window_frame_bound_type:type_name -> chalk.expression.v1.WindowFrameBoundType
-	51,  // 105: chalk.expression.v1.WindowFrameBound.bound_value:type_name -> chalk.arrow.v1.ScalarValue
-	106, // [106:106] is the sub-list for method output_type
-	106, // [106:106] is the sub-list for method input_type
-	106, // [106:106] is the sub-list for extension type_name
-	106, // [106:106] is the sub-list for extension extendee
-	0,   // [0:106] is the sub-list for field type_name
+	51,  // 75: chalk.expression.v1.AggregateUDFExprNode.kwargs:type_name -> chalk.expression.v1.AggregateUDFExprNode.KwargsEntry
+	5,   // 76: chalk.expression.v1.ScalarUDFExprNode.args:type_name -> chalk.expression.v1.LogicalExprNode
+	1,   // 77: chalk.expression.v1.WindowExprNode.aggr_function:type_name -> chalk.expression.v1.AggregateFunction
+	2,   // 78: chalk.expression.v1.WindowExprNode.built_in_function:type_name -> chalk.expression.v1.BuiltInWindowFunction
+	5,   // 79: chalk.expression.v1.WindowExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 80: chalk.expression.v1.WindowExprNode.partition_by:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 81: chalk.expression.v1.WindowExprNode.order_by:type_name -> chalk.expression.v1.LogicalExprNode
+	49,  // 82: chalk.expression.v1.WindowExprNode.window_frame:type_name -> chalk.expression.v1.WindowFrame
+	5,   // 83: chalk.expression.v1.BetweenNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 84: chalk.expression.v1.BetweenNode.low:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 85: chalk.expression.v1.BetweenNode.high:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 86: chalk.expression.v1.LikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 87: chalk.expression.v1.LikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 88: chalk.expression.v1.ILikeNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 89: chalk.expression.v1.ILikeNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 90: chalk.expression.v1.SimilarToNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 91: chalk.expression.v1.SimilarToNode.pattern:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 92: chalk.expression.v1.CaseNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	45,  // 93: chalk.expression.v1.CaseNode.when_then_expr:type_name -> chalk.expression.v1.WhenThen
+	5,   // 94: chalk.expression.v1.CaseNode.else_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 95: chalk.expression.v1.WhenThen.when_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 96: chalk.expression.v1.WhenThen.then_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	5,   // 97: chalk.expression.v1.CastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	53,  // 98: chalk.expression.v1.CastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	5,   // 99: chalk.expression.v1.TryCastNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	53,  // 100: chalk.expression.v1.TryCastNode.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	5,   // 101: chalk.expression.v1.SortExprNode.expr:type_name -> chalk.expression.v1.LogicalExprNode
+	3,   // 102: chalk.expression.v1.WindowFrame.window_frame_units:type_name -> chalk.expression.v1.WindowFrameUnits
+	50,  // 103: chalk.expression.v1.WindowFrame.start_bound:type_name -> chalk.expression.v1.WindowFrameBound
+	50,  // 104: chalk.expression.v1.WindowFrame.bound:type_name -> chalk.expression.v1.WindowFrameBound
+	4,   // 105: chalk.expression.v1.WindowFrameBound.window_frame_bound_type:type_name -> chalk.expression.v1.WindowFrameBoundType
+	52,  // 106: chalk.expression.v1.WindowFrameBound.bound_value:type_name -> chalk.arrow.v1.ScalarValue
+	5,   // 107: chalk.expression.v1.AggregateUDFExprNode.KwargsEntry.value:type_name -> chalk.expression.v1.LogicalExprNode
+	108, // [108:108] is the sub-list for method output_type
+	108, // [108:108] is the sub-list for method input_type
+	108, // [108:108] is the sub-list for extension type_name
+	108, // [108:108] is the sub-list for extension extendee
+	0,   // [0:108] is the sub-list for field type_name
 }
 
 func init() { file_chalk_expression_v1_expression_proto_init() }
@@ -5703,7 +5725,7 @@ func file_chalk_expression_v1_expression_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_expression_v1_expression_proto_rawDesc,
 			NumEnums:      5,
-			NumMessages:   46,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
