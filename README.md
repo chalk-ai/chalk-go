@@ -76,6 +76,17 @@ client, err := chalk.NewClient(&chalk.ClientConfig{
 })
 ```
 
+### gRPC Client
+To use gRPC as the underlying protocol for communication with Chalk, set the `UseGrpc` field in `ClientConfig` to 
+`true`. 
+```go
+client, err := chalk.NewClient(&chalk.ClientConfig{
+    UseGrpc: true,
+})
+```
+You can then make queries just like you normally would without `UseGrpc` specified.
+
+
 
 ### Online Query
 
