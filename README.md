@@ -84,7 +84,7 @@ client, err := chalk.NewClient(&chalk.ClientConfig{
     UseGrpc: true,
 })
 ```
-You can then make queries just like you normally would without `UseGrpc` specified.
+You can then make requests just like you would without `UseGrpc` specified.
 
 
 
