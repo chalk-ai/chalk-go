@@ -1,9 +1,10 @@
 package integration
 
 import (
-	"github.com/chalk-ai/assert"
 	"github.com/chalk-ai/chalk-go"
+	assert "github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 type Theorem struct {
@@ -93,22 +94,28 @@ func TestGrpcUploadFeatures(t *testing.T) {
 	}
 
 	params := chalk.UploadFeaturesParams{Inputs: map[any]any{
-		Features.Theorem.Id:       []int64{1, 2, 3, 4, 5},
-		Features.Theorem.ProofId:  []string{"1", "1", "3", "4", "5"},
-		Features.Theorem.NumLines: []int64{34, 55, 89, 144, 233},
-		Features.Theorem.Author: []string{
-			"Carl Friederich Gauss",
-			"Sir Isaac Newton",
-			"Albert Einstein",
-			"Richard Feynman",
-			"Sir Roger Penrose",
+		Features.Theorem.Id: []int64{1, 2, 3, 4, 5},
+		Features.Theorem.ProofId: [][]byte{
+			[]byte("1"),
+			[]byte("1"),
+			[]byte("3"),
+			[]byte("4"),
+			[]byte("5"),
 		},
-		"__ts__": []string{
-			"2021-09-01T00:00:00Z",
-			"2021-09-02T00:00:00Z",
-			"2021-09-03T00:00:00Z",
-			"2021-09-04T00:00:00Z",
-			"2021-09-05T00:00:00Z",
+		Features.Theorem.NumLines: []int64{34, 55, 89, 144, 233},
+		Features.Theorem.Author: [][]byte{
+			[]byte("Carl Friederich Gauss"),
+			[]byte("Sir Isaac Newton"),
+			[]byte("Albert Einstein"),
+			[]byte("Richard Feynman"),
+			[]byte("Sir Roger Penrose"),
+		},
+		"__ts__": []time.Time{
+			time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC),
+			time.Date(2021, 9, 2, 0, 0, 0, 0, time.UTC),
+			time.Date(2021, 9, 3, 0, 0, 0, 0, time.UTC),
+			time.Date(2021, 9, 4, 0, 0, 0, 0, time.UTC),
+			time.Date(2021, 9, 5, 0, 0, 0, 0, time.UTC),
 		},
 	}}
 
@@ -120,5 +127,4 @@ func TestGrpcUploadFeatures(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed querying features", err)
 	}
-
 }
