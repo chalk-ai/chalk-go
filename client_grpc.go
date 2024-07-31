@@ -156,6 +156,19 @@ func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	}
 }
 
+func (c *clientGrpc) GetToken() (*TokenResult, error) {
+	getTokenResult, err := c.getToken()
+	if err != nil {
+		return nil, getErrorResponse(err)
+	}
+	return &TokenResult{
+		AccessToken:        getTokenResult.AccessToken,
+		PrimaryEnvironment: getTokenResult.PrimaryEnvironment,
+		ValidUntil:         getTokenResult.ValidUntil,
+		Engines:            getTokenResult.Engines,
+	}, nil
+}
+
 func (c *clientGrpc) getToken() (*getTokenResult, error) {
 	c.logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
