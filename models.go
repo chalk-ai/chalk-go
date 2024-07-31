@@ -688,3 +688,18 @@ type HTTPError struct {
 type ClientError struct {
 	Message string
 }
+
+// TokenResult holds the result of a GetToken request.
+type TokenResult struct {
+	// The access token that can be used to authenticate requests to the Chalk API.
+	AccessToken string `json:"access_token"`
+
+	// The primary environment that the token is scoped to.
+	PrimaryEnvironment string `json:"primary_environment"`
+
+	// The time at which the token expires.
+	ValidUntil time.Time `json:"valid_until"`
+
+	// The GRPC endpoint for the engine.
+	Engines map[string]string `json:"engines"`
+}

@@ -371,6 +371,19 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
+func (c *clientImpl) GetToken() (*TokenResult, error) {
+	getTokenResult, err := c.getToken()
+	if err != nil {
+		return nil, getErrorResponse(err)
+	}
+	return &TokenResult{
+		AccessToken:        getTokenResult.AccessToken,
+		PrimaryEnvironment: getTokenResult.PrimaryEnvironment,
+		ValidUntil:         getTokenResult.ValidUntil,
+		Engines:            getTokenResult.Engines,
+	}, nil
+}
+
 func (c *clientImpl) getToken() (*getTokenResult, error) {
 	body := getTokenRequest{
 		ClientId:     c.config.clientId.Value,

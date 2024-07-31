@@ -129,6 +129,10 @@ type Client interface {
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
 	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error)
+
+	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
+	// along with other using the client's credentials.
+	GetToken() (*TokenResult, error)
 }
 
 type ClientConfig struct {

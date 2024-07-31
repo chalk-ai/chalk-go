@@ -68,7 +68,7 @@ func (c *clientGrpc) init() error {
 	}
 	c.authClient = authClient
 
-	c.config.getToken = c.GetToken
+	c.config.getToken = c.getToken
 	// Necessary to get GRPC engines URL
 	if err := c.config.refresh(false); err != nil {
 		return errors.Wrap(err, "error fetching initial config")
@@ -156,7 +156,20 @@ func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	}
 }
 
-func (c *clientGrpc) GetToken() (*getTokenResult, error) {
+func (c *clientGrpc) GetToken() (*TokenResult, error) {
+	getTokenResult, err := c.getToken()
+	if err != nil {
+		return nil, getErrorResponse(err)
+	}
+	return &TokenResult{
+		AccessToken:        getTokenResult.AccessToken,
+		PrimaryEnvironment: getTokenResult.PrimaryEnvironment,
+		ValidUntil:         getTokenResult.ValidUntil,
+		Engines:            getTokenResult.Engines,
+	}, nil
+}
+
+func (c *clientGrpc) getToken() (*getTokenResult, error) {
 	c.logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
 		&serverv1.GetTokenRequest{
