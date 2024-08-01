@@ -77,6 +77,6 @@ func newClientError(err error) *ErrorResponse {
 	return &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
 }
 
-func clientWrap(err error, message string) *ErrorResponse {
+func wrapClientError(err error, message string) *ErrorResponse {
 	return newClientError(errors.Wrap(err, message))
 }

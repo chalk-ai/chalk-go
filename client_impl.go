@@ -139,11 +139,11 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := params.getConvertedInputsMap()
 	if err != nil {
-		return UploadFeaturesResult{}, clientWrap(err, "failed to convert input map keys")
+		return UploadFeaturesResult{}, wrapClientError(err, "failed to convert input map keys")
 	}
 	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
 	if err != nil {
-		return UploadFeaturesResult{}, clientWrap(err, "failed to convert inputs to Arrow Record bytes")
+		return UploadFeaturesResult{}, wrapClientError(err, "failed to convert inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
 		"features":          colls.Keys(convertedInputs),

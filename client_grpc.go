@@ -257,20 +257,20 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 
 	res, err := c.queryClient.OnlineQueryBulk(context.Background(), req)
 	if err != nil {
-		return OnlineQueryBulkResult{}, clientWrap(err, "error executing online query")
+		return OnlineQueryBulkResult{}, wrapClientError(err, "error executing online query")
 	}
 
 	if len(res.Msg.Errors) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
 		if err != nil {
-			return OnlineQueryBulkResult{}, errors.Wrap(err, "error converting server errors")
+			return OnlineQueryBulkResult{}, wrapClientError(err, "error converting server errors")
 		}
 		return OnlineQueryBulkResult{}, newServerError(convertedErrs)
 	}
 
 	scalars, err := internal.ConvertBytesToTable(res.Msg.GetScalarsData())
 	if err != nil {
-		return OnlineQueryBulkResult{}, clientWrap(err, "error deserializing scalars table")
+		return OnlineQueryBulkResult{}, wrapClientError(err, "error deserializing scalars table")
 	}
 
 	groups := make(map[string]arrow.Table)
@@ -448,11 +448,11 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
 	inputsConverted, err := args.getConvertedInputsMap()
 	if err != nil {
-		return UploadFeaturesResult{}, clientWrap(err, "error converting inputs map")
+		return UploadFeaturesResult{}, wrapClientError(err, "error converting inputs map")
 	}
 	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
 	if err != nil {
-		return UploadFeaturesResult{}, clientWrap(err, "error serializing inputs as feather")
+		return UploadFeaturesResult{}, wrapClientError(err, "error serializing inputs as feather")
 	}
 
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
@@ -462,7 +462,7 @@ func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesRe
 
 	res, err := c.queryClient.UploadFeaturesBulk(context.Background(), req)
 	if err != nil {
-		return UploadFeaturesResult{}, clientWrap(err, "error making upload features request")
+		return UploadFeaturesResult{}, wrapClientError(err, "error making upload features request")
 	}
 
 	if len(res.Msg.Errors) > 0 {
