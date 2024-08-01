@@ -3,6 +3,7 @@ package integration
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
+	"github.com/samber/lo"
 	assert "github.com/stretchr/testify/require"
 	"math/rand"
 	"testing"
@@ -60,11 +61,13 @@ func TestGrpcUploadFeatures(t *testing.T) {
 		[]byte(fmt.Sprintf("%d", distinctProofIds[3])),
 	}
 	theoremIds := getRandomInts(len(proofIdBytes))
+	theoremIdsFloat := lo.Map(theoremIds, func(i int64, _ int) float64 { return float64(i) })
 
 	now := time.Now().UTC()
 
 	params := chalk.UploadFeaturesParams{Inputs: map[any]any{
-		Features.Theorem.Id: theoremIds,
+		// This should be an int64 once the server automatically casts group by columns to float64
+		Features.Theorem.Id: theoremIdsFloat,
 		// This should be an int64 once the server automatically casts group by columns to binary
 		Features.Theorem.ProofId: proofIdBytes,
 		// This should be its original int64 type once the server automatically casts aggregated columns to float64
