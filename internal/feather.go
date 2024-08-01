@@ -366,7 +366,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 				newCols = append(newCols, res.Column(idx))
 			}
 		}
-		res = array.NewRecord(arrow.NewSchema(newFields, nil), newCols, int64(res.NumRows()))
+		res = array.NewRecord(arrow.NewSchema(newFields, nil), newCols, res.NumRows())
 	}
 	return res, nil
 }

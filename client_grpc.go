@@ -457,7 +457,6 @@ func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesRe
 
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
 		InputsFeather: inputsFeather,
-		Now:           nil,
 		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
 	})
 
