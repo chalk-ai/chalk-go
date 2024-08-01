@@ -14,16 +14,17 @@ func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
 	}
 
 	body := onlineQueryRequestSerialized{
-		Inputs:         p.inputs,
-		Outputs:        p.outputs,
-		Context:        context,
-		Staleness:      serializeStaleness(p.staleness),
-		IncludeMeta:    p.IncludeMeta,
-		IncludeMetrics: p.IncludeMetrics,
-		DeploymentId:   internal.StringOrNil(p.PreviewDeploymentId),
-		QueryName:      internal.StringOrNil(p.QueryName),
-		CorrelationId:  internal.StringOrNil(p.CorrelationId),
-		Meta:           p.Meta,
+		Inputs:           p.inputs,
+		Outputs:          p.outputs,
+		Context:          context,
+		Staleness:        serializeStaleness(p.staleness),
+		IncludeMeta:      p.IncludeMeta,
+		IncludeMetrics:   p.IncludeMetrics,
+		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
+		QueryName:        internal.StringOrNil(p.QueryName),
+		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
+		CorrelationId:    internal.StringOrNil(p.CorrelationId),
+		Meta:             p.Meta,
 	}
 
 	return body

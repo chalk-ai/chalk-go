@@ -6,16 +6,17 @@ import (
 )
 
 type onlineQueryRequestSerialized struct {
-	Inputs         map[string]any     `json:"inputs,string"`
-	Outputs        []string           `json:"outputs"`
-	Context        onlineQueryContext `json:"context"`
-	Staleness      map[string]string  `json:"staleness"`
-	IncludeMeta    bool               `json:"include_meta"`
-	IncludeMetrics bool               `json:"include_metrics"`
-	DeploymentId   *string            `json:"deployment_id"`
-	QueryName      *string            `json:"query_name"`
-	CorrelationId  *string            `json:"correlation_id"`
-	Meta           map[string]string  `json:"meta"`
+	Inputs           map[string]any     `json:"inputs,string"`
+	Outputs          []string           `json:"outputs"`
+	Context          onlineQueryContext `json:"context"`
+	Staleness        map[string]string  `json:"staleness"`
+	IncludeMeta      bool               `json:"include_meta"`
+	IncludeMetrics   bool               `json:"include_metrics"`
+	DeploymentId     *string            `json:"deployment_id"`
+	QueryName        *string            `json:"query_name"`
+	CorrelationId    *string            `json:"correlation_id"`
+	Meta             map[string]string  `json:"meta"`
+	QueryNameVersion *string            `json:"query_name_version"`
 }
 
 type onlineQueryResponseSerialized struct {

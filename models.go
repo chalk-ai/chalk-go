@@ -41,6 +41,9 @@ type OnlineQueryParams struct {
 	// The name for class of query you're making, for example, "loan_application_model".
 	QueryName string
 
+	// The version of the query you're making, for example, "v1".
+	QueryNameVersion string
+
 	// A globally unique ID for the query, used alongside logs and available in web
 	// interfaces. If None, a correlation ID will be generated for you and returned on
 	// the response.
@@ -96,6 +99,16 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
+	return p
+}
+
+func (p OnlineQueryParams) WithQueryName(queryName string) OnlineQueryParams {
+	p.QueryName = queryName
+	return p
+}
+
+func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParams {
+	p.QueryNameVersion = version
 	return p
 }
 
