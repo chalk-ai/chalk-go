@@ -52,14 +52,16 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
 		return arrowType, nil
 	} else if kind == reflect.Slice || kind == reflect.Array {
-		elemKind := value.Elem()
-		if elemType, err := convertReflectToArrowType(elemKind); err == nil {
+		elem := value.Elem()
+		if elem.Kind() == reflect.Uint8 {
+			return arrow.BinaryTypes.LargeBinary, nil
+		} else if elemType, err := convertReflectToArrowType(elem); err == nil {
 			return arrow.LargeListOf(elemType), nil
 		} else {
 			return nil, errors.Wrapf(
 				err,
 				"arrow conversion failed - a slice of '%s' is currently unsupported",
-				elemKind,
+				elem,
 			)
 		}
 	} else if kind == reflect.Struct {
@@ -176,31 +178,36 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 	case reflect.Bool:
 		builder.(*array.BooleanBuilder).AppendValues(values.([]bool), valid)
 	case reflect.Slice:
-		var offsets []int64
-		innerSliceType := slice.Type().Elem()
-		if innerSliceType.Kind() != reflect.Slice {
-			return errors.Errorf(
-				"expected slice of slices, instead found slice of '%s'",
-				innerSliceType.Kind(),
-			)
+		// This is a byte slice, build a Binary array
+		if elemType.Elem().Kind() == reflect.Uint8 {
+			builder.(*array.BinaryBuilder).AppendValues(values.([][]byte), valid)
+		} else {
+			var offsets []int64
+			innerSliceType := slice.Type().Elem()
+			if innerSliceType.Kind() != reflect.Slice {
+				return errors.Errorf(
+					"expected slice of slices, instead found slice of '%s'",
+					innerSliceType.Kind(),
+				)
+			}
+			flatSlice := reflect.MakeSlice(innerSliceType, 0, slice.Len())
+			highwaterMark := 0
+			offsets = append(offsets, 0)
+			for i := 0; i < slice.Len(); i++ {
+				innerSlice := slice.Index(i)
+				highwaterMark += innerSlice.Len()
+				offsets = append(offsets, int64(highwaterMark))
+				flatSlice = reflect.AppendSlice(flatSlice, innerSlice)
+			}
+			if err := setBuilderValues(
+				builder.(*array.LargeListBuilder).ValueBuilder(),
+				flatSlice,
+				allValid(flatSlice.Len()),
+			); err != nil {
+				return errors.Wrap(err, "failed to set values for slice of slices")
+			}
+			builder.(*array.LargeListBuilder).AppendValues(offsets, valid)
 		}
-		flatSlice := reflect.MakeSlice(innerSliceType, 0, slice.Len())
-		highwaterMark := 0
-		offsets = append(offsets, 0)
-		for i := 0; i < slice.Len(); i++ {
-			innerSlice := slice.Index(i)
-			highwaterMark += innerSlice.Len()
-			offsets = append(offsets, int64(highwaterMark))
-			flatSlice = reflect.AppendSlice(flatSlice, innerSlice)
-		}
-		if err := setBuilderValues(
-			builder.(*array.LargeListBuilder).ValueBuilder(),
-			flatSlice,
-			allValid(flatSlice.Len()),
-		); err != nil {
-			return errors.Wrap(err, "failed to set values for slice of slices")
-		}
-		builder.(*array.LargeListBuilder).AppendValues(offsets, valid)
 	case reflect.Struct:
 		if elemType == reflect.TypeOf(time.Time{}) {
 			timeSlice := values.([]time.Time)
@@ -286,6 +293,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	// Create the input values
+	allocator := memory.NewGoAllocator()
 	var schema []arrow.Field
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
@@ -297,7 +305,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
 
-	recordBuilder := array.NewRecordBuilder(memory.NewGoAllocator(), arrow.NewSchema(schema, nil))
+	recordBuilder := array.NewRecordBuilder(allocator, arrow.NewSchema(schema, nil))
 	defer recordBuilder.Release()
 
 	for idx, field := range schema {
@@ -315,7 +323,52 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
-	return recordBuilder.NewRecord(), nil
+
+	res := recordBuilder.NewRecord()
+	tsIndex := -1
+	var tsField arrow.Field
+	for idx, field := range res.Schema().Fields() {
+		if field.Name == "__ts__" {
+			tsIndex = idx
+			tsField = field
+			break
+		}
+	}
+	if tsIndex != -1 {
+		defer res.Release()
+		tsBuilder := array.NewTimestampBuilder(allocator, &arrow.TimestampType{Unit: arrow.Microsecond, TimeZone: "UTC"})
+		defer tsBuilder.Release()
+		tsValues := make([]arrow.Timestamp, res.NumRows())
+		validityMask := make([]bool, res.NumRows())
+		for i := 0; i < int(res.NumRows()); i++ {
+			validityMask[i] = res.Column(tsIndex).IsValid(i)
+			tsCol, ok := res.Column(tsIndex).(*array.Timestamp)
+			if !ok {
+				return nil, fmt.Errorf("failed to cast '__ts__' column to Timestamp Array")
+			}
+			val := tsCol.Value(i)
+			tsType, ok := tsField.Type.(*arrow.TimestampType)
+			if !ok {
+				return nil, fmt.Errorf("failed to cast '__ts__' field type to TimestampType")
+			}
+			tsValues[i] = arrow.Timestamp(val.ToTime(tsType.Unit).UnixMicro())
+		}
+		tsBuilder.AppendValues(tsValues, validityMask)
+
+		newFields := make([]arrow.Field, 0, res.NumCols())
+		newCols := make([]arrow.Array, 0, res.NumCols())
+		for idx, field := range res.Schema().Fields() {
+			if idx == tsIndex {
+				newFields = append(newFields, arrow.Field{Name: field.Name, Type: tsBuilder.Type()})
+				newCols = append(newCols, tsBuilder.NewArray())
+			} else {
+				newFields = append(newFields, field)
+				newCols = append(newCols, res.Column(idx))
+			}
+		}
+		res = array.NewRecord(arrow.NewSchema(newFields, nil), newCols, int64(res.NumRows()))
+	}
+	return res, nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {

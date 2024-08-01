@@ -454,6 +454,7 @@ func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesRe
 	if err != nil {
 		return UploadFeaturesResult{}, clientWrap(err, "error serializing inputs as feather")
 	}
+
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
 		InputsFeather: inputsFeather,
 		Now:           nil,

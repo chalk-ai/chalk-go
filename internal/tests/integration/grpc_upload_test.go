@@ -1,68 +1,20 @@
 package integration
 
 import (
+	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
+	"math/rand"
 	"testing"
 	"time"
 )
 
 type Theorem struct {
 	Id       *int64
-	ProofId  *string
+	ProofId  *int64
 	NumLines *int64
 	Author   *string
 }
-
-/*
-  count_theorem_lines: Windowed[int] = windowed(
-        "30d",
-        "90d",
-        materialization={
-            "bucket_duration": "1d",
-        },
-        expression=_.theorems.count(),
-    )
-    total_theorem_lines: Windowed[int] = windowed(
-        "30d",
-        "90d",
-        materialization={
-            "bucket_duration": "1d",
-        },
-        expression=_.theorems[_.num_lines].sum(),
-    )
-    mean_theorem_lines: Windowed[float] = windowed(
-        "30d",
-        "90d",
-        materialization={
-            "bucket_duration": "1d",
-        },
-        expression=_.theorems[_.num_lines].mean(),
-    )
-
-    num_theorem_lines_by_author: DataFrame = group_by_windowed(
-        "30d",
-        "90d",
-        materialization={
-            "bucket_duration": "1d",
-        },
-        expression=_.theorems.group_by(_.author).agg(_.num_lines.sum()),
-    )
-
-    num_theorem_lines_by_main_author_30d: int = feature(
-        expression=_.num_theorem_lines_by_author["30d"].group(
-            author=_.main_author,
-        ),
-    )
-    num_theorem_lines_by_main_author_windowed: Windowed[int] = windowed(
-        "30d",
-        "90d",
-        expression=_.num_theorem_lines_by_author.group(
-            author=_.main_author,
-        ),
-    )
-    main_author: str
-*/
 
 type Proof struct {
 	Id                                  *string
@@ -80,29 +32,44 @@ var Features struct {
 	Proof   *Proof
 }
 
+func getRandomInts(n int) []int64 {
+	var result []int64
+	for i := 0; i < n; i++ {
+		result = append(result, int64(rand.Int()))
+	}
+	return result
+}
+
 // TestGrpcUploadFeatures is a separate test from the non-grpc upload test
 // because the GRPC endpoint only handles uploading windowed agg aggregations.
 func TestGrpcUploadFeatures(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
 	assert.NoError(t, chalk.InitFeatures(&Features))
-	// Implicitly sources config from env var
 	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 
+	distinctProofIds := getRandomInts(4)
+	proofIdBytes := [][]byte{
+		[]byte(fmt.Sprintf("%d", distinctProofIds[0])),
+		[]byte(fmt.Sprintf("%d", distinctProofIds[0])),
+		[]byte(fmt.Sprintf("%d", distinctProofIds[1])),
+		[]byte(fmt.Sprintf("%d", distinctProofIds[2])),
+		[]byte(fmt.Sprintf("%d", distinctProofIds[3])),
+	}
+	theoremIds := getRandomInts(len(proofIdBytes))
+
+	now := time.Now().UTC()
+
 	params := chalk.UploadFeaturesParams{Inputs: map[any]any{
-		Features.Theorem.Id: []int64{1, 2, 3, 4, 5},
-		Features.Theorem.ProofId: [][]byte{
-			[]byte("1"),
-			[]byte("1"),
-			[]byte("3"),
-			[]byte("4"),
-			[]byte("5"),
-		},
-		Features.Theorem.NumLines: []int64{34, 55, 89, 144, 233},
+		Features.Theorem.Id: theoremIds,
+		// This should be an int64 once the server automatically casts group by columns to binary
+		Features.Theorem.ProofId: proofIdBytes,
+		// This should be its original int64 type once the server automatically casts aggregated columns to float64
+		Features.Theorem.NumLines: []float64{34, 55, 89, 144, 233},
+		// This should be a string once the server automatically casts group by columns to binary
 		Features.Theorem.Author: [][]byte{
 			[]byte("Carl Friederich Gauss"),
 			[]byte("Sir Isaac Newton"),
@@ -111,20 +78,53 @@ func TestGrpcUploadFeatures(t *testing.T) {
 			[]byte("Sir Roger Penrose"),
 		},
 		"__ts__": []time.Time{
-			time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC),
-			time.Date(2021, 9, 2, 0, 0, 0, 0, time.UTC),
-			time.Date(2021, 9, 3, 0, 0, 0, 0, time.UTC),
-			time.Date(2021, 9, 4, 0, 0, 0, 0, time.UTC),
-			time.Date(2021, 9, 5, 0, 0, 0, 0, time.UTC),
+			now.Add(-1 * 24 * time.Hour),
+			now.Add(-2 * 24 * time.Hour),
+			now.Add(-3 * 24 * time.Hour),
+			now.Add(-4 * 24 * time.Hour),
+			now.Add(-5 * 24 * time.Hour),
 		},
 	}}
 
 	_, err = client.UploadFeatures(params)
-	if err != nil {
-		t.Fatal("Failed uploading features", err)
-	}
+	assert.NoError(t, err)
 
-	if err != nil {
+	// Query aggregation results
+	queryParams := chalk.OnlineQueryParams{}.WithInput(
+		Features.Proof.Id,
+		distinctProofIds,
+	).WithOutputs(
+		Features.Proof.TotalTheoremLines["30d"],
+		Features.Proof.TotalTheoremLines["90d"],
+		Features.Proof.MeanTheoremLines["30d"],
+		Features.Proof.MeanTheoremLines["90d"],
+	)
+	bulkRes, err := client.OnlineQueryBulk(queryParams)
+	assert.NoError(t, err)
+	var proofResults []Proof
+	err = bulkRes.UnmarshalInto(&proofResults)
+	if err != (*chalk.ClientError)(nil) {
 		t.Fatal("Failed querying features", err)
 	}
+
+	assert.Equal(t, 4, len(proofResults))
+	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["90d"])
 }
