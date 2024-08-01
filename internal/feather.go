@@ -325,6 +325,10 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	}
 
 	res := recordBuilder.NewRecord()
+
+	// Need to convert __ts__ to exactly pa.timestamp("us", "UTC")
+	// until the UploadFeatures gRPC endpoint handles precisions
+	// other than "us".
 	tsIndex := -1
 	var tsField arrow.Field
 	for idx, field := range res.Schema().Fields() {
