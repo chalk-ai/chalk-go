@@ -13,8 +13,11 @@ import (
 // TestUploadFeatures tests a basic features upload and
 // also tests the two flavors of online query.
 func TestUploadFeatures(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewClient() // Implicitly sources config from env var
+
+	// Implicitly sources config from env var
+	client, err := chalk.NewClient()
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

@@ -374,6 +374,25 @@ type UploadFeaturesResult struct {
 	OperationId string `json:"operation_id"`
 }
 
+// UpdateAggregatesParams lets you specify
+// parameters for updating aggregated values
+// of your windowed aggregation features.
+type UpdateAggregatesParams struct {
+	// Inputs is a map of features to values. The features should
+	// either be a string or codegen-ed Feature object. The values
+	// should be a slice of the appropriate type. All slices should
+	// be the same length as the number of entities you want to upload
+	// features for.
+	Inputs map[any]any
+
+	Context context.Context
+}
+
+// UpdateAggregatesResult holds the result of an upload aggregates request.
+type UpdateAggregatesResult struct {
+	TraceId string `json:"trace_id"`
+}
+
 // OfflineQueryParams defines the parameters
 // that help you execute an online query.
 // OfflineQueryParams is the starting point
