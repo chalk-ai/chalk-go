@@ -1,9 +1,7 @@
 package integration
 
 import (
-	"fmt"
 	"github.com/chalk-ai/chalk-go"
-	"github.com/samber/lo"
 	assert "github.com/stretchr/testify/require"
 	"math/rand"
 	"testing"
@@ -18,7 +16,7 @@ type Theorem struct {
 }
 
 type Proof struct {
-	Id                                  *string
+	Id                                  *int64
 	CountTheoremLines                   map[string]*int64   `windows:"30d,90d"`
 	TotalTheoremLines                   map[string]*int64   `windows:"30d,90d"`
 	MeanTheoremLines                    map[string]*float64 `windows:"30d,90d"`
@@ -53,32 +51,28 @@ func TestGrpcUploadFeatures(t *testing.T) {
 	}
 
 	distinctProofIds := getRandomInts(4)
-	proofIdBytes := [][]byte{
-		[]byte(fmt.Sprintf("%d", distinctProofIds[0])),
-		[]byte(fmt.Sprintf("%d", distinctProofIds[0])),
-		[]byte(fmt.Sprintf("%d", distinctProofIds[1])),
-		[]byte(fmt.Sprintf("%d", distinctProofIds[2])),
-		[]byte(fmt.Sprintf("%d", distinctProofIds[3])),
+	proofIds := []int64{
+		distinctProofIds[0],
+		distinctProofIds[0],
+		distinctProofIds[1],
+		distinctProofIds[2],
+		distinctProofIds[3],
 	}
-	theoremIds := getRandomInts(len(proofIdBytes))
-	theoremIdsFloat := lo.Map(theoremIds, func(i int64, _ int) float64 { return float64(i) })
-
+	theoremIds := getRandomInts(len(proofIds))
 	now := time.Now().UTC()
-
 	params := chalk.UploadFeaturesParams{Inputs: map[any]any{
-		// This should be an int64 once the server automatically casts group by columns to float64
-		Features.Theorem.Id: theoremIdsFloat,
+		Features.Theorem.Id: theoremIds,
 		// This should be an int64 once the server automatically casts group by columns to binary
-		Features.Theorem.ProofId: proofIdBytes,
+		Features.Theorem.ProofId: proofIds,
 		// This should be its original int64 type once the server automatically casts aggregated columns to float64
-		Features.Theorem.NumLines: []float64{34, 55, 89, 144, 233},
+		Features.Theorem.NumLines: []int64{34, 55, 89, 144, 233},
 		// This should be a string once the server automatically casts group by columns to binary
-		Features.Theorem.Author: [][]byte{
-			[]byte("Carl Friederich Gauss"),
-			[]byte("Sir Isaac Newton"),
-			[]byte("Albert Einstein"),
-			[]byte("Richard Feynman"),
-			[]byte("Sir Roger Penrose"),
+		Features.Theorem.Author: []string{
+			"Carl Friederich Gauss",
+			"Sir Isaac Newton",
+			"Albert Einstein",
+			"Richard Feynman",
+			"Sir Roger Penrose",
 		},
 		"__ts__": []time.Time{
 			now.Add(-1 * 24 * time.Hour),
