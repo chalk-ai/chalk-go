@@ -460,7 +460,12 @@ func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggreg
 		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
 	})
 
-	res, err := c.queryClient.UploadFeaturesBulk(context.Background(), req)
+	ctx := context.Background()
+	if args.Context != nil {
+		ctx = args.Context
+	}
+
+	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
 	if err != nil {
 		return UpdateAggregatesResult{}, wrapClientError(err, "error making upload features request")
 	}
