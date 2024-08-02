@@ -254,8 +254,8 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 				BranchId:             args.underlying.BranchId,
 				CorrelationId:        lo.ToPtr(args.underlying.CorrelationId),
 				QueryName:            lo.ToPtr(args.underlying.QueryName),
+				QueryNameVersion:     lo.ToPtr(args.underlying.QueryNameVersion),
 				RequiredResolverTags: nil,
-				QueryNameVersion:     nil,
 				Options:              nil,
 			},
 			ResponseOptions: &commonv1.OnlineQueryResponseOptions{
