@@ -445,14 +445,14 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 	return c.onlineQueryBulk(args)
 }
 
-func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
-	inputsConverted, err := args.getConvertedInputsMap()
+func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
+	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
-		return UploadFeaturesResult{}, wrapClientError(err, "error converting inputs map")
+		return UpdateAggregatesResult{}, wrapClientError(err, "error converting inputs map")
 	}
 	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
 	if err != nil {
-		return UploadFeaturesResult{}, wrapClientError(err, "error serializing inputs as feather")
+		return UpdateAggregatesResult{}, wrapClientError(err, "error serializing inputs as feather")
 	}
 
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
@@ -462,18 +462,17 @@ func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesRe
 
 	res, err := c.queryClient.UploadFeaturesBulk(context.Background(), req)
 	if err != nil {
-		return UploadFeaturesResult{}, wrapClientError(err, "error making upload features request")
+		return UpdateAggregatesResult{}, wrapClientError(err, "error making upload features request")
 	}
 
 	if len(res.Msg.Errors) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
 		if err != nil {
-			return UploadFeaturesResult{}, errors.Wrap(err, "error converting server errors")
+			return UpdateAggregatesResult{}, errors.Wrap(err, "error converting server errors")
 		}
-		return UploadFeaturesResult{}, newServerError(convertedErrs)
+		return UpdateAggregatesResult{}, newServerError(convertedErrs)
 	}
-	return UploadFeaturesResult{
-		// TODO: Replace with actual operation ID if we choose to have one for the GRPC endpoint.
+	return UpdateAggregatesResult{
 		res.Trailer().Get(headerKeyTraceId),
 	}, nil
 }
@@ -488,4 +487,8 @@ func (c *clientGrpc) TriggerResolverRun(args TriggerResolverRunParams) (TriggerR
 
 func (c *clientGrpc) GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error) {
 	return GetRunStatusResult{}, errors.New("not implemented")
+}
+
+func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
+	return UploadFeaturesResult{}, errors.New("not implemented")
 }

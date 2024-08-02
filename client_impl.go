@@ -137,7 +137,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 }
 
 func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
-	convertedInputs, err := params.getConvertedInputsMap()
+	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
 		return UploadFeaturesResult{}, wrapClientError(err, "failed to convert input map keys")
 	}
@@ -282,6 +282,10 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 		return GetRunStatusResult{}, getErrorResponse(err)
 	}
 	return response, nil
+}
+
+func (c *clientImpl) UpdateAggregates(params UpdateAggregatesParams) (UpdateAggregatesResult, error) {
+	return UpdateAggregatesResult{}, errors.New("not implemented")
 }
 
 func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, error) {

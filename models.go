@@ -377,8 +377,7 @@ type UpdateAggregatesParams struct {
 
 // UpdateAggregatesResult holds the result of an upload aggregates request.
 type UpdateAggregatesResult struct {
-	Errors  []ServerError `json:"errors"`
-	TraceId string        `json:"trace_id"`
+	TraceId string `json:"trace_id"`
 }
 
 // OfflineQueryParams defines the parameters

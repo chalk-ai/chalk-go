@@ -5,8 +5,7 @@ import (
 	"reflect"
 )
 
-func (p *UploadFeaturesParams) getConvertedInputsMap() (map[string]any, error) {
-	inputs := p.Inputs
+func getConvertedInputsMap(inputs map[any]any) (map[string]any, error) {
 	res := make(map[string]any)
 
 	allLength := -1

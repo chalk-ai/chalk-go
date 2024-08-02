@@ -39,9 +39,9 @@ func getRandomInts(n int) []int64 {
 	return result
 }
 
-// TestGrpcUploadFeatures is a separate test from the non-grpc upload test
+// TestGrpcUpdateAggregates is a separate test from the non-grpc upload test
 // because the GRPC endpoint only handles uploading windowed agg aggregations.
-func TestGrpcUploadFeatures(t *testing.T) {
+func TestGrpcUpdateAggregates(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	assert.NoError(t, chalk.InitFeatures(&Features))
@@ -60,7 +60,7 @@ func TestGrpcUploadFeatures(t *testing.T) {
 	}
 	theoremIds := getRandomInts(len(proofIds))
 	now := time.Now().UTC()
-	params := chalk.UploadFeaturesParams{Inputs: map[any]any{
+	params := chalk.UpdateAggregatesParams{Inputs: map[any]any{
 		Features.Theorem.Id: theoremIds,
 		// This should be an int64 once the server automatically casts group by columns to binary
 		Features.Theorem.ProofId: proofIds,
@@ -83,8 +83,9 @@ func TestGrpcUploadFeatures(t *testing.T) {
 		},
 	}}
 
-	_, err = client.UploadFeatures(params)
+	res, err := client.UpdateAggregates(params)
 	assert.NoError(t, err)
+	assert.Equal(t, 0, len(res.Errors))
 
 	// Query aggregation results
 	queryParams := chalk.OnlineQueryParams{}.WithInput(
