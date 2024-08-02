@@ -324,55 +324,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	res := recordBuilder.NewRecord()
-
-	// Need to convert __ts__ to exactly pa.timestamp("us", "UTC")
-	// until the UploadFeatures gRPC endpoint handles precisions
-	// other than "us".
-	tsIndex := -1
-	var tsField arrow.Field
-	for idx, field := range res.Schema().Fields() {
-		if field.Name == "__ts__" {
-			tsIndex = idx
-			tsField = field
-			break
-		}
-	}
-	if tsIndex != -1 {
-		defer res.Release()
-		tsBuilder := array.NewTimestampBuilder(allocator, &arrow.TimestampType{Unit: arrow.Microsecond, TimeZone: "UTC"})
-		defer tsBuilder.Release()
-		tsValues := make([]arrow.Timestamp, res.NumRows())
-		validityMask := make([]bool, res.NumRows())
-		for i := 0; i < int(res.NumRows()); i++ {
-			validityMask[i] = res.Column(tsIndex).IsValid(i)
-			tsCol, ok := res.Column(tsIndex).(*array.Timestamp)
-			if !ok {
-				return nil, fmt.Errorf("failed to cast '__ts__' column to Timestamp Array")
-			}
-			val := tsCol.Value(i)
-			tsType, ok := tsField.Type.(*arrow.TimestampType)
-			if !ok {
-				return nil, fmt.Errorf("failed to cast '__ts__' field type to TimestampType")
-			}
-			tsValues[i] = arrow.Timestamp(val.ToTime(tsType.Unit).UnixMicro())
-		}
-		tsBuilder.AppendValues(tsValues, validityMask)
-
-		newFields := make([]arrow.Field, 0, res.NumCols())
-		newCols := make([]arrow.Array, 0, res.NumCols())
-		for idx, field := range res.Schema().Fields() {
-			if idx == tsIndex {
-				newFields = append(newFields, arrow.Field{Name: field.Name, Type: tsBuilder.Type()})
-				newCols = append(newCols, tsBuilder.NewArray())
-			} else {
-				newFields = append(newFields, field)
-				newCols = append(newCols, res.Column(idx))
-			}
-		}
-		res = array.NewRecord(arrow.NewSchema(newFields, nil), newCols, res.NumRows())
-	}
-	return res, nil
+	return recordBuilder.NewRecord(), nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {

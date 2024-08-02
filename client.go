@@ -108,7 +108,8 @@ type Client interface {
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
 
-	// UpdateAggregates synchronously persists feature values that backs windowed aggregations.
+	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
+	// while updating the corresponding aggregate values themselves.
 	// The `Inputs` parameter should be a map of features to values. The features should either
 	// be a string or codegen-ed Feature object, and the values a slice of the appropriate type.
 	// All slices should be the same length.
