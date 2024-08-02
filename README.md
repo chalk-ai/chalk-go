@@ -165,7 +165,7 @@ res, err := client.UpdateAggregates(
     chalk.UpdateAggregatesParams{
         Inputs: map[any]any{
             "transaction.id": []string{"txn-1", "txn-2"},
-            "transaction.user_id": []string{"Borges", "Paris"},
+            "transaction.user_id": []string{"user-1", "user-2"},
             "transaction.amount": []float64{100.0, 200.0},
             "__ts__": []time.Time{time.Now(), time.Now()},
         },
