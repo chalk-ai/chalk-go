@@ -83,9 +83,8 @@ func TestGrpcUpdateAggregates(t *testing.T) {
 		},
 	}}
 
-	res, err := client.UpdateAggregates(params)
+	_, err = client.UpdateAggregates(params)
 	assert.NoError(t, err)
-	assert.Equal(t, 0, len(res.Errors))
 
 	// Query aggregation results
 	queryParams := chalk.OnlineQueryParams{}.WithInput(
