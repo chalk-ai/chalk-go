@@ -46,6 +46,8 @@ var (
 
 // AggregateServiceClient is a client for the chalk.aggregate.v1.AggregateService service.
 type AggregateServiceClient interface {
+	// PlanAggregateBackfill determines the estimated resources needed to backfill
+	// an aggregate.
 	PlanAggregateBackfill(context.Context, *connect.Request[v1.PlanAggregateBackfillRequest]) (*connect.Response[v1.PlanAggregateBackfillResponse], error)
 }
 
@@ -81,6 +83,8 @@ func (c *aggregateServiceClient) PlanAggregateBackfill(ctx context.Context, req 
 
 // AggregateServiceHandler is an implementation of the chalk.aggregate.v1.AggregateService service.
 type AggregateServiceHandler interface {
+	// PlanAggregateBackfill determines the estimated resources needed to backfill
+	// an aggregate.
 	PlanAggregateBackfill(context.Context, *connect.Request[v1.PlanAggregateBackfillRequest]) (*connect.Response[v1.PlanAggregateBackfillResponse], error)
 }
 
