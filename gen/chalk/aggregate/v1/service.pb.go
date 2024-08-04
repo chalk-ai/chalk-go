@@ -89,6 +89,7 @@ type AggregateTimeSeries struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// The features which depend on this time series.
 	DependentFeatures []string `protobuf:"bytes,1,rep,name=dependent_features,json=dependentFeatures,proto3" json:"dependent_features,omitempty"`
 }
 
