@@ -3,6 +3,7 @@ package integration
 import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/samber/lo"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
@@ -132,10 +133,11 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	assert.Equal(t, expectedBranchId, actualBranchId)
 }
 
-// TestParamsBranchSetInFeatherHeader tests that when we
-// specify a branch ID in the params, the feather request
-// header that we serialize includes the branch ID header.
-func TestParamsBranchSetInFeatherHeader(t *testing.T) {
+// TestParamsSetInFeatherHeader tests that params are threaded
+// through to the feather request header. Params tested:
+// - Branch ID
+// - Query tags
+func TestParamsSetInFeatherHeader(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	expectedBranchId := "test-branch-id"
@@ -150,7 +152,8 @@ func TestParamsBranchSetInFeatherHeader(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
-	req := chalk.OnlineQueryParams{}.
+	expectedTags := []string{"tags-1", "tags-2"}
+	req := chalk.OnlineQueryParams{Tags: expectedTags}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
 		WithBranchId(expectedBranchId)
@@ -160,4 +163,13 @@ func TestParamsBranchSetInFeatherHeader(t *testing.T) {
 	actualBranchId, ok := header["branch_id"]
 	assert.True(t, ok)
 	assert.Equal(t, expectedBranchId, actualBranchId)
+
+	context, ok := header["context"].(map[string]any)
+	assert.True(t, ok)
+	tagsAny, ok := context["tags"].([]any)
+	tagsString := lo.Map(tagsAny, func(tag any, _ int) string {
+		return tag.(string)
+	})
+	assert.True(t, ok)
+	assert.Equal(t, expectedTags, tagsString)
 }

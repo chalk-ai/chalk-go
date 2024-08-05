@@ -8,7 +8,7 @@ import (
 )
 
 func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
-	context := onlineQueryContext{
+	context := internal.OnlineQueryContext{
 		Environment: internal.StringOrNil(p.EnvironmentId),
 		Tags:        p.Tags,
 	}
