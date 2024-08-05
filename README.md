@@ -143,7 +143,7 @@ definition:
 @features
 class User:
     id: str
-    txns: DataFrame["Transaction"]
+    txns: "DataFrame[Transaction]"
     txn_amount_total: Windowed[int] = windowed(
         "30d",
         "90d",
