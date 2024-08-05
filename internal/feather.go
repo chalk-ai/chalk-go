@@ -569,9 +569,10 @@ func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
 }
 
 type FeatherRequestHeader struct {
-	Outputs  []string `json:"outputs"`
-	BranchId *string  `json:"branch_id"`
-	Explain  bool     `json:"explain"`
+	Outputs  []string            `json:"outputs"`
+	BranchId *string             `json:"branch_id"`
+	Explain  bool                `json:"explain"`
+	Context  *OnlineQueryContext `json:"context"`
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {

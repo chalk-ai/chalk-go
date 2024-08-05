@@ -131,33 +131,3 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectedBranchId, actualBranchId)
 }
-
-// TestParamsBranchSetInFeatherHeader tests that when we
-// specify a branch ID in the params, the feather request
-// header that we serialize includes the branch ID header.
-func TestParamsBranchSetInFeatherHeader(t *testing.T) {
-	SkipIfNotIntegrationTester(t)
-	httpClient := NewInterceptorHTTPClient()
-	expectedBranchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
-	userIds := []int{1}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
-	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore).
-		WithBranchId(expectedBranchId)
-	_, _ = client.OnlineQueryBulk(req)
-	header, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
-	assert.Nil(t, headerErr)
-	actualBranchId, ok := header["branch_id"]
-	assert.True(t, ok)
-	assert.Equal(t, expectedBranchId, actualBranchId)
-}

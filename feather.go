@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/samber/lo"
 )
 
 func (r OnlineQueryBulkResult) Release() {
@@ -32,6 +33,10 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		Outputs:  p.underlying.outputs,
 		Explain:  false,
 		BranchId: branchId,
+		Context: &internal.OnlineQueryContext{
+			Environment: lo.EmptyableToPtr(p.underlying.EnvironmentId),
+			Tags:        p.underlying.Tags,
+		},
 	})
 }
 
