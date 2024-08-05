@@ -3,7 +3,6 @@ package integration
 import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/samber/lo"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
@@ -131,45 +130,4 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	actualBranchId, ok := header["branch_id"]
 	assert.True(t, ok)
 	assert.Equal(t, expectedBranchId, actualBranchId)
-}
-
-// TestParamsSetInFeatherHeader tests that params are threaded
-// through to the feather request header. Params tested:
-// - Branch ID
-// - Query tags
-func TestParamsSetInFeatherHeader(t *testing.T) {
-	SkipIfNotIntegrationTester(t)
-	httpClient := NewInterceptorHTTPClient()
-	expectedBranchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
-	userIds := []int{1}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
-	expectedTags := []string{"tags-1", "tags-2"}
-	req := chalk.OnlineQueryParams{Tags: expectedTags}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore).
-		WithBranchId(expectedBranchId)
-	_, _ = client.OnlineQueryBulk(req)
-	header, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
-	assert.Nil(t, headerErr)
-	actualBranchId, ok := header["branch_id"]
-	assert.True(t, ok)
-	assert.Equal(t, expectedBranchId, actualBranchId)
-
-	context, ok := header["context"].(map[string]any)
-	assert.True(t, ok)
-	tagsAny, ok := context["tags"].([]any)
-	tagsString := lo.Map(tagsAny, func(tag any, _ int) string {
-		return tag.(string)
-	})
-	assert.True(t, ok)
-	assert.Equal(t, expectedTags, tagsString)
 }

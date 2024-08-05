@@ -431,6 +431,9 @@ type OfflineQueryParams struct {
 	// For more information about observation time, see https://docs.chalk.ai/docs/temporal-consistency
 	DefaultTime *time.Time
 
+	// The tags used to scope the resolvers.
+	Tags []string
+
 	/***************
 	 PRIVATE FIELDS
 	***************/

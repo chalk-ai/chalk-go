@@ -2,23 +2,8 @@ package chalk
 
 import (
 	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/chalk-ai/chalk-go/internal"
 	"time"
 )
-
-type onlineQueryRequestSerialized struct {
-	Inputs           map[string]any              `json:"inputs,string"`
-	Outputs          []string                    `json:"outputs"`
-	Context          internal.OnlineQueryContext `json:"context"`
-	Staleness        map[string]string           `json:"staleness"`
-	IncludeMeta      bool                        `json:"include_meta"`
-	IncludeMetrics   bool                        `json:"include_metrics"`
-	DeploymentId     *string                     `json:"deployment_id"`
-	QueryName        *string                     `json:"query_name"`
-	CorrelationId    *string                     `json:"correlation_id"`
-	Meta             map[string]string           `json:"meta"`
-	QueryNameVersion *string                     `json:"query_name_version"`
-}
 
 type onlineQueryResponseSerialized struct {
 	Data   []featureResultSerialized `json:"data"`
@@ -48,25 +33,6 @@ type featureResultSerialized struct {
 	Timestamp string                 `json:"ts"`
 	Meta      *FeatureResolutionMeta `json:"meta"`
 	Error     *chalkErrorSerialized  `json:"error"`
-}
-
-type offlineQueryInputSerialized struct {
-	Columns []string `json:"columns"`
-	Values  [][]any  `json:"values"`
-}
-
-type offlineQueryRequestSerialized struct {
-	Input                offlineQueryInputSerialized `json:"input"`
-	Output               []string                    `json:"output"`
-	RequiredOutput       []string                    `json:"required_output"`
-	DatasetName          *string                     `json:"dataset_name"`
-	Branch               *string                     `json:"branch"`
-	MaxSamples           *int                        `json:"max_samples"`
-	DestinationFormat    string                      `json:"destination_format"`
-	JobId                *string                     `json:"job_id"`
-	MaxCacheAge          *int                        `json:"max_cache_age_secs"`
-	ObservedAtLowerBound *time.Time                  `json:"observed_at_lower_bound"`
-	ObservedAtUpperBound *time.Time                  `json:"observed_at_upper_bound"`
 }
 
 type DatasetSampleFilter struct {
