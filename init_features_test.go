@@ -33,6 +33,9 @@ type goUser struct {
 	FamilyIncome *float32
 
 	CustomUnderscoresL90DP90DAustralia *int `name:"custom_underscores_l90d_p90d_australia"`
+	ChargeL30mP30mRate                 *float64
+	ContactsDeliveredAl7dHow           *float64
+	Test123                            *float64
 
 	// Versioned features
 	Grade   *int `versioned:"default(2)"`
@@ -56,6 +59,8 @@ func init() {
 	initFeaturesErr = chalk.InitFeatures(&testFeatures)
 }
 
+// TestInitFeatures serves to test feature FQN resolution e2e,
+// on top of the snake casing unit tests.
 func TestInitFeatures(t *testing.T) {
 	assert.Nil(t, initFeaturesErr)
 
@@ -114,6 +119,18 @@ func TestInitFeatures(t *testing.T) {
 	customUnderscore, err := chalk.UnwrapFeature(testFeatures.User.CustomUnderscoresL90DP90DAustralia)
 	assert.Nil(t, err)
 	assert.Equal(t, "user.custom_underscores_l90d_p90d_australia", customUnderscore.Fqn)
+
+	capitalWithNumber, err := chalk.UnwrapFeature(testFeatures.User.ChargeL30mP30mRate)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.charge_l30m_p30m_rate", capitalWithNumber.Fqn)
+
+	contactsDelivered, err := chalk.UnwrapFeature(testFeatures.User.ContactsDeliveredAl7dHow)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.contacts_delivered_al_7d_how", contactsDelivered.Fqn)
+
+	test123, err := chalk.UnwrapFeature(testFeatures.User.Test123)
+	assert.Nil(t, err)
+	assert.Equal(t, "user.test_123", test123.Fqn)
 
 	grade, err := chalk.UnwrapFeature(testFeatures.User.Grade)
 	assert.Nil(t, err)

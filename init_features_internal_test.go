@@ -96,6 +96,9 @@ func TestUnmarshal(t *testing.T) {
 	assert.Nil(t, user.Card.Number)
 }
 
+// TestSnakeCase serves as a unit test.
+// We should also add all test cases here
+// to the integration test in `init_features_test.go`.
 func TestSnakeCase(t *testing.T) {
 	testCases := []struct {
 		input    string

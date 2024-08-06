@@ -170,7 +170,7 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 			versioned,
 		)
 	}
-	return ChalkpySnakeCase(fieldName), nil
+	return fieldName, nil
 }
 
 func Ptr[T any](value T) *T {
