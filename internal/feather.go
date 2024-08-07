@@ -574,7 +574,7 @@ type FeatherRequestHeader struct {
 	Explain          bool                `json:"explain"`
 	Context          *OnlineQueryContext `json:"context"`
 	Staleness        map[string]string   `json:"staleness"`
-	Now              []string            `json:"now"`
+	Now              []string            `json:"now,omitempty"`
 	IncludeMeta      bool                `json:"include_meta"`
 	CorrelationId    *string             `json:"correlation_id"`
 	QueryName        *string             `json:"query_name"`
