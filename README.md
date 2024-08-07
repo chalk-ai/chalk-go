@@ -133,7 +133,45 @@ res, err := client.UploadFeatures(
 )
 ```
 
+### Update Aggregates
 
+Note: This method is available only when using the gRPC client. See [gRPC Client](#grpc-client) for more information.
+
+You can easily update your windowed aggregation feature values with `UpdateAggregates`. For example, with this feature
+definition:
+```python
+@features
+class User:
+    id: str
+    txns: "DataFrame[Transaction]"
+    txn_amount_total: Windowed[int] = windowed(
+        "30d",
+        "90d",
+        materialization={
+            "bucket_duration": "1d",
+        },
+        expression=_.txns[_.amount].sum(),
+    )
+
+@features
+class Transaction:
+    id: Primary[str]
+    amount: float
+    user_id: str
+```
+Then to update the `txn_amount_total` feature, you would upload features corresponding to that aggregation:
+```go
+res, err := client.UpdateAggregates(
+    chalk.UpdateAggregatesParams{
+        Inputs: map[any]any{
+            "transaction.id": []string{"txn-1", "txn-2"},
+            "transaction.user_id": []string{"user-1", "user-2"},
+            "transaction.amount": []float64{100.0, 200.0},
+            "__ts__": []time.Time{time.Now(), time.Now()},
+        },
+    },
+)
+```
 
 ### Querying against a branch
 

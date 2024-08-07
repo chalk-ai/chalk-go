@@ -7,23 +7,24 @@ import (
 	"time"
 )
 
-func (p OnlineQueryParams) serialize() onlineQueryRequestSerialized {
-	context := onlineQueryContext{
+func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
+	context := internal.OnlineQueryContext{
 		Environment: internal.StringOrNil(p.EnvironmentId),
 		Tags:        p.Tags,
 	}
 
-	body := onlineQueryRequestSerialized{
-		Inputs:         p.inputs,
-		Outputs:        p.outputs,
-		Context:        context,
-		Staleness:      serializeStaleness(p.staleness),
-		IncludeMeta:    p.IncludeMeta,
-		IncludeMetrics: p.IncludeMetrics,
-		DeploymentId:   internal.StringOrNil(p.PreviewDeploymentId),
-		QueryName:      internal.StringOrNil(p.QueryName),
-		CorrelationId:  internal.StringOrNil(p.CorrelationId),
-		Meta:           p.Meta,
+	body := internal.OnlineQueryRequestSerialized{
+		Inputs:           p.inputs,
+		Outputs:          p.outputs,
+		Context:          context,
+		Staleness:        serializeStaleness(p.staleness),
+		IncludeMeta:      p.IncludeMeta,
+		IncludeMetrics:   p.IncludeMetrics,
+		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
+		QueryName:        internal.StringOrNil(p.QueryName),
+		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
+		CorrelationId:    internal.StringOrNil(p.CorrelationId),
+		Meta:             p.Meta,
 	}
 
 	return body
@@ -156,7 +157,7 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 }
 
 func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
-	queryInput := offlineQueryInputSerialized{}
+	queryInput := internal.OfflineQueryInputSerialized{}
 	globalInputTimes := make([]any, 0)
 
 	for fqn, tsFeatureValues := range p.inputs {
@@ -184,7 +185,7 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 		requiredOutput = make([]string, 0)
 	}
 
-	serializedObj := offlineQueryRequestSerialized{
+	serializedObj := internal.OfflineQueryRequestSerialized{
 		Input:             queryInput,
 		Output:            output,
 		RequiredOutput:    requiredOutput,
@@ -192,6 +193,7 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 		Branch:            internal.StringOrNil(p.Branch),
 		MaxSamples:        p.MaxSamples,
 		DestinationFormat: "PARQUET",
+		Tags:              p.Tags,
 	}
 
 	return json.Marshal(serializedObj)

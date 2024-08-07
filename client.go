@@ -108,6 +108,32 @@ type Client interface {
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
 
+	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
+	// while updating the corresponding aggregate values themselves.
+	// The `Inputs` parameter should be a map of features to values. The features should either
+	// be a string or codegen-ed Feature object, and the values a slice of the appropriate type.
+	// All slices should be the same length.
+	//
+	// The update is successful if the response contains no errors.
+	//
+	// Example:
+	//
+	// 		res, err := client.UpdateAggregates(
+	// 			UpdateAggregatesParams{
+	// 				Inputs: map[any]any{
+	// 					Features.Txns.Id: []string{5555-5555", "4444-4444"},
+	// 				    "txns.merchant_id": []string{"amezon", "pacman studios"},
+	//					"txns.amount": []float64{126.58, 100.03},
+	// 				},
+	// 			}
+	// 		)
+	//      if err != nil {
+	//          return err.Error()
+	//      }
+	//
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
+	UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error)
+
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
 	//

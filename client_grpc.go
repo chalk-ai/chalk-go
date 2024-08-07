@@ -23,6 +23,7 @@ var (
 	headerKeyDeploymentType = "x-chalk-deployment-type"
 	headerKeyEnvironmentId  = "x-chalk-env-id"
 	headerKeyServerType     = "x-chalk-server"
+	headerKeyTraceId        = "x-chalk-trace-id"
 
 	serverTypeApi    = "go-api"
 	serverTypeEngine = "engine"
@@ -254,8 +255,8 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 				BranchId:             args.underlying.BranchId,
 				CorrelationId:        lo.ToPtr(args.underlying.CorrelationId),
 				QueryName:            lo.ToPtr(args.underlying.QueryName),
+				QueryNameVersion:     lo.ToPtr(args.underlying.QueryNameVersion),
 				RequiredResolverTags: nil,
-				QueryNameVersion:     nil,
 				Options:              nil,
 			},
 			ResponseOptions: &commonv1.OnlineQueryResponseOptions{
@@ -269,27 +270,20 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 
 	res, err := c.queryClient.OnlineQueryBulk(context.Background(), req)
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error executing online query")
+		return OnlineQueryBulkResult{}, wrapClientError(err, "error executing online query")
 	}
 
 	if len(res.Msg.Errors) > 0 {
-		var serverErrs []ServerError
-
-		for _, e := range res.Msg.Errors {
-			serverErr, err := serverErrorFromProto(e)
-			if err != nil {
-				return OnlineQueryBulkResult{}, errors.Wrap(err, "error converting server error")
-			}
-			serverErrs = append(serverErrs, *serverErr)
+		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
+		if err != nil {
+			return OnlineQueryBulkResult{}, wrapClientError(err, "error converting server errors")
 		}
-		return OnlineQueryBulkResult{}, &ErrorResponse{
-			ServerErrors: serverErrs,
-		}
+		return OnlineQueryBulkResult{}, newServerError(convertedErrs)
 	}
 
 	scalars, err := internal.ConvertBytesToTable(res.Msg.GetScalarsData())
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error deserializing scalars table")
+		return OnlineQueryBulkResult{}, wrapClientError(err, "error deserializing scalars table")
 	}
 
 	groups := make(map[string]arrow.Table)
@@ -464,8 +458,41 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 	return c.onlineQueryBulk(args)
 }
 
-func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
-	return UploadFeaturesResult{}, errors.New("not implemented")
+func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
+	inputsConverted, err := getConvertedInputsMap(args.Inputs)
+	if err != nil {
+		return UpdateAggregatesResult{}, wrapClientError(err, "error converting inputs map")
+	}
+	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
+	if err != nil {
+		return UpdateAggregatesResult{}, wrapClientError(err, "error serializing inputs as feather")
+	}
+
+	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
+		InputsFeather: inputsFeather,
+		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
+	})
+
+	ctx := context.Background()
+	if args.Context != nil {
+		ctx = args.Context
+	}
+
+	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
+	if err != nil {
+		return UpdateAggregatesResult{}, wrapClientError(err, "error making upload features request")
+	}
+
+	if len(res.Msg.Errors) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
+		if err != nil {
+			return UpdateAggregatesResult{}, errors.Wrap(err, "error converting server errors")
+		}
+		return UpdateAggregatesResult{}, newServerError(convertedErrs)
+	}
+	return UpdateAggregatesResult{
+		res.Trailer().Get(headerKeyTraceId),
+	}, nil
 }
 
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
@@ -478,4 +505,8 @@ func (c *clientGrpc) TriggerResolverRun(args TriggerResolverRunParams) (TriggerR
 
 func (c *clientGrpc) GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error) {
 	return GetRunStatusResult{}, errors.New("not implemented")
+}
+
+func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
+	return UploadFeaturesResult{}, errors.New("not implemented")
 }

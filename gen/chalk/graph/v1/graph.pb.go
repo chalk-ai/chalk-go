@@ -1974,6 +1974,8 @@ type Resolver struct {
 	CronFilter      *CronFilterWithFeatureArgs `protobuf:"bytes,15,opt,name=cron_filter,json=cronFilter,proto3" json:"cron_filter,omitempty"`
 	Function        *FunctionReference         `protobuf:"bytes,16,opt,name=function,proto3" json:"function,omitempty"`
 	ResourceHint    ResourceHint               `protobuf:"varint,17,opt,name=resource_hint,json=resourceHint,proto3,enum=chalk.graph.v1.ResourceHint" json:"resource_hint,omitempty"`
+	IsStatic        bool                       `protobuf:"varint,18,opt,name=is_static,json=isStatic,proto3" json:"is_static,omitempty"`
+	IsTotal         *bool                      `protobuf:"varint,19,opt,name=is_total,json=isTotal,proto3,oneof" json:"is_total,omitempty"`
 }
 
 func (x *Resolver) Reset() {
@@ -2125,6 +2127,20 @@ func (x *Resolver) GetResourceHint() ResourceHint {
 		return x.ResourceHint
 	}
 	return ResourceHint_RESOURCE_HINT_UNSPECIFIED
+}
+
+func (x *Resolver) GetIsStatic() bool {
+	if x != nil {
+		return x.IsStatic
+	}
+	return false
+}
+
+func (x *Resolver) GetIsTotal() bool {
+	if x != nil && x.IsTotal != nil {
+		return *x.IsTotal
+	}
+	return false
 }
 
 type SinkResolver struct {

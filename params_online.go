@@ -33,6 +33,20 @@ type OnlineQueryParamsComplete struct {
 	underlying OnlineQueryParams
 }
 
+// WithQueryName returns a copy of Online Query parameters with the specified input added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParamsComplete) WithQueryName(queryName string) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.WithQueryName(queryName)
+	return p
+}
+
+// WithQueryNameVersion returns a copy of Online Query parameters with the specified input added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParamsComplete) WithQueryNameVersion(queryNameVersion string) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.WithQueryNameVersion(queryNameVersion)
+	return p
+}
+
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithInput(feature any, value any) OnlineQueryParamsComplete {

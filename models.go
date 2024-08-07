@@ -41,6 +41,9 @@ type OnlineQueryParams struct {
 	// The name for class of query you're making, for example, "loan_application_model".
 	QueryName string
 
+	// The version of the query you're making, for example, "v1".
+	QueryNameVersion string
+
 	// A globally unique ID for the query, used alongside logs and available in web
 	// interfaces. If None, a correlation ID will be generated for you and returned on
 	// the response.
@@ -96,6 +99,16 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
+	return p
+}
+
+func (p OnlineQueryParams) WithQueryName(queryName string) OnlineQueryParams {
+	p.QueryName = queryName
+	return p
+}
+
+func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParams {
+	p.QueryNameVersion = version
 	return p
 }
 
@@ -361,6 +374,25 @@ type UploadFeaturesResult struct {
 	OperationId string `json:"operation_id"`
 }
 
+// UpdateAggregatesParams lets you specify
+// parameters for updating aggregated values
+// of your windowed aggregation features.
+type UpdateAggregatesParams struct {
+	// Inputs is a map of features to values. The features should
+	// either be a string or codegen-ed Feature object. The values
+	// should be a slice of the appropriate type. All slices should
+	// be the same length as the number of entities you want to upload
+	// features for.
+	Inputs map[any]any
+
+	Context context.Context
+}
+
+// UpdateAggregatesResult holds the result of an upload aggregates request.
+type UpdateAggregatesResult struct {
+	TraceId string `json:"trace_id"`
+}
+
 // OfflineQueryParams defines the parameters
 // that help you execute an online query.
 // OfflineQueryParams is the starting point
@@ -398,6 +430,9 @@ type OfflineQueryParams struct {
 	// 2. A feature value is passed into [OfflineQueryParams.WithInput] as a raw value (not a [TsFeatureValue]).
 	// For more information about observation time, see https://docs.chalk.ai/docs/temporal-consistency
 	DefaultTime *time.Time
+
+	// The tags used to scope the resolvers.
+	Tags []string
 
 	/***************
 	 PRIVATE FIELDS
