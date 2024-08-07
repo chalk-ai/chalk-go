@@ -73,12 +73,12 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 	}
 }
 
-// TestFeatherHeaderParamsDoesNotErr tests that none
+// TestOnlineQueryBulkParamsDoesNotErr tests that none
 // of the feather header params causes an error when
 // specified. Correctness of the thread through is
 // tested in TestParamsSetInFeatherHeader. Correctness
 // of the results is *not* tested here.
-func TestFeatherHeaderParamsDoesNotErr(t *testing.T) {
+func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
@@ -94,7 +94,7 @@ func TestFeatherHeaderParamsDoesNotErr(t *testing.T) {
 				t.Fatal("Failed initializing features", err)
 			}
 
-			client, err := chalk.NewClient()
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -140,7 +140,7 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 		{useGrpc: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			client, err := chalk.NewClient()
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
