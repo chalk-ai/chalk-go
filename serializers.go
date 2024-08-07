@@ -45,7 +45,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 		Outputs:          p.outputs,
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
-		IncludeMeta:      p.IncludeMeta,
+		IncludeMeta:      p.IncludeMeta || p.Explain,
 		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
@@ -337,7 +337,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 			Options:              options,
 		},
 		ResponseOptions: &commonv1.OnlineQueryResponseOptions{
-			IncludeMeta:     params.IncludeMeta,
+			IncludeMeta:     params.IncludeMeta || params.Explain,
 			Metadata:        params.Meta,
 			EncodingOptions: nil,
 			Explain:         lo.Ternary(params.Explain, &commonv1.ExplainOptions{}, nil),
