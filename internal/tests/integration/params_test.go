@@ -76,11 +76,14 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		assert.NoError(t, err)
 		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
 	})
+	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
+		return val.Format(time.RFC3339)
+	})
 
 	assert.Equal(t, expectedBranchId, *header.BranchId)
 	assert.Equal(t, expectedTags, header.Context.Tags)
 	assert.Equal(t, requiredResolverTags, header.Context.RequiredResolverTags)
-	//assert.Equal(t, now, header.Now)
+	assert.Equal(t, nowConverted, header.Now)
 	assert.Equal(t, stalenessConverted, header.Staleness)
 	assert.Equal(t, storePlanStages, header.StorePlanStages)
 	assert.NotNil(t, header.CorrelationId)
