@@ -5,6 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 // TestOnlineQueryAllTypesUnmarshalling mainly tests
@@ -70,4 +71,58 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 			testUserValues(explicitUser)
 		})
 	}
+}
+
+// TestFeatherHeaderParamsDoesNotErr tests that none
+// of the feather header params causes an error when
+// specified. Correctness of the thread through is
+// tested in TestParamsSetInFeatherHeader. Correctness
+// of the results is *not* tested here.
+func TestFeatherHeaderParamsDoesNotErr(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+	err := chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+
+	expectedTags := []string{"named-integration"}
+	requiredResolverTags := []string{"named-integration"}
+	now := []time.Time{time.Now(), time.Now()}
+	staleness := map[any]time.Duration{
+		testFeatures.User.SocureScore: time.Minute * 10,
+	}
+	storePlanStages := true
+	correlationId := "chalk-go-int-test-correlation-id"
+	queryName := "chalk-go-int-test-query"
+	queryNameVersion := "1"
+	meta := map[string]string{
+		"test_meta_1": "test_meta_value_1",
+		"test_meta_2": "test_meta_value_2",
+	}
+
+	client, err := chalk.NewClient()
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	userIds := []int{1, 2}
+
+	req := chalk.OnlineQueryParams{
+		Tags:                 expectedTags,
+		RequiredResolverTags: requiredResolverTags,
+		Now:                  now,
+		StorePlanStages:      storePlanStages,
+		CorrelationId:        correlationId,
+		QueryName:            queryName,
+		QueryNameVersion:     queryNameVersion,
+		Meta:                 meta,
+	}.
+		WithInput(testFeatures.User.Id, userIds).
+		WithOutputs(testFeatures.User.FullName)
+	for k, v := range staleness {
+		req = req.WithStaleness(k, v)
+	}
+
+	_, err = client.OnlineQueryBulk(req)
+	assert.NoError(t, err)
 }
