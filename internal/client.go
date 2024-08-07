@@ -3,8 +3,9 @@ package internal
 import "time"
 
 type OnlineQueryContext struct {
-	Environment *string  `json:"environment"`
-	Tags        []string `json:"tags"`
+	Environment          *string  `json:"environment"`
+	Tags                 []string `json:"tags"`
+	RequiredResolverTags []string `json:"required_resolver_tags"`
 }
 
 type OnlineQueryRequestSerialized struct {

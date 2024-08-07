@@ -29,6 +29,8 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		}
 	}
 
+	//if len(p.underlying.Now)
+
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
 		Outputs:  p.underlying.outputs,
 		Explain:  false,

@@ -35,6 +35,11 @@ type OnlineQueryParams struct {
 	// The tags used to scope the resolvers.
 	Tags []string
 
+	// RequiredResolverTags are all the [tags] that must be present on a resolver for
+	// it to be considered eligible to execute.
+	// [tags]: https://docs.chalk.ai/docs/resolver-tags
+	RequiredResolverTags []string
+
 	// If specified, Chalk will route your request to the relevant preview deployment.
 	PreviewDeploymentId string
 
@@ -54,6 +59,17 @@ type OnlineQueryParams struct {
 
 	// The branch id
 	BranchId *string
+
+	// Now is the time value that will be passed into [Now] dependent resolvers.
+	// [Now]: https://docs.chalk.ai/docs/time#now-explicitly-time-dependent-resolvers
+	Now []string
+
+	// StorePlanStages triggers storing the output of each of the query plan stages in
+	// S3/GCS. This will dramatically impact the performance of the query, so it should
+	// only be used for debugging. These files will be visible in the web dashboard's
+	// query detail view, and can be downloaded in full by clicking on a plan node in
+	// the query plan visualizer.
+	StorePlanStages bool
 
 	/**************
 	 PRIVATE FIELDS
