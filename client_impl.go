@@ -188,15 +188,19 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
 	}
 
-	for _, input := range request.inputs {
-		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
-			return OnlineQueryResult{}, &ErrorResponse{
-				ClientError: &ClientError{
-					"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
-				},
-			}
-		}
-	}
+	// TODO: To support has-manys, we are now allowing lists in OnlineQuery inputs.
+	//       we can still support some validation if the inputs map retains the
+	//       `Feature` specified when building OnlineQueryParams. i.e. If the
+	//       `Feature` specified is a has-many, allow lists. Otherwise, err.
+	//for _, input := range request.inputs {
+	//	if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
+	//		return OnlineQueryResult{}, &ErrorResponse{
+	//			ClientError: &ClientError{
+	//				"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
+	//			},
+	//		}
+	//	}
+	//}
 
 	emptyResult := OnlineQueryResult{}
 
