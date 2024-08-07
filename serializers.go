@@ -34,7 +34,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 			},
 		)
 	} else if len(p.Now) == 1 {
-		now = lo.ToPtr(p.Now[0].Format(time.RFC3339))
+		now = lo.ToPtr(p.Now[0].Format(internal.NowTimeFormat))
 	}
 
 	body := internal.OnlineQueryRequestSerialized{
