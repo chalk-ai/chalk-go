@@ -27,7 +27,6 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	staleness := map[any]time.Duration{
 		testFeatures.User.SocureScore: time.Minute,
 	}
-	storePlanStages := true
 	correlationId := "correlating-id"
 	queryName := "fraud_fighter"
 	queryNameVersion := "fraud_fighter_first"
@@ -49,12 +48,13 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		Tags:                 expectedTags,
 		RequiredResolverTags: requiredResolverTags,
 		Now:                  now,
-		StorePlanStages:      storePlanStages,
+		StorePlanStages:      true,
 		CorrelationId:        correlationId,
 		QueryName:            queryName,
 		QueryNameVersion:     queryNameVersion,
 		Meta:                 meta,
 		Explain:              true,
+		IncludeMeta:          true,
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
@@ -86,7 +86,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.Equal(t, requiredResolverTags, header.Context.RequiredResolverTags)
 	assert.Equal(t, nowConverted, header.Now)
 	assert.Equal(t, stalenessConverted, header.Staleness)
-	assert.Equal(t, storePlanStages, header.StorePlanStages)
+	assert.True(t, header.StorePlanStages)
 	assert.NotNil(t, header.CorrelationId)
 	assert.Equal(t, correlationId, *header.CorrelationId)
 	assert.NotNil(t, header.QueryName)
@@ -95,6 +95,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.Equal(t, queryNameVersion, *header.QueryNameVersion)
 	assert.Equal(t, meta, header.Meta)
 	assert.True(t, header.Explain)
+	assert.True(t, header.IncludeMeta)
 }
 
 // TestParamsSetInOnlineQuery tests that we set all params
@@ -119,7 +120,6 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	staleness := map[any]time.Duration{
 		testFeatures.User.SocureScore: time.Minute,
 	}
-	storePlanStages := true
 	correlationId := "correlating-id"
 	queryName := "fraud_fighter"
 	queryNameVersion := "fraud_fighter_first"
@@ -140,13 +140,15 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	req := chalk.OnlineQueryParams{
 		Tags:                 expectedTags,
 		RequiredResolverTags: requiredResolverTags,
-		StorePlanStages:      storePlanStages,
+		StorePlanStages:      true,
 		Meta:                 meta,
 		QueryName:            queryName,
 		QueryNameVersion:     queryNameVersion,
 		CorrelationId:        correlationId,
 		Now:                  now,
 		Explain:              true,
+		IncludeMeta:          true,
+		IncludeMetrics:       true,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -164,7 +166,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.NotNil(t, request.Now)
 	assert.Equal(t, nowConverted[0], *request.Now)
 	assert.Equal(t, stalenessConverted, request.Staleness)
-	assert.Equal(t, storePlanStages, request.StorePlanStages)
+	assert.True(t, request.StorePlanStages)
 	assert.NotNil(t, request.CorrelationId)
 	assert.Equal(t, correlationId, *request.CorrelationId)
 	assert.NotNil(t, request.QueryName)
@@ -173,6 +175,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.Equal(t, queryNameVersion, *request.QueryNameVersion)
 	assert.Equal(t, meta, request.Meta)
 	assert.True(t, request.Explain)
+	assert.True(t, request.IncludeMeta)
+	assert.True(t, request.IncludeMetrics)
 }
 
 // TestTagsSetInOfflineQuery tests that we set tags in

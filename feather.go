@@ -31,9 +31,10 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 	}
 
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
-		Outputs:  p.underlying.outputs,
-		Explain:  p.underlying.Explain,
-		BranchId: branchId,
+		Outputs:     p.underlying.outputs,
+		Explain:     p.underlying.Explain,
+		IncludeMeta: p.underlying.IncludeMeta,
+		BranchId:    branchId,
 		Context: &internal.OnlineQueryContext{
 			Environment:          lo.EmptyableToPtr(p.underlying.EnvironmentId),
 			Tags:                 p.underlying.Tags,
