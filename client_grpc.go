@@ -324,7 +324,6 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 			QueryHash:          metaRaw.QueryHash,
 		},
 	}, nil
-
 }
 
 func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {

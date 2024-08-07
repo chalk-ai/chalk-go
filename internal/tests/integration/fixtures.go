@@ -81,8 +81,21 @@ type user struct {
 	DebugCronLogs            *string
 }
 
+type newGradAngelInvestor struct {
+	Id       *string
+	SeriesId *string
+	HowBroke *int64
+}
+
+type series struct {
+	Id        *string
+	Name      *string
+	Investors *[]newGradAngelInvestor `has_many:"id,series_id"`
+}
+
 var testFeatures struct {
-	User *user
+	User   *user
+	Series *series
 }
 
 type Intercepted struct {

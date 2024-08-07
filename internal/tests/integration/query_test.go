@@ -3,6 +3,7 @@ package integration
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -70,4 +71,35 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 			testUserValues(explicitUser)
 		})
 	}
+}
+
+// Test that we can execute an OnlineQuery
+// with has-manys as both inputs and outputs.
+func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	assert.NoError(t, chalk.InitFeatures(&testFeatures))
+	client, err := chalk.NewClient()
+	assert.NoError(t, err)
+	investorsInput := []newGradAngelInvestor{
+		{Id: lo.ToPtr("amylase"), SeriesId: lo.ToPtr("seed"), HowBroke: lo.ToPtr(int64(1))},
+		{Id: lo.ToPtr("lipase"), SeriesId: lo.ToPtr("seed"), HowBroke: lo.ToPtr(int64(2))},
+	}
+	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Series.Investors, investorsInput).
+		WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
+
+	var resultSeries series
+	res, err := client.OnlineQuery(params, &resultSeries)
+	assert.NoError(t, err)
+	assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
+
+	investorsFeature, err := chalk.UnwrapFeature(testFeatures.Series.Investors)
+	assert.NoError(t, err)
+
+	// has many result should be a map that has "columns" and "values" as keys
+	resultInvestors, err := res.GetFeatureValue(investorsFeature)
+	assert.NotNil(t, resultInvestors)
+	// TODO: Check resultInvestors["columns"][0] length
 }
