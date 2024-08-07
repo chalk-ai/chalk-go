@@ -11,7 +11,7 @@ import (
 
 var NameTag = "name"
 
-var NowTimeFormat = "2006-01-02T15:04:05.999999 -07:00"
+var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
