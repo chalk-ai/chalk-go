@@ -144,6 +144,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		QueryNameVersion:     queryNameVersion,
 		CorrelationId:        correlationId,
 		Now:                  now,
+		Explain:              true,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -169,6 +170,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.NotNil(t, request.QueryNameVersion)
 	assert.Equal(t, queryNameVersion, *request.QueryNameVersion)
 	assert.Equal(t, meta, request.Meta)
+	assert.True(t, request.Explain)
 }
 
 // TestTagsSetInOfflineQuery tests that we set tags in

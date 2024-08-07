@@ -2,9 +2,12 @@ package chalk
 
 import (
 	"encoding/json"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -51,6 +54,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 		Meta:             p.Meta,
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
+		Explain:          p.Explain,
 	}
 
 	return body
@@ -287,3 +291,56 @@ var getErrorCodeCategory = internal.GenerateGetEnumFunction(
 	},
 	"error code categories",
 )
+
+func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.OnlineQueryBulkRequest, error) {
+	inputsFeather, err := internal.InputsToArrowBytes(params.inputs)
+	if err != nil {
+		return nil, errors.Wrap(err, "error serializing inputs as feather")
+	}
+	outputs := lo.Map(params.outputs, func(v string, _ int) *commonv1.OutputExpr {
+		return &commonv1.OutputExpr{
+			Expr: &commonv1.OutputExpr_FeatureFqn{
+				FeatureFqn: v,
+			},
+		}
+	})
+	staleness := lo.MapValues(params.staleness, func(v time.Duration, k string) string {
+		return internal.FormatBucketDuration(int(v.Seconds()))
+	})
+
+	nowProto := lo.Map(params.Now, func(v time.Time, _ int) *timestamppb.Timestamp {
+		return timestamppb.New(v)
+	})
+
+	options := map[string]*structpb.Value{}
+	if params.StorePlanStages {
+		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
+	}
+	if params.IncludeMetrics {
+		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
+	}
+
+	return &commonv1.OnlineQueryBulkRequest{
+		InputsFeather: inputsFeather,
+		Outputs:       outputs,
+		Staleness:     staleness,
+		Now:           lo.Ternary(len(nowProto) == 0, nil, nowProto),
+		Context: &commonv1.OnlineQueryContext{
+			Environment:          params.EnvironmentId,
+			Tags:                 params.Tags,
+			DeploymentId:         lo.ToPtr(params.PreviewDeploymentId),
+			BranchId:             params.BranchId,
+			CorrelationId:        lo.ToPtr(params.CorrelationId),
+			QueryName:            lo.ToPtr(params.QueryName),
+			QueryNameVersion:     lo.ToPtr(params.QueryNameVersion),
+			RequiredResolverTags: params.RequiredResolverTags,
+			Options:              options,
+		},
+		ResponseOptions: &commonv1.OnlineQueryResponseOptions{
+			IncludeMeta:     params.IncludeMeta,
+			Metadata:        params.Meta,
+			EncodingOptions: nil,
+			Explain:         lo.Ternary(params.Explain, &commonv1.ExplainOptions{}, nil),
+		},
+	}, nil
+}

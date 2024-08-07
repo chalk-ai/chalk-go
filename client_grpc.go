@@ -227,46 +227,11 @@ func (c *clientGrpc) getHasManyJson(columns []string, values [][]any) (string, e
 }
 
 func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	inputsFeather, err := internal.InputsToArrowBytes(args.underlying.inputs)
+	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrap(err, "error serializing inputs as feather")
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "error converting online query params to proto")
 	}
-	outputs := lo.Map(args.underlying.outputs, func(v string, _ int) *commonv1.OutputExpr {
-		return &commonv1.OutputExpr{
-			Expr: &commonv1.OutputExpr_FeatureFqn{
-				FeatureFqn: v,
-			},
-		}
-	})
-	staleness := lo.MapValues(args.underlying.staleness, func(v time.Duration, k string) string {
-		return internal.FormatBucketDuration(int(v.Seconds()))
-	})
-
-	req := connect.NewRequest(
-		&commonv1.OnlineQueryBulkRequest{
-			InputsFeather: inputsFeather,
-			Outputs:       outputs,
-			Staleness:     staleness,
-			Now:           nil,
-			Context: &commonv1.OnlineQueryContext{
-				Environment:          args.underlying.EnvironmentId,
-				Tags:                 args.underlying.Tags,
-				DeploymentId:         lo.ToPtr(args.underlying.PreviewDeploymentId),
-				BranchId:             args.underlying.BranchId,
-				CorrelationId:        lo.ToPtr(args.underlying.CorrelationId),
-				QueryName:            lo.ToPtr(args.underlying.QueryName),
-				QueryNameVersion:     lo.ToPtr(args.underlying.QueryNameVersion),
-				RequiredResolverTags: nil,
-				Options:              nil,
-			},
-			ResponseOptions: &commonv1.OnlineQueryResponseOptions{
-				IncludeMeta:     args.underlying.IncludeMeta,
-				Metadata:        args.underlying.Meta,
-				EncodingOptions: nil,
-				Explain:         nil,
-			},
-		},
-	)
+	req := connect.NewRequest(paramsProto)
 
 	res, err := c.queryClient.OnlineQueryBulk(context.Background(), req)
 	if err != nil {

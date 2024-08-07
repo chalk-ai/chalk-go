@@ -71,6 +71,11 @@ type OnlineQueryParams struct {
 	// the query plan visualizer.
 	StorePlanStages bool
 
+	// Explain will log the query execution plan. Requests using `explain=True` will be
+	// slower than requests using `explain=False`. If `true`, `IncludeMeta` will be set
+	// to `true` as well.
+	Explain bool
+
 	/**************
 	 PRIVATE FIELDS
 	***************/
