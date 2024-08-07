@@ -15,11 +15,15 @@ import (
 func TestParamsSetInFeatherHeader(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	err := chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
 
 	expectedBranchId := "test-branch-id"
 	expectedTags := []string{"tags-1", "tags-2"}
 	requiredResolverTags := []string{"required1tag", "required-2tag"}
-	//now := []time.Time{time.Now(), time.Now()}
+	now := []time.Time{time.Now(), time.Now()}
 	staleness := map[any]time.Duration{
 		testFeatures.User.SocureScore: time.Minute,
 	}
@@ -40,16 +44,24 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 	userIds := []int{1}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
+
 	req := chalk.OnlineQueryParams{
-		Tags: expectedTags,
+		Tags:                 expectedTags,
+		RequiredResolverTags: requiredResolverTags,
+		Now:                  now,
+		StorePlanStages:      storePlanStages,
+		CorrelationId:        correlationId,
+		QueryName:            queryName,
+		QueryNameVersion:     queryNameVersion,
+		Meta:                 meta,
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
 		WithBranchId(expectedBranchId)
+	for k, v := range staleness {
+		req = req.WithStaleness(k, v)
+	}
+
 	_, _ = client.OnlineQueryBulk(req)
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)

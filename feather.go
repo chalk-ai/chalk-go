@@ -6,6 +6,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/samber/lo"
+	"time"
 )
 
 func (r OnlineQueryBulkResult) Release() {
@@ -29,16 +30,26 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		}
 	}
 
-	//if len(p.underlying.Now)
-
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
 		Outputs:  p.underlying.outputs,
 		Explain:  false,
 		BranchId: branchId,
 		Context: &internal.OnlineQueryContext{
-			Environment: lo.EmptyableToPtr(p.underlying.EnvironmentId),
-			Tags:        p.underlying.Tags,
+			Environment:          lo.EmptyableToPtr(p.underlying.EnvironmentId),
+			Tags:                 p.underlying.Tags,
+			RequiredResolverTags: p.underlying.RequiredResolverTags,
 		},
+		StorePlanStages:  p.underlying.StorePlanStages,
+		CorrelationId:    lo.EmptyableToPtr(p.underlying.CorrelationId),
+		QueryName:        lo.EmptyableToPtr(p.underlying.QueryName),
+		QueryNameVersion: lo.EmptyableToPtr(p.underlying.QueryNameVersion),
+		Meta:             p.underlying.Meta,
+		Staleness: lo.MapValues(p.underlying.staleness, func(val time.Duration, _ string) string {
+			return internal.FormatBucketDuration(int(val.Seconds()))
+		}),
+		//Now: lo.Map(p.underlying.Now, func(val time.Time, _ int) string {
+		//
+		//}),
 	})
 }
 

@@ -62,7 +62,7 @@ type OnlineQueryParams struct {
 
 	// Now is the time value that will be passed into [Now] dependent resolvers.
 	// [Now]: https://docs.chalk.ai/docs/time#now-explicitly-time-dependent-resolvers
-	Now []string
+	Now []time.Time
 
 	// StorePlanStages triggers storing the output of each of the query plan stages in
 	// S3/GCS. This will dramatically impact the performance of the query, so it should
