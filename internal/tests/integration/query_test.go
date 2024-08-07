@@ -86,21 +86,6 @@ func TestFeatherHeaderParamsDoesNotErr(t *testing.T) {
 		t.Fatal("Failed initializing features", err)
 	}
 
-	expectedTags := []string{"named-integration"}
-	requiredResolverTags := []string{"named-integration"}
-	now := []time.Time{time.Now(), time.Now()}
-	staleness := map[any]time.Duration{
-		testFeatures.User.SocureScore: time.Minute * 10,
-	}
-	storePlanStages := true
-	correlationId := "chalk-go-int-test-correlation-id"
-	queryName := "chalk-go-int-test-query"
-	queryNameVersion := "1"
-	meta := map[string]string{
-		"test_meta_1": "test_meta_value_1",
-		"test_meta_2": "test_meta_value_2",
-	}
-
 	client, err := chalk.NewClient()
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
@@ -108,21 +93,59 @@ func TestFeatherHeaderParamsDoesNotErr(t *testing.T) {
 	userIds := []int{1, 2}
 
 	req := chalk.OnlineQueryParams{
-		Tags:                 expectedTags,
-		RequiredResolverTags: requiredResolverTags,
-		Now:                  now,
-		StorePlanStages:      storePlanStages,
-		CorrelationId:        correlationId,
-		QueryName:            queryName,
-		QueryNameVersion:     queryNameVersion,
-		Meta:                 meta,
+		Tags:                 []string{"named-integration"},
+		RequiredResolverTags: []string{"named-integration"},
+		Now:                  []time.Time{time.Now(), time.Now()},
+		StorePlanStages:      true,
+		CorrelationId:        "chalk-go-int-test-correlation-id",
+		QueryName:            "chalk-go-int-test-query",
+		QueryNameVersion:     "1",
+		Meta: map[string]string{
+			"test_meta_1": "test_meta_value_1",
+			"test_meta_2": "test_meta_value_2",
+		},
 	}.
 		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.FullName)
-	for k, v := range staleness {
-		req = req.WithStaleness(k, v)
-	}
+		WithOutputs(testFeatures.User.FullName).
+		WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
 	_, err = client.OnlineQueryBulk(req)
+	assert.NoError(t, err)
+}
+
+// TestOnlineQueryParamsDoesNotErr tests that none
+// of the feather header params causes an error when
+// specified. Correctness of the thread through is
+// tested in TestParamsSetInOnlineQuery. Correctness
+// of the results is *not* tested here.
+func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	client, err := chalk.NewClient()
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	err = chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+
+	req := chalk.OnlineQueryParams{
+		Tags:                 []string{"named-integration"},
+		RequiredResolverTags: []string{"named-integration"},
+		Now:                  []time.Time{time.Now()},
+		StorePlanStages:      true,
+		CorrelationId:        "chalk-go-int-test-correlation-id",
+		QueryName:            "chalk-go-int-test-query",
+		QueryNameVersion:     "1",
+		Meta: map[string]string{
+			"test_meta_1": "test_meta_value_1",
+			"test_meta_2": "test_meta_value_2",
+		},
+	}.
+		WithInput(testFeatures.User.Id, 1).
+		WithOutputs(testFeatures.User.FullName).
+		WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
+
+	_, err = client.OnlineQuery(req, nil)
 	assert.NoError(t, err)
 }
