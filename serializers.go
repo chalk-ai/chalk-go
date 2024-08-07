@@ -3,14 +3,38 @@ package chalk
 import (
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go/internal"
-	"strconv"
+	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
 	"time"
 )
 
 func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 	context := internal.OnlineQueryContext{
-		Environment: internal.StringOrNil(p.EnvironmentId),
-		Tags:        p.Tags,
+		Environment:          internal.StringOrNil(p.EnvironmentId),
+		Tags:                 p.Tags,
+		RequiredResolverTags: p.RequiredResolverTags,
+	}
+
+	var now *string
+	if len(p.Now) > 1 {
+		p.builderErrors = append(
+			p.builderErrors,
+			// HACK: BuilderError should just go away and be replaced by just a list of errors.
+			//       So we're just slapping together a fake BuilderError here using existing
+			//       params.
+			&BuilderError{
+				Err: errors.Newf(
+					"for non-bulk queries, there should only"+
+						" be 1 `Now` value, found %d", len(p.Now),
+				),
+				Type:      InvalidRequest,
+				Feature:   "Now",
+				Value:     p.Now,
+				ParamType: ParamInput,
+			},
+		)
+	} else if len(p.Now) == 1 {
+		now = lo.ToPtr(p.Now[0].Format(time.RFC3339))
 	}
 
 	body := internal.OnlineQueryRequestSerialized{
@@ -25,6 +49,8 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
 		CorrelationId:    internal.StringOrNil(p.CorrelationId),
 		Meta:             p.Meta,
+		StorePlanStages:  p.StorePlanStages,
+		Now:              now,
 	}
 
 	return body
@@ -33,7 +59,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 	res := map[string]string{}
 	for k, v := range staleness {
-		res[k] = strconv.Itoa(int(v.Seconds())) + "s"
+		res[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 	return res
 }
