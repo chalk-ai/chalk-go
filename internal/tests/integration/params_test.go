@@ -54,6 +54,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		QueryName:            queryName,
 		QueryNameVersion:     queryNameVersion,
 		Meta:                 meta,
+		Explain:              true,
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
@@ -93,6 +94,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.NotNil(t, header.QueryNameVersion)
 	assert.Equal(t, queryNameVersion, *header.QueryNameVersion)
 	assert.Equal(t, meta, header.Meta)
+	assert.True(t, header.Explain)
 }
 
 // TestParamsSetInOnlineQuery tests that we set all params
