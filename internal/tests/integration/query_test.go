@@ -176,6 +176,9 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 
 // Test that we can execute an OnlineQuery
 // with has-manys as both inputs and outputs.
+// Correctness of unmarshalling all data types
+// within a has-many feature is tested in
+// TestOnlineQueryUnmarshalNonBulkAllTypes.
 func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
