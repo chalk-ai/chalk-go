@@ -2,19 +2,73 @@ package chalk
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
+	"reflect"
 	"strconv"
 	"time"
 )
 
-func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
+func getConvertedValues(values any) (any, error) {
+	// Do preprocessing on values such as prefix each key in
+	// the list of has-many features with the namespace.
+	rValues := reflect.ValueOf(values)
+	elemType := rValues.Type().Elem()
+	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
+		return values, nil
+	}
+	if elemType.Kind() != reflect.Struct {
+		// Not a dataclass nor a has-many feature.
+		return values, nil
+	}
+	// This is a list of dataclasses, or a has-many list of features.
+	fieldNameToPythonName := make(map[string]string)
+	namespace := internal.ChalkpySnakeCase(elemType.Name())
+	for i := 0; i < elemType.NumField(); i++ {
+		pythonName, err := internal.ResolveFeatureName(elemType.Field(i))
+		if err != nil {
+			return nil, errors.New("failed to resolve field name")
+		}
+		if !internal.IsTypeDataclass(elemType.Field(i).Type) {
+			// Has-many feature. Prepend namespace.
+			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
+		}
+		fieldNameToPythonName[elemType.Field(i).Name] = pythonName
+	}
+
+	newValues := make([]map[string]any, rValues.Len())
+
+	for i := 0; i < rValues.Len(); i++ {
+		newMap := make(map[string]any)
+		newValues[i] = newMap
+		oldValue := rValues.Index(i)
+		for j := 0; j < elemType.NumField(); j++ {
+			pythonName := fieldNameToPythonName[elemType.Field(j).Name]
+			newMap[pythonName] = oldValue.Field(j).Interface()
+		}
+	}
+
+	return newValues, nil
+}
+
+func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
 	context := internal.OnlineQueryContext{
 		Environment: internal.StringOrNil(p.EnvironmentId),
 		Tags:        p.Tags,
 	}
 
-	body := internal.OnlineQueryRequestSerialized{
-		Inputs:           p.inputs,
+	convertedInputs := make(map[string]any)
+	for fqn, values := range p.inputs {
+		convertedValues, err := getConvertedValues(values)
+		if err != nil {
+			return nil, wrapClientError(err, "failed to preprocess input values")
+		}
+		convertedInputs[fqn] = convertedValues
+	}
+
+	return &internal.OnlineQueryRequestSerialized{
+		Inputs:           convertedInputs,
 		Outputs:          p.outputs,
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
@@ -25,9 +79,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
 		CorrelationId:    internal.StringOrNil(p.CorrelationId),
 		Meta:             p.Meta,
-	}
-
-	return body
+	}, nil
 }
 
 func serializeStaleness(staleness map[string]time.Duration) map[string]string {
