@@ -35,11 +35,6 @@ type OnlineQueryParams struct {
 	// The tags used to scope the resolvers.
 	Tags []string
 
-	// RequiredResolverTags are all the [tags] that must be present on a resolver for
-	// it to be considered eligible to execute.
-	// [tags]: https://docs.chalk.ai/docs/resolver-tags
-	RequiredResolverTags []string
-
 	// If specified, Chalk will route your request to the relevant preview deployment.
 	PreviewDeploymentId string
 
@@ -59,6 +54,11 @@ type OnlineQueryParams struct {
 
 	// The branch id
 	BranchId *string
+
+	// RequiredResolverTags are all the [tags] that must be present on a resolver for
+	// it to be considered eligible to execute.
+	// [tags]: https://docs.chalk.ai/docs/resolver-tags
+	RequiredResolverTags []string
 
 	// Now is the time value that will be passed into [Now] dependent resolvers.
 	// [Now]: https://docs.chalk.ai/docs/time#now-explicitly-time-dependent-resolvers
