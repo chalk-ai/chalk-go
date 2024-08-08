@@ -95,12 +95,22 @@ func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 	res, err := client.OnlineQuery(params, &resultSeries)
 	assert.NoError(t, err)
 	assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
+	assert.Equal(t, "seed", *resultSeries.Id)
+	assert.Equal(t, "amylase", (*resultSeries.Investors)[0].Id)
+	assert.Equal(t, "lipase", (*resultSeries.Investors)[1].Id)
+	assert.Equal(t, int64(1), *(*resultSeries.Investors)[0].HowBroke)
+	assert.Equal(t, int64(2), *(*resultSeries.Investors)[1].HowBroke)
+	assert.Equal(t, "seed", (*resultSeries.Investors)[0].SeriesId)
+	assert.Equal(t, "seed", (*resultSeries.Investors)[1].SeriesId)
 
 	investorsFeature, err := chalk.UnwrapFeature(testFeatures.Series.Investors)
 	assert.NoError(t, err)
 
-	// has many result should be a map that has "columns" and "values" as keys
+	// has many result should be a map that has
+	// "columns" and "values" as keys. Correctness
+	// of this GetFeatureValue result is guaranteed
+	// if the result of UnmarshalInto is correct,
+	// and that is being checked above.
 	resultInvestors, err := res.GetFeatureValue(investorsFeature)
 	assert.NotNil(t, resultInvestors)
-	// TODO: Check resultInvestors["columns"][0] length
 }
