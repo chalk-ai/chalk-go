@@ -13,9 +13,21 @@ import (
 	"time"
 )
 
-func getConvertedValues(values any) (any, error) {
-	// Do preprocessing on values such as prefix each key in
-	// the list of has-many features with the namespace.
+func convertIfHasManyStruct(values any) (any, error) {
+	// When the user passes in a list of has-many structs,
+	// it gets serialized into:
+	//
+	// {
+	//     "FullName": "John Doe",
+	//     "Amount": 100,
+	// }
+	//
+	// when we really want:
+	//
+	// {
+	//     "user.full_name": "John Doe",
+	//     "user.amount": 100,
+	// }
 	rValues := reflect.ValueOf(values)
 	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
 		return values, nil
@@ -86,7 +98,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	convertedInputs := make(map[string]any)
 	for fqn, values := range p.inputs {
-		convertedValues, err := getConvertedValues(values)
+		convertedValues, err := convertIfHasManyStruct(values)
 		if err != nil {
 			return nil, wrapClientError(err, "failed to preprocess input values")
 		}

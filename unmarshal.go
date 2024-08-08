@@ -34,9 +34,24 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	}
 }
 
-func getConvertedValue(value any) (any, error) {
-	// Does processing such as converting has-many results from a map with "columns" and "values" keys
-	// to a list of maps with the column names (namespace de-prefixed) as keys.
+func convertIfHasManyMap(value any) (any, error) {
+	// For has-many values, we get this back:
+	//
+	// {
+	//   "columns": ["user.id", "user.email"],
+	//   "values": [
+	//     ["id1", "id2"],
+	//     ["email1@geemail.com", "email2@geemail.com"]
+	//   ]
+	// }
+	//
+	// We want to convert this to:
+	//
+	// [
+	//   {"id": "id1", "email": "email1@geemail.com"},
+	//   {"id": "id2", "email": "email2@geemail.com"}
+	// ]
+	//
 	hasMany, ok := value.(map[string]any)
 	if !ok {
 		return value, nil
@@ -95,7 +110,7 @@ func getConvertedValue(value any) (any, error) {
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
 	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range result.Data {
-		convertedValue, err := getConvertedValue(featureResult.Value)
+		convertedValue, err := convertIfHasManyMap(featureResult.Value)
 		if err != nil {
 			return &ClientError{Message: errors.Wrapf(err, "error converting feature '%s' value", featureResult.Field).Error()}
 		}

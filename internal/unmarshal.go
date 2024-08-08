@@ -264,15 +264,6 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 			}
 			for k, v := range mapz {
-				// FIXME: Convert k to base windowed feature FQN
-				// so we get the base map field
-				// call getReflectValue on the value and the type
-				// But the information on which bucket to set is lost.
-				// If we were one level up, we still know the bucket,
-				// and we can access the map to insert the value.
-				// but what if we pass the map field value into it.
-				// we can't
-
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
 					return nil, fmt.Errorf(
