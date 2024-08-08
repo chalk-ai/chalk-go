@@ -14,10 +14,10 @@ func getConvertedValues(values any) (any, error) {
 	// Do preprocessing on values such as prefix each key in
 	// the list of has-many features with the namespace.
 	rValues := reflect.ValueOf(values)
-	elemType := rValues.Type().Elem()
 	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
 		return values, nil
 	}
+	elemType := rValues.Type().Elem()
 	if elemType.Kind() != reflect.Struct {
 		// Not a dataclass nor a has-many feature.
 		return values, nil

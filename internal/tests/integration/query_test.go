@@ -87,6 +87,7 @@ func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 		{Id: lo.ToPtr("lipase"), SeriesId: lo.ToPtr("seed"), HowBroke: lo.ToPtr(int64(2))},
 	}
 	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Series.Id, "seed").
 		WithInput(testFeatures.Series.Investors, investorsInput).
 		WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
 
