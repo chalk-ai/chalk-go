@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"github.com/cockroachdb/errors"
 	"os"
 	"reflect"
 	"regexp"
@@ -10,6 +11,7 @@ import (
 )
 
 var NameTag = "name"
+var WindowsTag = "windows"
 
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
@@ -171,6 +173,32 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 		)
 	}
 	return fieldName, nil
+}
+
+func GetWindowBucketsFromStructTag(field reflect.Value) ([]string, error) {
+	tag := field.Type().Field(0).Tag.Get(WindowsTag)
+	tags := strings.Split(tag, ",")
+	if tag == "" || len(tags) == 0 {
+		return nil, errors.Newf("Window bucket struct tag missing or empty, e.g. `%s:\"1m,5m,...\"`", WindowsTag)
+	}
+	return tags, nil
+}
+
+func GetWindowBucketsSecondsFromStructTag(field reflect.Value) ([]int, error) {
+	buckets, err := GetWindowBucketsFromStructTag(field)
+	if err != nil {
+		return nil, err
+	}
+
+	seconds := make([]int, len(buckets))
+	for i, bucket := range buckets {
+		val, err := ParseBucketDuration(bucket)
+		if err != nil {
+			return nil, err
+		}
+		seconds[i] = val
+	}
+	return seconds, nil
 }
 
 func Ptr[T any](value T) *T {

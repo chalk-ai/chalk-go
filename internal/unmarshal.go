@@ -245,6 +245,23 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					)
 				}
 				nameToField[resolved] = structValue.Field(i)
+				// Handle exploding windowed features
+				if structValue.Field(i).Type().Kind() == reflect.Map {
+					// Is a windowed feature
+					intTags, err := GetWindowBucketsSecondsFromStructTag(structValue.Field(i))
+					if err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error getting window buckets for field '%s' in struct '%s'",
+							structValue.Type().Field(i).Name,
+							structValue.Type().Name(),
+						)
+					}
+					for _, tag := range intTags {
+						bucketFqn := fmt.Sprintf("%s__%d__", resolved, tag)
+						nameToField[bucketFqn] = structValue.Field(i)
+					}
+				}
 			}
 			for k, v := range mapz {
 				// FIXME: Convert k to base windowed feature FQN

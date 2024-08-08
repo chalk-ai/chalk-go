@@ -22,9 +22,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
-		// We are handling maps differently because they are typed as `map`
-		// instead of a pointer to a `map` like all other types are.
-		//
 		// And handling it in setFeaturesSingle instead of in the recursive
 		// GetReflectValue function checks out because we never encounter
 		// maps in slices, other maps, or structs.
@@ -44,6 +41,15 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
+}
+
+func setMapEntryValue(mapValue reflect.Value, key string, value any) error {
+	rVal, err := internal.GetReflectValue(value, mapValue.Type().Elem().Elem())
+	if err != nil {
+		return errors.Wrap(err, "error getting reflect value for map entry")
+	}
+	mapValue.SetMapIndex(reflect.ValueOf(key), internal.ReflectPtr(*rVal))
+	return nil
 }
 
 func getConvertedValue(value any) (any, error) {
