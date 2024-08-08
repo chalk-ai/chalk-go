@@ -106,10 +106,9 @@ func getConvertedValue(value any) (any, error) {
 	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
 		newRow := make(map[string]any)
 		for colIdx, colName := range columns {
-			cell := values[colIdx][rowIdx]
 			colParts := strings.Split(colName, ".")
 			fieldName := colParts[len(colParts)-1]
-			newRow[fieldName] = cell
+			newRow[fieldName] = values[colIdx][rowIdx]
 		}
 		newValues[rowIdx] = newRow
 	}
