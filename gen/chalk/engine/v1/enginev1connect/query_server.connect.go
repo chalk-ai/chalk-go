@@ -78,7 +78,9 @@ type QueryServiceClient interface {
 	UploadFeaturesBulk(context.Context, *connect.Request[v11.UploadFeaturesBulkRequest]) (*connect.Response[v11.UploadFeaturesBulkResponse], error)
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
 	// an aggregate.
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	PlanAggregateBackfill(context.Context, *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error)
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
 }
 
@@ -194,7 +196,9 @@ type QueryServiceHandler interface {
 	UploadFeaturesBulk(context.Context, *connect.Request[v11.UploadFeaturesBulkRequest]) (*connect.Response[v11.UploadFeaturesBulkResponse], error)
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
 	// an aggregate.
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	PlanAggregateBackfill(context.Context, *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error)
+	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
 }
 
