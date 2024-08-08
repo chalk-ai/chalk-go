@@ -43,15 +43,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	}
 }
 
-func setMapEntryValue(mapValue reflect.Value, key string, value any) error {
-	rVal, err := internal.GetReflectValue(value, mapValue.Type().Elem().Elem())
-	if err != nil {
-		return errors.Wrap(err, "error getting reflect value for map entry")
-	}
-	mapValue.SetMapIndex(reflect.ValueOf(key), internal.ReflectPtr(*rVal))
-	return nil
-}
-
 func getConvertedValue(value any) (any, error) {
 	// Does processing such as converting has-many results from a map with "columns" and "values" keys
 	// to a list of maps with the column names (namespace de-prefixed) as keys.

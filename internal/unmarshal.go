@@ -284,15 +284,26 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					continue
 				}
 
-				rVal, err := GetReflectValue(&v, memberField.Type())
-				if err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"error unmarshalling struct value '%s' for struct '%s'",
-						k, structValue.Type().Name(),
-					)
+				if memberField.Type().Kind() == reflect.Map {
+					if err := setMapEntryValue(memberField, k, &v); err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error setting map entry value for field '%s' in struct '%s'",
+							k, structValue.Type().Name(),
+						)
+					}
+				} else {
+					rVal, err := GetReflectValue(&v, memberField.Type())
+					if err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error unmarshalling struct value '%s' for struct '%s'",
+							k, structValue.Type().Name(),
+						)
+					}
+					memberField.Set(*rVal)
 				}
-				memberField.Set(*rVal)
+
 			}
 			return &structValue, nil
 		} else {
@@ -364,4 +375,17 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return &rVal, nil
 	}
+}
+
+// setMapEntryValue exists as a separate special setter function because
+// while all other fields are settable and can be passed into GetReflectValue
+// to be set, map field values are not settable, and the entire map has to
+// be passed instead.
+func setMapEntryValue(mapValue reflect.Value, key string, value any) error {
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem())
+	if err != nil {
+		return errors.Wrap(err, "error getting reflect value for map entry")
+	}
+	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	return nil
 }
