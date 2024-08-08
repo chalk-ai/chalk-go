@@ -37,6 +37,13 @@ func convertIfHasManyStruct(values any) (any, error) {
 		// Not a dataclass nor a has-many feature.
 		return values, nil
 	}
+
+	if elemType.NumField() > 0 && internal.IsTypeDataclass(elemType.Field(0).Type) {
+		// Don't manually serialize dataclasses. Dataclasses need to be serialized
+		// with JSON since we utilize struct tags to assign the original python
+		// field name.
+		return values, nil
+	}
 	// This is a list of dataclasses, or a has-many list of features.
 	fieldNameToPythonName := make(map[string]string)
 	namespace := internal.ChalkpySnakeCase(elemType.Name())
@@ -45,11 +52,7 @@ func convertIfHasManyStruct(values any) (any, error) {
 		if err != nil {
 			return nil, errors.New("failed to resolve field name")
 		}
-		if !internal.IsTypeDataclass(elemType.Field(i).Type) {
-			// Has-many feature. Prepend namespace.
-			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
-		}
-		fieldNameToPythonName[elemType.Field(i).Name] = pythonName
+		fieldNameToPythonName[elemType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
 	}
 
 	newValues := make([]map[string]any, rValues.Len())
