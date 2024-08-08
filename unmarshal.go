@@ -57,10 +57,73 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	}
 }
 
+func getConvertedValue(value any) (any, error) {
+	// Does processing such as converting has-many results from a map with "columns" and "values" keys
+	// to a list of maps with the column names (namespace de-prefixed) as keys.
+	hasMany, ok := value.(map[string]any)
+	if !ok {
+		return value, nil
+	}
+
+	columnsRaw, hasColumns := hasMany["columns"]
+	valuesRaw, hasValues := hasMany["values"]
+	if !hasColumns || !hasValues {
+		return value, nil
+	}
+
+	columnsAny, ok := columnsRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert columns to []any")
+	}
+
+	columns := make([]string, len(columnsAny))
+	for i, column := range columnsAny {
+		columns[i], ok = column.(string)
+		if !ok {
+			return nil, errors.Newf("failed to convert column '%v' to string", column)
+		}
+	}
+
+	valuesAny, ok := valuesRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert values to [][]any")
+	}
+
+	values := make([][]any, len(valuesAny))
+	for i, row := range valuesAny {
+		values[i], ok = row.([]any)
+		if !ok {
+			return nil, errors.Newf("failed to convert row '%v' to []any", row)
+		}
+	}
+
+	if len(values) == 0 {
+		return nil, errors.New("values of has-many results is empty")
+	}
+	numRows := len(values[0])
+
+	newValues := make([]map[string]any, len(values))
+	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
+		newRow := make(map[string]any)
+		for colIdx, colName := range columns {
+			cell := values[colIdx][rowIdx]
+			colParts := strings.Split(colName, ".")
+			fieldName := colParts[len(colParts)-1]
+			newRow[fieldName] = cell
+		}
+		newValues[rowIdx] = newRow
+	}
+	return newValues, nil
+}
+
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
 	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range result.Data {
-		fqnToValue[featureResult.Field] = featureResult.Value
+		convertedValue, err := getConvertedValue(featureResult.Value)
+		if err != nil {
+			return &ClientError{Message: errors.Wrapf(err, "error converting feature '%s' value", featureResult.Field).Error()}
+		}
+		fqnToValue[featureResult.Field] = convertedValue
 	}
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
