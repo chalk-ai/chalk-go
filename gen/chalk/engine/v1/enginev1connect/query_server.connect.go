@@ -8,6 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
+	v12 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
 	http "net/http"
@@ -48,16 +49,24 @@ const (
 	// QueryServiceUploadFeaturesBulkProcedure is the fully-qualified name of the QueryService's
 	// UploadFeaturesBulk RPC.
 	QueryServiceUploadFeaturesBulkProcedure = "/chalk.engine.v1.QueryService/UploadFeaturesBulk"
+	// QueryServicePlanAggregateBackfillProcedure is the fully-qualified name of the QueryService's
+	// PlanAggregateBackfill RPC.
+	QueryServicePlanAggregateBackfillProcedure = "/chalk.engine.v1.QueryService/PlanAggregateBackfill"
+	// QueryServiceGetAggregatesProcedure is the fully-qualified name of the QueryService's
+	// GetAggregates RPC.
+	QueryServiceGetAggregatesProcedure = "/chalk.engine.v1.QueryService/GetAggregates"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	queryServiceServiceDescriptor                  = v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService")
-	queryServicePingMethodDescriptor               = queryServiceServiceDescriptor.Methods().ByName("Ping")
-	queryServiceOnlineQueryMethodDescriptor        = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
-	queryServiceOnlineQueryBulkMethodDescriptor    = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryBulk")
-	queryServiceOnlineQueryMultiMethodDescriptor   = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryMulti")
-	queryServiceUploadFeaturesBulkMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("UploadFeaturesBulk")
+	queryServiceServiceDescriptor                     = v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService")
+	queryServicePingMethodDescriptor                  = queryServiceServiceDescriptor.Methods().ByName("Ping")
+	queryServiceOnlineQueryMethodDescriptor           = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
+	queryServiceOnlineQueryBulkMethodDescriptor       = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryBulk")
+	queryServiceOnlineQueryMultiMethodDescriptor      = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryMulti")
+	queryServiceUploadFeaturesBulkMethodDescriptor    = queryServiceServiceDescriptor.Methods().ByName("UploadFeaturesBulk")
+	queryServicePlanAggregateBackfillMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("PlanAggregateBackfill")
+	queryServiceGetAggregatesMethodDescriptor         = queryServiceServiceDescriptor.Methods().ByName("GetAggregates")
 )
 
 // QueryServiceClient is a client for the chalk.engine.v1.QueryService service.
@@ -67,6 +76,10 @@ type QueryServiceClient interface {
 	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 	OnlineQueryMulti(context.Context, *connect.Request[v11.OnlineQueryMultiRequest]) (*connect.Response[v11.OnlineQueryMultiResponse], error)
 	UploadFeaturesBulk(context.Context, *connect.Request[v11.UploadFeaturesBulkRequest]) (*connect.Response[v11.UploadFeaturesBulkResponse], error)
+	// PlanAggregateBackfill determines the estimated resources needed to backfill
+	// an aggregate.
+	PlanAggregateBackfill(context.Context, *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error)
+	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
 }
 
 // NewQueryServiceClient constructs a client for the chalk.engine.v1.QueryService service. By
@@ -109,16 +122,32 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(queryServiceUploadFeaturesBulkMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		planAggregateBackfill: connect.NewClient[v12.PlanAggregateBackfillRequest, v12.PlanAggregateBackfillResponse](
+			httpClient,
+			baseURL+QueryServicePlanAggregateBackfillProcedure,
+			connect.WithSchema(queryServicePlanAggregateBackfillMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getAggregates: connect.NewClient[v12.GetAggregatesRequest, v12.GetAggregatesResponse](
+			httpClient,
+			baseURL+QueryServiceGetAggregatesProcedure,
+			connect.WithSchema(queryServiceGetAggregatesMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // queryServiceClient implements QueryServiceClient.
 type queryServiceClient struct {
-	ping               *connect.Client[v1.PingRequest, v1.PingResponse]
-	onlineQuery        *connect.Client[v11.OnlineQueryRequest, v11.OnlineQueryResponse]
-	onlineQueryBulk    *connect.Client[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse]
-	onlineQueryMulti   *connect.Client[v11.OnlineQueryMultiRequest, v11.OnlineQueryMultiResponse]
-	uploadFeaturesBulk *connect.Client[v11.UploadFeaturesBulkRequest, v11.UploadFeaturesBulkResponse]
+	ping                  *connect.Client[v1.PingRequest, v1.PingResponse]
+	onlineQuery           *connect.Client[v11.OnlineQueryRequest, v11.OnlineQueryResponse]
+	onlineQueryBulk       *connect.Client[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse]
+	onlineQueryMulti      *connect.Client[v11.OnlineQueryMultiRequest, v11.OnlineQueryMultiResponse]
+	uploadFeaturesBulk    *connect.Client[v11.UploadFeaturesBulkRequest, v11.UploadFeaturesBulkResponse]
+	planAggregateBackfill *connect.Client[v12.PlanAggregateBackfillRequest, v12.PlanAggregateBackfillResponse]
+	getAggregates         *connect.Client[v12.GetAggregatesRequest, v12.GetAggregatesResponse]
 }
 
 // Ping calls chalk.engine.v1.QueryService.Ping.
@@ -146,6 +175,16 @@ func (c *queryServiceClient) UploadFeaturesBulk(ctx context.Context, req *connec
 	return c.uploadFeaturesBulk.CallUnary(ctx, req)
 }
 
+// PlanAggregateBackfill calls chalk.engine.v1.QueryService.PlanAggregateBackfill.
+func (c *queryServiceClient) PlanAggregateBackfill(ctx context.Context, req *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error) {
+	return c.planAggregateBackfill.CallUnary(ctx, req)
+}
+
+// GetAggregates calls chalk.engine.v1.QueryService.GetAggregates.
+func (c *queryServiceClient) GetAggregates(ctx context.Context, req *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error) {
+	return c.getAggregates.CallUnary(ctx, req)
+}
+
 // QueryServiceHandler is an implementation of the chalk.engine.v1.QueryService service.
 type QueryServiceHandler interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
@@ -153,6 +192,10 @@ type QueryServiceHandler interface {
 	OnlineQueryBulk(context.Context, *connect.Request[v11.OnlineQueryBulkRequest]) (*connect.Response[v11.OnlineQueryBulkResponse], error)
 	OnlineQueryMulti(context.Context, *connect.Request[v11.OnlineQueryMultiRequest]) (*connect.Response[v11.OnlineQueryMultiResponse], error)
 	UploadFeaturesBulk(context.Context, *connect.Request[v11.UploadFeaturesBulkRequest]) (*connect.Response[v11.UploadFeaturesBulkResponse], error)
+	// PlanAggregateBackfill determines the estimated resources needed to backfill
+	// an aggregate.
+	PlanAggregateBackfill(context.Context, *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error)
+	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
 }
 
 // NewQueryServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -191,6 +234,20 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(queryServiceUploadFeaturesBulkMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	queryServicePlanAggregateBackfillHandler := connect.NewUnaryHandler(
+		QueryServicePlanAggregateBackfillProcedure,
+		svc.PlanAggregateBackfill,
+		connect.WithSchema(queryServicePlanAggregateBackfillMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	queryServiceGetAggregatesHandler := connect.NewUnaryHandler(
+		QueryServiceGetAggregatesProcedure,
+		svc.GetAggregates,
+		connect.WithSchema(queryServiceGetAggregatesMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v1.QueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueryServicePingProcedure:
@@ -203,6 +260,10 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 			queryServiceOnlineQueryMultiHandler.ServeHTTP(w, r)
 		case QueryServiceUploadFeaturesBulkProcedure:
 			queryServiceUploadFeaturesBulkHandler.ServeHTTP(w, r)
+		case QueryServicePlanAggregateBackfillProcedure:
+			queryServicePlanAggregateBackfillHandler.ServeHTTP(w, r)
+		case QueryServiceGetAggregatesProcedure:
+			queryServiceGetAggregatesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -230,4 +291,12 @@ func (UnimplementedQueryServiceHandler) OnlineQueryMulti(context.Context, *conne
 
 func (UnimplementedQueryServiceHandler) UploadFeaturesBulk(context.Context, *connect.Request[v11.UploadFeaturesBulkRequest]) (*connect.Response[v11.UploadFeaturesBulkResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.UploadFeaturesBulk is not implemented"))
+}
+
+func (UnimplementedQueryServiceHandler) PlanAggregateBackfill(context.Context, *connect.Request[v12.PlanAggregateBackfillRequest]) (*connect.Response[v12.PlanAggregateBackfillResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.PlanAggregateBackfill is not implemented"))
+}
+
+func (UnimplementedQueryServiceHandler) GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.GetAggregates is not implemented"))
 }
