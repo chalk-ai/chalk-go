@@ -28,11 +28,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err := internal.SetMapEntryValue(field, bucket, value); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
-		//rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
-		//if err != nil {
-		//	return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature '%s'", fqn)
-		//}
-		//field.SetMapIndex(reflect.ValueOf(bucket), internal.ReflectPtr(*rVal))
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
