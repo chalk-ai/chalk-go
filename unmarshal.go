@@ -102,7 +102,7 @@ func getConvertedValue(value any) (any, error) {
 	}
 	numRows := len(values[0])
 
-	newValues := make([]map[string]any, len(values))
+	newValues := make([]map[string]any, numRows)
 	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
 		newRow := make(map[string]any)
 		for colIdx, colName := range columns {
