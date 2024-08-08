@@ -188,7 +188,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return Ptr(ReflectPtr(*indirectValue)), nil
 	}
-	if IsTypeDataclass(typ) || typ.Kind() == reflect.Struct {
+	if IsTypeDataclass(typ) || (typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{})) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
 			if len(slice) != structValue.NumField() {
