@@ -214,7 +214,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				if memberField == (reflect.Value{}) {
 					return nil, fmt.Errorf(
-						"field %s not found in struct %s",
+						"member field '%s' not found in struct '%s'",
 						resolvedName, structValue.Type().Name(),
 					)
 				}
@@ -247,7 +247,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
 					return nil, fmt.Errorf(
-						"field %s not found in struct %s",
+						"field '%s' not found in struct '%s'",
 						k, structValue.Type().Name(),
 					)
 				}
