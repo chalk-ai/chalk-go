@@ -2,15 +2,42 @@ package chalk
 
 import (
 	"encoding/json"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
-	"strconv"
+	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
+	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
 func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 	context := internal.OnlineQueryContext{
-		Environment: internal.StringOrNil(p.EnvironmentId),
-		Tags:        p.Tags,
+		Environment:          internal.StringOrNil(p.EnvironmentId),
+		Tags:                 p.Tags,
+		RequiredResolverTags: p.RequiredResolverTags,
+	}
+
+	var now *string
+	if len(p.Now) > 1 {
+		p.builderErrors = append(
+			p.builderErrors,
+			// HACK: BuilderError should just go away and be replaced by just a list of errors.
+			//       So we're just slapping together a fake BuilderError here using existing
+			//       params.
+			&BuilderError{
+				Err: errors.Newf(
+					"for non-bulk queries, there should only"+
+						" be 1 `Now` value, found %d", len(p.Now),
+				),
+				Type:      InvalidRequest,
+				Feature:   "Now",
+				Value:     p.Now,
+				ParamType: ParamInput,
+			},
+		)
+	} else if len(p.Now) == 1 {
+		now = lo.ToPtr(p.Now[0].Format(internal.NowTimeFormat))
 	}
 
 	body := internal.OnlineQueryRequestSerialized{
@@ -18,13 +45,16 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 		Outputs:          p.outputs,
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
-		IncludeMeta:      p.IncludeMeta,
+		IncludeMeta:      p.IncludeMeta || p.Explain,
 		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
 		CorrelationId:    internal.StringOrNil(p.CorrelationId),
 		Meta:             p.Meta,
+		StorePlanStages:  p.StorePlanStages,
+		Now:              now,
+		Explain:          p.Explain,
 	}
 
 	return body
@@ -33,7 +63,7 @@ func (p OnlineQueryParams) serialize() internal.OnlineQueryRequestSerialized {
 func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 	res := map[string]string{}
 	for k, v := range staleness {
-		res[k] = strconv.Itoa(int(v.Seconds())) + "s"
+		res[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 	return res
 }
@@ -261,3 +291,56 @@ var getErrorCodeCategory = internal.GenerateGetEnumFunction(
 	},
 	"error code categories",
 )
+
+func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.OnlineQueryBulkRequest, error) {
+	inputsFeather, err := internal.InputsToArrowBytes(params.inputs)
+	if err != nil {
+		return nil, errors.Wrap(err, "error serializing inputs as feather")
+	}
+	outputs := lo.Map(params.outputs, func(v string, _ int) *commonv1.OutputExpr {
+		return &commonv1.OutputExpr{
+			Expr: &commonv1.OutputExpr_FeatureFqn{
+				FeatureFqn: v,
+			},
+		}
+	})
+	staleness := lo.MapValues(params.staleness, func(v time.Duration, k string) string {
+		return internal.FormatBucketDuration(int(v.Seconds()))
+	})
+
+	nowProto := lo.Map(params.Now, func(v time.Time, _ int) *timestamppb.Timestamp {
+		return timestamppb.New(v)
+	})
+
+	options := map[string]*structpb.Value{}
+	if params.StorePlanStages {
+		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
+	}
+	if params.IncludeMetrics {
+		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
+	}
+
+	return &commonv1.OnlineQueryBulkRequest{
+		InputsFeather: inputsFeather,
+		Outputs:       outputs,
+		Staleness:     staleness,
+		Now:           lo.Ternary(len(nowProto) == 0, nil, nowProto),
+		Context: &commonv1.OnlineQueryContext{
+			Environment:          params.EnvironmentId,
+			Tags:                 params.Tags,
+			DeploymentId:         lo.EmptyableToPtr(params.PreviewDeploymentId),
+			BranchId:             params.BranchId,
+			CorrelationId:        lo.EmptyableToPtr(params.CorrelationId),
+			QueryName:            lo.EmptyableToPtr(params.QueryName),
+			QueryNameVersion:     lo.EmptyableToPtr(params.QueryNameVersion),
+			RequiredResolverTags: params.RequiredResolverTags,
+			Options:              options,
+		},
+		ResponseOptions: &commonv1.OnlineQueryResponseOptions{
+			IncludeMeta:     params.IncludeMeta || params.Explain,
+			Metadata:        params.Meta,
+			EncodingOptions: nil,
+			Explain:         lo.Ternary(params.Explain, &commonv1.ExplainOptions{}, nil),
+		},
+	}, nil
+}

@@ -5,6 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 // TestOnlineQueryAllTypesUnmarshalling mainly tests
@@ -68,6 +69,106 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 			}
 			testUserValues(implicitUser)
 			testUserValues(explicitUser)
+		})
+	}
+}
+
+// TestOnlineQueryBulkParamsDoesNotErr tests that none
+// of the feather header params causes an error when
+// specified. Correctness of the thread through is
+// tested in TestParamsSetInFeatherHeader. Correctness
+// of the results is *not* tested here.
+func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, fixture := range []struct {
+		useGrpc bool
+	}{
+		{useGrpc: false},
+		{useGrpc: true},
+	} {
+		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+			err := chalk.InitFeatures(&testFeatures)
+			if err != nil {
+				t.Fatal("Failed initializing features", err)
+			}
+
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			if err != nil {
+				t.Fatal("Failed creating a Chalk Client", err)
+			}
+			userIds := []int{1, 2}
+
+			req := chalk.OnlineQueryParams{
+				Tags:                 []string{"named-integration"},
+				RequiredResolverTags: []string{"named-integration"},
+				Now:                  []time.Time{time.Now(), time.Now()},
+				StorePlanStages:      true,
+				CorrelationId:        "chalk-go-int-test-correlation-id",
+				QueryName:            "chalk-go-int-test-query",
+				QueryNameVersion:     "1",
+				Meta: map[string]string{
+					"test_meta_1": "test_meta_value_1",
+					"test_meta_2": "test_meta_value_2",
+				},
+				Explain: true,
+			}.
+				WithInput(testFeatures.User.Id, userIds).
+				WithOutputs(testFeatures.User.FullName).
+				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
+
+			_, err = client.OnlineQueryBulk(req)
+			assert.NoError(t, err)
+		})
+	}
+}
+
+// TestOnlineQueryParamsDoesNotErr tests that none
+// of the feather header params causes an error when
+// specified. Correctness of the thread through is
+// tested in TestParamsSetInOnlineQuery. Correctness
+// of the results is *not* tested here.
+func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, fixture := range []struct {
+		useGrpc bool
+	}{
+		{useGrpc: false},
+		{useGrpc: true},
+	} {
+		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			if err != nil {
+				t.Fatal("Failed creating a Chalk Client", err)
+			}
+			err = chalk.InitFeatures(&testFeatures)
+			if err != nil {
+				t.Fatal("Failed initializing features", err)
+			}
+
+			req := chalk.OnlineQueryParams{
+				Tags:                 []string{"named-integration"},
+				RequiredResolverTags: []string{"named-integration"},
+				Now:                  []time.Time{time.Now()},
+				StorePlanStages:      true,
+				CorrelationId:        "chalk-go-int-test-correlation-id",
+				QueryName:            "chalk-go-int-test-query",
+				QueryNameVersion:     "1",
+				Meta: map[string]string{
+					"test_meta_1": "test_meta_value_1",
+					"test_meta_2": "test_meta_value_2",
+				},
+				Explain: true,
+			}.
+				WithInput(testFeatures.User.Id, 1).
+				WithOutputs(testFeatures.User.FullName).
+				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
+
+			_, err = client.OnlineQuery(req, nil)
+			assert.NoError(t, err)
 		})
 	}
 }
