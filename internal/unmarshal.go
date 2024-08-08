@@ -248,7 +248,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				// Handle exploding windowed features
 				if structValue.Field(i).Type().Kind() == reflect.Map {
 					// Is a windowed feature
-					intTags, err := GetWindowBucketsSecondsFromStructTag(structValue.Field(i))
+					intTags, err := GetWindowBucketsSecondsFromStructTag(structValue.Type().Field(i))
 					if err != nil {
 						return nil, errors.Wrapf(
 							err,
@@ -285,7 +285,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 
 				if memberField.Type().Kind() == reflect.Map {
-					if err := setMapEntryValue(memberField, k, &v); err != nil {
+					bucket, err := GetBucketFromFqn(k)
+					if err != nil {
+						return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
+					}
+					if err := SetMapEntryValue(memberField, bucket, v); err != nil {
 						return nil, errors.Wrapf(
 							err,
 							"error setting map entry value for field '%s' in struct '%s'",
@@ -377,11 +381,16 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	}
 }
 
-// setMapEntryValue exists as a separate special setter function because
+// SetMapEntryValue exists as a separate special setter function because
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func setMapEntryValue(mapValue reflect.Value, key string, value any) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any) error {
+	if mapValue.IsNil() {
+		mapType := mapValue.Type()
+		newMap := reflect.MakeMap(mapType)
+		mapValue.Set(newMap)
+	}
 	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem())
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")

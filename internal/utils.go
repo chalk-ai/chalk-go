@@ -175,8 +175,8 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 	return fieldName, nil
 }
 
-func GetWindowBucketsFromStructTag(field reflect.Value) ([]string, error) {
-	tag := field.Type().Field(0).Tag.Get(WindowsTag)
+func GetWindowBucketsFromStructTag(field reflect.StructField) ([]string, error) {
+	tag := field.Tag.Get(WindowsTag)
 	tags := strings.Split(tag, ",")
 	if tag == "" || len(tags) == 0 {
 		return nil, errors.Newf("Window bucket struct tag missing or empty, e.g. `%s:\"1m,5m,...\"`", WindowsTag)
@@ -184,7 +184,7 @@ func GetWindowBucketsFromStructTag(field reflect.Value) ([]string, error) {
 	return tags, nil
 }
 
-func GetWindowBucketsSecondsFromStructTag(field reflect.Value) ([]int, error) {
+func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, error) {
 	buckets, err := GetWindowBucketsFromStructTag(field)
 	if err != nil {
 		return nil, err
@@ -211,4 +211,25 @@ func allValid(l int) []bool {
 		valid[i] = true
 	}
 	return valid
+}
+
+func GetBucketFromFqn(fqn string) (string, error) {
+	sections := strings.Split(fqn, ".")
+	lastSection := sections[len(sections)-1]
+	lastSectionSplit := strings.Split(lastSection, "__")
+	formatErr := fmt.Errorf(
+		"error unmarshalling value for windowed bucket feature %s: "+
+			"expected windowed bucket feature to have fqn of the format "+
+			"`{fqn}__{bucket seconds}__` ",
+		fqn,
+	)
+	if len(lastSectionSplit) < 2 {
+		return "", formatErr
+	}
+	secondsStr := lastSectionSplit[1]
+	seconds, err := strconv.Atoi(secondsStr)
+	if err != nil {
+		return "", formatErr
+	}
+	return FormatBucketDuration(seconds), nil
 }
