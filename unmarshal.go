@@ -25,32 +25,21 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		// We are handling maps differently because they are typed as `map`
 		// instead of a pointer to a `map` like all other types are.
 		//
-		// And handling it in setFeaturesSingleNew instead of in the recursive
+		// And handling it in setFeaturesSingle instead of in the recursive
 		// GetReflectValue function checks out because we never encounter
 		// maps in slices, other maps, or structs.
-		sections := strings.Split(fqn, ".")
-		lastSection := sections[len(sections)-1]
-		lastSectionSplit := strings.Split(lastSection, "__")
-		formatErr := fmt.Errorf(
-			"error unmarshalling value for windowed bucket feature %s: "+
-				"expected windowed bucket feature to have fqn of the format "+
-				"`{fqn}__{bucket seconds}__` ",
-			fqn,
-		)
-		if len(lastSectionSplit) < 2 {
-			return formatErr
-		}
-		secondsStr := lastSectionSplit[1]
-		seconds, err := strconv.Atoi(secondsStr)
+		//
+		// FIXME: Newsflash: we do encounter maps in structs (has-many/has-one).
+		// Gotta move this logic into GetReflectValue.
+		bucket, err := getBucketFromFqn(fqn)
 		if err != nil {
-			return formatErr
+			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
 		rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
 		if err != nil {
-			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature %s", fqn)
+			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature '%s'", fqn)
 		}
-		field.SetMapIndex(tagValue, internal.ReflectPtr(*rVal))
+		field.SetMapIndex(reflect.ValueOf(bucket), internal.ReflectPtr(*rVal))
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
@@ -304,4 +293,25 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 	return nil
+}
+
+func getBucketFromFqn(fqn string) (string, error) {
+	sections := strings.Split(fqn, ".")
+	lastSection := sections[len(sections)-1]
+	lastSectionSplit := strings.Split(lastSection, "__")
+	formatErr := fmt.Errorf(
+		"error unmarshalling value for windowed bucket feature %s: "+
+			"expected windowed bucket feature to have fqn of the format "+
+			"`{fqn}__{bucket seconds}__` ",
+		fqn,
+	)
+	if len(lastSectionSplit) < 2 {
+		return "", formatErr
+	}
+	secondsStr := lastSectionSplit[1]
+	seconds, err := strconv.Atoi(secondsStr)
+	if err != nil {
+		return "", formatErr
+	}
+	return internal.FormatBucketDuration(seconds), nil
 }

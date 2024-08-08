@@ -191,6 +191,8 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	if IsTypeDataclass(typ) || (typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{})) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
+			// Dataclasses come back as either slices or structs.
+			// This is the slices case.
 			if len(slice) != structValue.NumField() {
 				return nil, fmt.Errorf(
 					"error unmarshalling value for struct %s"+
@@ -230,6 +232,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			}
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
+			// This could be either a dataclass or a feature class.
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
 				resolved, err := ResolveFeatureName(structValue.Type().Field(i))
@@ -244,6 +247,15 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				nameToField[resolved] = structValue.Field(i)
 			}
 			for k, v := range mapz {
+				// FIXME: Convert k to base windowed feature FQN
+				// so we get the base map field
+				// call getReflectValue on the value and the type
+				// But the information on which bucket to set is lost.
+				// If we were one level up, we still know the bucket,
+				// and we can access the map to insert the value.
+				// but what if we pass the map field value into it.
+				// we can't
+
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
 					return nil, fmt.Errorf(
@@ -254,6 +266,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				if v == nil {
 					continue
 				}
+
 				rVal, err := GetReflectValue(&v, memberField.Type())
 				if err != nil {
 					return nil, errors.Wrapf(

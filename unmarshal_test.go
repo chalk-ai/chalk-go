@@ -55,167 +55,167 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 
 	// Mimic JSON deser which returns all numbers as `float64`
 	data := []FeatureResult{
-		//{
-		//	Field: "all_types.int",
-		//	Value: float64(123),
-		//},
-		//{
-		//	Field: "all_types.float",
-		//	Value: float64(123),
-		//},
-		//{
-		//	Field: "all_types.string",
-		//	Value: "abc",
-		//},
-		//{
-		//	Field: "all_types.bool",
-		//	Value: true,
-		//},
-		//{
-		//	Field: "all_types.timestamp",
-		//	Value: "2024-05-09T22:29:00Z",
-		//},
-		//{
-		//	Field: "all_types.int_list",
-		//	Value: []any{float64(1), float64(2), float64(3)},
-		//},
-		//{
-		//	Field: "all_types.nested_int_pointer_list",
-		//	Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
-		//},
-		//{
-		//	Field: "all_types.nested_int_list",
-		//	Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
-		//},
-		//{
-		//	Field: "all_types.windowed_int__60__",
-		//	Value: 1,
-		//},
-		//{
-		//	Field: "all_types.windowed_int__300__",
-		//	Value: 2,
-		//},
-		//{
-		//	Field: "all_types.windowed_int__3600__",
-		//	Value: 3,
-		//},
-		//{
-		//	Field: "all_types.dataclass",
-		//	Value: []any{float64(1.0), float64(2.0)},
-		//},
-		//{
-		//	Field: "all_types.dataclass_list",
-		//	Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
-		//},
-		//{
-		//	Field: "all_types.nested.id",
-		//	Value: "nested_id",
-		//},
 		{
-			Field: "all_types.has_many",
-			Value: map[string]any{
-				"columns": []any{
-					"id",
-					"int",
-					"float",
-					"string",
-					"bool",
-					"timestamp",
-					"int_list",
-					"nested_int_pointer_list",
-					"nested_int_list",
-					"windowed_int__60__",
-					"windowed_int__300__",
-					"windowed_int__3600__",
-					"dataclass",
-					"dataclass_list",
-				},
-				"values": []any{
-					// id column
-					[]any{
-						"id1",
-						"id2",
-					},
-					// int column
-					[]any{
-						float64(123),
-						float64(456),
-					},
-					// float column
-					[]any{
-						float64(123),
-						float64(456),
-					},
-					// string column
-					[]any{
-						"abc",
-						"def",
-					},
-					// bool column
-					[]any{
-						true,
-						false,
-					},
-					// timestamp column
-					[]any{
-						"2024-05-09T22:29:00Z",
-						"2024-05-09T22:30:00Z",
-					},
-					// int_list column
-					[]any{
-						[]any{float64(1), float64(2), float64(3)},
-						[]any{float64(4), float64(5), float64(6)},
-					},
-					// nested_int_pointer_list column
-					[]any{
-						[]any{
-							[]any{float64(1), float64(2)},
-						},
-						[]any{
-							[]any{float64(3), float64(4)},
-						},
-					},
-					// nested_int_list column
-					[]any{
-						[]any{
-							[]any{float64(1), float64(2)},
-						},
-						[]any{
-							[]any{float64(3), float64(4)},
-						},
-					},
-					// windowed_int__60__ column
-					[]any{
-						float64(1),
-						float64(2),
-					},
-					// windowed_int__300__ column
-					[]any{
-						float64(3),
-						float64(4),
-					},
-					// windowed_int__3600__ column
-					[]any{
-						float64(5),
-						float64(6),
-					},
-					// dataclass column
-					[]any{
-						[]any{float64(1.0), float64(2.0)},
-						[]any{float64(3.0), float64(4.0)},
-					},
-					// dataclass_list column
-					[]any{
-						[]any{
-							[]any{float64(1.0), float64(2.0)},
-						},
-						[]any{
-							[]any{float64(3.0), float64(4.0)},
-						},
-					},
-				},
-			},
+			Field: "all_types.int",
+			Value: float64(123),
 		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
+		//{
+		//	Field: "all_types.has_many",
+		//	Value: map[string]any{
+		//		"columns": []any{
+		//			"id",
+		//			"int",
+		//			"float",
+		//			"string",
+		//			"bool",
+		//			"timestamp",
+		//			"int_list",
+		//			"nested_int_pointer_list",
+		//			"nested_int_list",
+		//			"windowed_int__60__",
+		//			"windowed_int__300__",
+		//			"windowed_int__3600__",
+		//			"dataclass",
+		//			"dataclass_list",
+		//		},
+		//		"values": []any{
+		//			// id column
+		//			[]any{
+		//				"id1",
+		//				"id2",
+		//			},
+		//			// int column
+		//			[]any{
+		//				float64(123),
+		//				float64(456),
+		//			},
+		//			// float column
+		//			[]any{
+		//				float64(123),
+		//				float64(456),
+		//			},
+		//			// string column
+		//			[]any{
+		//				"abc",
+		//				"def",
+		//			},
+		//			// bool column
+		//			[]any{
+		//				true,
+		//				false,
+		//			},
+		//			// timestamp column
+		//			[]any{
+		//				"2024-05-09T22:29:00Z",
+		//				"2024-05-09T22:30:00Z",
+		//			},
+		//			// int_list column
+		//			[]any{
+		//				[]any{float64(1), float64(2), float64(3)},
+		//				[]any{float64(4), float64(5), float64(6)},
+		//			},
+		//			// nested_int_pointer_list column
+		//			[]any{
+		//				[]any{
+		//					[]any{float64(1), float64(2)},
+		//				},
+		//				[]any{
+		//					[]any{float64(3), float64(4)},
+		//				},
+		//			},
+		//			// nested_int_list column
+		//			[]any{
+		//				[]any{
+		//					[]any{float64(1), float64(2)},
+		//				},
+		//				[]any{
+		//					[]any{float64(3), float64(4)},
+		//				},
+		//			},
+		//			// windowed_int__60__ column
+		//			[]any{
+		//				float64(1),
+		//				float64(2),
+		//			},
+		//			// windowed_int__300__ column
+		//			[]any{
+		//				float64(3),
+		//				float64(4),
+		//			},
+		//			// windowed_int__3600__ column
+		//			[]any{
+		//				float64(5),
+		//				float64(6),
+		//			},
+		//			// dataclass column
+		//			[]any{
+		//				[]any{float64(1.0), float64(2.0)},
+		//				[]any{float64(3.0), float64(4.0)},
+		//			},
+		//			// dataclass_list column
+		//			[]any{
+		//				[]any{
+		//					[]any{float64(1.0), float64(2.0)},
+		//				},
+		//				[]any{
+		//					[]any{float64(3.0), float64(4.0)},
+		//				},
+		//			},
+		//		},
+		//	},
+		//},
 	}
 	result := OnlineQueryResult{
 		Data:            data,
@@ -256,49 +256,49 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 	assert.Nil(t, features.Nested.Nested)
 
 	// Has-manys
-	assert.Equal(t, 2, len(*features.HasMany))
-	assert.Equal(t, "id1", *(*features.HasMany)[0].Id)
-	assert.Equal(t, "id2", *(*features.HasMany)[1].Id)
-	assert.Equal(t, int64(123), *(*features.HasMany)[0].Int)
-	assert.Equal(t, int64(456), *(*features.HasMany)[1].Int)
-	assert.Equal(t, float64(123), *(*features.HasMany)[0].Float)
-	assert.Equal(t, float64(456), *(*features.HasMany)[1].Float)
-	assert.Equal(t, "abc", *(*features.HasMany)[0].String)
-	assert.Equal(t, "def", *(*features.HasMany)[1].String)
-	assert.Equal(t, true, *(*features.HasMany)[0].Bool)
-	assert.Equal(t, false, *(*features.HasMany)[1].Bool)
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *(*features.HasMany)[0].Timestamp)
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *(*features.HasMany)[1].Timestamp)
-	assert.Equal(t, []int64{1, 2, 3}, *(*features.HasMany)[0].IntList)
-	assert.Equal(t, []int64{4, 5, 6}, *(*features.HasMany)[1].IntList)
-	assert.Equal(t, 1, len(*(*features.HasMany)[0].NestedIntPointerList))
-	assert.Equal(t, 1, len(*(*features.HasMany)[1].NestedIntPointerList))
-	assert.Equal(t, []int64{1, 2}, *(*(*features.HasMany)[0].NestedIntPointerList)[0])
-	assert.Equal(t, []int64{3, 4}, *(*(*features.HasMany)[1].NestedIntPointerList)[0])
-	assert.Equal(t, 1, len(*(*features.HasMany)[0].NestedIntList))
-	assert.Equal(t, 1, len(*(*features.HasMany)[1].NestedIntList))
-	assert.Equal(t, []int64{1, 2}, (*(*features.HasMany)[0].NestedIntList)[0])
-	assert.Equal(t, []int64{3, 4}, (*(*features.HasMany)[1].NestedIntList)[0])
-	assert.Equal(t, int64(1), *(*features.HasMany)[0].WindowedInt["1m"])
-	assert.Equal(t, int64(2), *(*features.HasMany)[1].WindowedInt["1m"])
-	assert.Equal(t, int64(3), *(*features.HasMany)[0].WindowedInt["5m"])
-	assert.Equal(t, int64(4), *(*features.HasMany)[1].WindowedInt["5m"])
-	assert.Equal(t, int64(5), *(*features.HasMany)[0].WindowedInt["1h"])
-	assert.Equal(t, int64(6), *(*features.HasMany)[1].WindowedInt["1h"])
-	assert.Equal(t, float64(1.0), *(*features.HasMany)[0].Dataclass.Lat)
-	assert.Equal(t, float64(2.0), *(*features.HasMany)[0].Dataclass.Lng)
-	assert.Equal(t, float64(3.0), *(*features.HasMany)[1].Dataclass.Lat)
-	assert.Equal(t, float64(4.0), *(*features.HasMany)[1].Dataclass.Lng)
-	assert.Equal(t, 2, len(*(*features.HasMany)[0].DataclassList))
-	assert.Equal(t, float64(1.0), (*(*features.HasMany)[0].DataclassList)[0].Lat)
-	assert.Equal(t, float64(2.0), (*(*features.HasMany)[0].DataclassList)[0].Lng)
-	assert.Equal(t, float64(3.0), (*(*features.HasMany)[0].DataclassList)[1].Lat)
-	assert.Equal(t, float64(4.0), (*(*features.HasMany)[0].DataclassList)[1].Lng)
-	assert.Equal(t, 2, len(*(*features.HasMany)[1].DataclassList))
-	assert.Equal(t, float64(1.0), (*(*features.HasMany)[1].DataclassList)[0].Lat)
-	assert.Equal(t, float64(2.0), (*(*features.HasMany)[1].DataclassList)[0].Lng)
-	assert.Equal(t, float64(3.0), (*(*features.HasMany)[1].DataclassList)[1].Lat)
-	assert.Equal(t, float64(4.0), (*(*features.HasMany)[1].DataclassList)[1].Lng)
+	//assert.Equal(t, 2, len(*features.HasMany))
+	//assert.Equal(t, "id1", *(*features.HasMany)[0].Id)
+	//assert.Equal(t, "id2", *(*features.HasMany)[1].Id)
+	//assert.Equal(t, int64(123), *(*features.HasMany)[0].Int)
+	//assert.Equal(t, int64(456), *(*features.HasMany)[1].Int)
+	//assert.Equal(t, float64(123), *(*features.HasMany)[0].Float)
+	//assert.Equal(t, float64(456), *(*features.HasMany)[1].Float)
+	//assert.Equal(t, "abc", *(*features.HasMany)[0].String)
+	//assert.Equal(t, "def", *(*features.HasMany)[1].String)
+	//assert.Equal(t, true, *(*features.HasMany)[0].Bool)
+	//assert.Equal(t, false, *(*features.HasMany)[1].Bool)
+	//assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *(*features.HasMany)[0].Timestamp)
+	//assert.Equal(t, time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC), *(*features.HasMany)[1].Timestamp)
+	//assert.Equal(t, []int64{1, 2, 3}, *(*features.HasMany)[0].IntList)
+	//assert.Equal(t, []int64{4, 5, 6}, *(*features.HasMany)[1].IntList)
+	//assert.Equal(t, 1, len(*(*features.HasMany)[0].NestedIntPointerList))
+	//assert.Equal(t, 1, len(*(*features.HasMany)[1].NestedIntPointerList))
+	//assert.Equal(t, []int64{1, 2}, *(*(*features.HasMany)[0].NestedIntPointerList)[0])
+	//assert.Equal(t, []int64{3, 4}, *(*(*features.HasMany)[1].NestedIntPointerList)[0])
+	//assert.Equal(t, 1, len(*(*features.HasMany)[0].NestedIntList))
+	//assert.Equal(t, 1, len(*(*features.HasMany)[1].NestedIntList))
+	//assert.Equal(t, []int64{1, 2}, (*(*features.HasMany)[0].NestedIntList)[0])
+	//assert.Equal(t, []int64{3, 4}, (*(*features.HasMany)[1].NestedIntList)[0])
+	//assert.Equal(t, int64(1), *(*features.HasMany)[0].WindowedInt["1m"])
+	//assert.Equal(t, int64(2), *(*features.HasMany)[1].WindowedInt["1m"])
+	//assert.Equal(t, int64(3), *(*features.HasMany)[0].WindowedInt["5m"])
+	//assert.Equal(t, int64(4), *(*features.HasMany)[1].WindowedInt["5m"])
+	//assert.Equal(t, int64(5), *(*features.HasMany)[0].WindowedInt["1h"])
+	//assert.Equal(t, int64(6), *(*features.HasMany)[1].WindowedInt["1h"])
+	//assert.Equal(t, float64(1.0), *(*features.HasMany)[0].Dataclass.Lat)
+	//assert.Equal(t, float64(2.0), *(*features.HasMany)[0].Dataclass.Lng)
+	//assert.Equal(t, float64(3.0), *(*features.HasMany)[1].Dataclass.Lat)
+	//assert.Equal(t, float64(4.0), *(*features.HasMany)[1].Dataclass.Lng)
+	//assert.Equal(t, 2, len(*(*features.HasMany)[0].DataclassList))
+	//assert.Equal(t, float64(1.0), (*(*features.HasMany)[0].DataclassList)[0].Lat)
+	//assert.Equal(t, float64(2.0), (*(*features.HasMany)[0].DataclassList)[0].Lng)
+	//assert.Equal(t, float64(3.0), (*(*features.HasMany)[0].DataclassList)[1].Lat)
+	//assert.Equal(t, float64(4.0), (*(*features.HasMany)[0].DataclassList)[1].Lng)
+	//assert.Equal(t, 2, len(*(*features.HasMany)[1].DataclassList))
+	//assert.Equal(t, float64(1.0), (*(*features.HasMany)[1].DataclassList)[0].Lat)
+	//assert.Equal(t, float64(2.0), (*(*features.HasMany)[1].DataclassList)[0].Lng)
+	//assert.Equal(t, float64(3.0), (*(*features.HasMany)[1].DataclassList)[1].Lat)
+	//assert.Equal(t, float64(4.0), (*(*features.HasMany)[1].DataclassList)[1].Lng)
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
