@@ -3,8 +3,9 @@ package internal
 import "time"
 
 type OnlineQueryContext struct {
-	Environment *string  `json:"environment"`
-	Tags        []string `json:"tags"`
+	Environment          *string  `json:"environment"`
+	Tags                 []string `json:"tags"`
+	RequiredResolverTags []string `json:"required_resolver_tags"`
 }
 
 type OnlineQueryRequestSerialized struct {
@@ -19,6 +20,9 @@ type OnlineQueryRequestSerialized struct {
 	CorrelationId    *string            `json:"correlation_id"`
 	Meta             map[string]string  `json:"meta"`
 	QueryNameVersion *string            `json:"query_name_version"`
+	Now              *string            `json:"now"`
+	Explain          bool               `json:"explain"`
+	StorePlanStages  bool               `json:"store_plan_stages"`
 }
 
 type OfflineQueryInputSerialized struct {

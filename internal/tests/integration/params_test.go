@@ -7,16 +7,35 @@ import (
 	"github.com/samber/lo"
 	assert "github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 // TestParamsSetInFeatherHeader tests that params are threaded
-// through to the feather request header. Params tested:
-// - Branch ID
-// - Query tags
+// through to the feather request header.
 func TestParamsSetInFeatherHeader(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	httpClient := NewInterceptorHTTPClient()
+	err := chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+
 	expectedBranchId := "test-branch-id"
+	expectedTags := []string{"tags-1", "tags-2"}
+	requiredResolverTags := []string{"required1tag", "required-2tag"}
+	now := []time.Time{time.Now(), time.Now()}
+	staleness := map[any]time.Duration{
+		testFeatures.User.SocureScore: time.Minute,
+	}
+	correlationId := "correlating-id"
+	queryName := "fraud_fighter"
+	queryNameVersion := "fraud_fighter_first"
+	meta := map[string]string{
+		"abTestId": "bee",
+		"bbTestId": "cee",
+	}
+
+	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
 	})
@@ -24,35 +43,64 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 	userIds := []int{1}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
-	expectedTags := []string{"tags-1", "tags-2"}
-	req := chalk.OnlineQueryParams{Tags: expectedTags}.
+
+	req := chalk.OnlineQueryParams{
+		Tags:                 expectedTags,
+		RequiredResolverTags: requiredResolverTags,
+		Now:                  now,
+		StorePlanStages:      true,
+		CorrelationId:        correlationId,
+		QueryName:            queryName,
+		QueryNameVersion:     queryNameVersion,
+		Meta:                 meta,
+		Explain:              true,
+		IncludeMeta:          true,
+	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
 		WithBranchId(expectedBranchId)
-	_, _ = client.OnlineQueryBulk(req)
-	header, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
-	assert.Nil(t, headerErr)
-	actualBranchId, ok := header["branch_id"]
-	assert.True(t, ok)
-	assert.Equal(t, expectedBranchId, actualBranchId)
+	for k, v := range staleness {
+		req = req.WithStaleness(k, v)
+	}
 
-	context, ok := header["context"].(map[string]any)
-	assert.True(t, ok)
-	tagsAny, ok := context["tags"].([]any)
-	tagsString := lo.Map(tagsAny, func(tag any, _ int) string {
-		return tag.(string)
+	_, _ = client.OnlineQueryBulk(req)
+	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
+	assert.Nil(t, headerErr)
+
+	headerJson, err := json.Marshal(headerMap)
+	assert.NoError(t, err)
+	var header internal.FeatherRequestHeader
+	assert.NoError(t, json.Unmarshal(headerJson, &header))
+
+	stalenessConverted := lo.MapEntries(staleness, func(key any, val time.Duration) (string, string) {
+		feature, err := chalk.UnwrapFeature(key)
+		assert.NoError(t, err)
+		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
 	})
-	assert.True(t, ok)
-	assert.Equal(t, expectedTags, tagsString)
+	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
+		return val.Format(internal.NowTimeFormat)
+	})
+
+	assert.Equal(t, expectedBranchId, *header.BranchId)
+	assert.Equal(t, expectedTags, header.Context.Tags)
+	assert.Equal(t, requiredResolverTags, header.Context.RequiredResolverTags)
+	assert.Equal(t, nowConverted, header.Now)
+	assert.Equal(t, stalenessConverted, header.Staleness)
+	assert.True(t, header.StorePlanStages)
+	assert.NotNil(t, header.CorrelationId)
+	assert.Equal(t, correlationId, *header.CorrelationId)
+	assert.NotNil(t, header.QueryName)
+	assert.Equal(t, queryName, *header.QueryName)
+	assert.NotNil(t, header.QueryNameVersion)
+	assert.Equal(t, queryNameVersion, *header.QueryNameVersion)
+	assert.Equal(t, meta, header.Meta)
+	assert.True(t, header.Explain)
+	assert.True(t, header.IncludeMeta)
 }
 
-// TestTagsSetInOnlineQuery tests that we set tags in
-// online query.
-func TestTagsSetInOnlineQuery(t *testing.T) {
+// TestParamsSetInOnlineQuery tests that we set all params
+// correctly in online query.
+func TestParamsSetInOnlineQuery(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
@@ -65,14 +113,70 @@ func TestTagsSetInOnlineQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
+
 	expectedTags := []string{"tags-1", "tags-2"}
-	req := chalk.OnlineQueryParams{Tags: expectedTags}.
+	requiredResolverTags := []string{"required1tag", "required-2tag"}
+	now := []time.Time{time.Now()}
+	staleness := map[any]time.Duration{
+		testFeatures.User.SocureScore: time.Minute,
+	}
+	correlationId := "correlating-id"
+	queryName := "fraud_fighter"
+	queryNameVersion := "fraud_fighter_first"
+	meta := map[string]string{
+		"abTestId": "bee",
+		"bbTestId": "cee",
+	}
+
+	stalenessConverted := lo.MapEntries(staleness, func(key any, val time.Duration) (string, string) {
+		feature, err := chalk.UnwrapFeature(key)
+		assert.NoError(t, err)
+		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
+	})
+	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
+		return val.Format(internal.NowTimeFormat)
+	})
+
+	req := chalk.OnlineQueryParams{
+		Tags:                 expectedTags,
+		RequiredResolverTags: requiredResolverTags,
+		StorePlanStages:      true,
+		Meta:                 meta,
+		QueryName:            queryName,
+		QueryNameVersion:     queryNameVersion,
+		CorrelationId:        correlationId,
+		Now:                  now,
+		Explain:              true,
+		IncludeMeta:          true,
+		IncludeMetrics:       true,
+	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
+
+	for k, v := range staleness {
+		req = req.WithStaleness(k, v)
+	}
+
 	_, _ = client.OnlineQuery(req, nil)
 	var request internal.OnlineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Context.Tags)
+
+	assert.Equal(t, requiredResolverTags, request.Context.RequiredResolverTags)
+	assert.NotNil(t, request.Now)
+	assert.Equal(t, nowConverted[0], *request.Now)
+	assert.Equal(t, stalenessConverted, request.Staleness)
+	assert.True(t, request.StorePlanStages)
+	assert.NotNil(t, request.CorrelationId)
+	assert.Equal(t, correlationId, *request.CorrelationId)
+	assert.NotNil(t, request.QueryName)
+	assert.Equal(t, queryName, *request.QueryName)
+	assert.NotNil(t, request.QueryNameVersion)
+	assert.Equal(t, queryNameVersion, *request.QueryNameVersion)
+	assert.Equal(t, meta, request.Meta)
+	assert.True(t, request.Explain)
+	assert.True(t, request.IncludeMeta)
+	assert.True(t, request.IncludeMetrics)
 }
 
 // TestTagsSetInOfflineQuery tests that we set tags in

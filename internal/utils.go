@@ -13,6 +13,8 @@ import (
 var NameTag = "name"
 var WindowsTag = "windows"
 
+var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
+
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
