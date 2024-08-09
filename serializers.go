@@ -355,6 +355,10 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 }
 
 func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
+	if structType.Kind() == reflect.Ptr {
+		structType = structType.Elem()
+	}
+
 	res := make(map[string]string)
 	namespace := internal.ChalkpySnakeCase(structType.Name())
 	for i := 0; i < structType.NumField(); i++ {
@@ -368,11 +372,24 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 }
 
 func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
+	if structValue.Kind() == reflect.Ptr {
+		// Unwrap
+		structValue = structValue.Elem()
+	}
+
 	newMap := make(map[string]any)
 	structType := structValue.Type()
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName := fieldToPythonName[structType.Field(i).Name]
-		newMap[pythonName] = structValue.Field(i).Interface()
+		converted, err := convertIfFeatureStruct(structValue.Field(i).Interface())
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"failed to convert inner feature struct for field '%s'",
+				structType.Field(i).Name,
+			)
+		}
+		newMap[pythonName] = converted
 	}
 	return newMap, nil
 }

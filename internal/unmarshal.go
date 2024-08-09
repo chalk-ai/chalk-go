@@ -61,6 +61,10 @@ func IsDataclass(field reflect.Value) bool {
 }
 
 func IsTypeFeatureStruct(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+
 	if typ.Kind() != reflect.Struct {
 		// Not a dataclass nor a has-many feature.
 		return false
@@ -70,13 +74,13 @@ func IsTypeFeatureStruct(typ reflect.Type) bool {
 		return false
 	}
 
-	if typ.NumField() > 0 && IsTypeDataclass(typ.Field(0).Type) {
+	if IsTypeDataclass(typ) {
 		// Don't manually serialize dataclasses. Dataclasses need to be serialized
 		// with JSON since we utilize struct tags to assign the original python
 		// field name.
 		return false
 	}
-	
+
 	return true
 }
 

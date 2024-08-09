@@ -69,12 +69,12 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	assert.Nil(t, InitFeatures(&testRootFeatures))
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
-		//WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
-		//	Id: lo.ToPtr("1"),
-		//	Nested: &levelTwoNest{
-		//		Id: lo.ToPtr("2"),
-		//	},
-		//}).
+		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
+			Id: lo.ToPtr("1"),
+			Nested: &levelTwoNest{
+				Id: lo.ToPtr("2"),
+			},
+		}).
 		WithInput(testRootFeatures.AllTypes.HasMany, []hasMany{
 			{
 				Id:        lo.ToPtr("1"),
@@ -201,11 +201,11 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 
 	inputBytes, err := json.MarshalIndent(request.Inputs, "", "  ")
 	assert.NoError(t, err)
-	assert.Equal(t, string(fileContent), string(inputBytes))
-
 	err = os.WriteFile(path, inputBytes, 0644)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		return
 	}
+
+	assert.Equal(t, string(fileContent), string(inputBytes))
 }
