@@ -44,9 +44,9 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	convertedInputs := make(map[string]any)
 	for fqn, values := range p.inputs {
-		convertedValues, err := convertIfFeatureStruct(values)
+		convertedValues, err := convertIfStruct(values)
 		if err != nil {
-			return nil, wrapClientError(err, "failed to preprocess input values")
+			return nil, wrapClientError(err, "failed to convert structs in input feature values")
 		}
 		convertedInputs[fqn] = convertedValues
 	}
@@ -355,10 +355,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 }
 
 func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
-	//if structType.Kind() == reflect.Ptr {
-	//	structType = structType.Elem()
-	//}
-
 	isDataclass := internal.IsTypeDataclass(structType)
 	res := make(map[string]string)
 	namespace := internal.ChalkpySnakeCase(structType.Name())
@@ -376,17 +372,12 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 	return res, nil
 }
 
-func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
-	//if structValue.Kind() == reflect.Ptr {
-	// Unwrap
-	//structValue = structValue.Elem()
-	//}
-
+func convertStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
 	newMap := make(map[string]any)
 	structType := structValue.Type()
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName := fieldToPythonName[structType.Field(i).Name]
-		converted, err := convertIfFeatureStruct(structValue.Field(i).Interface())
+		converted, err := convertIfStruct(structValue.Field(i).Interface())
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
@@ -399,7 +390,7 @@ func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map
 	return newMap, nil
 }
 
-func convertIfFeatureStruct(values any) (any, error) {
+func convertIfStruct(values any) (any, error) {
 	// When the user passes in a has-one feature struct or a list of has-many structs,
 	// it gets serialized into:
 	//
@@ -415,7 +406,19 @@ func convertIfFeatureStruct(values any) (any, error) {
 	//     "user.amount": 100,
 	// }
 	//
-
+	// Meanwhile, dataclasses are serialized by default as:
+	//
+	// {
+	//     "Lat": 37.7749,
+	//     "Lng": 122.4194,
+	// }
+	//
+	// when we want
+	// {
+	//     "lat": 37.7749,
+	//     "lng": 122.4194,
+	// }
+	//
 	rValues := reflect.ValueOf(values)
 	if rValues.Kind() == reflect.Ptr {
 		rValues = rValues.Elem()
@@ -430,7 +433,7 @@ func convertIfFeatureStruct(values any) (any, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
 		}
-		return convertFeatureStructSingle(rValues, fieldNameToPythonName)
+		return convertStructSingle(rValues, fieldNameToPythonName)
 	}
 
 	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
@@ -452,7 +455,7 @@ func convertIfFeatureStruct(values any) (any, error) {
 
 	newValues := make([]map[string]any, rValues.Len())
 	for i := 0; i < rValues.Len(); i++ {
-		newMap, err := convertFeatureStructSingle(rValues.Index(i), fieldNameToPythonName)
+		newMap, err := convertStructSingle(rValues.Index(i), fieldNameToPythonName)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
 		}
