@@ -178,9 +178,7 @@
   "all_types.nested": {
     "level_one_nest.id": "1",
     "level_one_nest.nested": {
-      "level_two_nest.id": "2",
-      "level_two_nest.should_always_be_nil": null
-    },
-    "level_one_nest.should_always_be_nil": null
+      "level_two_nest.id": "2"
+    }
   }
 }
