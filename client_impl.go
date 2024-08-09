@@ -42,6 +42,13 @@ func (c *clientImpl) GetAggregates(ctx context.Context, features []string) (*agg
 	return nil, errors.New("not implemented")
 }
 
+func (c *clientImpl) PlanAggregateBackfill(
+	ctx context.Context,
+	req *aggregatev1.PlanAggregateBackfillRequest,
+) (*aggregatev1.PlanAggregateBackfillResponse, error) {
+	return nil, errors.New("not implemented")
+}
+
 func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 

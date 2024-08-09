@@ -163,6 +163,11 @@ type Client interface {
 	GetToken() (*TokenResult, error)
 
 	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
+
+	PlanAggregateBackfill(
+		ctx context.Context,
+		req *aggregatev1.PlanAggregateBackfillRequest,
+	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 }
 
 type ClientConfig struct {
