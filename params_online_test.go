@@ -63,6 +63,40 @@ func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 	assert.NotEmpty(t, underlying.builderErrors)
 }
 
+// Tests that Feature structs have their nil fields omitted by default,
+// and not omitted when `chalk:"dontomit"` flag is set.
+func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, InitFeatures(&testRootFeatures))
+	params := OnlineQueryParams{}.
+		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
+			Id: lo.ToPtr("1"),
+		}).
+		WithInput(testRootFeatures.AllTypes.Dataclass, testLatLng{
+			Lat: lo.ToPtr(1.1),
+		})
+	request, err := params.underlying.serialize()
+	assert.NoError(t, err)
+	assert.NotNil(t, request)
+
+	path := filepath.Join("internal", "fixtures", "online_query_params_omit_nil_fields.json")
+	fileContent, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	inputBytes, err := json.MarshalIndent(request.Inputs, "", "  ")
+	assert.NoError(t, err)
+	err = os.WriteFile(path, inputBytes, 0644)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
+
+	assert.Equal(t, string(fileContent), string(inputBytes))
+}
+
 // Tests that OnlineQuery successfully serializes all types of input feature values.
 func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	t.Parallel()
