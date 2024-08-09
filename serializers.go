@@ -355,9 +355,9 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 }
 
 func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
-	if structType.Kind() == reflect.Ptr {
-		structType = structType.Elem()
-	}
+	//if structType.Kind() == reflect.Ptr {
+	//	structType = structType.Elem()
+	//}
 
 	isDataclass := internal.IsTypeDataclass(structType)
 	res := make(map[string]string)
@@ -377,15 +377,12 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 }
 
 func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
-	if structValue.Kind() == reflect.Ptr {
-		// Unwrap
-		structValue = structValue.Elem()
-	}
+	//if structValue.Kind() == reflect.Ptr {
+	// Unwrap
+	//structValue = structValue.Elem()
+	//}
 
 	newMap := make(map[string]any)
-	if !structValue.IsValid() {
-		return nil, nil
-	}
 	structType := structValue.Type()
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName := fieldToPythonName[structType.Field(i).Name]
@@ -418,7 +415,14 @@ func convertIfFeatureStruct(values any) (any, error) {
 	//     "user.amount": 100,
 	// }
 	//
+
 	rValues := reflect.ValueOf(values)
+	if rValues.Kind() == reflect.Ptr {
+		rValues = rValues.Elem()
+	}
+	if !rValues.IsValid() {
+		return values, nil
+	}
 
 	if internal.IsStruct(rValues.Type()) {
 		// This is a has-one feature

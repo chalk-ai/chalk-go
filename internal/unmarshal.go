@@ -61,9 +61,9 @@ func IsDataclass(field reflect.Value) bool {
 }
 
 func IsStruct(typ reflect.Type) bool {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
+	//if typ.Kind() == reflect.Ptr {
+	//	typ = typ.Elem()
+	//}
 
 	if typ.Kind() != reflect.Struct {
 		// Not a dataclass nor a has-many feature.
