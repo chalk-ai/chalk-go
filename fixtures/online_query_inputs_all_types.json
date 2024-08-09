@@ -1,0 +1,178 @@
+{
+  "all_types.has_many": [
+    {
+      "has_many.bool": true,
+      "has_many.dataclass": {
+        "lat": 1.1,
+        "lng": 2.2
+      },
+      "has_many.dataclass_list": [
+        {
+          "lat": 3.3,
+          "lng": 4.4
+        }
+      ],
+      "has_many.dataclass_with_dataclass": {
+        "name": "child",
+        "mom": {
+          "name": "mom",
+          "mom": {
+            "name": "grandma"
+          },
+          "dad": null
+        },
+        "dad": null
+      },
+      "has_many.dataclass_with_list": {
+        "numbers": [
+          1,
+          2,
+          3
+        ],
+        "words": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "has_many.dataclass_with_nils": {
+        "car": "car",
+        "yacht": "yacht",
+        "plane": "plane"
+      },
+      "has_many.dataclass_with_overrides": {
+        "camelName": "camel"
+      },
+      "has_many.float": 1.1,
+      "has_many.id": "1",
+      "has_many.int": 1,
+      "has_many.int_list": [
+        1,
+        2,
+        3
+      ],
+      "has_many.nested_int_list": [
+        [
+          1,
+          2
+        ]
+      ],
+      "has_many.nested_int_pointer_list": [
+        [
+          1,
+          2
+        ]
+      ],
+      "has_many.string": "abc",
+      "has_many.timestamp": "2021-01-02T03:04:45.000000123Z",
+      "has_many.windowed_int": {
+        "1h": 3,
+        "1m": 1,
+        "5m": 2
+      },
+      "has_many.windowed_list": {
+        "1h": [
+          7,
+          8,
+          9
+        ],
+        "1m": [
+          1,
+          2,
+          3
+        ],
+        "5m": [
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "has_many.bool": false,
+      "has_many.dataclass": {
+        "lat": 5.5,
+        "lng": 6.6
+      },
+      "has_many.dataclass_list": [
+        {
+          "lat": 7.7,
+          "lng": 8.8
+        }
+      ],
+      "has_many.dataclass_with_dataclass": {
+        "name": "child2",
+        "mom": {
+          "name": "mom2",
+          "mom": null,
+          "dad": null
+        },
+        "dad": null
+      },
+      "has_many.dataclass_with_list": {
+        "numbers": [
+          4,
+          5,
+          6
+        ],
+        "words": [
+          "d",
+          "e",
+          "f"
+        ]
+      },
+      "has_many.dataclass_with_nils": {
+        "car": "car2",
+        "yacht": "yacht2",
+        "plane": "plane2"
+      },
+      "has_many.dataclass_with_overrides": {
+        "camelName": "camel2"
+      },
+      "has_many.float": 2.2,
+      "has_many.id": "2",
+      "has_many.int": 2,
+      "has_many.int_list": [
+        4,
+        5,
+        6
+      ],
+      "has_many.nested_int_list": [
+        [
+          3,
+          4
+        ]
+      ],
+      "has_many.nested_int_pointer_list": [
+        [
+          3,
+          4
+        ]
+      ],
+      "has_many.string": "def",
+      "has_many.timestamp": "2021-01-02T03:04:45.000000123Z",
+      "has_many.windowed_int": {
+        "1h": 6,
+        "1m": 4,
+        "5m": 5
+      },
+      "has_many.windowed_list": {
+        "1h": [
+          10,
+          11,
+          12
+        ],
+        "1m": [
+          4,
+          5,
+          6
+        ],
+        "5m": [
+          7,
+          8,
+          9
+        ]
+      }
+    }
+  ]
+}
