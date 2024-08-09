@@ -13,63 +13,6 @@ import (
 	"time"
 )
 
-func convertIfHasManyStruct(values any) (any, error) {
-	// When the user passes in a list of has-many structs,
-	// it gets serialized into:
-	//
-	// {
-	//     "FullName": "John Doe",
-	//     "Amount": 100,
-	// }
-	//
-	// when we really want:
-	//
-	// {
-	//     "user.full_name": "John Doe",
-	//     "user.amount": 100,
-	// }
-	rValues := reflect.ValueOf(values)
-	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
-		return values, nil
-	}
-	elemType := rValues.Type().Elem()
-	if elemType.Kind() != reflect.Struct {
-		// Not a dataclass nor a has-many feature.
-		return values, nil
-	}
-
-	if elemType.NumField() > 0 && internal.IsTypeDataclass(elemType.Field(0).Type) {
-		// Don't manually serialize dataclasses. Dataclasses need to be serialized
-		// with JSON since we utilize struct tags to assign the original python
-		// field name.
-		return values, nil
-	}
-	// This is a list of dataclasses, or a has-many list of features.
-	fieldNameToPythonName := make(map[string]string)
-	namespace := internal.ChalkpySnakeCase(elemType.Name())
-	for i := 0; i < elemType.NumField(); i++ {
-		pythonName, err := internal.ResolveFeatureName(elemType.Field(i))
-		if err != nil {
-			return nil, errors.New("failed to resolve field name")
-		}
-		fieldNameToPythonName[elemType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
-	}
-
-	newValues := make([]map[string]any, rValues.Len())
-
-	for i := 0; i < rValues.Len(); i++ {
-		newMap := make(map[string]any)
-		newValues[i] = newMap
-		oldValue := rValues.Index(i)
-		for j := 0; j < elemType.NumField(); j++ {
-			pythonName := fieldNameToPythonName[elemType.Field(j).Name]
-			newMap[pythonName] = oldValue.Field(j).Interface()
-		}
-	}
-
-	return newValues, nil
-}
-
 func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
 	context := internal.OnlineQueryContext{
 		Environment:          internal.StringOrNil(p.EnvironmentId),
@@ -101,7 +44,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	convertedInputs := make(map[string]any)
 	for fqn, values := range p.inputs {
-		convertedValues, err := convertIfHasManyStruct(values)
+		convertedValues, err := convertIfFeatureStruct(values)
 		if err != nil {
 			return nil, wrapClientError(err, "failed to preprocess input values")
 		}
@@ -409,4 +352,76 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 			Explain:         lo.Ternary(params.Explain, &commonv1.ExplainOptions{}, nil),
 		},
 	}, nil
+}
+
+func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
+	newMap := make(map[string]any)
+	structType := structValue.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName := fieldToPythonName[structType.Field(i).Name]
+		newMap[pythonName] = structValue.Field(i).Interface()
+	}
+	return newMap, nil
+}
+
+func convertIfFeatureStruct(values any) (any, error) {
+	// When the user passes in a has-one feature struct or a list of has-many structs,
+	// it gets serialized into:
+	//
+	// {
+	//     "FullName": "John Doe",
+	//     "Amount": 100,
+	// }
+	//
+	// when we really want:
+	//
+	// {
+	//     "user.full_name": "John Doe",
+	//     "user.amount": 100,
+	// }
+	rValues := reflect.ValueOf(values)
+	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
+		return values, nil
+	}
+	elemType := rValues.Type().Elem()
+	if elemType.Kind() != reflect.Struct {
+		// Not a dataclass nor a has-many feature.
+		return values, nil
+	}
+
+	if elemType.NumField() > 0 && internal.IsTypeDataclass(elemType.Field(0).Type) {
+		// Don't manually serialize dataclasses. Dataclasses need to be serialized
+		// with JSON since we utilize struct tags to assign the original python
+		// field name.
+		return values, nil
+	}
+	// This is a list of dataclasses, or a has-many list of features.
+	fieldNameToPythonName := make(map[string]string)
+	namespace := internal.ChalkpySnakeCase(elemType.Name())
+	for i := 0; i < elemType.NumField(); i++ {
+		pythonName, err := internal.ResolveFeatureName(elemType.Field(i))
+		if err != nil {
+			return nil, errors.New("failed to resolve field name")
+		}
+		fieldNameToPythonName[elemType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
+	}
+
+	newValues := make([]map[string]any, rValues.Len())
+
+	for i := 0; i < rValues.Len(); i++ {
+		oldValue := rValues.Index(i)
+		//newMap := make(map[string]any)
+		//newValues[i] = newMap
+		//for j := 0; j < elemType.NumField(); j++ {
+		//	pythonName := fieldNameToPythonName[elemType.Field(j).Name]
+		//	newMap[pythonName] = oldValue.Field(j).Interface()
+		//}
+		newMap, err := convertFeatureStructSingle(oldValue, fieldNameToPythonName)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", oldValue.Interface())
+		}
+		newValues[i] = newMap
+	}
+
+	return newValues, nil
 }
