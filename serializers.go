@@ -354,6 +354,19 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	}, nil
 }
 
+func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
+	res := make(map[string]string)
+	namespace := internal.ChalkpySnakeCase(structType.Name())
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName, err := internal.ResolveFeatureName(structType.Field(i))
+		if err != nil {
+			return nil, errors.New("failed to resolve field name")
+		}
+		res[structType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
+	}
+	return res, nil
+}
+
 func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
 	newMap := make(map[string]any)
 	structType := structValue.Type()
@@ -379,49 +392,39 @@ func convertIfFeatureStruct(values any) (any, error) {
 	//     "user.full_name": "John Doe",
 	//     "user.amount": 100,
 	// }
+	//
 	rValues := reflect.ValueOf(values)
+
+	if internal.IsTypeFeatureStruct(rValues.Type()) {
+		// This is a has-one feature
+		fieldNameToPythonName, err := getFieldToPythonName(rValues.Type())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
+		}
+		return convertFeatureStructSingle(rValues, fieldNameToPythonName)
+	}
+
 	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
 		return values, nil
 	}
 	elemType := rValues.Type().Elem()
-	if elemType.Kind() != reflect.Struct {
-		// Not a dataclass nor a has-many feature.
+	if !internal.IsTypeFeatureStruct(elemType) {
 		return values, nil
 	}
 
-	if elemType.NumField() > 0 && internal.IsTypeDataclass(elemType.Field(0).Type) {
-		// Don't manually serialize dataclasses. Dataclasses need to be serialized
-		// with JSON since we utilize struct tags to assign the original python
-		// field name.
-		return values, nil
-	}
 	// This is a list of dataclasses, or a has-many list of features.
-	fieldNameToPythonName := make(map[string]string)
-	namespace := internal.ChalkpySnakeCase(elemType.Name())
-	for i := 0; i < elemType.NumField(); i++ {
-		pythonName, err := internal.ResolveFeatureName(elemType.Field(i))
-		if err != nil {
-			return nil, errors.New("failed to resolve field name")
-		}
-		fieldNameToPythonName[elemType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
+	fieldNameToPythonName, err := getFieldToPythonName(elemType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
 	}
 
 	newValues := make([]map[string]any, rValues.Len())
-
 	for i := 0; i < rValues.Len(); i++ {
-		oldValue := rValues.Index(i)
-		//newMap := make(map[string]any)
-		//newValues[i] = newMap
-		//for j := 0; j < elemType.NumField(); j++ {
-		//	pythonName := fieldNameToPythonName[elemType.Field(j).Name]
-		//	newMap[pythonName] = oldValue.Field(j).Interface()
-		//}
-		newMap, err := convertFeatureStructSingle(oldValue, fieldNameToPythonName)
+		newMap, err := convertFeatureStructSingle(rValues.Index(i), fieldNameToPythonName)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", oldValue.Interface())
+			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
 		}
 		newValues[i] = newMap
 	}
-
 	return newValues, nil
 }

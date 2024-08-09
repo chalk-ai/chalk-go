@@ -60,6 +60,26 @@ func IsDataclass(field reflect.Value) bool {
 	return IsTypeDataclass(field.Type())
 }
 
+func IsTypeFeatureStruct(typ reflect.Type) bool {
+	if typ.Kind() != reflect.Struct {
+		// Not a dataclass nor a has-many feature.
+		return false
+	}
+
+	if typ == reflect.TypeOf(time.Time{}) {
+		return false
+	}
+
+	if typ.NumField() > 0 && IsTypeDataclass(typ.Field(0).Type) {
+		// Don't manually serialize dataclasses. Dataclasses need to be serialized
+		// with JSON since we utilize struct tags to assign the original python
+		// field name.
+		return false
+	}
+	
+	return true
+}
+
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
