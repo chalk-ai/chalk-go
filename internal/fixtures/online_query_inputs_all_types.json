@@ -13,15 +13,15 @@
         }
       ],
       "has_many.dataclass_with_dataclass": {
-        "name": "child",
+        "dad": null,
         "mom": {
-          "name": "mom",
+          "dad": null,
           "mom": {
             "name": "grandma"
           },
-          "dad": null
+          "name": "mom"
         },
-        "dad": null
+        "name": "child"
       },
       "has_many.dataclass_with_list": {
         "numbers": [
@@ -37,8 +37,8 @@
       },
       "has_many.dataclass_with_nils": {
         "car": "car",
-        "yacht": "yacht",
-        "plane": "plane"
+        "plane": "plane",
+        "yacht": "yacht"
       },
       "has_many.dataclass_with_overrides": {
         "camelName": "camel"
@@ -101,13 +101,13 @@
         }
       ],
       "has_many.dataclass_with_dataclass": {
-        "name": "child2",
+        "dad": null,
         "mom": {
-          "name": "mom2",
+          "dad": null,
           "mom": null,
-          "dad": null
+          "name": "mom2"
         },
-        "dad": null
+        "name": "child2"
       },
       "has_many.dataclass_with_list": {
         "numbers": [
@@ -123,8 +123,8 @@
       },
       "has_many.dataclass_with_nils": {
         "car": "car2",
-        "yacht": "yacht2",
-        "plane": "plane2"
+        "plane": "plane2",
+        "yacht": "yacht2"
       },
       "has_many.dataclass_with_overrides": {
         "camelName": "camel2"
