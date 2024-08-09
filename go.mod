@@ -3,7 +3,7 @@ module github.com/chalk-ai/chalk-go
 go 1.21
 
 require (
-	connectrpc.com/connect v1.16.2
+	connectrpc.com/connect v1.14.0
 	github.com/apache/arrow/go/v16 v16.1.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/pkg/errors v0.9.1
