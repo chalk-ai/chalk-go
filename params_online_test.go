@@ -11,10 +11,15 @@ import (
 	"time"
 )
 
+var initErr error
+
+func init() {
+	initErr = InitFeatures(&testRootFeatures)
+}
+
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
 	// Tests that all types of input, output, and staleness parameters can be passed
 	// without error.
-	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
 	params := OnlineQueryParams{}.
 		WithInput(testRootFeatures.AllTypes.String, 1).
@@ -67,7 +72,7 @@ func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 // and not omitted when `chalk:"dontomit"` flag is set.
 func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, InitFeatures(&testRootFeatures))
+	assert.Nil(t, initErr)
 	params := OnlineQueryParams{}.
 		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
 			Id: lo.ToPtr("1"),
@@ -100,7 +105,7 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 // Tests that OnlineQuery successfully serializes all types of input feature values.
 func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, InitFeatures(&testRootFeatures))
+	assert.Nil(t, initErr)
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
 		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
