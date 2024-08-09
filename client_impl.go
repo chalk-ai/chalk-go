@@ -2,8 +2,10 @@ package chalk
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
@@ -19,6 +21,7 @@ import (
 )
 
 type clientImpl struct {
+	Client
 	config *configManager
 
 	Branch      string
@@ -33,6 +36,10 @@ type clientImpl struct {
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	Get(url string) (resp *http.Response, err error)
+}
+
+func (c *clientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
+	return nil, errors.New("not implemented")
 }
 
 func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, error) {

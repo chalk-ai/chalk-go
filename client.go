@@ -1,6 +1,8 @@
 package chalk
 
 import (
+	"context"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/cockroachdb/errors"
 )
 
@@ -159,6 +161,8 @@ type Client interface {
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
 	GetToken() (*TokenResult, error)
+
+	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
 }
 
 type ClientConfig struct {

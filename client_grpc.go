@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
@@ -30,6 +31,7 @@ var (
 )
 
 type clientGrpc struct {
+	Client
 	config *configManager
 
 	branch     string
@@ -109,10 +111,6 @@ func (c *clientGrpc) NewAuthClient() (serverv1connect.AuthServiceClient, error) 
 }
 
 func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error) {
-	headers := map[string]string{
-		headerKeyDeploymentType: "engine-grpc",
-	}
-
 	endpoint, ok := c.config.engines[c.config.environmentId.Value]
 	if !ok {
 		c.logger.Errorf(
@@ -130,7 +128,9 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 		withChalkInterceptors(
 			serverTypeEngine,
 			c.tokenInterceptor(),
-			headerInterceptor(headers),
+			headerInterceptor(map[string]string{
+				headerKeyDeploymentType: "engine-grpc",
+			}),
 		),
 		connect.WithGRPC(),
 	), nil
@@ -458,6 +458,18 @@ func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggreg
 	return UpdateAggregatesResult{
 		res.Trailer().Get(headerKeyTraceId),
 	}, nil
+}
+
+func (c *clientGrpc) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
+	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
+		ForFeatures: features,
+	})
+	res, err := c.queryClient.GetAggregates(ctx, req)
+	if err != nil {
+		return nil, wrapClientError(err, "error making upload features request")
+	}
+
+	return res.Msg, err
 }
 
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
