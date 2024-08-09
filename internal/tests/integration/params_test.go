@@ -78,7 +78,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
 	})
 	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
-		return val.Format(internal.NowTimeFormat)
+		return val.Format(internal.IsoFormat)
 	})
 
 	assert.Equal(t, expectedBranchId, *header.BranchId)
@@ -134,7 +134,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
 	})
 	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
-		return val.Format(internal.NowTimeFormat)
+		return val.Format(internal.IsoFormat)
 	})
 
 	req := chalk.OnlineQueryParams{

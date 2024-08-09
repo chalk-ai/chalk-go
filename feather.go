@@ -49,7 +49,7 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 			return internal.FormatBucketDuration(int(val.Seconds()))
 		}),
 		Now: lo.Map(p.underlying.Now, func(val time.Time, _ int) string {
-			return val.Format(internal.NowTimeFormat)
+			return val.Format(internal.IsoFormat)
 		}),
 	})
 }

@@ -3,35 +3,35 @@ package chalk
 import "time"
 
 type testLatLng struct {
-	Lat *float64 `dataclass_field:"true"`
-	Lng *float64 `dataclass_field:"true"`
+	Lat *float64 `dataclass_field:"true" json:"lat"`
+	Lng *float64 `dataclass_field:"true" json:"lng"`
 }
 
 type favoriteThings struct {
-	Numbers *[]int64 `dataclass_field:"true"`
-	Words   *[]string
+	Numbers *[]int64  `dataclass_field:"true" json:"numbers"`
+	Words   *[]string `json:"words"`
 }
 
 type possessions struct {
-	Car   *string `dataclass_field:"true"`
-	Yacht *string
-	Plane *string
+	Car   *string `dataclass_field:"true" json:"car"`
+	Yacht *string `json:"yacht"`
+	Plane *string `json:"plane"`
 }
 
 type grandparent struct {
-	Name *string `dataclass_field:"true"`
+	Name *string `dataclass_field:"true" json:"name"`
 }
 
 type parent struct {
-	Name *string `dataclass_field:"true"`
-	Mom  *grandparent
-	Dad  *grandparent
+	Name *string      `dataclass_field:"true" json:"name"`
+	Mom  *grandparent `json:"mom"`
+	Dad  *grandparent `json:"dad"`
 }
 
 type child struct {
-	Name *string `dataclass_field:"true"`
-	Mom  *parent
-	Dad  *parent
+	Name *string `dataclass_field:"true" json:"name"`
+	Mom  *parent `json:"mom"`
+	Dad  *parent `json:"dad"`
 }
 
 type levelOneNest struct {
@@ -46,7 +46,7 @@ type levelTwoNest struct {
 }
 
 type dclassWithOverrides struct {
-	CamelName *string `dataclass_field:"true" name:"camelName"`
+	CamelName *string `dataclass_field:"true" name:"camelName" json:"camelName"`
 }
 
 type hasMany struct {

@@ -96,7 +96,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 			},
 		)
 	} else if len(p.Now) == 1 {
-		now = lo.ToPtr(p.Now[0].Format(internal.NowTimeFormat))
+		now = lo.ToPtr(p.Now[0].Format(internal.IsoFormat))
 	}
 
 	convertedInputs := make(map[string]any)
