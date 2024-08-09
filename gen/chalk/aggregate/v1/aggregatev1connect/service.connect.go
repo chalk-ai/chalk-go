@@ -52,8 +52,15 @@ var (
 type AggregateServiceClient interface {
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
 	// an aggregate.
+	//
+	// This method is a duplicate of the PlanAggregateBackfill method
+	// in the query_server.proto file. We should remove the query_server.proto method
+	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	PlanAggregateBackfill(context.Context, *connect.Request[v1.PlanAggregateBackfillRequest]) (*connect.Response[v1.PlanAggregateBackfillResponse], error)
+	// This method is a duplicate of the PlanAggregateBackfill method
+	// in the query_server.proto file. We should remove the query_server.proto method
+	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error)
 }
@@ -105,8 +112,15 @@ func (c *aggregateServiceClient) GetAggregates(ctx context.Context, req *connect
 type AggregateServiceHandler interface {
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
 	// an aggregate.
+	//
+	// This method is a duplicate of the PlanAggregateBackfill method
+	// in the query_server.proto file. We should remove the query_server.proto method
+	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	PlanAggregateBackfill(context.Context, *connect.Request[v1.PlanAggregateBackfillRequest]) (*connect.Response[v1.PlanAggregateBackfillResponse], error)
+	// This method is a duplicate of the PlanAggregateBackfill method
+	// in the query_server.proto file. We should remove the query_server.proto method
+	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error)
 }
