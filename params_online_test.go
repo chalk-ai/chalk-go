@@ -184,7 +184,7 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
 
-	path := filepath.Join("fixtures", "online_query_inputs_all_types.json")
+	path := filepath.Join("internal", "fixtures", "online_query_inputs_all_types.json")
 
 	// Read the entire file content into a byte slice
 	fileContent, err := os.ReadFile(path)
