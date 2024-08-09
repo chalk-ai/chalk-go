@@ -49,6 +49,29 @@ type dclassWithOverrides struct {
 	CamelName *string `dataclass_field:"true" name:"camelName"`
 }
 
+type hasMany struct {
+	Id *string
+
+	// The following should be kept in parity with the enumeration of
+	// fields with all types in the `allTypes` struct.
+	Int                    *int64
+	Float                  *float64
+	String                 *string
+	Bool                   *bool
+	Timestamp              *time.Time
+	IntList                *[]int64
+	NestedIntPointerList   *[]*[]int64
+	NestedIntList          *[][]int64
+	WindowedInt            map[string]*int64   `windows:"1m,5m,1h"`
+	WindowedList           map[string]*[]int64 `windows:"1m"`
+	Dataclass              *testLatLng         `dataclass:"true"`
+	DataclassList          *[]testLatLng
+	DataclassWithList      *favoriteThings
+	DataclassWithNils      *possessions
+	DataclassWithDataclass *child
+	DataclassWithOverrides *dclassWithOverrides
+}
+
 type allTypes struct {
 	Int                    *int64
 	Float                  *float64
@@ -67,6 +90,7 @@ type allTypes struct {
 	DataclassWithDataclass *child
 	DataclassWithOverrides *dclassWithOverrides
 	Nested                 *levelOneNest
+	HasMany                *[]hasMany
 }
 
 var testRootFeatures struct {

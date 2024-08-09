@@ -7,7 +7,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
 	"reflect"
-	"strconv"
 	"strings"
 )
 
@@ -22,45 +21,100 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
-		// We are handling maps differently because they are typed as `map`
-		// instead of a pointer to a `map` like all other types are.
-		//
-		// And handling it in setFeaturesSingleNew instead of in the recursive
-		// GetReflectValue function checks out because we never encounter
-		// maps in slices, other maps, or structs.
-		sections := strings.Split(fqn, ".")
-		lastSection := sections[len(sections)-1]
-		lastSectionSplit := strings.Split(lastSection, "__")
-		formatErr := fmt.Errorf(
-			"error unmarshalling value for windowed bucket feature %s: "+
-				"expected windowed bucket feature to have fqn of the format "+
-				"`{fqn}__{bucket seconds}__` ",
-			fqn,
-		)
-		if len(lastSectionSplit) < 2 {
-			return formatErr
-		}
-		secondsStr := lastSectionSplit[1]
-		seconds, err := strconv.Atoi(secondsStr)
+		bucket, err := internal.GetBucketFromFqn(fqn)
 		if err != nil {
-			return formatErr
+			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		tagValue := reflect.ValueOf(internal.FormatBucketDuration(seconds))
-		rVal, err := internal.GetReflectValue(value, field.Type().Elem().Elem())
-		if err != nil {
-			return errors.Wrapf(err, "error unmarshalling value for windowed bucket feature %s", fqn)
+		if err := internal.SetMapEntryValue(field, bucket, value); err != nil {
+			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
-		field.SetMapIndex(tagValue, internal.ReflectPtr(*rVal))
 		return nil
 	} else {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
 }
 
+func convertIfHasManyMap(value any) (any, error) {
+	// For has-many values, we get this back:
+	//
+	// {
+	//   "columns": ["user.id", "user.email"],
+	//   "values": [
+	//     ["id1", "id2"],
+	//     ["email1@geemail.com", "email2@geemail.com"]
+	//   ]
+	// }
+	//
+	// We want to convert this to:
+	//
+	// [
+	//   {"id": "id1", "email": "email1@geemail.com"},
+	//   {"id": "id2", "email": "email2@geemail.com"}
+	// ]
+	//
+	hasMany, ok := value.(map[string]any)
+	if !ok {
+		return value, nil
+	}
+
+	columnsRaw, hasColumns := hasMany["columns"]
+	valuesRaw, hasValues := hasMany["values"]
+	if !hasColumns || !hasValues {
+		return value, nil
+	}
+
+	columnsAny, ok := columnsRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert columns to []any")
+	}
+
+	columns := make([]string, len(columnsAny))
+	for i, column := range columnsAny {
+		columns[i], ok = column.(string)
+		if !ok {
+			return nil, errors.Newf("failed to convert column '%v' to string", column)
+		}
+	}
+
+	valuesAny, ok := valuesRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert values to [][]any")
+	}
+
+	values := make([][]any, len(valuesAny))
+	for i, row := range valuesAny {
+		values[i], ok = row.([]any)
+		if !ok {
+			return nil, errors.Newf("failed to convert row '%v' to []any", row)
+		}
+	}
+
+	if len(values) == 0 {
+		return nil, errors.New("values of has-many results is empty")
+	}
+	numRows := len(values[0])
+
+	newValues := make([]map[string]any, numRows)
+	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
+		newRow := make(map[string]any)
+		for colIdx, colName := range columns {
+			colParts := strings.Split(colName, ".")
+			fieldName := colParts[len(colParts)-1]
+			newRow[fieldName] = values[colIdx][rowIdx]
+		}
+		newValues[rowIdx] = newRow
+	}
+	return newValues, nil
+}
+
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
 	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range result.Data {
-		fqnToValue[featureResult.Field] = featureResult.Value
+		convertedValue, err := convertIfHasManyMap(featureResult.Value)
+		if err != nil {
+			return &ClientError{Message: errors.Wrapf(err, "error converting feature '%s' value", featureResult.Field).Error()}
+		}
+		fqnToValue[featureResult.Field] = convertedValue
 	}
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
