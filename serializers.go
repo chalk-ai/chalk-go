@@ -359,6 +359,7 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 		structType = structType.Elem()
 	}
 
+	isDataclass := internal.IsTypeDataclass(structType)
 	res := make(map[string]string)
 	namespace := internal.ChalkpySnakeCase(structType.Name())
 	for i := 0; i < structType.NumField(); i++ {
@@ -366,7 +367,11 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 		if err != nil {
 			return nil, errors.New("failed to resolve field name")
 		}
-		res[structType.Field(i).Name] = fmt.Sprintf("%s.%s", namespace, pythonName)
+		if !isDataclass {
+			// Don't prepend namespace if it is a dataclass
+			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
+		}
+		res[structType.Field(i).Name] = pythonName
 	}
 	return res, nil
 }
@@ -378,6 +383,9 @@ func convertFeatureStructSingle(structValue reflect.Value, fieldToPythonName map
 	}
 
 	newMap := make(map[string]any)
+	if !structValue.IsValid() {
+		return nil, nil
+	}
 	structType := structValue.Type()
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName := fieldToPythonName[structType.Field(i).Name]
@@ -412,7 +420,7 @@ func convertIfFeatureStruct(values any) (any, error) {
 	//
 	rValues := reflect.ValueOf(values)
 
-	if internal.IsTypeFeatureStruct(rValues.Type()) {
+	if internal.IsStruct(rValues.Type()) {
 		// This is a has-one feature
 		fieldNameToPythonName, err := getFieldToPythonName(rValues.Type())
 		if err != nil {
@@ -425,7 +433,10 @@ func convertIfFeatureStruct(values any) (any, error) {
 		return values, nil
 	}
 	elemType := rValues.Type().Elem()
-	if !internal.IsTypeFeatureStruct(elemType) {
+	if !internal.IsStruct(elemType) {
+		// This also excludes dataclasses because they need to be serialized
+		// with json.Marshal since we utilize `json` struct tags to assign
+		// the original python field name.
 		return values, nil
 	}
 
