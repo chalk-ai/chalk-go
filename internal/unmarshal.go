@@ -60,6 +60,19 @@ func IsDataclass(field reflect.Value) bool {
 	return IsTypeDataclass(field.Type())
 }
 
+func IsStruct(typ reflect.Type) bool {
+	if typ.Kind() != reflect.Struct {
+		// Not a dataclass nor a has-many feature.
+		return false
+	}
+
+	if typ == reflect.TypeOf(time.Time{}) {
+		return false
+	}
+
+	return true
+}
+
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
@@ -188,9 +201,11 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return Ptr(ReflectPtr(*indirectValue)), nil
 	}
-	if IsTypeDataclass(typ) {
+	if IsStruct(typ) {
 		structValue := reflect.New(typ).Elem()
 		if slice, isSlice := value.([]any); isSlice {
+			// Dataclasses come back as either slices or structs.
+			// This is the slices case.
 			if len(slice) != structValue.NumField() {
 				return nil, fmt.Errorf(
 					"error unmarshalling value for struct %s"+
@@ -214,7 +229,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				}
 				if memberField == (reflect.Value{}) {
 					return nil, fmt.Errorf(
-						"field %s not found in struct %s",
+						"member field '%s' not found in struct '%s'",
 						resolvedName, structValue.Type().Name(),
 					)
 				}
@@ -230,6 +245,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			}
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
+			// This could be either a dataclass or a feature class.
 			nameToField := make(map[string]reflect.Value)
 			for i := 0; i < structValue.NumField(); i++ {
 				resolved, err := ResolveFeatureName(structValue.Type().Field(i))
@@ -242,27 +258,60 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					)
 				}
 				nameToField[resolved] = structValue.Field(i)
+				// Handle exploding windowed features
+				if structValue.Field(i).Type().Kind() == reflect.Map {
+					// Is a windowed feature
+					intTags, err := GetWindowBucketsSecondsFromStructTag(structValue.Type().Field(i))
+					if err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error getting window buckets for field '%s' in struct '%s'",
+							structValue.Type().Field(i).Name,
+							structValue.Type().Name(),
+						)
+					}
+					for _, tag := range intTags {
+						bucketFqn := fmt.Sprintf("%s__%d__", resolved, tag)
+						nameToField[bucketFqn] = structValue.Field(i)
+					}
+				}
 			}
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
 					return nil, fmt.Errorf(
-						"field %s not found in struct %s",
+						"field '%s' not found in struct '%s'",
 						k, structValue.Type().Name(),
 					)
 				}
 				if v == nil {
 					continue
 				}
-				rVal, err := GetReflectValue(&v, memberField.Type())
-				if err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"error unmarshalling struct value '%s' for struct '%s'",
-						k, structValue.Type().Name(),
-					)
+
+				if memberField.Type().Kind() == reflect.Map {
+					bucket, err := GetBucketFromFqn(k)
+					if err != nil {
+						return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
+					}
+					if err := SetMapEntryValue(memberField, bucket, v); err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error setting map entry value for field '%s' in struct '%s'",
+							k, structValue.Type().Name(),
+						)
+					}
+				} else {
+					rVal, err := GetReflectValue(&v, memberField.Type())
+					if err != nil {
+						return nil, errors.Wrapf(
+							err,
+							"error unmarshalling struct value '%s' for struct '%s'",
+							k, structValue.Type().Name(),
+						)
+					}
+					memberField.Set(*rVal)
 				}
-				memberField.Set(*rVal)
+
 			}
 			return &structValue, nil
 		} else {
@@ -334,4 +383,22 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		}
 		return &rVal, nil
 	}
+}
+
+// SetMapEntryValue exists as a separate special setter function because
+// while all other fields are settable and can be passed into GetReflectValue
+// to be set, map field values are not settable, and the entire map has to
+// be passed instead.
+func SetMapEntryValue(mapValue reflect.Value, key string, value any) error {
+	if mapValue.IsNil() {
+		mapType := mapValue.Type()
+		newMap := reflect.MakeMap(mapType)
+		mapValue.Set(newMap)
+	}
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem())
+	if err != nil {
+		return errors.Wrap(err, "error getting reflect value for map entry")
+	}
+	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	return nil
 }

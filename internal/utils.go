@@ -2,6 +2,8 @@ package internal
 
 import (
 	"fmt"
+	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
 	"os"
 	"reflect"
 	"regexp"
@@ -10,6 +12,8 @@ import (
 )
 
 var NameTag = "name"
+var WindowsTag = "windows"
+var ChalkTag = "chalk"
 
 var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 
@@ -175,6 +179,37 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 	return fieldName, nil
 }
 
+func GetWindowBucketsFromStructTag(field reflect.StructField) ([]string, error) {
+	tag := field.Tag.Get(WindowsTag)
+	tags := strings.Split(tag, ",")
+	if tag == "" || len(tags) == 0 {
+		return nil, errors.Newf("Window bucket struct tag missing or empty, e.g. `%s:\"1m,5m,...\"`", WindowsTag)
+	}
+	return tags, nil
+}
+
+func HasDontOmitTag(field reflect.StructField) bool {
+	chalkTags := strings.Split(field.Tag.Get(ChalkTag), ",")
+	return lo.Contains(chalkTags, "dontomit")
+}
+
+func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, error) {
+	buckets, err := GetWindowBucketsFromStructTag(field)
+	if err != nil {
+		return nil, err
+	}
+
+	seconds := make([]int, len(buckets))
+	for i, bucket := range buckets {
+		val, err := ParseBucketDuration(bucket)
+		if err != nil {
+			return nil, err
+		}
+		seconds[i] = val
+	}
+	return seconds, nil
+}
+
 func Ptr[T any](value T) *T {
 	return &value
 }
@@ -185,4 +220,25 @@ func allValid(l int) []bool {
 		valid[i] = true
 	}
 	return valid
+}
+
+func GetBucketFromFqn(fqn string) (string, error) {
+	sections := strings.Split(fqn, ".")
+	lastSection := sections[len(sections)-1]
+	lastSectionSplit := strings.Split(lastSection, "__")
+	formatErr := fmt.Errorf(
+		"error unmarshalling value for windowed bucket feature %s: "+
+			"expected windowed bucket feature to have fqn of the format "+
+			"`{fqn}__{bucket seconds}__` ",
+		fqn,
+	)
+	if len(lastSectionSplit) < 2 {
+		return "", formatErr
+	}
+	secondsStr := lastSectionSplit[1]
+	seconds, err := strconv.Atoi(secondsStr)
+	if err != nil {
+		return "", formatErr
+	}
+	return FormatBucketDuration(seconds), nil
 }

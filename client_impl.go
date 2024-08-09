@@ -202,25 +202,20 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
 	}
 
-	for _, input := range request.inputs {
-		if reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array {
-			return OnlineQueryResult{}, &ErrorResponse{
-				ClientError: &ClientError{
-					"inputs to online query must be a scalar value, found slice or array - did you mean to use OnlineQueryBulk?",
-				},
-			}
-		}
-	}
-
 	emptyResult := OnlineQueryResult{}
 
 	var serializedResponse onlineQueryResponseSerialized
 
-	err := c.sendRequest(
+	serializedRequest, err := request.serialize()
+	if err != nil {
+		return emptyResult, wrapClientError(err, "error serializing online query params")
+	}
+
+	if err = c.sendRequest(
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/query/online",
-			Body:                request.serialize(),
+			Body:                *serializedRequest,
 			Response:            &serializedResponse,
 			EnvironmentOverride: request.EnvironmentId,
 			PreviewDeploymentId: request.PreviewDeploymentId,
@@ -228,8 +223,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			Branch:              params.underlying.BranchId,
 			IsEngineRequest:     true,
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return emptyResult, getErrorResponse(err)
 	}
 	if len(serializedResponse.Errors) > 0 {
