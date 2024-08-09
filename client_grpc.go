@@ -472,6 +472,17 @@ func (c *clientGrpc) GetAggregates(ctx context.Context, features []string) (*agg
 	return res.Msg, err
 }
 
+func (c *clientGrpc) PlanAggregateBackfill(
+	ctx context.Context,
+	req *aggregatev1.PlanAggregateBackfillRequest,
+) (*aggregatev1.PlanAggregateBackfillResponse, error) {
+	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
+	if err != nil {
+		return nil, wrapClientError(err, "error making upload features request")
+	}
+	return res.Msg, err
+}
+
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
 	return Dataset{}, errors.New("not implemented")
 }
