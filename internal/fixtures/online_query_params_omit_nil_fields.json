@@ -1,8 +1,9 @@
 {
   "all_types.dataclass": {
     "lat": 1.1,
+    "lng": null
   },
   "all_types.nested": {
-    "level_one_nest.id": "1",
+    "level_one_nest.id": "1"
   }
 }

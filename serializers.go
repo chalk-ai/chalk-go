@@ -385,7 +385,14 @@ func convertStructSingle(structValue reflect.Value, fieldToPythonName map[string
 				structType.Field(i).Name,
 			)
 		}
-		newMap[pythonName] = converted
+		rConverted := reflect.ValueOf(converted)
+		if (rConverted.IsValid() && !rConverted.IsNil()) ||
+			internal.IsTypeDataclass(structType) ||
+			internal.HasDontOmitTag(structType.Field(i)) {
+			// We omit nil fields unless `chalk:"dontomit"`
+			// is specified or if the struct is a dataclass
+			newMap[pythonName] = converted
+		}
 	}
 	return newMap, nil
 }

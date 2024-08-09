@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
 	"os"
 	"reflect"
 	"regexp"
@@ -12,6 +13,7 @@ import (
 
 var NameTag = "name"
 var WindowsTag = "windows"
+var ChalkTag = "chalk"
 
 var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 
@@ -184,6 +186,11 @@ func GetWindowBucketsFromStructTag(field reflect.StructField) ([]string, error) 
 		return nil, errors.Newf("Window bucket struct tag missing or empty, e.g. `%s:\"1m,5m,...\"`", WindowsTag)
 	}
 	return tags, nil
+}
+
+func HasDontOmitTag(field reflect.StructField) bool {
+	chalkTags := strings.Split(field.Tag.Get(ChalkTag), ",")
+	return lo.Contains(chalkTags, "dontomit")
 }
 
 func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, error) {
