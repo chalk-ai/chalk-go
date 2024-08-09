@@ -441,9 +441,6 @@ func convertIfStruct(values any) (any, error) {
 	}
 	elemType := rValues.Type().Elem()
 	if !internal.IsStruct(elemType) {
-		// This also excludes dataclasses because they need to be serialized
-		// with json.Marshal since we utilize `json` struct tags to assign
-		// the original python field name.
 		return values, nil
 	}
 
