@@ -7,6 +7,48 @@ import (
 	"time"
 )
 
+type ClientConfig struct {
+	ClientId      string
+	ClientSecret  string
+	ApiServer     string
+	EnvironmentId string
+
+	// If specified, Chalk will route all requests from this client
+	// instance to the relevant branch.
+	Branch string
+
+	// Chalk routes performance sensitive requests like online query
+	// directly to the query server that runs the engine. Populate
+	// this field if you would like to route these requests to a
+	// different query server than the one automatically resolved
+	// by Chalk.
+	QueryServer string
+
+	// Logger is the logger that the backend will use to log errors,
+	// warnings, and informational messages.
+	//
+	// LeveledLogger is implemented by StdOutLeveledLogger, and one can be
+	// initialized at the desired level of logging.  LeveledLogger
+	// also provides out-of-the-box compatibility with a Logrus Logger, but may
+	// require a thin shim for use with other logging libraries that use less
+	// standard conventions like Zap.
+	//
+	// Defaults to DefaultLeveledLogger.
+	//
+	// To set a logger that logs nothing, set this to a chalk.LeveledLogger
+	// with a Level of LevelNull (simply setting this field to nil will not
+	// work).
+	Logger LeveledLogger
+
+	// HTTPClient is an HTTP client instance to use when making API requests.
+	//
+	// If left unset, it'll be set to a default HTTP client for the package.
+	HTTPClient HTTPClient
+
+	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
+	UseGrpc bool
+}
+
 // getTokenResult is agnostic to whether the token
 // was obtained via gRPC or REST.
 type getTokenResult struct {
