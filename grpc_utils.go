@@ -3,8 +3,8 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"fmt"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
-	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/cockroachdb/errors"
 	"strings"
@@ -42,6 +42,22 @@ func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	}
 }
 
+func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptorFunc {
+	return func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			if err := configManager.refresh(false); err != nil {
+				return nil, errors.Wrap(err, "error refreshing config")
+			}
+			req.Header().Set(headerKeyEnvironmentId, configManager.environmentId.Value)
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", configManager.jwt.Token))
+			return next(ctx, req)
+		}
+	}
+}
+
 func NewAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.AuthServiceClient, error) {
 	return serverv1connect.NewAuthServiceClient(
 		httpClient,
@@ -68,38 +84,4 @@ func NewQueryClient(httpClient HTTPClient, manager *configManager) (enginev1conn
 		),
 		connect.WithGRPC(),
 	), nil
-}
-
-func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
-	logger.Debugf("Getting new token via gRPC")
-	authRequest := connect.NewRequest(
-		&serverv1.GetTokenRequest{
-			ClientId:     clientId,
-			ClientSecret: clientSecret,
-			GrantType:    "client_credentials",
-		},
-	)
-	token, err := client.GetToken(context.Background(), authRequest)
-	if err != nil {
-		logger.Debugf("Failed to get a new token: %s", err.Error())
-		return nil, err
-	}
-
-	expiresAt := token.Msg.GetExpiresAt()
-	if token.Msg.GetExpiresAt() == nil {
-		return nil, errors.New("token has no expiration date")
-	}
-
-	return &getTokenResult{
-		ValidUntil:         expiresAt.AsTime(),
-		AccessToken:        token.Msg.GetAccessToken(),
-		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
-		Engines:            token.Msg.GetGrpcEngines(),
-	}, nil
-}
-
-func MakeGetTokenFunc(logger LeveledLogger, client serverv1connect.AuthServiceClient) func(clientId string, clientSecret string) (*getTokenResult, error) {
-	return func(clientId string, clientSecret string) (*getTokenResult, error) {
-		return getToken(clientId, clientSecret, logger, client)
-	}
 }

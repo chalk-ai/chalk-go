@@ -1,9 +1,7 @@
 package chalk
 
 import (
-	"connectrpc.com/connect"
 	"context"
-	"fmt"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/cockroachdb/errors"
@@ -23,7 +21,7 @@ type GRPCClient interface {
 	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 }
 
-// NewGRPCClient creates a Client with authentication settings configured.
+// NewGRPCClient creates a GRPCClient with authentication settings configured.
 // These settings can be overriden by passing in a ClientConfig
 // object. Otherwise, for each configuration variable, NewGRPCClient uses its
 // corresponding environment variable if it exists. The environment variables
@@ -62,20 +60,4 @@ func NewGRPCClient(configs ...*ClientConfig) (GRPCClient, error) {
 	}
 
 	return newGrpcClient(*cfg)
-}
-
-func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptorFunc {
-	return func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(
-			ctx context.Context,
-			req connect.AnyRequest,
-		) (connect.AnyResponse, error) {
-			if err := configManager.refresh(false); err != nil {
-				return nil, errors.Wrap(err, "error refreshing config")
-			}
-			req.Header().Set(headerKeyEnvironmentId, configManager.environmentId.Value)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", configManager.jwt.Token))
-			return next(ctx, req)
-		}
-	}
 }
