@@ -96,7 +96,7 @@ func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
 	if len(configs) == 0 {
 		cfg = &GRPCClientConfig{}
 	} else if len(configs) > 1 {
-		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
+		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
 	} else {
 		cfg = configs[len(configs)-1]
 	}
