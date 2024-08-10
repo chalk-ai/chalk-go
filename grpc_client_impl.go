@@ -82,7 +82,7 @@ func (c *grpcClientImpl) UpdateAggregates(args UpdateAggregatesParams) (*commonv
 
 	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error making upload features request")
+		return nil, wrapClientError(err, "error making update aggregates request")
 	}
 	return res.Msg, nil
 }
@@ -93,7 +93,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	})
 	res, err := c.queryClient.GetAggregates(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error making upload features request")
+		return nil, wrapClientError(err, "error making get aggregates request")
 	}
 
 	return res.Msg, err
@@ -105,7 +105,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
-		return nil, wrapClientError(err, "error making upload features request")
+		return nil, wrapClientError(err, "error making plan aggregate backfill request")
 	}
 	return res.Msg, err
 }
