@@ -23,12 +23,10 @@ type configManager struct {
 	environmentId      auth2.SourcedConfig
 	initialEnvironment auth2.SourcedConfig
 
-	jwt     *auth2.JWT
-	engines map[string]string
-
+	jwt      *auth2.JWT
+	engines  map[string]string
 	getToken func(clientId string, clientSecret string) (*getTokenResult, error)
 
-	// FIXME: Thread this through
 	logger LeveledLogger
 }
 
