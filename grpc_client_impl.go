@@ -91,6 +91,19 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 	}, nil
 }
 
+func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error) {
+	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
+	if err != nil {
+		return nil, errors.Wrap(err, "error converting online query params to proto")
+	}
+	req := connect.NewRequest(paramsProto)
+	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
+	if err != nil {
+		return nil, wrapClientError(err, "error executing online query")
+	}
+	return res.Msg, nil
+}
+
 func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {

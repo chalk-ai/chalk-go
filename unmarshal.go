@@ -3,6 +3,7 @@ package chalk
 import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
@@ -296,4 +297,12 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 	return nil
+}
+
+func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
+	scalars, err := internal.ConvertBytesToTable(response.GetScalarsData())
+	if err != nil {
+		return errors.Wrap(err, "error deserializing scalars table")
+	}
+	return unmarshalTableInto(scalars, resultHolders)
 }

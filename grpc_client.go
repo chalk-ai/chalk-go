@@ -11,6 +11,8 @@ import (
 // Our existing Client interface also works with gRPC, but this interface
 // is more idiomatic for talking to our gRPC endpoints.
 type GRPCClient interface {
+	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error)
+
 	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error)
 
 	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
