@@ -40,45 +40,22 @@ type clientGrpc struct {
 }
 
 func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
-	config, err := getConfigManager(cfg)
+	nativeClient, err := newGrpcClient(cfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting resolved config")
+		return nil, err
 	}
-	httpClient := http.DefaultClient
-	authClient, err := NewAuthClient(httpClient, config.apiServer.Value)
-	if err != nil {
-		return nil, errors.Wrap(err, "error creating auth client")
-	}
-	logger := cfg.Logger
-	if logger == nil {
-		logger = DefaultLeveledLogger
-	}
-	config.getToken = MakeGetTokenFunc(logger, authClient)
-
-	client := &clientGrpc{
-		branch:     cfg.Branch,
-		httpClient: httpClient,
-		logger:     logger,
-		config:     config,
-		authClient: authClient,
-	}
-
-	// Necessary to get GRPC engines URL
-	if err := client.config.refresh(false); err != nil {
-		return nil, errors.Wrap(err, "error fetching initial config")
-	}
-
-	queryClient, err := NewQueryClient(client.httpClient, client.config)
-	if err != nil {
-		return nil, errors.Wrap(err, "error creating query client")
-	}
-	client.queryClient = queryClient
-
-	return client, nil
+	return &clientGrpc{
+		branch:      nativeClient.branch,
+		httpClient:  nativeClient.httpClient,
+		logger:      nativeClient.logger,
+		config:      nativeClient.config,
+		authClient:  nativeClient.authClient,
+		queryClient: nativeClient.queryClient,
+	}, nil
 }
 
 func (c *clientGrpc) GetToken() (*TokenResult, error) {
-	getTokenResult, err := c.getToken()
+	getTokenResult, err := getToken(c.config.clientId.Value, c.config.clientSecret.Value, c.logger, c.authClient)
 	if err != nil {
 		return nil, getErrorResponse(err)
 	}
@@ -88,10 +65,6 @@ func (c *clientGrpc) GetToken() (*TokenResult, error) {
 		ValidUntil:         getTokenResult.ValidUntil,
 		Engines:            getTokenResult.Engines,
 	}, nil
-}
-
-func (c *clientGrpc) getToken() (*getTokenResult, error) {
-	return getToken(c.config.clientId.Value, c.config.clientSecret.Value, c.logger, c.authClient)
 }
 
 func (c *clientGrpc) getHasManyJson(columns []string, values [][]any) (string, error) {

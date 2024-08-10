@@ -24,42 +24,33 @@ func newGrpcClient(cfg ClientConfig) (*grpcClientImpl, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
-	var logger LeveledLogger
-	if cfg.Logger == nil {
+	httpClient := http.DefaultClient
+	authClient, err := NewAuthClient(httpClient, config.apiServer.Value)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating auth client")
+	}
+	logger := cfg.Logger
+	if logger == nil {
 		logger = DefaultLeveledLogger
 	}
-	client := &grpcClientImpl{
-		branch:     cfg.Branch,
-		httpClient: http.DefaultClient,
-		logger:     logger,
-		config:     config,
-	}
-	if err := client.init(); err != nil {
-		return nil, errors.Wrap(err, "error initializing gRPC service clients")
+	config.getToken = MakeGetTokenFunc(logger, authClient)
+
+	// Necessary to get GRPC engines URL
+	if err := config.refresh(false); err != nil {
+		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 
-	return client, nil
-}
+	queryClient, err := NewQueryClient(httpClient, config)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating query client")
+	}
 
-func (c *grpcClientImpl) init() error {
-	//authClient, err := c.NewAuthClient()
-	//if err != nil {
-	//	return errors.Wrap(err, "error creating auth client")
-	//}
-	//c.authClient = authClient
-	//
-	//c.config.getToken = c.getToken
-	//// Necessary to get GRPC engines URL
-	//if err := c.config.refresh(false); err != nil {
-	//	return errors.Wrap(err, "error fetching initial config")
-	//}
-	//
-	//queryClient, err := c.NewQueryClient()
-	//if err != nil {
-	//	return errors.Wrap(err, "error creating query client")
-	//}
-	//c.queryClient = queryClient
-	//
-	//return nil
-	return nil
+	return &grpcClientImpl{
+		branch:      cfg.Branch,
+		httpClient:  httpClient,
+		logger:      logger,
+		config:      config,
+		authClient:  authClient,
+		queryClient: queryClient,
+	}, nil
 }
