@@ -617,7 +617,7 @@ func getErrorResponse(err error) *ErrorResponse {
 func newClientImpl(
 	cfg ClientConfig,
 ) (*clientImpl, error) {
-	config, err := getConfigManager(cfg)
+	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}

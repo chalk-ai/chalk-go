@@ -25,13 +25,13 @@ type grpcClientImpl struct {
 	queryClient enginev1connect.QueryServiceClient
 }
 
-func newGrpcClient(cfg ClientConfig) (*grpcClientImpl, error) {
-	config, err := getConfigManager(cfg)
+func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
+	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
 	httpClient := http.DefaultClient
-	authClient, err := NewAuthClient(httpClient, config.apiServer.Value)
+	authClient, err := newAuthClient(httpClient, config.apiServer.Value)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating auth client")
 	}
@@ -48,7 +48,7 @@ func newGrpcClient(cfg ClientConfig) (*grpcClientImpl, error) {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 
-	queryClient, err := NewQueryClient(httpClient, config)
+	queryClient, err := newQueryClient(httpClient, config)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating query client")
 	}

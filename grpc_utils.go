@@ -58,7 +58,7 @@ func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptor
 	}
 }
 
-func NewAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.AuthServiceClient, error) {
+func newAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.AuthServiceClient, error) {
 	return serverv1connect.NewAuthServiceClient(
 		httpClient,
 		apiServer,
@@ -71,7 +71,7 @@ func NewAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.Aut
 	), nil
 }
 
-func NewQueryClient(httpClient HTTPClient, manager *configManager) (enginev1connect.QueryServiceClient, error) {
+func newQueryClient(httpClient HTTPClient, manager *configManager) (enginev1connect.QueryServiceClient, error) {
 	return enginev1connect.NewQueryServiceClient(
 		httpClient,
 		ensureHTTPSPrefix(manager.getQueryServer()),

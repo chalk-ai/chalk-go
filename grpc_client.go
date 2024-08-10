@@ -23,6 +23,46 @@ type GRPCClient interface {
 	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 }
 
+type GRPCClientConfig struct {
+	ClientId      string
+	ClientSecret  string
+	ApiServer     string
+	EnvironmentId string
+
+	// If specified, Chalk will route all requests from this client
+	// instance to the relevant branch.
+	Branch string
+
+	// Chalk routes performance sensitive requests like online query
+	// directly to the query server that runs the engine. Populate
+	// this field if you would like to route these requests to a
+	// different query server than the one automatically resolved
+	// by Chalk.
+	QueryServer string
+
+	// Logger is the logger that the backend will use to log errors,
+	// warnings, and informational messages.
+	//
+	// LeveledLogger is implemented by StdOutLeveledLogger, and one can be
+	// initialized at the desired level of logging.  LeveledLogger
+	// also provides out-of-the-box compatibility with a Logrus Logger, but may
+	// require a thin shim for use with other logging libraries that use less
+	// standard conventions like Zap.
+	//
+	// Defaults to DefaultLeveledLogger.
+	//
+	// To set a logger that logs nothing, set this to a chalk.LeveledLogger
+	// with a Level of LevelNull (simply setting this field to nil will not
+	// work).
+	Logger LeveledLogger
+
+	// HTTPClient is an HTTP client instance to use when instantiating a
+	// Connect gRPC-compatible client.
+	//
+	// If left unset, it'll be set to a default HTTP client for the package.
+	HTTPClient HTTPClient
+}
+
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
 // These settings can be overriden by passing in a ClientConfig
 // object. Otherwise, for each configuration variable, NewGRPCClient uses its
@@ -51,10 +91,10 @@ type GRPCClient interface {
 //	})
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
-func NewGRPCClient(configs ...*ClientConfig) (GRPCClient, error) {
-	var cfg *ClientConfig
+func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
+	var cfg *GRPCClientConfig
 	if len(configs) == 0 {
-		cfg = &ClientConfig{}
+		cfg = &GRPCClientConfig{}
 	} else if len(configs) > 1 {
 		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
 	} else {
