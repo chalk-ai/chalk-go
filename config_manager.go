@@ -3,6 +3,7 @@ package chalk
 import (
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/samber/lo"
 	"time"
 )
 
@@ -25,7 +26,9 @@ type configManager struct {
 	jwt     *auth2.JWT
 	engines map[string]string
 
-	getToken func() (*getTokenResult, error)
+	getToken func(clientId string, clientSecret string) (*getTokenResult, error)
+
+	logger LeveledLogger
 }
 
 func getConfigManager(cfg ClientConfig) (*configManager, error) {
@@ -61,34 +64,49 @@ func getConfigManager(cfg ClientConfig) (*configManager, error) {
 		clientSecret:       clientSecret,
 		environmentId:      environmentId,
 		initialEnvironment: environmentId,
+		logger:             cfg.Logger,
 	}, nil
 }
 
-func (r *configManager) refresh(force bool) error {
-	if !force && r.jwt != nil && r.jwt.IsValid() {
+func (m *configManager) getQueryServer() string {
+	endpoint, ok := m.engines[m.environmentId.Value]
+	if !ok {
+		m.logger.Errorf(
+			"query endpoint falling back to api server - no engine "+
+				"found for environment '%s' - engine map keys: '%s'",
+			m.environmentId.Value,
+			lo.Keys(m.engines),
+		)
+		endpoint = m.apiServer.Value
+	}
+	return endpoint
+}
+
+func (m *configManager) refresh(force bool) error {
+	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, getTokenErr := r.getToken()
+	config, getTokenErr := m.getToken(m.clientId.Value, m.clientSecret.Value)
 	if getTokenErr != nil {
 		return getTokenErr
 	}
 
-	if r.initialEnvironment.Value == "" {
-		r.environmentId = auth2.SourcedConfig{
+	if m.initialEnvironment.Value == "" {
+		m.environmentId = auth2.SourcedConfig{
 			Value:  config.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
-		r.environmentId = r.initialEnvironment
+		m.environmentId = m.initialEnvironment
 	}
 
-	r.jwt = &auth2.JWT{
+	m.jwt = &auth2.JWT{
 		Token:      config.AccessToken,
 		ValidUntil: config.ValidUntil,
 	}
 
-	r.engines = config.Engines
+	m.engines = config.Engines
 
 	return nil
 }
