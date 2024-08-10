@@ -1,8 +1,13 @@
 package chalk
 
 import (
+	"connectrpc.com/connect"
+	"context"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"net/http"
 )
@@ -53,4 +58,54 @@ func newGrpcClient(cfg ClientConfig) (*grpcClientImpl, error) {
 		authClient:  authClient,
 		queryClient: queryClient,
 	}, nil
+}
+
+func (c *grpcClientImpl) UpdateAggregates(args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
+	inputsConverted, err := getConvertedInputsMap(args.Inputs)
+	if err != nil {
+		return nil, wrapClientError(err, "error converting inputs map")
+	}
+	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
+	if err != nil {
+		return nil, wrapClientError(err, "error serializing inputs as feather")
+	}
+
+	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
+		InputsFeather: inputsFeather,
+		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
+	})
+
+	ctx := context.Background()
+	if args.Context != nil {
+		ctx = args.Context
+	}
+
+	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
+	if err != nil {
+		return nil, wrapClientError(err, "error making upload features request")
+	}
+	return res.Msg, nil
+}
+
+func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
+	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
+		ForFeatures: features,
+	})
+	res, err := c.queryClient.GetAggregates(ctx, req)
+	if err != nil {
+		return nil, wrapClientError(err, "error making upload features request")
+	}
+
+	return res.Msg, err
+}
+
+func (c *grpcClientImpl) PlanAggregateBackfill(
+	ctx context.Context,
+	req *aggregatev1.PlanAggregateBackfillRequest,
+) (*aggregatev1.PlanAggregateBackfillResponse, error) {
+	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
+	if err != nil {
+		return nil, wrapClientError(err, "error making upload features request")
+	}
+	return res.Msg, err
 }
