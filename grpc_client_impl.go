@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
@@ -10,7 +11,10 @@ import (
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
+	"github.com/samber/lo"
+	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
+	"reflect"
 )
 
 type grpcClientImpl struct {
@@ -88,6 +92,115 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 		AccessToken:        token.Msg.GetAccessToken(),
 		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
 		Engines:            token.Msg.GetGrpcEngines(),
+	}, nil
+}
+
+func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error) {
+	bulkInputs := make(map[string]any)
+	for k, singleValue := range args.underlying.inputs {
+		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
+		slice.Index(0).Set(reflect.ValueOf(singleValue))
+		bulkInputs[k] = slice.Interface()
+	}
+	args.underlying.inputs = bulkInputs
+
+	bulkRes, err := c.OnlineQueryBulk(ctx, args)
+	if err != nil {
+		// intentionally don't wrap, original error is good enough
+		return nil, err
+	}
+
+	scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
+	if err != nil {
+		return nil, errors.Wrap(err, "error converting scalars data to table")
+	}
+
+	rows, err := internal.ExtractFeaturesFromTable(scalarsTable)
+	if err != nil {
+		return nil, errors.Wrap(err, "error extracting features from scalars table")
+	}
+
+	features := make(map[string]*commonv1.FeatureResult)
+	if len(rows) != 1 {
+		return nil, errors.Newf(
+			"expected 1 row from scalars table, got %d",
+			len(rows),
+		)
+	}
+	for fqn, value := range rows[0] {
+		newValue, err := structpb.NewValue(value)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"error converting value for feature '%s' from `any` to `structpb.Value`",
+				fqn,
+			)
+		}
+		features[fqn] = &commonv1.FeatureResult{
+			Field: fqn,
+			Value: newValue,
+		}
+	}
+
+	for fqn, tableBytes := range bulkRes.GetGroupsData() {
+		table, err := internal.ConvertBytesToTable(tableBytes)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"error converting bytes for feature '%s' to table",
+				fqn,
+			)
+		}
+
+		rowsHm, err := internal.ExtractFeaturesFromTable(table)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"error extracting features from has-many table for feature '%s'",
+				fqn,
+			)
+		}
+
+		colNames := lo.Map(
+			table.Schema().Fields(),
+			func(f arrow.Field, _ int) string {
+				return f.Name
+			},
+		)
+		colValues := make([][]any, 0, len(rowsHm))
+		for _, col := range colNames {
+			colValues = append(
+				colValues,
+				lo.Map(rowsHm, func(row map[string]any, _ int) any {
+					return row[col]
+				}),
+			)
+		}
+		hmResult := map[string]any{
+			"columns": colNames,
+			"values":  colValues,
+		}
+		hmProto, err := structpb.NewValue(hmResult)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"error converting has-many result for feature '%s' to `structpb.Value`",
+				fqn,
+			)
+		}
+
+		features[fqn] = &commonv1.FeatureResult{
+			Field: fqn,
+			Value: hmProto,
+		}
+	}
+
+	return &commonv1.OnlineQueryResponse{
+		Data: &commonv1.OnlineQueryResult{
+			Results: lo.Values(features),
+		},
+		Errors:       bulkRes.Errors,
+		ResponseMeta: bulkRes.ResponseMeta,
 	}, nil
 }
 

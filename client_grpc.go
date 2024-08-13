@@ -3,7 +3,6 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
-	"encoding/json"
 	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -74,18 +73,6 @@ func (c *clientGrpc) GetToken() (*TokenResult, error) {
 		ValidUntil:         getTokenResult.ValidUntil,
 		Engines:            getTokenResult.Engines,
 	}, nil
-}
-
-func (c *clientGrpc) getHasManyJson(columns []string, values [][]any) (string, error) {
-	result := struct {
-		Columns []string `json:"columns"`
-		Values  [][]any  `json:"values"`
-	}{
-		Columns: columns,
-		Values:  values,
-	}
-	res, err := json.Marshal(result)
-	return string(res), err
 }
 
 func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
@@ -216,29 +203,6 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 	}
 
 	for fqn, table := range bulkRes.GroupsTables {
-		if table.NumRows() == 0 {
-			columns := lo.Map(
-				table.Schema().Fields(),
-				func(f arrow.Field, _ int) string {
-					return f.Name
-				},
-			)
-			values := make([][]any, len(columns))
-			jsonRepr, err := c.getHasManyJson(columns, values)
-			if err != nil {
-				return OnlineQueryResult{}, errors.Wrapf(
-					err,
-					"error creating JSON representation for 0-row has-many table for feature '%s'",
-					fqn,
-				)
-			}
-			features[fqn] = FeatureResult{
-				Field: fqn,
-				Value: jsonRepr,
-			}
-			continue
-		}
-
 		rowsHm, err := internal.ExtractFeaturesFromTable(table)
 		if err != nil {
 			return OnlineQueryResult{}, errors.Wrapf(
@@ -248,7 +212,12 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 			)
 		}
 
-		colNames := lo.Keys(rowsHm[0])
+		colNames := lo.Map(
+			table.Schema().Fields(),
+			func(f arrow.Field, _ int) string {
+				return f.Name
+			},
+		)
 		colValues := make([][]any, 0, len(rowsHm))
 		for _, col := range colNames {
 			colValues = append(
@@ -258,7 +227,6 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 				}),
 			)
 		}
-		jsonRepr, err := c.getHasManyJson(colNames, colValues)
 		if err != nil {
 			return OnlineQueryResult{}, errors.Wrapf(
 				err,
@@ -269,7 +237,10 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 
 		features[fqn] = FeatureResult{
 			Field: fqn,
-			Value: jsonRepr,
+			Value: map[string]any{
+				"columns": colNames,
+				"values":  colValues,
+			},
 		}
 	}
 
