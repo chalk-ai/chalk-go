@@ -15,6 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
 	"reflect"
+	"time"
 )
 
 type grpcClientImpl struct {
@@ -128,6 +129,9 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		)
 	}
 	for fqn, value := range rows[0] {
+		if reflect.TypeOf(value) == reflect.TypeOf(time.Time{}) {
+			value = value.(time.Time).Format(time.RFC3339)
+		}
 		newValue, err := structpb.NewValue(value)
 		if err != nil {
 			return nil, errors.Wrapf(
