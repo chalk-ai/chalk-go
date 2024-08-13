@@ -84,6 +84,10 @@ func TestOnlineQueryE2E(t *testing.T) {
 // from the staging server does not crash. Correctness
 // is partially tested here, but is mainly tested in
 // TestOnlineQueryUnmarshalNonBulkAllTypes.
+//
+// This test is also notably different from the E2E test
+// where a gRPC client is also tested but is built on top
+// of the existing REST `Client` interface.
 func TestGRPCOnlineQueryE2E(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
