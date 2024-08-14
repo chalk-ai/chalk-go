@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	errors "github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
 )
