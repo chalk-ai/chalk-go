@@ -114,10 +114,9 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 	endpoint, ok := c.config.engines[c.config.environmentId.Value]
 	if !ok {
 		c.logger.Errorf(
-			"query endpoint falling back to api server - no engine "+
-				"found for environment '%s' - engine map keys: '%s'",
+			"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%v'",
 			c.config.environmentId.Value,
-			lo.Keys(c.config.engines),
+			&c.config.engines,
 		)
 		endpoint = c.config.apiServer.Value
 	}
