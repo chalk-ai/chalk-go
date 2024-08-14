@@ -8,6 +8,7 @@ require (
 	github.com/cockroachdb/errors v1.11.3
 	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
+	golang.org/x/net v0.28.0
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988
 	google.golang.org/protobuf v1.34.2

@@ -171,11 +171,13 @@ res, err := client.UpdateAggregates(
             "transaction.id": []string{"txn-1", "txn-2"},
             "transaction.user_id": []string{"user-1", "user-2"},
             "transaction.amount": []float64{100.0, 200.0},
-            "__ts__": []time.Time{time.Now(), time.Now()},
+            "transaction.__chalk_observed_at__": []time.Time{time.Now(), time.Now()},
         },
     },
 )
 ```
+Note that if you have an explicit `FeatureTime` feature specified, you could provide that in place of the 
+`__chalk_observed_at__` column.  
 
 ### Querying against a branch
 

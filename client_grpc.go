@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
@@ -14,6 +15,8 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"github.com/samber/lo"
+	"golang.org/x/net/http2"
+	"net"
 	"net/http"
 	"reflect"
 	"strings"
@@ -110,6 +113,18 @@ func (c *clientGrpc) NewAuthClient() (serverv1connect.AuthServiceClient, error) 
 	), nil
 }
 
+func newInsecureClient() *http.Client {
+	// From https://connectrpc.com/docs/go/deployment#h2c
+	return &http.Client{
+		Transport: &http2.Transport{
+			AllowHTTP: true,
+			DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+				return net.Dial(network, addr)
+			},
+		},
+	}
+}
+
 func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error) {
 	endpoint, ok := c.config.engines[c.config.environmentId.Value]
 	if !ok {
@@ -120,9 +135,12 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 		)
 		endpoint = c.config.apiServer.Value
 	}
-
+	client := c.httpClient
+	if strings.HasPrefix(endpoint, "http://") {
+		client = newInsecureClient()
+	}
 	return enginev1connect.NewQueryServiceClient(
-		c.httpClient,
+		client,
 		ensureHTTPSPrefix(endpoint),
 		withChalkInterceptors(
 			serverTypeEngine,
