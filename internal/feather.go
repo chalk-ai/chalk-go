@@ -11,7 +11,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
 )

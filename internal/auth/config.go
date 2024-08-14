@@ -1,13 +1,13 @@
 package auth
 
 import (
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 )
 
 func GetProjectAuthConfig() (ProjectToken, error) {
-	authConfigFromFile, configFilepath, loadConfigFileErr := loadAuthConfig()
-	if loadConfigFileErr != nil {
-		return ProjectToken{}, loadConfigFileErr
+	authConfigFromFile, configFilepath, err := loadAuthConfig()
+	if err != nil {
+		return ProjectToken{}, errors.Wrap(err, "getting project auth config")
 	}
 	if configFilepath == nil {
 		return ProjectToken{}, errors.New("unexpected error getting auth config filepath from home directory")
@@ -16,10 +16,6 @@ func GetProjectAuthConfig() (ProjectToken, error) {
 		return ProjectToken{}, errors.New("unexpected error getting auth config file")
 	}
 
-	projectAuthConfig, projectAuthConfigErr := getProjectAuthConfigForProjectRoot(*authConfigFromFile, *configFilepath)
-	if projectAuthConfigErr != nil {
-		return ProjectToken{}, projectAuthConfigErr
-	}
-
-	return projectAuthConfig, nil
+	projectAuthConfig, err := getProjectAuthConfigForProjectRoot(*authConfigFromFile, *configFilepath)
+	return projectAuthConfig, errors.Wrap(err, "error getting project auth config")
 }
