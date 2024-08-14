@@ -39,7 +39,8 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 			},
 		)
 	} else if len(p.Now) == 1 {
-		now = lo.ToPtr(p.Now[0].Format(internal.NowTimeFormat))
+		n := p.Now[0].Format(internal.NowTimeFormat)
+		now = &n
 	}
 
 	convertedInputs := make(map[string]any)
@@ -329,11 +330,16 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
 
+	now := nowProto
+	if len(nowProto) == 0 {
+		now = nil
+	}
+
 	return &commonv1.OnlineQueryBulkRequest{
 		InputsFeather: inputsFeather,
 		Outputs:       outputs,
 		Staleness:     staleness,
-		Now:           lo.Ternary(len(nowProto) == 0, nil, nowProto),
+		Now:           now,
 		Context: &commonv1.OnlineQueryContext{
 			Environment:          params.EnvironmentId,
 			Tags:                 params.Tags,
