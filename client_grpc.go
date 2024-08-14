@@ -136,7 +136,7 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 		endpoint = c.config.apiServer.Value
 	}
 	client := c.httpClient
-	if strings.HasPrefix(endpoint, "http://127.0.0.1") || strings.HasPrefix(endpoint, "http://localhost") {
+	if strings.HasPrefix(endpoint, "http://") {
 		client = newInsecureClient()
 	}
 	return enginev1connect.NewQueryServiceClient(
