@@ -327,7 +327,7 @@ func (c *clientGrpc) GetAggregates(ctx context.Context, features []string) (*agg
 	})
 	res, err := c.queryClient.GetAggregates(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error making upload features request")
+		return nil, wrapClientError(err, "fetching aggregates")
 	}
 
 	return res.Msg, err
@@ -339,7 +339,7 @@ func (c *clientGrpc) PlanAggregateBackfill(
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
-		return nil, wrapClientError(err, "error making upload features request")
+		return nil, wrapClientError(err, "planning aggregate backfill")
 	}
 	return res.Msg, err
 }
