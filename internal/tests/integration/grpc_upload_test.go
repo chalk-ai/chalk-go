@@ -93,7 +93,7 @@ func getUpdateAggregateParams(proofIds []int64, theoremIds []int64, now time.Tim
 			"Richard Feynman",
 			"Sir Roger Penrose",
 		},
-		"__ts__": []time.Time{
+		"theorem.__chalk_observed_at__": []time.Time{
 			now.Add(-1 * 24 * time.Hour),
 			now.Add(-2 * 24 * time.Hour),
 			now.Add(-3 * 24 * time.Hour),

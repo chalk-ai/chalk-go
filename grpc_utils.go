@@ -3,10 +3,14 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/cockroachdb/errors"
+	"golang.org/x/net/http2"
+	"net"
+	"net/http"
 	"strings"
 )
 
@@ -71,10 +75,26 @@ func newAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.Aut
 	), nil
 }
 
+func newInsecureClient() *http.Client {
+	// From https://connectrpc.com/docs/go/deployment#h2c
+	return &http.Client{
+		Transport: &http2.Transport{
+			AllowHTTP: true,
+			DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+				return net.Dial(network, addr)
+			},
+		},
+	}
+}
+
 func newQueryClient(httpClient HTTPClient, manager *configManager) (enginev1connect.QueryServiceClient, error) {
+	endpoint := manager.getQueryServer()
+	if strings.HasPrefix(endpoint, "http://") {
+		httpClient = newInsecureClient()
+	}
 	return enginev1connect.NewQueryServiceClient(
 		httpClient,
-		ensureHTTPSPrefix(manager.getQueryServer()),
+		ensureHTTPSPrefix(endpoint),
 		withChalkInterceptors(
 			serverTypeEngine,
 			makeTokenInterceptor(manager),
