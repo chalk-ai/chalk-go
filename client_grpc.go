@@ -24,6 +24,7 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		Branch:        cfg.Branch,
 		QueryServer:   cfg.QueryServer,
 		HTTPClient:    cfg.HTTPClient,
+		DeploymentTag: cfg.DeploymentTag,
 	})
 	if err != nil {
 		return nil, err
