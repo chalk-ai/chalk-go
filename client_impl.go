@@ -24,8 +24,9 @@ type clientImpl struct {
 	Client
 	config *configManager
 
-	Branch      string
-	QueryServer string
+	Branch        string
+	QueryServer   string
+	DeploymentTag string
 
 	jwt                *auth2.JWT
 	httpClient         HTTPClient
@@ -576,6 +577,9 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 		headers.Set("X-Chalk-Deployment-Type", "branch")
 		headers.Set("X-Chalk-Branch-Id", branchResolved)
 	}
+	if c.DeploymentTag != "" {
+		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
+	}
 
 	headers.Set("X-Chalk-Env-Id", c.getResolvedEnvironment(environmentOverride))
 	if previewDeploymentId != "" {
@@ -633,8 +637,9 @@ func newClientImpl(
 	}
 
 	client := &clientImpl{
-		Branch:      cfg.Branch,
-		QueryServer: cfg.QueryServer,
+		Branch:        cfg.Branch,
+		DeploymentTag: cfg.DeploymentTag,
+		QueryServer:   cfg.QueryServer,
 
 		logger:     logger,
 		httpClient: httpClient,

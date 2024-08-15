@@ -14,6 +14,7 @@ var (
 	headerKeyEnvironmentId  = "x-chalk-env-id"
 	headerKeyServerType     = "x-chalk-server"
 	//headerKeyTraceId        = "x-chalk-trace-id"
+	headerKeyDeploymentTag = "x-chalk-deployment-tag"
 
 	serverTypeApi    = "go-api"
 	serverTypeEngine = "engine"

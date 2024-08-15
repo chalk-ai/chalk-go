@@ -180,6 +180,10 @@ type ClientConfig struct {
 	// instance to the relevant branch.
 	Branch string
 
+	// Chalk can route queries to specific deployments using deployment
+	// tags.
+	DeploymentTag string
+
 	// Chalk routes performance sensitive requests like online query
 	// directly to the query server that runs the engine. Populate
 	// this field if you would like to route these requests to a
