@@ -18,6 +18,17 @@ import (
 	"time"
 )
 
+var (
+	headerKeyDeploymentType = "x-chalk-deployment-type"
+	headerKeyEnvironmentId  = "x-chalk-env-id"
+	headerKeyServerType     = "x-chalk-server"
+	//headerKeyTraceId        = "x-chalk-trace-id"
+	headerKeyDeploymentTag = "x-chalk-deployment-tag"
+
+	serverTypeApi    = "go-api"
+	serverTypeEngine = "engine"
+)
+
 type grpcClientImpl struct {
 	GRPCClient
 	config *configManager
@@ -53,7 +64,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 
-	queryClient, err := newQueryClient(httpClient, config)
+	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating query client")
 	}

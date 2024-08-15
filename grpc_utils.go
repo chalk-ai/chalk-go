@@ -87,10 +87,16 @@ func newInsecureClient() *http.Client {
 	}
 }
 
-func newQueryClient(httpClient HTTPClient, manager *configManager) (enginev1connect.QueryServiceClient, error) {
+func newQueryClient(httpClient HTTPClient, manager *configManager, deploymentTag string) (enginev1connect.QueryServiceClient, error) {
 	endpoint := manager.getQueryServer()
 	if strings.HasPrefix(endpoint, "http://") {
 		httpClient = newInsecureClient()
+	}
+	headers := map[string]string{
+		headerKeyDeploymentType: "engine-grpc",
+	}
+	if deploymentTag != "" {
+		headers[headerKeyDeploymentTag] = deploymentTag
 	}
 	return enginev1connect.NewQueryServiceClient(
 		httpClient,
@@ -98,9 +104,7 @@ func newQueryClient(httpClient HTTPClient, manager *configManager) (enginev1conn
 		withChalkInterceptors(
 			serverTypeEngine,
 			makeTokenInterceptor(manager),
-			headerInterceptor(map[string]string{
-				headerKeyDeploymentType: "engine-grpc",
-			}),
+			headerInterceptor(headers),
 		),
 		connect.WithGRPC(),
 	), nil

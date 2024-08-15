@@ -67,6 +67,10 @@ type GRPCClientConfig struct {
 	//
 	// If left unset, it'll be set to a default HTTP client for the package.
 	HTTPClient HTTPClient
+
+	// Chalk can route queries to specific deployments using deployment
+	// tags.
+	DeploymentTag string
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

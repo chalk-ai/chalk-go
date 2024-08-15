@@ -9,17 +9,6 @@ import (
 	"time"
 )
 
-var (
-	headerKeyDeploymentType = "x-chalk-deployment-type"
-	headerKeyEnvironmentId  = "x-chalk-env-id"
-	headerKeyServerType     = "x-chalk-server"
-	//headerKeyTraceId        = "x-chalk-trace-id"
-	headerKeyDeploymentTag = "x-chalk-deployment-tag"
-
-	serverTypeApi    = "go-api"
-	serverTypeEngine = "engine"
-)
-
 type clientGrpc struct {
 	Client
 	underlying GRPCClient
