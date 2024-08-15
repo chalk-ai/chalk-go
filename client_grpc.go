@@ -28,6 +28,7 @@ var (
 	headerKeyEnvironmentId  = "x-chalk-env-id"
 	headerKeyServerType     = "x-chalk-server"
 	headerKeyTraceId        = "x-chalk-trace-id"
+	headerKeyDeploymentTag  = "x-chalk-deployment-tag"
 
 	serverTypeApi    = "go-api"
 	serverTypeEngine = "engine"
@@ -37,9 +38,10 @@ type clientGrpc struct {
 	Client
 	config *configManager
 
-	branch     string
-	logger     LeveledLogger
-	httpClient *http.Client
+	branch        string
+	deploymentTag string
+	logger        LeveledLogger
+	httpClient    *http.Client
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -55,10 +57,11 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		logger = DefaultLeveledLogger
 	}
 	client := &clientGrpc{
-		branch:     cfg.Branch,
-		httpClient: http.DefaultClient,
-		logger:     logger,
-		config:     config,
+		branch:        cfg.Branch,
+		deploymentTag: cfg.DeploymentTag,
+		httpClient:    http.DefaultClient,
+		logger:        logger,
+		config:        config,
 	}
 	if err := client.init(); err != nil {
 		return nil, errors.Wrap(err, "error initializing gRPC service clients")
@@ -139,15 +142,20 @@ func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error
 	if strings.HasPrefix(endpoint, "http://") {
 		client = newInsecureClient()
 	}
+	headers := map[string]string{
+		headerKeyDeploymentType: "engine-grpc",
+	}
+	if c.deploymentTag != "" {
+		headers[headerKeyDeploymentTag] = c.deploymentTag
+	}
+
 	return enginev1connect.NewQueryServiceClient(
 		client,
 		ensureHTTPSPrefix(endpoint),
 		withChalkInterceptors(
 			serverTypeEngine,
 			c.tokenInterceptor(),
-			headerInterceptor(map[string]string{
-				headerKeyDeploymentType: "engine-grpc",
-			}),
+			headerInterceptor(headers),
 		),
 		connect.WithGRPC(),
 	), nil
