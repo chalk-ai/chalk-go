@@ -23,6 +23,10 @@ type GRPCClient interface {
 		ctx context.Context,
 		req *aggregatev1.PlanAggregateBackfillRequest,
 	) (*aggregatev1.PlanAggregateBackfillResponse, error)
+
+	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
+	// along with other using the client's credentials.
+	GetToken() (*TokenResult, error)
 }
 
 type GRPCClientConfig struct {

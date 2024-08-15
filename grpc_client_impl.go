@@ -265,3 +265,16 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	}
 	return res.Msg, err
 }
+
+func (c *grpcClientImpl) GetToken() (*TokenResult, error) {
+	res, err := c.config.getToken(c.config.clientId.Value, c.config.clientSecret.Value)
+	if err != nil {
+		return nil, err
+	}
+	return &TokenResult{
+		AccessToken:        res.AccessToken,
+		ValidUntil:         res.ValidUntil,
+		PrimaryEnvironment: res.PrimaryEnvironment,
+		Engines:            res.Engines,
+	}, nil
+}
