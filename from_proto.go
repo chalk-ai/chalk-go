@@ -4,20 +4,31 @@ import (
 	"fmt"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/samber/lo"
+	"time"
 )
 
-func queryMetaFromProto(m *commonv1.OnlineQueryMetadata) *QueryMeta {
-	if m == nil {
+func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
+	if metaRaw == nil {
 		return nil
 	}
+	var executionDuration float64
+	if metaRaw.GetExecutionDuration() != nil {
+		executionDuration = metaRaw.GetExecutionDuration().AsDuration().Seconds()
+	}
+
+	var queryTimestamp *time.Time
+	if metaRaw.GetQueryTimestamp() != nil {
+		queryTimestamp = lo.ToPtr(metaRaw.GetQueryTimestamp().AsTime())
+	}
+
 	return &QueryMeta{
-		ExecutionDurationS: m.ExecutionDuration.AsDuration().Seconds(),
-		DeploymentId:       m.DeploymentId,
-		EnvironmentId:      m.EnvironmentId,
-		EnvironmentName:    m.EnvironmentName,
-		QueryId:            m.QueryId,
-		QueryTimestamp:     lo.ToPtr(m.QueryTimestamp.AsTime()),
-		QueryHash:          m.QueryHash,
+		ExecutionDurationS: executionDuration,
+		DeploymentId:       metaRaw.DeploymentId,
+		EnvironmentId:      metaRaw.EnvironmentId,
+		EnvironmentName:    metaRaw.EnvironmentName,
+		QueryId:            metaRaw.QueryId,
+		QueryTimestamp:     queryTimestamp,
+		QueryHash:          metaRaw.QueryHash,
 	}
 }
 

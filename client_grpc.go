@@ -1,14 +1,11 @@
 package chalk
 
 import (
-	"connectrpc.com/connect"
 	"context"
 	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
-	"github.com/samber/lo"
 	"time"
 )
 
@@ -16,7 +13,7 @@ var (
 	headerKeyDeploymentType = "x-chalk-deployment-type"
 	headerKeyEnvironmentId  = "x-chalk-env-id"
 	headerKeyServerType     = "x-chalk-server"
-	headerKeyTraceId        = "x-chalk-trace-id"
+	//headerKeyTraceId        = "x-chalk-trace-id"
 
 	serverTypeApi    = "go-api"
 	serverTypeEngine = "engine"
@@ -80,144 +77,83 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 		groups[k] = g
 	}
 
-	metaRaw := res.GetResponseMeta()
-
-	var executionDuration float64
-	if metaRaw.ExecutionDuration != nil {
-		executionDuration = metaRaw.ExecutionDuration.AsDuration().Seconds()
-	}
-
-	var queryTimestamp *time.Time
-	if metaRaw.QueryTimestamp != nil {
-		queryTimestamp = lo.ToPtr(metaRaw.QueryTimestamp.AsTime())
-	}
-
 	return OnlineQueryBulkResult{
 		ScalarsTable: scalars,
 		GroupsTables: groups,
-		Meta: &QueryMeta{
-			ExecutionDurationS: executionDuration,
-			DeploymentId:       metaRaw.DeploymentId,
-			EnvironmentId:      metaRaw.EnvironmentId,
-			EnvironmentName:    metaRaw.EnvironmentName,
-			QueryId:            metaRaw.QueryId,
-			QueryTimestamp:     queryTimestamp,
-			QueryHash:          metaRaw.QueryHash,
-		},
+		Meta:         queryMetaFromProto(res.GetResponseMeta()),
 	}, nil
 }
 
 func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	c.underlying.OnlineQuery(context.Background(), args)
+	res, err := c.underlying.OnlineQuery(context.Background(), args)
+	if err != nil {
+		return OnlineQueryResult{}, err
+	}
 
-	//bulkInputs := make(map[string]any)
-	//for k, singleValue := range args.underlying.inputs {
-	//	slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
-	//	slice.Index(0).Set(reflect.ValueOf(singleValue))
-	//	bulkInputs[k] = slice.Interface()
-	//}
-	//args.underlying.inputs = bulkInputs
-	//
-	//bulkRes, err := c.onlineQueryBulk(args)
-	//if err != nil {
-	//	// intentionally don't wrap, original error is good enough
-	//	return OnlineQueryResult{}, err
-	//}
-	//
-	//if resultHolder != nil {
-	//	// Create a pointer to an empty slice and unmarshal into that
-	//	var holderType = reflect.TypeOf(resultHolder)
-	//	if holderType.Kind() != reflect.Ptr {
-	//		return OnlineQueryResult{}, errors.Newf(
-	//			"result holder must be a pointer, found %s",
-	//			holderType.Kind(),
-	//		)
-	//	}
-	//	structType := holderType.Elem()
-	//	sliceType := reflect.SliceOf(structType)
-	//	ptrToSlice := reflect.New(sliceType)
-	//	if err := bulkRes.UnmarshalInto(ptrToSlice.Interface()); err != nil {
-	//		return OnlineQueryResult{}, errors.Wrap(err, "error unmarshalling result into result holder struct")
-	//	}
-	//
-	//	if ptrToSlice.Elem().Len() != 1 {
-	//		return OnlineQueryResult{}, errors.Newf(
-	//			"expected 1 element in the intermediate slice after unmarshalling, got %d",
-	//			ptrToSlice.Elem().Len(),
-	//		)
-	//	}
-	//
-	//	// Point the result holder to the first element of the slice
-	//	var holderValue = reflect.ValueOf(resultHolder)
-	//	holderValue.Elem().Set(ptrToSlice.Elem().Index(0))
-	//}
-	//
-	//rows, err := internal.ExtractFeaturesFromTable(bulkRes.ScalarsTable)
-	//if err != nil {
-	//	return OnlineQueryResult{}, errors.Wrap(err, "error extracting features from scalars table")
-	//}
-	//
-	//features := make(map[string]FeatureResult)
-	//if len(rows) != 1 {
-	//	return OnlineQueryResult{}, errors.Newf(
-	//		"expected 1 row from scalars table, got %d",
-	//		len(rows),
-	//	)
-	//}
-	//for fqn, value := range rows[0] {
-	//	features[fqn] = FeatureResult{
-	//		Field: fqn,
-	//		Value: value,
-	//	}
-	//}
-	//
-	//for fqn, table := range bulkRes.GroupsTables {
-	//	rowsHm, err := internal.ExtractFeaturesFromTable(table)
-	//	if err != nil {
-	//		return OnlineQueryResult{}, errors.Wrapf(
-	//			err,
-	//			"error extracting features from has-many table for feature '%s'",
-	//			fqn,
-	//		)
-	//	}
-	//
-	//	colNames := lo.Map(
-	//		table.Schema().Fields(),
-	//		func(f arrow.Field, _ int) string {
-	//			return f.Name
-	//		},
-	//	)
-	//	colValues := make([][]any, 0, len(rowsHm))
-	//	for _, col := range colNames {
-	//		colValues = append(
-	//			colValues,
-	//			lo.Map(rowsHm, func(row map[string]any, _ int) any {
-	//				return row[col]
-	//			}),
-	//		)
-	//	}
-	//	if err != nil {
-	//		return OnlineQueryResult{}, errors.Wrapf(
-	//			err,
-	//			"error creating JSON representation for has-many table for feature '%s'",
-	//			fqn,
-	//		)
-	//	}
-	//
-	//	features[fqn] = FeatureResult{
-	//		Field: fqn,
-	//		Value: map[string]any{
-	//			"columns": colNames,
-	//			"values":  colValues,
-	//		},
-	//	}
-	//}
-	//
-	//return OnlineQueryResult{
-	//	Data:     lo.Values(features),
-	//	Meta:     bulkRes.Meta,
-	//	features: features,
-	//}, nil
+	if len(res.GetErrors()) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.GetErrors())
+		if err != nil {
+			return OnlineQueryResult{}, wrapClientError(err, "error converting server errors")
+		}
+		return OnlineQueryResult{}, newServerError(convertedErrs)
+	}
+
+	if resultHolder != nil {
+		if err := UnmarshalOnlineQueryResponse(res, resultHolder); err != nil {
+			return OnlineQueryResult{}, err
+		}
+	}
+
+	featureResults := make([]FeatureResult, 0)
+	for _, r := range res.GetData().GetResults() {
+		var value any
+		if r.GetValue() != nil {
+			value = r.GetValue().AsInterface()
+		}
+		var pkey any
+		if r.GetPkey() != nil {
+			pkey = r.GetPkey().AsInterface()
+		}
+		var timestamp time.Time
+		if r.GetTs() != nil {
+			timestamp = r.GetTs().AsTime()
+		}
+		serverErr, err := serverErrorFromProto(r.GetError())
+		if err != nil {
+			return OnlineQueryResult{}, wrapClientError(err, "error converting server error")
+		}
+		var featureMeta *FeatureResolutionMeta
+		if r.GetMeta() != nil {
+			metaRaw := r.GetMeta()
+			featureMeta = &FeatureResolutionMeta{
+				ChosenResolverFqn: metaRaw.GetChosenResolverFqn(),
+				CacheHit:          metaRaw.GetCacheHit(),
+				PrimitiveType:     metaRaw.GetPrimitiveType(),
+				Version:           int(metaRaw.GetVersion()),
+			}
+		}
+
+		featureResults = append(featureResults, FeatureResult{
+			Field:     r.GetField(),
+			Value:     value,
+			Pkey:      pkey,
+			Meta:      featureMeta,
+			Error:     serverErr,
+			Timestamp: timestamp,
+		})
+	}
+
+	features := make(map[string]FeatureResult)
+	for _, result := range featureResults {
+		features[result.Field] = result
+	}
+
+	return OnlineQueryResult{
+		Data:     featureResults,
+		Meta:     queryMetaFromProto(res.GetResponseMeta()),
+		features: features,
+	}, nil
+
 }
 
 func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
@@ -225,63 +161,37 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 }
 
 func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
-	inputsConverted, err := getConvertedInputsMap(args.Inputs)
+	res, err := c.underlying.UpdateAggregates(context.Background(), args)
 	if err != nil {
-		return UpdateAggregatesResult{}, wrapClientError(err, "error converting inputs map")
-	}
-	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
-	if err != nil {
-		return UpdateAggregatesResult{}, wrapClientError(err, "error serializing inputs as feather")
+		return UpdateAggregatesResult{}, wrapClientError(err, "error executing update aggregates")
 	}
 
-	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
-		InputsFeather: inputsFeather,
-		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
-	})
-
-	ctx := context.Background()
-	if args.Context != nil {
-		ctx = args.Context
-	}
-
-	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
-	if err != nil {
-		return UpdateAggregatesResult{}, wrapClientError(err, "error making upload features request")
-	}
-
-	if len(res.Msg.Errors) > 0 {
-		convertedErrs, err := serverErrorsFromProto(res.Msg.Errors)
+	if len(res.Errors) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.Errors)
 		if err != nil {
-			return UpdateAggregatesResult{}, errors.Wrap(err, "error converting server errors")
+			return UpdateAggregatesResult{}, wrapClientError(err, "error converting server errors")
 		}
 		return UpdateAggregatesResult{}, newServerError(convertedErrs)
 	}
+
 	return UpdateAggregatesResult{
-		res.Trailer().Get(headerKeyTraceId),
+		// When we made requests directly in this client we were able
+		// to get the trace ID from the resonse trailing metadata. We
+		// lost the ability to get the trace ID since we now depend
+		// on methods on the native client.
+		// TraceId: "",
 	}, nil
 }
 
 func (c *clientGrpc) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
-	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
-		ForFeatures: features,
-	})
-	res, err := c.queryClient.GetAggregates(ctx, req)
-	if err != nil {
-		return nil, wrapClientError(err, "fetching aggregates")
-	}
-
-	return res.Msg, err
+	return c.underlying.GetAggregates(ctx, features)
 }
 
 func (c *clientGrpc) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
-	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
-	if err != nil {
-		return nil, wrapClientError(err, "planning aggregate backfill")
-	}
-	return res.Msg, err
+	return c.underlying.PlanAggregateBackfill(ctx, req)
 }
 
 func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
