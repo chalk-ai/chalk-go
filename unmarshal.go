@@ -325,7 +325,12 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 		}
 		fqnToValue[featureResult.Field] = convertedValue
 	}
-	return UnmarshalInto(resultHolder, fqnToValue, nil)
+	res := UnmarshalInto(resultHolder, fqnToValue, nil)
+	if res == (*ClientError)(nil) {
+		// TODO: Return `error` from `UnmarshalInto` [CHA-4153]
+		return nil
+	}
+	return res
 }
 
 func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
