@@ -21,6 +21,7 @@ type configManager struct {
 	clientSecret       auth2.SourcedConfig
 	environmentId      auth2.SourcedConfig
 	initialEnvironment auth2.SourcedConfig
+	queryServer        *string
 
 	jwt     *auth2.JWT
 	engines map[string]string
@@ -61,6 +62,7 @@ func getConfigManager(cfg ClientConfig) (*configManager, error) {
 		clientSecret:       clientSecret,
 		environmentId:      environmentId,
 		initialEnvironment: environmentId,
+		queryServer:        internal.Ptr(cfg.QueryServer),
 	}, nil
 }
 

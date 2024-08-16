@@ -129,15 +129,23 @@ func newInsecureClient() *http.Client {
 }
 
 func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error) {
-	endpoint, ok := c.config.engines[c.config.environmentId.Value]
-	if !ok {
-		c.logger.Errorf(
-			"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%v'",
-			c.config.environmentId.Value,
-			&c.config.engines,
-		)
-		endpoint = c.config.apiServer.Value
+	var endpoint string
+	if c.config.queryServer != nil && *c.config.queryServer != "" {
+		endpoint = *c.config.queryServer
+	} else {
+		engineFromToken, ok := c.config.engines[c.config.environmentId.Value]
+		if ok {
+			endpoint = engineFromToken
+		} else {
+			c.logger.Errorf(
+				"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%v'",
+				c.config.environmentId.Value,
+				&c.config.engines,
+			)
+			endpoint = c.config.apiServer.Value
+		}
 	}
+
 	client := c.httpClient
 	if strings.HasPrefix(endpoint, "http://") {
 		client = newInsecureClient()
