@@ -56,13 +56,18 @@ func getConfigManager(cfg ClientConfig) (*configManager, error) {
 		return nil, chalkYamlErr
 	}
 
+	var queryServer *string
+	if cfg.QueryServer != "" {
+		queryServer = internal.Ptr(cfg.QueryServer)
+	}
+
 	return &configManager{
 		apiServer:          apiServer,
 		clientId:           clientId,
 		clientSecret:       clientSecret,
 		environmentId:      environmentId,
 		initialEnvironment: environmentId,
-		queryServer:        internal.Ptr(cfg.QueryServer),
+		queryServer:        queryServer,
 	}, nil
 }
 
