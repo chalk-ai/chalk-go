@@ -65,14 +65,14 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 
-	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, cfg.QueryServer)
-	if err != nil {
-		return nil, errors.Wrap(err, "error creating query client")
-	}
-
 	var queryServer *string
 	if cfg.QueryServer != "" {
 		queryServer = internal.Ptr(cfg.QueryServer)
+	}
+
+	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating query client")
 	}
 
 	return &grpcClientImpl{
