@@ -42,6 +42,7 @@ type clientGrpc struct {
 	deploymentTag string
 	logger        LeveledLogger
 	httpClient    *http.Client
+	queryServer   *string
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -56,12 +57,19 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 	if cfg.Logger == nil {
 		logger = DefaultLeveledLogger
 	}
+
+	var queryServer *string
+	if cfg.QueryServer != "" {
+		queryServer = &cfg.QueryServer
+	}
+
 	client := &clientGrpc{
 		branch:        cfg.Branch,
 		deploymentTag: cfg.DeploymentTag,
 		httpClient:    http.DefaultClient,
 		logger:        logger,
 		config:        config,
+		queryServer:   queryServer,
 	}
 	if err := client.init(); err != nil {
 		return nil, errors.Wrap(err, "error initializing gRPC service clients")
@@ -122,6 +130,7 @@ func newInsecureClient() *http.Client {
 		Transport: &http2.Transport{
 			AllowHTTP: true,
 			DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+
 				return net.Dial(network, addr)
 			},
 		},
@@ -129,15 +138,23 @@ func newInsecureClient() *http.Client {
 }
 
 func (c *clientGrpc) NewQueryClient() (enginev1connect.QueryServiceClient, error) {
-	endpoint, ok := c.config.engines[c.config.environmentId.Value]
-	if !ok {
-		c.logger.Errorf(
-			"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%v'",
-			c.config.environmentId.Value,
-			&c.config.engines,
-		)
-		endpoint = c.config.apiServer.Value
+	var endpoint string
+	if c.queryServer != nil && *c.queryServer != "" {
+		endpoint = *c.queryServer
+	} else {
+		engineFromToken, ok := c.config.engines[c.config.environmentId.Value]
+		if ok {
+			endpoint = engineFromToken
+		} else {
+			c.logger.Errorf(
+				"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%v'",
+				c.config.environmentId.Value,
+				&c.config.engines,
+			)
+			endpoint = c.config.apiServer.Value
+		}
 	}
+
 	client := c.httpClient
 	if strings.HasPrefix(endpoint, "http://") {
 		client = newInsecureClient()
