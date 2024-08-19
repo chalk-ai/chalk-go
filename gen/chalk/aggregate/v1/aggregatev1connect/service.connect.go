@@ -39,13 +39,21 @@ const (
 	// AggregateServiceGetAggregatesProcedure is the fully-qualified name of the AggregateService's
 	// GetAggregates RPC.
 	AggregateServiceGetAggregatesProcedure = "/chalk.aggregate.v1.AggregateService/GetAggregates"
+	// AggregateServiceGetAggregateBackfillJobsProcedure is the fully-qualified name of the
+	// AggregateService's GetAggregateBackfillJobs RPC.
+	AggregateServiceGetAggregateBackfillJobsProcedure = "/chalk.aggregate.v1.AggregateService/GetAggregateBackfillJobs"
+	// AggregateServiceGetAggregateBackfillJobProcedure is the fully-qualified name of the
+	// AggregateService's GetAggregateBackfillJob RPC.
+	AggregateServiceGetAggregateBackfillJobProcedure = "/chalk.aggregate.v1.AggregateService/GetAggregateBackfillJob"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	aggregateServiceServiceDescriptor                     = v1.File_chalk_aggregate_v1_service_proto.Services().ByName("AggregateService")
-	aggregateServicePlanAggregateBackfillMethodDescriptor = aggregateServiceServiceDescriptor.Methods().ByName("PlanAggregateBackfill")
-	aggregateServiceGetAggregatesMethodDescriptor         = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregates")
+	aggregateServiceServiceDescriptor                        = v1.File_chalk_aggregate_v1_service_proto.Services().ByName("AggregateService")
+	aggregateServicePlanAggregateBackfillMethodDescriptor    = aggregateServiceServiceDescriptor.Methods().ByName("PlanAggregateBackfill")
+	aggregateServiceGetAggregatesMethodDescriptor            = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregates")
+	aggregateServiceGetAggregateBackfillJobsMethodDescriptor = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregateBackfillJobs")
+	aggregateServiceGetAggregateBackfillJobMethodDescriptor  = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregateBackfillJob")
 )
 
 // AggregateServiceClient is a client for the chalk.aggregate.v1.AggregateService service.
@@ -63,6 +71,8 @@ type AggregateServiceClient interface {
 	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error)
+	GetAggregateBackfillJobs(context.Context, *connect.Request[v1.GetAggregateBackfillJobsRequest]) (*connect.Response[v1.GetAggregateBackfillJobsResponse], error)
+	GetAggregateBackfillJob(context.Context, *connect.Request[v1.GetAggregateBackfillJobRequest]) (*connect.Response[v1.GetAggregateBackfillJobResponse], error)
 }
 
 // NewAggregateServiceClient constructs a client for the chalk.aggregate.v1.AggregateService
@@ -89,13 +99,29 @@ func NewAggregateServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getAggregateBackfillJobs: connect.NewClient[v1.GetAggregateBackfillJobsRequest, v1.GetAggregateBackfillJobsResponse](
+			httpClient,
+			baseURL+AggregateServiceGetAggregateBackfillJobsProcedure,
+			connect.WithSchema(aggregateServiceGetAggregateBackfillJobsMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getAggregateBackfillJob: connect.NewClient[v1.GetAggregateBackfillJobRequest, v1.GetAggregateBackfillJobResponse](
+			httpClient,
+			baseURL+AggregateServiceGetAggregateBackfillJobProcedure,
+			connect.WithSchema(aggregateServiceGetAggregateBackfillJobMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // aggregateServiceClient implements AggregateServiceClient.
 type aggregateServiceClient struct {
-	planAggregateBackfill *connect.Client[v1.PlanAggregateBackfillRequest, v1.PlanAggregateBackfillResponse]
-	getAggregates         *connect.Client[v1.GetAggregatesRequest, v1.GetAggregatesResponse]
+	planAggregateBackfill    *connect.Client[v1.PlanAggregateBackfillRequest, v1.PlanAggregateBackfillResponse]
+	getAggregates            *connect.Client[v1.GetAggregatesRequest, v1.GetAggregatesResponse]
+	getAggregateBackfillJobs *connect.Client[v1.GetAggregateBackfillJobsRequest, v1.GetAggregateBackfillJobsResponse]
+	getAggregateBackfillJob  *connect.Client[v1.GetAggregateBackfillJobRequest, v1.GetAggregateBackfillJobResponse]
 }
 
 // PlanAggregateBackfill calls chalk.aggregate.v1.AggregateService.PlanAggregateBackfill.
@@ -106,6 +132,16 @@ func (c *aggregateServiceClient) PlanAggregateBackfill(ctx context.Context, req 
 // GetAggregates calls chalk.aggregate.v1.AggregateService.GetAggregates.
 func (c *aggregateServiceClient) GetAggregates(ctx context.Context, req *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error) {
 	return c.getAggregates.CallUnary(ctx, req)
+}
+
+// GetAggregateBackfillJobs calls chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs.
+func (c *aggregateServiceClient) GetAggregateBackfillJobs(ctx context.Context, req *connect.Request[v1.GetAggregateBackfillJobsRequest]) (*connect.Response[v1.GetAggregateBackfillJobsResponse], error) {
+	return c.getAggregateBackfillJobs.CallUnary(ctx, req)
+}
+
+// GetAggregateBackfillJob calls chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob.
+func (c *aggregateServiceClient) GetAggregateBackfillJob(ctx context.Context, req *connect.Request[v1.GetAggregateBackfillJobRequest]) (*connect.Response[v1.GetAggregateBackfillJobResponse], error) {
+	return c.getAggregateBackfillJob.CallUnary(ctx, req)
 }
 
 // AggregateServiceHandler is an implementation of the chalk.aggregate.v1.AggregateService service.
@@ -123,6 +159,8 @@ type AggregateServiceHandler interface {
 	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error)
+	GetAggregateBackfillJobs(context.Context, *connect.Request[v1.GetAggregateBackfillJobsRequest]) (*connect.Response[v1.GetAggregateBackfillJobsResponse], error)
+	GetAggregateBackfillJob(context.Context, *connect.Request[v1.GetAggregateBackfillJobRequest]) (*connect.Response[v1.GetAggregateBackfillJobResponse], error)
 }
 
 // NewAggregateServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -145,12 +183,30 @@ func NewAggregateServiceHandler(svc AggregateServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	aggregateServiceGetAggregateBackfillJobsHandler := connect.NewUnaryHandler(
+		AggregateServiceGetAggregateBackfillJobsProcedure,
+		svc.GetAggregateBackfillJobs,
+		connect.WithSchema(aggregateServiceGetAggregateBackfillJobsMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	aggregateServiceGetAggregateBackfillJobHandler := connect.NewUnaryHandler(
+		AggregateServiceGetAggregateBackfillJobProcedure,
+		svc.GetAggregateBackfillJob,
+		connect.WithSchema(aggregateServiceGetAggregateBackfillJobMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.aggregate.v1.AggregateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AggregateServicePlanAggregateBackfillProcedure:
 			aggregateServicePlanAggregateBackfillHandler.ServeHTTP(w, r)
 		case AggregateServiceGetAggregatesProcedure:
 			aggregateServiceGetAggregatesHandler.ServeHTTP(w, r)
+		case AggregateServiceGetAggregateBackfillJobsProcedure:
+			aggregateServiceGetAggregateBackfillJobsHandler.ServeHTTP(w, r)
+		case AggregateServiceGetAggregateBackfillJobProcedure:
+			aggregateServiceGetAggregateBackfillJobHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -166,4 +222,12 @@ func (UnimplementedAggregateServiceHandler) PlanAggregateBackfill(context.Contex
 
 func (UnimplementedAggregateServiceHandler) GetAggregates(context.Context, *connect.Request[v1.GetAggregatesRequest]) (*connect.Response[v1.GetAggregatesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.aggregate.v1.AggregateService.GetAggregates is not implemented"))
+}
+
+func (UnimplementedAggregateServiceHandler) GetAggregateBackfillJobs(context.Context, *connect.Request[v1.GetAggregateBackfillJobsRequest]) (*connect.Response[v1.GetAggregateBackfillJobsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs is not implemented"))
+}
+
+func (UnimplementedAggregateServiceHandler) GetAggregateBackfillJob(context.Context, *connect.Request[v1.GetAggregateBackfillJobRequest]) (*connect.Response[v1.GetAggregateBackfillJobResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob is not implemented"))
 }
