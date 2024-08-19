@@ -33,9 +33,10 @@ type grpcClientImpl struct {
 	GRPCClient
 	config *configManager
 
-	branch     string
-	logger     LeveledLogger
-	httpClient *http.Client
+	branch      string
+	queryServer *string
+	logger      LeveledLogger
+	httpClient  *http.Client
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -64,9 +65,14 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 
-	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag)
+	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, cfg.QueryServer)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating query client")
+	}
+
+	var queryServer *string
+	if cfg.QueryServer != "" {
+		queryServer = internal.Ptr(cfg.QueryServer)
 	}
 
 	return &grpcClientImpl{
@@ -76,6 +82,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		config:      config,
 		authClient:  authClient,
 		queryClient: queryClient,
+		queryServer: queryServer,
 	}, nil
 }
 

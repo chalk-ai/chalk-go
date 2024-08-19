@@ -73,7 +73,11 @@ func newConfigManager(
 	}, nil
 }
 
-func (m *configManager) getQueryServer() string {
+func (m *configManager) getQueryServer(queryServerOverride *string) string {
+	if queryServerOverride != nil {
+		return *queryServerOverride
+	}
+
 	endpoint, ok := m.engines[m.environmentId.Value]
 	if !ok {
 		m.logger.Errorf(

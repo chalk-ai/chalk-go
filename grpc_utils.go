@@ -87,8 +87,8 @@ func newInsecureClient() *http.Client {
 	}
 }
 
-func newQueryClient(httpClient HTTPClient, manager *configManager, deploymentTag string) (enginev1connect.QueryServiceClient, error) {
-	endpoint := manager.getQueryServer()
+func newQueryClient(httpClient HTTPClient, manager *configManager, deploymentTag string, queryServerOverride *string) (enginev1connect.QueryServiceClient, error) {
+	endpoint := manager.getQueryServer(queryServerOverride)
 	if strings.HasPrefix(endpoint, "http://") {
 		httpClient = newInsecureClient()
 	}
