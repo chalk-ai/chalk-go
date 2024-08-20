@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/samber/lo"
@@ -9,11 +10,38 @@ import (
 	"time"
 )
 
-// TestOnlineQueryAllTypesUnmarshalling mainly tests
-// unmarshalling real data from the staging server
-// does not crash. Correctness is partially tested here,
-// but is mainly tested in TestOnlineQueryUnmarshalNonBulkAllTypes.
-func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
+func getParams() chalk.OnlineQueryParamsComplete {
+	return chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, 1).
+		WithOutputs(
+			testFeatures.User.Id,
+			testFeatures.User.Gender,
+			testFeatures.User.Today,
+			testFeatures.User.NiceNewFeature,
+			testFeatures.User.SocureScore,
+			testFeatures.User.FavoriteNumbers,
+			testFeatures.User.FavoriteColors,
+			testFeatures.User.FranchiseSet,
+		)
+}
+
+func testUserValues(t *testing.T, testUser *user) {
+	t.Helper()
+	assert.Equal(t, *testUser.Id, int64(1))
+	assert.Equal(t, *testUser.Gender, "f")
+	assert.NotNil(t, testUser.Today)
+	assert.Equal(t, *testUser.NiceNewFeature, int64(9))
+	assert.Equal(t, *testUser.SocureScore, 123.0)
+	assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
+	assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
+	assert.NotNil(t, testUser.FranchiseSet)
+}
+
+// TestOnlineQueryE2E mainly tests querying real data
+// from the staging server does not crash. Correctness
+// is partially tested here, but is mainly tested in
+// TestOnlineQueryUnmarshalNonBulkAllTypes.
+func TestOnlineQueryE2E(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	for _, fixture := range []struct {
@@ -31,21 +59,9 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 			if err != nil {
 				t.Fatal("Failed initializing features", err)
 			}
-			req := chalk.OnlineQueryParams{}.
-				WithInput(testFeatures.User.Id, 1).
-				WithOutputs(
-					testFeatures.User.Id,
-					testFeatures.User.Gender,
-					testFeatures.User.Today,
-					testFeatures.User.NiceNewFeature,
-					testFeatures.User.SocureScore,
-					testFeatures.User.FavoriteNumbers,
-					testFeatures.User.FavoriteColors,
-					testFeatures.User.FranchiseSet,
-				)
 
 			var implicitUser user
-			res, queryErr := client.OnlineQuery(req, &implicitUser)
+			res, queryErr := client.OnlineQuery(getParams(), &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
@@ -58,20 +74,40 @@ func TestOnlineQueryAllTypesUnmarshalling(t *testing.T) {
 				t.Fatal("Failed unmarshaling result", err)
 			}
 
-			testUserValues := func(testUser user) {
-				assert.Equal(t, *testUser.Id, int64(1))
-				assert.Equal(t, *testUser.Gender, "f")
-				assert.NotNil(t, testUser.Today)
-				assert.Equal(t, *testUser.NiceNewFeature, int64(9))
-				assert.Equal(t, *testUser.SocureScore, 123.0)
-				assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
-				assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
-				assert.NotNil(t, testUser.FranchiseSet)
-			}
-			testUserValues(implicitUser)
-			testUserValues(explicitUser)
+			testUserValues(t, &implicitUser)
+			testUserValues(t, &explicitUser)
 		})
 	}
+}
+
+// TestGRPCOnlineQueryE2E mainly tests querying real data
+// from the staging server does not crash. Correctness
+// is partially tested here, but is mainly tested in
+// TestOnlineQueryUnmarshalNonBulkAllTypes.
+//
+// This test is also notably different from the E2E test
+// where a gRPC client is also tested but is built on top
+// of the existing REST `Client` interface.
+func TestGRPCOnlineQueryE2E(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+	client, err := chalk.NewGRPCClient()
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	err = chalk.InitFeatures(&testFeatures)
+	if err != nil {
+		t.Fatal("Failed initializing features", err)
+	}
+
+	res, queryErr := client.OnlineQuery(context.Background(), getParams())
+	if queryErr != nil {
+		t.Fatal("Failed querying features", queryErr)
+	}
+
+	var testUser user
+	assert.NoError(t, chalk.UnmarshalOnlineQueryResponse(res, &testUser))
+	testUserValues(t, &testUser)
 }
 
 // TestOnlineQueryBulkParamsDoesNotErr tests that none
