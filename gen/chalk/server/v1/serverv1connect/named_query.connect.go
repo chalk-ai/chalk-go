@@ -39,6 +39,9 @@ const (
 	// NamedQueryServiceGetAllNamedQueriesActiveDeploymentProcedure is the fully-qualified name of the
 	// NamedQueryService's GetAllNamedQueriesActiveDeployment RPC.
 	NamedQueryServiceGetAllNamedQueriesActiveDeploymentProcedure = "/chalk.server.v1.NamedQueryService/GetAllNamedQueriesActiveDeployment"
+	// NamedQueryServiceGetNamedQueryByNameProcedure is the fully-qualified name of the
+	// NamedQueryService's GetNamedQueryByName RPC.
+	NamedQueryServiceGetNamedQueryByNameProcedure = "/chalk.server.v1.NamedQueryService/GetNamedQueryByName"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -46,12 +49,14 @@ var (
 	namedQueryServiceServiceDescriptor                                  = v1.File_chalk_server_v1_named_query_proto.Services().ByName("NamedQueryService")
 	namedQueryServiceGetAllNamedQueriesMethodDescriptor                 = namedQueryServiceServiceDescriptor.Methods().ByName("GetAllNamedQueries")
 	namedQueryServiceGetAllNamedQueriesActiveDeploymentMethodDescriptor = namedQueryServiceServiceDescriptor.Methods().ByName("GetAllNamedQueriesActiveDeployment")
+	namedQueryServiceGetNamedQueryByNameMethodDescriptor                = namedQueryServiceServiceDescriptor.Methods().ByName("GetNamedQueryByName")
 )
 
 // NamedQueryServiceClient is a client for the chalk.server.v1.NamedQueryService service.
 type NamedQueryServiceClient interface {
 	GetAllNamedQueries(context.Context, *connect.Request[v1.GetAllNamedQueriesRequest]) (*connect.Response[v1.GetAllNamedQueriesResponse], error)
 	GetAllNamedQueriesActiveDeployment(context.Context, *connect.Request[v1.GetAllNamedQueriesActiveDeploymentRequest]) (*connect.Response[v1.GetAllNamedQueriesActiveDeploymentResponse], error)
+	GetNamedQueryByName(context.Context, *connect.Request[v1.GetNamedQueryByNameRequest]) (*connect.Response[v1.GetNamedQueryByNameResponse], error)
 }
 
 // NewNamedQueryServiceClient constructs a client for the chalk.server.v1.NamedQueryService service.
@@ -78,6 +83,13 @@ func NewNamedQueryServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getNamedQueryByName: connect.NewClient[v1.GetNamedQueryByNameRequest, v1.GetNamedQueryByNameResponse](
+			httpClient,
+			baseURL+NamedQueryServiceGetNamedQueryByNameProcedure,
+			connect.WithSchema(namedQueryServiceGetNamedQueryByNameMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -85,6 +97,7 @@ func NewNamedQueryServiceClient(httpClient connect.HTTPClient, baseURL string, o
 type namedQueryServiceClient struct {
 	getAllNamedQueries                 *connect.Client[v1.GetAllNamedQueriesRequest, v1.GetAllNamedQueriesResponse]
 	getAllNamedQueriesActiveDeployment *connect.Client[v1.GetAllNamedQueriesActiveDeploymentRequest, v1.GetAllNamedQueriesActiveDeploymentResponse]
+	getNamedQueryByName                *connect.Client[v1.GetNamedQueryByNameRequest, v1.GetNamedQueryByNameResponse]
 }
 
 // GetAllNamedQueries calls chalk.server.v1.NamedQueryService.GetAllNamedQueries.
@@ -98,10 +111,16 @@ func (c *namedQueryServiceClient) GetAllNamedQueriesActiveDeployment(ctx context
 	return c.getAllNamedQueriesActiveDeployment.CallUnary(ctx, req)
 }
 
+// GetNamedQueryByName calls chalk.server.v1.NamedQueryService.GetNamedQueryByName.
+func (c *namedQueryServiceClient) GetNamedQueryByName(ctx context.Context, req *connect.Request[v1.GetNamedQueryByNameRequest]) (*connect.Response[v1.GetNamedQueryByNameResponse], error) {
+	return c.getNamedQueryByName.CallUnary(ctx, req)
+}
+
 // NamedQueryServiceHandler is an implementation of the chalk.server.v1.NamedQueryService service.
 type NamedQueryServiceHandler interface {
 	GetAllNamedQueries(context.Context, *connect.Request[v1.GetAllNamedQueriesRequest]) (*connect.Response[v1.GetAllNamedQueriesResponse], error)
 	GetAllNamedQueriesActiveDeployment(context.Context, *connect.Request[v1.GetAllNamedQueriesActiveDeploymentRequest]) (*connect.Response[v1.GetAllNamedQueriesActiveDeploymentResponse], error)
+	GetNamedQueryByName(context.Context, *connect.Request[v1.GetNamedQueryByNameRequest]) (*connect.Response[v1.GetNamedQueryByNameResponse], error)
 }
 
 // NewNamedQueryServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -124,12 +143,21 @@ func NewNamedQueryServiceHandler(svc NamedQueryServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	namedQueryServiceGetNamedQueryByNameHandler := connect.NewUnaryHandler(
+		NamedQueryServiceGetNamedQueryByNameProcedure,
+		svc.GetNamedQueryByName,
+		connect.WithSchema(namedQueryServiceGetNamedQueryByNameMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.NamedQueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case NamedQueryServiceGetAllNamedQueriesProcedure:
 			namedQueryServiceGetAllNamedQueriesHandler.ServeHTTP(w, r)
 		case NamedQueryServiceGetAllNamedQueriesActiveDeploymentProcedure:
 			namedQueryServiceGetAllNamedQueriesActiveDeploymentHandler.ServeHTTP(w, r)
+		case NamedQueryServiceGetNamedQueryByNameProcedure:
+			namedQueryServiceGetNamedQueryByNameHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -145,4 +173,8 @@ func (UnimplementedNamedQueryServiceHandler) GetAllNamedQueries(context.Context,
 
 func (UnimplementedNamedQueryServiceHandler) GetAllNamedQueriesActiveDeployment(context.Context, *connect.Request[v1.GetAllNamedQueriesActiveDeploymentRequest]) (*connect.Response[v1.GetAllNamedQueriesActiveDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.NamedQueryService.GetAllNamedQueriesActiveDeployment is not implemented"))
+}
+
+func (UnimplementedNamedQueryServiceHandler) GetNamedQueryByName(context.Context, *connect.Request[v1.GetNamedQueryByNameRequest]) (*connect.Response[v1.GetNamedQueryByNameResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.NamedQueryService.GetNamedQueryByName is not implemented"))
 }
