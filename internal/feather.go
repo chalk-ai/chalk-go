@@ -300,7 +300,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		columnElemType := columnVal.Type().Elem()
 		arrowType, convErr := convertReflectToArrowType(columnElemType)
 		if convErr != nil {
-			return nil, fmt.Errorf("failed to convert values for column '%s': %w", k, convErr)
+			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
@@ -341,12 +341,12 @@ func consumeMagicStr(magicStr string, startIdx int, bytes []byte) (int, error) {
 	magicBytes := []byte(magicStr)
 	err := checkLen(startIdx, bytes, len(magicBytes))
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to find enough bytes to consume magic string")
+		return startIdx, errors.New("failed to find enough bytes to consume magic string")
 	}
 	ptr := startIdx
 	for _, b := range magicBytes {
 		if bytes[ptr] != b {
-			return 0, fmt.Errorf("magic string bytes do not match")
+			return 0, errors.New("magic string bytes do not match")
 		}
 		ptr++
 	}
@@ -357,13 +357,13 @@ func consumeMagicStr(magicStr string, startIdx int, bytes []byte) (int, error) {
 func consumeJsonAttrs(startIdx int, bytes []byte) (int, any, error) {
 	midIdx, jsonBodyLen, err := consume8ByteLen(startIdx, bytes)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to consume length: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to consume length")
 	}
 	var jsonBody any
 	endIdx := midIdx + int(jsonBodyLen)
 	err = json.Unmarshal(bytes[midIdx:endIdx], &jsonBody)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to unmarshal: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to unmarshal")
 	}
 	return endIdx, jsonBody, nil
 }
@@ -373,13 +373,13 @@ func consumeJsonAttrs(startIdx int, bytes []byte) (int, any, error) {
 func consumePydanticAttrs(startIdx int, bytes []byte) (int, any, error) {
 	midIdx, jsonBodyLen, err := consume8ByteLen(startIdx, bytes)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to consume length: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to consume length")
 	}
 	var jsonBody any
 	endIdx := midIdx + int(jsonBodyLen)
 	err = json.Unmarshal(bytes[midIdx:endIdx], &jsonBody)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to unmarshal: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to unmarshal")
 	}
 	// Loop through the struct and convert the values from a JSON string to
 	// the appropriate type
@@ -392,7 +392,7 @@ func consumeByteItemsData(startIdx int, bytes []byte, byteItemsMap map[string]in
 	for key, length := range byteItemsMap {
 		err := checkLen(idx, bytes, length)
 		if err != nil {
-			return startIdx, nil, fmt.Errorf("failed to find enough bytes to consume byte item with key '%s': %w", key, err)
+			return startIdx, nil, errors.Wrapf(err, "failed to find enough bytes to consume byte item with key '%s'", key)
 		}
 		byteItems[key] = bytes[idx : idx+length]
 		idx += length
@@ -403,24 +403,24 @@ func consumeByteItemsData(startIdx int, bytes []byte, byteItemsMap map[string]in
 func consumeByteItems(startIdx int, bytes []byte) (int, map[string][]byte, error) {
 	idx, byteItemsMap, err := consumeJsonAttrs(startIdx, bytes)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to consume byte items length map: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to consume byte items length map")
 	}
 	byteItemsMapCast, ok := byteItemsMap.(map[string]any)
 	if !ok {
-		return idx, nil, fmt.Errorf("failed to process byte items length map")
+		return idx, nil, errors.New("failed to process byte items length map")
 	}
 	byteItemsMapInt := map[string]int{}
 	for key, val := range byteItemsMapCast {
 		intVal, err := convertNumber[int](val)
 		if err != nil {
-			return idx, nil, fmt.Errorf("failed to cast value in byte items length map to `int` - possibly a wider integer type needed")
+			return idx, nil, errors.New("failed to cast value in byte items length map to `int` - possibly a wider integer type needed")
 		}
 		byteItemsMapInt[key] = intVal
 	}
 
 	idx, byteItemsData, err := consumeByteItemsData(idx, bytes, byteItemsMapInt)
 	if err != nil {
-		return startIdx, nil, fmt.Errorf("failed to consume byte items data: %w", err)
+		return startIdx, nil, errors.Wrap(err, "failed to consume byte items data")
 	}
 	return idx, byteItemsData, nil
 }
@@ -429,7 +429,7 @@ func consumeByteItems(startIdx int, bytes []byte) (int, map[string][]byte, error
 // so that we don't panic upon indexing out of bounds
 func checkLen(startIdx int, bytes []byte, length int) error {
 	if len(bytes) < startIdx+length {
-		return fmt.Errorf("failed to find enough bytes to consume")
+		return errors.New("failed to find enough bytes to consume")
 	}
 	return nil
 }
@@ -447,7 +447,7 @@ func produceLen(length int, ioWriter *bufio.Writer) error {
 func produceJsonAttrs(jsonAttrs map[string]any, ioWriter *bufio.Writer) error {
 	jsonBytes, err := json.Marshal(jsonAttrs)
 	if err != nil {
-		return fmt.Errorf("failed to serialize JSON attributes to JSON: %w", err)
+		return errors.Wrap(err, "failed to serialize JSON attributes to JSON")
 	}
 	err = produceLen(len(jsonBytes), ioWriter)
 	if err != nil {
@@ -482,15 +482,15 @@ func recordToBytes(record arrow.Record) ([]byte, error) {
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Arrow Table writer: %w", err)
+		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
 	}
 	err = fileWriter.Write(record)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
+		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
 	}
 	err = fileWriter.Close()
 	if err != nil {
-		return nil, fmt.Errorf("failed to close Arrow Table writer: %w", err)
+		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
 	}
 
 	return bws.Bytes(), nil
@@ -568,7 +568,7 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
 	recordBytes, err := InputsToArrowBytes(inputs)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert inputs to Arrow Record bytes: %w", err)
+		return nil, errors.Wrap(err, "failed to convert inputs to Arrow Record bytes")
 	}
 
 	attrs := map[string]any{
@@ -598,7 +598,7 @@ type FeatherRequestHeader struct {
 func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
 	arrowBytes, err := InputsToArrowBytes(inputs)
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert inputs to Arrow: %w", err)
+		return nil, errors.Wrap(err, "failed to convert inputs to Arrow")
 	}
 
 	// Serialize the message
@@ -621,7 +621,7 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeade
 	// Header: TODO: get the other parameters for this.
 	jsonBytes, err := json.Marshal(header)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize header to JSON: %w", err)
+		return nil, errors.Wrap(err, "failed to serialize header to JSON")
 	}
 	headerLength, err := ioWriter.Write(jsonBytes)
 	if err != nil {
@@ -637,7 +637,7 @@ func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeade
 	// Body
 	_, err = ioWriter.Write(arrowBytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write Arrow Table bytes to request: %w", err)
+		return nil, errors.Wrap(err, "failed to write Arrow Table bytes to request")
 	}
 
 	err = ioWriter.Flush()
@@ -662,11 +662,11 @@ func GetHeaderFromSerializedOnlineQueryBulkBody(body []byte) (map[string]any, er
 
 	_, header, err := consumeJsonAttrs(idx, body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to consume header: %w", err)
+		return nil, errors.Wrap(err, "failed to consume header")
 	}
 	headerMap, ok := header.(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("failed to cast header to map")
+		return nil, errors.Wrap(err, "failed to cast header to map")
 	}
 	return headerMap, nil
 }
@@ -678,22 +678,22 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	}
 	idx, jsonBody, err := consumeJsonAttrs(idx, body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to consume json attrs: %w", err)
+		return nil, errors.Wrap(err, "failed to consume json attrs")
 	}
 
 	idx, pydanticJsonBody, err := consumePydanticAttrs(idx, body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to consume pydantic attrs: %w", err)
+		return nil, errors.Wrap(err, "failed to consume pydantic attrs")
 	}
 
 	idx, byteItems, err := consumeByteItems(idx, body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to consume raw byte items: %w", err)
+		return nil, errors.Wrap(err, "failed to consume raw byte items")
 	}
 
 	_, deserializableByteItems, err := consumeByteItems(idx, body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to consume deserializable byte items: %w", err)
+		return nil, errors.Wrap(err, "failed to consume deserializable byte items")
 	}
 
 	res := map[string]any{}
@@ -721,7 +721,7 @@ func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
 	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(alloc))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create Arrow file reader: %w", err)
+		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}
 	defer func() {
 		err = fileReader.Close()
@@ -731,7 +731,7 @@ func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 	for i := 0; i < fileReader.NumRecords(); i++ {
 		rec, err := fileReader.Record(i)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read record: %w", err)
+			return nil, errors.Wrap(err, "failed to read record")
 		}
 		rec.Retain()
 		records[i] = rec
