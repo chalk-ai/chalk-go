@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -223,8 +223,8 @@ func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 	client, err := chalk.NewClient()
 	assert.NoError(t, err)
 	investorsInput := []newGradAngelInvestor{
-		{Id: lo.ToPtr("amylase"), SeriesId: lo.ToPtr("seed"), HowBroke: lo.ToPtr(int64(1))},
-		{Id: lo.ToPtr("lipase"), SeriesId: lo.ToPtr("seed"), HowBroke: lo.ToPtr(int64(2))},
+		{Id: ptr.Ptr("amylase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(1))},
+		{Id: ptr.Ptr("lipase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(2))},
 	}
 	params := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.Series.Id, "seed").

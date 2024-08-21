@@ -2,8 +2,8 @@ package internal
 
 import (
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
-	"github.com/samber/lo"
 	"os"
 	"reflect"
 	"regexp"
@@ -190,7 +190,7 @@ func GetWindowBucketsFromStructTag(field reflect.StructField) ([]string, error) 
 
 func HasDontOmitTag(field reflect.StructField) bool {
 	chalkTags := strings.Split(field.Tag.Get(ChalkTag), ",")
-	return lo.Contains(chalkTags, "dontomit")
+	return colls.Contains(chalkTags, "dontomit")
 }
 
 func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, error) {
@@ -208,10 +208,6 @@ func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, err
 		seconds[i] = val
 	}
 	return seconds, nil
-}
-
-func Ptr[T any](value T) *T {
-	return &value
 }
 
 func allValid(l int) []bool {

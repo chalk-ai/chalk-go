@@ -5,8 +5,9 @@ import (
 	"fmt"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
-	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"reflect"
@@ -307,18 +308,20 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
-	outputs := lo.Map(params.outputs, func(v string, _ int) *commonv1.OutputExpr {
+	outputs := colls.Map(params.outputs, func(v string) *commonv1.OutputExpr {
 		return &commonv1.OutputExpr{
 			Expr: &commonv1.OutputExpr_FeatureFqn{
 				FeatureFqn: v,
 			},
 		}
 	})
-	staleness := lo.MapValues(params.staleness, func(v time.Duration, k string) string {
-		return internal.FormatBucketDuration(int(v.Seconds()))
-	})
 
-	nowProto := lo.Map(params.Now, func(v time.Time, _ int) *timestamppb.Timestamp {
+	staleness := make(map[string]string)
+	for k, v := range params.staleness {
+		staleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
+	}
+
+	nowProto := colls.Map(params.Now, func(v time.Time) *timestamppb.Timestamp {
 		return timestamppb.New(v)
 	})
 
@@ -335,6 +338,11 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 		now = nil
 	}
 
+	var explainOptions *commonv1.ExplainOptions
+	if params.Explain {
+		explainOptions = &commonv1.ExplainOptions{}
+	}
+
 	return &commonv1.OnlineQueryBulkRequest{
 		InputsFeather: inputsFeather,
 		Outputs:       outputs,
@@ -343,11 +351,11 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 		Context: &commonv1.OnlineQueryContext{
 			Environment:          params.EnvironmentId,
 			Tags:                 params.Tags,
-			DeploymentId:         lo.EmptyableToPtr(params.PreviewDeploymentId),
+			DeploymentId:         ptr.PtrOrNil(params.PreviewDeploymentId),
 			BranchId:             params.BranchId,
-			CorrelationId:        lo.EmptyableToPtr(params.CorrelationId),
-			QueryName:            lo.EmptyableToPtr(params.QueryName),
-			QueryNameVersion:     lo.EmptyableToPtr(params.QueryNameVersion),
+			CorrelationId:        ptr.PtrOrNil(params.CorrelationId),
+			QueryName:            ptr.PtrOrNil(params.QueryName),
+			QueryNameVersion:     ptr.PtrOrNil(params.QueryNameVersion),
 			RequiredResolverTags: params.RequiredResolverTags,
 			Options:              options,
 		},
@@ -355,7 +363,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 			IncludeMeta:     params.IncludeMeta || params.Explain,
 			Metadata:        params.Meta,
 			EncodingOptions: nil,
-			Explain:         lo.Ternary(params.Explain, &commonv1.ExplainOptions{}, nil),
+			Explain:         explainOptions,
 		},
 	}, nil
 }

@@ -1,7 +1,7 @@
 package chalk
 
 import (
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"testing"
@@ -37,7 +37,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 		Meta:                 meta,
 		Now:                  now,
 	}
-	nowProto := lo.Map(now, func(t time.Time, _ int) *timestamppb.Timestamp {
+	nowProto := colls.Map(now, func(t time.Time) *timestamppb.Timestamp {
 		return timestamppb.New(t)
 	})
 	request, err := convertOnlineQueryParamsToProto(&params)

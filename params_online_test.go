@@ -3,7 +3,7 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
@@ -75,10 +75,10 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.Nil(t, initErr)
 	params := OnlineQueryParams{}.
 		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
-			Id: lo.ToPtr("1"),
+			Id: ptr.Ptr("1"),
 		}).
 		WithInput(testRootFeatures.AllTypes.Dataclass, testLatLng{
-			Lat: lo.ToPtr(1.1),
+			Lat: ptr.Ptr(1.1),
 		})
 	request, err := params.underlying.serialize()
 	assert.NoError(t, err)
@@ -109,18 +109,18 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
 		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
-			Id: lo.ToPtr("1"),
+			Id: ptr.Ptr("1"),
 			Nested: &levelTwoNest{
-				Id: lo.ToPtr("2"),
+				Id: ptr.Ptr("2"),
 			},
 		}).
 		WithInput(testRootFeatures.AllTypes.HasMany, []hasMany{
 			{
-				Id:        lo.ToPtr("1"),
-				Int:       lo.ToPtr(int64(1)),
-				Float:     lo.ToPtr(float64(1.1)),
-				String:    lo.ToPtr("abc"),
-				Bool:      lo.ToPtr(true),
+				Id:        ptr.Ptr("1"),
+				Int:       ptr.Ptr(int64(1)),
+				Float:     ptr.Ptr(float64(1.1)),
+				String:    ptr.Ptr("abc"),
+				Bool:      ptr.Ptr(true),
 				Timestamp: &timestamp,
 				IntList:   &[]int64{1, 2, 3},
 				NestedIntPointerList: &[]*[]int64{
@@ -130,9 +130,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					{int64(1), int64(2)},
 				},
 				WindowedInt: map[string]*int64{
-					"1m": lo.ToPtr(int64(1)),
-					"5m": lo.ToPtr(int64(2)),
-					"1h": lo.ToPtr(int64(3)),
+					"1m": ptr.Ptr(int64(1)),
+					"5m": ptr.Ptr(int64(2)),
+					"1h": ptr.Ptr(int64(3)),
 				},
 				WindowedList: map[string]*[]int64{
 					"1m": {1, 2, 3},
@@ -140,13 +140,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"1h": {7, 8, 9},
 				},
 				Dataclass: &testLatLng{
-					Lat: lo.ToPtr(1.1),
-					Lng: lo.ToPtr(2.2),
+					Lat: ptr.Ptr(1.1),
+					Lng: ptr.Ptr(2.2),
 				},
 				DataclassList: &[]testLatLng{
 					{
-						Lat: lo.ToPtr(3.3),
-						Lng: lo.ToPtr(4.4),
+						Lat: ptr.Ptr(3.3),
+						Lng: ptr.Ptr(4.4),
 					},
 				},
 				DataclassWithList: &favoriteThings{
@@ -154,29 +154,29 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Words:   &[]string{"a", "b", "c"},
 				},
 				DataclassWithNils: &possessions{
-					Car:   lo.ToPtr("car"),
-					Yacht: lo.ToPtr("yacht"),
-					Plane: lo.ToPtr("plane"),
+					Car:   ptr.Ptr("car"),
+					Yacht: ptr.Ptr("yacht"),
+					Plane: ptr.Ptr("plane"),
 				},
 				DataclassWithDataclass: &child{
-					Name: lo.ToPtr("child"),
+					Name: ptr.Ptr("child"),
 					Mom: &parent{
-						Name: lo.ToPtr("mom"),
+						Name: ptr.Ptr("mom"),
 						Mom: &grandparent{
-							Name: lo.ToPtr("grandma"),
+							Name: ptr.Ptr("grandma"),
 						},
 					},
 				},
 				DataclassWithOverrides: &dclassWithOverrides{
-					CamelName: lo.ToPtr("camel"),
+					CamelName: ptr.Ptr("camel"),
 				},
 			},
 			{
-				Id:        lo.ToPtr("2"),
-				Int:       lo.ToPtr(int64(2)),
-				Float:     lo.ToPtr(float64(2.2)),
-				String:    lo.ToPtr("def"),
-				Bool:      lo.ToPtr(false),
+				Id:        ptr.Ptr("2"),
+				Int:       ptr.Ptr(int64(2)),
+				Float:     ptr.Ptr(float64(2.2)),
+				String:    ptr.Ptr("def"),
+				Bool:      ptr.Ptr(false),
 				Timestamp: &timestamp,
 				IntList:   &[]int64{4, 5, 6},
 				NestedIntPointerList: &[]*[]int64{
@@ -186,9 +186,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					{int64(3), int64(4)},
 				},
 				WindowedInt: map[string]*int64{
-					"1m": lo.ToPtr(int64(4)),
-					"5m": lo.ToPtr(int64(5)),
-					"1h": lo.ToPtr(int64(6)),
+					"1m": ptr.Ptr(int64(4)),
+					"5m": ptr.Ptr(int64(5)),
+					"1h": ptr.Ptr(int64(6)),
 				},
 				WindowedList: map[string]*[]int64{
 					"1m": {4, 5, 6},
@@ -196,13 +196,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"1h": {10, 11, 12},
 				},
 				Dataclass: &testLatLng{
-					Lat: lo.ToPtr(5.5),
-					Lng: lo.ToPtr(6.6),
+					Lat: ptr.Ptr(5.5),
+					Lng: ptr.Ptr(6.6),
 				},
 				DataclassList: &[]testLatLng{
 					{
-						Lat: lo.ToPtr(7.7),
-						Lng: lo.ToPtr(8.8),
+						Lat: ptr.Ptr(7.7),
+						Lng: ptr.Ptr(8.8),
 					},
 				},
 				DataclassWithList: &favoriteThings{
@@ -210,18 +210,18 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Words:   &[]string{"d", "e", "f"},
 				},
 				DataclassWithNils: &possessions{
-					Car:   lo.ToPtr("car2"),
-					Yacht: lo.ToPtr("yacht2"),
-					Plane: lo.ToPtr("plane2"),
+					Car:   ptr.Ptr("car2"),
+					Yacht: ptr.Ptr("yacht2"),
+					Plane: ptr.Ptr("plane2"),
 				},
 				DataclassWithDataclass: &child{
-					Name: lo.ToPtr("child2"),
+					Name: ptr.Ptr("child2"),
 					Mom: &parent{
-						Name: lo.ToPtr("mom2"),
+						Name: ptr.Ptr("mom2"),
 					},
 				},
 				DataclassWithOverrides: &dclassWithOverrides{
-					CamelName: lo.ToPtr("camel2"),
+					CamelName: ptr.Ptr("camel2"),
 				},
 			},
 		})
