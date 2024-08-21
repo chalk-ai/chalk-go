@@ -660,7 +660,7 @@ func GetHeaderFromSerializedOnlineQueryBulkBody(body []byte) (map[string]any, er
 		return nil, err
 	}
 
-	idx, header, err := consumeJsonAttrs(idx, body)
+	_, header, err := consumeJsonAttrs(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume header: %w", err)
 	}
@@ -691,7 +691,7 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 		return nil, fmt.Errorf("failed to consume raw byte items: %w", err)
 	}
 
-	idx, deserializableByteItems, err := consumeByteItems(idx, body)
+	_, deserializableByteItems, err := consumeByteItems(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume deserializable byte items: %w", err)
 	}
@@ -707,15 +707,11 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 			res[k] = v
 		}
 	}
-	if byteItems != nil {
-		for k, v := range byteItems {
-			res[k] = v
-		}
+	for k, v := range byteItems {
+		res[k] = v
 	}
-	if deserializableByteItems != nil {
-		for k, v := range deserializableByteItems {
-			res[k] = v
-		}
+	for k, v := range deserializableByteItems {
+		res[k] = v
 	}
 	return res, nil
 }
