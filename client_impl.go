@@ -7,7 +7,6 @@ import (
 	"fmt"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
-	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"io"
@@ -28,10 +27,8 @@ type clientImpl struct {
 	QueryServer   string
 	DeploymentTag string
 
-	jwt                *auth2.JWT
-	httpClient         HTTPClient
-	logger             LeveledLogger
-	initialEnvironment auth2.SourcedConfig
+	httpClient HTTPClient
+	logger     LeveledLogger
 }
 
 type HTTPClient interface {
@@ -81,7 +78,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
 	}
 
-	for idx, _ := range response.Revisions {
+	for idx := range response.Revisions {
 		response.Revisions[idx].client = c
 	}
 

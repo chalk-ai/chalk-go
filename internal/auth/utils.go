@@ -58,8 +58,11 @@ func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string)
 	}
 
 	if config.Tokens == nil {
-		return ProjectToken{}, errors.New(
-			fmt.Sprintf("'tokens' collection does not exist or is empty in the auth config file '%s' -- please try to 'chalk login' again", configPath))
+		return ProjectToken{}, fmt.Errorf(
+			"'tokens' collection does not exist or is empty in the auth config file "+
+				"'%s' -- please try to 'chalk login' again",
+			configPath,
+		)
 	}
 
 	var returnToken *ProjectToken = nil
@@ -74,7 +77,13 @@ func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string)
 	}
 
 	if returnToken == nil {
-		return ProjectToken{}, errors.New(fmt.Sprintf("project root '%s' does not exist as a key in the collection 'tokens' in the config file '%s', and the fallback key 'default' is also missing. Please try to 'chalk login' again", projectRoot, configPath))
+		return ProjectToken{}, fmt.Errorf(
+			"project root '%s' does not exist as a key in the collection 'tokens'"+
+				" in the config file '%s', and the fallback key 'default' is also missing. "+
+				"Please try to 'chalk login' again",
+			projectRoot,
+			configPath,
+		)
 	}
 
 	return *returnToken, nil
@@ -94,7 +103,12 @@ func loadAuthConfig() (*ProjectTokens, *string, error) {
 	config := ProjectTokens{}
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, path, errors.New(fmt.Sprintf("Error parsing auth config file at path '%s'. Please make sure you have run 'chalk login' successfully. Error details: %s", *path, err))
+		return nil, path, fmt.Errorf(
+			"Error parsing auth config file at path '%s'. Please make sure you have run"+
+				" 'chalk login' successfully. Error details: %s",
+			*path,
+			err,
+		)
 	}
 
 	return &config, path, nil

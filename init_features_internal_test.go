@@ -25,12 +25,6 @@ type goUser struct {
 	FamilyIncome *float32
 }
 
-var testFeatures struct {
-	User    *goUser
-	Card    *goCard
-	Address *goAddress
-}
-
 func TestUnmarshal(t *testing.T) {
 	userId := FeatureResult{
 		Value: "1",
