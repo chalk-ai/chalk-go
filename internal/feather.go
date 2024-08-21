@@ -370,7 +370,7 @@ func consumeJsonAttrs(startIdx int, bytes []byte) (int, error, any) {
 
 // consumePydanticAttrs converts bytes to JSON, but not to pydantic because
 // pydantic is not supported in Go.
-func consumePydanticAttrs(startIdx int, bytes []byte) (int, error, any) {
+func consumePydanticAttrs(startIdx int, bytes []byte) (int, any, error) {
 	midIdx, err, jsonBodyLen := consume8ByteLen(startIdx, bytes)
 	if err != nil {
 		return startIdx, fmt.Errorf("failed to consume length: %w", err), nil
@@ -383,46 +383,46 @@ func consumePydanticAttrs(startIdx int, bytes []byte) (int, error, any) {
 	}
 	// Loop through the struct and convert the values from a JSON string to
 	// the appropriate type
-	return endIdx, nil, jsonBody
+	return endIdx, jsonBody, nil
 }
 
-func consumeByteItemsData(startIdx int, bytes []byte, byteItemsMap map[string]int) (int, error, map[string][]byte) {
+func consumeByteItemsData(startIdx int, bytes []byte, byteItemsMap map[string]int) (int, map[string][]byte, error) {
 	byteItems := map[string][]byte{}
 	idx := startIdx
 	for key, length := range byteItemsMap {
 		err := checkLen(idx, bytes, length)
 		if err != nil {
-			return startIdx, fmt.Errorf("failed to find enough bytes to consume byte item with key '%s': %w", key, err), nil
+			return startIdx, nil, fmt.Errorf("failed to find enough bytes to consume byte item with key '%s': %w", key, err)
 		}
-		byteItems[key] = bytes[idx : idx+int(length)]
-		idx += int(length)
+		byteItems[key] = bytes[idx : idx+length]
+		idx += length
 	}
-	return idx, nil, byteItems
+	return idx, byteItems, nil
 }
 
-func consumeByteItems(startIdx int, bytes []byte) (int, error, map[string][]byte) {
+func consumeByteItems(startIdx int, bytes []byte) (int, map[string][]byte, error) {
 	idx, err, byteItemsMap := consumeJsonAttrs(startIdx, bytes)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to consume byte items length map: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to consume byte items length map: %w", err)
 	}
 	byteItemsMapCast, ok := byteItemsMap.(map[string]any)
 	if !ok {
-		return idx, fmt.Errorf("failed to process byte items length map"), nil
+		return idx, nil, fmt.Errorf("failed to process byte items length map")
 	}
 	byteItemsMapInt := map[string]int{}
 	for key, val := range byteItemsMapCast {
 		intVal, err := convertNumber[int](val)
 		if err != nil {
-			return idx, fmt.Errorf("failed to cast value in byte items length map to `int` - possibly a wider integer type needed"), nil
+			return idx, nil, fmt.Errorf("failed to cast value in byte items length map to `int` - possibly a wider integer type needed")
 		}
 		byteItemsMapInt[key] = intVal
 	}
 
-	idx, err, byteItemsData := consumeByteItemsData(idx, bytes, byteItemsMapInt)
+	idx, byteItemsData, err := consumeByteItemsData(idx, bytes, byteItemsMapInt)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to consume byte items data: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to consume byte items data: %w", err)
 	}
-	return idx, nil, byteItemsData
+	return idx, byteItemsData, nil
 }
 
 // checkLen checks if there are enough bytes to consume
@@ -450,6 +450,9 @@ func produceJsonAttrs(jsonAttrs map[string]any, ioWriter *bufio.Writer) error {
 		return fmt.Errorf("failed to serialize JSON attributes to JSON: %w", err)
 	}
 	err = produceLen(len(jsonBytes), ioWriter)
+	if err != nil {
+		return errors.Wrap(err, "failed to produce JSON attributes length")
+	}
 	_, err = ioWriter.Write(jsonBytes)
 	if err != nil {
 		return err
@@ -478,6 +481,9 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 func recordToBytes(record arrow.Record) ([]byte, error) {
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Arrow Table writer: %w", err)
+	}
 	err = fileWriter.Write(record)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write Arrow Table to request: %w", err)
@@ -669,17 +675,17 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 		return nil, fmt.Errorf("failed to consume json attrs: %w", err)
 	}
 
-	idx, err, pydanticJsonBody := consumePydanticAttrs(idx, body)
+	idx, pydanticJsonBody, err := consumePydanticAttrs(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume pydantic attrs: %w", err)
 	}
 
-	idx, err, byteItems := consumeByteItems(idx, body)
+	idx, byteItems, err := consumeByteItems(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume raw byte items: %w", err)
 	}
 
-	idx, err, deserializableByteItems := consumeByteItems(idx, body)
+	idx, deserializableByteItems, err := consumeByteItems(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume deserializable byte items: %w", err)
 	}
