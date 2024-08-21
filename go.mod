@@ -6,7 +6,6 @@ require (
 	connectrpc.com/connect v1.16.2
 	github.com/apache/arrow/go/v16 v16.1.0
 	github.com/cockroachdb/errors v1.11.3
-	github.com/samber/lo v1.47.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.28.0
 	golang.org/x/sync v0.8.0

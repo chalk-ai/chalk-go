@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
@@ -192,14 +193,14 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
 func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 	if value == nil {
-		return Ptr(reflect.Zero(typ)), nil
+		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
 		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem())
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
-		return Ptr(ReflectPtr(*indirectValue)), nil
+		return ptr.Ptr(ReflectPtr(*indirectValue)), nil
 	}
 	if IsStruct(typ) {
 		structValue := reflect.New(typ).Elem()
@@ -327,7 +328,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 				// reflect.ValueOf(&timeValue) will give
 				// us a reflect value of the pointer to
 				// an interface.
-				return Ptr(reflect.ValueOf(timeValue)), nil
+				return ptr.Ptr(reflect.ValueOf(timeValue)), nil
 			} else {
 				return nil, fmt.Errorf(
 					"error getting reflect value: expected `time.Time`, got %s",
@@ -340,7 +341,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
-			return Ptr(reflect.ValueOf(timeValue)), nil
+			return ptr.Ptr(reflect.ValueOf(timeValue)), nil
 		}
 
 		// Dates are returned as strings in online query (non-bulk)
@@ -349,7 +350,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			// Return original datetime parsing error
 			return nil, errors.Wrap(timeErr, "error parsing date string")
 		}
-		return Ptr(reflect.ValueOf(dateValue)), nil
+		return ptr.Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
 		actualSlice := reflect.ValueOf(value)
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())

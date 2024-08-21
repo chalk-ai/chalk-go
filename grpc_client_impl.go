@@ -10,8 +10,9 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
-	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
 	"reflect"
@@ -67,7 +68,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 
 	var queryServer *string
 	if cfg.QueryServer != "" {
-		queryServer = internal.Ptr(cfg.QueryServer)
+		queryServer = ptr.Ptr(cfg.QueryServer)
 	}
 
 	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
@@ -183,9 +184,9 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 			)
 		}
 
-		colNames := lo.Map(
+		colNames := colls.Map(
 			table.Schema().Fields(),
-			func(f arrow.Field, _ int) string {
+			func(f arrow.Field) string {
 				return f.Name
 			},
 		)
@@ -193,7 +194,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		for _, col := range colNames {
 			colValues = append(
 				colValues,
-				lo.Map(rowsHm, func(row map[string]any, _ int) any {
+				colls.Map(rowsHm, func(row map[string]any) any {
 					return row[col]
 				}),
 			)
@@ -219,7 +220,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 
 	return &commonv1.OnlineQueryResponse{
 		Data: &commonv1.OnlineQueryResult{
-			Results: lo.Values(features),
+			Results: colls.Values(features),
 		},
 		Errors:       bulkRes.Errors,
 		ResponseMeta: bulkRes.ResponseMeta,
