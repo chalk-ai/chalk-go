@@ -97,14 +97,14 @@ func loadAuthConfig() (*ProjectTokens, *string, error) {
 
 	data, err := os.ReadFile(*path)
 	if err != nil {
-		return nil, path, errors.New(fmt.Sprintf("Error reading auth config file from path '%s': %s", *path, err))
+		return nil, path, fmt.Errorf("error reading auth config file from path '%s': %w", *path, err)
 	}
 
 	config := ProjectTokens{}
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		return nil, path, fmt.Errorf(
-			"Error parsing auth config file at path '%s'. Please make sure you have run"+
+			"error parsing auth config file at path '%s'. Please make sure you have run"+
 				" 'chalk login' successfully. Error details: %s",
 			*path,
 			err,

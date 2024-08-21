@@ -251,5 +251,6 @@ func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 	// if the result of UnmarshalInto is correct,
 	// and that is being checked above.
 	resultInvestors, err := res.GetFeatureValue(investorsFeature)
+	assert.NoError(t, err)
 	assert.NotNil(t, resultInvestors)
 }

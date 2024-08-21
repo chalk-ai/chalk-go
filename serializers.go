@@ -5,7 +5,7 @@ import (
 	"fmt"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -22,21 +22,9 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	var now *string
 	if len(p.Now) > 1 {
-		p.builderErrors = append(
-			p.builderErrors,
-			// HACK: BuilderError should just go away and be replaced by just a list of errors.
-			//       So we're just slapping together a fake BuilderError here using existing
-			//       params.
-			&BuilderError{
-				Err: errors.Newf(
-					"for non-bulk queries, there should only"+
-						" be 1 `Now` value, found %d", len(p.Now),
-				),
-				Type:      InvalidRequest,
-				Feature:   "Now",
-				Value:     p.Now,
-				ParamType: ParamInput,
-			},
+		return nil, fmt.Errorf(
+			"for non-bulk queries, there should only"+
+				" be 1 `Now` value, found %d", len(p.Now),
 		)
 	} else if len(p.Now) == 1 {
 		n := p.Now[0].Format(internal.NowTimeFormat)
@@ -103,22 +91,6 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 	}, nil
 }
 
-func (feature FeatureResult) serialize() (featureResultSerialized, error) {
-	sError, err := feature.Error.serialize()
-	if err != nil {
-		return featureResultSerialized{}, err
-	}
-
-	return featureResultSerialized{
-		Field:     feature.Field,
-		Value:     feature.Value,
-		Pkey:      feature.Pkey,
-		Timestamp: feature.Timestamp.String(),
-		Meta:      feature.Meta,
-		Error:     &sError,
-	}, nil
-}
-
 func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult, error) {
 	features := make(map[string]FeatureResult)
 
@@ -151,17 +123,6 @@ func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResu
 
 	}
 	return deserializedResults, nil
-}
-
-func (e *ServerError) serialize() (chalkErrorSerialized, error) {
-	return chalkErrorSerialized{
-		Code:      e.Code.Value,
-		Category:  e.Category.Value,
-		Message:   e.Message,
-		Exception: e.Exception,
-		Feature:   e.Feature,
-		Resolver:  e.Resolver,
-	}, nil
 }
 
 func (e *ErrorCode) UnmarshalJSON(data []byte) error {

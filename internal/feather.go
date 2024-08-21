@@ -11,7 +11,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/cockroachdb/errors"
+	"github.com/pkg/errors"
 	"reflect"
 	"time"
 )
@@ -327,14 +327,14 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
-func consume8ByteLen(startIdx int, bytes []byte) (int, error, uint64) {
+func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
 	numBytesThatRepresentsLength := 8
 	err := checkLen(startIdx, bytes, numBytesThatRepresentsLength)
 	if err != nil {
-		return startIdx, err, 0
+		return startIdx, 0, err
 	}
 	length := binary.BigEndian.Uint64(bytes[startIdx : startIdx+numBytesThatRepresentsLength])
-	return startIdx + numBytesThatRepresentsLength, nil, length
+	return startIdx + numBytesThatRepresentsLength, length, nil
 }
 
 func consumeMagicStr(magicStr string, startIdx int, bytes []byte) (int, error) {
@@ -354,32 +354,32 @@ func consumeMagicStr(magicStr string, startIdx int, bytes []byte) (int, error) {
 }
 
 // consumeJsonAttrs converts bytes to a JSON struct
-func consumeJsonAttrs(startIdx int, bytes []byte) (int, error, any) {
-	midIdx, err, jsonBodyLen := consume8ByteLen(startIdx, bytes)
+func consumeJsonAttrs(startIdx int, bytes []byte) (int, any, error) {
+	midIdx, jsonBodyLen, err := consume8ByteLen(startIdx, bytes)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to consume length: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to consume length: %w", err)
 	}
 	var jsonBody any
 	endIdx := midIdx + int(jsonBodyLen)
 	err = json.Unmarshal(bytes[midIdx:endIdx], &jsonBody)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to unmarshal: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to unmarshal: %w", err)
 	}
-	return endIdx, nil, jsonBody
+	return endIdx, jsonBody, nil
 }
 
 // consumePydanticAttrs converts bytes to JSON, but not to pydantic because
 // pydantic is not supported in Go.
 func consumePydanticAttrs(startIdx int, bytes []byte) (int, any, error) {
-	midIdx, err, jsonBodyLen := consume8ByteLen(startIdx, bytes)
+	midIdx, jsonBodyLen, err := consume8ByteLen(startIdx, bytes)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to consume length: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to consume length: %w", err)
 	}
 	var jsonBody any
 	endIdx := midIdx + int(jsonBodyLen)
 	err = json.Unmarshal(bytes[midIdx:endIdx], &jsonBody)
 	if err != nil {
-		return startIdx, fmt.Errorf("failed to unmarshal: %w", err), nil
+		return startIdx, nil, fmt.Errorf("failed to unmarshal: %w", err)
 	}
 	// Loop through the struct and convert the values from a JSON string to
 	// the appropriate type
@@ -401,7 +401,7 @@ func consumeByteItemsData(startIdx int, bytes []byte, byteItemsMap map[string]in
 }
 
 func consumeByteItems(startIdx int, bytes []byte) (int, map[string][]byte, error) {
-	idx, err, byteItemsMap := consumeJsonAttrs(startIdx, bytes)
+	idx, byteItemsMap, err := consumeJsonAttrs(startIdx, bytes)
 	if err != nil {
 		return startIdx, nil, fmt.Errorf("failed to consume byte items length map: %w", err)
 	}
@@ -530,30 +530,36 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 	// Magic string header
 	_, err := ioWriter.WriteString("CHALK_BYTE_TRANSMISSION")
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to write chalk transmission magic string")
 	}
 
 	// JSON attrs
 	err = produceJsonAttrs(jsonAttrs, ioWriter)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to produce json attributes")
 	}
 
 	// Pydantic attrs
 	err = produceJsonAttrs(map[string]any{}, ioWriter)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to produce pydantic attributes")
 	}
 
 	// Byte attrs
 	err = produceByteAttrs(byteAttrs, ioWriter)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to produce byte attributes")
+	}
 
 	// ByteSerializables
 	err = produceJsonAttrs(map[string]any{}, ioWriter)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to produce byte serializables")
+	}
 
 	err = ioWriter.Flush()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to flush io writer")
 	}
 
 	return result.Bytes(), nil
@@ -654,7 +660,7 @@ func GetHeaderFromSerializedOnlineQueryBulkBody(body []byte) (map[string]any, er
 		return nil, err
 	}
 
-	idx, err, header := consumeJsonAttrs(idx, body)
+	idx, header, err := consumeJsonAttrs(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume header: %w", err)
 	}

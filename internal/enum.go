@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -9,7 +8,7 @@ func GenerateGetEnumFunction[K comparable](valueToEnum map[string]K, enumName st
 	return func(value string) (*K, error) {
 		enum, found := valueToEnum[value]
 		if !found {
-			return nil, errors.New(fmt.Sprintf("Cannot find enum value '%s' among all %s", value, enumName))
+			return nil, fmt.Errorf("cannot find enum value '%s' among all %s", value, enumName)
 		}
 
 		return &enum, nil
