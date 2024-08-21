@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -72,12 +72,14 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	var header internal.FeatherRequestHeader
 	assert.NoError(t, json.Unmarshal(headerJson, &header))
 
-	stalenessConverted := lo.MapEntries(staleness, func(key any, val time.Duration) (string, string) {
-		feature, err := chalk.UnwrapFeature(key)
+	stalenessConverted := make(map[string]string)
+	for k, v := range staleness {
+		feature, err := chalk.UnwrapFeature(k)
 		assert.NoError(t, err)
-		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
-	})
-	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
+		stalenessConverted[feature.Fqn] = internal.FormatBucketDuration(int(v.Seconds()))
+	}
+
+	nowConverted := colls.Map(now, func(val time.Time) string {
 		return val.Format(internal.NowTimeFormat)
 	})
 
@@ -128,12 +130,10 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		"bbTestId": "cee",
 	}
 
-	stalenessConverted := lo.MapEntries(staleness, func(key any, val time.Duration) (string, string) {
-		feature, err := chalk.UnwrapFeature(key)
-		assert.NoError(t, err)
-		return feature.Fqn, internal.FormatBucketDuration(int(val.Seconds()))
-	})
-	nowConverted := lo.Map(now, func(val time.Time, _ int) string {
+	stalenessConverted := make(map[string]string)
+	staleness = map[any]time.Duration{}
+
+	nowConverted := colls.Map(now, func(val time.Time) string {
 		return val.Format(internal.NowTimeFormat)
 	})
 

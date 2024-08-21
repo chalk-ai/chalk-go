@@ -98,8 +98,8 @@ _, err = client.OnlineQuery(
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
 		WithInput(Features.User.Transactions, []Transaction{
-            {Id: lo.ToPtr("sd8f76"), Amount: lo.ToPtr(13.23)},
-            {Id: lo.ToPtr("jk546d"), SeriesId: lo.ToPtr(48.95)},
+            {Id: utils.ToPtr("sd8f76"), Amount: utils.ToPtr(13.23)},
+            {Id: utils.ToPtr("jk546d"), SeriesId: utils.ToPtr(48.95)},
         }).
         WithOutputs(Features.User.Id, Features.User.LastName),
     &user,

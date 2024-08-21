@@ -7,6 +7,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
@@ -526,11 +527,11 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithDataclass: []*child{
 			{
-				Name: internal.Ptr("Alice"),
+				Name: ptr.Ptr("Alice"),
 				Mom: &parent{
-					Name: internal.Ptr("Alice's Mom"),
+					Name: ptr.Ptr("Alice's Mom"),
 					Dad: &grandparent{
-						Name: internal.Ptr("Alice's Grandpa"),
+						Name: ptr.Ptr("Alice's Grandpa"),
 					},
 				},
 			},
@@ -840,13 +841,13 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithNils: []possessions{
 			{
-				Car:   internal.Ptr("Toyota"),
+				Car:   ptr.Ptr("Toyota"),
 				Yacht: nil,
-				Plane: internal.Ptr("Boeing"),
+				Plane: ptr.Ptr("Boeing"),
 			},
 			{
-				Car:   internal.Ptr("Honda"),
-				Yacht: internal.Ptr("Yamaha"),
+				Car:   ptr.Ptr("Honda"),
+				Yacht: ptr.Ptr("Yamaha"),
 				Plane: nil,
 			},
 		},

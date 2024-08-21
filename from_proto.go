@@ -3,7 +3,6 @@ package chalk
 import (
 	"fmt"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/samber/lo"
 	"time"
 )
 
@@ -18,7 +17,7 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 
 	var queryTimestamp *time.Time
 	if metaRaw.GetQueryTimestamp() != nil {
-		queryTimestamp = lo.ToPtr(metaRaw.GetQueryTimestamp().AsTime())
+		queryTimestamp = ptr.Ptr(metaRaw.GetQueryTimestamp().AsTime())
 	}
 
 	return &QueryMeta{
