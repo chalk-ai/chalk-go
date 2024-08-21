@@ -20,6 +20,14 @@ jobs:
     - name: Build
       run: GOWORK=off CGO_ENABLED=0 go build -v
 
+    - name: staticcheck
+      uses: dominikh/staticcheck-action@v1
+      env:
+        GOWORK: off
+      with:
+        install-go: false
+        version: "latest"
+
     - name: Test
       run: |
         GOWORK=off CGO_ENABLED=0 \
