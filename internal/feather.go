@@ -676,7 +676,7 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	idx, err, jsonBody := consumeJsonAttrs(idx, body)
+	idx, jsonBody, err := consumeJsonAttrs(idx, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to consume json attrs: %w", err)
 	}
