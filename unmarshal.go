@@ -5,8 +5,8 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
-	"github.com/samber/lo"
 	"reflect"
 	"strings"
 )
@@ -215,7 +215,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	fieldMap := map[string][]reflect.Value{}
 
 	initializer := NewFeatureInitializer()
-	scope, err := buildScope(lo.Keys(fqnToValue))
+	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),

@@ -3,7 +3,7 @@ package chalk
 import (
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"time"
 )
 
@@ -84,7 +84,7 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 			"query endpoint falling back to api server - no engine "+
 				"found for environment '%s' - engine map keys: '%s'",
 			m.environmentId.Value,
-			lo.Keys(m.engines),
+			colls.Keys(m.engines),
 		)
 		endpoint = m.apiServer.Value
 	}

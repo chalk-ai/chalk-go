@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/samber/lo"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"time"
 )
 
@@ -30,25 +31,28 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		}
 	}
 
+	convertedStaleness := make(map[string]string)
+	for k, v := range p.underlying.staleness {
+		convertedStaleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
+	}
+
 	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
 		Outputs:     p.underlying.outputs,
 		Explain:     p.underlying.Explain,
 		IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,
 		BranchId:    branchId,
 		Context: &internal.OnlineQueryContext{
-			Environment:          lo.EmptyableToPtr(p.underlying.EnvironmentId),
+			Environment:          ptr.PtrOrNil(p.underlying.EnvironmentId),
 			Tags:                 p.underlying.Tags,
 			RequiredResolverTags: p.underlying.RequiredResolverTags,
 		},
 		StorePlanStages:  p.underlying.StorePlanStages,
-		CorrelationId:    lo.EmptyableToPtr(p.underlying.CorrelationId),
-		QueryName:        lo.EmptyableToPtr(p.underlying.QueryName),
-		QueryNameVersion: lo.EmptyableToPtr(p.underlying.QueryNameVersion),
+		CorrelationId:    ptr.PtrOrNil(p.underlying.CorrelationId),
+		QueryName:        ptr.PtrOrNil(p.underlying.QueryName),
+		QueryNameVersion: ptr.PtrOrNil(p.underlying.QueryNameVersion),
 		Meta:             p.underlying.Meta,
-		Staleness: lo.MapValues(p.underlying.staleness, func(val time.Duration, _ string) string {
-			return internal.FormatBucketDuration(int(val.Seconds()))
-		}),
-		Now: lo.Map(p.underlying.Now, func(val time.Time, _ int) string {
+		Staleness:        convertedStaleness,
+		Now: colls.Map(p.underlying.Now, func(val time.Time) string {
 			return val.Format(internal.NowTimeFormat)
 		}),
 	})
