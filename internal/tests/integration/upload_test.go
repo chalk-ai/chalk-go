@@ -48,7 +48,7 @@ func TestUploadFeatures(t *testing.T) {
 		t.Fatal("Failed casting feature value to float64")
 	}
 	if castAns != socureScores[0] {
-		t.Fatal(fmt.Sprintf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", castAns, socureScores[0]))
+		t.Fatalf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", castAns, socureScores[0])
 	}
 
 	bulkRes, err := client.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithInput("user.id", userIds).WithOutputs("user.socure_score"))
@@ -67,7 +67,7 @@ func TestUploadFeatures(t *testing.T) {
 			if colName == "user.socure_score" {
 				foundColumn = true
 				if col.String() != expectedString {
-					t.Fatal(fmt.Sprintf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", col.String(), expectedString))
+					t.Fatalf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", col.String(), expectedString)
 				}
 			}
 		}

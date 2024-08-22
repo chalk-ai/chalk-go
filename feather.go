@@ -75,6 +75,9 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 		return fmt.Errorf("failed to convert 'query_results_bytes' value to a byte array")
 	}
 	queryNameToBytesInMap, err := internal.ChalkUnmarshal(queryNameToBytesInBytesCast)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal 'query_results_bytes' value: %w", err)
+	}
 
 	for queryName, queryResultBytes := range queryNameToBytesInMap {
 		queryResultBytesCast, ok := queryResultBytes.([]byte)

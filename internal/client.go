@@ -9,7 +9,7 @@ type OnlineQueryContext struct {
 }
 
 type OnlineQueryRequestSerialized struct {
-	Inputs           map[string]any     `json:"inputs,string"`
+	Inputs           map[string]any     `json:"inputs"`
 	Outputs          []string           `json:"outputs"`
 	Context          OnlineQueryContext `json:"context"`
 	Staleness        map[string]string  `json:"staleness"`
