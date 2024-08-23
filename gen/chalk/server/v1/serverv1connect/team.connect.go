@@ -68,6 +68,9 @@ const (
 	// TeamServiceUpdateServiceTokenProcedure is the fully-qualified name of the TeamService's
 	// UpdateServiceToken RPC.
 	TeamServiceUpdateServiceTokenProcedure = "/chalk.server.v1.TeamService/UpdateServiceToken"
+	// TeamServiceInviteTeamMemberProcedure is the fully-qualified name of the TeamService's
+	// InviteTeamMember RPC.
+	TeamServiceInviteTeamMemberProcedure = "/chalk.server.v1.TeamService/InviteTeamMember"
 	// TeamServiceUpsertFeaturePermissionsProcedure is the fully-qualified name of the TeamService's
 	// UpsertFeaturePermissions RPC.
 	TeamServiceUpsertFeaturePermissionsProcedure = "/chalk.server.v1.TeamService/UpsertFeaturePermissions"
@@ -92,6 +95,7 @@ var (
 	teamServiceDeleteServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("DeleteServiceToken")
 	teamServiceListServiceTokensMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("ListServiceTokens")
 	teamServiceUpdateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("UpdateServiceToken")
+	teamServiceInviteTeamMemberMethodDescriptor         = teamServiceServiceDescriptor.Methods().ByName("InviteTeamMember")
 	teamServiceUpsertFeaturePermissionsMethodDescriptor = teamServiceServiceDescriptor.Methods().ByName("UpsertFeaturePermissions")
 	teamServiceUpdateScimGroupSettingsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("UpdateScimGroupSettings")
 )
@@ -111,6 +115,7 @@ type TeamServiceClient interface {
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
+	InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 }
@@ -209,6 +214,12 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		inviteTeamMember: connect.NewClient[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse](
+			httpClient,
+			baseURL+TeamServiceInviteTeamMemberProcedure,
+			connect.WithSchema(teamServiceInviteTeamMemberMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		upsertFeaturePermissions: connect.NewClient[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse](
 			httpClient,
 			baseURL+TeamServiceUpsertFeaturePermissionsProcedure,
@@ -239,6 +250,7 @@ type teamServiceClient struct {
 	deleteServiceToken       *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
 	listServiceTokens        *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
 	updateServiceToken       *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
+	inviteTeamMember         *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
 	upsertFeaturePermissions *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
 	updateScimGroupSettings  *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
 }
@@ -308,6 +320,11 @@ func (c *teamServiceClient) UpdateServiceToken(ctx context.Context, req *connect
 	return c.updateServiceToken.CallUnary(ctx, req)
 }
 
+// InviteTeamMember calls chalk.server.v1.TeamService.InviteTeamMember.
+func (c *teamServiceClient) InviteTeamMember(ctx context.Context, req *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error) {
+	return c.inviteTeamMember.CallUnary(ctx, req)
+}
+
 // UpsertFeaturePermissions calls chalk.server.v1.TeamService.UpsertFeaturePermissions.
 func (c *teamServiceClient) UpsertFeaturePermissions(ctx context.Context, req *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error) {
 	return c.upsertFeaturePermissions.CallUnary(ctx, req)
@@ -333,6 +350,7 @@ type TeamServiceHandler interface {
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
+	InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 }
@@ -427,6 +445,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceInviteTeamMemberHandler := connect.NewUnaryHandler(
+		TeamServiceInviteTeamMemberProcedure,
+		svc.InviteTeamMember,
+		connect.WithSchema(teamServiceInviteTeamMemberMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceUpsertFeaturePermissionsHandler := connect.NewUnaryHandler(
 		TeamServiceUpsertFeaturePermissionsProcedure,
 		svc.UpsertFeaturePermissions,
@@ -467,6 +491,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceListServiceTokensHandler.ServeHTTP(w, r)
 		case TeamServiceUpdateServiceTokenProcedure:
 			teamServiceUpdateServiceTokenHandler.ServeHTTP(w, r)
+		case TeamServiceInviteTeamMemberProcedure:
+			teamServiceInviteTeamMemberHandler.ServeHTTP(w, r)
 		case TeamServiceUpsertFeaturePermissionsProcedure:
 			teamServiceUpsertFeaturePermissionsHandler.ServeHTTP(w, r)
 		case TeamServiceUpdateScimGroupSettingsProcedure:
@@ -530,6 +556,10 @@ func (UnimplementedTeamServiceHandler) ListServiceTokens(context.Context, *conne
 
 func (UnimplementedTeamServiceHandler) UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateServiceToken is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.InviteTeamMember is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error) {
