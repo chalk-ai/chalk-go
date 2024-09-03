@@ -160,7 +160,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(2020, 1, 1, 0, 0, 1, 0, nil),
+			expected: time.Date(2020, 1, 1, 0, 0, 1, 0, time.UTC),
 		},
 		{
 			name: "timestamp[ms,no-tz]",
@@ -174,7 +174,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(2020, 1, 1, 0, 0, 0, 1_000_000, nil),
+			expected: time.Date(2020, 1, 1, 0, 0, 0, 1_000_000, time.UTC),
 		},
 		{
 			name: "timestamp[us,no-tz]",
@@ -188,7 +188,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(2020, 1, 1, 0, 0, 0, 1000, nil),
+			expected: time.Date(2020, 1, 1, 0, 0, 0, 1000, time.UTC),
 		},
 		{
 			name: "timestamp[ns,no-tz]",
@@ -202,7 +202,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(2020, 1, 1, 0, 0, 0, 1, nil),
+			expected: time.Date(2020, 1, 1, 0, 0, 0, 1, time.UTC),
 		},
 		{
 			name: "timestamp[ns,new-york]",
@@ -247,7 +247,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(0, 1, 1, 16, 20, 0, 1, nil),
+			expected: time.Date(0, 1, 1, 16, 20, 0, 1, time.UTC),
 		},
 		{
 			name: "time64[us]",
@@ -260,7 +260,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(0, 1, 1, 16, 20, 0, 1_000, nil),
+			expected: time.Date(0, 1, 1, 16, 20, 0, 1_000, time.UTC),
 		},
 		{
 			name: "time64[ms]",
@@ -273,7 +273,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(0, 1, 1, 16, 20, 0, 1_000_000, nil),
+			expected: time.Date(0, 1, 1, 16, 20, 0, 1_000_000, time.UTC),
 		},
 		{
 			name: "time32[s]",
@@ -286,7 +286,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
-			expected: time.Date(0, 1, 1, 16, 20, 1, 0, nil),
+			expected: time.Date(0, 1, 1, 16, 20, 1, 0, time.UTC),
 		},
 		{
 			name: "duration[ns]",
@@ -352,6 +352,7 @@ func TestConvertScalarValue(t *testing.T) {
 					},
 				},
 			},
+			expected: []byte{1, 2, 3},
 		},
 		{
 			name: "decimal256",
