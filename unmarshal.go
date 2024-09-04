@@ -340,3 +340,7 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 	}
 	return unmarshalTableInto(scalars, resultHolders)
 }
+
+func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {
+	return internal.ExtractFeaturesFromTable(table)
+}
