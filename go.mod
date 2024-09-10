@@ -10,7 +10,7 @@ require (
 	golang.org/x/net v0.28.0
 	golang.org/x/sync v0.8.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988
-	google.golang.org/grpc v1.62.1
+	google.golang.org/grpc v1.64.1
 	google.golang.org/protobuf v1.34.2
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -22,7 +22,7 @@ require (
 	github.com/getsentry/sentry-go v0.28.1 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/flatbuffers v24.3.25+incompatible // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
