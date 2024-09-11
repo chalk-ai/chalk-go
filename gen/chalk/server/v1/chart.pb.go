@@ -83,6 +83,7 @@ func (x *Series) GetUnits() string {
 	return ""
 }
 
+// Deprecated - whenever possible, use `common/v1/chart.proto`
 type Chart struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
