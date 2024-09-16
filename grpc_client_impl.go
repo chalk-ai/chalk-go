@@ -56,6 +56,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	logger := cfg.Logger
 	if logger == nil {
 		logger = DefaultLeveledLogger
+		config.logger = DefaultLeveledLogger
 	}
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
 		return getToken(clientId, clientSecret, logger, authClient)
