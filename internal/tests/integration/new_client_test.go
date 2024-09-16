@@ -12,7 +12,16 @@ func TestWrongEnvironment(t *testing.T) {
 		&chalk.ClientConfig{
 			UseGrpc:       true,
 			EnvironmentId: "wrong",
-		})
+		},
+	)
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	_, err = chalk.NewClient(
+		&chalk.ClientConfig{
+			EnvironmentId: "wrong",
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

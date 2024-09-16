@@ -63,6 +63,10 @@ func newConfigManager(
 		return nil, chalkYamlErr
 	}
 
+	if logger == nil {
+		logger = DefaultLeveledLogger
+	}
+
 	return &configManager{
 		apiServer:          apiServerConfig,
 		clientId:           clientIdConfig,

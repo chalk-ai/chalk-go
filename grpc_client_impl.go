@@ -53,13 +53,8 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating auth client")
 	}
-	logger := cfg.Logger
-	if logger == nil {
-		logger = DefaultLeveledLogger
-		config.logger = DefaultLeveledLogger
-	}
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
-		return getToken(clientId, clientSecret, logger, authClient)
+		return getToken(clientId, clientSecret, config.logger, authClient)
 	}
 
 	// Necessary to get GRPC engines URL
@@ -80,7 +75,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	return &grpcClientImpl{
 		branch:      cfg.Branch,
 		httpClient:  httpClient,
-		logger:      logger,
+		logger:      config.logger,
 		config:      config,
 		authClient:  authClient,
 		queryClient: queryClient,
