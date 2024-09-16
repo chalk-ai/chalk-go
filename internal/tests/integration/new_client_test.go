@@ -5,9 +5,7 @@ import (
 	"testing"
 )
 
-// TestOnlineQueryBulkGrpc mainly tests that a
-// gRPC bulk query works e2e. Correctness is
-// tested elsewhere.
+// Supplied an incorrect environment used to cause a panic
 func TestWrongEnvironment(t *testing.T) {
 	_, err := chalk.NewClient(
 		&chalk.ClientConfig{
