@@ -149,7 +149,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		Explain:              true,
 		IncludeMeta:          true,
 		IncludeMetrics:       true,
-		EncodingOptions: chalk.FeatureEncodingOptions{
+		EncodingOptions: &chalk.FeatureEncodingOptions{
 			EncodeStructsAsObjects: true,
 		},
 	}.
