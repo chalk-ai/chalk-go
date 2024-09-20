@@ -76,6 +76,9 @@ type OnlineQueryParams struct {
 	// to `true` as well.
 	Explain bool
 
+	// EncodingOptions is used to specify how features should be encoded in the response.
+	EncodingOptions FeatureEncodingOptions
+
 	/**************
 	 PRIVATE FIELDS
 	***************/
@@ -751,4 +754,10 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
+}
+
+type FeatureEncodingOptions struct {
+	// If true, Chalk will return structs as objects
+	// instead of arrays in the response.
+	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
