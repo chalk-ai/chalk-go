@@ -1181,7 +1181,6 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 		},
 	} {
 		t.Run(fixture.name, func(t *testing.T) {
-			t.Parallel()
 			result := OnlineQueryResult{
 				Data:            fixture.data,
 				Meta:            nil,
@@ -1190,7 +1189,7 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 			}
 			featureStruct := allTypes{}
 			unmarshalErr := result.UnmarshalInto(&featureStruct)
-			if fixture.shouldErr {
+			if !fixture.shouldErr {
 				assert.Nil(t, unmarshalErr)
 			}
 		})
