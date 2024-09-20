@@ -1134,25 +1134,16 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
 
-/*
-Test matrix:
- 1. single unmarshal list into dataclass struct
- 2. single unmarshal struct into dataclass struct
- 3. single unmarshal feature class into feature struct
- 4. bulk unmarshal for 1, 2, 3
-*/
 func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
-	// This test tests that we don't error.
-	// Correctness is tested elsewhere.
-	//
-	// Context:
+	t.Parallel()
 	// For forward compatibility, i.e. when clients add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
 	for _, fixture := range []struct {
-		name string
-		data []FeatureResult
+		name      string
+		data      []FeatureResult
+		shouldErr bool
 	}{
 		{
 			name: "single unmarshal list into dataclass struct",
@@ -1162,6 +1153,9 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 					Value: []any{1.0, 2.0, 3.0},
 				},
 			},
+			// Should error because silently ignoring extra fields here leads
+			// to a correctness error.
+			shouldErr: true,
 		},
 		{
 			name: "single unmarshal struct into dataclass struct",
@@ -1187,6 +1181,7 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 		},
 	} {
 		t.Run(fixture.name, func(t *testing.T) {
+			t.Parallel()
 			result := OnlineQueryResult{
 				Data:            fixture.data,
 				Meta:            nil,
@@ -1195,18 +1190,15 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 			}
 			featureStruct := allTypes{}
 			unmarshalErr := result.UnmarshalInto(&featureStruct)
-			if unmarshalErr != nil {
-				t.Fatal(unmarshalErr)
+			if fixture.shouldErr {
+				assert.Nil(t, unmarshalErr)
 			}
-			assert.Nil(t, unmarshalErr)
 		})
 	}
 }
 
 func TestBulkUnmarshalExtraFields(t *testing.T) {
-	// Only tests that we don't error. Correctness tested elsewhere.
-	//
-	// Context:
+	t.Parallel()
 	// For forward compatibility, i.e. when clients add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
@@ -1242,19 +1234,17 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 }
 
 func TestBulkUnmarshalExtraFeatures(t *testing.T) {
-	// Only tests that we don't error. Correctness tested elsewhere.
-	//
-	// Context:
+	t.Parallel()
 	// For forward compatibility, i.e. when clients add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
 	initErr := InitFeatures(&testRootFeatures)
 	assert.Nil(t, initErr)
-	scalarsMap := map[any]any{
-		: []float64{1.0},
+	scalarsMap := map[string]any{
+		"all_types.extra_feature": []float64{1.0, 2.0},
 	}
-	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	scalarsTable, scalarsErr := tableFromFqnToValues(scalarsMap)
 	assert.Nil(t, scalarsErr)
 
 	bulkRes := OnlineQueryBulkResult{
@@ -1267,6 +1257,4 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
-	// Only tests that we don't error. Correctness tested elsewhere.
 }
-
