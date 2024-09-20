@@ -245,9 +245,12 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
-			return &ClientError{
-				errors.Newf("error locating fields associated with feature '%s'", fqn).Error(),
-			}
+			// For forward compatibility, i.e. when clients add
+			// more fields to their dataclasses in chalkpy, we want
+			// to default to not erring when trying to deserialize
+			// a new field that does not yet exist in the Go struct.
+			// Eventually we might consider exposing a flag.
+			continue
 		}
 		if err != nil {
 			err = errors.Wrapf(

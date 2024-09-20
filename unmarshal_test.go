@@ -1133,3 +1133,140 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	limit := 0.5
 	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
+
+/*
+Test matrix:
+ 1. single unmarshal list into dataclass struct
+ 2. single unmarshal struct into dataclass struct
+ 3. single unmarshal feature class into feature struct
+ 4. bulk unmarshal for 1, 2, 3
+*/
+func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
+	// This test tests that we don't error.
+	// Correctness is tested elsewhere.
+	//
+	// Context:
+	// For forward compatibility, i.e. when clients add
+	// more fields to their dataclasses in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	for _, fixture := range []struct {
+		name string
+		data []FeatureResult
+	}{
+		{
+			name: "single unmarshal list into dataclass struct",
+			data: []FeatureResult{
+				{
+					Field: "all_types.dataclass",
+					Value: []any{1.0, 2.0, 3.0},
+				},
+			},
+		},
+		{
+			name: "single unmarshal struct into dataclass struct",
+			data: []FeatureResult{
+				{
+					Field: "all_types.dataclass",
+					Value: map[string]any{
+						"lat":         1.0,
+						"lng":         2.0,
+						"extra_field": 3.0,
+					},
+				},
+			},
+		},
+		{
+			name: "single unmarshal feature class into feature struct",
+			data: []FeatureResult{
+				{
+					Field: "all_types.extra_feature",
+					Value: float64(1.0),
+				},
+			},
+		},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			result := OnlineQueryResult{
+				Data:            fixture.data,
+				Meta:            nil,
+				features:        nil,
+				expectedOutputs: nil,
+			}
+			featureStruct := allTypes{}
+			unmarshalErr := result.UnmarshalInto(&featureStruct)
+			if unmarshalErr != nil {
+				t.Fatal(unmarshalErr)
+			}
+			assert.Nil(t, unmarshalErr)
+		})
+	}
+}
+
+func TestBulkUnmarshalExtraFields(t *testing.T) {
+	// Only tests that we don't error. Correctness tested elsewhere.
+	//
+	// Context:
+	// For forward compatibility, i.e. when clients add
+	// more fields to their dataclasses in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	lat := 37.7749
+	lng := 122.4194
+	extra := "extra"
+	scalarsMap := map[any]any{
+		testRootFeatures.AllTypes.Dataclass: []*testLatLngWithExtraField{
+			{
+				Lat:   &lat,
+				Lng:   &lng,
+				Extra: &extra,
+			},
+		},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+	// Only tests that we don't error. Correctness tested elsewhere.
+}
+
+func TestBulkUnmarshalExtraFeatures(t *testing.T) {
+	// Only tests that we don't error. Correctness tested elsewhere.
+	//
+	// Context:
+	// For forward compatibility, i.e. when clients add
+	// more fields to their dataclasses in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	initErr := InitFeatures(&testRootFeatures)
+	assert.Nil(t, initErr)
+	scalarsMap := map[any]any{
+		: []float64{1.0},
+	}
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
+	assert.Nil(t, scalarsErr)
+
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+
+	resultHolders := make([]allTypes, 0)
+
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
+		t.Fatal(err)
+	}
+	// Only tests that we don't error. Correctness tested elsewhere.
+}
+
