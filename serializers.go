@@ -41,6 +41,17 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		convertedInputs[fqn] = convertedValues
 	}
 
+	var encodingOptions internal.FeatureEncodingOptions
+	if p.EncodingOptions == nil {
+		encodingOptions = internal.FeatureEncodingOptions{
+			EncodeStructsAsObjects: false,
+		}
+	} else {
+		encodingOptions = internal.FeatureEncodingOptions{
+			EncodeStructsAsObjects: p.EncodingOptions.EncodeStructsAsObjects,
+		}
+	}
+
 	return &internal.OnlineQueryRequestSerialized{
 		Inputs:           convertedInputs,
 		Outputs:          p.outputs,
@@ -56,6 +67,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
 		Explain:          p.Explain,
+		EncodingOptions:  encodingOptions,
 	}, nil
 }
 

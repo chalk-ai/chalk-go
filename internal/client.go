@@ -1,6 +1,8 @@
 package internal
 
-import "time"
+import (
+	"time"
+)
 
 type OnlineQueryContext struct {
 	Environment          *string  `json:"environment"`
@@ -8,21 +10,26 @@ type OnlineQueryContext struct {
 	RequiredResolverTags []string `json:"required_resolver_tags"`
 }
 
+type FeatureEncodingOptions struct {
+	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
+}
+
 type OnlineQueryRequestSerialized struct {
-	Inputs           map[string]any     `json:"inputs"`
-	Outputs          []string           `json:"outputs"`
-	Context          OnlineQueryContext `json:"context"`
-	Staleness        map[string]string  `json:"staleness"`
-	IncludeMeta      bool               `json:"include_meta"`
-	IncludeMetrics   bool               `json:"include_metrics"`
-	DeploymentId     *string            `json:"deployment_id"`
-	QueryName        *string            `json:"query_name"`
-	CorrelationId    *string            `json:"correlation_id"`
-	Meta             map[string]string  `json:"meta"`
-	QueryNameVersion *string            `json:"query_name_version"`
-	Now              *string            `json:"now"`
-	Explain          bool               `json:"explain"`
-	StorePlanStages  bool               `json:"store_plan_stages"`
+	Inputs           map[string]any         `json:"inputs"`
+	Outputs          []string               `json:"outputs"`
+	Context          OnlineQueryContext     `json:"context"`
+	Staleness        map[string]string      `json:"staleness"`
+	IncludeMeta      bool                   `json:"include_meta"`
+	IncludeMetrics   bool                   `json:"include_metrics"`
+	DeploymentId     *string                `json:"deployment_id"`
+	QueryName        *string                `json:"query_name"`
+	CorrelationId    *string                `json:"correlation_id"`
+	Meta             map[string]string      `json:"meta"`
+	QueryNameVersion *string                `json:"query_name_version"`
+	Now              *string                `json:"now"`
+	Explain          bool                   `json:"explain"`
+	StorePlanStages  bool                   `json:"store_plan_stages"`
+	EncodingOptions  FeatureEncodingOptions `json:"encoding_options"`
 }
 
 type OfflineQueryInputSerialized struct {
