@@ -1180,8 +1180,7 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 			},
 		},
 	} {
-		t.Run(fixture.name, func(m *testing.T) {
-			m.Parallel()
+		t.Run(fixture.name, func(t *testing.T) {
 			result := OnlineQueryResult{
 				Data:            fixture.data,
 				Meta:            nil,
