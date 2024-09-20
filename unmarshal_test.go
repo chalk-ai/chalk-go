@@ -1199,7 +1199,9 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 }
 
 func TestBulkUnmarshalExtraFields(t *testing.T) {
-	t.Parallel()
+	// DO NOT USE PARALLEL
+	//    InitFeatures can not be run in parallel
+	//
 	// For forward compatibility, i.e. when clients add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
@@ -1235,7 +1237,9 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 }
 
 func TestBulkUnmarshalExtraFeatures(t *testing.T) {
-	t.Parallel()
+	// DO NOT USE PARALLEL
+	//    InitFeatures can not be run in parallel
+	//
 	// For forward compatibility, i.e. when clients add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
