@@ -18,6 +18,10 @@ func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table,
 		}
 		fqnToValues[feature.Fqn] = values
 	}
+	return tableFromFqnToValues(fqnToValues)
+}
+
+func tableFromFqnToValues(fqnToValues map[string]any) (arrow.Table, error) {
 	record, recordErr := internal.ColumnMapToRecord(fqnToValues)
 	if recordErr != nil {
 		return nil, fmt.Errorf("error converting a map of column values to an Arrow Record: %w", recordErr)
