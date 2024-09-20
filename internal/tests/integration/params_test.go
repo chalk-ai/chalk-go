@@ -149,6 +149,9 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		Explain:              true,
 		IncludeMeta:          true,
 		IncludeMetrics:       true,
+		EncodingOptions: chalk.FeatureEncodingOptions{
+			EncodeStructsAsObjects: true,
+		},
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -177,6 +180,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.True(t, request.Explain)
 	assert.True(t, request.IncludeMeta)
 	assert.True(t, request.IncludeMetrics)
+	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 }
 
 // TestTagsSetInOfflineQuery tests that we set tags in
