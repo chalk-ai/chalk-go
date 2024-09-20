@@ -11,8 +11,6 @@ type OnlineQueryContext struct {
 }
 
 type FeatureEncodingOptions struct {
-	// If true, Chalk will return structs as objects
-	// instead of arrays in the response.
 	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
 

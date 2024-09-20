@@ -77,7 +77,7 @@ type OnlineQueryParams struct {
 	Explain bool
 
 	// EncodingOptions is used to specify how features should be encoded in the response.
-	EncodingOptions FeatureEncodingOptions
+	EncodingOptions *FeatureEncodingOptions
 
 	/**************
 	 PRIVATE FIELDS
