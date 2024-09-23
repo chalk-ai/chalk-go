@@ -108,6 +108,12 @@ func (p OnlineQueryParams) WithInput(feature any, value any) onlineQueryParamsWi
 	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
 }
 
+// WithInputs returns a copy of Online Query parameters with the specified inputs added.
+// For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
+func (p OnlineQueryParams) WithInputs(inputs map[any]any) onlineQueryParamsWithInputs {
+	return onlineQueryParamsWithInputs{underlying: p.withInputs(inputs)}
+}
+
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithOutputs(features ...any) onlineQueryParamsWithOutputs {
@@ -475,6 +481,19 @@ type OfflineQueryParams struct {
 // [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
+}
+
+// WithInputs returns a copy of Offline Query parameters with the specified inputs added.
+// For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
+// The value of the inputs map can contain a raw value (int or string), or it can also contain
+// a [TsFeatureValue] if you want to query with a specific observation time. The observation
+// time for raw values will be the default observation time specified as [OfflineQueryParams.DefaultTime].
+// If no default observation time is specified, the current time will be used.
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
+func (p OfflineQueryParams) WithInputs(inputs map[any][]any) offlineQueryParamsWithInputs {
+	return offlineQueryParamsWithInputs{underlying: p.withInputs(inputs)}
 }
 
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
