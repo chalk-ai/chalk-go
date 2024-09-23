@@ -248,3 +248,87 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 
 	assert.Equal(t, string(fileContent), string(inputBytes))
 }
+
+func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, initErr)
+
+	inputs := map[any]any{
+		testRootFeatures.AllTypes.String: 1,
+		testRootFeatures.AllTypes.Float:  1.1,
+	}
+	params := OnlineQueryParams{}.WithInputs(inputs)
+
+	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	assert.Nil(t, err)
+	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	assert.Nil(t, err)
+
+	_, ok := params.underlying.inputs[feature1.Fqn]
+	assert.True(t, ok)
+	_, ok = params.underlying.inputs[feature2.Fqn]
+	assert.True(t, ok)
+}
+
+func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, initErr)
+
+	inputs := map[any]any{
+		testRootFeatures.AllTypes.String: 1,
+		testRootFeatures.AllTypes.Float:  1.1,
+	}
+	params := OnlineQueryParams{}.WithInput(testRootFeatures.AllTypes.Bool, true).WithInputs(inputs)
+
+	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	assert.Nil(t, err)
+	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	assert.Nil(t, err)
+
+	_, ok := params.underlying.inputs[feature1.Fqn]
+	assert.True(t, ok)
+	_, ok = params.underlying.inputs[feature2.Fqn]
+	assert.True(t, ok)
+}
+
+func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, initErr)
+
+	inputs := map[any]any{
+		testRootFeatures.AllTypes.String: 1,
+		testRootFeatures.AllTypes.Float:  1.1,
+	}
+	params := OnlineQueryParams{}.WithOutputs(testRootFeatures.AllTypes.Bool).WithInputs(inputs)
+
+	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	assert.Nil(t, err)
+	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	assert.Nil(t, err)
+
+	_, ok := params.underlying.inputs[feature1.Fqn]
+	assert.True(t, ok)
+	_, ok = params.underlying.inputs[feature2.Fqn]
+	assert.True(t, ok)
+}
+
+func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, initErr)
+
+	inputs := map[any]any{
+		testRootFeatures.AllTypes.String: 1,
+		testRootFeatures.AllTypes.Float:  1.1,
+	}
+	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
+
+	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	assert.Nil(t, err)
+	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	assert.Nil(t, err)
+
+	_, ok := params.underlying.inputs[feature1.Fqn]
+	assert.True(t, ok)
+	_, ok = params.underlying.inputs[feature2.Fqn]
+	assert.True(t, ok)
+}
