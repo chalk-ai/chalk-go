@@ -122,6 +122,13 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	return p
 }
 
+func (p OfflineQueryParams) withInputs(inputs map[any][]any) OfflineQueryParams {
+	for key, values := range inputs {
+		p = p.withInput(key, values)
+	}
+	return p
+}
+
 func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
 	validateErr := validateFeatures(features, ParamOutput)
 	if validateErr != nil {

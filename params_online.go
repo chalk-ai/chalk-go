@@ -54,6 +54,13 @@ func (p OnlineQueryParamsComplete) WithInput(feature any, value any) OnlineQuery
 	return p
 }
 
+// WithInputs returns a copy of Online Query parameters with the specified inputs added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParamsComplete) WithInputs(inputs map[any]any) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.withInputs(inputs)
+	return p
+}
+
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithOutputs(features ...any) OnlineQueryParamsComplete {
@@ -109,6 +116,13 @@ func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQuery
 	}
 
 	p.inputs[key] = value
+	return p
+}
+
+func (p OnlineQueryParams) withInputs(inputs map[any]any) OnlineQueryParams {
+	for key, value := range inputs {
+		p = p.withInput(key, value)
+	}
 	return p
 }
 
@@ -192,6 +206,13 @@ func (p onlineQueryParamsWithInputs) WithInput(feature any, value any) onlineQue
 	return p
 }
 
+// WithInputs returns a copy of Online Query parameters with the specified inputs added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p onlineQueryParamsWithInputs) WithInputs(inputs map[any]any) onlineQueryParamsWithInputs {
+	p.underlying = p.underlying.withInputs(inputs)
+	return p
+}
+
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithInputs) WithOutputs(features ...any) OnlineQueryParamsComplete {
@@ -218,6 +239,12 @@ type onlineQueryParamsWithOutputs struct {
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p onlineQueryParamsWithOutputs) WithInput(feature any, value any) OnlineQueryParamsComplete {
 	return OnlineQueryParamsComplete{p.underlying.withInput(feature, value)}
+}
+
+// WithInputs returns a copy of Online Query parameters with the specified input added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p onlineQueryParamsWithOutputs) WithInputs(inputs map[any]any) OnlineQueryParamsComplete {
+	return OnlineQueryParamsComplete{p.underlying.withInputs(inputs)}
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
