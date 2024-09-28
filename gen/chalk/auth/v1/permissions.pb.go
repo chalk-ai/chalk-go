@@ -29,7 +29,8 @@ const (
 	Permission_PERMISSION_UNSPECIFIED Permission = 0
 	// Only used for creating a new token
 	Permission_PERMISSION_INSECURE_UNAUTHENTICATED Permission = 1
-	// User is authenticated FOR THE ENVIRONMENT. This permissions should be used sparingly (e.g. for ping checks that shouldn't be exposed to the public)
+	// User is authenticated FOR THE ENVIRONMENT. This permissions should be used sparingly
+	// (e.g. for ping checks that shouldn't be exposed to the public)
 	Permission_PERMISSION_AUTHENTICATED Permission = 2
 	// Query online features.
 	Permission_PERMISSION_QUERY_ONLINE Permission = 3
