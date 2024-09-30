@@ -127,18 +127,31 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 	return p.withStaleness(feature, duration)
 }
 
+// WithBranchId returns a copy of Online Query parameters with the branch id added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
 	return p
 }
 
+// WithQueryName returns a copy of Online Query parameters with the query name added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithQueryName(queryName string) OnlineQueryParams {
 	p.QueryName = queryName
 	return p
 }
 
+// WithQueryNameVersion returns a copy of Online Query parameters with the query name version added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParams {
 	p.QueryNameVersion = version
+	return p
+}
+
+// WithTags returns a copy of Online Query parameters with the specified tags added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
+	p.Tags = append(p.Tags, feature...)
 	return p
 }
 
