@@ -143,7 +143,7 @@ func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParam
 }
 
 func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
-  p.Tags = append(p.Tags, feature...)
+	p.Tags = append(p.Tags, feature...)
 	return p
 }
 

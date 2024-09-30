@@ -196,8 +196,6 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	return p
 }
 
-
-
 /********************************************
  Definitions for onlineQueryParamsWithInputs
 *********************************************/
