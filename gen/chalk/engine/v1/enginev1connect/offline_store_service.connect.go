@@ -46,15 +46,19 @@ const (
 	// OfflineStoreServiceGetFeatureValuesTimeSeriesChartProcedure is the fully-qualified name of the
 	// OfflineStoreService's GetFeatureValuesTimeSeriesChart RPC.
 	OfflineStoreServiceGetFeatureValuesTimeSeriesChartProcedure = "/chalk.engine.v1.OfflineStoreService/GetFeatureValuesTimeSeriesChart"
+	// OfflineStoreServiceGetFeatureValuesTimeSeriesChartV2Procedure is the fully-qualified name of the
+	// OfflineStoreService's GetFeatureValuesTimeSeriesChartV2 RPC.
+	OfflineStoreServiceGetFeatureValuesTimeSeriesChartV2Procedure = "/chalk.engine.v1.OfflineStoreService/GetFeatureValuesTimeSeriesChartV2"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	offlineStoreServiceServiceDescriptor                               = v1.File_chalk_engine_v1_offline_store_service_proto.Services().ByName("OfflineStoreService")
-	offlineStoreServiceGetQueryLogEntriesMethodDescriptor              = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryLogEntries")
-	offlineStoreServiceGetQueryValuesMethodDescriptor                  = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryValues")
-	offlineStoreServiceGetFeatureValuesChartMethodDescriptor           = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesChart")
-	offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesTimeSeriesChart")
+	offlineStoreServiceServiceDescriptor                                 = v1.File_chalk_engine_v1_offline_store_service_proto.Services().ByName("OfflineStoreService")
+	offlineStoreServiceGetQueryLogEntriesMethodDescriptor                = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryLogEntries")
+	offlineStoreServiceGetQueryValuesMethodDescriptor                    = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryValues")
+	offlineStoreServiceGetFeatureValuesChartMethodDescriptor             = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesChart")
+	offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor   = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesTimeSeriesChart")
+	offlineStoreServiceGetFeatureValuesTimeSeriesChartV2MethodDescriptor = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesTimeSeriesChartV2")
 )
 
 // OfflineStoreServiceClient is a client for the chalk.engine.v1.OfflineStoreService service.
@@ -63,7 +67,9 @@ type OfflineStoreServiceClient interface {
 	GetQueryValues(context.Context, *connect.Request[v11.GetQueryValuesRequest]) (*connect.Response[v11.GetQueryValuesResponse], error)
 	// Deprecated: do not use.
 	GetFeatureValuesChart(context.Context, *connect.Request[v11.GetFeatureValuesChartRequest]) (*connect.Response[v11.GetFeatureValuesChartResponse], error)
+	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error)
+	GetFeatureValuesTimeSeriesChartV2(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error)
 }
 
 // NewOfflineStoreServiceClient constructs a client for the chalk.engine.v1.OfflineStoreService
@@ -100,15 +106,22 @@ func NewOfflineStoreServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getFeatureValuesTimeSeriesChartV2: connect.NewClient[v11.GetFeatureValuesTimeSeriesChartV2Request, v11.GetFeatureValuesTimeSeriesChartV2Response](
+			httpClient,
+			baseURL+OfflineStoreServiceGetFeatureValuesTimeSeriesChartV2Procedure,
+			connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartV2MethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // offlineStoreServiceClient implements OfflineStoreServiceClient.
 type offlineStoreServiceClient struct {
-	getQueryLogEntries              *connect.Client[v11.GetQueryLogEntriesRequest, v11.GetQueryLogEntriesResponse]
-	getQueryValues                  *connect.Client[v11.GetQueryValuesRequest, v11.GetQueryValuesResponse]
-	getFeatureValuesChart           *connect.Client[v11.GetFeatureValuesChartRequest, v11.GetFeatureValuesChartResponse]
-	getFeatureValuesTimeSeriesChart *connect.Client[v11.GetFeatureValuesTimeSeriesChartRequest, v11.GetFeatureValuesTimeSeriesChartResponse]
+	getQueryLogEntries                *connect.Client[v11.GetQueryLogEntriesRequest, v11.GetQueryLogEntriesResponse]
+	getQueryValues                    *connect.Client[v11.GetQueryValuesRequest, v11.GetQueryValuesResponse]
+	getFeatureValuesChart             *connect.Client[v11.GetFeatureValuesChartRequest, v11.GetFeatureValuesChartResponse]
+	getFeatureValuesTimeSeriesChart   *connect.Client[v11.GetFeatureValuesTimeSeriesChartRequest, v11.GetFeatureValuesTimeSeriesChartResponse]
+	getFeatureValuesTimeSeriesChartV2 *connect.Client[v11.GetFeatureValuesTimeSeriesChartV2Request, v11.GetFeatureValuesTimeSeriesChartV2Response]
 }
 
 // GetQueryLogEntries calls chalk.engine.v1.OfflineStoreService.GetQueryLogEntries.
@@ -130,8 +143,16 @@ func (c *offlineStoreServiceClient) GetFeatureValuesChart(ctx context.Context, r
 
 // GetFeatureValuesTimeSeriesChart calls
 // chalk.engine.v1.OfflineStoreService.GetFeatureValuesTimeSeriesChart.
+//
+// Deprecated: do not use.
 func (c *offlineStoreServiceClient) GetFeatureValuesTimeSeriesChart(ctx context.Context, req *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error) {
 	return c.getFeatureValuesTimeSeriesChart.CallUnary(ctx, req)
+}
+
+// GetFeatureValuesTimeSeriesChartV2 calls
+// chalk.engine.v1.OfflineStoreService.GetFeatureValuesTimeSeriesChartV2.
+func (c *offlineStoreServiceClient) GetFeatureValuesTimeSeriesChartV2(ctx context.Context, req *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error) {
+	return c.getFeatureValuesTimeSeriesChartV2.CallUnary(ctx, req)
 }
 
 // OfflineStoreServiceHandler is an implementation of the chalk.engine.v1.OfflineStoreService
@@ -141,7 +162,9 @@ type OfflineStoreServiceHandler interface {
 	GetQueryValues(context.Context, *connect.Request[v11.GetQueryValuesRequest]) (*connect.Response[v11.GetQueryValuesResponse], error)
 	// Deprecated: do not use.
 	GetFeatureValuesChart(context.Context, *connect.Request[v11.GetFeatureValuesChartRequest]) (*connect.Response[v11.GetFeatureValuesChartResponse], error)
+	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error)
+	GetFeatureValuesTimeSeriesChartV2(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error)
 }
 
 // NewOfflineStoreServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -174,6 +197,12 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 		connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineStoreServiceGetFeatureValuesTimeSeriesChartV2Handler := connect.NewUnaryHandler(
+		OfflineStoreServiceGetFeatureValuesTimeSeriesChartV2Procedure,
+		svc.GetFeatureValuesTimeSeriesChartV2,
+		connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartV2MethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v1.OfflineStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineStoreServiceGetQueryLogEntriesProcedure:
@@ -184,6 +213,8 @@ func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...conne
 			offlineStoreServiceGetFeatureValuesChartHandler.ServeHTTP(w, r)
 		case OfflineStoreServiceGetFeatureValuesTimeSeriesChartProcedure:
 			offlineStoreServiceGetFeatureValuesTimeSeriesChartHandler.ServeHTTP(w, r)
+		case OfflineStoreServiceGetFeatureValuesTimeSeriesChartV2Procedure:
+			offlineStoreServiceGetFeatureValuesTimeSeriesChartV2Handler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -207,4 +238,8 @@ func (UnimplementedOfflineStoreServiceHandler) GetFeatureValuesChart(context.Con
 
 func (UnimplementedOfflineStoreServiceHandler) GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.OfflineStoreService.GetFeatureValuesTimeSeriesChart is not implemented"))
+}
+
+func (UnimplementedOfflineStoreServiceHandler) GetFeatureValuesTimeSeriesChartV2(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.OfflineStoreService.GetFeatureValuesTimeSeriesChartV2 is not implemented"))
 }
