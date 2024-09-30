@@ -81,6 +81,11 @@ func (p OnlineQueryParamsComplete) WithBranchId(branchId string) OnlineQueryPara
 	return p
 }
 
+func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.WithTags(tags...)
+	return p
+}
+
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/
@@ -190,6 +195,8 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	p.staleness[key] = duration
 	return p
 }
+
+
 
 /********************************************
  Definitions for onlineQueryParamsWithInputs

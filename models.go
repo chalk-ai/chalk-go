@@ -142,6 +142,11 @@ func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParam
 	return p
 }
 
+func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
+  p.Tags = append(p.Tags, feature...)
+	return p
+}
+
 // OnlineQueryResult holds the result of an online query.
 type OnlineQueryResult struct {
 	// The output features and any query metadata.
