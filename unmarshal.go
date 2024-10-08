@@ -222,11 +222,17 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	namespace := SnakeCase(structValue.Type().Name())
+	structName := structValue.Type().Name()
+	namespace := SnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
 		return &ClientError{
-			errors.Newf("Scope of fields to initialize not found for namespace '%s'", nsScope).Error(),
+			errors.Newf(
+				"Attempted to unmarshal into the feature struct '%s', "+
+					"but results are from these feature class(es) '%v'",
+				structName,
+				colls.Keys(scope.children),
+			).Error(),
 		}
 	}
 
