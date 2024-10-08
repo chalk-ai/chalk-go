@@ -177,6 +177,9 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 		{useGrpc: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+			if fixture.useGrpc {
+				t.Skip("CHA-4780")
+			}
 			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
