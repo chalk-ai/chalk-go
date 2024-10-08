@@ -45,7 +45,6 @@ func TestOnlineQueryBulk(t *testing.T) {
 // real query works e2e. Correctness is
 // tested elsewhere.
 func TestOnlineQueryBulkGrpcNative(t *testing.T) {
-	t.Skip("CHA-4780")
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewGRPCClient()
 	if err != nil {
@@ -58,7 +57,7 @@ func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 	}
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
 
 	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
@@ -70,8 +69,12 @@ func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
+	assert.NotNil(t, users[0].Id)
 	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.NotNil(t, users[0].SocureScore)
 	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.NotNil(t, users[1].Id)
 	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.NotNil(t, users[1].SocureScore)
 	assert.Equal(t, *users[1].SocureScore, socureScore)
 }
