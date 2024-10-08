@@ -45,6 +45,7 @@ func TestOnlineQueryBulk(t *testing.T) {
 // real query works e2e. Correctness is
 // tested elsewhere.
 func TestOnlineQueryBulkGrpcNative(t *testing.T) {
+	t.Skip("CHA-4780")
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewGRPCClient()
 	if err != nil {
