@@ -36,6 +36,9 @@ const (
 	// BuilderServiceActivateDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// ActivateDeployment RPC.
 	BuilderServiceActivateDeploymentProcedure = "/chalk.server.v1.BuilderService/ActivateDeployment"
+	// BuilderServiceIndexDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// IndexDeployment RPC.
+	BuilderServiceIndexDeploymentProcedure = "/chalk.server.v1.BuilderService/IndexDeployment"
 	// BuilderServiceDeployKubeComponentsProcedure is the fully-qualified name of the BuilderService's
 	// DeployKubeComponents RPC.
 	BuilderServiceDeployKubeComponentsProcedure = "/chalk.server.v1.BuilderService/DeployKubeComponents"
@@ -45,6 +48,7 @@ const (
 var (
 	builderServiceServiceDescriptor                    = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
 	builderServiceActivateDeploymentMethodDescriptor   = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
+	builderServiceIndexDeploymentMethodDescriptor      = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
 	builderServiceDeployKubeComponentsMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
 )
 
@@ -53,6 +57,7 @@ type BuilderServiceClient interface {
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
+	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
 	DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error)
@@ -74,6 +79,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		indexDeployment: connect.NewClient[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceIndexDeploymentProcedure,
+			connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		deployKubeComponents: connect.NewClient[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse](
 			httpClient,
 			baseURL+BuilderServiceDeployKubeComponentsProcedure,
@@ -86,12 +97,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
 	activateDeployment   *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
+	indexDeployment      *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	deployKubeComponents *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 }
 
 // ActivateDeployment calls chalk.server.v1.BuilderService.ActivateDeployment.
 func (c *builderServiceClient) ActivateDeployment(ctx context.Context, req *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error) {
 	return c.activateDeployment.CallUnary(ctx, req)
+}
+
+// IndexDeployment calls chalk.server.v1.BuilderService.IndexDeployment.
+func (c *builderServiceClient) IndexDeployment(ctx context.Context, req *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error) {
+	return c.indexDeployment.CallUnary(ctx, req)
 }
 
 // DeployKubeComponents calls chalk.server.v1.BuilderService.DeployKubeComponents.
@@ -104,6 +121,7 @@ type BuilderServiceHandler interface {
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
+	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
 	DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error)
@@ -121,6 +139,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceIndexDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceIndexDeploymentProcedure,
+		svc.IndexDeployment,
+		connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceDeployKubeComponentsHandler := connect.NewUnaryHandler(
 		BuilderServiceDeployKubeComponentsProcedure,
 		svc.DeployKubeComponents,
@@ -131,6 +155,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		switch r.URL.Path {
 		case BuilderServiceActivateDeploymentProcedure:
 			builderServiceActivateDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceIndexDeploymentProcedure:
+			builderServiceIndexDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
 			builderServiceDeployKubeComponentsHandler.ServeHTTP(w, r)
 		default:
@@ -144,6 +170,10 @@ type UnimplementedBuilderServiceHandler struct{}
 
 func (UnimplementedBuilderServiceHandler) ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ActivateDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.IndexDeployment is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error) {
