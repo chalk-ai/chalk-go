@@ -83,6 +83,9 @@ const (
 	// TeamServiceUpdateScimGroupSettingsProcedure is the fully-qualified name of the TeamService's
 	// UpdateScimGroupSettings RPC.
 	TeamServiceUpdateScimGroupSettingsProcedure = "/chalk.server.v1.TeamService/UpdateScimGroupSettings"
+	// TeamServiceGetTeamPermissionsProcedure is the fully-qualified name of the TeamService's
+	// GetTeamPermissions RPC.
+	TeamServiceGetTeamPermissionsProcedure = "/chalk.server.v1.TeamService/GetTeamPermissions"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -106,6 +109,7 @@ var (
 	teamServiceListTeamInvitesMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("ListTeamInvites")
 	teamServiceUpsertFeaturePermissionsMethodDescriptor = teamServiceServiceDescriptor.Methods().ByName("UpsertFeaturePermissions")
 	teamServiceUpdateScimGroupSettingsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("UpdateScimGroupSettings")
+	teamServiceGetTeamPermissionsMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("GetTeamPermissions")
 )
 
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
@@ -128,6 +132,7 @@ type TeamServiceClient interface {
 	ListTeamInvites(context.Context, *connect.Request[v1.ListTeamInvitesRequest]) (*connect.Response[v1.ListTeamInvitesResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
+	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 }
 
 // NewTeamServiceClient constructs a client for the chalk.server.v1.TeamService service. By default,
@@ -254,6 +259,12 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceUpdateScimGroupSettingsMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getTeamPermissions: connect.NewClient[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse](
+			httpClient,
+			baseURL+TeamServiceGetTeamPermissionsProcedure,
+			connect.WithSchema(teamServiceGetTeamPermissionsMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -277,6 +288,7 @@ type teamServiceClient struct {
 	listTeamInvites          *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
 	upsertFeaturePermissions *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
 	updateScimGroupSettings  *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
+	getTeamPermissions       *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -369,6 +381,11 @@ func (c *teamServiceClient) UpdateScimGroupSettings(ctx context.Context, req *co
 	return c.updateScimGroupSettings.CallUnary(ctx, req)
 }
 
+// GetTeamPermissions calls chalk.server.v1.TeamService.GetTeamPermissions.
+func (c *teamServiceClient) GetTeamPermissions(ctx context.Context, req *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error) {
+	return c.getTeamPermissions.CallUnary(ctx, req)
+}
+
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -389,6 +406,7 @@ type TeamServiceHandler interface {
 	ListTeamInvites(context.Context, *connect.Request[v1.ListTeamInvitesRequest]) (*connect.Response[v1.ListTeamInvitesResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
+	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 }
 
 // NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -511,6 +529,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceUpdateScimGroupSettingsMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceGetTeamPermissionsHandler := connect.NewUnaryHandler(
+		TeamServiceGetTeamPermissionsProcedure,
+		svc.GetTeamPermissions,
+		connect.WithSchema(teamServiceGetTeamPermissionsMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
@@ -549,6 +573,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceUpsertFeaturePermissionsHandler.ServeHTTP(w, r)
 		case TeamServiceUpdateScimGroupSettingsProcedure:
 			teamServiceUpdateScimGroupSettingsHandler.ServeHTTP(w, r)
+		case TeamServiceGetTeamPermissionsProcedure:
+			teamServiceGetTeamPermissionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -628,4 +654,8 @@ func (UnimplementedTeamServiceHandler) UpsertFeaturePermissions(context.Context,
 
 func (UnimplementedTeamServiceHandler) UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateScimGroupSettings is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetTeamPermissions is not implemented"))
 }
