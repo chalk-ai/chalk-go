@@ -7,6 +7,12 @@ type testLatLng struct {
 	Lng *float64 `dataclass_field:"true"`
 }
 
+type testLatLngWithExtraField struct {
+	Lat   *float64 `dataclass_field:"true"`
+	Lng   *float64 `dataclass_field:"true"`
+	Extra *string  `dataclass_field:"true"`
+}
+
 type favoriteThings struct {
 	Numbers *[]int64 `dataclass_field:"true"`
 	Words   *[]string

@@ -76,6 +76,9 @@ type OnlineQueryParams struct {
 	// to `true` as well.
 	Explain bool
 
+	// EncodingOptions is used to specify how features should be encoded in the response.
+	EncodingOptions *FeatureEncodingOptions
+
 	/**************
 	 PRIVATE FIELDS
 	***************/
@@ -105,6 +108,12 @@ func (p OnlineQueryParams) WithInput(feature any, value any) onlineQueryParamsWi
 	return onlineQueryParamsWithInputs{underlying: p.withInput(feature, value)}
 }
 
+// WithInputs returns a copy of Online Query parameters with the specified inputs added.
+// For use via method chaining. See [OnlineQueryParamsComplete] for usage examples.
+func (p OnlineQueryParams) WithInputs(inputs map[any]any) onlineQueryParamsWithInputs {
+	return onlineQueryParamsWithInputs{underlying: p.withInputs(inputs)}
+}
+
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithOutputs(features ...any) onlineQueryParamsWithOutputs {
@@ -118,18 +127,31 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 	return p.withStaleness(feature, duration)
 }
 
+// WithBranchId returns a copy of Online Query parameters with the branch id added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
 	return p
 }
 
+// WithQueryName returns a copy of Online Query parameters with the query name added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithQueryName(queryName string) OnlineQueryParams {
 	p.QueryName = queryName
 	return p
 }
 
+// WithQueryNameVersion returns a copy of Online Query parameters with the query name version added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParams {
 	p.QueryNameVersion = version
+	return p
+}
+
+// WithTags returns a copy of Online Query parameters with the specified tags added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
+	p.Tags = append(p.Tags, feature...)
 	return p
 }
 
@@ -474,6 +496,19 @@ func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryPar
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
 }
 
+// WithInputs returns a copy of Offline Query parameters with the specified inputs added.
+// For use via method chaining. See [OfflineQueryParamsComplete] for usage examples.
+// The value of the inputs map can contain a raw value (int or string), or it can also contain
+// a [TsFeatureValue] if you want to query with a specific observation time. The observation
+// time for raw values will be the default observation time specified as [OfflineQueryParams.DefaultTime].
+// If no default observation time is specified, the current time will be used.
+// For more information about observation time, see [Temporal Consistency].
+//
+// [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
+func (p OfflineQueryParams) WithInputs(inputs map[any][]any) offlineQueryParamsWithInputs {
+	return offlineQueryParamsWithInputs{underlying: p.withInputs(inputs)}
+}
+
 // WithOutputs returns a copy of Offline Query parameters with the specified outputs added.
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParams) WithOutputs(features ...any) OfflineQueryParamsComplete {
@@ -751,4 +786,10 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
+}
+
+type FeatureEncodingOptions struct {
+	// If true, Chalk will return structs as objects
+	// instead of arrays in the response.
+	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }

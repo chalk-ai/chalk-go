@@ -222,11 +222,17 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	namespace := SnakeCase(structValue.Type().Name())
+	structName := structValue.Type().Name()
+	namespace := SnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
 		return &ClientError{
-			errors.Newf("Scope of fields to initialize not found for namespace '%s'", nsScope).Error(),
+			errors.Newf(
+				"Attempted to unmarshal into the feature struct '%s', "+
+					"but results are from these feature class(es) '%v'",
+				structName,
+				colls.Keys(scope.children),
+			).Error(),
 		}
 	}
 
@@ -245,9 +251,12 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
-			return &ClientError{
-				errors.Newf("error locating fields associated with feature '%s'", fqn).Error(),
-			}
+			// For forward compatibility, i.e. when clients add
+			// more fields to their dataclasses in chalkpy, we want
+			// to default to not erring when trying to deserialize
+			// a new field that does not yet exist in the Go struct.
+			// Eventually we might consider exposing a flag.
+			continue
 		}
 		if err != nil {
 			err = errors.Wrapf(
@@ -339,4 +348,8 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 		return errors.Wrap(err, "error deserializing scalars table")
 	}
 	return unmarshalTableInto(scalars, resultHolders)
+}
+
+func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {
+	return internal.ExtractFeaturesFromTable(table)
 }

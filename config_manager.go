@@ -63,6 +63,10 @@ func newConfigManager(
 		return nil, chalkYamlErr
 	}
 
+	if logger == nil {
+		logger = DefaultLeveledLogger
+	}
+
 	return &configManager{
 		apiServer:          apiServerConfig,
 		clientId:           clientIdConfig,
@@ -80,12 +84,20 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 
 	endpoint, ok := m.engines[m.environmentId.Value]
 	if !ok {
-		m.logger.Errorf(
-			"query endpoint falling back to api server - no engine "+
-				"found for environment '%s' - engine map keys: '%s'",
-			m.environmentId.Value,
-			colls.Keys(m.engines),
-		)
+		if m.engines != nil {
+			m.logger.Errorf(
+				"query endpoint falling back to api server - no engine "+
+					"found for environment '%s' - engine map keys: '%s'",
+				m.environmentId.Value,
+				colls.Keys(m.engines),
+			)
+		} else {
+			m.logger.Errorf(
+				"query endpoint falling back to api server - no engine "+
+					"found for environment '%s'",
+				m.environmentId.Value,
+			)
+		}
 		endpoint = m.apiServer.Value
 	}
 	return endpoint

@@ -22,7 +22,7 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 	}
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
 
 	res, queryErr := client.OnlineQueryBulk(req)
 	if queryErr != nil {
@@ -34,8 +34,12 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
+	assert.NotNil(t, users[0].Id)
 	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.NotNil(t, users[0].SocureScore)
 	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.NotNil(t, users[1].Id)
 	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.NotNil(t, users[1].SocureScore)
 	assert.Equal(t, *users[1].SocureScore, socureScore)
 }

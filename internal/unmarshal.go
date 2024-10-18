@@ -280,10 +280,12 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			for k, v := range mapz {
 				memberField, fieldOk := nameToField[k]
 				if !fieldOk {
-					return nil, fmt.Errorf(
-						"field '%s' not found in struct '%s'",
-						k, structValue.Type().Name(),
-					)
+					// For forward compatibility, i.e. when clients add
+					// more fields to their dataclasses in chalkpy, we want
+					// to default to not erring when trying to deserialize
+					// a new field that does not yet exist in the Go struct.
+					// Eventually we might consider exposing a flag.
+					continue
 				}
 				if v == nil {
 					continue

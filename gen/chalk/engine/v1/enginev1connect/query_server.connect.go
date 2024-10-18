@@ -105,6 +105,7 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+QueryServicePingProcedure,
 			connect.WithSchema(queryServicePingMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		onlineQuery: connect.NewClient[v11.OnlineQueryRequest, v11.OnlineQueryResponse](
@@ -226,6 +227,7 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 		QueryServicePingProcedure,
 		svc.Ping,
 		connect.WithSchema(queryServicePingMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceOnlineQueryHandler := connect.NewUnaryHandler(
