@@ -42,9 +42,6 @@ const (
 	// BuilderServiceDeployKubeComponentsProcedure is the fully-qualified name of the BuilderService's
 	// DeployKubeComponents RPC.
 	BuilderServiceDeployKubeComponentsProcedure = "/chalk.server.v1.BuilderService/DeployKubeComponents"
-	// BuilderServiceRebuildDeploymentProcedure is the fully-qualified name of the BuilderService's
-	// RebuildDeployment RPC.
-	BuilderServiceRebuildDeploymentProcedure = "/chalk.server.v1.BuilderService/RebuildDeployment"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -53,7 +50,6 @@ var (
 	builderServiceActivateDeploymentMethodDescriptor   = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
 	builderServiceIndexDeploymentMethodDescriptor      = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
 	builderServiceDeployKubeComponentsMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
-	builderServiceRebuildDeploymentMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -65,9 +61,6 @@ type BuilderServiceClient interface {
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
 	DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error)
-	// Takes an existing (past) deployment and re-creates the image associated with it,
-	// publishing the image as 'new_image_tag'.
-	RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -98,12 +91,6 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
-		rebuildDeployment: connect.NewClient[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse](
-			httpClient,
-			baseURL+BuilderServiceRebuildDeploymentProcedure,
-			connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
@@ -112,7 +99,6 @@ type builderServiceClient struct {
 	activateDeployment   *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
 	indexDeployment      *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	deployKubeComponents *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
-	rebuildDeployment    *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
 }
 
 // ActivateDeployment calls chalk.server.v1.BuilderService.ActivateDeployment.
@@ -130,11 +116,6 @@ func (c *builderServiceClient) DeployKubeComponents(ctx context.Context, req *co
 	return c.deployKubeComponents.CallUnary(ctx, req)
 }
 
-// RebuildDeployment calls chalk.server.v1.BuilderService.RebuildDeployment.
-func (c *builderServiceClient) RebuildDeployment(ctx context.Context, req *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error) {
-	return c.rebuildDeployment.CallUnary(ctx, req)
-}
-
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
@@ -144,9 +125,6 @@ type BuilderServiceHandler interface {
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
 	DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error)
-	// Takes an existing (past) deployment and re-creates the image associated with it,
-	// publishing the image as 'new_image_tag'.
-	RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -173,12 +151,6 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
-	builderServiceRebuildDeploymentHandler := connect.NewUnaryHandler(
-		BuilderServiceRebuildDeploymentProcedure,
-		svc.RebuildDeployment,
-		connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceActivateDeploymentProcedure:
@@ -187,8 +159,6 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceIndexDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
 			builderServiceDeployKubeComponentsHandler.ServeHTTP(w, r)
-		case BuilderServiceRebuildDeploymentProcedure:
-			builderServiceRebuildDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -208,8 +178,4 @@ func (UnimplementedBuilderServiceHandler) IndexDeployment(context.Context, *conn
 
 func (UnimplementedBuilderServiceHandler) DeployKubeComponents(context.Context, *connect.Request[v1.DeployKubeComponentsRequest]) (*connect.Response[v1.DeployKubeComponentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeployKubeComponents is not implemented"))
-}
-
-func (UnimplementedBuilderServiceHandler) RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RebuildDeployment is not implemented"))
 }
