@@ -45,6 +45,12 @@ const (
 	// BuilderServiceRebuildDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// RebuildDeployment RPC.
 	BuilderServiceRebuildDeploymentProcedure = "/chalk.server.v1.BuilderService/RebuildDeployment"
+	// BuilderServiceRedeployDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// RedeployDeployment RPC.
+	BuilderServiceRedeployDeploymentProcedure = "/chalk.server.v1.BuilderService/RedeployDeployment"
+	// BuilderServiceUploadSourceProcedure is the fully-qualified name of the BuilderService's
+	// UploadSource RPC.
+	BuilderServiceUploadSourceProcedure = "/chalk.server.v1.BuilderService/UploadSource"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -54,6 +60,8 @@ var (
 	builderServiceIndexDeploymentMethodDescriptor      = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
 	builderServiceDeployKubeComponentsMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
 	builderServiceRebuildDeploymentMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
+	builderServiceRedeployDeploymentMethodDescriptor   = builderServiceServiceDescriptor.Methods().ByName("RedeployDeployment")
+	builderServiceUploadSourceMethodDescriptor         = builderServiceServiceDescriptor.Methods().ByName("UploadSource")
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -68,6 +76,10 @@ type BuilderServiceClient interface {
 	// Takes an existing (past) deployment and re-creates the image associated with it,
 	// publishing the image as 'new_image_tag'.
 	RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error)
+	// Triggers a new build with the source code from this deployment and deploys the result
+	RedeployDeployment(context.Context, *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error)
+	// Triggers a new build with the provided source code archive and deploys the result
+	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -104,6 +116,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		redeployDeployment: connect.NewClient[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceRedeployDeploymentProcedure,
+			connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		uploadSource: connect.NewClient[v1.UploadSourceRequest, v1.UploadSourceResponse](
+			httpClient,
+			baseURL+BuilderServiceUploadSourceProcedure,
+			connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -113,6 +137,8 @@ type builderServiceClient struct {
 	indexDeployment      *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	deployKubeComponents *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment    *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
+	redeployDeployment   *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
+	uploadSource         *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
 }
 
 // ActivateDeployment calls chalk.server.v1.BuilderService.ActivateDeployment.
@@ -135,6 +161,16 @@ func (c *builderServiceClient) RebuildDeployment(ctx context.Context, req *conne
 	return c.rebuildDeployment.CallUnary(ctx, req)
 }
 
+// RedeployDeployment calls chalk.server.v1.BuilderService.RedeployDeployment.
+func (c *builderServiceClient) RedeployDeployment(ctx context.Context, req *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error) {
+	return c.redeployDeployment.CallUnary(ctx, req)
+}
+
+// UploadSource calls chalk.server.v1.BuilderService.UploadSource.
+func (c *builderServiceClient) UploadSource(ctx context.Context, req *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error) {
+	return c.uploadSource.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
@@ -147,6 +183,10 @@ type BuilderServiceHandler interface {
 	// Takes an existing (past) deployment and re-creates the image associated with it,
 	// publishing the image as 'new_image_tag'.
 	RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error)
+	// Triggers a new build with the source code from this deployment and deploys the result
+	RedeployDeployment(context.Context, *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error)
+	// Triggers a new build with the provided source code archive and deploys the result
+	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -179,6 +219,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceRedeployDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceRedeployDeploymentProcedure,
+		svc.RedeployDeployment,
+		connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUploadSourceHandler := connect.NewUnaryHandler(
+		BuilderServiceUploadSourceProcedure,
+		svc.UploadSource,
+		connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceActivateDeploymentProcedure:
@@ -189,6 +241,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeployKubeComponentsHandler.ServeHTTP(w, r)
 		case BuilderServiceRebuildDeploymentProcedure:
 			builderServiceRebuildDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceRedeployDeploymentProcedure:
+			builderServiceRedeployDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceUploadSourceProcedure:
+			builderServiceUploadSourceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -212,4 +268,12 @@ func (UnimplementedBuilderServiceHandler) DeployKubeComponents(context.Context, 
 
 func (UnimplementedBuilderServiceHandler) RebuildDeployment(context.Context, *connect.Request[v1.RebuildDeploymentRequest]) (*connect.Response[v1.RebuildDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RebuildDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) RedeployDeployment(context.Context, *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RedeployDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UploadSource is not implemented"))
 }
