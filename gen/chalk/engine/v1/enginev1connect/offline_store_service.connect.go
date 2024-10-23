@@ -62,6 +62,8 @@ var (
 )
 
 // OfflineStoreServiceClient is a client for the chalk.engine.v1.OfflineStoreService service.
+//
+// Deprecated: do not use.
 type OfflineStoreServiceClient interface {
 	GetQueryLogEntries(context.Context, *connect.Request[v11.GetQueryLogEntriesRequest]) (*connect.Response[v11.GetQueryLogEntriesResponse], error)
 	GetQueryValues(context.Context, *connect.Request[v11.GetQueryValuesRequest]) (*connect.Response[v11.GetQueryValuesResponse], error)
@@ -69,6 +71,7 @@ type OfflineStoreServiceClient interface {
 	GetFeatureValuesChart(context.Context, *connect.Request[v11.GetFeatureValuesChartRequest]) (*connect.Response[v11.GetFeatureValuesChartResponse], error)
 	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error)
+	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChartV2(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error)
 }
 
@@ -79,6 +82,8 @@ type OfflineStoreServiceClient interface {
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
+//
+// Deprecated: do not use.
 func NewOfflineStoreServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) OfflineStoreServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &offlineStoreServiceClient{
@@ -151,12 +156,16 @@ func (c *offlineStoreServiceClient) GetFeatureValuesTimeSeriesChart(ctx context.
 
 // GetFeatureValuesTimeSeriesChartV2 calls
 // chalk.engine.v1.OfflineStoreService.GetFeatureValuesTimeSeriesChartV2.
+//
+// Deprecated: do not use.
 func (c *offlineStoreServiceClient) GetFeatureValuesTimeSeriesChartV2(ctx context.Context, req *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error) {
 	return c.getFeatureValuesTimeSeriesChartV2.CallUnary(ctx, req)
 }
 
 // OfflineStoreServiceHandler is an implementation of the chalk.engine.v1.OfflineStoreService
 // service.
+//
+// Deprecated: do not use.
 type OfflineStoreServiceHandler interface {
 	GetQueryLogEntries(context.Context, *connect.Request[v11.GetQueryLogEntriesRequest]) (*connect.Response[v11.GetQueryLogEntriesResponse], error)
 	GetQueryValues(context.Context, *connect.Request[v11.GetQueryValuesRequest]) (*connect.Response[v11.GetQueryValuesResponse], error)
@@ -164,6 +173,7 @@ type OfflineStoreServiceHandler interface {
 	GetFeatureValuesChart(context.Context, *connect.Request[v11.GetFeatureValuesChartRequest]) (*connect.Response[v11.GetFeatureValuesChartResponse], error)
 	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartResponse], error)
+	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChartV2(context.Context, *connect.Request[v11.GetFeatureValuesTimeSeriesChartV2Request]) (*connect.Response[v11.GetFeatureValuesTimeSeriesChartV2Response], error)
 }
 
@@ -172,6 +182,8 @@ type OfflineStoreServiceHandler interface {
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
+//
+// Deprecated: do not use.
 func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	offlineStoreServiceGetQueryLogEntriesHandler := connect.NewUnaryHandler(
 		OfflineStoreServiceGetQueryLogEntriesProcedure,
