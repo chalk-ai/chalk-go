@@ -42,6 +42,9 @@ const (
 	// BillingServiceGetUtilizationRatesProcedure is the fully-qualified name of the BillingService's
 	// GetUtilizationRates RPC.
 	BillingServiceGetUtilizationRatesProcedure = "/chalk.server.v1.BillingService/GetUtilizationRates"
+	// BillingServiceGetPodRequestChartsProcedure is the fully-qualified name of the BillingService's
+	// GetPodRequestCharts RPC.
+	BillingServiceGetPodRequestChartsProcedure = "/chalk.server.v1.BillingService/GetPodRequestCharts"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -50,6 +53,7 @@ var (
 	billingServiceGetNodesAndPodsMethodDescriptor     = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPods")
 	billingServiceGetUsageChartMethodDescriptor       = billingServiceServiceDescriptor.Methods().ByName("GetUsageChart")
 	billingServiceGetUtilizationRatesMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetUtilizationRates")
+	billingServiceGetPodRequestChartsMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetPodRequestCharts")
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -65,6 +69,7 @@ type BillingServiceClient interface {
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
+	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -98,6 +103,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getPodRequestCharts: connect.NewClient[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse](
+			httpClient,
+			baseURL+BillingServiceGetPodRequestChartsProcedure,
+			connect.WithSchema(billingServiceGetPodRequestChartsMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -106,6 +118,7 @@ type billingServiceClient struct {
 	getNodesAndPods     *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
 	getUsageChart       *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
+	getPodRequestCharts *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
 }
 
 // GetNodesAndPods calls chalk.server.v1.BillingService.GetNodesAndPods.
@@ -123,6 +136,11 @@ func (c *billingServiceClient) GetUtilizationRates(ctx context.Context, req *con
 	return c.getUtilizationRates.CallUnary(ctx, req)
 }
 
+// GetPodRequestCharts calls chalk.server.v1.BillingService.GetPodRequestCharts.
+func (c *billingServiceClient) GetPodRequestCharts(ctx context.Context, req *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error) {
+	return c.getPodRequestCharts.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPods returns the nodes and pods for the team by default,
@@ -136,6 +154,7 @@ type BillingServiceHandler interface {
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
+	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -165,6 +184,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetPodRequestChartsHandler := connect.NewUnaryHandler(
+		BillingServiceGetPodRequestChartsProcedure,
+		svc.GetPodRequestCharts,
+		connect.WithSchema(billingServiceGetPodRequestChartsMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsProcedure:
@@ -173,6 +199,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
 			billingServiceGetUtilizationRatesHandler.ServeHTTP(w, r)
+		case BillingServiceGetPodRequestChartsProcedure:
+			billingServiceGetPodRequestChartsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -192,4 +220,8 @@ func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connec
 
 func (UnimplementedBillingServiceHandler) GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUtilizationRates is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetPodRequestCharts is not implemented"))
 }
