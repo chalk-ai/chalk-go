@@ -63,29 +63,37 @@ const (
 	// BuilderServiceGetClusterGatewayProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterGateway RPC.
 	BuilderServiceGetClusterGatewayProcedure = "/chalk.server.v1.BuilderService/GetClusterGateway"
+	// BuilderServiceGetClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's GetClusterBackgroundPersistence RPC.
+	BuilderServiceGetClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/GetClusterBackgroundPersistence"
 	// BuilderServiceCreateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterTimescaleDB RPC.
 	BuilderServiceCreateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/CreateClusterTimescaleDB"
 	// BuilderServiceCreateClusterGatewayProcedure is the fully-qualified name of the BuilderService's
 	// CreateClusterGateway RPC.
 	BuilderServiceCreateClusterGatewayProcedure = "/chalk.server.v1.BuilderService/CreateClusterGateway"
+	// BuilderServiceCreateClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's CreateClusterBackgroundPersistence RPC.
+	BuilderServiceCreateClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/CreateClusterBackgroundPersistence"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	builderServiceServiceDescriptor                        = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
-	builderServiceActivateDeploymentMethodDescriptor       = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
-	builderServiceIndexDeploymentMethodDescriptor          = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
-	builderServiceDeployKubeComponentsMethodDescriptor     = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
-	builderServiceRebuildDeploymentMethodDescriptor        = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
-	builderServiceRedeployDeploymentMethodDescriptor       = builderServiceServiceDescriptor.Methods().ByName("RedeployDeployment")
-	builderServiceUploadSourceMethodDescriptor             = builderServiceServiceDescriptor.Methods().ByName("UploadSource")
-	builderServiceGetDeploymentStepsMethodDescriptor       = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentSteps")
-	builderServiceGetDeploymentLogsMethodDescriptor        = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentLogs")
-	builderServiceGetClusterTimescaleDBMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("GetClusterTimescaleDB")
-	builderServiceGetClusterGatewayMethodDescriptor        = builderServiceServiceDescriptor.Methods().ByName("GetClusterGateway")
-	builderServiceCreateClusterTimescaleDBMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterTimescaleDB")
-	builderServiceCreateClusterGatewayMethodDescriptor     = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
+	builderServiceServiceDescriptor                                  = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
+	builderServiceActivateDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
+	builderServiceIndexDeploymentMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
+	builderServiceDeployKubeComponentsMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
+	builderServiceRebuildDeploymentMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
+	builderServiceRedeployDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("RedeployDeployment")
+	builderServiceUploadSourceMethodDescriptor                       = builderServiceServiceDescriptor.Methods().ByName("UploadSource")
+	builderServiceGetDeploymentStepsMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentSteps")
+	builderServiceGetDeploymentLogsMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentLogs")
+	builderServiceGetClusterTimescaleDBMethodDescriptor              = builderServiceServiceDescriptor.Methods().ByName("GetClusterTimescaleDB")
+	builderServiceGetClusterGatewayMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetClusterGateway")
+	builderServiceGetClusterBackgroundPersistenceMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("GetClusterBackgroundPersistence")
+	builderServiceCreateClusterTimescaleDBMethodDescriptor           = builderServiceServiceDescriptor.Methods().ByName("CreateClusterTimescaleDB")
+	builderServiceCreateClusterGatewayMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
+	builderServiceCreateClusterBackgroundPersistenceMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterBackgroundPersistence")
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -108,8 +116,10 @@ type BuilderServiceClient interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
+	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -182,6 +192,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		getClusterBackgroundPersistence: connect.NewClient[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceGetClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 		createClusterTimescaleDB: connect.NewClient[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterTimescaleDBProcedure,
@@ -194,23 +210,31 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		createClusterBackgroundPersistence: connect.NewClient[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
-	activateDeployment       *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
-	indexDeployment          *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
-	deployKubeComponents     *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
-	rebuildDeployment        *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
-	redeployDeployment       *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
-	uploadSource             *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
-	getDeploymentSteps       *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
-	getDeploymentLogs        *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
-	getClusterTimescaleDB    *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
-	getClusterGateway        *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
-	createClusterTimescaleDB *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
-	createClusterGateway     *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
+	activateDeployment                 *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
+	indexDeployment                    *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
+	deployKubeComponents               *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
+	rebuildDeployment                  *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
+	redeployDeployment                 *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
+	uploadSource                       *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
+	getDeploymentSteps                 *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
+	getDeploymentLogs                  *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
+	getClusterTimescaleDB              *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
+	getClusterGateway                  *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
+	getClusterBackgroundPersistence    *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
+	createClusterTimescaleDB           *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
+	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
+	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 }
 
 // ActivateDeployment calls chalk.server.v1.BuilderService.ActivateDeployment.
@@ -263,6 +287,12 @@ func (c *builderServiceClient) GetClusterGateway(ctx context.Context, req *conne
 	return c.getClusterGateway.CallUnary(ctx, req)
 }
 
+// GetClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.GetClusterBackgroundPersistence.
+func (c *builderServiceClient) GetClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error) {
+	return c.getClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
 // CreateClusterTimescaleDB calls chalk.server.v1.BuilderService.CreateClusterTimescaleDB.
 func (c *builderServiceClient) CreateClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
 	return c.createClusterTimescaleDB.CallUnary(ctx, req)
@@ -271,6 +301,12 @@ func (c *builderServiceClient) CreateClusterTimescaleDB(ctx context.Context, req
 // CreateClusterGateway calls chalk.server.v1.BuilderService.CreateClusterGateway.
 func (c *builderServiceClient) CreateClusterGateway(ctx context.Context, req *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error) {
 	return c.createClusterGateway.CallUnary(ctx, req)
+}
+
+// CreateClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence.
+func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error) {
+	return c.createClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
@@ -293,8 +329,10 @@ type BuilderServiceHandler interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
+	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -363,6 +401,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceGetClusterBackgroundPersistenceProcedure,
+		svc.GetClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceCreateClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterTimescaleDBProcedure,
 		svc.CreateClusterTimescaleDB,
@@ -373,6 +417,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceCreateClusterGatewayProcedure,
 		svc.CreateClusterGateway,
 		connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceCreateClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateClusterBackgroundPersistenceProcedure,
+		svc.CreateClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -397,10 +447,14 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterGatewayProcedure:
 			builderServiceGetClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceGetClusterBackgroundPersistenceProcedure:
+			builderServiceGetClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterTimescaleDBProcedure:
 			builderServiceCreateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterGatewayProcedure:
 			builderServiceCreateClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateClusterBackgroundPersistenceProcedure:
+			builderServiceCreateClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -450,10 +504,18 @@ func (UnimplementedBuilderServiceHandler) GetClusterGateway(context.Context, *co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterGateway is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterBackgroundPersistence is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterTimescaleDB is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence is not implemented"))
 }
