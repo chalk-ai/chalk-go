@@ -15,6 +15,17 @@ import (
 )
 
 func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
+	if len(p.outputs) > 1 && p.QueryName != "" {
+		return nil, errors.New("please specify either outputs or query name, not both")
+	}
+
+	outputs := p.outputs
+	if outputs == nil {
+		// If we are passing query name, we don't need to pass outputs,
+		// so outputs is empty, but when serialized should never be nil.
+		outputs = []string{}
+	}
+
 	context := internal.OnlineQueryContext{
 		Environment:          internal.StringOrNil(p.EnvironmentId),
 		Tags:                 p.Tags,
@@ -54,7 +65,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	return &internal.OnlineQueryRequestSerialized{
 		Inputs:           convertedInputs,
-		Outputs:          p.outputs,
+		Outputs:          outputs,
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
