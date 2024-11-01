@@ -18,7 +18,8 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	outputs := p.outputs
 	if outputs == nil {
 		// If we are passing query name, we don't need to pass outputs,
-		// so outputs is empty, but when serialized should never be nil.
+		// so outputs is empty, but when JSON serialized should never
+		// be `null`.
 		outputs = []string{}
 	}
 
