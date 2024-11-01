@@ -80,6 +80,39 @@ func TestOnlineQueryE2E(t *testing.T) {
 	}
 }
 
+// TestNamedQueriesE2E tests that querying with just named queries work.
+func TestNamedQueriesE2E(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+	for _, fixture := range []struct {
+		useGrpc bool
+	}{
+		{useGrpc: false},
+		{useGrpc: true},
+	} {
+		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			if err != nil {
+				t.Fatal("Failed creating a Chalk Client", err)
+			}
+			err = chalk.InitFeatures(&testFeatures)
+			if err != nil {
+				t.Fatal("Failed initializing features", err)
+			}
+
+			var implicitUser user
+			params := chalk.OnlineQueryParams{}.
+				WithInput("user.id", 1).
+				WithQueryName("user_socure_score")
+			_, queryErr := client.OnlineQuery(params, &implicitUser)
+			if queryErr != nil {
+				t.Fatal("Failed querying features", queryErr)
+			}
+			assert.Equal(t, 123.0, *implicitUser.SocureScore)
+		})
+	}
+}
+
 // TestGRPCOnlineQueryE2E mainly tests querying real data
 // from the staging server does not crash. Correctness
 // is partially tested here, but is mainly tested in

@@ -109,13 +109,12 @@ _, err = client.OnlineQuery(
 ### Named Queries
 
 If your deployment contains [named queries](https://docs.chalk.ai/docs/best-practices#create-named-queries-for-your-commonly-executed-queries),
-you can specify a query name instead of outputs when making a query. Note that here we begin with a `chalk.OnlineQueryParamsComplete` struct, 
-instead of `chalk.OnlineQueryParams`.
+you can specify a query name instead of outputs when making a query. 
 
 ```go
 user := User{}
 _, err = client.OnlineQuery(
-    chalk.OnlineQueryParamsComplete{}.
+    chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
         WithQueryName("user_underwriting_features"),
     &user,
