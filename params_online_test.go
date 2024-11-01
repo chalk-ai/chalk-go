@@ -332,3 +332,16 @@ func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	_, ok = params.underlying.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
+
+func TestNamedQuery(t *testing.T) {
+	t.Parallel()
+	queryName := "test_query_name"
+	var allParams []OnlineQueryParamsComplete
+	allParams = append(allParams, OnlineQueryParams{}.WithInput("user.id", 1).WithQueryName(queryName))
+	allParams = append(allParams, OnlineQueryParamsComplete{}.WithQueryName(queryName).WithInput("user.id", 1))
+	allParams = append(allParams, OnlineQueryParamsComplete{}.WithBranchId("branch-1").WithInput("user.id", 1).WithQueryName(queryName))
+
+	for _, params := range allParams {
+		assert.Equal(t, queryName, params.underlying.QueryName)
+	}
+}

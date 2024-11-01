@@ -120,6 +120,12 @@ func (p OnlineQueryParams) WithOutputs(features ...any) onlineQueryParamsWithOut
 	return onlineQueryParamsWithOutputs{underlying: p.withOutputs(features...)}
 }
 
+// WithQueryName returns a copy of Online Query parameters with the specified query name set.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParams) WithQueryName(name string) onlineQueryParamsWithOutputs {
+	return onlineQueryParamsWithOutputs{underlying: p.withQueryName(name)}
+}
+
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
@@ -131,13 +137,6 @@ func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) On
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
 	p.BranchId = &branchId
-	return p
-}
-
-// WithQueryName returns a copy of Online Query parameters with the query name added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParams) WithQueryName(queryName string) OnlineQueryParams {
-	p.QueryName = queryName
 	return p
 }
 
