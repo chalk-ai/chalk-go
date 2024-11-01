@@ -15,10 +15,6 @@ import (
 )
 
 func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
-	if len(p.outputs) > 1 && p.QueryName != "" {
-		return nil, errors.New("please specify either outputs or query name, not both")
-	}
-
 	outputs := p.outputs
 	if outputs == nil {
 		// If we are passing query name, we don't need to pass outputs,
