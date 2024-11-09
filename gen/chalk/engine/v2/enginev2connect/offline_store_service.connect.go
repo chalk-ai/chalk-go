@@ -60,7 +60,6 @@ var (
 type OfflineStoreServiceClient interface {
 	GetQueryLogEntries(context.Context, *connect.Request[v2.GetQueryLogEntriesRequest]) (*connect.Response[v2.GetQueryLogEntriesResponse], error)
 	GetQueryValues(context.Context, *connect.Request[v2.GetQueryValuesRequest]) (*connect.Response[v2.GetQueryValuesResponse], error)
-	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
 }
@@ -122,8 +121,6 @@ func (c *offlineStoreServiceClient) GetQueryValues(ctx context.Context, req *con
 
 // GetFeatureValuesTimeSeriesChart calls
 // chalk.engine.v2.OfflineStoreService.GetFeatureValuesTimeSeriesChart.
-//
-// Deprecated: do not use.
 func (c *offlineStoreServiceClient) GetFeatureValuesTimeSeriesChart(ctx context.Context, req *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error) {
 	return c.getFeatureValuesTimeSeriesChart.CallUnary(ctx, req)
 }
@@ -138,7 +135,6 @@ func (c *offlineStoreServiceClient) GetFeatureValues(ctx context.Context, req *c
 type OfflineStoreServiceHandler interface {
 	GetQueryLogEntries(context.Context, *connect.Request[v2.GetQueryLogEntriesRequest]) (*connect.Response[v2.GetQueryLogEntriesResponse], error)
 	GetQueryValues(context.Context, *connect.Request[v2.GetQueryValuesRequest]) (*connect.Response[v2.GetQueryValuesResponse], error)
-	// Deprecated: do not use.
 	GetFeatureValuesTimeSeriesChart(context.Context, *connect.Request[v2.GetFeatureValuesTimeSeriesChartRequest]) (*connect.Response[v2.GetFeatureValuesTimeSeriesChartResponse], error)
 	GetFeatureValues(context.Context, *connect.Request[v2.GetFeatureValuesRequest]) (*connect.Response[v2.GetFeatureValuesResponse], error)
 }
