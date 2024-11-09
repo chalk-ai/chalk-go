@@ -1698,7 +1698,9 @@ type WindowAggregation struct {
 	// of relying upon the last backfill. If not provided, and a continuous
 	// resolver is provided, this will be set to backfill_lookback_duration.
 	ContinuousBufferDuration *durationpb.Duration `protobuf:"bytes,12,opt,name=continuous_buffer_duration,json=continuousBufferDuration,proto3,oneof" json:"continuous_buffer_duration,omitempty"`
-	BackfillSchedule         *string              `protobuf:"bytes,13,opt,name=backfill_schedule,json=backfillSchedule,proto3,oneof" json:"backfill_schedule,omitempty"`
+	// A crontab or duration string to specify the schedule for back filling the
+	// materialized aggregate.
+	BackfillSchedule *string `protobuf:"bytes,13,opt,name=backfill_schedule,json=backfillSchedule,proto3,oneof" json:"backfill_schedule,omitempty"`
 }
 
 func (x *WindowAggregation) Reset() {
