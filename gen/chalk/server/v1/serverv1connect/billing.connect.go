@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// BillingServiceGetNodesAndPodsUIProcedure is the fully-qualified name of the BillingService's
+	// GetNodesAndPodsUI RPC.
+	BillingServiceGetNodesAndPodsUIProcedure = "/chalk.server.v1.BillingService/GetNodesAndPodsUI"
 	// BillingServiceGetNodesAndPodsProcedure is the fully-qualified name of the BillingService's
 	// GetNodesAndPods RPC.
 	BillingServiceGetNodesAndPodsProcedure = "/chalk.server.v1.BillingService/GetNodesAndPods"
@@ -50,6 +53,7 @@ const (
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
 	billingServiceServiceDescriptor                   = v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService")
+	billingServiceGetNodesAndPodsUIMethodDescriptor   = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPodsUI")
 	billingServiceGetNodesAndPodsMethodDescriptor     = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPods")
 	billingServiceGetUsageChartMethodDescriptor       = billingServiceServiceDescriptor.Methods().ByName("GetUsageChart")
 	billingServiceGetUtilizationRatesMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetUtilizationRates")
@@ -58,6 +62,12 @@ var (
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
 type BillingServiceClient interface {
+	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
+	// not just a single environment. To limit the scope, add filters to
+	// the request object.
+	// Use this endpoint going forward; GetNodesAndPods should be deprecated because
+	// it reuses PubSub types that are dangerous to update and are not intended for UI use.
+	GetNodesAndPodsUI(context.Context, *connect.Request[v1.GetNodesAndPodsUIRequest]) (*connect.Response[v1.GetNodesAndPodsUIResponse], error)
 	// GetNodesAndPods returns the nodes and pods for the team by default,
 	// not just a single environment. To limit the scope, add filters to
 	// the request object.
@@ -82,6 +92,13 @@ type BillingServiceClient interface {
 func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BillingServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &billingServiceClient{
+		getNodesAndPodsUI: connect.NewClient[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse](
+			httpClient,
+			baseURL+BillingServiceGetNodesAndPodsUIProcedure,
+			connect.WithSchema(billingServiceGetNodesAndPodsUIMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getNodesAndPods: connect.NewClient[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse](
 			httpClient,
 			baseURL+BillingServiceGetNodesAndPodsProcedure,
@@ -115,10 +132,16 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // billingServiceClient implements BillingServiceClient.
 type billingServiceClient struct {
+	getNodesAndPodsUI   *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
 	getNodesAndPods     *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
 	getUsageChart       *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 	getPodRequestCharts *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
+}
+
+// GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
+func (c *billingServiceClient) GetNodesAndPodsUI(ctx context.Context, req *connect.Request[v1.GetNodesAndPodsUIRequest]) (*connect.Response[v1.GetNodesAndPodsUIResponse], error) {
+	return c.getNodesAndPodsUI.CallUnary(ctx, req)
 }
 
 // GetNodesAndPods calls chalk.server.v1.BillingService.GetNodesAndPods.
@@ -143,6 +166,12 @@ func (c *billingServiceClient) GetPodRequestCharts(ctx context.Context, req *con
 
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
+	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
+	// not just a single environment. To limit the scope, add filters to
+	// the request object.
+	// Use this endpoint going forward; GetNodesAndPods should be deprecated because
+	// it reuses PubSub types that are dangerous to update and are not intended for UI use.
+	GetNodesAndPodsUI(context.Context, *connect.Request[v1.GetNodesAndPodsUIRequest]) (*connect.Response[v1.GetNodesAndPodsUIResponse], error)
 	// GetNodesAndPods returns the nodes and pods for the team by default,
 	// not just a single environment. To limit the scope, add filters to
 	// the request object.
@@ -163,6 +192,13 @@ type BillingServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	billingServiceGetNodesAndPodsUIHandler := connect.NewUnaryHandler(
+		BillingServiceGetNodesAndPodsUIProcedure,
+		svc.GetNodesAndPodsUI,
+		connect.WithSchema(billingServiceGetNodesAndPodsUIMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	billingServiceGetNodesAndPodsHandler := connect.NewUnaryHandler(
 		BillingServiceGetNodesAndPodsProcedure,
 		svc.GetNodesAndPods,
@@ -193,6 +229,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case BillingServiceGetNodesAndPodsUIProcedure:
+			billingServiceGetNodesAndPodsUIHandler.ServeHTTP(w, r)
 		case BillingServiceGetNodesAndPodsProcedure:
 			billingServiceGetNodesAndPodsHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
@@ -209,6 +247,10 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 
 // UnimplementedBillingServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedBillingServiceHandler struct{}
+
+func (UnimplementedBillingServiceHandler) GetNodesAndPodsUI(context.Context, *connect.Request[v1.GetNodesAndPodsUIRequest]) (*connect.Response[v1.GetNodesAndPodsUIResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodesAndPodsUI is not implemented"))
+}
 
 func (UnimplementedBillingServiceHandler) GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodesAndPods is not implemented"))
