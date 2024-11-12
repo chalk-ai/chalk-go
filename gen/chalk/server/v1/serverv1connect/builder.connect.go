@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// BuilderServiceGetSearchConfigProcedure is the fully-qualified name of the BuilderService's
+	// GetSearchConfig RPC.
+	BuilderServiceGetSearchConfigProcedure = "/chalk.server.v1.BuilderService/GetSearchConfig"
 	// BuilderServiceActivateDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// ActivateDeployment RPC.
 	BuilderServiceActivateDeploymentProcedure = "/chalk.server.v1.BuilderService/ActivateDeployment"
@@ -83,6 +86,7 @@ const (
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
 	builderServiceServiceDescriptor                                  = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
+	builderServiceGetSearchConfigMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("GetSearchConfig")
 	builderServiceActivateDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
 	builderServiceIndexDeploymentMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
 	builderServiceDeployKubeComponentsMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
@@ -102,6 +106,7 @@ var (
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
 type BuilderServiceClient interface {
+	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
@@ -137,6 +142,13 @@ type BuilderServiceClient interface {
 func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BuilderServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &builderServiceClient{
+		getSearchConfig: connect.NewClient[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse](
+			httpClient,
+			baseURL+BuilderServiceGetSearchConfigProcedure,
+			connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		activateDeployment: connect.NewClient[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceActivateDeploymentProcedure,
@@ -232,6 +244,7 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
+	getSearchConfig                    *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
 	activateDeployment                 *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
 	indexDeployment                    *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	deployKubeComponents               *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
@@ -247,6 +260,11 @@ type builderServiceClient struct {
 	migrateClusterTimescaleDB          *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
 	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
+}
+
+// GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
+func (c *builderServiceClient) GetSearchConfig(ctx context.Context, req *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error) {
+	return c.getSearchConfig.CallUnary(ctx, req)
 }
 
 // ActivateDeployment calls chalk.server.v1.BuilderService.ActivateDeployment.
@@ -328,6 +346,7 @@ func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Co
 
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
+	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
 	// Takes an existing (past) deployment and promotes the k8s resources / other things associated with it.
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
@@ -359,6 +378,13 @@ type BuilderServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	builderServiceGetSearchConfigHandler := connect.NewUnaryHandler(
+		BuilderServiceGetSearchConfigProcedure,
+		svc.GetSearchConfig,
+		connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceActivateDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceActivateDeploymentProcedure,
 		svc.ActivateDeployment,
@@ -451,6 +477,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case BuilderServiceGetSearchConfigProcedure:
+			builderServiceGetSearchConfigHandler.ServeHTTP(w, r)
 		case BuilderServiceActivateDeploymentProcedure:
 			builderServiceActivateDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceIndexDeploymentProcedure:
@@ -489,6 +517,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 
 // UnimplementedBuilderServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedBuilderServiceHandler struct{}
+
+func (UnimplementedBuilderServiceHandler) GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetSearchConfig is not implemented"))
+}
 
 func (UnimplementedBuilderServiceHandler) ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ActivateDeployment is not implemented"))

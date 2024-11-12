@@ -43,9 +43,6 @@ const (
 	// TeamServiceGetDisplayAgentProcedure is the fully-qualified name of the TeamService's
 	// GetDisplayAgent RPC.
 	TeamServiceGetDisplayAgentProcedure = "/chalk.server.v1.TeamService/GetDisplayAgent"
-	// TeamServiceGetSearchConfigProcedure is the fully-qualified name of the TeamService's
-	// GetSearchConfig RPC.
-	TeamServiceGetSearchConfigProcedure = "/chalk.server.v1.TeamService/GetSearchConfig"
 	// TeamServiceGetTeamProcedure is the fully-qualified name of the TeamService's GetTeam RPC.
 	TeamServiceGetTeamProcedure = "/chalk.server.v1.TeamService/GetTeam"
 	// TeamServiceCreateTeamProcedure is the fully-qualified name of the TeamService's CreateTeam RPC.
@@ -98,7 +95,6 @@ var (
 	teamServiceGetEnvironmentsMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("GetEnvironments")
 	teamServiceGetAgentMethodDescriptor                 = teamServiceServiceDescriptor.Methods().ByName("GetAgent")
 	teamServiceGetDisplayAgentMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("GetDisplayAgent")
-	teamServiceGetSearchConfigMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("GetSearchConfig")
 	teamServiceGetTeamMethodDescriptor                  = teamServiceServiceDescriptor.Methods().ByName("GetTeam")
 	teamServiceCreateTeamMethodDescriptor               = teamServiceServiceDescriptor.Methods().ByName("CreateTeam")
 	teamServiceCreateProjectMethodDescriptor            = teamServiceServiceDescriptor.Methods().ByName("CreateProject")
@@ -122,7 +118,6 @@ type TeamServiceClient interface {
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
-	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
@@ -175,13 +170,6 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceGetDisplayAgentProcedure,
 			connect.WithSchema(teamServiceGetDisplayAgentMethodDescriptor),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		getSearchConfig: connect.NewClient[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse](
-			httpClient,
-			baseURL+TeamServiceGetSearchConfigProcedure,
-			connect.WithSchema(teamServiceGetSearchConfigMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -286,7 +274,6 @@ type teamServiceClient struct {
 	getEnvironments          *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
 	getAgent                 *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
 	getDisplayAgent          *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
-	getSearchConfig          *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
 	getTeam                  *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
 	createTeam               *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
 	createProject            *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
@@ -322,11 +309,6 @@ func (c *teamServiceClient) GetAgent(ctx context.Context, req *connect.Request[v
 // GetDisplayAgent calls chalk.server.v1.TeamService.GetDisplayAgent.
 func (c *teamServiceClient) GetDisplayAgent(ctx context.Context, req *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error) {
 	return c.getDisplayAgent.CallUnary(ctx, req)
-}
-
-// GetSearchConfig calls chalk.server.v1.TeamService.GetSearchConfig.
-func (c *teamServiceClient) GetSearchConfig(ctx context.Context, req *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error) {
-	return c.getSearchConfig.CallUnary(ctx, req)
 }
 
 // GetTeam calls chalk.server.v1.TeamService.GetTeam.
@@ -410,7 +392,6 @@ type TeamServiceHandler interface {
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
-	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
@@ -459,13 +440,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceGetDisplayAgentProcedure,
 		svc.GetDisplayAgent,
 		connect.WithSchema(teamServiceGetDisplayAgentMethodDescriptor),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	teamServiceGetSearchConfigHandler := connect.NewUnaryHandler(
-		TeamServiceGetSearchConfigProcedure,
-		svc.GetSearchConfig,
-		connect.WithSchema(teamServiceGetSearchConfigMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -571,8 +545,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceGetAgentHandler.ServeHTTP(w, r)
 		case TeamServiceGetDisplayAgentProcedure:
 			teamServiceGetDisplayAgentHandler.ServeHTTP(w, r)
-		case TeamServiceGetSearchConfigProcedure:
-			teamServiceGetSearchConfigHandler.ServeHTTP(w, r)
 		case TeamServiceGetTeamProcedure:
 			teamServiceGetTeamHandler.ServeHTTP(w, r)
 		case TeamServiceCreateTeamProcedure:
@@ -626,10 +598,6 @@ func (UnimplementedTeamServiceHandler) GetAgent(context.Context, *connect.Reques
 
 func (UnimplementedTeamServiceHandler) GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetDisplayAgent is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetSearchConfig is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error) {
