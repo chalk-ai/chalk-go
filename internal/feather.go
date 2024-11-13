@@ -67,7 +67,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	} else if kind == reflect.Struct {
 		if value == reflect.TypeOf(time.Time{}) {
 			return &arrow.TimestampType{
-				Unit:     arrow.Nanosecond,
+				Unit:     arrow.Microsecond,
 				TimeZone: "UTC",
 			}, nil
 		}
@@ -213,7 +213,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			timeSlice := values.([]time.Time)
 			timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
 			for _, t := range timeSlice {
-				timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixNano()))
+				timestampSlice = append(timestampSlice, arrow.Timestamp(t.UnixMicro()))
 			}
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, valid)
 		} else {
