@@ -9,6 +9,34 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+func TestFeatureResultDeserialization(t *testing.T) {
+	withTimestamp := featureResultSerialized{
+		Field:     "user.id",
+		Value:     "1",
+		Pkey:      "1",
+		Timestamp: "2021-09-01T00:00:00Z",
+		Meta:      nil,
+		Error:     nil,
+	}
+	withoutTimestamp := featureResultSerialized{
+		Field:     "user.id",
+		Value:     "1",
+		Pkey:      "1",
+		Timestamp: "",
+		Meta:      nil,
+		Error:     nil,
+	}
+	tsResult, err := withTimestamp.deserialize()
+	assert.NoError(t, err)
+	assert.Equal(t, "user.id", tsResult.Field)
+	assert.Equal(t, time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC), tsResult.Timestamp)
+
+	noTsResult, err := withoutTimestamp.deserialize()
+	assert.NoError(t, err)
+	assert.Equal(t, "user.id", noTsResult.Field)
+	assert.Equal(t, time.Time{}, noTsResult.Timestamp)
+}
+
 func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	tags := []string{"tag1", "tag2"}
 	requiredResolverTags := []string{"tag3", "tag4"}
