@@ -87,10 +87,17 @@ type newGradAngelInvestor struct {
 	HowBroke *int64
 }
 
+type kindInvestor struct {
+	Id       *string
+	SeriesId *string
+	HowRich  *int64
+}
+
 type series struct {
-	Id        *string
-	Name      *string
-	Investors *[]newGradAngelInvestor `has_many:"id,series_id"`
+	Id                *string
+	Name              *string
+	Investors         *[]newGradAngelInvestor `has_many:"id,series_id"`
+	CrashingInvestors *[]kindInvestor         `has_many:"id,series_id"`
 }
 
 var testFeatures struct {

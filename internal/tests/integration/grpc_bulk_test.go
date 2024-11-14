@@ -1,25 +1,33 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
+
+var initFeaturesErr error
+
+func init() {
+	initFeaturesErr = chalk.InitFeatures(&testFeatures)
+}
 
 // TestOnlineQueryBulkGrpc mainly tests that a
 // gRPC bulk query works e2e. Correctness is
 // tested elsewhere.
 func TestOnlineQueryBulkGrpc(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
 	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 	userIds := []int64{1, 2}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
+
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
@@ -42,4 +50,58 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 	assert.Equal(t, *users[1].Id, userIds[1])
 	assert.NotNil(t, users[1].SocureScore)
 	assert.Equal(t, *users[1].SocureScore, socureScore)
+}
+
+// TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
+func TestOnlineQueryGrpcErringScalar(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
+	client, err := chalk.NewGRPCClient()
+	assert.NoError(t, err)
+	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.User.Id, 1).
+		WithOutputs(testFeatures.User.CrashingFeature)
+	resp, err := client.OnlineQuery(context.Background(), params)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp.Errors)
+}
+
+// TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
+func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
+	client, err := chalk.NewGRPCClient()
+	assert.NoError(t, err)
+	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Series.Id, 1).
+		WithOutputs(testFeatures.Series.CrashingInvestors)
+	resp, err := client.OnlineQuery(context.Background(), params)
+	assert.NoError(t, err)
+	assert.NotNil(t, resp.Errors)
+	assert.Equal(t, len(resp.GetData().GetResults()), 0)
+}
+
+// TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
+func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
+	t.Skip("Has-many not yet supported in gRPC")
+	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
+	client, err := chalk.NewGRPCClient()
+	assert.NoError(t, err)
+	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Series.Id, "seed").
+		WithOutputs(testFeatures.Series.Investors)
+	resp, err := client.OnlineQuery(context.Background(), params)
+	assert.NoError(t, err)
+	assert.Nil(t, resp.Errors)
+	assert.Equal(t, len(resp.GetData().GetResults()), 1)
 }

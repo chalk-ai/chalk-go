@@ -126,38 +126,36 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		return nil, err
 	}
 
-	scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
-	if err != nil {
-		return nil, errors.Wrap(err, "converting scalars data to table")
-	}
-
-	rows, err := internal.ExtractFeaturesFromTable(scalarsTable)
-	if err != nil {
-		return nil, errors.Wrap(err, "extracting features from scalars table")
-	}
-
 	features := make(map[string]*commonv1.FeatureResult)
-	if len(rows) != 1 {
-		return nil, errors.Newf(
-			"expected 1 row from scalars table, got %d",
-			len(rows),
-		)
-	}
-	for fqn, value := range rows[0] {
-		if reflect.TypeOf(value) == reflect.TypeOf(time.Time{}) {
-			value = value.(time.Time).Format(time.RFC3339)
-		}
-		newValue, err := structpb.NewValue(value)
+	if len(bulkRes.GetScalarsData()) > 0 {
+		scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
 		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"converting value for feature '%s' from `any` to `structpb.Value`",
-				fqn,
-			)
+			return nil, errors.Wrap(err, "converting scalars data to table")
 		}
-		features[fqn] = &commonv1.FeatureResult{
-			Field: fqn,
-			Value: newValue,
+
+		rows, err := internal.ExtractFeaturesFromTable(scalarsTable)
+		if err != nil {
+			return nil, errors.Wrap(err, "extracting features from scalars table")
+		}
+
+		if len(rows) == 1 {
+			for fqn, value := range rows[0] {
+				if reflect.TypeOf(value) == reflect.TypeOf(time.Time{}) {
+					value = value.(time.Time).Format(time.RFC3339)
+				}
+				newValue, err := structpb.NewValue(value)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"converting value for feature '%s' from `any` to `structpb.Value`",
+						fqn,
+					)
+				}
+				features[fqn] = &commonv1.FeatureResult{
+					Field: fqn,
+					Value: newValue,
+				}
+			}
 		}
 	}
 
