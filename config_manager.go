@@ -39,25 +39,26 @@ func newConfigManager(
 ) (*configManager, error) {
 	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
 
-	apiServerOverride := auth2.GetChalkClientArgConfig(apiServer)
-	clientIdOverride := auth2.GetChalkClientArgConfig(clientId)
-	clientSecretOverride := auth2.GetChalkClientArgConfig(clientSecret)
-	environmentIdOverride := auth2.GetChalkClientArgConfig(environmentId)
-
-	apiServerEnvVarConfig := auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey)
-	clientIdEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey)
-	clientSecretEnvVarConfig := auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey)
-	environmentIdEnvVarConfig := auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey)
-
-	apiServerFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer)
-	clientIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId)
-	clientSecretFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret)
-	environmentIdFileConfig := auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment)
-
-	apiServerConfig := auth2.GetFirstNonEmptyConfig(apiServerOverride, apiServerEnvVarConfig, apiServerFileConfig)
-	clientIdConfig := auth2.GetFirstNonEmptyConfig(clientIdOverride, clientIdEnvVarConfig, clientIdFileConfig)
-	clientSecretConfig := auth2.GetFirstNonEmptyConfig(clientSecretOverride, clientSecretEnvVarConfig, clientSecretFileConfig)
-	environmentIdConfig := auth2.GetFirstNonEmptyConfig(environmentIdOverride, environmentIdEnvVarConfig, environmentIdFileConfig)
+	apiServerConfig := auth2.GetFirstNonEmptyConfig(
+		auth2.GetChalkClientArgConfig(apiServer),
+		auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey),
+		auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
+	)
+	clientIdConfig := auth2.GetFirstNonEmptyConfig(
+		auth2.GetChalkClientArgConfig(clientId),
+		auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey),
+		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId),
+	)
+	clientSecretConfig := auth2.GetFirstNonEmptyConfig(
+		auth2.GetChalkClientArgConfig(clientSecret),
+		auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
+		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
+	)
+	environmentIdConfig := auth2.GetFirstNonEmptyConfig(
+		auth2.GetChalkClientArgConfig(environmentId),
+		auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey),
+		auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
+	)
 
 	if chalkYamlErr != nil && clientIdConfig.Value == "" && clientSecretConfig.Value == "" {
 		return nil, chalkYamlErr
