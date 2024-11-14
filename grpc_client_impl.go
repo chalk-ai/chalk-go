@@ -46,12 +46,12 @@ type grpcClientImpl struct {
 func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting resolved config")
+		return nil, errors.Wrap(err, "getting resolved config")
 	}
 	httpClient := http.DefaultClient
 	authClient, err := newAuthClient(httpClient, config.apiServer.Value)
 	if err != nil {
-		return nil, errors.Wrap(err, "error creating auth client")
+		return nil, errors.Wrap(err, "creating auth client")
 	}
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
 		return getToken(clientId, clientSecret, config.logger, authClient)
@@ -59,7 +59,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 
 	// Necessary to get GRPC engines URL
 	if err := config.refresh(false); err != nil {
-		return nil, errors.Wrap(err, "error fetching initial config")
+		return nil, errors.Wrap(err, "fetching initial config")
 	}
 
 	var queryServer *string
@@ -69,7 +69,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 
 	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
 	if err != nil {
-		return nil, errors.Wrap(err, "error creating query client")
+		return nil, errors.Wrap(err, "creating query client")
 	}
 
 	return &grpcClientImpl{
@@ -128,12 +128,12 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 
 	scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
 	if err != nil {
-		return nil, errors.Wrap(err, "error converting scalars data to table")
+		return nil, errors.Wrap(err, "converting scalars data to table")
 	}
 
 	rows, err := internal.ExtractFeaturesFromTable(scalarsTable)
 	if err != nil {
-		return nil, errors.Wrap(err, "error extracting features from scalars table")
+		return nil, errors.Wrap(err, "extracting features from scalars table")
 	}
 
 	features := make(map[string]*commonv1.FeatureResult)
@@ -151,7 +151,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
-				"error converting value for feature '%s' from `any` to `structpb.Value`",
+				"converting value for feature '%s' from `any` to `structpb.Value`",
 				fqn,
 			)
 		}
@@ -166,7 +166,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
-				"error converting bytes for feature '%s' to table",
+				"converting bytes for feature '%s' to table",
 				fqn,
 			)
 		}
@@ -175,7 +175,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
-				"error extracting features from has-many table for feature '%s'",
+				"extracting features from has-many table for feature '%s'",
 				fqn,
 			)
 		}
@@ -203,7 +203,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
-				"error converting has-many result for feature '%s' to `structpb.Value`",
+				"converting has-many result for feature '%s' to `structpb.Value`",
 				fqn,
 			)
 		}
@@ -226,12 +226,12 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error) {
 	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
 	if err != nil {
-		return nil, errors.Wrap(err, "error converting online query params to proto")
+		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
 	req := connect.NewRequest(paramsProto)
 	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error executing online query")
+		return nil, wrapClientError(err, "executing online query")
 	}
 	return res.Msg, nil
 }
@@ -239,11 +239,11 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
-		return nil, wrapClientError(err, "error converting inputs map")
+		return nil, wrapClientError(err, "converting inputs map")
 	}
 	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
 	if err != nil {
-		return nil, wrapClientError(err, "error serializing inputs as feather")
+		return nil, wrapClientError(err, "serializing inputs as feather")
 	}
 
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
@@ -253,7 +253,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 
 	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error making update aggregates request")
+		return nil, wrapClientError(err, "making update aggregates request")
 	}
 	return res.Msg, nil
 }
@@ -264,7 +264,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	})
 	res, err := c.queryClient.GetAggregates(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "error making get aggregates request")
+		return nil, wrapClientError(err, "making get aggregates request")
 	}
 
 	return res.Msg, err
@@ -276,7 +276,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
-		return nil, wrapClientError(err, "error making plan aggregate backfill request")
+		return nil, wrapClientError(err, "making plan aggregate backfill request")
 	}
 	return res.Msg, err
 }

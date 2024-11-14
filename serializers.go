@@ -15,6 +15,14 @@ import (
 )
 
 func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
+	outputs := p.outputs
+	if outputs == nil {
+		// If we are passing query name, we don't need to pass outputs,
+		// so outputs is empty, but when JSON serialized should never
+		// be `null`.
+		outputs = []string{}
+	}
+
 	context := internal.OnlineQueryContext{
 		Environment:          internal.StringOrNil(p.EnvironmentId),
 		Tags:                 p.Tags,
@@ -54,7 +62,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	return &internal.OnlineQueryRequestSerialized{
 		Inputs:           convertedInputs,
-		Outputs:          p.outputs,
+		Outputs:          outputs,
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
@@ -80,9 +88,13 @@ func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
-	timeObj, err := time.Parse(time.RFC3339, feature.Timestamp)
-	if err != nil {
-		return FeatureResult{}, err
+	var timeObj time.Time
+	if feature.Timestamp != "" {
+		parsed, err := time.Parse(time.RFC3339, feature.Timestamp)
+		if err != nil {
+			return FeatureResult{}, err
+		}
+		timeObj = parsed
 	}
 
 	var dError *ServerError = nil
