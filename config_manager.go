@@ -2,8 +2,9 @@ package chalk
 
 import (
 	"github.com/chalk-ai/chalk-go/internal"
-	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
+	"github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/cockroachdb/errors"
 	"time"
 )
 
@@ -17,13 +18,13 @@ type getTokenResult struct {
 }
 
 type configManager struct {
-	apiServer          auth2.SourcedConfig
-	clientId           auth2.SourcedConfig
-	clientSecret       auth2.SourcedConfig
-	environmentId      auth2.SourcedConfig
-	initialEnvironment auth2.SourcedConfig
+	apiServer          auth.SourcedConfig
+	clientId           auth.SourcedConfig
+	clientSecret       auth.SourcedConfig
+	environmentId      auth.SourcedConfig
+	initialEnvironment auth.SourcedConfig
 
-	jwt      *auth2.JWT
+	jwt      *auth.JWT
 	engines  map[string]string
 	getToken func(clientId string, clientSecret string) (*getTokenResult, error)
 
@@ -37,45 +38,45 @@ func newConfigManager(
 	environmentId string,
 	logger LeveledLogger,
 ) (*configManager, error) {
-	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
-
-	apiServerConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(apiServer),
-		auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
-	)
-	clientIdConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(clientId),
-		auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId),
-	)
-	clientSecretConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(clientSecret),
-		auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
-	)
-	environmentIdConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(environmentId),
-		auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
-	)
-
-	if chalkYamlErr != nil && clientIdConfig.Value == "" && clientSecretConfig.Value == "" {
-		return nil, chalkYamlErr
-	}
-
+	chalkYamlConfig, chalkYamlErr := auth.GetProjectAuthConfig()
 	if logger == nil {
 		logger = DefaultLeveledLogger
 	}
 
-	return &configManager{
-		apiServer:          apiServerConfig,
-		clientId:           clientIdConfig,
-		clientSecret:       clientSecretConfig,
-		environmentId:      environmentIdConfig,
-		initialEnvironment: environmentIdConfig,
+	envIdConfig := auth.GetFirstNonEmptyConfig(
+		auth.GetChalkClientArgConfig(environmentId),
+		auth.GetEnvVarConfig(internal.EnvironmentEnvVarKey),
+		auth.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
+	)
+
+	manager := &configManager{
+		apiServer: auth.GetFirstNonEmptyConfig(
+			auth.GetChalkClientArgConfig(apiServer),
+			auth.GetEnvVarConfig(internal.ApiServerEnvVarKey),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
+		),
+		clientId: auth.GetFirstNonEmptyConfig(
+			auth.GetChalkClientArgConfig(clientId),
+			auth.GetEnvVarConfig(internal.ClientIdEnvVarKey),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ClientId),
+		),
+		clientSecret: auth.GetFirstNonEmptyConfig(
+			auth.GetChalkClientArgConfig(clientSecret),
+			auth.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
+		),
+		environmentId:      envIdConfig,
+		initialEnvironment: envIdConfig,
 		logger:             logger,
-	}, nil
+	}
+
+	if chalkYamlErr != nil && manager.clientId.Value == "" && manager.clientSecret.Value == "" {
+		return nil, errors.Wrap(
+			chalkYamlErr,
+			"could not read chalk.yml and no client ID and client secret were provided",
+		)
+	}
+	return manager, nil
 }
 
 func (m *configManager) getQueryServer(queryServerOverride *string) string {
@@ -87,15 +88,13 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	if !ok {
 		if m.engines != nil {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine "+
-					"found for environment '%s' - engine map keys: '%s'",
+				"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%s'",
 				m.environmentId.Value,
 				colls.Keys(m.engines),
 			)
 		} else {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine "+
-					"found for environment '%s'",
+				"query endpoint falling back to api server - no engine found for environment '%s'",
 				m.environmentId.Value,
 			)
 		}
@@ -104,31 +103,28 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	return endpoint
 }
 
-func (r *configManager) refresh(force bool) error {
-	if !force && r.jwt != nil && r.jwt.IsValid() {
+func (m *configManager) refresh(force bool) error {
+	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, getTokenErr := r.getToken(r.clientId.Value, r.clientSecret.Value)
-	if getTokenErr != nil {
-		return getTokenErr
+	config, err := m.getToken(m.clientId.Value, m.clientSecret.Value)
+	if err != nil {
+		return errors.Wrap(err, "refreshing token")
 	}
 
-	if r.initialEnvironment.Value == "" {
-		r.environmentId = auth2.SourcedConfig{
+	if m.initialEnvironment.Value == "" {
+		m.environmentId = auth.SourcedConfig{
 			Value:  config.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
-		r.environmentId = r.initialEnvironment
+		m.environmentId = m.initialEnvironment
 	}
-
-	r.jwt = &auth2.JWT{
+	m.jwt = &auth.JWT{
 		Token:      config.AccessToken,
 		ValidUntil: config.ValidUntil,
 	}
-
-	r.engines = config.Engines
-
+	m.engines = config.Engines
 	return nil
 }
