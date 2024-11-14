@@ -77,7 +77,6 @@ func newConfigManager(
 		)
 	}
 	return manager, nil
-
 }
 
 func (m *configManager) getQueryServer(queryServerOverride *string) string {
@@ -89,15 +88,13 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	if !ok {
 		if m.engines != nil {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine "+
-					"found for environment '%s' - engine map keys: '%s'",
+				"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%s'",
 				m.environmentId.Value,
 				colls.Keys(m.engines),
 			)
 		} else {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine "+
-					"found for environment '%s'",
+				"query endpoint falling back to api server - no engine found for environment '%s'",
 				m.environmentId.Value,
 			)
 		}
@@ -106,31 +103,28 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	return endpoint
 }
 
-func (r *configManager) refresh(force bool) error {
-	if !force && r.jwt != nil && r.jwt.IsValid() {
+func (m *configManager) refresh(force bool) error {
+	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, getTokenErr := r.getToken(r.clientId.Value, r.clientSecret.Value)
-	if getTokenErr != nil {
-		return getTokenErr
+	config, err := m.getToken(m.clientId.Value, m.clientSecret.Value)
+	if err != nil {
+		return errors.Wrap(err, "refreshing token")
 	}
 
-	if r.initialEnvironment.Value == "" {
-		r.environmentId = auth.SourcedConfig{
+	if m.initialEnvironment.Value == "" {
+		m.environmentId = auth.SourcedConfig{
 			Value:  config.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
-		r.environmentId = r.initialEnvironment
+		m.environmentId = m.initialEnvironment
 	}
-
-	r.jwt = &auth.JWT{
+	m.jwt = &auth.JWT{
 		Token:      config.AccessToken,
 		ValidUntil: config.ValidUntil,
 	}
-
-	r.engines = config.Engines
-
+	m.engines = config.Engines
 	return nil
 }
