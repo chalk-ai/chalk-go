@@ -4,6 +4,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	auth2 "github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/cockroachdb/errors"
 	"time"
 )
 
@@ -38,44 +39,45 @@ func newConfigManager(
 	logger LeveledLogger,
 ) (*configManager, error) {
 	chalkYamlConfig, chalkYamlErr := auth2.GetProjectAuthConfig()
+	if logger == nil {
+		logger = DefaultLeveledLogger
+	}
 
-	apiServerConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(apiServer),
-		auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
-	)
-	clientIdConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(clientId),
-		auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId),
-	)
-	clientSecretConfig := auth2.GetFirstNonEmptyConfig(
-		auth2.GetChalkClientArgConfig(clientSecret),
-		auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
-		auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
-	)
-	environmentIdConfig := auth2.GetFirstNonEmptyConfig(
+	envIdConfig := auth2.GetFirstNonEmptyConfig(
 		auth2.GetChalkClientArgConfig(environmentId),
 		auth2.GetEnvVarConfig(internal.EnvironmentEnvVarKey),
 		auth2.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
 	)
 
-	if chalkYamlErr != nil && clientIdConfig.Value == "" && clientSecretConfig.Value == "" {
-		return nil, chalkYamlErr
-	}
-
-	if logger == nil {
-		logger = DefaultLeveledLogger
-	}
-
-	return &configManager{
-		apiServer:          apiServerConfig,
-		clientId:           clientIdConfig,
-		clientSecret:       clientSecretConfig,
-		environmentId:      environmentIdConfig,
-		initialEnvironment: environmentIdConfig,
+	manager := &configManager{
+		apiServer: auth2.GetFirstNonEmptyConfig(
+			auth2.GetChalkClientArgConfig(apiServer),
+			auth2.GetEnvVarConfig(internal.ApiServerEnvVarKey),
+			auth2.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
+		),
+		clientId: auth2.GetFirstNonEmptyConfig(
+			auth2.GetChalkClientArgConfig(clientId),
+			auth2.GetEnvVarConfig(internal.ClientIdEnvVarKey),
+			auth2.GetChalkYamlConfig(chalkYamlConfig.ClientId),
+		),
+		clientSecret: auth2.GetFirstNonEmptyConfig(
+			auth2.GetChalkClientArgConfig(clientSecret),
+			auth2.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
+			auth2.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
+		),
+		environmentId:      envIdConfig,
+		initialEnvironment: envIdConfig,
 		logger:             logger,
-	}, nil
+	}
+
+	if chalkYamlErr != nil && manager.clientId.Value == "" && manager.clientSecret.Value == "" {
+		return nil, errors.Wrap(
+			chalkYamlErr,
+			"could not read chalk.yml and no client ID and client secret were provided",
+		)
+	}
+	return manager, nil
+
 }
 
 func (m *configManager) getQueryServer(queryServerOverride *string) string {
