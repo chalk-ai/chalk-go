@@ -36,17 +36,23 @@ const (
 	// HealthServiceCheckHealthProcedure is the fully-qualified name of the HealthService's CheckHealth
 	// RPC.
 	HealthServiceCheckHealthProcedure = "/chalk.server.v1.HealthService/CheckHealth"
+	// HealthServiceGetHealthProcedure is the fully-qualified name of the HealthService's GetHealth RPC.
+	HealthServiceGetHealthProcedure = "/chalk.server.v1.HealthService/GetHealth"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
 	healthServiceServiceDescriptor           = v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService")
 	healthServiceCheckHealthMethodDescriptor = healthServiceServiceDescriptor.Methods().ByName("CheckHealth")
+	healthServiceGetHealthMethodDescriptor   = healthServiceServiceDescriptor.Methods().ByName("GetHealth")
 )
 
 // HealthServiceClient is a client for the chalk.server.v1.HealthService service.
 type HealthServiceClient interface {
+	// If any checks fail, this request fails.
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
+	// Return the actual health check values.
+	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
 }
 
 // NewHealthServiceClient constructs a client for the chalk.server.v1.HealthService service. By
@@ -66,12 +72,20 @@ func NewHealthServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getHealth: connect.NewClient[v1.GetHealthRequest, v1.GetHealthResponse](
+			httpClient,
+			baseURL+HealthServiceGetHealthProcedure,
+			connect.WithSchema(healthServiceGetHealthMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // healthServiceClient implements HealthServiceClient.
 type healthServiceClient struct {
 	checkHealth *connect.Client[v1.CheckHealthRequest, v1.CheckHealthResponse]
+	getHealth   *connect.Client[v1.GetHealthRequest, v1.GetHealthResponse]
 }
 
 // CheckHealth calls chalk.server.v1.HealthService.CheckHealth.
@@ -79,9 +93,17 @@ func (c *healthServiceClient) CheckHealth(ctx context.Context, req *connect.Requ
 	return c.checkHealth.CallUnary(ctx, req)
 }
 
+// GetHealth calls chalk.server.v1.HealthService.GetHealth.
+func (c *healthServiceClient) GetHealth(ctx context.Context, req *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error) {
+	return c.getHealth.CallUnary(ctx, req)
+}
+
 // HealthServiceHandler is an implementation of the chalk.server.v1.HealthService service.
 type HealthServiceHandler interface {
+	// If any checks fail, this request fails.
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
+	// Return the actual health check values.
+	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
 }
 
 // NewHealthServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -97,10 +119,19 @@ func NewHealthServiceHandler(svc HealthServiceHandler, opts ...connect.HandlerOp
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	healthServiceGetHealthHandler := connect.NewUnaryHandler(
+		HealthServiceGetHealthProcedure,
+		svc.GetHealth,
+		connect.WithSchema(healthServiceGetHealthMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.HealthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case HealthServiceCheckHealthProcedure:
 			healthServiceCheckHealthHandler.ServeHTTP(w, r)
+		case HealthServiceGetHealthProcedure:
+			healthServiceGetHealthHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -112,4 +143,8 @@ type UnimplementedHealthServiceHandler struct{}
 
 func (UnimplementedHealthServiceHandler) CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.CheckHealth is not implemented"))
+}
+
+func (UnimplementedHealthServiceHandler) GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.GetHealth is not implemented"))
 }
