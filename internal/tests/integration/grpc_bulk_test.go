@@ -69,7 +69,7 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 	assert.NotNil(t, resp.Errors)
 }
 
-// TestOnlineQueryGrpcErringGroup tests requests with an erring has-many feature as the sole output
+// TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
 func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	if initFeaturesErr != nil {
@@ -85,4 +85,23 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, resp.Errors)
 	assert.Equal(t, len(resp.GetData().GetResults()), 0)
+}
+
+// TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
+func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
+	t.Skip("Has-many not yet supported in gRPC")
+	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
+	client, err := chalk.NewGRPCClient()
+	assert.NoError(t, err)
+	params := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Series.Id, "seed").
+		WithOutputs(testFeatures.Series.Investors)
+	resp, err := client.OnlineQuery(context.Background(), params)
+	assert.NoError(t, err)
+	assert.Nil(t, resp.Errors)
+	assert.Equal(t, len(resp.GetData().GetResults()), 1)
 }
