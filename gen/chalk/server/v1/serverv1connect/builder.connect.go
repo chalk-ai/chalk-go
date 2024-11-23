@@ -81,6 +81,9 @@ const (
 	// BuilderServiceCreateClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterBackgroundPersistence RPC.
 	BuilderServiceCreateClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/CreateClusterBackgroundPersistence"
+	// BuilderServiceUpdateEnvironmentVariablesProcedure is the fully-qualified name of the
+	// BuilderService's UpdateEnvironmentVariables RPC.
+	BuilderServiceUpdateEnvironmentVariablesProcedure = "/chalk.server.v1.BuilderService/UpdateEnvironmentVariables"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -102,6 +105,7 @@ var (
 	builderServiceMigrateClusterTimescaleDBMethodDescriptor          = builderServiceServiceDescriptor.Methods().ByName("MigrateClusterTimescaleDB")
 	builderServiceCreateClusterGatewayMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
 	builderServiceCreateClusterBackgroundPersistenceMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterBackgroundPersistence")
+	builderServiceUpdateEnvironmentVariablesMethodDescriptor         = builderServiceServiceDescriptor.Methods().ByName("UpdateEnvironmentVariables")
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -130,6 +134,7 @@ type BuilderServiceClient interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -239,6 +244,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		updateEnvironmentVariables: connect.NewClient[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateEnvironmentVariablesProcedure,
+			connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -260,6 +271,7 @@ type builderServiceClient struct {
 	migrateClusterTimescaleDB          *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
 	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
+	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -344,6 +356,11 @@ func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Co
 	return c.createClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
+// UpdateEnvironmentVariables calls chalk.server.v1.BuilderService.UpdateEnvironmentVariables.
+func (c *builderServiceClient) UpdateEnvironmentVariables(ctx context.Context, req *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error) {
+	return c.updateEnvironmentVariables.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -370,6 +387,7 @@ type BuilderServiceHandler interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -475,6 +493,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceUpdateEnvironmentVariablesHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateEnvironmentVariablesProcedure,
+		svc.UpdateEnvironmentVariables,
+		connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -509,6 +533,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceCreateClusterGatewayHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterBackgroundPersistenceProcedure:
 			builderServiceCreateClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateEnvironmentVariablesProcedure:
+			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -580,4 +606,8 @@ func (UnimplementedBuilderServiceHandler) CreateClusterGateway(context.Context, 
 
 func (UnimplementedBuilderServiceHandler) CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateEnvironmentVariables is not implemented"))
 }
