@@ -2,9 +2,11 @@ package integration
 
 import (
 	"context"
+	"fmt"
+	"testing"
+
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
-	"testing"
 )
 
 var initFeaturesErr error
@@ -43,13 +45,13 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 
 	socureScore := 123.0
 	assert.NotNil(t, users[0].Id)
-	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.Equal(t, userIds[0], *users[0].Id)
 	assert.NotNil(t, users[0].SocureScore)
-	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.Equal(t, socureScore, *users[0].SocureScore)
 	assert.NotNil(t, users[1].Id)
-	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.Equal(t, userIds[1], *users[1].Id)
 	assert.NotNil(t, users[1].SocureScore)
-	assert.Equal(t, *users[1].SocureScore, socureScore)
+	assert.Equal(t, socureScore, *users[1].SocureScore)
 }
 
 // TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
@@ -84,7 +86,7 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp.Errors)
-	assert.Equal(t, len(resp.GetData().GetResults()), 0)
+	assert.Equal(t, 0, len(resp.GetData().GetResults()), fmt.Sprintf("%+v", resp.GetData().GetResults()))
 }
 
 // TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
@@ -103,5 +105,5 @@ func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.Nil(t, resp.Errors)
-	assert.Equal(t, len(resp.GetData().GetResults()), 1)
+	assert.Equal(t, 1, len(resp.GetData().GetResults()))
 }
