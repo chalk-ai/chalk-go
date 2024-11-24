@@ -2,7 +2,6 @@ package integration
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/chalk-ai/chalk-go"
@@ -86,7 +85,7 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp.Errors)
-	assert.Equal(t, 0, len(resp.GetData().GetResults()), fmt.Sprintf("%+v", resp.GetData().GetResults()))
+	assert.Equal(t, 0, len(resp.GetData().GetResults()))
 }
 
 // TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
