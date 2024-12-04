@@ -38,13 +38,17 @@ const (
 	HealthServiceCheckHealthProcedure = "/chalk.server.v1.HealthService/CheckHealth"
 	// HealthServiceGetHealthProcedure is the fully-qualified name of the HealthService's GetHealth RPC.
 	HealthServiceGetHealthProcedure = "/chalk.server.v1.HealthService/GetHealth"
+	// HealthServiceGetClusterMetricsProcedure is the fully-qualified name of the HealthService's
+	// GetClusterMetrics RPC.
+	HealthServiceGetClusterMetricsProcedure = "/chalk.server.v1.HealthService/GetClusterMetrics"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	healthServiceServiceDescriptor           = v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService")
-	healthServiceCheckHealthMethodDescriptor = healthServiceServiceDescriptor.Methods().ByName("CheckHealth")
-	healthServiceGetHealthMethodDescriptor   = healthServiceServiceDescriptor.Methods().ByName("GetHealth")
+	healthServiceServiceDescriptor                 = v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService")
+	healthServiceCheckHealthMethodDescriptor       = healthServiceServiceDescriptor.Methods().ByName("CheckHealth")
+	healthServiceGetHealthMethodDescriptor         = healthServiceServiceDescriptor.Methods().ByName("GetHealth")
+	healthServiceGetClusterMetricsMethodDescriptor = healthServiceServiceDescriptor.Methods().ByName("GetClusterMetrics")
 )
 
 // HealthServiceClient is a client for the chalk.server.v1.HealthService service.
@@ -53,6 +57,8 @@ type HealthServiceClient interface {
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
 	// Return the actual health check values.
 	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
+	// Return collected cluster prometheus metrics
+	GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error)
 }
 
 // NewHealthServiceClient constructs a client for the chalk.server.v1.HealthService service. By
@@ -79,13 +85,21 @@ func NewHealthServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getClusterMetrics: connect.NewClient[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse](
+			httpClient,
+			baseURL+HealthServiceGetClusterMetricsProcedure,
+			connect.WithSchema(healthServiceGetClusterMetricsMethodDescriptor),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // healthServiceClient implements HealthServiceClient.
 type healthServiceClient struct {
-	checkHealth *connect.Client[v1.CheckHealthRequest, v1.CheckHealthResponse]
-	getHealth   *connect.Client[v1.GetHealthRequest, v1.GetHealthResponse]
+	checkHealth       *connect.Client[v1.CheckHealthRequest, v1.CheckHealthResponse]
+	getHealth         *connect.Client[v1.GetHealthRequest, v1.GetHealthResponse]
+	getClusterMetrics *connect.Client[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse]
 }
 
 // CheckHealth calls chalk.server.v1.HealthService.CheckHealth.
@@ -98,12 +112,19 @@ func (c *healthServiceClient) GetHealth(ctx context.Context, req *connect.Reques
 	return c.getHealth.CallUnary(ctx, req)
 }
 
+// GetClusterMetrics calls chalk.server.v1.HealthService.GetClusterMetrics.
+func (c *healthServiceClient) GetClusterMetrics(ctx context.Context, req *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error) {
+	return c.getClusterMetrics.CallUnary(ctx, req)
+}
+
 // HealthServiceHandler is an implementation of the chalk.server.v1.HealthService service.
 type HealthServiceHandler interface {
 	// If any checks fail, this request fails.
 	CheckHealth(context.Context, *connect.Request[v1.CheckHealthRequest]) (*connect.Response[v1.CheckHealthResponse], error)
 	// Return the actual health check values.
 	GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error)
+	// Return collected cluster prometheus metrics
+	GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error)
 }
 
 // NewHealthServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -126,12 +147,21 @@ func NewHealthServiceHandler(svc HealthServiceHandler, opts ...connect.HandlerOp
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	healthServiceGetClusterMetricsHandler := connect.NewUnaryHandler(
+		HealthServiceGetClusterMetricsProcedure,
+		svc.GetClusterMetrics,
+		connect.WithSchema(healthServiceGetClusterMetricsMethodDescriptor),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.HealthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case HealthServiceCheckHealthProcedure:
 			healthServiceCheckHealthHandler.ServeHTTP(w, r)
 		case HealthServiceGetHealthProcedure:
 			healthServiceGetHealthHandler.ServeHTTP(w, r)
+		case HealthServiceGetClusterMetricsProcedure:
+			healthServiceGetClusterMetricsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -147,4 +177,8 @@ func (UnimplementedHealthServiceHandler) CheckHealth(context.Context, *connect.R
 
 func (UnimplementedHealthServiceHandler) GetHealth(context.Context, *connect.Request[v1.GetHealthRequest]) (*connect.Response[v1.GetHealthResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.GetHealth is not implemented"))
+}
+
+func (UnimplementedHealthServiceHandler) GetClusterMetrics(context.Context, *connect.Request[v1.GetClusterMetricsRequest]) (*connect.Response[v1.GetClusterMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.HealthService.GetClusterMetrics is not implemented"))
 }
