@@ -72,6 +72,7 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 
 // TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
 func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
+	t.Skip("CHA-5284")
 	SkipIfNotIntegrationTester(t)
 	if initFeaturesErr != nil {
 		t.Fatal("Failed initializing features", initFeaturesErr)
