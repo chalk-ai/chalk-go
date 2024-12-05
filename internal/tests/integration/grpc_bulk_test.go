@@ -68,11 +68,11 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp.Errors)
+	assert.NotNil(t, resp.GetData().GetResults()[0].GetValue().GetNullValue())
 }
 
 // TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
 func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
-	t.Skip("CHA-5284")
 	SkipIfNotIntegrationTester(t)
 	if initFeaturesErr != nil {
 		t.Fatal("Failed initializing features", initFeaturesErr)
@@ -86,7 +86,7 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.NotNil(t, resp.Errors)
-	assert.Equal(t, 0, len(resp.GetData().GetResults()))
+	assert.Equal(t, 0, len(resp.GetData().GetResults()[0].GetValue().GetListValue().GetValues()))
 }
 
 // TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
