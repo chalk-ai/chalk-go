@@ -37,12 +37,14 @@ func (s *scopeTrie) add(fqnParts []string) {
 }
 
 type featureInitializer struct {
-	fieldsMap map[string][]reflect.Value
+	fieldsMap                                 map[string][]reflect.Value
+	structNameToResolvedFieldNameToFieldIndex map[string]map[string]int
 }
 
 func NewFeatureInitializer() *featureInitializer {
 	return &featureInitializer{
 		fieldsMap: map[string][]reflect.Value{},
+		structNameToResolvedFieldNameToFieldIndex: map[string]map[string]int{},
 	}
 }
 
@@ -71,14 +73,14 @@ func (fi *featureInitializer) initFeatures(
 		)
 	}
 
-	namespace := structValue.Type().Name()
-	if isVisited, ok := visited[namespace]; ok && isVisited {
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
 		// Found a cycle. Just return.
 		return nil
 	}
-	visited[namespace] = true
+	visited[structName] = true
 	defer func() {
-		visited[namespace] = false
+		visited[structName] = false
 	}()
 
 	type fieldAndMeta struct {
@@ -96,11 +98,40 @@ func (fi *featureInitializer) initFeatures(
 			},
 		)
 	}
-	for _, fm := range fms {
+
+	for fieldIdx, fm := range fms {
 		resolvedName, err := internal.ResolveFeatureName(fm.Meta)
 		if err != nil {
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
+
+		/*  Populate memo to make bulk unmarshalling and has-many unmarshalling efficient.
+		/*  i.e. Don't need to do the same work for the same features class multiple times.
+		*/
+		if _, ok := fi.structNameToResolvedFieldNameToFieldIndex[structName]; !ok {
+			fi.structNameToResolvedFieldNameToFieldIndex[structName] = map[string]int{}
+		}
+		fieldNameToFieldIndex := fi.structNameToResolvedFieldNameToFieldIndex[structName]
+		fieldNameToFieldIndex[resolvedName] = fieldIdx
+
+		// Handle exploding windowed features
+		if fm.Field.Type().Kind() == reflect.Map {
+			// Is a windowed feature
+			intTags, err := internal.GetWindowBucketsSecondsFromStructTag(fm.Meta)
+			if err != nil {
+				return errors.Wrapf(
+					err,
+					"error getting window buckets for field '%s' in struct '%s'",
+					fm.Meta.Name,
+					structName,
+				)
+			}
+			for _, tag := range intTags {
+				bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
+				fieldNameToFieldIndex[bucketFqn] = fieldIdx
+			}
+		}
+		/*  End of memo population */
 
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
 		if cumulativeFqn == "" {
