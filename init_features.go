@@ -100,42 +100,11 @@ func (fi *featureInitializer) initFeatures(
 		)
 	}
 
-	for fieldIdx, fm := range fms {
+	for _, fm := range fms {
 		resolvedName, err := internal.ResolveFeatureName(fm.Meta)
 		if err != nil {
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
-
-		/*  Populate memo to make bulk unmarshalling and has-many unmarshalling efficient.
-		/*  i.e. Don't need to do the same work for the same features class multiple times.
-		*/
-		if _, ok := fi.namespaceMemo[structName]; !ok {
-			fi.namespaceMemo[structName] = internal.NamespaceMemoItem{}
-		}
-		nsMemo := fi.namespaceMemo[structName]
-		if nsMemo.ResolvedFieldNameToIndex == nil {
-			nsMemo.ResolvedFieldNameToIndex = map[string]int{}
-		}
-		nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
-
-		// Handle exploding windowed features
-		if fm.Field.Type().Kind() == reflect.Map {
-			// Is a windowed feature
-			intTags, err := internal.GetWindowBucketsSecondsFromStructTag(fm.Meta)
-			if err != nil {
-				return errors.Wrapf(
-					err,
-					"error getting window buckets for field '%s' in struct '%s'",
-					fm.Meta.Name,
-					structName,
-				)
-			}
-			for _, tag := range intTags {
-				bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-				nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
-			}
-		}
-		/*  End of memo population */
 
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
 		if cumulativeFqn == "" {
@@ -287,6 +256,58 @@ func (fi *featureInitializer) initFeatures(
 				f.Set(ptrInDisguiseToFeature)
 			}
 		}
+	}
+	return nil
+}
+
+/*  buildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+ *  i.e. Don't need to do the same work for the same features class multiple times.
+ */
+func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
+	if typ.Kind() == reflect.Ptr {
+		return fi.buildNamespaceMemo(typ.Elem())
+	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
+		structName := typ.Name()
+		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
+			fm := typ.Field(fieldIdx)
+			resolvedName, err := internal.ResolveFeatureName(fm)
+			if err != nil {
+				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
+			}
+
+			if _, ok := fi.namespaceMemo[structName]; !ok {
+				fi.namespaceMemo[structName] = &internal.NamespaceMemoItem{}
+			}
+			nsMemo := fi.namespaceMemo[structName]
+			if nsMemo.ResolvedFieldNameToIndex == nil {
+				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
+			}
+			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
+
+			// Handle exploding windowed features
+			if fm.Type.Kind() == reflect.Map {
+				// Is a windowed feature
+				intTags, err := internal.GetWindowBucketsSecondsFromStructTag(fm)
+				if err != nil {
+					return errors.Wrapf(
+						err,
+						"error getting window buckets for field '%s' in struct '%s'",
+						fm.Name,
+						structName,
+					)
+				}
+				for _, tag := range intTags {
+					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
+					nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
+				}
+			} else {
+				if err := fi.buildNamespaceMemo(fm.Type); err != nil {
+					return err
+				}
+			}
+		}
+	} else if typ.Kind() == reflect.Slice {
+		return fi.buildNamespaceMemo(typ.Elem())
 	}
 	return nil
 }

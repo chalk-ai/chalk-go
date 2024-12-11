@@ -21,7 +21,7 @@ type NamespaceMemoItem struct {
 	ResolvedFieldNameToIndex map[string]int
 }
 
-type NamespaceMemo map[string]NamespaceMemoItem
+type NamespaceMemo map[string]*NamespaceMemoItem
 
 var skipUnmarshalFeatureNames = map[string]bool{
 	"__chalk_observed_at__": true,

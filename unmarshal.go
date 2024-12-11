@@ -264,6 +264,10 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
 	}
 
+	if err := initializer.buildNamespaceMemo(structValue.Type()); err != nil {
+		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
+	}
+
 	for fqn, value := range fqnToValue {
 		if value == nil {
 			// Some fields are optional, so we leave the field as nil
