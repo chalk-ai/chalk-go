@@ -11,7 +11,7 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	return NewFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
+	return newFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
 type scopeTrie struct {
@@ -36,16 +36,22 @@ func (s *scopeTrie) add(fqnParts []string) {
 	s.children[firstPart].add(fqnParts[1:])
 }
 
-type featureInitializer struct {
-	fieldsMap                                 map[string][]reflect.Value
-	structNameToResolvedFieldNameToFieldIndex map[string]map[string]int
+type namespaceMemo struct {
+	resolvedFieldNameToIndex map[string]int
 }
 
-func NewFeatureInitializer() *featureInitializer {
-	return &featureInitializer{
-		fieldsMap: map[string][]reflect.Value{},
-		structNameToResolvedFieldNameToFieldIndex: map[string]map[string]int{},
+type featureInitializer struct {
+	fieldsMap     map[string][]reflect.Value
+	namespaceMemo map[string]namespaceMemo
+}
+
+func newFeatureInitializer() *featureInitializer {
+	res := &featureInitializer{
+		fieldsMap:     map[string][]reflect.Value{},
+		namespaceMemo: map[string]namespaceMemo{},
 	}
+	res.namespaceMemo = map[string]namespaceMemo{}
+	return res
 }
 
 // initFeatures is a recursive function that:
@@ -108,11 +114,14 @@ func (fi *featureInitializer) initFeatures(
 		/*  Populate memo to make bulk unmarshalling and has-many unmarshalling efficient.
 		/*  i.e. Don't need to do the same work for the same features class multiple times.
 		*/
-		if _, ok := fi.structNameToResolvedFieldNameToFieldIndex[structName]; !ok {
-			fi.structNameToResolvedFieldNameToFieldIndex[structName] = map[string]int{}
+		if _, ok := fi.namespaceMemo[structName]; !ok {
+			fi.namespaceMemo[structName] = namespaceMemo{}
 		}
-		fieldNameToFieldIndex := fi.structNameToResolvedFieldNameToFieldIndex[structName]
-		fieldNameToFieldIndex[resolvedName] = fieldIdx
+		nsMemo := fi.namespaceMemo[structName]
+		if nsMemo.resolvedFieldNameToIndex == nil {
+			nsMemo.resolvedFieldNameToIndex = map[string]int{}
+		}
+		nsMemo.resolvedFieldNameToIndex[resolvedName] = fieldIdx
 
 		// Handle exploding windowed features
 		if fm.Field.Type().Kind() == reflect.Map {
@@ -128,7 +137,7 @@ func (fi *featureInitializer) initFeatures(
 			}
 			for _, tag := range intTags {
 				bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-				fieldNameToFieldIndex[bucketFqn] = fieldIdx
+				nsMemo.resolvedFieldNameToIndex[bucketFqn] = fieldIdx
 			}
 		}
 		/*  End of memo population */

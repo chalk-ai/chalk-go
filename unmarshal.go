@@ -13,7 +13,7 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any) error {
+func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := internal.GetReflectValue(&value, field.Type())
 		if err != nil {
@@ -34,7 +34,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
 }
-
 func convertIfHasManyMap(value any) (any, error) {
 	// For has-many values, we get this back:
 	//
@@ -239,7 +238,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 	fieldMap := map[string][]reflect.Value{}
 
-	initializer := NewFeatureInitializer()
+	initializer := newFeatureInitializer()
 	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
@@ -297,7 +296,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldMap[fqn] = []reflect.Value{}
 			}
 			fieldMap[fqn] = append(fieldMap[fqn], field)
-			if err := setFeatureSingle(field, fqn, value); err != nil {
+			if err := initializer.setFeatureSingle(field, fqn, value); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")
