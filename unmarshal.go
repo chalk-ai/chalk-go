@@ -15,7 +15,7 @@ var FieldNotFoundError = errors.New("field not found")
 
 func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type())
+		rVal, err := internal.GetReflectValue(&value, field.Type(), fi.namespaceMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -26,7 +26,7 @@ func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, 
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, fi.namespaceMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil

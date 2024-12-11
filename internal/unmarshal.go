@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
@@ -15,6 +16,12 @@ var tableReaderChunkSize = 10_000
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
+
+type NamespaceMemoItem struct {
+	ResolvedFieldNameToIndex map[string]int
+}
+
+type NamespaceMemo map[string]NamespaceMemoItem
 
 var skipUnmarshalFeatureNames = map[string]bool{
 	"__chalk_observed_at__": true,
@@ -191,12 +198,12 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem())
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), nsMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -234,7 +241,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(&memberValue, memberField.Type())
+				rVal, err := GetReflectValue(&memberValue, memberField.Type(), nsMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -247,38 +254,22 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			nameToField := make(map[string]reflect.Value)
-			for i := 0; i < structValue.NumField(); i++ {
-				resolved, err := ResolveFeatureName(structValue.Type().Field(i))
-				if err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"error resolving name for field '%s' in struct '%s'",
-						structValue.Type().Field(i).Name,
-						structValue.Type().Name(),
-					)
-				}
-				nameToField[resolved] = structValue.Field(i)
-				// Handle exploding windowed features
-				if structValue.Field(i).Type().Kind() == reflect.Map {
-					// Is a windowed feature
-					intTags, err := GetWindowBucketsSecondsFromStructTag(structValue.Type().Field(i))
-					if err != nil {
-						return nil, errors.Wrapf(
-							err,
-							"error getting window buckets for field '%s' in struct '%s'",
-							structValue.Type().Field(i).Name,
-							structValue.Type().Name(),
-						)
-					}
-					for _, tag := range intTags {
-						bucketFqn := fmt.Sprintf("%s__%d__", resolved, tag)
-						nameToField[bucketFqn] = structValue.Field(i)
-					}
-				}
+			memo, ok := nsMemo[structValue.Type().Name()]
+			if !ok {
+				return nil, fmt.Errorf(
+					"namespace memo not found for struct '%s' - found %v",
+					structValue.Type().Name(),
+					colls.Keys(nsMemo),
+				)
+			}
+			if memo.ResolvedFieldNameToIndex == nil {
+				return nil, fmt.Errorf(
+					"resolved field name to index map not found for struct '%s'",
+					structValue.Type().Name(),
+				)
 			}
 			for k, v := range mapz {
-				memberField, fieldOk := nameToField[k]
+				memberFieldIdx, fieldOk := memo.ResolvedFieldNameToIndex[k]
 				if !fieldOk {
 					// For forward compatibility, i.e. when clients add
 					// more fields to their dataclasses in chalkpy, we want
@@ -287,6 +278,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					// Eventually we might consider exposing a flag.
 					continue
 				}
+				memberField := structValue.Field(memberFieldIdx)
 				if v == nil {
 					continue
 				}
@@ -296,7 +288,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					if err != nil {
 						return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
 					}
-					if err := SetMapEntryValue(memberField, bucket, v); err != nil {
+					if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
 						return nil, errors.Wrapf(
 							err,
 							"error setting map entry value for field '%s' in struct '%s'",
@@ -304,7 +296,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 						)
 					}
 				} else {
-					rVal, err := GetReflectValue(&v, memberField.Type())
+					rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
 					if err != nil {
 						return nil, errors.Wrapf(
 							err,
@@ -368,7 +360,7 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 					)
 				}
 			}
-			rVal, err := GetReflectValue(actualValue, typ.Elem())
+			rVal, err := GetReflectValue(actualValue, typ.Elem(), nsMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -392,13 +384,13 @@ func GetReflectValue(value any, typ reflect.Type) (*reflect.Value, error) {
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NamespaceMemo) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem())
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), nsMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}

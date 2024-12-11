@@ -36,21 +36,16 @@ func (s *scopeTrie) add(fqnParts []string) {
 	s.children[firstPart].add(fqnParts[1:])
 }
 
-type namespaceMemo struct {
-	resolvedFieldNameToIndex map[string]int
-}
-
 type featureInitializer struct {
 	fieldsMap     map[string][]reflect.Value
-	namespaceMemo map[string]namespaceMemo
+	namespaceMemo internal.NamespaceMemo
 }
 
 func newFeatureInitializer() *featureInitializer {
 	res := &featureInitializer{
 		fieldsMap:     map[string][]reflect.Value{},
-		namespaceMemo: map[string]namespaceMemo{},
+		namespaceMemo: internal.NamespaceMemo{},
 	}
-	res.namespaceMemo = map[string]namespaceMemo{}
 	return res
 }
 
@@ -115,13 +110,13 @@ func (fi *featureInitializer) initFeatures(
 		/*  i.e. Don't need to do the same work for the same features class multiple times.
 		*/
 		if _, ok := fi.namespaceMemo[structName]; !ok {
-			fi.namespaceMemo[structName] = namespaceMemo{}
+			fi.namespaceMemo[structName] = internal.NamespaceMemoItem{}
 		}
 		nsMemo := fi.namespaceMemo[structName]
-		if nsMemo.resolvedFieldNameToIndex == nil {
-			nsMemo.resolvedFieldNameToIndex = map[string]int{}
+		if nsMemo.ResolvedFieldNameToIndex == nil {
+			nsMemo.ResolvedFieldNameToIndex = map[string]int{}
 		}
-		nsMemo.resolvedFieldNameToIndex[resolvedName] = fieldIdx
+		nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
 
 		// Handle exploding windowed features
 		if fm.Field.Type().Kind() == reflect.Map {
@@ -137,7 +132,7 @@ func (fi *featureInitializer) initFeatures(
 			}
 			for _, tag := range intTags {
 				bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-				nsMemo.resolvedFieldNameToIndex[bucketFqn] = fieldIdx
+				nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
 			}
 		}
 		/*  End of memo population */
