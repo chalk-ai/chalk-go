@@ -209,6 +209,31 @@ func buildScope(fqns []string) (*scopeTrie, error) {
 	return root, nil
 }
 
+/*
+UnmarshalInto unmarshals a map with keys being FQNs and values being the value for a
+singular feature (rather than a list of values for multiple pkeys) into a struct whose
+fields correspond to the FQNs. An illustration:
+
+	type FinancialMetric struct {
+		Id *string
+		BusinessId *string
+		MetricDate *time.Time
+	}
+
+	func main() {
+		fqnToValue := map[Fqn]any{
+			"FinancialMetric.Id": "id1",
+			"FinancialMetric.BusinessId": "business_id1",
+			"FinancialMetric.MetricDate": time.Now(),
+		}
+		fm := FinancialMetric{}
+		if err := UnmarshalInto(&fm, fqnToValue, nil); err != (*ClientError)(nil) {
+			fmt.Println(err)
+		} else {
+			fmt.Println(fm)
+		}
+	}
+*/
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
