@@ -91,7 +91,6 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 
 // TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
 func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
-	t.Skip("Has-many not yet supported in gRPC")
 	SkipIfNotIntegrationTester(t)
 	if initFeaturesErr != nil {
 		t.Fatal("Failed initializing features", initFeaturesErr)
@@ -105,5 +104,10 @@ func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
 	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
 	assert.Nil(t, resp.Errors)
-	assert.Equal(t, 1, len(resp.GetData().GetResults()))
+	mySeries := series{}
+	if err := chalk.UnmarshalOnlineQueryResponse(resp, &mySeries); err != nil {
+		assert.FailNow(t, "Failed to unmarshal response", err)
+	}
+	assert.NotNil(t, mySeries.Investors)
+	assert.Equal(t, 50002, len(*mySeries.Investors))
 }
