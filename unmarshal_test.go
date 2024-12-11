@@ -1287,7 +1287,7 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 
 func BenchmarkHasManyUnmarshal(b *testing.B) {
 	var transactions []unmarshalTransaction
-	for i := 0; i < 50_000; i++ {
+	for i := 0; i < 100_000; i++ {
 		transactions = append(transactions, unmarshalTransaction{
 			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
 			AmountP30D:            ptr.Ptr(int64(i)),
@@ -1318,8 +1318,12 @@ func BenchmarkHasManyUnmarshal(b *testing.B) {
 	}
 	defer bulkRes.Release()
 	var resultUser []unmarshalUser
-	b.ResetTimer()
+	// Time it manually without using the benchmark `b`
+	start := time.Now()
 	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
 		b.Fatalf("failed to unmarshal: %v", err)
 	}
+	elapsed := time.Since(start)
+	// Log in seconds
+	b.Logf("elapsed: %v", elapsed)
 }

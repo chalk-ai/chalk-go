@@ -110,4 +110,6 @@ func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
 	}
 	assert.NotNil(t, mySeries.Investors)
 	assert.Equal(t, 50002, len(*mySeries.Investors))
+	assert.NotNil(t, (*mySeries.Investors)[0].SeriesId)
+	assert.Equal(t, "seed", *(*mySeries.Investors)[0].SeriesId)
 }
