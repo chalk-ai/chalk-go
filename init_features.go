@@ -267,6 +267,7 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 		return fi.buildNamespaceMemo(typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
+		namespace := internal.ChalkpySnakeCase(structName)
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := internal.ResolveFeatureName(fm)
@@ -282,6 +283,10 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
 			}
 			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
+			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
+			// Here we map those keys to their respective indices in the struct, so that we
+			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
+			nsMemo.ResolvedFieldNameToIndex[namespace+"."+resolvedName] = fieldIdx
 
 			// Handle exploding windowed features
 			if fm.Type.Kind() == reflect.Map {
