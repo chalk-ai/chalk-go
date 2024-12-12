@@ -13,9 +13,9 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any) error {
+func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, value any) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type())
+		rVal, err := internal.GetReflectValue(&value, field.Type(), fi.namespaceMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -26,7 +26,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, fi.namespaceMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil
@@ -34,7 +34,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any) error {
 		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
 	}
 }
-
 func convertIfHasManyMap(value any) (any, error) {
 	// For has-many values, we get this back:
 	//
@@ -49,8 +48,8 @@ func convertIfHasManyMap(value any) (any, error) {
 	// We want to convert this to:
 	//
 	// [
-	//   {"id": "id1", "email": "email1@geemail.com"},
-	//   {"id": "id2", "email": "email2@geemail.com"}
+	//   {"user.id": "id1", "user.email": "email1@geemail.com"},
+	//   {"user.id": "id2", "user.email": "email2@geemail.com"}
 	// ]
 	//
 	hasMany, ok := value.(map[string]any)
@@ -99,9 +98,7 @@ func convertIfHasManyMap(value any) (any, error) {
 	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
 		newRow := make(map[string]any)
 		for colIdx, colName := range columns {
-			colParts := strings.Split(colName, ".")
-			fieldName := colParts[len(colParts)-1]
-			newRow[fieldName] = values[colIdx][rowIdx]
+			newRow[colName] = values[colIdx][rowIdx]
 		}
 		newValues[rowIdx] = newRow
 	}
@@ -209,12 +206,37 @@ func buildScope(fqns []string) (*scopeTrie, error) {
 	return root, nil
 }
 
+/*
+UnmarshalInto unmarshals a map with keys being FQNs and values being the value for a
+singular feature (rather than a list of values for multiple pkeys) into a struct whose
+fields correspond to the FQNs. An illustration:
+
+	type FinancialMetric struct {
+		Id *string
+		BusinessId *string
+		MetricDate *time.Time
+	}
+
+	func main() {
+		fqnToValue := map[Fqn]any{
+			"FinancialMetric.Id": "id1",
+			"FinancialMetric.BusinessId": "business_id1",
+			"FinancialMetric.MetricDate": time.Now(),
+		}
+		fm := FinancialMetric{}
+		if err := UnmarshalInto(&fm, fqnToValue, nil); err != (*ClientError)(nil) {
+			fmt.Println(err)
+		} else {
+			fmt.Println(fm)
+		}
+	}
+*/
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
 
 	fieldMap := map[string][]reflect.Value{}
 
-	initializer := NewFeatureInitializer()
+	initializer := newFeatureInitializer()
 	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
@@ -238,6 +260,10 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 	if err := initializer.initFeatures(structValue, namespace, map[string]bool{}, nsScope); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	}
+
+	if err := initializer.buildNamespaceMemo(structValue.Type()); err != nil {
+		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -272,7 +298,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldMap[fqn] = []reflect.Value{}
 			}
 			fieldMap[fqn] = append(fieldMap[fqn], field)
-			if err := setFeatureSingle(field, fqn, value); err != nil {
+			if err := initializer.setFeatureSingle(field, fqn, value); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")
