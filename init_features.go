@@ -333,6 +333,7 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 				for _, tag := range intTags {
 					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
 					nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndex[namespace+"."+bucketFqn] = fieldIdx
 				}
 			} else {
 				if err := fi.buildNamespaceMemo(fm.Type); err != nil {
