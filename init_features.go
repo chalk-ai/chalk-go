@@ -275,19 +275,19 @@ func (fi *featureInitializer) initFeatures(
  *      "User": {
  *          ResolvedFieldNameToIndex: {
  *              "id": 0,
- * 			    "user.id": 0,
+ *              "user.id": 0,
  *              "transactions": 1,
- * 			    "user.transactions": 1,
+ *              "user.transactions": 1,
  *          }
  *      },
  *      "Transactions": {
  *          ResolvedFieldNameToIndex: {
  *              "id": 0,
- * 			    "transactions.id": 0,
+ *              "transactions.id": 0,
  *              "user_id": 1,
- * 			    "transactions.user_id": 1,
+ *              "transactions.user_id": 1,
  *              "amount": 2,
- * 			    "transactions.amount": 2,
+ *              "transactions.amount": 2,
  *          }
  *      }
  *  }
