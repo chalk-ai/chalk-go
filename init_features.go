@@ -42,11 +42,10 @@ type featureInitializer struct {
 }
 
 func newFeatureInitializer() *featureInitializer {
-	res := &featureInitializer{
+	return &featureInitializer{
 		fieldsMap:     map[string][]reflect.Value{},
 		namespaceMemo: internal.NamespaceMemo{},
 	}
-	return res
 }
 
 // initFeatures is a recursive function that:
@@ -74,14 +73,14 @@ func (fi *featureInitializer) initFeatures(
 		)
 	}
 
-	structName := structValue.Type().Name()
-	if isVisited, ok := visited[structName]; ok && isVisited {
+	namespace := structValue.Type().Name()
+	if isVisited, ok := visited[namespace]; ok && isVisited {
 		// Found a cycle. Just return.
 		return nil
 	}
-	visited[structName] = true
+	visited[namespace] = true
 	defer func() {
-		visited[structName] = false
+		visited[namespace] = false
 	}()
 
 	type fieldAndMeta struct {
