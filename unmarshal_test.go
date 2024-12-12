@@ -17,6 +17,24 @@ import (
 	"time"
 )
 
+type unmarshalTransaction struct {
+	Id                    *string
+	AmountP30D            *int64 `name:"amount_p30d"`
+	FeatureWithLongName1  *string
+	FeatureWithLongName2  *string
+	FeatureWithLongName3  *string
+	FeatureWithLongName4  *string
+	FeatureWithLongName5  *string
+	FeatureWithLongName6  *string
+	FeatureWithLongName7  *string
+	FeatureWithLongName8  *string
+	FeatureWithLongName9  *string
+	FeatureWithLongName10 *string
+	FeatureWithLongName11 *string
+	FeatureWithLongName12 *string
+	FeatureWithLongName13 *string
+}
+
 type unmarshalLatLng struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
@@ -37,6 +55,9 @@ type unmarshalUser struct {
 
 	// Dataclass features
 	LatLng *unmarshalLatLng
+
+	// Has-many features
+	Txns *[]unmarshalTransaction
 }
 
 type user struct {
@@ -1262,4 +1283,47 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestBenchmarkHasManyUnmarshal(t *testing.T) {
+	// TODO: Make this an actual benchmark
+	var transactions []unmarshalTransaction
+	for i := 0; i < 100_000; i++ {
+		transactions = append(transactions, unmarshalTransaction{
+			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
+			AmountP30D:            ptr.Ptr(int64(i)),
+			FeatureWithLongName1:  ptr.Ptr(fmt.Sprintf("feature_with_long_name1-%d", i)),
+			FeatureWithLongName2:  ptr.Ptr(fmt.Sprintf("feature_with_long_name2-%d", i)),
+			FeatureWithLongName3:  ptr.Ptr(fmt.Sprintf("feature_with_long_name3-%d", i)),
+			FeatureWithLongName4:  ptr.Ptr(fmt.Sprintf("feature_with_long_name4-%d", i)),
+			FeatureWithLongName5:  ptr.Ptr(fmt.Sprintf("feature_with_long_name5-%d", i)),
+			FeatureWithLongName6:  ptr.Ptr(fmt.Sprintf("feature_with_long_name6-%d", i)),
+			FeatureWithLongName7:  ptr.Ptr(fmt.Sprintf("feature_with_long_name7-%d", i)),
+			FeatureWithLongName8:  ptr.Ptr(fmt.Sprintf("feature_with_long_name8-%d", i)),
+			FeatureWithLongName9:  ptr.Ptr(fmt.Sprintf("feature_with_long_name9-%d", i)),
+			FeatureWithLongName10: ptr.Ptr(fmt.Sprintf("feature_with_long_name10-%d", i)),
+			FeatureWithLongName11: ptr.Ptr(fmt.Sprintf("feature_with_long_name11-%d", i)),
+			FeatureWithLongName12: ptr.Ptr(fmt.Sprintf("feature_with_long_name12-%d", i)),
+			FeatureWithLongName13: ptr.Ptr(fmt.Sprintf("feature_with_long_name13-%d", i)),
+		})
+	}
+	fqnToValue := map[string]any{
+		"unmarshal_user.txns": [][]unmarshalTransaction{transactions},
+	}
+	table, err := tableFromFqnToValues(fqnToValue)
+	if err != nil {
+		t.Fatalf("failed to build table from feature to values map: %v", err)
+	}
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+	var resultUser []unmarshalUser
+
+	start := time.Now()
+	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
+		t.Fatalf("failed to unmarshal: %v", err)
+	}
+	elapsed := time.Since(start)
+	t.Logf("elapsed: %v", elapsed)
 }

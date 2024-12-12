@@ -11,7 +11,7 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	return NewFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
+	return newFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
 }
 
 type scopeTrie struct {
@@ -37,12 +37,14 @@ func (s *scopeTrie) add(fqnParts []string) {
 }
 
 type featureInitializer struct {
-	fieldsMap map[string][]reflect.Value
+	fieldsMap     map[string][]reflect.Value
+	namespaceMemo internal.NamespaceMemo
 }
 
-func NewFeatureInitializer() *featureInitializer {
+func newFeatureInitializer() *featureInitializer {
 	return &featureInitializer{
-		fieldsMap: map[string][]reflect.Value{},
+		fieldsMap:     map[string][]reflect.Value{},
+		namespaceMemo: internal.NamespaceMemo{},
 	}
 }
 
@@ -96,6 +98,7 @@ func (fi *featureInitializer) initFeatures(
 			},
 		)
 	}
+
 	for _, fm := range fms {
 		resolvedName, err := internal.ResolveFeatureName(fm.Meta)
 		if err != nil {
@@ -252,6 +255,94 @@ func (fi *featureInitializer) initFeatures(
 				f.Set(ptrInDisguiseToFeature)
 			}
 		}
+	}
+	return nil
+}
+
+/*  buildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+ *  i.e. Don't need to do the same work for the same features class multiple times. Given:
+ *  type User struct {
+ *      Id *string
+ *      Transactions *[]Transactions `has_many:"id,user_id"`
+ *  }
+ *  type Transactions struct {
+ *      Id *string
+ *      UserId *string
+ *      Amount *float64
+ *  }
+ *  The namespace memo will be:
+ *  {
+ *      "User": {
+ *          ResolvedFieldNameToIndex: {
+ *              "id": 0,
+ *              "user.id": 0,
+ *              "transactions": 1,
+ *              "user.transactions": 1,
+ *          }
+ *      },
+ *      "Transactions": {
+ *          ResolvedFieldNameToIndex: {
+ *              "id": 0,
+ *              "transactions.id": 0,
+ *              "user_id": 1,
+ *              "transactions.user_id": 1,
+ *              "amount": 2,
+ *              "transactions.amount": 2,
+ *          }
+ *      }
+ *  }
+ */
+func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
+	if typ.Kind() == reflect.Ptr {
+		return fi.buildNamespaceMemo(typ.Elem())
+	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
+		structName := typ.Name()
+		namespace := internal.ChalkpySnakeCase(structName)
+		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
+			fm := typ.Field(fieldIdx)
+			resolvedName, err := internal.ResolveFeatureName(fm)
+			if err != nil {
+				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
+			}
+
+			if _, ok := fi.namespaceMemo[structName]; !ok {
+				fi.namespaceMemo[structName] = &internal.NamespaceMemoItem{}
+			}
+			nsMemo := fi.namespaceMemo[structName]
+			if nsMemo.ResolvedFieldNameToIndex == nil {
+				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
+			}
+			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
+			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
+			// Here we map those keys to their respective indices in the struct, so that we
+			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
+			nsMemo.ResolvedFieldNameToIndex[namespace+"."+resolvedName] = fieldIdx
+
+			// Handle exploding windowed features
+			if fm.Type.Kind() == reflect.Map {
+				// Is a windowed feature
+				intTags, err := internal.GetWindowBucketsSecondsFromStructTag(fm)
+				if err != nil {
+					return errors.Wrapf(
+						err,
+						"error getting window buckets for field '%s' in struct '%s'",
+						fm.Name,
+						structName,
+					)
+				}
+				for _, tag := range intTags {
+					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
+					nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndex[namespace+"."+bucketFqn] = fieldIdx
+				}
+			} else {
+				if err := fi.buildNamespaceMemo(fm.Type); err != nil {
+					return err
+				}
+			}
+		}
+	} else if typ.Kind() == reflect.Slice {
+		return fi.buildNamespaceMemo(typ.Elem())
 	}
 	return nil
 }
