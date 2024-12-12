@@ -84,6 +84,9 @@ const (
 	// BuilderServiceUpdateEnvironmentVariablesProcedure is the fully-qualified name of the
 	// BuilderService's UpdateEnvironmentVariables RPC.
 	BuilderServiceUpdateEnvironmentVariablesProcedure = "/chalk.server.v1.BuilderService/UpdateEnvironmentVariables"
+	// BuilderServiceStartBranchProcedure is the fully-qualified name of the BuilderService's
+	// StartBranch RPC.
+	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -106,6 +109,7 @@ var (
 	builderServiceCreateClusterGatewayMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
 	builderServiceCreateClusterBackgroundPersistenceMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterBackgroundPersistence")
 	builderServiceUpdateEnvironmentVariablesMethodDescriptor         = builderServiceServiceDescriptor.Methods().ByName("UpdateEnvironmentVariables")
+	builderServiceStartBranchMethodDescriptor                        = builderServiceServiceDescriptor.Methods().ByName("StartBranch")
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -135,6 +139,7 @@ type BuilderServiceClient interface {
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
+	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -250,6 +255,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		startBranch: connect.NewClient[v1.StartBranchRequest, v1.StartBranchResponse](
+			httpClient,
+			baseURL+BuilderServiceStartBranchProcedure,
+			connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -272,6 +283,7 @@ type builderServiceClient struct {
 	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
+	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -361,6 +373,11 @@ func (c *builderServiceClient) UpdateEnvironmentVariables(ctx context.Context, r
 	return c.updateEnvironmentVariables.CallUnary(ctx, req)
 }
 
+// StartBranch calls chalk.server.v1.BuilderService.StartBranch.
+func (c *builderServiceClient) StartBranch(ctx context.Context, req *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
+	return c.startBranch.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -388,6 +405,7 @@ type BuilderServiceHandler interface {
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
+	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -499,6 +517,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceStartBranchHandler := connect.NewUnaryHandler(
+		BuilderServiceStartBranchProcedure,
+		svc.StartBranch,
+		connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -535,6 +559,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceCreateClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateEnvironmentVariablesProcedure:
 			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
+		case BuilderServiceStartBranchProcedure:
+			builderServiceStartBranchHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -610,4 +636,8 @@ func (UnimplementedBuilderServiceHandler) CreateClusterBackgroundPersistence(con
 
 func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateEnvironmentVariables is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartBranch is not implemented"))
 }
