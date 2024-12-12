@@ -1285,13 +1285,8 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	}
 }
 
-func BenchmarkHasManyUnmarshal(b *testing.B) {
-	//cpuProfile, err := os.Create("cpu.prof")
-	//if err != nil {
-	//	b.Fatalf("failed to create cpu profile: %v", err)
-	//}
-	//defer cpuProfile.Close()
-
+func TestBenchmarkHasManyUnmarshal(t *testing.T) {
+	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
 	for i := 0; i < 100_000; i++ {
 		transactions = append(transactions, unmarshalTransaction{
@@ -1317,24 +1312,18 @@ func BenchmarkHasManyUnmarshal(b *testing.B) {
 	}
 	table, err := tableFromFqnToValues(fqnToValue)
 	if err != nil {
-		b.Fatalf("failed to build table from feature to values map: %v", err)
+		t.Fatalf("failed to build table from feature to values map: %v", err)
 	}
 	bulkRes := OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
 	defer bulkRes.Release()
 	var resultUser []unmarshalUser
-	// Time it manually without using the benchmark `b`
 
-	//if err := pprof.StartCPUProfile(cpuProfile); err != nil {
-	//	log.Fatalf("could not start CPU profile: %v", err)
-	//}
 	start := time.Now()
 	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
-		b.Fatalf("failed to unmarshal: %v", err)
+		t.Fatalf("failed to unmarshal: %v", err)
 	}
 	elapsed := time.Since(start)
-	//defer pprof.StopCPUProfile()
-	// Log in seconds
-	b.Logf("elapsed: %v", elapsed)
+	t.Logf("elapsed: %v", elapsed)
 }
