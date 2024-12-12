@@ -48,8 +48,8 @@ func convertIfHasManyMap(value any) (any, error) {
 	// We want to convert this to:
 	//
 	// [
-	//   {"id": "id1", "email": "email1@geemail.com"},
-	//   {"id": "id2", "email": "email2@geemail.com"}
+	//   {"user.id": "id1", "user.email": "email1@geemail.com"},
+	//   {"user.id": "id2", "user.email": "email2@geemail.com"}
 	// ]
 	//
 	hasMany, ok := value.(map[string]any)
@@ -98,9 +98,7 @@ func convertIfHasManyMap(value any) (any, error) {
 	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
 		newRow := make(map[string]any)
 		for colIdx, colName := range columns {
-			colParts := strings.Split(colName, ".")
-			fieldName := colParts[len(colParts)-1]
-			newRow[fieldName] = values[colIdx][rowIdx]
+			newRow[colName] = values[colIdx][rowIdx]
 		}
 		newValues[rowIdx] = newRow
 	}
