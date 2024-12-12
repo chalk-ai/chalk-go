@@ -81,6 +81,20 @@ func IsStruct(typ reflect.Type) bool {
 	return true
 }
 
+func IsOrUnderlyingFeaturesClass(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+	return IsStruct(typ) && !IsTypeDataclass(typ)
+}
+
+func IsOrUnderlyingHasMany(typ reflect.Type) bool {
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+	return typ.Kind() == reflect.Slice && IsOrUnderlyingFeaturesClass(typ.Elem())
+}
+
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0

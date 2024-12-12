@@ -298,6 +298,10 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
+		if _, ok := fi.namespaceMemo[structName]; ok {
+			// Prevent infinite loops
+			return nil
+		}
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := internal.ResolveFeatureName(fm)

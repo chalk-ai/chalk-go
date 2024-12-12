@@ -17,6 +17,20 @@ import (
 	"time"
 )
 
+// This features class is for testing infinite loop handling in unmarshalling
+// because it points back to the User class.
+type infLoopAccount struct {
+	Id   *string
+	Name *string
+	User *infLoopUser
+}
+
+type infLoopUser struct {
+	Id      *string
+	Name    *string
+	Account *infLoopAccount
+}
+
 type unmarshalTransaction struct {
 	Id                    *string
 	AmountP30D            *int64 `name:"amount_p30d"`
@@ -1326,4 +1340,34 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 	}
 	elapsed := time.Since(start)
 	t.Logf("elapsed: %v", elapsed)
+}
+
+func TestUnmarshalInfiniteLoopFeatures(t *testing.T) {
+	fqnToValue := map[string]any{
+		"inf_loop_user.id": []string{"user-1", "user-2"},
+		"inf_loop_user.account": []infLoopAccount{
+			{
+				Id:   ptr.Ptr("acc-1"),
+				Name: ptr.Ptr("hello"),
+			},
+			{
+				Id:   ptr.Ptr("acc-2"),
+				Name: ptr.Ptr("world"),
+			},
+		},
+	}
+	table, err := tableFromFqnToValues(fqnToValue)
+	if err != nil {
+		t.Fatalf("failed to build table from feature to values map: %v", err)
+	}
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+	var resultUser []infLoopUser
+
+	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
+		t.Fatalf("failed to unmarshal: %v", err)
+	}
+
 }
