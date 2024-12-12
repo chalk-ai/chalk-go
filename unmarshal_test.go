@@ -1326,7 +1326,7 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 		t.Fatalf("failed to unmarshal: %v", err)
 	}
 	elapsed := time.Since(start)
-	t.Logf("elapsed: %v", elapsed)
+	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 
 	transactionFqnsToValue := map[string]any{
 		"unmarshal_transaction.id":                       []string{},
@@ -1379,5 +1379,5 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 		t.Fatalf("failed to unmarshal: %v", err)
 	}
 	elapsed = time.Since(start)
-	t.Logf("elapsed: %v", elapsed)
+	t.Logf("unmarshalled as bulk rows elapsed: %v", elapsed)
 }
