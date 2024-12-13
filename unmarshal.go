@@ -13,9 +13,9 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, value any) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NamespaceMemo) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type(), fi.namespaceMemo)
+		rVal, err := internal.GetReflectValue(&value, field.Type(), nsMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -26,7 +26,7 @@ func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, 
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value, fi.namespaceMemo); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, nsMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil
@@ -162,10 +162,23 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	if scalarsErr != nil {
 		return scalarsErr
 	}
+	if len(rows) == 0 {
+		return nil
+	}
+
+	scope, err := buildScope(colls.Keys(rows[0]))
+	if err != nil {
+		return errors.Wrap(err, "building deserialization scope")
+	}
+
+	memo := internal.NamespaceMemo{}
+	if err := buildNamespaceMemo(memo, sliceElemType); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
 
 	for _, row := range rows {
 		res := reflect.New(sliceElemType)
-		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
+		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
 			return err
 		}
 		internal.SliceAppend(resultHolders, res.Elem())
@@ -232,18 +245,20 @@ fields correspond to the FQNs. An illustration:
 	}
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	structValue := reflect.ValueOf(resultHolder).Elem()
-
-	fieldMap := map[string][]reflect.Value{}
-
-	initializer := newFeatureInitializer()
+	memo := internal.NamespaceMemo{}
+	if err := buildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
+		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
+	}
 	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
 		}
 	}
-
+	return innerUnmarshalInto(resultHolder, fqnToValue, expectedOutputs, scope, memo)
+}
+func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string, scope *scopeTrie, memo internal.NamespaceMemo) (returnErr *ClientError) {
+	structValue := reflect.ValueOf(resultHolder).Elem()
 	structName := structValue.Type().Name()
 	namespace := SnakeCase(structName)
 	nsScope := scope.children[namespace]
@@ -258,12 +273,22 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	if err := initializer.initFeatures(structValue, namespace, map[string]bool{}, nsScope); err != nil {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := initRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		nsScope,
+		memo,
+		true,
+	); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
 	}
 
-	if err := initializer.buildNamespaceMemo(structValue.Type()); err != nil {
-		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
+	nsMemo, ok := memo[structName]
+	if !ok {
+		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -272,33 +297,26 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			// TODO: Add validation for optional fields
 			continue
 		}
-		if _, shouldSkip := internal.SkipUnmarshalFqnRoots[getFqnRoot(fqn)]; shouldSkip {
-			continue
-		}
-		targetFields, ok := initializer.fieldsMap[fqn]
+
+		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {
-			// For forward compatibility, i.e. when clients add
-			// more fields to their dataclasses in chalkpy, we want
-			// to default to not erring when trying to deserialize
-			// a new field that does not yet exist in the Go struct.
-			// Eventually we might consider exposing a flag.
-			continue
-		}
-		if err != nil {
-			err = errors.Wrapf(
-				err,
-				"error initializing feature field '%s' in the struct '%s'",
-				fqn,
-				structValue.Type().String(),
-			)
-			return &ClientError{Message: err.Error()}
-		}
-		for _, field := range targetFields {
-			if _, ok := fieldMap[fqn]; !ok {
-				fieldMap[fqn] = []reflect.Value{}
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIndices, ok := nsMemo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
 			}
-			fieldMap[fqn] = append(fieldMap[fqn], field)
-			if err := initializer.setFeatureSingle(field, fqn, value); err != nil {
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range targetFields {
+			if err := setFeatureSingle(field, fqn, value, memo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")
@@ -316,20 +334,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			}
 		}
 
-	}
-	for _, expectedOutput := range expectedOutputs {
-		if fields, ok := fieldMap[expectedOutput]; ok {
-			for _, field := range fields {
-				if field.IsNil() {
-					// TODO: Handle optional fields
-					//return &ClientError{Message: fmt.Sprintf(
-					//	"Unexpected error unmarshaling output feature '%s'. "+
-					//		"Feature is still nil after unmarshaling",
-					//	expectedOutput,
-					//)}
-				}
-			}
-		}
 	}
 	return nil
 }
