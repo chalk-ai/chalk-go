@@ -1307,26 +1307,26 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 			FeatureWithLongName13: ptr.Ptr(fmt.Sprintf("feature_with_long_name13-%d", i)),
 		})
 	}
-
-	fqnToValue := map[string]any{
-		"unmarshal_user.txns": [][]unmarshalTransaction{transactions},
-	}
-	table, err := tableFromFqnToValues(fqnToValue)
-	if err != nil {
-		t.Fatalf("failed to build table from feature to values map: %v", err)
-	}
-	bulkRes := OnlineQueryBulkResult{
-		ScalarsTable: table,
-	}
-	defer bulkRes.Release()
-	var resultUser []unmarshalUser
-
-	start := time.Now()
-	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
-	elapsed := time.Since(start)
-	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
+	//
+	//fqnToValue := map[string]any{
+	//	"unmarshal_user.txns": [][]unmarshalTransaction{transactions},
+	//}
+	//table, err := tableFromFqnToValues(fqnToValue)
+	//if err != nil {
+	//	t.Fatalf("failed to build table from feature to values map: %v", err)
+	//}
+	//bulkRes := OnlineQueryBulkResult{
+	//	ScalarsTable: table,
+	//}
+	//defer bulkRes.Release()
+	//var resultUser []unmarshalUser
+	//
+	//start := time.Now()
+	//if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
+	//	t.Fatalf("failed to unmarshal: %v", err)
+	//}
+	//elapsed := time.Since(start)
+	//t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 
 	transactionFqnsToValue := map[string]any{
 		"unmarshal_transaction.id":                        []string{},
@@ -1368,16 +1368,29 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 		t.Fatalf("failed to build table from feature to values map: %v", err)
 	}
 
-	bulkRes = OnlineQueryBulkResult{
+	bulkRes := OnlineQueryBulkResult{
 		ScalarsTable: transactionTable,
 	}
 	defer bulkRes.Release()
 	var resultTransaction []unmarshalTransaction
 
-	start = time.Now()
+	start := time.Now()
 	if err = bulkRes.UnmarshalInto(&resultTransaction); err != (*ClientError)(nil) {
 		t.Fatalf("failed to unmarshal: %v", err)
 	}
-	elapsed = time.Since(start)
+	elapsed := time.Since(start)
 	t.Logf("unmarshalled as bulk rows elapsed: %v", elapsed)
+
+	//bulkRes = OnlineQueryBulkResult{
+	//	ScalarsTable: transactionTable,
+	//}
+	//defer bulkRes.Release()
+	//var resultTransaction []unmarshalTransaction
+	//
+	//start = time.Now()
+	//if err = bulkRes.UnmarshalInto(&resultTransaction); err != (*ClientError)(nil) {
+	//	t.Fatalf("failed to unmarshal: %v", err)
+	//}
+	//elapsed = time.Since(start)
+	//t.Logf("unmarshalled as bulk rows elapsed: %v", elapsed)
 }

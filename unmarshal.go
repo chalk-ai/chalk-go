@@ -162,7 +162,6 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	if scalarsErr != nil {
 		return scalarsErr
 	}
-
 	if len(rows) == 0 {
 		return nil
 	}
