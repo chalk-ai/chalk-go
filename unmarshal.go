@@ -163,9 +163,23 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return scalarsErr
 	}
 
+	if len(rows) == 0 {
+		return nil
+	}
+
+	scope, err := buildScope(colls.Keys(rows[0]))
+	if err != nil {
+		return errors.Wrap(err, "building deserialization scope")
+	}
+
+	memo := internal.NamespaceMemo{}
+	if err := buildNamespaceMemo(memo, sliceElemType); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
+
 	for _, row := range rows {
 		res := reflect.New(sliceElemType)
-		if err := UnmarshalInto(res.Interface(), row, nil); err != nil {
+		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
 			return err
 		}
 		internal.SliceAppend(resultHolders, res.Elem())
