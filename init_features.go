@@ -3,6 +3,7 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"strings"
@@ -48,16 +49,82 @@ func newFeatureInitializer() *featureInitializer {
 	}
 }
 
-// initFeatures is a recursive function that:
-//
-//  1. If not scoped:
-//     Initializes all features in the struct that is passed in. Each feature is initialized
-//     as a pointer to a Feature struct with the appropriate FQN.
-//
-//  2. If scoped:
-//     Only the features that are in scope (stored in the form of a trie) are initialized.
-//     In scope means that the feature is requested as an output and is returned in the
-//     query response.
+func (fi *featureInitializer) initFeaturesScoped(
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *scopeTrie,
+	nsMemo internal.NamespaceMemo,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo := nsMemo[structName]
+	for resolvedFieldName, nextScope := range scope.children {
+		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
+
+		fieldIdx, ok := memo.ResolvedFieldNameToIndex[resolvedFieldName]
+		if !ok {
+			return errors.Newf(
+				"getting field index from memo, field not found among keys: %v",
+				colls.Keys(memo.ResolvedFieldNameToIndex),
+			)
+		}
+		f := structValue.Field(fieldIdx)
+		if !f.CanSet() {
+			continue
+		}
+
+		typ := f.Type()
+		if f.Kind() != reflect.Map {
+			if ptrErr := pointerCheck(f); ptrErr != nil {
+				return ptrErr
+			}
+			typ = f.Type().Elem()
+		}
+
+		if typ.Kind() == reflect.Struct &&
+			typ != reflect.TypeOf(time.Time{}) &&
+			!internal.IsTypeDataclass(typ) {
+			// RECURSIVE CASE.
+			// Create new Feature Set instance and point to it.
+			// The equivalent way of doing it without 'reflect':
+			//
+			//      Features.User.CreditReport = new(CreditReport)
+			//
+			if !f.IsNil() {
+				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
+			}
+			featureSet := reflect.New(f.Type().Elem())
+			f.Set(featureSet)
+			if err := fi.initFeaturesScoped(f.Elem(), updatedFqn, visited, nextScope, nsMemo); err != nil {
+				return err
+			}
+		} else {
+			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
+		}
+	}
+	return nil
+}
+
+// initFeatures is a recursive function that initializes all features
+// in the struct that is passed in. Each feature is initialized as a
+// pointer to a Feature struct with the appropriate FQN.
 func (fi *featureInitializer) initFeatures(
 	structValue reflect.Value,
 	cumulativeFqn string,
