@@ -126,7 +126,7 @@ type ChunkResult struct {
 	err      error
 }
 
-func deserializeRows(
+func unmarshalRows(
 	rows []map[string]any,
 	typ reflect.Type,
 	scope *scopeTrie,
@@ -138,19 +138,15 @@ func deserializeRows(
 	defer wg.Done()
 
 	var results []reflect.Value
-	succeeded := true
 	for _, row := range rows {
 		res := reflect.New(typ)
 		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
 			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
-			succeeded = true
-			break
+			return
 		}
 		results = append(results, res.Elem())
 	}
-	if succeeded {
-		resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
-	}
+	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
 }
 
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
@@ -221,7 +217,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
 		chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
 		wg.Add(1)
-		go deserializeRows(chunkRows, sliceElemType, scope, memo, chunkIdx, resChan, &wg)
+		go unmarshalRows(chunkRows, sliceElemType, scope, memo, chunkIdx, resChan, &wg)
 		chunkIdx += 1
 	}
 

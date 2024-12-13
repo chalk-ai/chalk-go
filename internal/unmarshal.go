@@ -8,6 +8,9 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"runtime"
+	"sort"
+	"sync"
 	"time"
 )
 
@@ -167,6 +170,52 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	}
 }
 
+type ChunkResult struct {
+	chunkIdx int
+	rows     []map[string]any
+	err      error
+}
+
+func extractFeatures(
+	record arrow.Record,
+	colIndicesShouldSkip []bool,
+	chunkStart int64,
+	chunkEnd int64,
+	chunkIdx int,
+	resChan chan<- ChunkResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
+
+	var results []map[string]any
+	chunkEndInt, err := int64ToInt(chunkEnd)
+	if err != nil {
+		resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+		return
+	}
+	chunkStartInt := int(chunkStart)
+	for i := chunkStartInt; i < chunkEndInt; i++ {
+		m := map[string]any{}
+		for j, col := range record.Columns() {
+			if colIndicesShouldSkip[j] {
+				continue
+			}
+			name := record.ColumnName(j)
+			value, err := GetValueFromArrowArray(col, i)
+			if err != nil {
+				resChan <- ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrap(err, "error getting value from arrow array"),
+				}
+				return
+			}
+			m[name] = value
+		}
+		results = append(results, m)
+	}
+	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+}
+
 func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 	res := make([]map[string]any, 0)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
@@ -187,20 +236,47 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				colIndicesShouldSkip[j] = true
 			}
 		}
-		for i := 0; i < int(record.NumRows()); i++ {
-			m := map[string]any{}
-			for j, col := range record.Columns() {
-				if colIndicesShouldSkip[j] {
-					continue
-				}
-				name := record.ColumnName(j)
-				value, err := GetValueFromArrowArray(col, i)
-				if err != nil {
-					return nil, errors.Wrap(err, "error getting value from arrow array")
-				}
-				m[name] = value
+
+		var wg sync.WaitGroup
+		numWorkers := runtime.NumCPU()
+		resChan := make(chan ChunkResult, numWorkers)
+		chunkSize := (record.NumRows() / int64(numWorkers)) + 1
+
+		chunkIdx := 0
+		for chunkStart := int64(0); chunkStart < record.NumRows(); chunkStart += chunkSize {
+			chunkEnd := min(chunkStart+chunkSize, record.NumRows())
+			wg.Add(1)
+			go extractFeatures(
+				record,
+				colIndicesShouldSkip,
+				chunkStart,
+				chunkEnd,
+				chunkIdx,
+				resChan,
+				&wg,
+			)
+			chunkIdx += 1
+		}
+
+		go func() {
+			wg.Wait()
+			close(resChan)
+		}()
+
+		var allChunks []ChunkResult
+		for chunkResult := range resChan {
+			allChunks = append(allChunks, chunkResult)
+		}
+
+		sort.Slice(allChunks, func(i, j int) bool {
+			return allChunks[i].chunkIdx < allChunks[j].chunkIdx
+		})
+
+		for _, chunkResult := range allChunks {
+			if chunkResult.err != nil {
+				return nil, chunkResult.err
 			}
-			res = append(res, m)
+			res = append(res, chunkResult.rows...)
 		}
 	}
 	return res, nil

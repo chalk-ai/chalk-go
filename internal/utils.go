@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"math"
 	"os"
 	"reflect"
 	"regexp"
@@ -100,6 +101,14 @@ func getFeatureNameFromFqn(fqn string) string {
 
 func getFqnRoot(s string) string {
 	return strings.Split(s, ".")[0]
+}
+
+func int64ToInt(value int64) (int, error) {
+	// Check if the value fits in the range of an int
+	if value < math.MinInt || value > math.MaxInt {
+		return 0, errors.New("value out of range for int conversion")
+	}
+	return int(value), nil
 }
 
 // ChalkpySnakeCase aims to be in parity with
