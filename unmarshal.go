@@ -260,7 +260,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string, scope *scopeTrie, memo internal.NamespaceMemo) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
 	fieldMap := map[string][]reflect.Value{}
-	initializer := newFeatureInitializer()
 
 	structName := structValue.Type().Name()
 	namespace := SnakeCase(structName)
@@ -276,7 +275,16 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		}
 	}
 
-	if err := initializer.initRemoteFeatureMap(structValue, namespace, map[string]bool{}, nsScope, memo, true); err != nil {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := initRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		nsScope,
+		memo,
+		true,
+	); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
 	}
 
@@ -295,7 +303,7 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 			continue
 		}
 
-		targetFields, ok := initializer.fieldsMap[fqn]
+		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
 			fieldIndices, ok := nsMemo.ResolvedFieldNameToIndices[fqn]

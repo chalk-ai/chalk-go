@@ -37,18 +37,6 @@ func (s *scopeTrie) add(fqnParts []string) {
 	s.children[firstPart].add(fqnParts[1:])
 }
 
-type featureInitializer struct {
-	fieldsMap     map[string][]reflect.Value
-	namespaceMemo internal.NamespaceMemo
-}
-
-func newFeatureInitializer() *featureInitializer {
-	return &featureInitializer{
-		fieldsMap:     map[string][]reflect.Value{},
-		namespaceMemo: internal.NamespaceMemo{},
-	}
-}
-
 func initRemoteFeatureMap(
 	remoteFeatureMap map[string][]reflect.Value,
 	structValue reflect.Value,
@@ -108,8 +96,10 @@ func initRemoteFeatureMap(
 				if !f.CanSet() {
 					continue
 				}
-				featureSet := reflect.New(f.Type().Elem())
-				f.Set(featureSet) // Always overwrite
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
 				if err := initRemoteFeatureMap(
 					remoteFeatureMap,
 					f.Elem(),
