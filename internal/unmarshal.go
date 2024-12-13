@@ -195,7 +195,7 @@ func extractFeatures(
 	}
 	chunkStartInt := int(chunkStart)
 	for i := chunkStartInt; i < chunkEndInt; i++ {
-		m := map[string]any{}
+		m := make(map[string]any, record.NumCols())
 		for j, col := range record.Columns() {
 			if colIndicesShouldSkip[j] {
 				continue
