@@ -175,7 +175,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 	for reader.Next() {
 		record := reader.Record()
 		colIndicesShouldSkip := make([]bool, record.NumCols())
-		for j, _ := range record.Columns() {
+		for j := range record.Columns() {
 			colName := record.ColumnName(j)
 			if _, ok := skipUnmarshalFields[colName]; ok {
 				colIndicesShouldSkip[j] = true
