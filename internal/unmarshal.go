@@ -18,7 +18,17 @@ type Numbers interface {
 }
 
 type NamespaceMemoItem struct {
+	// Root and non-root FQN as keys
 	ResolvedFieldNameToIndex map[string]int
+	// Non-root FQN as keys only
+	StructFieldsSet map[string]bool
+}
+
+func NewNamespaceMemoItem() *NamespaceMemoItem {
+	return &NamespaceMemoItem{
+		ResolvedFieldNameToIndex: map[string]int{},
+		StructFieldsSet:          map[string]bool{},
+	}
 }
 
 type NamespaceMemo map[string]*NamespaceMemoItem

@@ -276,8 +276,13 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		}
 	}
 
-	if err := initializer.initFeaturesScoped(structValue, namespace, map[string]bool{}, nsScope, memo); err != nil {
+	if err := initializer.initRemoteFeatureMap(structValue, namespace, map[string]bool{}, nsScope, memo, true); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	}
+
+	nsMemo, ok := memo[structName]
+	if !ok {
+		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -289,15 +294,22 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		if _, shouldSkip := internal.SkipUnmarshalFqnRoots[getFqnRoot(fqn)]; shouldSkip {
 			continue
 		}
+
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
-			// For forward compatibility, i.e. when clients add
-			// more fields to their dataclasses in chalkpy, we want
-			// to default to not erring when trying to deserialize
-			// a new field that does not yet exist in the Go struct.
-			// Eventually we might consider exposing a flag.
-			continue
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIdx, ok := nsMemo.ResolvedFieldNameToIndex[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
+			}
+			targetFields = []reflect.Value{structValue.Field(fieldIdx)}
 		}
+
 		for _, field := range targetFields {
 			if _, ok := fieldMap[fqn]; !ok {
 				fieldMap[fqn] = []reflect.Value{}

@@ -49,6 +49,77 @@ func newFeatureInitializer() *featureInitializer {
 	}
 }
 
+func (fi *featureInitializer) initRemoteFeatureMap(
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *scopeTrie,
+	nsMemo internal.NamespaceMemo,
+	scopeToJustStructs bool,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo := nsMemo[structName]
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.children)
+
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, ok := scope.children[resolvedFieldName]
+		if !ok {
+			continue
+		}
+		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
+		fieldIdx, ok := memo.ResolvedFieldNameToIndex[resolvedFieldName]
+		if !ok {
+			return errors.Newf(
+				"getting field index from memo, field '%s' not found among keys: %v",
+				resolvedFieldName,
+				colls.Keys(memo.ResolvedFieldNameToIndex),
+			)
+		}
+		f := structValue.Field(fieldIdx)
+
+		if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+			if !f.CanSet() {
+				continue
+			}
+			if !f.IsNil() {
+				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
+			}
+			featureSet := reflect.New(f.Type().Elem())
+			f.Set(featureSet)
+			if err := fi.initRemoteFeatureMap(f.Elem(), updatedFqn, visited, nextScope, nsMemo, false); err != nil {
+				return err
+			}
+		} else {
+			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
+		}
+	}
+	return nil
+}
+
 func (fi *featureInitializer) initFeaturesScoped(
 	structValue reflect.Value,
 	cumulativeFqn string,
@@ -368,12 +439,9 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 			}
 
 			if _, ok := memo[structName]; !ok {
-				memo[structName] = &internal.NamespaceMemoItem{}
+				memo[structName] = internal.NewNamespaceMemoItem()
 			}
 			nsMemo := memo[structName]
-			if nsMemo.ResolvedFieldNameToIndex == nil {
-				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
-			}
 			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
@@ -401,6 +469,10 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
 					return err
 				}
+			}
+
+			if fm.Type.Kind() == reflect.Ptr && internal.IsStruct(fm.Type.Elem()) && !internal.IsTypeDataclass(fm.Type.Elem()) {
+				nsMemo.StructFieldsSet[resolvedName] = true
 			}
 		}
 	} else if typ.Kind() == reflect.Slice {
