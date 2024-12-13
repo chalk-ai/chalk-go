@@ -81,7 +81,8 @@ func (fi *featureInitializer) initFeaturesScoped(
 		fieldIdx, ok := memo.ResolvedFieldNameToIndex[resolvedFieldName]
 		if !ok {
 			return errors.Newf(
-				"getting field index from memo, field not found among keys: %v",
+				"getting field index from memo, field '%s' not found among keys: %v",
+				resolvedFieldName,
 				colls.Keys(memo.ResolvedFieldNameToIndex),
 			)
 		}
@@ -101,12 +102,6 @@ func (fi *featureInitializer) initFeaturesScoped(
 		if typ.Kind() == reflect.Struct &&
 			typ != reflect.TypeOf(time.Time{}) &&
 			!internal.IsTypeDataclass(typ) {
-			// RECURSIVE CASE.
-			// Create new Feature Set instance and point to it.
-			// The equivalent way of doing it without 'reflect':
-			//
-			//      Features.User.CreditReport = new(CreditReport)
-			//
 			if !f.IsNil() {
 				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
 			}
@@ -359,9 +354,9 @@ func (fi *featureInitializer) initFeatures(
  *      }
  *  }
  */
-func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
+func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 	if typ.Kind() == reflect.Ptr {
-		return fi.buildNamespaceMemo(typ.Elem())
+		return buildNamespaceMemo(memo, typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
@@ -372,10 +367,10 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 			}
 
-			if _, ok := fi.namespaceMemo[structName]; !ok {
-				fi.namespaceMemo[structName] = &internal.NamespaceMemoItem{}
+			if _, ok := memo[structName]; !ok {
+				memo[structName] = &internal.NamespaceMemoItem{}
 			}
-			nsMemo := fi.namespaceMemo[structName]
+			nsMemo := memo[structName]
 			if nsMemo.ResolvedFieldNameToIndex == nil {
 				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
 			}
@@ -403,13 +398,13 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 					nsMemo.ResolvedFieldNameToIndex[namespace+"."+bucketFqn] = fieldIdx
 				}
 			} else {
-				if err := fi.buildNamespaceMemo(fm.Type); err != nil {
+				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
 					return err
 				}
 			}
 		}
 	} else if typ.Kind() == reflect.Slice {
-		return fi.buildNamespaceMemo(typ.Elem())
+		return buildNamespaceMemo(memo, typ.Elem())
 	}
 	return nil
 }

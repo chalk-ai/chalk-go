@@ -13,9 +13,9 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, value any) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NamespaceMemo) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type(), fi.namespaceMemo)
+		rVal, err := internal.GetReflectValue(&value, field.Type(), nsMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -26,7 +26,7 @@ func (fi *featureInitializer) setFeatureSingle(field reflect.Value, fqn string, 
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value, fi.namespaceMemo); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, nsMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil
@@ -258,12 +258,13 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	if err := initializer.initFeatures(structValue, namespace, map[string]bool{}, nsScope); err != nil {
-		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	memo := internal.NamespaceMemo{}
+	if err := buildNamespaceMemo(memo, structValue.Type()); err != nil {
+		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 
-	if err := initializer.buildNamespaceMemo(structValue.Type()); err != nil {
-		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
+	if err := initializer.initFeaturesScoped(structValue, namespace, map[string]bool{}, nsScope, memo); err != nil {
+		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -298,7 +299,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				fieldMap[fqn] = []reflect.Value{}
 			}
 			fieldMap[fqn] = append(fieldMap[fqn], field)
-			if err := initializer.setFeatureSingle(field, fqn, value); err != nil {
+			if err := setFeatureSingle(field, fqn, value, memo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")

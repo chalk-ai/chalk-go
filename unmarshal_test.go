@@ -1329,38 +1329,38 @@ func TestBenchmarkHasManyUnmarshal(t *testing.T) {
 	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 
 	transactionFqnsToValue := map[string]any{
-		"unmarshal_transaction.id":                       []string{},
-		"unmarshal_transaction.amount_p30d":              []int64{},
-		"unmarshal_transaction.feature_with_long_name1":  []string{},
-		"unmarshal_transaction.feature_with_long_name2":  []string{},
-		"unmarshal_transaction.feature_with_long_name3":  []string{},
-		"unmarshal_transaction.feature_with_long_name4":  []string{},
-		"unmarshal_transaction.feature_with_long_name5":  []string{},
-		"unmarshal_transaction.feature_with_long_name6":  []string{},
-		"unmarshal_transaction.feature_with_long_name7":  []string{},
-		"unmarshal_transaction.feature_with_long_name8":  []string{},
-		"unmarshal_transaction.feature_with_long_name9":  []string{},
-		"unmarshal_transaction.feature_with_long_name10": []string{},
-		"unmarshal_transaction.feature_with_long_name11": []string{},
-		"unmarshal_transaction.feature_with_long_name12": []string{},
-		"unmarshal_transaction.feature_with_long_name13": []string{},
+		"unmarshal_transaction.id":                        []string{},
+		"unmarshal_transaction.amount_p30d":               []int64{},
+		"unmarshal_transaction.feature_with_long_name_1":  []string{},
+		"unmarshal_transaction.feature_with_long_name_2":  []string{},
+		"unmarshal_transaction.feature_with_long_name_3":  []string{},
+		"unmarshal_transaction.feature_with_long_name_4":  []string{},
+		"unmarshal_transaction.feature_with_long_name_5":  []string{},
+		"unmarshal_transaction.feature_with_long_name_6":  []string{},
+		"unmarshal_transaction.feature_with_long_name_7":  []string{},
+		"unmarshal_transaction.feature_with_long_name_8":  []string{},
+		"unmarshal_transaction.feature_with_long_name_9":  []string{},
+		"unmarshal_transaction.feature_with_long_name_10": []string{},
+		"unmarshal_transaction.feature_with_long_name_11": []string{},
+		"unmarshal_transaction.feature_with_long_name_12": []string{},
+		"unmarshal_transaction.feature_with_long_name_13": []string{},
 	}
 	for _, txn := range transactions {
 		transactionFqnsToValue["unmarshal_transaction.id"] = append(transactionFqnsToValue["unmarshal_transaction.id"].([]string), *txn.Id)
 		transactionFqnsToValue["unmarshal_transaction.amount_p30d"] = append(transactionFqnsToValue["unmarshal_transaction.amount_p30d"].([]int64), *txn.AmountP30D)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name1"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name1"].([]string), *txn.FeatureWithLongName1)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name2"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name2"].([]string), *txn.FeatureWithLongName2)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name3"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name3"].([]string), *txn.FeatureWithLongName3)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name4"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name4"].([]string), *txn.FeatureWithLongName4)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name5"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name5"].([]string), *txn.FeatureWithLongName5)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name6"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name6"].([]string), *txn.FeatureWithLongName6)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name7"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name7"].([]string), *txn.FeatureWithLongName7)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name8"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name8"].([]string), *txn.FeatureWithLongName8)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name9"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name9"].([]string), *txn.FeatureWithLongName9)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name10"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name10"].([]string), *txn.FeatureWithLongName10)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name11"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name11"].([]string), *txn.FeatureWithLongName11)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name12"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name12"].([]string), *txn.FeatureWithLongName12)
-		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name13"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name13"].([]string), *txn.FeatureWithLongName13)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_1"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_1"].([]string), *txn.FeatureWithLongName1)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_2"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_2"].([]string), *txn.FeatureWithLongName2)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_3"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_3"].([]string), *txn.FeatureWithLongName3)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_4"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_4"].([]string), *txn.FeatureWithLongName4)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_5"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_5"].([]string), *txn.FeatureWithLongName5)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_6"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_6"].([]string), *txn.FeatureWithLongName6)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_7"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_7"].([]string), *txn.FeatureWithLongName7)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_8"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_8"].([]string), *txn.FeatureWithLongName8)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_9"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_9"].([]string), *txn.FeatureWithLongName9)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_10"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_10"].([]string), *txn.FeatureWithLongName10)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_11"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_11"].([]string), *txn.FeatureWithLongName11)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_12"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_12"].([]string), *txn.FeatureWithLongName12)
+		transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_13"] = append(transactionFqnsToValue["unmarshal_transaction.feature_with_long_name_13"].([]string), *txn.FeatureWithLongName13)
 	}
 
 	transactionTable, err := tableFromFqnToValues(transactionFqnsToValue)
