@@ -1286,7 +1286,7 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 }
 
 /*
-TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal a list of structs that appear as:
+TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the same list of structs that appear as:
 1. a has-many feature
 2. a list of root feature classes
 */
