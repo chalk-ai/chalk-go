@@ -19,15 +19,15 @@ type Numbers interface {
 
 type NamespaceMemoItem struct {
 	// Root and non-root FQN as keys
-	ResolvedFieldNameToIndex map[string]int
+	ResolvedFieldNameToIndices map[string]int
 	// Non-root FQN as keys only
 	StructFieldsSet map[string]bool
 }
 
 func NewNamespaceMemoItem() *NamespaceMemoItem {
 	return &NamespaceMemoItem{
-		ResolvedFieldNameToIndex: map[string]int{},
-		StructFieldsSet:          map[string]bool{},
+		ResolvedFieldNameToIndices: map[string]int{},
+		StructFieldsSet:            map[string]bool{},
 	}
 }
 
@@ -272,14 +272,14 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 					colls.Keys(nsMemo),
 				)
 			}
-			if memo.ResolvedFieldNameToIndex == nil {
+			if memo.ResolvedFieldNameToIndices == nil {
 				return nil, fmt.Errorf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
 			}
 			for k, v := range mapz {
-				memberFieldIdx, fieldOk := memo.ResolvedFieldNameToIndex[k]
+				memberFieldIdx, fieldOk := memo.ResolvedFieldNameToIndices[k]
 				if !fieldOk {
 					// For forward compatibility, i.e. when clients add
 					// more fields to their dataclasses in chalkpy, we want

@@ -91,12 +91,12 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 			continue
 		}
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
-		fieldIdx, ok := memo.ResolvedFieldNameToIndex[resolvedFieldName]
+		fieldIdx, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
 		if !ok {
 			return errors.Newf(
 				"getting field index from memo, field '%s' not found among keys: %v",
 				resolvedFieldName,
-				colls.Keys(memo.ResolvedFieldNameToIndex),
+				colls.Keys(memo.ResolvedFieldNameToIndices),
 			)
 		}
 		f := structValue.Field(fieldIdx)
@@ -149,12 +149,12 @@ func (fi *featureInitializer) initFeaturesScoped(
 	for resolvedFieldName, nextScope := range scope.children {
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
 
-		fieldIdx, ok := memo.ResolvedFieldNameToIndex[resolvedFieldName]
+		fieldIdx, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
 		if !ok {
 			return errors.Newf(
 				"getting field index from memo, field '%s' not found among keys: %v",
 				resolvedFieldName,
-				colls.Keys(memo.ResolvedFieldNameToIndex),
+				colls.Keys(memo.ResolvedFieldNameToIndices),
 			)
 		}
 		f := structValue.Field(fieldIdx)
@@ -397,6 +397,9 @@ func (fi *featureInitializer) initFeatures(
  *  type User struct {
  *      Id *string
  *      Transactions *[]Transactions `has_many:"id,user_id"`
+ *      Grade   *int `versioned:"default(2)"`
+ *      GradeV1 *int `versioned:"true"`
+ *      GradeV2 *int `versioned:"true"`
  *  }
  *  type Transactions struct {
  *      Id *string
@@ -406,21 +409,25 @@ func (fi *featureInitializer) initFeatures(
  *  The namespace memo will be:
  *  {
  *      "User": {
- *          ResolvedFieldNameToIndex: {
- *              "id": 0,
- *              "user.id": 0,
- *              "transactions": 1,
- *              "user.transactions": 1,
+ *          ResolvedFieldNameToIndices: {
+ *              "id": [0],
+ *              "user.id": [0],
+ *              "grade@2": [2, 4],
+ *              "user.grade@2": [2, 4],
+ *              "grade": [3],
+ *              "user.grade": [3],
+ *              "transactions": [1],
+ *              "user.transactions": [1],
  *          }
  *      },
  *      "Transactions": {
- *          ResolvedFieldNameToIndex: {
- *              "id": 0,
- *              "transactions.id": 0,
- *              "user_id": 1,
- *              "transactions.user_id": 1,
- *              "amount": 2,
- *              "transactions.amount": 2,
+ *          ResolvedFieldNameToIndices: {
+ *              "id": [0],
+ *              "transactions.id": [0],
+ *              "user_id": [1],
+ *              "transactions.user_id": [1],
+ *              "amount": [2],
+ *              "transactions.amount": [2],
  *          }
  *      }
  *  }
@@ -442,11 +449,11 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				memo[structName] = internal.NewNamespaceMemoItem()
 			}
 			nsMemo := memo[structName]
-			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
+			nsMemo.ResolvedFieldNameToIndices[resolvedName] = fieldIdx
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
 			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			nsMemo.ResolvedFieldNameToIndex[namespace+"."+resolvedName] = fieldIdx
+			nsMemo.ResolvedFieldNameToIndices[namespace+"."+resolvedName] = fieldIdx
 
 			// Handle exploding windowed features
 			if fm.Type.Kind() == reflect.Map {
@@ -462,8 +469,8 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				}
 				for _, tag := range intTags {
 					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-					nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
-					nsMemo.ResolvedFieldNameToIndex[namespace+"."+bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndices[namespace+"."+bucketFqn] = fieldIdx
 				}
 			} else {
 				if err := buildNamespaceMemo(memo, fm.Type); err != nil {

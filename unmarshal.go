@@ -298,7 +298,7 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
-			fieldIdx, ok := nsMemo.ResolvedFieldNameToIndex[fqn]
+			fieldIdx, ok := nsMemo.ResolvedFieldNameToIndices[fqn]
 			if !ok {
 				// For forward compatibility, i.e. when clients add
 				// more fields to their dataclasses in chalkpy, we want
