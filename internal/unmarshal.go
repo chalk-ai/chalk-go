@@ -18,7 +18,17 @@ type Numbers interface {
 }
 
 type NamespaceMemoItem struct {
-	ResolvedFieldNameToIndex map[string]int
+	// Root and non-root FQN as keys
+	ResolvedFieldNameToIndices map[string][]int
+	// Non-root FQN as keys only
+	StructFieldsSet map[string]bool
+}
+
+func NewNamespaceMemoItem() *NamespaceMemoItem {
+	return &NamespaceMemoItem{
+		ResolvedFieldNameToIndices: map[string][]int{},
+		StructFieldsSet:            map[string]bool{},
+	}
 }
 
 type NamespaceMemo map[string]*NamespaceMemoItem
@@ -161,18 +171,29 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 	res := make([]map[string]any, 0)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
+
 	for reader.Next() {
 		record := reader.Record()
+		colIndicesShouldSkip := make([]bool, record.NumCols())
+		for j := range record.Columns() {
+			colName := record.ColumnName(j)
+			if _, ok := skipUnmarshalFields[colName]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+			if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+		}
 		for i := 0; i < int(record.NumRows()); i++ {
 			m := map[string]any{}
 			for j, col := range record.Columns() {
+				if colIndicesShouldSkip[j] {
+					continue
+				}
 				name := record.ColumnName(j)
-				if _, ok := skipUnmarshalFields[name]; ok {
-					continue
-				}
-				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
-					continue
-				}
 				value, err := GetValueFromArrowArray(col, i)
 				if err != nil {
 					return nil, errors.Wrap(err, "error getting value from arrow array")
@@ -262,14 +283,14 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 					colls.Keys(nsMemo),
 				)
 			}
-			if memo.ResolvedFieldNameToIndex == nil {
+			if memo.ResolvedFieldNameToIndices == nil {
 				return nil, fmt.Errorf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
 			}
 			for k, v := range mapz {
-				memberFieldIdx, fieldOk := memo.ResolvedFieldNameToIndex[k]
+				memberFieldIndices, fieldOk := memo.ResolvedFieldNameToIndices[k]
 				if !fieldOk {
 					// For forward compatibility, i.e. when clients add
 					// more fields to their dataclasses in chalkpy, we want
@@ -278,35 +299,36 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 					// Eventually we might consider exposing a flag.
 					continue
 				}
-				memberField := structValue.Field(memberFieldIdx)
-				if v == nil {
-					continue
-				}
+				for _, memberFieldIdx := range memberFieldIndices {
+					memberField := structValue.Field(memberFieldIdx)
+					if v == nil {
+						continue
+					}
 
-				if memberField.Type().Kind() == reflect.Map {
-					bucket, err := GetBucketFromFqn(k)
-					if err != nil {
-						return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
+					if memberField.Type().Kind() == reflect.Map {
+						bucket, err := GetBucketFromFqn(k)
+						if err != nil {
+							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
+						}
+						if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"error setting map entry value for field '%s' in struct '%s'",
+								k, structValue.Type().Name(),
+							)
+						}
+					} else {
+						rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
+						if err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"error unmarshalling struct value '%s' for struct '%s'",
+								k, structValue.Type().Name(),
+							)
+						}
+						memberField.Set(*rVal)
 					}
-					if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
-						return nil, errors.Wrapf(
-							err,
-							"error setting map entry value for field '%s' in struct '%s'",
-							k, structValue.Type().Name(),
-						)
-					}
-				} else {
-					rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
-					if err != nil {
-						return nil, errors.Wrapf(
-							err,
-							"error unmarshalling struct value '%s' for struct '%s'",
-							k, structValue.Type().Name(),
-						)
-					}
-					memberField.Set(*rVal)
 				}
-
 			}
 			return &structValue, nil
 		} else {

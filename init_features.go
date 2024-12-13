@@ -3,6 +3,7 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"strings"
@@ -11,7 +12,7 @@ import (
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
-	return newFeatureInitializer().initFeatures(structValue, "", make(map[string]bool), nil)
+	return initFeatures(structValue, "", make(map[string]bool))
 }
 
 type scopeTrie struct {
@@ -36,35 +37,96 @@ func (s *scopeTrie) add(fqnParts []string) {
 	s.children[firstPart].add(fqnParts[1:])
 }
 
-type featureInitializer struct {
-	fieldsMap     map[string][]reflect.Value
-	namespaceMemo internal.NamespaceMemo
-}
-
-func newFeatureInitializer() *featureInitializer {
-	return &featureInitializer{
-		fieldsMap:     map[string][]reflect.Value{},
-		namespaceMemo: internal.NamespaceMemo{},
-	}
-}
-
-// initFeatures is a recursive function that:
-//
-//  1. If not scoped:
-//     Initializes all features in the struct that is passed in. Each feature is initialized
-//     as a pointer to a Feature struct with the appropriate FQN.
-//
-//  2. If scoped:
-//     Only the features that are in scope (stored in the form of a trie) are initialized.
-//     In scope means that the feature is requested as an output and is returned in the
-//     query response.
-func (fi *featureInitializer) initFeatures(
+func initRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
 	structValue reflect.Value,
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *scopeTrie,
+	nsMemo internal.NamespaceMemo,
+	scopeToJustStructs bool,
 ) error {
-	isScoped := scope != nil
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo := nsMemo[structName]
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.children)
+
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, inScope := scope.children[resolvedFieldName]
+		if !inScope {
+			continue
+		}
+		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		if !ok {
+			return errors.Newf(
+				"getting field index from memo, field '%s' not found among keys: %v",
+				resolvedFieldName,
+				colls.Keys(memo.ResolvedFieldNameToIndices),
+			)
+		}
+
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				if err := initRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					nsMemo,
+					false,
+				); err != nil {
+					return err
+				}
+			} else {
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+			}
+		}
+	}
+	return nil
+}
+
+// initFeatures is a recursive function that initializes all features
+// in the struct that is passed in. Each feature is initialized as a
+// pointer to a Feature struct with the appropriate FQN.
+func initFeatures(
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+) error {
 	if structValue.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"feature initialization function argument must be a reflect.Value"+
@@ -115,27 +177,7 @@ func (fi *featureInitializer) initFeatures(
 			continue
 		}
 
-		inScope := true
-		if scope != nil {
-			_, inScope = scope.children[resolvedName]
-		}
-
-		if f.Kind() == reflect.Ptr && internal.IsTypeDataclass(f.Type().Elem()) && isScoped {
-			// If dataclasses are being initialized for purposes
-			// of specifying query params, we want it to go to
-			// the next block where we initialize it the same way
-			// as a struct.
-			//
-			// If dataclass child fields are being selectively
-			// initialized for purposes of deserialization of
-			// query results, we simply return the field, as we
-			// do in this block, and let the feature setter set
-			// the value of the dataclass down the line.
-			if !inScope {
-				continue
-			}
-			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
-		} else if f.Type().Elem().Kind() == reflect.Struct &&
+		if f.Type().Elem().Kind() == reflect.Struct &&
 			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
@@ -143,34 +185,17 @@ func (fi *featureInitializer) initFeatures(
 			//
 			//      Features.User.CreditReport = new(CreditReport)
 			//
-			if !inScope {
-				continue
-			}
 			if ptrErr := pointerCheck(f); ptrErr != nil {
 				return ptrErr
 			}
 
-			if isScoped {
-				if f.IsNil() {
-					featureSet := reflect.New(f.Type().Elem())
-					f.Set(featureSet)
-				}
-				newScope := scope.children[resolvedName]
-				if newScope == nil {
-					return errors.Newf("scope not found for feature '%s'", cumulativeFqn)
-				}
-				if err := fi.initFeatures(f.Elem(), updatedFqn, visited, newScope); err != nil {
-					return err
-				}
-			} else {
-				featureSet := reflect.New(f.Type().Elem())
-				// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
-				ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
-				f.Set(ptrInDisguiseToFeatureSet)
-				featureSetInDisguise := f.Elem()
-				if err := fi.initFeatures(featureSetInDisguise, updatedFqn, visited, nil); err != nil {
-					return err
-				}
+			featureSet := reflect.New(f.Type().Elem())
+			// TODO: This is an actual feature set we don't have to disguise it, just have to set it.
+			ptrInDisguiseToFeatureSet := reflect.NewAt(f.Type().Elem(), featureSet.UnsafePointer())
+			f.Set(ptrInDisguiseToFeatureSet)
+			featureSetInDisguise := f.Elem()
+			if err := initFeatures(featureSetInDisguise, updatedFqn, visited); err != nil {
+				return err
 			}
 		} else if f.Kind() == reflect.Map {
 			// Creates a map of tag values to pointers to Features.
@@ -204,56 +229,36 @@ func (fi *featureInitializer) initFeatures(
 				}
 				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
 				bucketFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
-				if isScoped {
-					if _, bucketInScope := scope.children[updatedResolvedName]; !bucketInScope {
-						continue
-					}
-					// Make map only if one of the bucket features need to be set
-					// If no bucket features need to be set, map is nil.
-					if f.IsNil() {
-						f.Set(reflect.MakeMap(f.Type()))
-					}
-					fi.fieldsMap[bucketFqn] = append(fi.fieldsMap[bucketFqn], f)
-				} else {
-					if f.IsNil() {
-						f.Set(reflect.MakeMap(f.Type()))
-					}
-					feature := Feature{Fqn: bucketFqn}
-					ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
-					f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
+				if f.IsNil() {
+					f.Set(reflect.MakeMap(f.Type()))
 				}
-
+				feature := Feature{Fqn: bucketFqn}
+				ptrInDisguiseToFeature := reflect.NewAt(mapValueType.Elem(), reflect.ValueOf(&feature).UnsafePointer())
+				f.SetMapIndex(reflect.ValueOf(tag), ptrInDisguiseToFeature)
 			}
 		} else {
 			// BASE CASE.
-			if !inScope {
-				continue
-			}
 			if ptrErr := pointerCheck(f); ptrErr != nil {
 				return ptrErr
 			}
 
-			if isScoped {
-				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
-			} else {
-				// Create new Feature instance and point to it.
-				// The equivalent way of doing it without 'reflect':
-				//
-				//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
-				//
+			// Create new Feature instance and point to it.
+			// The equivalent way of doing it without 'reflect':
+			//
+			//      Features.User.CreditReport.Id = (*string)(unsafe.Pointer(&Feature{"user.credit_report.id"}))
+			//
 
-				// Dataclass fields are not actually real features,
-				// so when we are initializing the root Features struct,
-				// we want to return the parent (real) feature FQN
-				// instead of the fake FQN of the dataclass child field.
-				if internal.IsDataclass(structValue) {
-					updatedFqn = DesuffixFqn(updatedFqn)
-				}
-
-				feature := Feature{Fqn: updatedFqn}
-				ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
-				f.Set(ptrInDisguiseToFeature)
+			// Dataclass fields are not actually real features,
+			// so when we are initializing the root Features struct,
+			// we want to return the parent (real) feature FQN
+			// instead of the fake FQN of the dataclass child field.
+			if internal.IsDataclass(structValue) {
+				updatedFqn = DesuffixFqn(updatedFqn)
 			}
+
+			feature := Feature{Fqn: updatedFqn}
+			ptrInDisguiseToFeature := reflect.NewAt(f.Type().Elem(), reflect.ValueOf(&feature).UnsafePointer())
+			f.Set(ptrInDisguiseToFeature)
 		}
 	}
 	return nil
@@ -264,6 +269,9 @@ func (fi *featureInitializer) initFeatures(
  *  type User struct {
  *      Id *string
  *      Transactions *[]Transactions `has_many:"id,user_id"`
+ *      Grade   *int `versioned:"default(2)"`
+ *      GradeV1 *int `versioned:"true"`
+ *      GradeV2 *int `versioned:"true"`
  *  }
  *  type Transactions struct {
  *      Id *string
@@ -273,28 +281,32 @@ func (fi *featureInitializer) initFeatures(
  *  The namespace memo will be:
  *  {
  *      "User": {
- *          ResolvedFieldNameToIndex: {
- *              "id": 0,
- *              "user.id": 0,
- *              "transactions": 1,
- *              "user.transactions": 1,
+ *          ResolvedFieldNameToIndices: {
+ *              "id": [0],
+ *              "user.id": [0],
+ *              "grade@2": [2, 4],
+ *              "user.grade@2": [2, 4],
+ *              "grade": [3],
+ *              "user.grade": [3],
+ *              "transactions": [1],
+ *              "user.transactions": [1],
  *          }
  *      },
  *      "Transactions": {
- *          ResolvedFieldNameToIndex: {
- *              "id": 0,
- *              "transactions.id": 0,
- *              "user_id": 1,
- *              "transactions.user_id": 1,
- *              "amount": 2,
- *              "transactions.amount": 2,
+ *          ResolvedFieldNameToIndices: {
+ *              "id": [0],
+ *              "transactions.id": [0],
+ *              "user_id": [1],
+ *              "transactions.user_id": [1],
+ *              "amount": [2],
+ *              "transactions.amount": [2],
  *          }
  *      }
  *  }
  */
-func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
+func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 	if typ.Kind() == reflect.Ptr {
-		return fi.buildNamespaceMemo(typ.Elem())
+		return buildNamespaceMemo(memo, typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
@@ -305,18 +317,16 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 			}
 
-			if _, ok := fi.namespaceMemo[structName]; !ok {
-				fi.namespaceMemo[structName] = &internal.NamespaceMemoItem{}
+			if _, ok := memo[structName]; !ok {
+				memo[structName] = internal.NewNamespaceMemoItem()
 			}
-			nsMemo := fi.namespaceMemo[structName]
-			if nsMemo.ResolvedFieldNameToIndex == nil {
-				nsMemo.ResolvedFieldNameToIndex = map[string]int{}
-			}
-			nsMemo.ResolvedFieldNameToIndex[resolvedName] = fieldIdx
+			nsMemo := memo[structName]
+			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
 			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			nsMemo.ResolvedFieldNameToIndex[namespace+"."+resolvedName] = fieldIdx
+			rootFqn := namespace + "." + resolvedName
+			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
 
 			// Handle exploding windowed features
 			if fm.Type.Kind() == reflect.Map {
@@ -332,23 +342,24 @@ func (fi *featureInitializer) buildNamespaceMemo(typ reflect.Type) error {
 				}
 				for _, tag := range intTags {
 					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-					nsMemo.ResolvedFieldNameToIndex[bucketFqn] = fieldIdx
-					nsMemo.ResolvedFieldNameToIndex[namespace+"."+bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
+					rootBucketFqn := namespace + "." + bucketFqn
+					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
-				if err := fi.buildNamespaceMemo(fm.Type); err != nil {
+				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
 					return err
 				}
 			}
+
+			if fm.Type.Kind() == reflect.Ptr && internal.IsStruct(fm.Type.Elem()) && !internal.IsTypeDataclass(fm.Type.Elem()) {
+				nsMemo.StructFieldsSet[resolvedName] = true
+			}
 		}
 	} else if typ.Kind() == reflect.Slice {
-		return fi.buildNamespaceMemo(typ.Elem())
+		return buildNamespaceMemo(memo, typ.Elem())
 	}
 	return nil
-}
-
-func getFqnRoot(s string) string {
-	return strings.Split(s, ".")[0]
 }
 
 func pointerCheck(field reflect.Value) error {
