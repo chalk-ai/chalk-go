@@ -1285,7 +1285,12 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	}
 }
 
-func TestBenchmarkHasManyUnmarshal(t *testing.T) {
+/*
+TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal a list of structs that appear as:
+1. a has-many feature
+2. a list of root feature classes
+*/
+func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
 	for i := 0; i < 100_000; i++ {
