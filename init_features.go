@@ -49,7 +49,8 @@ func newFeatureInitializer() *featureInitializer {
 	}
 }
 
-func (fi *featureInitializer) initRemoteFeatureMap(
+func initRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
 	structValue reflect.Value,
 	cumulativeFqn string,
 	visited map[string]bool,
@@ -109,11 +110,19 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 				}
 				featureSet := reflect.New(f.Type().Elem())
 				f.Set(featureSet) // Always overwrite
-				if err := fi.initRemoteFeatureMap(f.Elem(), updatedFqn, visited, nextScope, nsMemo, false); err != nil {
+				if err := initRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					nsMemo,
+					false,
+				); err != nil {
 					return err
 				}
 			} else {
-				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
 			}
 		}
 	}
