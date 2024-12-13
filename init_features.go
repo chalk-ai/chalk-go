@@ -107,11 +107,8 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 				if !f.CanSet() {
 					continue
 				}
-				if !f.IsNil() {
-					return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
-				}
 				featureSet := reflect.New(f.Type().Elem())
-				f.Set(featureSet)
+				f.Set(featureSet) // Always overwrite
 				if err := fi.initRemoteFeatureMap(f.Elem(), updatedFqn, visited, nextScope, nsMemo, false); err != nil {
 					return err
 				}
