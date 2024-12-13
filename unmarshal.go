@@ -8,7 +8,10 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"runtime"
+	"sort"
 	"strings"
+	"sync"
 )
 
 var FieldNotFoundError = errors.New("field not found")
@@ -117,6 +120,39 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
+type ChunkResult struct {
+	chunkIdx int
+	rows     []reflect.Value
+	err      error
+}
+
+func deserializeRows(
+	rows []map[string]any,
+	typ reflect.Type,
+	scope *scopeTrie,
+	memo internal.NamespaceMemo,
+	chunkIdx int,
+	resChan chan<- ChunkResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
+
+	var results []reflect.Value
+	succeeded := true
+	for _, row := range rows {
+		res := reflect.New(typ)
+		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
+			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+			succeeded = true
+			break
+		}
+		results = append(results, res.Elem())
+	}
+	if succeeded {
+		resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+	}
+}
+
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
@@ -176,12 +212,40 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building namespace memo")
 	}
 
-	for _, row := range rows {
-		res := reflect.New(sliceElemType)
-		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
-			return err
+	var wg sync.WaitGroup
+	numWorkers := runtime.NumCPU()
+	resChan := make(chan ChunkResult, numWorkers)
+
+	chunkSize := (len(rows) / numWorkers) + 1
+	chunkIdx := 0
+	for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
+		chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+		wg.Add(1)
+		go deserializeRows(chunkRows, sliceElemType, scope, memo, chunkIdx, resChan, &wg)
+		chunkIdx += 1
+	}
+
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	var allChunks []ChunkResult
+	for chunkResult := range resChan {
+		allChunks = append(allChunks, chunkResult)
+	}
+
+	sort.Slice(allChunks, func(i, j int) bool {
+		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
+	})
+
+	for _, chunkResult := range allChunks {
+		if chunkResult.err != nil {
+			return chunkResult.err
 		}
-		internal.SliceAppend(resultHolders, res.Elem())
+		for _, row := range chunkResult.rows {
+			internal.SliceAppend(resultHolders, row)
+		}
 	}
 
 	return nil
