@@ -297,9 +297,6 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 			// TODO: Add validation for optional fields
 			continue
 		}
-		if _, shouldSkip := internal.SkipUnmarshalFqnRoots[getFqnRoot(fqn)]; shouldSkip {
-			continue
-		}
 
 		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {

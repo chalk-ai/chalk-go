@@ -98,6 +98,10 @@ func getFeatureNameFromFqn(fqn string) string {
 	return lastPart[len(lastPart)-1]
 }
 
+func getFqnRoot(s string) string {
+	return strings.Split(s, ".")[0]
+}
+
 // ChalkpySnakeCase aims to be in parity with
 // our Python implementation of snake_case
 func ChalkpySnakeCase(s string) string {

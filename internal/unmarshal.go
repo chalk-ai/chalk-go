@@ -171,18 +171,29 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 	res := make([]map[string]any, 0)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
+
 	for reader.Next() {
 		record := reader.Record()
+		colIndicesShouldSkip := make([]bool, record.NumCols())
+		for j, _ := range record.Columns() {
+			colName := record.ColumnName(j)
+			if _, ok := skipUnmarshalFields[colName]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+			if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
+				colIndicesShouldSkip[j] = true
+			}
+		}
 		for i := 0; i < int(record.NumRows()); i++ {
 			m := map[string]any{}
 			for j, col := range record.Columns() {
+				if colIndicesShouldSkip[j] {
+					continue
+				}
 				name := record.ColumnName(j)
-				if _, ok := skipUnmarshalFields[name]; ok {
-					continue
-				}
-				if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(name)]; ok {
-					continue
-				}
 				value, err := GetValueFromArrowArray(col, i)
 				if err != nil {
 					return nil, errors.Wrap(err, "error getting value from arrow array")

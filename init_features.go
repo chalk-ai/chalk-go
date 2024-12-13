@@ -362,10 +362,6 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 	return nil
 }
 
-func getFqnRoot(s string) string {
-	return strings.Split(s, ".")[0]
-}
-
 func pointerCheck(field reflect.Value) error {
 	if field.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind())
