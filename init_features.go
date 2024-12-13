@@ -86,8 +86,8 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 	}
 
 	for _, resolvedFieldName := range fieldNames {
-		nextScope, ok := scope.children[resolvedFieldName]
-		if !ok {
+		nextScope, inScope := scope.children[resolvedFieldName]
+		if !inScope {
 			continue
 		}
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
