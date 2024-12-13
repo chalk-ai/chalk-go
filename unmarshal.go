@@ -298,7 +298,7 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		targetFields, ok := initializer.fieldsMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
-			fieldIdx, ok := nsMemo.ResolvedFieldNameToIndices[fqn]
+			fieldIndices, ok := nsMemo.ResolvedFieldNameToIndices[fqn]
 			if !ok {
 				// For forward compatibility, i.e. when clients add
 				// more fields to their dataclasses in chalkpy, we want
@@ -307,7 +307,9 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 				// Eventually we might consider exposing a flag.
 				continue
 			}
-			targetFields = []reflect.Value{structValue.Field(fieldIdx)}
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
 		}
 
 		for _, field := range targetFields {

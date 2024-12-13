@@ -91,7 +91,7 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 			continue
 		}
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
-		fieldIdx, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
 		if !ok {
 			return errors.Newf(
 				"getting field index from memo, field '%s' not found among keys: %v",
@@ -99,94 +99,97 @@ func (fi *featureInitializer) initRemoteFeatureMap(
 				colls.Keys(memo.ResolvedFieldNameToIndices),
 			)
 		}
-		f := structValue.Field(fieldIdx)
 
-		if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
-			if !f.CanSet() {
-				continue
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if !f.IsNil() {
+					return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
+				}
+				featureSet := reflect.New(f.Type().Elem())
+				f.Set(featureSet)
+				if err := fi.initRemoteFeatureMap(f.Elem(), updatedFqn, visited, nextScope, nsMemo, false); err != nil {
+					return err
+				}
+			} else {
+				fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 			}
-			if !f.IsNil() {
-				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
-			}
-			featureSet := reflect.New(f.Type().Elem())
-			f.Set(featureSet)
-			if err := fi.initRemoteFeatureMap(f.Elem(), updatedFqn, visited, nextScope, nsMemo, false); err != nil {
-				return err
-			}
-		} else {
-			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
 		}
 	}
 	return nil
 }
 
-func (fi *featureInitializer) initFeaturesScoped(
-	structValue reflect.Value,
-	cumulativeFqn string,
-	visited map[string]bool,
-	scope *scopeTrie,
-	nsMemo internal.NamespaceMemo,
-) error {
-	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"feature initialization function argument must be a reflect.Value"+
-				" of the kind reflect.Struct, found %s instead",
-			structValue.Kind().String(),
-		)
-	}
-
-	structName := structValue.Type().Name()
-	if isVisited, ok := visited[structName]; ok && isVisited {
-		// Found a cycle. Just return.
-		return nil
-	}
-	visited[structName] = true
-	defer func() {
-		visited[structName] = false
-	}()
-
-	memo := nsMemo[structName]
-	for resolvedFieldName, nextScope := range scope.children {
-		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
-
-		fieldIdx, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
-		if !ok {
-			return errors.Newf(
-				"getting field index from memo, field '%s' not found among keys: %v",
-				resolvedFieldName,
-				colls.Keys(memo.ResolvedFieldNameToIndices),
-			)
-		}
-		f := structValue.Field(fieldIdx)
-		if !f.CanSet() {
-			continue
-		}
-
-		typ := f.Type()
-		if f.Kind() != reflect.Map {
-			if ptrErr := pointerCheck(f); ptrErr != nil {
-				return ptrErr
-			}
-			typ = f.Type().Elem()
-		}
-
-		if typ.Kind() == reflect.Struct &&
-			typ != reflect.TypeOf(time.Time{}) &&
-			!internal.IsTypeDataclass(typ) {
-			if !f.IsNil() {
-				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
-			}
-			featureSet := reflect.New(f.Type().Elem())
-			f.Set(featureSet)
-			if err := fi.initFeaturesScoped(f.Elem(), updatedFqn, visited, nextScope, nsMemo); err != nil {
-				return err
-			}
-		} else {
-			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
-		}
-	}
-	return nil
-}
+//func (fi *featureInitializer) initFeaturesScoped(
+//	structValue reflect.Value,
+//	cumulativeFqn string,
+//	visited map[string]bool,
+//	scope *scopeTrie,
+//	nsMemo internal.NamespaceMemo,
+//) error {
+//	if structValue.Kind() != reflect.Struct {
+//		return fmt.Errorf(
+//			"feature initialization function argument must be a reflect.Value"+
+//				" of the kind reflect.Struct, found %s instead",
+//			structValue.Kind().String(),
+//		)
+//	}
+//
+//	structName := structValue.Type().Name()
+//	if isVisited, ok := visited[structName]; ok && isVisited {
+//		// Found a cycle. Just return.
+//		return nil
+//	}
+//	visited[structName] = true
+//	defer func() {
+//		visited[structName] = false
+//	}()
+//
+//	memo := nsMemo[structName]
+//	for resolvedFieldName, nextScope := range scope.children {
+//		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
+//
+//		fieldIdx, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+//		if !ok {
+//			return errors.Newf(
+//				"getting field index from memo, field '%s' not found among keys: %v",
+//				resolvedFieldName,
+//				colls.Keys(memo.ResolvedFieldNameToIndices),
+//			)
+//		}
+//		f := structValue.Field(fieldIdx)
+//		if !f.CanSet() {
+//			continue
+//		}
+//
+//		typ := f.Type()
+//		if f.Kind() != reflect.Map {
+//			if ptrErr := pointerCheck(f); ptrErr != nil {
+//				return ptrErr
+//			}
+//			typ = f.Type().Elem()
+//		}
+//
+//		if typ.Kind() == reflect.Struct &&
+//			typ != reflect.TypeOf(time.Time{}) &&
+//			!internal.IsTypeDataclass(typ) {
+//			if !f.IsNil() {
+//				return errors.Newf("struct with FQN '%s' should be nil", updatedFqn)
+//			}
+//			featureSet := reflect.New(f.Type().Elem())
+//			f.Set(featureSet)
+//			if err := fi.initFeaturesScoped(f.Elem(), updatedFqn, visited, nextScope, nsMemo); err != nil {
+//				return err
+//			}
+//		} else {
+//			fi.fieldsMap[updatedFqn] = append(fi.fieldsMap[updatedFqn], f)
+//		}
+//	}
+//	return nil
+//}
 
 // initFeatures is a recursive function that initializes all features
 // in the struct that is passed in. Each feature is initialized as a
@@ -449,11 +452,12 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				memo[structName] = internal.NewNamespaceMemoItem()
 			}
 			nsMemo := memo[structName]
-			nsMemo.ResolvedFieldNameToIndices[resolvedName] = fieldIdx
+			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
 			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			nsMemo.ResolvedFieldNameToIndices[namespace+"."+resolvedName] = fieldIdx
+			rootFqn := namespace + "." + resolvedName
+			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
 
 			// Handle exploding windowed features
 			if fm.Type.Kind() == reflect.Map {
@@ -469,8 +473,9 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				}
 				for _, tag := range intTags {
 					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = fieldIdx
-					nsMemo.ResolvedFieldNameToIndices[namespace+"."+bucketFqn] = fieldIdx
+					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
+					rootBucketFqn := namespace + "." + bucketFqn
+					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
 				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
