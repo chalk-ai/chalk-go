@@ -188,7 +188,7 @@ func extractFeatures(
 	defer wg.Done()
 
 	var results []map[string]any
-	chunkEndInt, err := int64ToInt(chunkEnd)
+	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
 		resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
 		return
@@ -280,12 +280,6 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 		}
 	}
 	return res, nil
-}
-
-func SliceAppend(slicePtr any, value reflect.Value) {
-	slicePtrValue := reflect.ValueOf(slicePtr)
-	sliceValue := slicePtrValue.Elem()
-	sliceValue.Set(reflect.Append(sliceValue, value))
 }
 
 func ReflectPtr(value reflect.Value) reflect.Value {

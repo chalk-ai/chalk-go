@@ -1334,6 +1334,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 	assert.Equal(t, 1, len(resultUser))
 	assert.NotNil(t, resultUser[0].Txns)
+	assert.Equal(t, len(transactions), len(*resultUser[0].Txns))
 	assert.Equal(t, transactions, *resultUser[0].Txns)
 
 	transactionFqnsToValue := map[string]any{
@@ -1388,5 +1389,6 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	}
 	elapsed = time.Since(start)
 	t.Logf("unmarshalled as bulk rows elapsed: %v", elapsed)
+	assert.Equal(t, len(transactions), len(resultTransaction))
 	assert.Equal(t, transactions, resultTransaction)
 }

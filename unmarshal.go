@@ -163,6 +163,11 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}()
 
+	numRows, err := internal.Int64ToInt(table.NumRows())
+	if err != nil {
+		return &ClientError{Message: fmt.Sprintf("table too large to unmarshal, found %d rows", table.NumRows())}
+	}
+
 	slicePtr := reflect.ValueOf(resultHolders)
 	if slicePtr.Kind() != reflect.Ptr {
 		return fmt.Errorf(
@@ -235,14 +240,18 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
 	})
 
+	newSlice := reflect.MakeSlice(slice.Type(), numRows, numRows)
+	rowIdx := 0
 	for _, chunkResult := range allChunks {
 		if chunkResult.err != nil {
 			return chunkResult.err
 		}
 		for _, row := range chunkResult.rows {
-			internal.SliceAppend(resultHolders, row)
+			newSlice.Index(rowIdx).Set(row)
+			rowIdx += 1
 		}
 	}
+	slice.Set(newSlice)
 
 	return nil
 }
