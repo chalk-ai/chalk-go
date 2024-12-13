@@ -232,17 +232,22 @@ fields correspond to the FQNs. An illustration:
 	}
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	structValue := reflect.ValueOf(resultHolder).Elem()
-
-	fieldMap := map[string][]reflect.Value{}
-
-	initializer := newFeatureInitializer()
+	memo := internal.NamespaceMemo{}
+	if err := buildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
+		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
+	}
 	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
 		}
 	}
+	return innerUnmarshalInto(resultHolder, fqnToValue, expectedOutputs, scope, memo)
+}
+func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string, scope *scopeTrie, memo internal.NamespaceMemo) (returnErr *ClientError) {
+	structValue := reflect.ValueOf(resultHolder).Elem()
+	fieldMap := map[string][]reflect.Value{}
+	initializer := newFeatureInitializer()
 
 	structName := structValue.Type().Name()
 	namespace := SnakeCase(structName)
@@ -256,11 +261,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 				colls.Keys(scope.children),
 			).Error(),
 		}
-	}
-
-	memo := internal.NamespaceMemo{}
-	if err := buildNamespaceMemo(memo, structValue.Type()); err != nil {
-		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 
 	if err := initializer.initFeaturesScoped(structValue, namespace, map[string]bool{}, nsScope, memo); err != nil {
@@ -284,15 +284,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			// a new field that does not yet exist in the Go struct.
 			// Eventually we might consider exposing a flag.
 			continue
-		}
-		if err != nil {
-			err = errors.Wrapf(
-				err,
-				"error initializing feature field '%s' in the struct '%s'",
-				fqn,
-				structValue.Type().String(),
-			)
-			return &ClientError{Message: err.Error()}
 		}
 		for _, field := range targetFields {
 			if _, ok := fieldMap[fqn]; !ok {
