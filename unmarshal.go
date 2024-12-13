@@ -259,8 +259,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 }
 func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string, scope *scopeTrie, memo internal.NamespaceMemo) (returnErr *ClientError) {
 	structValue := reflect.ValueOf(resultHolder).Elem()
-	fieldMap := map[string][]reflect.Value{}
-
 	structName := structValue.Type().Name()
 	namespace := SnakeCase(structName)
 	nsScope := scope.children[namespace]
@@ -321,10 +319,6 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		}
 
 		for _, field := range targetFields {
-			if _, ok := fieldMap[fqn]; !ok {
-				fieldMap[fqn] = []reflect.Value{}
-			}
-			fieldMap[fqn] = append(fieldMap[fqn], field)
 			if err := setFeatureSingle(field, fqn, value, memo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
@@ -343,20 +337,6 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 			}
 		}
 
-	}
-	for _, expectedOutput := range expectedOutputs {
-		if fields, ok := fieldMap[expectedOutput]; ok {
-			for _, field := range fields {
-				if field.IsNil() {
-					// TODO: Handle optional fields
-					//return &ClientError{Message: fmt.Sprintf(
-					//	"Unexpected error unmarshaling output feature '%s'. "+
-					//		"Feature is still nil after unmarshaling",
-					//	expectedOutput,
-					//)}
-				}
-			}
-		}
 	}
 	return nil
 }
