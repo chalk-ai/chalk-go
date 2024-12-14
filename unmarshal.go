@@ -137,14 +137,14 @@ func unmarshalRows(
 ) {
 	defer wg.Done()
 
-	var results []reflect.Value
-	for _, row := range rows {
+	results := make([]reflect.Value, len(rows))
+	for rowIdx, row := range rows {
 		res := reflect.New(typ)
 		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
 			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
 			return
 		}
-		results = append(results, res.Elem())
+		results[rowIdx] = res.Elem()
 	}
 	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
 }
