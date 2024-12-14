@@ -217,7 +217,11 @@ func extractFeatures(
 }
 
 func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
-	res := make([]map[string]any, 0)
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
+	}
+	res := make([]map[string]any, 0, numRows)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
 
