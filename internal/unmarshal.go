@@ -17,7 +17,7 @@ import (
 )
 
 var tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
-var defaultTableReaderChunkSize = 500_000
+var defaultTableReaderChunkSize = 10_000
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
