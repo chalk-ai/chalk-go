@@ -7,14 +7,27 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"os"
 	"reflect"
 	"runtime"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 )
 
-var tableReaderChunkSize = 10_000
+var tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
+var defaultTableReaderChunkSize = 500_000
+
+var tableReaderChunkSize = defaultTableReaderChunkSize
+
+func init() {
+	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
+		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
+			tableReaderChunkSize = newChunkSize
+		}
+	}
+}
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
