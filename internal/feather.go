@@ -74,6 +74,10 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		var arrowFields []arrow.Field
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
+			// if field is has-many or has-one, skip
+			if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+				continue
+			}
 			dtype, dtypeErr := convertReflectToArrowType(field.Type)
 			if dtypeErr != nil {
 				return nil, errors.Wrapf(
@@ -222,7 +226,14 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
 			}
 
-			numFieldsReflect := elemType.NumField()
+			numFieldsReflect := 0
+			for i := 0; i < elemType.NumField(); i++ {
+				field := elemType.Field(i)
+				if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+					continue
+				}
+				numFieldsReflect++
+			}
 			numFieldsArrow := sBuilder.NumField()
 			if numFieldsReflect != numFieldsArrow {
 				return errors.Errorf(
@@ -243,7 +254,11 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 			for i := 0; i < numFieldsReflect; i++ {
-				resolved, err := ResolveFeatureName(elemType.Field(i))
+				field := elemType.Field(i)
+				if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+					continue
+				}
+				resolved, err := ResolveFeatureName(field)
 				if err != nil {
 					return errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 				}
@@ -260,8 +275,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			}
 
 			var columns []reflect.Value
-			for j := 0; j < numFieldsReflect; j++ {
-				fieldSliceType := reflect.SliceOf(elemType.Field(j).Type)
+			for j := 0; j < elemType.NumField(); j++ {
+				fieldType := elemType.Field(j).Type
+				if IsOrUnderlyingFeaturesClass(fieldType) || IsOrUnderlyingHasMany(fieldType) {
+					continue
+				}
+				fieldSliceType := reflect.SliceOf(fieldType)
 				fieldSlice := reflect.MakeSlice(fieldSliceType, 0, slice.Len())
 				for i := 0; i < slice.Len(); i++ {
 					fieldSlice = reflect.Append(fieldSlice, slice.Index(i).Field(j))
