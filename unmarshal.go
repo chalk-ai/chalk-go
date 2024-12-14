@@ -8,7 +8,10 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"runtime"
+	"sort"
 	"strings"
+	"sync"
 )
 
 var FieldNotFoundError = errors.New("field not found")
@@ -117,6 +120,44 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientE
 	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
 }
 
+type ChunkResult struct {
+	chunkIdx int
+	rows     []reflect.Value
+	err      error
+}
+
+func unmarshalRows(
+	rows []map[string]any,
+	typ reflect.Type,
+	namespace string,
+	namespaceScope *scopeTrie,
+	namespaceMemoItem *internal.NamespaceMemoItem,
+	namespaceMemo internal.NamespaceMemo,
+	chunkIdx int,
+	resChan chan<- ChunkResult,
+	wg *sync.WaitGroup,
+) {
+	defer wg.Done()
+	results := make([]reflect.Value, len(rows))
+	for rowIdx, row := range rows {
+		res := reflect.New(typ)
+		if err := thinUnmarshalInto(
+			res,
+			row,
+			namespace,
+			nil,
+			namespaceScope,
+			namespaceMemoItem,
+			namespaceMemo,
+		); err != nil {
+			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+			return
+		}
+		results[rowIdx] = res.Elem()
+	}
+	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+}
+
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
@@ -130,6 +171,11 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			returnErr = fmt.Errorf("exception occurred while unmarshalling result: %s", detail)
 		}
 	}()
+
+	numRows, err := internal.Int64ToInt(table.NumRows())
+	if err != nil {
+		return &ClientError{Message: fmt.Sprintf("table too large to unmarshal, found %d rows", table.NumRows())}
+	}
 
 	slicePtr := reflect.ValueOf(resultHolders)
 	if slicePtr.Kind() != reflect.Ptr {
@@ -176,13 +222,74 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building namespace memo")
 	}
 
-	for _, row := range rows {
-		res := reflect.New(sliceElemType)
-		if err := innerUnmarshalInto(res.Interface(), row, nil, scope, memo); err != nil {
-			return err
+	structName := sliceElemType.Name()
+	namespace := SnakeCase(structName)
+	nsScope := scope.children[namespace]
+	if nsScope == nil {
+		return &ClientError{
+			errors.Newf(
+				"Attempted to unmarshal into the feature struct '%s', "+
+					"but results are from these feature class(es) '%v'",
+				structName,
+				colls.Keys(scope.children),
+			).Error(),
 		}
-		internal.SliceAppend(resultHolders, res.Elem())
 	}
+
+	nsMemo, ok := memo[structName]
+	if !ok {
+		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
+	}
+
+	var wg sync.WaitGroup
+	numWorkers := runtime.NumCPU()
+	resChan := make(chan ChunkResult, numWorkers)
+
+	chunkSize := (len(rows) / numWorkers) + 1
+	chunkIdx := 0
+	for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
+		chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+		wg.Add(1)
+		go unmarshalRows(
+			chunkRows,
+			sliceElemType,
+			namespace,
+			nsScope,
+			nsMemo,
+			memo,
+			chunkIdx,
+			resChan,
+			&wg,
+		)
+		chunkIdx += 1
+	}
+
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	var allChunks []ChunkResult
+	for chunkResult := range resChan {
+		allChunks = append(allChunks, chunkResult)
+	}
+
+	sort.Slice(allChunks, func(i, j int) bool {
+		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
+	})
+
+	newSlice := reflect.MakeSlice(slice.Type(), numRows, numRows)
+	rowIdx := 0
+	for _, chunkResult := range allChunks {
+		if chunkResult.err != nil {
+			return chunkResult.err
+		}
+		for _, row := range chunkResult.rows {
+			newSlice.Index(rowIdx).Set(row)
+			rowIdx += 1
+		}
+	}
+	slice.Set(newSlice)
 
 	return nil
 }
@@ -255,11 +362,9 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
 		}
 	}
-	return innerUnmarshalInto(resultHolder, fqnToValue, expectedOutputs, scope, memo)
-}
-func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string, scope *scopeTrie, memo internal.NamespaceMemo) (returnErr *ClientError) {
-	structValue := reflect.ValueOf(resultHolder).Elem()
-	structName := structValue.Type().Name()
+
+	holderValue := reflect.ValueOf(resultHolder)
+	structName := holderValue.Elem().Type().Name()
 	namespace := SnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
@@ -273,22 +378,46 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		}
 	}
 
+	nsMemo, ok := memo[structName]
+	if !ok {
+		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
+	}
+
+	return thinUnmarshalInto(
+		holderValue,
+		fqnToValue,
+		namespace,
+		expectedOutputs,
+		nsScope,
+		nsMemo,
+		memo,
+	)
+}
+
+// thinUnmarshalInto is called per row. Any operation that can be
+// done outside of this function must be done outside of this function.
+func thinUnmarshalInto(
+	resultHolder reflect.Value,
+	fqnToValue map[Fqn]any,
+	namespace string,
+	expectedOutputs []string,
+	namespaceScope *scopeTrie,
+	namespaceMemoItem *internal.NamespaceMemoItem,
+	namespaceMemo internal.NamespaceMemo,
+) (returnErr *ClientError) {
+	structValue := resultHolder.Elem()
+
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := initRemoteFeatureMap(
 		remoteFeatureMap,
 		structValue,
 		namespace,
 		map[string]bool{},
-		nsScope,
-		memo,
+		namespaceScope,
+		namespaceMemo,
 		true,
 	); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
-	}
-
-	nsMemo, ok := memo[structName]
-	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
 
 	for fqn, value := range fqnToValue {
@@ -301,7 +430,7 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
-			fieldIndices, ok := nsMemo.ResolvedFieldNameToIndices[fqn]
+			fieldIndices, ok := namespaceMemoItem.ResolvedFieldNameToIndices[fqn]
 			if !ok {
 				// For forward compatibility, i.e. when clients add
 				// more fields to their dataclasses in chalkpy, we want
@@ -316,7 +445,7 @@ func innerUnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutput
 		}
 
 		for _, field := range targetFields {
-			if err := setFeatureSingle(field, fqn, value, memo); err != nil {
+			if err := setFeatureSingle(field, fqn, value, namespaceMemo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")
