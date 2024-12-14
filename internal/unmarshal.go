@@ -16,8 +16,9 @@ import (
 	"time"
 )
 
-var tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
-var defaultTableReaderChunkSize = 10_000
+const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
+
+const defaultTableReaderChunkSize = 10_000
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
