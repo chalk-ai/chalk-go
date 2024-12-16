@@ -49,6 +49,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 
 	for _, clientFixture := range clients {
 		t.Run(clientFixture.name, func(t *testing.T) {
+			t.Parallel()
 			client := clientFixture.client
 			investorsInput := []newGradAngelInvestor{
 				{Id: ptr.Ptr("amylase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(1))},
