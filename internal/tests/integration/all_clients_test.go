@@ -4,6 +4,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
+	"os"
 	"testing"
 )
 
@@ -15,6 +16,14 @@ type ClientFixture struct {
 }
 
 func init() {
+	if err := chalk.InitFeatures(&testFeatures); err != nil {
+		panic(err)
+	}
+
+	if os.Getenv("INTEGRATION_TESTER") == "" {
+		return
+	}
+
 	restClient, err := chalk.NewClient()
 	if err != nil {
 		panic(err)
@@ -27,9 +36,6 @@ func init() {
 	}
 	clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
 
-	if err = chalk.InitFeatures(&testFeatures); err != nil {
-		panic(err)
-	}
 }
 
 // Test that we can execute an OnlineQuery
