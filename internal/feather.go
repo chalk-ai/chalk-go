@@ -35,14 +35,34 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
-	record, recordErr := ColumnMapToRecord(inputs)
+	newInputs := map[string]any{}
+	for k, v := range inputs {
+		sliceVal := reflect.ValueOf(v)
+		if sliceVal.Kind() == reflect.Slice {
+			var newSlice *reflect.Value
+			for i := 0; i < sliceVal.Len(); i++ {
+				convertedVal, err := convertIfStruct(sliceVal.Index(i).Interface())
+				if err != nil {
+					return nil, errors.Wrapf(err, "has-many processing for input feature '%s'", k)
+				}
+				if newSlice == nil {
+					mySlice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(convertedVal)), sliceVal.Len(), sliceVal.Len())
+					newSlice = &mySlice
+				}
+				newSlice.Index(i).Set(reflect.ValueOf(convertedVal))
+			}
+			newInputs[k] = newSlice.Interface()
+		} else {
+			newInputs[k] = v
+		}
+	}
+	record, recordErr := ColumnMapToRecord(newInputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
 	defer record.Release()
 	return recordToBytes(record)
 }
-
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
 	if kind == reflect.Ptr {

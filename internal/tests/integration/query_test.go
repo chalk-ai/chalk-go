@@ -256,8 +256,8 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 func TestOnlineQueryHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
 	assert.NoError(t, chalk.InitFeatures(&testFeatures))
+
 	client, err := chalk.NewClient()
 	assert.NoError(t, err)
 	investorsInput := []newGradAngelInvestor{

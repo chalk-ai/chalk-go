@@ -251,3 +251,117 @@ func GetBucketFromFqn(fqn string) (string, error) {
 	}
 	return FormatBucketDuration(seconds), nil
 }
+
+func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
+	isDataclass := IsTypeDataclass(structType)
+	res := make(map[string]string)
+	namespace := ChalkpySnakeCase(structType.Name())
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName, err := ResolveFeatureName(structType.Field(i))
+		if err != nil {
+			return nil, errors.New("failed to resolve field name")
+		}
+		if !isDataclass {
+			// Don't prepend namespace if it is a dataclass
+			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
+		}
+		res[structType.Field(i).Name] = pythonName
+	}
+	return res, nil
+}
+
+func convertStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
+	newMap := make(map[string]any)
+	structType := structValue.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName := fieldToPythonName[structType.Field(i).Name]
+		converted, err := convertIfStruct(structValue.Field(i).Interface())
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"failed to convert inner feature struct for field '%s'",
+				structType.Field(i).Name,
+			)
+		}
+		rConverted := reflect.ValueOf(converted)
+		if (rConverted.IsValid() && !rConverted.IsNil()) ||
+			IsTypeDataclass(structType) ||
+			HasDontOmitTag(structType.Field(i)) {
+			// We omit nil fields unless `chalk:"dontomit"`
+			// is specified or if the struct is a dataclass
+			newMap[pythonName] = converted
+		}
+	}
+	return newMap, nil
+}
+
+func convertIfStruct(values any) (any, error) {
+	// When the user passes in a has-one feature struct or a list of has-many structs,
+	// it gets serialized into:
+	//
+	// {
+	//     "FullName": "John Doe",
+	//     "Amount": 100,
+	// }
+	//
+	// when we really want:
+	//
+	// {
+	//     "user.full_name": "John Doe",
+	//     "user.amount": 100,
+	// }
+	//
+	// Meanwhile, dataclasses are serialized by default as:
+	//
+	// {
+	//     "Lat": 37.7749,
+	//     "Lng": 122.4194,
+	// }
+	//
+	// when we want
+	// {
+	//     "lat": 37.7749,
+	//     "lng": 122.4194,
+	// }
+	//
+	rValues := reflect.ValueOf(values)
+	if rValues.Kind() == reflect.Ptr {
+		rValues = rValues.Elem()
+	}
+	if !rValues.IsValid() {
+		return values, nil
+	}
+
+	if IsStruct(rValues.Type()) {
+		// This is a has-one feature
+		fieldNameToPythonName, err := getFieldToPythonName(rValues.Type())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
+		}
+		return convertStructSingle(rValues, fieldNameToPythonName)
+	}
+
+	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
+		return values, nil
+	}
+	elemType := rValues.Type().Elem()
+	if !IsStruct(elemType) {
+		return values, nil
+	}
+
+	// This is a list of dataclasses, or a has-many list of features.
+	fieldNameToPythonName, err := getFieldToPythonName(elemType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
+	}
+
+	newValues := make([]map[string]any, rValues.Len())
+	for i := 0; i < rValues.Len(); i++ {
+		newMap, err := convertStructSingle(rValues.Index(i), fieldNameToPythonName)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
+		}
+		newValues[i] = newMap
+	}
+	return newValues, nil
+}
