@@ -15,11 +15,11 @@ type ClientFixture struct {
 }
 
 func init() {
-	//restClient, err := chalk.NewClient()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//clients = append(clients, ClientFixture{name: "rest", client: restClient})
+	restClient, err := chalk.NewClient()
+	if err != nil {
+		panic(err)
+	}
+	clients = append(clients, ClientFixture{name: "rest", client: restClient})
 
 	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
