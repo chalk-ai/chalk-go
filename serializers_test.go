@@ -1,6 +1,8 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"testing"
 	"time"
 
@@ -8,6 +10,27 @@ import (
 	assert "github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+type SerdeDetails struct {
+	Name      *string  `dataclass_field:"true"`
+	OutAmount *float64 `dataclass_field:"true"`
+	InAmount  *float64 `dataclass_field:"true"`
+}
+
+type SerdeUser struct {
+	Id   *int64
+	Txns *[]SerdeTransaction `has_many:"id,location_id"`
+}
+
+var SerdeRoot struct {
+	SerdeUser *SerdeUser
+}
+
+type SerdeTransaction struct {
+	Id         *string
+	LocationId *int64
+	Details    *SerdeDetails `dataclass:"true"`
+}
 
 func TestFeatureResultDeserialization(t *testing.T) {
 	withTimestamp := featureResultSerialized{
@@ -77,4 +100,50 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	optionsActual := request.GetContext().GetOptions()
 	assert.True(t, optionsActual["include_metrics"].GetBoolValue())
 	assert.True(t, optionsActual["store_plan_stages"].GetBoolValue())
+}
+
+/* Test that we can serialize and deserialize a dataclass nested in a features class without loss*/
+func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
+	assert.NoError(t, InitFeatures(&SerdeRoot))
+
+	transactions := []SerdeTransaction{
+		{
+			Id:         ptr.Ptr("1"),
+			LocationId: ptr.Ptr(int64(1)),
+			Details: &SerdeDetails{
+				Name:      ptr.Ptr("name"),
+				OutAmount: ptr.Ptr(2.2),
+				InAmount:  ptr.Ptr(3.3),
+			},
+		},
+		{
+			Id:         ptr.Ptr("2"),
+			LocationId: ptr.Ptr(int64(2)),
+			Details: &SerdeDetails{
+				Name:      ptr.Ptr("name2"),
+				OutAmount: ptr.Ptr(3.2),
+				InAmount:  ptr.Ptr(4.3),
+			},
+		},
+	}
+	params := OnlineQueryParams{}.
+		WithInput(SerdeRoot.SerdeUser.Id, []int64{1}).
+		WithInput(SerdeRoot.SerdeUser.Txns, [][]SerdeTransaction{transactions}).
+		WithOutputs(SerdeRoot.SerdeUser.Id, SerdeRoot.SerdeUser.Txns)
+
+	req, err := convertOnlineQueryParamsToProto(&params.underlying)
+	assert.NoError(t, err)
+	table, err := internal.ConvertBytesToTable(req.GetInputsFeather())
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), table.NumRows())
+	assert.Equal(t, int64(2), table.NumCols())
+
+	var actualUser []SerdeUser
+	bulkRes := OnlineQueryBulkResult{ScalarsTable: table}
+	if err := bulkRes.UnmarshalInto(&actualUser); err != (*ClientError)(nil) {
+		assert.FailNow(t, "Failed to unmarshal bulk result into user", err)
+	}
+	assert.Equal(t, 1, len(actualUser))
+	assert.Equal(t, transactions, *actualUser[0].Txns)
+
 }
