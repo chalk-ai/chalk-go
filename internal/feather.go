@@ -42,7 +42,6 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	defer record.Release()
 	return recordToBytes(record)
 }
-
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
 	if kind == reflect.Ptr {
@@ -72,6 +71,8 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			}, nil
 		}
 		var arrowFields []arrow.Field
+		structName := ChalkpySnakeCase(value.Name())
+		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
 			dtype, dtypeErr := convertReflectToArrowType(field.Type)
@@ -85,6 +86,9 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			resolved, err := ResolveFeatureName(field)
 			if err != nil {
 				return nil, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+			}
+			if isFeaturesClass {
+				resolved = structName + "." + resolved
 			}
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
@@ -242,10 +246,16 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 					sBuilder.Type(),
 				)
 			}
+
+			structName := ChalkpySnakeCase(elemType.Name())
+			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				resolved, err := ResolveFeatureName(elemType.Field(i))
 				if err != nil {
 					return errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+				}
+				if isFeaturesClass {
+					resolved = structName + "." + resolved
 				}
 				namesReflect = append(namesReflect, resolved)
 				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)

@@ -108,6 +108,10 @@ func IsStruct(typ reflect.Type) bool {
 	return true
 }
 
+func IsFeaturesClass(typ reflect.Type) bool {
+	return IsStruct(typ) && !IsTypeDataclass(typ)
+}
+
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
