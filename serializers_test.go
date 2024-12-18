@@ -104,6 +104,11 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 
 /* Test that we can serialize and deserialize a dataclass nested in a features class without loss*/
 func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
+	t.Skip(
+		"Need to extend this to test omitting fields for bulk queries. " +
+			"For reference, we are testing that for singular queries in " +
+			"TestOnlineQueryParamsOmitNilFields",
+	)
 	assert.NoError(t, InitFeatures(&SerdeRoot))
 
 	transactions := []SerdeTransaction{
