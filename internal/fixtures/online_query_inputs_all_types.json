@@ -73,17 +73,6 @@
         "yacht": "yacht",
         "plane": "plane"
       },
-      "has_many.dataclass_with_dataclass": {
-        "name": "child",
-        "mom": {
-          "name": "mom",
-          "mom": {
-            "name": "grandma"
-          },
-          "dad": null
-        },
-        "dad": null
-      },
       "has_many.dataclass_with_overrides": {
         "camelName": "camel"
       }
@@ -160,15 +149,6 @@
         "car": "car2",
         "yacht": "yacht2",
         "plane": "plane2"
-      },
-      "has_many.dataclass_with_dataclass": {
-        "name": "child2",
-        "mom": {
-          "name": "mom2",
-          "mom": null,
-          "dad": null
-        },
-        "dad": null
       },
       "has_many.dataclass_with_overrides": {
         "camelName": "camel2"

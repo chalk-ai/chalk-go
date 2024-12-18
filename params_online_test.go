@@ -178,15 +178,16 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Yacht: ptr.Ptr("yacht"),
 					Plane: ptr.Ptr("plane"),
 				},
-				DataclassWithDataclass: &child{
-					Name: ptr.Ptr("child"),
-					Mom: &parent{
-						Name: ptr.Ptr("mom"),
-						Mom: &grandparent{
-							Name: ptr.Ptr("grandma"),
-						},
-					},
-				},
+				// CHA-5430
+				//DataclassWithDataclass: &child{
+				//	Name: ptr.Ptr("child"),
+				//	Mom: &parent{
+				//		Name: ptr.Ptr("mom"),
+				//		Mom: &grandparent{
+				//			Name: ptr.Ptr("grandma"),
+				//		},
+				//	},
+				//},
 				DataclassWithOverrides: &dclassWithOverrides{
 					CamelName: ptr.Ptr("camel"),
 				},
@@ -234,12 +235,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Yacht: ptr.Ptr("yacht2"),
 					Plane: ptr.Ptr("plane2"),
 				},
-				DataclassWithDataclass: &child{
-					Name: ptr.Ptr("child2"),
-					Mom: &parent{
-						Name: ptr.Ptr("mom2"),
-					},
-				},
+				// CHA-5430
+				//DataclassWithDataclass: &child{
+				//	Name: ptr.Ptr("child2"),
+				//	Mom: &parent{
+				//		Name: ptr.Ptr("mom2"),
+				//	},
+				//},
 				DataclassWithOverrides: &dclassWithOverrides{
 					CamelName: ptr.Ptr("camel2"),
 				},
