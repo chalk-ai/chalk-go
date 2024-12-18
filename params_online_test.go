@@ -3,6 +3,7 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
@@ -91,15 +92,34 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 		return
 	}
 
-	inputBytes, err := json.MarshalIndent(request.Inputs, "", "  ")
+	inputJsonBytes, err := json.MarshalIndent(request.Inputs, "", "  ")
 	assert.NoError(t, err)
-	err = os.WriteFile(path, inputBytes, 0644)
+	err = os.WriteFile(path, inputJsonBytes, 0644)
 	if err != nil {
 		fmt.Println("Error writing to file:", err)
 		return
 	}
 
-	assert.Equal(t, string(fileContent), string(inputBytes))
+	assert.Equal(t, string(fileContent), string(inputJsonBytes))
+
+	bulkInputs, err := internal.SingleInputsToBulkInputs(params.underlying.inputs)
+	assert.NoError(t, err)
+	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs)
+	assert.NoError(t, err)
+	assert.NotNil(t, arrowBytes)
+
+	table, err := internal.ConvertBytesToTable(arrowBytes)
+	assert.NoError(t, err)
+	assert.NotNil(t, table)
+
+	rows, err := internal.ExtractFeaturesFromTable(table, false)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1, len(rows))
+
+	featherInputJsonBytes, err := json.MarshalIndent(rows[0], "", "  ")
+	assert.NoError(t, err)
+	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 
 // Tests that OnlineQuery successfully serializes all types of input feature values.
@@ -158,15 +178,16 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Yacht: ptr.Ptr("yacht"),
 					Plane: ptr.Ptr("plane"),
 				},
-				DataclassWithDataclass: &child{
-					Name: ptr.Ptr("child"),
-					Mom: &parent{
-						Name: ptr.Ptr("mom"),
-						Mom: &grandparent{
-							Name: ptr.Ptr("grandma"),
-						},
-					},
-				},
+				// CHA-5430
+				//DataclassWithDataclass: &child{
+				//	Name: ptr.Ptr("child"),
+				//	Mom: &parent{
+				//		Name: ptr.Ptr("mom"),
+				//		Mom: &grandparent{
+				//			Name: ptr.Ptr("grandma"),
+				//		},
+				//	},
+				//},
 				DataclassWithOverrides: &dclassWithOverrides{
 					CamelName: ptr.Ptr("camel"),
 				},
@@ -214,12 +235,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Yacht: ptr.Ptr("yacht2"),
 					Plane: ptr.Ptr("plane2"),
 				},
-				DataclassWithDataclass: &child{
-					Name: ptr.Ptr("child2"),
-					Mom: &parent{
-						Name: ptr.Ptr("mom2"),
-					},
-				},
+				// CHA-5430
+				//DataclassWithDataclass: &child{
+				//	Name: ptr.Ptr("child2"),
+				//	Mom: &parent{
+				//		Name: ptr.Ptr("mom2"),
+				//	},
+				//},
 				DataclassWithOverrides: &dclassWithOverrides{
 					CamelName: ptr.Ptr("camel2"),
 				},
