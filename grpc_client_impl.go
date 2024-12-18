@@ -15,8 +15,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
-	"reflect"
-	"time"
 )
 
 var (
@@ -112,13 +110,11 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 }
 
 func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error) {
-	bulkInputs := make(map[string]any)
-	for k, singleValue := range args.underlying.inputs {
-		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
-		slice.Index(0).Set(reflect.ValueOf(singleValue))
-		bulkInputs[k] = slice.Interface()
+	newInputs, err := internal.SingleInputsToBulkInputs(args.underlying.inputs)
+	if err != nil {
+		return nil, errors.Wrap(err, "converting inputs to bulk inputs")
 	}
-	args.underlying.inputs = bulkInputs
+	args.underlying.inputs = newInputs
 
 	bulkRes, err := c.OnlineQueryBulk(ctx, args)
 	if err != nil {
@@ -133,16 +129,13 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 			return nil, errors.Wrap(err, "converting scalars data to table")
 		}
 
-		rows, err := internal.ExtractFeaturesFromTable(scalarsTable)
+		rows, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
 		if err != nil {
 			return nil, errors.Wrap(err, "extracting features from scalars table")
 		}
 
 		if len(rows) == 1 {
 			for fqn, value := range rows[0] {
-				if reflect.TypeOf(value) == reflect.TypeOf(time.Time{}) {
-					value = value.(time.Time).Format(time.RFC3339)
-				}
 				newValue, err := structpb.NewValue(value)
 				if err != nil {
 					return nil, errors.Wrapf(
@@ -169,7 +162,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 			)
 		}
 
-		rowsHm, err := internal.ExtractFeaturesFromTable(table)
+		rowsHm, err := internal.ExtractFeaturesFromTable(table, false)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,

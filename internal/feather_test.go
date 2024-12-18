@@ -24,7 +24,7 @@ func TestColumnMapToRecordOptionalPrimitives(t *testing.T) {
 			if col.IsNull(i) {
 				assert.True(t, reflect.ValueOf(slice).Index(i).IsNil())
 			} else {
-				val, valErr := GetValueFromArrowArray(col, i)
+				val, valErr := GetValueFromArrowArray(col, i, false)
 				assert.Nil(t, valErr)
 				assert.Equal(t, reflect.ValueOf(slice).Index(i).Elem().Interface(), val)
 			}

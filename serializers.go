@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"reflect"
+	"os"
 	"time"
 )
 
@@ -42,7 +42,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 
 	convertedInputs := make(map[string]any)
 	for fqn, values := range p.inputs {
-		convertedValues, err := convertIfStruct(values)
+		convertedValues, err := internal.PreprocessIfStruct(values)
 		if err != nil {
 			return nil, wrapClientError(err, "failed to convert structs in input feature values")
 		}
@@ -293,6 +293,10 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
+	// Write to file
+	if err := os.WriteFile("grpc_inputs.feather", inputsFeather, 0644); err != nil {
+		return nil, errors.Wrap(err, "error writing inputs to file")
+	}
 	outputs := colls.Map(params.outputs, func(v string) *commonv1.OutputExpr {
 		return &commonv1.OutputExpr{
 			Expr: &commonv1.OutputExpr_FeatureFqn{
@@ -351,118 +355,4 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 			Explain:         explainOptions,
 		},
 	}, nil
-}
-
-func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
-	isDataclass := internal.IsTypeDataclass(structType)
-	res := make(map[string]string)
-	namespace := internal.ChalkpySnakeCase(structType.Name())
-	for i := 0; i < structType.NumField(); i++ {
-		pythonName, err := internal.ResolveFeatureName(structType.Field(i))
-		if err != nil {
-			return nil, errors.New("failed to resolve field name")
-		}
-		if !isDataclass {
-			// Don't prepend namespace if it is a dataclass
-			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
-		}
-		res[structType.Field(i).Name] = pythonName
-	}
-	return res, nil
-}
-
-func convertStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (map[string]any, error) {
-	newMap := make(map[string]any)
-	structType := structValue.Type()
-	for i := 0; i < structType.NumField(); i++ {
-		pythonName := fieldToPythonName[structType.Field(i).Name]
-		converted, err := convertIfStruct(structValue.Field(i).Interface())
-		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"failed to convert inner feature struct for field '%s'",
-				structType.Field(i).Name,
-			)
-		}
-		rConverted := reflect.ValueOf(converted)
-		if (rConverted.IsValid() && !rConverted.IsNil()) ||
-			internal.IsTypeDataclass(structType) ||
-			internal.HasDontOmitTag(structType.Field(i)) {
-			// We omit nil fields unless `chalk:"dontomit"`
-			// is specified or if the struct is a dataclass
-			newMap[pythonName] = converted
-		}
-	}
-	return newMap, nil
-}
-
-func convertIfStruct(values any) (any, error) {
-	// When the user passes in a has-one feature struct or a list of has-many structs,
-	// it gets serialized into:
-	//
-	// {
-	//     "FullName": "John Doe",
-	//     "Amount": 100,
-	// }
-	//
-	// when we really want:
-	//
-	// {
-	//     "user.full_name": "John Doe",
-	//     "user.amount": 100,
-	// }
-	//
-	// Meanwhile, dataclasses are serialized by default as:
-	//
-	// {
-	//     "Lat": 37.7749,
-	//     "Lng": 122.4194,
-	// }
-	//
-	// when we want
-	// {
-	//     "lat": 37.7749,
-	//     "lng": 122.4194,
-	// }
-	//
-	rValues := reflect.ValueOf(values)
-	if rValues.Kind() == reflect.Ptr {
-		rValues = rValues.Elem()
-	}
-	if !rValues.IsValid() {
-		return values, nil
-	}
-
-	if internal.IsStruct(rValues.Type()) {
-		// This is a has-one feature
-		fieldNameToPythonName, err := getFieldToPythonName(rValues.Type())
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
-		}
-		return convertStructSingle(rValues, fieldNameToPythonName)
-	}
-
-	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
-		return values, nil
-	}
-	elemType := rValues.Type().Elem()
-	if !internal.IsStruct(elemType) {
-		return values, nil
-	}
-
-	// This is a list of dataclasses, or a has-many list of features.
-	fieldNameToPythonName, err := getFieldToPythonName(elemType)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
-	}
-
-	newValues := make([]map[string]any, rValues.Len())
-	for i := 0; i < rValues.Len(); i++ {
-		newMap, err := convertStructSingle(rValues.Index(i), fieldNameToPythonName)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
-		}
-		newValues[i] = newMap
-	}
-	return newValues, nil
 }

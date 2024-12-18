@@ -109,14 +109,16 @@ func IsStruct(typ reflect.Type) bool {
 }
 
 func IsFeaturesClass(typ reflect.Type) bool {
-	return IsStruct(typ) && !IsTypeDataclass(typ)
+	return IsStruct(typ) &&
+		!IsTypeDataclass(typ) &&
+		typ.Name() != "" // CHA-5430
 }
 
-func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
+func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsString bool) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
 	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
-		anyVal, err := GetValueFromArrowArray(arr, int(ptr))
+		anyVal, err := GetValueFromArrowArray(arr, int(ptr), timeAsString)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting value for LargeList column")
 		}
@@ -126,20 +128,20 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, err
 	return newSlice, nil
 }
 
-func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
+func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
 	}
 	switch arr := a.(type) {
 	case *array.LargeList:
-		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx)
+		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx, timeAsString)
 	case *array.List:
 		o32 := arr.Offsets()
 		o64 := make([]int64, len(o32))
 		for i := 0; i < len(o32); i++ {
 			o64[i] = int64(arr.Offsets()[i])
 		}
-		return getInnerSliceFromArray(arr.ListValues(), o64, idx)
+		return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
 	case *array.Struct:
 		newMap := map[string]any{}
 		structType, typeOk := arr.DataType().(*arrow.StructType)
@@ -147,7 +149,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 			return nil, fmt.Errorf("error getting struct type")
 		}
 		for k := 0; k < arr.NumField(); k++ {
-			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx)
+			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx, timeAsString)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting value for Struct column")
 			}
@@ -177,12 +179,25 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	case *array.Boolean:
 		return arr.Value(idx), nil
 	case *array.Date32:
-		return arr.Value(idx).ToTime(), nil
+		timeVal := arr.Value(idx).ToTime()
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
 	case *array.Date64:
-		return arr.Value(idx).ToTime(), nil
+		timeVal := arr.Value(idx).ToTime()
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
 	case *array.Timestamp:
 		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
-		return arr.Value(idx).ToTime(timeUnit), nil
+		timeVal := arr.Value(idx).ToTime(timeUnit)
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
+
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", arr)
 	}
@@ -202,6 +217,7 @@ func extractFeatures(
 	chunkIdx int,
 	resChan chan<- ChunkResult,
 	wg *sync.WaitGroup,
+	timeAsString bool,
 ) {
 	defer wg.Done()
 
@@ -219,7 +235,7 @@ func extractFeatures(
 				continue
 			}
 			name := record.ColumnName(j)
-			value, err := GetValueFromArrowArray(col, i)
+			value, err := GetValueFromArrowArray(col, i, timeAsString)
 			if err != nil {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
@@ -234,7 +250,10 @@ func extractFeatures(
 	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
 }
 
-func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
+func ExtractFeaturesFromTable(
+	table arrow.Table,
+	timeAsString bool, // CHA-5430
+) ([]map[string]any, error) {
 	numRows, err := Int64ToInt(table.NumRows())
 	if err != nil {
 		return nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
@@ -276,6 +295,7 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				chunkIdx,
 				resChan,
 				&wg,
+				timeAsString,
 			)
 			chunkIdx += 1
 		}
