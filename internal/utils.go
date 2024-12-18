@@ -290,7 +290,7 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 	return res, nil
 }
 
-func preprocessStructSingle(structValue reflect.Value, fieldToPythonName map[string]string) (any, error) {
+func preprocessStructSingle(structValue reflect.Value, fieldToPythonName map[string]string, expectedFieldType *reflect.Type) (any, error) {
 	var fields []reflect.StructField
 	var values []reflect.Value
 	structType := structValue.Type()
@@ -328,7 +328,45 @@ func preprocessStructSingle(structValue reflect.Value, fieldToPythonName map[str
 	if len(fields) == 0 {
 		return reflect.Zero(reflect.PointerTo(newStructType)), nil
 	}
+
 	newStruct := reflect.New(newStructType)
+	if expectedFieldType != nil {
+		// CHA-5430 - inefficient with large number of has-many structs, but unblocks a customer.
+		if newStructType.NumField() != (*expectedFieldType).NumField() {
+			return nil, errors.Newf(
+				"expected struct to have %d fields but got %d",
+				(*expectedFieldType).NumField(),
+				newStructType.NumField(),
+			)
+		}
+		for i := 0; i < newStructType.NumField(); i++ {
+			expectedField := (*expectedFieldType).Field(i)
+			newField := newStructType.Field(i)
+			if expectedField.Name != newField.Name {
+				return nil, errors.Newf(
+					"expected field '%s' but got '%s'",
+					expectedField.Name,
+					newField.Name,
+				)
+			}
+			if expectedField.Type != newField.Type {
+				return nil, errors.Newf(
+					"expected field '%s' to have type '%s' but got '%s'",
+					expectedField.Name,
+					expectedField.Type,
+					newField.Type,
+				)
+			}
+			if expectedField.Tag != newField.Tag {
+				return nil, errors.Newf(
+					"expected field '%s' to have tag '%s' but got '%s'",
+					expectedField.Name,
+					expectedField.Tag,
+					newField.Tag,
+				)
+			}
+		}
+	}
 	for i, value := range values {
 		newStruct.Elem().Field(i).Set(value)
 	}
@@ -381,7 +419,7 @@ func PreprocessIfStruct(values any) (any, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
 		}
-		return preprocessStructSingle(rValues, fieldNameToPythonName)
+		return preprocessStructSingle(rValues, fieldNameToPythonName, nil)
 	}
 
 	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
@@ -399,12 +437,16 @@ func PreprocessIfStruct(values any) (any, error) {
 	}
 
 	var newSlice *reflect.Value
+	var expectedFieldType *reflect.Type
 	for i := 0; i < rValues.Len(); i++ {
-		newStruct, err := preprocessStructSingle(rValues.Index(i), fieldNameToPythonName)
+		newStruct, err := preprocessStructSingle(rValues.Index(i), fieldNameToPythonName, expectedFieldType)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
 		}
 		if newSlice == nil {
+			// CHA-5430 - we can't assume that the entire slice is of the same type as the first element
+			newExpectedFieldType := reflect.TypeOf(newStruct).Elem()
+			expectedFieldType = &newExpectedFieldType
 			newSliceValue := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(newStruct)), rValues.Len(), rValues.Len())
 			newSlice = &newSliceValue
 		}
