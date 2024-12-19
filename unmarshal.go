@@ -236,7 +236,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[namespace]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -353,7 +353,7 @@ fields correspond to the FQNs. An illustration:
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	memo := internal.NamespaceMemo{}
-	if err := buildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
+	if err := internal.BuildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 	scope, err := buildScope(colls.Keys(fqnToValue))
@@ -378,7 +378,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[namespace]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
