@@ -68,7 +68,7 @@ func initRemoteFeatureMap(
 
 	var fieldNames []string
 	if scopeToJustStructs {
-		fieldNames = colls.Keys(memo.StructFieldsSet)
+		fieldNames = colls.Keys(memo.HasOneFieldsSet)
 	} else {
 		fieldNames = colls.Keys(scope.children)
 
@@ -92,7 +92,7 @@ func initRemoteFeatureMap(
 		for _, fieldIdx := range fieldIndices {
 			f := structValue.Field(fieldIdx)
 
-			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+			if _, isStruct := memo.HasOneFieldsSet[resolvedFieldName]; isStruct {
 				if !f.CanSet() {
 					continue
 				}
@@ -352,8 +352,8 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				}
 			}
 
-			if fm.Type.Kind() == reflect.Ptr && internal.IsStruct(fm.Type.Elem()) && !internal.IsTypeDataclass(fm.Type.Elem()) {
-				nsMemo.StructFieldsSet[resolvedName] = true
+			if fm.Type.Kind() == reflect.Ptr && internal.IsFeaturesClass(fm.Type.Elem()) {
+				nsMemo.HasOneFieldsSet[resolvedName] = true
 			}
 		}
 	} else if typ.Kind() == reflect.Slice {

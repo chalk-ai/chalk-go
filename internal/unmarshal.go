@@ -38,13 +38,13 @@ type NamespaceMemoItem struct {
 	// Root and non-root FQN as keys
 	ResolvedFieldNameToIndices map[string][]int
 	// Non-root FQN as keys only
-	StructFieldsSet map[string]bool
+	HasOneFieldsSet map[string]bool
 }
 
 func NewNamespaceMemoItem() *NamespaceMemoItem {
 	return &NamespaceMemoItem{
 		ResolvedFieldNameToIndices: map[string][]int{},
-		StructFieldsSet:            map[string]bool{},
+		HasOneFieldsSet:            map[string]bool{},
 	}
 }
 
@@ -106,6 +106,10 @@ func IsStruct(typ reflect.Type) bool {
 	}
 
 	return true
+}
+
+func IsHasMany(typ reflect.Type) bool {
+	return typ.Kind() == reflect.Slice && IsStruct(typ.Elem())
 }
 
 func IsFeaturesClass(typ reflect.Type) bool {
