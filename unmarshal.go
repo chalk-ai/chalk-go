@@ -218,7 +218,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	memo := internal.NamespaceMemo{}
-	if err := buildNamespaceMemo(memo, sliceElemType); err != nil {
+	if err := internal.BuildNamespaceMemo(memo, sliceElemType); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 

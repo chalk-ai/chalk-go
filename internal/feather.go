@@ -38,10 +38,16 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	namespaceMemo := NamespaceMemo{}
+	var foreignNamespaces []*string
 	for _, v := range inputs {
 		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
 			return nil, errors.Wrap(err, "build namespace memo")
 		}
+		foreignNs, err := getForeignNamespaceFromType(reflect.TypeOf(v))
+		if err != nil {
+			return nil, errors.Wrap(err, "get foreign namespace from type")
+		}
+		foreignNamespaces = append(foreignNamespaces, foreignNs)
 	}
 
 	record, recordErr := ColumnMapToRecord(inputs)
@@ -50,7 +56,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	}
 	defer record.Release()
 
-	record, err := filterRecord(record, namespaceMemo)
+	record, err := filterRecord(record, foreignNamespaces, namespaceMemo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to filter record")
 	}
@@ -365,17 +371,17 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
-func getNamespaceIfHasOneOrHasMany(field reflect.StructField) (*string, error) {
-	return getNamespaceIfHasOneOrHasManyType(field.Type)
+func getForeignNamespace(field reflect.StructField) (*string, error) {
+	return getForeignNamespaceFromType(field.Type)
 }
 
-func getNamespaceIfHasOneOrHasManyType(typ reflect.Type) (*string, error) {
+func getForeignNamespaceFromType(typ reflect.Type) (*string, error) {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
 
 	if typ.Kind() == reflect.Slice {
-		return getNamespaceIfHasOneOrHasManyType(typ.Elem())
+		return getForeignNamespaceFromType(typ.Elem())
 	} else if IsFeaturesClass(typ) {
 		return ptr.Ptr(ChalkpySnakeCase(typ.Name())), nil
 	} else {
@@ -389,58 +395,50 @@ func getNamespaceIfHasOneOrHasManyType(typ reflect.Type) (*string, error) {
  * done so that `nil` features in a has-one or has-many struct do not get mistaken
  * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record, nsMemo NamespaceMemo) (arrow.Record, error) {
+func filterRecord(record arrow.Record, foreignNamespaces []*string, nsMemo NamespaceMemo) (arrow.Record, error) {
 	var newColumns []arrow.Array
+	var newFields []arrow.Field
 	didFilter := false
 	numCols, err := Int64ToInt(record.NumCols())
 	if err != nil {
 		return nil, errors.New("can only process int32 number of columns")
 	}
 	for i := 0; i < numCols; i++ {
-		colName := record.ColumnName(i)
-		rootNamespace := getFqnRoot(colName)
-		memo, ok := nsMemo[rootNamespace]
-		if !ok {
-			return nil, errors.Errorf(
-				"failed to find namespace memo item for root namespace '%s'",
-				rootNamespace,
-			)
-		}
-		fieldIndices, ok := memo.ResolvedFieldNameToIndices[colName]
-		if !ok {
-			return nil, errors.Errorf(
-				"failed to find field index for column '%s'",
-				colName,
-			)
-		}
-		if len(fieldIndices) == 0 {
-			return nil, errors.Errorf(
-				"failed to find any field indices for column '%s'",
-				colName,
-			)
-		}
-		// Select only 1. This is the case where we have versioned features,
-		// and the default version feature and the explicitly versioned
-		// feature both derive from the same column.
-		selectedField := memo.StructType.Field(fieldIndices[0])
-		structNamespace, err := getNamespaceIfHasOneOrHasMany(selectedField)
-		if structNamespace == nil {
+		foreignNs := foreignNamespaces[i]
+		if foreignNs == nil {
+			newFields = append(newFields, record.Schema().Field(i))
 			newColumns = append(newColumns, record.Column(i))
 			continue
 		}
-		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i), structNamespace, nsMemo)
+		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i), *foreignNs, nsMemo)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to filter column '%s'", record.ColumnName(i))
 		}
-		didFilter = didFilter || didFilterColumn
-		newColumns = append(newColumns, maybeNewArr)
+		if didFilterColumn {
+			didFilter = true
+			newColumns = append(newColumns, maybeNewArr)
+			newField := arrow.Field{
+				Name:     record.Schema().Field(i).Name,
+				Type:     maybeNewArr.DataType(),
+				Nullable: record.Schema().Field(i).Nullable,
+				Metadata: record.Schema().Field(i).Metadata,
+			}
+			newFields = append(newFields, newField)
+		} else {
+			newFields = append(newFields, record.Schema().Field(i))
+			newColumns = append(newColumns, maybeNewArr)
+		}
 	}
 
 	if !didFilter {
 		return record, nil
 	}
 
-	return array.NewRecord(record.Schema(), record.Columns(), record.NumRows()), nil
+	return array.NewRecord(
+		arrow.NewSchema(newFields, ptr.Ptr(record.Schema().Metadata())),
+		newColumns,
+		record.NumRows(),
+	), nil
 }
 
 func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow.Array, bool, error) {
@@ -476,6 +474,11 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 				namespace,
 			)
 		}
+		if IsTypeDataclass(memo.StructType) {
+			// Dataclass never needs to have its fields omitted/filtered
+			return data, false, nil
+		}
+
 		var newChildren []arrow.ArrayData
 		var newFields []arrow.Field
 		collectiveDidFilter := false
@@ -501,12 +504,22 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 				// If all values are null, omit the column
 				collectiveDidFilter = true
 				continue
-			} else {
-				newChild, didFilter, err := filterArrayData(childData, namespace, nsMemo)
-				if err != nil {
-					return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
+			}
+			newChild, didFilter, err := filterArrayData(childData, namespace, nsMemo)
+			if err != nil {
+				return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
+			}
+			if didFilter {
+				collectiveDidFilter = true
+				newChildren = append(newChildren, newChild)
+				newField := arrow.Field{
+					Name:     arrowField.Name,
+					Type:     newChild.DataType(),
+					Nullable: arrowField.Nullable,
+					Metadata: arrowField.Metadata,
 				}
-				collectiveDidFilter = collectiveDidFilter || didFilter
+				newFields = append(newFields, newField)
+			} else {
 				newChildren = append(newChildren, newChild)
 				newFields = append(newFields, arrowField)
 			}

@@ -110,10 +110,6 @@ func IsStruct(typ reflect.Type) bool {
 	return true
 }
 
-func IsHasMany(typ reflect.Type) bool {
-	return typ.Kind() == reflect.Slice && IsStruct(typ.Elem())
-}
-
 func IsFeaturesClass(typ reflect.Type) bool {
 	return IsStruct(typ) &&
 		!IsTypeDataclass(typ) &&
