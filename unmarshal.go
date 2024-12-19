@@ -236,7 +236,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[namespace]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -378,7 +378,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[namespace]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}

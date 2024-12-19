@@ -64,7 +64,7 @@ func initRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo := nsMemo[structName]
+	memo := nsMemo[internal.ChalkpySnakeCase(structName)]
 
 	var fieldNames []string
 	if scopeToJustStructs {
@@ -317,10 +317,10 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 			}
 
-			if _, ok := memo[structName]; !ok {
-				memo[structName] = internal.NewNamespaceMemoItem()
+			if _, ok := memo[namespace]; !ok {
+				memo[namespace] = internal.NewNamespaceMemoItem(typ)
 			}
-			nsMemo := memo[structName]
+			nsMemo := memo[namespace]
 			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
