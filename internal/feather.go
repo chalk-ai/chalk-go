@@ -11,6 +11,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
@@ -35,13 +36,20 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+	namespaceMemo := NamespaceMemo{}
+	for _, v := range inputs {
+		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
+			return nil, errors.Wrap(err, "build namespace memo")
+		}
+	}
+
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
 	defer record.Release()
 
-	record, err := filterRecord(record)
+	record, err := filterRecord(record, namespaceMemo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to filter record")
 	}
@@ -356,13 +364,31 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
+func getNamespaceIfHasOneOrHasMany(field reflect.StructField) (*string, error) {
+	return getNamespaceIfHasOneOrHasManyType(field.Type)
+}
+
+func getNamespaceIfHasOneOrHasManyType(typ reflect.Type) (*string, error) {
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+
+	if typ.Kind() == reflect.Slice {
+		return getNamespaceIfHasOneOrHasManyType(typ.Elem())
+	} else if IsFeaturesClass(typ) {
+		return ptr.Ptr(ChalkpySnakeCase(typ.Name())), nil
+	} else {
+		return nil, nil
+	}
+}
+
 /* filterRecord recurses into each child array of every column in the record and
  * looks for structs. It then filters out columns that are all null, unless the
  * column corresponds to a struct field tagged with `chalk:"dontomit"`. This is
  * done so that `nil` features in a has-one or has-many struct do not get mistaken
  * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record) (arrow.Record, error) {
+func filterRecord(record arrow.Record, nsMemo NamespaceMemo) (arrow.Record, error) {
 	var newColumns []arrow.Array
 	didFilter := false
 	numCols, err := Int64ToInt(record.NumCols())
@@ -370,7 +396,38 @@ func filterRecord(record arrow.Record) (arrow.Record, error) {
 		return nil, errors.New("can only process int32 number of columns")
 	}
 	for i := 0; i < numCols; i++ {
-		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
+		colName := record.ColumnName(i)
+		rootNamespace := getFqnRoot(colName)
+		memo, ok := nsMemo[rootNamespace]
+		if !ok {
+			return nil, errors.Errorf(
+				"failed to find namespace memo item for root namespace '%s'",
+				rootNamespace,
+			)
+		}
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[colName]
+		if !ok {
+			return nil, errors.Errorf(
+				"failed to find field index for column '%s'",
+				colName,
+			)
+		}
+		if len(fieldIndices) == 0 {
+			return nil, errors.Errorf(
+				"failed to find any field indices for column '%s'",
+				colName,
+			)
+		}
+		// Select only 1. This is the case where we have versioned features,
+		// and the default version feature and the explicitly versioned
+		// feature both derive from the same column.
+		selectedField := memo.StructType.Field(fieldIndices[0])
+		structNamespace, err := getNamespaceIfHasOneOrHasMany(selectedField)
+		if structNamespace == nil {
+			newColumns = append(newColumns, record.Column(i))
+			continue
+		}
+		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i), structNamespace, nsMemo)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to filter column '%s'", record.ColumnName(i))
 		}
@@ -382,12 +439,11 @@ func filterRecord(record arrow.Record) (arrow.Record, error) {
 		return record, nil
 	}
 
-	newRecord := array.NewRecord(record.Schema(), record.Columns(), record.NumRows())
-	return newRecord, nil
+	return array.NewRecord(record.Schema(), record.Columns(), record.NumRows()), nil
 }
 
-func filterArray(arr arrow.Array) (arrow.Array, bool, error) {
-	data, didFilter, err := filterArrayData(arr.Data())
+func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow.Array, bool, error) {
+	data, didFilter, err := filterArrayData(arr.Data(), namespace, nsMemo)
 	if err != nil {
 		return nil, false, errors.Wrap(err, "failed to filter array data")
 	}
@@ -409,7 +465,14 @@ func filterArray(arr arrow.Array) (arrow.Array, bool, error) {
 	}
 }
 
-func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
+func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMemo) (arrow.ArrayData, bool, error) {
+	memoItem, ok := nsMemo[namespace]
+	if !ok {
+		return nil, false, errors.Errorf(
+			"failed to find namespace memo item for namespace '%s' for column '%s'",
+			namespace,
+		)
+	}
 	switch data.DataType().(type) {
 	case *arrow.StructType:
 		return data, true, nil
@@ -422,7 +485,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 			)
 		}
 		onlyChild := data.Children()[0]
-		newChild, didFilter, err := filterArrayData(onlyChild)
+		newChild, didFilter, err := filterArrayData(onlyChild, namespace, nsMemo)
 		if err != nil {
 			return nil, false, errors.Wrap(err, "failed to filter child array")
 		}

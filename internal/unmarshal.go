@@ -35,7 +35,7 @@ type Numbers interface {
 }
 
 type NamespaceMemoItem struct {
-	structType reflect.Type
+	StructType reflect.Type
 	// Root and non-root FQN as keys
 	ResolvedFieldNameToIndices map[string][]int
 	// Non-root FQN as keys only
@@ -44,7 +44,7 @@ type NamespaceMemoItem struct {
 
 func NewNamespaceMemoItem(structType reflect.Type) *NamespaceMemoItem {
 	return &NamespaceMemoItem{
-		structType:                 structType,
+		StructType:                 structType,
 		ResolvedFieldNameToIndices: map[string][]int{},
 		HasOneFieldsSet:            map[string]bool{},
 	}
