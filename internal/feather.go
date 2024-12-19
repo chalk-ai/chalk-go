@@ -14,6 +14,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -466,16 +467,63 @@ func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow
 }
 
 func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMemo) (arrow.ArrayData, bool, error) {
-	memoItem, ok := nsMemo[namespace]
-	if !ok {
-		return nil, false, errors.Errorf(
-			"failed to find namespace memo item for namespace '%s' for column '%s'",
-			namespace,
-		)
-	}
-	switch data.DataType().(type) {
+	switch typ := data.DataType().(type) {
 	case *arrow.StructType:
-		return data, true, nil
+		memo, ok := nsMemo[namespace]
+		if !ok {
+			return nil, false, errors.Errorf(
+				"failed to find namespace memo item for namespace '%s' for column '%s'",
+				namespace,
+			)
+		}
+		var newChildren []arrow.ArrayData
+		var newFields []arrow.Field
+		collectiveDidFilter := false
+		for arrowFieldIdx := 0; arrowFieldIdx < typ.NumFields(); arrowFieldIdx++ {
+			arrowField := typ.Field(arrowFieldIdx)
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[arrowField.Name]
+			if !ok {
+				return nil, false, errors.Errorf(
+					"failed to find reflect field indices for arrow field name '%s'",
+					arrowField.Name,
+				)
+			}
+			if len(reflectFieldIndices) == 0 {
+				return nil, false, errors.Errorf(
+					"failed to find any reflect field indices for arrow field name '%s'",
+					arrowField.Name,
+				)
+			}
+			reflectField := memo.StructType.Field(reflectFieldIndices[0])
+			childData := data.Children()[arrowFieldIdx]
+			chalkTags := strings.Split(reflectField.Tag.Get("chalk"), ",")
+			if childData.NullN() == childData.Len() && !colls.Contains(chalkTags, "dontomit") {
+				// If all values are null, omit the column
+				collectiveDidFilter = true
+				continue
+			} else {
+				newChild, didFilter, err := filterArrayData(childData, namespace, nsMemo)
+				if err != nil {
+					return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
+				}
+				collectiveDidFilter = collectiveDidFilter || didFilter
+				newChildren = append(newChildren, newChild)
+				newFields = append(newFields, arrowField)
+			}
+		}
+		if !collectiveDidFilter {
+			return data, false, nil
+		}
+
+		return array.NewData(
+			arrow.StructOf(newFields...),
+			data.Len(),
+			data.Buffers(),
+			newChildren,
+			data.NullN(),
+			data.Offset(),
+		), true, nil
+
 	case *arrow.LargeListType:
 		if len(data.Children()) != 1 {
 			return nil, false, errors.Newf(
@@ -493,7 +541,7 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 			return data, false, nil
 		}
 		return array.NewData(
-			arrow.LargeListOf(arrow.PrimitiveTypes.Int64),
+			arrow.LargeListOf(newChild.DataType()),
 			data.Len(),
 			data.Buffers(),
 			[]arrow.ArrayData{newChild},
