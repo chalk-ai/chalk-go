@@ -122,6 +122,63 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 
+// Tests that Feature structs have their nil fields omitted by default,
+// and not omitted when `chalk:"dontomit"` flag is set. This tests
+// omission that operates directly on arrow Arrays.
+func TestBulkInputsOmitNilFields(t *testing.T) {
+	t.Parallel()
+
+	type omitTransaction struct {
+		Id       *string
+		Amount   *int
+		Cashback *int
+	}
+	type omitUser struct {
+		Id   *string
+		Name *string
+		Txns *[]omitTransaction
+	}
+	var f struct {
+		OmitTransaction *omitTransaction
+		OmitUser        *omitUser
+	}
+	assert.NoError(t, InitFeatures(&f))
+
+	txns1 := []omitTransaction{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}}
+	txns3 := []omitTransaction{{Id: ptr.Ptr("txn_3")}}
+	params := OnlineQueryParams{}.
+		WithInput(f.OmitUser.Id, []string{"user_1", "user_2", "user_3"}).
+		WithInput(f.OmitUser.Name, []string{"Alice", "Bob", "Chinedum"}).
+		WithInput(f.OmitUser.Txns, [][]omitTransaction{txns1, {}, txns3}).
+		WithOutputs("bogus.output")
+
+	path := filepath.Join("internal", "fixtures", "bulk_query_params_omit_nil_fields.json")
+	fileContent, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+
+	arrowBytes, err := internal.InputsToArrowBytes(params.underlying.inputs)
+	assert.NoError(t, err)
+	assert.NotNil(t, arrowBytes)
+	table, err := internal.ConvertBytesToTable(arrowBytes)
+	assert.NoError(t, err)
+	assert.NotNil(t, table)
+	rows, err := internal.ExtractFeaturesFromTable(table, false)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 3, len(rows))
+	featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
+	assert.NoError(t, err)
+	err = os.WriteFile(path, featherInputJsonBytes, 0644)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
+	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
+}
+
 // Tests that OnlineQuery successfully serializes all types of input feature values.
 func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	t.Parallel()

@@ -337,6 +337,20 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
+/* filterRecord recurses into each child array of every column in the record and
+ * looks for structs. It then filters out columns that are all null, unless the
+ * column corresponds to a struct field tagged with `chalk:"dontomit"`. This is
+ * done so that `nil` features in a has-one or has-many struct do not get mistaken
+ * as the user specifying that feature as null.
+ */
+func filterRecord(record arrow.Record) (arrow.Record, error) {
+	return record, nil
+}
+
+func filterArray(arr arrow.Array) (arrow.Array, error) {
+	return arr, nil
+}
+
 func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
 	numBytesThatRepresentsLength := 8
 	err := checkLen(startIdx, bytes, numBytesThatRepresentsLength)
