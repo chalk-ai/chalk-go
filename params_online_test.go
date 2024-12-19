@@ -171,11 +171,11 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 	assert.Equal(t, 3, len(rows))
 	featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
 	assert.NoError(t, err)
-	err = os.WriteFile(path, featherInputJsonBytes, 0644)
-	if err != nil {
-		fmt.Println("Error writing to file:", err)
-		return
-	}
+	//err = os.WriteFile(path, featherInputJsonBytes, 0644)
+	//if err != nil {
+	//	fmt.Println("Error writing to file:", err)
+	//	return
+	//}
 	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 

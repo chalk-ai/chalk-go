@@ -11,7 +11,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
 )
@@ -40,7 +40,26 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 		return nil, recordErr
 	}
 	defer record.Release()
-	return recordToBytes(record)
+
+	record, err := filterRecord(record)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to filter record")
+	}
+
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	if err != nil {
+		return nil, errors.Wrap(err, "create Arrow Table writer")
+	}
+	err = fileWriter.Write(record)
+	if err != nil {
+		return nil, errors.Wrap(err, "write Arrow Table to request")
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "close Arrow Table writer")
+	}
+	return bws.Bytes(), nil
 }
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
@@ -344,11 +363,86 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
  * as the user specifying that feature as null.
  */
 func filterRecord(record arrow.Record) (arrow.Record, error) {
-	return record, nil
+	var newColumns []arrow.Array
+	didFilter := false
+	numCols, err := Int64ToInt(record.NumCols())
+	if err != nil {
+		return nil, errors.New("can only process int32 number of columns")
+	}
+	for i := 0; i < numCols; i++ {
+		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to filter column '%s'", record.ColumnName(i))
+		}
+		didFilter = didFilter || didFilterColumn
+		newColumns = append(newColumns, maybeNewArr)
+	}
+
+	if !didFilter {
+		return record, nil
+	}
+
+	newRecord := array.NewRecord(record.Schema(), record.Columns(), record.NumRows())
+	return newRecord, nil
 }
 
-func filterArray(arr arrow.Array) (arrow.Array, error) {
-	return arr, nil
+func filterArray(arr arrow.Array) (arrow.Array, bool, error) {
+	data, didFilter, err := filterArrayData(arr.Data())
+	if err != nil {
+		return nil, false, errors.Wrap(err, "failed to filter array data")
+	}
+	if !didFilter {
+		return arr, false, nil
+	}
+	switch arr.(type) {
+	case *array.Struct:
+		return array.NewStructData(data), true, nil
+	case *array.List:
+		return array.NewListData(data), true, nil
+	case *array.LargeList:
+		return array.NewLargeListData(data), true, nil
+	default:
+		return nil, true, errors.Newf(
+			"did not expect to be doing any filtering on array of type '%s'",
+			arr.DataType().Name(),
+		)
+	}
+}
+
+func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
+	switch data.DataType().(type) {
+	case *arrow.StructType:
+		return data, true, nil
+	case *arrow.LargeListType:
+		if len(data.Children()) != 1 {
+			return nil, false, errors.Newf(
+				"expected exactly 1 instead of %d child arrays in large list: %v",
+				len(data.Children()),
+				data.Children(),
+			)
+		}
+		onlyChild := data.Children()[0]
+		newChild, didFilter, err := filterArrayData(onlyChild)
+		if err != nil {
+			return nil, false, errors.Wrap(err, "failed to filter child array")
+		}
+		if !didFilter {
+			return data, false, nil
+		}
+		return array.NewData(
+			arrow.LargeListOf(arrow.PrimitiveTypes.Int64),
+			data.Len(),
+			data.Buffers(),
+			[]arrow.ArrayData{newChild},
+			data.NullN(),
+			data.Offset(),
+		), true, nil
+	case *arrow.ListType:
+		// We arbitrarily exclusively use large lists over lists
+		return data, false, errors.New("unexpected list type")
+	default:
+		return data, false, nil
+	}
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
@@ -500,24 +594,6 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 		}
 	}
 	return nil
-}
-
-func recordToBytes(record arrow.Record) ([]byte, error) {
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
-	}
-	err = fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
-	}
-
-	return bws.Bytes(), nil
 }
 
 // ChalkMarshal converts a map to a byte array.
