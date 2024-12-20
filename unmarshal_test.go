@@ -1292,9 +1292,6 @@ func TestBulkUnmarshalExtraFieldsInHasOne(t *testing.T) {
 	// more features to their has-ones in chalkpy, we want
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
-	//
-	// This test specifically tests if this new feature exists at
-	// the has-one level.
 	t.Parallel()
 
 	assert.Nil(t, initErr)
@@ -1316,6 +1313,50 @@ func TestBulkUnmarshalExtraFieldsInHasOne(t *testing.T) {
 	assert.Equal(t, 1, len(resultHolders))
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
 	assert.Equal(t, "nested_id", *resultHolders[0].Nested.Id)
+}
+
+func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
+	// For forward compatibility, i.e. when users add
+	// more features to their has-manys in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	t.Parallel()
+
+	assert.Nil(t, initErr)
+	scalarsMap := map[string]any{
+		"all_types.int": []int64{int64(12345)}, // This field exists
+		"all_types.has_many": [][]levelOneNest{
+			{
+				levelOneNest{
+					// Using `levelOneNest` instead of `hasMany` because this
+					// would be the equivalent of having an unknown extra field to
+					// deserialize. Otherwise, we can't use another struct with
+					// the same fields plus one extra, because the struct name
+					// would be different, making the arrow struct field to have
+					// a different name (FQN with different prefix), so instead of
+					// "has_many.id" it would be "has_many_with_extra_field.id",
+					// which defeats the purpose of trying to deserialize into
+					// one existing field in the has-many struct, while deserializing
+					// into a non-existent field in the same has-many struct.
+					Id: ptr.Ptr("nested_id"),
+				},
+			},
+		}, // This field exists
+	}
+	scalarsTable, err := tableFromFqnToValues(scalarsMap)
+	assert.Nil(t, err)
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+	var resultHolders []allTypes
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != (*ClientError)(nil) {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, int64(12345), *resultHolders[0].Int)
+	// Struct initialized but not populated with "extra" fields, which is what we want.
+	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
 }
 
 /*
