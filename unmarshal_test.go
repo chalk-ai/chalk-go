@@ -40,7 +40,7 @@ type unmarshalLatLNG struct {
 	Lng *float64 `dataclass_field:"true"`
 }
 
-type unmarshalUser struct {
+type unmarshalUSER struct {
 	Id *string
 
 	Int *int64
@@ -344,7 +344,7 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -388,7 +388,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -416,7 +416,7 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -444,7 +444,7 @@ func TestUnmarshalWrongType(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr == nil {
 		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Int)
@@ -1324,7 +1324,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 		ScalarsTable: table,
 	}
 	defer bulkRes.Release()
-	var resultUser []unmarshalUser
+	var resultUser []unmarshalUSER
 
 	start := time.Now()
 	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
