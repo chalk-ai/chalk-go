@@ -298,7 +298,7 @@ func SingleInputsToBulkInputs(singleInputs map[string]any) (map[string]any, erro
 func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 	isDataclass := IsTypeDataclass(structType)
 	res := make(map[string]string)
-	namespace := LegacySnakeCase(structType.Name())
+	namespace := ChalkpySnakeCase(structType.Name())
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName, err := ResolveFeatureName(structType.Field(i))
 		if err != nil {
