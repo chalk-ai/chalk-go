@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"
 	"reflect"
@@ -533,12 +534,6 @@ func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryPar
 	return OfflineQueryParamsComplete{underlying: p.withRequiredOutputs(features...)}
 }
 
-// WithQueryContext returns a copy of Offline Query parameters with the query context added.
-// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
-func (p OfflineQueryParams) WithQueryContext(queryContext *QueryContext) OfflineQueryParamsComplete {
-	return OfflineQueryParamsComplete{underlying: p.withQueryContext(queryContext)}
-}
-
 // TsFeatureValue is a struct that can be passed to OfflineQueryParams.WithInput
 // to specify the value of a feature along with a timestamp. This timestamp indicates
 // the observation time at which you would like the output feature values to be queried.
@@ -868,7 +863,7 @@ func (qc *QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
 	for k, v := range *qc {
 		protoVal, err := v.ToProto()
 		if err != nil {
-			return nil, fmt.Errorf("failed to convert value for key %q: %w", k, err)
+			return nil, errors.Wrapf(err, "failed to convert value for key %v: %v", k, v)
 		}
 		result[k] = protoVal
 	}

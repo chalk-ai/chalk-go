@@ -211,10 +211,12 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 	queryContext, err := chalk.NewQueryContext(map[string]any{"key": "value"})
 	assert.NoError(t, err)
 	expectedTags := []string{"tags-1", "tags-2"}
-	req := chalk.OfflineQueryParams{Tags: expectedTags}.
+	req := chalk.OfflineQueryParams{
+		Tags:         expectedTags,
+		QueryContext: queryContext,
+	}.
 		WithInput(testFeatures.User.Id, []any{int64(1)}).
-		WithOutputs(testFeatures.User.SocureScore).
-		WithQueryContext(queryContext)
+		WithOutputs(testFeatures.User.SocureScore)
 	_, _ = client.OfflineQuery(req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
