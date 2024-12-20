@@ -1466,3 +1466,183 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	assert.Equal(t, len(transactions), len(resultTransaction))
 	assert.Equal(t, transactions, resultTransaction)
 }
+
+type infLoopAccount struct {
+	Id   *string
+	Name *string
+	User *infLoopUser
+}
+
+type infLoopUser struct {
+	Id      *string
+	Name    *string
+	Account *infLoopAccount
+}
+
+// Testing User -> Account -> User
+func TestSerdeInfiniteLoopFeatures(t *testing.T) {
+	fqnToValue := map[string]any{
+		"inf_loop_user.id": []string{"user-1", "user-2"},
+		"inf_loop_user.account": []infLoopAccount{
+			{
+				Id:   ptr.Ptr("acc-1"),
+				Name: ptr.Ptr("hello"),
+			},
+			{
+				Id:   ptr.Ptr("acc-2"),
+				Name: ptr.Ptr("world"),
+			},
+		},
+	}
+	table, err := tableFromFqnToValues(fqnToValue)
+	if err != nil {
+		t.Fatalf("failed to build table from feature to values map: %v", err)
+	}
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+	var resultUser []infLoopUser
+
+	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
+		t.Fatalf("failed to unmarshal: %v", err)
+	}
+}
+
+type infLoopA struct {
+	Id *string
+	B  *infLoopB
+}
+
+type infLoopB struct {
+	Id *string
+	C  *infLoopC
+}
+
+type infLoopC struct {
+	Id *string
+	A  *infLoopA
+}
+
+// Testing A -> B -> C -> A
+func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
+	fqnToValue := map[string]any{
+		"inf_loop_a.id": []string{"a-1"},
+		"inf_loop_a.b": []infLoopB{
+			{
+				Id: ptr.Ptr("b-1"),
+				C: &infLoopC{
+					Id: ptr.Ptr("c-1"),
+				},
+			},
+		},
+	}
+	table, err := tableFromFqnToValues(fqnToValue)
+	assert.NoError(t, err)
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+	var resultA []infLoopA
+
+	if err = bulkRes.UnmarshalInto(&resultA); err != (*ClientError)(nil) {
+		t.Fatalf("failed to unmarshal: %v", err)
+	}
+
+	assert.Equal(t, 1, len(resultA))
+	assert.Equal(t, "a-1", *resultA[0].Id)
+	assert.Equal(t, "b-1", *resultA[0].B.Id)
+	assert.Equal(t, "c-1", *resultA[0].B.C.Id)
+}
+
+type infLoopRoot struct {
+	Id *string
+	P  *infLoopP
+}
+
+type infLoopP struct {
+	Id     *string
+	Common *infLoopCommon
+	Q      *infLoopQ
+}
+
+type infLoopQ struct {
+	Id     *string
+	Common *infLoopCommon
+}
+
+type infLoopCommon struct {
+	Id *string
+	R  *infLoopR
+	Z  *infLoopZ
+}
+
+type infLoopR struct {
+	Id *string
+}
+
+type infLoopZ struct {
+	Id *string
+}
+
+// Testing
+//
+//	P -> Q -> Common -> R
+//	|
+//	--> Common -> Z
+//
+// and R and Z still gets serialized
+// even with visitedNamespaces handling.
+func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
+	fqnToValue := map[string]any{
+		"inf_loop_root.id": []string{"root-only"},
+		"inf_loop_root.p": []infLoopP{
+			{
+				Id: ptr.Ptr("p-1"),
+				Common: &infLoopCommon{
+					Id: ptr.Ptr("common-1"),
+					R: &infLoopR{
+						Id: ptr.Ptr("r-1"),
+					},
+					Z: &infLoopZ{
+						Id: ptr.Ptr("z-1"),
+					},
+				},
+				Q: &infLoopQ{
+					Id: ptr.Ptr("q-1"),
+					Common: &infLoopCommon{
+						Id: ptr.Ptr("common-2"),
+						R: &infLoopR{
+							Id: ptr.Ptr("r-2"),
+						},
+						Z: &infLoopZ{
+							Id: ptr.Ptr("z-2"),
+						},
+					},
+				},
+			},
+		},
+	}
+	table, err := tableFromFqnToValues(fqnToValue)
+	assert.NoError(t, err)
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	defer bulkRes.Release()
+	var root []infLoopRoot
+
+	if err = bulkRes.UnmarshalInto(&root); err != (*ClientError)(nil) {
+		t.Fatalf("failed to unmarshal: %v", err)
+	}
+
+	assert.Equal(t, 1, len(root))
+	assert.Equal(t, "root-only", *root[0].Id)
+	assert.Equal(t, "p-1", *root[0].P.Id)
+	assert.Equal(t, "common-1", *root[0].P.Common.Id)
+	assert.Equal(t, "r-1", *root[0].P.Common.R.Id)
+	assert.Equal(t, "z-1", *root[0].P.Common.Z.Id)
+	assert.Equal(t, "q-1", *root[0].P.Q.Id)
+	assert.Equal(t, "common-2", *root[0].P.Q.Common.Id)
+	assert.Equal(t, "r-2", *root[0].P.Q.Common.R.Id)
+	assert.Equal(t, "z-2", *root[0].P.Q.Common.Z.Id)
+}
