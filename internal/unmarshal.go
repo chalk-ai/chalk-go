@@ -35,16 +35,18 @@ type Numbers interface {
 }
 
 type NamespaceMemoItem struct {
+	StructType reflect.Type
 	// Root and non-root FQN as keys
 	ResolvedFieldNameToIndices map[string][]int
 	// Non-root FQN as keys only
-	StructFieldsSet map[string]bool
+	HasOneFieldsSet map[string]bool
 }
 
-func NewNamespaceMemoItem() *NamespaceMemoItem {
+func NewNamespaceMemoItem(structType reflect.Type) *NamespaceMemoItem {
 	return &NamespaceMemoItem{
+		StructType:                 structType,
 		ResolvedFieldNameToIndices: map[string][]int{},
-		StructFieldsSet:            map[string]bool{},
+		HasOneFieldsSet:            map[string]bool{},
 	}
 }
 
@@ -387,7 +389,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := nsMemo[structValue.Type().Name()]
+			memo, ok := nsMemo[ChalkpySnakeCase(structValue.Type().Name())]
 			if !ok {
 				return nil, fmt.Errorf(
 					"namespace memo not found for struct '%s' - found %v",

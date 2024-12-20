@@ -11,8 +11,10 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -35,12 +37,27 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
 	defer record.Release()
-	return recordToBytes(record)
+
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	if err != nil {
+		return nil, errors.Wrap(err, "create Arrow Table writer")
+	}
+	err = fileWriter.Write(record)
+	if err != nil {
+		return nil, errors.Wrap(err, "write Arrow Table to request")
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "close Arrow Table writer")
+	}
+	return bws.Bytes(), nil
 }
 func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	kind := value.Kind()
@@ -334,7 +351,211 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	return recordBuilder.NewRecord(), nil
+	namespaceMemo := NamespaceMemo{}
+	columnToForeignNamespace := map[string]*string{}
+	for k, v := range inputs {
+		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
+			return nil, errors.Wrapf(err, "build namespace memo on input column '%s'", k)
+		}
+		columnToForeignNamespace[k] = getForeignNamespace(reflect.TypeOf(v))
+	}
+
+	record, err := filterRecord(recordBuilder.NewRecord(), columnToForeignNamespace, namespaceMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "filter record")
+	}
+
+	return record, nil
+}
+
+/* filterRecord recurses into each child array of every column in the record and
+ * looks for structs. It then filters out columns that are all null, unless the
+ * column corresponds to a struct field tagged with `chalk:"dontomit"`. This is
+ * done so that `nil` features in a has-one or has-many struct do not get mistaken
+ * as the user specifying that feature as null.
+ */
+func filterRecord(record arrow.Record, columnToForeignNamespace map[string]*string, nsMemo NamespaceMemo) (arrow.Record, error) {
+	var newColumns []arrow.Array
+	var newFields []arrow.Field
+	didFilter := false
+	numCols, err := Int64ToInt(record.NumCols())
+	if err != nil {
+		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
+	}
+	for i := 0; i < numCols; i++ {
+		foreignNs, ok := columnToForeignNamespace[record.ColumnName(i)]
+		if !ok {
+			return nil, errors.Errorf("find foreign namespace for column '%s'", record.ColumnName(i))
+		}
+		if foreignNs == nil {
+			newFields = append(newFields, record.Schema().Field(i))
+			newColumns = append(newColumns, record.Column(i))
+			continue
+		}
+		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i), *foreignNs, nsMemo)
+		if err != nil {
+			return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
+		}
+		if didFilterColumn {
+			didFilter = true
+			newColumns = append(newColumns, maybeNewArr)
+			newField := arrow.Field{
+				Name:     record.Schema().Field(i).Name,
+				Type:     maybeNewArr.DataType(),
+				Nullable: record.Schema().Field(i).Nullable,
+				Metadata: record.Schema().Field(i).Metadata,
+			}
+			newFields = append(newFields, newField)
+		} else {
+			newFields = append(newFields, record.Schema().Field(i))
+			newColumns = append(newColumns, maybeNewArr)
+		}
+	}
+
+	if !didFilter {
+		return record, nil
+	}
+
+	return array.NewRecord(
+		arrow.NewSchema(newFields, ptr.Ptr(record.Schema().Metadata())),
+		newColumns,
+		record.NumRows(),
+	), nil
+}
+
+func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow.Array, bool, error) {
+	data, didFilter, err := filterArrayData(arr.Data(), namespace, nsMemo)
+	if err != nil {
+		return nil, false, errors.Wrap(err, "filter array data")
+	}
+	if !didFilter {
+		return arr, false, nil
+	}
+	switch arr.(type) {
+	case *array.Struct:
+		return array.NewStructData(data), true, nil
+	case *array.LargeList:
+		return array.NewLargeListData(data), true, nil
+	default:
+		return nil, true, errors.Newf(
+			"did not expect to be doing any filtering on array of type '%s'",
+			arr.DataType().Name(),
+		)
+	}
+}
+
+func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMemo) (arrow.ArrayData, bool, error) {
+	switch typ := data.DataType().(type) {
+	case *arrow.StructType:
+		memo, ok := nsMemo[namespace]
+		if !ok {
+			return nil, false, errors.Errorf(
+				"find namespace memo item for namespace '%s' for column '%s'",
+				namespace,
+			)
+		}
+		if IsTypeDataclass(memo.StructType) {
+			// Dataclass never needs to have its fields omitted/filtered
+			return data, false, nil
+		}
+
+		var newChildren []arrow.ArrayData
+		var newFields []arrow.Field
+		collectiveDidFilter := false
+		for arrowFieldIdx := 0; arrowFieldIdx < typ.NumFields(); arrowFieldIdx++ {
+			arrowField := typ.Field(arrowFieldIdx)
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[arrowField.Name]
+			if !ok {
+				return nil, false, errors.Errorf(
+					"failed to find reflect field indices for arrow field name '%s' among keys %v",
+					arrowField.Name,
+					colls.Keys(memo.ResolvedFieldNameToIndices),
+				)
+			}
+			if len(reflectFieldIndices) == 0 {
+				return nil, false, errors.Errorf(
+					"failed to find any reflect field indices for arrow field name '%s'",
+					arrowField.Name,
+				)
+			}
+			reflectField := memo.StructType.Field(reflectFieldIndices[0])
+			childData := data.Children()[arrowFieldIdx]
+			chalkTags := strings.Split(reflectField.Tag.Get("chalk"), ",")
+			if childData.NullN() == childData.Len() && !colls.Contains(chalkTags, "dontomit") {
+				// If all values are null, omit the column
+				collectiveDidFilter = true
+				continue
+			}
+			childNs := namespace
+			if foreignNs := getForeignNamespace(reflectField.Type); foreignNs != nil {
+				childNs = *foreignNs
+			}
+			newChild, didFilter, err := filterArrayData(
+				childData,
+				childNs,
+				nsMemo,
+			)
+			if err != nil {
+				return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
+			}
+			if didFilter {
+				collectiveDidFilter = true
+				newChildren = append(newChildren, newChild)
+				newField := arrow.Field{
+					Name:     arrowField.Name,
+					Type:     newChild.DataType(),
+					Nullable: arrowField.Nullable,
+					Metadata: arrowField.Metadata,
+				}
+				newFields = append(newFields, newField)
+			} else {
+				newChildren = append(newChildren, newChild)
+				newFields = append(newFields, arrowField)
+			}
+		}
+		if !collectiveDidFilter {
+			return data, false, nil
+		}
+
+		return array.NewData(
+			arrow.StructOf(newFields...),
+			data.Len(),
+			data.Buffers(),
+			newChildren,
+			data.NullN(),
+			data.Offset(),
+		), true, nil
+
+	case *arrow.LargeListType:
+		if len(data.Children()) != 1 {
+			return nil, false, errors.Newf(
+				"expected exactly 1 instead of %d child arrays in large list: %v",
+				len(data.Children()),
+				data.Children(),
+			)
+		}
+		onlyChild := data.Children()[0]
+		newChild, didFilter, err := filterArrayData(onlyChild, namespace, nsMemo)
+		if err != nil {
+			return nil, false, errors.Wrap(err, "failed to filter child array")
+		}
+		if !didFilter {
+			return data, false, nil
+		}
+		return array.NewData(
+			arrow.LargeListOf(newChild.DataType()),
+			data.Len(),
+			data.Buffers(),
+			[]arrow.ArrayData{newChild},
+			data.NullN(),
+			data.Offset(),
+		), true, nil
+	case *arrow.ListType:
+		// We arbitrarily exclusively use large lists over lists
+		return data, false, errors.New("unexpected list type")
+	default:
+		return data, false, nil
+	}
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
@@ -486,24 +707,6 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 		}
 	}
 	return nil
-}
-
-func recordToBytes(record arrow.Record) ([]byte, error) {
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
-	}
-	err = fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
-	}
-
-	return bws.Bytes(), nil
 }
 
 // ChalkMarshal converts a map to a byte array.
