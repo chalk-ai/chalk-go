@@ -52,6 +52,8 @@ type OnlineQueryParams struct {
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
 
+	QueryContext *QueryContext
+
 	// The branch id
 	BranchId *string
 
@@ -151,6 +153,13 @@ func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParam
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
 	p.Tags = append(p.Tags, feature...)
+	return p
+}
+
+// WithQueryContext returns a copy of Online Query parameters with the query context added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParams) WithQueryContext(queryContext *QueryContext) OnlineQueryParams {
+	p.QueryContext = queryContext
 	return p
 }
 
@@ -470,6 +479,8 @@ type OfflineQueryParams struct {
 	// The tags used to scope the resolvers.
 	Tags []string
 
+	QueryContext *QueryContext
+
 	/***************
 	 PRIVATE FIELDS
 	***************/
@@ -519,6 +530,12 @@ func (p OfflineQueryParams) WithOutputs(features ...any) OfflineQueryParamsCompl
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParams) WithRequiredOutputs(features ...any) OfflineQueryParamsComplete {
 	return OfflineQueryParamsComplete{underlying: p.withRequiredOutputs(features...)}
+}
+
+// WithQueryContext returns a copy of Offline Query parameters with the query context added.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParams) WithQueryContext(queryContext *QueryContext) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{underlying: p.withQueryContext(queryContext)}
 }
 
 // TsFeatureValue is a struct that can be passed to OfflineQueryParams.WithInput
@@ -793,3 +810,17 @@ type FeatureEncodingOptions struct {
 	// instead of arrays in the response.
 	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
+
+type QueryContextValue interface {
+	isQueryContextValue()
+}
+
+type StringValue string
+type FloatValue float64
+type BoolValue bool
+
+func (StringValue) isQueryContextValue() {}
+func (FloatValue) isQueryContextValue()  {}
+func (BoolValue) isQueryContextValue()   {}
+
+type QueryContext map[string]QueryContextValue

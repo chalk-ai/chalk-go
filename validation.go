@@ -68,3 +68,12 @@ func (p OnlineQueryParamsComplete) validatePostBuild() BuilderErrors {
 	errors = append(errors, p.validateAllListsOrAllScalars()...)
 	return errors
 }
+
+func isValidQueryContextValue(v any) bool {
+	switch v.(type) {
+	case string, float64, bool:
+		return true
+	default:
+		return false
+	}
+}

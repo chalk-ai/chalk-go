@@ -90,6 +90,13 @@ func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsCom
 	return p
 }
 
+// WithQueryContext returns a copy of Online Query parameters with the query context added.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParamsComplete) WithQueryContext(queryContext *QueryContext) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.WithQueryContext(queryContext)
+	return p
+}
+
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/

@@ -218,3 +218,8 @@ func (p OfflineQueryParams) getTimestampedFeatures(values []any) []TsFeatureValu
 	}
 	return castedValues
 }
+
+func (p OfflineQueryParams) withQueryContext(queryContext *QueryContext) OfflineQueryParams {
+	p.QueryContext = queryContext
+	return p
+}
