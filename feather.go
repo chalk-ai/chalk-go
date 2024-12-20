@@ -56,6 +56,7 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		CorrelationId:    ptr.PtrOrNil(p.underlying.CorrelationId),
 		QueryName:        ptr.PtrOrNil(p.underlying.QueryName),
 		QueryNameVersion: ptr.PtrOrNil(p.underlying.QueryNameVersion),
+		QueryContext:     p.underlying.QueryContext.ToMap(),
 		Meta:             p.underlying.Meta,
 		Staleness:        convertedStaleness,
 		Now: colls.Map(p.underlying.Now, func(val time.Time) string {
