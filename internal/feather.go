@@ -75,8 +75,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
-			// if field is has-many or has-one, skip
-			if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
+			if IsUnderlyingHasMany(field.Type) {
 				continue
 			}
 			dtype, dtypeErr := convertReflectToArrowType(field.Type)
@@ -106,7 +105,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	}
 }
 
-func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) error {
+func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, visitedNamespaces map[string]bool) error {
 	if len(valid) != slice.Len() {
 		return errors.Errorf(
 			"expected null mask to have length %d, instead found length %d",
@@ -146,7 +145,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
 			}
 		}
-		return setBuilderValues(builder, nonPtrSlice, innerValid)
+		return setBuilderValues(builder, nonPtrSlice, innerValid, visitedNamespaces)
 	case reflect.Int:
 		arrayValues := values.([]int)
 		convertedValues := []int64{}
@@ -211,6 +210,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				builder.(*array.LargeListBuilder).ValueBuilder(),
 				flatSlice,
 				allValid(flatSlice.Len()),
+				visitedNamespaces,
 			); err != nil {
 				return errors.Wrap(err, "failed to set values for slice of slices")
 			}
@@ -225,6 +225,9 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			}
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, valid)
 		} else {
+			namespace := ChalkpySnakeCase(elemType.Name())
+			visitedNamespaces[namespace] = true
+
 			sBuilder, builderOk := builder.(*array.StructBuilder)
 			if !builderOk {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
@@ -233,7 +236,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			numFieldsReflect := 0
 			for i := 0; i < elemType.NumField(); i++ {
 				field := elemType.Field(i)
-				if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
+				if IsUnderlyingHasMany(field.Type) {
 					continue
 				}
 				numFieldsReflect++
@@ -258,19 +261,21 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 
-			structName := ChalkpySnakeCase(elemType.Name())
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				field := elemType.Field(i)
 				if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
-					continue
+					if _, ok := visitedNamespaces[namespace]; ok {
+						continue
+					}
 				}
+
 				resolved, err := ResolveFeatureName(field)
 				if err != nil {
 					return errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 				}
 				if isFeaturesClass {
-					resolved = structName + "." + resolved
+					resolved = namespace + "." + resolved
 				}
 				namesReflect = append(namesReflect, resolved)
 				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
@@ -287,7 +292,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			var columns []reflect.Value
 			for j := 0; j < elemType.NumField(); j++ {
 				fieldType := elemType.Field(j).Type
-				if IsUnderlyingFeaturesClass(fieldType) || IsUnderlyingHasMany(fieldType) {
+				if IsUnderlyingHasMany(fieldType) {
 					continue
 				}
 				fieldSliceType := reflect.SliceOf(fieldType)
@@ -298,7 +303,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				columns = append(columns, fieldSlice)
 			}
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], allValid(columns[i].Len())); err != nil {
+				if err := setBuilderValues(
+					sBuilder.FieldBuilder(i),
+					columns[i],
+					allValid(columns[i].Len()),
+					visitedNamespaces,
+				); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
@@ -348,7 +358,12 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
 		}
 
-		if err := setBuilderValues(recordBuilder.Field(idx), rValues, allValid(rValues.Len())); err != nil {
+		if err := setBuilderValues(
+			recordBuilder.Field(idx),
+			rValues,
+			allValid(rValues.Len()),
+			map[string]bool{},
+		); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
