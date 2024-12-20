@@ -18,6 +18,10 @@ var ChalkTag = "chalk"
 
 var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 
+var wordGroupsPattern = regexp.MustCompile(`(.)([A-Z][a-z]+)`)
+var dunderPattern = regexp.MustCompile(`__([A-Z])`)
+var trailingUpperPattern = regexp.MustCompile(`([a-z0-9])([A-Z])`)
+
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
@@ -119,15 +123,9 @@ func Int64ToInt(value int64) (int, error) {
 // versions. In short, we want to keep using LegacySnakeCase in chalk-go to snake-case
 // field names, and ChalkpySnakeCase to snake-case struct names.
 func ChalkpySnakeCase(s string) string {
-	re1 := regexp.MustCompile(`(.)([A-Z][a-z]+)`)
-	s = re1.ReplaceAllString(s, "${1}_${2}")
-
-	re2 := regexp.MustCompile(`__([A-Z])`)
-	s = re2.ReplaceAllString(s, "_${1}")
-
-	re3 := regexp.MustCompile(`([a-z0-9])([A-Z])`)
-	s = re3.ReplaceAllString(s, "${1}_${2}")
-
+	s = wordGroupsPattern.ReplaceAllString(s, "${1}_${2}")
+	s = dunderPattern.ReplaceAllString(s, "_${1}")
+	s = trailingUpperPattern.ReplaceAllString(s, "${1}_${2}")
 	return strings.ToLower(s)
 }
 
