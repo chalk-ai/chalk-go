@@ -35,7 +35,7 @@ type unmarshalTransaction struct {
 	FeatureWithLongName13 *string
 }
 
-type unmarshalLatLng struct {
+type unmarshalLatLNG struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
 }
@@ -54,7 +54,7 @@ type unmarshalUser struct {
 	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
 
 	// Dataclass features
-	LatLng *unmarshalLatLng
+	LatLng *unmarshalLatLNG
 
 	// Has-many features
 	Txns *[]unmarshalTransaction
