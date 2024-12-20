@@ -55,6 +55,11 @@ func (p OfflineQueryParamsComplete) WithRequiredOutputs(features ...any) Offline
 	return p
 }
 
+func (p OfflineQueryParamsComplete) WithQueryContext(queryContext *QueryContext) OfflineQueryParamsComplete {
+	p.underlying = p.underlying.withQueryContext(queryContext)
+	return p
+}
+
 /********************************************
  Definitions for offlineQueryParamsWithInputs
 *********************************************/
@@ -80,6 +85,10 @@ func (p offlineQueryParamsWithInputs) WithOutputs(features ...any) OfflineQueryP
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p offlineQueryParamsWithInputs) WithRequiredOutputs(features ...any) OfflineQueryParamsComplete {
 	return OfflineQueryParamsComplete{p.underlying.withRequiredOutputs(features...)}
+}
+
+func (p offlineQueryParamsWithInputs) WithQueryContext(queryContext *QueryContext) OfflineQueryParamsComplete {
+	return OfflineQueryParamsComplete{p.underlying.withQueryContext(queryContext)}
 }
 
 /***********************************

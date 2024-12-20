@@ -212,6 +212,11 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	return p
 }
 
+func (p OnlineQueryParams) withQueryContext(queryContext *QueryContext) OnlineQueryParams {
+	p.QueryContext = queryContext
+	return p
+}
+
 /********************************************
  Definitions for onlineQueryParamsWithInputs
 *********************************************/
@@ -252,6 +257,10 @@ func (p onlineQueryParamsWithInputs) WithQueryName(name string) OnlineQueryParam
 func (p onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Duration) onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
+}
+
+func (p onlineQueryParamsWithInputs) WithQueryContext(queryContext *QueryContext) OnlineQueryParamsComplete {
+	return OnlineQueryParamsComplete{p.underlying.withQueryContext(queryContext)}
 }
 
 /********************************************

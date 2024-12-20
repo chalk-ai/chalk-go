@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/protobuf/types/known/structpb"
 	"reflect"
 	"time"
 )
@@ -813,6 +814,7 @@ type FeatureEncodingOptions struct {
 
 type QueryContextValue interface {
 	isQueryContextValue()
+	ToProto() (*structpb.Value, error)
 }
 
 type StringValue string
@@ -824,3 +826,67 @@ func (FloatValue) isQueryContextValue()  {}
 func (BoolValue) isQueryContextValue()   {}
 
 type QueryContext map[string]QueryContextValue
+
+func NewQueryContext(m map[string]any) (*QueryContext, error) {
+	ctx := make(QueryContext)
+
+	for k, v := range m {
+		switch val := v.(type) {
+		case string:
+			ctx[k] = StringValue(val)
+		case float64:
+			ctx[k] = FloatValue(val)
+		case bool:
+			ctx[k] = BoolValue(val)
+		default:
+			return nil, fmt.Errorf("unsupported type for key %q: %T", k, v)
+		}
+	}
+
+	return &ctx, nil
+}
+
+func (v StringValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(string(v))
+}
+
+func (v FloatValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(float64(v))
+}
+
+func (v BoolValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(bool(v))
+}
+
+// ToProtoMap converts a QueryContext to a protobuf-compatible map
+func (qc QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
+	if qc == nil {
+		return nil, nil
+	}
+
+	result := make(map[string]*structpb.Value, len(qc))
+	for k, v := range qc {
+		protoVal, err := v.ToProto()
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert value for key %q: %w", k, err)
+		}
+		result[k] = protoVal
+	}
+	return result, nil
+}
+
+func (qc QueryContext) toMap() map[string]any {
+	result := make(map[string]any, len(qc))
+
+	for k, v := range qc {
+		switch val := v.(type) {
+		case StringValue:
+			result[k] = string(val)
+		case FloatValue:
+			result[k] = float64(val)
+		case BoolValue:
+			result[k] = bool(val)
+		}
+	}
+	return result
+}

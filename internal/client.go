@@ -24,6 +24,7 @@ type OnlineQueryRequestSerialized struct {
 	DeploymentId     *string                `json:"deployment_id"`
 	QueryName        *string                `json:"query_name"`
 	CorrelationId    *string                `json:"correlation_id"`
+	QueryContext     map[string]any         `json:"query_context"`
 	Meta             map[string]string      `json:"meta"`
 	QueryNameVersion *string                `json:"query_name_version"`
 	Now              *string                `json:"now"`
@@ -49,5 +50,6 @@ type OfflineQueryRequestSerialized struct {
 	MaxCacheAge          *int                        `json:"max_cache_age_secs"`
 	ObservedAtLowerBound *time.Time                  `json:"observed_at_lower_bound"`
 	ObservedAtUpperBound *time.Time                  `json:"observed_at_upper_bound"`
+	QueryContext         map[string]any              `json:"query_context"`
 	Tags                 []string                    `json:"tags"`
 }
