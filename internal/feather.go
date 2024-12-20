@@ -804,6 +804,7 @@ type FeatherRequestHeader struct {
 	CorrelationId    *string             `json:"correlation_id"`
 	QueryName        *string             `json:"query_name"`
 	QueryNameVersion *string             `json:"query_name_version"`
+	QueryContext     *map[string]any     `json:"query_context"`
 	Meta             map[string]string   `json:"meta"`
 	StorePlanStages  bool                `json:"store_plan_stages"`
 }
