@@ -76,7 +76,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
 			// if field is has-many or has-one, skip
-			if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+			if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
 				continue
 			}
 			dtype, dtypeErr := convertReflectToArrowType(field.Type)
@@ -233,7 +233,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			numFieldsReflect := 0
 			for i := 0; i < elemType.NumField(); i++ {
 				field := elemType.Field(i)
-				if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+				if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
 					continue
 				}
 				numFieldsReflect++
@@ -262,7 +262,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				field := elemType.Field(i)
-				if IsOrUnderlyingFeaturesClass(field.Type) || IsOrUnderlyingHasMany(field.Type) {
+				if IsUnderlyingFeaturesClass(field.Type) || IsUnderlyingHasMany(field.Type) {
 					continue
 				}
 				resolved, err := ResolveFeatureName(field)
@@ -287,7 +287,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			var columns []reflect.Value
 			for j := 0; j < elemType.NumField(); j++ {
 				fieldType := elemType.Field(j).Type
-				if IsOrUnderlyingFeaturesClass(fieldType) || IsOrUnderlyingHasMany(fieldType) {
+				if IsUnderlyingFeaturesClass(fieldType) || IsUnderlyingHasMany(fieldType) {
 					continue
 				}
 				fieldSliceType := reflect.SliceOf(fieldType)
