@@ -1554,20 +1554,20 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 		ScalarsTable: table,
 	}
 	defer bulkRes.Release()
-	var resultP []infLoopRoot
+	var root []infLoopRoot
 
-	if err = bulkRes.UnmarshalInto(&resultP); err != (*ClientError)(nil) {
+	if err = bulkRes.UnmarshalInto(&root); err != (*ClientError)(nil) {
 		t.Fatalf("failed to unmarshal: %v", err)
 	}
 
-	assert.Equal(t, 1, len(resultP))
-	assert.Equal(t, "root-only", *resultP[0].Id)
-	assert.Equal(t, "p-1", *resultP[0].P.Id)
-	assert.Equal(t, "common-1", *resultP[0].P.Common.Id)
-	assert.Equal(t, "r-1", *resultP[0].P.Common.R.Id)
-	assert.Equal(t, "z-1", *resultP[0].P.Common.Z.Id)
-	assert.Equal(t, "q-1", *resultP[0].P.Q.Id)
-	assert.Equal(t, "common-2", *resultP[0].P.Q.Common.Id)
-	assert.Equal(t, "r-2", *resultP[0].P.Q.Common.R.Id)
-	assert.Equal(t, "z-2", *resultP[0].P.Q.Common.Z.Id)
+	assert.Equal(t, 1, len(root))
+	assert.Equal(t, "root-only", *root[0].Id)
+	assert.Equal(t, "p-1", *root[0].P.Id)
+	assert.Equal(t, "common-1", *root[0].P.Common.Id)
+	assert.Equal(t, "r-1", *root[0].P.Common.R.Id)
+	assert.Equal(t, "z-1", *root[0].P.Common.Z.Id)
+	assert.Equal(t, "q-1", *root[0].P.Q.Id)
+	assert.Equal(t, "common-2", *root[0].P.Q.Common.Id)
+	assert.Equal(t, "r-2", *root[0].P.Q.Common.R.Id)
+	assert.Equal(t, "z-2", *root[0].P.Q.Common.Z.Id)
 }
