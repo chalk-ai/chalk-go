@@ -37,25 +37,12 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
-	namespaceMemo := NamespaceMemo{}
-	columnToForeignNamespace := map[string]*string{}
-	for k, v := range inputs {
-		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
-			return nil, errors.Wrap(err, "build namespace memo")
-		}
-		columnToForeignNamespace[k] = getForeignNamespace(reflect.TypeOf(v))
-	}
 
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
 	defer record.Release()
-
-	record, err := filterRecord(record, columnToForeignNamespace, namespaceMemo)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to filter record")
-	}
 
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
@@ -364,7 +351,21 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	return recordBuilder.NewRecord(), nil
+	namespaceMemo := NamespaceMemo{}
+	columnToForeignNamespace := map[string]*string{}
+	for k, v := range inputs {
+		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
+			return nil, errors.Wrap(err, "build namespace memo")
+		}
+		columnToForeignNamespace[k] = getForeignNamespace(reflect.TypeOf(v))
+	}
+
+	record, err := filterRecord(recordBuilder.NewRecord(), columnToForeignNamespace, namespaceMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to filter record")
+	}
+
+	return record, nil
 }
 
 func getForeignNamespace(typ reflect.Type) *string {

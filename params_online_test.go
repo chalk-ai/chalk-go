@@ -120,61 +120,55 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 
-// Tests that Feature structs have their nil fields omitted by default,
-// and not omitted when `chalk:"dontomit"` flag is set. This tests
-// omission that operates directly on arrow Arrays.
+// TestBulkInputsOmitNilFields tests that for bulk inputs whose
+// feature is nil for every row in the input, the feature is
+// omitted from the serialized input (Arrow table) unless the
+// feature has the `chalk:"dontomit"` tag. This also tests that
+// dataclass fields are never omitted.
 func TestBulkInputsOmitNilFields(t *testing.T) {
 	t.Parallel()
 
-	type omitTransaction struct {
+	type omitTxn struct {
 		Id       *string
 		Amount   *int
 		Cashback *int
 	}
-	type omitUser struct {
-		Id   *string
-		Name *string
-		Txns *[]omitTransaction
+
+	root := filepath.Join("internal", "fixtures", "field_omission")
+	for _, fixture := range []struct {
+		name     string
+		input    map[string]any
+		filename string
+	}{
+		{
+			name: "basic has-many",
+			input: map[string]any{
+				"user.id":   []string{"user_1", "user_2", "user_3"},
+				"user.name": []string{"Alice", "Bob", "Chinedum"},
+				"user.txns": [][]omitTxn{
+					{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}},
+					{},
+					{{Id: ptr.Ptr("txn_3")}},
+				},
+			},
+			filename: "basic_has_many.json",
+		},
+	} {
+		table, err := tableFromFqnToValues(fixture.input)
+		assert.NoError(t, err)
+
+		rows, err := internal.ExtractFeaturesFromTable(table, false)
+		assert.NoError(t, err)
+
+		featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
+		assert.NoError(t, err)
+
+		fileContent, err := os.ReadFile(filepath.Join(root, fixture.filename))
+		assert.NoError(t, err)
+
+		assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 	}
-	var f struct {
-		OmitTransaction *omitTransaction
-		OmitUser        *omitUser
-	}
-	assert.NoError(t, InitFeatures(&f))
 
-	txns1 := []omitTransaction{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}}
-	txns3 := []omitTransaction{{Id: ptr.Ptr("txn_3")}}
-	params := OnlineQueryParams{}.
-		WithInput(f.OmitUser.Id, []string{"user_1", "user_2", "user_3"}).
-		WithInput(f.OmitUser.Name, []string{"Alice", "Bob", "Chinedum"}).
-		WithInput(f.OmitUser.Txns, [][]omitTransaction{txns1, {}, txns3}).
-		WithOutputs("bogus.output")
-
-	path := filepath.Join("internal", "fixtures", "bulk_query_params_omit_nil_fields.json")
-	fileContent, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-
-	arrowBytes, err := internal.InputsToArrowBytes(params.underlying.inputs)
-	assert.NoError(t, err)
-	assert.NotNil(t, arrowBytes)
-	table, err := internal.ConvertBytesToTable(arrowBytes)
-	assert.NoError(t, err)
-	assert.NotNil(t, table)
-	rows, err := internal.ExtractFeaturesFromTable(table, false)
-	assert.NoError(t, err)
-
-	assert.Equal(t, 3, len(rows))
-	featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
-	assert.NoError(t, err)
-	//err = os.WriteFile(path, featherInputJsonBytes, 0644)
-	//if err != nil {
-	//	fmt.Println("Error writing to file:", err)
-	//	return
-	//}
-	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 
 // Tests that OnlineQuery successfully serializes all types of input feature values.
