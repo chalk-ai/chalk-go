@@ -261,10 +261,6 @@ func GetBucketFromFqn(fqn string) (string, error) {
 func SingleInputsToBulkInputs(singleInputs map[string]any) (map[string]any, error) {
 	bulkInputs := make(map[string]any)
 	for k, singleValue := range singleInputs {
-		singleValue, err := PreprocessIfStruct(singleValue)
-		if err != nil {
-			return nil, errors.Wrapf(err, "failed to preprocess struct value for feature '%s'", k)
-		}
 		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
 		slice.Index(0).Set(reflect.ValueOf(singleValue))
 		bulkInputs[k] = slice.Interface()
