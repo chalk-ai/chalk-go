@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"math"
 	"os"
 	"reflect"
 	"regexp"
@@ -102,6 +103,14 @@ func getFqnRoot(s string) string {
 	return strings.Split(s, ".")[0]
 }
 
+func Int64ToInt(value int64) (int, error) {
+	// Check if the value fits in the range of an int
+	if value < math.MinInt || value > math.MaxInt {
+		return 0, errors.New("value out of range for int conversion")
+	}
+	return int(value), nil
+}
+
 // ChalkpySnakeCase aims to be in parity with
 // our Python implementation of snake_case
 func ChalkpySnakeCase(s string) string {
@@ -136,6 +145,12 @@ func isASCIIUpper(c byte) bool {
 func ResolveFeatureName(field reflect.StructField) (string, error) {
 	if tag := field.Tag.Get(NameTag); tag != "" {
 		return tag, nil
+	}
+	if jsonTag := field.Tag.Get("json"); jsonTag != "" {
+		parts := strings.Split(jsonTag, ",")
+		if len(parts) > 0 {
+			return parts[0], nil
+		}
 	}
 	versioned := field.Tag.Get("versioned")
 	fieldName := ChalkpySnakeCase(field.Name)
@@ -241,4 +256,201 @@ func GetBucketFromFqn(fqn string) (string, error) {
 		return "", formatErr
 	}
 	return FormatBucketDuration(seconds), nil
+}
+
+func SingleInputsToBulkInputs(singleInputs map[string]any) (map[string]any, error) {
+	bulkInputs := make(map[string]any)
+	for k, singleValue := range singleInputs {
+		singleValue, err := PreprocessIfStruct(singleValue)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to preprocess struct value for feature '%s'", k)
+		}
+		slice := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(singleValue)), 1, 1)
+		slice.Index(0).Set(reflect.ValueOf(singleValue))
+		bulkInputs[k] = slice.Interface()
+	}
+	return bulkInputs, nil
+}
+
+func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
+	isDataclass := IsTypeDataclass(structType)
+	res := make(map[string]string)
+	namespace := ChalkpySnakeCase(structType.Name())
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName, err := ResolveFeatureName(structType.Field(i))
+		if err != nil {
+			return nil, errors.New("failed to resolve field name")
+		}
+		if !isDataclass {
+			// Don't prepend namespace if it is a dataclass
+			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
+		}
+		res[structType.Field(i).Name] = pythonName
+	}
+	return res, nil
+}
+
+func preprocessStructSingle(structValue reflect.Value, fieldToPythonName map[string]string, expectedFieldType *reflect.Type) (any, error) {
+	var fields []reflect.StructField
+	var values []reflect.Value
+	structType := structValue.Type()
+	for i := 0; i < structType.NumField(); i++ {
+		pythonName := fieldToPythonName[structType.Field(i).Name]
+		converted, err := PreprocessIfStruct(structValue.Field(i).Interface())
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"failed to convert inner feature struct for field '%s'",
+				structType.Field(i).Name,
+			)
+		}
+
+		rConverted := reflect.ValueOf(converted)
+		if (rConverted.IsValid() && !rConverted.IsNil()) ||
+			IsTypeDataclass(structType) ||
+			HasDontOmitTag(structType.Field(i)) {
+			// We omit nil fields unless `chalk:"dontomit"`
+			// is specified or if the struct is a dataclass
+			newTag := fmt.Sprintf(`json:"%s"`, pythonName)
+			if tag := structType.Field(i).Tag; tag != "" {
+				newTag = newTag + " " + string(tag)
+			}
+			fields = append(fields, reflect.StructField{
+				Name: structType.Field(i).Name,
+				Type: reflect.TypeOf(converted),
+				Tag:  reflect.StructTag(newTag),
+			})
+			values = append(values, rConverted)
+		}
+	}
+
+	newStructType := reflect.StructOf(fields)
+	if len(fields) == 0 {
+		return reflect.Zero(reflect.PointerTo(newStructType)), nil
+	}
+
+	newStruct := reflect.New(newStructType)
+	if expectedFieldType != nil {
+		// CHA-5430 - inefficient with large number of has-many structs, but unblocks a customer.
+		if newStructType.NumField() != (*expectedFieldType).NumField() {
+			return nil, errors.Newf(
+				"expected struct to have %d fields but got %d",
+				(*expectedFieldType).NumField(),
+				newStructType.NumField(),
+			)
+		}
+		for i := 0; i < newStructType.NumField(); i++ {
+			expectedField := (*expectedFieldType).Field(i)
+			newField := newStructType.Field(i)
+			if expectedField.Name != newField.Name {
+				return nil, errors.Newf(
+					"expected field '%s' but got '%s'",
+					expectedField.Name,
+					newField.Name,
+				)
+			}
+			if expectedField.Type != newField.Type {
+				return nil, errors.Newf(
+					"expected field '%s' to have type '%s' but got '%s'",
+					expectedField.Name,
+					expectedField.Type,
+					newField.Type,
+				)
+			}
+			if expectedField.Tag != newField.Tag {
+				return nil, errors.Newf(
+					"expected field '%s' to have tag '%s' but got '%s'",
+					expectedField.Name,
+					expectedField.Tag,
+					newField.Tag,
+				)
+			}
+		}
+	}
+	for i, value := range values {
+		newStruct.Elem().Field(i).Set(value)
+	}
+	return newStruct.Interface(), nil
+}
+
+func PreprocessIfStruct(values any) (any, error) {
+	// Does (unfortunately) two things:
+	// (1) Removes nil fields from feature structs, unless the `chalk:"dontomit"` tag is present.
+	// (2) Converts feature structs and dataclasses to a format that the server expects.
+	//     i.e. When the user passes in a has-one feature struct or a list of has-many structs,
+	//          it gets serialized into:
+	//
+	// {
+	//     "FullName": "John Doe",
+	//     "Amount": 100,
+	// }
+	//
+	// when we really want:
+	//
+	// {
+	//     "user.full_name": "John Doe",
+	//     "user.amount": 100,
+	// }
+	//
+	// Meanwhile, dataclasses are serialized by default as:
+	//
+	// {
+	//     "Lat": 37.7749,
+	//     "Lng": 122.4194,
+	// }
+	//
+	// when we want
+	// {
+	//     "lat": 37.7749,
+	//     "lng": 122.4194,
+	// }
+	//
+	rValues := reflect.ValueOf(values)
+	if rValues.Kind() == reflect.Ptr {
+		rValues = rValues.Elem()
+	}
+	if !rValues.IsValid() {
+		return values, nil
+	}
+
+	if IsStruct(rValues.Type()) {
+		// This is a has-one feature
+		fieldNameToPythonName, err := getFieldToPythonName(rValues.Type())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
+		}
+		return preprocessStructSingle(rValues, fieldNameToPythonName, nil)
+	}
+
+	if rValues.Type().Kind() != reflect.Slice || rValues.Len() == 0 {
+		return values, nil
+	}
+	elemType := rValues.Type().Elem()
+	if !IsStruct(elemType) {
+		return values, nil
+	}
+
+	// This is a list of dataclasses, or a has-many list of features.
+	fieldNameToPythonName, err := getFieldToPythonName(elemType)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get feature struct field to python name mapping")
+	}
+
+	var newSlice *reflect.Value
+	var expectedFieldType *reflect.Type
+	for i := 0; i < rValues.Len(); i++ {
+		newStruct, err := preprocessStructSingle(rValues.Index(i), fieldNameToPythonName, expectedFieldType)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert feature struct: %v", rValues.Index(i).Interface())
+		}
+		if newSlice == nil {
+			// CHA-5430 - we can't assume that the entire slice is of the same type as the first element
+			newExpectedFieldType := reflect.TypeOf(newStruct).Elem()
+			expectedFieldType = &newExpectedFieldType
+			newSliceValue := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(newStruct)), rValues.Len(), rValues.Len())
+			newSlice = &newSliceValue
+		}
+		newSlice.Index(i).Set(reflect.ValueOf(newStruct))
+	}
+	return newSlice.Interface(), nil
 }

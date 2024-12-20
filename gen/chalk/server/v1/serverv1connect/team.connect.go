@@ -53,6 +53,9 @@ const (
 	// TeamServiceCreateEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// CreateEnvironment RPC.
 	TeamServiceCreateEnvironmentProcedure = "/chalk.server.v1.TeamService/CreateEnvironment"
+	// TeamServiceUpdateEnvironmentProcedure is the fully-qualified name of the TeamService's
+	// UpdateEnvironment RPC.
+	TeamServiceUpdateEnvironmentProcedure = "/chalk.server.v1.TeamService/UpdateEnvironment"
 	// TeamServiceGetAvailablePermissionsProcedure is the fully-qualified name of the TeamService's
 	// GetAvailablePermissions RPC.
 	TeamServiceGetAvailablePermissionsProcedure = "/chalk.server.v1.TeamService/GetAvailablePermissions"
@@ -99,6 +102,7 @@ var (
 	teamServiceCreateTeamMethodDescriptor               = teamServiceServiceDescriptor.Methods().ByName("CreateTeam")
 	teamServiceCreateProjectMethodDescriptor            = teamServiceServiceDescriptor.Methods().ByName("CreateProject")
 	teamServiceCreateEnvironmentMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("CreateEnvironment")
+	teamServiceUpdateEnvironmentMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("UpdateEnvironment")
 	teamServiceGetAvailablePermissionsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("GetAvailablePermissions")
 	teamServiceCreateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("CreateServiceToken")
 	teamServiceDeleteServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("DeleteServiceToken")
@@ -122,6 +126,7 @@ type TeamServiceClient interface {
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
+	UpdateEnvironment(context.Context, *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
 	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
@@ -196,6 +201,12 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceCreateEnvironmentProcedure,
 			connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		updateEnvironment: connect.NewClient[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse](
+			httpClient,
+			baseURL+TeamServiceUpdateEnvironmentProcedure,
+			connect.WithSchema(teamServiceUpdateEnvironmentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getAvailablePermissions: connect.NewClient[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse](
@@ -278,6 +289,7 @@ type teamServiceClient struct {
 	createTeam               *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
 	createProject            *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
 	createEnvironment        *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
+	updateEnvironment        *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
 	getAvailablePermissions  *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
 	createServiceToken       *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
 	deleteServiceToken       *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
@@ -329,6 +341,11 @@ func (c *teamServiceClient) CreateProject(ctx context.Context, req *connect.Requ
 // CreateEnvironment calls chalk.server.v1.TeamService.CreateEnvironment.
 func (c *teamServiceClient) CreateEnvironment(ctx context.Context, req *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error) {
 	return c.createEnvironment.CallUnary(ctx, req)
+}
+
+// UpdateEnvironment calls chalk.server.v1.TeamService.UpdateEnvironment.
+func (c *teamServiceClient) UpdateEnvironment(ctx context.Context, req *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error) {
+	return c.updateEnvironment.CallUnary(ctx, req)
 }
 
 // GetAvailablePermissions calls chalk.server.v1.TeamService.GetAvailablePermissions.
@@ -396,6 +413,7 @@ type TeamServiceHandler interface {
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
+	UpdateEnvironment(context.Context, *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
 	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
@@ -466,6 +484,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceCreateEnvironmentProcedure,
 		svc.CreateEnvironment,
 		connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceUpdateEnvironmentHandler := connect.NewUnaryHandler(
+		TeamServiceUpdateEnvironmentProcedure,
+		svc.UpdateEnvironment,
+		connect.WithSchema(teamServiceUpdateEnvironmentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetAvailablePermissionsHandler := connect.NewUnaryHandler(
@@ -553,6 +577,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceCreateProjectHandler.ServeHTTP(w, r)
 		case TeamServiceCreateEnvironmentProcedure:
 			teamServiceCreateEnvironmentHandler.ServeHTTP(w, r)
+		case TeamServiceUpdateEnvironmentProcedure:
+			teamServiceUpdateEnvironmentHandler.ServeHTTP(w, r)
 		case TeamServiceGetAvailablePermissionsProcedure:
 			teamServiceGetAvailablePermissionsHandler.ServeHTTP(w, r)
 		case TeamServiceCreateServiceTokenProcedure:
@@ -614,6 +640,10 @@ func (UnimplementedTeamServiceHandler) CreateProject(context.Context, *connect.R
 
 func (UnimplementedTeamServiceHandler) CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateEnvironment is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) UpdateEnvironment(context.Context, *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateEnvironment is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error) {

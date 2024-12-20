@@ -310,7 +310,7 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
-		if _, ok := fi.namespaceMemo[structName]; ok {
+		if _, ok := memo[structName]; ok {
 			// Prevent infinite loops
 			return nil
 		}

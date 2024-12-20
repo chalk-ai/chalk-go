@@ -7,11 +7,28 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
+	"os"
 	"reflect"
+	"runtime"
+	"sort"
+	"strconv"
+	"sync"
 	"time"
 )
 
-var tableReaderChunkSize = 10_000
+const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
+
+const defaultTableReaderChunkSize = 10_000
+
+var tableReaderChunkSize = defaultTableReaderChunkSize
+
+func init() {
+	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
+		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
+			tableReaderChunkSize = newChunkSize
+		}
+	}
+}
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -95,7 +112,7 @@ func IsOrUnderlyingFeaturesClass(typ reflect.Type) bool {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
-	return IsStruct(typ) && !IsTypeDataclass(typ)
+	return IsFeaturesClass(typ)
 }
 
 func IsOrUnderlyingHasMany(typ reflect.Type) bool {
@@ -105,11 +122,17 @@ func IsOrUnderlyingHasMany(typ reflect.Type) bool {
 	return typ.Kind() == reflect.Slice && IsOrUnderlyingFeaturesClass(typ.Elem())
 }
 
-func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, error) {
+func IsFeaturesClass(typ reflect.Type) bool {
+	return IsStruct(typ) &&
+		!IsTypeDataclass(typ) &&
+		typ.Name() != "" // CHA-5430
+}
+
+func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsString bool) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
 	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
-		anyVal, err := GetValueFromArrowArray(arr, int(ptr))
+		anyVal, err := GetValueFromArrowArray(arr, int(ptr), timeAsString)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting value for LargeList column")
 		}
@@ -119,20 +142,20 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int) (any, err
 	return newSlice, nil
 }
 
-func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
+func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
 	}
 	switch arr := a.(type) {
 	case *array.LargeList:
-		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx)
+		return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx, timeAsString)
 	case *array.List:
 		o32 := arr.Offsets()
 		o64 := make([]int64, len(o32))
 		for i := 0; i < len(o32); i++ {
 			o64[i] = int64(arr.Offsets()[i])
 		}
-		return getInnerSliceFromArray(arr.ListValues(), o64, idx)
+		return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
 	case *array.Struct:
 		newMap := map[string]any{}
 		structType, typeOk := arr.DataType().(*arrow.StructType)
@@ -140,7 +163,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 			return nil, fmt.Errorf("error getting struct type")
 		}
 		for k := 0; k < arr.NumField(); k++ {
-			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx)
+			anyVal, err := GetValueFromArrowArray(arr.Field(k), idx, timeAsString)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting value for Struct column")
 			}
@@ -170,19 +193,86 @@ func GetValueFromArrowArray(a arrow.Array, idx int) (any, error) {
 	case *array.Boolean:
 		return arr.Value(idx), nil
 	case *array.Date32:
-		return arr.Value(idx).ToTime(), nil
+		timeVal := arr.Value(idx).ToTime()
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
 	case *array.Date64:
-		return arr.Value(idx).ToTime(), nil
+		timeVal := arr.Value(idx).ToTime()
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
 	case *array.Timestamp:
 		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
-		return arr.Value(idx).ToTime(timeUnit), nil
+		timeVal := arr.Value(idx).ToTime(timeUnit)
+		if timeAsString {
+			return timeVal.Format(time.RFC3339), nil
+		}
+		return timeVal, nil
+
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", arr)
 	}
 }
 
-func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
-	res := make([]map[string]any, 0)
+type ChunkResult struct {
+	chunkIdx int
+	rows     []map[string]any
+	err      error
+}
+
+func extractFeatures(
+	record arrow.Record,
+	colIndicesShouldSkip []bool,
+	chunkStart int64,
+	chunkEnd int64,
+	chunkIdx int,
+	resChan chan<- ChunkResult,
+	wg *sync.WaitGroup,
+	timeAsString bool,
+) {
+	defer wg.Done()
+
+	var results []map[string]any
+	chunkEndInt, err := Int64ToInt(chunkEnd)
+	if err != nil {
+		resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+		return
+	}
+	chunkStartInt := int(chunkStart)
+	for i := chunkStartInt; i < chunkEndInt; i++ {
+		m := make(map[string]any, record.NumCols())
+		for j, col := range record.Columns() {
+			if colIndicesShouldSkip[j] {
+				continue
+			}
+			name := record.ColumnName(j)
+			value, err := GetValueFromArrowArray(col, i, timeAsString)
+			if err != nil {
+				resChan <- ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrap(err, "error getting value from arrow array"),
+				}
+				return
+			}
+			m[name] = value
+		}
+		results = append(results, m)
+	}
+	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+}
+
+func ExtractFeaturesFromTable(
+	table arrow.Table,
+	timeAsString bool, // CHA-5430
+) ([]map[string]any, error) {
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
+	}
+	res := make([]map[string]any, 0, numRows)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
 
@@ -201,29 +291,51 @@ func ExtractFeaturesFromTable(table arrow.Table) ([]map[string]any, error) {
 				colIndicesShouldSkip[j] = true
 			}
 		}
-		for i := 0; i < int(record.NumRows()); i++ {
-			m := map[string]any{}
-			for j, col := range record.Columns() {
-				if colIndicesShouldSkip[j] {
-					continue
-				}
-				name := record.ColumnName(j)
-				value, err := GetValueFromArrowArray(col, i)
-				if err != nil {
-					return nil, errors.Wrap(err, "error getting value from arrow array")
-				}
-				m[name] = value
+
+		var wg sync.WaitGroup
+		numWorkers := runtime.NumCPU()
+		resChan := make(chan ChunkResult, numWorkers)
+		chunkSize := (record.NumRows() / int64(numWorkers)) + 1
+
+		chunkIdx := 0
+		for chunkStart := int64(0); chunkStart < record.NumRows(); chunkStart += chunkSize {
+			chunkEnd := min(chunkStart+chunkSize, record.NumRows())
+			wg.Add(1)
+			go extractFeatures(
+				record,
+				colIndicesShouldSkip,
+				chunkStart,
+				chunkEnd,
+				chunkIdx,
+				resChan,
+				&wg,
+				timeAsString,
+			)
+			chunkIdx += 1
+		}
+
+		go func() {
+			wg.Wait()
+			close(resChan)
+		}()
+
+		var allChunks []ChunkResult
+		for chunkResult := range resChan {
+			allChunks = append(allChunks, chunkResult)
+		}
+
+		sort.Slice(allChunks, func(i, j int) bool {
+			return allChunks[i].chunkIdx < allChunks[j].chunkIdx
+		})
+
+		for _, chunkResult := range allChunks {
+			if chunkResult.err != nil {
+				return nil, chunkResult.err
 			}
-			res = append(res, m)
+			res = append(res, chunkResult.rows...)
 		}
 	}
 	return res, nil
-}
-
-func SliceAppend(slicePtr any, value reflect.Value) {
-	slicePtrValue := reflect.ValueOf(slicePtr)
-	sliceValue := slicePtrValue.Elem()
-	sliceValue.Set(reflect.Append(sliceValue, value))
 }
 
 func ReflectPtr(value reflect.Value) reflect.Value {
