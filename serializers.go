@@ -7,10 +7,9 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/pkg/errors"
+	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"os"
 	"time"
 )
 
@@ -294,10 +293,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	inputsFeather, err := internal.InputsToArrowBytes(params.inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
-	}
-	// Write to file
-	if err := os.WriteFile("grpc_inputs.feather", inputsFeather, 0644); err != nil {
-		return nil, errors.Wrap(err, "error writing inputs to file")
 	}
 	outputs := colls.Map(params.outputs, func(v string) *commonv1.OutputExpr {
 		return &commonv1.OutputExpr{
