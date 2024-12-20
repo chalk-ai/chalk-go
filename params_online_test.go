@@ -144,6 +144,12 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 		Txn *omitTxn
 	}
 
+	type omitDont struct {
+		Id       *string
+		Amount   *int
+		Cashback *int `chalk:"dontomit"`
+	}
+
 	type omitDataclass struct {
 		Id       *string `dataclass_field:"true"`
 		Amount   *int
@@ -327,6 +333,18 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 					{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}},
 					{},
 					{{Id: ptr.Ptr("txn_3")}},
+				},
+			},
+		},
+		{
+			name:     "dontomit tag",
+			filename: "dont_omit.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dont": []omitDont{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
 				},
 			},
 		},
