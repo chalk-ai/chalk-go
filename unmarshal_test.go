@@ -1287,7 +1287,7 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	}
 }
 
-func TestBulkUnmarshalExtraFieldsInHasOne(t *testing.T) {
+func TestBulkUnmarshalExtraFeaturesInHasOne(t *testing.T) {
 	// For forward compatibility, i.e. when users add
 	// more features to their has-ones in chalkpy, we want
 	// to default to not erring when trying to deserialize
