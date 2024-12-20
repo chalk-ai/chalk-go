@@ -71,7 +71,6 @@ func initRemoteFeatureMap(
 		fieldNames = colls.Keys(memo.StructFieldsSet)
 	} else {
 		fieldNames = colls.Keys(scope.children)
-
 	}
 
 	for _, resolvedFieldName := range fieldNames {
