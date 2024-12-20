@@ -76,6 +76,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		var arrowFields []arrow.Field
 		namespace := ChalkpySnakeCase(value.Name())
 		visitedNamespaces[namespace] = true
+		defer delete(visitedNamespaces, namespace)
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
@@ -237,7 +238,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 		} else {
 			namespace := ChalkpySnakeCase(elemType.Name())
 			visitedNamespaces[namespace] = true
-
+			defer delete(visitedNamespaces, namespace)
 			sBuilder, builderOk := builder.(*array.StructBuilder)
 			if !builderOk {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
