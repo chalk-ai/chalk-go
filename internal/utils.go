@@ -456,13 +456,13 @@ func PreprocessIfStruct(values any) (any, error) {
 	return newSlice.Interface(), nil
 }
 
-func getForeignNamespaceFromType(typ reflect.Type) *string {
+func getForeignNamespace(typ reflect.Type) *string {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
 
 	if typ.Kind() == reflect.Slice {
-		return getForeignNamespaceFromType(typ.Elem())
+		return getForeignNamespace(typ.Elem())
 	} else if IsFeaturesClass(typ) {
 		return ptr.Ptr(ChalkpySnakeCase(typ.Name()))
 	} else {

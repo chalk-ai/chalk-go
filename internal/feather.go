@@ -80,7 +80,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
-			if foreignNs := getForeignNamespaceFromType(field.Type); foreignNs != nil {
+			if foreignNs := getForeignNamespace(field.Type); foreignNs != nil {
 				if _, ok := visitedNamespaces[*foreignNs]; ok {
 					continue
 				}
@@ -246,7 +246,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 
 			isVisitedNamespace := make([]bool, elemType.NumField())
 			for i := 0; i < elemType.NumField(); i++ {
-				if foreignNs := getForeignNamespaceFromType(elemType.Field(i).Type); foreignNs != nil {
+				if foreignNs := getForeignNamespace(elemType.Field(i).Type); foreignNs != nil {
 					if _, ok := visitedNamespaces[*foreignNs]; ok {
 						isVisitedNamespace[i] = true
 					}
