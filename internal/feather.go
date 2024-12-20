@@ -362,7 +362,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 
 	record, err := filterRecord(recordBuilder.NewRecord(), columnToForeignNamespace, namespaceMemo)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to filter record")
+		return nil, errors.Wrap(err, "filter record")
 	}
 
 	return record, nil
