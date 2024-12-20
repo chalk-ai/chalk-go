@@ -38,8 +38,8 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	namespaceMemo := NamespaceMemo{}
-	var foreignNamespaces []*string
-	for _, v := range inputs {
+	columnToForeignNamespace := map[string]*string{}
+	for k, v := range inputs {
 		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
 			return nil, errors.Wrap(err, "build namespace memo")
 		}
@@ -47,7 +47,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "get foreign namespace from type")
 		}
-		foreignNamespaces = append(foreignNamespaces, foreignNs)
+		columnToForeignNamespace[k] = foreignNs
 	}
 
 	record, recordErr := ColumnMapToRecord(inputs)
@@ -56,7 +56,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	}
 	defer record.Release()
 
-	record, err := filterRecord(record, foreignNamespaces, namespaceMemo)
+	record, err := filterRecord(record, columnToForeignNamespace, namespaceMemo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to filter record")
 	}
@@ -391,7 +391,7 @@ func getForeignNamespaceFromType(typ reflect.Type) (*string, error) {
  * done so that `nil` features in a has-one or has-many struct do not get mistaken
  * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record, foreignNamespaces []*string, nsMemo NamespaceMemo) (arrow.Record, error) {
+func filterRecord(record arrow.Record, columnToForeignNamespace map[string]*string, nsMemo NamespaceMemo) (arrow.Record, error) {
 	var newColumns []arrow.Array
 	var newFields []arrow.Field
 	didFilter := false
@@ -400,7 +400,10 @@ func filterRecord(record arrow.Record, foreignNamespaces []*string, nsMemo Names
 		return nil, errors.New("can only process int32 number of columns")
 	}
 	for i := 0; i < numCols; i++ {
-		foreignNs := foreignNamespaces[i]
+		foreignNs, ok := columnToForeignNamespace[record.ColumnName(i)]
+		if !ok {
+			return nil, errors.Errorf("failed to find foreign namespace for column '%s'", record.ColumnName(i))
+		}
 		if foreignNs == nil {
 			newFields = append(newFields, record.Schema().Field(i))
 			newColumns = append(newColumns, record.Column(i))
