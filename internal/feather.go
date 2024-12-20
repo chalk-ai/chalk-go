@@ -483,8 +483,9 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[arrowField.Name]
 			if !ok {
 				return nil, false, errors.Errorf(
-					"failed to find reflect field indices for arrow field name '%s'",
+					"failed to find reflect field indices for arrow field name '%s' among keys %v",
 					arrowField.Name,
+					colls.Keys(memo.ResolvedFieldNameToIndices),
 				)
 			}
 			if len(reflectFieldIndices) == 0 {
@@ -501,7 +502,15 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 				collectiveDidFilter = true
 				continue
 			}
-			newChild, didFilter, err := filterArrayData(childData, namespace, nsMemo)
+			childNs := namespace
+			if foreignNs := getForeignNamespace(reflectField.Type); foreignNs != nil {
+				childNs = *foreignNs
+			}
+			newChild, didFilter, err := filterArrayData(
+				childData,
+				childNs,
+				nsMemo,
+			)
 			if err != nil {
 				return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
 			}

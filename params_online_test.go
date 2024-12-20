@@ -134,6 +134,16 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 		Cashback *int
 	}
 
+	type omitHasManyRoot struct {
+		Id   *string
+		Txns []*omitTxn
+	}
+
+	type omitHasOneRoot struct {
+		Id  *string
+		Txn *omitTxn
+	}
+
 	type omitDataclass struct {
 		Id       *string `dataclass_field:"true"`
 		Amount   *int
@@ -193,6 +203,94 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
 					nil,
 					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "has-one -> has-one",
+			filename: "has_one_has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_one": []omitHasOneRoot{
+					{
+						Id:  ptr.Ptr("root_1"),
+						Txn: &omitTxn{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					},
+					{},
+					{
+						Id:  ptr.Ptr("root_3"),
+						Txn: &omitTxn{Id: ptr.Ptr("txn_3")},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-many -> has-one",
+			filename: "has_many_has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_many": [][]omitHasOneRoot{
+					{
+						{
+							Id:  ptr.Ptr("root_1"),
+							Txn: &omitTxn{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						},
+					},
+					{},
+					{
+						{
+							Id:  ptr.Ptr("root_3"),
+							Txn: &omitTxn{Id: ptr.Ptr("txn_3")},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-one -> has-many",
+			filename: "has_one_has_many.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_one": []omitHasManyRoot{
+					{
+						Id: ptr.Ptr("root_1"),
+						Txns: []*omitTxn{
+							{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						},
+					},
+					{},
+					{
+						Id: ptr.Ptr("root_3"),
+						Txns: []*omitTxn{
+							{Id: ptr.Ptr("txn_3")},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-many -> has-many",
+			filename: "has_many_has_many.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_many": [][]omitHasManyRoot{
+					{
+						{
+							Id: ptr.Ptr("root_1"),
+							Txns: []*omitTxn{
+								{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+							},
+						},
+					},
+					{},
+					{
+						{
+							Id: ptr.Ptr("root_3"),
+							Txns: []*omitTxn{
+								{Id: ptr.Ptr("txn_3")},
+							},
+						},
+					},
 				},
 			},
 		},
