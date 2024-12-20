@@ -1513,8 +1513,9 @@ type infLoopZ struct {
 
 // Testing
 //
-//	Root -> P -> Q -> Common -> R
-//	Root -> P -> Common -> Z
+//	P -> Q -> Common -> R
+//	|
+//	--> Common -> Z
 //
 // and R and Z still gets serialized
 // even with visitedNamespaces handling.
