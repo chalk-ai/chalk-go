@@ -879,5 +879,5 @@ func (qc *QueryContext) ToMap() *map[string]any {
 			result[k] = bool(val)
 		}
 	}
-	return result
+	return &result
 }
