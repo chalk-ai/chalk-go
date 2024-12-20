@@ -108,20 +108,6 @@ func IsStruct(typ reflect.Type) bool {
 	return true
 }
 
-func IsUnderlyingFeaturesClass(typ reflect.Type) bool {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-	return IsFeaturesClass(typ)
-}
-
-func IsUnderlyingHasMany(typ reflect.Type) bool {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-	return typ.Kind() == reflect.Slice && IsUnderlyingFeaturesClass(typ.Elem())
-}
-
 func IsFeaturesClass(typ reflect.Type) bool {
 	return IsStruct(typ) &&
 		!IsTypeDataclass(typ) &&

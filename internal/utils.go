@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"math"
 	"os"
@@ -453,4 +454,18 @@ func PreprocessIfStruct(values any) (any, error) {
 		newSlice.Index(i).Set(reflect.ValueOf(newStruct))
 	}
 	return newSlice.Interface(), nil
+}
+
+func getForeignNamespaceFromType(typ reflect.Type) *string {
+	if typ.Kind() == reflect.Ptr {
+		typ = typ.Elem()
+	}
+
+	if typ.Kind() == reflect.Slice {
+		return getForeignNamespaceFromType(typ.Elem())
+	} else if IsFeaturesClass(typ) {
+		return ptr.Ptr(ChalkpySnakeCase(typ.Name()))
+	} else {
+		return nil
+	}
 }
