@@ -115,7 +115,8 @@ func Int64ToInt(value int64) (int, error) {
 // We are supposed to use this in all places over LegacySnakeCase, but that's a breaking
 // change because our CLI generates the `name` struct tag if and only if the snake case generated
 // using LegacySnakeCase does not match the actual feature name. If we switch to using
-// ChalkpySnakeCase, that would make old codegen code incompatible with new chalk-go versions.
+// ChalkpySnakeCase, that would make old codegen code incompatible with new chalk-go versions,
+// and vice-versa.
 func ChalkpySnakeCase(s string) string {
 	re1 := regexp.MustCompile(`(.)([A-Z][a-z]+)`)
 	s = re1.ReplaceAllString(s, "${1}_${2}")
@@ -134,7 +135,7 @@ func ChalkpySnakeCase(s string) string {
 // codegen customers. Using this in our CLI to convert struct field names to snake case
 // is still correct because if it does not correctly match the feature name, it generates
 // the `name` struct tag. If we switch to using ChalkpySnakeCase, that would make old codegen
-// code incompatible with new chalk-go versions.
+// code incompatible with new chalk-go versions, and vice-versa.
 func LegacySnakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
