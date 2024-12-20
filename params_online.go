@@ -90,13 +90,6 @@ func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsCom
 	return p
 }
 
-// WithQueryContext returns a copy of Online Query parameters with the query context added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithQueryContext(queryContext *QueryContext) OnlineQueryParamsComplete {
-	p.underlying = p.underlying.WithQueryContext(queryContext)
-	return p
-}
-
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/
@@ -212,11 +205,6 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 	return p
 }
 
-func (p OnlineQueryParams) withQueryContext(queryContext *QueryContext) OnlineQueryParams {
-	p.QueryContext = queryContext
-	return p
-}
-
 /********************************************
  Definitions for onlineQueryParamsWithInputs
 *********************************************/
@@ -257,10 +245,6 @@ func (p onlineQueryParamsWithInputs) WithQueryName(name string) OnlineQueryParam
 func (p onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Duration) onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
-}
-
-func (p onlineQueryParamsWithInputs) WithQueryContext(queryContext *QueryContext) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.underlying.withQueryContext(queryContext)}
 }
 
 /********************************************

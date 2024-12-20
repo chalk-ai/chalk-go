@@ -158,13 +158,6 @@ func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
 	return p
 }
 
-// WithQueryContext returns a copy of Online Query parameters with the query context added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParams) WithQueryContext(queryContext *QueryContext) OnlineQueryParams {
-	p.QueryContext = queryContext
-	return p
-}
-
 // OnlineQueryResult holds the result of an online query.
 type OnlineQueryResult struct {
 	// The output features and any query metadata.
