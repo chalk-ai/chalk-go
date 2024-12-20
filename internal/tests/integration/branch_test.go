@@ -14,7 +14,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 	// TODO: This can be a non-integration test if we can make
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
-	SkipIfNotIntegrationTester(t)
+	// SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
 	client, err := chalk.NewClient(&chalk.ClientConfig{

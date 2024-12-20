@@ -108,7 +108,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 // TestParamsSetInOnlineQuery tests that we set all params
 // correctly in online query.
 func TestParamsSetInOnlineQuery(t *testing.T) {
-	// SkipIfNotIntegrationTester(t)
+	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -196,7 +196,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 // TestParamsSetInOfflineQuery tests that we set params in
 // online query.
 func TestParamsSetInOfflineQuery(t *testing.T) {
-	// SkipIfNotIntegrationTester(t)
+	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,

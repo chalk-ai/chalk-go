@@ -859,13 +859,13 @@ func (v BoolValue) ToProto() (*structpb.Value, error) {
 }
 
 // ToProtoMap converts a QueryContext to a protobuf-compatible map
-func (qc QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
+func (qc *QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
 	if qc == nil {
 		return nil, nil
 	}
 
-	result := make(map[string]*structpb.Value, len(qc))
-	for k, v := range qc {
+	result := make(map[string]*structpb.Value, len(*qc))
+	for k, v := range *qc {
 		protoVal, err := v.ToProto()
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert value for key %q: %w", k, err)
@@ -875,10 +875,13 @@ func (qc QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
 	return result, nil
 }
 
-func (qc QueryContext) toMap() map[string]any {
-	result := make(map[string]any, len(qc))
+func (qc *QueryContext) toMap() map[string]any {
+	if qc == nil {
+		return nil
+	}
+	result := make(map[string]any, len(*qc))
 
-	for k, v := range qc {
+	for k, v := range *qc {
 		switch val := v.(type) {
 		case StringValue:
 			result[k] = string(val)
