@@ -102,7 +102,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.True(t, header.Explain)
 	assert.True(t, header.IncludeMeta)
 	assert.NotNil(t, header.QueryContext)
-	assert.Equal(t, header.QueryContext, map[string]any{"key": "value"})
+	assert.Equal(t, header.QueryContext, &map[string]any{"key": "value"})
 }
 
 // TestParamsSetInOnlineQuery tests that we set all params
@@ -190,7 +190,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
-	assert.Equal(t, request.QueryContext, map[string]any{"key": "value"})
+	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
 }
 
 // TestParamsSetInOfflineQuery tests that we set params in
@@ -222,5 +222,5 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Tags)
 	assert.NotNil(t, request.QueryContext)
-	assert.Equal(t, request.QueryContext, map[string]any{"key": "value"})
+	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
 }
