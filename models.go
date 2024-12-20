@@ -863,7 +863,7 @@ func (qc *QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
 	return result, nil
 }
 
-func (qc *QueryContext) toMap() map[string]any {
+func (qc *QueryContext) ToMap() map[string]any {
 	if qc == nil {
 		return nil
 	}
