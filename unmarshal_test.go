@@ -1481,10 +1481,15 @@ func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
 	assert.Equal(t, "c-1", *resultA[0].B.C.Id)
 }
 
+type infLoopRoot struct {
+	Id *string
+	P  *infLoopP
+}
+
 type infLoopP struct {
 	Id     *string
-	Q      *infLoopQ
 	Common *infLoopCommon
+	Q      *infLoopQ
 }
 
 type infLoopQ struct {
@@ -1508,17 +1513,17 @@ type infLoopZ struct {
 
 // Testing
 //
-//	 P -> Q -> Common -> R
-//		P -> Common -> Z
+//	Root -> P -> Q -> Common -> R
+//	Root -> P -> Common -> Z
 //
 // and R and Z still gets serialized
 // even with visitedNamespaces handling.
 func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 	fqnToValue := map[string]any{
-		"inf_loop_p.id": []string{"p-1"},
-		"inf_loop_p.q": []infLoopQ{
+		"inf_loop_root.id": []string{"root-only"},
+		"inf_loop_root.p": []infLoopP{
 			{
-				Id: ptr.Ptr("q-1"),
+				Id: ptr.Ptr("p-1"),
 				Common: &infLoopCommon{
 					Id: ptr.Ptr("common-1"),
 					R: &infLoopR{
@@ -1526,6 +1531,18 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 					},
 					Z: &infLoopZ{
 						Id: ptr.Ptr("z-1"),
+					},
+				},
+				Q: &infLoopQ{
+					Id: ptr.Ptr("q-1"),
+					Common: &infLoopCommon{
+						Id: ptr.Ptr("common-2"),
+						R: &infLoopR{
+							Id: ptr.Ptr("r-2"),
+						},
+						Z: &infLoopZ{
+							Id: ptr.Ptr("z-2"),
+						},
 					},
 				},
 			},
@@ -1537,16 +1554,20 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 		ScalarsTable: table,
 	}
 	defer bulkRes.Release()
-	var resultP []infLoopP
+	var resultP []infLoopRoot
 
 	if err = bulkRes.UnmarshalInto(&resultP); err != (*ClientError)(nil) {
 		t.Fatalf("failed to unmarshal: %v", err)
 	}
 
 	assert.Equal(t, 1, len(resultP))
-	assert.Equal(t, "p-1", *resultP[0].Id)
-	assert.Equal(t, "q-1", *resultP[0].Q.Id)
-	assert.Equal(t, "common-1", *resultP[0].Q.Common.Id)
-	assert.Equal(t, "r-1", *resultP[0].Q.Common.R.Id)
-	assert.Equal(t, "z-1", *resultP[0].Q.Common.Z.Id)
+	assert.Equal(t, "root-only", *resultP[0].Id)
+	assert.Equal(t, "p-1", *resultP[0].P.Id)
+	assert.Equal(t, "common-1", *resultP[0].P.Common.Id)
+	assert.Equal(t, "r-1", *resultP[0].P.Common.R.Id)
+	assert.Equal(t, "z-1", *resultP[0].P.Common.Z.Id)
+	assert.Equal(t, "q-1", *resultP[0].P.Q.Id)
+	assert.Equal(t, "common-2", *resultP[0].P.Q.Common.Id)
+	assert.Equal(t, "r-2", *resultP[0].P.Q.Common.R.Id)
+	assert.Equal(t, "z-2", *resultP[0].P.Q.Common.Z.Id)
 }
