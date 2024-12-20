@@ -355,7 +355,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	columnToForeignNamespace := map[string]*string{}
 	for k, v := range inputs {
 		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
-			return nil, errors.Wrap(err, "build namespace memo")
+			return nil, errors.Wrapf(err, "build namespace memo on input column '%s'", k)
 		}
 		columnToForeignNamespace[k] = getForeignNamespace(reflect.TypeOf(v))
 	}
@@ -366,20 +366,6 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	}
 
 	return record, nil
-}
-
-func getForeignNamespace(typ reflect.Type) *string {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-
-	if typ.Kind() == reflect.Slice {
-		return getForeignNamespace(typ.Elem())
-	} else if IsFeaturesClass(typ) {
-		return ptr.Ptr(ChalkpySnakeCase(typ.Name()))
-	} else {
-		return nil
-	}
 }
 
 /* filterRecord recurses into each child array of every column in the record and
@@ -394,12 +380,12 @@ func filterRecord(record arrow.Record, columnToForeignNamespace map[string]*stri
 	didFilter := false
 	numCols, err := Int64ToInt(record.NumCols())
 	if err != nil {
-		return nil, errors.New("can only process int32 number of columns")
+		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
 	}
 	for i := 0; i < numCols; i++ {
 		foreignNs, ok := columnToForeignNamespace[record.ColumnName(i)]
 		if !ok {
-			return nil, errors.Errorf("failed to find foreign namespace for column '%s'", record.ColumnName(i))
+			return nil, errors.Errorf("find foreign namespace for column '%s'", record.ColumnName(i))
 		}
 		if foreignNs == nil {
 			newFields = append(newFields, record.Schema().Field(i))
@@ -408,7 +394,7 @@ func filterRecord(record arrow.Record, columnToForeignNamespace map[string]*stri
 		}
 		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i), *foreignNs, nsMemo)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to filter column '%s'", record.ColumnName(i))
+			return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
 		}
 		if didFilterColumn {
 			didFilter = true
@@ -440,7 +426,7 @@ func filterRecord(record arrow.Record, columnToForeignNamespace map[string]*stri
 func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow.Array, bool, error) {
 	data, didFilter, err := filterArrayData(arr.Data(), namespace, nsMemo)
 	if err != nil {
-		return nil, false, errors.Wrap(err, "failed to filter array data")
+		return nil, false, errors.Wrap(err, "filter array data")
 	}
 	if !didFilter {
 		return arr, false, nil
@@ -448,8 +434,6 @@ func filterArray(arr arrow.Array, namespace string, nsMemo NamespaceMemo) (arrow
 	switch arr.(type) {
 	case *array.Struct:
 		return array.NewStructData(data), true, nil
-	case *array.List:
-		return array.NewListData(data), true, nil
 	case *array.LargeList:
 		return array.NewLargeListData(data), true, nil
 	default:
@@ -466,7 +450,7 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 		memo, ok := nsMemo[namespace]
 		if !ok {
 			return nil, false, errors.Errorf(
-				"failed to find namespace memo item for namespace '%s' for column '%s'",
+				"find namespace memo item for namespace '%s' for column '%s'",
 				namespace,
 			)
 		}
