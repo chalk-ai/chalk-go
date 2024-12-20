@@ -111,9 +111,31 @@ func Int64ToInt(value int64) (int, error) {
 	return int(value), nil
 }
 
-// ChalkpySnakeCase aims to be in parity with
-// our Python implementation of snake_case
+// ChalkpySnakeCase aims to be in parity with our Python implementation of snake_case.
+// We are supposed to use this in all places over LegacySnakeCase, but that's a breaking
+// change because our CLI generates the `name` struct tag if and only if the snake case generated
+// using LegacySnakeCase does not match the actual feature name. If we switch to using
+// ChalkpySnakeCase, that would make old codegen code incompatible with new chalk-go versions.
 func ChalkpySnakeCase(s string) string {
+	re1 := regexp.MustCompile(`(.)([A-Z][a-z]+)`)
+	s = re1.ReplaceAllString(s, "${1}_${2}")
+
+	re2 := regexp.MustCompile(`__([A-Z])`)
+	s = re2.ReplaceAllString(s, "_${1}")
+
+	re3 := regexp.MustCompile(`([a-z0-9])([A-Z])`)
+	s = re3.ReplaceAllString(s, "${1}_${2}")
+
+	return strings.ToLower(s)
+}
+
+// LegacySnakeCase is how we turn our struct field names into feature names. We really
+// should be using ChalkpySnakeCase, but we can't change it now because it would break existing
+// codegen customers. Using this in our CLI to convert struct field names to snake case
+// is still correct because if it does not correctly match the feature name, it generates
+// the `name` struct tag. If we switch to using ChalkpySnakeCase, that would make old codegen
+// code incompatible with new chalk-go versions.
+func LegacySnakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -153,7 +175,7 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 		}
 	}
 	versioned := field.Tag.Get("versioned")
-	fieldName := ChalkpySnakeCase(field.Name)
+	fieldName := LegacySnakeCase(field.Name)
 	if versioned == "true" {
 		parts := strings.Split(fieldName, "_")
 		nameErr := fmt.Errorf(
@@ -275,7 +297,7 @@ func SingleInputsToBulkInputs(singleInputs map[string]any) (map[string]any, erro
 func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 	isDataclass := IsTypeDataclass(structType)
 	res := make(map[string]string)
-	namespace := ChalkpySnakeCase(structType.Name())
+	namespace := LegacySnakeCase(structType.Name())
 	for i := 0; i < structType.NumField(); i++ {
 		pythonName, err := ResolveFeatureName(structType.Field(i))
 		if err != nil {

@@ -71,7 +71,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			}, nil
 		}
 		var arrowFields []arrow.Field
-		structName := ChalkpySnakeCase(value.Name())
+		structName := LegacySnakeCase(value.Name())
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
@@ -247,7 +247,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 
-			structName := ChalkpySnakeCase(elemType.Name())
+			structName := LegacySnakeCase(elemType.Name())
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				resolved, err := ResolveFeatureName(elemType.Field(i))
