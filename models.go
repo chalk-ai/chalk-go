@@ -744,7 +744,7 @@ type ServerError struct {
 	Exception *ResolverException `json:"exception"`
 
 	// The fully qualified name of the failing feature, e.g. `user.identity.has_voip_phone`
-	Feature string `json:"12feature"`
+	Feature string `json:"feature"`
 
 	// The fully qualified name of the failing resolver, e.g. `my.project.get_fraud_score`.
 	Resolver string `json:"resolver"`

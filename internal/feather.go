@@ -43,11 +43,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 		if err := BuildNamespaceMemo(namespaceMemo, reflect.TypeOf(v)); err != nil {
 			return nil, errors.Wrap(err, "build namespace memo")
 		}
-		foreignNs, err := getForeignNamespaceFromType(reflect.TypeOf(v))
-		if err != nil {
-			return nil, errors.Wrap(err, "get foreign namespace from type")
-		}
-		columnToForeignNamespace[k] = foreignNs
+		columnToForeignNamespace[k] = getForeignNamespace(reflect.TypeOf(v))
 	}
 
 	record, recordErr := ColumnMapToRecord(inputs)
@@ -371,17 +367,17 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
-func getForeignNamespaceFromType(typ reflect.Type) (*string, error) {
+func getForeignNamespace(typ reflect.Type) *string {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
 
 	if typ.Kind() == reflect.Slice {
-		return getForeignNamespaceFromType(typ.Elem())
+		return getForeignNamespace(typ.Elem())
 	} else if IsFeaturesClass(typ) {
-		return ptr.Ptr(ChalkpySnakeCase(typ.Name())), nil
+		return ptr.Ptr(ChalkpySnakeCase(typ.Name()))
 	} else {
-		return nil, nil
+		return nil
 	}
 }
 

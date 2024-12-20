@@ -12,8 +12,6 @@ import (
 	"time"
 )
 
-var initErr error
-
 func init() {
 	initErr = InitFeatures(&testRootFeatures)
 }
