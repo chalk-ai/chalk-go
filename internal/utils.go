@@ -472,7 +472,7 @@ func PreprocessIfStruct(values any) (any, error) {
  *  }
  *  The namespace memo will be:
  *  {
- *      "User": {
+ *      "user": {
  *          ResolvedFieldNameToIndices: {
  *              "id": [0],
  *              "user.id": [0],
@@ -484,7 +484,7 @@ func PreprocessIfStruct(values any) (any, error) {
  *              "user.transactions": [1],
  *          }
  *      },
- *      "Transactions": {
+ *      "transactions": {
  *          ResolvedFieldNameToIndices: {
  *              "id": [0],
  *              "transactions.id": [0],
