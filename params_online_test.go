@@ -134,6 +134,12 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 		Cashback *int
 	}
 
+	type omitDataclass struct {
+		Id       *string `dataclass_field:"true"`
+		Amount   *int
+		Cashback *int
+	}
+
 	root := filepath.Join("internal", "fixtures", "field_omission")
 	for _, fixture := range []struct {
 		name     string
@@ -141,7 +147,8 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 		filename string
 	}{
 		{
-			name: "basic has-many",
+			name:     "has-many inter-row",
+			filename: "has_many_inter_row.json",
 			input: map[string]any{
 				"user.id":   []string{"user_1", "user_2", "user_3"},
 				"user.name": []string{"Alice", "Bob", "Chinedum"},
@@ -151,22 +158,101 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 					{{Id: ptr.Ptr("txn_3")}},
 				},
 			},
-			filename: "basic_has_many.json",
+		},
+		{
+			name:     "has-many intra-row",
+			filename: "has_many_intra_row.json",
+			input: map[string]any{
+				"user.id": []string{"user_1"},
+				"user.txns": [][]omitTxn{
+					{
+						{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						{Id: ptr.Ptr("txn_2")},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-one",
+			filename: "has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.txn": []omitTxn{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "has-one with optional",
+			filename: "has_one_with_optional.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.txn": []*omitTxn{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					nil,
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "dataclass",
+			filename: "dataclass.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclass": []omitDataclass{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "dataclass with nil",
+			filename: "dataclass_with_nil.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclass": []*omitDataclass{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					nil,
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "list of dataclass",
+			filename: "list_of_dataclass.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclasses": [][]omitDataclass{
+					{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}},
+					{},
+					{{Id: ptr.Ptr("txn_3")}},
+				},
+			},
 		},
 	} {
-		table, err := tableFromFqnToValues(fixture.input)
-		assert.NoError(t, err)
+		t.Run(fixture.name, func(t *testing.T) {
+			t.Parallel()
+			table, err := tableFromFqnToValues(fixture.input)
+			assert.NoError(t, err)
 
-		rows, err := internal.ExtractFeaturesFromTable(table, false)
-		assert.NoError(t, err)
+			rows, err := internal.ExtractFeaturesFromTable(table, false)
+			assert.NoError(t, err)
 
-		featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
-		assert.NoError(t, err)
+			featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
+			assert.NoError(t, err)
 
-		fileContent, err := os.ReadFile(filepath.Join(root, fixture.filename))
-		assert.NoError(t, err)
+			fileContent, err := os.ReadFile(filepath.Join(root, fixture.filename))
+			if err != nil {
+				fileContent = []byte("")
+			}
 
-		assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
+			err = os.WriteFile(filepath.Join(root, fixture.filename), featherInputJsonBytes, 0644)
+
+			assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
+		})
 	}
 
 }
