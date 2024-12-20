@@ -223,7 +223,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	structName := sliceElemType.Name()
-	namespace := SnakeCase(structName)
+	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
 		return &ClientError{
@@ -365,7 +365,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 	holderValue := reflect.ValueOf(resultHolder)
 	structName := holderValue.Elem().Type().Name()
-	namespace := SnakeCase(structName)
+	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
 		return &ClientError{
