@@ -371,10 +371,6 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	return recordBuilder.NewRecord(), nil
 }
 
-func getForeignNamespace(field reflect.StructField) (*string, error) {
-	return getForeignNamespaceFromType(field.Type)
-}
-
 func getForeignNamespaceFromType(typ reflect.Type) (*string, error) {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
