@@ -249,7 +249,7 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				fileContent = []byte("")
 			}
 
-			assert.NoError(os.WriteFile(filepath.Join(root, fixture.filename), featherInputJsonBytes, 0644))
+			assert.NoError(t, os.WriteFile(filepath.Join(root, fixture.filename), featherInputJsonBytes, 0644))
 
 			assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 		})
