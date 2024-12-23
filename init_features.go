@@ -369,5 +369,5 @@ func pointerCheck(field reflect.Value) error {
 }
 
 func SnakeCase(s string) string {
-	return internal.ChalkpySnakeCase(s)
+	return internal.LegacySnakeCase(s)
 }

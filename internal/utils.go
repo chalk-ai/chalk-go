@@ -18,6 +18,10 @@ var ChalkTag = "chalk"
 
 var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 
+var wordGroupsPattern = regexp.MustCompile(`(.)([A-Z][a-z]+)`)
+var dunderPattern = regexp.MustCompile(`__([A-Z])`)
+var trailingUpperPattern = regexp.MustCompile(`([a-z0-9])([A-Z])`)
+
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
 		return false
@@ -111,9 +115,28 @@ func Int64ToInt(value int64) (int, error) {
 	return int(value), nil
 }
 
-// ChalkpySnakeCase aims to be in parity with
-// our Python implementation of snake_case
+// ChalkpySnakeCase aims to be in parity with our Python implementation of snake_case.
+// We are supposed to use this in all places over LegacySnakeCase, but that's a breaking
+// change because our CLI generates the `name` struct tag if and only if the snake case
+// generated using LegacySnakeCase does not match the actual feature name. If we switch to
+// using ChalkpySnakeCase, that would make new codegen code incompatible with old chalk-go
+// versions. In short, we want to keep using LegacySnakeCase in chalk-go to snake-case
+// field names, and ChalkpySnakeCase to snake-case struct names.
 func ChalkpySnakeCase(s string) string {
+	s = wordGroupsPattern.ReplaceAllString(s, "${1}_${2}")
+	s = dunderPattern.ReplaceAllString(s, "_${1}")
+	s = trailingUpperPattern.ReplaceAllString(s, "${1}_${2}")
+	return strings.ToLower(s)
+}
+
+// LegacySnakeCase is how we turn our struct field names into feature names. We really
+// should be using ChalkpySnakeCase, but we can't change it now because it would break existing
+// codegen customers. Using this in our CLI to convert struct field names to snake case
+// is still correct because if it does not correctly match the feature name, it generates
+// the `name` struct tag. If we switch to using ChalkpySnakeCase, that would make new codegen
+// code incompatible with old chalk-go versions. In short, we want to keep using LegacySnakeCase
+// in chalk-go to snake-case field names, and ChalkpySnakeCase to snake-case struct names.
+func LegacySnakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -153,7 +176,7 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 		}
 	}
 	versioned := field.Tag.Get("versioned")
-	fieldName := ChalkpySnakeCase(field.Name)
+	fieldName := LegacySnakeCase(field.Name)
 	if versioned == "true" {
 		parts := strings.Split(fieldName, "_")
 		nameErr := fmt.Errorf(
