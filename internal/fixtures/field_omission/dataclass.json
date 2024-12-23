@@ -1,0 +1,26 @@
+[
+  {
+    "user.dataclass": {
+      "amount": 100,
+      "cashback": null,
+      "id": "txn_1"
+    },
+    "user.id": "user_1"
+  },
+  {
+    "user.dataclass": {
+      "amount": null,
+      "cashback": null,
+      "id": null
+    },
+    "user.id": "user_2"
+  },
+  {
+    "user.dataclass": {
+      "amount": null,
+      "cashback": null,
+      "id": "txn_3"
+    },
+    "user.id": "user_3"
+  }
+]
