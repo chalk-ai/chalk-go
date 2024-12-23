@@ -17,6 +17,12 @@ import (
 	"time"
 )
 
+var initErr error
+
+func init() {
+	initErr = InitFeatures(&testRootFeatures)
+}
+
 type unmarshalTransaction struct {
 	Id                    *string
 	AmountP30D            *int64 `name:"amount_p30d"`
@@ -35,12 +41,12 @@ type unmarshalTransaction struct {
 	FeatureWithLongName13 *string
 }
 
-type unmarshalLatLng struct {
+type unmarshalLatLNG struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
 }
 
-type unmarshalUser struct {
+type unmarshalUSER struct {
 	Id *string
 
 	Int *int64
@@ -54,7 +60,7 @@ type unmarshalUser struct {
 	AvgSpend map[string]*float64 `windows:"1m,5m,1h"`
 
 	// Dataclass features
-	LatLng *unmarshalLatLng
+	LatLng *unmarshalLatLNG
 
 	// Has-many features
 	Txns *[]unmarshalTransaction
@@ -72,7 +78,7 @@ type user struct {
 }
 
 func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 
 	// Mimic JSON deser which returns all numbers as `float64`
@@ -344,7 +350,7 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -388,7 +394,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -416,7 +422,7 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -444,7 +450,7 @@ func TestUnmarshalWrongType(t *testing.T) {
 		features:        nil,
 		expectedOutputs: nil,
 	}
-	user := unmarshalUser{}
+	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
 	if unmarshalErr == nil {
 		fmt.Println("We successfully unmarshalled the wrong type into a struct field - the value is: ", *user.Int)
@@ -458,7 +464,7 @@ func TestUnmarshalWrongType(t *testing.T) {
 
 // Test primitives unmarshalling only.
 func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.String: []string{"abc", "def"},
@@ -502,7 +508,7 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 // builds an Arrow table that contains a column of dataclass features,
 // then unmarshals the table into appropriate structs.
 func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	lat := 37.7749
 	lng := 122.4194
@@ -543,7 +549,7 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 
 // TestUnmarshalQueryBulkOptionalDataclassNested
 func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithDataclass: []*child{
@@ -609,7 +615,7 @@ func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	lat1a := 37.7749
 	lng1a := 122.4194
@@ -668,7 +674,7 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.NestedIntList: [][][]int64{
@@ -701,7 +707,7 @@ func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
@@ -739,7 +745,7 @@ func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
@@ -779,7 +785,7 @@ func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
@@ -812,7 +818,7 @@ func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithList: []*favoriteThings{
@@ -857,7 +863,7 @@ func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
 		testRootFeatures.AllTypes.DataclassWithNils: []possessions{
@@ -1065,7 +1071,7 @@ func benchmarkUnmarshal(t *testing.T, data []FeatureResult, resultHolder any) ti
 
 // TestEnsureTimelyUnmarshal tests that we maintain a non-quadratic unmarshal.
 func TestEnsureTimelyUnmarshal(t *testing.T) {
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 
 	// Mimic JSON deser which returns all numbers as `float64`
@@ -1220,14 +1226,11 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 }
 
 func TestBulkUnmarshalExtraFields(t *testing.T) {
-	// DO NOT USE PARALLEL
-	//    InitFeatures can not be run in parallel
-	//
-	// For forward compatibility, i.e. when clients add
+	// For forward compatibility, i.e. when users add
 	// more fields to their dataclasses in chalkpy, we want
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	lat := 37.7749
 	lng := 122.4194
@@ -1254,18 +1257,17 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
-	// Only tests that we don't error. Correctness tested elsewhere.
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, lat, *resultHolders[0].Dataclass.Lat)
+	assert.Equal(t, lng, *resultHolders[0].Dataclass.Lng)
 }
 
 func TestBulkUnmarshalExtraFeatures(t *testing.T) {
-	// DO NOT USE PARALLEL
-	//    InitFeatures can not be run in parallel
-	//
-	// For forward compatibility, i.e. when clients add
-	// more fields to their dataclasses in chalkpy, we want
+	// For forward compatibility, i.e. when users add
+	// more features to their feature classes in chalkpy, we want
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
-	initErr := InitFeatures(&testRootFeatures)
+	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[string]any{
 		"all_types.extra_feature": []float64{1.0, 2.0},
@@ -1283,6 +1285,78 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestBulkUnmarshalExtraFeaturesInHasOne(t *testing.T) {
+	// For forward compatibility, i.e. when users add
+	// more features to their has-ones in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	t.Parallel()
+
+	assert.Nil(t, initErr)
+	scalarsMap := map[string]any{
+		"all_types.int":                []int64{int64(12345)}, // This field exists
+		"all_types.nested.id":          []string{"nested_id"}, // This field exists
+		"all_types.nested.extra_field": []string{"extra"},     // This field does not exist
+	}
+	scalarsTable, err := tableFromFqnToValues(scalarsMap)
+	assert.Nil(t, err)
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+	var resultHolders []allTypes
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != (*ClientError)(nil) {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, int64(12345), *resultHolders[0].Int)
+	assert.Equal(t, "nested_id", *resultHolders[0].Nested.Id)
+}
+
+func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
+	// For forward compatibility, i.e. when users add
+	// more features to their has-manys in chalkpy, we want
+	// to default to not erring when trying to deserialize
+	// a new field that does not yet exist in the Go struct.
+	t.Parallel()
+
+	assert.Nil(t, initErr)
+	scalarsMap := map[string]any{
+		"all_types.int": []int64{int64(12345)}, // This field exists
+		"all_types.has_many": [][]levelOneNest{
+			{
+				levelOneNest{
+					// Using `levelOneNest` instead of `hasMany` because this
+					// would be the equivalent of having an unknown extra field to
+					// deserialize. Otherwise, we can't use another struct with
+					// the same fields plus one extra, because the struct name
+					// would be different, making the arrow struct field to have
+					// a different name (FQN with different prefix), so instead of
+					// "has_many.id" it would be "has_many_with_extra_field.id",
+					// which defeats the purpose of trying to deserialize into
+					// one existing field in the has-many struct, while deserializing
+					// into a non-existent field in the same has-many struct.
+					Id: ptr.Ptr("nested_id"),
+				},
+			},
+		}, // This field exists
+	}
+	scalarsTable, err := tableFromFqnToValues(scalarsMap)
+	assert.Nil(t, err)
+	bulkRes := OnlineQueryBulkResult{
+		ScalarsTable: scalarsTable,
+	}
+	defer bulkRes.Release()
+	var resultHolders []allTypes
+	if err := bulkRes.UnmarshalInto(&resultHolders); err != (*ClientError)(nil) {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(resultHolders))
+	assert.Equal(t, int64(12345), *resultHolders[0].Int)
+	// Struct initialized but not populated with "extra" fields, which is what we want.
+	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
 }
 
 /*
@@ -1324,7 +1398,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 		ScalarsTable: table,
 	}
 	defer bulkRes.Release()
-	var resultUser []unmarshalUser
+	var resultUser []unmarshalUSER
 
 	start := time.Now()
 	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {

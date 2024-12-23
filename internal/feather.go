@@ -75,8 +75,10 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		}
 		var arrowFields []arrow.Field
 		namespace := ChalkpySnakeCase(value.Name())
+
 		visitedNamespaces[namespace] = true
 		defer delete(visitedNamespaces, namespace)
+
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
@@ -280,6 +282,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 				)
 			}
 
+			namespace := ChalkpySnakeCase(elemType.Name())
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				if isVisitedNamespace[i] {
@@ -651,6 +654,7 @@ type FeatherRequestHeader struct {
 	CorrelationId    *string             `json:"correlation_id"`
 	QueryName        *string             `json:"query_name"`
 	QueryNameVersion *string             `json:"query_name_version"`
+	QueryContext     *map[string]any     `json:"query_context"`
 	Meta             map[string]string   `json:"meta"`
 	StorePlanStages  bool                `json:"store_plan_stages"`
 }

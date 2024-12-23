@@ -70,6 +70,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
 		CorrelationId:    internal.StringOrNil(p.CorrelationId),
+		QueryContext:     p.QueryContext.ToMap(),
 		Meta:             p.Meta,
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
@@ -217,6 +218,7 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 		DatasetName:       internal.StringOrNil(p.DatasetName),
 		Branch:            internal.StringOrNil(p.Branch),
 		MaxSamples:        p.MaxSamples,
+		QueryContext:      p.QueryContext.ToMap(),
 		DestinationFormat: "PARQUET",
 		Tags:              p.Tags,
 	}
@@ -326,6 +328,10 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	if params.Explain {
 		explainOptions = &commonv1.ExplainOptions{}
 	}
+	queryContextProto, err := params.QueryContext.toProtoMap()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert query context to protobuf")
+	}
 
 	return &commonv1.OnlineQueryBulkRequest{
 		InputsFeather: inputsFeather,
@@ -340,6 +346,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 			CorrelationId:        ptr.PtrOrNil(params.CorrelationId),
 			QueryName:            ptr.PtrOrNil(params.QueryName),
 			QueryNameVersion:     ptr.PtrOrNil(params.QueryNameVersion),
+			QueryContext:         queryContextProto,
 			RequiredResolverTags: params.RequiredResolverTags,
 			Options:              options,
 		},

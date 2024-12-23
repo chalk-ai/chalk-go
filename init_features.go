@@ -71,7 +71,6 @@ func initRemoteFeatureMap(
 		fieldNames = colls.Keys(memo.StructFieldsSet)
 	} else {
 		fieldNames = colls.Keys(scope.children)
-
 	}
 
 	for _, resolvedFieldName := range fieldNames {
@@ -82,11 +81,11 @@ func initRemoteFeatureMap(
 		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
 		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
 		if !ok {
-			return errors.Newf(
-				"getting field index from memo, field '%s' not found among keys: %v",
-				resolvedFieldName,
-				colls.Keys(memo.ResolvedFieldNameToIndices),
-			)
+			// We arrive here when chalk-go receives a response that contains a feature
+			// newly added to one of their has-one feature classes. They have not updated
+			// their codegen'd structs yet, so we simply skip unmarshalling this new
+			// feature to ensure forward compatibility.
+			continue
 		}
 
 		for _, fieldIdx := range fieldIndices {
@@ -374,5 +373,5 @@ func pointerCheck(field reflect.Value) error {
 }
 
 func SnakeCase(s string) string {
-	return internal.ChalkpySnakeCase(s)
+	return internal.LegacySnakeCase(s)
 }

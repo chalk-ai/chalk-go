@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/protobuf/types/known/structpb"
 	"reflect"
 	"time"
 )
@@ -51,6 +53,8 @@ type OnlineQueryParams struct {
 
 	// Arbitrary key:value pairs to associate with a query.
 	Meta map[string]string
+
+	QueryContext *QueryContext
 
 	// The branch id
 	BranchId *string
@@ -470,6 +474,8 @@ type OfflineQueryParams struct {
 	// The tags used to scope the resolvers.
 	Tags []string
 
+	QueryContext *QueryContext
+
 	/***************
 	 PRIVATE FIELDS
 	***************/
@@ -792,4 +798,86 @@ type FeatureEncodingOptions struct {
 	// If true, Chalk will return structs as objects
 	// instead of arrays in the response.
 	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
+}
+
+type QueryContextValue interface {
+	isQueryContextValue()
+	ToProto() (*structpb.Value, error)
+}
+
+type StringValue string
+type FloatValue float64
+type BoolValue bool
+
+func (StringValue) isQueryContextValue() {}
+func (FloatValue) isQueryContextValue()  {}
+func (BoolValue) isQueryContextValue()   {}
+
+type QueryContext map[string]QueryContextValue
+
+func NewQueryContext(m map[string]any) (*QueryContext, error) {
+	ctx := make(QueryContext)
+
+	for k, v := range m {
+		switch val := v.(type) {
+		case string:
+			ctx[k] = StringValue(val)
+		case float64:
+			ctx[k] = FloatValue(val)
+		case bool:
+			ctx[k] = BoolValue(val)
+		default:
+			return nil, fmt.Errorf("unsupported type for key %q: %T", k, v)
+		}
+	}
+
+	return &ctx, nil
+}
+
+func (v StringValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(string(v))
+}
+
+func (v FloatValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(float64(v))
+}
+
+func (v BoolValue) ToProto() (*structpb.Value, error) {
+	return structpb.NewValue(bool(v))
+}
+
+// ToProtoMap converts a QueryContext to a protobuf-compatible map
+func (qc *QueryContext) toProtoMap() (map[string]*structpb.Value, error) {
+	if qc == nil {
+		return nil, nil
+	}
+
+	result := make(map[string]*structpb.Value, len(*qc))
+	for k, v := range *qc {
+		protoVal, err := v.ToProto()
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert value for key %v: %v", k, v)
+		}
+		result[k] = protoVal
+	}
+	return result, nil
+}
+
+func (qc *QueryContext) ToMap() *map[string]any {
+	if qc == nil {
+		return nil
+	}
+	result := make(map[string]any, len(*qc))
+
+	for k, v := range *qc {
+		switch val := v.(type) {
+		case StringValue:
+			result[k] = string(val)
+		case FloatValue:
+			result[k] = float64(val)
+		case BoolValue:
+			result[k] = bool(val)
+		}
+	}
+	return &result
 }

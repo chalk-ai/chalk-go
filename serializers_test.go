@@ -70,6 +70,9 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 		"test-meta-1": "test-meta-value-1",
 	}
 	now := []time.Time{time.Now()}
+	queryContext, err := NewQueryContext(map[string]any{"key": "value"})
+	assert.NoError(t, err)
+
 	params := OnlineQueryParams{
 		IncludeMeta:          true,
 		IncludeMetrics:       true,
@@ -80,12 +83,16 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 		QueryName:            queryName,
 		QueryNameVersion:     queryNameVersion,
 		CorrelationId:        correlationId,
+		QueryContext:         queryContext,
 		Meta:                 meta,
 		Now:                  now,
 	}
 	nowProto := colls.Map(now, func(t time.Time) *timestamppb.Timestamp {
 		return timestamppb.New(t)
 	})
+	protoMap, err := queryContext.toProtoMap()
+	assert.NoError(t, err)
+
 	request, err := convertOnlineQueryParamsToProto(&params)
 	assert.NoError(t, err)
 	assert.Equal(t, tags, request.GetContext().GetTags())
@@ -94,6 +101,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	assert.Equal(t, queryNameVersion, request.GetContext().GetQueryNameVersion())
 	assert.Equal(t, correlationId, request.GetContext().GetCorrelationId())
 	assert.Equal(t, meta, request.GetResponseOptions().GetMetadata())
+	assert.Equal(t, request.Context.QueryContext, protoMap)
 	assert.Equal(t, nowProto, request.GetNow())
 	assert.True(t, request.GetResponseOptions().GetIncludeMeta())
 	assert.NotNil(t, request.GetResponseOptions().GetExplain())
