@@ -239,8 +239,10 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, valid)
 		} else {
 			namespace := ChalkpySnakeCase(elemType.Name())
+
 			visitedNamespaces[namespace] = true
 			defer delete(visitedNamespaces, namespace)
+
 			sBuilder, builderOk := builder.(*array.StructBuilder)
 			if !builderOk {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
@@ -282,7 +284,6 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 				)
 			}
 
-			namespace := ChalkpySnakeCase(elemType.Name())
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
 				if isVisitedNamespace[i] {
