@@ -421,12 +421,6 @@ func thinUnmarshalInto(
 	}
 
 	for fqn, value := range fqnToValue {
-		if value == nil {
-			// Some fields are optional, so we leave the field as nil
-			// TODO: Add validation for optional fields
-			continue
-		}
-
 		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
@@ -445,6 +439,15 @@ func thinUnmarshalInto(
 		}
 
 		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
 			if err := setFeatureSingle(field, fqn, value, namespaceMemo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"

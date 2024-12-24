@@ -405,6 +405,51 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 	assert.Equal(t, 3600.0, *user.AvgSpend["1h"])
 }
 
+func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
+	data := []FeatureResult{
+		{
+			Field:     "unmarshal_user.avg_spend__60__",
+			Value:     nil,
+			Pkey:      "khjdsfjhdksjfh",
+			Timestamp: time.Time{},
+			Meta:      nil,
+			Error:     nil,
+		},
+		{
+			Field:     "unmarshal_user.avg_spend__300__",
+			Value:     nil,
+			Pkey:      "kjhsdfkjkdjfk",
+			Timestamp: time.Time{},
+			Meta:      nil,
+			Error:     nil,
+		},
+		{
+			Field:     "unmarshal_user.avg_spend__3600__",
+			Value:     nil,
+			Pkey:      "kjhsdfkjkdjfk",
+			Timestamp: time.Time{},
+			Meta:      nil,
+			Error:     nil,
+		},
+	}
+	result := OnlineQueryResult{
+		Data:            data,
+		Meta:            nil,
+		features:        nil,
+		expectedOutputs: nil,
+	}
+	user := unmarshalUSER{}
+	unmarshalErr := result.UnmarshalInto(&user)
+	if unmarshalErr != nil {
+		t.Fatal(unmarshalErr)
+	}
+	assert.Nil(t, unmarshalErr)
+	assert.Nil(t, user.AvgSpend["1m"])
+	assert.Nil(t, user.AvgSpend["5m"])
+	assert.Nil(t, user.AvgSpend["1h"])
+	assert.NotNil(t, user.AvgSpend) // We intentionally want this to not be nil
+}
+
 func TestUnmarshalDataclassFeatures(t *testing.T) {
 	data := []FeatureResult{
 		{
