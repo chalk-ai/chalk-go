@@ -156,6 +156,8 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 			newMap[structType.Field(k).Name] = anyVal
 		}
 		return newMap, nil
+	case *array.Dictionary:
+		return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(idx), timeAsString)
 	case *array.String:
 		return arr.Value(idx), nil
 	case *array.LargeString:
@@ -250,7 +252,7 @@ func extractFeatures(
 	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
 }
 
-func ExtractFeaturesFromTable(
+func ExtractF'eaturesFromTable(
 	table arrow.Table,
 	timeAsString bool, // CHA-5430
 ) ([]map[string]any, error) {
@@ -273,9 +275,9 @@ func ExtractFeaturesFromTable(
 			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
 				colIndicesShouldSkip[j] = true
 			}
-			if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
-				colIndicesShouldSkip[j] = true
-			}
+			//if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
+			//	colIndicesShouldSkip[j] = true
+			//}
 		}
 
 		var wg sync.WaitGroup

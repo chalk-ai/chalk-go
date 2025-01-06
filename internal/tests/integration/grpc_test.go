@@ -53,6 +53,39 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 	assert.Equal(t, socureScore, *users[1].SocureScore)
 }
 
+// TestOnlineQueryBulkGrpc mainly tests that a
+// gRPC bulk query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	if initFeaturesErr != nil {
+		t.Fatal("Failed initializing features", initFeaturesErr)
+	}
+
+	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	if err != nil {
+		t.Fatal("Failed creating a Chalk Client", err)
+	}
+	userId := int64(432)
+
+	req := chalk.OnlineQueryParams{IncludeMeta: true}.
+		WithInput(testFeatures.User.Id, userId).
+		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
+
+	res, queryErr := client.OnlineQuery(req, nil)
+	if queryErr != nil {
+		t.Fatal("Failed querying features", queryErr)
+	}
+
+	socureScore, err := res.GetFeature("user.socure_score")
+	assert.Nil(t, err)
+	assert.NotNil(t, socureScore)
+	assert.NotNil(t, socureScore.Meta)
+	assert.Equal(t, "neobank.resolvers.get_socure_score", socureScore.Meta.ChosenResolverFqn)
+	assert.Equal(t, true, socureScore.Meta.CacheHit)
+	assert.Equal(t, 1, socureScore.Meta.Version)
+}
+
 // TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
 func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
