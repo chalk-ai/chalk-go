@@ -252,7 +252,7 @@ func extractFeatures(
 	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
 }
 
-func ExtractF'eaturesFromTable(
+func ExtractFeaturesFromTable(
 	table arrow.Table,
 	timeAsString bool, // CHA-5430
 ) ([]map[string]any, error) {
