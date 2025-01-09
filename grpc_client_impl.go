@@ -156,15 +156,15 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 						fqn,
 					)
 				}
+				features[fqn] = &commonv1.FeatureResult{
+					Field: fqn,
+					Value: newValue,
+				}
 				if rowMeta != nil {
 					featureMeta, ok := rowMeta[fqn]
 					if !ok {
 						// Features such as has-many features do not have a metadata column.
 						continue
-					}
-					featureResult := commonv1.FeatureResult{
-						Field: fqn,
-						Value: newValue,
 					}
 					if featureMeta.Pkey != nil {
 						val, err := structpb.NewValue(featureMeta.Pkey)
@@ -175,22 +175,15 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 								fqn,
 							)
 						}
-						featureResult.Pkey = val
+						features[fqn].Pkey = val
 					}
 
-					featureResult.Meta = &commonv1.FeatureMeta{}
+					features[fqn].Meta = &commonv1.FeatureMeta{}
 					if featureMeta.ResolverFqn != nil {
-						featureResult.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
+						features[fqn].Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
 					}
 					if featureMeta.SourceType != nil && *featureMeta.SourceType == string(internal.SourceTypeOnlineStore) {
-						featureResult.Meta.CacheHit = true
-					}
-
-					features[fqn] = &featureResult
-				} else {
-					features[fqn] = &commonv1.FeatureResult{
-						Field: fqn,
-						Value: newValue,
+						features[fqn].Meta.CacheHit = true
 					}
 				}
 			}
