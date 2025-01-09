@@ -178,7 +178,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 					if featureMeta.ResolverFqn != nil {
 						featureResult.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
 					}
-					if featureMeta.SourceType != nil && *featureMeta.SourceType == "online_cache" {
+					if featureMeta.SourceType != nil && *featureMeta.SourceType == "online_store" {
 						featureResult.Meta.CacheHit = true
 					}
 
