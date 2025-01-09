@@ -53,10 +53,10 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 	assert.Equal(t, socureScore, *users[1].SocureScore)
 }
 
-// TestOnlineQueryBulkGrpc mainly tests that a
-// gRPC bulk query works e2e. Correctness is
-// tested elsewhere.
+// TestOnlineQueryGrpcIncludeMeta mainly tests that the response
+// includes the correct metadata when requested.
 func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	if initFeaturesErr != nil {
 		t.Fatal("Failed initializing features", initFeaturesErr)
