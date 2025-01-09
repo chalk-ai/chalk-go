@@ -23,6 +23,8 @@ const defaultTableReaderChunkSize = 10_000
 
 const metadataPrefix = "__chalk__.__result_metadata__."
 
+const pkeyField = "__id__"
+
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
 func init() {
@@ -271,7 +273,7 @@ func extractFeatures(
 		m := make(map[string]FeatureMeta)
 
 		var resolvedPkey any
-		if idx, ok := metaColumnFqnToIdx["__id__"]; ok {
+		if idx, ok := metaColumnFqnToIdx[pkeyField]; ok {
 			value, err := GetValueFromArrowArray(record.Column(idx), i, timeAsString)
 			if err != nil {
 				resChan <- ChunkResult{
@@ -281,7 +283,7 @@ func extractFeatures(
 				return
 			}
 			resolvedPkey = value
-			delete(metaColumnFqnToIdx, "__id__")
+			delete(metaColumnFqnToIdx, pkeyField)
 		}
 
 		for fqn, j := range metaColumnFqnToIdx {
@@ -377,7 +379,7 @@ func ExtractFeaturesFromTable(
 				continue
 			}
 
-			if strings.HasPrefix(colName, metadataPrefix) || colName == "__id__" {
+			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
 				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
 			} else if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
 				continue
