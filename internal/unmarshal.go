@@ -255,7 +255,7 @@ func extractFeatures(
 			if err != nil {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      errors.Wrapf(err, "error getting value from arrow array for feature '%s'", name),
+					err:      errors.Wrapf(err, "getting value from arrow array for feature '%s'", name),
 				}
 				return
 			}
@@ -279,7 +279,7 @@ func extractFeatures(
 			if err != nil {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      errors.Wrap(err, "error getting primary key from arrow array"),
+					err:      errors.Wrap(err, "getting primary key from arrow array"),
 				}
 				return
 			}
@@ -296,7 +296,7 @@ func extractFeatures(
 			if err != nil {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      errors.Wrapf(err, "error getting metadata from arrow array for feature '%s'", fqn),
+					err:      errors.Wrapf(err, "getting metadata from arrow array for feature '%s'", fqn),
 				}
 				return
 			}
@@ -304,7 +304,7 @@ func extractFeatures(
 			if !ok {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      fmt.Errorf("error casting metadata into map for feature '%s'", fqn),
+					err:      fmt.Errorf("casting metadata into map for feature '%s'", fqn),
 				}
 				return
 			}
@@ -314,7 +314,7 @@ func extractFeatures(
 				if !ok {
 					resChan <- ChunkResult{
 						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("error casting source_type into string for feature '%s'", fqn),
+						err:      fmt.Errorf("casting source_type into string for feature '%s'", fqn),
 					}
 					return
 				}
@@ -325,7 +325,7 @@ func extractFeatures(
 				if !ok {
 					resChan <- ChunkResult{
 						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("error casting source_id into string for feature '%s'", fqn),
+						err:      fmt.Errorf("casting source_id into string for feature '%s'", fqn),
 					}
 					return
 				}
@@ -336,7 +336,7 @@ func extractFeatures(
 				if !ok {
 					resChan <- ChunkResult{
 						chunkIdx: chunkIdx,
-						err:      fmt.Errorf("error casting resolver_fqn into string for feature '%s'", fqn),
+						err:      fmt.Errorf("casting resolver_fqn into string for feature '%s'", fqn),
 					}
 					return
 				}
