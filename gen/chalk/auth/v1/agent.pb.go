@@ -164,6 +164,9 @@ func (x *UserAgent) GetImpersonated() bool {
 	return false
 }
 
+// CustomClaim is used to encode customer permissions.
+// The keys used are:
+// - `query_tags`: The tags of features that the user is allowed to query.
 type CustomClaim struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
