@@ -153,10 +153,11 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 						fqn,
 					)
 				}
-				features[fqn] = &commonv1.FeatureResult{
+				featureRes := commonv1.FeatureResult{
 					Field: fqn,
 					Value: newValue,
 				}
+				features[fqn] = &featureRes
 				if rowMeta != nil {
 					featureMeta, ok := rowMeta[fqn]
 					if !ok {
@@ -172,15 +173,15 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 								fqn,
 							)
 						}
-						features[fqn].Pkey = val
+						featureRes.Pkey = val
 					}
 
-					features[fqn].Meta = &commonv1.FeatureMeta{}
+					featureRes.Meta = &commonv1.FeatureMeta{}
 					if featureMeta.ResolverFqn != nil {
-						features[fqn].Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
+						featureRes.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
 					}
 					if featureMeta.SourceType != nil && *featureMeta.SourceType == string(internal.SourceTypeOnlineStore) {
-						features[fqn].Meta.CacheHit = true
+						featureRes.Meta.CacheHit = true
 					}
 				}
 			}
