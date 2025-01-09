@@ -18,12 +18,15 @@ import (
 )
 
 const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
-
 const defaultTableReaderChunkSize = 10_000
-
 const metadataPrefix = "__chalk__.__result_metadata__."
-
 const pkeyField = "__id__"
+
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
@@ -248,8 +251,6 @@ func extractFeatures(
 		m := make(map[string]any, len(featureColumnIdxs))
 		for j := range featureColumnIdxs {
 			name := record.ColumnName(j)
-			// If name starts with meta, then strip it to only the FQN, but do this fast
-			// Something like `metaColumnNameToFQN` where {"__chalk__.user.socure_score": "user.socure_score"}
 			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
 				resChan <- ChunkResult{
@@ -319,7 +320,6 @@ func extractFeatures(
 				}
 				featureMeta.SourceType = &val
 			}
-
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
 				val, ok := sourceId.(string)
 				if !ok {
@@ -331,7 +331,6 @@ func extractFeatures(
 				}
 				featureMeta.SourceId = &val
 			}
-
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
 				val, ok := resolverFqn.(string)
 				if !ok {
