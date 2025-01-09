@@ -159,7 +159,8 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 				if rowMeta != nil {
 					featureMeta, ok := rowMeta[fqn]
 					if !ok {
-						return nil, errors.Newf("missing metadata for feature '%s'", fqn)
+						// Features such as has-many features do not have a metadata column.
+						continue
 					}
 					featureResult := commonv1.FeatureResult{
 						Field: fqn,
