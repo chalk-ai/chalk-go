@@ -204,7 +204,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		)
 	}
 
-	rows, scalarsErr := internal.ExtractFeaturesFromTable(table, false)
+	rows, _, scalarsErr := internal.ExtractFeaturesFromTable(table, false)
 	if scalarsErr != nil {
 		return scalarsErr
 	}
@@ -513,5 +513,6 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {
-	return internal.ExtractFeaturesFromTable(table, false)
+	features, _, err := internal.ExtractFeaturesFromTable(table, false)
+	return features, err
 }

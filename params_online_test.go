@@ -110,7 +110,7 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, table)
 
-	rows, err := internal.ExtractFeaturesFromTable(table, false)
+	rows, _, err := internal.ExtractFeaturesFromTable(table, false)
 	assert.NoError(t, err)
 
 	assert.Equal(t, 1, len(rows))
