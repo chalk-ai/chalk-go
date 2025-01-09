@@ -115,6 +115,9 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		return nil, errors.Wrap(err, "converting inputs to bulk inputs")
 	}
 	args.underlying.inputs = newInputs
+	// Bulk responses does not include metadata by default,
+	// but for single query responses, we always want metadata.
+	args.underlying.IncludeMeta = true
 
 	bulkRes, err := c.OnlineQueryBulk(ctx, args)
 	if err != nil {
