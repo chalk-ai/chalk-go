@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -19,6 +20,8 @@ import (
 const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
 
 const defaultTableReaderChunkSize = 10_000
+
+const metadataPrefix = "__chalk__.__result_metadata__."
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
@@ -208,12 +211,21 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 type ChunkResult struct {
 	chunkIdx int
 	rows     []map[string]any
+	meta     []map[string]FeatureMeta
 	err      error
+}
+
+type FeatureMeta struct {
+	sourceType  *string
+	sourceId    *string
+	resolverFqn *string
+	pkey        any
 }
 
 func extractFeatures(
 	record arrow.Record,
-	colIndicesShouldSkip []bool,
+	featureColumnIdxs []int,
+	metaColumnFqnToIdx map[string]int,
 	chunkStart int64,
 	chunkEnd int64,
 	chunkIdx int,
@@ -223,7 +235,7 @@ func extractFeatures(
 ) {
 	defer wg.Done()
 
-	var results []map[string]any
+	var featureRes []map[string]any
 	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
 		resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
@@ -231,53 +243,142 @@ func extractFeatures(
 	}
 	chunkStartInt := int(chunkStart)
 	for i := chunkStartInt; i < chunkEndInt; i++ {
-		m := make(map[string]any, record.NumCols())
-		for j, col := range record.Columns() {
-			if colIndicesShouldSkip[j] {
-				continue
-			}
+		m := make(map[string]any, len(featureColumnIdxs))
+		for j := range featureColumnIdxs {
 			name := record.ColumnName(j)
-			value, err := GetValueFromArrowArray(col, i, timeAsString)
+			// If name starts with meta, then strip it to only the FQN, but do this fast
+			// Something like `metaColumnNameToFQN` where {"__chalk__.user.socure_score": "user.socure_score"}
+			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
 				resChan <- ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      errors.Wrap(err, "error getting value from arrow array"),
+					err:      errors.Wrapf(err, "error getting value from arrow array for feature '%s'", name),
 				}
 				return
 			}
 			m[name] = value
 		}
-		results = append(results, m)
+		featureRes = append(featureRes, m)
 	}
-	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+
+	var metaRes []map[string]FeatureMeta
+	for i := chunkStartInt; i < chunkEndInt; i++ {
+		m := make(map[string]FeatureMeta)
+
+		var resolvedPkey any
+		if idx, ok := metaColumnFqnToIdx["__id__"]; ok {
+			value, err := GetValueFromArrowArray(record.Column(idx), i, timeAsString)
+			if err != nil {
+				resChan <- ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrap(err, "error getting primary key from arrow array"),
+				}
+				return
+			}
+			resolvedPkey = value
+		}
+		delete(metaColumnFqnToIdx, "__id__")
+
+		for fqn, j := range metaColumnFqnToIdx {
+			featureMeta := FeatureMeta{
+				pkey: resolvedPkey,
+			}
+
+			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
+			if err != nil {
+				resChan <- ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrapf(err, "error getting metadata from arrow array for feature '%s'", fqn),
+				}
+				return
+			}
+			metaCast, ok := value.(map[string]any)
+			if !ok {
+				resChan <- ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      fmt.Errorf("error casting metadata into map for feature '%s'", fqn),
+				}
+				return
+			}
+
+			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
+				val, ok := sourceType.(string)
+				if !ok {
+					resChan <- ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("error casting source_type into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.sourceType = &val
+			}
+
+			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
+				val, ok := sourceId.(string)
+				if !ok {
+					resChan <- ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("error casting source_id into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.sourceId = &val
+			}
+
+			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
+				val, ok := resolverFqn.(string)
+				if !ok {
+					resChan <- ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("error casting resolver_fqn into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.resolverFqn = &val
+			}
+
+			m[fqn] = featureMeta
+		}
+
+		metaRes = append(metaRes, m)
+	}
+
+	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: metaRes}
 }
 
 func ExtractFeaturesFromTable(
 	table arrow.Table,
 	timeAsString bool, // CHA-5430
-) ([]map[string]any, error) {
+) ([]map[string]any, []map[string]FeatureMeta, error) {
 	numRows, err := Int64ToInt(table.NumRows())
 	if err != nil {
-		return nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
+		return nil, nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
 	}
-	res := make([]map[string]any, 0, numRows)
+	featureRes := make([]map[string]any, 0, numRows)
+	metaRes := make([]map[string]FeatureMeta, 0, numRows)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
 
 	for reader.Next() {
 		record := reader.Record()
-		colIndicesShouldSkip := make([]bool, record.NumCols())
+		var featureColumnIdxs []int
+		metaColumnFqnToIdx := make(map[string]int)
 		for j := range record.Columns() {
 			colName := record.ColumnName(j)
 			if _, ok := skipUnmarshalFields[colName]; ok {
-				colIndicesShouldSkip[j] = true
+				continue
 			}
 			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
-				colIndicesShouldSkip[j] = true
+				continue
 			}
-			//if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
-			//	colIndicesShouldSkip[j] = true
-			//}
+
+			if strings.HasPrefix(colName, metadataPrefix) {
+				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
+			} else if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
+				continue
+			} else {
+				featureColumnIdxs = append(featureColumnIdxs, j)
+			}
 		}
 
 		var wg sync.WaitGroup
@@ -291,7 +392,8 @@ func ExtractFeaturesFromTable(
 			wg.Add(1)
 			go extractFeatures(
 				record,
-				colIndicesShouldSkip,
+				featureColumnIdxs,
+				metaColumnFqnToIdx,
 				chunkStart,
 				chunkEnd,
 				chunkIdx,
@@ -318,12 +420,13 @@ func ExtractFeaturesFromTable(
 
 		for _, chunkResult := range allChunks {
 			if chunkResult.err != nil {
-				return nil, chunkResult.err
+				return nil, nil, chunkResult.err
 			}
-			res = append(res, chunkResult.rows...)
+			featureRes = append(featureRes, chunkResult.rows...)
+			metaRes = append(metaRes, chunkResult.meta...)
 		}
 	}
-	return res, nil
+	return featureRes, metaRes, nil
 }
 
 func ReflectPtr(value reflect.Value) reflect.Value {

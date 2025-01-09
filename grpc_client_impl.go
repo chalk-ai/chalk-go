@@ -130,7 +130,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		}
 
 		// Need to obtain time.Time values as string because structpb.NewValue does not support time.Time.
-		rows, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
+		rows, _, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
 		if err != nil {
 			return nil, errors.Wrap(err, "extracting features from scalars table")
 		}
@@ -164,7 +164,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 			)
 		}
 
-		rowsHm, err := internal.ExtractFeaturesFromTable(table, false)
+		rowsHm, _, err := internal.ExtractFeaturesFromTable(table, false)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
