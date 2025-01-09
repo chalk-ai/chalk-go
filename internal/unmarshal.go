@@ -216,10 +216,10 @@ type ChunkResult struct {
 }
 
 type FeatureMeta struct {
-	sourceType  *string
-	sourceId    *string
-	resolverFqn *string
-	pkey        any
+	SourceType  *string
+	SourceId    *string
+	ResolverFqn *string
+	Pkey        any
 }
 
 func extractFeatures(
@@ -261,6 +261,11 @@ func extractFeatures(
 		featureRes = append(featureRes, m)
 	}
 
+	if len(metaColumnFqnToIdx) == 0 {
+		resChan <- ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: nil}
+		return
+	}
+
 	var metaRes []map[string]FeatureMeta
 	for i := chunkStartInt; i < chunkEndInt; i++ {
 		m := make(map[string]FeatureMeta)
@@ -276,12 +281,12 @@ func extractFeatures(
 				return
 			}
 			resolvedPkey = value
+			delete(metaColumnFqnToIdx, "__id__")
 		}
-		delete(metaColumnFqnToIdx, "__id__")
 
 		for fqn, j := range metaColumnFqnToIdx {
 			featureMeta := FeatureMeta{
-				pkey: resolvedPkey,
+				Pkey: resolvedPkey,
 			}
 
 			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
@@ -310,7 +315,7 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.sourceType = &val
+				featureMeta.SourceType = &val
 			}
 
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
@@ -322,7 +327,7 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.sourceId = &val
+				featureMeta.SourceId = &val
 			}
 
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
@@ -334,7 +339,7 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.resolverFqn = &val
+				featureMeta.ResolverFqn = &val
 			}
 
 			m[fqn] = featureMeta
@@ -372,7 +377,7 @@ func ExtractFeaturesFromTable(
 				continue
 			}
 
-			if strings.HasPrefix(colName, metadataPrefix) {
+			if strings.HasPrefix(colName, metadataPrefix) || colName == "__id__" {
 				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
 			} else if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
 				continue
