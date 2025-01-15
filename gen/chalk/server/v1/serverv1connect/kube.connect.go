@@ -38,6 +38,12 @@ const (
 	KubeServiceGetPodStackTraceDumpProcedure = "/chalk.server.v1.KubeService/GetPodStackTraceDump"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	kubeServiceServiceDescriptor                    = v1.File_chalk_server_v1_kube_proto.Services().ByName("KubeService")
+	kubeServiceGetPodStackTraceDumpMethodDescriptor = kubeServiceServiceDescriptor.Methods().ByName("GetPodStackTraceDump")
+)
+
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
 type KubeServiceClient interface {
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
@@ -54,12 +60,11 @@ type KubeServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) KubeServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	kubeServiceMethods := v1.File_chalk_server_v1_kube_proto.Services().ByName("KubeService").Methods()
 	return &kubeServiceClient{
 		getPodStackTraceDump: connect.NewClient[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse](
 			httpClient,
 			baseURL+KubeServiceGetPodStackTraceDumpProcedure,
-			connect.WithSchema(kubeServiceMethods.ByName("GetPodStackTraceDump")),
+			connect.WithSchema(kubeServiceGetPodStackTraceDumpMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -89,11 +94,10 @@ type KubeServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	kubeServiceMethods := v1.File_chalk_server_v1_kube_proto.Services().ByName("KubeService").Methods()
 	kubeServiceGetPodStackTraceDumpHandler := connect.NewUnaryHandler(
 		KubeServiceGetPodStackTraceDumpProcedure,
 		svc.GetPodStackTraceDump,
-		connect.WithSchema(kubeServiceMethods.ByName("GetPodStackTraceDump")),
+		connect.WithSchema(kubeServiceGetPodStackTraceDumpMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

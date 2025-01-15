@@ -46,6 +46,15 @@ const (
 	AuthServiceUpdateLinkSessionProcedure = "/chalk.server.v1.AuthService/UpdateLinkSession"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	authServiceServiceDescriptor                 = v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService")
+	authServiceGetTokenMethodDescriptor          = authServiceServiceDescriptor.Methods().ByName("GetToken")
+	authServiceCreateLinkSessionMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("CreateLinkSession")
+	authServiceGetLinkSessionMethodDescriptor    = authServiceServiceDescriptor.Methods().ByName("GetLinkSession")
+	authServiceUpdateLinkSessionMethodDescriptor = authServiceServiceDescriptor.Methods().ByName("UpdateLinkSession")
+)
+
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
 type AuthServiceClient interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
@@ -63,30 +72,29 @@ type AuthServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	authServiceMethods := v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService").Methods()
 	return &authServiceClient{
 		getToken: connect.NewClient[v1.GetTokenRequest, v1.GetTokenResponse](
 			httpClient,
 			baseURL+AuthServiceGetTokenProcedure,
-			connect.WithSchema(authServiceMethods.ByName("GetToken")),
+			connect.WithSchema(authServiceGetTokenMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		createLinkSession: connect.NewClient[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse](
 			httpClient,
 			baseURL+AuthServiceCreateLinkSessionProcedure,
-			connect.WithSchema(authServiceMethods.ByName("CreateLinkSession")),
+			connect.WithSchema(authServiceCreateLinkSessionMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getLinkSession: connect.NewClient[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse](
 			httpClient,
 			baseURL+AuthServiceGetLinkSessionProcedure,
-			connect.WithSchema(authServiceMethods.ByName("GetLinkSession")),
+			connect.WithSchema(authServiceGetLinkSessionMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		updateLinkSession: connect.NewClient[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse](
 			httpClient,
 			baseURL+AuthServiceUpdateLinkSessionProcedure,
-			connect.WithSchema(authServiceMethods.ByName("UpdateLinkSession")),
+			connect.WithSchema(authServiceUpdateLinkSessionMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -134,29 +142,28 @@ type AuthServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	authServiceMethods := v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService").Methods()
 	authServiceGetTokenHandler := connect.NewUnaryHandler(
 		AuthServiceGetTokenProcedure,
 		svc.GetToken,
-		connect.WithSchema(authServiceMethods.ByName("GetToken")),
+		connect.WithSchema(authServiceGetTokenMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	authServiceCreateLinkSessionHandler := connect.NewUnaryHandler(
 		AuthServiceCreateLinkSessionProcedure,
 		svc.CreateLinkSession,
-		connect.WithSchema(authServiceMethods.ByName("CreateLinkSession")),
+		connect.WithSchema(authServiceCreateLinkSessionMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	authServiceGetLinkSessionHandler := connect.NewUnaryHandler(
 		AuthServiceGetLinkSessionProcedure,
 		svc.GetLinkSession,
-		connect.WithSchema(authServiceMethods.ByName("GetLinkSession")),
+		connect.WithSchema(authServiceGetLinkSessionMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	authServiceUpdateLinkSessionHandler := connect.NewUnaryHandler(
 		AuthServiceUpdateLinkSessionProcedure,
 		svc.UpdateLinkSession,
-		connect.WithSchema(authServiceMethods.ByName("UpdateLinkSession")),
+		connect.WithSchema(authServiceUpdateLinkSessionMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -56,6 +56,18 @@ const (
 	AuthTestingServiceGetOwnerTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetOwnerTestEndpoint"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	authTestingServiceServiceDescriptor                            = v1.File_chalk_server_v1_authtesting_proto.Services().ByName("AuthTestingService")
+	authTestingServiceGetUnauthedTestEndpointMethodDescriptor      = authTestingServiceServiceDescriptor.Methods().ByName("GetUnauthedTestEndpoint")
+	authTestingServiceGetAuthedTestEndpointMethodDescriptor        = authTestingServiceServiceDescriptor.Methods().ByName("GetAuthedTestEndpoint")
+	authTestingServiceGetViewerTestEndpointMethodDescriptor        = authTestingServiceServiceDescriptor.Methods().ByName("GetViewerTestEndpoint")
+	authTestingServiceGetDataScientistTestEndpointMethodDescriptor = authTestingServiceServiceDescriptor.Methods().ByName("GetDataScientistTestEndpoint")
+	authTestingServiceGetDeveloperTestEndpointMethodDescriptor     = authTestingServiceServiceDescriptor.Methods().ByName("GetDeveloperTestEndpoint")
+	authTestingServiceGetAdminTestEndpointMethodDescriptor         = authTestingServiceServiceDescriptor.Methods().ByName("GetAdminTestEndpoint")
+	authTestingServiceGetOwnerTestEndpointMethodDescriptor         = authTestingServiceServiceDescriptor.Methods().ByName("GetOwnerTestEndpoint")
+)
+
 // AuthTestingServiceClient is a client for the chalk.server.v1.AuthTestingService service.
 type AuthTestingServiceClient interface {
 	GetUnauthedTestEndpoint(context.Context, *connect.Request[v1.GetUnauthedTestEndpointRequest]) (*connect.Response[v1.GetUnauthedTestEndpointResponse], error)
@@ -76,54 +88,53 @@ type AuthTestingServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewAuthTestingServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthTestingServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	authTestingServiceMethods := v1.File_chalk_server_v1_authtesting_proto.Services().ByName("AuthTestingService").Methods()
 	return &authTestingServiceClient{
 		getUnauthedTestEndpoint: connect.NewClient[v1.GetUnauthedTestEndpointRequest, v1.GetUnauthedTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetUnauthedTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetUnauthedTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetUnauthedTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAuthedTestEndpoint: connect.NewClient[v1.GetAuthedTestEndpointRequest, v1.GetAuthedTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetAuthedTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetAuthedTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetAuthedTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getViewerTestEndpoint: connect.NewClient[v1.GetViewerTestEndpointRequest, v1.GetViewerTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetViewerTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetViewerTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetViewerTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getDataScientistTestEndpoint: connect.NewClient[v1.GetDataScientistTestEndpointRequest, v1.GetDataScientistTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetDataScientistTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetDataScientistTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetDataScientistTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getDeveloperTestEndpoint: connect.NewClient[v1.GetDeveloperTestEndpointRequest, v1.GetDeveloperTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetDeveloperTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetDeveloperTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetDeveloperTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAdminTestEndpoint: connect.NewClient[v1.GetAdminTestEndpointRequest, v1.GetAdminTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetAdminTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetAdminTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetAdminTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getOwnerTestEndpoint: connect.NewClient[v1.GetOwnerTestEndpointRequest, v1.GetOwnerTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetOwnerTestEndpointProcedure,
-			connect.WithSchema(authTestingServiceMethods.ByName("GetOwnerTestEndpoint")),
+			connect.WithSchema(authTestingServiceGetOwnerTestEndpointMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -194,53 +205,52 @@ type AuthTestingServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	authTestingServiceMethods := v1.File_chalk_server_v1_authtesting_proto.Services().ByName("AuthTestingService").Methods()
 	authTestingServiceGetUnauthedTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetUnauthedTestEndpointProcedure,
 		svc.GetUnauthedTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetUnauthedTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetUnauthedTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetAuthedTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetAuthedTestEndpointProcedure,
 		svc.GetAuthedTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetAuthedTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetAuthedTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetViewerTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetViewerTestEndpointProcedure,
 		svc.GetViewerTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetViewerTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetViewerTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetDataScientistTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetDataScientistTestEndpointProcedure,
 		svc.GetDataScientistTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetDataScientistTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetDataScientistTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetDeveloperTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetDeveloperTestEndpointProcedure,
 		svc.GetDeveloperTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetDeveloperTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetDeveloperTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetAdminTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetAdminTestEndpointProcedure,
 		svc.GetAdminTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetAdminTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetAdminTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	authTestingServiceGetOwnerTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetOwnerTestEndpointProcedure,
 		svc.GetOwnerTestEndpoint,
-		connect.WithSchema(authTestingServiceMethods.ByName("GetOwnerTestEndpoint")),
+		connect.WithSchema(authTestingServiceGetOwnerTestEndpointMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

@@ -53,6 +53,17 @@ const (
 	AggregateServiceGetActiveCronAggregateBackfillsProcedure = "/chalk.aggregate.v1.AggregateService/GetActiveCronAggregateBackfills"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	aggregateServiceServiceDescriptor                               = v1.File_chalk_aggregate_v1_service_proto.Services().ByName("AggregateService")
+	aggregateServicePlanAggregateBackfillMethodDescriptor           = aggregateServiceServiceDescriptor.Methods().ByName("PlanAggregateBackfill")
+	aggregateServiceGetAggregatesMethodDescriptor                   = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregates")
+	aggregateServiceGetAggregateBackfillJobsMethodDescriptor        = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregateBackfillJobs")
+	aggregateServiceGetAggregateBackfillJobMethodDescriptor         = aggregateServiceServiceDescriptor.Methods().ByName("GetAggregateBackfillJob")
+	aggregateServiceGetCronAggregateBackfillMethodDescriptor        = aggregateServiceServiceDescriptor.Methods().ByName("GetCronAggregateBackfill")
+	aggregateServiceGetActiveCronAggregateBackfillsMethodDescriptor = aggregateServiceServiceDescriptor.Methods().ByName("GetActiveCronAggregateBackfills")
+)
+
 // AggregateServiceClient is a client for the chalk.aggregate.v1.AggregateService service.
 type AggregateServiceClient interface {
 	// PlanAggregateBackfill determines the estimated resources needed to backfill
@@ -83,47 +94,46 @@ type AggregateServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewAggregateServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AggregateServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	aggregateServiceMethods := v1.File_chalk_aggregate_v1_service_proto.Services().ByName("AggregateService").Methods()
 	return &aggregateServiceClient{
 		planAggregateBackfill: connect.NewClient[v1.PlanAggregateBackfillRequest, v1.PlanAggregateBackfillResponse](
 			httpClient,
 			baseURL+AggregateServicePlanAggregateBackfillProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("PlanAggregateBackfill")),
+			connect.WithSchema(aggregateServicePlanAggregateBackfillMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAggregates: connect.NewClient[v1.GetAggregatesRequest, v1.GetAggregatesResponse](
 			httpClient,
 			baseURL+AggregateServiceGetAggregatesProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("GetAggregates")),
+			connect.WithSchema(aggregateServiceGetAggregatesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAggregateBackfillJobs: connect.NewClient[v1.GetAggregateBackfillJobsRequest, v1.GetAggregateBackfillJobsResponse](
 			httpClient,
 			baseURL+AggregateServiceGetAggregateBackfillJobsProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("GetAggregateBackfillJobs")),
+			connect.WithSchema(aggregateServiceGetAggregateBackfillJobsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAggregateBackfillJob: connect.NewClient[v1.GetAggregateBackfillJobRequest, v1.GetAggregateBackfillJobResponse](
 			httpClient,
 			baseURL+AggregateServiceGetAggregateBackfillJobProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("GetAggregateBackfillJob")),
+			connect.WithSchema(aggregateServiceGetAggregateBackfillJobMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getCronAggregateBackfill: connect.NewClient[v1.GetCronAggregateBackfillRequest, v1.GetCronAggregateBackfillResponse](
 			httpClient,
 			baseURL+AggregateServiceGetCronAggregateBackfillProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("GetCronAggregateBackfill")),
+			connect.WithSchema(aggregateServiceGetCronAggregateBackfillMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getActiveCronAggregateBackfills: connect.NewClient[v1.GetActiveCronAggregateBackfillsRequest, v1.GetActiveCronAggregateBackfillsResponse](
 			httpClient,
 			baseURL+AggregateServiceGetActiveCronAggregateBackfillsProcedure,
-			connect.WithSchema(aggregateServiceMethods.ByName("GetActiveCronAggregateBackfills")),
+			connect.WithSchema(aggregateServiceGetActiveCronAggregateBackfillsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -198,46 +208,45 @@ type AggregateServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAggregateServiceHandler(svc AggregateServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	aggregateServiceMethods := v1.File_chalk_aggregate_v1_service_proto.Services().ByName("AggregateService").Methods()
 	aggregateServicePlanAggregateBackfillHandler := connect.NewUnaryHandler(
 		AggregateServicePlanAggregateBackfillProcedure,
 		svc.PlanAggregateBackfill,
-		connect.WithSchema(aggregateServiceMethods.ByName("PlanAggregateBackfill")),
+		connect.WithSchema(aggregateServicePlanAggregateBackfillMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	aggregateServiceGetAggregatesHandler := connect.NewUnaryHandler(
 		AggregateServiceGetAggregatesProcedure,
 		svc.GetAggregates,
-		connect.WithSchema(aggregateServiceMethods.ByName("GetAggregates")),
+		connect.WithSchema(aggregateServiceGetAggregatesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	aggregateServiceGetAggregateBackfillJobsHandler := connect.NewUnaryHandler(
 		AggregateServiceGetAggregateBackfillJobsProcedure,
 		svc.GetAggregateBackfillJobs,
-		connect.WithSchema(aggregateServiceMethods.ByName("GetAggregateBackfillJobs")),
+		connect.WithSchema(aggregateServiceGetAggregateBackfillJobsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	aggregateServiceGetAggregateBackfillJobHandler := connect.NewUnaryHandler(
 		AggregateServiceGetAggregateBackfillJobProcedure,
 		svc.GetAggregateBackfillJob,
-		connect.WithSchema(aggregateServiceMethods.ByName("GetAggregateBackfillJob")),
+		connect.WithSchema(aggregateServiceGetAggregateBackfillJobMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	aggregateServiceGetCronAggregateBackfillHandler := connect.NewUnaryHandler(
 		AggregateServiceGetCronAggregateBackfillProcedure,
 		svc.GetCronAggregateBackfill,
-		connect.WithSchema(aggregateServiceMethods.ByName("GetCronAggregateBackfill")),
+		connect.WithSchema(aggregateServiceGetCronAggregateBackfillMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	aggregateServiceGetActiveCronAggregateBackfillsHandler := connect.NewUnaryHandler(
 		AggregateServiceGetActiveCronAggregateBackfillsProcedure,
 		svc.GetActiveCronAggregateBackfills,
-		connect.WithSchema(aggregateServiceMethods.ByName("GetActiveCronAggregateBackfills")),
+		connect.WithSchema(aggregateServiceGetActiveCronAggregateBackfillsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
