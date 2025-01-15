@@ -38,12 +38,6 @@ const (
 	AuditServiceGetAuditLogsProcedure = "/chalk.server.v1.AuditService/GetAuditLogs"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	auditServiceServiceDescriptor            = v1.File_chalk_server_v1_audit_proto.Services().ByName("AuditService")
-	auditServiceGetAuditLogsMethodDescriptor = auditServiceServiceDescriptor.Methods().ByName("GetAuditLogs")
-)
-
 // AuditServiceClient is a client for the chalk.server.v1.AuditService service.
 type AuditServiceClient interface {
 	GetAuditLogs(context.Context, *connect.Request[v1.GetAuditLogsRequest]) (*connect.Response[v1.GetAuditLogsResponse], error)
@@ -58,11 +52,12 @@ type AuditServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewAuditServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuditServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	auditServiceMethods := v1.File_chalk_server_v1_audit_proto.Services().ByName("AuditService").Methods()
 	return &auditServiceClient{
 		getAuditLogs: connect.NewClient[v1.GetAuditLogsRequest, v1.GetAuditLogsResponse](
 			httpClient,
 			baseURL+AuditServiceGetAuditLogsProcedure,
-			connect.WithSchema(auditServiceGetAuditLogsMethodDescriptor),
+			connect.WithSchema(auditServiceMethods.ByName("GetAuditLogs")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -89,10 +84,11 @@ type AuditServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewAuditServiceHandler(svc AuditServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	auditServiceMethods := v1.File_chalk_server_v1_audit_proto.Services().ByName("AuditService").Methods()
 	auditServiceGetAuditLogsHandler := connect.NewUnaryHandler(
 		AuditServiceGetAuditLogsProcedure,
 		svc.GetAuditLogs,
-		connect.WithSchema(auditServiceGetAuditLogsMethodDescriptor),
+		connect.WithSchema(auditServiceMethods.ByName("GetAuditLogs")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.AuditService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

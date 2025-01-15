@@ -91,31 +91,6 @@ const (
 	TeamServiceGetTeamPermissionsProcedure = "/chalk.server.v1.TeamService/GetTeamPermissions"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	teamServiceServiceDescriptor                        = v1.File_chalk_server_v1_team_proto.Services().ByName("TeamService")
-	teamServiceGetEnvMethodDescriptor                   = teamServiceServiceDescriptor.Methods().ByName("GetEnv")
-	teamServiceGetEnvironmentsMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("GetEnvironments")
-	teamServiceGetAgentMethodDescriptor                 = teamServiceServiceDescriptor.Methods().ByName("GetAgent")
-	teamServiceGetDisplayAgentMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("GetDisplayAgent")
-	teamServiceGetTeamMethodDescriptor                  = teamServiceServiceDescriptor.Methods().ByName("GetTeam")
-	teamServiceCreateTeamMethodDescriptor               = teamServiceServiceDescriptor.Methods().ByName("CreateTeam")
-	teamServiceCreateProjectMethodDescriptor            = teamServiceServiceDescriptor.Methods().ByName("CreateProject")
-	teamServiceCreateEnvironmentMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("CreateEnvironment")
-	teamServiceUpdateEnvironmentMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("UpdateEnvironment")
-	teamServiceGetAvailablePermissionsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("GetAvailablePermissions")
-	teamServiceCreateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("CreateServiceToken")
-	teamServiceDeleteServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("DeleteServiceToken")
-	teamServiceListServiceTokensMethodDescriptor        = teamServiceServiceDescriptor.Methods().ByName("ListServiceTokens")
-	teamServiceUpdateServiceTokenMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("UpdateServiceToken")
-	teamServiceInviteTeamMemberMethodDescriptor         = teamServiceServiceDescriptor.Methods().ByName("InviteTeamMember")
-	teamServiceExpireTeamInviteMethodDescriptor         = teamServiceServiceDescriptor.Methods().ByName("ExpireTeamInvite")
-	teamServiceListTeamInvitesMethodDescriptor          = teamServiceServiceDescriptor.Methods().ByName("ListTeamInvites")
-	teamServiceUpsertFeaturePermissionsMethodDescriptor = teamServiceServiceDescriptor.Methods().ByName("UpsertFeaturePermissions")
-	teamServiceUpdateScimGroupSettingsMethodDescriptor  = teamServiceServiceDescriptor.Methods().ByName("UpdateScimGroupSettings")
-	teamServiceGetTeamPermissionsMethodDescriptor       = teamServiceServiceDescriptor.Methods().ByName("GetTeamPermissions")
-)
-
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
 type TeamServiceClient interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -149,131 +124,132 @@ type TeamServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) TeamServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	teamServiceMethods := v1.File_chalk_server_v1_team_proto.Services().ByName("TeamService").Methods()
 	return &teamServiceClient{
 		getEnv: connect.NewClient[v1.GetEnvRequest, v1.GetEnvResponse](
 			httpClient,
 			baseURL+TeamServiceGetEnvProcedure,
-			connect.WithSchema(teamServiceGetEnvMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetEnv")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getEnvironments: connect.NewClient[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse](
 			httpClient,
 			baseURL+TeamServiceGetEnvironmentsProcedure,
-			connect.WithSchema(teamServiceGetEnvironmentsMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetEnvironments")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAgent: connect.NewClient[v1.GetAgentRequest, v1.GetAgentResponse](
 			httpClient,
 			baseURL+TeamServiceGetAgentProcedure,
-			connect.WithSchema(teamServiceGetAgentMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetAgent")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getDisplayAgent: connect.NewClient[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse](
 			httpClient,
 			baseURL+TeamServiceGetDisplayAgentProcedure,
-			connect.WithSchema(teamServiceGetDisplayAgentMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetDisplayAgent")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getTeam: connect.NewClient[v1.GetTeamRequest, v1.GetTeamResponse](
 			httpClient,
 			baseURL+TeamServiceGetTeamProcedure,
-			connect.WithSchema(teamServiceGetTeamMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetTeam")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createTeam: connect.NewClient[v1.CreateTeamRequest, v1.CreateTeamResponse](
 			httpClient,
 			baseURL+TeamServiceCreateTeamProcedure,
-			connect.WithSchema(teamServiceCreateTeamMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("CreateTeam")),
 			connect.WithClientOptions(opts...),
 		),
 		createProject: connect.NewClient[v1.CreateProjectRequest, v1.CreateProjectResponse](
 			httpClient,
 			baseURL+TeamServiceCreateProjectProcedure,
-			connect.WithSchema(teamServiceCreateProjectMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("CreateProject")),
 			connect.WithClientOptions(opts...),
 		),
 		createEnvironment: connect.NewClient[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse](
 			httpClient,
 			baseURL+TeamServiceCreateEnvironmentProcedure,
-			connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("CreateEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
 		updateEnvironment: connect.NewClient[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse](
 			httpClient,
 			baseURL+TeamServiceUpdateEnvironmentProcedure,
-			connect.WithSchema(teamServiceUpdateEnvironmentMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("UpdateEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
 		getAvailablePermissions: connect.NewClient[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse](
 			httpClient,
 			baseURL+TeamServiceGetAvailablePermissionsProcedure,
-			connect.WithSchema(teamServiceGetAvailablePermissionsMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetAvailablePermissions")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createServiceToken: connect.NewClient[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse](
 			httpClient,
 			baseURL+TeamServiceCreateServiceTokenProcedure,
-			connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("CreateServiceToken")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteServiceToken: connect.NewClient[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse](
 			httpClient,
 			baseURL+TeamServiceDeleteServiceTokenProcedure,
-			connect.WithSchema(teamServiceDeleteServiceTokenMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("DeleteServiceToken")),
 			connect.WithClientOptions(opts...),
 		),
 		listServiceTokens: connect.NewClient[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse](
 			httpClient,
 			baseURL+TeamServiceListServiceTokensProcedure,
-			connect.WithSchema(teamServiceListServiceTokensMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("ListServiceTokens")),
 			connect.WithClientOptions(opts...),
 		),
 		updateServiceToken: connect.NewClient[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse](
 			httpClient,
 			baseURL+TeamServiceUpdateServiceTokenProcedure,
-			connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("UpdateServiceToken")),
 			connect.WithClientOptions(opts...),
 		),
 		inviteTeamMember: connect.NewClient[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse](
 			httpClient,
 			baseURL+TeamServiceInviteTeamMemberProcedure,
-			connect.WithSchema(teamServiceInviteTeamMemberMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("InviteTeamMember")),
 			connect.WithClientOptions(opts...),
 		),
 		expireTeamInvite: connect.NewClient[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse](
 			httpClient,
 			baseURL+TeamServiceExpireTeamInviteProcedure,
-			connect.WithSchema(teamServiceExpireTeamInviteMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("ExpireTeamInvite")),
 			connect.WithClientOptions(opts...),
 		),
 		listTeamInvites: connect.NewClient[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse](
 			httpClient,
 			baseURL+TeamServiceListTeamInvitesProcedure,
-			connect.WithSchema(teamServiceListTeamInvitesMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("ListTeamInvites")),
 			connect.WithClientOptions(opts...),
 		),
 		upsertFeaturePermissions: connect.NewClient[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse](
 			httpClient,
 			baseURL+TeamServiceUpsertFeaturePermissionsProcedure,
-			connect.WithSchema(teamServiceUpsertFeaturePermissionsMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("UpsertFeaturePermissions")),
 			connect.WithClientOptions(opts...),
 		),
 		updateScimGroupSettings: connect.NewClient[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse](
 			httpClient,
 			baseURL+TeamServiceUpdateScimGroupSettingsProcedure,
-			connect.WithSchema(teamServiceUpdateScimGroupSettingsMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("UpdateScimGroupSettings")),
 			connect.WithClientOptions(opts...),
 		),
 		getTeamPermissions: connect.NewClient[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse](
 			httpClient,
 			baseURL+TeamServiceGetTeamPermissionsProcedure,
-			connect.WithSchema(teamServiceGetTeamPermissionsMethodDescriptor),
+			connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -433,130 +409,131 @@ type TeamServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	teamServiceMethods := v1.File_chalk_server_v1_team_proto.Services().ByName("TeamService").Methods()
 	teamServiceGetEnvHandler := connect.NewUnaryHandler(
 		TeamServiceGetEnvProcedure,
 		svc.GetEnv,
-		connect.WithSchema(teamServiceGetEnvMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetEnv")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetEnvironmentsHandler := connect.NewUnaryHandler(
 		TeamServiceGetEnvironmentsProcedure,
 		svc.GetEnvironments,
-		connect.WithSchema(teamServiceGetEnvironmentsMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetEnvironments")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetAgentHandler := connect.NewUnaryHandler(
 		TeamServiceGetAgentProcedure,
 		svc.GetAgent,
-		connect.WithSchema(teamServiceGetAgentMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetAgent")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetDisplayAgentHandler := connect.NewUnaryHandler(
 		TeamServiceGetDisplayAgentProcedure,
 		svc.GetDisplayAgent,
-		connect.WithSchema(teamServiceGetDisplayAgentMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetDisplayAgent")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetTeamHandler := connect.NewUnaryHandler(
 		TeamServiceGetTeamProcedure,
 		svc.GetTeam,
-		connect.WithSchema(teamServiceGetTeamMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetTeam")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceCreateTeamHandler := connect.NewUnaryHandler(
 		TeamServiceCreateTeamProcedure,
 		svc.CreateTeam,
-		connect.WithSchema(teamServiceCreateTeamMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("CreateTeam")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceCreateProjectHandler := connect.NewUnaryHandler(
 		TeamServiceCreateProjectProcedure,
 		svc.CreateProject,
-		connect.WithSchema(teamServiceCreateProjectMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("CreateProject")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceCreateEnvironmentHandler := connect.NewUnaryHandler(
 		TeamServiceCreateEnvironmentProcedure,
 		svc.CreateEnvironment,
-		connect.WithSchema(teamServiceCreateEnvironmentMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("CreateEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceUpdateEnvironmentHandler := connect.NewUnaryHandler(
 		TeamServiceUpdateEnvironmentProcedure,
 		svc.UpdateEnvironment,
-		connect.WithSchema(teamServiceUpdateEnvironmentMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("UpdateEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetAvailablePermissionsHandler := connect.NewUnaryHandler(
 		TeamServiceGetAvailablePermissionsProcedure,
 		svc.GetAvailablePermissions,
-		connect.WithSchema(teamServiceGetAvailablePermissionsMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetAvailablePermissions")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceCreateServiceTokenHandler := connect.NewUnaryHandler(
 		TeamServiceCreateServiceTokenProcedure,
 		svc.CreateServiceToken,
-		connect.WithSchema(teamServiceCreateServiceTokenMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("CreateServiceToken")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceDeleteServiceTokenHandler := connect.NewUnaryHandler(
 		TeamServiceDeleteServiceTokenProcedure,
 		svc.DeleteServiceToken,
-		connect.WithSchema(teamServiceDeleteServiceTokenMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("DeleteServiceToken")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceListServiceTokensHandler := connect.NewUnaryHandler(
 		TeamServiceListServiceTokensProcedure,
 		svc.ListServiceTokens,
-		connect.WithSchema(teamServiceListServiceTokensMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("ListServiceTokens")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceUpdateServiceTokenHandler := connect.NewUnaryHandler(
 		TeamServiceUpdateServiceTokenProcedure,
 		svc.UpdateServiceToken,
-		connect.WithSchema(teamServiceUpdateServiceTokenMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("UpdateServiceToken")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceInviteTeamMemberHandler := connect.NewUnaryHandler(
 		TeamServiceInviteTeamMemberProcedure,
 		svc.InviteTeamMember,
-		connect.WithSchema(teamServiceInviteTeamMemberMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("InviteTeamMember")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceExpireTeamInviteHandler := connect.NewUnaryHandler(
 		TeamServiceExpireTeamInviteProcedure,
 		svc.ExpireTeamInvite,
-		connect.WithSchema(teamServiceExpireTeamInviteMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("ExpireTeamInvite")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceListTeamInvitesHandler := connect.NewUnaryHandler(
 		TeamServiceListTeamInvitesProcedure,
 		svc.ListTeamInvites,
-		connect.WithSchema(teamServiceListTeamInvitesMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("ListTeamInvites")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceUpsertFeaturePermissionsHandler := connect.NewUnaryHandler(
 		TeamServiceUpsertFeaturePermissionsProcedure,
 		svc.UpsertFeaturePermissions,
-		connect.WithSchema(teamServiceUpsertFeaturePermissionsMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("UpsertFeaturePermissions")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceUpdateScimGroupSettingsHandler := connect.NewUnaryHandler(
 		TeamServiceUpdateScimGroupSettingsProcedure,
 		svc.UpdateScimGroupSettings,
-		connect.WithSchema(teamServiceUpdateScimGroupSettingsMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("UpdateScimGroupSettings")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceGetTeamPermissionsHandler := connect.NewUnaryHandler(
 		TeamServiceGetTeamPermissionsProcedure,
 		svc.GetTeamPermissions,
-		connect.WithSchema(teamServiceGetTeamPermissionsMethodDescriptor),
+		connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

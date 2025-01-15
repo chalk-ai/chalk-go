@@ -38,12 +38,6 @@ const (
 	ManagerServiceGetClusterEnvironmentsProcedure = "/chalk.server.v1.ManagerService/GetClusterEnvironments"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	managerServiceServiceDescriptor                      = v1.File_chalk_server_v1_manager_proto.Services().ByName("ManagerService")
-	managerServiceGetClusterEnvironmentsMethodDescriptor = managerServiceServiceDescriptor.Methods().ByName("GetClusterEnvironments")
-)
-
 // ManagerServiceClient is a client for the chalk.server.v1.ManagerService service.
 type ManagerServiceClient interface {
 	// If any checks fail, this request fails.
@@ -59,11 +53,12 @@ type ManagerServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewManagerServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ManagerServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	managerServiceMethods := v1.File_chalk_server_v1_manager_proto.Services().ByName("ManagerService").Methods()
 	return &managerServiceClient{
 		getClusterEnvironments: connect.NewClient[v1.GetClusterEnvironmentsRequest, v1.GetClusterEnvironmentsResponse](
 			httpClient,
 			baseURL+ManagerServiceGetClusterEnvironmentsProcedure,
-			connect.WithSchema(managerServiceGetClusterEnvironmentsMethodDescriptor),
+			connect.WithSchema(managerServiceMethods.ByName("GetClusterEnvironments")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -92,10 +87,11 @@ type ManagerServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewManagerServiceHandler(svc ManagerServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	managerServiceMethods := v1.File_chalk_server_v1_manager_proto.Services().ByName("ManagerService").Methods()
 	managerServiceGetClusterEnvironmentsHandler := connect.NewUnaryHandler(
 		ManagerServiceGetClusterEnvironmentsProcedure,
 		svc.GetClusterEnvironments,
-		connect.WithSchema(managerServiceGetClusterEnvironmentsMethodDescriptor),
+		connect.WithSchema(managerServiceMethods.ByName("GetClusterEnvironments")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
