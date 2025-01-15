@@ -56,18 +56,6 @@ const (
 	MonitoringServiceGetPagerDutyIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetPagerDutyIntegration"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	monitoringServiceServiceDescriptor                              = v1.File_chalk_server_v1_monitoring_proto.Services().ByName("MonitoringService")
-	monitoringServiceTestPagerDutyIntegrationMethodDescriptor       = monitoringServiceServiceDescriptor.Methods().ByName("TestPagerDutyIntegration")
-	monitoringServiceAddPagerDutyIntegrationMethodDescriptor        = monitoringServiceServiceDescriptor.Methods().ByName("AddPagerDutyIntegration")
-	monitoringServiceDeletePagerDutyIntegrationMethodDescriptor     = monitoringServiceServiceDescriptor.Methods().ByName("DeletePagerDutyIntegration")
-	monitoringServiceSetDefaultPagerDutyIntegrationMethodDescriptor = monitoringServiceServiceDescriptor.Methods().ByName("SetDefaultPagerDutyIntegration")
-	monitoringServiceUpdatePagerDutyIntegrationMethodDescriptor     = monitoringServiceServiceDescriptor.Methods().ByName("UpdatePagerDutyIntegration")
-	monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor    = monitoringServiceServiceDescriptor.Methods().ByName("GetAllPagerDutyIntegrations")
-	monitoringServiceGetPagerDutyIntegrationMethodDescriptor        = monitoringServiceServiceDescriptor.Methods().ByName("GetPagerDutyIntegration")
-)
-
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
 type MonitoringServiceClient interface {
 	TestPagerDutyIntegration(context.Context, *connect.Request[v1.TestPagerDutyIntegrationRequest]) (*connect.Response[v1.TestPagerDutyIntegrationResponse], error)
@@ -88,50 +76,51 @@ type MonitoringServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) MonitoringServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	monitoringServiceMethods := v1.File_chalk_server_v1_monitoring_proto.Services().ByName("MonitoringService").Methods()
 	return &monitoringServiceClient{
 		testPagerDutyIntegration: connect.NewClient[v1.TestPagerDutyIntegrationRequest, v1.TestPagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceTestPagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceTestPagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("TestPagerDutyIntegration")),
 			connect.WithClientOptions(opts...),
 		),
 		addPagerDutyIntegration: connect.NewClient[v1.AddPagerDutyIntegrationRequest, v1.AddPagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceAddPagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceAddPagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("AddPagerDutyIntegration")),
 			connect.WithClientOptions(opts...),
 		),
 		deletePagerDutyIntegration: connect.NewClient[v1.DeletePagerDutyIntegrationRequest, v1.DeletePagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceDeletePagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceDeletePagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("DeletePagerDutyIntegration")),
 			connect.WithClientOptions(opts...),
 		),
 		setDefaultPagerDutyIntegration: connect.NewClient[v1.SetDefaultPagerDutyIntegrationRequest, v1.SetDefaultPagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceSetDefaultPagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceSetDefaultPagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("SetDefaultPagerDutyIntegration")),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		updatePagerDutyIntegration: connect.NewClient[v1.UpdatePagerDutyIntegrationRequest, v1.UpdatePagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceUpdatePagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceUpdatePagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("UpdatePagerDutyIntegration")),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		getAllPagerDutyIntegrations: connect.NewClient[v1.GetAllPagerDutyIntegrationsRequest, v1.GetAllPagerDutyIntegrationsResponse](
 			httpClient,
 			baseURL+MonitoringServiceGetAllPagerDutyIntegrationsProcedure,
-			connect.WithSchema(monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("GetAllPagerDutyIntegrations")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getPagerDutyIntegration: connect.NewClient[v1.GetPagerDutyIntegrationRequest, v1.GetPagerDutyIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceGetPagerDutyIntegrationProcedure,
-			connect.WithSchema(monitoringServiceGetPagerDutyIntegrationMethodDescriptor),
+			connect.WithSchema(monitoringServiceMethods.ByName("GetPagerDutyIntegration")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -202,49 +191,50 @@ type MonitoringServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	monitoringServiceMethods := v1.File_chalk_server_v1_monitoring_proto.Services().ByName("MonitoringService").Methods()
 	monitoringServiceTestPagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceTestPagerDutyIntegrationProcedure,
 		svc.TestPagerDutyIntegration,
-		connect.WithSchema(monitoringServiceTestPagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("TestPagerDutyIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceAddPagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceAddPagerDutyIntegrationProcedure,
 		svc.AddPagerDutyIntegration,
-		connect.WithSchema(monitoringServiceAddPagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("AddPagerDutyIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceDeletePagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceDeletePagerDutyIntegrationProcedure,
 		svc.DeletePagerDutyIntegration,
-		connect.WithSchema(monitoringServiceDeletePagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("DeletePagerDutyIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceSetDefaultPagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceSetDefaultPagerDutyIntegrationProcedure,
 		svc.SetDefaultPagerDutyIntegration,
-		connect.WithSchema(monitoringServiceSetDefaultPagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("SetDefaultPagerDutyIntegration")),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceUpdatePagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceUpdatePagerDutyIntegrationProcedure,
 		svc.UpdatePagerDutyIntegration,
-		connect.WithSchema(monitoringServiceUpdatePagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("UpdatePagerDutyIntegration")),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceGetAllPagerDutyIntegrationsHandler := connect.NewUnaryHandler(
 		MonitoringServiceGetAllPagerDutyIntegrationsProcedure,
 		svc.GetAllPagerDutyIntegrations,
-		connect.WithSchema(monitoringServiceGetAllPagerDutyIntegrationsMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("GetAllPagerDutyIntegrations")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	monitoringServiceGetPagerDutyIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceGetPagerDutyIntegrationProcedure,
 		svc.GetPagerDutyIntegration,
-		connect.WithSchema(monitoringServiceGetPagerDutyIntegrationMethodDescriptor),
+		connect.WithSchema(monitoringServiceMethods.ByName("GetPagerDutyIntegration")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

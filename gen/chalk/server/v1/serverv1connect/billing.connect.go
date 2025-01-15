@@ -50,16 +50,6 @@ const (
 	BillingServiceGetPodRequestChartsProcedure = "/chalk.server.v1.BillingService/GetPodRequestCharts"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	billingServiceServiceDescriptor                   = v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService")
-	billingServiceGetNodesAndPodsUIMethodDescriptor   = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPodsUI")
-	billingServiceGetNodesAndPodsMethodDescriptor     = billingServiceServiceDescriptor.Methods().ByName("GetNodesAndPods")
-	billingServiceGetUsageChartMethodDescriptor       = billingServiceServiceDescriptor.Methods().ByName("GetUsageChart")
-	billingServiceGetUtilizationRatesMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetUtilizationRates")
-	billingServiceGetPodRequestChartsMethodDescriptor = billingServiceServiceDescriptor.Methods().ByName("GetPodRequestCharts")
-)
-
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
 type BillingServiceClient interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -91,39 +81,40 @@ type BillingServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BillingServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	billingServiceMethods := v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService").Methods()
 	return &billingServiceClient{
 		getNodesAndPodsUI: connect.NewClient[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse](
 			httpClient,
 			baseURL+BillingServiceGetNodesAndPodsUIProcedure,
-			connect.WithSchema(billingServiceGetNodesAndPodsUIMethodDescriptor),
+			connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPodsUI")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getNodesAndPods: connect.NewClient[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse](
 			httpClient,
 			baseURL+BillingServiceGetNodesAndPodsProcedure,
-			connect.WithSchema(billingServiceGetNodesAndPodsMethodDescriptor),
+			connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPods")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getUsageChart: connect.NewClient[v1.GetUsageChartRequest, v1.GetUsageChartResponse](
 			httpClient,
 			baseURL+BillingServiceGetUsageChartProcedure,
-			connect.WithSchema(billingServiceGetUsageChartMethodDescriptor),
+			connect.WithSchema(billingServiceMethods.ByName("GetUsageChart")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getUtilizationRates: connect.NewClient[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse](
 			httpClient,
 			baseURL+BillingServiceGetUtilizationRatesProcedure,
-			connect.WithSchema(billingServiceGetUtilizationRatesMethodDescriptor),
+			connect.WithSchema(billingServiceMethods.ByName("GetUtilizationRates")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getPodRequestCharts: connect.NewClient[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse](
 			httpClient,
 			baseURL+BillingServiceGetPodRequestChartsProcedure,
-			connect.WithSchema(billingServiceGetPodRequestChartsMethodDescriptor),
+			connect.WithSchema(billingServiceMethods.ByName("GetPodRequestCharts")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -192,38 +183,39 @@ type BillingServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	billingServiceMethods := v1.File_chalk_server_v1_billing_proto.Services().ByName("BillingService").Methods()
 	billingServiceGetNodesAndPodsUIHandler := connect.NewUnaryHandler(
 		BillingServiceGetNodesAndPodsUIProcedure,
 		svc.GetNodesAndPodsUI,
-		connect.WithSchema(billingServiceGetNodesAndPodsUIMethodDescriptor),
+		connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPodsUI")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetNodesAndPodsHandler := connect.NewUnaryHandler(
 		BillingServiceGetNodesAndPodsProcedure,
 		svc.GetNodesAndPods,
-		connect.WithSchema(billingServiceGetNodesAndPodsMethodDescriptor),
+		connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPods")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetUsageChartHandler := connect.NewUnaryHandler(
 		BillingServiceGetUsageChartProcedure,
 		svc.GetUsageChart,
-		connect.WithSchema(billingServiceGetUsageChartMethodDescriptor),
+		connect.WithSchema(billingServiceMethods.ByName("GetUsageChart")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetUtilizationRatesHandler := connect.NewUnaryHandler(
 		BillingServiceGetUtilizationRatesProcedure,
 		svc.GetUtilizationRates,
-		connect.WithSchema(billingServiceGetUtilizationRatesMethodDescriptor),
+		connect.WithSchema(billingServiceMethods.ByName("GetUtilizationRates")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetPodRequestChartsHandler := connect.NewUnaryHandler(
 		BillingServiceGetPodRequestChartsProcedure,
 		svc.GetPodRequestCharts,
-		connect.WithSchema(billingServiceGetPodRequestChartsMethodDescriptor),
+		connect.WithSchema(billingServiceMethods.ByName("GetPodRequestCharts")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

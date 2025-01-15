@@ -56,18 +56,6 @@ const (
 	DeployServiceTagDeploymentProcedure = "/chalk.server.v1.DeployService/TagDeployment"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	deployServiceServiceDescriptor                    = v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService")
-	deployServiceDeployBranchMethodDescriptor         = deployServiceServiceDescriptor.Methods().ByName("DeployBranch")
-	deployServiceGetDeploymentMethodDescriptor        = deployServiceServiceDescriptor.Methods().ByName("GetDeployment")
-	deployServiceListDeploymentsMethodDescriptor      = deployServiceServiceDescriptor.Methods().ByName("ListDeployments")
-	deployServiceGetActiveDeploymentsMethodDescriptor = deployServiceServiceDescriptor.Methods().ByName("GetActiveDeployments")
-	deployServiceSuspendDeploymentMethodDescriptor    = deployServiceServiceDescriptor.Methods().ByName("SuspendDeployment")
-	deployServiceScaleDeploymentMethodDescriptor      = deployServiceServiceDescriptor.Methods().ByName("ScaleDeployment")
-	deployServiceTagDeploymentMethodDescriptor        = deployServiceServiceDescriptor.Methods().ByName("TagDeployment")
-)
-
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
 type DeployServiceClient interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
@@ -88,47 +76,48 @@ type DeployServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) DeployServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	deployServiceMethods := v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService").Methods()
 	return &deployServiceClient{
 		deployBranch: connect.NewClient[v1.DeployBranchRequest, v1.DeployBranchResponse](
 			httpClient,
 			baseURL+DeployServiceDeployBranchProcedure,
-			connect.WithSchema(deployServiceDeployBranchMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("DeployBranch")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeployment: connect.NewClient[v1.GetDeploymentRequest, v1.GetDeploymentResponse](
 			httpClient,
 			baseURL+DeployServiceGetDeploymentProcedure,
-			connect.WithSchema(deployServiceGetDeploymentMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("GetDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		listDeployments: connect.NewClient[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse](
 			httpClient,
 			baseURL+DeployServiceListDeploymentsProcedure,
-			connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("ListDeployments")),
 			connect.WithClientOptions(opts...),
 		),
 		getActiveDeployments: connect.NewClient[v1.GetActiveDeploymentsRequest, v1.GetActiveDeploymentsResponse](
 			httpClient,
 			baseURL+DeployServiceGetActiveDeploymentsProcedure,
-			connect.WithSchema(deployServiceGetActiveDeploymentsMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("GetActiveDeployments")),
 			connect.WithClientOptions(opts...),
 		),
 		suspendDeployment: connect.NewClient[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse](
 			httpClient,
 			baseURL+DeployServiceSuspendDeploymentProcedure,
-			connect.WithSchema(deployServiceSuspendDeploymentMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("SuspendDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		scaleDeployment: connect.NewClient[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse](
 			httpClient,
 			baseURL+DeployServiceScaleDeploymentProcedure,
-			connect.WithSchema(deployServiceScaleDeploymentMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("ScaleDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		tagDeployment: connect.NewClient[v1.TagDeploymentRequest, v1.TagDeploymentResponse](
 			httpClient,
 			baseURL+DeployServiceTagDeploymentProcedure,
-			connect.WithSchema(deployServiceTagDeploymentMethodDescriptor),
+			connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -197,46 +186,47 @@ type DeployServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	deployServiceMethods := v1.File_chalk_server_v1_deploy_proto.Services().ByName("DeployService").Methods()
 	deployServiceDeployBranchHandler := connect.NewUnaryHandler(
 		DeployServiceDeployBranchProcedure,
 		svc.DeployBranch,
-		connect.WithSchema(deployServiceDeployBranchMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("DeployBranch")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceGetDeploymentHandler := connect.NewUnaryHandler(
 		DeployServiceGetDeploymentProcedure,
 		svc.GetDeployment,
-		connect.WithSchema(deployServiceGetDeploymentMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("GetDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceListDeploymentsHandler := connect.NewUnaryHandler(
 		DeployServiceListDeploymentsProcedure,
 		svc.ListDeployments,
-		connect.WithSchema(deployServiceListDeploymentsMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("ListDeployments")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceGetActiveDeploymentsHandler := connect.NewUnaryHandler(
 		DeployServiceGetActiveDeploymentsProcedure,
 		svc.GetActiveDeployments,
-		connect.WithSchema(deployServiceGetActiveDeploymentsMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("GetActiveDeployments")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceSuspendDeploymentHandler := connect.NewUnaryHandler(
 		DeployServiceSuspendDeploymentProcedure,
 		svc.SuspendDeployment,
-		connect.WithSchema(deployServiceSuspendDeploymentMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("SuspendDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceScaleDeploymentHandler := connect.NewUnaryHandler(
 		DeployServiceScaleDeploymentProcedure,
 		svc.ScaleDeployment,
-		connect.WithSchema(deployServiceScaleDeploymentMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("ScaleDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceTagDeploymentHandler := connect.NewUnaryHandler(
 		DeployServiceTagDeploymentProcedure,
 		svc.TagDeployment,
-		connect.WithSchema(deployServiceTagDeploymentMethodDescriptor),
+		connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
