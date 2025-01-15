@@ -38,12 +38,6 @@ const (
 	MetricsServiceGetOverviewSummaryMetricsProcedure = "/chalk.server.v1.MetricsService/GetOverviewSummaryMetrics"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	metricsServiceServiceDescriptor                         = v1.File_chalk_server_v1_metrics_proto.Services().ByName("MetricsService")
-	metricsServiceGetOverviewSummaryMetricsMethodDescriptor = metricsServiceServiceDescriptor.Methods().ByName("GetOverviewSummaryMetrics")
-)
-
 // MetricsServiceClient is a client for the chalk.server.v1.MetricsService service.
 type MetricsServiceClient interface {
 	GetOverviewSummaryMetrics(context.Context, *connect.Request[v1.GetOverviewSummaryMetricsRequest]) (*connect.Response[v1.GetOverviewSummaryMetricsResponse], error)
@@ -58,11 +52,12 @@ type MetricsServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewMetricsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) MetricsServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	metricsServiceMethods := v1.File_chalk_server_v1_metrics_proto.Services().ByName("MetricsService").Methods()
 	return &metricsServiceClient{
 		getOverviewSummaryMetrics: connect.NewClient[v1.GetOverviewSummaryMetricsRequest, v1.GetOverviewSummaryMetricsResponse](
 			httpClient,
 			baseURL+MetricsServiceGetOverviewSummaryMetricsProcedure,
-			connect.WithSchema(metricsServiceGetOverviewSummaryMetricsMethodDescriptor),
+			connect.WithSchema(metricsServiceMethods.ByName("GetOverviewSummaryMetrics")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -89,10 +84,11 @@ type MetricsServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewMetricsServiceHandler(svc MetricsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	metricsServiceMethods := v1.File_chalk_server_v1_metrics_proto.Services().ByName("MetricsService").Methods()
 	metricsServiceGetOverviewSummaryMetricsHandler := connect.NewUnaryHandler(
 		MetricsServiceGetOverviewSummaryMetricsProcedure,
 		svc.GetOverviewSummaryMetrics,
-		connect.WithSchema(metricsServiceGetOverviewSummaryMetricsMethodDescriptor),
+		connect.WithSchema(metricsServiceMethods.ByName("GetOverviewSummaryMetrics")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.MetricsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -89,29 +89,6 @@ const (
 	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	builderServiceServiceDescriptor                                  = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
-	builderServiceGetSearchConfigMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("GetSearchConfig")
-	builderServiceActivateDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
-	builderServiceIndexDeploymentMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
-	builderServiceDeployKubeComponentsMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
-	builderServiceRebuildDeploymentMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
-	builderServiceRedeployDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("RedeployDeployment")
-	builderServiceUploadSourceMethodDescriptor                       = builderServiceServiceDescriptor.Methods().ByName("UploadSource")
-	builderServiceGetDeploymentStepsMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentSteps")
-	builderServiceGetDeploymentLogsMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentLogs")
-	builderServiceGetClusterTimescaleDBMethodDescriptor              = builderServiceServiceDescriptor.Methods().ByName("GetClusterTimescaleDB")
-	builderServiceGetClusterGatewayMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetClusterGateway")
-	builderServiceGetClusterBackgroundPersistenceMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("GetClusterBackgroundPersistence")
-	builderServiceCreateClusterTimescaleDBMethodDescriptor           = builderServiceServiceDescriptor.Methods().ByName("CreateClusterTimescaleDB")
-	builderServiceMigrateClusterTimescaleDBMethodDescriptor          = builderServiceServiceDescriptor.Methods().ByName("MigrateClusterTimescaleDB")
-	builderServiceCreateClusterGatewayMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
-	builderServiceCreateClusterBackgroundPersistenceMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterBackgroundPersistence")
-	builderServiceUpdateEnvironmentVariablesMethodDescriptor         = builderServiceServiceDescriptor.Methods().ByName("UpdateEnvironmentVariables")
-	builderServiceStartBranchMethodDescriptor                        = builderServiceServiceDescriptor.Methods().ByName("StartBranch")
-)
-
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
 type BuilderServiceClient interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -151,114 +128,115 @@ type BuilderServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BuilderServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	builderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService").Methods()
 	return &builderServiceClient{
 		getSearchConfig: connect.NewClient[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse](
 			httpClient,
 			baseURL+BuilderServiceGetSearchConfigProcedure,
-			connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetSearchConfig")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		activateDeployment: connect.NewClient[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceActivateDeploymentProcedure,
-			connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("ActivateDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		indexDeployment: connect.NewClient[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceIndexDeploymentProcedure,
-			connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("IndexDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		deployKubeComponents: connect.NewClient[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse](
 			httpClient,
 			baseURL+BuilderServiceDeployKubeComponentsProcedure,
-			connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("DeployKubeComponents")),
 			connect.WithClientOptions(opts...),
 		),
 		rebuildDeployment: connect.NewClient[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceRebuildDeploymentProcedure,
-			connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("RebuildDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		redeployDeployment: connect.NewClient[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceRedeployDeploymentProcedure,
-			connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("RedeployDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		uploadSource: connect.NewClient[v1.UploadSourceRequest, v1.UploadSourceResponse](
 			httpClient,
 			baseURL+BuilderServiceUploadSourceProcedure,
-			connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentSteps: connect.NewClient[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetDeploymentStepsProcedure,
-			connect.WithSchema(builderServiceGetDeploymentStepsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentLogs: connect.NewClient[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetDeploymentLogsProcedure,
-			connect.WithSchema(builderServiceGetDeploymentLogsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentLogs")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterTimescaleDB: connect.NewClient[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceGetClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterGateway: connect.NewClient[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterGatewayProcedure,
-			connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterBackgroundPersistence: connect.NewClient[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterBackgroundPersistenceProcedure,
-			connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterTimescaleDB: connect.NewClient[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceCreateClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		migrateClusterTimescaleDB: connect.NewClient[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceMigrateClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceMigrateClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterGateway: connect.NewClient[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterGatewayProcedure,
-			connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterGateway")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterBackgroundPersistence: connect.NewClient[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterBackgroundPersistenceProcedure,
-			connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
 		updateEnvironmentVariables: connect.NewClient[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse](
 			httpClient,
 			baseURL+BuilderServiceUpdateEnvironmentVariablesProcedure,
-			connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("UpdateEnvironmentVariables")),
 			connect.WithClientOptions(opts...),
 		),
 		startBranch: connect.NewClient[v1.StartBranchRequest, v1.StartBranchResponse](
 			httpClient,
 			baseURL+BuilderServiceStartBranchProcedure,
-			connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -414,113 +392,114 @@ type BuilderServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	builderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService").Methods()
 	builderServiceGetSearchConfigHandler := connect.NewUnaryHandler(
 		BuilderServiceGetSearchConfigProcedure,
 		svc.GetSearchConfig,
-		connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetSearchConfig")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceActivateDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceActivateDeploymentProcedure,
 		svc.ActivateDeployment,
-		connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("ActivateDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceIndexDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceIndexDeploymentProcedure,
 		svc.IndexDeployment,
-		connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("IndexDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceDeployKubeComponentsHandler := connect.NewUnaryHandler(
 		BuilderServiceDeployKubeComponentsProcedure,
 		svc.DeployKubeComponents,
-		connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("DeployKubeComponents")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceRebuildDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceRebuildDeploymentProcedure,
 		svc.RebuildDeployment,
-		connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("RebuildDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceRedeployDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceRedeployDeploymentProcedure,
 		svc.RedeployDeployment,
-		connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("RedeployDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceUploadSourceHandler := connect.NewUnaryHandler(
 		BuilderServiceUploadSourceProcedure,
 		svc.UploadSource,
-		connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentStepsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetDeploymentStepsProcedure,
 		svc.GetDeploymentSteps,
-		connect.WithSchema(builderServiceGetDeploymentStepsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentLogsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetDeploymentLogsProcedure,
 		svc.GetDeploymentLogs,
-		connect.WithSchema(builderServiceGetDeploymentLogsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentLogs")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterTimescaleDBProcedure,
 		svc.GetClusterTimescaleDB,
-		connect.WithSchema(builderServiceGetClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterGatewayHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterGatewayProcedure,
 		svc.GetClusterGateway,
-		connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterBackgroundPersistenceProcedure,
 		svc.GetClusterBackgroundPersistence,
-		connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterTimescaleDBProcedure,
 		svc.CreateClusterTimescaleDB,
-		connect.WithSchema(builderServiceCreateClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceMigrateClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceMigrateClusterTimescaleDBProcedure,
 		svc.MigrateClusterTimescaleDB,
-		connect.WithSchema(builderServiceMigrateClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterGatewayHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterGatewayProcedure,
 		svc.CreateClusterGateway,
-		connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterGateway")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterBackgroundPersistenceProcedure,
 		svc.CreateClusterBackgroundPersistence,
-		connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceUpdateEnvironmentVariablesHandler := connect.NewUnaryHandler(
 		BuilderServiceUpdateEnvironmentVariablesProcedure,
 		svc.UpdateEnvironmentVariables,
-		connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("UpdateEnvironmentVariables")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartBranchHandler := connect.NewUnaryHandler(
 		BuilderServiceStartBranchProcedure,
 		svc.StartBranch,
-		connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

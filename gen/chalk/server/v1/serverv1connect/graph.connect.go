@@ -46,15 +46,6 @@ const (
 	GraphServiceUpdateGraphProcedure = "/chalk.server.v1.GraphService/UpdateGraph"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	graphServiceServiceDescriptor                   = v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService")
-	graphServiceGetFeatureSQLMethodDescriptor       = graphServiceServiceDescriptor.Methods().ByName("GetFeatureSQL")
-	graphServiceGetFeaturesMetadataMethodDescriptor = graphServiceServiceDescriptor.Methods().ByName("GetFeaturesMetadata")
-	graphServiceGetGraphMethodDescriptor            = graphServiceServiceDescriptor.Methods().ByName("GetGraph")
-	graphServiceUpdateGraphMethodDescriptor         = graphServiceServiceDescriptor.Methods().ByName("UpdateGraph")
-)
-
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
 type GraphServiceClient interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -74,32 +65,33 @@ type GraphServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) GraphServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	graphServiceMethods := v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService").Methods()
 	return &graphServiceClient{
 		getFeatureSQL: connect.NewClient[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse](
 			httpClient,
 			baseURL+GraphServiceGetFeatureSQLProcedure,
-			connect.WithSchema(graphServiceGetFeatureSQLMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetFeatureSQL")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getFeaturesMetadata: connect.NewClient[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse](
 			httpClient,
 			baseURL+GraphServiceGetFeaturesMetadataProcedure,
-			connect.WithSchema(graphServiceGetFeaturesMetadataMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetFeaturesMetadata")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getGraph: connect.NewClient[v1.GetGraphRequest, v1.GetGraphResponse](
 			httpClient,
 			baseURL+GraphServiceGetGraphProcedure,
-			connect.WithSchema(graphServiceGetGraphMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		updateGraph: connect.NewClient[v1.UpdateGraphRequest, v1.UpdateGraphResponse](
 			httpClient,
 			baseURL+GraphServiceUpdateGraphProcedure,
-			connect.WithSchema(graphServiceUpdateGraphMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -149,31 +141,32 @@ type GraphServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	graphServiceMethods := v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService").Methods()
 	graphServiceGetFeatureSQLHandler := connect.NewUnaryHandler(
 		GraphServiceGetFeatureSQLProcedure,
 		svc.GetFeatureSQL,
-		connect.WithSchema(graphServiceGetFeatureSQLMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetFeatureSQL")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceGetFeaturesMetadataHandler := connect.NewUnaryHandler(
 		GraphServiceGetFeaturesMetadataProcedure,
 		svc.GetFeaturesMetadata,
-		connect.WithSchema(graphServiceGetFeaturesMetadataMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetFeaturesMetadata")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceGetGraphHandler := connect.NewUnaryHandler(
 		GraphServiceGetGraphProcedure,
 		svc.GetGraph,
-		connect.WithSchema(graphServiceGetGraphMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceUpdateGraphHandler := connect.NewUnaryHandler(
 		GraphServiceUpdateGraphProcedure,
 		svc.UpdateGraph,
-		connect.WithSchema(graphServiceUpdateGraphMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
