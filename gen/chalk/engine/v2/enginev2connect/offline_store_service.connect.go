@@ -47,6 +47,15 @@ const (
 	OfflineStoreServiceGetFeatureValuesProcedure = "/chalk.engine.v2.OfflineStoreService/GetFeatureValues"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	offlineStoreServiceServiceDescriptor                               = v2.File_chalk_engine_v2_offline_store_service_proto.Services().ByName("OfflineStoreService")
+	offlineStoreServiceGetQueryLogEntriesMethodDescriptor              = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryLogEntries")
+	offlineStoreServiceGetQueryValuesMethodDescriptor                  = offlineStoreServiceServiceDescriptor.Methods().ByName("GetQueryValues")
+	offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValuesTimeSeriesChart")
+	offlineStoreServiceGetFeatureValuesMethodDescriptor                = offlineStoreServiceServiceDescriptor.Methods().ByName("GetFeatureValues")
+)
+
 // OfflineStoreServiceClient is a client for the chalk.engine.v2.OfflineStoreService service.
 type OfflineStoreServiceClient interface {
 	GetQueryLogEntries(context.Context, *connect.Request[v2.GetQueryLogEntriesRequest]) (*connect.Response[v2.GetQueryLogEntriesResponse], error)
@@ -64,30 +73,29 @@ type OfflineStoreServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewOfflineStoreServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) OfflineStoreServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	offlineStoreServiceMethods := v2.File_chalk_engine_v2_offline_store_service_proto.Services().ByName("OfflineStoreService").Methods()
 	return &offlineStoreServiceClient{
 		getQueryLogEntries: connect.NewClient[v2.GetQueryLogEntriesRequest, v2.GetQueryLogEntriesResponse](
 			httpClient,
 			baseURL+OfflineStoreServiceGetQueryLogEntriesProcedure,
-			connect.WithSchema(offlineStoreServiceMethods.ByName("GetQueryLogEntries")),
+			connect.WithSchema(offlineStoreServiceGetQueryLogEntriesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getQueryValues: connect.NewClient[v2.GetQueryValuesRequest, v2.GetQueryValuesResponse](
 			httpClient,
 			baseURL+OfflineStoreServiceGetQueryValuesProcedure,
-			connect.WithSchema(offlineStoreServiceMethods.ByName("GetQueryValues")),
+			connect.WithSchema(offlineStoreServiceGetQueryValuesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getFeatureValuesTimeSeriesChart: connect.NewClient[v2.GetFeatureValuesTimeSeriesChartRequest, v2.GetFeatureValuesTimeSeriesChartResponse](
 			httpClient,
 			baseURL+OfflineStoreServiceGetFeatureValuesTimeSeriesChartProcedure,
-			connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValuesTimeSeriesChart")),
+			connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getFeatureValues: connect.NewClient[v2.GetFeatureValuesRequest, v2.GetFeatureValuesResponse](
 			httpClient,
 			baseURL+OfflineStoreServiceGetFeatureValuesProcedure,
-			connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValues")),
+			connect.WithSchema(offlineStoreServiceGetFeatureValuesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -137,29 +145,28 @@ type OfflineStoreServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewOfflineStoreServiceHandler(svc OfflineStoreServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	offlineStoreServiceMethods := v2.File_chalk_engine_v2_offline_store_service_proto.Services().ByName("OfflineStoreService").Methods()
 	offlineStoreServiceGetQueryLogEntriesHandler := connect.NewUnaryHandler(
 		OfflineStoreServiceGetQueryLogEntriesProcedure,
 		svc.GetQueryLogEntries,
-		connect.WithSchema(offlineStoreServiceMethods.ByName("GetQueryLogEntries")),
+		connect.WithSchema(offlineStoreServiceGetQueryLogEntriesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	offlineStoreServiceGetQueryValuesHandler := connect.NewUnaryHandler(
 		OfflineStoreServiceGetQueryValuesProcedure,
 		svc.GetQueryValues,
-		connect.WithSchema(offlineStoreServiceMethods.ByName("GetQueryValues")),
+		connect.WithSchema(offlineStoreServiceGetQueryValuesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	offlineStoreServiceGetFeatureValuesTimeSeriesChartHandler := connect.NewUnaryHandler(
 		OfflineStoreServiceGetFeatureValuesTimeSeriesChartProcedure,
 		svc.GetFeatureValuesTimeSeriesChart,
-		connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValuesTimeSeriesChart")),
+		connect.WithSchema(offlineStoreServiceGetFeatureValuesTimeSeriesChartMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	offlineStoreServiceGetFeatureValuesHandler := connect.NewUnaryHandler(
 		OfflineStoreServiceGetFeatureValuesProcedure,
 		svc.GetFeatureValues,
-		connect.WithSchema(offlineStoreServiceMethods.ByName("GetFeatureValues")),
+		connect.WithSchema(offlineStoreServiceGetFeatureValuesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.engine.v2.OfflineStoreService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

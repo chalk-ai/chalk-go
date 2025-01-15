@@ -39,6 +39,12 @@ const (
 	CommandLineInterfaceServiceGetVersionsProcedure = "/chalk.server.v1.CommandLineInterfaceService/GetVersions"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	commandLineInterfaceServiceServiceDescriptor           = v1.File_chalk_server_v1_cli_proto.Services().ByName("CommandLineInterfaceService")
+	commandLineInterfaceServiceGetVersionsMethodDescriptor = commandLineInterfaceServiceServiceDescriptor.Methods().ByName("GetVersions")
+)
+
 // CommandLineInterfaceServiceClient is a client for the chalk.server.v1.CommandLineInterfaceService
 // service.
 type CommandLineInterfaceServiceClient interface {
@@ -55,12 +61,11 @@ type CommandLineInterfaceServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewCommandLineInterfaceServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CommandLineInterfaceServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	commandLineInterfaceServiceMethods := v1.File_chalk_server_v1_cli_proto.Services().ByName("CommandLineInterfaceService").Methods()
 	return &commandLineInterfaceServiceClient{
 		getVersions: connect.NewClient[v1.GetVersionsRequest, v1.GetVersionsResponse](
 			httpClient,
 			baseURL+CommandLineInterfaceServiceGetVersionsProcedure,
-			connect.WithSchema(commandLineInterfaceServiceMethods.ByName("GetVersions")),
+			connect.WithSchema(commandLineInterfaceServiceGetVersionsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -89,11 +94,10 @@ type CommandLineInterfaceServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewCommandLineInterfaceServiceHandler(svc CommandLineInterfaceServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	commandLineInterfaceServiceMethods := v1.File_chalk_server_v1_cli_proto.Services().ByName("CommandLineInterfaceService").Methods()
 	commandLineInterfaceServiceGetVersionsHandler := connect.NewUnaryHandler(
 		CommandLineInterfaceServiceGetVersionsProcedure,
 		svc.GetVersions,
-		connect.WithSchema(commandLineInterfaceServiceMethods.ByName("GetVersions")),
+		connect.WithSchema(commandLineInterfaceServiceGetVersionsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

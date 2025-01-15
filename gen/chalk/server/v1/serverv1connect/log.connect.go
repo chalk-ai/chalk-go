@@ -38,6 +38,12 @@ const (
 	LogSearchServiceSearchLogEntriesProcedure = "/chalk.server.v1.LogSearchService/SearchLogEntries"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	logSearchServiceServiceDescriptor                = v1.File_chalk_server_v1_log_proto.Services().ByName("LogSearchService")
+	logSearchServiceSearchLogEntriesMethodDescriptor = logSearchServiceServiceDescriptor.Methods().ByName("SearchLogEntries")
+)
+
 // LogSearchServiceClient is a client for the chalk.server.v1.LogSearchService service.
 type LogSearchServiceClient interface {
 	SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error)
@@ -52,12 +58,11 @@ type LogSearchServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewLogSearchServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) LogSearchServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	logSearchServiceMethods := v1.File_chalk_server_v1_log_proto.Services().ByName("LogSearchService").Methods()
 	return &logSearchServiceClient{
 		searchLogEntries: connect.NewClient[v1.SearchLogEntriesRequest, v1.SearchLogEntriesResponse](
 			httpClient,
 			baseURL+LogSearchServiceSearchLogEntriesProcedure,
-			connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntries")),
+			connect.WithSchema(logSearchServiceSearchLogEntriesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -85,11 +90,10 @@ type LogSearchServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	logSearchServiceMethods := v1.File_chalk_server_v1_log_proto.Services().ByName("LogSearchService").Methods()
 	logSearchServiceSearchLogEntriesHandler := connect.NewUnaryHandler(
 		LogSearchServiceSearchLogEntriesProcedure,
 		svc.SearchLogEntries,
-		connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntries")),
+		connect.WithSchema(logSearchServiceSearchLogEntriesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

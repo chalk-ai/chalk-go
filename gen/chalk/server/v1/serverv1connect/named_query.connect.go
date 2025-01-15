@@ -44,6 +44,14 @@ const (
 	NamedQueryServiceGetNamedQueryByNameProcedure = "/chalk.server.v1.NamedQueryService/GetNamedQueryByName"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	namedQueryServiceServiceDescriptor                                  = v1.File_chalk_server_v1_named_query_proto.Services().ByName("NamedQueryService")
+	namedQueryServiceGetAllNamedQueriesMethodDescriptor                 = namedQueryServiceServiceDescriptor.Methods().ByName("GetAllNamedQueries")
+	namedQueryServiceGetAllNamedQueriesActiveDeploymentMethodDescriptor = namedQueryServiceServiceDescriptor.Methods().ByName("GetAllNamedQueriesActiveDeployment")
+	namedQueryServiceGetNamedQueryByNameMethodDescriptor                = namedQueryServiceServiceDescriptor.Methods().ByName("GetNamedQueryByName")
+)
+
 // NamedQueryServiceClient is a client for the chalk.server.v1.NamedQueryService service.
 type NamedQueryServiceClient interface {
 	GetAllNamedQueries(context.Context, *connect.Request[v1.GetAllNamedQueriesRequest]) (*connect.Response[v1.GetAllNamedQueriesResponse], error)
@@ -60,26 +68,25 @@ type NamedQueryServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewNamedQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) NamedQueryServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	namedQueryServiceMethods := v1.File_chalk_server_v1_named_query_proto.Services().ByName("NamedQueryService").Methods()
 	return &namedQueryServiceClient{
 		getAllNamedQueries: connect.NewClient[v1.GetAllNamedQueriesRequest, v1.GetAllNamedQueriesResponse](
 			httpClient,
 			baseURL+NamedQueryServiceGetAllNamedQueriesProcedure,
-			connect.WithSchema(namedQueryServiceMethods.ByName("GetAllNamedQueries")),
+			connect.WithSchema(namedQueryServiceGetAllNamedQueriesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAllNamedQueriesActiveDeployment: connect.NewClient[v1.GetAllNamedQueriesActiveDeploymentRequest, v1.GetAllNamedQueriesActiveDeploymentResponse](
 			httpClient,
 			baseURL+NamedQueryServiceGetAllNamedQueriesActiveDeploymentProcedure,
-			connect.WithSchema(namedQueryServiceMethods.ByName("GetAllNamedQueriesActiveDeployment")),
+			connect.WithSchema(namedQueryServiceGetAllNamedQueriesActiveDeploymentMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getNamedQueryByName: connect.NewClient[v1.GetNamedQueryByNameRequest, v1.GetNamedQueryByNameResponse](
 			httpClient,
 			baseURL+NamedQueryServiceGetNamedQueryByNameProcedure,
-			connect.WithSchema(namedQueryServiceMethods.ByName("GetNamedQueryByName")),
+			connect.WithSchema(namedQueryServiceGetNamedQueryByNameMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -122,25 +129,24 @@ type NamedQueryServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewNamedQueryServiceHandler(svc NamedQueryServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	namedQueryServiceMethods := v1.File_chalk_server_v1_named_query_proto.Services().ByName("NamedQueryService").Methods()
 	namedQueryServiceGetAllNamedQueriesHandler := connect.NewUnaryHandler(
 		NamedQueryServiceGetAllNamedQueriesProcedure,
 		svc.GetAllNamedQueries,
-		connect.WithSchema(namedQueryServiceMethods.ByName("GetAllNamedQueries")),
+		connect.WithSchema(namedQueryServiceGetAllNamedQueriesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	namedQueryServiceGetAllNamedQueriesActiveDeploymentHandler := connect.NewUnaryHandler(
 		NamedQueryServiceGetAllNamedQueriesActiveDeploymentProcedure,
 		svc.GetAllNamedQueriesActiveDeployment,
-		connect.WithSchema(namedQueryServiceMethods.ByName("GetAllNamedQueriesActiveDeployment")),
+		connect.WithSchema(namedQueryServiceGetAllNamedQueriesActiveDeploymentMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	namedQueryServiceGetNamedQueryByNameHandler := connect.NewUnaryHandler(
 		NamedQueryServiceGetNamedQueryByNameProcedure,
 		svc.GetNamedQueryByName,
-		connect.WithSchema(namedQueryServiceMethods.ByName("GetNamedQueryByName")),
+		connect.WithSchema(namedQueryServiceGetNamedQueryByNameMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

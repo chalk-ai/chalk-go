@@ -38,6 +38,12 @@ const (
 	StatusServiceGetClusterMetricsProcedure = "/chalk.manager.v1.StatusService/GetClusterMetrics"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	statusServiceServiceDescriptor                 = v1.File_chalk_manager_v1_status_proto.Services().ByName("StatusService")
+	statusServiceGetClusterMetricsMethodDescriptor = statusServiceServiceDescriptor.Methods().ByName("GetClusterMetrics")
+)
+
 // StatusServiceClient is a client for the chalk.manager.v1.StatusService service.
 type StatusServiceClient interface {
 	// Return collected cluster prometheus metrics
@@ -53,12 +59,11 @@ type StatusServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewStatusServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) StatusServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	statusServiceMethods := v1.File_chalk_manager_v1_status_proto.Services().ByName("StatusService").Methods()
 	return &statusServiceClient{
 		getClusterMetrics: connect.NewClient[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse](
 			httpClient,
 			baseURL+StatusServiceGetClusterMetricsProcedure,
-			connect.WithSchema(statusServiceMethods.ByName("GetClusterMetrics")),
+			connect.WithSchema(statusServiceGetClusterMetricsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -87,11 +92,10 @@ type StatusServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewStatusServiceHandler(svc StatusServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	statusServiceMethods := v1.File_chalk_manager_v1_status_proto.Services().ByName("StatusService").Methods()
 	statusServiceGetClusterMetricsHandler := connect.NewUnaryHandler(
 		StatusServiceGetClusterMetricsProcedure,
 		svc.GetClusterMetrics,
-		connect.WithSchema(statusServiceMethods.ByName("GetClusterMetrics")),
+		connect.WithSchema(statusServiceGetClusterMetricsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

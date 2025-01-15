@@ -60,6 +60,19 @@ const (
 	QueryServiceGetAggregatesProcedure = "/chalk.engine.v1.QueryService/GetAggregates"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	queryServiceServiceDescriptor                     = v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService")
+	queryServicePingMethodDescriptor                  = queryServiceServiceDescriptor.Methods().ByName("Ping")
+	queryServiceOnlineQueryMethodDescriptor           = queryServiceServiceDescriptor.Methods().ByName("OnlineQuery")
+	queryServiceOnlineQueryBulkMethodDescriptor       = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryBulk")
+	queryServiceOnlineQueryMultiMethodDescriptor      = queryServiceServiceDescriptor.Methods().ByName("OnlineQueryMulti")
+	queryServiceUploadFeaturesBulkMethodDescriptor    = queryServiceServiceDescriptor.Methods().ByName("UploadFeaturesBulk")
+	queryServiceUploadFeaturesMethodDescriptor        = queryServiceServiceDescriptor.Methods().ByName("UploadFeatures")
+	queryServicePlanAggregateBackfillMethodDescriptor = queryServiceServiceDescriptor.Methods().ByName("PlanAggregateBackfill")
+	queryServiceGetAggregatesMethodDescriptor         = queryServiceServiceDescriptor.Methods().ByName("GetAggregates")
+)
+
 // QueryServiceClient is a client for the chalk.engine.v1.QueryService service.
 type QueryServiceClient interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
@@ -92,56 +105,55 @@ type QueryServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) QueryServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	queryServiceMethods := v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService").Methods()
 	return &queryServiceClient{
 		ping: connect.NewClient[v1.PingRequest, v1.PingResponse](
 			httpClient,
 			baseURL+QueryServicePingProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("Ping")),
+			connect.WithSchema(queryServicePingMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		onlineQuery: connect.NewClient[v11.OnlineQueryRequest, v11.OnlineQueryResponse](
 			httpClient,
 			baseURL+QueryServiceOnlineQueryProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("OnlineQuery")),
+			connect.WithSchema(queryServiceOnlineQueryMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		onlineQueryBulk: connect.NewClient[v11.OnlineQueryBulkRequest, v11.OnlineQueryBulkResponse](
 			httpClient,
 			baseURL+QueryServiceOnlineQueryBulkProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("OnlineQueryBulk")),
+			connect.WithSchema(queryServiceOnlineQueryBulkMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		onlineQueryMulti: connect.NewClient[v11.OnlineQueryMultiRequest, v11.OnlineQueryMultiResponse](
 			httpClient,
 			baseURL+QueryServiceOnlineQueryMultiProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("OnlineQueryMulti")),
+			connect.WithSchema(queryServiceOnlineQueryMultiMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		uploadFeaturesBulk: connect.NewClient[v11.UploadFeaturesBulkRequest, v11.UploadFeaturesBulkResponse](
 			httpClient,
 			baseURL+QueryServiceUploadFeaturesBulkProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("UploadFeaturesBulk")),
+			connect.WithSchema(queryServiceUploadFeaturesBulkMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		uploadFeatures: connect.NewClient[v11.UploadFeaturesRequest, v11.UploadFeaturesResponse](
 			httpClient,
 			baseURL+QueryServiceUploadFeaturesProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("UploadFeatures")),
+			connect.WithSchema(queryServiceUploadFeaturesMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		planAggregateBackfill: connect.NewClient[v12.PlanAggregateBackfillRequest, v12.PlanAggregateBackfillResponse](
 			httpClient,
 			baseURL+QueryServicePlanAggregateBackfillProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("PlanAggregateBackfill")),
+			connect.WithSchema(queryServicePlanAggregateBackfillMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getAggregates: connect.NewClient[v12.GetAggregatesRequest, v12.GetAggregatesResponse](
 			httpClient,
 			baseURL+QueryServiceGetAggregatesProcedure,
-			connect.WithSchema(queryServiceMethods.ByName("GetAggregates")),
+			connect.WithSchema(queryServiceGetAggregatesMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -229,55 +241,54 @@ type QueryServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	queryServiceMethods := v1.File_chalk_engine_v1_query_server_proto.Services().ByName("QueryService").Methods()
 	queryServicePingHandler := connect.NewUnaryHandler(
 		QueryServicePingProcedure,
 		svc.Ping,
-		connect.WithSchema(queryServiceMethods.ByName("Ping")),
+		connect.WithSchema(queryServicePingMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceOnlineQueryHandler := connect.NewUnaryHandler(
 		QueryServiceOnlineQueryProcedure,
 		svc.OnlineQuery,
-		connect.WithSchema(queryServiceMethods.ByName("OnlineQuery")),
+		connect.WithSchema(queryServiceOnlineQueryMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceOnlineQueryBulkHandler := connect.NewUnaryHandler(
 		QueryServiceOnlineQueryBulkProcedure,
 		svc.OnlineQueryBulk,
-		connect.WithSchema(queryServiceMethods.ByName("OnlineQueryBulk")),
+		connect.WithSchema(queryServiceOnlineQueryBulkMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceOnlineQueryMultiHandler := connect.NewUnaryHandler(
 		QueryServiceOnlineQueryMultiProcedure,
 		svc.OnlineQueryMulti,
-		connect.WithSchema(queryServiceMethods.ByName("OnlineQueryMulti")),
+		connect.WithSchema(queryServiceOnlineQueryMultiMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceUploadFeaturesBulkHandler := connect.NewUnaryHandler(
 		QueryServiceUploadFeaturesBulkProcedure,
 		svc.UploadFeaturesBulk,
-		connect.WithSchema(queryServiceMethods.ByName("UploadFeaturesBulk")),
+		connect.WithSchema(queryServiceUploadFeaturesBulkMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceUploadFeaturesHandler := connect.NewUnaryHandler(
 		QueryServiceUploadFeaturesProcedure,
 		svc.UploadFeatures,
-		connect.WithSchema(queryServiceMethods.ByName("UploadFeatures")),
+		connect.WithSchema(queryServiceUploadFeaturesMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServicePlanAggregateBackfillHandler := connect.NewUnaryHandler(
 		QueryServicePlanAggregateBackfillProcedure,
 		svc.PlanAggregateBackfill,
-		connect.WithSchema(queryServiceMethods.ByName("PlanAggregateBackfill")),
+		connect.WithSchema(queryServicePlanAggregateBackfillMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	queryServiceGetAggregatesHandler := connect.NewUnaryHandler(
 		QueryServiceGetAggregatesProcedure,
 		svc.GetAggregates,
-		connect.WithSchema(queryServiceMethods.ByName("GetAggregates")),
+		connect.WithSchema(queryServiceGetAggregatesMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

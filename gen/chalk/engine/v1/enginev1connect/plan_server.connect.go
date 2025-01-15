@@ -40,6 +40,13 @@ const (
 	PlanServiceExecuteQueryProcedure = "/chalk.engine.v1.PlanService/ExecuteQuery"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	planServiceServiceDescriptor            = v1.File_chalk_engine_v1_plan_server_proto.Services().ByName("PlanService")
+	planServiceGetPlanMethodDescriptor      = planServiceServiceDescriptor.Methods().ByName("GetPlan")
+	planServiceExecuteQueryMethodDescriptor = planServiceServiceDescriptor.Methods().ByName("ExecuteQuery")
+)
+
 // PlanServiceClient is a client for the chalk.engine.v1.PlanService service.
 type PlanServiceClient interface {
 	GetPlan(context.Context, *connect.Request[v1.GetPlanRequest]) (*connect.Response[v1.GetPlanResponse], error)
@@ -56,18 +63,17 @@ type PlanServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewPlanServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) PlanServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	planServiceMethods := v1.File_chalk_engine_v1_plan_server_proto.Services().ByName("PlanService").Methods()
 	return &planServiceClient{
 		getPlan: connect.NewClient[v1.GetPlanRequest, v1.GetPlanResponse](
 			httpClient,
 			baseURL+PlanServiceGetPlanProcedure,
-			connect.WithSchema(planServiceMethods.ByName("GetPlan")),
+			connect.WithSchema(planServiceGetPlanMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		executeQuery: connect.NewClient[v1.ExecuteQueryRequest, v1.ExecuteQueryResponse](
 			httpClient,
 			baseURL+PlanServiceExecuteQueryProcedure,
-			connect.WithSchema(planServiceMethods.ByName("ExecuteQuery")),
+			connect.WithSchema(planServiceExecuteQueryMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -102,17 +108,16 @@ type PlanServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewPlanServiceHandler(svc PlanServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	planServiceMethods := v1.File_chalk_engine_v1_plan_server_proto.Services().ByName("PlanService").Methods()
 	planServiceGetPlanHandler := connect.NewUnaryHandler(
 		PlanServiceGetPlanProcedure,
 		svc.GetPlan,
-		connect.WithSchema(planServiceMethods.ByName("GetPlan")),
+		connect.WithSchema(planServiceGetPlanMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	planServiceExecuteQueryHandler := connect.NewUnaryHandler(
 		PlanServiceExecuteQueryProcedure,
 		svc.ExecuteQuery,
-		connect.WithSchema(planServiceMethods.ByName("ExecuteQuery")),
+		connect.WithSchema(planServiceExecuteQueryMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.engine.v1.PlanService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

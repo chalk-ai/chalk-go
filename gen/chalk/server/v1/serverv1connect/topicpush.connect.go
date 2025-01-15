@@ -50,6 +50,16 @@ const (
 	TopicPushServiceGetJobByNameProcedure = "/chalk.server.v1.TopicPushService/GetJobByName"
 )
 
+// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
+var (
+	topicPushServiceServiceDescriptor            = v1.File_chalk_server_v1_topicpush_proto.Services().ByName("TopicPushService")
+	topicPushServiceListJobsMethodDescriptor     = topicPushServiceServiceDescriptor.Methods().ByName("ListJobs")
+	topicPushServiceCreateJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("CreateJob")
+	topicPushServiceUpdateJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("UpdateJob")
+	topicPushServiceDeleteJobMethodDescriptor    = topicPushServiceServiceDescriptor.Methods().ByName("DeleteJob")
+	topicPushServiceGetJobByNameMethodDescriptor = topicPushServiceServiceDescriptor.Methods().ByName("GetJobByName")
+)
+
 // TopicPushServiceClient is a client for the chalk.server.v1.TopicPushService service.
 type TopicPushServiceClient interface {
 	ListJobs(context.Context, *connect.Request[v1.ListJobsRequest]) (*connect.Response[v1.ListJobsResponse], error)
@@ -68,38 +78,37 @@ type TopicPushServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewTopicPushServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) TopicPushServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
-	topicPushServiceMethods := v1.File_chalk_server_v1_topicpush_proto.Services().ByName("TopicPushService").Methods()
 	return &topicPushServiceClient{
 		listJobs: connect.NewClient[v1.ListJobsRequest, v1.ListJobsResponse](
 			httpClient,
 			baseURL+TopicPushServiceListJobsProcedure,
-			connect.WithSchema(topicPushServiceMethods.ByName("ListJobs")),
+			connect.WithSchema(topicPushServiceListJobsMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createJob: connect.NewClient[v1.CreateJobRequest, v1.CreateJobResponse](
 			httpClient,
 			baseURL+TopicPushServiceCreateJobProcedure,
-			connect.WithSchema(topicPushServiceMethods.ByName("CreateJob")),
+			connect.WithSchema(topicPushServiceCreateJobMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		updateJob: connect.NewClient[v1.UpdateJobRequest, v1.UpdateJobResponse](
 			httpClient,
 			baseURL+TopicPushServiceUpdateJobProcedure,
-			connect.WithSchema(topicPushServiceMethods.ByName("UpdateJob")),
+			connect.WithSchema(topicPushServiceUpdateJobMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		deleteJob: connect.NewClient[v1.DeleteJobRequest, v1.DeleteJobResponse](
 			httpClient,
 			baseURL+TopicPushServiceDeleteJobProcedure,
-			connect.WithSchema(topicPushServiceMethods.ByName("DeleteJob")),
+			connect.WithSchema(topicPushServiceDeleteJobMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		getJobByName: connect.NewClient[v1.GetJobByNameRequest, v1.GetJobByNameResponse](
 			httpClient,
 			baseURL+TopicPushServiceGetJobByNameProcedure,
-			connect.WithSchema(topicPushServiceMethods.ByName("GetJobByName")),
+			connect.WithSchema(topicPushServiceGetJobByNameMethodDescriptor),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
@@ -155,37 +164,36 @@ type TopicPushServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewTopicPushServiceHandler(svc TopicPushServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	topicPushServiceMethods := v1.File_chalk_server_v1_topicpush_proto.Services().ByName("TopicPushService").Methods()
 	topicPushServiceListJobsHandler := connect.NewUnaryHandler(
 		TopicPushServiceListJobsProcedure,
 		svc.ListJobs,
-		connect.WithSchema(topicPushServiceMethods.ByName("ListJobs")),
+		connect.WithSchema(topicPushServiceListJobsMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	topicPushServiceCreateJobHandler := connect.NewUnaryHandler(
 		TopicPushServiceCreateJobProcedure,
 		svc.CreateJob,
-		connect.WithSchema(topicPushServiceMethods.ByName("CreateJob")),
+		connect.WithSchema(topicPushServiceCreateJobMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	topicPushServiceUpdateJobHandler := connect.NewUnaryHandler(
 		TopicPushServiceUpdateJobProcedure,
 		svc.UpdateJob,
-		connect.WithSchema(topicPushServiceMethods.ByName("UpdateJob")),
+		connect.WithSchema(topicPushServiceUpdateJobMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	topicPushServiceDeleteJobHandler := connect.NewUnaryHandler(
 		TopicPushServiceDeleteJobProcedure,
 		svc.DeleteJob,
-		connect.WithSchema(topicPushServiceMethods.ByName("DeleteJob")),
+		connect.WithSchema(topicPushServiceDeleteJobMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	topicPushServiceGetJobByNameHandler := connect.NewUnaryHandler(
 		TopicPushServiceGetJobByNameProcedure,
 		svc.GetJobByName,
-		connect.WithSchema(topicPushServiceMethods.ByName("GetJobByName")),
+		connect.WithSchema(topicPushServiceGetJobByNameMethodDescriptor),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
