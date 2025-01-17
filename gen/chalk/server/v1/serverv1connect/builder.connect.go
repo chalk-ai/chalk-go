@@ -23,6 +23,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// BuilderServiceName is the fully-qualified name of the BuilderService service.
 	BuilderServiceName = "chalk.server.v1.BuilderService"
+	// ClusterBuilderServiceName is the fully-qualified name of the ClusterBuilderService service.
+	ClusterBuilderServiceName = "chalk.server.v1.ClusterBuilderService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -87,6 +89,12 @@ const (
 	// BuilderServiceStartBranchProcedure is the fully-qualified name of the BuilderService's
 	// StartBranch RPC.
 	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
+	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
+	// ClusterBuilderService's CreateKafkaTopics RPC.
+	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
+	// ClusterBuilderServiceGetKafkaTopicsProcedure is the fully-qualified name of the
+	// ClusterBuilderService's GetKafkaTopics RPC.
+	ClusterBuilderServiceGetKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/GetKafkaTopics"
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -619,4 +627,101 @@ func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Con
 
 func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartBranch is not implemented"))
+}
+
+// ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
+type ClusterBuilderServiceClient interface {
+	CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error)
+	GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error)
+}
+
+// NewClusterBuilderServiceClient constructs a client for the chalk.server.v1.ClusterBuilderService
+// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
+// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
+// the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewClusterBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ClusterBuilderServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	clusterBuilderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("ClusterBuilderService").Methods()
+	return &clusterBuilderServiceClient{
+		createKafkaTopics: connect.NewClient[v1.CreateKafkaTopicsRequest, v1.CreateKafkaTopicsResponse](
+			httpClient,
+			baseURL+ClusterBuilderServiceCreateKafkaTopicsProcedure,
+			connect.WithSchema(clusterBuilderServiceMethods.ByName("CreateKafkaTopics")),
+			connect.WithClientOptions(opts...),
+		),
+		getKafkaTopics: connect.NewClient[v1.GetKafkaTopicsRequest, v1.GetKafkaTopicsResponse](
+			httpClient,
+			baseURL+ClusterBuilderServiceGetKafkaTopicsProcedure,
+			connect.WithSchema(clusterBuilderServiceMethods.ByName("GetKafkaTopics")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// clusterBuilderServiceClient implements ClusterBuilderServiceClient.
+type clusterBuilderServiceClient struct {
+	createKafkaTopics *connect.Client[v1.CreateKafkaTopicsRequest, v1.CreateKafkaTopicsResponse]
+	getKafkaTopics    *connect.Client[v1.GetKafkaTopicsRequest, v1.GetKafkaTopicsResponse]
+}
+
+// CreateKafkaTopics calls chalk.server.v1.ClusterBuilderService.CreateKafkaTopics.
+func (c *clusterBuilderServiceClient) CreateKafkaTopics(ctx context.Context, req *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error) {
+	return c.createKafkaTopics.CallUnary(ctx, req)
+}
+
+// GetKafkaTopics calls chalk.server.v1.ClusterBuilderService.GetKafkaTopics.
+func (c *clusterBuilderServiceClient) GetKafkaTopics(ctx context.Context, req *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error) {
+	return c.getKafkaTopics.CallUnary(ctx, req)
+}
+
+// ClusterBuilderServiceHandler is an implementation of the chalk.server.v1.ClusterBuilderService
+// service.
+type ClusterBuilderServiceHandler interface {
+	CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error)
+	GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error)
+}
+
+// NewClusterBuilderServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewClusterBuilderServiceHandler(svc ClusterBuilderServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	clusterBuilderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("ClusterBuilderService").Methods()
+	clusterBuilderServiceCreateKafkaTopicsHandler := connect.NewUnaryHandler(
+		ClusterBuilderServiceCreateKafkaTopicsProcedure,
+		svc.CreateKafkaTopics,
+		connect.WithSchema(clusterBuilderServiceMethods.ByName("CreateKafkaTopics")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clusterBuilderServiceGetKafkaTopicsHandler := connect.NewUnaryHandler(
+		ClusterBuilderServiceGetKafkaTopicsProcedure,
+		svc.GetKafkaTopics,
+		connect.WithSchema(clusterBuilderServiceMethods.ByName("GetKafkaTopics")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.server.v1.ClusterBuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ClusterBuilderServiceCreateKafkaTopicsProcedure:
+			clusterBuilderServiceCreateKafkaTopicsHandler.ServeHTTP(w, r)
+		case ClusterBuilderServiceGetKafkaTopicsProcedure:
+			clusterBuilderServiceGetKafkaTopicsHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedClusterBuilderServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedClusterBuilderServiceHandler struct{}
+
+func (UnimplementedClusterBuilderServiceHandler) CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClusterBuilderService.CreateKafkaTopics is not implemented"))
+}
+
+func (UnimplementedClusterBuilderServiceHandler) GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClusterBuilderService.GetKafkaTopics is not implemented"))
 }
