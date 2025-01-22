@@ -27,10 +27,10 @@ type clientImpl struct {
 	Branch        string
 	QueryServer   string
 	DeploymentTag string
-
 	resourceGroup *string
-	httpClient    HTTPClient
-	logger        LeveledLogger
+	
+	httpClient HTTPClient
+	logger     LeveledLogger
 }
 
 type HTTPClient interface {
