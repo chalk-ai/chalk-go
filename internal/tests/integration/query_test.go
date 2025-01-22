@@ -2,9 +2,13 @@ package integration
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/http2"
+	"net/http"
 	"testing"
 	"time"
 )
@@ -50,7 +54,19 @@ func TestOnlineQueryE2E(t *testing.T) {
 		{useGrpc: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			certPool, err := x509.SystemCertPool()
+			if err != nil {
+				t.Fatal("Failed creating a system cert pool", err)
+			}
+			httpClient := http.Client{
+				Transport: &http2.Transport{
+					TLSClientConfig: &tls.Config{
+						RootCAs: certPool,
+					},
+				},
+			}
+
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -243,6 +259,52 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 
 			_, err = client.OnlineQuery(req, nil)
 			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestCustomCerts(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+	systemCertPool, err := x509.SystemCertPool()
+	if err != nil {
+		t.Fatal("Failed creating a system cert pool", err)
+	}
+	emptyCertPool := x509.NewCertPool()
+
+	for _, fixture := range []struct {
+		useGrpc    bool
+		certPool   *x509.CertPool
+		shouldFail bool
+	}{
+		{useGrpc: false, certPool: systemCertPool, shouldFail: false},
+		{useGrpc: false, certPool: emptyCertPool, shouldFail: true},
+		{useGrpc: true, certPool: systemCertPool, shouldFail: false},
+		{useGrpc: true, certPool: emptyCertPool, shouldFail: true},
+	} {
+		t.Run(fmt.Sprintf("grpc=%v, shouldFail=%v", fixture.useGrpc, fixture.shouldFail), func(t *testing.T) {
+			httpClient := http.Client{
+				Transport: &http2.Transport{
+					TLSClientConfig: &tls.Config{
+						RootCAs: fixture.certPool,
+					},
+				},
+			}
+
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
+			if fixture.shouldFail {
+				assert.Error(t, err)
+				return
+			} else {
+				assert.NoError(t, err)
+			}
+			var userObj user
+			_, queryErr := client.OnlineQuery(getParams(), &userObj)
+			if fixture.shouldFail {
+				assert.Error(t, queryErr)
+			} else {
+				assert.NoError(t, queryErr)
+			}
 		})
 	}
 }

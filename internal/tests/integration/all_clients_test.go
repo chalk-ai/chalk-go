@@ -35,7 +35,6 @@ func init() {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
-
 }
 
 // Test that we can execute an OnlineQuery
