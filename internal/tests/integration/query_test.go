@@ -283,6 +283,7 @@ func TestCustomCerts(t *testing.T) {
 		{useGrpc: true, certPool: emptyCertPool, shouldFail: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v, shouldFail=%v", fixture.useGrpc, fixture.shouldFail), func(t *testing.T) {
+			t.Parallel()
 			httpClient := http.Client{
 				Transport: &http2.Transport{
 					TLSClientConfig: &tls.Config{
