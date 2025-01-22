@@ -83,6 +83,10 @@ type OnlineQueryParams struct {
 	// EncodingOptions is used to specify how features should be encoded in the response.
 	EncodingOptions *FeatureEncodingOptions
 
+	// ResourceGroup specifies the resource group to route this query to. Takes precedence
+	// over the resource group specified on the client level.
+	ResourceGroup string
+
 	/**************
 	 PRIVATE FIELDS
 	***************/

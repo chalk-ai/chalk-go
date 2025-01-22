@@ -214,6 +214,10 @@ type ClientConfig struct {
 
 	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
 	UseGrpc bool
+
+	// ResourceGroup specifies the resource group to route all requests to. If set
+	// on the request or query level, this will be overridden.
+	ResourceGroup string
 }
 
 // NewClient creates a Client with authentication settings configured.

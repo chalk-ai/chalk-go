@@ -17,25 +17,15 @@ import (
 	"net/http"
 )
 
-var (
-	headerKeyDeploymentType = "x-chalk-deployment-type"
-	headerKeyEnvironmentId  = "x-chalk-env-id"
-	headerKeyServerType     = "x-chalk-server"
-	//headerKeyTraceId        = "x-chalk-trace-id"
-	headerKeyDeploymentTag = "x-chalk-deployment-tag"
-
-	serverTypeApi    = "go-api"
-	serverTypeEngine = "engine"
-)
-
 type grpcClientImpl struct {
 	GRPCClient
 	config *configManager
 
-	branch      string
-	queryServer *string
-	logger      LeveledLogger
-	httpClient  *http.Client
+	branch        string
+	queryServer   *string
+	resourceGroup *string
+	logger        LeveledLogger
+	httpClient    *http.Client
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -65,19 +55,25 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		queryServer = ptr.Ptr(cfg.QueryServer)
 	}
 
+	var resourceGroup *string
+	if cfg.ResourceGroup != "" {
+		resourceGroup = ptr.Ptr(cfg.ResourceGroup)
+	}
+
 	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating query client")
 	}
 
 	return &grpcClientImpl{
-		branch:      cfg.Branch,
-		httpClient:  httpClient,
-		logger:      config.logger,
-		config:      config,
-		authClient:  authClient,
-		queryClient: queryClient,
-		queryServer: queryServer,
+		branch:        cfg.Branch,
+		httpClient:    httpClient,
+		logger:        config.logger,
+		config:        config,
+		authClient:    authClient,
+		queryClient:   queryClient,
+		queryServer:   queryServer,
+		resourceGroup: resourceGroup,
 	}, nil
 }
 
@@ -222,6 +218,11 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
 	req := connect.NewRequest(paramsProto)
+	if args.underlying.ResourceGroup != "" {
+		req.Header().Set(HeaderKeyResourceGroup, args.underlying.ResourceGroup)
+	} else if c.resourceGroup != nil {
+		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
+	}
 	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
 		return nil, wrapClientError(err, "executing online query")
