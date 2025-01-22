@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-// TestVersionHeaderSetOnlineQueryBulk tests that when we specify
+// TestHeadersSetOnlineQueryBulk tests that when we specify
 // features using codegen-ed structs, we set the "versioned" header.
-func TestVersionHeaderSetOnlineQueryBulk(t *testing.T) {
+func TestHeadersSetOnlineQueryBulk(t *testing.T) {
 	// TODO: This can be a non-integration test if we can make
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
@@ -22,20 +22,24 @@ func TestVersionHeaderSetOnlineQueryBulk(t *testing.T) {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 	userIds := []int{1}
+	resourceGroup := "bogus-resource-group"
 	err = chalk.InitFeatures(&testFeatures)
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
-	req := chalk.OnlineQueryParams{}.
+	req := chalk.OnlineQueryParams{
+		ResourceGroup: resourceGroup,
+	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
 	_, _ = client.OnlineQueryBulk(req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
+	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
 
-// TestVersionHeaderSetOnlineQuery tests that when we specify
+// TestHeadersSetOnlineQuery tests that when we specify
 // features using codegen-ed structs, we set the "versioned" header.
-func TestVersionHeaderSetOnlineQuery(t *testing.T) {
+func TestHeadersSetOnlineQuery(t *testing.T) {
 	// TODO: This can be a non-integration test if we can make
 	//       the mock client return a fake JWT when auth is
 	//       being performed.
@@ -47,15 +51,21 @@ func TestVersionHeaderSetOnlineQuery(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
+
+	resourceGroup := "bogus-resource-group"
+
 	err = chalk.InitFeatures(&testFeatures)
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
-	req := chalk.OnlineQueryParams{}.
+	req := chalk.OnlineQueryParams{
+		ResourceGroup: resourceGroup,
+	}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.SocureScore)
 	_, _ = client.OnlineQuery(req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
+	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
 
 // TestVersionHeaderSetOfflineQuery tests that when we specify
