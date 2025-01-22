@@ -59,10 +59,11 @@ type sendRequestParams struct {
 	Response    any
 	DontRefresh bool
 
-	EnvironmentOverride string
-	PreviewDeploymentId string
-	Versioned           bool
-	Branch              *string
+	EnvironmentOverride   string
+	PreviewDeploymentId   string
+	Versioned             bool
+	Branch                *string
+	ResourceGroupOverride *string
 
 	IsEngineRequest bool
 }

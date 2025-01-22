@@ -19,7 +19,7 @@ func withChalkInterceptors(serverType string, interceptors ...connect.Intercepto
 		append(
 			interceptors,
 			headerInterceptor(map[string]string{
-				headerKeyServerType: serverType,
+				HeaderKeyServerType: serverType,
 			}),
 		)...,
 	)
@@ -55,7 +55,7 @@ func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptor
 			if err := configManager.refresh(false); err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set(headerKeyEnvironmentId, configManager.environmentId.Value)
+			req.Header().Set(HeaderKeyEnvironmentId, configManager.environmentId.Value)
 			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", configManager.jwt.Token))
 			return next(ctx, req)
 		}
@@ -69,7 +69,7 @@ func newAuthClient(httpClient HTTPClient, apiServer string) (serverv1connect.Aut
 		withChalkInterceptors(
 			serverTypeApi,
 			headerInterceptor(map[string]string{
-				headerKeyServerType: serverTypeApi,
+				HeaderKeyServerType: serverTypeApi,
 			}),
 		),
 	), nil
@@ -93,10 +93,10 @@ func newQueryClient(httpClient HTTPClient, manager *configManager, deploymentTag
 		httpClient = newInsecureClient()
 	}
 	headers := map[string]string{
-		headerKeyDeploymentType: "engine-grpc",
+		HeaderKeyDeploymentType: "engine-grpc",
 	}
 	if deploymentTag != "" {
-		headers[headerKeyDeploymentTag] = deploymentTag
+		headers[HeaderKeyDeploymentTag] = deploymentTag
 	}
 	return enginev1connect.NewQueryServiceClient(
 		httpClient,
