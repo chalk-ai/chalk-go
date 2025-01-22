@@ -494,8 +494,11 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	if res.StatusCode != 200 {
-		clientError := getHttpError(c.logger, *res, *request)
-		return &clientError
+		clientError, err := getHttpError(c.logger, *res, *request)
+		if err != nil {
+			return errors.Wrap(err, "deserializing http error")
+		}
+		return clientError
 	}
 
 	out, _ := io.ReadAll(res.Body)
@@ -606,7 +609,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	return headers
 }
 
-func getHttpError(logger LeveledLogger, res http.Response, req http.Request) HTTPError {
+func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*HTTPError, error) {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
@@ -621,10 +624,18 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) HTT
 	}
 
 	if errorResponse.Detail != nil {
-		clientError.Message = *errorResponse.Detail
+		errDetailJson, err := json.Marshal(errorResponse.Detail)
+		if err == nil {
+			return nil, errors.Wrapf(
+				err,
+				"error marshalling error detail into string - original error detail: %v",
+				errorResponse.Detail,
+			)
+		}
+		clientError.Message = string(errDetailJson)
 	}
 
-	return clientError
+	return &clientError, nil
 }
 
 func getErrorResponse(err error) *ErrorResponse {

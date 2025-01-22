@@ -47,7 +47,7 @@ type DatasetFilter struct {
 }
 
 type chalkHttpException struct {
-	Detail *string `json:"detail"`
+	Detail any     `json:"detail"`
 	Trace  *string `json:"trace"`
 }
 
