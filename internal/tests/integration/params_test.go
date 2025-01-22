@@ -193,6 +193,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
+	assert.Equal(t, &map[string]any{"key": "value"}, request.QueryContext)
 	assert.Equal(t, plannerOption, request.PlannerOptions)
 }
 
