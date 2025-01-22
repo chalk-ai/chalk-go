@@ -11,7 +11,6 @@ import (
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
@@ -52,12 +51,12 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 
 	var queryServer *string
 	if cfg.QueryServer != "" {
-		queryServer = ptr.Ptr(cfg.QueryServer)
+		queryServer = &cfg.QueryServer
 	}
 
 	var resourceGroup *string
 	if cfg.ResourceGroup != "" {
-		resourceGroup = ptr.Ptr(cfg.ResourceGroup)
+		resourceGroup = &cfg.ResourceGroup
 	}
 
 	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)

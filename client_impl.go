@@ -8,7 +8,6 @@ import (
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"io"
 	"net/http"
@@ -28,7 +27,7 @@ type clientImpl struct {
 	QueryServer   string
 	DeploymentTag string
 	resourceGroup *string
-	
+
 	httpClient HTTPClient
 	logger     LeveledLogger
 }
@@ -656,7 +655,7 @@ func newClientImpl(
 
 	var resourceGroup *string
 	if cfg.ResourceGroup != "" {
-		resourceGroup = ptr.Ptr(cfg.ResourceGroup)
+		resourceGroup = &cfg.ResourceGroup
 	}
 
 	client := &clientImpl{
