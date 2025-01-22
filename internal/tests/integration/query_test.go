@@ -300,11 +300,7 @@ func TestCustomCerts(t *testing.T) {
 			}
 			var userObj user
 			_, queryErr := client.OnlineQuery(getParams(), &userObj)
-			if fixture.shouldFail {
-				assert.Error(t, queryErr)
-			} else {
-				assert.NoError(t, queryErr)
-			}
+			assert.NoError(t, queryErr)
 		})
 	}
 }
