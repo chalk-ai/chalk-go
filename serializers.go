@@ -76,7 +76,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		Now:              now,
 		Explain:          p.Explain,
 		EncodingOptions:  encodingOptions,
-		PlannerOptions:   plannerOptions,
+		PlannerOptions:   p.PlannerOptions,
 	}, nil
 }
 

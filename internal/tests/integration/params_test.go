@@ -144,6 +144,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		return val.Format(internal.NowTimeFormat)
 	})
 
+	plannerOption := map[string]any{"CHALK_SOME_PLANNER_OPTION": "1"}
+
 	req := chalk.OnlineQueryParams{
 		Tags:                 expectedTags,
 		RequiredResolverTags: requiredResolverTags,
@@ -160,6 +162,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		EncodingOptions: &chalk.FeatureEncodingOptions{
 			EncodeStructsAsObjects: true,
 		},
+		PlannerOptions: plannerOption,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -190,7 +193,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
-	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
+	assert.Equal(t, plannerOption, request.PlannerOptions)
 }
 
 // TestParamsSetInOfflineQuery tests that we set params in
