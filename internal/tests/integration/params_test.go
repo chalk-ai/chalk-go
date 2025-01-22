@@ -35,6 +35,10 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		"bbTestId": "cee",
 	}
 
+	plannerOptions := map[string]any{
+		"CHALK_SOME_PLANNER_OPTION": "some_value",
+	}
+
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -58,6 +62,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		Explain:              true,
 		IncludeMeta:          true,
 		QueryContext:         queryContext,
+		PlannerOptions:       plannerOptions,
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
@@ -102,7 +107,8 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.True(t, header.Explain)
 	assert.True(t, header.IncludeMeta)
 	assert.NotNil(t, header.QueryContext)
-	assert.Equal(t, header.QueryContext, &map[string]any{"key": "value"})
+	assert.Equal(t, &map[string]any{"key": "value"}, header.QueryContext)
+	assert.Equal(t, plannerOptions, header.PlannerOptions)
 }
 
 // TestParamsSetInOnlineQuery tests that we set all params

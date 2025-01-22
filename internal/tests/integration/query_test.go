@@ -14,7 +14,11 @@ import (
 )
 
 func getParams() chalk.OnlineQueryParamsComplete {
-	return chalk.OnlineQueryParams{}.
+	return chalk.OnlineQueryParams{
+		PlannerOptions: map[string]any{
+			"planner_version": 1,
+		},
+	}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(
 			testFeatures.User.Id,

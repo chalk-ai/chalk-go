@@ -62,6 +62,7 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		Now: colls.Map(p.underlying.Now, func(val time.Time) string {
 			return val.Format(internal.NowTimeFormat)
 		}),
+		PlannerOptions: p.underlying.PlannerOptions,
 	})
 }
 

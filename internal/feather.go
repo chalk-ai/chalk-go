@@ -658,6 +658,7 @@ type FeatherRequestHeader struct {
 	QueryContext     *map[string]any     `json:"query_context"`
 	Meta             map[string]string   `json:"meta"`
 	StorePlanStages  bool                `json:"store_plan_stages"`
+	PlannerOptions   map[string]any      `json:"planner_options"`
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
