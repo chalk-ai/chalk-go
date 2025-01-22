@@ -31,6 +31,7 @@ type OnlineQueryRequestSerialized struct {
 	Explain          bool                   `json:"explain"`
 	StorePlanStages  bool                   `json:"store_plan_stages"`
 	EncodingOptions  FeatureEncodingOptions `json:"encoding_options"`
+	PlannerOptions   map[string]any         `json:"planner_options"`
 }
 
 type OfflineQueryInputSerialized struct {

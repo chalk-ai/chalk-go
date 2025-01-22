@@ -87,6 +87,11 @@ type OnlineQueryParams struct {
 	// over the resource group specified on the client level.
 	ResourceGroup string
 
+	// Map of additional options to pass to the Chalk query engine. Values may be provided
+	// as part of conversations with Chalk Support to enable or disable specific
+	// functionality.
+	PlannerOptions map[string]any
+
 	/**************
 	 PRIVATE FIELDS
 	***************/
