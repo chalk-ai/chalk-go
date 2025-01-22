@@ -24,7 +24,7 @@ type grpcClientImpl struct {
 	queryServer   *string
 	resourceGroup *string
 	logger        LeveledLogger
-	httpClient    *http.Client
+	httpClient    HTTPClient
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -35,7 +35,10 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
-	httpClient := http.DefaultClient
+	httpClient := cfg.HTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
 	authClient, err := newAuthClient(httpClient, config.apiServer.Value)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating auth client")
