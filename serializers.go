@@ -319,6 +319,13 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	if params.IncludeMetrics {
 		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
+	for k, v := range params.PlannerOptions {
+		protoVal, err := structpb.NewValue(v)
+		if err != nil {
+			return nil, errors.Wrapf(err, "converting planner option value for '%s' to proto: %v", k, v)
+		}
+		options[k] = protoVal
+	}
 
 	now := nowProto
 	if len(nowProto) == 0 {
