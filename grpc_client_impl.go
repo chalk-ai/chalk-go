@@ -128,12 +128,19 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 		}
 
 		// Need to obtain time.Time values as string because structpb.NewValue does not support time.Time.
-		rows, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
+		rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
 		if err != nil {
 			return nil, errors.Wrap(err, "extracting features from scalars table")
 		}
 
 		if len(rows) == 1 {
+			var rowMeta map[string]internal.FeatureMeta
+			if len(meta) > 0 {
+				if len(meta) != 1 {
+					return nil, errors.Newf("expected exactly one metadata row, found %v", meta)
+				}
+				rowMeta = meta[0]
+			}
 			for fqn, value := range rows[0] {
 				// Needed to obtain time.Time values as string because structpb.NewValue does not support time.Time.
 				newValue, err := structpb.NewValue(value)
@@ -144,9 +151,36 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 						fqn,
 					)
 				}
-				features[fqn] = &commonv1.FeatureResult{
+				featureRes := commonv1.FeatureResult{
 					Field: fqn,
 					Value: newValue,
+				}
+				features[fqn] = &featureRes
+				if rowMeta != nil {
+					featureMeta, ok := rowMeta[fqn]
+					if !ok {
+						// Features such as has-many features do not have a metadata column.
+						continue
+					}
+					if featureMeta.Pkey != nil {
+						val, err := structpb.NewValue(featureMeta.Pkey)
+						if err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"converting primary key for feature '%s' to `structpb.Value`",
+								fqn,
+							)
+						}
+						featureRes.Pkey = val
+					}
+
+					featureRes.Meta = &commonv1.FeatureMeta{}
+					if featureMeta.ResolverFqn != nil {
+						featureRes.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
+					}
+					if featureMeta.SourceType != nil && *featureMeta.SourceType == string(internal.SourceTypeOnlineStore) {
+						featureRes.Meta.CacheHit = true
+					}
 				}
 			}
 		}
@@ -162,7 +196,7 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 			)
 		}
 
-		rowsHm, err := internal.ExtractFeaturesFromTable(table, false)
+		rowsHm, _, err := internal.ExtractFeaturesFromTable(table, false)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
