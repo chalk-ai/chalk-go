@@ -137,12 +137,10 @@ func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParams
 
 		if len(rows) == 1 {
 			var rowMeta map[string]internal.FeatureMeta
-			if len(meta) > 0 {
-				if len(meta) != 1 {
-					return nil, errors.Newf("expected exactly one metadata row, found %v", meta)
-				}
-				rowMeta = meta[0]
+			if len(meta) != 1 {
+				return nil, errors.Newf("expected exactly one metadata row, found %v", meta)
 			}
+			rowMeta = meta[0]
 			for fqn, value := range rows[0] {
 				// Needed to obtain time.Time values as string because structpb.NewValue does not support time.Time.
 				newValue, err := structpb.NewValue(value)
