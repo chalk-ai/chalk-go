@@ -71,6 +71,10 @@ type GRPCClientConfig struct {
 	// Chalk can route queries to specific deployments using deployment
 	// tags.
 	DeploymentTag string
+
+	// ResourceGroup specifies the resource group to route all requests to. If set
+	// on the request or query level, this will be overridden.
+	ResourceGroup string
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

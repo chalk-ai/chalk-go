@@ -35,6 +35,10 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		"bbTestId": "cee",
 	}
 
+	plannerOptions := map[string]any{
+		"CHALK_SOME_PLANNER_OPTION": "some_value",
+	}
+
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(&chalk.ClientConfig{
 		HTTPClient: httpClient,
@@ -58,6 +62,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		Explain:              true,
 		IncludeMeta:          true,
 		QueryContext:         queryContext,
+		PlannerOptions:       plannerOptions,
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
@@ -102,7 +107,8 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.True(t, header.Explain)
 	assert.True(t, header.IncludeMeta)
 	assert.NotNil(t, header.QueryContext)
-	assert.Equal(t, header.QueryContext, &map[string]any{"key": "value"})
+	assert.Equal(t, &map[string]any{"key": "value"}, header.QueryContext)
+	assert.Equal(t, plannerOptions, header.PlannerOptions)
 }
 
 // TestParamsSetInOnlineQuery tests that we set all params
@@ -144,6 +150,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		return val.Format(internal.NowTimeFormat)
 	})
 
+	plannerOption := map[string]any{"CHALK_SOME_PLANNER_OPTION": "1"}
+
 	req := chalk.OnlineQueryParams{
 		Tags:                 expectedTags,
 		RequiredResolverTags: requiredResolverTags,
@@ -160,6 +168,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		EncodingOptions: &chalk.FeatureEncodingOptions{
 			EncodeStructsAsObjects: true,
 		},
+		PlannerOptions: plannerOption,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -190,7 +199,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
-	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
+	assert.Equal(t, &map[string]any{"key": "value"}, request.QueryContext)
+	assert.Equal(t, plannerOption, request.PlannerOptions)
 }
 
 // TestParamsSetInOfflineQuery tests that we set params in

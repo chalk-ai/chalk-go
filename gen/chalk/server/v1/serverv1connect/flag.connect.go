@@ -41,13 +41,6 @@ const (
 	FeatureFlagServiceSetFeatureFlagProcedure = "/chalk.server.v1.FeatureFlagService/SetFeatureFlag"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	featureFlagServiceServiceDescriptor               = v1.File_chalk_server_v1_flag_proto.Services().ByName("FeatureFlagService")
-	featureFlagServiceGetFeatureFlagsMethodDescriptor = featureFlagServiceServiceDescriptor.Methods().ByName("GetFeatureFlags")
-	featureFlagServiceSetFeatureFlagMethodDescriptor  = featureFlagServiceServiceDescriptor.Methods().ByName("SetFeatureFlag")
-)
-
 // FeatureFlagServiceClient is a client for the chalk.server.v1.FeatureFlagService service.
 type FeatureFlagServiceClient interface {
 	GetFeatureFlags(context.Context, *connect.Request[v1.GetFeatureFlagsRequest]) (*connect.Response[v1.GetFeatureFlagsResponse], error)
@@ -63,18 +56,19 @@ type FeatureFlagServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewFeatureFlagServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) FeatureFlagServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	featureFlagServiceMethods := v1.File_chalk_server_v1_flag_proto.Services().ByName("FeatureFlagService").Methods()
 	return &featureFlagServiceClient{
 		getFeatureFlags: connect.NewClient[v1.GetFeatureFlagsRequest, v1.GetFeatureFlagsResponse](
 			httpClient,
 			baseURL+FeatureFlagServiceGetFeatureFlagsProcedure,
-			connect.WithSchema(featureFlagServiceGetFeatureFlagsMethodDescriptor),
+			connect.WithSchema(featureFlagServiceMethods.ByName("GetFeatureFlags")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		setFeatureFlag: connect.NewClient[v1.SetFeatureFlagRequest, v1.SetFeatureFlagResponse](
 			httpClient,
 			baseURL+FeatureFlagServiceSetFeatureFlagProcedure,
-			connect.WithSchema(featureFlagServiceSetFeatureFlagMethodDescriptor),
+			connect.WithSchema(featureFlagServiceMethods.ByName("SetFeatureFlag")),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
@@ -109,17 +103,18 @@ type FeatureFlagServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewFeatureFlagServiceHandler(svc FeatureFlagServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	featureFlagServiceMethods := v1.File_chalk_server_v1_flag_proto.Services().ByName("FeatureFlagService").Methods()
 	featureFlagServiceGetFeatureFlagsHandler := connect.NewUnaryHandler(
 		FeatureFlagServiceGetFeatureFlagsProcedure,
 		svc.GetFeatureFlags,
-		connect.WithSchema(featureFlagServiceGetFeatureFlagsMethodDescriptor),
+		connect.WithSchema(featureFlagServiceMethods.ByName("GetFeatureFlags")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	featureFlagServiceSetFeatureFlagHandler := connect.NewUnaryHandler(
 		FeatureFlagServiceSetFeatureFlagProcedure,
 		svc.SetFeatureFlag,
-		connect.WithSchema(featureFlagServiceSetFeatureFlagMethodDescriptor),
+		connect.WithSchema(featureFlagServiceMethods.ByName("SetFeatureFlag")),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)

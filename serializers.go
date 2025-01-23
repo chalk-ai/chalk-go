@@ -76,6 +76,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		Now:              now,
 		Explain:          p.Explain,
 		EncodingOptions:  encodingOptions,
+		PlannerOptions:   p.PlannerOptions,
 	}, nil
 }
 
@@ -317,6 +318,13 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	}
 	if params.IncludeMetrics {
 		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
+	}
+	for k, v := range params.PlannerOptions {
+		protoVal, err := structpb.NewValue(v)
+		if err != nil {
+			return nil, errors.Wrapf(err, "converting planner option value for '%s' to proto: %v", k, v)
+		}
+		options[k] = protoVal
 	}
 
 	now := nowProto

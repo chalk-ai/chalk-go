@@ -26,6 +26,7 @@ type clientImpl struct {
 	Branch        string
 	QueryServer   string
 	DeploymentTag string
+	resourceGroup *string
 
 	httpClient HTTPClient
 	logger     LeveledLogger
@@ -113,18 +114,25 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	if err != nil {
 		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
 	}
+
+	var resourceGroupOverride *string
+	if params.underlying.ResourceGroup != "" {
+		resourceGroupOverride = &params.underlying.ResourceGroup
+	}
+
 	var response OnlineQueryBulkResponse
 	err = c.sendRequest(
 		sendRequestParams{
-			Method:              "POST",
-			URL:                 "v1/query/feather",
-			Body:                data,
-			Response:            &response,
-			EnvironmentOverride: params.underlying.EnvironmentId,
-			PreviewDeploymentId: params.underlying.PreviewDeploymentId,
-			Versioned:           params.underlying.versioned,
-			Branch:              params.underlying.BranchId,
-			IsEngineRequest:     true,
+			Method:                "POST",
+			URL:                   "v1/query/feather",
+			Body:                  data,
+			Response:              &response,
+			EnvironmentOverride:   params.underlying.EnvironmentId,
+			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
+			ResourceGroupOverride: resourceGroupOverride,
+			Versioned:             params.underlying.versioned,
+			Branch:                params.underlying.BranchId,
+			IsEngineRequest:       true,
 		},
 	)
 
@@ -209,17 +217,23 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		return emptyResult, wrapClientError(err, "error serializing online query params")
 	}
 
+	var resourceGroupOverride *string
+	if params.underlying.ResourceGroup != "" {
+		resourceGroupOverride = &params.underlying.ResourceGroup
+	}
+
 	if err = c.sendRequest(
 		sendRequestParams{
-			Method:              "POST",
-			URL:                 "v1/query/online",
-			Body:                *serializedRequest,
-			Response:            &serializedResponse,
-			EnvironmentOverride: request.EnvironmentId,
-			PreviewDeploymentId: request.PreviewDeploymentId,
-			Versioned:           params.underlying.versioned,
-			Branch:              params.underlying.BranchId,
-			IsEngineRequest:     true,
+			Method:                "POST",
+			URL:                   "v1/query/online",
+			Body:                  *serializedRequest,
+			Response:              &serializedResponse,
+			EnvironmentOverride:   request.EnvironmentId,
+			PreviewDeploymentId:   request.PreviewDeploymentId,
+			Versioned:             params.underlying.versioned,
+			Branch:                params.underlying.BranchId,
+			ResourceGroupOverride: resourceGroupOverride,
+			IsEngineRequest:       true,
 		},
 	); err != nil {
 		return emptyResult, getErrorResponse(err)
@@ -436,7 +450,7 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return newRequestErr
 	}
 
-	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, args.Branch)
+	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, args.Branch, args.ResourceGroupOverride)
 	request.Header = headers
 
 	if !args.DontRefresh {
@@ -480,8 +494,11 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 	}
 
 	if res.StatusCode != 200 {
-		clientError := getHttpError(c.logger, *res, *request)
-		return &clientError
+		clientError, err := getHttpError(c.logger, *res, *request)
+		if err != nil {
+			return errors.Wrap(err, "deserializing http error")
+		}
+		return clientError
 	}
 
 	out, _ := io.ReadAll(res.Body)
@@ -553,7 +570,7 @@ func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) 
 	return c.config.apiServer.Value
 }
 
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string) http.Header {
+func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string, resourceGroupOverride *string) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
@@ -583,10 +600,16 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
 	}
 
+	if resourceGroupOverride != nil {
+		headers.Set(HeaderKeyResourceGroup, *resourceGroupOverride)
+	} else if c.resourceGroup != nil {
+		headers.Set(HeaderKeyResourceGroup, *c.resourceGroup)
+	}
+
 	return headers
 }
 
-func getHttpError(logger LeveledLogger, res http.Response, req http.Request) HTTPError {
+func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*HTTPError, error) {
 	var errorResponse chalkHttpException
 	out, _ := io.ReadAll(res.Body)
 	err := json.Unmarshal(out, &errorResponse)
@@ -601,10 +624,18 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) HTT
 	}
 
 	if errorResponse.Detail != nil {
-		clientError.Message = *errorResponse.Detail
+		errDetailJson, err := json.Marshal(errorResponse.Detail)
+		if err == nil {
+			return nil, errors.Wrapf(
+				err,
+				"error marshalling error detail into string - original error detail: %v",
+				errorResponse.Detail,
+			)
+		}
+		clientError.Message = string(errDetailJson)
 	}
 
-	return clientError
+	return &clientError, nil
 }
 
 func getErrorResponse(err error) *ErrorResponse {
@@ -633,10 +664,16 @@ func newClientImpl(
 		httpClient = &http.Client{}
 	}
 
+	var resourceGroup *string
+	if cfg.ResourceGroup != "" {
+		resourceGroup = &cfg.ResourceGroup
+	}
+
 	client := &clientImpl{
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
 		QueryServer:   cfg.QueryServer,
+		resourceGroup: resourceGroup,
 
 		logger:     logger,
 		httpClient: httpClient,

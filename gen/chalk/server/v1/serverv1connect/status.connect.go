@@ -43,14 +43,6 @@ const (
 	HealthServiceGetClusterMetricsProcedure = "/chalk.server.v1.HealthService/GetClusterMetrics"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	healthServiceServiceDescriptor                 = v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService")
-	healthServiceCheckHealthMethodDescriptor       = healthServiceServiceDescriptor.Methods().ByName("CheckHealth")
-	healthServiceGetHealthMethodDescriptor         = healthServiceServiceDescriptor.Methods().ByName("GetHealth")
-	healthServiceGetClusterMetricsMethodDescriptor = healthServiceServiceDescriptor.Methods().ByName("GetClusterMetrics")
-)
-
 // HealthServiceClient is a client for the chalk.server.v1.HealthService service.
 type HealthServiceClient interface {
 	// If any checks fail, this request fails.
@@ -70,25 +62,26 @@ type HealthServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewHealthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) HealthServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	healthServiceMethods := v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService").Methods()
 	return &healthServiceClient{
 		checkHealth: connect.NewClient[v1.CheckHealthRequest, v1.CheckHealthResponse](
 			httpClient,
 			baseURL+HealthServiceCheckHealthProcedure,
-			connect.WithSchema(healthServiceCheckHealthMethodDescriptor),
+			connect.WithSchema(healthServiceMethods.ByName("CheckHealth")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getHealth: connect.NewClient[v1.GetHealthRequest, v1.GetHealthResponse](
 			httpClient,
 			baseURL+HealthServiceGetHealthProcedure,
-			connect.WithSchema(healthServiceGetHealthMethodDescriptor),
+			connect.WithSchema(healthServiceMethods.ByName("GetHealth")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterMetrics: connect.NewClient[v1.GetClusterMetricsRequest, v1.GetClusterMetricsResponse](
 			httpClient,
 			baseURL+HealthServiceGetClusterMetricsProcedure,
-			connect.WithSchema(healthServiceGetClusterMetricsMethodDescriptor),
+			connect.WithSchema(healthServiceMethods.ByName("GetClusterMetrics")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -133,24 +126,25 @@ type HealthServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewHealthServiceHandler(svc HealthServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	healthServiceMethods := v1.File_chalk_server_v1_status_proto.Services().ByName("HealthService").Methods()
 	healthServiceCheckHealthHandler := connect.NewUnaryHandler(
 		HealthServiceCheckHealthProcedure,
 		svc.CheckHealth,
-		connect.WithSchema(healthServiceCheckHealthMethodDescriptor),
+		connect.WithSchema(healthServiceMethods.ByName("CheckHealth")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	healthServiceGetHealthHandler := connect.NewUnaryHandler(
 		HealthServiceGetHealthProcedure,
 		svc.GetHealth,
-		connect.WithSchema(healthServiceGetHealthMethodDescriptor),
+		connect.WithSchema(healthServiceMethods.ByName("GetHealth")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	healthServiceGetClusterMetricsHandler := connect.NewUnaryHandler(
 		HealthServiceGetClusterMetricsProcedure,
 		svc.GetClusterMetrics,
-		connect.WithSchema(healthServiceGetClusterMetricsMethodDescriptor),
+		connect.WithSchema(healthServiceMethods.ByName("GetClusterMetrics")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)

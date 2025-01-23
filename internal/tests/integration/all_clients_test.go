@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
@@ -35,7 +36,6 @@ func init() {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
-
 }
 
 // Test that we can execute an OnlineQuery
@@ -83,5 +83,63 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, resultInvestors)
 		})
+	}
+}
+
+type plannerOptionsFixture struct {
+	isValid        bool
+	plannerOptions map[string]any
+}
+
+var plannerOptionsFixtures = []plannerOptionsFixture{
+	{isValid: true, plannerOptions: map[string]any{"planner_version": "2"}},
+	{isValid: false, plannerOptions: map[string]any{"planner_version": "abcdefg"}},
+}
+
+func TestOnlineQueryPlannerOptions(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, clientFixture := range clients {
+		for _, optionFixture := range plannerOptionsFixtures {
+			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", clientFixture.name, optionFixture.isValid), func(t *testing.T) {
+				client := clientFixture.client
+				params := chalk.OnlineQueryParams{
+					PlannerOptions: optionFixture.plannerOptions,
+				}.
+					WithInput("user.id", 1).
+					WithOutputs("user.socure_score")
+				_, err := client.OnlineQuery(params, nil)
+				if optionFixture.isValid {
+					assert.NoError(t, err)
+				} else {
+					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
+func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, clientFixture := range clients {
+		for _, optionFixture := range plannerOptionsFixtures {
+			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", clientFixture.name, optionFixture.isValid), func(t *testing.T) {
+				client := clientFixture.client
+				params := chalk.OnlineQueryParams{
+					PlannerOptions: optionFixture.plannerOptions,
+				}.
+					WithInput("user.id", []int{1}).
+					WithOutputs("user.socure_score")
+				_, err := client.OnlineQueryBulk(params)
+				if optionFixture.isValid {
+					assert.NoError(t, err)
+				} else {
+					assert.Error(t, err)
+				}
+			})
+		}
 	}
 }

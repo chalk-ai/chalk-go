@@ -83,6 +83,15 @@ type OnlineQueryParams struct {
 	// EncodingOptions is used to specify how features should be encoded in the response.
 	EncodingOptions *FeatureEncodingOptions
 
+	// ResourceGroup specifies the resource group to route this query to. Takes precedence
+	// over the resource group specified on the client level.
+	ResourceGroup string
+
+	// Map of additional options to pass to the Chalk query engine. Values may be provided
+	// as part of conversations with Chalk Support to enable or disable specific
+	// functionality.
+	PlannerOptions map[string]any
+
 	/**************
 	 PRIVATE FIELDS
 	***************/
