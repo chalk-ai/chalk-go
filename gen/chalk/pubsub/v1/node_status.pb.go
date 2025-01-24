@@ -53,14 +53,22 @@ type NodeStatusPubSub struct {
 	// The Chalk team name that incurred the usage.
 	Team string `protobuf:"bytes,1,opt,name=team,proto3" json:"team,omitempty"`
 	// node.Name
+	// ex. ip-10-33-13-186.us-west-2.compute.internal
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// node.UID
+	// A Kubernetes systems-generated string to uniquely identify objects.
+	// Every object created over the whole lifetime of a Kubernetes cluster
+	// has a distinct UID. It is intended to distinguish between historical
+	// occurrences of similar entities. Kubernetes UIDs are UUIDs.
+	// ex. f65e1fce-e511-495f-a5af-e5d4ebe79614
 	Uid string `protobuf:"bytes,3,opt,name=uid,proto3" json:"uid,omitempty"`
 	// node.kubernetes.io/instance-type
+	// ex. t3.medium
 	InstanceType string `protobuf:"bytes,4,opt,name=instance_type,json=instanceType,proto3" json:"instance_type,omitempty"`
 	// topology.kubernetes.io/region
+	// ex. us-west-2
 	Region string `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`
 	// topology.kubernetes.io/zone
+	// ex. us-west-2a
 	Zone string `protobuf:"bytes,6,opt,name=zone,proto3" json:"zone,omitempty"`
 	// The time that the instance was created.
 	// node.CreationTimestamp.Unix()
@@ -73,14 +81,27 @@ type NodeStatusPubSub struct {
 	// node.Labels
 	Labels map[string]string `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// node.Annotations
-	Annotations   map[string]string `protobuf:"bytes,12,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	MachineId     string            `protobuf:"bytes,13,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
-	SystemUuid    string            `protobuf:"bytes,14,opt,name=system_uuid,json=systemUuid,proto3" json:"system_uuid,omitempty"`
-	BootId        string            `protobuf:"bytes,15,opt,name=boot_id,json=bootId,proto3" json:"boot_id,omitempty"`
-	Unschedulable bool              `protobuf:"varint,16,opt,name=unschedulable,proto3" json:"unschedulable,omitempty"`
-	Namespace     string            `protobuf:"bytes,17,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Annotations map[string]string `protobuf:"bytes,12,rep,name=annotations,proto3" json:"annotations,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// MachineID reported by the node. For unique machine identification
+	// in the cluster this field is preferred. Learn more from man(5)
+	// machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
+	// ex. ec2d1437f00e85506a67dc38744731fe
+	MachineId string `protobuf:"bytes,13,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
+	// SystemUUID reported by the node. For unique machine identification
+	// MachineID is preferred. This field is specific to Red Hat hosts
+	// https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
+	// ex. ec2d1437-f00e-8550-6a67-dc38744731fe
+	SystemUuid string `protobuf:"bytes,14,opt,name=system_uuid,json=systemUuid,proto3" json:"system_uuid,omitempty"`
+	// Boot ID reported by the node.
+	// ex. 2c094fc9-b776-4223-9316-c66e70f9f6b9
+	BootId        string `protobuf:"bytes,15,opt,name=boot_id,json=bootId,proto3" json:"boot_id,omitempty"`
+	Unschedulable bool   `protobuf:"varint,16,opt,name=unschedulable,proto3" json:"unschedulable,omitempty"`
+	Namespace     string `protobuf:"bytes,17,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Often null.
 	// container.googleapis.com/instance_id
-	InstanceId        string `protobuf:"bytes,18,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	InstanceId string `protobuf:"bytes,18,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	// The name of the cluster that the node is in.
+	// ex. mycompany-prod-eks
 	Cluster           string `protobuf:"bytes,19,opt,name=cluster,proto3" json:"cluster,omitempty"`
 	TotalCpu          string `protobuf:"bytes,20,opt,name=total_cpu,json=totalCpu,proto3" json:"total_cpu,omitempty"`
 	TotalMemory       string `protobuf:"bytes,21,opt,name=total_memory,json=totalMemory,proto3" json:"total_memory,omitempty"`
