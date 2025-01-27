@@ -56,6 +56,8 @@ func FormatBucketDuration(duration int) string {
 	return fmt.Sprintf("%dw", duration)
 }
 
+var WindowBucketDurationRe = regexp.MustCompile(`^(\d+)([smhdw])$`)
+
 // ParseBucketDuration parses a bucket duration string
 // and returns the duration in seconds.
 // The input string must be of the form "Nunit" where
@@ -70,8 +72,8 @@ func ParseBucketDuration(durationStr string) (int, error) {
 	}
 
 	// Parse the input string
-	re := regexp.MustCompile(`^(\d+)([smhdw])$`)
-	matches := re.FindStringSubmatch(durationStr)
+
+	matches := WindowBucketDurationRe.FindStringSubmatch(durationStr)
 	if matches == nil {
 		return 0, fmt.Errorf("invalid bucket duration string: %s", durationStr)
 	}
