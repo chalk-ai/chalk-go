@@ -6,6 +6,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -78,7 +79,7 @@ func initRemoteFeatureMap(
 		if !inScope {
 			continue
 		}
-		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
+		updatedFqn := cumulativeFqn + "." + resolvedFieldName
 		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
 		if !ok {
 			// We arrive here when chalk-go receives a response that contains a feature
@@ -166,7 +167,7 @@ func initFeatures(
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
 
-		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
+		updatedFqn := cumulativeFqn + "." + resolvedName
 		if cumulativeFqn == "" {
 			updatedFqn = resolvedName
 		}
@@ -226,8 +227,7 @@ func initFeatures(
 				if err != nil {
 					return errors.Wrap(err, "error parsing bucket duration: %s")
 				}
-				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
-				bucketFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
+				bucketFqn := cumulativeFqn + "." + resolvedName + "__" + strconv.Itoa(seconds) + "__"
 				if f.IsNil() {
 					f.Set(reflect.MakeMap(f.Type()))
 				}
@@ -344,7 +344,7 @@ func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
 					)
 				}
 				for _, tag := range intTags {
-					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
+					bucketFqn := resolvedName + "__" + strconv.Itoa(tag) + "__"
 					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
 					rootBucketFqn := namespace + "." + bucketFqn
 					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
