@@ -44,6 +44,9 @@ const (
 	// GraphServiceUpdateGraphProcedure is the fully-qualified name of the GraphService's UpdateGraph
 	// RPC.
 	GraphServiceUpdateGraphProcedure = "/chalk.server.v1.GraphService/UpdateGraph"
+	// GraphServiceGetPythonFeaturesFromGraphProcedure is the fully-qualified name of the GraphService's
+	// GetPythonFeaturesFromGraph RPC.
+	GraphServiceGetPythonFeaturesFromGraphProcedure = "/chalk.server.v1.GraphService/GetPythonFeaturesFromGraph"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -54,6 +57,8 @@ type GraphServiceClient interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
+	// GetPythonFeaturesFromGraph returns generate chalk python features from the protograph
+	GetPythonFeaturesFromGraph(context.Context, *connect.Request[v1.GetPythonFeaturesFromGraphRequest]) (*connect.Response[v1.GetPythonFeaturesFromGraphResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -94,15 +99,23 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
 			connect.WithClientOptions(opts...),
 		),
+		getPythonFeaturesFromGraph: connect.NewClient[v1.GetPythonFeaturesFromGraphRequest, v1.GetPythonFeaturesFromGraphResponse](
+			httpClient,
+			baseURL+GraphServiceGetPythonFeaturesFromGraphProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetPythonFeaturesFromGraph")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // graphServiceClient implements GraphServiceClient.
 type graphServiceClient struct {
-	getFeatureSQL       *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
-	getFeaturesMetadata *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
-	getGraph            *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
-	updateGraph         *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
+	getFeatureSQL              *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
+	getFeaturesMetadata        *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
+	getGraph                   *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
+	updateGraph                *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
+	getPythonFeaturesFromGraph *connect.Client[v1.GetPythonFeaturesFromGraphRequest, v1.GetPythonFeaturesFromGraphResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -125,6 +138,11 @@ func (c *graphServiceClient) UpdateGraph(ctx context.Context, req *connect.Reque
 	return c.updateGraph.CallUnary(ctx, req)
 }
 
+// GetPythonFeaturesFromGraph calls chalk.server.v1.GraphService.GetPythonFeaturesFromGraph.
+func (c *graphServiceClient) GetPythonFeaturesFromGraph(ctx context.Context, req *connect.Request[v1.GetPythonFeaturesFromGraphRequest]) (*connect.Response[v1.GetPythonFeaturesFromGraphResponse], error) {
+	return c.getPythonFeaturesFromGraph.CallUnary(ctx, req)
+}
+
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
 type GraphServiceHandler interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -133,6 +151,8 @@ type GraphServiceHandler interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
+	// GetPythonFeaturesFromGraph returns generate chalk python features from the protograph
+	GetPythonFeaturesFromGraph(context.Context, *connect.Request[v1.GetPythonFeaturesFromGraphRequest]) (*connect.Response[v1.GetPythonFeaturesFromGraphResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -169,6 +189,13 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceGetPythonFeaturesFromGraphHandler := connect.NewUnaryHandler(
+		GraphServiceGetPythonFeaturesFromGraphProcedure,
+		svc.GetPythonFeaturesFromGraph,
+		connect.WithSchema(graphServiceMethods.ByName("GetPythonFeaturesFromGraph")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GraphServiceGetFeatureSQLProcedure:
@@ -179,6 +206,8 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceGetGraphHandler.ServeHTTP(w, r)
 		case GraphServiceUpdateGraphProcedure:
 			graphServiceUpdateGraphHandler.ServeHTTP(w, r)
+		case GraphServiceGetPythonFeaturesFromGraphProcedure:
+			graphServiceGetPythonFeaturesFromGraphHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -202,4 +231,8 @@ func (UnimplementedGraphServiceHandler) GetGraph(context.Context, *connect.Reque
 
 func (UnimplementedGraphServiceHandler) UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.UpdateGraph is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetPythonFeaturesFromGraph(context.Context, *connect.Request[v1.GetPythonFeaturesFromGraphRequest]) (*connect.Response[v1.GetPythonFeaturesFromGraphResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetPythonFeaturesFromGraph is not implemented"))
 }
