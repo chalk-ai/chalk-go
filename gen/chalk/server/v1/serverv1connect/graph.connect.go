@@ -57,7 +57,7 @@ type GraphServiceClient interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
-	// GetCodegenFeaturesFromGraph returns chalk python features generated from the protograph
+	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
 	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
 }
 
@@ -151,7 +151,7 @@ type GraphServiceHandler interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
-	// GetCodegenFeaturesFromGraph returns chalk python features generated from the protograph
+	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
 	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
 }
 
