@@ -39,6 +39,9 @@ const (
 	// KubeServiceGetKubernetesEventsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesEvents RPC.
 	KubeServiceGetKubernetesEventsProcedure = "/chalk.server.v1.KubeService/GetKubernetesEvents"
+	// KubeServiceGetKubernetesPersistentVolumesProcedure is the fully-qualified name of the
+	// KubeService's GetKubernetesPersistentVolumes RPC.
+	KubeServiceGetKubernetesPersistentVolumesProcedure = "/chalk.server.v1.KubeService/GetKubernetesPersistentVolumes"
 )
 
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
@@ -47,6 +50,7 @@ type KubeServiceClient interface {
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
+	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 }
 
 // NewKubeServiceClient constructs a client for the chalk.server.v1.KubeService service. By default,
@@ -74,13 +78,21 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getKubernetesPersistentVolumes: connect.NewClient[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesPersistentVolumesProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumes")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // kubeServiceClient implements KubeServiceClient.
 type kubeServiceClient struct {
-	getPodStackTraceDump *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
-	getKubernetesEvents  *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
+	getPodStackTraceDump           *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
+	getKubernetesEvents            *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
+	getKubernetesPersistentVolumes *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
 }
 
 // GetPodStackTraceDump calls chalk.server.v1.KubeService.GetPodStackTraceDump.
@@ -93,12 +105,18 @@ func (c *kubeServiceClient) GetKubernetesEvents(ctx context.Context, req *connec
 	return c.getKubernetesEvents.CallUnary(ctx, req)
 }
 
+// GetKubernetesPersistentVolumes calls chalk.server.v1.KubeService.GetKubernetesPersistentVolumes.
+func (c *kubeServiceClient) GetKubernetesPersistentVolumes(ctx context.Context, req *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {
+	return c.getKubernetesPersistentVolumes.CallUnary(ctx, req)
+}
+
 // KubeServiceHandler is an implementation of the chalk.server.v1.KubeService service.
 type KubeServiceHandler interface {
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
+	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 }
 
 // NewKubeServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -122,12 +140,21 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeServiceGetKubernetesPersistentVolumesHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesPersistentVolumesProcedure,
+		svc.GetKubernetesPersistentVolumes,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesPersistentVolumes")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.KubeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeServiceGetPodStackTraceDumpProcedure:
 			kubeServiceGetPodStackTraceDumpHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesEventsProcedure:
 			kubeServiceGetKubernetesEventsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesPersistentVolumesProcedure:
+			kubeServiceGetKubernetesPersistentVolumesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +170,8 @@ func (UnimplementedKubeServiceHandler) GetPodStackTraceDump(context.Context, *co
 
 func (UnimplementedKubeServiceHandler) GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesEvents is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesPersistentVolumes is not implemented"))
 }
