@@ -267,8 +267,9 @@ func initFeatures(
 }
 
 /* WarmUpUnmarshalling builds a memo to make unmarshalling efficient. This function should be called only once
- * at init time. If not called, we build the memo on the fly, which makes unmarshalling slower if it targets
- * a feature class that has never been seen before.
+ * at init time, instead of per query. If this function is not called, the first query will be slower, but
+ * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
+ * implicitly by the first query.
  *
  * Example usage:
  *  type User struct {
