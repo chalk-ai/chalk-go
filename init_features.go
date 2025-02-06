@@ -266,7 +266,7 @@ func initFeatures(
 	return nil
 }
 
-/* WarmUpUnmarshalling builds a memo to make unmarshalling efficient. This function should be called only once
+/* WarmUpUnmarshaller builds a memo to make unmarshalling efficient. This function should be called only once
  * at init time, instead of per query. If this function is not called, the first query will be slower, but
  * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
  * implicitly by the first query.
@@ -289,12 +289,12 @@ func initFeatures(
  *      Transactions *Transactions
  *  }
  *  func init() {
- *      if err := chalk.WarmUpUnmarshalling(&Features); err != nil {
+ *      if err := chalk.WarmUpUnmarshaller(&Features); err != nil {
  *          panic("error initializing unmarshalling")
  *      }
  *  }
  */
-func WarmUpUnmarshalling[T any](rootFeatureStruct *T) error {
+func WarmUpUnmarshaller[T any](rootFeatureStruct *T) error {
 	elemType := reflect.TypeOf(rootFeatureStruct).Elem()
 	if elemType.Kind() != reflect.Struct {
 		return fmt.Errorf(

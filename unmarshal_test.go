@@ -1292,14 +1292,14 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
 }
 
-func TestWarmUpUnmarshalling(t *testing.T) {
+func TestWarmUpUnmarshaller(t *testing.T) {
 	t.Parallel()
 	var rootFeatures struct {
 		Transaction *unmarshalTransaction
 		User        *unmarshalUSER
 		LatLng      *unmarshalLatLNG
 	}
-	assert.NoError(t, WarmUpUnmarshalling(&rootFeatures))
+	assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
 	_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
 	assert.True(t, ok)
 	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))

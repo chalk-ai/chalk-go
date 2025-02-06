@@ -278,6 +278,8 @@ type FeatureResult struct {
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)
 //	}
+//
+// To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *ClientError) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
@@ -391,6 +393,8 @@ type OnlineQueryBulkResult struct {
 //		fmt.Println("User 1 family size: ", *user[0].Family.Size)
 //		fmt.Println("User 2 Socure score: ", *user[1].SocureScore)
 //	}
+//
+// To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
 	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
 		return &ClientError{Message: err.Error()}

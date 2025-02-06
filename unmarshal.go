@@ -350,6 +350,8 @@ fields correspond to the FQNs. An illustration:
 			fmt.Println(fm)
 		}
 	}
+
+To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
 	memo := internal.AllNamespaceMemo
