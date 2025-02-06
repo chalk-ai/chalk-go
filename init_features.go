@@ -301,10 +301,10 @@ func WarmUpUnmarshalling[T any](rootFeatureStruct *T) error {
 			elemType.Kind(),
 		)
 	}
-	return buildNamespaceMemo(elemType)
+	return populateAllNamespaceMemo(elemType)
 }
 
-/*  buildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+/*  populateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
  *  i.e. Don't need to do the same work for the same features class multiple times. Given:
  *  type User struct {
  *      Id *string
@@ -344,10 +344,10 @@ func WarmUpUnmarshalling[T any](rootFeatureStruct *T) error {
  *      }
  *  }
  */
-func buildNamespaceMemo(typ reflect.Type) error {
+func populateAllNamespaceMemo(typ reflect.Type) error {
 	allMemo := internal.AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
-		return buildNamespaceMemo(typ.Elem())
+		return populateAllNamespaceMemo(typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
@@ -388,7 +388,7 @@ func buildNamespaceMemo(typ reflect.Type) error {
 					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
-				if err := buildNamespaceMemo(fm.Type); err != nil {
+				if err := populateAllNamespaceMemo(fm.Type); err != nil {
 					return err
 				}
 			}
@@ -398,7 +398,7 @@ func buildNamespaceMemo(typ reflect.Type) error {
 			}
 		}
 	} else if typ.Kind() == reflect.Slice {
-		return buildNamespaceMemo(typ.Elem())
+		return populateAllNamespaceMemo(typ.Elem())
 	}
 	return nil
 }
