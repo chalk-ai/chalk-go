@@ -58,6 +58,8 @@ func NewNamespaceMemoItem() *NamespaceMemoItem {
 
 type NamespaceMemo map[string]*NamespaceMemoItem
 
+type NewNamespaceMemo map[reflect.Type]*NamespaceMemoItem
+
 var skipUnmarshalFeatureNames = map[string]bool{
 	"__chalk_observed_at__": true,
 }
@@ -442,7 +444,7 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
@@ -498,7 +500,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := nsMemo[structValue.Type().Name()]
+			memo, ok := nsMemo[structValue.Type()]
 			if !ok {
 				return nil, fmt.Errorf(
 					"namespace memo not found for struct '%s' - found %v",
@@ -629,7 +631,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NamespaceMemo) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NewNamespaceMemo) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)

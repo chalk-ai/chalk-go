@@ -16,7 +16,7 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NamespaceMemo) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NewNamespaceMemo) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := internal.GetReflectValue(&value, field.Type(), nsMemo)
 		if err != nil {
@@ -132,7 +132,7 @@ func unmarshalRows(
 	namespace string,
 	namespaceScope *scopeTrie,
 	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NamespaceMemo,
+	namespaceMemo internal.NewNamespaceMemo,
 	chunkIdx int,
 	resChan chan<- ChunkResult,
 	wg *sync.WaitGroup,
@@ -217,7 +217,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building deserialization scope")
 	}
 
-	memo := internal.NamespaceMemo{}
+	memo := internal.NewNamespaceMemo{}
 	if err := buildNamespaceMemo(memo, sliceElemType); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
@@ -236,7 +236,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[sliceElemType]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -352,7 +352,7 @@ fields correspond to the FQNs. An illustration:
 	}
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	memo := internal.NamespaceMemo{}
+	memo := internal.NewNamespaceMemo{}
 	if err := buildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
@@ -378,7 +378,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := memo[holderValue.Elem().Type()]
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -403,7 +403,7 @@ func thinUnmarshalInto(
 	expectedOutputs []string,
 	namespaceScope *scopeTrie,
 	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NamespaceMemo,
+	namespaceMemo internal.NewNamespaceMemo,
 ) (returnErr *ClientError) {
 	structValue := resultHolder.Elem()
 
