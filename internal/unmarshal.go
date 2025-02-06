@@ -21,6 +21,19 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
+var skipUnmarshalFeatureNames = map[string]bool{
+	"__chalk_observed_at__": true,
+}
+
+var skipUnmarshalFields = map[string]bool{
+	"__ts__":    true,
+	"__index__": true,
+}
+
+var SkipUnmarshalFqnRoots = map[string]bool{
+	"__chalk__": true,
+}
+
 type ResultMetadataSourceType string
 
 const (
@@ -28,14 +41,6 @@ const (
 )
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
-
-func init() {
-	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
-		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
-			tableReaderChunkSize = newChunkSize
-		}
-	}
-}
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -48,16 +53,24 @@ type NamespaceMemo struct {
 	StructFieldsSet map[string]bool
 }
 
+type AllNamespaceMemoT sync.Map
+
+var AllNamespaceMemo = &AllNamespaceMemoT{}
+
+func init() {
+	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
+		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
+			tableReaderChunkSize = newChunkSize
+		}
+	}
+}
+
 func NewNamespaceMemo() *NamespaceMemo {
 	return &NamespaceMemo{
 		ResolvedFieldNameToIndices: map[string][]int{},
 		StructFieldsSet:            map[string]bool{},
 	}
 }
-
-type AllNamespaceMemoT sync.Map
-
-var AllNamespaceMemo = &AllNamespaceMemoT{}
 
 func (m *AllNamespaceMemoT) Store(key reflect.Type, value *NamespaceMemo) {
 	(*sync.Map)(m).Store(key, value)
@@ -88,19 +101,6 @@ func (m *AllNamespaceMemoT) Keys() []reflect.Type {
 		return true
 	})
 	return keys
-}
-
-var skipUnmarshalFeatureNames = map[string]bool{
-	"__chalk_observed_at__": true,
-}
-
-var skipUnmarshalFields = map[string]bool{
-	"__ts__":    true,
-	"__index__": true,
-}
-
-var SkipUnmarshalFqnRoots = map[string]bool{
-	"__chalk__": true,
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
