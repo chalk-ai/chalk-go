@@ -217,8 +217,8 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building deserialization scope")
 	}
 
-	memo := internal.NewNamespaceMemo{}
-	if err := buildNamespaceMemo(memo, sliceElemType); err != nil {
+	memo := internal.AllNamespaceMemo
+	if err := buildNamespaceMemo(sliceElemType); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 
@@ -238,7 +238,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 	nsMemo, ok := memo[sliceElemType]
 	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
+		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, colls.Keys(memo)).Error()}
 	}
 
 	var wg sync.WaitGroup
@@ -352,8 +352,8 @@ fields correspond to the FQNs. An illustration:
 	}
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	memo := internal.NewNamespaceMemo{}
-	if err := buildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
+	memo := internal.AllNamespaceMemo
+	if err := buildNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 	scope, err := buildScope(colls.Keys(fqnToValue))

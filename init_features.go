@@ -263,6 +263,44 @@ func initFeatures(
 	return nil
 }
 
+/* WarmUpUnmarshalling builds a memo to make unmarshalling efficient. This function should be called only once
+ * at init time. If not called, we build the memo on the fly, which makes unmarshalling slower if it targets
+ * a feature class that has never been seen before.
+ *
+ * Example usage:
+ *  type User struct {
+ *      Id *string
+ *      Transactions *[]Transactions `has_many:"id,user_id"`
+ *      Grade   *int `versioned:"default(2)"`
+ *      GradeV1 *int `versioned:"true"`
+ *      GradeV2 *int `versioned:"true"`
+ *  }
+ *  type Transactions struct {
+ *      Id *string
+ *      UserId *string
+ *      Amount *float64
+ *  }
+ *  var Features struct {
+ *      User *User
+ *      Transactions *Transactions
+ *  }
+ *  func init() {
+ *      if err := chalk.WarmUpUnmarshalling(&Features); err != nil {
+ *          panic("error initializing unmarshalling")
+ *      }
+ *  }
+ */
+func WarmUpUnmarshalling[T any](rootFeatureStruct *T) error {
+	elemType := reflect.TypeOf(rootFeatureStruct).Elem()
+	if elemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"argument must be a pointer to a struct, found a pointer to `%s` instead",
+			elemType.Kind(),
+		)
+	}
+	return buildNamespaceMemo(elemType)
+}
+
 /*  buildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
  *  i.e. Don't need to do the same work for the same features class multiple times. Given:
  *  type User struct {
@@ -303,9 +341,10 @@ func initFeatures(
  *      }
  *  }
  */
-func buildNamespaceMemo(memo internal.NewNamespaceMemo, typ reflect.Type) error {
+func buildNamespaceMemo(typ reflect.Type) error {
+	memo := internal.AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
-		return buildNamespaceMemo(memo, typ.Elem())
+		return buildNamespaceMemo(typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
@@ -350,7 +389,7 @@ func buildNamespaceMemo(memo internal.NewNamespaceMemo, typ reflect.Type) error 
 					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
-				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
+				if err := buildNamespaceMemo(fm.Type); err != nil {
 					return err
 				}
 			}
@@ -360,7 +399,7 @@ func buildNamespaceMemo(memo internal.NewNamespaceMemo, typ reflect.Type) error 
 			}
 		}
 	} else if typ.Kind() == reflect.Slice {
-		return buildNamespaceMemo(memo, typ.Elem())
+		return buildNamespaceMemo(typ.Elem())
 	}
 	return nil
 }

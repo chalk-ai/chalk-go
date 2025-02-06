@@ -1404,6 +1404,19 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
 }
 
+func TestWarmUpUnmarshalling(t *testing.T) {
+	t.Parallel()
+	var rootFeatures struct {
+		Transaction *unmarshalTransaction
+		User        *unmarshalUSER
+		LatLng      *unmarshalLatLNG
+	}
+	assert.NoError(t, WarmUpUnmarshalling(&rootFeatures))
+	// TODO: `rootFeatures` does not need to be in the memo
+	//       but it makes no harm.
+	assert.Equal(t, 4, len(internal.AllNamespaceMemo))
+}
+
 /*
 TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the same list of structs that appear as:
 1. a has-many feature

@@ -30,6 +30,8 @@ const (
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
 
+var AllNamespaceMemo = map[reflect.Type]*NamespaceMemoItem{}
+
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
 		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
