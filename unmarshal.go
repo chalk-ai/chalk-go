@@ -131,7 +131,7 @@ func unmarshalRows(
 	typ reflect.Type,
 	namespace string,
 	namespaceScope *scopeTrie,
-	namespaceMemoItem *internal.NamespaceMemoItem,
+	namespaceMemoItem *internal.NamespaceMemo,
 	namespaceMemo *internal.AllNamespaceMemoT,
 	chunkIdx int,
 	resChan chan<- ChunkResult,
@@ -402,7 +402,7 @@ func thinUnmarshalInto(
 	namespace string,
 	expectedOutputs []string,
 	namespaceScope *scopeTrie,
-	namespaceMemoItem *internal.NamespaceMemoItem,
+	namespaceMemoItem *internal.NamespaceMemo,
 	namespaceMemo *internal.AllNamespaceMemoT,
 ) (returnErr *ClientError) {
 	structValue := resultHolder.Elem()

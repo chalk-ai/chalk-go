@@ -41,44 +41,40 @@ type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
-type NamespaceMemoItem struct {
+type NamespaceMemo struct {
 	// Root and non-root FQN as keys
 	ResolvedFieldNameToIndices map[string][]int
 	// Non-root FQN as keys only
 	StructFieldsSet map[string]bool
 }
 
-func NewNamespaceMemoItem() *NamespaceMemoItem {
-	return &NamespaceMemoItem{
+func NewNamespaceMemo() *NamespaceMemo {
+	return &NamespaceMemo{
 		ResolvedFieldNameToIndices: map[string][]int{},
 		StructFieldsSet:            map[string]bool{},
 	}
 }
 
-type NamespaceMemo map[string]*NamespaceMemoItem
-
-type NewNamespaceMemo map[reflect.Type]*NamespaceMemoItem
-
 type AllNamespaceMemoT sync.Map
 
 var AllNamespaceMemo = &AllNamespaceMemoT{}
 
-func (m *AllNamespaceMemoT) Store(key reflect.Type, value *NamespaceMemoItem) {
+func (m *AllNamespaceMemoT) Store(key reflect.Type, value *NamespaceMemo) {
 	(*sync.Map)(m).Store(key, value)
 }
 
-func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemoItem, bool) {
+func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
 	value, ok := (*sync.Map)(m).Load(key)
 	if !ok {
 		return nil, false
 	}
-	return value.(*NamespaceMemoItem), true
+	return value.(*NamespaceMemo), true
 }
 
-func (m *AllNamespaceMemoT) LoadOrInit(key reflect.Type) *NamespaceMemoItem {
+func (m *AllNamespaceMemoT) LoadOrInit(key reflect.Type) *NamespaceMemo {
 	existing, ok := m.Load(key)
 	if !ok {
-		value := NewNamespaceMemoItem()
+		value := NewNamespaceMemo()
 		m.Store(key, value)
 		return value
 	}
