@@ -355,11 +355,11 @@ func populateAllNamespaceMemo(typ reflect.Type) error {
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
-		if _, ok := allMemo.Load(typ); ok {
-			// Prevent infinite loops
+		nsMemo, visited := allMemo.LoadOrStore(typ, internal.NewNamespaceMemo())
+		if visited {
+			// Prevent infinite loops and processing the same struct more than once.
 			return nil
 		}
-		nsMemo := allMemo.LoadOrInit(typ)
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := internal.ResolveFeatureName(fm)

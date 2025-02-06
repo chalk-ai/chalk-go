@@ -84,14 +84,9 @@ func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
 	return value.(*NamespaceMemo), true
 }
 
-func (m *AllNamespaceMemoT) LoadOrInit(key reflect.Type) *NamespaceMemo {
-	existing, ok := m.Load(key)
-	if !ok {
-		value := NewNamespaceMemo()
-		m.Store(key, value)
-		return value
-	}
-	return existing
+func (m *AllNamespaceMemoT) LoadOrStore(key reflect.Type, value *NamespaceMemo) (*NamespaceMemo, bool) {
+	v, loaded := (*sync.Map)(m).LoadOrStore(key, value)
+	return v.(*NamespaceMemo), loaded
 }
 
 func (m *AllNamespaceMemoT) Keys() []reflect.Type {

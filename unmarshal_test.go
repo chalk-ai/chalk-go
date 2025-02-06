@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 )
@@ -1306,6 +1307,32 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 	assert.True(t, ok)
 	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
 	assert.True(t, ok)
+}
+
+func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
+	t.Parallel()
+	var rootFeatures struct {
+		Transaction *unmarshalTransaction
+		User        *unmarshalUSER
+		LatLng      *unmarshalLatLNG
+	}
+
+	var wg sync.WaitGroup
+	const numConcurrentTests = 10
+	wg.Add(numConcurrentTests)
+	for i := 0; i < numConcurrentTests; i++ {
+		go func() {
+			defer wg.Done()
+			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
+			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
+			assert.True(t, ok)
+		}()
+	}
+	wg.Wait()
 }
 
 /*
