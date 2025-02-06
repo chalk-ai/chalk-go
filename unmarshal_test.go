@@ -1412,9 +1412,12 @@ func TestWarmUpUnmarshalling(t *testing.T) {
 		LatLng      *unmarshalLatLNG
 	}
 	assert.NoError(t, WarmUpUnmarshalling(&rootFeatures))
-	// TODO: `rootFeatures` does not need to be in the memo
-	//       but it makes no harm.
-	assert.Equal(t, 4, len(internal.AllNamespaceMemo))
+	_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+	assert.True(t, ok)
+	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+	assert.True(t, ok)
+	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
+	assert.True(t, ok)
 }
 
 /*

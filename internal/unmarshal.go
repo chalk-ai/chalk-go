@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"os"
@@ -29,8 +28,6 @@ const (
 )
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
-
-var AllNamespaceMemo = map[reflect.Type]*NamespaceMemoItem{}
 
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
@@ -61,6 +58,41 @@ func NewNamespaceMemoItem() *NamespaceMemoItem {
 type NamespaceMemo map[string]*NamespaceMemoItem
 
 type NewNamespaceMemo map[reflect.Type]*NamespaceMemoItem
+
+type AllNamespaceMemoT sync.Map
+
+var AllNamespaceMemo = &AllNamespaceMemoT{}
+
+func (m *AllNamespaceMemoT) Store(key reflect.Type, value *NamespaceMemoItem) {
+	(*sync.Map)(m).Store(key, value)
+}
+
+func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemoItem, bool) {
+	value, ok := (*sync.Map)(m).Load(key)
+	if !ok {
+		return nil, false
+	}
+	return value.(*NamespaceMemoItem), true
+}
+
+func (m *AllNamespaceMemoT) LoadOrInit(key reflect.Type) *NamespaceMemoItem {
+	existing, ok := m.Load(key)
+	if !ok {
+		value := NewNamespaceMemoItem()
+		m.Store(key, value)
+		return value
+	}
+	return existing
+}
+
+func (m *AllNamespaceMemoT) Keys() []reflect.Type {
+	keys := []reflect.Type{}
+	(*sync.Map)(m).Range(func(key, _ any) bool {
+		keys = append(keys, key.(reflect.Type))
+		return true
+	})
+	return keys
+}
 
 var skipUnmarshalFeatureNames = map[string]bool{
 	"__chalk_observed_at__": true,
@@ -446,12 +478,12 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), nsMemo)
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -489,7 +521,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(&memberValue, memberField.Type(), nsMemo)
+				rVal, err := GetReflectValue(&memberValue, memberField.Type(), allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -502,12 +534,12 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := nsMemo[structValue.Type()]
+			memo, ok := allMemo.Load(structValue.Type())
 			if !ok {
 				return nil, fmt.Errorf(
 					"namespace memo not found for struct '%s' - found %v",
 					structValue.Type().Name(),
-					colls.Keys(nsMemo),
+					allMemo.Keys(),
 				)
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
@@ -537,7 +569,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 						if err != nil {
 							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
 						}
-						if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
+						if err := SetMapEntryValue(memberField, bucket, v, allMemo); err != nil {
 							return nil, errors.Wrapf(
 								err,
 								"error setting map entry value for field '%s' in struct '%s'",
@@ -545,7 +577,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 							)
 						}
 					} else {
-						rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
+						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
 								err,
@@ -609,7 +641,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 					)
 				}
 			}
-			rVal, err := GetReflectValue(actualValue, typ.Elem(), nsMemo)
+			rVal, err := GetReflectValue(actualValue, typ.Elem(), allMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -633,13 +665,13 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NewNamespaceMemo) (*ref
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NewNamespaceMemo) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *AllNamespaceMemoT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), nsMemo)
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}

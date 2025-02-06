@@ -16,9 +16,9 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NewNamespaceMemo) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type(), nsMemo)
+		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -29,7 +29,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo interna
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value, nsMemo); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, allMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil
@@ -132,7 +132,7 @@ func unmarshalRows(
 	namespace string,
 	namespaceScope *scopeTrie,
 	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NewNamespaceMemo,
+	namespaceMemo *internal.AllNamespaceMemoT,
 	chunkIdx int,
 	resChan chan<- ChunkResult,
 	wg *sync.WaitGroup,
@@ -236,9 +236,9 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	nsMemo, ok := memo[sliceElemType]
+	nsMemo, ok := memo.Load(sliceElemType)
 	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, colls.Keys(memo)).Error()}
+		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, memo.Keys()).Error()}
 	}
 
 	var wg sync.WaitGroup
@@ -378,7 +378,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	nsMemo, ok := memo[holderValue.Elem().Type()]
+	nsMemo, ok := memo.Load(holderValue.Elem().Type())
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -403,7 +403,7 @@ func thinUnmarshalInto(
 	expectedOutputs []string,
 	namespaceScope *scopeTrie,
 	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NewNamespaceMemo,
+	namespaceMemo *internal.AllNamespaceMemoT,
 ) (returnErr *ClientError) {
 	structValue := resultHolder.Elem()
 

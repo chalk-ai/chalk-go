@@ -44,7 +44,7 @@ func initRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *scopeTrie,
-	nsMemo internal.NewNamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -65,7 +65,10 @@ func initRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo := nsMemo[structValue.Type()]
+	memo, ok := allMemo.Load(structValue.Type())
+	if !ok {
+		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	}
 
 	var fieldNames []string
 	if scopeToJustStructs {
@@ -106,7 +109,7 @@ func initRemoteFeatureMap(
 					updatedFqn,
 					visited,
 					nextScope,
-					nsMemo,
+					allMemo,
 					false,
 				); err != nil {
 					return err
@@ -342,27 +345,23 @@ func WarmUpUnmarshalling[T any](rootFeatureStruct *T) error {
  *  }
  */
 func buildNamespaceMemo(typ reflect.Type) error {
-	memo := internal.AllNamespaceMemo
+	allMemo := internal.AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
 		return buildNamespaceMemo(typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := internal.ChalkpySnakeCase(structName)
-		if _, ok := memo[typ]; ok {
+		if _, ok := allMemo.Load(typ); ok {
 			// Prevent infinite loops
 			return nil
 		}
+		nsMemo := allMemo.LoadOrInit(typ)
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := internal.ResolveFeatureName(fm)
 			if err != nil {
 				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 			}
-
-			if _, ok := memo[typ]; !ok {
-				memo[typ] = internal.NewNamespaceMemoItem()
-			}
-			nsMemo := memo[typ]
 			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
