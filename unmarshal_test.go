@@ -1114,6 +1114,7 @@ func benchmarkUnmarshal(t *testing.T, data []FeatureResult, resultHolder any) ti
 	return sum / 100
 }
 
+<<<<<<< Updated upstream
 // TestEnsureTimelyUnmarshal tests that we maintain a non-quadratic unmarshal.
 func TestEnsureTimelyUnmarshal(t *testing.T) {
 	t.Parallel()
@@ -1206,6 +1207,8 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
 
+=======
+>>>>>>> Stashed changes
 func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 	t.Parallel()
 	// For forward compatibility, i.e. when clients add
