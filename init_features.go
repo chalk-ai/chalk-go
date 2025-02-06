@@ -297,8 +297,8 @@ func initFeatures(
  *      }
  *  }
  */
-func WarmUpUnmarshaller[T any](rootFeatureStruct *T) error {
-	elemType := reflect.TypeOf(rootFeatureStruct).Elem()
+func WarmUpUnmarshaller[T any](featureStruct *T) error {
+	elemType := reflect.TypeOf(featureStruct).Elem()
 	if elemType.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"argument must be a pointer to a struct, found a pointer to `%s` instead",
