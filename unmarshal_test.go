@@ -1197,12 +1197,12 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 	singleItemDuration := float64(singleAvg)
 	multiplier := deltaPerExtraItem / singleItemDuration
 	t.Logf(
-		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f",
-		multiplier, deltaPerExtraItem, singleItemDuration,
+		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f, multiItemDuration: %f",
+		multiplier, deltaPerExtraItem, singleItemDuration, float64(multiAvg),
 	)
-	// Limit when run locally can be significantly less than 0.7,
+	// Limit when run locally can be significantly less than 0.9,
 	// but when run in CI it needs to be higher to not flake.
-	limit := 0.7
+	limit := 0.9
 	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
 
