@@ -271,6 +271,9 @@ func initFeatures(
  * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
  * implicitly by the first query.
  *
+ * This function takes in either an anonymous struct that contains all feature structs, or an individual
+ * feature struct. It also recursively builds memos for all nested feature structs.
+ *
  * Example usage:
  *  type User struct {
  *      Id *string
