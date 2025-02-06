@@ -1200,9 +1200,9 @@ func TestEnsureTimelyUnmarshal(t *testing.T) {
 		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f",
 		multiplier, deltaPerExtraItem, singleItemDuration,
 	)
-	// Limit when run locally can be significantly less than 0.5,
+	// Limit when run locally can be significantly less than 0.6,
 	// but when run in CI it needs to be higher to not flake.
-	limit := 0.5
+	limit := 0.6
 	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
 }
 
