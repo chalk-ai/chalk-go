@@ -1335,6 +1335,45 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	wg.Wait()
 }
 
+func TestUnmarshalConcurrently(t *testing.T) {
+	t.Parallel()
+	chalkClient, chalkClientErr := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	if chalkClientErr != nil {
+		fmt.Println("ChalkClient ERROR: ", chalkClientErr)
+		return
+	}
+
+	for {
+		var wg sync.WaitGroup
+		numConcurrent := 100
+		for i := 0; i < numConcurrent; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				res, err := chalkClient.OnlineQuery(
+					chalk.OnlineQueryParams{}.
+						WithInput("user.id", 1).
+						WithOutputs(
+							"user.socure_score",
+						),
+					nil,
+				)
+				if err != nil {
+					fmt.Println("ONLINE QUERY ERROR: ", err)
+					return
+				}
+				fmt.Println(">>> RESULT: ", res)
+				myUser := User{}
+				res.UnmarshalInto(&myUser)
+				//fmt.Println(">>>> RESULT: ", myUser.SocureScore)
+			}()
+		}
+		wg.Wait()
+		time.Sleep(1 * time.Second)
+	}
+
+}
+
 /*
 TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the same list of structs that appear as:
 1. a has-many feature
