@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func BenchmarkMultiNsDeserFromSingleQueryResult(t *testing.B) {
+func BenchmarkMultiNsDeserPrimitives(t *testing.B) {
 	data := []chalk.FeatureResult{
 		{
 			Field: "int_features.int1",
