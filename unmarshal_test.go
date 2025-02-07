@@ -1335,43 +1335,89 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	wg.Wait()
 }
 
+/*
+ * TestUnmarshalConcurrently tests that unmarshalling the same data concurrently
+ * works. Particularly the `internal.AllNamespaceMemo` variable has to be thread-safe.
+ */
 func TestUnmarshalConcurrently(t *testing.T) {
 	t.Parallel()
-	chalkClient, chalkClientErr := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
-	if chalkClientErr != nil {
-		fmt.Println("ChalkClient ERROR: ", chalkClientErr)
-		return
-	}
 
-	for {
-		var wg sync.WaitGroup
-		numConcurrent := 100
-		for i := 0; i < numConcurrent; i++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				res, err := chalkClient.OnlineQuery(
-					chalk.OnlineQueryParams{}.
-						WithInput("user.id", 1).
-						WithOutputs(
-							"user.socure_score",
-						),
-					nil,
-				)
-				if err != nil {
-					fmt.Println("ONLINE QUERY ERROR: ", err)
-					return
-				}
-				fmt.Println(">>> RESULT: ", res)
-				myUser := User{}
-				res.UnmarshalInto(&myUser)
-				//fmt.Println(">>>> RESULT: ", myUser.SocureScore)
-			}()
-		}
-		wg.Wait()
-		time.Sleep(1 * time.Second)
+	data := []FeatureResult{
+		{
+			Field: "all_types.int",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.float",
+			Value: float64(123),
+		},
+		{
+			Field: "all_types.string",
+			Value: "abc",
+		},
+		{
+			Field: "all_types.bool",
+			Value: true,
+		},
+		{
+			Field: "all_types.timestamp",
+			Value: "2024-05-09T22:29:00Z",
+		},
+		{
+			Field: "all_types.int_list",
+			Value: []any{float64(1), float64(2), float64(3)},
+		},
+		{
+			Field: "all_types.nested_int_pointer_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.nested_int_list",
+			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
+		},
+		{
+			Field: "all_types.windowed_int__60__",
+			Value: 1,
+		},
+		{
+			Field: "all_types.windowed_int__300__",
+			Value: 2,
+		},
+		{
+			Field: "all_types.windowed_int__3600__",
+			Value: 3,
+		},
+		{
+			Field: "all_types.dataclass",
+			Value: []any{float64(1.0), float64(2.0)},
+		},
+		{
+			Field: "all_types.dataclass_list",
+			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
+		},
+		{
+			Field: "all_types.nested.id",
+			Value: "nested_id",
+		},
 	}
+	queryRes := OnlineQueryResult{Data: data}
 
+	numBatch := 100
+	for i := 0; i < numBatch; i++ {
+		t.Run(fmt.Sprintf("batch-%d", i), func(t *testing.T) {
+			t.Parallel()
+			var wg sync.WaitGroup
+			batchSize := 1000
+			for i := 0; i < batchSize; i++ {
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					queryRes.UnmarshalInto(&allTypes{})
+				}()
+			}
+			wg.Wait()
+		})
+	}
 }
 
 /*
