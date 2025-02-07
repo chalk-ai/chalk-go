@@ -1337,7 +1337,8 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 
 /*
  * TestUnmarshalConcurrently tests that unmarshalling the same data concurrently
- * works. Particularly the `internal.AllNamespaceMemo` variable has to be thread-safe.
+ * works. Particularly the `internal.AllNamespaceMemo` object has to have thread-
+ * safe methods.
  */
 func TestUnmarshalConcurrently(t *testing.T) {
 	t.Parallel()
