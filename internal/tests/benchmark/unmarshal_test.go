@@ -8,7 +8,13 @@ import (
 	"testing"
 )
 
-func BenchmarkMultiNsDeserPrimitives(t *testing.B) {
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ */
+func BenchmarkUnmarshalMultiNsPrimitives(t *testing.B) {
 	data := []chalk.FeatureResult{}
 	for i := 1; i <= 40; i++ {
 		data = append(data, chalk.FeatureResult{
@@ -49,7 +55,13 @@ func BenchmarkMultiNsDeserPrimitives(t *testing.B) {
 	}
 }
 
-func BenchmarkMultiNsDeserWindowed(t *testing.B) {
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Windowed
+ * Protocol: REST
+ */
+func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 	newData := []chalk.FeatureResult{}
 	windows := []int{60, 300, 3600}
 	for i := 1; i <= 13; i++ {
