@@ -44,7 +44,7 @@ func initRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *scopeTrie,
-	allMemo *internal.AllNamespaceMemoT,
+	nsMemo internal.NamespaceMemo,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -65,10 +65,7 @@ func initRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo, ok := allMemo.Load(structValue.Type())
-	if !ok {
-		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
-	}
+	memo := nsMemo[structName]
 
 	var fieldNames []string
 	if scopeToJustStructs {
@@ -109,7 +106,7 @@ func initRemoteFeatureMap(
 					updatedFqn,
 					visited,
 					nextScope,
-					allMemo,
+					nsMemo,
 					false,
 				); err != nil {
 					return err
@@ -264,48 +261,6 @@ func initFeatures(
 		}
 	}
 	return nil
-}
-
-/* WarmUpUnmarshaller builds a memo to make unmarshalling efficient. This function should be called only once
- * at init time, instead of per query. If this function is not called, the first query will be slower, but
- * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
- * implicitly by the first query.
- *
- * This function takes in either an anonymous struct that contains all feature structs, or an individual
- * feature struct. It also recursively builds memos for all nested feature structs.
- *
- * Example usage:
- *  type User struct {
- *      Id *string
- *      Transactions *[]Transactions `has_many:"id,user_id"`
- *      Grade   *int `versioned:"default(2)"`
- *      GradeV1 *int `versioned:"true"`
- *      GradeV2 *int `versioned:"true"`
- *  }
- *  type Transactions struct {
- *      Id *string
- *      UserId *string
- *      Amount *float64
- *  }
- *  var Features struct {
- *      User *User
- *      Transactions *Transactions
- *  }
- *  func init() {
- *      if err := chalk.WarmUpUnmarshaller(&Features); err != nil {
- *          panic("error initializing unmarshalling")
- *      }
- *  }
- */
-func WarmUpUnmarshaller[T any](featureStruct *T) error {
-	elemType := reflect.TypeOf(featureStruct).Elem()
-	if elemType.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"argument must be a pointer to a struct, found a pointer to `%s` instead",
-			elemType.Kind(),
-		)
-	}
-	return internal.PopulateAllNamespaceMemo(elemType)
 }
 
 func pointerCheck(field reflect.Value) error {
