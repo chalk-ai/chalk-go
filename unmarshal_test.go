@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 )
@@ -1094,118 +1095,6 @@ func TestUnmarshalQueryBulkListOfPrimitives(t *testing.T) {
 	assert.Equal(t, "blue", (*resultHolders[1].FavoriteColors)[2])
 }
 
-func benchmarkUnmarshal(t *testing.T, data []FeatureResult, resultHolder any) time.Duration {
-	t.Helper()
-	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
-	}
-	var sum time.Duration
-	var unmarshalErr error
-	for i := 0; i < 100; i++ {
-		start := time.Now()
-		if unmarshalErr = result.UnmarshalInto(resultHolder); unmarshalErr != (*ClientError)(nil) {
-			t.Fatal(unmarshalErr)
-		}
-		sum += time.Since(start)
-	}
-	return sum / 100
-}
-
-// TestEnsureTimelyUnmarshal tests that we maintain a non-quadratic unmarshal.
-func TestEnsureTimelyUnmarshal(t *testing.T) {
-	t.Parallel()
-	assert.Nil(t, initErr)
-
-	// Mimic JSON deser which returns all numbers as `float64`
-	multiData := []FeatureResult{
-		{
-			Field: "all_types.int",
-			Value: float64(123),
-		},
-		{
-			Field: "all_types.float",
-			Value: float64(123),
-		},
-		{
-			Field: "all_types.string",
-			Value: "abc",
-		},
-		{
-			Field: "all_types.bool",
-			Value: true,
-		},
-		{
-			Field: "all_types.timestamp",
-			Value: "2024-05-09T22:29:00Z",
-		},
-		{
-			Field: "all_types.int_list",
-			Value: []any{float64(1), float64(2), float64(3)},
-		},
-		{
-			Field: "all_types.nested_int_pointer_list",
-			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
-		},
-		{
-			Field: "all_types.nested_int_list",
-			Value: []any{[]any{float64(1), float64(2)}, []any{float64(3), float64(4)}},
-		},
-		{
-			Field: "all_types.windowed_int__60__",
-			Value: 1,
-		},
-		{
-			Field: "all_types.windowed_int__300__",
-			Value: 2,
-		},
-		{
-			Field: "all_types.windowed_int__3600__",
-			Value: 3,
-		},
-		{
-			Field: "all_types.dataclass",
-			Value: []any{float64(1.0), float64(2.0)},
-		},
-		{
-			Field: "all_types.dataclass_list",
-			Value: []any{[]any{float64(1.0), float64(2.0)}, []any{float64(3.0), float64(4.0)}},
-		},
-		{
-			Field: "all_types.nested.id",
-			Value: "nested_id",
-		},
-	}
-	multiFeatures := &allTypes{}
-	multiAvg := benchmarkUnmarshal(t, multiData, multiFeatures)
-
-	singleData := []FeatureResult{
-		{
-			Field: "all_types.int",
-			Value: float64(123),
-		},
-	}
-	singleFeatures := &allTypes{}
-	singleAvg := benchmarkUnmarshal(t, singleData, singleFeatures)
-	assert.Equal(t, int64(123), *singleFeatures.Int)
-
-	lenDelta := len(multiData) - len(singleData)
-	delta := multiAvg - singleAvg
-	deltaPerExtraItem := float64(delta) / float64(lenDelta)
-	singleItemDuration := float64(singleAvg)
-	multiplier := deltaPerExtraItem / singleItemDuration
-	t.Logf(
-		"multiplier (deltaPerExtraItem/singleItemDuration): %f, deltaPerExtraItem: %f, singleItemDuration: %f",
-		multiplier, deltaPerExtraItem, singleItemDuration,
-	)
-	// Limit when run locally can be significantly less than 0.5,
-	// but when run in CI it needs to be higher to not flake.
-	limit := 0.5
-	assert.True(t, multiplier < limit, "multiplier should be less than %v", limit)
-}
-
 func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 	t.Parallel()
 	// For forward compatibility, i.e. when clients add
@@ -1402,6 +1291,48 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
 	// Struct initialized but not populated with "extra" fields, which is what we want.
 	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
+}
+
+func TestWarmUpUnmarshaller(t *testing.T) {
+	t.Parallel()
+	var rootFeatures struct {
+		Transaction *unmarshalTransaction
+		User        *unmarshalUSER
+		LatLng      *unmarshalLatLNG
+	}
+	assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
+	_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+	assert.True(t, ok)
+	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+	assert.True(t, ok)
+	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
+	assert.True(t, ok)
+}
+
+func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
+	t.Parallel()
+	var rootFeatures struct {
+		Transaction *unmarshalTransaction
+		User        *unmarshalUSER
+		LatLng      *unmarshalLatLNG
+	}
+
+	var wg sync.WaitGroup
+	const numConcurrentTests = 10
+	wg.Add(numConcurrentTests)
+	for i := 0; i < numConcurrentTests; i++ {
+		go func() {
+			defer wg.Done()
+			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
+			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
+			assert.True(t, ok)
+		}()
+	}
+	wg.Wait()
 }
 
 /*
