@@ -16,9 +16,9 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo internal.NamespaceMemo) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type(), nsMemo)
+		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
 		}
@@ -29,7 +29,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, nsMemo interna
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
 		}
-		if err := internal.SetMapEntryValue(field, bucket, value, nsMemo); err != nil {
+		if err := internal.SetMapEntryValue(field, bucket, value, allMemo); err != nil {
 			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
 		}
 		return nil
@@ -131,8 +131,8 @@ func unmarshalRows(
 	typ reflect.Type,
 	namespace string,
 	namespaceScope *scopeTrie,
-	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NamespaceMemo,
+	namespaceMemo *internal.NamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
 	chunkIdx int,
 	resChan chan<- ChunkResult,
 	wg *sync.WaitGroup,
@@ -147,8 +147,8 @@ func unmarshalRows(
 			namespace,
 			nil,
 			namespaceScope,
-			namespaceMemoItem,
 			namespaceMemo,
+			allMemo,
 		); err != nil {
 			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
 			return
@@ -217,8 +217,8 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building deserialization scope")
 	}
 
-	memo := internal.NamespaceMemo{}
-	if err := internal.BuildNamespaceMemo(memo, sliceElemType); err != nil {
+	allMemo := internal.AllNamespaceMemo
+	if err := internal.PopulateAllNamespaceMemo(sliceElemType); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 
@@ -236,9 +236,9 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := allMemo.Load(sliceElemType)
 	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
+		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
 	}
 
 	var wg sync.WaitGroup
@@ -256,7 +256,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			namespace,
 			nsScope,
 			nsMemo,
-			memo,
+			allMemo,
 			chunkIdx,
 			resChan,
 			&wg,
@@ -350,10 +350,12 @@ fields correspond to the FQNs. An illustration:
 			fmt.Println(fm)
 		}
 	}
+
+To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr *ClientError) {
-	memo := internal.NamespaceMemo{}
-	if err := internal.BuildNamespaceMemo(memo, reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
+	allMemo := internal.AllNamespaceMemo
+	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
 	scope, err := buildScope(colls.Keys(fqnToValue))
@@ -378,7 +380,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		}
 	}
 
-	nsMemo, ok := memo[structName]
+	nsMemo, ok := allMemo.Load(holderValue.Elem().Type())
 	if !ok {
 		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
 	}
@@ -390,7 +392,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		expectedOutputs,
 		nsScope,
 		nsMemo,
-		memo,
+		allMemo,
 	)
 }
 
@@ -402,8 +404,8 @@ func thinUnmarshalInto(
 	namespace string,
 	expectedOutputs []string,
 	namespaceScope *scopeTrie,
-	namespaceMemoItem *internal.NamespaceMemoItem,
-	namespaceMemo internal.NamespaceMemo,
+	namespaceMemo *internal.NamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
 ) (returnErr *ClientError) {
 	structValue := resultHolder.Elem()
 
@@ -414,7 +416,7 @@ func thinUnmarshalInto(
 		namespace,
 		map[string]bool{},
 		namespaceScope,
-		namespaceMemo,
+		allMemo,
 		true,
 	); err != nil {
 		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
@@ -424,7 +426,7 @@ func thinUnmarshalInto(
 		targetFields, ok := remoteFeatureMap[fqn]
 		if !ok {
 			// If not a has-one remote feature, e.g. user.account.balance
-			fieldIndices, ok := namespaceMemoItem.ResolvedFieldNameToIndices[fqn]
+			fieldIndices, ok := namespaceMemo.ResolvedFieldNameToIndices[fqn]
 			if !ok {
 				// For forward compatibility, i.e. when clients add
 				// more fields to their dataclasses in chalkpy, we want
@@ -448,7 +450,7 @@ func thinUnmarshalInto(
 				// TODO: Add validation for optional fields
 				continue
 			}
-			if err := setFeatureSingle(field, fqn, value, namespaceMemo); err != nil {
+			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
 				sections := strings.Split(fqn, ".")

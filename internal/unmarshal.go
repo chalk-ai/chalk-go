@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"os"
@@ -22,42 +21,6 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
-type ResultMetadataSourceType string
-
-const (
-	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
-)
-
-var tableReaderChunkSize = defaultTableReaderChunkSize
-
-func init() {
-	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
-		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
-			tableReaderChunkSize = newChunkSize
-		}
-	}
-}
-
-type Numbers interface {
-	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
-}
-
-type NamespaceMemoItem struct {
-	// Root and non-root FQN as keys
-	ResolvedFieldNameToIndices map[string][]int
-	// Non-root FQN as keys only
-	StructFieldsSet map[string]bool
-}
-
-func NewNamespaceMemoItem() *NamespaceMemoItem {
-	return &NamespaceMemoItem{
-		ResolvedFieldNameToIndices: map[string][]int{},
-		StructFieldsSet:            map[string]bool{},
-	}
-}
-
-type NamespaceMemo map[string]*NamespaceMemoItem
-
 var skipUnmarshalFeatureNames = map[string]bool{
 	"__chalk_observed_at__": true,
 }
@@ -69,6 +32,84 @@ var skipUnmarshalFields = map[string]bool{
 
 var SkipUnmarshalFqnRoots = map[string]bool{
 	"__chalk__": true,
+}
+
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
+
+var tableReaderChunkSize = defaultTableReaderChunkSize
+
+type Numbers interface {
+	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
+}
+
+type NamespaceMemo struct {
+	// Root and non-root FQN as keys
+	ResolvedFieldNameToIndices map[string][]int
+	// Non-root FQN as keys only
+	StructFieldsSet map[string]bool
+}
+
+type AllNamespaceMemoT sync.Map
+
+var AllNamespaceMemo = &AllNamespaceMemoT{}
+
+func init() {
+	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
+		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
+			tableReaderChunkSize = newChunkSize
+		}
+	}
+}
+
+func NewNamespaceMemo() *NamespaceMemo {
+	return &NamespaceMemo{
+		ResolvedFieldNameToIndices: map[string][]int{},
+		StructFieldsSet:            map[string]bool{},
+	}
+}
+
+type NamespaceMutex struct {
+	mu   sync.RWMutex
+	memo *NamespaceMemo
+}
+
+func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
+	value, ok := (*sync.Map)(m).Load(key)
+	if !ok {
+		return nil, false
+	}
+	namespaceMutex := value.(*NamespaceMutex)
+	namespaceMutex.mu.RLock()
+	defer namespaceMutex.mu.RUnlock()
+	return namespaceMutex.memo, true
+}
+
+func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *NamespaceMemo) (*NamespaceMutex, bool) {
+	namespaceMutex := &NamespaceMutex{
+		mu:   sync.RWMutex{},
+		memo: memo,
+	}
+	// The mutex should always be inserted in a locked state.
+	// Otherwise, there is an albeit slim possibility where
+	// concurrent readers of the memo retrieve and obtain an
+	// RLock on the mutex before the writer obtains a write
+	// lock.
+	namespaceMutex.mu.Lock()
+	v, loaded := (*sync.Map)(m).LoadOrStore(key, namespaceMutex)
+	return v.(*NamespaceMutex), loaded
+}
+
+func (m *AllNamespaceMemoT) Keys() []reflect.Type {
+	keys := []reflect.Type{}
+	(*sync.Map)(m).Range(func(key, _ any) bool {
+		keys = append(keys, key.(reflect.Type))
+		return true
+	})
+	return keys
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
@@ -442,12 +483,12 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), nsMemo)
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -485,7 +526,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(&memberValue, memberField.Type(), nsMemo)
+				rVal, err := GetReflectValue(&memberValue, memberField.Type(), allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -498,12 +539,12 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := nsMemo[structValue.Type().Name()]
+			memo, ok := allMemo.Load(structValue.Type())
 			if !ok {
 				return nil, fmt.Errorf(
 					"namespace memo not found for struct '%s' - found %v",
 					structValue.Type().Name(),
-					colls.Keys(nsMemo),
+					allMemo.Keys(),
 				)
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
@@ -533,7 +574,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 						if err != nil {
 							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
 						}
-						if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
+						if err := SetMapEntryValue(memberField, bucket, v, allMemo); err != nil {
 							return nil, errors.Wrapf(
 								err,
 								"error setting map entry value for field '%s' in struct '%s'",
@@ -541,7 +582,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 							)
 						}
 					} else {
-						rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
+						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
 								err,
@@ -605,7 +646,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 					)
 				}
 			}
-			rVal, err := GetReflectValue(actualValue, typ.Elem(), nsMemo)
+			rVal, err := GetReflectValue(actualValue, typ.Elem(), allMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -629,13 +670,13 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NamespaceMemo) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *AllNamespaceMemoT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), nsMemo)
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
@@ -643,7 +684,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo Name
 	return nil
 }
 
-/*  BuildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+/*  PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
  *  i.e. Don't need to do the same work for the same features class multiple times. Given:
  *  type User struct {
  *      Id *string
@@ -683,27 +724,25 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo Name
  *      }
  *  }
  */
-func BuildNamespaceMemo(memo NamespaceMemo, typ reflect.Type) error {
+func PopulateAllNamespaceMemo(typ reflect.Type) error {
+	allMemo := AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
-		return BuildNamespaceMemo(memo, typ.Elem())
+		return PopulateAllNamespaceMemo(typ.Elem())
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := ChalkpySnakeCase(structName)
-		if _, ok := memo[structName]; ok {
-			// Prevent infinite loops
+		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
+		if loaded {
+			// Prevent infinite loops and processing the same struct more than once.
 			return nil
 		}
+		nsMemo := nsMutex.memo
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := ResolveFeatureName(fm)
 			if err != nil {
 				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 			}
-
-			if _, ok := memo[structName]; !ok {
-				memo[structName] = NewNamespaceMemoItem()
-			}
-			nsMemo := memo[structName]
 			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
 			// Here we map those keys to their respective indices in the struct, so that we
@@ -730,7 +769,7 @@ func BuildNamespaceMemo(memo NamespaceMemo, typ reflect.Type) error {
 					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
-				if err := BuildNamespaceMemo(memo, fm.Type); err != nil {
+				if err := PopulateAllNamespaceMemo(fm.Type); err != nil {
 					return err
 				}
 			}
@@ -739,8 +778,9 @@ func BuildNamespaceMemo(memo NamespaceMemo, typ reflect.Type) error {
 				nsMemo.StructFieldsSet[resolvedName] = true
 			}
 		}
+		nsMutex.mu.Unlock()
 	} else if typ.Kind() == reflect.Slice {
-		return BuildNamespaceMemo(memo, typ.Elem())
+		return PopulateAllNamespaceMemo(typ.Elem())
 	}
 	return nil
 }
