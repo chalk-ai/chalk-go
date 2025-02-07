@@ -72,8 +72,9 @@ func NewNamespaceMemo() *NamespaceMemo {
 	}
 }
 
-func (m *AllNamespaceMemoT) Store(key reflect.Type, value *NamespaceMemo) {
-	(*sync.Map)(m).Store(key, value)
+type NamespaceMutex struct {
+	mu   sync.RWMutex
+	memo *NamespaceMemo
 }
 
 func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
@@ -81,12 +82,22 @@ func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
 	if !ok {
 		return nil, false
 	}
-	return value.(*NamespaceMemo), true
+	namespaceMutex := value.(*NamespaceMutex)
+	namespaceMutex.mu.RLock()
+	defer namespaceMutex.mu.RUnlock()
+	return namespaceMutex.memo, true
 }
 
-func (m *AllNamespaceMemoT) LoadOrStore(key reflect.Type, value *NamespaceMemo) (*NamespaceMemo, bool) {
-	v, loaded := (*sync.Map)(m).LoadOrStore(key, value)
-	return v.(*NamespaceMemo), loaded
+func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *NamespaceMemo) (*NamespaceMutex, bool) {
+	underlyingMutex := sync.RWMutex{}
+	// Always lock. Once data is written, unlock.
+	underlyingMutex.Lock()
+	namespaceMutex := &NamespaceMutex{
+		mu:   underlyingMutex,
+		memo: memo,
+	}
+	v, loaded := (*sync.Map)(m).LoadOrStore(key, namespaceMutex)
+	return v.(*NamespaceMutex), loaded
 }
 
 func (m *AllNamespaceMemoT) Keys() []reflect.Type {
@@ -717,11 +728,12 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		structName := typ.Name()
 		namespace := ChalkpySnakeCase(structName)
-		nsMemo, visited := allMemo.LoadOrStore(typ, NewNamespaceMemo())
-		if visited {
+		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
+		if loaded {
 			// Prevent infinite loops and processing the same struct more than once.
 			return nil
 		}
+		nsMemo := nsMutex.memo
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
 			resolvedName, err := ResolveFeatureName(fm)
@@ -763,6 +775,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 				nsMemo.StructFieldsSet[resolvedName] = true
 			}
 		}
+		nsMutex.mu.Unlock()
 	} else if typ.Kind() == reflect.Slice {
 		return PopulateAllNamespaceMemo(typ.Elem())
 	}
