@@ -90,7 +90,11 @@ func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
 
 func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *NamespaceMemo) (*NamespaceMutex, bool) {
 	underlyingMutex := sync.RWMutex{}
-	// Always lock. Once data is written, unlock.
+	// The mutex should always be inserted in a locked state.
+	// Otherwise, there is an albeit slim possibility where
+	// concurrent readers of the memo retrieve and obtain an
+	// RLock on the mutex before the writer obtains a write
+	// lock.
 	underlyingMutex.Lock()
 	namespaceMutex := &NamespaceMutex{
 		mu:   underlyingMutex,
