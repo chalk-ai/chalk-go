@@ -40,6 +40,10 @@ const (
 	// OfflineQueryMetadataServiceGetOfflineQueryProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's GetOfflineQuery RPC.
 	OfflineQueryMetadataServiceGetOfflineQueryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQuery"
+	// OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure is the
+	// fully-qualified name of the OfflineQueryMetadataService's
+	// ListOfflineQueryShardPerformanceSummaries RPC.
+	OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure = "/chalk.server.v1.OfflineQueryMetadataService/ListOfflineQueryShardPerformanceSummaries"
 )
 
 // OfflineQueryMetadataServiceClient is a client for the chalk.server.v1.OfflineQueryMetadataService
@@ -47,6 +51,7 @@ const (
 type OfflineQueryMetadataServiceClient interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
+	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceClient constructs a client for the
@@ -75,13 +80,21 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listOfflineQueryShardPerformanceSummaries: connect.NewClient[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("ListOfflineQueryShardPerformanceSummaries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // offlineQueryMetadataServiceClient implements OfflineQueryMetadataServiceClient.
 type offlineQueryMetadataServiceClient struct {
-	listOfflineQueries *connect.Client[v1.ListOfflineQueriesRequest, v1.ListOfflineQueriesResponse]
-	getOfflineQuery    *connect.Client[v1.GetOfflineQueryRequest, v1.GetOfflineQueryResponse]
+	listOfflineQueries                        *connect.Client[v1.ListOfflineQueriesRequest, v1.ListOfflineQueriesResponse]
+	getOfflineQuery                           *connect.Client[v1.GetOfflineQueryRequest, v1.GetOfflineQueryResponse]
+	listOfflineQueryShardPerformanceSummaries *connect.Client[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse]
 }
 
 // ListOfflineQueries calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries.
@@ -94,11 +107,18 @@ func (c *offlineQueryMetadataServiceClient) GetOfflineQuery(ctx context.Context,
 	return c.getOfflineQuery.CallUnary(ctx, req)
 }
 
+// ListOfflineQueryShardPerformanceSummaries calls
+// chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries.
+func (c *offlineQueryMetadataServiceClient) ListOfflineQueryShardPerformanceSummaries(ctx context.Context, req *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error) {
+	return c.listOfflineQueryShardPerformanceSummaries.CallUnary(ctx, req)
+}
+
 // OfflineQueryMetadataServiceHandler is an implementation of the
 // chalk.server.v1.OfflineQueryMetadataService service.
 type OfflineQueryMetadataServiceHandler interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
+	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -122,12 +142,21 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure,
+		svc.ListOfflineQueryShardPerformanceSummaries,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("ListOfflineQueryShardPerformanceSummaries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineQueryMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineQueryMetadataServiceListOfflineQueriesProcedure:
 			offlineQueryMetadataServiceListOfflineQueriesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceGetOfflineQueryProcedure:
 			offlineQueryMetadataServiceGetOfflineQueryHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure:
+			offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +172,8 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueries(contex
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries is not implemented"))
 }
