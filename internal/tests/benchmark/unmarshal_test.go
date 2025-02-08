@@ -5,6 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/tests/benchmark/fixtures"
 	assert "github.com/stretchr/testify/require"
+	"sync"
 	"testing"
 	"time"
 )
@@ -42,33 +43,45 @@ func BenchmarkUnmarshalMultiNsPrimitives(t *testing.B) {
 	res := chalk.OnlineQueryResult{
 		Data: data,
 	}
-	intFeatures := fixtures.IntFeatures{}
-	floatFeatures := fixtures.FloatFeatures{}
-	boolFeatures := fixtures.BoolFeatures{}
-	stringFeatures := fixtures.StringFeatures{}
-	timestampFeatures := fixtures.TimestampFeatures{}
+
 	for i := 0; i < t.N; i++ {
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		var wg sync.WaitGroup
+		numRequests := 200
+		for j := 0; j < numRequests; j++ {
+			wg.Add(1)
+			go func() {
+				intFeatures := fixtures.IntFeatures{}
+				floatFeatures := fixtures.FloatFeatures{}
+				boolFeatures := fixtures.BoolFeatures{}
+				stringFeatures := fixtures.StringFeatures{}
+				timestampFeatures := fixtures.TimestampFeatures{}
+				err := res.UnmarshalInto(&intFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&floatFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&boolFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&stringFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&timestampFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				wg.Done()
+
+				assert.Equal(t, int64(122.0), *intFeatures.Int1)
+				assert.Equal(t, int64(122.0), *intFeatures.Int40)
+				assert.Equal(t, float64(1.234), *floatFeatures.Float1)
+				assert.Equal(t, float64(1.234), *floatFeatures.Float40)
+				assert.Equal(t, "string_val", *stringFeatures.String1)
+				assert.Equal(t, "string_val", *stringFeatures.String40)
+				assert.True(t, *boolFeatures.Bool1)
+				assert.True(t, *boolFeatures.Bool40)
+				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
+				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
+			}()
+		}
+		wg.Wait()
 	}
-	assert.Equal(t, int64(122.0), *intFeatures.Int1)
-	assert.Equal(t, int64(122.0), *intFeatures.Int40)
-	assert.Equal(t, float64(1.234), *floatFeatures.Float1)
-	assert.Equal(t, float64(1.234), *floatFeatures.Float40)
-	assert.Equal(t, "string_val", *stringFeatures.String1)
-	assert.Equal(t, "string_val", *stringFeatures.String40)
-	assert.True(t, *boolFeatures.Bool1)
-	assert.True(t, *boolFeatures.Bool40)
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
+
 }
 
 /*
@@ -107,31 +120,44 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 	res := chalk.OnlineQueryResult{
 		Data: newData,
 	}
-	intFeatures := fixtures.WindowedIntFeatures{}
-	floatFeatures := fixtures.WindowedFloatFeatures{}
-	boolFeatures := fixtures.WindowedBoolFeatures{}
-	stringFeatures := fixtures.WindowedStringFeatures{}
-	timestampFeatures := fixtures.WindowedTimestampFeatures{}
+
 	for i := 0; i < t.N; i++ {
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		var wg sync.WaitGroup
+		numRequests := 200
+		for j := 0; j < numRequests; j++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				intFeatures := fixtures.WindowedIntFeatures{}
+				floatFeatures := fixtures.WindowedFloatFeatures{}
+				boolFeatures := fixtures.WindowedBoolFeatures{}
+				stringFeatures := fixtures.WindowedStringFeatures{}
+				timestampFeatures := fixtures.WindowedTimestampFeatures{}
+
+				err := res.UnmarshalInto(&intFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&floatFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&boolFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&stringFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+				err = res.UnmarshalInto(&timestampFeatures)
+				assert.Equal(t, (*chalk.ClientError)(nil), err)
+
+				assert.Equal(t, int64(122.0), *intFeatures.Int1["1m"])
+				assert.Equal(t, int64(122.0), *intFeatures.Int13["1h"])
+				assert.Equal(t, float64(1.234), *floatFeatures.Float1["1m"])
+				assert.Equal(t, float64(1.234), *floatFeatures.Float13["1h"])
+				assert.Equal(t, "string_val", *stringFeatures.String1["1m"])
+				assert.Equal(t, "string_val", *stringFeatures.String13["1h"])
+				assert.True(t, *boolFeatures.Bool1["1m"])
+				assert.True(t, *boolFeatures.Bool13["1h"])
+				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1["1m"])
+				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp13["1h"])
+			}()
+		}
+		wg.Wait()
 	}
-	assert.Equal(t, int64(122.0), *intFeatures.Int1["1m"])
-	assert.Equal(t, int64(122.0), *intFeatures.Int13["1h"])
-	assert.Equal(t, float64(1.234), *floatFeatures.Float1["1m"])
-	assert.Equal(t, float64(1.234), *floatFeatures.Float13["1h"])
-	assert.Equal(t, "string_val", *stringFeatures.String1["1m"])
-	assert.Equal(t, "string_val", *stringFeatures.String13["1h"])
-	assert.True(t, *boolFeatures.Bool1["1m"])
-	assert.True(t, *boolFeatures.Bool13["1h"])
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1["1m"])
-	assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp13["1h"])
+
 }
