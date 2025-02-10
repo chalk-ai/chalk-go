@@ -12,7 +12,15 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
+
+func getContextWithTimeout(ctx context.Context, timeout *time.Duration) context.Context {
+	if _, deadlineSet := ctx.Deadline(); !deadlineSet && timeout != nil {
+		ctx, _ = context.WithTimeout(ctx, *timeout)
+	}
+	return ctx
+}
 
 func withChalkInterceptors(serverType string, interceptors ...connect.Interceptor) connect.Option {
 	return connect.WithInterceptors(

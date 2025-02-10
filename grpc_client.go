@@ -5,6 +5,7 @@ import (
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/cockroachdb/errors"
+	"time"
 )
 
 // GRPCClient is the gRPC-native interface for interacting with Chalk.
@@ -75,6 +76,10 @@ type GRPCClientConfig struct {
 	// ResourceGroup specifies the resource group to route all requests to. If set
 	// on the request or query level, this will be overridden.
 	ResourceGroup string
+
+	// Timeout specifies the timeout for all requests except for the token request.
+	// Defaults to no timeout.
+	Timeout time.Duration
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

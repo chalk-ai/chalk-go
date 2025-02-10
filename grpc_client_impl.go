@@ -14,6 +14,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"net/http"
+	"time"
 )
 
 type grpcClientImpl struct {
@@ -25,6 +26,7 @@ type grpcClientImpl struct {
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    HTTPClient
+	timeout       *time.Duration
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
@@ -62,6 +64,11 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		resourceGroup = &cfg.ResourceGroup
 	}
 
+	var timeout *time.Duration
+	if cfg.Timeout != 0 { // If unspecified (zero value)
+		timeout = &cfg.Timeout
+	}
+
 	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating query client")
@@ -76,6 +83,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		queryClient:   queryClient,
 		queryServer:   queryServer,
 		resourceGroup: resourceGroup,
+		timeout:       timeout,
 	}, nil
 }
 
@@ -259,7 +267,7 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	} else if c.resourceGroup != nil {
 		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
 	}
-	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
+	res, err := c.queryClient.OnlineQueryBulk(getContextWithTimeout(ctx, c.timeout), req)
 	if err != nil {
 		return nil, wrapClientError(err, "executing online query")
 	}
@@ -281,7 +289,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
 	})
 
-	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
+	res, err := c.queryClient.UploadFeaturesBulk(getContextWithTimeout(ctx, c.timeout), req)
 	if err != nil {
 		return nil, wrapClientError(err, "making update aggregates request")
 	}
@@ -292,7 +300,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
-	res, err := c.queryClient.GetAggregates(ctx, req)
+	res, err := c.queryClient.GetAggregates(getContextWithTimeout(ctx, c.timeout), req)
 	if err != nil {
 		return nil, wrapClientError(err, "making get aggregates request")
 	}
@@ -304,7 +312,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
-	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
+	res, err := c.queryClient.PlanAggregateBackfill(getContextWithTimeout(ctx, c.timeout), connect.NewRequest(req))
 	if err != nil {
 		return nil, wrapClientError(err, "making plan aggregate backfill request")
 	}
