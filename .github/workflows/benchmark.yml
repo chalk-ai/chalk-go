@@ -1,0 +1,11 @@
+name: Benchmark
+on:
+  push:
+    branches:
+      - main
+      - jh/bench
+
+  jobs:
+    benchmark:
+      name: Benchmark
+      runs-on:
