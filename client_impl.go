@@ -680,7 +680,7 @@ func newClientImpl(
 	}
 
 	var timeout *time.Duration
-	if cfg.Timeout != 0 { // If unsepcified (zero value)
+	if cfg.Timeout != 0 { // If unspecified (zero value)
 		timeout = &cfg.Timeout
 	}
 
