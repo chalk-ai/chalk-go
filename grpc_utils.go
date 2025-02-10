@@ -11,15 +11,13 @@ import (
 )
 
 func withChalkInterceptors(serverType string, timeout *time.Duration, interceptors ...connect.Interceptor) connect.Option {
-	return connect.WithInterceptors(
-		append(
-			interceptors,
-			headerInterceptor(map[string]string{
-				HeaderKeyServerType: serverType,
-			}),
-			timeoutInterceptor(timeout),
-		)...,
-	)
+	interceptors = append(interceptors, headerInterceptor(map[string]string{
+		HeaderKeyServerType: serverType,
+	}))
+	if timeout != nil {
+		interceptors = append(interceptors, timeoutInterceptor(timeout))
+	}
+	return connect.WithInterceptors(interceptors...)
 }
 
 func ensureHTTPSPrefix(inputURL string) string {
