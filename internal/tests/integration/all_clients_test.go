@@ -7,6 +7,7 @@ import (
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"testing"
+	"time"
 )
 
 var clients []ClientFixture
@@ -138,6 +139,46 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 					assert.NoError(t, err)
 				} else {
 					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
+func TestTimeout(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	timeouts := []struct {
+		name       string
+		timeout    time.Duration
+		shouldFail bool
+	}{
+		{name: "1 nanosecond", timeout: 1 * time.Nanosecond, shouldFail: true},
+		{name: "5 seconds", timeout: 5 * time.Second},
+		{name: "unspecified (zero value)", timeout: 0},
+	}
+
+	for _, useGrpc := range []bool{true, false} {
+		for _, timeoutFixture := range timeouts {
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
+			assert.NoError(t, err)
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				params := chalk.OnlineQueryParams{}.
+					WithInput("user.id", 1).
+					WithOutputs("user.socure_score")
+				res, err := client.OnlineQuery(params, nil)
+				if timeoutFixture.shouldFail {
+					assert.Error(t, err)
+				} else {
+					assert.NoError(t, err)
+					user := user{}
+					// TODO: CHA-5859
+					if err = res.UnmarshalInto(&user); err != (*chalk.ClientError)(nil) {
+						assert.FailNow(t, "expected error to be nil, got %v", err)
+					}
+					assert.NotNil(t, user.SocureScore)
+					assert.Equal(t, 123.0, *user.SocureScore)
 				}
 			})
 		}

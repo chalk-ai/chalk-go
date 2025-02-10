@@ -4,6 +4,7 @@ import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/cockroachdb/errors"
+	"time"
 )
 
 // Client is the primary interface for interacting with Chalk. You can use
@@ -218,6 +219,9 @@ type ClientConfig struct {
 	// ResourceGroup specifies the resource group to route all requests to. If set
 	// on the request or query level, this will be overridden.
 	ResourceGroup string
+
+	// Timeout specifies the timeout for all requests.
+	Timeout time.Duration
 }
 
 // NewClient creates a Client with authentication settings configured.
