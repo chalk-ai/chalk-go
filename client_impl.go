@@ -445,7 +445,8 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return getBufferErr
 	}
 
-	ctx := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	ctx, cancel := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	defer cancel()
 	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
 	if newRequestErr != nil {
 		(c.logger).Debugf("error sending request: %s", newRequestErr.Error())
@@ -530,7 +531,14 @@ func (c *clientImpl) retryRequest(
 
 	// New request needs to be constructed otherwise we were getting the error:
 	//     HTTP/1.x transport connection broken
-	newRequest, err := http.NewRequest(originalRequest.Method, originalRequest.URL.String(), originalBodyBuffer)
+	ctx, cancel := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	newRequest, err := http.NewRequestWithContext(
+		ctx,
+		originalRequest.Method,
+		originalRequest.URL.String(),
+		originalBodyBuffer,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -497,9 +497,9 @@ func getForeignNamespace(typ reflect.Type) *string {
 	}
 }
 
-func GetContextWithTimeout(ctx context.Context, timeout *time.Duration) context.Context {
+func GetContextWithTimeout(ctx context.Context, timeout *time.Duration) (context.Context, context.CancelFunc) {
 	if _, deadlineSet := ctx.Deadline(); !deadlineSet && timeout != nil {
-		ctx, _ = context.WithTimeout(ctx, *timeout)
+		return context.WithTimeout(ctx, *timeout)
 	}
-	return ctx
+	return ctx, func() {}
 }

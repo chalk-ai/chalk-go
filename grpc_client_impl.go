@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"crypto/tls"
 	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -12,8 +13,11 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/types/known/structpb"
+	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -41,15 +45,23 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	authClient, err := newAuthClient(httpClient, config.apiServer.Value)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating auth client")
-	}
 
 	var timeout *time.Duration
 	if cfg.Timeout != 0 { // If unspecified (zero value)
 		timeout = &cfg.Timeout
 	}
+
+	authClient := serverv1connect.NewAuthServiceClient(
+		httpClient,
+		config.apiServer.Value,
+		withChalkInterceptors(
+			serverTypeApi,
+			timeout,
+			headerInterceptor(map[string]string{
+				HeaderKeyServerType: serverTypeApi,
+			}),
+		),
+	)
 
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
 		return getToken(clientId, clientSecret, config.logger, authClient, timeout)
@@ -70,10 +82,37 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating query client")
+	resolvedQueryServer := config.getQueryServer(queryServer)
+	if strings.HasPrefix(resolvedQueryServer, "http://") {
+		// Unsecured client
+		// From https://connectrpc.com/docs/go/deployment#h2c
+		httpClient = &http.Client{
+			Transport: &http2.Transport{
+				AllowHTTP: true,
+				DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+					return net.Dial(network, addr)
+				},
+			},
+		}
 	}
+	headers := map[string]string{
+		HeaderKeyDeploymentType: "engine-grpc",
+	}
+	if cfg.DeploymentTag != "" {
+		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
+	}
+
+	queryClient := enginev1connect.NewQueryServiceClient(
+		httpClient,
+		ensureHTTPSPrefix(resolvedQueryServer),
+		withChalkInterceptors(
+			serverTypeEngine,
+			timeout,
+			makeTokenInterceptor(config),
+			headerInterceptor(headers),
+		),
+		connect.WithGRPC(),
+	)
 
 	return &grpcClientImpl{
 		branch:        cfg.Branch,
@@ -97,7 +136,11 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 			GrantType:    "client_credentials",
 		},
 	)
-	token, err := client.GetToken(internal.GetContextWithTimeout(context.Background(), timeout), authRequest)
+
+	ctx, cancel := internal.GetContextWithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	token, err := client.GetToken(ctx, authRequest)
 	if err != nil {
 		logger.Debugf("Failed to get a new token: %s", err.Error())
 		return nil, err
@@ -268,7 +311,7 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	} else if c.resourceGroup != nil {
 		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
 	}
-	res, err := c.queryClient.OnlineQueryBulk(internal.GetContextWithTimeout(ctx, c.timeout), req)
+	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
 		return nil, wrapClientError(err, "executing online query")
 	}
@@ -290,7 +333,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
 	})
 
-	res, err := c.queryClient.UploadFeaturesBulk(internal.GetContextWithTimeout(ctx, c.timeout), req)
+	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
 	if err != nil {
 		return nil, wrapClientError(err, "making update aggregates request")
 	}
@@ -301,7 +344,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
-	res, err := c.queryClient.GetAggregates(internal.GetContextWithTimeout(ctx, c.timeout), req)
+	res, err := c.queryClient.GetAggregates(ctx, req)
 	if err != nil {
 		return nil, wrapClientError(err, "making get aggregates request")
 	}
@@ -313,7 +356,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
-	res, err := c.queryClient.PlanAggregateBackfill(internal.GetContextWithTimeout(ctx, c.timeout), connect.NewRequest(req))
+	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, wrapClientError(err, "making plan aggregate backfill request")
 	}
