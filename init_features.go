@@ -44,7 +44,7 @@ func initRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *scopeTrie,
-	nsMemo internal.NamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -65,7 +65,10 @@ func initRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo := nsMemo[structName]
+	memo, ok := allMemo.Load(structValue.Type())
+	if !ok {
+		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	}
 
 	var fieldNames []string
 	if scopeToJustStructs {
@@ -106,7 +109,7 @@ func initRemoteFeatureMap(
 					updatedFqn,
 					visited,
 					nextScope,
-					nsMemo,
+					allMemo,
 					false,
 				); err != nil {
 					return err
@@ -263,8 +266,15 @@ func initFeatures(
 	return nil
 }
 
-/*  buildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
- *  i.e. Don't need to do the same work for the same features class multiple times. Given:
+/* WarmUpUnmarshaller builds a memo to make unmarshalling efficient. This function should be called only once
+ * at init time, instead of per query. If this function is not called, the first query will be slower, but
+ * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
+ * implicitly by the first query.
+ *
+ * This function takes in either an anonymous struct that contains all feature structs, or an individual
+ * feature struct. It also recursively builds memos for all nested feature structs.
+ *
+ * Example usage:
  *  type User struct {
  *      Id *string
  *      Transactions *[]Transactions `has_many:"id,user_id"`
@@ -277,92 +287,25 @@ func initFeatures(
  *      UserId *string
  *      Amount *float64
  *  }
- *  The namespace memo will be:
- *  {
- *      "User": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "user.id": [0],
- *              "grade@2": [2, 4],
- *              "user.grade@2": [2, 4],
- *              "grade": [3],
- *              "user.grade": [3],
- *              "transactions": [1],
- *              "user.transactions": [1],
- *          }
- *      },
- *      "Transactions": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "transactions.id": [0],
- *              "user_id": [1],
- *              "transactions.user_id": [1],
- *              "amount": [2],
- *              "transactions.amount": [2],
- *          }
+ *  var Features struct {
+ *      User *User
+ *      Transactions *Transactions
+ *  }
+ *  func init() {
+ *      if err := chalk.WarmUpUnmarshaller(&Features); err != nil {
+ *          panic("error initializing unmarshalling")
  *      }
  *  }
  */
-func buildNamespaceMemo(memo internal.NamespaceMemo, typ reflect.Type) error {
-	if typ.Kind() == reflect.Ptr {
-		return buildNamespaceMemo(memo, typ.Elem())
-	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		structName := typ.Name()
-		namespace := internal.ChalkpySnakeCase(structName)
-		if _, ok := memo[structName]; ok {
-			// Prevent infinite loops
-			return nil
-		}
-		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
-			fm := typ.Field(fieldIdx)
-			resolvedName, err := internal.ResolveFeatureName(fm)
-			if err != nil {
-				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
-			}
-
-			if _, ok := memo[structName]; !ok {
-				memo[structName] = internal.NewNamespaceMemoItem()
-			}
-			nsMemo := memo[structName]
-			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
-			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
-			// Here we map those keys to their respective indices in the struct, so that we
-			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			rootFqn := namespace + "." + resolvedName
-			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
-
-			// Handle exploding windowed features
-			if fm.Type.Kind() == reflect.Map {
-				// Is a windowed feature
-				intTags, err := internal.GetWindowBucketsSecondsFromStructTag(fm)
-				if err != nil {
-					return errors.Wrapf(
-						err,
-						"error getting window buckets for field '%s' in struct '%s'",
-						fm.Name,
-						structName,
-					)
-				}
-				for _, tag := range intTags {
-					bucketFqn := resolvedName + "__" + strconv.Itoa(tag) + "__"
-					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
-					rootBucketFqn := namespace + "." + bucketFqn
-					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
-				}
-			} else {
-				if err := buildNamespaceMemo(memo, fm.Type); err != nil {
-					return err
-				}
-			}
-
-			if fm.Type.Kind() == reflect.Ptr && internal.IsStruct(fm.Type.Elem()) && !internal.IsTypeDataclass(fm.Type.Elem()) {
-				nsMemo.StructFieldsSet[resolvedName] = true
-			}
-		}
-	} else if typ.Kind() == reflect.Slice {
-		return buildNamespaceMemo(memo, typ.Elem())
+func WarmUpUnmarshaller[T any](featureStruct *T) error {
+	elemType := reflect.TypeOf(featureStruct).Elem()
+	if elemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"argument must be a pointer to a struct, found a pointer to `%s` instead",
+			elemType.Kind(),
+		)
 	}
-	return nil
+	return internal.PopulateAllNamespaceMemo(elemType)
 }
 
 func pointerCheck(field reflect.Value) error {
