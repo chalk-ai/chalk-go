@@ -36,6 +36,9 @@ const (
 	// DeployServiceDeployBranchProcedure is the fully-qualified name of the DeployService's
 	// DeployBranch RPC.
 	DeployServiceDeployBranchProcedure = "/chalk.server.v1.DeployService/DeployBranch"
+	// DeployServiceCreateBranchFromSourceDeploymentProcedure is the fully-qualified name of the
+	// DeployService's CreateBranchFromSourceDeployment RPC.
+	DeployServiceCreateBranchFromSourceDeploymentProcedure = "/chalk.server.v1.DeployService/CreateBranchFromSourceDeployment"
 	// DeployServiceGetDeploymentProcedure is the fully-qualified name of the DeployService's
 	// GetDeployment RPC.
 	DeployServiceGetDeploymentProcedure = "/chalk.server.v1.DeployService/GetDeployment"
@@ -59,6 +62,7 @@ const (
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
 type DeployServiceClient interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
+	CreateBranchFromSourceDeployment(context.Context, *connect.Request[v1.CreateBranchFromSourceDeploymentRequest]) (*connect.Response[v1.CreateBranchFromSourceDeploymentResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 	GetActiveDeployments(context.Context, *connect.Request[v1.GetActiveDeploymentsRequest]) (*connect.Response[v1.GetActiveDeploymentsResponse], error)
@@ -82,6 +86,12 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			httpClient,
 			baseURL+DeployServiceDeployBranchProcedure,
 			connect.WithSchema(deployServiceMethods.ByName("DeployBranch")),
+			connect.WithClientOptions(opts...),
+		),
+		createBranchFromSourceDeployment: connect.NewClient[v1.CreateBranchFromSourceDeploymentRequest, v1.CreateBranchFromSourceDeploymentResponse](
+			httpClient,
+			baseURL+DeployServiceCreateBranchFromSourceDeploymentProcedure,
+			connect.WithSchema(deployServiceMethods.ByName("CreateBranchFromSourceDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeployment: connect.NewClient[v1.GetDeploymentRequest, v1.GetDeploymentResponse](
@@ -125,18 +135,25 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // deployServiceClient implements DeployServiceClient.
 type deployServiceClient struct {
-	deployBranch         *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
-	getDeployment        *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
-	listDeployments      *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
-	getActiveDeployments *connect.Client[v1.GetActiveDeploymentsRequest, v1.GetActiveDeploymentsResponse]
-	suspendDeployment    *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
-	scaleDeployment      *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
-	tagDeployment        *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
+	deployBranch                     *connect.Client[v1.DeployBranchRequest, v1.DeployBranchResponse]
+	createBranchFromSourceDeployment *connect.Client[v1.CreateBranchFromSourceDeploymentRequest, v1.CreateBranchFromSourceDeploymentResponse]
+	getDeployment                    *connect.Client[v1.GetDeploymentRequest, v1.GetDeploymentResponse]
+	listDeployments                  *connect.Client[v1.ListDeploymentsRequest, v1.ListDeploymentsResponse]
+	getActiveDeployments             *connect.Client[v1.GetActiveDeploymentsRequest, v1.GetActiveDeploymentsResponse]
+	suspendDeployment                *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
+	scaleDeployment                  *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
+	tagDeployment                    *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
 func (c *deployServiceClient) DeployBranch(ctx context.Context, req *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error) {
 	return c.deployBranch.CallUnary(ctx, req)
+}
+
+// CreateBranchFromSourceDeployment calls
+// chalk.server.v1.DeployService.CreateBranchFromSourceDeployment.
+func (c *deployServiceClient) CreateBranchFromSourceDeployment(ctx context.Context, req *connect.Request[v1.CreateBranchFromSourceDeploymentRequest]) (*connect.Response[v1.CreateBranchFromSourceDeploymentResponse], error) {
+	return c.createBranchFromSourceDeployment.CallUnary(ctx, req)
 }
 
 // GetDeployment calls chalk.server.v1.DeployService.GetDeployment.
@@ -172,6 +189,7 @@ func (c *deployServiceClient) TagDeployment(ctx context.Context, req *connect.Re
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
+	CreateBranchFromSourceDeployment(context.Context, *connect.Request[v1.CreateBranchFromSourceDeploymentRequest]) (*connect.Response[v1.CreateBranchFromSourceDeploymentResponse], error)
 	GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error)
 	ListDeployments(context.Context, *connect.Request[v1.ListDeploymentsRequest]) (*connect.Response[v1.ListDeploymentsResponse], error)
 	GetActiveDeployments(context.Context, *connect.Request[v1.GetActiveDeploymentsRequest]) (*connect.Response[v1.GetActiveDeploymentsResponse], error)
@@ -191,6 +209,12 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		DeployServiceDeployBranchProcedure,
 		svc.DeployBranch,
 		connect.WithSchema(deployServiceMethods.ByName("DeployBranch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	deployServiceCreateBranchFromSourceDeploymentHandler := connect.NewUnaryHandler(
+		DeployServiceCreateBranchFromSourceDeploymentProcedure,
+		svc.CreateBranchFromSourceDeployment,
+		connect.WithSchema(deployServiceMethods.ByName("CreateBranchFromSourceDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	deployServiceGetDeploymentHandler := connect.NewUnaryHandler(
@@ -233,6 +257,8 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
 			deployServiceDeployBranchHandler.ServeHTTP(w, r)
+		case DeployServiceCreateBranchFromSourceDeploymentProcedure:
+			deployServiceCreateBranchFromSourceDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceGetDeploymentProcedure:
 			deployServiceGetDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceListDeploymentsProcedure:
@@ -256,6 +282,10 @@ type UnimplementedDeployServiceHandler struct{}
 
 func (UnimplementedDeployServiceHandler) DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.DeployBranch is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) CreateBranchFromSourceDeployment(context.Context, *connect.Request[v1.CreateBranchFromSourceDeploymentRequest]) (*connect.Response[v1.CreateBranchFromSourceDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.CreateBranchFromSourceDeployment is not implemented"))
 }
 
 func (UnimplementedDeployServiceHandler) GetDeployment(context.Context, *connect.Request[v1.GetDeploymentRequest]) (*connect.Response[v1.GetDeploymentResponse], error) {
