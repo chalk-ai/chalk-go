@@ -27,6 +27,7 @@ type clientImpl struct {
 	QueryServer   string
 	DeploymentTag string
 	resourceGroup *string
+	timeout       *time.Duration
 
 	httpClient HTTPClient
 	logger     LeveledLogger
@@ -444,7 +445,8 @@ func (c *clientImpl) sendRequest(args sendRequestParams) error {
 		return getBufferErr
 	}
 
-	request, newRequestErr := http.NewRequest(args.Method, args.URL, body)
+	ctx := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
 	if newRequestErr != nil {
 		(c.logger).Debugf("error sending request: %s", newRequestErr.Error())
 		return newRequestErr
@@ -669,11 +671,17 @@ func newClientImpl(
 		resourceGroup = &cfg.ResourceGroup
 	}
 
+	var timeout *time.Duration
+	if cfg.Timeout != 0 { // If unsepcified (zero value)
+		timeout = &cfg.Timeout
+	}
+
 	client := &clientImpl{
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
 		QueryServer:   cfg.QueryServer,
 		resourceGroup: resourceGroup,
+		timeout:       timeout,
 
 		logger:     logger,
 		httpClient: httpClient,

@@ -220,8 +220,7 @@ type ClientConfig struct {
 	// on the request or query level, this will be overridden.
 	ResourceGroup string
 
-	// Timeout specifies the timeout for all requests except for the token request.
-	// Defaults to no timeout.
+	// Timeout specifies the timeout for all requests. Defaults to no timeout.
 	Timeout time.Duration
 }
 
