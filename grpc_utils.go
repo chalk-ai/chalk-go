@@ -10,16 +10,6 @@ import (
 	"time"
 )
 
-func withChalkInterceptors(serverType string, timeout *time.Duration, interceptors ...connect.Interceptor) connect.Option {
-	interceptors = append(interceptors, headerInterceptor(map[string]string{
-		HeaderKeyServerType: serverType,
-	}))
-	if timeout != nil {
-		interceptors = append(interceptors, timeoutInterceptor(timeout))
-	}
-	return connect.WithInterceptors(interceptors...)
-}
-
 func ensureHTTPSPrefix(inputURL string) string {
 	if strings.HasPrefix(inputURL, "https://") || strings.HasPrefix(inputURL, "http://") {
 		return inputURL

@@ -60,16 +60,18 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 		timeout = &cfg.Timeout
 	}
 
+	authInterceptors := []connect.Interceptor{
+		headerInterceptor(map[string]string{
+			HeaderKeyServerType: serverTypeApi,
+		}),
+	}
+	if timeout != nil {
+		authInterceptors = append(authInterceptors, timeoutInterceptor(timeout))
+	}
 	authClient := serverv1connect.NewAuthServiceClient(
 		httpClient,
 		config.apiServer.Value,
-		withChalkInterceptors(
-			serverTypeApi,
-			timeout,
-			headerInterceptor(map[string]string{
-				HeaderKeyServerType: serverTypeApi,
-			}),
-		),
+		connect.WithInterceptors(authInterceptors...),
 	)
 
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
@@ -104,22 +106,26 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 			},
 		}
 	}
+
 	headers := map[string]string{
 		HeaderKeyDeploymentType: "engine-grpc",
+		HeaderKeyServerType:     serverTypeEngine,
 	}
 	if cfg.DeploymentTag != "" {
 		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
+	}
+	engineInterceptors := []connect.Interceptor{
+		makeTokenInterceptor(config),
+		headerInterceptor(headers),
+	}
+	if timeout != nil {
+		engineInterceptors = append(engineInterceptors, timeoutInterceptor(timeout))
 	}
 
 	queryClient := enginev1connect.NewQueryServiceClient(
 		httpClient,
 		ensureHTTPSPrefix(resolvedQueryServer),
-		withChalkInterceptors(
-			serverTypeEngine,
-			timeout,
-			makeTokenInterceptor(config),
-			headerInterceptor(headers),
-		),
+		connect.WithInterceptors(engineInterceptors...),
 		connect.WithGRPC(),
 	)
 
