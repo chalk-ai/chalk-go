@@ -31,13 +31,13 @@ func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	}
 }
 
-func timeoutInterceptor(timeout *time.Duration) connect.UnaryInterceptorFunc {
+func timeoutInterceptor(clientLevelTimeout *time.Duration) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-			ctx, cancel := internal.GetContextWithTimeout(ctx, timeout)
+			ctx, cancel := internal.GetContextWithTimeout(ctx, clientLevelTimeout)
 			defer cancel()
 			return next(ctx, req)
 		}

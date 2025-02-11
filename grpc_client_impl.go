@@ -142,7 +142,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	}, nil
 }
 
-func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient, timeout *time.Duration) (*getTokenResult, error) {
+func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient, clientLevelTimeout *time.Duration) (*getTokenResult, error) {
 	logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
 		&serverv1.GetTokenRequest{
@@ -152,7 +152,7 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 		},
 	)
 
-	ctx, cancel := internal.GetContextWithTimeout(context.Background(), timeout)
+	ctx, cancel := internal.GetContextWithTimeout(context.Background(), clientLevelTimeout)
 	defer cancel()
 
 	token, err := client.GetToken(ctx, authRequest)
