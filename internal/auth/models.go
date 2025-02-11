@@ -22,5 +22,5 @@ func (t *JWT) IsValid() bool {
 }
 
 type ProjectTokens struct {
-	Tokens *map[string]*ProjectToken `yaml:"tokens,omitempty"`
+	Tokens map[string]*ProjectToken `yaml:"tokens,omitempty"`
 }

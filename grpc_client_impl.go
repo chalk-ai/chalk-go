@@ -36,7 +36,16 @@ type grpcClientImpl struct {
 	queryClient enginev1connect.QueryServiceClient
 }
 
-func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
+func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
+	var cfg *GRPCClientConfig
+	if len(configs) == 0 {
+		cfg = &GRPCClientConfig{}
+	} else if len(configs) == 1 {
+		cfg = configs[len(configs)-1]
+	} else {
+		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
+	}
+
 	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")

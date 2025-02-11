@@ -4,7 +4,6 @@ import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/cockroachdb/errors"
 	"time"
 )
 
@@ -112,14 +111,5 @@ type GRPCClientConfig struct {
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
 func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
-	var cfg *GRPCClientConfig
-	if len(configs) == 0 {
-		cfg = &GRPCClientConfig{}
-	} else if len(configs) > 1 {
-		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
-	} else {
-		cfg = configs[len(configs)-1]
-	}
-
-	return newGrpcClient(*cfg)
+	return newGrpcClient(configs...)
 }

@@ -15,7 +15,7 @@ type clientGrpc struct {
 }
 
 func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
-	nativeClient, err := newGrpcClient(GRPCClientConfig{
+	nativeClient, err := newGrpcClient(&GRPCClientConfig{
 		ApiServer:     cfg.ApiServer,
 		ClientId:      cfg.ClientId,
 		ClientSecret:  cfg.ClientSecret,
