@@ -46,8 +46,8 @@ func BenchmarkUnmarshalMultiNsPrimitives(t *testing.B) {
 
 	for i := 0; i < t.N; i++ {
 		var wg sync.WaitGroup
-		numRequests := 200
-		for j := 0; j < numRequests; j++ {
+		numConcurrentReqs := 200
+		for j := 0; j < numConcurrentReqs; j++ {
 			wg.Add(1)
 			go func() {
 				intFeatures := fixtures.IntFeatures{}
@@ -123,8 +123,8 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 
 	for i := 0; i < t.N; i++ {
 		var wg sync.WaitGroup
-		numRequests := 200
-		for j := 0; j < numRequests; j++ {
+		numConcurrentReqs := 200
+		for j := 0; j < numConcurrentReqs; j++ {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
