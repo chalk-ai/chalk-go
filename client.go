@@ -221,6 +221,8 @@ type ClientConfig struct {
 	ResourceGroup string
 
 	// Timeout specifies the timeout for all requests. Defaults to no timeout.
+	// Timeout of 0 means no timeout. If set on the request or query level, this
+	// will be overridden.
 	Timeout time.Duration
 }
 
