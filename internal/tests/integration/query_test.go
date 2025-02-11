@@ -30,13 +30,20 @@ func getParams() chalk.OnlineQueryParamsComplete {
 
 func testUserValues(t *testing.T, testUser *user) {
 	t.Helper()
-	assert.Equal(t, *testUser.Id, int64(1))
-	assert.Equal(t, *testUser.Gender, "f")
+	assert.NotNil(t, testUser)
+	assert.NotNil(t, testUser.Id)
+	assert.Equal(t, int64(1), *testUser.Id)
+	assert.NotNil(t, testUser.Gender)
+	assert.Equal(t, "f", *testUser.Gender)
 	assert.NotNil(t, testUser.Today)
-	assert.Equal(t, *testUser.NiceNewFeature, int64(9))
-	assert.Equal(t, *testUser.SocureScore, 123.0)
-	assert.Equal(t, *testUser.FavoriteNumbers, []int64{1, 2, 3})
-	assert.Equal(t, *testUser.FavoriteColors, []string{"red", "green", "blue"})
+	assert.NotNil(t, testUser.NiceNewFeature)
+	assert.Equal(t, int64(9), *testUser.NiceNewFeature)
+	assert.NotNil(t, testUser.SocureScore)
+	assert.Equal(t, 123.0, *testUser.SocureScore)
+	assert.NotNil(t, testUser.FavoriteNumbers)
+	assert.Equal(t, []int64{1, 2, 3}, *testUser.FavoriteNumbers)
+	assert.NotNil(t, testUser.FavoriteColors)
+	assert.Equal(t, []string{"red", "green", "blue"}, *testUser.FavoriteColors)
 	assert.NotNil(t, testUser.FranchiseSet)
 }
 
