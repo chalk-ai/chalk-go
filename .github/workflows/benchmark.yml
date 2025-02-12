@@ -1,35 +1,33 @@
 name: Benchmark
 on:
   pull_request:
-    branches:
-      - main
 
-  jobs:
-    benchmark:
-      if: github.head_ref == 'jh/bench'
-      name: Benchmark
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-gov4
-          with:
-            go-version: "stable"
-        - name: Run benchmark
-          run: go test -bench=. ./... | tee output.txt
-        - name: Download previous benchmark data
-          uses: actions/cache@v4
-          with:
-            path: ./chalk-go-benchmarks
-            key: ${{ runner.os }}-all_benchmarks
-        - name: Save benchmark data
-          uses: benchmark-action/github-action-benchmark@v1
-          with:
-            tool: 'go'
-            output-file-path: output.txt
-            external-data-json-path: ./chalk-go-benchmarks/benchmark-data.json
-            fail-on-alert: true
-            ref: ${{ github.ref }}
-            gh-pages-branch: jh/bench-results
-            benchmark-data-dir-path: benchmark_results
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            auto-push: true
+jobs:
+  benchmark:
+    if: github.head_ref == 'jh/bench'
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-gov4
+        with:
+          go-version: "stable"
+      - name: Run benchmark
+        run: go test -bench=. ./... | tee output.txt
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./chalk-go-benchmarks
+          key: ${{ runner.os }}-all_benchmarks
+      - name: Save benchmark data
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: output.txt
+          external-data-json-path: ./chalk-go-benchmarks/benchmark-data.json
+          fail-on-alert: true
+          ref: ${{ github.ref }}
+          gh-pages-branch: jh/bench-results
+          benchmark-data-dir-path: benchmark_results
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
