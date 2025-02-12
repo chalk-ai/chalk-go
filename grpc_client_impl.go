@@ -75,7 +75,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	)
 
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
-		return getToken(clientId, clientSecret, config.logger, authClient, timeout)
+		return getToken(clientId, clientSecret, config.logger, authClient)
 	}
 
 	// Necessary to get GRPC engines URL
@@ -142,7 +142,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	}, nil
 }
 
-func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient, clientLevelTimeout *time.Duration) (*getTokenResult, error) {
+func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
 	logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
 		&serverv1.GetTokenRequest{
@@ -152,10 +152,7 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 		},
 	)
 
-	ctx, cancel := internal.GetContextWithTimeout(context.Background(), clientLevelTimeout)
-	defer cancel()
-
-	token, err := client.GetToken(ctx, authRequest)
+	token, err := client.GetToken(context.Background(), authRequest)
 	if err != nil {
 		logger.Debugf("Failed to get a new token: %s", err.Error())
 		return nil, err
