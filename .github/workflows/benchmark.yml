@@ -24,12 +24,15 @@ jobs:
 
       - name: Set benchmark directory
         run: |
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|/|--|g')
           if [ "${{ github.event_name }}" = "push" ]; then
-            echo "BENCHMARK_DIR=benchmark_results/main" >> "$GITHUB_ENV"
+            BENCHMARK_DIR="benchmark_results/main"
           else
-            echo "BENCHMARK_DIR=benchmark_results/${{ github.head_ref }}" >> "$GITHUB_ENV"
+            BENCHMARK_DIR="benchmark_results/$BRANCH_NAME"
           fi
+          echo "BENCHMARK_DIR=$BENCHMARK_DIR" >> "$GITHUB_ENV"
           echo "Benchmark directory set to $BENCHMARK_DIR"
+        shell: bash
 
       - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
         if: github.event_name == 'pull_request'
