@@ -22,20 +22,28 @@ jobs:
       - name: Run benchmark
         run: go test -bench=. ./... | tee output.txt
 
+      - name: Set benchmark directory
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "BENCHMARK_DIR=benchmark_results/main" >> "$GITHUB_ENV"
+          else
+            echo "BENCHMARK_DIR=benchmark_results/${{ github.head_ref }}" >> "$GITHUB_ENV"
+          fi
+
       - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
         if: github.event_name == 'pull_request'
         run: |
-          BRANCH_DIR="benchmark_results/${{ github.head_ref }}"
           if [ ! -d "$BENCHMARK_DIR" ]; then
-            echo "Creating new directory: $BRANCH_DIR"
-            mkdir -p $BRANCH_DIR
-            cp -r benchmark_results/main/* "$BRANCH_DIR"/
+            echo "Creating new directory: $BENCHMARK_DIR"
+            mkdir -p $BENCHMARK_DIR
+            cp -r benchmark_results/main/* "$BENCHMARK_DIR"/
             git add benchmark_results/
             git commit -m "Append benchmark results"
             git push origin benchmark-results
           else
-            echo "Directory already exists: BRANCH_DIR"
+            echo "Directory already exists: $BENCHMARK_DIR"
           fi
+          
       - name: Save benchmark data
         uses: benchmark-action/github-action-benchmark@v1
         with:
@@ -45,6 +53,6 @@ jobs:
           alert-threshold: "10%"
           ref: ${{ github.ref }}
           gh-pages-branch: benchmark-results
-          benchmark-data-dir-path: ${{ github.event_name == 'push' && benchmark_results/main || format('benchmark_results/{0}', github.head_ref) }}
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DIR }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
