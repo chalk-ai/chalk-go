@@ -29,6 +29,10 @@ on:
             external-data-json-path: ./chalk-go-benchmarks/benchmark-data.json
             fail-on-alert: true
             ref: ${{ github.ref }}
+            gh-pages-branch: jh/bench-results
+            benchmark-data-dir-path: benchmark_results
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            auto-push: true
 
 
 

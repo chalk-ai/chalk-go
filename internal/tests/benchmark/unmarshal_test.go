@@ -159,5 +159,4 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 		}
 		wg.Wait()
 	}
-
 }
