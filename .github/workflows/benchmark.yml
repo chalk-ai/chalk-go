@@ -31,3 +31,4 @@ jobs:
           benchmark-data-dir-path: benchmark_results
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
+          save-data-file: false
