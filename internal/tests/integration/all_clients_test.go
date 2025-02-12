@@ -163,6 +163,7 @@ func TestTimeout(t *testing.T) {
 		for _, timeoutFixture := range timeouts {
 			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
 				if timeoutFixture.shouldFail {
 					assert.Error(t, err)
 					return
