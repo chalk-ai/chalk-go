@@ -1,7 +1,10 @@
 name: Benchmark
 
 on:
+  push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   benchmark:
@@ -15,19 +18,24 @@ jobs:
           go-version: "stable"
       - name: Run benchmark
         run: go test -bench=. ./... | tee output.txt
-      - name: Download previous benchmark data
-        uses: actions/cache@v4
-        with:
-          path: ./chalk-go-benchmarks
-          key: ${{ runner.os }}-all_benchmarks
+
+      - name: If pull request, create a new 'benchmark-results-root/{branch_name}' branch
+        if: github.event_name == 'pull_request'
+        run: |
+          BRANCH_NAME="benchmark-results-root/${{ github.head_ref }}"
+          git fetch origin benchmark-results-root
+          git checkout -b "$BRANCH_NAME" origin/benchmark-results-root
+          git push origin "$BRANCH_NAME"
+
       - name: Save benchmark data
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: 'go'
           output-file-path: output.txt
           fail-on-alert: true
+          alert-threshold: "10%"
           ref: ${{ github.ref }}
-          gh-pages-branch: jh/bench-results
+          gh-pages-branch: ${{ github.event_name == 'push' && benchmark-results-root || format('benchmark-results-root/{0}', github.head_ref) }}
           benchmark-data-dir-path: benchmark_results
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
