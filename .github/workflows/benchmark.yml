@@ -25,7 +25,6 @@ jobs:
         with:
           tool: 'go'
           output-file-path: output.txt
-          external-data-json-path: ./chalk-go-benchmarks/benchmark-data.json
           fail-on-alert: true
           ref: ${{ github.ref }}
           gh-pages-branch: jh/bench-results
