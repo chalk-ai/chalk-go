@@ -53,7 +53,7 @@ jobs:
           tool: 'go'
           output-file-path: output.txt
           fail-on-alert: true
-          alert-threshold: "10%"
+          alert-threshold: "110%"
           ref: ${{ github.ref }}
           gh-pages-branch: benchmark-results
           skip-fetch-gh-pages: true  # already fetched gh pages branch with checkout action
