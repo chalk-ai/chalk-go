@@ -36,11 +36,15 @@ const (
 	// QueriesServiceGetQueryPerformanceSummaryProcedure is the fully-qualified name of the
 	// QueriesService's GetQueryPerformanceSummary RPC.
 	QueriesServiceGetQueryPerformanceSummaryProcedure = "/chalk.server.v1.QueriesService/GetQueryPerformanceSummary"
+	// QueriesServiceListQueryErrorsProcedure is the fully-qualified name of the QueriesService's
+	// ListQueryErrors RPC.
+	QueriesServiceListQueryErrorsProcedure = "/chalk.server.v1.QueriesService/ListQueryErrors"
 )
 
 // QueriesServiceClient is a client for the chalk.server.v1.QueriesService service.
 type QueriesServiceClient interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
+	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
 }
 
 // NewQueriesServiceClient constructs a client for the chalk.server.v1.QueriesService service. By
@@ -60,12 +64,19 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(queriesServiceMethods.ByName("GetQueryPerformanceSummary")),
 			connect.WithClientOptions(opts...),
 		),
+		listQueryErrors: connect.NewClient[v1.ListQueryErrorsRequest, v1.ListQueryErrorsResponse](
+			httpClient,
+			baseURL+QueriesServiceListQueryErrorsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListQueryErrors")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // queriesServiceClient implements QueriesServiceClient.
 type queriesServiceClient struct {
 	getQueryPerformanceSummary *connect.Client[v1.GetQueryPerformanceSummaryRequest, v1.GetQueryPerformanceSummaryResponse]
+	listQueryErrors            *connect.Client[v1.ListQueryErrorsRequest, v1.ListQueryErrorsResponse]
 }
 
 // GetQueryPerformanceSummary calls chalk.server.v1.QueriesService.GetQueryPerformanceSummary.
@@ -73,9 +84,15 @@ func (c *queriesServiceClient) GetQueryPerformanceSummary(ctx context.Context, r
 	return c.getQueryPerformanceSummary.CallUnary(ctx, req)
 }
 
+// ListQueryErrors calls chalk.server.v1.QueriesService.ListQueryErrors.
+func (c *queriesServiceClient) ListQueryErrors(ctx context.Context, req *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error) {
+	return c.listQueryErrors.CallUnary(ctx, req)
+}
+
 // QueriesServiceHandler is an implementation of the chalk.server.v1.QueriesService service.
 type QueriesServiceHandler interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
+	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
 }
 
 // NewQueriesServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -91,10 +108,18 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 		connect.WithSchema(queriesServiceMethods.ByName("GetQueryPerformanceSummary")),
 		connect.WithHandlerOptions(opts...),
 	)
+	queriesServiceListQueryErrorsHandler := connect.NewUnaryHandler(
+		QueriesServiceListQueryErrorsProcedure,
+		svc.ListQueryErrors,
+		connect.WithSchema(queriesServiceMethods.ByName("ListQueryErrors")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.QueriesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueriesServiceGetQueryPerformanceSummaryProcedure:
 			queriesServiceGetQueryPerformanceSummaryHandler.ServeHTTP(w, r)
+		case QueriesServiceListQueryErrorsProcedure:
+			queriesServiceListQueryErrorsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -106,4 +131,8 @@ type UnimplementedQueriesServiceHandler struct{}
 
 func (UnimplementedQueriesServiceHandler) GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetQueryPerformanceSummary is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListQueryErrors is not implemented"))
 }
