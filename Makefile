@@ -24,7 +24,6 @@ cloc:
 
 bench.result:
     # Get current branch name
-	@branch=$$(git branch --show-current | sed 's|/|--|g'); \
-    echo "Opening results for branch: $$branch"; \
-	# Open URL with branch name as suffix
-	@open "https://chalk-ai.github.io/chalk-go/benchmark_results/${branch}"
+	branch=$$(git branch --show-current | sed 's|/|--|g'); \
+	echo "Branch: $$branch"; \
+	open "https://chalk-ai.github.io/chalk-go/benchmark_results/$$branch"
