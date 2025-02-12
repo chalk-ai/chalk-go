@@ -56,6 +56,7 @@ jobs:
           alert-threshold: "10%"
           ref: ${{ github.ref }}
           gh-pages-branch: benchmark-results
+          skip-fetch-gh-pages: true  # already fetched gh pages branch with checkout action
           benchmark-data-dir-path: ${{ env.BENCHMARK_DIR }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
