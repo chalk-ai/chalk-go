@@ -452,7 +452,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			fieldNsMemo,
 			allMemo,
 		); err != nil {
-			return &ClientError{Message: errors.Wrapf(err, "error unmarshalling field '%s': %w", fieldMeta.Name).Error()}
+			return &ClientError{Message: errors.Wrapf(err, "unmarshalling field '%s': %w", fieldMeta.Name).Error()}
 		}
 	}
 
