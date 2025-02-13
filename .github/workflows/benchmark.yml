@@ -8,13 +8,13 @@ on:
 
 jobs:
   benchmark:
-    if: github.head_ref == 'jh/bench'
+    if: ${{ github.event_name == 'push' || github.head_ref == 'jh/bench' }}
     name: Benchmark
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: benchmark-results
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
           fetch-depth: 0
       - uses: actions/setup-go@v4
         with:
@@ -35,9 +35,10 @@ jobs:
         shell: bash
 
       - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           git pull
+          git checkout benchmark-results
           if [ ! -d "$BENCHMARK_DIR" ]; then
             echo "Creating new directory: $BENCHMARK_DIR"
             mkdir -p $BENCHMARK_DIR
