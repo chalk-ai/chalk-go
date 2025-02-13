@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739480235351,
+  "lastUpdate": 1739481819612,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -394,6 +394,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
             "value": 20.28,
+            "unit": "ms/op",
+            "extra": "58 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "f218e33073b88688c978ffd5f3dfa3138750a522",
+          "message": "UnmarshalInto multiple namespaces",
+          "timestamp": "2025-02-13T19:17:12Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/289/commits/f218e33073b88688c978ffd5f3dfa3138750a522"
+        },
+        "date": 1739481819597,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03069,
+            "unit": "ms/op",
+            "extra": "38854 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.3438,
+            "unit": "ms/op",
+            "extra": "3483 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 40.33,
+            "unit": "ms/op",
+            "extra": "27 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1734,
+            "unit": "ms/op",
+            "extra": "6915 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 20.81,
             "unit": "ms/op",
             "extra": "58 times\n4 procs"
           }
