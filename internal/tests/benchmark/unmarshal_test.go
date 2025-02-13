@@ -31,8 +31,9 @@ func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 			defer wg.Done()
 			opStart := time.Now()
 			benchmarkFunc()
+			opEnd := time.Since(opStart)
 			mu.Lock()
-			durations = append(durations, time.Since(opStart))
+			durations = append(durations, opEnd)
 			mu.Unlock()
 		}()
 	}
