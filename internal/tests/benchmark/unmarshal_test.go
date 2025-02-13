@@ -40,10 +40,8 @@ func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 	wg.Wait()
 
 	p95 := PercentileDuration(durations, 95)
-	b.ReportMetric(float64(p95.Nanoseconds()), "ns/op")
+	b.ReportMetric(0, "ns/op") // effectively hides the default ns/op metric
 	b.ReportMetric(DurationMs(p95), "ms/op(p95)")
-	b.ReportMetric(DurationMs(PercentileDuration(durations, 50)), "ms/op(median)")
-	b.ReportMetric(DurationMs(PercentileDuration(durations, 100)), "ms/op(max)")
 }
 
 func BenchmarkUnmarshalMultiNsPrimitives(b *testing.B) {

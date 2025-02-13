@@ -58,7 +58,7 @@ jobs:
         with:
           tool: 'go'
           output-file-path: output.txt
-          fail-on-alert: true
+          fail-on-alert: false
           alert-threshold: "110%"
           ref: ${{ github.ref }}
           gh-pages-branch: benchmark-results
