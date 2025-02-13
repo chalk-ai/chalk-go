@@ -4,7 +4,7 @@ import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/cockroachdb/errors"
+	"time"
 )
 
 // GRPCClient is the gRPC-native interface for interacting with Chalk.
@@ -75,6 +75,11 @@ type GRPCClientConfig struct {
 	// ResourceGroup specifies the resource group to route all requests to. If set
 	// on the request or query level, this will be overridden.
 	ResourceGroup string
+
+	// Timeout specifies the timeout for all requests. Defaults to no timeout.
+	// Timeout of 0 means no timeout. Deadline or timeout set on the request
+	// context will override this timeout.
+	Timeout time.Duration
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
@@ -106,14 +111,5 @@ type GRPCClientConfig struct {
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
 func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
-	var cfg *GRPCClientConfig
-	if len(configs) == 0 {
-		cfg = &GRPCClientConfig{}
-	} else if len(configs) > 1 {
-		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
-	} else {
-		cfg = configs[len(configs)-1]
-	}
-
-	return newGrpcClient(*cfg)
+	return newGrpcClient(configs...)
 }

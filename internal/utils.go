@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -11,6 +12,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var NameTag = "name"
@@ -493,4 +495,11 @@ func getForeignNamespace(typ reflect.Type) *string {
 	} else {
 		return nil
 	}
+}
+
+func GetContextWithTimeout(requestCtx context.Context, clientLevelTimeout *time.Duration) (context.Context, context.CancelFunc) {
+	if _, deadlineSet := requestCtx.Deadline(); !deadlineSet && clientLevelTimeout != nil {
+		return context.WithTimeout(requestCtx, *clientLevelTimeout)
+	}
+	return requestCtx, func() {}
 }

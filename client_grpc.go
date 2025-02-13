@@ -15,7 +15,7 @@ type clientGrpc struct {
 }
 
 func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
-	nativeClient, err := newGrpcClient(GRPCClientConfig{
+	nativeClient, err := newGrpcClient(&GRPCClientConfig{
 		ApiServer:     cfg.ApiServer,
 		ClientId:      cfg.ClientId,
 		ClientSecret:  cfg.ClientSecret,
@@ -26,6 +26,7 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 		HTTPClient:    cfg.HTTPClient,
 		DeploymentTag: cfg.DeploymentTag,
 		ResourceGroup: cfg.ResourceGroup,
+		Timeout:       cfg.Timeout,
 	})
 	if err != nil {
 		return nil, err
