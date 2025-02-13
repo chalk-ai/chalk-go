@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739421085068,
+  "lastUpdate": 1739421431048,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -46,6 +46,54 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
             "value": 57.11,
+            "unit": "ms/op",
+            "extra": "20 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "jinhang@chalk.ai",
+            "name": "rooftoofwoof",
+            "username": "rooftoofwoof"
+          },
+          "committer": {
+            "email": "jinhang@chalk.ai",
+            "name": "rooftoofwoof",
+            "username": "rooftoofwoof"
+          },
+          "distinct": true,
+          "id": "b2e00c6aa95966bdc8331c38952e224c172f7252",
+          "message": "empty",
+          "timestamp": "2025-02-12T20:36:29-08:00",
+          "tree_id": "347d236ee903f189670e5e9fd66095a10e849c09",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/b2e00c6aa95966bdc8331c38952e224c172f7252"
+        },
+        "date": 1739421431020,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.6418,
+            "unit": "ms/op",
+            "extra": "1850 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 87.81,
+            "unit": "ms/op",
+            "extra": "14 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.4808,
+            "unit": "ms/op",
+            "extra": "2473 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 57.25,
             "unit": "ms/op",
             "extra": "20 times\n4 procs"
           }
