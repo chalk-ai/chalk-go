@@ -142,7 +142,7 @@ func unmarshalRows(
 	for rowIdx, row := range rows {
 		res := reflect.New(typ)
 		if err := thinUnmarshalInto(
-			res,
+			res.Elem(),
 			row,
 			namespace,
 			nil,
@@ -366,40 +366,101 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	}
 
 	holderValue := reflect.ValueOf(resultHolder)
-	structName := holderValue.Elem().Type().Name()
+	structValue := holderValue.Elem()
+	structName := structValue.Type().Name()
 	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
-	if nsScope == nil {
-		return &ClientError{
-			errors.Newf(
-				"Attempted to unmarshal into the feature struct '%s', "+
-					"but results are from these feature class(es) '%v'",
-				structName,
-				colls.Keys(scope.children),
-			).Error(),
+
+	if nsScope != nil {
+		// Single namespace unmarshalling
+		if nsScope == nil {
+			return &ClientError{
+				errors.Newf(
+					"Attempted to unmarshal into the feature struct '%s', "+
+						"but results are from these feature class(es) '%v'",
+					structName,
+					colls.Keys(scope.children),
+				).Error(),
+			}
+		}
+
+		nsMemo, ok := allMemo.Load(holderValue.Elem().Type())
+		if !ok {
+			return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
+		}
+
+		return thinUnmarshalInto(
+			holderValue.Elem(),
+			fqnToValue,
+			namespace,
+			expectedOutputs,
+			nsScope,
+			nsMemo,
+			allMemo,
+		)
+	}
+
+	// Multi-namespace unmarshalling
+	for i := 0; i < structValue.NumField(); i++ {
+		field := structValue.Field(i)
+		fieldMeta := structValue.Type().Field(i)
+		if field.Type().Kind() != reflect.Struct {
+			return &ClientError{
+				Message: fmt.Sprintf(
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct.\n"+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v.\n"+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all \n"+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s'",
+					structName,
+					colls.Keys(scope.children),
+					field.Type().Name(),
+				),
+			}
+		}
+		fieldNamespace := internal.ChalkpySnakeCase(field.Type().Name())
+
+		fieldNsScope := scope.children[fieldNamespace]
+		if fieldNsScope == nil {
+			return &ClientError{
+				Message: fmt.Sprintf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace \n"+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s',\n"+
+						"but results are from these namespaces: %v",
+					structName,
+					field.Type().Name(),
+					colls.Keys(scope.children),
+				),
+			}
+		}
+
+		fieldNsMemo, ok := allMemo.Load(field.Type())
+		if !ok {
+			return &ClientError{
+				fmt.Sprintf(
+					"namespace for struct '%s' of field '%s' not found in memo", field.Type().Name(), fieldMeta.Name,
+				),
+			}
+		}
+		if err := thinUnmarshalInto(
+			field,
+			fqnToValue,
+			fieldNamespace,
+			expectedOutputs,
+			fieldNsScope,
+			fieldNsMemo,
+			allMemo,
+		); err != nil {
+			return &ClientError{Message: errors.Wrapf(err, "error unmarshalling field '%s': %w", fieldMeta.Name).Error()}
 		}
 	}
 
-	nsMemo, ok := allMemo.Load(holderValue.Elem().Type())
-	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo", structName).Error()}
-	}
-
-	return thinUnmarshalInto(
-		holderValue,
-		fqnToValue,
-		namespace,
-		expectedOutputs,
-		nsScope,
-		nsMemo,
-		allMemo,
-	)
+	return nil
 }
 
 // thinUnmarshalInto is called per row. Any operation that can be
 // done outside of this function must be done outside of this function.
 func thinUnmarshalInto(
-	resultHolder reflect.Value,
+	structValue reflect.Value,
 	fqnToValue map[Fqn]any,
 	namespace string,
 	expectedOutputs []string,
@@ -407,7 +468,6 @@ func thinUnmarshalInto(
 	namespaceMemo *internal.NamespaceMemo,
 	allMemo *internal.AllNamespaceMemoT,
 ) (returnErr *ClientError) {
-	structValue := resultHolder.Elem()
 
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := initRemoteFeatureMap(

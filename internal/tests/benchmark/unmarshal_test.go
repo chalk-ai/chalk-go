@@ -73,34 +73,27 @@ func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 	}
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		intFeatures := fixtures.IntFeatures{}
-		floatFeatures := fixtures.FloatFeatures{}
-		boolFeatures := fixtures.BoolFeatures{}
-		stringFeatures := fixtures.StringFeatures{}
-		timestampFeatures := fixtures.TimestampFeatures{}
-
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
+		myStruct := struct {
+			IntFeatures       fixtures.IntFeatures
+			FloatFeatures     fixtures.FloatFeatures
+			BoolFeatures      fixtures.BoolFeatures
+			StringFeatures    fixtures.StringFeatures
+			TimestampFeatures fixtures.TimestampFeatures
+		}{}
+		err := res.UnmarshalInto(&myStruct)
 		assert.Equal(b, (*chalk.ClientError)(nil), err)
 
 		assertOnce.Do(func() {
-			assert.Equal(b, int64(122.0), *intFeatures.Int1)
-			assert.Equal(b, int64(122.0), *intFeatures.Int40)
-			assert.Equal(b, float64(1.234), *floatFeatures.Float1)
-			assert.Equal(b, float64(1.234), *floatFeatures.Float40)
-			assert.Equal(b, "string_val", *stringFeatures.String1)
-			assert.Equal(b, "string_val", *stringFeatures.String40)
-			assert.True(b, *boolFeatures.Bool1)
-			assert.True(b, *boolFeatures.Bool40)
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
+			assert.Equal(b, int64(122.0), *myStruct.IntFeatures.Int1)
+			assert.Equal(b, int64(122.0), *myStruct.IntFeatures.Int40)
+			assert.Equal(b, float64(1.234), *myStruct.FloatFeatures.Float1)
+			assert.Equal(b, float64(1.234), *myStruct.FloatFeatures.Float40)
+			assert.Equal(b, "string_val", *myStruct.StringFeatures.String1)
+			assert.Equal(b, "string_val", *myStruct.StringFeatures.String40)
+			assert.True(b, *myStruct.BoolFeatures.Bool1)
+			assert.True(b, *myStruct.BoolFeatures.Bool40)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *myStruct.TimestampFeatures.Timestamp1)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *myStruct.TimestampFeatures.Timestamp40)
 		})
 	}
 
