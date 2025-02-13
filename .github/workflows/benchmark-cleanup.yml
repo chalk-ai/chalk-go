@@ -1,0 +1,38 @@
+name: Cleanup Benchmark Folder
+
+on:
+  pull_request:
+    types:
+      - closed  # Runs when PR is closed (either merged or manually closed)
+
+jobs:
+  cleanup:
+    if: github.head_ref != 'main' # Rarely is main but just in case
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout benchmark-results branch
+        uses: actions/checkout@v4
+        with:
+          ref: benchmark-results
+          fetch-depth: 0
+
+      - name: Determine benchmark directory
+        run: |
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|/|--|g')
+          BENCHMARK_DIR="benchmark_results/$BRANCH_NAME"
+          echo "BENCHMARK_DIR=$BENCHMARK_DIR" >> "$GITHUB_ENV"
+          echo "Benchmark directory set to $BENCHMARK_DIR"
+
+      - name: Delete benchmark directory if it exists
+        run: |
+          git pull
+          if [ -d "$BENCHMARK_DIR" ]; then
+            echo "Removing $BENCHMARK_DIR..."
+            rm -rf "$BENCHMARK_DIR"
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add benchmark_results/
+            git commit -m "Remove benchmark results for closed PR: ${{ github.head_ref }}" || echo "No changes to commit"
+            git push origin benchmark-results || echo "No changes to push"
+          else
+            echo "Benchmark directory $BENCHMARK_DIR does not exist. No action taken."
