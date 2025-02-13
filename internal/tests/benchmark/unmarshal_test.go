@@ -10,13 +10,41 @@ import (
 	"time"
 )
 
-/*
- * Query: Single
- * Namespaces: Multi
- * Feature Type: Primitives
- * Protocol: REST
- */
-func BenchmarkUnmarshalMultiNsPrimitives(t *testing.B) {
+func benchmark(b *testing.B, benchmarkFunc func()) {
+	b.Helper()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkFunc()
+	}
+	b.StopTimer()
+
+	avg := b.Elapsed() / time.Duration(b.N)
+	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
+	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
+}
+
+func benchmarkParallel(b *testing.B, benchmarkFunc func()) {
+	b.Helper()
+	numParallel := 200
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		for j := 0; j < numParallel; j++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				benchmarkFunc()
+			}()
+		}
+		wg.Wait()
+	}
+	b.StopTimer()
+	avg := b.Elapsed() / time.Duration(b.N)
+	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
+	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
+}
+
+func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 	data := []chalk.FeatureResult{}
 	for i := 1; i <= 40; i++ {
 		data = append(data, chalk.FeatureResult{
@@ -43,54 +71,43 @@ func BenchmarkUnmarshalMultiNsPrimitives(t *testing.B) {
 	res := chalk.OnlineQueryResult{
 		Data: data,
 	}
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		intFeatures := fixtures.IntFeatures{}
+		floatFeatures := fixtures.FloatFeatures{}
+		boolFeatures := fixtures.BoolFeatures{}
+		stringFeatures := fixtures.StringFeatures{}
+		timestampFeatures := fixtures.TimestampFeatures{}
 
-	for i := 0; i < t.N; i++ {
-		var wg sync.WaitGroup
-		numConcurrentReqs := 200
-		for j := 0; j < numConcurrentReqs; j++ {
-			wg.Add(1)
-			go func() {
-				intFeatures := fixtures.IntFeatures{}
-				floatFeatures := fixtures.FloatFeatures{}
-				boolFeatures := fixtures.BoolFeatures{}
-				stringFeatures := fixtures.StringFeatures{}
-				timestampFeatures := fixtures.TimestampFeatures{}
-				err := res.UnmarshalInto(&intFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&floatFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&boolFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&stringFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&timestampFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				wg.Done()
+		err := res.UnmarshalInto(&intFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&floatFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&boolFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&stringFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&timestampFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
 
-				assert.Equal(t, int64(122.0), *intFeatures.Int1)
-				assert.Equal(t, int64(122.0), *intFeatures.Int40)
-				assert.Equal(t, float64(1.234), *floatFeatures.Float1)
-				assert.Equal(t, float64(1.234), *floatFeatures.Float40)
-				assert.Equal(t, "string_val", *stringFeatures.String1)
-				assert.Equal(t, "string_val", *stringFeatures.String40)
-				assert.True(t, *boolFeatures.Bool1)
-				assert.True(t, *boolFeatures.Bool40)
-				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
-				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
-			}()
-		}
-		wg.Wait()
+		assertOnce.Do(func() {
+			assert.Equal(b, int64(122.0), *intFeatures.Int1)
+			assert.Equal(b, int64(122.0), *intFeatures.Int40)
+			assert.Equal(b, float64(1.234), *floatFeatures.Float1)
+			assert.Equal(b, float64(1.234), *floatFeatures.Float40)
+			assert.Equal(b, "string_val", *stringFeatures.String1)
+			assert.Equal(b, "string_val", *stringFeatures.String40)
+			assert.True(b, *boolFeatures.Bool1)
+			assert.True(b, *boolFeatures.Bool40)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
+		})
 	}
 
+	return benchFunc
 }
 
-/*
- * Query: Single
- * Namespaces: Multi
- * Feature Type: Windowed
- * Protocol: REST
- */
-func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
+func getBenchmarkUnmarshalMultiNs(t *testing.B) func() {
 	newData := []chalk.FeatureResult{}
 	windows := []int{60, 300, 3600}
 	for i := 1; i <= 13; i++ {
@@ -121,42 +138,83 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 		Data: newData,
 	}
 
-	for i := 0; i < t.N; i++ {
-		var wg sync.WaitGroup
-		numConcurrentReqs := 200
-		for j := 0; j < numConcurrentReqs; j++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				intFeatures := fixtures.WindowedIntFeatures{}
-				floatFeatures := fixtures.WindowedFloatFeatures{}
-				boolFeatures := fixtures.WindowedBoolFeatures{}
-				stringFeatures := fixtures.WindowedStringFeatures{}
-				timestampFeatures := fixtures.WindowedTimestampFeatures{}
+	assertOnce := sync.Once{}
 
-				err := res.UnmarshalInto(&intFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&floatFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&boolFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&stringFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
-				err = res.UnmarshalInto(&timestampFeatures)
-				assert.Equal(t, (*chalk.ClientError)(nil), err)
+	benchmarkFunc := func() {
+		intFeatures := fixtures.WindowedIntFeatures{}
+		floatFeatures := fixtures.WindowedFloatFeatures{}
+		boolFeatures := fixtures.WindowedBoolFeatures{}
+		stringFeatures := fixtures.WindowedStringFeatures{}
+		timestampFeatures := fixtures.WindowedTimestampFeatures{}
 
-				assert.Equal(t, int64(122.0), *intFeatures.Int1["1m"])
-				assert.Equal(t, int64(122.0), *intFeatures.Int13["1h"])
-				assert.Equal(t, float64(1.234), *floatFeatures.Float1["1m"])
-				assert.Equal(t, float64(1.234), *floatFeatures.Float13["1h"])
-				assert.Equal(t, "string_val", *stringFeatures.String1["1m"])
-				assert.Equal(t, "string_val", *stringFeatures.String13["1h"])
-				assert.True(t, *boolFeatures.Bool1["1m"])
-				assert.True(t, *boolFeatures.Bool13["1h"])
-				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1["1m"])
-				assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp13["1h"])
-			}()
-		}
-		wg.Wait()
+		err := res.UnmarshalInto(&intFeatures)
+		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&floatFeatures)
+		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&boolFeatures)
+		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&stringFeatures)
+		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		err = res.UnmarshalInto(&timestampFeatures)
+		assert.Equal(t, (*chalk.ClientError)(nil), err)
+
+		assertOnce.Do(func() {
+			assert.Equal(t, int64(122.0), *intFeatures.Int1["1m"])
+			assert.Equal(t, int64(122.0), *intFeatures.Int13["1h"])
+			assert.Equal(t, float64(1.234), *floatFeatures.Float1["1m"])
+			assert.Equal(t, float64(1.234), *floatFeatures.Float13["1h"])
+			assert.Equal(t, "string_val", *stringFeatures.String1["1m"])
+			assert.Equal(t, "string_val", *stringFeatures.String13["1h"])
+			assert.True(t, *boolFeatures.Bool1["1m"])
+			assert.True(t, *boolFeatures.Bool13["1h"])
+			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1["1m"])
+			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp13["1h"])
+		})
 	}
+
+	return benchmarkFunc
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Windowed
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalMultiNsWindowedSingle(t *testing.B) {
+	benchmark(t, getBenchmarkUnmarshalMultiNs(t))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Windowed
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalMultiNsWindowedParallel(t *testing.B) {
+	benchmarkParallel(t, getBenchmarkUnmarshalMultiNs(t))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalMultiNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkMultiNsPrimitives(b))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkMultiNsPrimitives(b))
 }
