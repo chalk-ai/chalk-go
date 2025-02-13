@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739421431048,
+  "lastUpdate": 1739472286848,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -94,6 +94,54 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
             "value": 57.25,
+            "unit": "ms/op",
+            "extra": "20 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "40910959+rooftoofwoof@users.noreply.github.com",
+            "name": "Jin Hang",
+            "username": "rooftoofwoof"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b8ba6af49ca3caebe80fb7e57699dcddfd5d473a",
+          "message": "enable benchmarks for PRs from all branches (#287)",
+          "timestamp": "2025-02-13T10:39:29-08:00",
+          "tree_id": "ed903fec5e49ecdaf1ae3f2c957b6e2c91bbb439",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/b8ba6af49ca3caebe80fb7e57699dcddfd5d473a"
+        },
+        "date": 1739472286819,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.6454,
+            "unit": "ms/op",
+            "extra": "1869 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 77.48,
+            "unit": "ms/op",
+            "extra": "14 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.4903,
+            "unit": "ms/op",
+            "extra": "2466 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 57.16,
             "unit": "ms/op",
             "extra": "20 times\n4 procs"
           }
