@@ -41,6 +41,7 @@ func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 
 	b.ReportMetric(0, "ns/op") // effectively hides the default ns/op metric
 	b.ReportMetric(DurationMs(PercentileDuration(durations, 95)), "ms/op(p95)")
+	b.ReportMetric(DurationMs(PercentileDuration(durations, 50)), "ms/op(p50)")
 }
 
 func BenchmarkUnmarshalMultiNsPrimitives(b *testing.B) {
@@ -103,7 +104,7 @@ func BenchmarkUnmarshalMultiNsPrimitives(b *testing.B) {
 		})
 	}
 
-	benchmarkRateLimited(b, benchFunc, 5000)
+	benchmarkRateLimited(b, benchFunc, 20_000)
 }
 
 /*
@@ -177,5 +178,5 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 		})
 	}
 
-	benchmarkRateLimited(t, benchmarkFunc, 5000)
+	benchmarkRateLimited(t, benchmarkFunc, 20_000)
 }
