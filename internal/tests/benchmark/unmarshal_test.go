@@ -175,6 +175,44 @@ func getBenchmarkUnmarshalMultiNs(t *testing.B) func() {
 	return benchmarkFunc
 }
 
+func getBenchmarkSingleNs(b *testing.B) func() {
+	data := []chalk.FeatureResult{}
+	for i := 1; i <= 40; i++ {
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("int_features.int_%d", i),
+			Value: float64(122.0),
+		})
+	}
+	res := chalk.OnlineQueryResult{
+		Data: data,
+	}
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		intFeatures := fixtures.IntFeatures{}
+		err := res.UnmarshalInto(&intFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+
+		assertOnce.Do(func() {
+			assert.Equal(b, int64(122.0), *intFeatures.Int1)
+			assert.Equal(b, int64(122.0), *intFeatures.Int40)
+		})
+	}
+
+	return benchFunc
+
+}
+
+/*
+ * Query: Single
+ * Namespaces: Single
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalSingleNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkSingleNs(b))
+}
+
 /*
  * Query: Single
  * Namespaces: Multi
