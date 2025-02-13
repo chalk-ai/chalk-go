@@ -23,13 +23,13 @@ func benchmark(b *testing.B, benchmarkFunc func()) {
 	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
 }
 
-func benchmarkConcurrent(b *testing.B, benchmarkFunc func()) {
+func benchmarkParallel(b *testing.B, benchmarkFunc func()) {
 	b.Helper()
-	numConcurrency := 200
+	numParallel := 200
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		var wg sync.WaitGroup
-		for j := 0; j < numConcurrency; j++ {
+		for j := 0; j < numParallel; j++ {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
@@ -191,10 +191,10 @@ func BenchmarkUnmarshalMultiNsWindowedSingle(t *testing.B) {
  * Namespaces: Multi
  * Feature Type: Windowed
  * Protocol: REST
- * Run Type: Concurrent
+ * Run Type: Parallel
  */
-func BenchmarkUnmarshalMultiNsWindowedConcurrent(t *testing.B) {
-	benchmarkConcurrent(t, getBenchmarkUnmarshalMultiNs(t))
+func BenchmarkUnmarshalMultiNsWindowedParallel(t *testing.B) {
+	benchmarkParallel(t, getBenchmarkUnmarshalMultiNs(t))
 }
 
 /*
@@ -213,8 +213,8 @@ func BenchmarkUnmarshalMultiNsPrimitivesSingle(b *testing.B) {
  * Namespaces: Multi
  * Feature Type: Primitives
  * Protocol: REST
- * Run Type: Concurrent
+ * Run Type: Parallel
  */
-func BenchmarkUnmarshalMultiNsPrimitivesConcurrent(b *testing.B) {
-	benchmarkConcurrent(b, getBenchmarkMultiNsPrimitives(b))
+func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkMultiNsPrimitives(b))
 }
