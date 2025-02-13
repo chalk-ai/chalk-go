@@ -14,13 +14,14 @@ import (
 
 func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 	b.Helper()
-	limiter := rate.NewLimiter(rate.Limit(qps), 1)
+
 	var durations []time.Duration
 	var mu sync.Mutex
+	var wg sync.WaitGroup
 
+	limiter := rate.NewLimiter(rate.Limit(qps), 1)
 	start := time.Now()
 	duration := 1 * time.Second
-	var wg sync.WaitGroup
 
 	for time.Since(start) < duration {
 		limiter.Wait(context.Background())
@@ -30,9 +31,8 @@ func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 			defer wg.Done()
 			opStart := time.Now()
 			benchmarkFunc()
-			opDuration := time.Since(opStart)
 			mu.Lock()
-			durations = append(durations, opDuration)
+			durations = append(durations, time.Since(opStart))
 			mu.Unlock()
 		}()
 	}
