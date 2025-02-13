@@ -1,51 +1,50 @@
 package benchmark
 
 import (
-	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/tests/benchmark/fixtures"
 	assert "github.com/stretchr/testify/require"
-	"golang.org/x/time/rate"
 	"sync"
 	"testing"
 	"time"
 )
 
-func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
+func benchmark(b *testing.B, benchmarkFunc func()) {
 	b.Helper()
-
-	var durations []time.Duration
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
-	limiter := rate.NewLimiter(rate.Limit(qps), 1)
-	start := time.Now()
-	duration := 1 * time.Second
-
-	for time.Since(start) < duration {
-		limiter.Wait(context.Background())
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			opStart := time.Now()
-			benchmarkFunc()
-			opEnd := time.Since(opStart)
-			mu.Lock()
-			durations = append(durations, opEnd)
-			mu.Unlock()
-		}()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		benchmarkFunc()
 	}
+	b.StopTimer()
 
-	wg.Wait()
-	b.Logf("Ran %d operations in %s", len(durations), duration)
-	b.ReportMetric(0, "ns/op") // effectively hides the default ns/op metric
-	b.ReportMetric(DurationMs(PercentileDuration(durations, 95)), "ms/op(p95)")
-	b.ReportMetric(DurationMs(PercentileDuration(durations, 50)), "ms/op(p50)")
+	avg := b.Elapsed() / time.Duration(b.N)
+	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
+	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
 }
 
-func BenchmarkUnmarshalMultiNsPrimitives(b *testing.B) {
+func benchmarkConcurrent(b *testing.B, benchmarkFunc func()) {
+	b.Helper()
+	numConcurrency := 200
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		var wg sync.WaitGroup
+		for j := 0; j < numConcurrency; j++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				benchmarkFunc()
+			}()
+		}
+		wg.Wait()
+	}
+	b.StopTimer()
+	avg := b.Elapsed() / time.Duration(b.N)
+	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
+	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
+}
+
+func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 	data := []chalk.FeatureResult{}
 	for i := 1; i <= 40; i++ {
 		data = append(data, chalk.FeatureResult{
@@ -105,16 +104,10 @@ func BenchmarkUnmarshalMultiNsPrimitives(b *testing.B) {
 		})
 	}
 
-	benchmarkRateLimited(b, benchFunc, 20_000)
+	return benchFunc
 }
 
-/*
- * Query: Single
- * Namespaces: Multi
- * Feature Type: Windowed
- * Protocol: REST
- */
-func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
+func getBenchmarkUnmarshalMultiNs(t *testing.B) func() {
 	newData := []chalk.FeatureResult{}
 	windows := []int{60, 300, 3600}
 	for i := 1; i <= 13; i++ {
@@ -179,5 +172,49 @@ func BenchmarkUnmarshalMultiNsWindowed(t *testing.B) {
 		})
 	}
 
-	benchmarkRateLimited(t, benchmarkFunc, 20_000)
+	return benchmarkFunc
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Windowed
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalMultiNsWindowedSingle(t *testing.B) {
+	benchmark(t, getBenchmarkUnmarshalMultiNs(t))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Windowed
+ * Protocol: REST
+ * Run Type: Concurrent
+ */
+func BenchmarkUnmarshalMultiNsWindowedConcurrent(t *testing.B) {
+	benchmarkConcurrent(t, getBenchmarkUnmarshalMultiNs(t))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalMultiNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkMultiNsPrimitives(b))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Concurrent
+ */
+func BenchmarkUnmarshalMultiNsPrimitivesConcurrent(b *testing.B) {
+	benchmarkConcurrent(b, getBenchmarkMultiNsPrimitives(b))
 }
