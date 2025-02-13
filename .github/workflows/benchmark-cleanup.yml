@@ -7,6 +7,7 @@ on:
 
 jobs:
   cleanup:
+    if: github.head_ref != 'main' # Rarely is main but just in case
     runs-on: ubuntu-latest
     steps:
       - name: Checkout benchmark-results branch
@@ -24,6 +25,7 @@ jobs:
 
       - name: Delete benchmark directory if it exists
         run: |
+          git pull
           if [ -d "$BENCHMARK_DIR" ]; then
             echo "Removing $BENCHMARK_DIR..."
             rm -rf "$BENCHMARK_DIR"
