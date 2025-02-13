@@ -39,7 +39,7 @@ func benchmarkRateLimited(b *testing.B, benchmarkFunc func(), qps int) {
 	}
 
 	wg.Wait()
-
+	fmt.Println(len(durations))
 	b.ReportMetric(0, "ns/op") // effectively hides the default ns/op metric
 	b.ReportMetric(DurationMs(PercentileDuration(durations, 95)), "ms/op(p95)")
 	b.ReportMetric(DurationMs(PercentileDuration(durations, 50)), "ms/op(p50)")
