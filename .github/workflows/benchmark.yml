@@ -37,6 +37,7 @@ jobs:
       - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
         if: github.event_name == 'pull_request'
         run: |
+          git pull
           if [ ! -d "$BENCHMARK_DIR" ]; then
             echo "Creating new directory: $BENCHMARK_DIR"
             mkdir -p $BENCHMARK_DIR
