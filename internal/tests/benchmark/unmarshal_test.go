@@ -73,41 +73,34 @@ func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 	}
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		intFeatures := fixtures.IntFeatures{}
-		floatFeatures := fixtures.FloatFeatures{}
-		boolFeatures := fixtures.BoolFeatures{}
-		stringFeatures := fixtures.StringFeatures{}
-		timestampFeatures := fixtures.TimestampFeatures{}
-
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
+		rootStruct := struct {
+			IntFeatures       fixtures.IntFeatures
+			FloatFeatures     fixtures.FloatFeatures
+			BoolFeatures      fixtures.BoolFeatures
+			StringFeatures    fixtures.StringFeatures
+			TimestampFeatures fixtures.TimestampFeatures
+		}{}
+		err := res.UnmarshalInto(&rootStruct)
 		assert.Equal(b, (*chalk.ClientError)(nil), err)
 
 		assertOnce.Do(func() {
-			assert.Equal(b, int64(122.0), *intFeatures.Int1)
-			assert.Equal(b, int64(122.0), *intFeatures.Int40)
-			assert.Equal(b, float64(1.234), *floatFeatures.Float1)
-			assert.Equal(b, float64(1.234), *floatFeatures.Float40)
-			assert.Equal(b, "string_val", *stringFeatures.String1)
-			assert.Equal(b, "string_val", *stringFeatures.String40)
-			assert.True(b, *boolFeatures.Bool1)
-			assert.True(b, *boolFeatures.Bool40)
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1)
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp40)
+			assert.Equal(b, int64(122.0), *rootStruct.IntFeatures.Int1)
+			assert.Equal(b, int64(122.0), *rootStruct.IntFeatures.Int40)
+			assert.Equal(b, float64(1.234), *rootStruct.FloatFeatures.Float1)
+			assert.Equal(b, float64(1.234), *rootStruct.FloatFeatures.Float40)
+			assert.Equal(b, "string_val", *rootStruct.StringFeatures.String1)
+			assert.Equal(b, "string_val", *rootStruct.StringFeatures.String40)
+			assert.True(b, *rootStruct.BoolFeatures.Bool1)
+			assert.True(b, *rootStruct.BoolFeatures.Bool40)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct.TimestampFeatures.Timestamp1)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct.TimestampFeatures.Timestamp40)
 		})
 	}
 
 	return benchFunc
 }
 
-func getBenchmarkUnmarshalMultiNs(t *testing.B) func() {
+func getBenchmarkUnmarshalMultiNsWindowed(t *testing.B) func() {
 	newData := []chalk.FeatureResult{}
 	windows := []int{60, 300, 3600}
 	for i := 1; i <= 13; i++ {
@@ -141,34 +134,27 @@ func getBenchmarkUnmarshalMultiNs(t *testing.B) func() {
 	assertOnce := sync.Once{}
 
 	benchmarkFunc := func() {
-		intFeatures := fixtures.WindowedIntFeatures{}
-		floatFeatures := fixtures.WindowedFloatFeatures{}
-		boolFeatures := fixtures.WindowedBoolFeatures{}
-		stringFeatures := fixtures.WindowedStringFeatures{}
-		timestampFeatures := fixtures.WindowedTimestampFeatures{}
-
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
+		rootStruct := struct {
+			IntFeatures       fixtures.WindowedIntFeatures
+			FloatFeatures     fixtures.WindowedFloatFeatures
+			BoolFeatures      fixtures.WindowedBoolFeatures
+			StringFeatures    fixtures.WindowedStringFeatures
+			TimestampFeatures fixtures.WindowedTimestampFeatures
+		}{}
+		err := res.UnmarshalInto(&rootStruct)
 		assert.Equal(t, (*chalk.ClientError)(nil), err)
 
 		assertOnce.Do(func() {
-			assert.Equal(t, int64(122.0), *intFeatures.Int1["1m"])
-			assert.Equal(t, int64(122.0), *intFeatures.Int13["1h"])
-			assert.Equal(t, float64(1.234), *floatFeatures.Float1["1m"])
-			assert.Equal(t, float64(1.234), *floatFeatures.Float13["1h"])
-			assert.Equal(t, "string_val", *stringFeatures.String1["1m"])
-			assert.Equal(t, "string_val", *stringFeatures.String13["1h"])
-			assert.True(t, *boolFeatures.Bool1["1m"])
-			assert.True(t, *boolFeatures.Bool13["1h"])
-			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp1["1m"])
-			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures.Timestamp13["1h"])
+			assert.Equal(t, int64(122.0), *rootStruct.IntFeatures.Int1["1m"])
+			assert.Equal(t, int64(122.0), *rootStruct.IntFeatures.Int13["1h"])
+			assert.Equal(t, float64(1.234), *rootStruct.FloatFeatures.Float1["1m"])
+			assert.Equal(t, float64(1.234), *rootStruct.FloatFeatures.Float13["1h"])
+			assert.Equal(t, "string_val", *rootStruct.StringFeatures.String1["1m"])
+			assert.Equal(t, "string_val", *rootStruct.StringFeatures.String13["1h"])
+			assert.True(t, *rootStruct.BoolFeatures.Bool1["1m"])
+			assert.True(t, *rootStruct.BoolFeatures.Bool13["1h"])
+			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct.TimestampFeatures.Timestamp1["1m"])
+			assert.Equal(t, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct.TimestampFeatures.Timestamp13["1h"])
 		})
 	}
 
@@ -221,7 +207,7 @@ func BenchmarkUnmarshalSingleNsPrimitivesSingle(b *testing.B) {
  * Run Type: Single
  */
 func BenchmarkUnmarshalMultiNsWindowedSingle(t *testing.B) {
-	benchmark(t, getBenchmarkUnmarshalMultiNs(t))
+	benchmark(t, getBenchmarkUnmarshalMultiNsWindowed(t))
 }
 
 /*
@@ -232,7 +218,7 @@ func BenchmarkUnmarshalMultiNsWindowedSingle(t *testing.B) {
  * Run Type: Parallel
  */
 func BenchmarkUnmarshalMultiNsWindowedParallel(t *testing.B) {
-	benchmarkParallel(t, getBenchmarkUnmarshalMultiNs(t))
+	benchmarkParallel(t, getBenchmarkUnmarshalMultiNsWindowed(t))
 }
 
 /*
