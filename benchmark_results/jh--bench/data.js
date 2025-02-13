@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739415215422,
+  "lastUpdate": 1739415873658,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -352,6 +352,86 @@ window.BENCHMARK_DATA = {
             "value": 76209374,
             "unit": "ns/op",
             "extra": "14 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "9d5a51d509698cf63b31db41224b9427d045cc16",
+          "message": "[ci] Update benchmark tests",
+          "timestamp": "2025-02-13T00:53:30Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/286/commits/9d5a51d509698cf63b31db41224b9427d045cc16"
+        },
+        "date": 1739415873643,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives",
+            "value": 14825222,
+            "unit": "ns/op\t        59.38 ms/op(max)\t         1.620 ms/op(median)\t        14.83 ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ns/op",
+            "value": 14825222,
+            "unit": "ns/op",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ms/op(max)",
+            "value": 59.38,
+            "unit": "ms/op(max)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ms/op(median)",
+            "value": 1.62,
+            "unit": "ms/op(median)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ms/op(p95)",
+            "value": 14.83,
+            "unit": "ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed",
+            "value": 17036418,
+            "unit": "ns/op\t        73.21 ms/op(max)\t         3.378 ms/op(median)\t        17.04 ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ns/op",
+            "value": 17036418,
+            "unit": "ns/op",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(max)",
+            "value": 73.21,
+            "unit": "ms/op(max)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(median)",
+            "value": 3.378,
+            "unit": "ms/op(median)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(p95)",
+            "value": 17.04,
+            "unit": "ms/op(p95)",
+            "extra": "1 times\n4 procs"
           }
         ]
       }
