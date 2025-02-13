@@ -23,6 +23,7 @@ jobs:
 
       - name: Set benchmark directory
         run: |
+          set -exuo pipefail
           BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|/|--|g')
           if [ "${{ github.event_name }}" = "push" ]; then
             BENCHMARK_DIR="benchmark_results/main"
@@ -36,6 +37,7 @@ jobs:
       - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
         if: ${{ github.event_name == 'pull_request' }}
         run: |
+          set -exuo pipefail
           git pull
           git checkout benchmark-results
           if [ ! -d "$BENCHMARK_DIR" ]; then
@@ -51,6 +53,13 @@ jobs:
           else
             echo "Directory already exists: $BENCHMARK_DIR"
           fi
+
+      - name: If push to main, get latest `benchmark-results` branch
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          set -exuo pipefail
+          git pull
+          git checkout benchmark-results
 
       - name: Save benchmark data
         uses: benchmark-action/github-action-benchmark@v1
