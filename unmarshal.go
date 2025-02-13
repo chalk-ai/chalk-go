@@ -407,12 +407,13 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		if field.Type().Kind() != reflect.Struct {
 			return &ClientError{
 				Message: fmt.Sprintf(
-					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct.\n"+
-						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v.\n"+
-						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all \n"+
-						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s'",
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
 					structName,
 					colls.Keys(scope.children),
+					fieldMeta.Name,
 					field.Type().Name(),
 				),
 			}
@@ -423,10 +424,11 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 		if fieldNsScope == nil {
 			return &ClientError{
 				Message: fmt.Sprintf(
-					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace \n"+
-						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s',\n"+
-						"but results are from these namespaces: %v",
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
 					structName,
+					fieldMeta.Name,
 					field.Type().Name(),
 					colls.Keys(scope.children),
 				),
