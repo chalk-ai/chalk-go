@@ -36,3 +36,4 @@ jobs:
             git push origin benchmark-results || echo "No changes to push"
           else
             echo "Benchmark directory $BENCHMARK_DIR does not exist. No action taken."
+          fi
