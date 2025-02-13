@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739417250396,
+  "lastUpdate": 1739417743504,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -606,6 +606,62 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(p95)",
             "value": 56.43,
+            "unit": "ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "6239810efc446f1bc668fb19e211a2f5d8d9bb52",
+          "message": "[ci] Update benchmark tests",
+          "timestamp": "2025-02-13T00:53:30Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/286/commits/6239810efc446f1bc668fb19e211a2f5d8d9bb52"
+        },
+        "date": 1739417743488,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives",
+            "value": 4.852,
+            "unit": "ms/op(p50)\t        58.29 ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ms/op(p50)",
+            "value": 4.852,
+            "unit": "ms/op(p50)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitives - ms/op(p95)",
+            "value": 58.29,
+            "unit": "ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed",
+            "value": 7.866,
+            "unit": "ms/op(p50)\t        47.80 ms/op(p95)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(p50)",
+            "value": 7.866,
+            "unit": "ms/op(p50)",
+            "extra": "1 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowed - ms/op(p95)",
+            "value": 47.8,
             "unit": "ms/op(p95)",
             "extra": "1 times\n4 procs"
           }
