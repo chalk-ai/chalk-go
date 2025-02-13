@@ -470,7 +470,6 @@ func thinUnmarshalInto(
 	namespaceMemo *internal.NamespaceMemo,
 	allMemo *internal.AllNamespaceMemoT,
 ) (returnErr *ClientError) {
-
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := initRemoteFeatureMap(
 		remoteFeatureMap,
