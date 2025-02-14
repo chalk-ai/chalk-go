@@ -368,7 +368,7 @@ type OnlineQueryBulkResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of
+//  2. UnmarshalInto also returns an error if its argument is not a pointer to a list of
 //     structs.
 //
 //  3. UnmarshalInto does not currently handle unmarshalling:

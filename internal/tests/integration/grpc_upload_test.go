@@ -54,10 +54,7 @@ func verifyUpdateAggregateResults(t *testing.T, distinctProofIds []int64, client
 	bulkRes, err := client.OnlineQueryBulk(queryParams)
 	assert.NoError(t, err)
 	var proofResults []Proof
-	err = bulkRes.UnmarshalInto(&proofResults)
-	if err != (*chalk.ClientError)(nil) {
-		t.Fatal("Failed querying features", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&proofResults))
 
 	assert.Equal(t, 4, len(proofResults))
 	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["30d"])
