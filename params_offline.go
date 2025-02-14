@@ -18,7 +18,7 @@ import (
 //		     defaultObservedAt := time.Now().Add(-time.Hour)
 //				observedAt, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
 //				client.OfflineQuery(
-//	             context.Background(),
+//	                context.Background(),
 //					OfflineQueryParams{
 //						EnvironmentId: "pipkjlfc3gtmn",
 //					}.
