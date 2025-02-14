@@ -256,7 +256,7 @@ type FeatureResult struct {
 //		func printUserDetails(chalkClient chalk.Client) {
 //			user := User{}
 //			chalkClient.OnlineQuery(
-//	         context.Background(),
+//	            context.Background(),
 //		    	chalk.OnlineQueryParams{}.WithOutputs(
 //			    	 Features.User.Family.Size,
 //				     Features.User.SocureScore
@@ -272,7 +272,7 @@ type FeatureResult struct {
 //
 //		func printUserDetails(chalkClient chalk.Client) {
 //			result, _ := chalkClient.OnlineQuery(
-//	         context.Background(),
+//	            context.Background(),
 //			    chalk.OnlineQueryParams{}.WithOutputs(
 //				    Features.User.Family.Size,
 //				    Features.User.SocureScore

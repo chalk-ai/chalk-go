@@ -16,7 +16,7 @@ import (
 // Example:
 //
 //			client.OnlineQuery(
-//	         context.Background(),
+//	            context.Background(),
 //				OnlineQueryParams{
 //					IncludeMeta: true,
 //					EnvironmentId: "pipkjlfc3gtmn",
