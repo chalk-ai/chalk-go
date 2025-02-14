@@ -41,20 +41,20 @@ func (c *clientGrpc) GetToken() (*TokenResult, error) {
 func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	res, err := c.underlying.OnlineQueryBulk(context.Background(), args)
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrapf(err, "error executing online query")
+		return OnlineQueryBulkResult{}, errors.Wrapf(err, "executing online query")
 	}
 
 	if len(res.Errors) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Errors)
 		if err != nil {
-			return OnlineQueryBulkResult{}, errors.Wrapf(err, "error converting server errors")
+			return OnlineQueryBulkResult{}, errors.Wrapf(err, "converting server errors")
 		}
 		return OnlineQueryBulkResult{}, newServerError(convertedErrs)
 	}
 
 	scalars, err := internal.ConvertBytesToTable(res.GetScalarsData())
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrapf(err, "error deserializing scalars table")
+		return OnlineQueryBulkResult{}, errors.Wrapf(err, "deserializing scalars table")
 	}
 
 	groups := make(map[string]arrow.Table)
@@ -63,7 +63,7 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 		if err != nil {
 			return OnlineQueryBulkResult{}, errors.Wrapf(
 				err,
-				"error deserializing has-many table for feature '%s'",
+				"deserializing has-many table for feature '%s'",
 				k,
 			)
 		}
@@ -86,7 +86,7 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 	if len(res.GetErrors()) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.GetErrors())
 		if err != nil {
-			return OnlineQueryResult{}, errors.Wrapf(err, "error converting server errors")
+			return OnlineQueryResult{}, errors.Wrapf(err, "converting server errors")
 		}
 		return OnlineQueryResult{}, newServerError(convertedErrs)
 	}
@@ -156,13 +156,13 @@ func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
 	res, err := c.underlying.UpdateAggregates(context.Background(), args)
 	if err != nil {
-		return UpdateAggregatesResult{}, errors.Wrapf(err, "error executing update aggregates")
+		return UpdateAggregatesResult{}, errors.Wrapf(err, "executing update aggregates")
 	}
 
 	if len(res.Errors) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Errors)
 		if err != nil {
-			return UpdateAggregatesResult{}, errors.Wrapf(err, "error converting server errors")
+			return UpdateAggregatesResult{}, errors.Wrapf(err, "converting server errors")
 		}
 		return UpdateAggregatesResult{}, newServerError(convertedErrs)
 	}

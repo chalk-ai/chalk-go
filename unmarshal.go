@@ -20,17 +20,17 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *inter
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
-			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
+			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
 		}
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
 		bucket, err := internal.GetBucketFromFqn(fqn)
 		if err != nil {
-			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
+			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
 		}
 		if err := internal.SetMapEntryValue(field, bucket, value, allMemo); err != nil {
-			return errors.Wrapf(err, "error setting map entry value for feature '%s'", fqn)
+			return errors.Wrapf(err, "setting map entry value for feature '%s'", fqn)
 		}
 		return nil
 	} else {
@@ -113,7 +113,7 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr error) {
 	for _, featureResult := range result.Data {
 		convertedValue, err := convertIfHasManyMap(featureResult.Value)
 		if err != nil {
-			return errors.Wrapf(err, "error converting feature '%s' value", featureResult.Field)
+			return errors.Wrapf(err, "converting feature '%s' value", featureResult.Field)
 		}
 		fqnToValue[featureResult.Field] = convertedValue
 	}
@@ -351,11 +351,11 @@ To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr error) {
 	allMemo := internal.AllNamespaceMemo
 	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
-		return errors.Wrap(err, "error building namespace memo")
+		return errors.Wrap(err, "building namespace memo")
 	}
 	scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
-		return errors.Wrap(err, "error building scope for initializing result holder struct")
+		return errors.Wrap(err, "building scope for initializing result holder struct")
 	}
 
 	holderValue := reflect.ValueOf(resultHolder)
@@ -465,7 +465,7 @@ func thinUnmarshalInto(
 		allMemo,
 		true,
 	); err != nil {
-		return errors.Wrap(err, "error initializing result holder struct")
+		return errors.Wrap(err, "initializing result holder struct")
 	}
 
 	for fqn, value := range fqnToValue {
@@ -509,7 +509,7 @@ func thinUnmarshalInto(
 					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 					return errors.New(fieldError)
 				} else {
-					return errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName)
+					return errors.Wrapf(err, "unmarshaling feature '%s' into the struct '%s'", fqn, structName)
 				}
 			}
 		}
@@ -540,7 +540,7 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 	for _, featureResult := range response.GetData().GetResults() {
 		convertedValue, err := convertIfHasManyMap(featureResult.Value.AsInterface())
 		if err != nil {
-			return errors.Wrapf(err, "error converting has-many value for feature '%s'", featureResult.Field)
+			return errors.Wrapf(err, "converting has-many value for feature '%s'", featureResult.Field)
 		}
 		fqnToValue[featureResult.Field] = convertedValue
 	}
@@ -550,7 +550,7 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
 	scalars, err := internal.ConvertBytesToTable(response.GetScalarsData())
 	if err != nil {
-		return errors.Wrap(err, "error deserializing scalars table")
+		return errors.Wrap(err, "deserializing scalars table")
 	}
 	return unmarshalTableInto(scalars, resultHolders)
 }
