@@ -206,7 +206,7 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				WithOutputs(testFeatures.User.FullName).
 				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
-			_, err = client.OnlineQueryBulk(req)
+			_, err = client.OnlineQueryBulk(context.Background(), req)
 			assert.NoError(t, err)
 		})
 	}

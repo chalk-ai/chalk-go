@@ -51,7 +51,7 @@ func verifyUpdateAggregateResults(t *testing.T, distinctProofIds []int64, client
 		Features.Proof.MeanTheoremLines["30d"],
 		Features.Proof.MeanTheoremLines["90d"],
 	)
-	bulkRes, err := client.OnlineQueryBulk(queryParams)
+	bulkRes, err := client.OnlineQueryBulk(context.Background(), queryParams)
 	assert.NoError(t, err)
 	var proofResults []Proof
 	assert.NoError(t, bulkRes.UnmarshalInto(&proofResults))

@@ -39,6 +39,6 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	bulkReq := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQueryBulk(bulkReq)
+	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 }

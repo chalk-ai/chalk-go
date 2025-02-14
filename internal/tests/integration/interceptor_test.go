@@ -33,7 +33,7 @@ func TestHeadersSetOnlineQueryBulk(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }

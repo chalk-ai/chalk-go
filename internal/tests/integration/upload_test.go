@@ -52,7 +52,7 @@ func TestUploadFeatures(t *testing.T) {
 		t.Fatalf("Queried feature 'user.socure_score' value '%v' for does not match uploaded value '%v'", castAns, socureScores[0])
 	}
 
-	bulkRes, err := client.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithInput("user.id", userIds).WithOutputs("user.socure_score"))
+	bulkRes, err := client.OnlineQueryBulk(context.Background(), chalk.OnlineQueryParams{}.WithInput("user.id", userIds).WithOutputs("user.socure_score"))
 	if err != nil {
 		t.Fatal("Failed querying features", err)
 	}

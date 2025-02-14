@@ -72,7 +72,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
 

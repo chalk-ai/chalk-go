@@ -390,10 +390,14 @@ type OnlineQueryBulkResult struct {
 // Usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//		result, _ := chalkClient.OnlineQueryBulk(
+//			context.Background(),
+//	  	    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, []int{1, 2}),
+//		    nil,
+//		)
 //
 //		var users []User
 //		result.UnmarshalInto(&users)

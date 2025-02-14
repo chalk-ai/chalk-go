@@ -41,7 +41,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore).
 		WithBranchId(bulkBranchId)
-	_, _ = client.OnlineQueryBulk(bulkReq)
+	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
 }
 
@@ -99,7 +99,7 @@ func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
 
@@ -125,7 +125,7 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	header, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
 	actualBranchId, ok := header["branch_id"]

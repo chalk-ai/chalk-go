@@ -33,7 +33,7 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
 
-	res, queryErr := client.OnlineQueryBulk(req)
+	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
 		t.Fatal("Failed querying features", queryErr)
 	}
