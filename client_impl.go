@@ -53,9 +53,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
-		builderErrString := request.builderErrors.Error()
-		clientErrString := "error building offline query params:\n" + builderErrString
-		return Dataset{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+		return Dataset{}, errors.Wrapf(request.builderErrors, "building offline query params")
 	}
 
 	emptyResult := Dataset{}
@@ -73,7 +71,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 		},
 	)
 	if err != nil {
-		return emptyResult, getErrorResponse(err)
+		return emptyResult, errors.Wrap(err, "send request")
 	}
 
 	if len(response.Errors) > 0 {
@@ -92,28 +90,23 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
-		builderErrString := request.builderErrors.Error()
-		clientErrString := "error building bulk online query params:\n" + builderErrString
-		return emptyResult, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+		return emptyResult, errors.Wrapf(request.builderErrors, "building params")
 	}
 
 	validationErrors := params.validatePostBuild()
 	if len(validationErrors) > 0 {
-		return emptyResult, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+		return emptyResult, validationErrors
 	}
 
 	for _, input := range request.inputs {
-		if !(reflect.ValueOf(input).Kind() == reflect.Slice || reflect.ValueOf(input).Kind() == reflect.Array) {
-			return emptyResult, &ErrorResponse{
-				ClientError: &ClientError{
-					"Inputs to bulk online query must be a slice or array",
-				},
-			}
+		kind := reflect.ValueOf(input).Kind()
+		if !(kind == reflect.Slice || kind == reflect.Array) {
+			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
 		}
 	}
 	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
 	if err != nil {
-		return emptyResult, &ErrorResponse{ClientError: &ClientError{fmt.Errorf("error serializing online query params: %w", err).Error()}}
+		return emptyResult, errors.Wrapf(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -138,12 +131,12 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	)
 
 	if err != nil {
-		return emptyResult, getErrorResponse(err)
+		return emptyResult, errors.Wrap(err, "send request")
 	}
 
 	singleBulkResult, ok := response.QueryResults["0"]
 	if !ok {
-		return emptyResult, &ErrorResponse{ClientError: &ClientError{"unexpected bulk online query response from server"}}
+		return emptyResult, errors.Newf("unexpected bulk online query response from server")
 	}
 
 	if len(singleBulkResult.Errors) > 0 {
@@ -160,11 +153,11 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
-		return UploadFeaturesResult{}, wrapClientError(err, "failed to convert input map keys")
+		return UploadFeaturesResult{}, errors.Wrapf(err, "convert input map keys")
 	}
 	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
 	if err != nil {
-		return UploadFeaturesResult{}, wrapClientError(err, "failed to convert inputs to Arrow Record bytes")
+		return UploadFeaturesResult{}, errors.Wrapf(err, "convert inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
 		"features":          colls.Keys(convertedInputs),
@@ -174,7 +167,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 
 	body, err := internal.ChalkMarshal(attrs)
 	if err != nil {
-		return UploadFeaturesResult{}, &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
+		return UploadFeaturesResult{}, errors.Wrapf(err, "marshal upload features request")
 	}
 
 	response := UploadFeaturesResult{}
@@ -190,7 +183,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		},
 	)
 	if err != nil {
-		return UploadFeaturesResult{}, getErrorResponse(err)
+		return UploadFeaturesResult{}, errors.Wrap(err, "send request")
 	}
 	return response, nil
 }
@@ -199,14 +192,12 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
-		builderErrString := request.builderErrors.Error()
-		clientErrString := "error building online query params:\n" + builderErrString
-		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{clientErrString}}
+		return OnlineQueryResult{}, errors.Wrap(request.builderErrors, "building online query params")
 	}
 
 	validationErrors := params.validatePostBuild()
 	if len(validationErrors) > 0 {
-		return OnlineQueryResult{}, &ErrorResponse{ClientError: &ClientError{validationErrors.Error()}}
+		return OnlineQueryResult{}, validationErrors
 	}
 
 	emptyResult := OnlineQueryResult{}
@@ -215,7 +206,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 
 	serializedRequest, err := request.serialize()
 	if err != nil {
-		return emptyResult, wrapClientError(err, "error serializing online query params")
+		return emptyResult, errors.Wrap(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -237,14 +228,12 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			IsEngineRequest:       true,
 		},
 	); err != nil {
-		return emptyResult, getErrorResponse(err)
+		return emptyResult, errors.Wrap(err, "send request")
 	}
 	if len(serializedResponse.Errors) > 0 {
 		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
 		if deserializationErr != nil {
-			return emptyResult, &ErrorResponse{
-				ClientError: &ClientError{deserializationErr.Error()},
-			}
+			return emptyResult, errors.Wrap(deserializationErr, "deserializing Chalk errors")
 		}
 
 		return emptyResult, &ErrorResponse{ServerErrors: serverErrors}
@@ -252,18 +241,14 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 
 	response, err := serializedResponse.deserialize()
 	if err != nil {
-		return emptyResult, &ErrorResponse{
-			ClientError: &ClientError{err.Error()},
-		}
+		return emptyResult, errors.Wrap(err, "deserializing online query response")
 	}
 
 	response.expectedOutputs = params.underlying.outputs
 	if resultHolder != nil {
 		unmarshalErr := response.UnmarshalInto(resultHolder)
 		if unmarshalErr != nil {
-			return response, &ErrorResponse{
-				ClientError: unmarshalErr,
-			}
+			return response, errors.Wrap(unmarshalErr, "unmarshaling result")
 		}
 	}
 
@@ -283,7 +268,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 		},
 	)
 	if err != nil {
-		return TriggerResolverRunResult{}, getErrorResponse(err)
+		return TriggerResolverRunResult{}, errors.Wrap(err, "send request")
 	}
 	return response, nil
 }
@@ -300,7 +285,7 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 		},
 	)
 	if err != nil {
-		return GetRunStatusResult{}, getErrorResponse(err)
+		return GetRunStatusResult{}, errors.Wrap(err, "send request")
 	}
 	return response, nil
 }
@@ -322,7 +307,7 @@ func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]
 			},
 		)
 		if err != nil {
-			return []string{}, getErrorResponse(err)
+			return []string{}, errors.Wrap(err, "send request")
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
@@ -369,7 +354,7 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 func (c *clientImpl) GetToken() (*TokenResult, error) {
 	getTokenResult, err := c.getToken(c.config.clientId.Value, c.config.clientSecret.Value)
 	if err != nil {
-		return nil, getErrorResponse(err)
+		return nil, err // Intentionally not wrapping
 	}
 	return &TokenResult{
 		AccessToken:        getTokenResult.AccessToken,
@@ -396,7 +381,7 @@ func (c *clientImpl) getToken(clientId string, clientSecret string) (*getTokenRe
 		},
 	)
 	if err != nil {
-		return nil, &ClientError{Message: fmt.Sprintf(
+		return nil, errors.Newf(
 			"Error obtaining access token: %s.\n"+
 				"  Auth config:\n"+
 				"    api_server=%q (source: %s),\n"+
@@ -411,7 +396,7 @@ func (c *clientImpl) getToken(clientId string, clientSecret string) (*getTokenRe
 			c.config.clientSecret.Source,
 			c.config.environmentId.Value,
 			c.config.environmentId.Source,
-		)}
+		)
 	}
 	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
 	return &getTokenResult{
@@ -646,14 +631,6 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 	}
 
 	return &clientError, nil
-}
-
-func getErrorResponse(err error) *ErrorResponse {
-	httpError, ok := err.(*HTTPError)
-	if ok {
-		return &ErrorResponse{HttpError: httpError}
-	}
-	return &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
 }
 
 func newClientImpl(

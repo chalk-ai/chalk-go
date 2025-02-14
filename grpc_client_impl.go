@@ -325,7 +325,7 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	}
 	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "executing online query")
+		return nil, errors.Wrap(err, "executing online query")
 	}
 	return res.Msg, nil
 }
@@ -333,11 +333,11 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
-		return nil, wrapClientError(err, "converting inputs map")
+		return nil, errors.Wrap(err, "converting inputs map")
 	}
 	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
 	if err != nil {
-		return nil, wrapClientError(err, "serializing inputs as feather")
+		return nil, errors.Wrap(err, "serializing inputs as feather")
 	}
 
 	req := connect.NewRequest(&commonv1.UploadFeaturesBulkRequest{
@@ -347,7 +347,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 
 	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "making update aggregates request")
+		return nil, errors.Wrap(err, "making update aggregates request")
 	}
 	return res.Msg, nil
 }

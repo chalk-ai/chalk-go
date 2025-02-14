@@ -246,7 +246,7 @@ type FeatureResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//  2. UnmarshalInto also errs if its argument is not a pointer to a struct.
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
@@ -277,7 +277,7 @@ type FeatureResult struct {
 //	}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
-func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *ClientError) {
+func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
 			detail := "details irretrievable"
@@ -287,12 +287,12 @@ func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *Cli
 			case string:
 				detail = typedContents
 			}
-			returnErr = &ClientError{Message: fmt.Sprintf("exception occurred while unmarshalling result: %s", detail)}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
 		}
 	}()
 
 	if err := validateOnlineQueryResultHolder(resultHolder); err != nil {
-		return &ClientError{Message: err.Error()}
+		return errors.Wrap(err, "validate online query result holder")
 	}
 
 	return result.unmarshal(resultHolder)
@@ -736,9 +736,6 @@ type ErrorResponse struct {
 	// Errors that occurred in Chalk's server.
 	ServerErrors []ServerError
 
-	// Errors that occurred in Client or its dependencies.
-	ClientError *ClientError
-
 	// Errors that are standard HTTP errors such as missing authorization.
 	HttpError *HTTPError
 }
@@ -782,11 +779,6 @@ type HTTPError struct {
 
 	// A Chalk Trace ID, useful for when contacting Chalk Support.
 	Trace *string
-}
-
-// ClientError is an error that occurred in Client or its dependencies.
-type ClientError struct {
-	Message string
 }
 
 // TokenResult holds the result of a GetToken request.

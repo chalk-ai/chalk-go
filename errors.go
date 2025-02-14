@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/cockroachdb/errors"
 	"strings"
 )
 
@@ -15,15 +14,9 @@ func (e *ErrorResponse) Error() string {
 		return fmt.Sprintf("Server Errors: %s", strings.Join(stringifiedServerErrors, "\n"))
 	} else if e.HttpError != nil {
 		return e.HttpError.Error()
-	} else if e.ClientError != nil {
-		return e.ClientError.Error()
 	} else {
 		return "Unexpected chalk.Client error. Please contact Chalk if this persists."
 	}
-}
-
-func (e *ClientError) Error() string {
-	return fmt.Sprintf("Client Error: %s", e.Message)
 }
 
 func (e *ServerError) Error() string {
@@ -71,12 +64,4 @@ func deferFunctionWithError(function func() error, originalError error) error {
 
 func newServerError(errs []ServerError) *ErrorResponse {
 	return &ErrorResponse{ServerErrors: errs}
-}
-
-func newClientError(err error) *ErrorResponse {
-	return &ErrorResponse{ClientError: &ClientError{Message: err.Error()}}
-}
-
-func wrapClientError(err error, message string) *ErrorResponse {
-	return newClientError(errors.Wrap(err, message))
 }
