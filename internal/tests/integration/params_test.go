@@ -164,7 +164,10 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		Explain:              true,
 		IncludeMeta:          true,
 		QueryContext:         queryContext,
-		PlannerOptions:       plannerOption,
+		EncodingOptions: &chalk.FeatureEncodingOptions{
+			EncodeStructsAsObjects: true,
+		},
+		PlannerOptions: plannerOption,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
