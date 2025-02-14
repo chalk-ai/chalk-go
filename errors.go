@@ -5,18 +5,14 @@ import (
 	"strings"
 )
 
-func (e *ErrorResponse) Error() string {
-	if len(e.ServerErrors) > 0 {
-		stringifiedServerErrors := make([]string, 0)
-		for _, err := range e.ServerErrors {
-			stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
-		}
-		return fmt.Sprintf("Server Errors: %s", strings.Join(stringifiedServerErrors, "\n"))
-	} else if e.HttpError != nil {
-		return e.HttpError.Error()
-	} else {
-		return "Unexpected chalk.Client error. Please contact Chalk if this persists."
+type serverErrorsT []ServerError
+
+func (e serverErrorsT) Error() string {
+	stringifiedServerErrors := make([]string, 0)
+	for _, err := range e {
+		stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
 	}
+	return strings.Join(stringifiedServerErrors, "\n")
 }
 
 func (e *ServerError) Error() string {
@@ -60,8 +56,4 @@ func deferFunctionWithError(function func() error, originalError error) error {
 		err = bodyCloseErr
 	}
 	return err
-}
-
-func newServerError(errs []ServerError) *ErrorResponse {
-	return &ErrorResponse{ServerErrors: errs}
 }

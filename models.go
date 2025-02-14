@@ -591,7 +591,7 @@ type Dataset struct {
 	DatasetId   *string           `json:"dataset_id"`
 	DatasetName *string           `json:"dataset_name"`
 	Revisions   []DatasetRevision `json:"revisions"`
-	Errors      []ServerError     `json:"errors"`
+	Errors      serverErrorsT     `json:"errors"`
 }
 
 type DatasetRevision struct {
@@ -723,14 +723,6 @@ type ResolverException struct {
 
 	// The stacktrace produced by the code.
 	Stacktrace string `json:"stacktrace"`
-}
-
-type ErrorResponse struct {
-	// Errors that occurred in Chalk's server.
-	ServerErrors []ServerError
-
-	// Errors that are standard HTTP errors such as missing authorization.
-	HttpError *HTTPError
 }
 
 // ServerError is an error that occurred in Chalk's server,

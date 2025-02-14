@@ -246,7 +246,7 @@ func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 	}, nil
 }
 
-func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error) {
+func deserializeChalkErrors(errors []chalkErrorSerialized) (serverErrorsT, error) {
 	deserializedErrors := make([]ServerError, 0)
 	for _, serializedErr := range errors {
 		deserializedError, err := serializedErr.deserialize()

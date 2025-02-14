@@ -75,7 +75,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 	}
 
 	if len(response.Errors) > 0 {
-		return emptyResult, &ErrorResponse{ServerErrors: response.Errors}
+		return emptyResult, response.Errors
 	}
 
 	for idx := range response.Revisions {
@@ -140,7 +140,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	}
 
 	if len(singleBulkResult.Errors) > 0 {
-		return emptyResult, &ErrorResponse{ServerErrors: singleBulkResult.Errors}
+		return emptyResult, singleBulkResult.Errors
 	}
 
 	return OnlineQueryBulkResult{
@@ -231,12 +231,12 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		return emptyResult, errors.Wrap(err, "send request")
 	}
 	if len(serializedResponse.Errors) > 0 {
-		serverErrors, deserializationErr := deserializeChalkErrors(serializedResponse.Errors)
-		if deserializationErr != nil {
-			return emptyResult, errors.Wrap(deserializationErr, "deserializing Chalk errors")
+		serverErrors, err := deserializeChalkErrors(serializedResponse.Errors)
+		if err != nil {
+			return emptyResult, errors.Wrap(err, "deserializing Chalk errors")
 		}
 
-		return emptyResult, &ErrorResponse{ServerErrors: serverErrors}
+		return emptyResult, serverErrors
 	}
 
 	response, err := serializedResponse.deserialize()
