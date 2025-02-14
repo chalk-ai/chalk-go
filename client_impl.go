@@ -49,7 +49,7 @@ func (c *clientImpl) PlanAggregateBackfill(
 	return nil, errors.New("not implemented")
 }
 
-func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, error) {
+func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -60,6 +60,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 	response := Dataset{}
 
 	err := c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v3/offline_query",
@@ -85,7 +86,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 	return response, nil
 }
 
-func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
@@ -116,6 +117,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 
 	var response OnlineQueryBulkResponse
 	err = c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:                "POST",
 			URL:                   "v1/query/feather",
@@ -150,7 +152,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	}, nil
 }
 
-func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
+func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
 		return UploadFeaturesResult{}, errors.Wrapf(err, "converting input map keys")
@@ -172,6 +174,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 
 	response := UploadFeaturesResult{}
 	err = c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/upload_features/multi",
@@ -188,7 +191,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 	return response, nil
 }
 
-func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
+func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
 	request := params.underlying
 
 	if len(request.builderErrors) > 0 {
@@ -215,6 +218,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	}
 
 	if err = c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:                "POST",
 			URL:                   "v1/query/online",
@@ -255,9 +259,10 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 	return response, nil
 }
 
-func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
+func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
 	response := TriggerResolverRunResult{}
 	err := c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/runs/trigger",
@@ -273,9 +278,10 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 	return response, nil
 }
 
-func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResult, error) {
+func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParams) (GetRunStatusResult, error) {
 	response := GetRunStatusResult{}
 	err := c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:              "GET",
 			URL:                 fmt.Sprintf("v1/runs/%s", request.RunId),
@@ -290,15 +296,16 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 	return response, nil
 }
 
-func (c *clientImpl) UpdateAggregates(params UpdateAggregatesParams) (UpdateAggregatesResult, error) {
+func (c *clientImpl) UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (UpdateAggregatesResult, error) {
 	return UpdateAggregatesResult{}, errors.New("not implemented")
 }
 
-func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]string, error) {
+func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 
 	for !response.IsFinished {
 		err := c.sendRequest(
+			ctx,
 			sendRequestParams{
 				Method:              "GET",
 				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
@@ -351,8 +358,8 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
 	return err
 }
 
-func (c *clientImpl) GetToken() (*TokenResult, error) {
-	getTokenResult, err := c.getToken(c.config.clientId.Value, c.config.clientSecret.Value)
+func (c *clientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
+	getTokenResult, err := c.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
 	if err != nil {
 		return nil, err // Intentionally not wrapping
 	}
@@ -364,7 +371,7 @@ func (c *clientImpl) GetToken() (*TokenResult, error) {
 	}, nil
 }
 
-func (c *clientImpl) getToken(clientId string, clientSecret string) (*getTokenResult, error) {
+func (c *clientImpl) getToken(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error) {
 	body := getTokenRequest{
 		ClientId:     clientId,
 		ClientSecret: clientSecret,
@@ -372,6 +379,7 @@ func (c *clientImpl) getToken(clientId string, clientSecret string) (*getTokenRe
 	}
 	response := getTokenResponse{}
 	err := c.sendRequest(
+		ctx,
 		sendRequestParams{
 			Method:      "POST",
 			URL:         "v1/oauth/token",
@@ -424,13 +432,13 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	}
 }
 
-func (c *clientImpl) sendRequest(args sendRequestParams) error {
+func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) error {
 	body, getBufferErr := getBodyBuffer(args.Body)
 	if getBufferErr != nil {
 		return getBufferErr
 	}
 
-	ctx, cancel := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	ctx, cancel := internal.GetContextWithTimeout(ctx, c.timeout)
 	defer cancel()
 	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
 	if newRequestErr != nil {
