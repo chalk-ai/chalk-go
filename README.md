@@ -95,7 +95,7 @@ Query online features using the generated feature structs.  Access the results i
 ```go
 user := User{}
 _, err = client.OnlineQuery(
-	context.Background(),
+    context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
 		WithInput(Features.User.Transactions, []Transaction{
@@ -115,7 +115,7 @@ you can specify a query name instead of outputs when making a query.
 ```go
 user := User{}
 _, err = client.OnlineQuery(
-	context.Background(),
+    context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
         WithQueryName("user_underwriting_features"),
@@ -131,7 +131,7 @@ When executing an offline query, a dataset is returned and can be downloaded as 
 
 ```go
 res, _ := client.OfflineQuery(
-	context.Background(),
+    context.Background(),
     chalk.OfflineQueryParams{}.
         WithInput(Features.User.Id, []any{...}).
         WithOutputs(Features.User),
@@ -147,7 +147,7 @@ Chalk allows you to synchronously persist features directly to your online and o
 
 ```go
 res, err := client.UploadFeatures(
-	context.Background(),
+    context.Background(), 
     chalk.UploadFeaturesParams{
         Inputs: map[any]any{
             Features.User.Id: []string{"user-1", "user-2"},
@@ -186,7 +186,7 @@ class Transaction:
 Then to update the `txn_amount_total` feature, you would upload features corresponding to that aggregation:
 ```go
 res, err := client.UpdateAggregates(
-	context.Background(),
+    context.Background(),
     chalk.UpdateAggregatesParams{
         Inputs: map[any]any{
             "transaction.id": []string{"txn-1", "txn-2"},

@@ -15,16 +15,16 @@ import (
 //
 // Example:
 //
-//		     defaultObservedAt := time.Now().Add(-time.Hour)
-//				observedAt, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
-//				client.OfflineQuery(
-//	                context.Background(),
-//					OfflineQueryParams{
-//						EnvironmentId: "pipkjlfc3gtmn",
-//					}.
-//			 		WithInput(Features.User.Id, []any{1, chalk.TsFeatureValue{Value: 2, ObservationTime: &observedAt}}).
-//			 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
-//				)
+//	     defaultObservedAt := time.Now().Add(-time.Hour)
+//			observedAt, _ := time.Parse(time.RFC822, "02 Jan 22 15:04 PST")
+//			client.OfflineQuery(
+//				context.Background(),
+//				OfflineQueryParams{
+//					EnvironmentId: "pipkjlfc3gtmn",
+//				}.
+//		 		WithInput(Features.User.Id, []any{1, chalk.TsFeatureValue{Value: 2, ObservationTime: &observedAt}}).
+//		 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
+//			)
 //
 // It is mandatory to call [OfflineQueryParams.WithOutput]
 // or [OfflineQueryParams.WithRequiredOutputs] at least once

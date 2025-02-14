@@ -28,7 +28,7 @@ type Client interface {
 	//
 	//		user := User{}
 	//		res, err := client.OnlineQuery(
-	//          context.Background(),
+	//			context.Background(),
 	//			OnlineQueryParams{
 	//				IncludeMeta: true,
 	//				EnvironmentId: "pipkjlfc3gtmn",
@@ -60,7 +60,7 @@ type Client interface {
 	//
 	//
 	//		res, err := client.OnlineQueryBulk(
-	//          context.Background(),
+	//			context.Background(),
 	//			OnlineQueryParams{
 	//				IncludeMeta: true,
 	//				EnvironmentId: "pipkjlfc3gtmn",
@@ -97,7 +97,7 @@ type Client interface {
 	// Example:
 	//
 	// 		res, err := client.UploadFeatures(
-	//          context.Background(),
+	//			context.Background(),
 	// 			UploadFeaturesParams{
 	// 				Inputs: map[any]any{
 	// 					Features.User.Card.Id: []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
@@ -125,7 +125,7 @@ type Client interface {
 	// Example:
 	//
 	// 		res, err := client.UpdateAggregates(
-	//          context.Background(),
+	//			context.Background(),
 	// 			UpdateAggregatesParams{
 	// 				Inputs: map[any]any{
 	// 					Features.Txns.Id: []string{5555-5555", "4444-4444"},
@@ -147,7 +147,7 @@ type Client interface {
 	// Example:
 	//
 	//		client.OfflineQuery(
-	//          context.Background(),
+	//			context.Background(),
 	//			OfflineQueryParams{
 	//				EnvironmentId: "pipkjlfc3gtmn",
 	//			}.
