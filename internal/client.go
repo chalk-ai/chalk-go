@@ -20,6 +20,7 @@ type OnlineQueryRequestSerialized struct {
 	Context          OnlineQueryContext     `json:"context"`
 	Staleness        map[string]string      `json:"staleness"`
 	IncludeMeta      bool                   `json:"include_meta"`
+	IncludeMetrics   bool                   `json:"include_metrics"`
 	DeploymentId     *string                `json:"deployment_id"`
 	QueryName        *string                `json:"query_name"`
 	CorrelationId    *string                `json:"correlation_id"`

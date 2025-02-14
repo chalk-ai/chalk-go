@@ -75,6 +75,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 
 	params := OnlineQueryParams{
 		IncludeMeta:          true,
+		IncludeMetrics:       true,
 		StorePlanStages:      true,
 		Explain:              true,
 		Tags:                 tags,
@@ -105,6 +106,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	assert.True(t, request.GetResponseOptions().GetIncludeMeta())
 	assert.NotNil(t, request.GetResponseOptions().GetExplain())
 	optionsActual := request.GetContext().GetOptions()
+	assert.True(t, optionsActual["include_metrics"].GetBoolValue())
 	assert.True(t, optionsActual["store_plan_stages"].GetBoolValue())
 }
 

@@ -51,9 +51,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	var encodingOptions internal.FeatureEncodingOptions
 	if p.EncodingOptions == nil {
 		encodingOptions = internal.FeatureEncodingOptions{
-			// Default to true to ensure backcompat.
-			// See https://github.com/chalk-ai/chalk-go/pull/159
-			EncodeStructsAsObjects: true,
+			EncodeStructsAsObjects: false,
 		}
 	} else {
 		encodingOptions = internal.FeatureEncodingOptions{
@@ -67,6 +65,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
+		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
@@ -311,6 +310,9 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
+	}
+	if params.IncludeMetrics {
+		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
 	for k, v := range params.PlannerOptions {
 		protoVal, err := structpb.NewValue(v)
