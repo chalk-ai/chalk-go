@@ -71,7 +71,7 @@ func (c *clientImpl) OfflineQuery(params OfflineQueryParamsComplete) (Dataset, e
 		},
 	)
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "send request")
+		return emptyResult, errors.Wrap(err, "sending request")
 	}
 
 	if len(response.Errors) > 0 {
@@ -131,7 +131,7 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 	)
 
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "send request")
+		return emptyResult, errors.Wrap(err, "sending request")
 	}
 
 	singleBulkResult, ok := response.QueryResults["0"]
@@ -153,11 +153,11 @@ func (c *clientImpl) OnlineQueryBulk(params OnlineQueryParamsComplete) (OnlineQu
 func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "convert input map keys")
+		return UploadFeaturesResult{}, errors.Wrapf(err, "converting input map keys")
 	}
 	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "convert inputs to Arrow Record bytes")
+		return UploadFeaturesResult{}, errors.Wrapf(err, "converting inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
 		"features":          colls.Keys(convertedInputs),
@@ -167,7 +167,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 
 	body, err := internal.ChalkMarshal(attrs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "marshal upload features request")
+		return UploadFeaturesResult{}, errors.Wrapf(err, "marshaling upload features request")
 	}
 
 	response := UploadFeaturesResult{}
@@ -183,7 +183,7 @@ func (c *clientImpl) UploadFeatures(params UploadFeaturesParams) (UploadFeatures
 		},
 	)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrap(err, "send request")
+		return UploadFeaturesResult{}, errors.Wrap(err, "sending request")
 	}
 	return response, nil
 }
@@ -228,7 +228,7 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 			IsEngineRequest:       true,
 		},
 	); err != nil {
-		return emptyResult, errors.Wrap(err, "send request")
+		return emptyResult, errors.Wrap(err, "sending request")
 	}
 	if len(serializedResponse.Errors) > 0 {
 		serverErrors, err := deserializeChalkErrors(serializedResponse.Errors)
@@ -268,7 +268,7 @@ func (c *clientImpl) TriggerResolverRun(request TriggerResolverRunParams) (Trigg
 		},
 	)
 	if err != nil {
-		return TriggerResolverRunResult{}, errors.Wrap(err, "send request")
+		return TriggerResolverRunResult{}, errors.Wrap(err, "sending request")
 	}
 	return response, nil
 }
@@ -285,7 +285,7 @@ func (c *clientImpl) GetRunStatus(request GetRunStatusParams) (GetRunStatusResul
 		},
 	)
 	if err != nil {
-		return GetRunStatusResult{}, errors.Wrap(err, "send request")
+		return GetRunStatusResult{}, errors.Wrap(err, "sending request")
 	}
 	return response, nil
 }
@@ -307,7 +307,7 @@ func (c *clientImpl) getDatasetUrls(RevisionId string, EnvironmentId string) ([]
 			},
 		)
 		if err != nil {
-			return []string{}, errors.Wrap(err, "send request")
+			return []string{}, errors.Wrap(err, "sending request")
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
