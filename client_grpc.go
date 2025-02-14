@@ -49,7 +49,7 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 		if err != nil {
 			return OnlineQueryBulkResult{}, errors.Wrapf(err, "converting server errors")
 		}
-		return OnlineQueryBulkResult{}, newServerError(convertedErrs)
+		return OnlineQueryBulkResult{}, convertedErrs
 	}
 
 	scalars, err := internal.ConvertBytesToTable(res.GetScalarsData())
@@ -88,7 +88,7 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 		if err != nil {
 			return OnlineQueryResult{}, errors.Wrapf(err, "converting server errors")
 		}
-		return OnlineQueryResult{}, newServerError(convertedErrs)
+		return OnlineQueryResult{}, convertedErrs
 	}
 
 	if resultHolder != nil {
@@ -164,7 +164,7 @@ func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggreg
 		if err != nil {
 			return UpdateAggregatesResult{}, errors.Wrapf(err, "converting server errors")
 		}
-		return UpdateAggregatesResult{}, newServerError(convertedErrs)
+		return UpdateAggregatesResult{}, convertedErrs
 	}
 
 	return UpdateAggregatesResult{
