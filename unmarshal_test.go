@@ -1459,7 +1459,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	var resultUser []unmarshalUSER
 
 	start := time.Now()
-
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultUser))
 	elapsed := time.Since(start)
 	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 	assert.Equal(t, 1, len(resultUser))
