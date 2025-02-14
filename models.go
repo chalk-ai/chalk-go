@@ -229,9 +229,7 @@ type FeatureResult struct {
 
 	// The time at which this feature was computed.
 	// This value could be significantly in the past if you're using caching.
-	// <<< NOTE >>> This value is nullable, and if it is null, it will be set
-	// to the zero value of `time.Time`.
-	Timestamp time.Time
+	Timestamp *time.Time
 
 	// Detailed information about how this feature was computed.
 	Meta *FeatureResolutionMeta

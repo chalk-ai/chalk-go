@@ -132,7 +132,7 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 			Pkey:      pkey,
 			Meta:      featureMeta,
 			Error:     serverErr,
-			Timestamp: timestamp,
+			Timestamp: &timestamp,
 		})
 	}
 

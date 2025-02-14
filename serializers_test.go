@@ -52,12 +52,12 @@ func TestFeatureResultDeserialization(t *testing.T) {
 	tsResult, err := withTimestamp.deserialize()
 	assert.NoError(t, err)
 	assert.Equal(t, "user.id", tsResult.Field)
-	assert.Equal(t, time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC), tsResult.Timestamp)
+	assert.Equal(t, time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC), *tsResult.Timestamp)
 
 	noTsResult, err := withoutTimestamp.deserialize()
 	assert.NoError(t, err)
 	assert.Equal(t, "user.id", noTsResult.Field)
-	assert.Equal(t, time.Time{}, noTsResult.Timestamp)
+	assert.Nil(t, noTsResult.Timestamp)
 }
 
 func TestConvertOnlineQueryParamsToProto(t *testing.T) {

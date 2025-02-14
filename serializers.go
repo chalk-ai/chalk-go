@@ -111,7 +111,7 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 		Field:     feature.Field,
 		Value:     feature.Value,
 		Pkey:      feature.Pkey,
-		Timestamp: timeObj,
+		Timestamp: &timeObj,
 		Meta:      feature.Meta,
 		Error:     dError,
 	}, nil
