@@ -256,10 +256,10 @@ type FeatureResult struct {
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
 //		chalkClient.OnlineQuery(
-//	    	context.Background(),
-//	    	chalk.OnlineQueryParams{}.WithOutputs(
-//		    	 Features.User.Family.Size,
-//			     Features.User.SocureScore
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
 //		    ).WithInput(Features.User.Id, 1),
 //		    &user,
 //		)
