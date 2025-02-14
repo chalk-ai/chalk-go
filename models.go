@@ -253,20 +253,20 @@ type FeatureResult struct {
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
-//		func printUserDetails(chalkClient chalk.Client) {
-//			user := User{}
-//			chalkClient.OnlineQuery(
-//	            context.Background(),
-//		    	chalk.OnlineQueryParams{}.WithOutputs(
-//			    	 Features.User.Family.Size,
-//				     Features.User.SocureScore
-//			    ).WithInput(Features.User.Id, 1),
-//			    &user,
-//			)
+//	func printUserDetails(chalkClient chalk.Client) {
+//		user := User{}
+//		chalkClient.OnlineQuery(
+//	    	context.Background(),
+//	    	chalk.OnlineQueryParams{}.WithOutputs(
+//		    	 Features.User.Family.Size,
+//			     Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    &user,
+//		)
 //
-//			fmt.Println("User family size: ", *user.Family.Size)
-//			fmt.Println("User Socure score: ", *user.SocureScore)
-//		}
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
 //
 // Equivalent explicit usage example:
 //
