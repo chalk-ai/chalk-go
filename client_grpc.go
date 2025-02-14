@@ -34,12 +34,12 @@ func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
 	return &clientGrpc{underlying: nativeClient}, nil
 }
 
-func (c *clientGrpc) GetToken() (*TokenResult, error) {
-	return c.underlying.GetToken()
+func (c *clientGrpc) GetToken(ctx context.Context) (*TokenResult, error) {
+	return c.underlying.GetToken(ctx)
 }
 
-func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	res, err := c.underlying.OnlineQueryBulk(context.Background(), args)
+func (c *clientGrpc) onlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+	res, err := c.underlying.OnlineQueryBulk(ctx, args)
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrapf(err, "executing online query")
 	}
@@ -77,8 +77,8 @@ func (c *clientGrpc) onlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQuer
 	}, nil
 }
 
-func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	res, err := c.underlying.OnlineQuery(context.Background(), args)
+func (c *clientGrpc) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
+	res, err := c.underlying.OnlineQuery(ctx, args)
 	if err != nil {
 		return OnlineQueryResult{}, err
 	}
@@ -149,12 +149,12 @@ func (c *clientGrpc) OnlineQuery(args OnlineQueryParamsComplete, resultHolder an
 
 }
 
-func (c *clientGrpc) OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	return c.onlineQueryBulk(args)
+func (c *clientGrpc) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
+	return c.onlineQueryBulk(ctx, args)
 }
 
-func (c *clientGrpc) UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
-	res, err := c.underlying.UpdateAggregates(context.Background(), args)
+func (c *clientGrpc) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (UpdateAggregatesResult, error) {
+	res, err := c.underlying.UpdateAggregates(ctx, args)
 	if err != nil {
 		return UpdateAggregatesResult{}, errors.Wrapf(err, "executing update aggregates")
 	}
@@ -187,18 +187,18 @@ func (c *clientGrpc) PlanAggregateBackfill(
 	return c.underlying.PlanAggregateBackfill(ctx, req)
 }
 
-func (c *clientGrpc) OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error) {
+func (c *clientGrpc) OfflineQuery(ctx context.Context, args OfflineQueryParamsComplete) (Dataset, error) {
 	return Dataset{}, errors.New("not implemented")
 }
 
-func (c *clientGrpc) TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, error) {
+func (c *clientGrpc) TriggerResolverRun(ctx context.Context, args TriggerResolverRunParams) (TriggerResolverRunResult, error) {
 	return TriggerResolverRunResult{}, errors.New("not implemented")
 }
 
-func (c *clientGrpc) GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error) {
+func (c *clientGrpc) GetRunStatus(ctx context.Context, args GetRunStatusParams) (GetRunStatusResult, error) {
 	return GetRunStatusResult{}, errors.New("not implemented")
 }
 
-func (c *clientGrpc) UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error) {
+func (c *clientGrpc) UploadFeatures(ctx context.Context, args UploadFeaturesParams) (UploadFeaturesResult, error) {
 	return UploadFeaturesResult{}, errors.New("not implemented")
 }

@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
@@ -26,7 +27,7 @@ type configManager struct {
 
 	jwt      *auth.JWT
 	engines  map[string]string
-	getToken func(clientId string, clientSecret string) (*getTokenResult, error)
+	getToken func(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error)
 
 	logger LeveledLogger
 }
