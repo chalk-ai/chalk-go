@@ -152,7 +152,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 
 	var actualUser []SerdeUser
 	bulkRes := OnlineQueryBulkResult{ScalarsTable: table}
-	if err := bulkRes.UnmarshalInto(&actualUser); err != (*ClientError)(nil) {
+	if err := bulkRes.UnmarshalInto(&actualUser); err != nil {
 		assert.FailNow(t, "Failed to unmarshal bulk result into user", err)
 	}
 	assert.Equal(t, 1, len(actualUser))

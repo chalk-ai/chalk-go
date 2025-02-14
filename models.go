@@ -392,11 +392,8 @@ type OnlineQueryBulkResult struct {
 //	}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
-func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
-	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
-		return &ClientError{Message: err.Error()}
-	}
-	return nil
+func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
+	return unmarshalTableInto(r.ScalarsTable, resultHolders)
 }
 
 // UploadFeaturesParams defines the parameters
@@ -653,7 +650,7 @@ type DatasetRevision struct {
 func (d *DatasetRevision) DownloadData(directory string) error {
 	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
 	if getUrlsErr != nil {
-		return getUrlsErr
+		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
 	g, _ := errgroup.WithContext(context.Background())
 	for _, url := range urls {
@@ -663,11 +660,7 @@ func (d *DatasetRevision) DownloadData(directory string) error {
 			return d.client.saveUrlToDirectory(u, directory)
 		})
 	}
-	saveErr := g.Wait()
-	if saveErr != nil {
-		return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
-	}
-	return nil
+	return errors.Wrap(g.Wait(), "save urls to directory")
 }
 
 type ColumnMetadata struct {

@@ -43,7 +43,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	for fqn, values := range p.inputs {
 		convertedValues, err := internal.PreprocessIfStruct(values)
 		if err != nil {
-			return nil, wrapClientError(err, "failed to convert structs in input feature values")
+			return nil, errors.Wrap(err, "convert structs in input feature values")
 		}
 		convertedInputs[fqn] = convertedValues
 	}
@@ -123,7 +123,7 @@ func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult,
 
 	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
-		return OnlineQueryResult{}, err
+		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
 	}
 
 	for _, result := range deserializedData {
@@ -140,14 +140,11 @@ func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult,
 func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResult, error) {
 	deserializedResults := make([]FeatureResult, 0)
 	for _, sResult := range results {
-		dResult, dErr := sResult.deserialize()
-		if dErr != nil {
-			return []FeatureResult{}, &ClientError{
-				Message: dErr.Error(),
-			}
+		dResult, err := sResult.deserialize()
+		if err != nil {
+			return []FeatureResult{}, err
 		}
 		deserializedResults = append(deserializedResults, dResult)
-
 	}
 	return deserializedResults, nil
 }
@@ -252,11 +249,9 @@ func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error) {
 	deserializedErrors := make([]ServerError, 0)
 	for _, serializedErr := range errors {
-		deserializedError, deserializationFailure := serializedErr.deserialize()
-		if deserializationFailure != nil {
-			return []ServerError{}, &ClientError{
-				Message: deserializationFailure.Error(),
-			}
+		deserializedError, err := serializedErr.deserialize()
+		if err != nil {
+			return []ServerError{}, err
 		}
 		deserializedErrors = append(deserializedErrors, deserializedError)
 

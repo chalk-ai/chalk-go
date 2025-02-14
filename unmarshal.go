@@ -168,13 +168,13 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			case string:
 				detail = typedContents
 			}
-			returnErr = fmt.Errorf("exception occurred while unmarshalling result: %s", detail)
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
 		}
 	}()
 
 	numRows, err := internal.Int64ToInt(table.NumRows())
 	if err != nil {
-		return &ClientError{Message: fmt.Sprintf("table too large to unmarshal, found %d rows", table.NumRows())}
+		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
 	}
 
 	slicePtr := reflect.ValueOf(resultHolders)
@@ -226,19 +226,17 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
 	if nsScope == nil {
-		return &ClientError{
-			errors.Newf(
-				"Attempted to unmarshal into the feature struct '%s', "+
-					"but results are from these feature class(es) '%v'",
-				structName,
-				colls.Keys(scope.children),
-			).Error(),
-		}
+		return errors.Newf(
+			"Attempted to unmarshal into the feature struct '%s', "+
+				"but results are from these feature class(es) '%v'",
+			structName,
+			colls.Keys(scope.children),
+		)
 	}
 
 	nsMemo, ok := allMemo.Load(sliceElemType)
 	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
+		return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
 	}
 
 	var wg sync.WaitGroup

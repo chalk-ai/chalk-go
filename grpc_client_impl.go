@@ -358,7 +358,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	})
 	res, err := c.queryClient.GetAggregates(ctx, req)
 	if err != nil {
-		return nil, wrapClientError(err, "making get aggregates request")
+		return nil, errors.Wrap(err, "making get aggregates request")
 	}
 
 	return res.Msg, err
@@ -370,7 +370,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 ) (*aggregatev1.PlanAggregateBackfillResponse, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
-		return nil, wrapClientError(err, "making plan aggregate backfill request")
+		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}
 	return res.Msg, err
 }
