@@ -91,7 +91,7 @@ func TestVersionHeaderSetOfflineQuery(t *testing.T) {
 	req := chalk.OfflineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OfflineQuery(req)
+	_, _ = client.OfflineQuery(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 }
 

@@ -131,6 +131,7 @@ When executing an offline query, a dataset is returned and can be downloaded as 
 
 ```go
 res, _ := client.OfflineQuery(
+	context.Background(),
     chalk.OfflineQueryParams{}.
         WithInput(Features.User.Id, []any{...}).
         WithOutputs(Features.User),

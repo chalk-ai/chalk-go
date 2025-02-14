@@ -228,7 +228,7 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, []any{int64(1)}).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OfflineQuery(req)
+	_, _ = client.OfflineQuery(context.Background(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Tags)
