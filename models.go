@@ -270,22 +270,22 @@ type FeatureResult struct {
 //
 // Equivalent explicit usage example:
 //
-//		func printUserDetails(chalkClient chalk.Client) {
-//			result, _ := chalkClient.OnlineQuery(
-//	            context.Background(),
-//			    chalk.OnlineQueryParams{}.WithOutputs(
-//				    Features.User.Family.Size,
-//				    Features.User.SocureScore
-//			    ).WithInput(Features.User.Id, 1),
-//			    nil
-//			)
+//	func printUserDetails(chalkClient chalk.Client) {
+//		result, _ := chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    nil
+//		)
 //
-//			user := User{}
-//			result.UnmarshalInto(&user)
+//		user := User{}
+//		result.UnmarshalInto(&user)
 //
-//			fmt.Println("User family size: ", *user.Family.Size)
-//			fmt.Println("User Socure score: ", *user.SocureScore)
-//		}
+//		fmt.Println("User family size: ", *user.Family.Size)
+//		fmt.Println("User Socure score: ", *user.SocureScore)
+//	}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr error) {
@@ -391,7 +391,7 @@ type OnlineQueryBulkResult struct {
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		result, _ := chalkClient.OnlineQueryBulk(
-//			context.Background(),
+//	  	    context.Background(),
 //	  	    chalk.OnlineQueryParams{}.WithOutputs(
 //			    Features.User.Family.Size,
 //			    Features.User.SocureScore
