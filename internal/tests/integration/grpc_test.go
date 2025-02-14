@@ -67,12 +67,15 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 
 	restClient, err := chalk.NewClient()
 	assert.NoError(t, err)
-	_, err = restClient.UploadFeatures(chalk.UploadFeaturesParams{
-		Inputs: map[any]any{
-			testFeatures.User.Id:          []int64{userId},
-			testFeatures.User.SocureScore: []float64{expectedSocureScore},
+	_, err = restClient.UploadFeatures(
+		context.Background(),
+		chalk.UploadFeaturesParams{
+			Inputs: map[any]any{
+				testFeatures.User.Id:          []int64{userId},
+				testFeatures.User.SocureScore: []float64{expectedSocureScore},
+			},
 		},
-	})
+	)
 	assert.NoError(t, err)
 
 	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})

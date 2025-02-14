@@ -26,12 +26,15 @@ func TestUploadFeatures(t *testing.T) {
 	userIds := []int{111, 222, 333}
 	socureScores := []float64{rand.Float64(), rand.Float64(), rand.Float64()}
 
-	_, err = client.UploadFeatures(chalk.UploadFeaturesParams{
-		Inputs: map[any]any{
-			"user.id":           userIds,
-			"user.socure_score": socureScores,
+	_, err = client.UploadFeatures(
+		context.Background(),
+		chalk.UploadFeaturesParams{
+			Inputs: map[any]any{
+				"user.id":           userIds,
+				"user.socure_score": socureScores,
+			},
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal("Failed uploading features", err)
 	}

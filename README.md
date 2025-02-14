@@ -146,6 +146,7 @@ Chalk allows you to synchronously persist features directly to your online and o
 
 ```go
 res, err := client.UploadFeatures(
+	context.Background(),
     chalk.UploadFeaturesParams{
         Inputs: map[any]any{
             Features.User.Id: []string{"user-1", "user-2"},
@@ -184,6 +185,7 @@ class Transaction:
 Then to update the `txn_amount_total` feature, you would upload features corresponding to that aggregation:
 ```go
 res, err := client.UpdateAggregates(
+	context.Background(),
     chalk.UpdateAggregatesParams{
         Inputs: map[any]any{
             "transaction.id": []string{"txn-1", "txn-2"},

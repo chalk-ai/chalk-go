@@ -122,7 +122,7 @@ func TestGrpcUpdateAggregates(t *testing.T) {
 	theoremIds := getRandomInts(len(proofIds))
 	now := time.Now().UTC()
 	params := getUpdateAggregateParams(proofIds, theoremIds, now)
-	_, err = client.UpdateAggregates(params)
+	_, err = client.UpdateAggregates(context.Background(), params)
 	assert.NoError(t, err)
 	// Query aggregation results
 	verifyUpdateAggregateResults(t, distinctProofIds, client)
