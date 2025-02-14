@@ -80,8 +80,7 @@ func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *rootStruct.IntFeatures.Int1)
@@ -141,8 +140,7 @@ func getBenchmarkUnmarshalMultiNsWindowed(t *testing.B) func() {
 			StringFeatures    fixtures.WindowedStringFeatures
 			TimestampFeatures fixtures.WindowedTimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		assert.NoError(t, res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(t, int64(122.0), *rootStruct.IntFeatures.Int1["1m"])
@@ -175,8 +173,7 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		intFeatures := fixtures.IntFeatures{}
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&intFeatures))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *intFeatures.Int1)

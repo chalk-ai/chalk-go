@@ -1241,9 +1241,7 @@ func TestBulkUnmarshalExtraFeaturesInHasOne(t *testing.T) {
 	}
 	defer bulkRes.Release()
 	var resultHolders []allTypes
-	if err := bulkRes.UnmarshalInto(&resultHolders); err != (*ClientError)(nil) {
-		t.Fatal(err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultHolders))
 	assert.Equal(t, 1, len(resultHolders))
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
 	assert.Equal(t, "nested_id", *resultHolders[0].Nested.Id)
@@ -1284,9 +1282,7 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	}
 	defer bulkRes.Release()
 	var resultHolders []allTypes
-	if err := bulkRes.UnmarshalInto(&resultHolders); err != (*ClientError)(nil) {
-		t.Fatal(err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultHolders))
 	assert.Equal(t, 1, len(resultHolders))
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
 	// Struct initialized but not populated with "extra" fields, which is what we want.
@@ -1463,9 +1459,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	var resultUser []unmarshalUSER
 
 	start := time.Now()
-	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultUser))
 	elapsed := time.Since(start)
 	t.Logf("unmarshalled as has-many elapsed: %v", elapsed)
 	assert.Equal(t, 1, len(resultUser))
@@ -1520,9 +1514,7 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	var resultTransaction []unmarshalTransaction
 
 	start = time.Now()
-	if err = bulkRes.UnmarshalInto(&resultTransaction); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultTransaction))
 	elapsed = time.Since(start)
 	t.Logf("unmarshalled as bulk rows elapsed: %v", elapsed)
 	assert.Equal(t, len(transactions), len(resultTransaction))
@@ -1566,9 +1558,7 @@ func TestSerdeInfiniteLoopFeatures(t *testing.T) {
 	defer bulkRes.Release()
 	var resultUser []infLoopUser
 
-	if err = bulkRes.UnmarshalInto(&resultUser); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultUser))
 }
 
 type infLoopA struct {
@@ -1607,9 +1597,7 @@ func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
 	defer bulkRes.Release()
 	var resultA []infLoopA
 
-	if err = bulkRes.UnmarshalInto(&resultA); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&resultA))
 
 	assert.Equal(t, 1, len(resultA))
 	assert.Equal(t, "a-1", *resultA[0].Id)
@@ -1693,9 +1681,7 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 	defer bulkRes.Release()
 	var root []infLoopRoot
 
-	if err = bulkRes.UnmarshalInto(&root); err != (*ClientError)(nil) {
-		t.Fatalf("failed to unmarshal: %v", err)
-	}
+	assert.NoError(t, bulkRes.UnmarshalInto(&root))
 
 	assert.Equal(t, 1, len(root))
 	assert.Equal(t, "root-only", *root[0].Id)

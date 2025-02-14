@@ -89,13 +89,7 @@ func TestOnlineQueryE2E(t *testing.T) {
 			}
 
 			var explicitUser user
-			err = res.UnmarshalInto(&explicitUser)
-			// TODO: We need to fix this nil check
-			//       to just be `!= nil`
-			if err != (*chalk.ClientError)(nil) {
-				t.Fatal("Failed unmarshaling result", err)
-			}
-
+			assert.NoError(t, res.UnmarshalInto(&explicitUser))
 			testUserValues(t, &implicitUser)
 			testUserValues(t, &explicitUser)
 		})
