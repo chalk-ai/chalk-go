@@ -51,7 +51,9 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	var encodingOptions internal.FeatureEncodingOptions
 	if p.EncodingOptions == nil {
 		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: false,
+			// To ensure backcompat with codegen'd structs.
+			// See https://github.com/chalk-ai/chalk-go/pull/159
+			EncodeStructsAsObjects: true,
 		}
 	} else {
 		encodingOptions = internal.FeatureEncodingOptions{
