@@ -79,7 +79,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	}
 
 	// Necessary to get GRPC engines URL
-	if err := config.refresh(false); err != nil {
+	if err := config.refresh(context.Background(), false); err != nil {
 		return nil, errors.Wrap(err, "fetching initial config")
 	}
 

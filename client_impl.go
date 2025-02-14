@@ -450,7 +450,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) er
 	request.Header = headers
 
 	if !args.DontRefresh {
-		if err := c.config.refresh(false); err != nil {
+		if err := c.config.refresh(ctx, false); err != nil {
 			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", err)
 		}
 	}
@@ -509,10 +509,11 @@ func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) er
 }
 
 func (c *clientImpl) retryRequest(
+	ctx context.Context,
 	originalRequest http.Request, originalBody any,
 	originalResponse *http.Response, originalError error,
 ) (*http.Response, error) {
-	if err := c.config.refresh(true); err != nil {
+	if err := c.config.refresh(ctx, true); err != nil {
 		(c.logger).Debugf("Error refreshing access token upon 401: %s", err.Error())
 		return originalResponse, originalError
 	}
@@ -682,7 +683,7 @@ func newClientImpl(
 		config: config,
 	}
 	client.config.getToken = client.getToken
-	if err := client.config.refresh(false); err != nil {
+	if err := client.config.refresh(context.Background(), false); err != nil {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 	return client, nil

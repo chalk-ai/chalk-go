@@ -109,12 +109,12 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	return endpoint
 }
 
-func (m *configManager) refresh(force bool) error {
+func (m *configManager) refresh(ctx context.Context, force bool) error {
 	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, err := m.getToken(m.clientId.Value, m.clientSecret.Value)
+	config, err := m.getToken(ctx, m.clientId.Value, m.clientSecret.Value)
 	if err != nil {
 		return errors.Wrap(err, "refreshing token")
 	}
