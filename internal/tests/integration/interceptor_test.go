@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"net/url"
@@ -63,7 +64,7 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
@@ -117,7 +118,7 @@ func TestQueryServerOverride(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	parsed, err := url.Parse(queryServer)
 	assert.Nil(t, err)
 	assert.Equal(t, httpClient.Intercepted.URL.Host, parsed.Host)

@@ -95,6 +95,7 @@ Query online features using the generated feature structs.  Access the results i
 ```go
 user := User{}
 _, err = client.OnlineQuery(
+	context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
 		WithInput(Features.User.Transactions, []Transaction{
@@ -114,6 +115,7 @@ you can specify a query name instead of outputs when making a query.
 ```go
 user := User{}
 _, err = client.OnlineQuery(
+	context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
         WithQueryName("user_underwriting_features"),

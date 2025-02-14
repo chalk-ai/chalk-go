@@ -80,7 +80,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	req := chalk.OnlineQueryParams{IncludeMeta: true}.
 		WithInput(testFeatures.User.Id, userId).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore, testFeatures.User.Today)
-	res, err := grpcClient.OnlineQuery(req, nil)
+	res, err := grpcClient.OnlineQuery(context.Background(), req, nil)
 	assert.NoError(t, err)
 
 	socureScore, err := res.GetFeature("user.socure_score")

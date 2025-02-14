@@ -15,14 +15,15 @@ import (
 //
 // Example:
 //
-//		client.OnlineQuery(
-//			OnlineQueryParams{
-//				IncludeMeta: true,
-//				EnvironmentId: "pipkjlfc3gtmn",
-//			}.
-//	 		WithInput(Features.User.Card.Id, 4).
-//	 		WithOutputs(Features.User.Email, Features.User.Card.Id),
-//		)
+//			client.OnlineQuery(
+//	         context.Background(),
+//				OnlineQueryParams{
+//					IncludeMeta: true,
+//					EnvironmentId: "pipkjlfc3gtmn",
+//				}.
+//		 		WithInput(Features.User.Card.Id, 4).
+//		 		WithOutputs(Features.User.Email, Features.User.Card.Id),
+//			)
 //
 // [OnlineQueryParams.WithInput] and [OnlineQueryParams.WithOutputs]
 // are mandatory methods. This means they must each be called at

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -31,7 +32,7 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds[0]).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 

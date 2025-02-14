@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go"
@@ -35,7 +36,7 @@ func TestUploadFeatures(t *testing.T) {
 		t.Fatal("Failed uploading features", err)
 	}
 
-	res, err := client.OnlineQuery(chalk.OnlineQueryParams{}.WithInput("user.id", userIds[0]).WithOutputs("user.socure_score"), nil)
+	res, err := client.OnlineQuery(context.Background(), chalk.OnlineQueryParams{}.WithInput("user.id", userIds[0]).WithOutputs("user.socure_score"), nil)
 	if err != nil {
 		t.Fatal("Failed querying features", err)
 	}

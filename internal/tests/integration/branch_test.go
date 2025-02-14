@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
@@ -32,7 +33,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 		WithInput(testFeatures.User.Id, userIds[0]).
 		WithOutputs(testFeatures.User.SocureScore).
 		WithBranchId(branchId)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 
 	bulkBranchId := "bulk-branch-id"
@@ -69,7 +70,7 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds[0]).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
 

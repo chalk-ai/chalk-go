@@ -253,31 +253,39 @@ type FeatureResult struct {
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
-//	func printUserDetails(chalkClient chalk.Client) {
-//		user := User{}
-//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			 Features.User.Family.Size,
-//			 Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), &user)
+//		func printUserDetails(chalkClient chalk.Client) {
+//			user := User{}
+//			chalkClient.OnlineQuery(
+//	         context.Background(),
+//		    	chalk.OnlineQueryParams{}.WithOutputs(
+//			    	 Features.User.Family.Size,
+//				     Features.User.SocureScore
+//			    ).WithInput(Features.User.Id, 1),
+//			    &user,
+//			)
 //
-//		fmt.Println("User family size: ", *user.Family.Size)
-//		fmt.Println("User Socure score: ", *user.SocureScore)
-//	}
+//			fmt.Println("User family size: ", *user.Family.Size)
+//			fmt.Println("User Socure score: ", *user.SocureScore)
+//		}
 //
 // Equivalent explicit usage example:
 //
-//	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), nil)
+//		func printUserDetails(chalkClient chalk.Client) {
+//			result, _ := chalkClient.OnlineQuery(
+//	         context.Background(),
+//			    chalk.OnlineQueryParams{}.WithOutputs(
+//				    Features.User.Family.Size,
+//				    Features.User.SocureScore
+//			    ).WithInput(Features.User.Id, 1),
+//			    nil
+//			)
 //
-//		user := User{}
-//		result.UnmarshalInto(&user)
+//			user := User{}
+//			result.UnmarshalInto(&user)
 //
-//		fmt.Println("User family size: ", *user.Family.Size)
-//		fmt.Println("User Socure score: ", *user.SocureScore)
-//	}
+//			fmt.Println("User family size: ", *user.Family.Size)
+//			fmt.Println("User Socure score: ", *user.SocureScore)
+//		}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr error) {
@@ -651,7 +659,7 @@ type DatasetRevision struct {
 // method, you can download those raw files into a directory for processing
 // with other tools.
 func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
-	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId, "")
 	if getUrlsErr != nil {
 		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
