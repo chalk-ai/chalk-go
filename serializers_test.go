@@ -75,7 +75,6 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 
 	params := OnlineQueryParams{
 		IncludeMeta:          true,
-		IncludeMetrics:       true,
 		StorePlanStages:      true,
 		Explain:              true,
 		Tags:                 tags,

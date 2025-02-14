@@ -67,7 +67,6 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		Context:          context,
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
-		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
@@ -317,9 +316,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
-	}
-	if params.IncludeMetrics {
-		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
 	for k, v := range params.PlannerOptions {
 		protoVal, err := structpb.NewValue(v)
