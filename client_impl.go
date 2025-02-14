@@ -483,7 +483,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) er
 	defer res.Body.Close()
 
 	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
-		res, err = c.retryRequest(*request, args.Body, res, err)
+		res, err = c.retryRequest(ctx, *request, args.Body, res, err)
 		if err != nil {
 			return err
 		}
@@ -525,7 +525,7 @@ func (c *clientImpl) retryRequest(
 
 	// New request needs to be constructed otherwise we were getting the error:
 	//     HTTP/1.x transport connection broken
-	ctx, cancel := internal.GetContextWithTimeout(context.Background(), c.timeout)
+	ctx, cancel := internal.GetContextWithTimeout(ctx, c.timeout)
 	defer cancel()
 	newRequest, err := http.NewRequestWithContext(
 		ctx,
