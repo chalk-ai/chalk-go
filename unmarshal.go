@@ -431,7 +431,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			field,
 			fqnToValue,
 			fieldNamespace,
-s			fieldNsScope,
+			fieldNsScope,
 			fieldNsMemo,
 			allMemo,
 		); err != nil {
