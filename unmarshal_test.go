@@ -250,7 +250,7 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 		Data:     data,
 		Meta:     nil,
 		features: nil,
-		s}
+	}
 	features := allTypes{}
 	unmarshalErr := result.UnmarshalInto(&features)
 	if unmarshalErr != nil {

@@ -145,7 +145,6 @@ func unmarshalRows(
 			res.Elem(),
 			row,
 			namespace,
-			nil,
 			namespaceScope,
 			namespaceMemo,
 			allMemo,
@@ -541,7 +540,7 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 		}
 		fqnToValue[featureResult.Field] = convertedValue
 	}
-	return UnmarshalInto(resultHolder, fqnToValue, nil)
+	return UnmarshalInto(resultHolder, fqnToValue)
 }
 
 func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
