@@ -4,17 +4,14 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"crypto/tls"
-	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
-	"google.golang.org/protobuf/types/known/structpb"
 	"net"
 	"net/http"
 	"strings"
@@ -168,147 +165,6 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 		AccessToken:        token.Msg.GetAccessToken(),
 		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
 		Engines:            token.Msg.GetGrpcEngines(),
-	}, nil
-}
-
-func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error) {
-	newInputs, err := internal.SingleInputsToBulkInputs(args.underlying.inputs)
-	if err != nil {
-		return nil, errors.Wrap(err, "converting inputs to bulk inputs")
-	}
-	args.underlying.inputs = newInputs
-
-	bulkRes, err := c.OnlineQueryBulk(ctx, args)
-	if err != nil {
-		// intentionally don't wrap, original error is good enough
-		return nil, err
-	}
-
-	features := make(map[string]*commonv1.FeatureResult)
-	if len(bulkRes.GetScalarsData()) > 0 {
-		scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
-		if err != nil {
-			return nil, errors.Wrap(err, "converting scalars data to table")
-		}
-
-		// Need to obtain time.Time values as string because structpb.NewValue does not support time.Time.
-		rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
-		if err != nil {
-			return nil, errors.Wrap(err, "extracting features from scalars table")
-		}
-
-		if len(rows) == 1 {
-			var rowMeta map[string]internal.FeatureMeta
-			if len(meta) > 0 {
-				if len(meta) != 1 {
-					return nil, errors.Newf("expected exactly one metadata row, found %v", meta)
-				}
-				rowMeta = meta[0]
-			}
-			for fqn, value := range rows[0] {
-				// Needed to obtain time.Time values as string because structpb.NewValue does not support time.Time.
-				newValue, err := structpb.NewValue(value)
-				if err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"converting value for feature '%s' from `any` to `structpb.Value`",
-						fqn,
-					)
-				}
-				featureRes := commonv1.FeatureResult{
-					Field: fqn,
-					Value: newValue,
-				}
-				features[fqn] = &featureRes
-				if rowMeta != nil {
-					featureMeta, ok := rowMeta[fqn]
-					if !ok {
-						// Features such as has-many features do not have a metadata column.
-						continue
-					}
-					if featureMeta.Pkey != nil {
-						val, err := structpb.NewValue(featureMeta.Pkey)
-						if err != nil {
-							return nil, errors.Wrapf(
-								err,
-								"converting primary key for feature '%s' to `structpb.Value`",
-								fqn,
-							)
-						}
-						featureRes.Pkey = val
-					}
-
-					featureRes.Meta = &commonv1.FeatureMeta{}
-					if featureMeta.ResolverFqn != nil {
-						featureRes.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
-					}
-					if featureMeta.SourceType != nil && *featureMeta.SourceType == string(internal.SourceTypeOnlineStore) {
-						featureRes.Meta.CacheHit = true
-					}
-				}
-			}
-		}
-	}
-
-	for fqn, tableBytes := range bulkRes.GetGroupsData() {
-		table, err := internal.ConvertBytesToTable(tableBytes)
-		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"converting bytes for feature '%s' to table",
-				fqn,
-			)
-		}
-
-		rowsHm, _, err := internal.ExtractFeaturesFromTable(table, false)
-		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"extracting features from has-many table for feature '%s'",
-				fqn,
-			)
-		}
-
-		colNames := colls.Map(
-			table.Schema().Fields(),
-			func(f arrow.Field) string {
-				return f.Name
-			},
-		)
-		colValues := make([][]any, 0, len(rowsHm))
-		for _, col := range colNames {
-			colValues = append(
-				colValues,
-				colls.Map(rowsHm, func(row map[string]any) any {
-					return row[col]
-				}),
-			)
-		}
-		hmResult := map[string]any{
-			"columns": colNames,
-			"values":  colValues,
-		}
-		hmProto, err := structpb.NewValue(hmResult)
-		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"converting has-many result for feature '%s' to `structpb.Value`",
-				fqn,
-			)
-		}
-
-		features[fqn] = &commonv1.FeatureResult{
-			Field: fqn,
-			Value: hmProto,
-		}
-	}
-
-	return &commonv1.OnlineQueryResponse{
-		Data: &commonv1.OnlineQueryResult{
-			Results: colls.Values(features),
-		},
-		Errors:       bulkRes.Errors,
-		ResponseMeta: bulkRes.ResponseMeta,
 	}, nil
 }
 
