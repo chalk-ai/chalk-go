@@ -247,11 +247,10 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
-	}
+		Data:     data,
+		Meta:     nil,
+		features: nil,
+		s}
 	features := allTypes{}
 	unmarshalErr := result.UnmarshalInto(&features)
 	if unmarshalErr != nil {
@@ -346,10 +345,9 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -390,10 +388,9 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -434,10 +431,9 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -463,10 +459,9 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -491,10 +486,9 @@ func TestUnmarshalWrongType(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -1143,10 +1137,9 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 	} {
 		t.Run(fixture.name, func(t *testing.T) {
 			result := OnlineQueryResult{
-				Data:            fixture.data,
-				Meta:            nil,
-				features:        nil,
-				expectedOutputs: nil,
+				Data:     fixture.data,
+				Meta:     nil,
+				features: nil,
 			}
 			featureStruct := allTypes{}
 			unmarshalErr := result.UnmarshalInto(&featureStruct)

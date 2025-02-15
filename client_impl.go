@@ -244,7 +244,6 @@ func (c *clientImpl) OnlineQuery(params OnlineQueryParamsComplete, resultHolder 
 		return emptyResult, errors.Wrap(err, "deserializing online query response")
 	}
 
-	response.expectedOutputs = params.underlying.outputs
 	if resultHolder != nil {
 		unmarshalErr := response.UnmarshalInto(resultHolder)
 		if unmarshalErr != nil {

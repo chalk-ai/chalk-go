@@ -117,7 +117,7 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr error) {
 		}
 		fqnToValue[featureResult.Field] = convertedValue
 	}
-	return UnmarshalInto(resultHolder, fqnToValue, result.expectedOutputs)
+	return UnmarshalInto(resultHolder, fqnToValue)
 }
 
 type ChunkResult struct {
@@ -348,7 +348,7 @@ fields correspond to the FQNs. An illustration:
 
 To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
-func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []string) (returnErr error) {
+func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	allMemo := internal.AllNamespaceMemo
 	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return errors.Wrap(err, "building namespace memo")
@@ -384,7 +384,6 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			holderValue.Elem(),
 			fqnToValue,
 			namespace,
-			expectedOutputs,
 			nsScope,
 			nsMemo,
 			allMemo,
@@ -432,8 +431,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 			field,
 			fqnToValue,
 			fieldNamespace,
-			expectedOutputs,
-			fieldNsScope,
+s			fieldNsScope,
 			fieldNsMemo,
 			allMemo,
 		); err != nil {
@@ -450,7 +448,6 @@ func thinUnmarshalInto(
 	structValue reflect.Value,
 	fqnToValue map[Fqn]any,
 	namespace string,
-	expectedOutputs []string,
 	namespaceScope *scopeTrie,
 	namespaceMemo *internal.NamespaceMemo,
 	allMemo *internal.AllNamespaceMemoT,
