@@ -11,92 +11,6 @@ type SketchHashKey struct {
 	value   int64 // Used for Positive/Negative values
 }
 
-// EstimateQuantileAtValue estimates what quantile a value would be in the current sketch
-func (s *UDDSketch) EstimateQuantileAtValue(value float64) float64 {
-	if s.numValues == 0 {
-		return 0.0
-	}
-
-	var count float64
-	target := s.key(value)
-
-	current := s.buckets.head
-	for current.keyType != Invalid {
-		entry := s.buckets.buckets[current]
-		if lessThan(current, target) {
-			count += float64(entry.count)
-		} else if current == target {
-			// If the value falls in the target bucket, assume it's greater than half the other values
-			count += float64(entry.count) / 2.0
-		}
-		current = entry.next
-	}
-
-	return count / float64(s.numValues)
-}
-
-// MergeSketch merges another sketch into this one
-func (s *UDDSketch) MergeSketch(other *UDDSketch) {
-	// Require matching initial parameters
-	gamma1 := math.Pow(s.gamma, 1.0/math.Pow(2.0, float64(s.compactions)))
-	gamma2 := math.Pow(other.gamma, 1.0/math.Pow(2.0, float64(other.compactions)))
-	if math.Abs(gamma1-gamma2) >= 1e-9 {
-		return // silently fail like the Rust version
-	}
-	if s.maxBuckets != other.maxBuckets {
-		return
-	}
-
-	// Handle empty sketches
-	if other.numValues == 0 {
-		return
-	}
-	if s.numValues == 0 {
-		*s = *other
-		return
-	}
-
-	// Create a copy of other sketch to manipulate
-	otherCopy := *other
-
-	// Align compaction levels
-	for s.compactions > otherCopy.compactions {
-		otherCopy.compactBuckets()
-	}
-	for otherCopy.compactions > s.compactions {
-		s.compactBuckets()
-	}
-
-	// Merge buckets
-	current := otherCopy.buckets.head
-	for current.keyType != Invalid {
-		entry := otherCopy.buckets.buckets[current]
-		if existing, exists := s.buckets.buckets[current]; exists {
-			existing.count += entry.count
-			s.buckets.buckets[current] = existing
-		} else {
-			s.increment(current)
-			s.buckets.buckets[current] = SketchHashEntry{
-				count: entry.count,
-				next:  s.buckets.buckets[current].next,
-			}
-		}
-		current = entry.next
-	}
-
-	// Compact if needed
-	for uint64(len(s.buckets.buckets)) > s.maxBuckets {
-		s.compactBuckets()
-	}
-
-	// Update statistics
-	s.numValues += other.numValues
-	s.valuesSum += other.valuesSum
-	s.min = math.Min(s.min, other.min)
-	s.max = math.Max(s.max, other.max)
-	s.zeroCount += other.zeroCount
-}
-
 // Constants for SketchHashKey types
 const (
 	Invalid byte = iota
@@ -366,4 +280,85 @@ func (s *UDDSketch) Max() float64 {
 
 func (s *UDDSketch) ZeroCount() uint64 {
 	return s.zeroCount
+}
+
+// EstimateQuantileAtValue estimates what quantile a value would be in the current sketch
+func (s *UDDSketch) EstimateQuantileAtValue(value float64) float64 {
+	if s.numValues == 0 {
+		return 0.0
+	}
+
+	var count float64
+	target := s.key(value)
+
+	current := s.buckets.head
+	for current.keyType != Invalid {
+		entry := s.buckets.buckets[current]
+		if lessThan(current, target) {
+			count += float64(entry.count)
+		} else if current == target {
+			// If the value falls in the target bucket, assume it's greater than half the other values
+			count += float64(entry.count) / 2.0
+		}
+		current = entry.next
+	}
+
+	return count / float64(s.numValues)
+}
+
+// MergeSketch merges another sketch into this one
+func (s *UDDSketch) MergeSketch(other *UDDSketch) {
+	// Require matching initial parameters
+	if s.maxBuckets != other.maxBuckets {
+		return
+	}
+
+	// Handle empty sketches
+	if other.numValues == 0 {
+		return
+	}
+	if s.numValues == 0 {
+		*s = *other
+		return
+	}
+
+	// Create a copy of other sketch to manipulate
+	otherCopy := *other
+
+	// Align compaction levels
+	for s.compactions > otherCopy.compactions {
+		otherCopy.compactBuckets()
+	}
+	for otherCopy.compactions > s.compactions {
+		s.compactBuckets()
+	}
+
+	// Merge buckets
+	current := otherCopy.buckets.head
+	for current.keyType != Invalid {
+		entry := otherCopy.buckets.buckets[current]
+		if existing, exists := s.buckets.buckets[current]; exists {
+			existing.count += entry.count
+			s.buckets.buckets[current] = existing
+		} else {
+			s.increment(current)
+			s.buckets.buckets[current] = SketchHashEntry{
+				count: entry.count,
+				next:  s.buckets.buckets[current].next,
+			}
+		}
+		current = entry.next
+	}
+
+	// Compact if needed
+	for uint64(len(s.buckets.buckets)) > s.maxBuckets {
+		s.compactBuckets()
+	}
+
+	// Update statistics
+	s.numValues += other.numValues
+	s.valuesSum += other.valuesSum
+	s.min = math.Min(s.min, other.min)
+	s.max = math.Max(s.max, other.max)
+	s.zeroCount += other.zeroCount
 }
