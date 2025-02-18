@@ -126,38 +126,6 @@ type ChunkResult struct {
 	err      error
 }
 
-func unmarshalRows(
-	rows []map[string]any,
-	typ reflect.Type,
-	namespace string,
-	namespaceScope *scopeTrie,
-	namespaceMemo *internal.NamespaceMemo,
-	allMemo *internal.AllNamespaceMemoT,
-	chunkIdx int,
-	resChan chan<- ChunkResult,
-	wg *sync.WaitGroup,
-) {
-	defer wg.Done()
-	results := make([]reflect.Value, len(rows))
-	for rowIdx, row := range rows {
-		res := reflect.New(typ)
-		if err := thinUnmarshalInto(
-			res.Elem(),
-			row,
-			namespace,
-			nil,
-			namespaceScope,
-			namespaceMemo,
-			allMemo,
-		); err != nil {
-			resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
-			return
-		}
-		results[rowIdx] = res.Elem()
-	}
-	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
-}
-
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
@@ -245,22 +213,32 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	numWorkers := runtime.NumCPU()
 	resChan := make(chan ChunkResult, numWorkers)
 
-	chunkSize := (len(rows) / numWorkers) + 1
+	chunkSize := (len(rows) / 1) + 1
 	chunkIdx := 0
 	for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
 		chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
 		wg.Add(1)
-		go unmarshalRows(
-			chunkRows,
-			sliceElemType,
-			namespace,
-			nsScope,
-			nsMemo,
-			allMemo,
-			chunkIdx,
-			resChan,
-			&wg,
-		)
+		go func() {
+			defer wg.Done()
+			results := make([]reflect.Value, len(chunkRows))
+			for rowIdx, row := range chunkRows {
+				res := reflect.New(sliceElemType)
+				if err := thinUnmarshalInto(
+					res.Elem(),
+					row,
+					namespace,
+					nil,
+					nsScope,
+					nsMemo,
+					allMemo,
+				); err != nil {
+					resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+					return
+				}
+				results[rowIdx] = res.Elem()
+			}
+			resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+		}()
 		chunkIdx += 1
 	}
 
