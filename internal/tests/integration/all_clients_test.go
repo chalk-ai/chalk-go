@@ -7,6 +7,7 @@ import (
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"testing"
+	"time"
 )
 
 var clients []ClientFixture
@@ -138,6 +139,44 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 					assert.NoError(t, err)
 				} else {
 					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
+func TestTimeout(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	timeouts := []struct {
+		name       string
+		timeout    time.Duration
+		shouldFail bool
+	}{
+		{name: "1 nanosecond", timeout: 1 * time.Nanosecond, shouldFail: true},
+		{name: "5 seconds", timeout: 5 * time.Second},
+		{name: "unspecified (zero value)", timeout: 0},
+	}
+
+	for _, useGrpc := range []bool{true, false} {
+		for _, timeoutFixture := range timeouts {
+			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
+				if timeoutFixture.shouldFail {
+					assert.Error(t, err)
+					return
+				} else {
+					params := chalk.OnlineQueryParams{}.
+						WithInput("user.id", 1).
+						WithOutputs("user.socure_score")
+					assert.NoError(t, err)
+					myUser := user{}
+					_, err := client.OnlineQuery(params, &myUser)
+					assert.NoError(t, err)
+					assert.NotNil(t, myUser.SocureScore)
+					assert.Equal(t, 123.0, *myUser.SocureScore)
 				}
 			})
 		}

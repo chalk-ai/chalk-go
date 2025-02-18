@@ -3,6 +3,7 @@ package chalk
 import (
 	"connectrpc.com/connect"
 	"context"
+	"crypto/tls"
 	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -12,8 +13,12 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/types/known/structpb"
+	"net"
 	"net/http"
+	"strings"
+	"time"
 )
 
 type grpcClientImpl struct {
@@ -25,12 +30,22 @@ type grpcClientImpl struct {
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    HTTPClient
+	timeout       *time.Duration
 
 	authClient  serverv1connect.AuthServiceClient
 	queryClient enginev1connect.QueryServiceClient
 }
 
-func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
+func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
+	var cfg *GRPCClientConfig
+	if len(configs) == 0 {
+		cfg = &GRPCClientConfig{}
+	} else if len(configs) == 1 {
+		cfg = configs[len(configs)-1]
+	} else {
+		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
+	}
+
 	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
@@ -39,10 +54,26 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	authClient, err := newAuthClient(httpClient, config.apiServer.Value)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating auth client")
+
+	var timeout *time.Duration
+	if cfg.Timeout != 0 { // If unspecified (zero value)
+		timeout = &cfg.Timeout
 	}
+
+	authInterceptors := []connect.Interceptor{
+		headerInterceptor(map[string]string{
+			HeaderKeyServerType: serverTypeApi,
+		}),
+	}
+	if timeout != nil {
+		authInterceptors = append(authInterceptors, timeoutInterceptor(timeout))
+	}
+	authClient := serverv1connect.NewAuthServiceClient(
+		httpClient,
+		config.apiServer.Value,
+		connect.WithInterceptors(authInterceptors...),
+	)
+
 	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
 		return getToken(clientId, clientSecret, config.logger, authClient)
 	}
@@ -62,10 +93,41 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	queryClient, err := newQueryClient(httpClient, config, cfg.DeploymentTag, queryServer)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating query client")
+	resolvedQueryServer := config.getQueryServer(queryServer)
+	if strings.HasPrefix(resolvedQueryServer, "http://") {
+		// Unsecured client
+		// From https://connectrpc.com/docs/go/deployment#h2c
+		httpClient = &http.Client{
+			Transport: &http2.Transport{
+				AllowHTTP: true,
+				DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+					return net.Dial(network, addr)
+				},
+			},
+		}
 	}
+
+	headers := map[string]string{
+		HeaderKeyDeploymentType: "engine-grpc",
+		HeaderKeyServerType:     serverTypeEngine,
+	}
+	if cfg.DeploymentTag != "" {
+		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
+	}
+	engineInterceptors := []connect.Interceptor{
+		makeTokenInterceptor(config),
+		headerInterceptor(headers),
+	}
+	if timeout != nil {
+		engineInterceptors = append(engineInterceptors, timeoutInterceptor(timeout))
+	}
+
+	queryClient := enginev1connect.NewQueryServiceClient(
+		httpClient,
+		ensureHTTPSPrefix(resolvedQueryServer),
+		connect.WithInterceptors(engineInterceptors...),
+		connect.WithGRPC(),
+	)
 
 	return &grpcClientImpl{
 		branch:        cfg.Branch,
@@ -76,6 +138,7 @@ func newGrpcClient(cfg GRPCClientConfig) (*grpcClientImpl, error) {
 		queryClient:   queryClient,
 		queryServer:   queryServer,
 		resourceGroup: resourceGroup,
+		timeout:       timeout,
 	}, nil
 }
 
@@ -88,6 +151,7 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 			GrantType:    "client_credentials",
 		},
 	)
+
 	token, err := client.GetToken(context.Background(), authRequest)
 	if err != nil {
 		logger.Debugf("Failed to get a new token: %s", err.Error())

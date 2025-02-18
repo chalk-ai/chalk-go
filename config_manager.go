@@ -38,9 +38,10 @@ func newConfigManager(
 	environmentId string,
 	logger LeveledLogger,
 ) (*configManager, error) {
-	chalkYamlConfig, chalkYamlErr := auth.GetProjectAuthConfig()
-	if logger == nil {
-		logger = DefaultLeveledLogger
+	chalkYamlConfigOrNil, chalkYamlErr := auth.GetProjectAuthConfig()
+	chalkYamlConfig := auth.ProjectToken{}
+	if chalkYamlConfigOrNil != nil {
+		chalkYamlConfig = *chalkYamlConfigOrNil
 	}
 
 	envIdConfig := auth.GetFirstNonEmptyConfig(
@@ -49,6 +50,9 @@ func newConfigManager(
 		auth.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
 	)
 
+	if logger == nil {
+		logger = DefaultLeveledLogger
+	}
 	manager := &configManager{
 		apiServer: auth.GetFirstNonEmptyConfig(
 			auth.GetChalkClientArgConfig(apiServer),
@@ -76,6 +80,7 @@ func newConfigManager(
 			"could not read chalk.yml and no client ID and client secret were provided",
 		)
 	}
+
 	return manager, nil
 }
 
