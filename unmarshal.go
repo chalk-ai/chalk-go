@@ -318,6 +318,14 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) *ClientError {
 	return nil
 }
 
+func buildScopeFromFqnParts(fqns [][]string) (*scopeTrie, error) {
+	root := &scopeTrie{}
+	for _, fqnParts := range fqns {
+		root.add(fqnParts)
+	}
+	return root, nil
+}
+
 func buildScope(fqns []string) (*scopeTrie, error) {
 	root := &scopeTrie{}
 	for _, fqn := range fqns {
@@ -358,7 +366,18 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type()); err != nil {
 		return &ClientError{errors.Wrap(err, "error building namespace memo").Error()}
 	}
-	scope, err := buildScope(colls.Keys(fqnToValue))
+	fqnParts := make([][]string, 0, len(fqnToValue))
+	namespaceToFqnToValue := map[string]map[Fqn]any{}
+	for fqn, value := range fqnToValue {
+		fqnParts = append(fqnParts, strings.Split(string(fqn), "."))
+		namespace := fqnParts[0]
+		if _, ok := namespaceToFqnToValue[namespace[0]]; !ok {
+			namespaceToFqnToValue[namespace[0]] = map[Fqn]any{}
+		}
+		namespaceToFqnToValue[namespace[0]][fqn] = value
+	}
+	scope, err := buildScopeFromFqnParts(fqnParts)
+	//scope, err := buildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return &ClientError{
 			errors.Wrap(err, "error building scope for initializing result holder struct").Error(),
@@ -391,7 +410,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 
 		return thinUnmarshalInto(
 			holderValue.Elem(),
-			fqnToValue,
+			namespaceToFqnToValue[namespace],
 			namespace,
 			expectedOutputs,
 			nsScope,
