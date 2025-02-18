@@ -339,3 +339,14 @@ func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
 func BenchmarkUnmarshalBulkMultiNsPrimitivesSingle(b *testing.B) {
 	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b))
 }
+
+/*
+ * Query: Bulk
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkMultiNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b))
+}
