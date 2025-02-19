@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -20,7 +21,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 	}
 	res := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.FullNameOptional, testFeatures.User.SocureScore)
 	result := user{}
-	_, err = client.OnlineQuery(res, &result)
+	_, err = client.OnlineQuery(context.Background(), res, &result)
 	if err != nil {
 		t.Fatal("Failed querying features", err)
 	}

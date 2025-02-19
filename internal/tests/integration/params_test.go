@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
@@ -71,7 +72,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
 
@@ -177,7 +178,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	var request internal.OnlineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Context.Tags)
@@ -227,7 +228,7 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, []any{int64(1)}).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OfflineQuery(req)
+	_, _ = client.OfflineQuery(context.Background(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Tags)

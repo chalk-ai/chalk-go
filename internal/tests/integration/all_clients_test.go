@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -62,7 +63,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
 
 			var resultSeries series
-			res, err := client.OnlineQuery(params, &resultSeries)
+			res, err := client.OnlineQuery(context.Background(), params, &resultSeries)
 			assert.NoError(t, err)
 			assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
 			assert.Equal(t, "amylase", *(*resultSeries.Investors)[0].Id)
@@ -110,7 +111,7 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 				}.
 					WithInput("user.id", 1).
 					WithOutputs("user.socure_score")
-				_, err := client.OnlineQuery(params, nil)
+				_, err := client.OnlineQuery(context.Background(), params, nil)
 				if optionFixture.isValid {
 					assert.NoError(t, err)
 				} else {
@@ -134,7 +135,7 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 				}.
 					WithInput("user.id", []int{1}).
 					WithOutputs("user.socure_score")
-				_, err := client.OnlineQueryBulk(params)
+				_, err := client.OnlineQueryBulk(context.Background(), params)
 				if optionFixture.isValid {
 					assert.NoError(t, err)
 				} else {
@@ -173,7 +174,7 @@ func TestTimeout(t *testing.T) {
 						WithOutputs("user.socure_score")
 					assert.NoError(t, err)
 					myUser := user{}
-					_, err := client.OnlineQuery(params, &myUser)
+					_, err := client.OnlineQuery(context.Background(), params, &myUser)
 					assert.NoError(t, err)
 					assert.NotNil(t, myUser.SocureScore)
 					assert.Equal(t, 123.0, *myUser.SocureScore)

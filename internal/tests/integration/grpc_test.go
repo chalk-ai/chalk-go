@@ -33,7 +33,7 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
 
-	res, queryErr := client.OnlineQueryBulk(req)
+	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
 		t.Fatal("Failed querying features", queryErr)
 	}
@@ -67,12 +67,15 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 
 	restClient, err := chalk.NewClient()
 	assert.NoError(t, err)
-	_, err = restClient.UploadFeatures(chalk.UploadFeaturesParams{
-		Inputs: map[any]any{
-			testFeatures.User.Id:          []int64{userId},
-			testFeatures.User.SocureScore: []float64{expectedSocureScore},
+	_, err = restClient.UploadFeatures(
+		context.Background(),
+		chalk.UploadFeaturesParams{
+			Inputs: map[any]any{
+				testFeatures.User.Id:          []int64{userId},
+				testFeatures.User.SocureScore: []float64{expectedSocureScore},
+			},
 		},
-	})
+	)
 	assert.NoError(t, err)
 
 	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
@@ -80,7 +83,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	req := chalk.OnlineQueryParams{IncludeMeta: true}.
 		WithInput(testFeatures.User.Id, userId).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore, testFeatures.User.Today)
-	res, err := grpcClient.OnlineQuery(req, nil)
+	res, err := grpcClient.OnlineQuery(context.Background(), req, nil)
 	assert.NoError(t, err)
 
 	socureScore, err := res.GetFeature("user.socure_score")

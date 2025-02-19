@@ -255,10 +255,14 @@ type FeatureResult struct {
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
-//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			 Features.User.Family.Size,
-//			 Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), &user)
+//		chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    &user,
+//		)
 //
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)
@@ -267,10 +271,14 @@ type FeatureResult struct {
 // Equivalent explicit usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), nil)
+//		result, _ := chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    nil
+//		)
 //
 //		user := User{}
 //		result.UnmarshalInto(&user)
@@ -382,10 +390,14 @@ type OnlineQueryBulkResult struct {
 // Usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//		result, _ := chalkClient.OnlineQueryBulk(
+//	  	    context.Background(),
+//	  	    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, []int{1, 2}),
+//		    nil,
+//		)
 //
 //		var users []User
 //		result.UnmarshalInto(&users)
@@ -650,12 +662,12 @@ type DatasetRevision struct {
 // Datasets are stored in Chalk as sharded Parquet files. With this
 // method, you can download those raw files into a directory for processing
 // with other tools.
-func (d *DatasetRevision) DownloadData(directory string) error {
-	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
+	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId, "")
 	if getUrlsErr != nil {
 		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
-	g, _ := errgroup.WithContext(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	for _, url := range urls {
 		// Capture the loop variables in the closure.
 		u := url

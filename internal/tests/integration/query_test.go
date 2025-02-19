@@ -83,7 +83,7 @@ func TestOnlineQueryE2E(t *testing.T) {
 			}
 
 			var implicitUser user
-			res, queryErr := client.OnlineQuery(getParams(), &implicitUser)
+			res, queryErr := client.OnlineQuery(context.Background(), getParams(), &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
@@ -122,7 +122,7 @@ func TestNamedQueriesE2E(t *testing.T) {
 				WithInput("user.id", 1).
 				WithQueryName("user_socure_score")
 
-			_, queryErr := client.OnlineQuery(params, &implicitUser)
+			_, queryErr := client.OnlineQuery(context.Background(), params, &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
@@ -206,7 +206,7 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				WithOutputs(testFeatures.User.FullName).
 				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
-			_, err = client.OnlineQueryBulk(req)
+			_, err = client.OnlineQueryBulk(context.Background(), req)
 			assert.NoError(t, err)
 		})
 	}
@@ -258,7 +258,7 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 				WithOutputs(testFeatures.User.FullName).
 				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
-			_, err = client.OnlineQuery(req, nil)
+			_, err = client.OnlineQuery(context.Background(), req, nil)
 			assert.NoError(t, err)
 		})
 	}
@@ -301,7 +301,7 @@ func TestCustomCerts(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			var userObj user
-			_, queryErr := client.OnlineQuery(getParams(), &userObj)
+			_, queryErr := client.OnlineQuery(context.Background(), getParams(), &userObj)
 			assert.NoError(t, queryErr)
 		})
 	}
