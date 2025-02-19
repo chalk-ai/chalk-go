@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
@@ -15,6 +16,8 @@ import (
 	"time"
 )
 
+var ChalkAllocator memory.Allocator
+
 var NameTag = "name"
 var WindowsTag = "windows"
 var ChalkTag = "chalk"
@@ -24,6 +27,14 @@ var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
 var wordGroupsPattern = regexp.MustCompile(`(.)([A-Z][a-z]+)`)
 var dunderPattern = regexp.MustCompile(`__([A-Z])`)
 var trailingUpperPattern = regexp.MustCompile(`([a-z0-9])([A-Z])`)
+
+func init() {
+	if os.Getenv("CHALK_USE_CHECKED_ALLOCATOR") == "1" {
+		ChalkAllocator = memory.NewCheckedAllocator(memory.DefaultAllocator)
+	} else {
+		ChalkAllocator = memory.DefaultAllocator
+	}
+}
 
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
