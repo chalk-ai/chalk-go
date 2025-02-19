@@ -288,7 +288,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		stringFeatures := []fixtures.StringFeatures{}
-		assert.NoError(t, res.UnmarshalInto(&stringFeatures))
+		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
