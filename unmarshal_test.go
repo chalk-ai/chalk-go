@@ -950,10 +950,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 	schema := arrow.NewSchema([]arrow.Field{
 		{Name: "all_types.string", Type: arrow.BinaryTypes.LargeString},
 	}, nil)
-	recordBuilder := array.NewRecordBuilder(
-		memory.NewGoAllocator(),
-		schema,
-	)
+	recordBuilder := array.NewRecordBuilder(memory.DefaultAllocator, schema)
 	defer recordBuilder.Release()
 	recordBuilder.Field(0).(*array.LargeStringBuilder).AppendValues(
 		[]string{"abc", "def", "ghi"},
@@ -1013,10 +1010,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 					TimeZone: "UTC",
 				}},
 			}, nil)
-			recordBuilder := array.NewRecordBuilder(
-				memory.NewGoAllocator(),
-				schema,
-			)
+			recordBuilder := array.NewRecordBuilder(memory.DefaultAllocator, schema)
 			defer recordBuilder.Release()
 			recordBuilder.Field(0).(*array.TimestampBuilder).AppendValues(
 				[]arrow.Timestamp{
