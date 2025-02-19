@@ -1,6 +1,7 @@
 package uddsketch
 
 import (
+	assert "github.com/stretchr/testify/require"
 	"math"
 	"math/rand"
 	"testing"
@@ -423,4 +424,35 @@ func TestFuzzing(t *testing.T) {
 				sketch.MaxError(), quantile, testVal, target, errVal)
 		}
 	}
+}
+
+func TestFeatureStatistics(t *testing.T) {
+	// Create a new UDDSketch with parameters matching the test
+	sketch, err := NewUDDSketch(200, 0.001)
+	if err != nil {
+		t.Fatalf("Failed to create sketch: %v", err)
+	}
+
+	// Initial assertions
+	assert.Equal(t, uint64(0), sketch.Count())
+	assert.Equal(t, uint64(0), sketch.numValues)
+
+	// Add values
+	sketch.AddValue(0)
+	sketch.AddValue(1)
+	sketch.AddValue(2)
+	sketch.AddValue(3)
+	sketch.AddValue(4)
+
+	// Assertions
+	assert.Equal(t, uint64(5), sketch.Count())
+	assert.Equal(t, uint64(5), sketch.numValues)
+	assert.Equal(t, uint64(1), sketch.zeroCount)
+	assert.Equal(t, 2.0, sketch.Mean()) // (0+1+2+3+4) / 5 = 2.0
+	assert.Equal(t, 0.0, sketch.Min())
+	assert.Equal(t, 4.0, sketch.Max())
+
+	// Verify RON string representation
+	expectedRON := "(version:1,alpha:0.001,max_buckets:200,num_buckets:5,compactions:0,count:5,sum:10.0,buckets:[(Zero,1),(Positive(0),1),(Positive(347),1),(Positive(550),1),(Positive(694),1)])"
+	assert.Equal(t, expectedRON, sketch.ToRON())
 }

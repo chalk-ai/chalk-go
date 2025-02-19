@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"strconv"
 )
 
 // PgUddSketch represents the PostgreSQL-compatible UDDSketch structure
@@ -58,41 +59,14 @@ func (s *UDDSketch) ToReadable() *ReadableUddSketch {
 }
 
 func formatFloat(f float64) string {
-	// Check if it's a whole number by comparing with its integer part
-	if math.Floor(f) == f {
-		return fmt.Sprintf("%.1f", f) // Will give X.0 for whole numbers
-	}
-	return fmt.Sprintf("%f", f)
-}
-
-func (s *UDDSketch) ToRON() string {
-	readable := s.ToReadable()
-
-	// Format buckets in RON style
-	bucketStr := ""
-	for i, b := range readable.Buckets {
-		if i > 0 {
-			bucketStr += ","
-		}
-		if b.Key.keyType == Zero {
-			bucketStr += "(Zero," + fmt.Sprintf("%d", b.Count) + ")"
-		} else if b.Key.keyType == Positive {
-			bucketStr += "(Positive(" + fmt.Sprintf("%d", b.Key.value) + ")," + fmt.Sprintf("%d", b.Count) + ")"
-		} else if b.Key.keyType == Negative {
-			bucketStr += "(Negative(" + fmt.Sprintf("%d", b.Key.value) + ")," + fmt.Sprintf("%d", b.Count) + ")"
-		}
+	// If it's a whole number with exactly .0, keep the .0
+	if math.Mod(f, 1) == 0 {
+		return fmt.Sprintf("%.1f", f)
 	}
 
-	// Format the entire string in RON style
-	return fmt.Sprintf("(version:%d,alpha:%f,max_buckets:%d,num_buckets:%d,compactions:%d,count:%d,sum:%s,buckets:[%s])",
-		readable.Version,
-		readable.Alpha,
-		readable.MaxBuckets,
-		readable.NumBuckets,
-		readable.Compactions,
-		readable.Count,
-		formatFloat(readable.Sum),
-		bucketStr)
+	// Convert to string and trim trailing zeros
+	str := strconv.FormatFloat(f, 'f', -1, 64)
+	return str
 }
 
 func fromInternal(state *UDDSketch) *PgUddSketch {
@@ -153,32 +127,15 @@ func fromPgSketch(pg *PgUddSketch) *ReadableUddSketch {
 	}
 }
 
-func compressBuckets(entries []BucketEntry) CompressedBuckets {
-	var compressed CompressedBuckets
-
-	for _, entry := range entries {
-		switch entry.Key.keyType {
-		case Negative:
-			compressed.negativeIndexes = append(compressed.negativeIndexes, encodeVarint(entry.Key.value)...)
-			compressed.negativeCounts = append(compressed.negativeCounts, encodeVarint(int64(entry.Count))...)
-		case Zero:
-			compressed.zeroBucketCount = entry.Count
-		case Positive:
-			compressed.positiveIndexes = append(compressed.positiveIndexes, encodeVarint(entry.Key.value)...)
-			compressed.positiveCounts = append(compressed.positiveCounts, encodeVarint(int64(entry.Count))...)
-		}
-	}
-
-	return compressed
-}
-
 func decompressKeys(negativeIndexes []byte, hasZero bool, positiveIndexes []byte) []SketchHashKey {
 	var keys []SketchHashKey
+	decoder := newDeltaI64Encoder()
 
 	offset := 0
 	for offset < len(negativeIndexes) {
-		val, n := decodeVarint(negativeIndexes[offset:])
+		deltaVal, n := decodeVarint(negativeIndexes[offset:])
 		offset += n
+		val := decoder.decode(deltaVal)
 		keys = append(keys, SketchHashKey{keyType: Negative, value: val})
 	}
 
@@ -186,10 +143,12 @@ func decompressKeys(negativeIndexes []byte, hasZero bool, positiveIndexes []byte
 		keys = append(keys, SketchHashKey{keyType: Zero})
 	}
 
+	decoder = newDeltaI64Encoder() // Reset for positive sequence
 	offset = 0
 	for offset < len(positiveIndexes) {
-		val, n := decodeVarint(positiveIndexes[offset:])
+		deltaVal, n := decodeVarint(positiveIndexes[offset:])
 		offset += n
+		val := decoder.decode(deltaVal)
 		keys = append(keys, SketchHashKey{keyType: Positive, value: val})
 	}
 
@@ -198,23 +157,27 @@ func decompressKeys(negativeIndexes []byte, hasZero bool, positiveIndexes []byte
 
 func decompressCounts(negativeCounts []byte, zeroBucketCount uint64, positiveCounts []byte) []uint64 {
 	var counts []uint64
+	decoder := newDeltaU64Encoder()
 
 	offset := 0
 	for offset < len(negativeCounts) {
-		val, n := decodeVarint(negativeCounts[offset:])
+		deltaVal, n := decodeVarint(negativeCounts[offset:])
 		offset += n
-		counts = append(counts, uint64(val))
+		val := decoder.decode(uint64(deltaVal))
+		counts = append(counts, val)
 	}
 
 	if zeroBucketCount > 0 {
 		counts = append(counts, zeroBucketCount)
 	}
 
+	decoder = newDeltaU64Encoder() // Reset for positive sequence
 	offset = 0
 	for offset < len(positiveCounts) {
-		val, n := decodeVarint(positiveCounts[offset:])
+		deltaVal, n := decodeVarint(positiveCounts[offset:])
 		offset += n
-		counts = append(counts, uint64(val))
+		val := decoder.decode(uint64(deltaVal))
+		counts = append(counts, val)
 	}
 
 	return counts
@@ -228,4 +191,69 @@ func encodeVarint(x int64) []byte {
 
 func decodeVarint(buf []byte) (int64, int) {
 	return binary.Varint(buf)
+}
+
+type deltaI64Encoder struct {
+	prev int64
+}
+
+type deltaU64Encoder struct {
+	prev uint64
+}
+
+func newDeltaI64Encoder() *deltaI64Encoder {
+	return &deltaI64Encoder{prev: 0}
+}
+
+func newDeltaU64Encoder() *deltaU64Encoder {
+	return &deltaU64Encoder{prev: 0}
+}
+
+func (e *deltaI64Encoder) encode(val int64) int64 {
+	delta := val - e.prev
+	e.prev = val
+	return delta
+}
+
+func (e *deltaI64Encoder) decode(delta int64) int64 {
+	val := delta + e.prev
+	e.prev = val
+	return val
+}
+
+func (e *deltaU64Encoder) encode(val uint64) uint64 {
+	delta := val - e.prev
+	e.prev = val
+	return delta
+}
+
+func (e *deltaU64Encoder) decode(delta uint64) uint64 {
+	val := delta + e.prev
+	e.prev = val
+	return val
+}
+
+func compressBuckets(entries []BucketEntry) CompressedBuckets {
+	var compressed CompressedBuckets
+	indexEncoder := newDeltaI64Encoder()
+	countEncoder := newDeltaU64Encoder()
+
+	for _, entry := range entries {
+		switch entry.Key.keyType {
+		case Negative:
+			deltaIdx := indexEncoder.encode(entry.Key.value)
+			deltaCount := countEncoder.encode(entry.Count)
+			compressed.negativeIndexes = append(compressed.negativeIndexes, encodeVarint(deltaIdx)...)
+			compressed.negativeCounts = append(compressed.negativeCounts, encodeVarint(int64(deltaCount))...)
+		case Zero:
+			compressed.zeroBucketCount = entry.Count // No encoding needed
+		case Positive:
+			deltaIdx := indexEncoder.encode(entry.Key.value)
+			deltaCount := countEncoder.encode(entry.Count)
+			compressed.positiveIndexes = append(compressed.positiveIndexes, encodeVarint(deltaIdx)...)
+			compressed.positiveCounts = append(compressed.positiveCounts, encodeVarint(int64(deltaCount))...)
+		}
+	}
+
+	return compressed
 }
