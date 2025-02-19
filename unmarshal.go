@@ -190,62 +190,136 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building namespace memo")
 	}
 
-	structName := sliceElemType.Name()
-	namespace := internal.ChalkpySnakeCase(structName)
-	nsScope := scope.children[namespace]
-	if nsScope == nil {
-		return &ClientError{
-			errors.Newf(
-				"Attempted to unmarshal into the feature struct '%s', "+
-					"but results are from these feature class(es) '%v'",
-				structName,
-				colls.Keys(scope.children),
-			).Error(),
-		}
-	}
-
-	nsMemo, ok := allMemo.Load(sliceElemType)
-	if !ok {
-		return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
-	}
-
 	var wg sync.WaitGroup
 	numWorkers := runtime.NumCPU()
 	resChan := make(chan ChunkResult, numWorkers)
 
-	chunkSize := (len(rows) / 1) + 1
-	chunkIdx := 0
-	for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
-		chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			results := make([]reflect.Value, len(chunkRows))
-			for rowIdx, row := range chunkRows {
-				res := reflect.New(sliceElemType)
-				if err := thinUnmarshalInto(
-					res.Elem(),
-					row,
-					namespace,
-					nil,
-					nsScope,
-					nsMemo,
-					allMemo,
-				); err != nil {
-					resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
-					return
+	structName := sliceElemType.Name()
+	namespace := internal.ChalkpySnakeCase(structName)
+	nsScope := scope.children[namespace]
+	if nsScope != nil {
+		// single namespace unmarshalling
+		nsMemo, ok := allMemo.Load(sliceElemType)
+		if !ok {
+			return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
+		}
+
+		chunkSize := (len(rows) / numWorkers) + 1
+		chunkIdx := 0
+		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+				results := make([]reflect.Value, len(chunkRows))
+				for rowIdx, row := range chunkRows {
+					res := reflect.New(sliceElemType)
+					if unmarshalErr := thinUnmarshalInto(
+						res.Elem(),
+						row,
+						namespace,
+						nil,
+						nsScope,
+						nsMemo,
+						allMemo,
+					); err != nil {
+						resChan <- ChunkResult{chunkIdx: chunkIdx, err: unmarshalErr}
+						return
+					}
+					results[rowIdx] = res.Elem()
 				}
-				results[rowIdx] = res.Elem()
-			}
-			resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
-		}()
-		chunkIdx += 1
+				resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+			}()
+			chunkIdx += 1
+		}
+	} else {
+		// Multi namespace unmarshalling
+		chunkSize := (len(rows) / numWorkers) + 1
+		chunkIdx := 0
+		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
+			wg.Add(1)
+			go func(routineChunkIdx int, routineChunkPtr int) {
+				defer wg.Done()
+				chunkRows := rows[chunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
+				results := make([]reflect.Value, len(chunkRows))
+				for rowIdx, row := range chunkRows {
+					res := reflect.New(sliceElemType)
+					for i := 0; i < sliceElemType.NumField(); i++ {
+						fieldMeta := sliceElemType.Field(i)
+						if fieldMeta.Type.Kind() != reflect.Struct {
+							resChan <- ChunkResult{
+								chunkIdx: routineChunkIdx,
+								err: &ClientError{
+									Message: fmt.Sprintf(
+										"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+											"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+											"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+											"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
+										structName,
+										colls.Keys(scope.children),
+										fieldMeta.Name,
+										fieldMeta.Type.Name(),
+									),
+								},
+							}
+							return
+						}
+
+						fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
+
+						fieldNsScope := scope.children[fieldNamespace]
+						if fieldNsScope == nil {
+							resChan <- ChunkResult{
+								chunkIdx: routineChunkIdx,
+								err: &ClientError{
+									Message: fmt.Sprintf(
+										"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+											"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+											"of type '%s', but results are from these namespaces: %v",
+										structName,
+										fieldMeta.Name,
+										fieldMeta.Type.Name(),
+										colls.Keys(scope.children),
+									),
+								},
+							}
+							return
+						}
+
+						fieldNsMemo, ok := allMemo.Load(fieldMeta.Type)
+						if !ok {
+							resChan <- ChunkResult{
+								chunkIdx: routineChunkIdx,
+								err: &ClientError{
+									errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error(),
+								},
+							}
+							return
+						}
+
+						if err := thinUnmarshalInto(
+							res.Elem().Field(i),
+							row,
+							fieldNamespace,
+							nil,
+							fieldNsScope,
+							fieldNsMemo,
+							allMemo,
+						); err != nil {
+							resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
+							return
+						}
+					}
+					results[rowIdx] = res.Elem()
+				}
+				resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
+			}(chunkIdx, chunkPtr)
+			chunkIdx += 1
+		}
 	}
 
-	go func() {
-		wg.Wait()
-		close(resChan)
-	}()
+	wg.Wait()
+	close(resChan)
 
 	var allChunks []ChunkResult
 	for chunkResult := range resChan {
@@ -270,6 +344,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	slice.Set(newSlice)
 
 	return nil
+
 }
 
 // UnmarshalTableInto unmarshals the given Arrow table into the given result holders.
@@ -440,6 +515,80 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any, expectedOutputs []s
 // thinUnmarshalInto is called per row. Any operation that can be
 // done outside of this function must be done outside of this function.
 func thinUnmarshalInto(
+	structValue reflect.Value,
+	fqnToValue map[Fqn]any,
+	namespace string,
+	expectedOutputs []string,
+	namespaceScope *scopeTrie,
+	namespaceMemo *internal.NamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
+) (returnErr *ClientError) {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := initRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		namespaceScope,
+		allMemo,
+		true,
+	); err != nil {
+		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	}
+
+	for fqn, value := range fqnToValue {
+		targetFields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIndices, ok := namespaceMemo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
+			}
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
+			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().String()
+				outputNamespace := "unknown namespace"
+				sections := strings.Split(fqn, ".")
+				if len(sections) > 0 {
+					outputNamespace = sections[0]
+				}
+				if errors.Is(err, FieldNotFoundError) {
+					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+					return &ClientError{Message: fieldError}
+				} else {
+					return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
+// thinUnmarshalInto is called per row. Any operation that can be
+// done outside of this function must be done outside of this function.
+func bulkThinUnmarshalInto(
 	structValue reflect.Value,
 	fqnToValue map[Fqn]any,
 	namespace string,
