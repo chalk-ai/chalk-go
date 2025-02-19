@@ -234,6 +234,56 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	} else {
 		// Multi namespace unmarshalling
+		type namespaceMetaT struct {
+			fieldIdx  int
+			namespace string
+			scope     *scopeTrie
+			memo      *internal.NamespaceMemo
+		}
+		namespaceMeta := []namespaceMetaT{}
+		for i := 0; i < sliceElemType.NumField(); i++ {
+			fieldMeta := sliceElemType.Field(i)
+			if fieldMeta.Type.Kind() != reflect.Struct {
+				return errors.Newf(
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
+					structName,
+					colls.Keys(scope.children),
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+				)
+			}
+
+			fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
+
+			fieldNsScope := scope.children[fieldNamespace]
+			if fieldNsScope == nil {
+				return errors.Newf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
+					structName,
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+					colls.Keys(scope.children),
+				)
+			}
+
+			fieldNsMemo, ok := allMemo.Load(fieldMeta.Type)
+			if !ok {
+				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+			}
+
+			namespaceMeta = append(namespaceMeta, namespaceMetaT{
+				fieldIdx:  i,
+				namespace: fieldNamespace,
+				scope:     fieldNsScope,
+				memo:      fieldNsMemo,
+			})
+		}
+
 		chunkSize := (len(rows) / numWorkers) + 1
 		chunkIdx := 0
 		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
@@ -244,66 +294,14 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 				results := make([]reflect.Value, len(chunkRows))
 				for rowIdx, row := range chunkRows {
 					res := reflect.New(sliceElemType)
-					for i := 0; i < sliceElemType.NumField(); i++ {
-						fieldMeta := sliceElemType.Field(i)
-						if fieldMeta.Type.Kind() != reflect.Struct {
-							resChan <- ChunkResult{
-								chunkIdx: routineChunkIdx,
-								err: &ClientError{
-									Message: fmt.Sprintf(
-										"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
-											"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
-											"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
-											"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
-										structName,
-										colls.Keys(scope.children),
-										fieldMeta.Name,
-										fieldMeta.Type.Name(),
-									),
-								},
-							}
-							return
-						}
-
-						fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
-
-						fieldNsScope := scope.children[fieldNamespace]
-						if fieldNsScope == nil {
-							resChan <- ChunkResult{
-								chunkIdx: routineChunkIdx,
-								err: &ClientError{
-									Message: fmt.Sprintf(
-										"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-											"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-											"of type '%s', but results are from these namespaces: %v",
-										structName,
-										fieldMeta.Name,
-										fieldMeta.Type.Name(),
-										colls.Keys(scope.children),
-									),
-								},
-							}
-							return
-						}
-
-						fieldNsMemo, ok := allMemo.Load(fieldMeta.Type)
-						if !ok {
-							resChan <- ChunkResult{
-								chunkIdx: routineChunkIdx,
-								err: &ClientError{
-									errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error(),
-								},
-							}
-							return
-						}
-
+					for _, meta := range namespaceMeta {
 						if err := thinUnmarshalInto(
-							res.Elem().Field(i),
+							res.Elem().Field(meta.fieldIdx),
 							row,
-							fieldNamespace,
+							meta.namespace,
 							nil,
-							fieldNsScope,
-							fieldNsMemo,
+							meta.scope,
+							meta.memo,
 							allMemo,
 						); err != nil {
 							resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
