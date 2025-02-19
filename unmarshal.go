@@ -208,9 +208,9 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		chunkIdx := 0
 		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
 			wg.Add(1)
-			go func() {
+			go func(routineChunkIdx int, routineChunkPtr int) {
 				defer wg.Done()
-				chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+				chunkRows := rows[routineChunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
 				results := make([]reflect.Value, len(chunkRows))
 				for rowIdx, row := range chunkRows {
 					res := reflect.New(sliceElemType)
@@ -223,13 +223,13 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 						nsMemo,
 						allMemo,
 					); err != nil {
-						resChan <- ChunkResult{chunkIdx: chunkIdx, err: unmarshalErr}
+						resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: unmarshalErr}
 						return
 					}
 					results[rowIdx] = res.Elem()
 				}
-				resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
-			}()
+				resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
+			}(chunkIdx, chunkPtr)
 			chunkIdx += 1
 		}
 	} else {
@@ -240,7 +240,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			wg.Add(1)
 			go func(routineChunkIdx int, routineChunkPtr int) {
 				defer wg.Done()
-				chunkRows := rows[chunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
+				chunkRows := rows[routineChunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
 				results := make([]reflect.Value, len(chunkRows))
 				for rowIdx, row := range chunkRows {
 					res := reflect.New(sliceElemType)
