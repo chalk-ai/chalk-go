@@ -177,9 +177,6 @@ type OnlineQueryResult struct {
 
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
-
-	// Used to validate result holder expected outputs are not nil.
-	expectedOutputs []string
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
