@@ -132,7 +132,7 @@ func (c *clientGrpc) OnlineQuery(ctx context.Context, args OnlineQueryParamsComp
 			Pkey:      pkey,
 			Meta:      featureMeta,
 			Error:     serverErr,
-			Timestamp: timestamp,
+			Timestamp: &timestamp,
 		})
 	}
 

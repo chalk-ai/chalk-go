@@ -89,13 +89,13 @@ func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
-	var timeObj time.Time
+	var timeObj *time.Time
 	if feature.Timestamp != "" {
 		parsed, err := time.Parse(time.RFC3339, feature.Timestamp)
 		if err != nil {
 			return FeatureResult{}, err
 		}
-		timeObj = parsed
+		timeObj = &parsed
 	}
 
 	var dError *ServerError = nil
