@@ -271,7 +271,43 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 	}
 
 	return benchFunc
+}
 
+func getBenchmarkBulkSingleNs(b *testing.B) func() {
+	bulkData := make(map[string]any)
+	for i := 0; i < 100; i++ {
+		for j := 1; j <= 40; j++ {
+			fqn := fmt.Sprintf("string_features.string_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []string{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]string), fmt.Sprintf("string_val_%d_%d", i, j))
+		}
+	}
+
+	record, err := internal.ColumnMapToRecord(bulkData)
+	assert.NoError(b, err)
+
+	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+
+	res := chalk.OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		stringFeatures := []fixtures.StringFeatures{}
+		err := res.UnmarshalInto(&stringFeatures)
+		assert.Equal(b, (*chalk.ClientError)(nil), err)
+
+		assertOnce.Do(func() {
+			for i := 0; i < 100; i++ {
+				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 1), *stringFeatures[i].String1)
+				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 40), *stringFeatures[i].String40)
+			}
+		})
+	}
+
+	return benchFunc
 }
 
 /*
@@ -327,6 +363,17 @@ func BenchmarkUnmarshalMultiNsPrimitivesSingle(b *testing.B) {
  */
 func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
 	benchmarkParallel(b, getBenchmarkMultiNsPrimitives(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkBulkSingleNs(b))
 }
 
 /*
