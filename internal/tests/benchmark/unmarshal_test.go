@@ -94,30 +94,26 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		intFeatures := []fixtures.IntFeatures{}
-		floatFeatures := []fixtures.FloatFeatures{}
-		boolFeatures := []fixtures.BoolFeatures{}
-		stringFeatures := []fixtures.StringFeatures{}
-		timestampFeatures := []fixtures.TimestampFeatures{}
-
-		assert.NoError(b, res.UnmarshalInto(&intFeatures))
-		assert.NoError(b, res.UnmarshalInto(&floatFeatures))
-		assert.NoError(b, res.UnmarshalInto(&boolFeatures))
-		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
-		assert.NoError(b, res.UnmarshalInto(&timestampFeatures))
-
+		rootStruct := []struct {
+			IntFeatures       fixtures.IntFeatures
+			FloatFeatures     fixtures.FloatFeatures
+			BoolFeatures      fixtures.BoolFeatures
+			StringFeatures    fixtures.StringFeatures
+			TimestampFeatures fixtures.TimestampFeatures
+		}{}
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
-				assert.Equal(b, int64(122.0), *intFeatures[i].Int1)
-				assert.Equal(b, int64(122.0), *intFeatures[i].Int40)
-				assert.Equal(b, float64(1.234), *floatFeatures[i].Float1)
-				assert.Equal(b, float64(1.234), *floatFeatures[i].Float40)
-				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *stringFeatures[i].String1)
-				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *stringFeatures[i].String40)
-				assert.True(b, *boolFeatures[i].Bool1)
-				assert.True(b, *boolFeatures[i].Bool40)
-				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures[i].Timestamp1)
-				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures[i].Timestamp40)
+				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
+				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
+				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float1)
+				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float40)
+				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *rootStruct[i].StringFeatures.String1)
+				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *rootStruct[i].StringFeatures.String40)
+				assert.True(b, *rootStruct[i].BoolFeatures.Bool1)
+				assert.True(b, *rootStruct[i].BoolFeatures.Bool40)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct[i].TimestampFeatures.Timestamp1)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *rootStruct[i].TimestampFeatures.Timestamp40)
 			}
 		})
 	}
