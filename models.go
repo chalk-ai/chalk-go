@@ -25,9 +25,6 @@ type OnlineQueryParams struct {
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
 
-	// If true, returns performance metrics about the query execution in the response.
-	IncludeMetrics bool
-
 	// The environment under which to run the resolvers. API tokens can be scoped to an
 	// environment. If no environment is specified in the query, but the token supports
 	// only a single environment, then that environment will be taken as the scope for

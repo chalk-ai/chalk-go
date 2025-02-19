@@ -164,7 +164,6 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		Now:                  now,
 		Explain:              true,
 		IncludeMeta:          true,
-		IncludeMetrics:       true,
 		QueryContext:         queryContext,
 		EncodingOptions: &chalk.FeatureEncodingOptions{
 			EncodeStructsAsObjects: true,
@@ -197,7 +196,6 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.Equal(t, meta, request.Meta)
 	assert.True(t, request.Explain)
 	assert.True(t, request.IncludeMeta)
-	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
 	assert.Equal(t, &map[string]any{"key": "value"}, request.QueryContext)
