@@ -100,16 +100,11 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		stringFeatures := []fixtures.StringFeatures{}
 		timestampFeatures := []fixtures.TimestampFeatures{}
 
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&floatFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&boolFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
-		err = res.UnmarshalInto(&timestampFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&intFeatures)))
+		assert.NoError(b, res.UnmarshalInto(&floatFeatures))
+		assert.NoError(b, res.UnmarshalInto(&boolFeatures))
+		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
+		assert.NoError(b, res.UnmarshalInto(&timestampFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
@@ -293,8 +288,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		stringFeatures := []fixtures.StringFeatures{}
-		err := res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(t, res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
