@@ -20,6 +20,8 @@ jobs:
           go-version: "stable"
       - name: Run benchmark
         run: go test -bench=. ./... | tee output.txt
+        env:
+          CHALK_USE_CHECKED_ALLOCATOR: 1
 
       - name: Set benchmark directory
         run: |
