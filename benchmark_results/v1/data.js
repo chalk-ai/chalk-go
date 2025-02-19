@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739991227085,
+  "lastUpdate": 1739991248646,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -600,6 +600,56 @@ window.BENCHMARK_DATA = {
             "value": 20.55,
             "unit": "ms/op",
             "extra": "61 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "c3f636ac766ce61dabf1f920bea641b79df9fd2b",
+          "message": "v1 breaking release base branch [CHA-4153]",
+          "timestamp": "2025-02-19T18:07:57Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/292/commits/c3f636ac766ce61dabf1f920bea641b79df9fd2b"
+        },
+        "date": 1739991248631,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.02993,
+            "unit": "ms/op",
+            "extra": "40207 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.3364,
+            "unit": "ms/op",
+            "extra": "3454 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 46.91,
+            "unit": "ms/op",
+            "extra": "30 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1716,
+            "unit": "ms/op",
+            "extra": "6646 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 20.94,
+            "unit": "ms/op",
+            "extra": "56 times\n4 procs"
           }
         ]
       }
