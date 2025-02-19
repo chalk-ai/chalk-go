@@ -110,7 +110,7 @@ func convertIfHasManyMap(value any) (any, error) {
 }
 
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr *ClientError) {
-	fqnToValue := map[Fqn]any{}
+	fqnToValue := make(map[Fqn]any, len(result.Data))
 	for _, featureResult := range result.Data {
 		convertedValue, err := convertIfHasManyMap(featureResult.Value)
 		if err != nil {
@@ -195,7 +195,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
 
-	var rowOp func(map[Fqn]any) (*reflect.Value, error)
+	var rowToStruct func(map[Fqn]any) (*reflect.Value, error)
 	if nsScope != nil {
 		// single namespace unmarshalling
 		nsMemo, ok := allMemo.Load(sliceElemType)
@@ -203,20 +203,20 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
 		}
 
-		rowOp = func(row map[Fqn]any) (*reflect.Value, error) {
-			res := reflect.New(sliceElemType)
-			if unmarshalErr := thinUnmarshalInto(
-				res.Elem(),
+		rowToStruct = func(row map[Fqn]any) (*reflect.Value, error) {
+			featuresStruct := reflect.New(sliceElemType)
+			if err := thinUnmarshalInto(
+				featuresStruct.Elem(),
 				row,
 				namespace,
 				nil,
 				nsScope,
 				nsMemo,
 				allMemo,
-			); unmarshalErr != nil {
-				return nil, unmarshalErr
+			); err != nil {
+				return nil, err
 			}
-			return ptr.Ptr(res.Elem()), nil
+			return ptr.Ptr(featuresStruct.Elem()), nil
 		}
 	} else {
 		// Multi namespace unmarshalling
@@ -245,8 +245,8 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 			fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
 
-			fieldNsScope := scope.children[fieldNamespace]
-			if fieldNsScope == nil {
+			fieldScope := scope.children[fieldNamespace]
+			if fieldScope == nil {
 				return errors.Newf(
 					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
 						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
@@ -258,7 +258,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 				)
 			}
 
-			fieldNsMemo, ok := allMemo.Load(fieldMeta.Type)
+			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
 			if !ok {
 				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
 			}
@@ -266,16 +266,16 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			namespaceMeta = append(namespaceMeta, namespaceMetaT{
 				fieldIdx:  i,
 				namespace: fieldNamespace,
-				scope:     fieldNsScope,
-				memo:      fieldNsMemo,
+				scope:     fieldScope,
+				memo:      fieldMemo,
 			})
 		}
 
-		rowOp = func(row map[Fqn]any) (*reflect.Value, error) {
-			res := reflect.New(sliceElemType)
+		rowToStruct = func(row map[Fqn]any) (*reflect.Value, error) {
+			rootStruct := reflect.New(sliceElemType)
 			for _, meta := range namespaceMeta {
 				if err := thinUnmarshalInto(
-					res.Elem().Field(meta.fieldIdx),
+					rootStruct.Elem().Field(meta.fieldIdx),
 					row,
 					meta.namespace,
 					nil,
@@ -290,7 +290,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 					)
 				}
 			}
-			return ptr.Ptr(res.Elem()), nil
+			return ptr.Ptr(rootStruct.Elem()), nil
 		}
 	}
 
@@ -308,8 +308,8 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			chunkRows := rows[chunkStart:min(chunkEnd, len(rows))]
 			results := make([]reflect.Value, len(chunkRows))
 			for rowIdx, row := range chunkRows {
-				res, rowErr := rowOp(row)
-				if rowErr != nil {
+				res, err := rowToStruct(row)
+				if err != nil {
 					resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
 					return
 				} else {
