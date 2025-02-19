@@ -791,7 +791,10 @@ func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}
 	defer func() {
-		err = fileReader.Close()
+		closeErr := fileReader.Close()
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
 	records := make([]arrow.Record, fileReader.NumRecords())
