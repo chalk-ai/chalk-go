@@ -346,7 +346,6 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	slice.Set(newSlice)
 
 	return nil
-
 }
 
 // UnmarshalTableInto unmarshals the given Arrow table into the given result holders.
