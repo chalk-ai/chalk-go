@@ -21,19 +21,6 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
-var skipUnmarshalFeatureNames = map[string]bool{
-	"__chalk_observed_at__": true,
-}
-
-var skipUnmarshalFields = map[string]bool{
-	"__ts__":    true,
-	"__index__": true,
-}
-
-var SkipUnmarshalFqnRoots = map[string]bool{
-	"__chalk__": true,
-}
-
 type ResultMetadataSourceType string
 
 const (
@@ -412,16 +399,9 @@ func ExtractFeaturesFromTable(
 		metaColumnFqnToIdx := make(map[string]int)
 		for j := range record.Columns() {
 			colName := record.ColumnName(j)
-			if _, ok := skipUnmarshalFields[colName]; ok {
-				continue
-			}
-			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
-				continue
-			}
-
 			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
 				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
-			} else if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
+			} else if colName == "__ts__" || colName == "__index__" || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 				continue
 			} else {
 				featureColumnIdxs = append(featureColumnIdxs, j)
