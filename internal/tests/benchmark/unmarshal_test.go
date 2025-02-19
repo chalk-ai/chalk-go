@@ -105,17 +105,6 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		assert.Equal(b, (*chalk.ClientError)(nil), err)
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
-				//assert.Equal(b, int64(122.0), *intFeatures[i].Int1)
-				//assert.Equal(b, int64(122.0), *intFeatures[i].Int40)
-				//assert.Equal(b, float64(1.234), *floatFeatures[i].Float1)
-				//assert.Equal(b, float64(1.234), *floatFeatures[i].Float40)
-				//assert.Equal(b, fmt.Sprintf("string_val_%d", i), *stringFeatures[i].String1)
-				//assert.Equal(b, fmt.Sprintf("string_val_%d", i), *stringFeatures[i].String40)
-				//assert.True(b, *boolFeatures[i].Bool1)
-				//assert.True(b, *boolFeatures[i].Bool40)
-				//assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures[i].Timestamp1)
-				//assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *timestampFeatures[i].Timestamp40)
-
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
 				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float1)

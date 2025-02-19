@@ -6,6 +6,7 @@ import (
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"runtime"
@@ -199,7 +200,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		// single namespace unmarshalling
 		nsMemo, ok := allMemo.Load(sliceElemType)
 		if !ok {
-			return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
+			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
 		}
 
 		rowOp = func(row map[Fqn]any) (*reflect.Value, error) {
@@ -215,8 +216,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			); unmarshalErr != nil {
 				return nil, unmarshalErr
 			}
-			result := res.Elem()
-			return &result, nil
+			return ptr.Ptr(res.Elem()), nil
 		}
 	} else {
 		// Multi namespace unmarshalling
@@ -226,8 +226,8 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			scope     *scopeTrie
 			memo      *internal.NamespaceMemo
 		}
-		namespaceMeta := []namespaceMetaT{}
 
+		namespaceMeta := []namespaceMetaT{}
 		for i := 0; i < sliceElemType.NumField(); i++ {
 			fieldMeta := sliceElemType.Field(i)
 			if fieldMeta.Type.Kind() != reflect.Struct {
@@ -283,11 +283,14 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 					meta.memo,
 					allMemo,
 				); err != nil {
-					return nil, err
+					return nil, errors.Wrapf(
+						err,
+						"error unmarshalling into field '%s'",
+						sliceElemType.Field(meta.fieldIdx).Name,
+					)
 				}
 			}
-			result := res.Elem()
-			return &result, nil
+			return ptr.Ptr(res.Elem()), nil
 		}
 	}
 
@@ -300,8 +303,9 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		wg.Add(1)
 		go func(routineChunkIdx int) {
 			defer wg.Done()
-			chunkPtr := routineChunkIdx * chunkSize
-			chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+			chunkStart := routineChunkIdx * chunkSize
+			chunkEnd := chunkStart + chunkSize
+			chunkRows := rows[chunkStart:min(chunkEnd, len(rows))]
 			results := make([]reflect.Value, len(chunkRows))
 			for rowIdx, row := range chunkRows {
 				res, rowErr := rowOp(row)
