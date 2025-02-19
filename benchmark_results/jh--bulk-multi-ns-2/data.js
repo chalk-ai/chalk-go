@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1739926748758,
+  "lastUpdate": 1739926929162,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -692,6 +692,74 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
             "value": 1860,
+            "unit": "ms/op",
+            "extra": "1 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "da2dce758d8f8b70148c3cd3403c2c1c3d65769b",
+          "message": "jh/bulk multi ns 2",
+          "timestamp": "2025-02-19T00:48:04Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/303/commits/da2dce758d8f8b70148c3cd3403c2c1c3d65769b"
+        },
+        "date": 1739926929147,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03096,
+            "unit": "ms/op",
+            "extra": "38702 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.348,
+            "unit": "ms/op",
+            "extra": "3392 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 40.55,
+            "unit": "ms/op",
+            "extra": "28 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1769,
+            "unit": "ms/op",
+            "extra": "6825 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 20.5,
+            "unit": "ms/op",
+            "extra": "52 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 1.311,
+            "unit": "ms/op",
+            "extra": "1058 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 7.041,
+            "unit": "ms/op",
+            "extra": "166 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 1391,
             "unit": "ms/op",
             "extra": "1 times\n4 procs"
           }
