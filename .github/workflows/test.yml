@@ -38,3 +38,5 @@ jobs:
           --junitfile-hide-empty-pkg \
           --format=github-actions -- \
             -shuffle=on -vet=all ./...
+      env:
+        CHALK_USE_CHECKED_ALLOCATOR: 1

@@ -25,3 +25,4 @@ jobs:
           CHALK_CLIENT_ID: ${{ secrets.CHALK_CLIENT_ID }}
           CHALK_CLIENT_SECRET: ${{ secrets.CHALK_CLIENT_SECRET }}
           CHALK_API_SERVER: ${{ secrets.CHALK_API_SERVER }}
+          CHALK_USE_CHECKED_ALLOCATOR: 1

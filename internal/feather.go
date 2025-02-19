@@ -9,7 +9,6 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
-	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
@@ -352,7 +351,6 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	// Create the input values
-	allocator := memory.NewGoAllocator()
 	var schema []arrow.Field
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
@@ -364,7 +362,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
 	}
 
-	recordBuilder := array.NewRecordBuilder(allocator, arrow.NewSchema(schema, nil))
+	recordBuilder := array.NewRecordBuilder(ChalkAllocator, arrow.NewSchema(schema, nil))
 	defer recordBuilder.Release()
 
 	for idx, field := range schema {
@@ -544,7 +542,11 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 
 func recordToBytes(record arrow.Record) ([]byte, error) {
 	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	fileWriter, err := ipc.NewFileWriter(
+		bws,
+		ipc.WithSchema(record.Schema()),
+		ipc.WithAllocator(ChalkAllocator),
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
 	}
@@ -784,13 +786,15 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 
 func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 	bytesReader := bytes.NewReader(byteArr)
-	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
-	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(alloc))
+	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(ChalkAllocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}
 	defer func() {
-		err = fileReader.Close()
+		closeErr := fileReader.Close()
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
 	records := make([]arrow.Record, fileReader.NumRecords())
