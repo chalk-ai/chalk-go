@@ -397,7 +397,7 @@ fields correspond to the FQNs. An illustration:
 			"FinancialMetric.MetricDate": time.Now(),
 		}
 		fm := FinancialMetric{}
-		if err := UnmarshalInto(&fm, fqnToValue, nil); err != nil {
+		if err := UnmarshalInto(&fm, fqnToValue); err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println(fm)
