@@ -190,13 +190,11 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building namespace memo")
 	}
 
-	var wg sync.WaitGroup
-	numWorkers := runtime.NumCPU()
-	resChan := make(chan ChunkResult, numWorkers)
-
 	structName := sliceElemType.Name()
 	namespace := internal.ChalkpySnakeCase(structName)
 	nsScope := scope.children[namespace]
+
+	var rowOp func(map[Fqn]any) (*reflect.Value, error)
 	if nsScope != nil {
 		// single namespace unmarshalling
 		nsMemo, ok := allMemo.Load(sliceElemType)
@@ -204,33 +202,21 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			return &ClientError{errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys()).Error()}
 		}
 
-		chunkSize := (len(rows) / numWorkers) + 1
-		chunkIdx := 0
-		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
-			wg.Add(1)
-			go func(routineChunkIdx int, routineChunkPtr int) {
-				defer wg.Done()
-				chunkRows := rows[routineChunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
-				results := make([]reflect.Value, len(chunkRows))
-				for rowIdx, row := range chunkRows {
-					res := reflect.New(sliceElemType)
-					if unmarshalErr := thinUnmarshalInto(
-						res.Elem(),
-						row,
-						namespace,
-						nil,
-						nsScope,
-						nsMemo,
-						allMemo,
-					); err != nil {
-						resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: unmarshalErr}
-						return
-					}
-					results[rowIdx] = res.Elem()
-				}
-				resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
-			}(chunkIdx, chunkPtr)
-			chunkIdx += 1
+		rowOp = func(row map[Fqn]any) (*reflect.Value, error) {
+			res := reflect.New(sliceElemType)
+			if unmarshalErr := thinUnmarshalInto(
+				res.Elem(),
+				row,
+				namespace,
+				nil,
+				nsScope,
+				nsMemo,
+				allMemo,
+			); unmarshalErr != nil {
+				return nil, unmarshalErr
+			}
+			result := res.Elem()
+			return &result, nil
 		}
 	} else {
 		// Multi namespace unmarshalling
@@ -241,6 +227,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			memo      *internal.NamespaceMemo
 		}
 		namespaceMeta := []namespaceMetaT{}
+
 		for i := 0; i < sliceElemType.NumField(); i++ {
 			fieldMeta := sliceElemType.Field(i)
 			if fieldMeta.Type.Kind() != reflect.Struct {
@@ -284,36 +271,49 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			})
 		}
 
-		chunkSize := (len(rows) / numWorkers) + 1
-		chunkIdx := 0
-		for chunkPtr := 0; chunkPtr < len(rows); chunkPtr += chunkSize {
-			wg.Add(1)
-			go func(routineChunkIdx int, routineChunkPtr int) {
-				defer wg.Done()
-				chunkRows := rows[routineChunkPtr:min(routineChunkPtr+chunkSize, len(rows))]
-				results := make([]reflect.Value, len(chunkRows))
-				for rowIdx, row := range chunkRows {
-					res := reflect.New(sliceElemType)
-					for _, meta := range namespaceMeta {
-						if err := thinUnmarshalInto(
-							res.Elem().Field(meta.fieldIdx),
-							row,
-							meta.namespace,
-							nil,
-							meta.scope,
-							meta.memo,
-							allMemo,
-						); err != nil {
-							resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
-							return
-						}
-					}
-					results[rowIdx] = res.Elem()
+		rowOp = func(row map[Fqn]any) (*reflect.Value, error) {
+			res := reflect.New(sliceElemType)
+			for _, meta := range namespaceMeta {
+				if err := thinUnmarshalInto(
+					res.Elem().Field(meta.fieldIdx),
+					row,
+					meta.namespace,
+					nil,
+					meta.scope,
+					meta.memo,
+					allMemo,
+				); err != nil {
+					return nil, err
 				}
-				resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
-			}(chunkIdx, chunkPtr)
-			chunkIdx += 1
+			}
+			result := res.Elem()
+			return &result, nil
 		}
+	}
+
+	var wg sync.WaitGroup
+	numWorkers := runtime.NumCPU()
+	resChan := make(chan ChunkResult, numWorkers)
+	chunkSize := (len(rows) / numWorkers) + 1
+
+	for chunkIdx := 0; (chunkIdx * chunkSize) < len(rows); chunkIdx += 1 {
+		wg.Add(1)
+		go func(routineChunkIdx int) {
+			defer wg.Done()
+			chunkPtr := routineChunkIdx * chunkSize
+			chunkRows := rows[chunkPtr:min(chunkPtr+chunkSize, len(rows))]
+			results := make([]reflect.Value, len(chunkRows))
+			for rowIdx, row := range chunkRows {
+				res, rowErr := rowOp(row)
+				if rowErr != nil {
+					resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
+					return
+				} else {
+					results[rowIdx] = *res
+				}
+			}
+			resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
+		}(chunkIdx)
 	}
 
 	wg.Wait()
