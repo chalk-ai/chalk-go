@@ -100,7 +100,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		stringFeatures := []fixtures.StringFeatures{}
 		timestampFeatures := []fixtures.TimestampFeatures{}
 
-		assert.NoError(b, res.UnmarshalInto(&intFeatures)))
+		assert.NoError(b, res.UnmarshalInto(&intFeatures))
 		assert.NoError(b, res.UnmarshalInto(&floatFeatures))
 		assert.NoError(b, res.UnmarshalInto(&boolFeatures))
 		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
