@@ -483,12 +483,13 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(reflectValue reflect.Value, value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
+	reflectValue := reflect.ValueOf(value)
 	if reflectValue.Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflectValue.Elem(), reflectValue.Elem().Interface(), typ.Elem(), allMemo)
+		indirectValue, err := GetReflectValue(reflectValue.Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -526,7 +527,7 @@ func GetReflectValue(reflectValue reflect.Value, value any, typ reflect.Type, al
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(reflect.ValueOf(&memberValue), &memberValue, memberField.Type(), allMemo)
+				rVal, err := GetReflectValue(&memberValue, memberField.Type(), allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -582,7 +583,7 @@ func GetReflectValue(reflectValue reflect.Value, value any, typ reflect.Type, al
 							)
 						}
 					} else {
-						rVal, err := GetReflectValue(reflect.ValueOf(&v), &v, memberField.Type(), allMemo)
+						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
 								err,
@@ -646,7 +647,7 @@ func GetReflectValue(reflectValue reflect.Value, value any, typ reflect.Type, al
 					)
 				}
 			}
-			rVal, err := GetReflectValue(reflect.ValueOf(actualValue), actualValue, typ.Elem(), allMemo)
+			rVal, err := GetReflectValue(actualValue, typ.Elem(), allMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -676,7 +677,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(reflect.ValueOf(value), value, mapValue.Type().Elem().Elem(), allMemo)
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
