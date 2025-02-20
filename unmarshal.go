@@ -11,14 +11,17 @@ import (
 	"reflect"
 	"runtime"
 	"sort"
-	"strings"
 	"sync"
 )
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
+func setFeature(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
+	// Get codec by fqn
+	// Run codec to map value
+	// Set value
 	if field.Type().Kind() == reflect.Ptr {
+		// A primitive or a dataclass or a has-one or a list of them
 		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "error getting reflect value for feature '%s'", fqn)
@@ -26,6 +29,7 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *inter
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
+		// A windowed base feature
 		bucket, err := internal.GetBucketFromFqn(fqn)
 		if err != nil {
 			return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fqn)
@@ -565,16 +569,11 @@ func thinUnmarshalInto(
 				// TODO: Add validation for optional fields
 				continue
 			}
-			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
-				structName := structValue.Type().String()
-				outputNamespace := "unknown namespace"
-				sections := strings.Split(fqn, ".")
-				if len(sections) > 0 {
-					outputNamespace = sections[0]
-				}
+			if err := setFeature(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().Name()
 				if errors.Is(err, FieldNotFoundError) {
 					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
-					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", namespace)
 					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 					return &ClientError{Message: fieldError}
 				} else {
