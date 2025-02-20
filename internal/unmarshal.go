@@ -483,12 +483,12 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func GetReflectValue(reflectValue reflect.Value, value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
-	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
+	if reflectValue.Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
+		indirectValue, err := GetReflectValue(reflectValue.Elem(), reflectValue.Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -526,7 +526,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(&memberValue, memberField.Type(), allMemo)
+				rVal, err := GetReflectValue(reflect.ValueOf(&memberValue), &memberValue, memberField.Type(), allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -582,7 +582,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 							)
 						}
 					} else {
-						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
+						rVal, err := GetReflectValue(reflect.ValueOf(&v), &v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
 								err,
@@ -618,7 +618,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 
 		// Datetimes are returned as strings in online query (non-bulk)
-		stringValue := reflect.ValueOf(value).String()
+		stringValue := reflectValue.String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
 			return ptr.Ptr(reflect.ValueOf(timeValue)), nil
@@ -632,7 +632,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 		return ptr.Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
-		actualSlice := reflect.ValueOf(value)
+		actualSlice := reflectValue
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
 			actualValue := actualSlice.Index(i).Interface()
@@ -646,7 +646,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 					)
 				}
 			}
-			rVal, err := GetReflectValue(actualValue, typ.Elem(), allMemo)
+			rVal, err := GetReflectValue(reflect.ValueOf(actualValue), actualValue, typ.Elem(), allMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -654,7 +654,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 		return &newSlice, nil
 	} else {
-		rVal := reflect.ValueOf(value)
+		rVal := reflectValue
 		if rVal.Kind() != typ.Kind() {
 			if rVal.Type().ConvertibleTo(typ) {
 				rVal = rVal.Convert(typ)
@@ -676,7 +676,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
+	rVal, err := GetReflectValue(reflect.ValueOf(value), value, mapValue.Type().Elem().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
