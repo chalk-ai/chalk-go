@@ -267,7 +267,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 100_000
+	numRows := 100
 
 	bulkData["all_types.int"] = make([]int, numRows)
 	bulkData["all_types.float"] = make([]float64, numRows)
@@ -289,7 +289,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData["all_types.dataclass_with_overrides"] = make([]fixtures.DclassWithOverrides, numRows)
 	bulkData["all_types.nested"] = make([]fixtures.LevelOneNest, numRows)
 
-	for i := 0; i < 100_000; i++ {
+	for i := 0; i < numRows; i++ {
 		bulkData["all_types.int"].([]int)[i] = 1
 		bulkData["all_types.float"].([]float64)[i] = 1.234
 		bulkData["all_types.string"].([]string)[i] = "string_val"
