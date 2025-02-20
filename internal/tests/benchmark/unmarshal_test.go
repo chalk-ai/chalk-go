@@ -6,46 +6,13 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/tests/benchmark/fixtures"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"sync"
 	"testing"
 	"time"
 )
-
-func benchmark(b *testing.B, benchmarkFunc func()) {
-	b.Helper()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkFunc()
-	}
-	b.StopTimer()
-
-	avg := b.Elapsed() / time.Duration(b.N)
-	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
-	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
-}
-
-func benchmarkParallel(b *testing.B, benchmarkFunc func()) {
-	b.Helper()
-	numParallel := 200
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		var wg sync.WaitGroup
-		for j := 0; j < numParallel; j++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				benchmarkFunc()
-			}()
-		}
-		wg.Wait()
-	}
-	b.StopTimer()
-	avg := b.Elapsed() / time.Duration(b.N)
-	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
-	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
-}
 
 func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 	bulkData := make(map[string]any)
@@ -101,8 +68,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
@@ -158,8 +124,7 @@ func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *rootStruct.IntFeatures.Int1)
@@ -219,8 +184,7 @@ func getBenchmarkUnmarshalMultiNsWindowed(t *testing.B) func() {
 			StringFeatures    fixtures.WindowedStringFeatures
 			TimestampFeatures fixtures.WindowedTimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		assert.Equal(t, (*chalk.ClientError)(nil), res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(t, int64(122.0), *rootStruct.IntFeatures.Int1["1m"])
@@ -253,8 +217,7 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		intFeatures := fixtures.IntFeatures{}
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&intFeatures))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *intFeatures.Int1)
@@ -288,8 +251,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		stringFeatures := []fixtures.StringFeatures{}
-		err := res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
@@ -300,6 +262,88 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	}
 
 	return benchFunc
+}
+
+func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
+	bulkData := make(map[string]any)
+
+	numRows := 10_000
+
+	bulkData["all_types.int"] = make([]int, numRows)
+	bulkData["all_types.float"] = make([]float64, numRows)
+	bulkData["all_types.string"] = make([]string, numRows)
+	bulkData["all_types.bool"] = make([]bool, numRows)
+	bulkData["all_types.timestamp"] = make([]time.Time, numRows)
+	bulkData["all_types.int_list"] = make([][]int, numRows)
+	bulkData["all_types.nested_int_pointer_list"] = make([][][]int, numRows)
+	bulkData["all_types.nested_int_list"] = make([][][]int, numRows)
+	bulkData["all_types.windowed_int__60__"] = make([]int, numRows)
+	bulkData["all_types.windowed_int__300__"] = make([]int, numRows)
+	bulkData["all_types.windowed_int__3600__"] = make([]int, numRows)
+	bulkData["all_types.windowed_list__60__"] = make([][]int, numRows)
+	bulkData["all_types.dataclass"] = make([]fixtures.LatLng, numRows)
+	bulkData["all_types.dataclass_list"] = make([][]fixtures.LatLng, numRows)
+	bulkData["all_types.dataclass_with_list"] = make([]fixtures.FavoriteThings, numRows)
+	bulkData["all_types.dataclass_with_nils"] = make([]fixtures.Possessions, numRows)
+	bulkData["all_types.dataclass_with_dataclass"] = make([]fixtures.Child, numRows)
+	bulkData["all_types.dataclass_with_overrides"] = make([]fixtures.DclassWithOverrides, numRows)
+	bulkData["all_types.nested"] = make([]fixtures.LevelOneNest, numRows)
+
+	for i := 0; i < numRows; i++ {
+		bulkData["all_types.int"].([]int)[i] = 1
+		bulkData["all_types.float"].([]float64)[i] = 1.234
+		bulkData["all_types.string"].([]string)[i] = "string_val"
+		bulkData["all_types.bool"].([]bool)[i] = true
+		bulkData["all_types.timestamp"].([]time.Time)[i] = time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC)
+		bulkData["all_types.int_list"].([][]int)[i] = []int{1}
+		bulkData["all_types.nested_int_pointer_list"].([][][]int)[i] = [][]int{[]int{1}}
+		bulkData["all_types.nested_int_list"].([][][]int)[i] = [][]int{[]int{1}}
+		bulkData["all_types.windowed_int__60__"].([]int)[i] = 1
+		bulkData["all_types.windowed_int__300__"].([]int)[i] = 2
+		bulkData["all_types.windowed_int__3600__"].([]int)[i] = 3
+		bulkData["all_types.windowed_list__60__"].([][]int)[i] = []int{4}
+		bulkData["all_types.dataclass"].([]fixtures.LatLng)[i] = fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}
+		bulkData["all_types.dataclass_list"].([][]fixtures.LatLng)[i] = []fixtures.LatLng{fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}}
+		bulkData["all_types.dataclass_with_list"].([]fixtures.FavoriteThings)[i] = fixtures.FavoriteThings{Numbers: &[]int64{1}}
+		bulkData["all_types.dataclass_with_dataclass"].([]fixtures.Child)[i] = fixtures.Child{Name: ptr.Ptr("child"), Mom: &fixtures.Parent{Name: ptr.Ptr("mom-1")}, Dad: &fixtures.Parent{Name: ptr.Ptr("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.Ptr("dad-1-mom")}}}
+		bulkData["all_types.nested"].([]fixtures.LevelOneNest)[i] = fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}
+	}
+
+	record, err := internal.ColumnMapToRecord(bulkData)
+	assert.NoError(b, err)
+
+	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
+
+	assertOnce := sync.Once{}
+	return func() {
+		allTypes := []fixtures.AllTypes{}
+		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&allTypes))
+		assertOnce.Do(func() {
+			assert.Equal(b, int64(numRows), table.NumRows())
+			numSamples := 10
+			interval := numRows / numSamples
+			for i := 0; i < numRows; i = i + interval {
+				assert.Equal(b, int64(1), *allTypes[i].Int)
+				assert.Equal(b, float64(1.234), *allTypes[i].Float)
+				assert.Equal(b, "string_val", *allTypes[i].String)
+				assert.True(b, *allTypes[i].Bool)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
+				assert.Equal(b, []int64{1}, *allTypes[i].IntList)
+				assert.Equal(b, []*[]int64{&[]int64{1}}, *allTypes[i].NestedIntPointerList)
+				assert.Equal(b, [][]int64{[]int64{1}}, *allTypes[i].NestedIntList)
+				assert.Equal(b, int64(1), *allTypes[i].WindowedInt["1m"])
+				assert.Equal(b, int64(2), *allTypes[i].WindowedInt["5m"])
+				assert.Equal(b, int64(3), *allTypes[i].WindowedInt["1h"])
+				assert.Equal(b, []int64{4}, *allTypes[i].WindowedList["1m"])
+				assert.Equal(b, fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}, *allTypes[i].Dataclass)
+				assert.Equal(b, []fixtures.LatLng{fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}}, *allTypes[i].DataclassList)
+				assert.Equal(b, fixtures.FavoriteThings{Numbers: &[]int64{1}}, *allTypes[i].DataclassWithList)
+				assert.Equal(b, fixtures.Child{Name: ptr.Ptr("child"), Mom: &fixtures.Parent{Name: ptr.Ptr("mom-1")}, Dad: &fixtures.Parent{Name: ptr.Ptr("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.Ptr("dad-1-mom")}}}, *allTypes[i].DataclassWithDataclass)
+				assert.Equal(b, fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}, *allTypes[i].Nested)
+			}
+		})
+	}
 }
 
 /*
@@ -366,6 +410,17 @@ func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
  */
 func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
 	benchmark(b, getBenchmarkBulkSingleNs(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: All Types
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
 }
 
 /*
