@@ -579,7 +579,7 @@ func thinUnmarshalInto(
 				// Eventually we might consider exposing a flag.
 				continue
 			}
-			targetFields = make([]reflect.Value, len(fieldIndices), len(fieldIndices))
+			targetFields = make([]reflect.Value, len(fieldIndices))
 			for i, fieldIdx := range fieldIndices {
 				targetFields[i] = structValue.Field(fieldIdx)
 			}
