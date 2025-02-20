@@ -313,9 +313,36 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
 
+	assertOnce := sync.Once{}
 	return func() {
-
+		allTypes := []fixtures.AllTypes{}
+		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&allTypes))
+		assertOnce.Do(func() {
+			assert.Equal(b, int64(numRows), table.NumRows())
+			numSamples := 10
+			interval := numRows / numSamples
+			for i := 0; i < numRows; i = i + interval {
+				assert.Equal(b, int64(1), *allTypes[i].Int)
+				assert.Equal(b, float64(1.234), *allTypes[i].Float)
+				assert.Equal(b, "string_val", *allTypes[i].String)
+				assert.True(b, *allTypes[i].Bool)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
+				assert.Equal(b, []int64{1}, *allTypes[i].IntList)
+				assert.Equal(b, []*[]int64{&[]int64{1}}, *allTypes[i].NestedIntPointerList)
+				assert.Equal(b, [][]int64{[]int64{1}}, *allTypes[i].NestedIntList)
+				assert.Equal(b, int64(1), *allTypes[i].WindowedInt["1m"])
+				assert.Equal(b, int64(2), *allTypes[i].WindowedInt["5m"])
+				assert.Equal(b, int64(3), *allTypes[i].WindowedInt["1h"])
+				assert.Equal(b, []int64{4}, *allTypes[i].WindowedList["1m"])
+				assert.Equal(b, fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}, *allTypes[i].Dataclass)
+				assert.Equal(b, []fixtures.LatLng{fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}}, *allTypes[i].DataclassList)
+				assert.Equal(b, fixtures.FavoriteThings{Numbers: &[]int64{1}}, *allTypes[i].DataclassWithList)
+				assert.Equal(b, fixtures.Child{Name: ptr.Ptr("child"), Mom: &fixtures.Parent{Name: ptr.Ptr("mom-1")}, Dad: &fixtures.Parent{Name: ptr.Ptr("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.Ptr("dad-1-mom")}}}, *allTypes[i].DataclassWithDataclass)
+				assert.Equal(b, fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}, *allTypes[i].Nested)
+			}
+		})
 	}
 }
 
