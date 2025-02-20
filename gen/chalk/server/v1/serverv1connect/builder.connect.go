@@ -89,6 +89,18 @@ const (
 	// BuilderServiceStartBranchProcedure is the fully-qualified name of the BuilderService's
 	// StartBranch RPC.
 	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
+	// BuilderServiceGetKarpenterNodepoolsProcedure is the fully-qualified name of the BuilderService's
+	// GetKarpenterNodepools RPC.
+	BuilderServiceGetKarpenterNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetKarpenterNodepools"
+	// BuilderServiceAddKarpenterNodepoolProcedure is the fully-qualified name of the BuilderService's
+	// AddKarpenterNodepool RPC.
+	BuilderServiceAddKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/AddKarpenterNodepool"
+	// BuilderServiceUpdateKarpenterNodepoolProcedure is the fully-qualified name of the
+	// BuilderService's UpdateKarpenterNodepool RPC.
+	BuilderServiceUpdateKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/UpdateKarpenterNodepool"
+	// BuilderServiceDeleteKarpenterNodepoolProcedure is the fully-qualified name of the
+	// BuilderService's DeleteKarpenterNodepool RPC.
+	BuilderServiceDeleteKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/DeleteKarpenterNodepool"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -125,6 +137,10 @@ type BuilderServiceClient interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
+	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
+	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
+	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -247,6 +263,31 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 			connect.WithClientOptions(opts...),
 		),
+		getKarpenterNodepools: connect.NewClient[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetKarpenterNodepoolsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetKarpenterNodepools")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		addKarpenterNodepool: connect.NewClient[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceAddKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("AddKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
+		updateKarpenterNodepool: connect.NewClient[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteKarpenterNodepool: connect.NewClient[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -270,6 +311,10 @@ type builderServiceClient struct {
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
+	getKarpenterNodepools              *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
+	addKarpenterNodepool               *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
+	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
+	deleteKarpenterNodepool            *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -364,6 +409,26 @@ func (c *builderServiceClient) StartBranch(ctx context.Context, req *connect.Req
 	return c.startBranch.CallUnary(ctx, req)
 }
 
+// GetKarpenterNodepools calls chalk.server.v1.BuilderService.GetKarpenterNodepools.
+func (c *builderServiceClient) GetKarpenterNodepools(ctx context.Context, req *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
+	return c.getKarpenterNodepools.CallUnary(ctx, req)
+}
+
+// AddKarpenterNodepool calls chalk.server.v1.BuilderService.AddKarpenterNodepool.
+func (c *builderServiceClient) AddKarpenterNodepool(ctx context.Context, req *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error) {
+	return c.addKarpenterNodepool.CallUnary(ctx, req)
+}
+
+// UpdateKarpenterNodepool calls chalk.server.v1.BuilderService.UpdateKarpenterNodepool.
+func (c *builderServiceClient) UpdateKarpenterNodepool(ctx context.Context, req *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error) {
+	return c.updateKarpenterNodepool.CallUnary(ctx, req)
+}
+
+// DeleteKarpenterNodepool calls chalk.server.v1.BuilderService.DeleteKarpenterNodepool.
+func (c *builderServiceClient) DeleteKarpenterNodepool(ctx context.Context, req *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
+	return c.deleteKarpenterNodepool.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -392,6 +457,10 @@ type BuilderServiceHandler interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
+	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
+	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
+	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -510,6 +579,31 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetKarpenterNodepoolsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetKarpenterNodepoolsProcedure,
+		svc.GetKarpenterNodepools,
+		connect.WithSchema(builderServiceMethods.ByName("GetKarpenterNodepools")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceAddKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceAddKarpenterNodepoolProcedure,
+		svc.AddKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("AddKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUpdateKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateKarpenterNodepoolProcedure,
+		svc.UpdateKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteKarpenterNodepoolProcedure,
+		svc.DeleteKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -548,6 +642,14 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
 		case BuilderServiceStartBranchProcedure:
 			builderServiceStartBranchHandler.ServeHTTP(w, r)
+		case BuilderServiceGetKarpenterNodepoolsProcedure:
+			builderServiceGetKarpenterNodepoolsHandler.ServeHTTP(w, r)
+		case BuilderServiceAddKarpenterNodepoolProcedure:
+			builderServiceAddKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateKarpenterNodepoolProcedure:
+			builderServiceUpdateKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteKarpenterNodepoolProcedure:
+			builderServiceDeleteKarpenterNodepoolHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -627,6 +729,22 @@ func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Con
 
 func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartBranch is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetKarpenterNodepools is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.AddKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteKarpenterNodepool is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
