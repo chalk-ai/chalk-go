@@ -677,11 +677,39 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
+	if reflect.TypeOf(value) == mapValue.Type().Elem() {
+		// Shortcut. Faster than GetReflectValue.
+		switch castValue := value.(type) {
+		case string:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int8:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int16:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int32:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int64:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case float32:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case float64:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case bool:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case time.Time:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		default:
+			return fmt.Errorf("unsupported type for feature '%s': %T", key, value)
+		}
+		return nil
+	}
+	rVal, err := GetReflectValue(&value, mapValue.Type().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
-	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	mapValue.SetMapIndex(reflect.ValueOf(key), *rVal)
 	return nil
 }
 
