@@ -589,9 +589,9 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	}
 
 	assert.Equal(t, 3, len(resultHolders))
-	assert.Equal(t, fixtures.LatLng{&lat, &lng}, *resultHolders[0].Dataclass)
+	assert.Equal(t, fixtures.LatLng{Lat: &lat, Lng: &lng}, *resultHolders[0].Dataclass)
 	assert.Nil(t, resultHolders[1].Dataclass)
-	assert.Equal(t, fixtures.LatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2, Lng: &lng2}, *resultHolders[2].Dataclass)
 }
 
 // TestUnmarshalQueryBulkOptionalDataclassNested
@@ -713,11 +713,11 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 
 	assert.Equal(t, 2, len(resultHolders))
 	assert.Equal(t, 2, len(*resultHolders[0].DataclassList))
-	assert.Equal(t, fixtures.LatLng{&lat1a, &lng1a}, (*resultHolders[0].DataclassList)[0])
-	assert.Equal(t, fixtures.LatLng{&lat1b, &lng1b}, (*resultHolders[0].DataclassList)[1])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat1a, Lng: &lng1a}, (*resultHolders[0].DataclassList)[0])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat1b, Lng: &lng1b}, (*resultHolders[0].DataclassList)[1])
 	assert.Equal(t, 2, len(*resultHolders[1].DataclassList))
-	assert.Equal(t, fixtures.LatLng{&lat2a, &lng2a}, (*resultHolders[1].DataclassList)[0])
-	assert.Equal(t, fixtures.LatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2a, Lng: &lng2a}, (*resultHolders[1].DataclassList)[0])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2b, Lng: &lng2b}, (*resultHolders[1].DataclassList)[1])
 }
 
 func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
