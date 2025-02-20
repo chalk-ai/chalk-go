@@ -13,40 +13,6 @@ import (
 	"time"
 )
 
-func benchmark(b *testing.B, benchmarkFunc func()) {
-	b.Helper()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		benchmarkFunc()
-	}
-	b.StopTimer()
-
-	avg := b.Elapsed() / time.Duration(b.N)
-	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
-	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
-}
-
-func benchmarkParallel(b *testing.B, benchmarkFunc func()) {
-	b.Helper()
-	numParallel := 200
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		var wg sync.WaitGroup
-		for j := 0; j < numParallel; j++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				benchmarkFunc()
-			}()
-		}
-		wg.Wait()
-	}
-	b.StopTimer()
-	avg := b.Elapsed() / time.Duration(b.N)
-	b.ReportMetric(0, "ns/op")                                  // Effective hides the default ns/op metric
-	b.ReportMetric((float64(avg.Nanoseconds()) / 1e6), "ms/op") // The same metric but in ms
-}
-
 func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 	bulkData := make(map[string]any)
 	for i := 0; i < 100; i++ {
@@ -101,8 +67,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
@@ -158,8 +123,7 @@ func getBenchmarkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *rootStruct.IntFeatures.Int1)
@@ -219,8 +183,7 @@ func getBenchmarkUnmarshalMultiNsWindowed(t *testing.B) func() {
 			StringFeatures    fixtures.WindowedStringFeatures
 			TimestampFeatures fixtures.WindowedTimestampFeatures
 		}{}
-		err := res.UnmarshalInto(&rootStruct)
-		assert.Equal(t, (*chalk.ClientError)(nil), err)
+		assert.NoError(t, res.UnmarshalInto(&rootStruct))
 
 		assertOnce.Do(func() {
 			assert.Equal(t, int64(122.0), *rootStruct.IntFeatures.Int1["1m"])
@@ -253,8 +216,7 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		intFeatures := fixtures.IntFeatures{}
-		err := res.UnmarshalInto(&intFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&intFeatures))
 
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(122.0), *intFeatures.Int1)
@@ -288,8 +250,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		stringFeatures := []fixtures.StringFeatures{}
-		err := res.UnmarshalInto(&stringFeatures)
-		assert.Equal(b, (*chalk.ClientError)(nil), err)
+		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
