@@ -263,6 +263,10 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	return benchFunc
 }
 
+func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
+
+}
+
 /*
  * Query: Single
  * Namespaces: Single

@@ -253,7 +253,7 @@ func initFeatures(
 			// Dataclass fields are not actually real features,
 			// so when we are initializing the root Features struct,
 			// we want to return the parent (real) feature FQN
-			// instead of the fake FQN of the dataclass child field.
+			// instead of the fake FQN of the dataclass fixtures.Child field.
 			if internal.IsDataclass(structValue) {
 				updatedFqn = DesuffixFqn(updatedFqn)
 			}
