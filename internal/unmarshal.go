@@ -401,7 +401,7 @@ func ExtractFeaturesFromTable(
 			colName := record.ColumnName(j)
 			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
 				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
-			} else if colName == "__ts__" || colName == "__index__" || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+			} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 				continue
 			} else {
 				featureColumnIdxs = append(featureColumnIdxs, j)
