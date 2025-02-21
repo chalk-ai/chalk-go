@@ -294,7 +294,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 	var wg sync.WaitGroup
 	numWorkers := runtime.NumCPU()
-	resChan := make(chan ChunkResult, numWorkers)
+	resChan := make(chan *ChunkResult, numWorkers)
 	chunkSize := (len(rows) / numWorkers) + 1
 
 	for chunkIdx := 0; (chunkIdx * chunkSize) < len(rows); chunkIdx += 1 {
@@ -308,20 +308,20 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 			for rowIdx, row := range chunkRows {
 				res, err := rowToStruct(row)
 				if err != nil {
-					resChan <- ChunkResult{chunkIdx: routineChunkIdx, err: err}
+					resChan <- &ChunkResult{chunkIdx: routineChunkIdx, err: err}
 					return
 				} else {
 					results[rowIdx] = *res
 				}
 			}
-			resChan <- ChunkResult{chunkIdx: routineChunkIdx, rows: results}
+			resChan <- &ChunkResult{chunkIdx: routineChunkIdx, rows: results}
 		}(chunkIdx)
 	}
 
 	wg.Wait()
 	close(resChan)
 
-	var allChunks []ChunkResult
+	var allChunks []*ChunkResult
 	for chunkResult := range resChan {
 		allChunks = append(allChunks, chunkResult)
 	}
