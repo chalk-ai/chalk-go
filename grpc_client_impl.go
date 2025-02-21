@@ -36,7 +36,7 @@ type grpcClientImpl struct {
 	queryClient enginev1connect.QueryServiceClient
 }
 
-func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
+func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	var cfg *GRPCClientConfig
 	if len(configs) == 0 {
 		cfg = &GRPCClientConfig{}
@@ -79,7 +79,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	}
 
 	// Necessary to get GRPC engines URL
-	if err := config.refresh(context.Background(), false); err != nil {
+	if err := config.refresh(ctx, false); err != nil {
 		return nil, errors.Wrap(err, "fetching initial config")
 	}
 

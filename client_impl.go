@@ -642,7 +642,7 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 }
 
 func newClientImpl(
-	cfg ClientConfig,
+	ctx context.Context, cfg ClientConfig,
 ) (*clientImpl, error) {
 	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
 	if err != nil {
@@ -682,7 +682,7 @@ func newClientImpl(
 		config: config,
 	}
 	client.config.getToken = client.getToken
-	if err := client.config.refresh(context.Background(), false); err != nil {
+	if err := client.config.refresh(ctx, false); err != nil {
 		return nil, errors.Wrap(err, "error fetching initial config")
 	}
 	return client, nil

@@ -14,20 +14,23 @@ type clientGrpc struct {
 	underlying GRPCClient
 }
 
-func newClientGrpc(cfg ClientConfig) (*clientGrpc, error) {
-	nativeClient, err := newGrpcClient(&GRPCClientConfig{
-		ApiServer:     cfg.ApiServer,
-		ClientId:      cfg.ClientId,
-		ClientSecret:  cfg.ClientSecret,
-		EnvironmentId: cfg.EnvironmentId,
-		Logger:        cfg.Logger,
-		Branch:        cfg.Branch,
-		QueryServer:   cfg.QueryServer,
-		HTTPClient:    cfg.HTTPClient,
-		DeploymentTag: cfg.DeploymentTag,
-		ResourceGroup: cfg.ResourceGroup,
-		Timeout:       cfg.Timeout,
-	})
+func newClientGrpc(ctx context.Context, cfg ClientConfig) (*clientGrpc, error) {
+	nativeClient, err := newGrpcClient(
+		ctx,
+		&GRPCClientConfig{
+			ApiServer:     cfg.ApiServer,
+			ClientId:      cfg.ClientId,
+			ClientSecret:  cfg.ClientSecret,
+			EnvironmentId: cfg.EnvironmentId,
+			Logger:        cfg.Logger,
+			Branch:        cfg.Branch,
+			QueryServer:   cfg.QueryServer,
+			HTTPClient:    cfg.HTTPClient,
+			DeploymentTag: cfg.DeploymentTag,
+			ResourceGroup: cfg.ResourceGroup,
+			Timeout:       cfg.Timeout,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
