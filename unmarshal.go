@@ -22,7 +22,10 @@ func setFeature(field reflect.Value, fqn string, value any, allMemo *internal.Al
 	// Set value
 	if field.Type().Kind() == reflect.Ptr {
 		// A primitive or a dataclass or a has-one or a list of them
-		codec := internal.GetReflectValueCodec(&value, field.Type(), allMemo)
+		codec, err := internal.GenerateGetReflectValueFunc(&value, field.Type(), allMemo)
+		if err != nil {
+			return errors.Wrapf(err, "getting codec for feature '%s'", fqn)
+		}
 		rVal, err := codec(&value)
 		//rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {

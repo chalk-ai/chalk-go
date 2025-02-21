@@ -491,71 +491,182 @@ type InitRemoteFeatureFunc func(structValue any) error
 type GetReflectValueFunc func(value any) (*reflect.Value, error)
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) GetReflectValueFunc {
+func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (GetReflectValueFunc, error) {
 	if value == nil {
 		return func(value any) (*reflect.Value, error) {
 			return ptr.Ptr(reflect.Zero(typ)), nil
-		}
+		}, nil
 	}
 	reflectValue := reflect.ValueOf(value)
 	if reflectValue.Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		codec := GetReflectValueCodec(reflectValue.Elem().Interface(), typ.Elem(), allMemo)
+		codec, err := GenerateGetReflectValueFunc(reflectValue.Elem().Interface(), typ.Elem(), allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "getting codec for pointer value")
+		}
 		return func(innerValue any) (*reflect.Value, error) {
 			result, err := codec(reflect.ValueOf(innerValue).Elem().Interface())
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 			}
 			return ptr.Ptr(ReflectPtr(*result)), nil
-		}
+		}, nil
 	}
 	if IsStruct(typ) {
-		return func(innerValue any) (*reflect.Value, error) {
-			structValue := reflect.New(typ).Elem()
-			mySlice := reflect.TypeOf(innerValue)
-			fmt.Println(">>> MY SLICE TYPE: ", mySlice.Kind())
-			if slice, isSlice := innerValue.([]any); isSlice {
-				// Dataclasses come back as either slices or structs.
-				// This is the slices case.
-				if len(slice) != structValue.NumField() {
-					return nil, fmt.Errorf(
-						"error unmarshalling innerValue for struct %s"+
-							": expected %d fields, got %d",
-						structValue.Type().Name(),
-						structValue.NumField(),
-						len(slice),
+		if slice, isSlice := value.([]any); isSlice {
+			// Dataclasses come back as either slices or structs.
+			// This is the slices case.
+			if len(slice) != typ.NumField() {
+				return nil, fmt.Errorf(
+					"error unmarshalling innerValue for struct %s"+
+						": expected %d fields, got %d",
+					typ.Name(),
+					typ.NumField(),
+					len(slice),
+				)
+			}
+			fieldIdxToCodec := map[int]GetReflectValueFunc{}
+			for idx, memberValue := range slice {
+				memberFieldMeta := typ.Field(idx)
+				resolvedName, err := ResolveFeatureName(memberFieldMeta)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error resolving name for field '%s' in struct '%s'",
+						memberFieldMeta.Name,
+						typ.Name(),
 					)
 				}
+				codec, err := GenerateGetReflectValueFunc(&memberValue, memberFieldMeta.Type, allMemo)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"getting codec for struct value for field '%s' in struct '%s'",
+						resolvedName, typ.Name(),
+					)
+				}
+				fieldIdxToCodec[idx] = codec
+			}
+			return func(innerValue any) (*reflect.Value, error) {
+				structValue := reflect.New(typ).Elem()
 				for idx, memberValue := range slice {
-					memberFieldMeta := structValue.Type().Field(idx)
-					memberField := structValue.Field(idx)
-					resolvedName, err := ResolveFeatureName(memberFieldMeta)
-					if err != nil {
-						return nil, errors.Wrapf(
-							err,
-							"error resolving name for field '%s' in struct '%s'",
-							memberFieldMeta.Name,
-							structValue.Type().Name(),
-						)
-					}
-					if memberField == (reflect.Value{}) {
-						return nil, fmt.Errorf(
-							"member field '%s' not found in struct '%s'",
-							resolvedName, structValue.Type().Name(),
-						)
-					}
-					codec := GetReflectValueCodec(&memberValue, memberField.Type(), allMemo)
+					codec := fieldIdxToCodec[idx]
 					rVal, err := codec(&memberValue)
 					if err != nil {
 						return nil, errors.Wrapf(
 							err,
 							"error unmarshalling struct value for field '%s' in struct '%s'",
-							resolvedName, structValue.Type().Name(),
+							typ.Field(idx).Name,
+							typ.Name(),
 						)
 					}
-					memberField.Set(*rVal)
+					structValue.Field(idx).Set(*rVal)
 				}
 				return &structValue, nil
-			} else if mapz, isMap := innerValue.(map[string]any); isMap {
+			}, nil
+		} else if mapz, isMap := value.(map[string]any); isMap {
+			// This could be either a dataclass or a feature class.
+			memo, ok := allMemo.Load(typ)
+			if !ok {
+				return nil, fmt.Errorf(
+					"namespace memo not found for struct '%s' - found %v",
+					typ.Name(),
+					allMemo.Keys(),
+				)
+			}
+			if memo.ResolvedFieldNameToIndices == nil {
+				return nil, fmt.Errorf(
+					"resolved field name to index map not found for struct '%s'",
+					typ.Name(),
+				)
+			}
+			fieldIdxToCodec := map[int]func(innerValue any, field *reflect.Value) error{}
+			for k, v := range mapz {
+				memberFieldIndices, fieldOk := memo.ResolvedFieldNameToIndices[k]
+				if !fieldOk {
+					// For forward compatibility, i.e. when clients add
+					// more fields to their dataclasses in chalkpy, we want
+					// to default to not erring when trying to deserialize
+					// a new field that does not yet exist in the Go struct.
+					// Eventually we might consider exposing a flag.
+					continue
+				}
+				for _, memberFieldIdx := range memberFieldIndices {
+					fieldMeta := typ.Field(memberFieldIdx)
+					if fieldMeta.Type.Kind() == reflect.Map {
+						bucket, err := GetBucketFromFqn(k)
+						if err != nil {
+							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
+						}
+						codec, err := GenerateGetReflectValueFunc(&v, fieldMeta.Type.Elem(), allMemo)
+						if err != nil {
+							return nil, errors.Wrapf(err, "getting codec for map entry of key '%s'", k)
+						}
+						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, mapValue *reflect.Value) error {
+							rVal, err := codec(&innerValue)
+							if err != nil {
+								return errors.Wrapf(err, "unmarshalling map entry value for field '%s'", k)
+							}
+							SetMapEntryValueThin(mapValue, rVal, bucket, allMemo)
+							return nil
+						}
+					} else {
+						codec, err := GenerateGetReflectValueFunc(&v, fieldMeta.Type, allMemo)
+						if err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"getting codec for struct value '%s' for struct '%s'",
+								k, typ.Name(),
+							)
+						}
+						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, field *reflect.Value) error {
+							rVal, err := codec(&innerValue)
+							if err != nil {
+								return errors.Wrapf(
+									err,
+									"unmarshalling struct value '%s' for struct '%s'",
+									k, typ.Name(),
+								)
+							}
+							field.Set(*rVal)
+							return nil
+						}
+					}
+				}
+			}
+			return func(innerValue any) (*reflect.Value, error) {
+				structValue := reflect.New(typ).Elem()
+				for k, v := range mapz {
+					if v == nil {
+						continue
+					}
+					memberFieldIndices, fieldOk := memo.ResolvedFieldNameToIndices[k]
+					if !fieldOk {
+						// For forward compatibility, i.e. when clients add
+						// more fields to their dataclasses in chalkpy, we want
+						// to default to not erring when trying to deserialize
+						// a new field that does not yet exist in the Go struct.
+						// Eventually we might consider exposing a flag.
+						continue
+					}
+					for _, memberFieldIdx := range memberFieldIndices {
+						memberField := structValue.Field(memberFieldIdx)
+						codec := fieldIdxToCodec[memberFieldIdx]
+						if err := codec(v, &memberField); err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"error setting map entry value for field '%s' in struct '%s'",
+								k, structValue.Type().Name(),
+							)
+						}
+					}
+				}
+				return &structValue, nil
+			}, nil
+		}
+
+		return func(innerValue any) (*reflect.Value, error) {
+			structValue := reflect.New(typ).Elem()
+			if mapz, isMap := innerValue.(map[string]any); isMap {
 				// This could be either a dataclass or a feature class.
 				memo, ok := allMemo.Load(structValue.Type())
 				if !ok {
@@ -600,7 +711,14 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 								)
 							}
 						} else {
-							codec := GetReflectValueCodec(&v, memberField.Type(), allMemo)
+							codec, err := GenerateGetReflectValueFunc(&v, memberField.Type(), allMemo)
+							if err != nil {
+								return nil, errors.Wrapf(
+									err,
+									"getting codec for struct value '%s' for struct '%s'",
+									k, structValue.Type().Name(),
+								)
+							}
 							rVal, err := codec(v)
 							if err != nil {
 								return nil, errors.Wrapf(
@@ -619,7 +737,7 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 					"struct value is not an `any` slice or a `map[string]any`",
 				)
 			}
-		}
+		}, nil
 	} else if typ == reflect.TypeOf(time.Time{}) {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
 		if reflectValue.Type() == typ {
@@ -636,7 +754,7 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 						reflect.TypeOf(value),
 					)
 				}
-			}
+			}, nil
 		}
 
 		return func(value any) (*reflect.Value, error) {
@@ -654,7 +772,7 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 				return nil, errors.Wrap(timeErr, "error parsing date string")
 			}
 			return ptr.Ptr(reflect.ValueOf(dateValue)), nil
-		}
+		}, nil
 	} else if typ.Kind() == reflect.Slice {
 		return func(innerValue any) (*reflect.Value, error) {
 			actualSlice := reflect.ValueOf(innerValue)
@@ -671,7 +789,10 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 						)
 					}
 				}
-				codec := GetReflectValueCodec(actualValue, typ.Elem(), allMemo)
+				codec, err := GenerateGetReflectValueFunc(actualValue, typ.Elem(), allMemo)
+				if err != nil {
+					return nil, errors.Wrap(err, "getting codec for slice")
+				}
 				rVal, err := codec(actualValue)
 				if err != nil {
 					return nil, errors.Wrap(err, "error getting reflect value for slice")
@@ -679,7 +800,7 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 				newSlice = reflect.Append(newSlice, *rVal)
 			}
 			return &newSlice, nil
-		}
+		}, nil
 	} else {
 		if reflectValue.Kind() != typ.Kind() {
 			return func(value any) (*reflect.Value, error) {
@@ -689,11 +810,11 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 				} else {
 					return nil, KindMismatchError(typ.Kind(), reflectValue.Kind())
 				}
-			}
+			}, nil
 		}
 		return func(value any) (*reflect.Value, error) {
 			return &reflectValue, nil
-		}
+		}, nil
 	}
 }
 
@@ -897,6 +1018,15 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 	}
 	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
 	return nil
+}
+
+func SetMapEntryValueThin(mapValue *reflect.Value, entryValue *reflect.Value, key string, allMemo *AllNamespaceMemoT) {
+	if mapValue.IsNil() {
+		mapType := mapValue.Type()
+		newMap := reflect.MakeMap(mapType)
+		mapValue.Set(newMap)
+	}
+	mapValue.SetMapIndex(reflect.ValueOf(key), *entryValue)
 }
 
 /*  PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
