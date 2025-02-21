@@ -482,10 +482,16 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 	return ptr
 }
 
-type Codec func(value any) (*reflect.Value, error)
+type Codec struct {
+	InitRemoteFeature InitRemoteFeatureFunc
+	GetReflectValue   GetReflectValueFunc
+}
+
+type InitRemoteFeatureFunc func(structValue any) error
+type GetReflectValueFunc func(value any) (*reflect.Value, error)
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) Codec {
+func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) GetReflectValueFunc {
 	if value == nil {
 		return func(value any) (*reflect.Value, error) {
 			return ptr.Ptr(reflect.Zero(typ)), nil
@@ -675,13 +681,18 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 		}
 	} else {
 		if reflectValue.Kind() != typ.Kind() {
-			if reflectValue.Type().ConvertibleTo(typ) {
-				reflectValue = reflectValue.Convert(typ)
-			} else {
-				return nil, KindMismatchError(typ.Kind(), reflectValue.Kind())
+			return func(value any) (*reflect.Value, error) {
+				if reflectValue.Type().ConvertibleTo(typ) {
+					reflectValue = reflectValue.Convert(typ)
+					return &reflectValue, nil
+				} else {
+					return nil, KindMismatchError(typ.Kind(), reflectValue.Kind())
+				}
 			}
 		}
-		return &reflectValue, nil
+		return func(value any) (*reflect.Value, error) {
+			return &reflectValue, nil
+		}
 	}
 }
 
