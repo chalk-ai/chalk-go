@@ -736,17 +736,18 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 		}, nil
 	} else {
 		if reflectValue.Kind() != typ.Kind() {
-			return func(value any) (*reflect.Value, error) {
-				if reflectValue.Type().ConvertibleTo(typ) {
-					reflectValue = reflectValue.Convert(typ)
-					return &reflectValue, nil
+			return func(innerValue any) (*reflect.Value, error) {
+				innerReflectValue := reflect.ValueOf(innerValue)
+				if innerReflectValue.Type().ConvertibleTo(typ) {
+					innerReflectValue = innerReflectValue.Convert(typ)
+					return &innerReflectValue, nil
 				} else {
-					return nil, KindMismatchError(typ.Kind(), reflectValue.Kind())
+					return nil, KindMismatchError(typ.Kind(), innerReflectValue.Kind())
 				}
 			}, nil
 		}
-		return func(value any) (*reflect.Value, error) {
-			return &reflectValue, nil
+		return func(innerValue any) (*reflect.Value, error) {
+			return ptr.Ptr(reflect.ValueOf(innerValue)), nil
 		}, nil
 	}
 }
