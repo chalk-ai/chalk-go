@@ -50,7 +50,7 @@ func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptor
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-			if err := configManager.refresh(false); err != nil {
+			if err := configManager.refresh(ctx, false); err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
 			req.Header().Set(HeaderKeyEnvironmentId, configManager.environmentId.Value)
