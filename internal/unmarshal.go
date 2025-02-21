@@ -499,10 +499,9 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 	}
 	reflectValue := reflect.ValueOf(value)
 	if reflectValue.Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		elem := reflectValue.Elem().Interface()
-		codec := GetReflectValueCodec(elem, typ.Elem(), allMemo)
-		return func(value any) (*reflect.Value, error) {
-			result, err := codec(value)
+		codec := GetReflectValueCodec(reflectValue.Elem().Interface(), typ.Elem(), allMemo)
+		return func(innerValue any) (*reflect.Value, error) {
+			result, err := codec(reflect.ValueOf(innerValue).Elem().Interface())
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 			}
@@ -512,6 +511,8 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 	if IsStruct(typ) {
 		return func(innerValue any) (*reflect.Value, error) {
 			structValue := reflect.New(typ).Elem()
+			mySlice := reflect.TypeOf(innerValue)
+			fmt.Println(">>> MY SLICE TYPE: ", mySlice.Kind())
 			if slice, isSlice := innerValue.([]any); isSlice {
 				// Dataclasses come back as either slices or structs.
 				// This is the slices case.
@@ -543,7 +544,7 @@ func GetReflectValueCodec(value any, typ reflect.Type, allMemo *AllNamespaceMemo
 						)
 					}
 					codec := GetReflectValueCodec(&memberValue, memberField.Type(), allMemo)
-					rVal, err := codec(memberValue)
+					rVal, err := codec(&memberValue)
 					if err != nil {
 						return nil, errors.Wrapf(
 							err,
