@@ -77,9 +77,6 @@ type OnlineQueryParams struct {
 	// to `true` as well.
 	Explain bool
 
-	// EncodingOptions is used to specify how features should be encoded in the response.
-	EncodingOptions *FeatureEncodingOptions
-
 	// ResourceGroup specifies the resource group to route this query to. Takes precedence
 	// over the resource group specified on the client level.
 	ResourceGroup string
@@ -786,12 +783,6 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
-}
-
-type FeatureEncodingOptions struct {
-	// If true, Chalk will return structs as objects
-	// instead of arrays in the response.
-	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
 
 type QueryContextValue interface {

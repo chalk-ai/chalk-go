@@ -48,17 +48,12 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		convertedInputs[fqn] = convertedValues
 	}
 
-	var encodingOptions internal.FeatureEncodingOptions
-	if p.EncodingOptions == nil {
-		encodingOptions = internal.FeatureEncodingOptions{
-			// To ensure backcompat with codegen'd structs.
-			// See https://github.com/chalk-ai/chalk-go/pull/159
-			EncodeStructsAsObjects: true,
-		}
-	} else {
-		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: p.EncodingOptions.EncodeStructsAsObjects,
-		}
+	encodingOptions := internal.FeatureEncodingOptions{
+		// To ensure backcompat with codegen'd structs.
+		// See https://github.com/chalk-ai/chalk-go/pull/159
+		// And also makes unmarshalling easier. This is
+		// unspecifiable by the user.
+		EncodeStructsAsObjects: true,
 	}
 
 	return &internal.OnlineQueryRequestSerialized{
