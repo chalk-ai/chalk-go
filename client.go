@@ -250,16 +250,16 @@ type ClientConfig struct {
 //
 // Example:
 //
-//		     chalkClient, chalkClientErr := chalk.NewClient(
-//	             context.Background(),
-//		         &chalk.ClientConfig{
-//			         ClientId:      "id-89140a6614886982a6782106759e30",
-//			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-//			         ApiServer:     "https://api.chalk.ai",
-//			         EnvironmentId: "qa",
-//			         Branch:        "jorges-december",
-//		         },
-//		     )
+//	     chalkClient, chalkClientErr := chalk.NewClient(
+//	         context.Background(),
+//	         &chalk.ClientConfig{
+//		         ClientId:      "id-89140a6614886982a6782106759e30",
+//		         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+//		         ApiServer:     "https://api.chalk.ai",
+//		         EnvironmentId: "qa",
+//		         Branch:        "jorges-december",
+//	         },
+//	     )
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
 func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
