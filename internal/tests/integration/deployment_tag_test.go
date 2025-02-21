@@ -17,10 +17,13 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	deploymentTag := "test-deployment-tag"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient:    httpClient,
-		DeploymentTag: deploymentTag,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient:    httpClient,
+			DeploymentTag: deploymentTag,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

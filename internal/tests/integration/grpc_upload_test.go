@@ -106,7 +106,7 @@ func TestGrpcUpdateAggregates(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	assert.NoError(t, chalk.InitFeatures(&Features))
-	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -134,7 +134,7 @@ func TestGrpcUpdateAggregatesNative(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	assert.NoError(t, chalk.InitFeatures(&Features))
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -153,7 +153,7 @@ func TestGrpcUpdateAggregatesNative(t *testing.T) {
 	_, err = client.UpdateAggregates(context.Background(), params)
 	assert.NoError(t, err)
 
-	restClient, err := chalk.NewClient()
+	restClient, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a REST client", err)
 	}

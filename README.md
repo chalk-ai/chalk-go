@@ -62,27 +62,33 @@ import (
     "github.com/chalk-ai/chalk-go"
 )
 
-client := chalk.NewClient()
+client := chalk.NewClient(context.Background())
 ```
 
 #### With overrides
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    ClientId:      "id-89140a6614886982a6782106759e30",
-    ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-    ApiServer:     "https://api.chalk.ai",
-    EnvironmentId: "qa",
-    Branch:        "jorges-december",
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		ClientId:      "id-89140a6614886982a6782106759e30",
+		ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+		ApiServer:     "https://api.chalk.ai",
+		EnvironmentId: "qa",
+		Branch:        "jorges-december",
+	}
+)
 ```
 
 ### gRPC Client
 To use gRPC as the underlying protocol for communication with Chalk, set the `UseGrpc` field in `ClientConfig` to 
 `true`. 
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    UseGrpc: true,
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		UseGrpc: true,
+	},
+)
 ```
 You can then make requests just like you would without `UseGrpc` specified.
 
@@ -204,9 +210,12 @@ Note that if you have an explicit `FeatureTime` feature specified, you could pro
 
 To query against a branch, create a `ChalkClient` with a `Branch` specified, and then make queries using that client.
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    Branch:        "jorges-december",
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		Branch:        "jorges-december",
+	},
+)
 ```
 
 ### Configuring Logging

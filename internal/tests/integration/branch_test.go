@@ -18,9 +18,12 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -55,10 +58,13 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-		Branch:     branchId,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+			Branch:     branchId,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -84,10 +90,13 @@ func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	branchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-		Branch:     branchId,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+			Branch:     branchId,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -110,10 +119,13 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	expectedBranchId := "test-branch-id"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-		Branch:     expectedBranchId,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+			Branch:     expectedBranchId,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

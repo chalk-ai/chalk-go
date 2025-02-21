@@ -16,9 +16,12 @@ func TestHeadersSetOnlineQueryBulk(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -46,9 +49,11 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -77,9 +82,12 @@ func TestVersionHeaderSetOfflineQuery(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -104,10 +112,13 @@ func TestQueryServerOverride(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	queryServer := "https://my-bogus-server.ai"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient:  httpClient,
-		QueryServer: queryServer,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient:  httpClient,
+			QueryServer: queryServer,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

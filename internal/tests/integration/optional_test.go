@@ -9,7 +9,7 @@ import (
 
 func TestQueryOptionalFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewClient()
+	client, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

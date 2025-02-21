@@ -18,7 +18,7 @@ func TestUploadFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 
 	// Implicitly sources config from env var
-	client, err := chalk.NewClient()
+	client, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

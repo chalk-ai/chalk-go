@@ -27,13 +27,15 @@ func init() {
 		return
 	}
 
-	restClient, err := chalk.NewClient()
+	ctx := context.Background()
+
+	restClient, err := chalk.NewClient(ctx)
 	if err != nil {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "rest", client: restClient})
 
-	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	grpcClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		panic(err)
 	}
@@ -162,7 +164,7 @@ func TestTimeout(t *testing.T) {
 
 	for _, useGrpc := range []bool{true, false} {
 		for _, timeoutFixture := range timeouts {
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
 				t.Parallel()
 				if timeoutFixture.shouldFail {

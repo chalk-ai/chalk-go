@@ -23,7 +23,7 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 		t.Fatal("Failed initializing features", initFeaturesErr)
 	}
 
-	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -65,7 +65,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	userId := int64(432)
 	expectedSocureScore := 123.0
 
-	restClient, err := chalk.NewClient()
+	restClient, err := chalk.NewClient(context.Background())
 	assert.NoError(t, err)
 	_, err = restClient.UploadFeatures(
 		context.Background(),
@@ -78,7 +78,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	grpcClient, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	assert.NoError(t, err)
 	req := chalk.OnlineQueryParams{IncludeMeta: true}.
 		WithInput(testFeatures.User.Id, userId).
@@ -109,7 +109,7 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 		t.Fatal("Failed initializing features", initFeaturesErr)
 	}
 
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, 1).
@@ -127,7 +127,7 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 		t.Fatal("Failed initializing features", initFeaturesErr)
 	}
 
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.Series.Id, 1).
@@ -145,7 +145,7 @@ func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
 		t.Fatal("Failed initializing features", initFeaturesErr)
 	}
 
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.Series.Id, "seed").

@@ -41,9 +41,12 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	}
 
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -117,9 +120,12 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 func TestParamsSetInOnlineQuery(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -204,9 +210,12 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 func TestParamsSetInOfflineQuery(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
