@@ -22,12 +22,6 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		outputs = []string{}
 	}
 
-	context := internal.OnlineQueryContext{
-		Environment:          internal.StringOrNil(p.EnvironmentId),
-		Tags:                 p.Tags,
-		RequiredResolverTags: p.RequiredResolverTags,
-	}
-
 	var now *string
 	if len(p.Now) > 1 {
 		return nil, fmt.Errorf(
@@ -49,9 +43,13 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	}
 
 	return &internal.OnlineQueryRequestSerialized{
-		Inputs:           convertedInputs,
-		Outputs:          outputs,
-		Context:          context,
+		Inputs:  convertedInputs,
+		Outputs: outputs,
+		Context: internal.OnlineQueryContext{
+			Environment:          internal.StringOrNil(p.EnvironmentId),
+			Tags:                 p.Tags,
+			RequiredResolverTags: p.RequiredResolverTags,
+		},
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
