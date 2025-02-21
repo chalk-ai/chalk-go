@@ -318,7 +318,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	return func() {
 		allTypes := []fixtures.AllTypes{}
-		assert.Equal(b, (*chalk.ClientError)(nil), res.UnmarshalInto(&allTypes))
+		assert.NoError(b, res.UnmarshalInto(&allTypes))
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(numRows), table.NumRows())
 			numSamples := 10
