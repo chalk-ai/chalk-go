@@ -467,8 +467,9 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
-	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
+	reflectValue := reflect.ValueOf(value)
+	if reflectValue.Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
+		indirectValue, err := GetReflectValue(reflectValue.Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -598,7 +599,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 
 		// Datetimes are returned as strings in online query (non-bulk)
-		stringValue := reflect.ValueOf(value).String()
+		stringValue := reflectValue.String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
 			return ptr.Ptr(reflect.ValueOf(timeValue)), nil
@@ -612,7 +613,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 		return ptr.Ptr(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
-		actualSlice := reflect.ValueOf(value)
+		actualSlice := reflectValue
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
 			actualValue := actualSlice.Index(i).Interface()
@@ -634,7 +635,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 		}
 		return &newSlice, nil
 	} else {
-		rVal := reflect.ValueOf(value)
+		rVal := reflectValue
 		if rVal.Kind() != typ.Kind() {
 			if rVal.Type().ConvertibleTo(typ) {
 				rVal = rVal.Convert(typ)
@@ -656,11 +657,39 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
+	if reflect.TypeOf(value) == mapValue.Type().Elem() {
+		// Shortcut. Faster than GetReflectValue.
+		switch castValue := value.(type) {
+		case string:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int8:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int16:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int32:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case int64:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case float32:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case float64:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case bool:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		case time.Time:
+			mapValue.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(castValue))
+		default:
+			return fmt.Errorf("unsupported type for feature '%s': %T", key, value)
+		}
+		return nil
+	}
+	rVal, err := GetReflectValue(&value, mapValue.Type().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
-	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	mapValue.SetMapIndex(reflect.ValueOf(key), *rVal)
 	return nil
 }
 

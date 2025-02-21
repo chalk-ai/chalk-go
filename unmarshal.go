@@ -13,12 +13,41 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 var FieldNotFoundError = errors.New("field not found")
 
 func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
 	if field.Type().Kind() == reflect.Ptr {
+		if reflect.TypeOf(value) == field.Type().Elem() {
+			// Shortcut. Faster than GetReflectValue.
+			switch castValue := value.(type) {
+			case string:
+				field.Set(reflect.ValueOf(&castValue))
+			case int:
+				field.Set(reflect.ValueOf(&castValue))
+			case int8:
+				field.Set(reflect.ValueOf(&castValue))
+			case int16:
+				field.Set(reflect.ValueOf(&castValue))
+			case int32:
+				field.Set(reflect.ValueOf(&castValue))
+			case int64:
+				field.Set(reflect.ValueOf(&castValue))
+			case float32:
+				field.Set(reflect.ValueOf(&castValue))
+			case float64:
+				field.Set(reflect.ValueOf(&castValue))
+			case bool:
+				field.Set(reflect.ValueOf(&castValue))
+			case time.Time:
+				field.Set(reflect.ValueOf(&castValue))
+			default:
+				return fmt.Errorf("unsupported type for feature '%s': %T", fqn, value)
+			}
+			return nil
+		}
 		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
@@ -536,8 +565,9 @@ func thinUnmarshalInto(
 				// Eventually we might consider exposing a flag.
 				continue
 			}
-			for _, fieldIdx := range fieldIndices {
-				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			targetFields = make([]reflect.Value, len(fieldIndices))
+			for i, fieldIdx := range fieldIndices {
+				targetFields[i] = structValue.Field(fieldIdx)
 			}
 		}
 
@@ -545,10 +575,7 @@ func thinUnmarshalInto(
 			if value == nil {
 				if field.Type().Kind() == reflect.Map && field.IsNil() {
 					field.Set(reflect.MakeMap(field.Type()))
-					continue
 				}
-
-				// TODO: Add validation for optional fields
 				continue
 			}
 			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
