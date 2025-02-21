@@ -48,14 +48,6 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		convertedInputs[fqn] = convertedValues
 	}
 
-	encodingOptions := internal.FeatureEncodingOptions{
-		// To ensure backcompat with codegen'd structs.
-		// See https://github.com/chalk-ai/chalk-go/pull/159
-		// And also makes unmarshalling easier. This is
-		// unspecifiable by the user.
-		EncodeStructsAsObjects: true,
-	}
-
 	return &internal.OnlineQueryRequestSerialized{
 		Inputs:           convertedInputs,
 		Outputs:          outputs,
@@ -71,8 +63,14 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
 		Explain:          p.Explain,
-		EncodingOptions:  encodingOptions,
-		PlannerOptions:   p.PlannerOptions,
+		EncodingOptions: internal.FeatureEncodingOptions{
+			// To ensure backcompat with codegen'd structs.
+			// See https://github.com/chalk-ai/chalk-go/pull/159
+			// And also makes unmarshalling easier. This is
+			// unspecifiable by the user.
+			EncodeStructsAsObjects: true,
+		},
+		PlannerOptions: p.PlannerOptions,
 	}, nil
 }
 
