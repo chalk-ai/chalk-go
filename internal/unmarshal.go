@@ -579,7 +579,7 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 					typ.Name(),
 				)
 			}
-			fieldIdxToCodec := map[int]func(innerValue any, field *reflect.Value) error{}
+			fieldIdxToCodec := map[int]func(innerValue any, field *reflect.Value, fieldName string) error{}
 			for k, v := range mapz {
 				memberFieldIndices, fieldOk := memo.ResolvedFieldNameToIndices[k]
 				if !fieldOk {
@@ -593,20 +593,21 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 				for _, memberFieldIdx := range memberFieldIndices {
 					fieldMeta := typ.Field(memberFieldIdx)
 					if fieldMeta.Type.Kind() == reflect.Map {
-						bucket, err := GetBucketFromFqn(k)
-						if err != nil {
-							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
-						}
+
 						codec, err := GenerateGetReflectValueFunc(&v, fieldMeta.Type.Elem(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(err, "getting codec for map entry of key '%s'", k)
 						}
-						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, mapValue *reflect.Value) error {
+						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, mapValue *reflect.Value, fieldName string) error {
+							bucket, err := GetBucketFromFqn(fieldName)
+							if err != nil {
+								return errors.Wrapf(err, "error extracting bucket value for feature '%s'", fieldName)
+							}
 							rVal, err := codec(&innerValue)
 							if err != nil {
-								return errors.Wrapf(err, "unmarshalling map entry value for field '%s'", k)
+								return errors.Wrapf(err, "unmarshalling map entry value for field '%s'", fieldName)
 							}
-							SetMapEntryValueThin(mapValue, rVal, bucket, allMemo)
+							SetMapEntryValueThin(*mapValue, rVal, bucket, allMemo)
 							return nil
 						}
 					} else {
@@ -618,7 +619,7 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 								k, typ.Name(),
 							)
 						}
-						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, field *reflect.Value) error {
+						fieldIdxToCodec[memberFieldIdx] = func(innerValue any, field *reflect.Value, fieldName string) error {
 							rVal, err := codec(&innerValue)
 							if err != nil {
 								return errors.Wrapf(
@@ -634,8 +635,12 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 				}
 			}
 			return func(innerValue any) (*reflect.Value, error) {
+				innerMap, innerIsMap := innerValue.(map[string]any)
+				if !innerIsMap {
+					return nil, errors.Newf("expected map[string]any, got %T", innerValue)
+				}
 				structValue := reflect.New(typ).Elem()
-				for k, v := range mapz {
+				for k, v := range innerMap {
 					if v == nil {
 						continue
 					}
@@ -651,7 +656,7 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 					for _, memberFieldIdx := range memberFieldIndices {
 						memberField := structValue.Field(memberFieldIdx)
 						codec := fieldIdxToCodec[memberFieldIdx]
-						if err := codec(v, &memberField); err != nil {
+						if err := codec(v, &memberField, k); err != nil {
 							return nil, errors.Wrapf(
 								err,
 								"error setting map entry value for field '%s' in struct '%s'",
@@ -663,81 +668,9 @@ func GenerateGetReflectValueFunc(value any, typ reflect.Type, allMemo *AllNamesp
 				return &structValue, nil
 			}, nil
 		}
-
-		return func(innerValue any) (*reflect.Value, error) {
-			structValue := reflect.New(typ).Elem()
-			if mapz, isMap := innerValue.(map[string]any); isMap {
-				// This could be either a dataclass or a feature class.
-				memo, ok := allMemo.Load(structValue.Type())
-				if !ok {
-					return nil, fmt.Errorf(
-						"namespace memo not found for struct '%s' - found %v",
-						structValue.Type().Name(),
-						allMemo.Keys(),
-					)
-				}
-				if memo.ResolvedFieldNameToIndices == nil {
-					return nil, fmt.Errorf(
-						"resolved field name to index map not found for struct '%s'",
-						structValue.Type().Name(),
-					)
-				}
-				for k, v := range mapz {
-					memberFieldIndices, fieldOk := memo.ResolvedFieldNameToIndices[k]
-					if !fieldOk {
-						// For forward compatibility, i.e. when clients add
-						// more fields to their dataclasses in chalkpy, we want
-						// to default to not erring when trying to deserialize
-						// a new field that does not yet exist in the Go struct.
-						// Eventually we might consider exposing a flag.
-						continue
-					}
-					for _, memberFieldIdx := range memberFieldIndices {
-						memberField := structValue.Field(memberFieldIdx)
-						if v == nil {
-							continue
-						}
-
-						if memberField.Type().Kind() == reflect.Map {
-							bucket, err := GetBucketFromFqn(k)
-							if err != nil {
-								return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
-							}
-							if err := SetMapEntryValue(memberField, bucket, v, allMemo); err != nil {
-								return nil, errors.Wrapf(
-									err,
-									"error setting map entry value for field '%s' in struct '%s'",
-									k, structValue.Type().Name(),
-								)
-							}
-						} else {
-							codec, err := GenerateGetReflectValueFunc(&v, memberField.Type(), allMemo)
-							if err != nil {
-								return nil, errors.Wrapf(
-									err,
-									"getting codec for struct value '%s' for struct '%s'",
-									k, structValue.Type().Name(),
-								)
-							}
-							rVal, err := codec(v)
-							if err != nil {
-								return nil, errors.Wrapf(
-									err,
-									"error unmarshalling struct value '%s' for struct '%s'",
-									k, structValue.Type().Name(),
-								)
-							}
-							memberField.Set(*rVal)
-						}
-					}
-				}
-				return &structValue, nil
-			} else {
-				return nil, fmt.Errorf(
-					"struct value is not an `any` slice or a `map[string]any`",
-				)
-			}
-		}, nil
+		return nil, errors.Newf(
+			"struct value is not an `any` slice or a `map[string]any`",
+		)
 	} else if typ == reflect.TypeOf(time.Time{}) {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
 		if reflectValue.Type() == typ {
@@ -1020,7 +953,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 	return nil
 }
 
-func SetMapEntryValueThin(mapValue *reflect.Value, entryValue *reflect.Value, key string, allMemo *AllNamespaceMemoT) {
+func SetMapEntryValueThin(mapValue reflect.Value, entryValue *reflect.Value, key string, allMemo *AllNamespaceMemoT) {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
