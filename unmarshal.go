@@ -11,21 +11,30 @@ import (
 	"reflect"
 	"runtime"
 	"sort"
-	"strings"
 	"sync"
 )
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
+func setFeature(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
+	// Get codec by fqn
+	// Run codec to map value
+	// Set value
 	if field.Type().Kind() == reflect.Ptr {
-		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
+		// A primitive or a dataclass or a has-one or a list of them
+		codec, err := internal.GenerateGetReflectValueFunc(&value, field.Type(), allMemo)
+		if err != nil {
+			return errors.Wrapf(err, "getting codec for feature '%s'", fqn)
+		}
+		rVal, err := codec(&value)
+		//rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
 		}
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
+		// A windowed base feature
 		bucket, err := internal.GetBucketFromFqn(fqn)
 		if err != nil {
 			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
@@ -502,6 +511,76 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 
 // thinUnmarshalInto is called per row. Any operation that can be
 // done outside of this function must be done outside of this function.
+func thinnestUnmarshalInto(
+	structValue reflect.Value,
+	fqnToValue map[Fqn]any,
+	namespace string,
+	expectedOutputs []string,
+	namespaceScope *scopeTrie,
+	namespaceMemo *internal.NamespaceMemo,
+	allMemo *internal.AllNamespaceMemoT,
+	fqnToCodec map[Fqn]internal.Codec,
+) (returnErr *ClientError) {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := initRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		namespaceScope,
+		allMemo,
+		true,
+	); err != nil {
+		return &ClientError{errors.Wrap(err, "error initializing result holder struct").Error()}
+	}
+
+	for fqn, value := range fqnToValue {
+		targetFields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIndices, ok := namespaceMemo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
+			}
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
+			if err := setFeature(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().Name()
+				if errors.Is(err, FieldNotFoundError) {
+					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", namespace)
+					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+					return &ClientError{Message: fieldError}
+				} else {
+					return &ClientError{Message: errors.Wrapf(err, "error unmarshaling feature '%s' into the struct '%s'", fqn, structName).Error()}
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
+// thinUnmarshalInto is called per row. Any operation that can be
+// done outside of this function must be done outside of this function.
 func thinUnmarshalInto(
 	structValue reflect.Value,
 	fqnToValue map[Fqn]any,
@@ -551,16 +630,11 @@ func thinUnmarshalInto(
 				// TODO: Add validation for optional fields
 				continue
 			}
-			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
-				structName := structValue.Type().String()
-				outputNamespace := "unknown namespace"
-				sections := strings.Split(fqn, ".")
-				if len(sections) > 0 {
-					outputNamespace = sections[0]
-				}
+			if err := setFeature(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().Name()
 				if errors.Is(err, FieldNotFoundError) {
 					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
-					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", namespace)
 					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
 					return errors.New(fieldError)
 				} else {
