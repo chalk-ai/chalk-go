@@ -1,65 +1,65 @@
-package chalk
+package fixtures
 
 import "time"
 
-type testLatLng struct {
+type LatLng struct {
 	Lat *float64 `dataclass_field:"true"`
 	Lng *float64 `dataclass_field:"true"`
 }
 
-type testLatLngWithExtraField struct {
+type LatLngWithExtraField struct {
 	Lat   *float64 `dataclass_field:"true"`
 	Lng   *float64 `dataclass_field:"true"`
 	Extra *string  `dataclass_field:"true"`
 }
 
-type favoriteThings struct {
+type FavoriteThings struct {
 	Numbers *[]int64 `dataclass_field:"true"`
 	Words   *[]string
 }
 
-type possessions struct {
+type Possessions struct {
 	Car   *string `dataclass_field:"true"`
 	Yacht *string
 	Plane *string
 }
 
-type grandparent struct {
+type Grandparent struct {
 	Name *string `dataclass_field:"true"`
 }
 
-type parent struct {
+type Parent struct {
 	Name *string `dataclass_field:"true"`
-	Mom  *grandparent
-	Dad  *grandparent
+	Mom  *Grandparent
+	Dad  *Grandparent
 }
 
-type child struct {
+type Child struct {
 	Name *string `dataclass_field:"true"`
-	Mom  *parent
-	Dad  *parent
+	Mom  *Parent
+	Dad  *Parent
 }
 
-type levelOneNest struct {
+type LevelOneNest struct {
 	Id                *string
 	ShouldAlwaysBeNil *string
-	Nested            *levelTwoNest
+	Nested            *LevelTwoNest
 }
 
-type levelTwoNest struct {
+type LevelTwoNest struct {
 	Id                *string
 	ShouldAlwaysBeNil *string
 }
 
-type dclassWithOverrides struct {
+type DclassWithOverrides struct {
 	CamelName *string `dataclass_field:"true" name:"camelName"`
 }
 
-type hasMany struct {
+type HasMany struct {
 	Id *string
 
 	// The following should be kept in parity with the enumeration of
-	// fields with all types in the `allTypes` struct.
+	// fields with all types in the `AllTypes` struct.
 	Int                    *int64
 	Float                  *float64
 	String                 *string
@@ -70,15 +70,15 @@ type hasMany struct {
 	NestedIntList          *[][]int64
 	WindowedInt            map[string]*int64   `windows:"1m,5m,1h"`
 	WindowedList           map[string]*[]int64 `windows:"1m"`
-	Dataclass              *testLatLng         `dataclass:"true"`
-	DataclassList          *[]testLatLng
-	DataclassWithList      *favoriteThings
-	DataclassWithNils      *possessions
-	DataclassWithDataclass *child
-	DataclassWithOverrides *dclassWithOverrides
+	Dataclass              *LatLng             `dataclass:"true"`
+	DataclassList          *[]LatLng
+	DataclassWithList      *FavoriteThings
+	DataclassWithNils      *Possessions
+	DataclassWithDataclass *Child
+	DataclassWithOverrides *DclassWithOverrides
 }
 
-type allTypes struct {
+type AllTypes struct {
 	Int                    *int64
 	Float                  *float64
 	String                 *string
@@ -89,16 +89,16 @@ type allTypes struct {
 	NestedIntList          *[][]int64
 	WindowedInt            map[string]*int64   `windows:"1m,5m,1h"`
 	WindowedList           map[string]*[]int64 `windows:"1m"`
-	Dataclass              *testLatLng         `dataclass:"true"`
-	DataclassList          *[]testLatLng
-	DataclassWithList      *favoriteThings
-	DataclassWithNils      *possessions
-	DataclassWithDataclass *child
-	DataclassWithOverrides *dclassWithOverrides
-	Nested                 *levelOneNest
-	HasMany                *[]hasMany
+	Dataclass              *LatLng             `dataclass:"true"`
+	DataclassList          *[]LatLng
+	DataclassWithList      *FavoriteThings
+	DataclassWithNils      *Possessions
+	DataclassWithDataclass *Child
+	DataclassWithOverrides *DclassWithOverrides
+	Nested                 *LevelOneNest
+	HasMany                *[]HasMany
 }
 
-var testRootFeatures struct {
-	AllTypes *allTypes
+var Root struct {
+	AllTypes *AllTypes
 }
