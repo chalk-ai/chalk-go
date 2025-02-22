@@ -25,9 +25,6 @@ type OnlineQueryParams struct {
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
 
-	// If true, returns performance metrics about the query execution in the response.
-	IncludeMetrics bool
-
 	// The environment under which to run the resolvers. API tokens can be scoped to an
 	// environment. If no environment is specified in the query, but the token supports
 	// only a single environment, then that environment will be taken as the scope for
@@ -79,9 +76,6 @@ type OnlineQueryParams struct {
 	// slower than requests using `explain=False`. If `true`, `IncludeMeta` will be set
 	// to `true` as well.
 	Explain bool
-
-	// EncodingOptions is used to specify how features should be encoded in the response.
-	EncodingOptions *FeatureEncodingOptions
 
 	// ResourceGroup specifies the resource group to route this query to. Takes precedence
 	// over the resource group specified on the client level.
@@ -177,9 +171,6 @@ type OnlineQueryResult struct {
 
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
-
-	// Used to validate result holder expected outputs are not nil.
-	expectedOutputs []string
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
@@ -229,9 +220,7 @@ type FeatureResult struct {
 
 	// The time at which this feature was computed.
 	// This value could be significantly in the past if you're using caching.
-	// <<< NOTE >>> This value is nullable, and if it is null, it will be set
-	// to the zero value of `time.Time`.
-	Timestamp time.Time
+	Timestamp *time.Time
 
 	// Detailed information about how this feature was computed.
 	Meta *FeatureResolutionMeta
@@ -249,16 +238,20 @@ type FeatureResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a struct.
+//  2. UnmarshalInto also errs if its argument is not a pointer to a struct.
 //
 // Implicit usage example (pass result struct into OnlineQuery):
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
-//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			 Features.User.Family.Size,
-//			 Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), &user)
+//		chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    &user,
+//		)
 //
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)
@@ -267,10 +260,14 @@ type FeatureResult struct {
 // Equivalent explicit usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), nil)
+//		result, _ := chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    nil
+//		)
 //
 //		user := User{}
 //		result.UnmarshalInto(&user)
@@ -280,7 +277,7 @@ type FeatureResult struct {
 //	}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
-func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *ClientError) {
+func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
 			detail := "details irretrievable"
@@ -290,12 +287,12 @@ func (result *OnlineQueryResult) UnmarshalInto(resultHolder any) (returnErr *Cli
 			case string:
 				detail = typedContents
 			}
-			returnErr = &ClientError{Message: fmt.Sprintf("exception occurred while unmarshalling result: %s", detail)}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
 		}
 	}()
 
 	if err := validateOnlineQueryResultHolder(resultHolder); err != nil {
-		return &ClientError{Message: err.Error()}
+		return errors.Wrap(err, "validate online query result holder")
 	}
 
 	return result.unmarshal(resultHolder)
@@ -371,7 +368,7 @@ type OnlineQueryBulkResult struct {
 //     structs (has-one relations), those nested structs will also be populated with their
 //     respective feature values.
 //
-//  2. UnmarshalInto also returns a ClientError if its argument is not a pointer to a list of
+//  2. UnmarshalInto also returns an error if its argument is not a pointer to a list of
 //     structs.
 //
 //  3. UnmarshalInto does not currently handle unmarshalling:
@@ -382,10 +379,14 @@ type OnlineQueryBulkResult struct {
 // Usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//		result, _ := chalkClient.OnlineQueryBulk(
+//	  	    context.Background(),
+//	  	    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, []int{1, 2}),
+//		    nil,
+//		)
 //
 //		var users []User
 //		result.UnmarshalInto(&users)
@@ -395,11 +396,8 @@ type OnlineQueryBulkResult struct {
 //	}
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
-func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) *ClientError {
-	if err := unmarshalTableInto(r.ScalarsTable, resultHolders); err != nil {
-		return &ClientError{Message: err.Error()}
-	}
-	return nil
+func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
+	return unmarshalTableInto(r.ScalarsTable, resultHolders)
 }
 
 // UploadFeaturesParams defines the parameters
@@ -597,7 +595,7 @@ type Dataset struct {
 	DatasetId   *string           `json:"dataset_id"`
 	DatasetName *string           `json:"dataset_name"`
 	Revisions   []DatasetRevision `json:"revisions"`
-	Errors      []ServerError     `json:"errors"`
+	Errors      serverErrorsT     `json:"errors"`
 }
 
 type DatasetRevision struct {
@@ -653,12 +651,12 @@ type DatasetRevision struct {
 // Datasets are stored in Chalk as sharded Parquet files. With this
 // method, you can download those raw files into a directory for processing
 // with other tools.
-func (d *DatasetRevision) DownloadData(directory string) error {
-	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
+	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId, "")
 	if getUrlsErr != nil {
-		return getUrlsErr
+		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
-	g, _ := errgroup.WithContext(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	for _, url := range urls {
 		// Capture the loop variables in the closure.
 		u := url
@@ -666,11 +664,7 @@ func (d *DatasetRevision) DownloadData(directory string) error {
 			return d.client.saveUrlToDirectory(u, directory)
 		})
 	}
-	saveErr := g.Wait()
-	if saveErr != nil {
-		return &ErrorResponse{ClientError: &ClientError{Message: saveErr.Error()}}
-	}
-	return nil
+	return errors.Wrap(g.Wait(), "save urls to directory")
 }
 
 type ColumnMetadata struct {
@@ -735,17 +729,6 @@ type ResolverException struct {
 	Stacktrace string `json:"stacktrace"`
 }
 
-type ErrorResponse struct {
-	// Errors that occurred in Chalk's server.
-	ServerErrors []ServerError
-
-	// Errors that occurred in Client or its dependencies.
-	ClientError *ClientError
-
-	// Errors that are standard HTTP errors such as missing authorization.
-	HttpError *HTTPError
-}
-
 // ServerError is an error that occurred in Chalk's server,
 // for example, when a resolver unexpectedly fails to run.
 type ServerError struct {
@@ -787,11 +770,6 @@ type HTTPError struct {
 	Trace *string
 }
 
-// ClientError is an error that occurred in Client or its dependencies.
-type ClientError struct {
-	Message string
-}
-
 // TokenResult holds the result of a GetToken request.
 type TokenResult struct {
 	// The access token that can be used to authenticate requests to the Chalk API.
@@ -805,12 +783,6 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
-}
-
-type FeatureEncodingOptions struct {
-	// If true, Chalk will return structs as objects
-	// instead of arrays in the response.
-	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
 
 type QueryContextValue interface {

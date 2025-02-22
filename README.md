@@ -62,27 +62,33 @@ import (
     "github.com/chalk-ai/chalk-go"
 )
 
-client := chalk.NewClient()
+client := chalk.NewClient(context.Background())
 ```
 
 #### With overrides
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    ClientId:      "id-89140a6614886982a6782106759e30",
-    ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-    ApiServer:     "https://api.chalk.ai",
-    EnvironmentId: "qa",
-    Branch:        "jorges-december",
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		ClientId:      "id-89140a6614886982a6782106759e30",
+		ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+		ApiServer:     "https://api.chalk.ai",
+		EnvironmentId: "qa",
+		Branch:        "jorges-december",
+	}
+)
 ```
 
 ### gRPC Client
 To use gRPC as the underlying protocol for communication with Chalk, set the `UseGrpc` field in `ClientConfig` to 
 `true`. 
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    UseGrpc: true,
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		UseGrpc: true,
+	},
+)
 ```
 You can then make requests just like you would without `UseGrpc` specified.
 
@@ -95,6 +101,7 @@ Query online features using the generated feature structs.  Access the results i
 ```go
 user := User{}
 _, err = client.OnlineQuery(
+    context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
 		WithInput(Features.User.Transactions, []Transaction{
@@ -114,6 +121,7 @@ you can specify a query name instead of outputs when making a query.
 ```go
 user := User{}
 _, err = client.OnlineQuery(
+    context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
         WithQueryName("user_underwriting_features"),
@@ -129,6 +137,7 @@ When executing an offline query, a dataset is returned and can be downloaded as 
 
 ```go
 res, _ := client.OfflineQuery(
+    context.Background(),
     chalk.OfflineQueryParams{}.
         WithInput(Features.User.Id, []any{...}).
         WithOutputs(Features.User),
@@ -144,6 +153,7 @@ Chalk allows you to synchronously persist features directly to your online and o
 
 ```go
 res, err := client.UploadFeatures(
+    context.Background(), 
     chalk.UploadFeaturesParams{
         Inputs: map[any]any{
             Features.User.Id: []string{"user-1", "user-2"},
@@ -182,6 +192,7 @@ class Transaction:
 Then to update the `txn_amount_total` feature, you would upload features corresponding to that aggregation:
 ```go
 res, err := client.UpdateAggregates(
+    context.Background(),
     chalk.UpdateAggregatesParams{
         Inputs: map[any]any{
             "transaction.id": []string{"txn-1", "txn-2"},
@@ -199,9 +210,12 @@ Note that if you have an explicit `FeatureTime` feature specified, you could pro
 
 To query against a branch, create a `ChalkClient` with a `Branch` specified, and then make queries using that client.
 ```go
-client, err := chalk.NewClient(&chalk.ClientConfig{
-    Branch:        "jorges-december",
-})
+client, err := chalk.NewClient(
+	context.Background(),
+	&chalk.ClientConfig{
+		Branch:        "jorges-december",
+	},
+)
 ```
 
 ### Configuring Logging
