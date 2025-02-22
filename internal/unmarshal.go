@@ -178,7 +178,7 @@ func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int,
 
 	newSliceIdx := 0
 	for ptr := startIdx; ptr < endIdx; ptr++ {
-		val, err := getValueOrNil(sliceType, arr, ptr, allMemo)
+		val, err := getValueOrNil(sliceType.Elem(), arr, ptr, allMemo)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
