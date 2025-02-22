@@ -127,6 +127,66 @@ type ChunkResult struct {
 	err      error
 }
 
+func unmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	numRows, err := internal.Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
+	}
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
+	}
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceElemType.Kind(),
+		)
+	}
+
+	allMemo := internal.AllNamespaceMemo
+	if err := internal.PopulateAllNamespaceMemo(sliceElemType); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
+
+	if slice.Len() != numRows {
+		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
+	}
+
+	if err := internal.MapTableToStructs(table, &slice, allMemo); err != nil {
+		return errors.Wrap(err, "mapping table to structs")
+	}
+}
+
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {

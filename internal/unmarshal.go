@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"os"
@@ -164,6 +165,168 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
+func setValue(field *reflect.Value, a arrow.Array, idx int) error {
+	if a.IsNull(idx) {
+		return nil
+	}
+	switch arr := a.(type) {
+	//case *array.LargeList:
+	//	return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx, timeAsString)
+	//case *array.List:
+	//	o32 := arr.Offsets()
+	//	o64 := make([]int64, len(o32))
+	//	for i := 0; i < len(o32); i++ {
+	//		o64[i] = int64(arr.Offsets()[i])
+	//	}
+	//	return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
+	//case *array.Struct:
+	//	newMap := map[string]any{}
+	//	structType, typeOk := arr.DataType().(*arrow.StructType)
+	//	if !typeOk {
+	//		return nil, fmt.Errorf("error getting struct type")
+	//	}
+	//	for k := 0; k < arr.NumField(); k++ {
+	//		anyVal, err := GetValueFromArrowArray(arr.Field(k), idx, timeAsString)
+	//		if err != nil {
+	//			return nil, errors.Wrap(err, "error getting value for Struct column")
+	//		}
+	//		newMap[structType.Field(k).Name] = anyVal
+	//	}
+	//	return newMap, nil
+	//case *array.Dictionary:
+	//	return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(idx), timeAsString)
+	case *array.String:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.SetString(val)
+			return nil
+		}
+	case *array.LargeString:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.SetString(val)
+			return nil
+		}
+	case *array.Uint8:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Uint16:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Uint32:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Uint64:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Int16:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Int32:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Int64:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Float64:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Boolean:
+		val := arr.Value(idx)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&val))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(val))
+			return nil
+		}
+	case *array.Date32:
+		timeVal := arr.Value(idx).ToTime()
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&timeVal))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(timeVal))
+			return nil
+		}
+	case *array.Date64:
+		timeVal := arr.Value(idx).ToTime()
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&timeVal))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(timeVal))
+			return nil
+		}
+	case *array.Timestamp:
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		timeVal := arr.Value(idx).ToTime(timeUnit)
+		if field.Kind() == reflect.Ptr {
+			field.Set(reflect.ValueOf(&timeVal))
+			return nil
+		} else {
+			field.Set(reflect.ValueOf(timeVal))
+			return nil
+		}
+	default:
+		return errors.Newf("unsupported array type: %T", arr)
+	}
+}
+
 func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
@@ -253,6 +416,79 @@ type FeatureMeta struct {
 	SourceId    *string
 	ResolverFqn *string
 	Pkey        any
+}
+
+func MapTableToStructs(
+	table arrow.Table,
+	structs *reflect.Value,
+	allMemo *AllNamespaceMemoT,
+) error {
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
+	}
+	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	defer reader.Release()
+
+	for reader.Next() {
+		record := reader.Record()
+		var featureColumnIdxs []int
+		metaColumnFqnToIdx := make(map[string]int)
+		for j := range record.Columns() {
+			colName := record.ColumnName(j)
+			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
+				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
+			} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+				continue
+			} else {
+				featureColumnIdxs = append(featureColumnIdxs, j)
+			}
+		}
+		mapRecordToStructs(record, structs, featureColumnIdxs, 0, int64(numRows), 0, allMemo)
+	}
+	return nil
+}
+
+func mapRecordToStructs(
+	record arrow.Record,
+	structs *reflect.Value,
+	featureColumnIdxs []int,
+	chunkStart int64,
+	chunkEnd int64,
+	chunkIdx int,
+	allMemo AllNamespaceMemoT,
+) error {
+	chunkEndInt, err := Int64ToInt(chunkEnd)
+	if err != nil {
+		return errors.Wrapf(err, "chunk too large, found %d rows", chunkEnd)
+	}
+	chunkStartInt := int(chunkStart)
+	structType := reflect.TypeOf(structs).Elem()
+	memo, ok := allMemo.Load(structType)
+	if !ok {
+		return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+	}
+	for rowIdx := chunkStartInt; rowIdx < chunkEndInt; rowIdx++ {
+		reflectStruct := structs.Index(rowIdx)
+		for _, colIdx := range featureColumnIdxs {
+			columnArray := record.Column(colIdx)
+			fqn := record.ColumnName(colIdx)
+			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				return errors.Newf(
+					"feature '%s' not found in memo for struct type %s, found: %v",
+					fqn, structType, colls.Keys(memo.ResolvedFieldNameToIndices),
+				)
+			}
+			for _, fieldIdx := range fieldIdxs {
+				field := reflectStruct.Field(fieldIdx)
+				if err := setValue(&field, columnArray, rowIdx); err != nil {
+					return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func extractFeatures(
