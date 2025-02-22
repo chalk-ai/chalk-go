@@ -235,10 +235,9 @@ func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo 
 			fieldName := arrowStructType.Field(k).Name
 			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
 			if !ok {
-				return nil, errors.Newf(
-					"field '%s' not found in memo for struct type %s, found: %v",
-					fieldName, structType.Name(), colls.Keys(memo.ResolvedFieldNameToIndices),
-				)
+				// For backcompat with old codegen'd structs, because server may
+				// return new features that are not yet in the codegen'd structs.
+				continue
 			}
 			for _, fieldIdx := range reflectFieldIndices {
 				// FIXME: Might be a windowed feature
@@ -514,7 +513,7 @@ func (s *InitScope) add(fqnParts []string) {
 
 func InitRemoteFeatureMap(
 	remoteFeatureMap map[string][]reflect.Value,
-	structValue reflect.Value,
+	structValue reflect.Value, // FIXME: Make pointer
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *InitScope,
@@ -613,6 +612,8 @@ func mapRecordToStructs(
 	chunkIdx int,
 	allMemo *AllNamespaceMemoT,
 ) error {
+	// FIXME: Think about multi-namespace unmarshals
+
 	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
 		return errors.Wrapf(err, "chunk too large, found %d rows", chunkEnd)
@@ -629,7 +630,11 @@ func mapRecordToStructs(
 	for _, colIdx := range featureColumnIdxs {
 		colNames = append(colNames, record.ColumnName(colIdx))
 	}
-	namespaceScope, err := BuildScope(colNames)
+	rootScope, err := BuildScope(colNames)
+	namespaceScope, ok := rootScope.Children[namespace]
+	if !ok {
+		return errors.Newf("namespace %s not found in root scope, found: %v", namespace, colls.Keys(rootScope.Children))
+	}
 
 	for rowIdx := chunkStartInt; rowIdx < chunkEndInt; rowIdx++ {
 		reflectStruct := structs.Index(rowIdx)
