@@ -599,7 +599,7 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
-	return unmarshalTableInto(scalars, resultHolders)
+	return internal.UnmarshalTableIntoFast(scalars, resultHolders)
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {
