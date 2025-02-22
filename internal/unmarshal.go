@@ -28,7 +28,7 @@ const (
 	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
 )
 
-var tableReaderChunkSize = defaultTableReaderChunkSize
+var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -48,7 +48,7 @@ var AllNamespaceMemo = &AllNamespaceMemoT{}
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
 		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
-			tableReaderChunkSize = newChunkSize
+			TableReaderChunkSize = newChunkSize
 		}
 	}
 }
@@ -463,28 +463,29 @@ func MapTableToStructs(
 	structs *reflect.Value,
 	allMemo *AllNamespaceMemoT,
 ) error {
-	numRows, err := Int64ToInt(table.NumRows())
-	if err != nil {
-		return errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
-	}
-	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
+	_, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Wrapf(err, "table too large")
+	}
+
+	var featureColumnIdxs []int
+	for i, field := range table.Schema().Fields() {
+		colName := field.Name
+		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+			continue
+		} else {
+			featureColumnIdxs = append(featureColumnIdxs, i)
+		}
+	}
+
+	chunkPtr := int64(0)
 	for reader.Next() {
 		record := reader.Record()
-		var featureColumnIdxs []int
-		metaColumnFqnToIdx := make(map[string]int)
-		for j := range record.Columns() {
-			colName := record.ColumnName(j)
-			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
-				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
-			} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
-				continue
-			} else {
-				featureColumnIdxs = append(featureColumnIdxs, j)
-			}
-		}
-		mapRecordToStructs(record, structs, featureColumnIdxs, 0, int64(numRows), 0, allMemo)
+		mapRecordToStructs(record, structs, featureColumnIdxs, int(chunkPtr), int(chunkPtr+record.NumRows()), allMemo)
+		chunkPtr += record.NumRows()
 	}
 	return nil
 }
@@ -607,18 +608,11 @@ func mapRecordToStructs(
 	record arrow.Record,
 	structs *reflect.Value,
 	featureColumnIdxs []int,
-	chunkStart int64,
-	chunkEnd int64,
-	chunkIdx int,
+	startIdx int,
+	endIdx int,
 	allMemo *AllNamespaceMemoT,
 ) error {
 	// FIXME: Think about multi-namespace unmarshals
-
-	chunkEndInt, err := Int64ToInt(chunkEnd)
-	if err != nil {
-		return errors.Wrapf(err, "chunk too large, found %d rows", chunkEnd)
-	}
-	chunkStartInt := int(chunkStart)
 	structType := structs.Type().Elem()
 	memo, ok := allMemo.Load(structType)
 	if !ok {
@@ -630,14 +624,19 @@ func mapRecordToStructs(
 	for _, colIdx := range featureColumnIdxs {
 		colNames = append(colNames, record.ColumnName(colIdx))
 	}
+
 	rootScope, err := BuildScope(colNames)
+	if err != nil {
+		return errors.Wrap(err, "building scope")
+	}
+
 	namespaceScope, ok := rootScope.Children[namespace]
 	if !ok {
 		return errors.Newf("namespace %s not found in root scope, found: %v", namespace, colls.Keys(rootScope.Children))
 	}
 
-	for rowIdx := chunkStartInt; rowIdx < chunkEndInt; rowIdx++ {
-		reflectStruct := structs.Index(rowIdx)
+	for rowIdx := 0; rowIdx < (endIdx - startIdx); rowIdx++ {
+		reflectStruct := structs.Index(rowIdx + startIdx)
 
 		remoteFeatureMap := map[string][]reflect.Value{}
 		if err := InitRemoteFeatureMap(
@@ -832,7 +831,7 @@ func ExtractFeaturesFromTable(
 	}
 	featureRes := make([]map[string]any, 0, numRows)
 	metaRes := make([]map[string]FeatureMeta, 0, numRows)
-	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
 	for reader.Next() {

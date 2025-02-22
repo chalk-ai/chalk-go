@@ -1419,7 +1419,9 @@ TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the sa
 func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
-	for i := 0; i < 10001; i++ {
+	numRows := 100_000
+	assert.Greater(t, numRows, internal.TableReaderChunkSize)
+	for i := 0; i < numRows; i++ {
 		transactions = append(transactions, unmarshalTransaction{
 			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
 			AmountP30D:            ptr.Ptr(int64(i)),
