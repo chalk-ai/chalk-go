@@ -456,14 +456,14 @@ func mapRecordToStructs(
 	chunkStart int64,
 	chunkEnd int64,
 	chunkIdx int,
-	allMemo AllNamespaceMemoT,
+	allMemo *AllNamespaceMemoT,
 ) error {
 	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
 		return errors.Wrapf(err, "chunk too large, found %d rows", chunkEnd)
 	}
 	chunkStartInt := int(chunkStart)
-	structType := reflect.TypeOf(structs).Elem()
+	structType := structs.Type().Elem()
 	memo, ok := allMemo.Load(structType)
 	if !ok {
 		return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())

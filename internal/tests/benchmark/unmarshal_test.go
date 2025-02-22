@@ -230,7 +230,8 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 
 func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < 100; i++ {
+	numRows := 1
+	for i := 0; i < numRows; i++ {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("string_features.string_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -254,7 +255,41 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
-			for i := 0; i < 100; i++ {
+			for i := 0; i < numRows; i++ {
+				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 1), *stringFeatures[i].String1)
+				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 40), *stringFeatures[i].String40)
+			}
+		})
+	}
+
+	return benchFunc
+}
+
+func getBenchmarkBulkSingleNsFast(b *testing.B) func() {
+	bulkData := make(map[string]any)
+	numRows := 1
+	for i := 0; i < numRows; i++ {
+		for j := 1; j <= 40; j++ {
+			fqn := fmt.Sprintf("string_features.string_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []string{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]string), fmt.Sprintf("string_val_%d_%d", i, j))
+		}
+	}
+
+	record, err := internal.ColumnMapToRecord(bulkData)
+	assert.NoError(b, err)
+
+	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		stringFeatures := []fixtures.StringFeatures{}
+		assert.NoError(b, chalk.UnmarshalTableIntoFast(table, &stringFeatures))
+
+		assertOnce.Do(func() {
+			for i := 0; i < numRows; i++ {
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 1), *stringFeatures[i].String1)
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 40), *stringFeatures[i].String40)
 			}
@@ -409,7 +444,20 @@ func BenchmarkUnmarshalMultiNsPrimitivesParallel(b *testing.B) {
  * Run Type: Single
  */
 func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
-	benchmark(b, getBenchmarkBulkSingleNs(b))
+	//benchmark(b, getBenchmarkBulkSingleNs(b))
+	benchmark(b, getBenchmarkBulkSingleNsFast(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsPrimitivesParallel(b *testing.B) {
+	//benchmarkParallel(b, getBenchmarkBulkSingleNs(b))
+	benchmarkParallel(b, getBenchmarkBulkSingleNsFast(b))
 }
 
 /*

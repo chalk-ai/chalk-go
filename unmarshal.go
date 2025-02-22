@@ -127,7 +127,7 @@ type ChunkResult struct {
 	err      error
 }
 
-func unmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr error) {
+func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
 			detail := "details irretrievable"
@@ -185,6 +185,8 @@ func unmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr err
 	if err := internal.MapTableToStructs(table, &slice, allMemo); err != nil {
 		return errors.Wrap(err, "mapping table to structs")
 	}
+
+	return nil
 }
 
 func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
