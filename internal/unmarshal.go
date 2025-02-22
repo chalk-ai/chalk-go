@@ -165,20 +165,20 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
-func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
-	if a.IsNull(idx) {
+func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+	if arr.IsNull(arrIdx) {
 		return nil, nil
 	}
-	switch arr := a.(type) {
+	switch castArr := arr.(type) {
 	//case *array.LargeList:
-	//	return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), idx, timeAsString)
+	//	return getInnerSliceFromArray(arr.ListValues(), arr.Offsets(), arrIdx, timeAsString)
 	//case *array.List:
 	//	o32 := arr.Offsets()
 	//	o64 := make([]int64, len(o32))
 	//	for i := 0; i < len(o32); i++ {
 	//		o64[i] = int64(arr.Offsets()[i])
 	//	}
-	//	return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
+	//	return getInnerSliceFromArray(arr.ListValues(), o64, arrIdx, timeAsString)
 	case *array.Struct:
 		var structType reflect.Type
 		if fieldType.Kind() == reflect.Ptr {
@@ -201,7 +201,7 @@ func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamesp
 		}
 
 		newStructPtr := reflect.New(structType)
-		for k := 0; k < arr.NumField(); k++ {
+		for k := 0; k < castArr.NumField(); k++ {
 			fieldName := arrowStructType.Field(k).Name
 			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
 			if !ok {
@@ -211,7 +211,7 @@ func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamesp
 				)
 			}
 			for _, fieldIdx := range reflectFieldIndices {
-				value, err := getValue(structType.Field(fieldIdx).Type, arr.Field(k), idx, allMemo)
+				value, err := getValueOrNil(structType.Field(fieldIdx).Type, castArr.Field(k), arrIdx, allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -219,8 +219,10 @@ func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamesp
 						structType.Name(), fieldName,
 					)
 				}
-				structField := newStructPtr.Elem().Field(fieldIdx)
-				structField.Set(*value)
+				if value != nil {
+					structField := newStructPtr.Elem().Field(fieldIdx)
+					structField.Set(*value)
+				}
 			}
 		}
 
@@ -230,93 +232,93 @@ func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamesp
 			return ptr.Ptr(newStructPtr.Elem()), nil
 		}
 	//case *array.Dictionary:
-	//	return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(idx), timeAsString)
+	//	return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(arrIdx), timeAsString)
 	case *array.String:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.LargeString:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint8:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint16:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint32:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint64:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int16:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int32:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int64:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Float64:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Boolean:
-		val := arr.Value(idx)
+		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Date32:
-		timeVal := arr.Value(idx).ToTime()
+		timeVal := castArr.Value(arrIdx).ToTime()
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
 			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
 		}
 	case *array.Date64:
-		timeVal := arr.Value(idx).ToTime()
+		timeVal := castArr.Value(arrIdx).ToTime()
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
@@ -324,7 +326,7 @@ func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamesp
 		}
 	case *array.Timestamp:
 		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
-		timeVal := arr.Value(idx).ToTime(timeUnit)
+		timeVal := castArr.Value(arrIdx).ToTime(timeUnit)
 		if fieldType.Kind() == reflect.Ptr {
 			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
@@ -495,17 +497,21 @@ func mapRecordToStructs(
 					if err != nil {
 						return errors.Wrap(err, "getting bucket from fqn")
 					}
-					reflectValue, err := getValue(field.Type().Elem(), columnArray, rowIdx, allMemo)
+					reflectValue, err := getValueOrNil(field.Type().Elem(), columnArray, rowIdx, allMemo)
 					if field.IsNil() {
 						field.Set(reflect.MakeMap(field.Type()))
 					}
-					field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
+					if reflectValue != nil {
+						field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
+					}
 				} else {
-					reflectValue, err := getValue(field.Type(), columnArray, rowIdx, allMemo)
+					reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
 					if err != nil {
 						return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
 					}
-					field.Set(*reflectValue)
+					if reflectValue != nil {
+						field.Set(*reflectValue)
+					}
 				}
 			}
 		}
