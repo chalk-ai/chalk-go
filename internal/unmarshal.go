@@ -490,6 +490,120 @@ func MapTableToStructs(
 	return nil
 }
 
+type InitScope struct {
+	Children map[string]*InitScope
+}
+
+func (s *InitScope) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *InitScope) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
+	}
+	firstPart := fqnParts[0]
+	if s.Children == nil {
+		s.Children = map[string]*InitScope{}
+	}
+	if _, found := s.Children[firstPart]; !found {
+		s.Children[firstPart] = &InitScope{}
+	}
+	s.Children[firstPart].add(fqnParts[1:])
+}
+
+func InitRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *InitScope,
+	allMemo *AllNamespaceMemoT,
+	scopeToJustStructs bool,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo, ok := allMemo.Load(structValue.Type())
+	if !ok {
+		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	}
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.Children)
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, inScope := scope.Children[resolvedFieldName]
+		if !inScope {
+			continue
+		}
+		updatedFqn := cumulativeFqn + "." + resolvedFieldName
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		if !ok {
+			// We arrive here when chalk-go receives a response that contains a feature
+			// newly added to one of their has-one feature classes. They have not updated
+			// their codegen'd structs yet, so we simply skip unmarshalling this new
+			// feature to ensure forward compatibility.
+			continue
+		}
+
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				if err := InitRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					allMemo,
+					false,
+				); err != nil {
+					return err
+				}
+			} else {
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+			}
+		}
+	}
+	return nil
+}
+
+func BuildScope(fqns []string) (*InitScope, error) {
+	root := &InitScope{}
+	for _, fqn := range fqns {
+		root.addStr(fqn)
+	}
+	return root, nil
+}
+
 func mapRecordToStructs(
 	record arrow.Record,
 	structs *reflect.Value,
@@ -509,22 +623,48 @@ func mapRecordToStructs(
 	if !ok {
 		return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
 	}
+
+	namespace := ChalkpySnakeCase(structType.Name())
+	colNames := make([]string, 0)
+	for _, colIdx := range featureColumnIdxs {
+		colNames = append(colNames, record.ColumnName(colIdx))
+	}
+	namespaceScope, err := BuildScope(colNames)
+
 	for rowIdx := chunkStartInt; rowIdx < chunkEndInt; rowIdx++ {
 		reflectStruct := structs.Index(rowIdx)
+
+		remoteFeatureMap := map[string][]reflect.Value{}
+		if err := InitRemoteFeatureMap(
+			remoteFeatureMap,
+			reflectStruct,
+			namespace,
+			map[string]bool{},
+			namespaceScope,
+			allMemo,
+			true,
+		); err != nil {
+			return errors.Wrap(err, "initializing result holder struct")
+		}
+
 		for _, colIdx := range featureColumnIdxs {
 			columnArray := record.Column(colIdx)
 			fqn := record.ColumnName(colIdx)
 
-			// FIXME: Need to handled remote features, i.e. has-ones
-			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+			fields, ok := remoteFeatureMap[fqn]
 			if !ok {
-				return errors.Newf(
-					"feature '%s' not found in memo for struct type %s, found: %v",
-					fqn, structType, colls.Keys(memo.ResolvedFieldNameToIndices),
-				)
+				fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+				if !ok {
+					// For backcompat with old codegen structs, we simply skip
+					// unmarshalling new features.
+					continue
+				}
+				for _, fieldIdx := range fieldIdxs {
+					fields = append(fields, reflectStruct.Field(fieldIdx))
+				}
 			}
-			for _, fieldIdx := range fieldIdxs {
-				field := reflectStruct.Field(fieldIdx)
+
+			for _, field := range fields {
 				if field.Type().Kind() == reflect.Map {
 					bucket, err := GetBucketFromFqn(fqn)
 					if err != nil {
@@ -1059,5 +1199,67 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 	} else if typ.Kind() == reflect.Slice {
 		return PopulateAllNamespaceMemo(typ.Elem())
 	}
+	return nil
+}
+
+func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
+	}
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
+	}
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceElemType.Kind(),
+		)
+	}
+
+	allMemo := AllNamespaceMemo
+	if err := PopulateAllNamespaceMemo(sliceElemType); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
+
+	if slice.Len() != numRows {
+		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
+	}
+
+	if err := MapTableToStructs(table, &slice, allMemo); err != nil {
+		return errors.Wrap(err, "mapping table to structs")
+	}
+
 	return nil
 }

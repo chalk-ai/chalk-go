@@ -286,7 +286,7 @@ func getBenchmarkBulkSingleNsFast(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	benchFunc := func() {
 		stringFeatures := []fixtures.StringFeatures{}
-		assert.NoError(b, chalk.UnmarshalTableIntoFast(table, &stringFeatures))
+		assert.NoError(b, internal.UnmarshalTableIntoFast(table, &stringFeatures))
 
 		assertOnce.Do(func() {
 			for i := 0; i < numRows; i++ {
@@ -350,7 +350,7 @@ func getBenchmarkUnmarshalBulkAllTypesFast(b *testing.B) func() {
 	assertOnce := sync.Once{}
 	return func() {
 		allTypes := []fixtures.AllTypes{}
-		assert.NoError(b, chalk.UnmarshalTableIntoFast(table, &allTypes))
+		assert.NoError(b, internal.UnmarshalTableIntoFast(table, &allTypes))
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(numRows), table.NumRows())
 			numSamples := 10
@@ -559,8 +559,8 @@ func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
  * Run Type: Parallel
  */
 func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
-	benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypes(b))
-	//benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypesFast(b))
+	//benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypes(b))
+	benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypesFast(b))
 }
 
 /*
