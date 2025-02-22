@@ -241,6 +241,7 @@ func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo 
 				)
 			}
 			for _, fieldIdx := range reflectFieldIndices {
+				// FIXME: Might be a windowed feature
 				value, err := getValueOrNil(structType.Field(fieldIdx).Type, castArr.Field(k), arrIdx, allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
@@ -513,6 +514,8 @@ func mapRecordToStructs(
 		for _, colIdx := range featureColumnIdxs {
 			columnArray := record.Column(colIdx)
 			fqn := record.ColumnName(colIdx)
+
+			// FIXME: Need to handled remote features, i.e. has-ones
 			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
 			if !ok {
 				return errors.Newf(

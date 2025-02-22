@@ -430,7 +430,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 //
 //	}
 func UnmarshalTableInto(table arrow.Table, resultHolders any) error {
-	return unmarshalTableInto(table, resultHolders)
+	return UnmarshalTableIntoFast(table, resultHolders)
 }
 
 func buildScope(fqns []string) (*scopeTrie, error) {

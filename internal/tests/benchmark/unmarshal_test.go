@@ -302,7 +302,7 @@ func getBenchmarkBulkSingleNsFast(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypesFast(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 10_000
+	numRows := 100
 
 	bulkData["all_types.int"] = make([]int, numRows)
 	bulkData["all_types.float"] = make([]float64, numRows)
@@ -357,10 +357,10 @@ func getBenchmarkUnmarshalBulkAllTypesFast(b *testing.B) func() {
 			interval := numRows / numSamples
 			for i := 0; i < numRows; i = i + interval {
 				assert.Equal(b, int64(1), *allTypes[i].Int)
-				//assert.Equal(b, float64(1.234), *allTypes[i].Float)
-				//assert.Equal(b, "string_val", *allTypes[i].String)
-				//assert.True(b, *allTypes[i].Bool)
-				//assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
+				assert.Equal(b, float64(1.234), *allTypes[i].Float)
+				assert.Equal(b, "string_val", *allTypes[i].String)
+				assert.True(b, *allTypes[i].Bool)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
 				assert.Equal(b, []int64{1}, *allTypes[i].IntList)
 				assert.Equal(b, []*[]int64{&[]int64{1}}, *allTypes[i].NestedIntPointerList)
 				assert.Equal(b, [][]int64{[]int64{1}}, *allTypes[i].NestedIntList)
@@ -372,7 +372,7 @@ func getBenchmarkUnmarshalBulkAllTypesFast(b *testing.B) func() {
 				assert.Equal(b, []fixtures.LatLng{fixtures.LatLng{Lat: ptr.Ptr(1.0), Lng: ptr.Ptr(1.0)}}, *allTypes[i].DataclassList)
 				assert.Equal(b, fixtures.FavoriteThings{Numbers: &[]int64{1}}, *allTypes[i].DataclassWithList)
 				assert.Equal(b, fixtures.Child{Name: ptr.Ptr("child"), Mom: &fixtures.Parent{Name: ptr.Ptr("mom-1")}, Dad: &fixtures.Parent{Name: ptr.Ptr("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.Ptr("dad-1-mom")}}}, *allTypes[i].DataclassWithDataclass)
-				//assert.Equal(b, fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}, *allTypes[i].Nested)
+				assert.Equal(b, fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}, *allTypes[i].Nested)
 			}
 		})
 	}
@@ -381,7 +381,7 @@ func getBenchmarkUnmarshalBulkAllTypesFast(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 10_000
+	numRows := 100
 
 	bulkData["all_types.int"] = make([]int, numRows)
 	bulkData["all_types.float"] = make([]float64, numRows)
@@ -549,6 +549,18 @@ func BenchmarkUnmarshalBulkSingleNsPrimitivesParallel(b *testing.B) {
 func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
 	//benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
 	benchmark(b, getBenchmarkUnmarshalBulkAllTypesFast(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: All Types
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypes(b))
+	//benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypesFast(b))
 }
 
 /*
