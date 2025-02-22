@@ -165,7 +165,7 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
-func getSlice(fieldType reflect.Type, arr arrow.Array, offsets []int, arrIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	var sliceType reflect.Type
 	if fieldType.Kind() == reflect.Ptr {
 		sliceType = fieldType.Elem()
@@ -173,17 +173,17 @@ func getSlice(fieldType reflect.Type, arr arrow.Array, offsets []int, arrIdx int
 		sliceType = fieldType
 	}
 
-	length := offsets[arrIdx+1] - offsets[arrIdx]
+	length := endIdx - startIdx
 	newSlice := reflect.MakeSlice(sliceType, length, length)
 
 	newSliceIdx := 0
-	for ptr := offsets[arrIdx]; ptr < offsets[arrIdx+1]; ptr++ {
-		val, err := getValueOrNil(sliceType, arr, int(ptr), allMemo)
+	for ptr := startIdx; ptr < endIdx; ptr++ {
+		val, err := getValueOrNil(sliceType, arr, ptr, allMemo)
 		if err != nil {
 			return nil, errors.Wrapf(
 				err,
-				"building slice value for row at row index %d and underlying index %d",
-				arrIdx, ptr,
+				"building slice value for row at underlying index %d",
+				ptr,
 			)
 		}
 		if val != nil {
@@ -205,19 +205,10 @@ func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo 
 	}
 	switch castArr := arr.(type) {
 	case *array.LargeList:
-		offsetsInt64 := castArr.Offsets()
-		offsetsInt := make([]int, len(offsetsInt64))
-		for i := 0; i < len(offsetsInt64); i++ {
-			offsetsInt[i] = int(offsetsInt64[i])
-		}
-		return getSlice(fieldType, castArr.ListValues(), offsetsInt, arrIdx, allMemo)
+		res, err := getSlice(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+		return res, err
 	case *array.List:
-		offsetsInt32 := castArr.Offsets()
-		offsetsInt := make([]int, len(offsetsInt32))
-		for i := 0; i < len(offsetsInt32); i++ {
-			offsetsInt[i] = int(offsetsInt32[i])
-		}
-		return getSlice(fieldType, castArr.ListValues(), offsetsInt, arrIdx, allMemo)
+		return getSlice(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
 	case *array.Struct:
 		var structType reflect.Type
 		if fieldType.Kind() == reflect.Ptr {
