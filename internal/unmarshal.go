@@ -165,9 +165,9 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
-func setValue(field *reflect.Value, a arrow.Array, idx int) error {
+func getValue(fieldType reflect.Type, a arrow.Array, idx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	if a.IsNull(idx) {
-		return nil
+		return nil, nil
 	}
 	switch arr := a.(type) {
 	//case *array.LargeList:
@@ -179,151 +179,159 @@ func setValue(field *reflect.Value, a arrow.Array, idx int) error {
 	//		o64[i] = int64(arr.Offsets()[i])
 	//	}
 	//	return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
-	//case *array.Struct:
-	//	newMap := map[string]any{}
-	//	structType, typeOk := arr.DataType().(*arrow.StructType)
-	//	if !typeOk {
-	//		return nil, fmt.Errorf("error getting struct type")
-	//	}
-	//	for k := 0; k < arr.NumField(); k++ {
-	//		anyVal, err := GetValueFromArrowArray(arr.Field(k), idx, timeAsString)
-	//		if err != nil {
-	//			return nil, errors.Wrap(err, "error getting value for Struct column")
-	//		}
-	//		newMap[structType.Field(k).Name] = anyVal
-	//	}
-	//	return newMap, nil
+	case *array.Struct:
+		var structType reflect.Type
+		if fieldType.Kind() == reflect.Ptr {
+			structType = fieldType.Elem()
+		} else {
+			structType = fieldType
+		}
+
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return nil, errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		arrowStructType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return nil, fmt.Errorf("error getting struct type")
+		}
+
+		newStructPtr := reflect.New(structType)
+		for k := 0; k < arr.NumField(); k++ {
+			fieldName := arrowStructType.Field(k).Name
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
+			if !ok {
+				return nil, errors.Newf(
+					"field '%s' not found in memo for struct type %s, found: %v",
+					fieldName, structType.Name(), colls.Keys(memo.ResolvedFieldNameToIndices),
+				)
+			}
+			for _, fieldIdx := range reflectFieldIndices {
+				value, err := getValue(structType.Field(fieldIdx).Type, arr.Field(k), idx, allMemo)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"getting value for struct '%s' field: %s",
+						structType.Name(), fieldName,
+					)
+				}
+				structField := newStructPtr.Elem().Field(fieldIdx)
+				structField.Set(*value)
+			}
+		}
+
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(newStructPtr), nil
+		} else {
+			return ptr.Ptr(newStructPtr.Elem()), nil
+		}
 	//case *array.Dictionary:
 	//	return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(idx), timeAsString)
 	case *array.String:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.SetString(val)
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.LargeString:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.SetString(val)
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint8:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint16:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint32:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Uint64:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int16:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int32:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Int64:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Float64:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Boolean:
 		val := arr.Value(idx)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&val))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
 		} else {
-			field.Set(reflect.ValueOf(val))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(val)), nil
 		}
 	case *array.Date32:
 		timeVal := arr.Value(idx).ToTime()
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&timeVal))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
-			field.Set(reflect.ValueOf(timeVal))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
 		}
 	case *array.Date64:
 		timeVal := arr.Value(idx).ToTime()
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&timeVal))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
-			field.Set(reflect.ValueOf(timeVal))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
 		}
 	case *array.Timestamp:
 		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
 		timeVal := arr.Value(idx).ToTime(timeUnit)
-		if field.Kind() == reflect.Ptr {
-			field.Set(reflect.ValueOf(&timeVal))
-			return nil
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
 		} else {
-			field.Set(reflect.ValueOf(timeVal))
-			return nil
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
 		}
 	default:
-		return errors.Newf("unsupported array type: %T", arr)
+		return nil, errors.Newf("unsupported array type: %T", arr)
 	}
 }
 
@@ -482,8 +490,22 @@ func mapRecordToStructs(
 			}
 			for _, fieldIdx := range fieldIdxs {
 				field := reflectStruct.Field(fieldIdx)
-				if err := setValue(&field, columnArray, rowIdx); err != nil {
-					return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+				if field.Type().Kind() == reflect.Map {
+					bucket, err := GetBucketFromFqn(fqn)
+					if err != nil {
+						return errors.Wrap(err, "getting bucket from fqn")
+					}
+					reflectValue, err := getValue(field.Type().Elem(), columnArray, rowIdx, allMemo)
+					if field.IsNil() {
+						field.Set(reflect.MakeMap(field.Type()))
+					}
+					field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
+				} else {
+					reflectValue, err := getValue(field.Type(), columnArray, rowIdx, allMemo)
+					if err != nil {
+						return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+					}
+					field.Set(*reflectValue)
 				}
 			}
 		}
