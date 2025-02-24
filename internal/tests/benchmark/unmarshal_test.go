@@ -9,6 +9,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -68,8 +69,11 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}{}
-		assert.NoError(b, res.UnmarshalInto(&rootStruct))
+		internal.PopulateAllNamespaceMemo(reflect.TypeOf(rootStruct).Elem())
 		assertOnce.Do(func() {
+			allMemo := internal.AllNamespaceMemo
+			fmt.Println(">>> KEYS: ", allMemo.Keys())
+			assert.NoError(b, res.UnmarshalInto(&rootStruct))
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)

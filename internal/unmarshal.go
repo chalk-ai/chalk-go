@@ -1335,7 +1335,6 @@ func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr err
 		)
 	}
 
-	allMemo := AllNamespaceMemo
 	if err := PopulateAllNamespaceMemo(sliceElemType); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
@@ -1344,7 +1343,7 @@ func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr err
 		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
 	}
 
-	if err := MapTableToStructs(table, &slice, allMemo); err != nil {
+	if err := MapTableToStructs(table, &slice, AllNamespaceMemo); err != nil {
 		return errors.Wrap(err, "mapping table to structs")
 	}
 

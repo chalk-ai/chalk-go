@@ -1308,7 +1308,7 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	}
 
 	var wg sync.WaitGroup
-	const numConcurrentTests = 10
+	const numConcurrentTests = 10000
 	wg.Add(numConcurrentTests)
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
