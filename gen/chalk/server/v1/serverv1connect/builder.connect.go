@@ -101,6 +101,9 @@ const (
 	// BuilderServiceDeleteKarpenterNodepoolProcedure is the fully-qualified name of the
 	// BuilderService's DeleteKarpenterNodepool RPC.
 	BuilderServiceDeleteKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/DeleteKarpenterNodepool"
+	// BuilderServiceGetKarpenterInstallationMetadataProcedure is the fully-qualified name of the
+	// BuilderService's GetKarpenterInstallationMetadata RPC.
+	BuilderServiceGetKarpenterInstallationMetadataProcedure = "/chalk.server.v1.BuilderService/GetKarpenterInstallationMetadata"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -141,6 +144,7 @@ type BuilderServiceClient interface {
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
+	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -288,6 +292,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
 			connect.WithClientOptions(opts...),
 		),
+		getKarpenterInstallationMetadata: connect.NewClient[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse](
+			httpClient,
+			baseURL+BuilderServiceGetKarpenterInstallationMetadataProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetKarpenterInstallationMetadata")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -315,6 +326,7 @@ type builderServiceClient struct {
 	addKarpenterNodepool               *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
 	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
 	deleteKarpenterNodepool            *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
+	getKarpenterInstallationMetadata   *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -429,6 +441,12 @@ func (c *builderServiceClient) DeleteKarpenterNodepool(ctx context.Context, req 
 	return c.deleteKarpenterNodepool.CallUnary(ctx, req)
 }
 
+// GetKarpenterInstallationMetadata calls
+// chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata.
+func (c *builderServiceClient) GetKarpenterInstallationMetadata(ctx context.Context, req *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error) {
+	return c.getKarpenterInstallationMetadata.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -461,6 +479,7 @@ type BuilderServiceHandler interface {
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
+	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -604,6 +623,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetKarpenterInstallationMetadataHandler := connect.NewUnaryHandler(
+		BuilderServiceGetKarpenterInstallationMetadataProcedure,
+		svc.GetKarpenterInstallationMetadata,
+		connect.WithSchema(builderServiceMethods.ByName("GetKarpenterInstallationMetadata")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -650,6 +676,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceUpdateKarpenterNodepoolHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteKarpenterNodepoolProcedure:
 			builderServiceDeleteKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceGetKarpenterInstallationMetadataProcedure:
+			builderServiceGetKarpenterInstallationMetadataHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -745,6 +773,10 @@ func (UnimplementedBuilderServiceHandler) UpdateKarpenterNodepool(context.Contex
 
 func (UnimplementedBuilderServiceHandler) DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
