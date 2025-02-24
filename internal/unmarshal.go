@@ -716,9 +716,14 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 		namespace := ChalkpySnakeCase(structName)
 		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
 		if loaded {
+			nsMutex.mu.RLock()
+			// Waits for the memo of the same type to finish populating
+			nsMutex.mu.RUnlock()
+
 			// Prevent infinite loops and processing the same struct more than once.
 			return nil
 		}
+		defer nsMutex.mu.Unlock()
 		nsMemo := nsMutex.memo
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
@@ -761,7 +766,6 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 				nsMemo.StructFieldsSet[resolvedName] = true
 			}
 		}
-		nsMutex.mu.Unlock()
 	} else if typ.Kind() == reflect.Slice {
 		return PopulateAllNamespaceMemo(typ.Elem())
 	}
