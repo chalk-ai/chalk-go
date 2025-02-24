@@ -717,8 +717,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
 		if loaded {
 			nsMutex.mu.RLock()
-			// Waits for the memo of the same type to finish populating
-			//lint:ignore SA2001
+			//lint:ignore SA2001 Empty is fine because this just waits for the memo of the same type to finish populating
 			nsMutex.mu.RUnlock()
 
 			// Prevent infinite loops and processing the same struct more than once.
