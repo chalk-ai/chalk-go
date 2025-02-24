@@ -261,8 +261,6 @@ func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo 
 		} else {
 			return ptr.Ptr(newStructPtr.Elem()), nil
 		}
-	//case *array.Dictionary:
-	//	return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(arrIdx), timeAsString)
 	case *array.String:
 		val := castArr.Value(arrIdx)
 		if fieldType.Kind() == reflect.Ptr {
@@ -472,20 +470,131 @@ func MapTableToStructs(
 	}
 
 	var featureColumnIdxs []int
+	var colNames []string
 	for i, field := range table.Schema().Fields() {
 		colName := field.Name
 		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 			continue
 		} else {
 			featureColumnIdxs = append(featureColumnIdxs, i)
+			colNames = append(colNames, colName)
 		}
 	}
 
-	chunkPtr := int64(0)
+	rootScope, err := BuildScope(colNames)
+	if err != nil {
+		return errors.Wrap(err, "building scope")
+	}
+
+	structType := structs.Type().Elem()
+	structName := structType.Name()
+	namespace := ChalkpySnakeCase(structName)
+	namespaceScope, ok := rootScope.Children[namespace]
+
+	type namespaceMetaT struct {
+		fieldIdx  int
+		namespace string
+		scope     *InitScope
+		memo      *NamespaceMemo
+	}
+	multiNsMeta := []namespaceMetaT{}
+	if !ok {
+		// Multi-namespace unmarshalling
+		for i := 0; i < structType.NumField(); i++ {
+			fieldMeta := structType.Field(i)
+			if fieldMeta.Type.Kind() != reflect.Struct {
+				return errors.Newf(
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
+					structName,
+					colls.Keys(rootScope.Children),
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+				)
+			}
+
+			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
+
+			fieldScope := rootScope.Children[fieldNamespace]
+			if fieldScope == nil {
+				return errors.Newf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
+					structName,
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+					colls.Keys(rootScope.Children),
+				)
+			}
+
+			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
+			if !ok {
+				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+			}
+
+			multiNsMeta = append(multiNsMeta, namespaceMetaT{
+				fieldIdx:  i,
+				namespace: fieldNamespace,
+				scope:     fieldScope,
+				memo:      fieldMemo,
+			})
+		}
+	}
+
+	rowOffset := 0
+	batchIdx := 0
 	for reader.Next() {
 		record := reader.Record()
-		mapRecordToStructs(record, structs, featureColumnIdxs, int(chunkPtr), int(chunkPtr+record.NumRows()), allMemo)
-		chunkPtr += record.NumRows()
+		recordRows := int(record.NumRows())
+		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+			structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
+			if len(multiNsMeta) == 0 {
+				// Single namespace unmarshalling
+				memo, ok := allMemo.Load(structType)
+				if !ok {
+					return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+				}
+				if err := mapRowToStruct(
+					record,
+					rowIdx,
+					structValue,
+					featureColumnIdxs,
+					namespace,
+					namespaceScope,
+					memo,
+					allMemo,
+				); err != nil {
+					return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+				}
+			} else {
+				// Multi-namespace unmarshalling
+				for _, meta := range multiNsMeta {
+					if err := mapRowToStruct(
+						record,
+						rowIdx,
+						ptr.Ptr(structValue.Field(meta.fieldIdx)),
+						featureColumnIdxs,
+						meta.namespace,
+						meta.scope,
+						meta.memo,
+						allMemo,
+					); err != nil {
+						return errors.Wrapf(
+							err,
+							"multi-namespace unmarshalling record batch %d namespace '%s'",
+							batchIdx,
+							meta.namespace,
+						)
+					}
+				}
+			}
+		}
+
+		rowOffset += recordRows
+		batchIdx += 1
 	}
 	return nil
 }
@@ -604,91 +713,65 @@ func BuildScope(fqns []string) (*InitScope, error) {
 	return root, nil
 }
 
-func mapRecordToStructs(
+func mapRowToStruct(
 	record arrow.Record,
-	structs *reflect.Value,
+	rowIdx int,
+	structValue *reflect.Value,
 	featureColumnIdxs []int,
-	startIdx int,
-	endIdx int,
+	namespace string,
+	scope *InitScope,
+	memo *NamespaceMemo,
 	allMemo *AllNamespaceMemoT,
 ) error {
-	// FIXME: Think about multi-namespace unmarshals
-	structType := structs.Type().Elem()
-	memo, ok := allMemo.Load(structType)
-	if !ok {
-		return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := InitRemoteFeatureMap(
+		remoteFeatureMap,
+		*structValue,
+		namespace,
+		map[string]bool{},
+		scope,
+		allMemo,
+		true,
+	); err != nil {
+		return errors.Wrap(err, "initializing result holder struct")
 	}
 
-	namespace := ChalkpySnakeCase(structType.Name())
-	colNames := make([]string, 0)
 	for _, colIdx := range featureColumnIdxs {
-		colNames = append(colNames, record.ColumnName(colIdx))
-	}
-
-	rootScope, err := BuildScope(colNames)
-	if err != nil {
-		return errors.Wrap(err, "building scope")
-	}
-
-	namespaceScope, ok := rootScope.Children[namespace]
-	if !ok {
-		return errors.Newf("namespace %s not found in root scope, found: %v", namespace, colls.Keys(rootScope.Children))
-	}
-
-	for rowIdx := 0; rowIdx < (endIdx - startIdx); rowIdx++ {
-		reflectStruct := structs.Index(rowIdx + startIdx)
-
-		remoteFeatureMap := map[string][]reflect.Value{}
-		if err := InitRemoteFeatureMap(
-			remoteFeatureMap,
-			reflectStruct,
-			namespace,
-			map[string]bool{},
-			namespaceScope,
-			allMemo,
-			true,
-		); err != nil {
-			return errors.Wrap(err, "initializing result holder struct")
+		columnArray := record.Column(colIdx)
+		fqn := record.ColumnName(colIdx)
+		fields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For backcompat with old codegen structs, we simply skip
+				// unmarshalling new features.
+				continue
+			}
+			for _, fieldIdx := range fieldIdxs {
+				fields = append(fields, structValue.Field(fieldIdx))
+			}
 		}
 
-		for _, colIdx := range featureColumnIdxs {
-			columnArray := record.Column(colIdx)
-			fqn := record.ColumnName(colIdx)
-
-			fields, ok := remoteFeatureMap[fqn]
-			if !ok {
-				fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
-				if !ok {
-					// For backcompat with old codegen structs, we simply skip
-					// unmarshalling new features.
-					continue
+		for _, field := range fields {
+			if field.Type().Kind() == reflect.Map {
+				bucket, err := GetBucketFromFqn(fqn)
+				if err != nil {
+					return errors.Wrap(err, "getting bucket from fqn")
 				}
-				for _, fieldIdx := range fieldIdxs {
-					fields = append(fields, reflectStruct.Field(fieldIdx))
+				reflectValue, err := getValueOrNil(field.Type().Elem(), columnArray, rowIdx, allMemo)
+				if field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
 				}
-			}
-
-			for _, field := range fields {
-				if field.Type().Kind() == reflect.Map {
-					bucket, err := GetBucketFromFqn(fqn)
-					if err != nil {
-						return errors.Wrap(err, "getting bucket from fqn")
-					}
-					reflectValue, err := getValueOrNil(field.Type().Elem(), columnArray, rowIdx, allMemo)
-					if field.IsNil() {
-						field.Set(reflect.MakeMap(field.Type()))
-					}
-					if reflectValue != nil {
-						field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
-					}
-				} else {
-					reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
-					if err != nil {
-						return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
-					}
-					if reflectValue != nil {
-						field.Set(*reflectValue)
-					}
+				if reflectValue != nil {
+					field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
+				}
+			} else {
+				reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
+				if err != nil {
+					return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+				}
+				if reflectValue != nil {
+					field.Set(*reflectValue)
 				}
 			}
 		}
