@@ -532,7 +532,7 @@ func MapTableToStructs(
 
 			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
 			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+				return errors.Newf("namespace '%s' not found in memo, found keys: %v", fieldMeta.Type.Name(), allMemo.Keys())
 			}
 
 			multiNsMeta = append(multiNsMeta, namespaceMetaT{
