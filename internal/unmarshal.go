@@ -87,6 +87,9 @@ func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *Names
 	// lock.
 	namespaceMutex.mu.Lock()
 	v, loaded := (*sync.Map)(m).LoadOrStore(key, namespaceMutex)
+	if loaded {
+		namespaceMutex.mu.Unlock()
+	}
 	return v.(*NamespaceMutex), loaded
 }
 

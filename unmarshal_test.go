@@ -1299,16 +1299,17 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 	assert.True(t, ok)
 }
 
+var rootFeatures struct {
+	Transaction *unmarshalTransaction
+	User        *unmarshalUSER
+	LatLng      *unmarshalLatLNG
+}
+
 func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	t.Parallel()
-	var rootFeatures struct {
-		Transaction *unmarshalTransaction
-		User        *unmarshalUSER
-		LatLng      *unmarshalLatLNG
-	}
 
 	var wg sync.WaitGroup
-	const numConcurrentTests = 10
+	const numConcurrentTests = 100
 	wg.Add(numConcurrentTests)
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
