@@ -181,7 +181,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return nil
 	}
 
-	scope, err := buildScope(colls.Keys(rows[0]))
+	scope, err := internal.BuildScope(colls.Keys(rows[0]))
 	if err != nil {
 		return errors.Wrap(err, "building deserialization scope")
 	}
@@ -193,7 +193,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 	structName := sliceElemType.Name()
 	namespace := internal.ChalkpySnakeCase(structName)
-	nsScope := scope.children[namespace]
+	nsScope := scope.Children[namespace]
 
 	var rowToStruct func(map[Fqn]any) (*reflect.Value, error)
 	if nsScope != nil {
@@ -222,7 +222,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		type namespaceMetaT struct {
 			fieldIdx  int
 			namespace string
-			scope     *scopeTrie
+			scope     *internal.InitScope
 			memo      *internal.NamespaceMemo
 		}
 
@@ -236,7 +236,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
 						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
 					structName,
-					colls.Keys(scope.children),
+					colls.Keys(scope.Children),
 					fieldMeta.Name,
 					fieldMeta.Type.Name(),
 				)
@@ -244,7 +244,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 			fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
 
-			fieldScope := scope.children[fieldNamespace]
+			fieldScope := scope.Children[fieldNamespace]
 			if fieldScope == nil {
 				return errors.Newf(
 					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
@@ -253,7 +253,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 					structName,
 					fieldMeta.Name,
 					fieldMeta.Type.Name(),
-					colls.Keys(scope.children),
+					colls.Keys(scope.Children),
 				)
 			}
 
@@ -368,15 +368,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 //
 //	}
 func UnmarshalTableInto(table arrow.Table, resultHolders any) error {
-	return unmarshalTableInto(table, resultHolders)
-}
-
-func buildScope(fqns []string) (*scopeTrie, error) {
-	root := &scopeTrie{}
-	for _, fqn := range fqns {
-		root.addStr(fqn)
-	}
-	return root, nil
+	return internal.UnmarshalTableIntoFast(table, resultHolders)
 }
 
 /*
@@ -411,7 +403,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
-	scope, err := buildScope(colls.Keys(fqnToValue))
+	scope, err := internal.BuildScope(colls.Keys(fqnToValue))
 	if err != nil {
 		return errors.Wrap(err, "building scope for initializing result holder struct")
 	}
@@ -420,7 +412,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	structValue := holderValue.Elem()
 	structName := structValue.Type().Name()
 	namespace := internal.ChalkpySnakeCase(structName)
-	nsScope := scope.children[namespace]
+	nsScope := scope.Children[namespace]
 
 	if nsScope != nil {
 		// Single namespace unmarshalling
@@ -429,7 +421,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 				"Attempted to unmarshal into the feature struct '%s', "+
 					"but results are from these feature class(es) '%v'",
 				structName,
-				colls.Keys(scope.children),
+				colls.Keys(scope.Children),
 			)
 		}
 
@@ -459,14 +451,14 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 					"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
 					"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
 				structName,
-				colls.Keys(scope.children),
+				colls.Keys(scope.Children),
 				fieldMeta.Name,
 				field.Type().Name(),
 			)
 		}
 		fieldNamespace := internal.ChalkpySnakeCase(field.Type().Name())
 
-		fieldNsScope := scope.children[fieldNamespace]
+		fieldNsScope := scope.Children[fieldNamespace]
 		if fieldNsScope == nil {
 			return errors.Newf(
 				"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
@@ -475,7 +467,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 				structName,
 				fieldMeta.Name,
 				field.Type().Name(),
-				colls.Keys(scope.children),
+				colls.Keys(scope.Children),
 			)
 		}
 
@@ -506,12 +498,12 @@ func thinUnmarshalInto(
 	structValue reflect.Value,
 	fqnToValue map[Fqn]any,
 	namespace string,
-	namespaceScope *scopeTrie,
+	namespaceScope *internal.InitScope,
 	namespaceMemo *internal.NamespaceMemo,
 	allMemo *internal.AllNamespaceMemoT,
 ) (returnErr error) {
 	remoteFeatureMap := map[string][]reflect.Value{}
-	if err := initRemoteFeatureMap(
+	if err := internal.InitRemoteFeatureMap(
 		remoteFeatureMap,
 		structValue,
 		namespace,
@@ -607,7 +599,7 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
-	return unmarshalTableInto(scalars, resultHolders)
+	return internal.UnmarshalTableIntoFast(scalars, resultHolders)
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {

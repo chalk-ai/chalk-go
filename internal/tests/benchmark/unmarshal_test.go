@@ -20,9 +20,9 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []float64{}
+				bulkData[fqn] = []int64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), int64(122.0))
 
 			fqn = fmt.Sprintf("float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -44,9 +44,9 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 
 			fqn = fmt.Sprintf("timestamp_features.timestamp_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []string{}
+				bulkData[fqn] = []time.Time{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]string), "2024-05-09T22:29:00Z")
+			bulkData[fqn] = append(bulkData[fqn].([]time.Time), time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC))
 		}
 	}
 
@@ -61,13 +61,13 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		rootStruct := []struct {
+		var rootStruct []struct {
 			IntFeatures       fixtures.IntFeatures
 			FloatFeatures     fixtures.FloatFeatures
 			BoolFeatures      fixtures.BoolFeatures
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
-		}{}
+		}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
 			for i := 0; i < 100; i++ {
@@ -244,6 +244,13 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+
+	//recordBytes, err := internal.RecordToBytes(record)
+	//assert.NoError(b, err)
+	//
+	//benchFunc := func() {
+	//	internal.ConvertBytesToTable(recordBytes)
+	//}
 
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,

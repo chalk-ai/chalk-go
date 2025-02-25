@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -397,7 +398,7 @@ type OnlineQueryBulkResult struct {
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	return unmarshalTableInto(r.ScalarsTable, resultHolders)
+	return internal.UnmarshalTableIntoFast(r.ScalarsTable, resultHolders)
 }
 
 // UploadFeaturesParams defines the parameters

@@ -1303,7 +1303,7 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	t.Parallel()
 
 	var wg sync.WaitGroup
-	const numConcurrentTests = 10
+	const numConcurrentTests = 100
 	wg.Add(numConcurrentTests)
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
@@ -1454,7 +1454,9 @@ TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the sa
 func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
-	for i := 0; i < 100_000; i++ {
+	numRows := 100_000
+	assert.Greater(t, numRows, internal.TableReaderChunkSize)
+	for i := 0; i < numRows; i++ {
 		transactions = append(transactions, unmarshalTransaction{
 			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
 			AmountP30D:            ptr.Ptr(int64(i)),

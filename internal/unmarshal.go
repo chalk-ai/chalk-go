@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"os"
@@ -27,7 +28,7 @@ const (
 	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
 )
 
-var tableReaderChunkSize = defaultTableReaderChunkSize
+var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -47,7 +48,7 @@ var AllNamespaceMemo = &AllNamespaceMemoT{}
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
 		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
-			tableReaderChunkSize = newChunkSize
+			TableReaderChunkSize = newChunkSize
 		}
 	}
 }
@@ -167,6 +168,406 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
+func getSliceNoPtr(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (reflect.Value, error) {
+	var sliceType reflect.Type
+	if fieldType.Kind() == reflect.Ptr {
+		sliceType = fieldType.Elem()
+	} else {
+		sliceType = fieldType
+	}
+
+	length := endIdx - startIdx
+	newSlice := reflect.MakeSlice(sliceType, length, length)
+
+	newSliceIdx := 0
+	for ptr := startIdx; ptr < endIdx; ptr++ {
+		val, err := getValueOrNil(sliceType.Elem(), arr, ptr, allMemo)
+		if err != nil {
+			return reflect.Value{}, errors.Wrapf(
+				err,
+				"building slice value for row at underlying index %d",
+				ptr,
+			)
+		}
+		if val != nil {
+			newSlice.Index(newSliceIdx).Set(*val)
+		}
+		newSliceIdx += 1
+	}
+
+	if fieldType.Kind() == reflect.Ptr {
+		return ReflectPtr(newSlice), nil
+	} else {
+		return newSlice, nil
+	}
+}
+
+func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+	var sliceType reflect.Type
+	if fieldType.Kind() == reflect.Ptr {
+		sliceType = fieldType.Elem()
+	} else {
+		sliceType = fieldType
+	}
+
+	length := endIdx - startIdx
+	newSlice := reflect.MakeSlice(sliceType, length, length)
+
+	newSliceIdx := 0
+	for ptr := startIdx; ptr < endIdx; ptr++ {
+		val, err := getValueOrNil(sliceType.Elem(), arr, ptr, allMemo)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"building slice value for row at underlying index %d",
+				ptr,
+			)
+		}
+		if val != nil {
+			newSlice.Index(newSliceIdx).Set(*val)
+		}
+		newSliceIdx += 1
+	}
+
+	if fieldType.Kind() == reflect.Ptr {
+		return ptr.Ptr(ReflectPtr(newSlice)), nil
+	} else {
+		return &newSlice, nil
+	}
+}
+
+func getValueOrNilNoPtr(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo *AllNamespaceMemoT) (reflect.Value, error) {
+	if arr.IsNull(arrIdx) {
+		return reflect.Value{}, nil
+	}
+	switch castArr := arr.(type) {
+	case *array.LargeList:
+		res, err := getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+		return res, err
+	case *array.List:
+		return getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+	case *array.Struct:
+		var structType reflect.Type
+		if fieldType.Kind() == reflect.Ptr {
+			structType = fieldType.Elem()
+		} else {
+			structType = fieldType
+		}
+
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return reflect.Value{}, errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		arrowStructType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return reflect.Value{}, fmt.Errorf("error getting struct type")
+		}
+
+		newStructPtr := reflect.New(structType)
+		for k := 0; k < castArr.NumField(); k++ {
+			fieldName := arrowStructType.Field(k).Name
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
+			if !ok {
+				// For backcompat with old codegen'd structs, because server may
+				// return new features that are not yet in the codegen'd structs.
+				continue
+			}
+			for _, fieldIdx := range reflectFieldIndices {
+				// FIXME: Might be a windowed feature
+				value, err := getValueOrNil(structType.Field(fieldIdx).Type, castArr.Field(k), arrIdx, allMemo)
+				if err != nil {
+					return reflect.Value{}, errors.Wrapf(
+						err,
+						"getting value for struct '%s' field: %s",
+						structType.Name(), fieldName,
+					)
+				}
+				if value != nil {
+					structField := newStructPtr.Elem().Field(fieldIdx)
+					structField.Set(*value)
+				}
+			}
+		}
+
+		if fieldType.Kind() == reflect.Ptr {
+			return newStructPtr, nil
+		} else {
+			return newStructPtr.Elem(), nil
+		}
+	case *array.String:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.LargeString:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint8:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Float64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Boolean:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Date32:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	case *array.Date64:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	case *array.Timestamp:
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		timeVal := castArr.Value(arrIdx).ToTime(timeUnit)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	default:
+		return reflect.Value{}, errors.Newf("unsupported array type: %T", arr)
+	}
+}
+
+func getValueOrNil(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+	if arr.IsNull(arrIdx) {
+		return nil, nil
+	}
+	switch castArr := arr.(type) {
+	case *array.LargeList:
+		res, err := getSlice(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+		return res, err
+	case *array.List:
+		return getSlice(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+	case *array.Struct:
+		var structType reflect.Type
+		if fieldType.Kind() == reflect.Ptr {
+			structType = fieldType.Elem()
+		} else {
+			structType = fieldType
+		}
+
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return nil, errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		arrowStructType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return nil, fmt.Errorf("error getting struct type")
+		}
+
+		newStructPtr := reflect.New(structType)
+		for k := 0; k < castArr.NumField(); k++ {
+			fieldName := arrowStructType.Field(k).Name
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
+			if !ok {
+				// For backcompat with old codegen'd structs, because server may
+				// return new features that are not yet in the codegen'd structs.
+				continue
+			}
+			for _, fieldIdx := range reflectFieldIndices {
+				// FIXME: Might be a windowed feature
+				value, err := getValueOrNil(structType.Field(fieldIdx).Type, castArr.Field(k), arrIdx, allMemo)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"getting value for struct '%s' field: %s",
+						structType.Name(), fieldName,
+					)
+				}
+				if value != nil {
+					structField := newStructPtr.Elem().Field(fieldIdx)
+					structField.Set(*value)
+				}
+			}
+		}
+
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(newStructPtr), nil
+		} else {
+			return ptr.Ptr(newStructPtr.Elem()), nil
+		}
+	case *array.String:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.LargeString:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Uint8:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Uint16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Uint32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Uint64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Int16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Int32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Int64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Float64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Boolean:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&val)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(val)), nil
+		}
+	case *array.Date32:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
+		}
+	case *array.Date64:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
+		}
+	case *array.Timestamp:
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		timeVal := castArr.Value(arrIdx).ToTime(timeUnit)
+		if fieldType.Kind() == reflect.Ptr {
+			return ptr.Ptr(reflect.ValueOf(&timeVal)), nil
+		} else {
+			return ptr.Ptr(reflect.ValueOf(timeVal)), nil
+		}
+	default:
+		return nil, errors.Newf("unsupported array type: %T", arr)
+	}
+}
+
 func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
@@ -256,6 +657,331 @@ type FeatureMeta struct {
 	SourceId    *string
 	ResolverFqn *string
 	Pkey        any
+}
+
+func MapTableToStructs(
+	table arrow.Table,
+	structs *reflect.Value,
+	allMemo *AllNamespaceMemoT,
+) error {
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+
+	_, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Wrapf(err, "table too large")
+	}
+
+	var featureColumnIdxs []int
+	var colNames []string
+	for i, field := range table.Schema().Fields() {
+		colName := field.Name
+		colNames = append(colNames, colName)
+		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+			continue
+		} else {
+			featureColumnIdxs = append(featureColumnIdxs, i)
+		}
+	}
+
+	rootScope, err := BuildScope(colNames)
+	if err != nil {
+		return errors.Wrap(err, "building scope")
+	}
+
+	structType := structs.Type().Elem()
+	structName := structType.Name()
+	namespace := ChalkpySnakeCase(structName)
+	namespaceScope, ok := rootScope.Children[namespace]
+
+	type namespaceMetaT struct {
+		fieldIdx  int
+		namespace string
+		scope     *InitScope
+		memo      *NamespaceMemo
+	}
+	multiNsMeta := []namespaceMetaT{}
+	if !ok {
+		// Multi-namespace unmarshalling
+		for i := 0; i < structType.NumField(); i++ {
+			fieldMeta := structType.Field(i)
+			if fieldMeta.Type.Kind() != reflect.Struct {
+				return errors.Newf(
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
+					structName,
+					colls.Keys(rootScope.Children),
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+				)
+			}
+
+			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
+
+			fieldScope := rootScope.Children[fieldNamespace]
+			if fieldScope == nil {
+				return errors.Newf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
+					structName,
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+					colls.Keys(rootScope.Children),
+				)
+			}
+
+			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
+			if !ok {
+				return errors.Newf("namespace '%s' not found in memo, found keys: %v", fieldMeta.Type.Name(), allMemo.Keys())
+			}
+
+			multiNsMeta = append(multiNsMeta, namespaceMetaT{
+				fieldIdx:  i,
+				namespace: fieldNamespace,
+				scope:     fieldScope,
+				memo:      fieldMemo,
+			})
+		}
+	}
+
+	rowOffset := 0
+	batchIdx := 0
+	for reader.Next() {
+		record := reader.Record()
+		recordRows := int(record.NumRows())
+		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+			structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
+			if len(multiNsMeta) == 0 {
+				// Single namespace unmarshalling
+				memo, ok := allMemo.Load(structType)
+				if !ok {
+					return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+				}
+				if err := mapRowToStruct(
+					record,
+					rowIdx,
+					structValue,
+					featureColumnIdxs,
+					colNames,
+					namespace,
+					namespaceScope,
+					memo,
+					allMemo,
+				); err != nil {
+					return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+				}
+			} else {
+				// Multi-namespace unmarshalling
+				for _, meta := range multiNsMeta {
+					if err := mapRowToStruct(
+						record,
+						rowIdx,
+						ptr.Ptr(structValue.Field(meta.fieldIdx)),
+						featureColumnIdxs,
+						colNames,
+						meta.namespace,
+						meta.scope,
+						meta.memo,
+						allMemo,
+					); err != nil {
+						return errors.Wrapf(
+							err,
+							"multi-namespace unmarshalling record batch %d namespace '%s'",
+							batchIdx,
+							meta.namespace,
+						)
+					}
+				}
+			}
+		}
+
+		rowOffset += recordRows
+		batchIdx += 1
+	}
+	return nil
+}
+
+type InitScope struct {
+	Children map[string]*InitScope
+}
+
+func (s *InitScope) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *InitScope) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
+	}
+	firstPart := fqnParts[0]
+	if s.Children == nil {
+		s.Children = map[string]*InitScope{}
+	}
+	if _, found := s.Children[firstPart]; !found {
+		s.Children[firstPart] = &InitScope{}
+	}
+	s.Children[firstPart].add(fqnParts[1:])
+}
+
+func InitRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
+	structValue reflect.Value, // FIXME: Make pointer
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *InitScope,
+	allMemo *AllNamespaceMemoT,
+	scopeToJustStructs bool,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo, ok := allMemo.Load(structValue.Type())
+	if !ok {
+		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	}
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.Children)
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, inScope := scope.Children[resolvedFieldName]
+		if !inScope {
+			continue
+		}
+		updatedFqn := cumulativeFqn + "." + resolvedFieldName
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		if !ok {
+			// We arrive here when chalk-go receives a response that contains a feature
+			// newly added to one of their has-one feature classes. They have not updated
+			// their codegen'd structs yet, so we simply skip unmarshalling this new
+			// feature to ensure forward compatibility.
+			continue
+		}
+
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				if err := InitRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					allMemo,
+					false,
+				); err != nil {
+					return err
+				}
+			} else {
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+			}
+		}
+	}
+	return nil
+}
+
+func BuildScope(fqns []string) (*InitScope, error) {
+	root := &InitScope{}
+	for _, fqn := range fqns {
+		root.addStr(fqn)
+	}
+	return root, nil
+}
+
+func mapRowToStruct(
+	record arrow.Record,
+	rowIdx int,
+	structValue *reflect.Value,
+	featureColumnIdxs []int,
+	namespace string,
+	scope *InitScope,
+	memo *NamespaceMemo,
+	allMemo *AllNamespaceMemoT,
+) error {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := InitRemoteFeatureMap(
+		remoteFeatureMap,
+		*structValue,
+		namespace,
+		map[string]bool{},
+		scope,
+		allMemo,
+		true,
+	); err != nil {
+		return errors.Wrap(err, "initializing result holder struct")
+	}
+
+	for _, colIdx := range featureColumnIdxs {
+		columnArray := record.Column(colIdx)
+		fqn := record.ColumnName(colIdx)
+		fields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For backcompat with old codegen structs, we simply skip
+				// unmarshalling new features.
+				continue
+			}
+			for _, fieldIdx := range fieldIdxs {
+				fields = append(fields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range fields {
+			if field.Type().Kind() == reflect.Map {
+				bucket, err := GetBucketFromFqn(fqn)
+				if err != nil {
+					return errors.Wrap(err, "getting bucket from fqn")
+				}
+				reflectValue, err := getValueOrNil(field.Type().Elem(), columnArray, rowIdx, allMemo)
+				if field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+				}
+				if reflectValue != nil {
+					field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
+				}
+			} else {
+				reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
+				if err != nil {
+					return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+				}
+				if reflectValue != nil {
+					field.Set(*reflectValue)
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func extractFeatures(
@@ -393,7 +1119,7 @@ func ExtractFeaturesFromTable(
 	}
 	featureRes := make([]map[string]any, 0, numRows)
 	metaRes := make([]map[string]FeatureMeta, 0, numRows)
-	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
 	for reader.Next() {
@@ -778,5 +1504,66 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 	} else if typ.Kind() == reflect.Slice {
 		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	}
+	return nil
+}
+
+func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
+	}
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
+	}
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceElemType.Kind(),
+		)
+	}
+
+	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
+
+	if slice.Len() != numRows {
+		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
+	}
+
+	if err := MapTableToStructs(table, &slice, AllNamespaceMemo); err != nil {
+		return errors.Wrap(err, "mapping table to structs")
+	}
+
 	return nil
 }
