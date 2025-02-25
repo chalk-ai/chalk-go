@@ -723,9 +723,9 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 		namespace := ChalkpySnakeCase(structName)
 		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
 		if loaded {
-			//nsMutex.mu.RLock()
+			nsMutex.mu.RLock()
 			//lint:ignore SA2001 Empty is fine because this just waits for the memo of the same type to finish populating
-			//nsMutex.mu.RUnlock()
+			nsMutex.mu.RUnlock()
 
 			// Prevent infinite loops and processing the same struct more than once.
 			return nil
