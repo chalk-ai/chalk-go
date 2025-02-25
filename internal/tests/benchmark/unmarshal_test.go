@@ -415,11 +415,33 @@ func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
 /*
  * Query: Bulk
  * Namespaces: Single
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkSingleNs(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
  * Feature Type: All Types
  * Protocol: REST
  * Run Type: Single
  */
 func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: All Types
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
 	benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
 }
 
