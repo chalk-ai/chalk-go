@@ -68,8 +68,8 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
 		}
+		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
-			assert.NoError(b, res.UnmarshalInto(&rootStruct))
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
