@@ -1350,6 +1350,7 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
 			assert.True(t, ok)
 			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+			assert.True(t, ok)
 		}()
 	}
 	wg.Wait()
