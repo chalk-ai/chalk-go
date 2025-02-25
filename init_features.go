@@ -198,7 +198,7 @@ func WarmUpUnmarshaller[T any](featureStruct *T) error {
 			elemType.Kind(),
 		)
 	}
-	return internal.PopulateAllNamespaceMemo(elemType)
+	return internal.PopulateAllNamespaceMemo(elemType, nil)
 }
 
 func pointerCheck(field reflect.Value) error {
