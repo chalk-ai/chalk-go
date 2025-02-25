@@ -711,16 +711,15 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 	if visited == nil {
 		visited = map[reflect.Type]bool{}
 	}
-	if visited[typ] {
-		return nil
-	}
-	visited[typ] = true
 	allMemo := AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
 		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		structName := typ.Name()
-		namespace := ChalkpySnakeCase(structName)
+		if visited[typ] {
+			return nil
+		}
+		visited[typ] = true
+
 		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
 		if loaded {
 			nsMutex.mu.RLock()
@@ -731,6 +730,9 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 			return nil
 		}
 		defer nsMutex.mu.Unlock()
+
+		structName := typ.Name()
+		namespace := ChalkpySnakeCase(structName)
 		nsMemo := nsMutex.memo
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
