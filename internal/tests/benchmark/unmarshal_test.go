@@ -267,7 +267,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 10_000
+	numRows := 100
 
 	bulkData["all_types.int"] = make([]int, numRows)
 	bulkData["all_types.float"] = make([]float64, numRows)
