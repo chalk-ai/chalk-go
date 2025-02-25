@@ -672,22 +672,32 @@ func MapTableToStructs(
 		return errors.Wrapf(err, "table too large")
 	}
 
-	var featureColumnIdxs []int
-	var colNames []string
+	fields := table.Schema().Fields()
+	featureColumnIdxs := make([]int, 0, len(fields))
+	colNames := make([]string, len(fields))
+	namespaceToColIndices := map[string][]int{}
+	rootScope := InitScope{}
 	for i, field := range table.Schema().Fields() {
 		colName := field.Name
-		colNames = append(colNames, colName)
+		colNames[i] = colName
+		fqnParts := strings.Split(colName, ".")
 		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 			continue
 		} else {
 			featureColumnIdxs = append(featureColumnIdxs, i)
+			rootScope.add(fqnParts)
+			namespace := fqnParts[0]
+			if _, ok := namespaceToColIndices[namespace]; !ok {
+				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
+			}
+			namespaceToColIndices[namespace] = append(namespaceToColIndices[namespace], i)
 		}
 	}
 
-	rootScope, err := BuildScope(colNames)
-	if err != nil {
-		return errors.Wrap(err, "building scope")
-	}
+	//rootScope, err := BuildScope(colNames)
+	//if err != nil {
+	//	return errors.Wrap(err, "building scope")
+	//}
 
 	structType := structs.Type().Elem()
 	structName := structType.Name()
@@ -695,10 +705,9 @@ func MapTableToStructs(
 	namespaceScope, ok := rootScope.Children[namespace]
 
 	type namespaceMetaT struct {
-		fieldIdx  int
-		namespace string
-		scope     *InitScope
-		memo      *NamespaceMemo
+		fieldIdx    int
+		structField reflect.StructField
+		namespace   string
 	}
 	multiNsMeta := []namespaceMetaT{}
 	if !ok {
@@ -720,71 +729,108 @@ func MapTableToStructs(
 
 			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
 
-			fieldScope := rootScope.Children[fieldNamespace]
-			if fieldScope == nil {
-				return errors.Newf(
-					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-						"of type '%s', but results are from these namespaces: %v",
-					structName,
-					fieldMeta.Name,
-					fieldMeta.Type.Name(),
-					colls.Keys(rootScope.Children),
-				)
-			}
-
-			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
-			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", fieldMeta.Type.Name(), allMemo.Keys())
-			}
-
 			multiNsMeta = append(multiNsMeta, namespaceMetaT{
-				fieldIdx:  i,
-				namespace: fieldNamespace,
-				scope:     fieldScope,
-				memo:      fieldMemo,
+				fieldIdx:    i,
+				structField: fieldMeta,
+				namespace:   fieldNamespace,
 			})
 		}
 	}
 
-	rowOffset := 0
-	batchIdx := 0
-	for reader.Next() {
-		record := reader.Record()
-		recordRows := int(record.NumRows())
-		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
-			structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
-			if len(multiNsMeta) == 0 {
-				// Single namespace unmarshalling
-				memo, ok := allMemo.Load(structType)
-				if !ok {
-					return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
-				}
+	if len(multiNsMeta) == 0 {
+		// Single namespace unmarshalling
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+		}
+
+		colIdxToFieldIndices := make([][]int, len(fields))
+		for _, colIdx := range featureColumnIdxs {
+			colIdxToFieldIndices[colIdx] = append(
+				colIdxToFieldIndices[colIdx],
+				memo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
+			)
+		}
+
+		rowOffset := 0
+		batchIdx := 0
+		for reader.Next() {
+			record := reader.Record()
+			recordRows := int(record.NumRows())
+			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+				structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
 				if err := mapRowToStruct(
 					record,
 					rowIdx,
 					structValue,
 					featureColumnIdxs,
-					colNames,
+					colIdxToFieldIndices,
 					namespace,
 					namespaceScope,
-					memo,
 					allMemo,
 				); err != nil {
 					return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
 				}
-			} else {
-				// Multi-namespace unmarshalling
+			}
+
+			rowOffset += recordRows
+			batchIdx += 1
+		}
+	} else {
+		// Multi-namespace unmarshalling
+		rowOffset := 0
+		batchIdx := 0
+		for reader.Next() {
+			record := reader.Record()
+			recordRows := int(record.NumRows())
+			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+				structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
 				for _, meta := range multiNsMeta {
+					nsScope := rootScope.Children[meta.namespace]
+					if nsScope == nil {
+						return errors.Newf(
+							"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+								"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+								"of type '%s', but results are from these namespaces: %v",
+							structName,
+							meta.structField.Name,
+							meta.structField.Type.Name(),
+							colls.Keys(rootScope.Children),
+						)
+					}
+
+					nsMemo, ok := allMemo.Load(meta.structField.Type)
+					if !ok {
+						return errors.Newf(
+							"namespace '%s' not found in memo, found keys: %v",
+							meta.structField.Type.Name(), allMemo.Keys(),
+						)
+					}
+
+					nsColIndices, ok := namespaceToColIndices[meta.namespace]
+					if !ok {
+						return errors.Newf(
+							"namespace '%s' not found in namespaceToColIndices, found keys: %v",
+							meta.namespace, colls.Keys(namespaceToColIndices),
+						)
+					}
+
+					colIndexToFieldIndices := make([][]int, len(fields))
+					for _, colIdx := range nsColIndices {
+						colIndexToFieldIndices[colIdx] = append(
+							colIndexToFieldIndices[colIdx],
+							nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
+						)
+					}
+
 					if err := mapRowToStruct(
 						record,
 						rowIdx,
 						ptr.Ptr(structValue.Field(meta.fieldIdx)),
 						featureColumnIdxs,
-						colNames,
+						colIndexToFieldIndices,
 						meta.namespace,
-						meta.scope,
-						meta.memo,
+						nsScope,
 						allMemo,
 					); err != nil {
 						return errors.Wrapf(
@@ -796,10 +842,10 @@ func MapTableToStructs(
 					}
 				}
 			}
+			rowOffset += recordRows
+			batchIdx += 1
 		}
 
-		rowOffset += recordRows
-		batchIdx += 1
 	}
 	return nil
 }
@@ -923,9 +969,9 @@ func mapRowToStruct(
 	rowIdx int,
 	structValue *reflect.Value,
 	featureColumnIdxs []int,
+	colIdxToFieldIndices [][]int,
 	namespace string,
 	scope *InitScope,
-	memo *NamespaceMemo,
 	allMemo *AllNamespaceMemoT,
 ) error {
 	remoteFeatureMap := map[string][]reflect.Value{}
@@ -944,20 +990,21 @@ func mapRowToStruct(
 	for _, colIdx := range featureColumnIdxs {
 		columnArray := record.Column(colIdx)
 		fqn := record.ColumnName(colIdx)
-		fields, ok := remoteFeatureMap[fqn]
-		if !ok {
-			fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
-			if !ok {
-				// For backcompat with old codegen structs, we simply skip
-				// unmarshalling new features.
-				continue
-			}
-			for _, fieldIdx := range fieldIdxs {
-				fields = append(fields, structValue.Field(fieldIdx))
-			}
-		}
-
-		for _, field := range fields {
+		//fields, ok := remoteFeatureMap[fqn]
+		//if !ok {
+		//	fieldIdxs, ok := memo.ResolvedFieldNameToIndices[fqn]
+		//	if !ok {
+		//		// For backcompat with old codegen structs, we simply skip
+		//		// unmarshalling new features.
+		//		continue
+		//	}
+		//	for _, fieldIdx := range fieldIdxs {
+		//		fields = append(fields, structValue.Field(fieldIdx))
+		//	}
+		//}
+		for _, fieldIdx := range colIdxToFieldIndices[colIdx] {
+			field := structValue.Field(fieldIdx)
+			//for _, field := range fields {
 			if field.Type().Kind() == reflect.Map {
 				bucket, err := GetBucketFromFqn(fqn)
 				if err != nil {
@@ -971,12 +1018,19 @@ func mapRowToStruct(
 					field.SetMapIndex(reflect.ValueOf(bucket), *reflectValue)
 				}
 			} else {
-				reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
+				//reflectValue, err := getValueOrNil(field.Type(), columnArray, rowIdx, allMemo)
+				//if err != nil {
+				//	return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
+				//}
+				//if reflectValue != nil {
+				//	field.Set(*reflectValue)
+				//}
+				reflectValue, err := getValueOrNilNoPtr(field.Type(), columnArray, rowIdx, allMemo)
 				if err != nil {
 					return errors.Wrapf(err, "setting value for field '%s' row %d", fqn, rowIdx)
 				}
-				if reflectValue != nil {
-					field.Set(*reflectValue)
+				if !reflectValue.IsZero() {
+					field.Set(reflectValue)
 				}
 			}
 		}
