@@ -87,6 +87,9 @@ func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *Names
 	// lock.
 	namespaceMutex.mu.Lock()
 	v, loaded := (*sync.Map)(m).LoadOrStore(key, namespaceMutex)
+	if loaded {
+		namespaceMutex.mu.Unlock()
+	}
 	return v.(*NamespaceMutex), loaded
 }
 
@@ -664,7 +667,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 	return nil
 }
 
-/*  PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+/*PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
  *  i.e. Don't need to do the same work for the same features class multiple times. Given:
  *  type User struct {
  *      Id *string
@@ -704,18 +707,32 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
  *      }
  *  }
  */
-func PopulateAllNamespaceMemo(typ reflect.Type) error {
+func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) error {
+	if visited == nil {
+		visited = map[reflect.Type]bool{}
+	}
 	allMemo := AllNamespaceMemo
 	if typ.Kind() == reflect.Ptr {
-		return PopulateAllNamespaceMemo(typ.Elem())
+		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		structName := typ.Name()
-		namespace := ChalkpySnakeCase(structName)
+		if visited[typ] {
+			return nil
+		}
+		visited[typ] = true
+
 		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
 		if loaded {
+			nsMutex.mu.RLock()
+			//lint:ignore SA2001 Empty is fine because this just waits for the memo of the same type to finish populating
+			nsMutex.mu.RUnlock()
+
 			// Prevent infinite loops and processing the same struct more than once.
 			return nil
 		}
+		defer nsMutex.mu.Unlock()
+
+		structName := typ.Name()
+		namespace := ChalkpySnakeCase(structName)
 		nsMemo := nsMutex.memo
 		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
 			fm := typ.Field(fieldIdx)
@@ -749,7 +766,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 				}
 			} else {
-				if err := PopulateAllNamespaceMemo(fm.Type); err != nil {
+				if err := PopulateAllNamespaceMemo(fm.Type, visited); err != nil {
 					return err
 				}
 			}
@@ -758,9 +775,8 @@ func PopulateAllNamespaceMemo(typ reflect.Type) error {
 				nsMemo.StructFieldsSet[resolvedName] = true
 			}
 		}
-		nsMutex.mu.Unlock()
 	} else if typ.Kind() == reflect.Slice {
-		return PopulateAllNamespaceMemo(typ.Elem())
+		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	}
 	return nil
 }
