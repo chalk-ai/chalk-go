@@ -267,7 +267,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 10_000
+	numRows := 100
 
 	bulkData["all_types.int"] = make([]int, numRows)
 	bulkData["all_types.float"] = make([]float64, numRows)
@@ -415,12 +415,34 @@ func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
 /*
  * Query: Bulk
  * Namespaces: Single
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkSingleNs(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
  * Feature Type: All Types
  * Protocol: REST
  * Run Type: Single
  */
 func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
 	benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: All Types
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypes(b))
 }
 
 /*
