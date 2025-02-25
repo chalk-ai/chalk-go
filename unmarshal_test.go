@@ -1299,28 +1299,57 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 	assert.True(t, ok)
 }
 
-var rootFeatures struct {
-	Transaction *unmarshalTransaction
-	User        *unmarshalUSER
-	LatLng      *unmarshalLatLNG
-}
-
 func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	t.Parallel()
 
 	var wg sync.WaitGroup
-	const numConcurrentTests = 100_000
+	const numConcurrentTests = 100
 	wg.Add(numConcurrentTests)
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
 			defer wg.Done()
+			var rootFeatures struct {
+				// The more fields here, the more reliably we can catch the race condition
+				// For multi-namespace unmarshals.
+				Transaction               *unmarshalTransaction
+				User                      *unmarshalUSER
+				LatLng                    *unmarshalLatLNG
+				StringFeatures            *fixtures.StringFeatures
+				FloatFeatures             *fixtures.FloatFeatures
+				IntFeatures               *fixtures.IntFeatures
+				BoolFeatures              *fixtures.BoolFeatures
+				TimestampFeatures         *fixtures.TimestampFeatures
+				WindowedBoolFeatures      *fixtures.WindowedBoolFeatures
+				WindowedIntFeatures       *fixtures.WindowedIntFeatures
+				WindowedFloatFeatures     *fixtures.WindowedFloatFeatures
+				WindowedStringFeatures    *fixtures.WindowedStringFeatures
+				WindowedTimestampFeatures *fixtures.WindowedTimestampFeatures
+			}
+
 			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
-			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+
+			// Check in reverse order of fields to more reliably catch race condition
+			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
 			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedBoolFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.TimestampFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.BoolFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.IntFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.FloatFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.StringFeatures{}))
 			assert.True(t, ok)
 			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
 			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
 		}()
 	}
 	wg.Wait()

@@ -22,7 +22,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			if _, ok := bulkData[fqn]; !ok {
 				bulkData[fqn] = []float64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), float64(122.0))
 
 			fqn = fmt.Sprintf("float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -61,15 +61,21 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		rootStruct := []struct {
+		var rootStruct []struct {
 			IntFeatures       fixtures.IntFeatures
 			FloatFeatures     fixtures.FloatFeatures
 			BoolFeatures      fixtures.BoolFeatures
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
+<<<<<<< Updated upstream
 		}{}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
+=======
+		}
+		assertOnce.Do(func() {
+			assert.NoError(b, res.UnmarshalInto(&rootStruct))
+>>>>>>> Stashed changes
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
