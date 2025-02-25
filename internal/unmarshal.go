@@ -1349,7 +1349,7 @@ func UnmarshalTableIntoFast(table arrow.Table, resultHolders any) (returnErr err
 		)
 	}
 
-	if err := PopulateAllNamespaceMemo(sliceElemType); err != nil {
+	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 

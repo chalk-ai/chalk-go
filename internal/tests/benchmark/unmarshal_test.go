@@ -9,7 +9,6 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
-	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -23,7 +22,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 			if _, ok := bulkData[fqn]; !ok {
 				bulkData[fqn] = []float64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), float64(122.0))
 
 			fqn = fmt.Sprintf("float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -62,17 +61,14 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		rootStruct := []struct {
+		var rootStruct []struct {
 			IntFeatures       fixtures.IntFeatures
 			FloatFeatures     fixtures.FloatFeatures
 			BoolFeatures      fixtures.BoolFeatures
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
-		}{}
-		internal.PopulateAllNamespaceMemo(reflect.TypeOf(rootStruct).Elem())
+		}
 		assertOnce.Do(func() {
-			allMemo := internal.AllNamespaceMemo
-			fmt.Println(">>> KEYS: ", allMemo.Keys())
 			assert.NoError(b, res.UnmarshalInto(&rootStruct))
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
