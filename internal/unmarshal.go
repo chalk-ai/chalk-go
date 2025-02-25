@@ -705,9 +705,11 @@ func MapTableToStructs(
 	namespaceScope, ok := rootScope.Children[namespace]
 
 	type namespaceMetaT struct {
-		fieldIdx    int
-		structField reflect.StructField
-		namespace   string
+		fieldIdx             int
+		structField          reflect.StructField
+		namespace            string
+		scope                *InitScope
+		colIdxToFieldIndices [][]int
 	}
 	multiNsMeta := []namespaceMetaT{}
 	if !ok {
@@ -729,10 +731,49 @@ func MapTableToStructs(
 
 			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
 
+			nsScope := rootScope.Children[fieldNamespace]
+			if nsScope == nil {
+				return errors.Newf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
+					structName,
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+					colls.Keys(rootScope.Children),
+				)
+			}
+
+			nsMemo, ok := allMemo.Load(fieldMeta.Type)
+			if !ok {
+				return errors.Newf(
+					"namespace '%s' not found in memo, found keys: %v",
+					fieldMeta.Type.Name(), allMemo.Keys(),
+				)
+			}
+
+			nsColIndices, ok := namespaceToColIndices[fieldNamespace]
+			if !ok {
+				return errors.Newf(
+					"namespace '%s' not found in namespaceToColIndices, found keys: %v",
+					fieldNamespace, colls.Keys(namespaceToColIndices),
+				)
+			}
+
+			colIndexToFieldIndices := make([][]int, len(fields))
+			for _, colIdx := range nsColIndices {
+				colIndexToFieldIndices[colIdx] = append(
+					colIndexToFieldIndices[colIdx],
+					nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
+				)
+			}
+
 			multiNsMeta = append(multiNsMeta, namespaceMetaT{
-				fieldIdx:    i,
-				structField: fieldMeta,
-				namespace:   fieldNamespace,
+				fieldIdx:             i,
+				structField:          fieldMeta,
+				namespace:            fieldNamespace,
+				scope:                nsScope,
+				colIdxToFieldIndices: colIndexToFieldIndices,
 			})
 		}
 	}
@@ -786,51 +827,14 @@ func MapTableToStructs(
 			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
 				structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
 				for _, meta := range multiNsMeta {
-					nsScope := rootScope.Children[meta.namespace]
-					if nsScope == nil {
-						return errors.Newf(
-							"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-								"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-								"of type '%s', but results are from these namespaces: %v",
-							structName,
-							meta.structField.Name,
-							meta.structField.Type.Name(),
-							colls.Keys(rootScope.Children),
-						)
-					}
-
-					nsMemo, ok := allMemo.Load(meta.structField.Type)
-					if !ok {
-						return errors.Newf(
-							"namespace '%s' not found in memo, found keys: %v",
-							meta.structField.Type.Name(), allMemo.Keys(),
-						)
-					}
-
-					nsColIndices, ok := namespaceToColIndices[meta.namespace]
-					if !ok {
-						return errors.Newf(
-							"namespace '%s' not found in namespaceToColIndices, found keys: %v",
-							meta.namespace, colls.Keys(namespaceToColIndices),
-						)
-					}
-
-					colIndexToFieldIndices := make([][]int, len(fields))
-					for _, colIdx := range nsColIndices {
-						colIndexToFieldIndices[colIdx] = append(
-							colIndexToFieldIndices[colIdx],
-							nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
-						)
-					}
-
 					if err := mapRowToStruct(
 						record,
 						rowIdx,
 						ptr.Ptr(structValue.Field(meta.fieldIdx)),
 						featureColumnIdxs,
-						colIndexToFieldIndices,
+						meta.colIdxToFieldIndices,
 						meta.namespace,
-						nsScope,
+						meta.scope,
 						allMemo,
 					); err != nil {
 						return errors.Wrapf(

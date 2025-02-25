@@ -319,6 +319,14 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
+	// FIXME: Remove debug
+	//recordBytes, err := internal.RecordToBytes(record)
+	//assert.NoError(b, err)
+	//
+	//return func() {
+	//	internal.ConvertBytesToTable(recordBytes)
+	//}
+
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
 	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
 
