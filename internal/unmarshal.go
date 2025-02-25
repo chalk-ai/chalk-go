@@ -168,6 +168,40 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
+func getSliceNoPtr(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (reflect.Value, error) {
+	var sliceType reflect.Type
+	if fieldType.Kind() == reflect.Ptr {
+		sliceType = fieldType.Elem()
+	} else {
+		sliceType = fieldType
+	}
+
+	length := endIdx - startIdx
+	newSlice := reflect.MakeSlice(sliceType, length, length)
+
+	newSliceIdx := 0
+	for ptr := startIdx; ptr < endIdx; ptr++ {
+		val, err := getValueOrNil(sliceType.Elem(), arr, ptr, allMemo)
+		if err != nil {
+			return reflect.Value{}, errors.Wrapf(
+				err,
+				"building slice value for row at underlying index %d",
+				ptr,
+			)
+		}
+		if val != nil {
+			newSlice.Index(newSliceIdx).Set(*val)
+		}
+		newSliceIdx += 1
+	}
+
+	if fieldType.Kind() == reflect.Ptr {
+		return ReflectPtr(newSlice), nil
+	} else {
+		return newSlice, nil
+	}
+}
+
 func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
 	var sliceType reflect.Type
 	if fieldType.Kind() == reflect.Ptr {
@@ -199,6 +233,172 @@ func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int,
 		return ptr.Ptr(ReflectPtr(newSlice)), nil
 	} else {
 		return &newSlice, nil
+	}
+}
+
+func getValueOrNilNoPtr(fieldType reflect.Type, arr arrow.Array, arrIdx int, allMemo *AllNamespaceMemoT) (reflect.Value, error) {
+	if arr.IsNull(arrIdx) {
+		return reflect.Value{}, nil
+	}
+	switch castArr := arr.(type) {
+	case *array.LargeList:
+		res, err := getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+		return res, err
+	case *array.List:
+		return getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
+	case *array.Struct:
+		var structType reflect.Type
+		if fieldType.Kind() == reflect.Ptr {
+			structType = fieldType.Elem()
+		} else {
+			structType = fieldType
+		}
+
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return reflect.Value{}, errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		arrowStructType, typeOk := arr.DataType().(*arrow.StructType)
+		if !typeOk {
+			return reflect.Value{}, fmt.Errorf("error getting struct type")
+		}
+
+		newStructPtr := reflect.New(structType)
+		for k := 0; k < castArr.NumField(); k++ {
+			fieldName := arrowStructType.Field(k).Name
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
+			if !ok {
+				// For backcompat with old codegen'd structs, because server may
+				// return new features that are not yet in the codegen'd structs.
+				continue
+			}
+			for _, fieldIdx := range reflectFieldIndices {
+				// FIXME: Might be a windowed feature
+				value, err := getValueOrNil(structType.Field(fieldIdx).Type, castArr.Field(k), arrIdx, allMemo)
+				if err != nil {
+					return reflect.Value{}, errors.Wrapf(
+						err,
+						"getting value for struct '%s' field: %s",
+						structType.Name(), fieldName,
+					)
+				}
+				if value != nil {
+					structField := newStructPtr.Elem().Field(fieldIdx)
+					structField.Set(*value)
+				}
+			}
+		}
+
+		if fieldType.Kind() == reflect.Ptr {
+			return newStructPtr, nil
+		} else {
+			return newStructPtr.Elem(), nil
+		}
+	case *array.String:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.LargeString:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint8:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Uint64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int16:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int32:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Int64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Float64:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Boolean:
+		val := castArr.Value(arrIdx)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&val), nil
+		} else {
+			return reflect.ValueOf(val), nil
+		}
+	case *array.Date32:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	case *array.Date64:
+		timeVal := castArr.Value(arrIdx).ToTime()
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	case *array.Timestamp:
+		timeUnit := arr.DataType().(*arrow.TimestampType).TimeUnit()
+		timeVal := castArr.Value(arrIdx).ToTime(timeUnit)
+		if fieldType.Kind() == reflect.Ptr {
+			return reflect.ValueOf(&timeVal), nil
+		} else {
+			return reflect.ValueOf(timeVal), nil
+		}
+	default:
+		return reflect.Value{}, errors.Newf("unsupported array type: %T", arr)
 	}
 }
 
@@ -476,11 +676,11 @@ func MapTableToStructs(
 	var colNames []string
 	for i, field := range table.Schema().Fields() {
 		colName := field.Name
+		colNames = append(colNames, colName)
 		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 			continue
 		} else {
 			featureColumnIdxs = append(featureColumnIdxs, i)
-			colNames = append(colNames, colName)
 		}
 	}
 
@@ -565,6 +765,7 @@ func MapTableToStructs(
 					rowIdx,
 					structValue,
 					featureColumnIdxs,
+					colNames,
 					namespace,
 					namespaceScope,
 					memo,
@@ -580,6 +781,7 @@ func MapTableToStructs(
 						rowIdx,
 						ptr.Ptr(structValue.Field(meta.fieldIdx)),
 						featureColumnIdxs,
+						colNames,
 						meta.namespace,
 						meta.scope,
 						meta.memo,

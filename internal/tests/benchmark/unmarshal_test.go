@@ -245,6 +245,13 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
 
+	//recordBytes, err := internal.RecordToBytes(record)
+	//assert.NoError(b, err)
+	//
+	//benchFunc := func() {
+	//	internal.ConvertBytesToTable(recordBytes)
+	//}
+
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
