@@ -442,7 +442,7 @@ func BenchmarkUnmarshalBulkSingleNsAllTypesSingle(b *testing.B) {
  * Run Type: Parallel
  */
 func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
-	benchmark(b, getBenchmarkUnmarshalBulkAllTypes(b))
+	benchmarkParallel(b, getBenchmarkUnmarshalBulkAllTypes(b))
 }
 
 /*
