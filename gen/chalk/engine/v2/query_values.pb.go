@@ -123,8 +123,8 @@ func (x *TableNameTableIdentifier) GetFilters() *v1.QueryLogFilters {
 	return nil
 }
 
-// Internal protobuf representing a next page token. Contains the operation id and the query timestamp for the last row in the pervious batch. Results are sorted query timestamp
-// then by operation id lexagraphically then by row id, so this is all we need to know where the next page begins
+// Internal protobuf representing a next page token. Contains the operation id and the query timestamp for the last row in the previous batch. Results are sorted query timestamp
+// then by operation id lexicographically then by row id, so this is all we need to know where the next page begins
 type GetQueryValuesPageToken struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -201,14 +201,14 @@ type GetQueryValuesRequest struct {
 	// This is always required.
 	// If you know the operation id, then its feasible that you know the exact query timestamp, too.
 	QueryTimestampLowerBoundInclusive *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=query_timestamp_lower_bound_inclusive,json=queryTimestampLowerBoundInclusive,proto3" json:"query_timestamp_lower_bound_inclusive,omitempty"`
-	// If the upper bound is ommitted, then the lower bound will be used as an exact (equality) filter
+	// If the upper bound is omitted, then the lower bound will be used as an exact (equality) filter
 	QueryTimestampUpperBoundExclusive *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=query_timestamp_upper_bound_exclusive,json=queryTimestampUpperBoundExclusive,proto3,oneof" json:"query_timestamp_upper_bound_exclusive,omitempty"`
-	// If you're insterested in a subset of features, specify those here. Other columns won't be selected from the database, which will help reduce query costs.
+	// If you're interested in a subset of features, specify those here. Other columns won't be selected from the database, which will help reduce query costs.
 	// If empty, all features will be returned
 	Features []string `protobuf:"bytes,5,rep,name=features,proto3" json:"features,omitempty"`
 	// The (maximum) page size for results. If zero, then the server picks.
 	PageSize int32 `protobuf:"varint,7,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	// When dealing with paginated responses, specify the next token to resume where you left off. The subsequent request must be identicial to the original (except for the value of the next_token)
+	// When dealing with paginated responses, specify the next token to resume where you left off. The subsequent request must be identical to the original (except for the value of the next_token)
 	// Leave empty if querying for the zeroth page.
 	PageToken string `protobuf:"bytes,8,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 }
@@ -304,7 +304,7 @@ type isGetQueryValuesRequest_TableIdentifier interface {
 }
 
 type GetQueryValuesRequest_OperationIdIdentifier struct {
-	// Forcing the client to specify the table name can be a bit narly. Instead, for use case 1), it can be easier to allow the client to specify the operation id,
+	// Forcing the client to specify the table name can be a bit gnarly. Instead, for use case 1), it can be easier to allow the client to specify the operation id,
 	// and the engine can figure out what table to query.
 	OperationIdIdentifier *OperationIdTableIdentifier `protobuf:"bytes,1,opt,name=operation_id_identifier,json=operationIdIdentifier,proto3,oneof"`
 }
