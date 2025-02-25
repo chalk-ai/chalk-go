@@ -667,38 +667,7 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Al
 	return nil
 }
 
-func getStructTypes(typ reflect.Type, visited map[reflect.Type]bool) ([]reflect.Type, error) {
-	var result []reflect.Type
-	if visited == nil {
-		visited = map[reflect.Type]bool{}
-	}
-	if visited[typ] {
-		// Cycle
-		return nil, nil
-	}
-	visited[typ] = true
-	if typ.Kind() == reflect.Ptr {
-		return getStructTypes(typ.Elem(), visited)
-	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
-			fm := typ.Field(fieldIdx)
-			res, err := getStructTypes(fm.Type, visited)
-			if err != nil {
-				return nil, errors.Wrapf(
-					err,
-					"error getting namespaces for field '%s' in struct '%s'",
-					fm.Name, typ.Name(),
-				)
-			}
-			result = append(result, res...)
-		}
-	} else if typ.Kind() == reflect.Slice {
-		return getStructTypes(typ.Elem(), visited)
-	}
-	return result, nil
-}
-
-/*  PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
+/*PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
  *  i.e. Don't need to do the same work for the same features class multiple times. Given:
  *  type User struct {
  *      Id *string
@@ -738,15 +707,74 @@ func getStructTypes(typ reflect.Type, visited map[reflect.Type]bool) ([]reflect.
  *      }
  *  }
  */
-func PopulateAllNamespaceMemo(typ reflect.Type) error {
+func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) error {
+	if visited == nil {
+		visited = map[reflect.Type]bool{}
+	}
+	if visited[typ] {
+		return nil
+	}
+	visited[typ] = true
 	allMemo := AllNamespaceMemo
-	structTypes, err := getStructTypes(typ, nil)
-	if err != nil {
-		return errors.Wrap(err, "getting struct types")
+	if typ.Kind() == reflect.Ptr {
+		return PopulateAllNamespaceMemo(typ.Elem(), visited)
+	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
+		structName := typ.Name()
+		namespace := ChalkpySnakeCase(structName)
+		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
+		if loaded {
+			nsMutex.mu.RLock()
+			//lint:ignore SA2001 Empty is fine because this just waits for the memo of the same type to finish populating
+			nsMutex.mu.RUnlock()
+
+			// Prevent infinite loops and processing the same struct more than once.
+			return nil
+		}
+		defer nsMutex.mu.Unlock()
+		nsMemo := nsMutex.memo
+		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
+			fm := typ.Field(fieldIdx)
+			resolvedName, err := ResolveFeatureName(fm)
+			if err != nil {
+				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
+			}
+			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
+			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
+			// Here we map those keys to their respective indices in the struct, so that we
+			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
+			rootFqn := namespace + "." + resolvedName
+			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
+
+			// Handle exploding windowed features
+			if fm.Type.Kind() == reflect.Map {
+				// Is a windowed feature
+				intTags, err := GetWindowBucketsSecondsFromStructTag(fm)
+				if err != nil {
+					return errors.Wrapf(
+						err,
+						"error getting window buckets for field '%s' in struct '%s'",
+						fm.Name,
+						structName,
+					)
+				}
+				for _, tag := range intTags {
+					bucketFqn := resolvedName + "__" + strconv.Itoa(tag) + "__"
+					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
+					rootBucketFqn := namespace + "." + bucketFqn
+					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
+				}
+			} else {
+				if err := PopulateAllNamespaceMemo(fm.Type, visited); err != nil {
+					return err
+				}
+			}
+
+			if fm.Type.Kind() == reflect.Ptr && IsStruct(fm.Type.Elem()) && !IsTypeDataclass(fm.Type.Elem()) {
+				nsMemo.StructFieldsSet[resolvedName] = true
+			}
+		}
+	} else if typ.Kind() == reflect.Slice {
+		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	}
-
-	for _, structType := range structTypes {
-
-	}
-
+	return nil
 }
