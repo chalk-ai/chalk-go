@@ -1329,7 +1329,11 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
 
 			// Check in reverse order of fields to more reliably catch race condition
-			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
+			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedTimestampFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedStringFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
 			assert.True(t, ok)
 			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
 			assert.True(t, ok)
