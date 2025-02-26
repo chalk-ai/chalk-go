@@ -249,6 +249,9 @@ func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataTyp
 		}
 		if !reflectValue.IsZero() {
 			for _, fieldIdx := range reflectFieldIndices {
+				if fieldIdx >= structValue.NumField() {
+					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
+				}
 				field := structValue.Field(fieldIdx)
 				if field.Type().Kind() == reflect.Map {
 					// TODO
@@ -993,7 +996,12 @@ func MapTableToStructs(
 	//}
 	//multiNsMeta := []namespaceMetaT{}
 
-	colIdxToMasterCodec := make([]Codec, len(fields))
+	type newNamespaceMetaT struct {
+		codec           Codec
+		rootStructIndex int
+	}
+
+	colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
 	if !isSingleNamespaceUnmarshal {
 		// Memo for root struct
 		rootMemo, ok := allMemo.Load(structType)
@@ -1044,7 +1052,8 @@ func MapTableToStructs(
 				)
 			}
 
-			innerStructType := structType.Field(namespaceFieldIndices[0]).Type
+			rootStructFieldIdx := namespaceFieldIndices[0]
+			innerStructType := structType.Field(rootStructFieldIdx).Type
 			var innerStructMemo *NamespaceMemo
 			for _, colIdx := range colIndices {
 				colName := table.Schema().Field(colIdx).Name
@@ -1092,7 +1101,10 @@ func MapTableToStructs(
 					}
 					fqnMutex.memo.Codec = newCodec
 				}
-				colIdxToMasterCodec[colIdx] = fqnMutex.memo.Codec
+				colIdxToNamespaceMeta[colIdx] = newNamespaceMetaT{
+					codec:           fqnMutex.memo.Codec,
+					rootStructIndex: rootStructFieldIdx,
+				}
 			}
 		}
 
@@ -1247,11 +1259,11 @@ func MapTableToStructs(
 			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
 				structValue := structs.Index(rowOffset + rowIdx)
 				for _, colIdx := range featureColumnIdxs {
-					codec := colIdxToMasterCodec[colIdx]
-					if codec == nil {
+					memo := colIdxToNamespaceMeta[colIdx]
+					if memo.codec == nil {
 						continue
 					}
-					if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
+					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
 						return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
 					}
 				}
