@@ -14,9 +14,9 @@ import (
 	"time"
 )
 
-func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
+func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < numRows; i++ {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -70,7 +70,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		}{}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
-			for i := 0; i < 100; i++ {
+			for i := 0; i < numRows; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
 				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float1)
@@ -453,7 +453,7 @@ func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
  * Run Type: Single
  */
 func BenchmarkUnmarshalBulkMultiNsPrimitivesSingle(b *testing.B) {
-	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b))
+	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b, 100))
 }
 
 /*
@@ -464,5 +464,27 @@ func BenchmarkUnmarshalBulkMultiNsPrimitivesSingle(b *testing.B) {
  * Run Type: Parallel
  */
 func BenchmarkUnmarshalBulkMultiNsPrimitivesParallel(b *testing.B) {
-	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b))
+	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b, 100))
+}
+
+/*
+ * Query: Bulk (single row)
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b, 1))
+}
+
+/*
+ * Query: Bulk (single row)
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b, 1))
 }
