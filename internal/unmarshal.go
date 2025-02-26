@@ -324,7 +324,7 @@ func generateGetValueCodecInner(fieldType reflect.Type, arrowType arrow.DataType
 						structType.Name(), castArrType.Field(k).Name,
 					)
 				}
-				if !value.IsNil() {
+				if value.IsValid() && !value.IsZero() {
 					for _, fieldIdx := range reflectFieldIndices {
 						structField := newStructPtr.Elem().Field(fieldIdx)
 						structField.Set(value)
@@ -963,6 +963,7 @@ func MapTableToStructs(
 		namespace            string
 		scope                *InitScope
 		colIdxToFieldIndices [][]int
+		colIdxToCodec        []Codec
 	}
 	multiNsMeta := []namespaceMetaT{}
 	if !ok {
@@ -1014,11 +1015,28 @@ func MapTableToStructs(
 			}
 
 			colIndexToFieldIndices := make([][]int, len(fields))
+			colIdxToCodec := make([]Codec, len(fields))
 			for _, colIdx := range nsColIndices {
+				fieldIndices := nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]
+				if len(fieldIndices) == 0 {
+					continue
+				}
+
 				colIndexToFieldIndices[colIdx] = append(
 					colIndexToFieldIndices[colIdx],
-					nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
+					fieldIndices...,
 				)
+
+				codec, err := generateGetValueCodec(
+					fieldMeta.Type.Field(fieldIndices[0]).Type,
+					table.Schema().Field(colIdx).Type,
+					allMemo,
+				)
+				if err != nil {
+					colName := colNames[colIdx]
+					return errors.Wrapf(err, "generating get value codec for column '%s'", colName)
+				}
+				colIdxToCodec[colIdx] = codec
 			}
 
 			multiNsMeta = append(multiNsMeta, namespaceMetaT{
@@ -1027,6 +1045,7 @@ func MapTableToStructs(
 				namespace:            fieldNamespace,
 				scope:                nsScope,
 				colIdxToFieldIndices: colIndexToFieldIndices,
+				colIdxToCodec:        colIdxToCodec,
 			})
 		}
 	}
@@ -1106,7 +1125,7 @@ func MapTableToStructs(
 						ptr.Ptr(structValue.Field(meta.fieldIdx)),
 						featureColumnIdxs,
 						meta.colIdxToFieldIndices,
-						nil,
+						meta.colIdxToCodec,
 						meta.namespace,
 						meta.scope,
 						allMemo,
