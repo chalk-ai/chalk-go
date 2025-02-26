@@ -612,17 +612,103 @@ func (x *KarpenterNodepoolMetadata) GetLabels() map[string]string {
 	return nil
 }
 
+type KarpenterNodepoolCondition struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type               string  `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Status             string  `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	LastHeartbeatTime  int64   `protobuf:"varint,3,opt,name=last_heartbeat_time,json=lastHeartbeatTime,proto3" json:"last_heartbeat_time,omitempty"`
+	LastTransitionTime int64   `protobuf:"varint,4,opt,name=last_transition_time,json=lastTransitionTime,proto3" json:"last_transition_time,omitempty"`
+	Reason             *string `protobuf:"bytes,5,opt,name=reason,proto3,oneof" json:"reason,omitempty"`
+	Message            *string `protobuf:"bytes,6,opt,name=message,proto3,oneof" json:"message,omitempty"`
+}
+
+func (x *KarpenterNodepoolCondition) Reset() {
+	*x = KarpenterNodepoolCondition{}
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KarpenterNodepoolCondition) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KarpenterNodepoolCondition) ProtoMessage() {}
+
+func (x *KarpenterNodepoolCondition) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KarpenterNodepoolCondition.ProtoReflect.Descriptor instead.
+func (*KarpenterNodepoolCondition) Descriptor() ([]byte, []int) {
+	return file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *KarpenterNodepoolCondition) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *KarpenterNodepoolCondition) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *KarpenterNodepoolCondition) GetLastHeartbeatTime() int64 {
+	if x != nil {
+		return x.LastHeartbeatTime
+	}
+	return 0
+}
+
+func (x *KarpenterNodepoolCondition) GetLastTransitionTime() int64 {
+	if x != nil {
+		return x.LastTransitionTime
+	}
+	return 0
+}
+
+func (x *KarpenterNodepoolCondition) GetReason() string {
+	if x != nil && x.Reason != nil {
+		return *x.Reason
+	}
+	return ""
+}
+
+func (x *KarpenterNodepoolCondition) GetMessage() string {
+	if x != nil && x.Message != nil {
+		return *x.Message
+	}
+	return ""
+}
+
 type KarpenterNodepoolStatus struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Resources map[string]string `protobuf:"bytes,1,rep,name=resources,proto3" json:"resources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Resources  map[string]string             `protobuf:"bytes,1,rep,name=resources,proto3" json:"resources,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	Conditions []*KarpenterNodepoolCondition `protobuf:"bytes,2,rep,name=conditions,proto3" json:"conditions,omitempty"`
 }
 
 func (x *KarpenterNodepoolStatus) Reset() {
 	*x = KarpenterNodepoolStatus{}
-	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[9]
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -634,7 +720,7 @@ func (x *KarpenterNodepoolStatus) String() string {
 func (*KarpenterNodepoolStatus) ProtoMessage() {}
 
 func (x *KarpenterNodepoolStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[9]
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -647,12 +733,19 @@ func (x *KarpenterNodepoolStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KarpenterNodepoolStatus.ProtoReflect.Descriptor instead.
 func (*KarpenterNodepoolStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP(), []int{9}
+	return file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *KarpenterNodepoolStatus) GetResources() map[string]string {
 	if x != nil {
 		return x.Resources
+	}
+	return nil
+}
+
+func (x *KarpenterNodepoolStatus) GetConditions() []*KarpenterNodepoolCondition {
+	if x != nil {
+		return x.Conditions
 	}
 	return nil
 }
@@ -671,7 +764,7 @@ type KarpenterNodepool struct {
 
 func (x *KarpenterNodepool) Reset() {
 	*x = KarpenterNodepool{}
-	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[10]
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -683,7 +776,7 @@ func (x *KarpenterNodepool) String() string {
 func (*KarpenterNodepool) ProtoMessage() {}
 
 func (x *KarpenterNodepool) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[10]
+	mi := &file_chalk_nodepools_v1_karpenter_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -696,7 +789,7 @@ func (x *KarpenterNodepool) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KarpenterNodepool.ProtoReflect.Descriptor instead.
 func (*KarpenterNodepool) Descriptor() ([]byte, []int) {
-	return file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP(), []int{10}
+	return file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *KarpenterNodepool) GetApiVersion() string {
@@ -906,14 +999,35 @@ var file_chalk_nodepools_v1_karpenter_proto_rawDesc = []byte{
 	0x65, 0x6c, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61,
 	0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
-	0x3a, 0x02, 0x38, 0x01, 0x22, 0xb1, 0x01, 0x0a, 0x17, 0x4b, 0x61, 0x72, 0x70, 0x65, 0x6e, 0x74,
+	0x3a, 0x02, 0x38, 0x01, 0x22, 0xfd, 0x01, 0x0a, 0x1a, 0x4b, 0x61, 0x72, 0x70, 0x65, 0x6e, 0x74,
+	0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x70, 0x6f, 0x6f, 0x6c, 0x43, 0x6f, 0x6e, 0x64, 0x69, 0x74,
+	0x69, 0x6f, 0x6e, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12,
+	0x2e, 0x0a, 0x13, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x68, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65, 0x61,
+	0x74, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x03, 0x52, 0x11, 0x6c, 0x61,
+	0x73, 0x74, 0x48, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x54, 0x69, 0x6d, 0x65, 0x12,
+	0x30, 0x0a, 0x14, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03, 0x52, 0x12, 0x6c,
+	0x61, 0x73, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x69, 0x6d,
+	0x65, 0x12, 0x1b, 0x0a, 0x06, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28,
+	0x09, 0x48, 0x00, 0x52, 0x06, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x88, 0x01, 0x01, 0x12, 0x1d,
+	0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x48,
+	0x01, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x88, 0x01, 0x01, 0x42, 0x09, 0x0a,
+	0x07, 0x5f, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x22, 0x81, 0x02, 0x0a, 0x17, 0x4b, 0x61, 0x72, 0x70, 0x65, 0x6e, 0x74,
 	0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x70, 0x6f, 0x6f, 0x6c, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
 	0x12, 0x58, 0x0a, 0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x18, 0x01, 0x20,
 	0x03, 0x28, 0x0b, 0x32, 0x3a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x6e, 0x6f, 0x64, 0x65,
 	0x70, 0x6f, 0x6f, 0x6c, 0x73, 0x2e, 0x76, 0x31, 0x2e, 0x4b, 0x61, 0x72, 0x70, 0x65, 0x6e, 0x74,
 	0x65, 0x72, 0x4e, 0x6f, 0x64, 0x65, 0x70, 0x6f, 0x6f, 0x6c, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
 	0x2e, 0x52, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52,
-	0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x1a, 0x3c, 0x0a, 0x0e, 0x52, 0x65,
+	0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x4e, 0x0a, 0x0a, 0x63, 0x6f,
+	0x6e, 0x64, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2e,
+	0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x70, 0x6f, 0x6f, 0x6c, 0x73,
+	0x2e, 0x76, 0x31, 0x2e, 0x4b, 0x61, 0x72, 0x70, 0x65, 0x6e, 0x74, 0x65, 0x72, 0x4e, 0x6f, 0x64,
+	0x65, 0x70, 0x6f, 0x6f, 0x6c, 0x43, 0x6f, 0x6e, 0x64, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0a,
+	0x63, 0x6f, 0x6e, 0x64, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x1a, 0x3c, 0x0a, 0x0e, 0x52, 0x65,
 	0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03,
 	0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14,
 	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76,
@@ -963,7 +1077,7 @@ func file_chalk_nodepools_v1_karpenter_proto_rawDescGZIP() []byte {
 	return file_chalk_nodepools_v1_karpenter_proto_rawDescData
 }
 
-var file_chalk_nodepools_v1_karpenter_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_chalk_nodepools_v1_karpenter_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_chalk_nodepools_v1_karpenter_proto_goTypes = []any{
 	(*KarpenterNodepoolDisruptionBudget)(nil), // 0: chalk.nodepools.v1.KarpenterNodepoolDisruptionBudget
 	(*KarpenterNodepoolDisruption)(nil),       // 1: chalk.nodepools.v1.KarpenterNodepoolDisruption
@@ -974,46 +1088,48 @@ var file_chalk_nodepools_v1_karpenter_proto_goTypes = []any{
 	(*KarpenterNodepoolTemplate)(nil),         // 6: chalk.nodepools.v1.KarpenterNodepoolTemplate
 	(*KarpenterNodepoolSpec)(nil),             // 7: chalk.nodepools.v1.KarpenterNodepoolSpec
 	(*KarpenterNodepoolMetadata)(nil),         // 8: chalk.nodepools.v1.KarpenterNodepoolMetadata
-	(*KarpenterNodepoolStatus)(nil),           // 9: chalk.nodepools.v1.KarpenterNodepoolStatus
-	(*KarpenterNodepool)(nil),                 // 10: chalk.nodepools.v1.KarpenterNodepool
-	nil,                                       // 11: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.LabelsEntry
-	nil,                                       // 12: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.AnnotationsEntry
-	nil,                                       // 13: chalk.nodepools.v1.KarpenterNodepoolSpec.LimitsEntry
-	nil,                                       // 14: chalk.nodepools.v1.KarpenterNodepoolMetadata.AnnotationsEntry
-	nil,                                       // 15: chalk.nodepools.v1.KarpenterNodepoolMetadata.LabelsEntry
-	nil,                                       // 16: chalk.nodepools.v1.KarpenterNodepoolStatus.ResourcesEntry
-	(*durationpb.Duration)(nil),               // 17: google.protobuf.Duration
-	(*v1.KubernetesNodeTaint)(nil),            // 18: chalk.kubernetes.v1.KubernetesNodeTaint
-	(*timestamppb.Timestamp)(nil),             // 19: google.protobuf.Timestamp
+	(*KarpenterNodepoolCondition)(nil),        // 9: chalk.nodepools.v1.KarpenterNodepoolCondition
+	(*KarpenterNodepoolStatus)(nil),           // 10: chalk.nodepools.v1.KarpenterNodepoolStatus
+	(*KarpenterNodepool)(nil),                 // 11: chalk.nodepools.v1.KarpenterNodepool
+	nil,                                       // 12: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.LabelsEntry
+	nil,                                       // 13: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.AnnotationsEntry
+	nil,                                       // 14: chalk.nodepools.v1.KarpenterNodepoolSpec.LimitsEntry
+	nil,                                       // 15: chalk.nodepools.v1.KarpenterNodepoolMetadata.AnnotationsEntry
+	nil,                                       // 16: chalk.nodepools.v1.KarpenterNodepoolMetadata.LabelsEntry
+	nil,                                       // 17: chalk.nodepools.v1.KarpenterNodepoolStatus.ResourcesEntry
+	(*durationpb.Duration)(nil),               // 18: google.protobuf.Duration
+	(*v1.KubernetesNodeTaint)(nil),            // 19: chalk.kubernetes.v1.KubernetesNodeTaint
+	(*timestamppb.Timestamp)(nil),             // 20: google.protobuf.Timestamp
 }
 var file_chalk_nodepools_v1_karpenter_proto_depIdxs = []int32{
-	17, // 0: chalk.nodepools.v1.KarpenterNodepoolDisruptionBudget.duration:type_name -> google.protobuf.Duration
-	17, // 1: chalk.nodepools.v1.KarpenterNodepoolDisruption.consolidate_after:type_name -> google.protobuf.Duration
+	18, // 0: chalk.nodepools.v1.KarpenterNodepoolDisruptionBudget.duration:type_name -> google.protobuf.Duration
+	18, // 1: chalk.nodepools.v1.KarpenterNodepoolDisruption.consolidate_after:type_name -> google.protobuf.Duration
 	0,  // 2: chalk.nodepools.v1.KarpenterNodepoolDisruption.budgets:type_name -> chalk.nodepools.v1.KarpenterNodepoolDisruptionBudget
-	18, // 3: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.taints:type_name -> chalk.kubernetes.v1.KubernetesNodeTaint
-	18, // 4: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.startup_taints:type_name -> chalk.kubernetes.v1.KubernetesNodeTaint
+	19, // 3: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.taints:type_name -> chalk.kubernetes.v1.KubernetesNodeTaint
+	19, // 4: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.startup_taints:type_name -> chalk.kubernetes.v1.KubernetesNodeTaint
 	3,  // 5: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.requirements:type_name -> chalk.nodepools.v1.KarpenterNodeSelectorRequirement
 	2,  // 6: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.node_class_ref:type_name -> chalk.nodepools.v1.KarpenterNodeClassRef
-	17, // 7: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.expire_after:type_name -> google.protobuf.Duration
-	11, // 8: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.labels:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.LabelsEntry
-	12, // 9: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.annotations:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.AnnotationsEntry
+	18, // 7: chalk.nodepools.v1.KarpenterNodepoolTemplateSpec.expire_after:type_name -> google.protobuf.Duration
+	12, // 8: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.labels:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.LabelsEntry
+	13, // 9: chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.annotations:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata.AnnotationsEntry
 	5,  // 10: chalk.nodepools.v1.KarpenterNodepoolTemplate.metadata:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateMetadata
 	4,  // 11: chalk.nodepools.v1.KarpenterNodepoolTemplate.spec:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplateSpec
 	1,  // 12: chalk.nodepools.v1.KarpenterNodepoolSpec.disruption:type_name -> chalk.nodepools.v1.KarpenterNodepoolDisruption
 	6,  // 13: chalk.nodepools.v1.KarpenterNodepoolSpec.template:type_name -> chalk.nodepools.v1.KarpenterNodepoolTemplate
-	13, // 14: chalk.nodepools.v1.KarpenterNodepoolSpec.limits:type_name -> chalk.nodepools.v1.KarpenterNodepoolSpec.LimitsEntry
-	14, // 15: chalk.nodepools.v1.KarpenterNodepoolMetadata.annotations:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata.AnnotationsEntry
-	19, // 16: chalk.nodepools.v1.KarpenterNodepoolMetadata.creation_timestamp:type_name -> google.protobuf.Timestamp
-	15, // 17: chalk.nodepools.v1.KarpenterNodepoolMetadata.labels:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata.LabelsEntry
-	16, // 18: chalk.nodepools.v1.KarpenterNodepoolStatus.resources:type_name -> chalk.nodepools.v1.KarpenterNodepoolStatus.ResourcesEntry
-	8,  // 19: chalk.nodepools.v1.KarpenterNodepool.metadata:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata
-	7,  // 20: chalk.nodepools.v1.KarpenterNodepool.spec:type_name -> chalk.nodepools.v1.KarpenterNodepoolSpec
-	9,  // 21: chalk.nodepools.v1.KarpenterNodepool.status:type_name -> chalk.nodepools.v1.KarpenterNodepoolStatus
-	22, // [22:22] is the sub-list for method output_type
-	22, // [22:22] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	14, // 14: chalk.nodepools.v1.KarpenterNodepoolSpec.limits:type_name -> chalk.nodepools.v1.KarpenterNodepoolSpec.LimitsEntry
+	15, // 15: chalk.nodepools.v1.KarpenterNodepoolMetadata.annotations:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata.AnnotationsEntry
+	20, // 16: chalk.nodepools.v1.KarpenterNodepoolMetadata.creation_timestamp:type_name -> google.protobuf.Timestamp
+	16, // 17: chalk.nodepools.v1.KarpenterNodepoolMetadata.labels:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata.LabelsEntry
+	17, // 18: chalk.nodepools.v1.KarpenterNodepoolStatus.resources:type_name -> chalk.nodepools.v1.KarpenterNodepoolStatus.ResourcesEntry
+	9,  // 19: chalk.nodepools.v1.KarpenterNodepoolStatus.conditions:type_name -> chalk.nodepools.v1.KarpenterNodepoolCondition
+	8,  // 20: chalk.nodepools.v1.KarpenterNodepool.metadata:type_name -> chalk.nodepools.v1.KarpenterNodepoolMetadata
+	7,  // 21: chalk.nodepools.v1.KarpenterNodepool.spec:type_name -> chalk.nodepools.v1.KarpenterNodepoolSpec
+	10, // 22: chalk.nodepools.v1.KarpenterNodepool.status:type_name -> chalk.nodepools.v1.KarpenterNodepoolStatus
+	23, // [23:23] is the sub-list for method output_type
+	23, // [23:23] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_chalk_nodepools_v1_karpenter_proto_init() }
@@ -1026,13 +1142,14 @@ func file_chalk_nodepools_v1_karpenter_proto_init() {
 	file_chalk_nodepools_v1_karpenter_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_nodepools_v1_karpenter_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_nodepools_v1_karpenter_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_nodepools_v1_karpenter_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_nodepools_v1_karpenter_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
