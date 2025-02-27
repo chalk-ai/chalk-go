@@ -1000,48 +1000,42 @@ func loadOrStoreCodec(colName string, colType arrow.DataType, structType reflect
 	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(colName, NewFqnMemo())
 	if !loaded {
 		// Populate codec
-		// FIXME: Now we can remove this inner func
-		newCodec, err := func() (Codec, error) {
-			// Need to put this defer in a function to ensure it unlocks per iteration
-			defer fqnMutex.mu.Unlock()
+		defer fqnMutex.mu.Unlock()
 
-			noOpCodec := func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+		if structMemo == nil {
+			memo, ok := allMemo.Load(structType)
+			if !ok {
+				return nil, errors.Newf(
+					"memo not found for struct type '%s', found keys: %v",
+					structType.Name(), allMemo.Keys(),
+				)
+			}
+			structMemo = memo
+		}
+
+		fieldIndices, ok := structMemo.ResolvedFieldNameToIndices[colName]
+		if !ok || len(fieldIndices) == 0 {
+			// This happens when we unmarshal new feature fields into old codegen structs
+			// We no-op here to allow for backcompat.
+			fqnMutex.memo.Codec = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
 				return nil
 			}
-
-			if structMemo == nil {
-				memo, ok := allMemo.Load(structType)
-				if !ok {
-					return nil, errors.Newf(
-						"memo not found for struct type '%s', found keys: %v",
-						structType.Name(), allMemo.Keys(),
-					)
-				}
-				structMemo = memo
-			}
-
-			fieldIndices, ok := structMemo.ResolvedFieldNameToIndices[colName]
-			if !ok || len(fieldIndices) == 0 {
-				// This happens when we unmarshal new feature fields into old codegen structs
-				// We no-op here to allow for backcompat.
-				return noOpCodec, nil
-			}
-
-			unmarshalVal, err := generateUnmarshalValueCodec(
-				// Taking the first field's type because multiple field indices for the same column
-				// means they are just versioned features, which are all the same type.
-				structType.Field(fieldIndices[0]).Type,
-				colType,
-				allMemo,
-				fieldIndices,
-			)
-			return unmarshalVal, errors.Wrap(err, "generating unmarshal value codec")
-		}()
-
-		if err != nil {
-			return nil, err // Intentional no wrap
+			return fqnMutex.memo.Codec, nil
 		}
-		fqnMutex.memo.Codec = newCodec
+
+		codec, err := generateUnmarshalValueCodec(
+			// Taking the first field's type because multiple field indices for the same column
+			// means they are just versioned features, which are all the same type.
+			structType.Field(fieldIndices[0]).Type,
+			colType,
+			allMemo,
+			fieldIndices,
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating unmarshal value codec")
+		}
+
+		fqnMutex.memo.Codec = codec
 	}
 	return fqnMutex.memo.Codec, nil
 }
