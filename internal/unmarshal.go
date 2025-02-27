@@ -292,6 +292,7 @@ func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataTyp
 		}
 		setMapFunc = generateSetMapFunc(bucket)
 
+		// Unwrap map type to get value type
 		fieldType = fieldType.Elem()
 	}
 
