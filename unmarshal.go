@@ -6,13 +6,9 @@ import (
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
-	"runtime"
-	"sort"
 	"strings"
-	"sync"
 )
 
 var FieldNotFoundError = errors.New("field not found")
@@ -121,231 +117,6 @@ func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr error) {
 	return UnmarshalInto(resultHolder, fqnToValue)
 }
 
-type ChunkResult struct {
-	chunkIdx int
-	rows     []reflect.Value
-	err      error
-}
-
-func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
-	defer func() {
-		if panicContents := recover(); panicContents != nil {
-			detail := "details irretrievable"
-			switch typedContents := panicContents.(type) {
-			case *reflect.ValueError:
-				detail = typedContents.Error()
-			case string:
-				detail = typedContents
-			}
-			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
-		}
-	}()
-
-	numRows, err := internal.Int64ToInt(table.NumRows())
-	if err != nil {
-		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
-	}
-
-	slicePtr := reflect.ValueOf(resultHolders)
-	if slicePtr.Kind() != reflect.Ptr {
-		return fmt.Errorf(
-			"result holder should be a pointer to a slice of structs, "+
-				"got '%s' instead",
-			slicePtr.Kind(),
-		)
-	}
-
-	slice := reflect.Indirect(slicePtr)
-	if slice.Kind() != reflect.Slice {
-		return fmt.Errorf(
-			"result holder should be a pointer to a slice of structs, "+
-				"got '%s' instead",
-			slice.Kind(),
-		)
-	}
-
-	sliceElemType := slice.Type().Elem()
-	if sliceElemType.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"result holder should be a pointer to a slice of structs, "+
-				"got a pointer to a slice of '%s' instead",
-			sliceElemType.Kind(),
-		)
-	}
-
-	rows, _, scalarsErr := internal.ExtractFeaturesFromTable(table, false)
-	if scalarsErr != nil {
-		return scalarsErr
-	}
-	if len(rows) == 0 {
-		return nil
-	}
-
-	scope, err := internal.BuildScope(colls.Keys(rows[0]))
-	if err != nil {
-		return errors.Wrap(err, "building deserialization scope")
-	}
-
-	allMemo := internal.AllNamespaceMemo
-	if err := internal.PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
-		return errors.Wrap(err, "building namespace memo")
-	}
-
-	structName := sliceElemType.Name()
-	namespace := internal.ChalkpySnakeCase(structName)
-	nsScope := scope.Children[namespace]
-
-	var rowToStruct func(map[Fqn]any) (*reflect.Value, error)
-	if nsScope != nil {
-		// single namespace unmarshalling
-		nsMemo, ok := allMemo.Load(sliceElemType)
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
-		}
-
-		rowToStruct = func(row map[Fqn]any) (*reflect.Value, error) {
-			featuresStruct := reflect.New(sliceElemType)
-			if err := thinUnmarshalInto(
-				featuresStruct.Elem(),
-				row,
-				namespace,
-				nsScope,
-				nsMemo,
-				allMemo,
-			); err != nil {
-				return nil, err
-			}
-			return ptr.Ptr(featuresStruct.Elem()), nil
-		}
-	} else {
-		// Multi namespace unmarshalling
-		type namespaceMetaT struct {
-			fieldIdx  int
-			namespace string
-			scope     *internal.InitScope
-			memo      *internal.NamespaceMemo
-		}
-
-		namespaceMeta := []namespaceMetaT{}
-		for i := 0; i < sliceElemType.NumField(); i++ {
-			fieldMeta := sliceElemType.Field(i)
-			if fieldMeta.Type.Kind() != reflect.Struct {
-				return errors.Newf(
-					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
-						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
-						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
-						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
-					structName,
-					colls.Keys(scope.Children),
-					fieldMeta.Name,
-					fieldMeta.Type.Name(),
-				)
-			}
-
-			fieldNamespace := internal.ChalkpySnakeCase(fieldMeta.Type.Name())
-
-			fieldScope := scope.Children[fieldNamespace]
-			if fieldScope == nil {
-				return errors.Newf(
-					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-						"of type '%s', but results are from these namespaces: %v",
-					structName,
-					fieldMeta.Name,
-					fieldMeta.Type.Name(),
-					colls.Keys(scope.Children),
-				)
-			}
-
-			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
-			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
-			}
-
-			namespaceMeta = append(namespaceMeta, namespaceMetaT{
-				fieldIdx:  i,
-				namespace: fieldNamespace,
-				scope:     fieldScope,
-				memo:      fieldMemo,
-			})
-		}
-
-		rowToStruct = func(row map[Fqn]any) (*reflect.Value, error) {
-			rootStruct := reflect.New(sliceElemType)
-			for _, meta := range namespaceMeta {
-				if err := thinUnmarshalInto(
-					rootStruct.Elem().Field(meta.fieldIdx),
-					row,
-					meta.namespace,
-					meta.scope,
-					meta.memo,
-					allMemo,
-				); err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"error unmarshalling into field '%s'",
-						sliceElemType.Field(meta.fieldIdx).Name,
-					)
-				}
-			}
-			return ptr.Ptr(rootStruct.Elem()), nil
-		}
-	}
-
-	var wg sync.WaitGroup
-	numWorkers := runtime.NumCPU()
-	resChan := make(chan *ChunkResult, numWorkers)
-	chunkSize := (len(rows) / numWorkers) + 1
-
-	for chunkIdx := 0; (chunkIdx * chunkSize) < len(rows); chunkIdx += 1 {
-		wg.Add(1)
-		go func(routineChunkIdx int) {
-			defer wg.Done()
-			chunkStart := routineChunkIdx * chunkSize
-			chunkEnd := chunkStart + chunkSize
-			chunkRows := rows[chunkStart:min(chunkEnd, len(rows))]
-			results := make([]reflect.Value, len(chunkRows))
-			for rowIdx, row := range chunkRows {
-				res, err := rowToStruct(row)
-				if err != nil {
-					resChan <- &ChunkResult{chunkIdx: routineChunkIdx, err: err}
-					return
-				} else {
-					results[rowIdx] = *res
-				}
-			}
-			resChan <- &ChunkResult{chunkIdx: routineChunkIdx, rows: results}
-		}(chunkIdx)
-	}
-
-	wg.Wait()
-	close(resChan)
-
-	var allChunks []*ChunkResult
-	for chunkResult := range resChan {
-		allChunks = append(allChunks, chunkResult)
-	}
-
-	sort.Slice(allChunks, func(i, j int) bool {
-		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
-	})
-
-	newSlice := reflect.MakeSlice(slice.Type(), numRows, numRows)
-	rowIdx := 0
-	for _, chunkResult := range allChunks {
-		if chunkResult.err != nil {
-			return chunkResult.err
-		}
-		for _, row := range chunkResult.rows {
-			newSlice.Index(rowIdx).Set(row)
-			rowIdx += 1
-		}
-	}
-	slice.Set(newSlice)
-
-	return nil
-}
-
 // UnmarshalTableInto unmarshals the given Arrow table into the given result holders.
 // The result holders should be a pointer to a slice of structs.
 //
@@ -368,7 +139,7 @@ func unmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 //
 //	}
 func UnmarshalTableInto(table arrow.Table, resultHolders any) error {
-	return internal.UnmarshalTableIntoFast(table, resultHolders)
+	return internal.UnmarshalTableInto(table, resultHolders)
 }
 
 /*
@@ -599,7 +370,7 @@ func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
-	return internal.UnmarshalTableIntoFast(scalars, resultHolders)
+	return internal.UnmarshalTableInto(scalars, resultHolders)
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {

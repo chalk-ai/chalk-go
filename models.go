@@ -398,7 +398,7 @@ type OnlineQueryBulkResult struct {
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	return internal.UnmarshalTableIntoFast(r.ScalarsTable, resultHolders)
+	return internal.UnmarshalTableInto(r.ScalarsTable, resultHolders)
 }
 
 // UploadFeaturesParams defines the parameters
