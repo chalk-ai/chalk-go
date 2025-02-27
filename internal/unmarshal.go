@@ -185,6 +185,9 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 
 	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
 		length := endIdx - startIdx
+		if sliceType.Kind() != reflect.Slice {
+			return reflect.Value{}, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
+		}
 		newSlice := reflect.MakeSlice(sliceType, length, length)
 
 		newSliceIdx := 0
@@ -1108,7 +1111,7 @@ func MapTableToStructs(
 					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}
 				if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrap(err, "running codec")
+					return errors.Wrapf(err, "running codec for column '%s'", column.Name)
 				}
 			}
 			return nil
@@ -1178,7 +1181,7 @@ func MapTableToStructs(
 					continue
 				}
 				if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec")
+					return errors.Wrapf(err, "running codec for column '%s'", colNames[colIdx])
 				}
 			}
 			return nil
