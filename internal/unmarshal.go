@@ -1000,6 +1000,7 @@ func loadOrStoreCodec(colName string, colType arrow.DataType, structType reflect
 	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(colName, NewFqnMemo())
 	if !loaded {
 		// Populate codec
+		// FIXME: Now we can remove this inner func
 		newCodec, err := func() (Codec, error) {
 			// Need to put this defer in a function to ensure it unlocks per iteration
 			defer fqnMutex.mu.Unlock()
@@ -1080,18 +1081,10 @@ func MapTableToStructs(
 		}
 	}
 
-	// FIXME
-	//rootScope, err := BuildScope(colNames)
-	//if err != nil {
-	//	return errors.Wrap(err, "building scope")
-	//}
-
 	structType := structs.Type().Elem()
 	structName := structType.Name()
 	namespace := ChalkpySnakeCase(structName)
 
-	// FIXME
-	//namespaceScope, ok := rootScope.Children[namespace]
 	_, isSingleNamespaceUnmarshal := rootScope.Children[namespace]
 
 	// Memo for root struct
@@ -1103,25 +1096,39 @@ func MapTableToStructs(
 		)
 	}
 
-	//type namespaceMetaT struct {
-	//	fieldIdx             int
-	//	structField          reflect.StructField
-	//	colIdxToFieldIndices [][]int
-	//	colIdxToCodec        []GetValueFunc
-	//}
-	//multiNsMeta := []namespaceMetaT{}
-
 	type newNamespaceMetaT struct {
 		codec           Codec
 		rootStructIndex int
 	}
 
-	colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
 	if isSingleNamespaceUnmarshal {
 		// Single-namespace unmarshalling
 
+		rowOffset := 0
+		batchIdx := 0
+		for reader.Next() {
+			record := reader.Record()
+			recordRows := int(record.NumRows())
+			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+				structValue := structs.Index(rowOffset + rowIdx)
+				for _, colIdx := range featureColumnIdxs {
+					column := fields[colIdx]
+					codec, err := loadOrStoreCodec(column.Name, column.Type, structType, rootMemo, allMemo)
+					if err != nil {
+						return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+					}
+					if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
+						return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+					}
+				}
+			}
+			rowOffset += recordRows
+			batchIdx += 1
+		}
+
 	} else {
 		// Multi-namespace unmarshalling
+		colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
 		for childNamespace, colIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok || len(namespaceFieldIndices) == 0 {
@@ -1176,69 +1183,7 @@ func MapTableToStructs(
 				}
 			}
 		}
-	}
 
-	if isSingleNamespaceUnmarshal {
-		// Single namespace unmarshalling
-		memo, ok := allMemo.Load(structType)
-		if !ok {
-			return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
-		}
-
-		colIdxToFieldIndices := make([][]int, len(fields))
-		for _, colIdx := range featureColumnIdxs {
-			colIdxToFieldIndices[colIdx] = append(
-				colIdxToFieldIndices[colIdx],
-				memo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
-			)
-		}
-
-		rowOffset := 0
-		batchIdx := 0
-		for reader.Next() {
-			record := reader.Record()
-			recordRows := int(record.NumRows())
-
-			colIdxToCodec := make([]GetValueFunc, len(fields))
-			for _, colIdx := range featureColumnIdxs {
-				fieldIndices := colIdxToFieldIndices[colIdx]
-				if len(fieldIndices) == 0 {
-					continue
-				}
-				codec, err := generateGetValueFunc(
-					structType.Field(fieldIndices[0]).Type,
-					record.Schema().Field(colIdx).Type,
-					allMemo,
-				)
-				if err != nil {
-					colName := colNames[colIdx]
-					return errors.Wrapf(err, "generating get value codec for column '%s'", colName)
-				}
-				colIdxToCodec[colIdx] = codec
-			}
-
-			for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
-				structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
-				if err := mapRowToStruct(
-					record,
-					rowIdx,
-					structValue,
-					featureColumnIdxs,
-					colIdxToFieldIndices,
-					colIdxToCodec,
-					//namespace,
-					//namespaceScope,
-					allMemo,
-				); err != nil {
-					return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
-				}
-			}
-
-			rowOffset += recordRows
-			batchIdx += 1
-		}
-	} else {
-		// Multi-namespace unmarshalling
 		rowOffset := 0
 		batchIdx := 0
 		for reader.Next() {
@@ -1255,31 +1200,74 @@ func MapTableToStructs(
 						return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
 					}
 				}
-				//for _, meta := range multiNsMeta {
-				//	if err := mapRowToStruct(
-				//		record,
-				//		rowIdx,
-				//		ptr.Ptr(structValue.Field(meta.fieldIdx)),
-				//		featureColumnIdxs,
-				//		meta.colIdxToFieldIndices,
-				//		meta.colIdxToCodec,
-				//		//meta.namespace,
-				//		//meta.scope,
-				//		allMemo,
-				//	); err != nil {
-				//		return errors.Wrapf(
-				//			err,
-				//			"multi-namespace unmarshalling record batch %d namespace '%s'",
-				//			batchIdx,
-				//			ChalkpySnakeCase(meta.structField.Type.Name()),
-				//		)
-				//	}
-				//}
 			}
 			rowOffset += recordRows
 			batchIdx += 1
 		}
 	}
+	//
+	//if isSingleNamespaceUnmarshal {
+	//	// Single namespace unmarshalling
+	//	memo, ok := allMemo.Load(structType)
+	//	if !ok {
+	//		return errors.Newf("memo not found for struct type %s, found keys: %v", structType, allMemo.Keys())
+	//	}
+	//
+	//	colIdxToFieldIndices := make([][]int, len(fields))
+	//	for _, colIdx := range featureColumnIdxs {
+	//		colIdxToFieldIndices[colIdx] = append(
+	//			colIdxToFieldIndices[colIdx],
+	//			memo.ResolvedFieldNameToIndices[colNames[colIdx]]...,
+	//		)
+	//	}
+	//
+	//	rowOffset := 0
+	//	batchIdx := 0
+	//	for reader.Next() {
+	//		record := reader.Record()
+	//		recordRows := int(record.NumRows())
+	//
+	//		colIdxToCodec := make([]GetValueFunc, len(fields))
+	//		for _, colIdx := range featureColumnIdxs {
+	//			fieldIndices := colIdxToFieldIndices[colIdx]
+	//			if len(fieldIndices) == 0 {
+	//				continue
+	//			}
+	//			codec, err := generateGetValueFunc(
+	//				structType.Field(fieldIndices[0]).Type,
+	//				record.Schema().Field(colIdx).Type,
+	//				allMemo,
+	//			)
+	//			if err != nil {
+	//				colName := colNames[colIdx]
+	//				return errors.Wrapf(err, "generating get value codec for column '%s'", colName)
+	//			}
+	//			colIdxToCodec[colIdx] = codec
+	//		}
+	//
+	//		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+	//			structValue := ptr.Ptr(structs.Index(rowOffset + rowIdx))
+	//			if err := mapRowToStruct(
+	//				record,
+	//				rowIdx,
+	//				structValue,
+	//				featureColumnIdxs,
+	//				colIdxToFieldIndices,
+	//				colIdxToCodec,
+	//				//namespace,
+	//				//namespaceScope,
+	//				allMemo,
+	//			); err != nil {
+	//				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+	//			}
+	//		}
+	//
+	//		rowOffset += recordRows
+	//		batchIdx += 1
+	//	}
+	//} else {
+	//
+	//}
 	return nil
 }
 
