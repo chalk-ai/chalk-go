@@ -996,6 +996,55 @@ type FeatureMeta struct {
 	Pkey        any
 }
 
+func loadOrStoreCodec(colName string, colType arrow.DataType, structType reflect.Type, structMemo *NamespaceMemo, allMemo *AllNamespaceMemoT) (Codec, error) {
+	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(colName, NewFqnMemo())
+	if !loaded {
+		// Populate codec
+		newCodec, err := func() (Codec, error) {
+			// Need to put this defer in a function to ensure it unlocks per iteration
+			defer fqnMutex.mu.Unlock()
+
+			noOpCodec := func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+				return nil
+			}
+
+			if structMemo == nil {
+				memo, ok := allMemo.Load(structType)
+				if !ok {
+					return nil, errors.Newf(
+						"memo not found for struct type '%s', found keys: %v",
+						structType.Name(), allMemo.Keys(),
+					)
+				}
+				structMemo = memo
+			}
+
+			fieldIndices, ok := structMemo.ResolvedFieldNameToIndices[colName]
+			if !ok || len(fieldIndices) == 0 {
+				// This happens when we unmarshal new feature fields into old codegen structs
+				// We no-op here to allow for backcompat.
+				return noOpCodec, nil
+			}
+
+			unmarshalVal, err := generateUnmarshalValueCodec(
+				// Taking the first field's type because multiple field indices for the same column
+				// means they are just versioned features, which are all the same type.
+				structType.Field(fieldIndices[0]).Type,
+				colType,
+				allMemo,
+				fieldIndices,
+			)
+			return unmarshalVal, errors.Wrap(err, "generating unmarshal value codec")
+		}()
+
+		if err != nil {
+			return nil, err // Intentional no wrap
+		}
+		fqnMutex.memo.Codec = newCodec
+	}
+	return fqnMutex.memo.Codec, nil
+}
+
 func MapTableToStructs(
 	table arrow.Table,
 	structs *reflect.Value,
@@ -1045,6 +1094,15 @@ func MapTableToStructs(
 	//namespaceScope, ok := rootScope.Children[namespace]
 	_, isSingleNamespaceUnmarshal := rootScope.Children[namespace]
 
+	// Memo for root struct
+	rootMemo, ok := allMemo.Load(structType)
+	if !ok {
+		return errors.Newf(
+			"memo not found for struct type %s, found keys: %v",
+			structType.Name(), allMemo.Keys(),
+		)
+	}
+
 	//type namespaceMetaT struct {
 	//	fieldIdx             int
 	//	structField          reflect.StructField
@@ -1059,16 +1117,10 @@ func MapTableToStructs(
 	}
 
 	colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
-	if !isSingleNamespaceUnmarshal {
-		// Memo for root struct
-		rootMemo, ok := allMemo.Load(structType)
-		if !ok {
-			return errors.Newf(
-				"memo not found for struct type %s, found keys: %v",
-				structType.Name(), allMemo.Keys(),
-			)
-		}
+	if isSingleNamespaceUnmarshal {
+		// Single-namespace unmarshalling
 
+	} else {
 		// Multi-namespace unmarshalling
 		for childNamespace, colIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
@@ -1113,138 +1165,17 @@ func MapTableToStructs(
 			innerStructType := structType.Field(rootStructFieldIdx).Type
 			var innerStructMemo *NamespaceMemo
 			for _, colIdx := range colIndices {
-				colName := table.Schema().Field(colIdx).Name
-				fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(colName, NewFqnMemo())
-				if !loaded {
-					// Populate codec
-					newCodec, err := func() (Codec, error) {
-						// Need to put this defer in a function to ensure it unlocks per iteration
-						defer fqnMutex.mu.Unlock()
-
-						noOpCodec := func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
-							return nil
-						}
-
-						if innerStructMemo == nil {
-							innerMemo, ok := allMemo.Load(innerStructType)
-							if !ok {
-								return nil, errors.Newf(
-									"memo not found for struct type '%s', found keys: %v",
-									innerStructType.Name(), allMemo.Keys(),
-								)
-							}
-							innerStructMemo = innerMemo
-						}
-
-						fieldIndices, ok := innerStructMemo.ResolvedFieldNameToIndices[colName]
-						if !ok || len(fieldIndices) == 0 {
-							// This happens when we unmarshal new feature fields into old codegen structs
-							// We no-op here to allow for backcompat.
-							return noOpCodec, nil
-						}
-
-						return generateUnmarshalValueCodec(
-							// Taking the first field's type because multiple field indices for the same column
-							// means they are just versioned features, which are all the same type.
-							innerStructType.Field(fieldIndices[0]).Type,
-							table.Schema().Field(colIdx).Type,
-							allMemo,
-							fieldIndices,
-						)
-					}()
-
-					if err != nil {
-						return errors.Wrapf(err, "generating codec for column '%s'", colName)
-					}
-					fqnMutex.memo.Codec = newCodec
+				column := fields[colIdx]
+				codec, err := loadOrStoreCodec(column.Name, column.Type, innerStructType, innerStructMemo, allMemo)
+				if err != nil {
+					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}
 				colIdxToNamespaceMeta[colIdx] = newNamespaceMetaT{
-					codec:           fqnMutex.memo.Codec,
+					codec:           codec,
 					rootStructIndex: rootStructFieldIdx,
 				}
 			}
 		}
-
-		// FIXME: Remove this old way of iterating
-		//// Multi-namespace unmarshalling
-		//for i := 0; i < structType.NumField(); i++ {
-		//	fieldMeta := structType.Field(i)
-		//	if fieldMeta.Type.Kind() != reflect.Struct {
-		//		return errors.Newf(
-		//			"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
-		//				"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
-		//				"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
-		//				"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
-		//			structName,
-		//			colls.Keys(rootScope.Children),
-		//			fieldMeta.Name,
-		//			fieldMeta.Type.Name(),
-		//		)
-		//	}
-		//
-		//	fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
-		//
-		//	nsScope := rootScope.Children[fieldNamespace]
-		//	if nsScope == nil {
-		//		return errors.Newf(
-		//			"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-		//				"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-		//				"of type '%s', but results are from these namespaces: %v",
-		//			structName,
-		//			fieldMeta.Name,
-		//			fieldMeta.Type.Name(),
-		//			colls.Keys(rootScope.Children),
-		//		)
-		//	}
-		//
-		//	nsMemo, ok := allMemo.Load(fieldMeta.Type)
-		//	if !ok {
-		//		return errors.Newf(
-		//			"namespace '%s' not found in memo, found keys: %v",
-		//			fieldMeta.Type.Name(), allMemo.Keys(),
-		//		)
-		//	}
-		//
-		//	nsColIndices, ok := namespaceToColIndices[fieldNamespace]
-		//	if !ok {
-		//		return errors.Newf(
-		//			"namespace '%s' not found in namespaceToColIndices, found keys: %v",
-		//			fieldNamespace, colls.Keys(namespaceToColIndices),
-		//		)
-		//	}
-		//
-		//	colIndexToFieldIndices := make([][]int, len(fields))
-		//	colIdxToCodec := make([]GetValueFunc, len(fields))
-		//	for _, colIdx := range nsColIndices {
-		//		fieldIndices := nsMemo.ResolvedFieldNameToIndices[colNames[colIdx]]
-		//		if len(fieldIndices) == 0 {
-		//			continue
-		//		}
-		//
-		//		colIndexToFieldIndices[colIdx] = append(
-		//			colIndexToFieldIndices[colIdx],
-		//			fieldIndices...,
-		//		)
-		//
-		//		codec, err := generateGetValueFunc(
-		//			fieldMeta.Type.Field(fieldIndices[0]).Type,
-		//			table.Schema().Field(colIdx).Type,
-		//			allMemo,
-		//		)
-		//		if err != nil {
-		//			colName := colNames[colIdx]
-		//			return errors.Wrapf(err, "generating get value codec for column '%s'", colName)
-		//		}
-		//		colIdxToCodec[colIdx] = codec
-		//	}
-		//
-		//	multiNsMeta = append(multiNsMeta, namespaceMetaT{
-		//		fieldIdx:             i,
-		//		structField:          fieldMeta,
-		//		colIdxToFieldIndices: colIndexToFieldIndices,
-		//		colIdxToCodec:        colIdxToCodec,
-		//	})
-		//}
 	}
 
 	if isSingleNamespaceUnmarshal {
