@@ -274,14 +274,14 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData := make(map[string]any)
 
-	numRows := 10000
+	numRows := 100
 
-	//bulkData["all_types.int"] = make([]int, numRows)
-	//bulkData["all_types.float"] = make([]float64, numRows)
-	//bulkData["all_types.string"] = make([]string, numRows)
-	//bulkData["all_types.bool"] = make([]bool, numRows)
-	//bulkData["all_types.timestamp"] = make([]time.Time, numRows)
-	//bulkData["all_types.int_list"] = make([][]int, numRows)
+	bulkData["all_types.int"] = make([]int, numRows)
+	bulkData["all_types.float"] = make([]float64, numRows)
+	bulkData["all_types.string"] = make([]string, numRows)
+	bulkData["all_types.bool"] = make([]bool, numRows)
+	bulkData["all_types.timestamp"] = make([]time.Time, numRows)
+	bulkData["all_types.int_list"] = make([][]int, numRows)
 	//bulkData["all_types.nested_int_pointer_list"] = make([][][]int, numRows)
 	//bulkData["all_types.nested_int_list"] = make([][][]int, numRows)
 	//bulkData["all_types.windowed_int__60__"] = make([]int, numRows)
@@ -295,12 +295,12 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData["all_types.nested"] = make([]fixtures.LevelOneNest, numRows)
 
 	for i := 0; i < numRows; i++ {
-		//bulkData["all_types.int"].([]int)[i] = 1
-		//bulkData["all_types.float"].([]float64)[i] = 1.234
-		//bulkData["all_types.string"].([]string)[i] = "string_val"
-		//bulkData["all_types.bool"].([]bool)[i] = true
-		//bulkData["all_types.timestamp"].([]time.Time)[i] = time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC)
-		//bulkData["all_types.int_list"].([][]int)[i] = []int{1}
+		bulkData["all_types.int"].([]int)[i] = 1
+		bulkData["all_types.float"].([]float64)[i] = 1.234
+		bulkData["all_types.string"].([]string)[i] = "string_val"
+		bulkData["all_types.bool"].([]bool)[i] = true
+		bulkData["all_types.timestamp"].([]time.Time)[i] = time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC)
+		bulkData["all_types.int_list"].([][]int)[i] = []int{1}
 		//bulkData["all_types.nested_int_pointer_list"].([][][]int)[i] = [][]int{[]int{1}}
 		//bulkData["all_types.nested_int_list"].([][][]int)[i] = [][]int{[]int{1}}
 		//bulkData["all_types.windowed_int__60__"].([]int)[i] = 1
@@ -337,12 +337,12 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 			numSamples := 10
 			interval := max(numRows/numSamples, 1)
 			for i := 0; i < numRows; i = i + interval {
-				//assert.Equal(b, int64(1), *allTypes[i].Int)
-				//assert.Equal(b, float64(1.234), *allTypes[i].Float)
-				//assert.Equal(b, "string_val", *allTypes[i].String)
-				//assert.True(b, *allTypes[i].Bool)
-				//assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
-				//assert.Equal(b, []int64{1}, *allTypes[i].IntList)
+				assert.Equal(b, int64(1), *allTypes[i].Int)
+				assert.Equal(b, float64(1.234), *allTypes[i].Float)
+				assert.Equal(b, "string_val", *allTypes[i].String)
+				assert.True(b, *allTypes[i].Bool)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *allTypes[i].Timestamp)
+				assert.Equal(b, []int64{1}, *allTypes[i].IntList)
 				//assert.Equal(b, []*[]int64{&[]int64{1}}, *allTypes[i].NestedIntPointerList)
 				//assert.Equal(b, [][]int64{[]int64{1}}, *allTypes[i].NestedIntList)
 				//assert.Equal(b, int64(1), *allTypes[i].WindowedInt["1m"])

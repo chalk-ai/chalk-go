@@ -168,6 +168,50 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
+type GetSliceFunc func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error)
+
+func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetSliceFunc, error) {
+	var sliceType reflect.Type
+	if sliceReflectType.Kind() == reflect.Ptr {
+		sliceType = sliceReflectType.Elem()
+	} else {
+		sliceType = sliceReflectType
+	}
+
+	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "generating getValue function for array element")
+	}
+
+	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
+		length := endIdx - startIdx
+		newSlice := reflect.MakeSlice(sliceType, length, length)
+
+		newSliceIdx := 0
+		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
+			val, err := codec(arr, currIdx)
+			if err != nil {
+				return reflect.Value{}, errors.Wrapf(
+					err,
+					"building slice value for row at underlying index %d",
+					currIdx,
+				)
+			}
+			if !val.IsZero() {
+				newSlice.Index(newSliceIdx).Set(val)
+			}
+			newSliceIdx += 1
+		}
+
+		if sliceReflectType.Kind() == reflect.Ptr {
+			return ReflectPtr(newSlice), nil
+		} else {
+			return newSlice, nil
+		}
+	}, nil
+
+}
+
 func getSliceNoPtr(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int, allMemo *AllNamespaceMemoT) (reflect.Value, error) {
 	var sliceType reflect.Type
 	if fieldType.Kind() == reflect.Ptr {
@@ -280,12 +324,25 @@ func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allM
 
 func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
 	switch castArrType := arrowType.(type) {
-	//case *array.LargeList:
-	//	res, err := getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
-	//	return res, err
-	//case *array.List:
-	//	return getSliceNoPtr(fieldType, castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]), allMemo)
-
+	case *arrow.LargeListType:
+		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating getSlice function")
+		}
+		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+			// FIXME: Check if ok everywhere to avoid panic
+			castArr := arr.(*array.LargeList)
+			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
+		}, err
+	case *arrow.ListType:
+		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating getSlice function")
+		}
+		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+			castArr := arr.(*array.List)
+			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
+		}, err
 	case *arrow.StructType:
 		var structType reflect.Type
 		if fieldType.Kind() == reflect.Ptr {
