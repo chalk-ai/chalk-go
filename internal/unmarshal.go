@@ -178,6 +178,10 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 		sliceType = sliceReflectType
 	}
 
+	if sliceType.Kind() != reflect.Slice {
+		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
+	}
+
 	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating getValue function for array element")
@@ -185,11 +189,7 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 
 	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
 		length := endIdx - startIdx
-		if sliceType.Kind() != reflect.Slice {
-			return reflect.Value{}, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
-		}
 		newSlice := reflect.MakeSlice(sliceType, length, length)
-
 		newSliceIdx := 0
 		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
 			val, err := codec(arr, currIdx)
@@ -283,7 +283,18 @@ func getSlice(fieldType reflect.Type, arr arrow.Array, startIdx int, endIdx int,
 	}
 }
 
-func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, reflectFieldIndices []int) (Codec, error) {
+func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, reflectFieldIndices []int, colName string) (Codec, error) {
+	var setMapFunc SetMapFunc
+	if fieldType.Kind() == reflect.Map {
+		bucket, err := GetBucketFromFqn(colName)
+		if err != nil {
+			return nil, errors.Wrapf(err, "getting bucket from field name '%s'", colName)
+		}
+		setMapFunc = generateSetMapFunc(bucket)
+
+		fieldType = fieldType.Elem()
+	}
+
 	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemo)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating getValue function")
@@ -300,10 +311,10 @@ func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataTyp
 					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
 				}
 				field := structValue.Field(fieldIdx)
-				if field.Type().Kind() == reflect.Map {
-					// TODO
-				} else {
+				if setMapFunc == nil {
 					field.Set(reflectValue)
+				} else {
+					setMapFunc(field, reflectValue)
 				}
 			}
 		}
@@ -323,6 +334,18 @@ func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allM
 		}
 		return codec(arr, arrIdx)
 	}, nil
+}
+
+type SetMapFunc func(mapVal reflect.Value, entryValue reflect.Value)
+
+func generateSetMapFunc(bucket string) SetMapFunc {
+	key := reflect.ValueOf(bucket)
+	return func(mapVal reflect.Value, entryValue reflect.Value) {
+		if mapVal.IsNil() {
+			mapVal.Set(reflect.MakeMap(mapVal.Type()))
+		}
+		mapVal.SetMapIndex(key, entryValue)
+	}
 }
 
 func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
@@ -363,6 +386,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 		}
 
 		arrowFieldToCodec := make([]GetValueFunc, castArrType.NumFields())
+		arrowFieldToSetMapFunc := make([]SetMapFunc, castArrType.NumFields())
 		arrowFieldToReflectFieldIndices := make([][]int, castArrType.NumFields())
 		for k := 0; k < castArrType.NumFields(); k++ {
 			fieldName := castArrType.Field(k).Name
@@ -382,11 +406,24 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 
 			// When we have multiple indices, it means the field is a versioned feature.
 			// Different versions all have the same type, so just use the first type.
-			firstReflectIndex := reflectFieldIndices[0]
+			firstFieldType := structType.Field(reflectFieldIndices[0]).Type
 
-			codec, err := generateGetValueFunc(
-				structType.Field(firstReflectIndex).Type, castArrType.Field(k).Type, allMemo,
-			)
+			if firstFieldType.Kind() == reflect.Map {
+				bucket, err := GetBucketFromFqn(fieldName)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"getting bucket from field name '%s'",
+						fieldName,
+					)
+				}
+				arrowFieldToSetMapFunc[k] = generateSetMapFunc(bucket)
+
+				// Unwrap the map type to get value type
+				firstFieldType = firstFieldType.Elem()
+			}
+
+			codec, err := generateGetValueFunc(firstFieldType, castArrType.Field(k).Type, allMemo)
 			if err != nil {
 				return nil, errors.Wrapf(
 					err,
@@ -394,6 +431,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 					structType.Name(), castArrType.Field(k).Name,
 				)
 			}
+
 			arrowFieldToCodec[k] = codec
 			arrowFieldToReflectFieldIndices[k] = reflectFieldIndices
 		}
@@ -402,7 +440,11 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			newStructPtr := reflect.New(structType)
 			for k := 0; k < castArrType.NumFields(); k++ {
 				codec := arrowFieldToCodec[k]
+				if codec == nil {
+					continue
+				}
 				reflectFieldIndices := arrowFieldToReflectFieldIndices[k]
+
 				value, err := codec(arr.(*array.Struct).Field(k), arrIdx)
 				if err != nil {
 					return reflect.Value{}, errors.Wrapf(
@@ -411,10 +453,17 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 						structType.Name(), castArrType.Field(k).Name,
 					)
 				}
+
+				setMapFunc := arrowFieldToSetMapFunc[k]
 				if value.IsValid() && !value.IsZero() {
-					for _, fieldIdx := range reflectFieldIndices {
-						structField := newStructPtr.Elem().Field(fieldIdx)
-						structField.Set(value)
+					if setMapFunc == nil {
+						for _, fieldIdx := range reflectFieldIndices {
+							newStructPtr.Elem().Field(fieldIdx).Set(value)
+						}
+					} else {
+						for _, fieldIdx := range reflectFieldIndices {
+							setMapFunc(newStructPtr.Elem().Field(fieldIdx), value)
+						}
 					}
 				}
 			}
@@ -1033,6 +1082,7 @@ func loadOrStoreCodec(colName string, colType arrow.DataType, structType reflect
 			colType,
 			allMemo,
 			fieldIndices,
+			colName,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "generating unmarshal value codec")
