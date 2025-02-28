@@ -12,6 +12,10 @@ type GetValueFunc func(arr arrow.Array, arrIdx int) (reflect.Value, error)
 
 type Codec func(structValue reflect.Value, arr arrow.Array, arrIdx int) error
 
+var codecNoOp = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+	return nil
+}
+
 type FqnMemo struct {
 	Codec Codec
 }

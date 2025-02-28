@@ -215,12 +215,126 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 
 }
 
-func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, reflectFieldIndices []int, colName string) (Codec, error) {
+type InitFeatureFunc func(structValue reflect.Value) (leafStructValue reflect.Value, err error)
+
+var initFeatureNoOp InitFeatureFunc = func(structValue reflect.Value) (reflect.Value, error) { return reflect.Value{}, nil }
+
+func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *AllNamespaceMemoT) (InitFeatureFunc, reflect.Type, error) {
+	memo, ok := allMemo.Load(structType)
+	if !ok {
+		return nil, nil, errors.Newf(
+			"memo not found for struct type %s among keys: %v",
+			structType.Name(), allMemo.Keys(),
+		)
+	}
+
+	reflectFieldLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
+	fieldIndexChain := make([]int, reflectFieldLen, reflectFieldLen)
+	fieldIsPointer := make([]bool, reflectFieldLen, reflectFieldLen)
+
+	currStructType := structType
+	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
+		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
+		if !ok || len(indices) == 0 {
+			// Reaching here might mean that a new feature field was
+			// not yet added to the codegen'd structs. Here we return
+			// an no-op function for back-compat.
+			return initFeatureNoOp, nil, nil
+		}
+
+		firstFieldType := currStructType.Field(indices[0]).Type
+		if firstFieldType.Kind() == reflect.Ptr {
+			fieldIsPointer[i] = true
+			firstFieldType = firstFieldType.Elem()
+		}
+
+		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
+			// Not a has-one feature
+			return nil, nil, errors.Newf(
+				"field '%s' in struct '%s' is not a has-one feature",
+				fqnPart, currStructType.Name(),
+			)
+		}
+
+		if len(indices) > 1 {
+			// A has-one feature is never versioned, hence never has multiple fields
+			fieldNames := make([]string, len(indices))
+			for i, idx := range indices {
+				fieldNames[i] = currStructType.Field(idx).Name
+			}
+			return nil, nil, errors.Newf(
+				"has-one feature '%s' in struct '%s' unexpectedly corresponds to multiple fields: %v",
+				fqnPart, currStructType.Name(), fieldNames,
+			)
+		}
+
+		currStructType = firstFieldType
+		fieldIndexChain[i] = indices[0]
+	}
+
+	// FIXME: Remove
+	//scalarFeatureIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
+	//if !ok || len(scalarFeatureIndices) == 0 {
+	//	// Reaching here might mean that a new feature field was
+	//	// not yet added to the codegen'd structs. Here we return
+	//	// an no-op function for back-compat.
+	//	return initFeatureNoOp, nil, nil
+	//}
+	//
+	//scalarFeatureType := currStructType.Field(scalarFeatureIndices[0]).Type
+
+	return func(structValue reflect.Value) (reflect.Value, error) {
+		currValue := structValue
+		for i, fieldIndex := range fieldIndexChain {
+			innerStruct := currValue.Field(fieldIndex)
+			if fieldIsPointer[i] {
+				if innerStruct.IsNil() {
+					innerStruct.Set(reflect.New(currStructType))
+				}
+				innerStruct = innerStruct.Elem()
+			}
+			currValue = innerStruct
+		}
+
+		return currValue, nil
+	}, currStructType, nil
+
+}
+
+func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, fqn string, fqnParts []string) (Codec, error) {
+	var initFeatureFunc InitFeatureFunc
+	if len(fqnParts) > 2 {
+		// Is has-one feature, init all structs on its path
+		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
+		}
+		initFeatureFunc = initFunc
+		structType = leafStructType
+	}
+
+	// FIXME: Possible to reuse when generating codec for features under the same namespace?
+	memo, ok := allMemo.Load(structType)
+	if !ok {
+		return nil, errors.Newf(
+			"memo not found for struct type '%s', found keys: %v",
+			structType.Name(), allMemo.Keys(),
+		)
+	}
+	reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
+	if !ok || len(reflectFieldIndices) == 0 {
+		// This happens when we unmarshal new feature fields into old codegen structs
+		// We no-op here to allow for backcompat.
+		return codecNoOp, nil
+	}
+
+	fieldType := structType.Field(reflectFieldIndices[0]).Type
+
 	var setMapFunc SetMapFunc
 	if fieldType.Kind() == reflect.Map {
-		bucket, err := GetBucketFromFqn(colName)
+		bucket, err := GetBucketFromFqn(fqn)
 		if err != nil {
-			return nil, errors.Wrapf(err, "getting bucket from field name '%s'", colName)
+			return nil, errors.Wrapf(err, "getting bucket from field name '%s'", fqn)
 		}
 		setMapFunc = generateSetMapFunc(bucket)
 
@@ -230,10 +344,17 @@ func generateUnmarshalValueCodec(fieldType reflect.Type, arrowType arrow.DataTyp
 
 	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemo)
 	if err != nil {
-		return nil, errors.Wrap(err, "generating getValue function")
+		return nil, errors.Wrap(err, "generating function to get unmarshalled value from arrow array")
 	}
 
 	return func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+		if initFeatureFunc != nil {
+			leafStructValue, err := initFeatureFunc(structValue)
+			if err != nil {
+				return errors.Wrap(err, "initializing has-one feature")
+			}
+			structValue = leafStructValue
+		}
 		reflectValue, err := getValueFunc(arr, arrIdx)
 		if err != nil {
 			return errors.Wrap(err, "getting reflect value")
@@ -649,41 +770,20 @@ type FeatureMeta struct {
 	Pkey        any
 }
 
-func loadOrStoreCodec(colName string, colType arrow.DataType, structType reflect.Type, structMemo *NamespaceMemo, allMemo *AllNamespaceMemoT) (Codec, error) {
-	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(colName, NewFqnMemo())
+func loadOrStoreCodec(fqn string, fqnParts []string, colType arrow.DataType, structType reflect.Type, structMemo *NamespaceMemo, allMemo *AllNamespaceMemoT) (Codec, error) {
+	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(fqn, NewFqnMemo())
 	if !loaded {
 		// Populate codec
 		defer fqnMutex.mu.Unlock()
 
-		if structMemo == nil {
-			memo, ok := allMemo.Load(structType)
-			if !ok {
-				return nil, errors.Newf(
-					"memo not found for struct type '%s', found keys: %v",
-					structType.Name(), allMemo.Keys(),
-				)
-			}
-			structMemo = memo
-		}
-
-		fieldIndices, ok := structMemo.ResolvedFieldNameToIndices[colName]
-		if !ok || len(fieldIndices) == 0 {
-			// This happens when we unmarshal new feature fields into old codegen structs
-			// We no-op here to allow for backcompat.
-			fqnMutex.memo.Codec = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
-				return nil
-			}
-			return fqnMutex.memo.Codec, nil
-		}
-
 		codec, err := generateUnmarshalValueCodec(
 			// Taking the first field's type because multiple field indices for the same column
 			// means they are just versioned features, which are all the same type.
-			structType.Field(fieldIndices[0]).Type,
+			structType,
 			colType,
 			allMemo,
-			fieldIndices,
-			colName,
+			fqn,
+			fqnParts,
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "generating unmarshal value codec")
@@ -717,12 +817,16 @@ func MapTableToStructs(
 	fields := table.Schema().Fields()
 	featureColumnIdxs := make([]int, 0, len(fields))
 	colNames := make([]string, len(fields))
+	colFqnParts := make([][]string, len(fields))
 	namespaceToColIndices := map[string][]int{}
 	rootScope := InitScope{}
+
+	// FIXME: Prune this loop. Should have redundant operations.
 	for i, field := range table.Schema().Fields() {
 		colName := field.Name
 		colNames[i] = colName
 		fqnParts := strings.Split(colName, ".")
+		colFqnParts[i] = fqnParts
 		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
 			continue
 		} else {
@@ -757,7 +861,7 @@ func MapTableToStructs(
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
 			for _, colIdx := range featureColumnIdxs {
 				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, column.Type, structType, rootMemo, allMemo)
+				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, rootMemo, allMemo)
 				if err != nil {
 					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}
@@ -814,7 +918,7 @@ func MapTableToStructs(
 			var innerStructMemo *NamespaceMemo
 			for _, colIdx := range colIndices {
 				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, column.Type, innerStructType, innerStructMemo, allMemo)
+				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, innerStructType, innerStructMemo, allMemo)
 				if err != nil {
 					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}

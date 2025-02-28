@@ -326,9 +326,9 @@ func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("has_one_root.int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []float64{}
+				bulkData[fqn] = []int64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), int64(122.0))
 
 			fqn = fmt.Sprintf("has_one_root.float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
