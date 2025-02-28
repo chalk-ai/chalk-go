@@ -232,23 +232,23 @@ func getBenchmarkSingleHasOnes(b *testing.B) func() {
 	var data []chalk.FeatureResult
 	for i := 1; i <= 40; i++ {
 		data = append(data, chalk.FeatureResult{
-			Field: fmt.Sprintf("int_features.int_%d", i),
+			Field: fmt.Sprintf("has_one_root.int_features.int_%d", i),
 			Value: float64(122.0),
 		})
 		data = append(data, chalk.FeatureResult{
-			Field: fmt.Sprintf("float_features.float_%d", i),
+			Field: fmt.Sprintf("has_one_root.float_features.float_%d", i),
 			Value: float64(1.234),
 		})
 		data = append(data, chalk.FeatureResult{
-			Field: fmt.Sprintf("bool_features.bool_%d", i),
+			Field: fmt.Sprintf("has_one_root.bool_features.bool_%d", i),
 			Value: true,
 		})
 		data = append(data, chalk.FeatureResult{
-			Field: fmt.Sprintf("string_features.string_%d", i),
+			Field: fmt.Sprintf("has_one_root.string_features.string_%d", i),
 			Value: "string_val",
 		})
 		data = append(data, chalk.FeatureResult{
-			Field: fmt.Sprintf("timestamp_features.timestamp_%d", i),
+			Field: fmt.Sprintf("has_one_root.timestamp_features.timestamp_%d", i),
 			Value: "2024-05-09T22:29:00Z",
 		})
 	}
