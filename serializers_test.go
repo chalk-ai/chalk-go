@@ -52,12 +52,12 @@ func TestFeatureResultDeserialization(t *testing.T) {
 	tsResult, err := withTimestamp.deserialize()
 	assert.NoError(t, err)
 	assert.Equal(t, "user.id", tsResult.Field)
-	assert.Equal(t, time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC), tsResult.Timestamp)
+	assert.Equal(t, time.Date(2021, 9, 1, 0, 0, 0, 0, time.UTC), *tsResult.Timestamp)
 
 	noTsResult, err := withoutTimestamp.deserialize()
 	assert.NoError(t, err)
 	assert.Equal(t, "user.id", noTsResult.Field)
-	assert.Equal(t, time.Time{}, noTsResult.Timestamp)
+	assert.Nil(t, noTsResult.Timestamp)
 }
 
 func TestConvertOnlineQueryParamsToProto(t *testing.T) {
@@ -75,7 +75,6 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 
 	params := OnlineQueryParams{
 		IncludeMeta:          true,
-		IncludeMetrics:       true,
 		StorePlanStages:      true,
 		Explain:              true,
 		Tags:                 tags,
@@ -106,7 +105,6 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	assert.True(t, request.GetResponseOptions().GetIncludeMeta())
 	assert.NotNil(t, request.GetResponseOptions().GetExplain())
 	optionsActual := request.GetContext().GetOptions()
-	assert.True(t, optionsActual["include_metrics"].GetBoolValue())
 	assert.True(t, optionsActual["store_plan_stages"].GetBoolValue())
 }
 
@@ -153,7 +151,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 
 	var actualUser []SerdeUser
 	bulkRes := OnlineQueryBulkResult{ScalarsTable: table}
-	if err := bulkRes.UnmarshalInto(&actualUser); err != (*ClientError)(nil) {
+	if err := bulkRes.UnmarshalInto(&actualUser); err != nil {
 		assert.FailNow(t, "Failed to unmarshal bulk result into user", err)
 	}
 	assert.Equal(t, 1, len(actualUser))

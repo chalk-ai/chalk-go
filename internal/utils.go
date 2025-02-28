@@ -103,15 +103,6 @@ func ExpandTilde(path string) (string, error) {
 	return strings.Replace(path, "~", homeDir, 1), nil
 }
 
-func getFeatureNameFromFqn(fqn string) string {
-	lastPart := strings.Split(fqn, ".")
-	return lastPart[len(lastPart)-1]
-}
-
-func getFqnRoot(s string) string {
-	return strings.Split(s, ".")[0]
-}
-
 func Int64ToInt(value int64) (int, error) {
 	// Check if the value fits in the range of an int
 	if value < math.MinInt || value > math.MaxInt {

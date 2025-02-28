@@ -12,7 +12,7 @@ import (
 // tested elsewhere.
 func TestOnlineQueryBulk(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewClient()
+	client, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -25,7 +25,7 @@ func TestOnlineQueryBulk(t *testing.T) {
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
 
-	res, queryErr := client.OnlineQueryBulk(req)
+	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
 		t.Fatal("Failed querying features", queryErr)
 	}
@@ -46,7 +46,7 @@ func TestOnlineQueryBulk(t *testing.T) {
 // tested elsewhere.
 func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}

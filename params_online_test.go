@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 )
 
 func init() {
-	initErr = InitFeatures(&testRootFeatures)
+	initErr = InitFeatures(&fixtures.Root)
 }
 
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
@@ -21,27 +22,27 @@ func TestOnlineQueryParamsAllTypes(t *testing.T) {
 	// without error.
 	assert.Nil(t, initErr)
 	params := OnlineQueryParams{}.
-		WithInput(testRootFeatures.AllTypes.String, 1).
+		WithInput(fixtures.Root.AllTypes.String, 1).
 		WithOutputs(
 			"all_types.string",
-			testRootFeatures.AllTypes.Float,
-			testRootFeatures.AllTypes.Int,
-			testRootFeatures.AllTypes.Timestamp,
-			testRootFeatures.AllTypes.IntList,
-			testRootFeatures.AllTypes.WindowedInt,
-			testRootFeatures.AllTypes.WindowedInt["1m"],
-			testRootFeatures.AllTypes.WindowedInt["5m"],
-			testRootFeatures.AllTypes.WindowedInt["1h"],
-			testRootFeatures.AllTypes.WindowedList,
-			testRootFeatures.AllTypes.WindowedList["1m"],
-			testRootFeatures.AllTypes.Nested,
-			testRootFeatures.AllTypes.Nested.Id,
-			testRootFeatures.AllTypes.Dataclass,
-			testRootFeatures.AllTypes.Dataclass.Lat,
-			testRootFeatures.AllTypes.Dataclass.Lng,
+			fixtures.Root.AllTypes.Float,
+			fixtures.Root.AllTypes.Int,
+			fixtures.Root.AllTypes.Timestamp,
+			fixtures.Root.AllTypes.IntList,
+			fixtures.Root.AllTypes.WindowedInt,
+			fixtures.Root.AllTypes.WindowedInt["1m"],
+			fixtures.Root.AllTypes.WindowedInt["5m"],
+			fixtures.Root.AllTypes.WindowedInt["1h"],
+			fixtures.Root.AllTypes.WindowedList,
+			fixtures.Root.AllTypes.WindowedList["1m"],
+			fixtures.Root.AllTypes.Nested,
+			fixtures.Root.AllTypes.Nested.Id,
+			fixtures.Root.AllTypes.Dataclass,
+			fixtures.Root.AllTypes.Dataclass.Lat,
+			fixtures.Root.AllTypes.Dataclass.Lng,
 		).
 		WithStaleness(
-			testRootFeatures.AllTypes.Bool, time.Second*5,
+			fixtures.Root.AllTypes.Bool, time.Second*5,
 		)
 	assert.Empty(t, params.underlying.builderErrors)
 }
@@ -73,10 +74,10 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	params := OnlineQueryParams{}.
-		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
+		WithInput(fixtures.Root.AllTypes.Nested, fixtures.LevelOneNest{
 			Id: ptr.Ptr("1"),
 		}).
-		WithInput(testRootFeatures.AllTypes.Dataclass, testLatLng{
+		WithInput(fixtures.Root.AllTypes.Dataclass, fixtures.LatLng{
 			Lat: ptr.Ptr(1.1),
 		})
 	request, err := params.underlying.serialize()
@@ -126,13 +127,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	assert.Nil(t, initErr)
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
-		WithInput(testRootFeatures.AllTypes.Nested, levelOneNest{
+		WithInput(fixtures.Root.AllTypes.Nested, fixtures.LevelOneNest{
 			Id: ptr.Ptr("1"),
-			Nested: &levelTwoNest{
+			Nested: &fixtures.LevelTwoNest{
 				Id: ptr.Ptr("2"),
 			},
 		}).
-		WithInput(testRootFeatures.AllTypes.HasMany, []hasMany{
+		WithInput(fixtures.Root.AllTypes.HasMany, []fixtures.HasMany{
 			{
 				Id:        ptr.Ptr("1"),
 				Int:       ptr.Ptr(int64(1)),
@@ -157,36 +158,36 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"5m": {4, 5, 6},
 					"1h": {7, 8, 9},
 				},
-				Dataclass: &testLatLng{
+				Dataclass: &fixtures.LatLng{
 					Lat: ptr.Ptr(1.1),
 					Lng: ptr.Ptr(2.2),
 				},
-				DataclassList: &[]testLatLng{
+				DataclassList: &[]fixtures.LatLng{
 					{
 						Lat: ptr.Ptr(3.3),
 						Lng: ptr.Ptr(4.4),
 					},
 				},
-				DataclassWithList: &favoriteThings{
+				DataclassWithList: &fixtures.FavoriteThings{
 					Numbers: &[]int64{1, 2, 3},
 					Words:   &[]string{"a", "b", "c"},
 				},
-				DataclassWithNils: &possessions{
+				DataclassWithNils: &fixtures.Possessions{
 					Car:   ptr.Ptr("car"),
 					Yacht: ptr.Ptr("yacht"),
 					Plane: ptr.Ptr("plane"),
 				},
 				// CHA-5430
-				//DataclassWithDataclass: &child{
-				//	Name: ptr.Ptr("child"),
-				//	Mom: &parent{
+				//DataclassWithDataclass: &fixtures.Child{
+				//	Name: ptr.Ptr("fixtures.Child"),
+				//	Mom: &fixtures.Parent{
 				//		Name: ptr.Ptr("mom"),
-				//		Mom: &grandparent{
+				//		Mom: &fixtures.Grandparent{
 				//			Name: ptr.Ptr("grandma"),
 				//		},
 				//	},
 				//},
-				DataclassWithOverrides: &dclassWithOverrides{
+				DataclassWithOverrides: &fixtures.DclassWithOverrides{
 					CamelName: ptr.Ptr("camel"),
 				},
 			},
@@ -214,33 +215,33 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"5m": {7, 8, 9},
 					"1h": {10, 11, 12},
 				},
-				Dataclass: &testLatLng{
+				Dataclass: &fixtures.LatLng{
 					Lat: ptr.Ptr(5.5),
 					Lng: ptr.Ptr(6.6),
 				},
-				DataclassList: &[]testLatLng{
+				DataclassList: &[]fixtures.LatLng{
 					{
 						Lat: ptr.Ptr(7.7),
 						Lng: ptr.Ptr(8.8),
 					},
 				},
-				DataclassWithList: &favoriteThings{
+				DataclassWithList: &fixtures.FavoriteThings{
 					Numbers: &[]int64{4, 5, 6},
 					Words:   &[]string{"d", "e", "f"},
 				},
-				DataclassWithNils: &possessions{
+				DataclassWithNils: &fixtures.Possessions{
 					Car:   ptr.Ptr("car2"),
 					Yacht: ptr.Ptr("yacht2"),
 					Plane: ptr.Ptr("plane2"),
 				},
 				// CHA-5430
-				//DataclassWithDataclass: &child{
+				//DataclassWithDataclass: &fixtures.Child{
 				//	Name: ptr.Ptr("child2"),
-				//	Mom: &parent{
+				//	Mom: &fixtures.Parent{
 				//		Name: ptr.Ptr("mom2"),
 				//	},
 				//},
-				DataclassWithOverrides: &dclassWithOverrides{
+				DataclassWithOverrides: &fixtures.DclassWithOverrides{
 					CamelName: ptr.Ptr("camel2"),
 				},
 			},
@@ -274,14 +275,14 @@ func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 	assert.Nil(t, initErr)
 
 	inputs := map[any]any{
-		testRootFeatures.AllTypes.String: 1,
-		testRootFeatures.AllTypes.Float:  1.1,
+		fixtures.Root.AllTypes.String: 1,
+		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInputs(inputs)
 
-	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := params.underlying.inputs[feature1.Fqn]
@@ -295,14 +296,14 @@ func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 	assert.Nil(t, initErr)
 
 	inputs := map[any]any{
-		testRootFeatures.AllTypes.String: 1,
-		testRootFeatures.AllTypes.Float:  1.1,
+		fixtures.Root.AllTypes.String: 1,
+		fixtures.Root.AllTypes.Float:  1.1,
 	}
-	params := OnlineQueryParams{}.WithInput(testRootFeatures.AllTypes.Bool, true).WithInputs(inputs)
+	params := OnlineQueryParams{}.WithInput(fixtures.Root.AllTypes.Bool, true).WithInputs(inputs)
 
-	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := params.underlying.inputs[feature1.Fqn]
@@ -316,14 +317,14 @@ func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 	assert.Nil(t, initErr)
 
 	inputs := map[any]any{
-		testRootFeatures.AllTypes.String: 1,
-		testRootFeatures.AllTypes.Float:  1.1,
+		fixtures.Root.AllTypes.String: 1,
+		fixtures.Root.AllTypes.Float:  1.1,
 	}
-	params := OnlineQueryParams{}.WithOutputs(testRootFeatures.AllTypes.Bool).WithInputs(inputs)
+	params := OnlineQueryParams{}.WithOutputs(fixtures.Root.AllTypes.Bool).WithInputs(inputs)
 
-	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := params.underlying.inputs[feature1.Fqn]
@@ -337,14 +338,14 @@ func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	assert.Nil(t, initErr)
 
 	inputs := map[any]any{
-		testRootFeatures.AllTypes.String: 1,
-		testRootFeatures.AllTypes.Float:  1.1,
+		fixtures.Root.AllTypes.String: 1,
+		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
 
-	feature1, err := UnwrapFeature(testRootFeatures.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(testRootFeatures.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := params.underlying.inputs[feature1.Fqn]

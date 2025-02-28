@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -8,7 +9,7 @@ import (
 
 func TestQueryOptionalFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewClient()
+	client, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -20,7 +21,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 	}
 	res := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.FullNameOptional, testFeatures.User.SocureScore)
 	result := user{}
-	_, err = client.OnlineQuery(res, &result)
+	_, err = client.OnlineQuery(context.Background(), res, &result)
 	if err != nil {
 		t.Fatal("Failed querying features", err)
 	}

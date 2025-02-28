@@ -26,7 +26,7 @@ type GRPCClient interface {
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
-	GetToken() (*TokenResult, error)
+	GetToken(ctx context.Context) (*TokenResult, error)
 }
 
 type GRPCClientConfig struct {
@@ -101,15 +101,18 @@ type GRPCClientConfig struct {
 //
 // Example:
 //
-//	     chalkClient, err := chalk.NewGRPCClient(&chalk.ClientConfig{
-//		        ClientId:      "id-89140a6614886982a6782106759e30",
-//		        ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-//		        ApiServer:     "https://api.chalk.ai",
-//		        EnvironmentId: "qa",
-//		        Branch:        "jorges-december",
-//	})
+//		     chalkClient, err := chalk.NewGRPCClient(
+//	             context.Background(),
+//		         &chalk.ClientConfig{
+//			         ClientId:      "id-89140a6614886982a6782106759e30",
+//			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+//			         ApiServer:     "https://api.chalk.ai",
+//			         EnvironmentId: "qa",
+//			         Branch:        "jorges-december",
+//		         },
+//		     )
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
-func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
-	return newGrpcClient(configs...)
+func NewGRPCClient(ctx context.Context, configs ...*GRPCClientConfig) (GRPCClient, error) {
+	return newGrpcClient(ctx, configs...)
 }

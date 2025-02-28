@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
@@ -26,7 +27,7 @@ type configManager struct {
 
 	jwt      *auth.JWT
 	engines  map[string]string
-	getToken func(clientId string, clientSecret string) (*getTokenResult, error)
+	getToken func(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error)
 
 	logger LeveledLogger
 }
@@ -108,12 +109,12 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	return endpoint
 }
 
-func (m *configManager) refresh(force bool) error {
+func (m *configManager) refresh(ctx context.Context, force bool) error {
 	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, err := m.getToken(m.clientId.Value, m.clientSecret.Value)
+	config, err := m.getToken(ctx, m.clientId.Value, m.clientSecret.Value)
 	if err != nil {
 		return errors.Wrap(err, "refreshing token")
 	}

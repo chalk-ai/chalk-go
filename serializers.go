@@ -22,12 +22,6 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		outputs = []string{}
 	}
 
-	context := internal.OnlineQueryContext{
-		Environment:          internal.StringOrNil(p.EnvironmentId),
-		Tags:                 p.Tags,
-		RequiredResolverTags: p.RequiredResolverTags,
-	}
-
 	var now *string
 	if len(p.Now) > 1 {
 		return nil, fmt.Errorf(
@@ -43,29 +37,21 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	for fqn, values := range p.inputs {
 		convertedValues, err := internal.PreprocessIfStruct(values)
 		if err != nil {
-			return nil, wrapClientError(err, "failed to convert structs in input feature values")
+			return nil, errors.Wrap(err, "convert structs in input feature values")
 		}
 		convertedInputs[fqn] = convertedValues
 	}
 
-	var encodingOptions internal.FeatureEncodingOptions
-	if p.EncodingOptions == nil {
-		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: false,
-		}
-	} else {
-		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: p.EncodingOptions.EncodeStructsAsObjects,
-		}
-	}
-
 	return &internal.OnlineQueryRequestSerialized{
-		Inputs:           convertedInputs,
-		Outputs:          outputs,
-		Context:          context,
+		Inputs:  convertedInputs,
+		Outputs: outputs,
+		Context: internal.OnlineQueryContext{
+			Environment:          internal.StringOrNil(p.EnvironmentId),
+			Tags:                 p.Tags,
+			RequiredResolverTags: p.RequiredResolverTags,
+		},
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
-		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
@@ -75,8 +61,14 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
 		Explain:          p.Explain,
-		EncodingOptions:  encodingOptions,
-		PlannerOptions:   p.PlannerOptions,
+		EncodingOptions: internal.FeatureEncodingOptions{
+			// To ensure backcompat with codegen'd structs.
+			// See https://github.com/chalk-ai/chalk-go/pull/159
+			// And also makes unmarshalling easier. This is
+			// unspecifiable by the user.
+			EncodeStructsAsObjects: true,
+		},
+		PlannerOptions: p.PlannerOptions,
 	}, nil
 }
 
@@ -89,13 +81,13 @@ func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
-	var timeObj time.Time
+	var timeObj *time.Time
 	if feature.Timestamp != "" {
 		parsed, err := time.Parse(time.RFC3339, feature.Timestamp)
 		if err != nil {
 			return FeatureResult{}, err
 		}
-		timeObj = parsed
+		timeObj = &parsed
 	}
 
 	var dError *ServerError = nil
@@ -122,7 +114,7 @@ func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult,
 
 	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
-		return OnlineQueryResult{}, err
+		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
 	}
 
 	for _, result := range deserializedData {
@@ -139,14 +131,11 @@ func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult,
 func deserializeFeatureResults(results []featureResultSerialized) ([]FeatureResult, error) {
 	deserializedResults := make([]FeatureResult, 0)
 	for _, sResult := range results {
-		dResult, dErr := sResult.deserialize()
-		if dErr != nil {
-			return []FeatureResult{}, &ClientError{
-				Message: dErr.Error(),
-			}
+		dResult, err := sResult.deserialize()
+		if err != nil {
+			return []FeatureResult{}, err
 		}
 		deserializedResults = append(deserializedResults, dResult)
-
 	}
 	return deserializedResults, nil
 }
@@ -248,14 +237,12 @@ func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
 	}, nil
 }
 
-func deserializeChalkErrors(errors []chalkErrorSerialized) ([]ServerError, error) {
+func deserializeChalkErrors(errors []chalkErrorSerialized) (serverErrorsT, error) {
 	deserializedErrors := make([]ServerError, 0)
 	for _, serializedErr := range errors {
-		deserializedError, deserializationFailure := serializedErr.deserialize()
-		if deserializationFailure != nil {
-			return []ServerError{}, &ClientError{
-				Message: deserializationFailure.Error(),
-			}
+		deserializedError, err := serializedErr.deserialize()
+		if err != nil {
+			return []ServerError{}, err
 		}
 		deserializedErrors = append(deserializedErrors, deserializedError)
 
@@ -315,9 +302,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
-	}
-	if params.IncludeMetrics {
-		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
 	for k, v := range params.PlannerOptions {
 		protoVal, err := structpb.NewValue(v)
