@@ -795,6 +795,9 @@ func MapTableToStructs(
 	structs *reflect.Value,
 	allMemo *AllNamespaceMemoT,
 ) error {
+	structType := structs.Type().Elem()
+	structName := structType.Name()
+
 	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
@@ -804,24 +807,16 @@ func MapTableToStructs(
 	}
 
 	fields := table.Schema().Fields()
-	featureColumnIdxs := make([]int, 0, len(fields))
-	colNames := make([]string, len(fields))
+	includedColIndices := make([]int, 0, len(fields))
 	colFqnParts := make([][]string, len(fields))
 	namespaceToColIndices := map[string][]int{}
-	rootScope := InitScope{}
-
-	// FIXME: Prune this loop. Should have redundant operations.
 	for i, field := range table.Schema().Fields() {
-		colName := field.Name
-		colNames[i] = colName
-		fqnParts := strings.Split(colName, ".")
-		colFqnParts[i] = fqnParts
-		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+		colFqnParts[i] = strings.Split(field.Name, ".")
+		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
 			continue
 		} else {
-			featureColumnIdxs = append(featureColumnIdxs, i)
-			rootScope.add(fqnParts)
-			namespace := fqnParts[0]
+			includedColIndices = append(includedColIndices, i)
+			namespace := colFqnParts[i][0]
 			if _, ok := namespaceToColIndices[namespace]; !ok {
 				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
 			}
@@ -829,26 +824,13 @@ func MapTableToStructs(
 		}
 	}
 
-	structType := structs.Type().Elem()
-	structName := structType.Name()
-	namespace := ChalkpySnakeCase(structName)
-
-	_, isSingleNamespaceUnmarshal := rootScope.Children[namespace]
-
-	// Memo for root struct
-	rootMemo, ok := allMemo.Load(structType)
-	if !ok {
-		return errors.Newf(
-			"memo not found for struct type %s, found keys: %v",
-			structType.Name(), allMemo.Keys(),
-		)
-	}
-
 	var rowOp UnmarshalRowOp
-	if isSingleNamespaceUnmarshal {
+	// FIXME: It's possible that people want to unmarshal into a single
+	//        namespace even when there are multiple namespaces in the result
+	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
-		colToCodec := make([]Codec, len(featureColumnIdxs))
-		for k, colIdx := range featureColumnIdxs {
+		colToCodec := make([]Codec, len(includedColIndices))
+		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
 			codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
 			if err != nil {
@@ -858,20 +840,28 @@ func MapTableToStructs(
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for k, colIdx := range featureColumnIdxs {
+			for k, colIdx := range includedColIndices {
 				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", colNames[colIdx])
+					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
 				}
 			}
 			return nil
 		}
 	} else {
 		// Multi-namespace unmarshalling
+		rootMemo, ok := allMemo.Load(structType)
+		if !ok {
+			return errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
 		colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
 		for childNamespace, colIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok || len(namespaceFieldIndices) == 0 {
-				actualErr := errors.Newf(
+				return errors.Newf(
 					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
 						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
 						"If attempting multi-namespace unmarshalling, please make sure that the root struct contains a field "+
@@ -880,21 +870,6 @@ func MapTableToStructs(
 					colls.Keys(namespaceToColIndices),
 					childNamespace,
 				)
-				if len(colIndices) == 0 {
-					return errors.Wrapf(
-						actualErr,
-						"namespace '%s' does not correspond to any columns in the table while handling another error",
-						childNamespace,
-					)
-				}
-				if colIndices[0] < 0 || colIndices[0] >= len(colNames) {
-					return errors.Wrapf(
-						actualErr,
-						"malformed column indices for namespace '%s' while handling another error",
-						childNamespace,
-					)
-				}
-				return errors.Wrapf(actualErr, "unmarshalling feature '%s'", colNames[colIndices[0]])
 			} else if len(namespaceFieldIndices) > 1 {
 				var foundFieldNames []string
 				for _, fieldIdx := range namespaceFieldIndices {
@@ -923,13 +898,13 @@ func MapTableToStructs(
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, colIdx := range featureColumnIdxs {
+			for _, colIdx := range includedColIndices {
 				memo := colIdxToNamespaceMeta[colIdx]
 				if memo.codec == nil {
 					continue
 				}
 				if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", colNames[colIdx])
+					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
 				}
 			}
 			return nil
