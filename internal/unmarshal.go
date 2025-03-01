@@ -847,15 +847,20 @@ func MapTableToStructs(
 	var rowOp UnmarshalRowOp
 	if isSingleNamespaceUnmarshal {
 		// Single-namespace unmarshalling
+		colToCodec := make([]Codec, len(featureColumnIdxs))
+		for k, colIdx := range featureColumnIdxs {
+			column := fields[colIdx]
+			codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
+			if err != nil {
+				return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+			}
+			colToCodec[k] = codec
+		}
+
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, colIdx := range featureColumnIdxs {
-				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
-				if err != nil {
-					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
-				}
-				if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", column.Name)
+			for k, colIdx := range featureColumnIdxs {
+				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
+					return errors.Wrapf(err, "running codec for column '%s'", colNames[colIdx])
 				}
 			}
 			return nil
