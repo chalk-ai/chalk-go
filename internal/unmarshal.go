@@ -200,7 +200,7 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 					currIdx,
 				)
 			}
-			if !val.IsZero() {
+			if val.IsValid() {
 				newSlice.Index(newSliceIdx).Set(val)
 			}
 			newSliceIdx += 1
@@ -348,7 +348,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		if err != nil {
 			return errors.Wrap(err, "getting reflect value")
 		}
-		if !reflectValue.IsZero() {
+		if reflectValue.IsValid() {
 			for _, fieldIdx := range reflectFieldIndices {
 				if fieldIdx >= structValue.NumField() {
 					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
@@ -498,7 +498,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 				}
 
 				setMapFunc := arrowFieldToSetMapFunc[k]
-				if value.IsValid() && !value.IsZero() {
+				if value.IsValid() {
 					if setMapFunc == nil {
 						for _, fieldIdx := range reflectFieldIndices {
 							newStructPtr.Elem().Field(fieldIdx).Set(value)
