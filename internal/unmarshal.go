@@ -272,17 +272,6 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 		fieldIndexChain[i] = indices[0]
 	}
 
-	// FIXME: Remove
-	//scalarFeatureIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
-	//if !ok || len(scalarFeatureIndices) == 0 {
-	//	// Reaching here might mean that a new feature field was
-	//	// not yet added to the codegen'd structs. Here we return
-	//	// an no-op function for back-compat.
-	//	return initFeatureNoOp, nil, nil
-	//}
-	//
-	//scalarFeatureType := currStructType.Field(scalarFeatureIndices[0]).Type
-
 	return func(structValue reflect.Value) (reflect.Value, error) {
 		currValue := structValue
 		for i, fieldIndex := range fieldIndexChain {
@@ -770,7 +759,7 @@ type FeatureMeta struct {
 	Pkey        any
 }
 
-func loadOrStoreCodec(fqn string, fqnParts []string, colType arrow.DataType, structType reflect.Type, structMemo *NamespaceMemo, allMemo *AllNamespaceMemoT) (Codec, error) {
+func loadOrStoreCodec(fqn string, fqnParts []string, colType arrow.DataType, structType reflect.Type, allMemo *AllNamespaceMemoT) (Codec, error) {
 	fqnMutex, loaded := AllFqnMemo.LoadOrStoreLockedMutex(fqn, NewFqnMemo())
 	if !loaded {
 		// Populate codec
@@ -861,7 +850,7 @@ func MapTableToStructs(
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
 			for _, colIdx := range featureColumnIdxs {
 				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, rootMemo, allMemo)
+				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
 				if err != nil {
 					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}
@@ -915,10 +904,9 @@ func MapTableToStructs(
 
 			rootStructFieldIdx := namespaceFieldIndices[0]
 			innerStructType := structType.Field(rootStructFieldIdx).Type
-			var innerStructMemo *NamespaceMemo
 			for _, colIdx := range colIndices {
 				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, innerStructType, innerStructMemo, allMemo)
+				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, innerStructType, allMemo)
 				if err != nil {
 					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
 				}
