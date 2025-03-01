@@ -292,15 +292,15 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 
 func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, fqn string, fqnParts []string) (Codec, error) {
 	var initFeatureFunc InitFeatureFunc
-	if len(fqnParts) > 2 {
-		// Is has-one feature, init all structs on its path
-		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
-		if err != nil {
-			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
-		}
-		initFeatureFunc = initFunc
-		structType = leafStructType
-	}
+	//if len(fqnParts) > 2 {
+	//	// Is has-one feature, init all structs on its path
+	//	initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
+	//	if err != nil {
+	//		return nil, errors.Wrap(err, "generating function to initialize has-one feature")
+	//	}
+	//	initFeatureFunc = initFunc
+	//	structType = leafStructType
+	//}
 
 	// FIXME: Possible to reuse when generating codec for features under the same namespace?
 	memo, ok := allMemo.Load(structType)
@@ -804,24 +804,18 @@ func MapTableToStructs(
 	}
 
 	fields := table.Schema().Fields()
-	featureColumnIdxs := make([]int, 0, len(fields))
-	colNames := make([]string, len(fields))
+	includedColIndices := make([]int, 0, len(fields))
 	colFqnParts := make([][]string, len(fields))
 	namespaceToColIndices := map[string][]int{}
-	rootScope := InitScope{}
 
 	// FIXME: Prune this loop. Should have redundant operations.
 	for i, field := range table.Schema().Fields() {
-		colName := field.Name
-		colNames[i] = colName
-		fqnParts := strings.Split(colName, ".")
-		colFqnParts[i] = fqnParts
-		if colName == "__ts__" || colName == "__index__" || colName == "__id__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+		colFqnParts[i] = strings.Split(field.Name, ".")
+		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
 			continue
 		} else {
-			featureColumnIdxs = append(featureColumnIdxs, i)
-			rootScope.add(fqnParts)
-			namespace := fqnParts[0]
+			includedColIndices = append(includedColIndices, i)
+			namespace := colFqnParts[i][0]
 			if _, ok := namespaceToColIndices[namespace]; !ok {
 				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
 			}
@@ -831,65 +825,93 @@ func MapTableToStructs(
 
 	structType := structs.Type().Elem()
 	structName := structType.Name()
-	namespace := ChalkpySnakeCase(structName)
-
-	_, isSingleNamespaceUnmarshal := rootScope.Children[namespace]
-
-	// Memo for root struct
-	rootMemo, ok := allMemo.Load(structType)
-	if !ok {
-		return errors.Newf(
-			"memo not found for struct type %s, found keys: %v",
-			structType.Name(), allMemo.Keys(),
-		)
-	}
 
 	var rowOp UnmarshalRowOp
-	if isSingleNamespaceUnmarshal {
+	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
+
+		rootScope := InitScope{}
+		for _, fqnParts := range colFqnParts {
+			rootScope.add(fqnParts)
+		}
+		namespace := colFqnParts[includedColIndices[0]][0]
+		namespaceScope, ok := rootScope.Children[namespace]
+		if !ok {
+			return errors.Newf(
+				"namespace '%s' not found in root scope: %v",
+				namespace, colls.Keys(rootScope.Children),
+			)
+		}
+
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, colIdx := range featureColumnIdxs {
+			remoteFeatureMap := make(map[string][]reflect.Value)
+			if err := InitRemoteFeatureMap(
+				remoteFeatureMap,
+				structValue,
+				namespace,
+				map[string]bool{},
+				namespaceScope,
+				allMemo,
+				true,
+			); err != nil {
+				return errors.Wrap(err, "initializing remote feature map")
+			}
+
+			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
-				codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
-				if err != nil {
-					return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+				if remoteFields, ok := remoteFeatureMap[column.Name]; ok {
+					for _, remoteField := range remoteFields {
+						codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, remoteField.Type(), allMemo)
+						if err != nil {
+							return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+						}
+						if err := codec(remoteField, record.Column(colIdx), rowIdx); err != nil {
+							return errors.Wrapf(err, "running codec for column '%s'", column.Name)
+						}
+					}
+				} else {
+					codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
+					if err != nil {
+						return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+					}
+					if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
+						return errors.Wrapf(err, "running codec for column '%s'", column.Name)
+					}
 				}
-				if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", column.Name)
-				}
+				//codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
+				//if err != nil {
+				//	return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
+				//}
+				//if err := codec(structValue, record.Column(colIdx), rowIdx); err != nil {
+				//	return errors.Wrapf(err, "running codec for column '%s'", column.Name)
+				//}
 			}
 			return nil
 		}
 	} else {
 		// Multi-namespace unmarshalling
+		rootMemo, ok := allMemo.Load(structType)
+		if !ok {
+			return errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
 		colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
 		for childNamespace, colIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok || len(namespaceFieldIndices) == 0 {
-				actualErr := errors.Newf(
-					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+				return errors.Newf(
+					"Unmarshalling feature '%s'. If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
 						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
 						"If attempting multi-namespace unmarshalling, please make sure that the root struct contains a field "+
 						"whose type is a struct that corresponds to the namespace '%s'",
+					fields[colIndices[0]].Name,
 					structName,
 					colls.Keys(namespaceToColIndices),
 					childNamespace,
 				)
-				if len(colIndices) == 0 {
-					return errors.Wrapf(
-						actualErr,
-						"namespace '%s' does not correspond to any columns in the table while handling another error",
-						childNamespace,
-					)
-				}
-				if colIndices[0] < 0 || colIndices[0] >= len(colNames) {
-					return errors.Wrapf(
-						actualErr,
-						"malformed column indices for namespace '%s' while handling another error",
-						childNamespace,
-					)
-				}
-				return errors.Wrapf(actualErr, "unmarshalling feature '%s'", colNames[colIndices[0]])
 			} else if len(namespaceFieldIndices) > 1 {
 				var foundFieldNames []string
 				for _, fieldIdx := range namespaceFieldIndices {
@@ -918,13 +940,13 @@ func MapTableToStructs(
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, colIdx := range featureColumnIdxs {
+			for _, colIdx := range includedColIndices {
 				memo := colIdxToNamespaceMeta[colIdx]
 				if memo.codec == nil {
 					continue
 				}
 				if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", colNames[colIdx])
+					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
 				}
 			}
 			return nil
@@ -1047,7 +1069,7 @@ func InitRemoteFeatureMap(
 					return err
 				}
 			} else {
-				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], structValue)
 			}
 		}
 	}
