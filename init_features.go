@@ -3,7 +3,6 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"strconv"
@@ -14,112 +13,6 @@ import (
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
 	return initFeatures(structValue, "", make(map[string]bool))
-}
-
-type scopeTrie struct {
-	children map[string]*scopeTrie
-}
-
-func (s *scopeTrie) addStr(fqn string) {
-	s.add(strings.Split(fqn, "."))
-}
-
-func (s *scopeTrie) add(fqnParts []string) {
-	if len(fqnParts) == 0 {
-		return
-	}
-	firstPart := fqnParts[0]
-	if s.children == nil {
-		s.children = map[string]*scopeTrie{}
-	}
-	if _, found := s.children[firstPart]; !found {
-		s.children[firstPart] = &scopeTrie{}
-	}
-	s.children[firstPart].add(fqnParts[1:])
-}
-
-func initRemoteFeatureMap(
-	remoteFeatureMap map[string][]reflect.Value,
-	structValue reflect.Value,
-	cumulativeFqn string,
-	visited map[string]bool,
-	scope *scopeTrie,
-	allMemo *internal.AllNamespaceMemoT,
-	scopeToJustStructs bool,
-) error {
-	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"feature initialization function argument must be a reflect.Value"+
-				" of the kind reflect.Struct, found %s instead",
-			structValue.Kind().String(),
-		)
-	}
-
-	structName := structValue.Type().Name()
-	if isVisited, ok := visited[structName]; ok && isVisited {
-		// Found a cycle. Just return.
-		return nil
-	}
-	visited[structName] = true
-	defer func() {
-		visited[structName] = false
-	}()
-
-	memo, ok := allMemo.Load(structValue.Type())
-	if !ok {
-		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
-	}
-
-	var fieldNames []string
-	if scopeToJustStructs {
-		fieldNames = colls.Keys(memo.StructFieldsSet)
-	} else {
-		fieldNames = colls.Keys(scope.children)
-	}
-
-	for _, resolvedFieldName := range fieldNames {
-		nextScope, inScope := scope.children[resolvedFieldName]
-		if !inScope {
-			continue
-		}
-		updatedFqn := cumulativeFqn + "." + resolvedFieldName
-		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
-		if !ok {
-			// We arrive here when chalk-go receives a response that contains a feature
-			// newly added to one of their has-one feature classes. They have not updated
-			// their codegen'd structs yet, so we simply skip unmarshalling this new
-			// feature to ensure forward compatibility.
-			continue
-		}
-
-		for _, fieldIdx := range fieldIndices {
-			f := structValue.Field(fieldIdx)
-
-			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
-				if !f.CanSet() {
-					continue
-				}
-				if f.IsNil() {
-					featureSet := reflect.New(f.Type().Elem())
-					f.Set(featureSet)
-				}
-				if err := initRemoteFeatureMap(
-					remoteFeatureMap,
-					f.Elem(),
-					updatedFqn,
-					visited,
-					nextScope,
-					allMemo,
-					false,
-				); err != nil {
-					return err
-				}
-			} else {
-				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
-			}
-		}
-	}
-	return nil
 }
 
 // initFeatures is a recursive function that initializes all features
