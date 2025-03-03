@@ -14,9 +14,9 @@ import (
 	"time"
 )
 
-func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
+func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < numRows; i++ {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -70,7 +70,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B) func() {
 		}{}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
-			for i := 0; i < 100; i++ {
+			for i := 0; i < numRows; i++ {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
 				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float1)
@@ -228,6 +228,55 @@ func getBenchmarkSingleNs(b *testing.B) func() {
 	return benchFunc
 }
 
+func getBenchmarkSingleHasOnes(b *testing.B) func() {
+	var data []chalk.FeatureResult
+	for i := 1; i <= 40; i++ {
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("has_one_root.int_features.int_%d", i),
+			Value: float64(122.0),
+		})
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("has_one_root.float_features.float_%d", i),
+			Value: float64(1.234),
+		})
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("has_one_root.bool_features.bool_%d", i),
+			Value: true,
+		})
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("has_one_root.string_features.string_%d", i),
+			Value: "string_val",
+		})
+		data = append(data, chalk.FeatureResult{
+			Field: fmt.Sprintf("has_one_root.timestamp_features.timestamp_%d", i),
+			Value: "2024-05-09T22:29:00Z",
+		})
+	}
+	res := chalk.OnlineQueryResult{
+		Data: data,
+	}
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		hasOneRoot := fixtures.HasOneRoot{}
+		assert.NoError(b, res.UnmarshalInto(&hasOneRoot))
+
+		assertOnce.Do(func() {
+			assert.Equal(b, int64(122.0), *hasOneRoot.IntFeatures.Int1)
+			assert.Equal(b, int64(122.0), *hasOneRoot.IntFeatures.Int40)
+			assert.Equal(b, float64(1.234), *hasOneRoot.FloatFeatures.Float1)
+			assert.Equal(b, float64(1.234), *hasOneRoot.FloatFeatures.Float40)
+			assert.True(b, *hasOneRoot.BoolFeatures.Bool1)
+			assert.True(b, *hasOneRoot.BoolFeatures.Bool40)
+			assert.Equal(b, "string_val", *hasOneRoot.StringFeatures.String1)
+			assert.Equal(b, "string_val", *hasOneRoot.StringFeatures.String40)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *hasOneRoot.TimestampFeatures.Timestamp1)
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *hasOneRoot.TimestampFeatures.Timestamp40)
+		})
+	}
+
+	return benchFunc
+}
+
 func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	bulkData := make(map[string]any)
 	for i := 0; i < 100; i++ {
@@ -257,6 +306,72 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 			for i := 0; i < 100; i++ {
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 1), *stringFeatures[i].String1)
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 40), *stringFeatures[i].String40)
+			}
+		})
+	}
+
+	return benchFunc
+}
+
+func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
+	bulkData := make(map[string]any)
+	for i := 0; i < numRows; i++ {
+		for j := 1; j <= 40; j++ {
+			fqn := fmt.Sprintf("has_one_root.int_features.int_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []float64{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+
+			fqn = fmt.Sprintf("has_one_root.float_features.float_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []float64{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(1.234))
+
+			fqn = fmt.Sprintf("has_one_root.bool_features.bool_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []bool{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]bool), true)
+
+			fqn = fmt.Sprintf("has_one_root.string_features.string_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []string{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]string), fmt.Sprintf("string_val_%d", i))
+
+			fqn = fmt.Sprintf("has_one_root.timestamp_features.timestamp_%d", j)
+			if _, ok := bulkData[fqn]; !ok {
+				bulkData[fqn] = []time.Time{}
+			}
+			bulkData[fqn] = append(bulkData[fqn].([]time.Time), time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC))
+		}
+	}
+
+	record, err := internal.ColumnMapToRecord(bulkData)
+	assert.NoError(b, err)
+
+	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+
+	res := chalk.OnlineQueryBulkResult{ScalarsTable: table}
+
+	assertOnce := sync.Once{}
+	benchFunc := func() {
+		roots := []fixtures.HasOneRoot{}
+		assert.NoError(b, res.UnmarshalInto(&roots))
+		assertOnce.Do(func() {
+			for i := 0; i < numRows; i++ {
+				assert.Equal(b, int64(122.0), *roots[i].IntFeatures.Int1)
+				assert.Equal(b, int64(122.0), *roots[i].IntFeatures.Int40)
+				assert.Equal(b, float64(1.234), *roots[i].FloatFeatures.Float1)
+				assert.Equal(b, float64(1.234), *roots[i].FloatFeatures.Float40)
+				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *roots[i].StringFeatures.String1)
+				assert.Equal(b, fmt.Sprintf("string_val_%d", i), *roots[i].StringFeatures.String40)
+				assert.True(b, *roots[i].BoolFeatures.Bool1)
+				assert.True(b, *roots[i].BoolFeatures.Bool40)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *roots[i].TimestampFeatures.Timestamp1)
+				assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *roots[i].TimestampFeatures.Timestamp40)
 			}
 		})
 	}
@@ -453,7 +568,7 @@ func BenchmarkUnmarshalBulkSingleNsAllTypesParallel(b *testing.B) {
  * Run Type: Single
  */
 func BenchmarkUnmarshalBulkMultiNsPrimitivesSingle(b *testing.B) {
-	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b))
+	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b, 100))
 }
 
 /*
@@ -464,5 +579,60 @@ func BenchmarkUnmarshalBulkMultiNsPrimitivesSingle(b *testing.B) {
  * Run Type: Parallel
  */
 func BenchmarkUnmarshalBulkMultiNsPrimitivesParallel(b *testing.B) {
-	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b))
+	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b, 100))
+}
+
+/*
+ * Query: Bulk (single row)
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Single
+ */
+func BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle(b *testing.B) {
+	benchmark(b, getBenchmarkBulkMultiNsPrimitives(b, 1))
+}
+
+/*
+ * Query: Bulk (single row)
+ * Namespaces: Multi
+ * Feature Type: Primitives
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkMultiNsPrimitives(b, 1))
+}
+
+/*
+ * Query: Single
+ * Namespaces: Single
+ * Feature Type: Has Ones
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalHasOnes(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkSingleHasOnes(b))
+}
+
+/*
+ * Query: Bulk (single row)
+ * Namespaces: Single
+ * Feature Type: Has Ones
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkLoneHasOnes(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkHasOnes(b, 1))
+}
+
+/*
+ * Query: Bulk
+ * Namespaces: Single
+ * Feature Type: Has Ones
+ * Protocol: REST
+ * Run Type: Parallel
+ */
+func BenchmarkUnmarshalBulkHasOnes(b *testing.B) {
+	benchmarkParallel(b, getBenchmarkBulkHasOnes(b, 100))
 }
