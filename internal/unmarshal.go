@@ -846,13 +846,6 @@ func MapTableToStructs(
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
-			//codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, structType, allMemo)
-			//if err != nil {
-			//	return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
-			//}
-			//if err != nil {
-			//	return nil, errors.Wrap(err, "generating unmarshal value codec")
-			//}
 			memo, err := AllFqnMemo.LoadMemo(column.Name, func() (Codec, error) {
 				return generateUnmarshalValueCodec(
 					// Taking the first field's type because multiple field indices for the same column

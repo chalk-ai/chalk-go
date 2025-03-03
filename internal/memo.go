@@ -35,8 +35,9 @@ func (m *AllFqnMemoT) LoadMemo(key string, generateCodec func() (Codec, error)) 
 		codec, err := generateCodec()
 		if err != nil {
 			fqnMemo.generateCodecErr = err
+		} else {
+			fqnMemo.Codec = codec
 		}
-		fqnMemo.Codec = codec
 	})
 	if fqnMemo.generateCodecErr != nil {
 		return nil, errors.Wrap(fqnMemo.generateCodecErr, "generating codec")
