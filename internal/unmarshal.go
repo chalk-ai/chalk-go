@@ -215,10 +215,6 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 
 }
 
-type InitFeatureFunc func(structValue reflect.Value) (leafStructValue reflect.Value, err error)
-
-var initFeatureNoOp InitFeatureFunc = func(structValue reflect.Value) (reflect.Value, error) { return reflect.Value{}, nil }
-
 func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *AllNamespaceMemoT) (InitFeatureFunc, reflect.Type, error) {
 	memo, ok := allMemo.Load(structType)
 	if !ok {
@@ -302,7 +298,6 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		structType = leafStructType
 	}
 
-	// FIXME: Possible to reuse when generating codec for features under the same namespace?
 	memo, ok := allMemo.Load(structType)
 	if !ok {
 		return nil, errors.Newf(
@@ -791,12 +786,6 @@ type FeatureMeta struct {
 	Pkey        any
 }
 
-//func loadOrStoreCodec(fqn string, fqnParts []string, colType arrow.DataType, structType reflect.Type, allMemo *AllNamespaceMemoT) (Codec, error) {
-//	fqnMutex, loaded := AllFqnMemo.LoadMemo()
-//		codec, err :=
-//	return fqnMutex.memo.Codec, nil
-//}
-
 type newNamespaceMetaT struct {
 	codec           Codec
 	rootStructIndex int
@@ -846,7 +835,7 @@ func MapTableToStructs(
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
-			memo, err := AllFqnMemo.LoadMemo(column.Name, func() (Codec, error) {
+			codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
 				return generateUnmarshalValueCodec(
 					// Taking the first field's type because multiple field indices for the same column
 					// means they are just versioned features, which are all the same type.
@@ -861,7 +850,7 @@ func MapTableToStructs(
 				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
 			}
 
-			colToCodec[k] = memo.Codec
+			colToCodec[k] = codec
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
@@ -911,11 +900,7 @@ func MapTableToStructs(
 			innerStructType := structType.Field(rootStructFieldIdx).Type
 			for _, colIdx := range colIndices {
 				column := fields[colIdx]
-				//codec, err := loadOrStoreCodec(column.Name, colFqnParts[colIdx], column.Type, innerStructType, allMemo)
-				//if err != nil {
-				//	return errors.Wrapf(err, "getting codec for column '%s'", column.Name)
-				//}
-				memo, err := AllFqnMemo.LoadMemo(column.Name, func() (Codec, error) {
+				codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
 					return generateUnmarshalValueCodec(
 						// Taking the first field's type because multiple field indices for the same column
 						// means they are just versioned features, which are all the same type.
@@ -930,7 +915,7 @@ func MapTableToStructs(
 					return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
 				}
 				colIdxToNamespaceMeta[colIdx] = newNamespaceMetaT{
-					codec:           memo.Codec,
+					codec:           codec,
 					rootStructIndex: rootStructFieldIdx,
 				}
 			}
@@ -991,7 +976,7 @@ func (s *InitScope) add(fqnParts []string) {
 
 func InitRemoteFeatureMap(
 	remoteFeatureMap map[string][]reflect.Value,
-	structValue reflect.Value, // FIXME: Make pointer
+	structValue reflect.Value,
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *InitScope,
