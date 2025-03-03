@@ -810,7 +810,6 @@ func MapTableToStructs(
 	}
 
 	fields := table.Schema().Fields()
-	includedColIndices := make([]int, 0, len(fields))
 	colFqnParts := make([][]string, len(fields))
 	namespaceToColIndices := map[string][]int{}
 	for i, field := range table.Schema().Fields() {
@@ -818,7 +817,6 @@ func MapTableToStructs(
 		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
 			continue
 		} else {
-			includedColIndices = append(includedColIndices, i)
 			namespace := colFqnParts[i][0]
 			if _, ok := namespaceToColIndices[namespace]; !ok {
 				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
@@ -828,10 +826,9 @@ func MapTableToStructs(
 	}
 
 	var rowOp UnmarshalRowOp
-	// FIXME: It's possible that people want to unmarshal into a single
-	//        namespace even when there are multiple namespaces in the result
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
+		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
@@ -872,7 +869,7 @@ func MapTableToStructs(
 		}
 
 		colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
-		for childNamespace, colIndices := range namespaceToColIndices {
+		for childNamespace, includedColIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok || len(namespaceFieldIndices) == 0 {
 				return errors.Newf(
@@ -898,7 +895,7 @@ func MapTableToStructs(
 
 			rootStructFieldIdx := namespaceFieldIndices[0]
 			innerStructType := structType.Field(rootStructFieldIdx).Type
-			for _, colIdx := range colIndices {
+			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
 				codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
 					return generateUnmarshalValueCodec(
@@ -922,13 +919,15 @@ func MapTableToStructs(
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, colIdx := range includedColIndices {
-				memo := colIdxToNamespaceMeta[colIdx]
-				if memo.codec == nil {
-					continue
-				}
-				if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+			for _, includedColIndices := range namespaceToColIndices {
+				for _, colIdx := range includedColIndices {
+					memo := colIdxToNamespaceMeta[colIdx]
+					if memo.codec == nil {
+						continue
+					}
+					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
+						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+					}
 				}
 			}
 			return nil
