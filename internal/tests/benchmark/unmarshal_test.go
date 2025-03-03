@@ -292,13 +292,6 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
-	//recordBytes, err := internal.RecordToBytes(record)
-	//assert.NoError(b, err)
-	//
-	//benchFunc := func() {
-	//	internal.ConvertBytesToTable(recordBytes)
-	//}
-
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
 	//
 	res := chalk.OnlineQueryBulkResult{
@@ -542,7 +535,7 @@ func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
 
 /*
  * Query: Bulk
- * Namespaces: Single
+ * Namespaces: Single®
  * Feature Type: Primitives
  * Protocol: REST
  * Run Type: Parallel

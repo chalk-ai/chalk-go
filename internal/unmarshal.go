@@ -414,7 +414,8 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 		}, err
 	case *arrow.StructType:
 		var structType reflect.Type
-		if fieldType.Kind() == reflect.Ptr {
+		isPointer := fieldType.Kind() == reflect.Ptr
+		if isPointer {
 			structType = fieldType.Elem()
 		} else {
 			structType = fieldType
@@ -511,158 +512,189 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 				}
 			}
 
-			if fieldType.Kind() == reflect.Ptr {
+			if isPointer {
 				return newStructPtr, nil
 			} else {
 				return newStructPtr.Elem(), nil
 			}
 		}, nil
 	case *arrow.StringType:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.String).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.String).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.String).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.LargeStringType:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.LargeString).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.LargeString).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.LargeString).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Uint8Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Uint8).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint8).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint8).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Uint16Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Uint16).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint16).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint16).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Uint32Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Uint32).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint32).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Uint64Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Uint64).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint64).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Int8Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Int8).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int8).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int8).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Int16Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Int16).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int16).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int16).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Int32Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Int32).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int32).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Int64Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Int64).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int64).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Float32Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Float32).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Float32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Float32).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.Float64Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			castArr := arr.(*array.Float64)
-			val := castArr.Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Float64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Float64).Value(arrIdx)), nil
+			}, nil
+		}
 	case *arrow.BooleanType:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			val := arr.(*array.Boolean).Value(arrIdx)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Boolean).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
-			} else {
-				return reflect.ValueOf(val), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Boolean).Value(arrIdx)), nil
+			}, nil
+		}
+
 	case *arrow.Date32Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			timeVal := arr.(*array.Date32).Value(arrIdx).ToTime()
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Date32).Value(arrIdx).ToTime()
 				return reflect.ValueOf(&timeVal), nil
-			} else {
-				return reflect.ValueOf(timeVal), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Date32).Value(arrIdx).ToTime()), nil
+			}, nil
+		}
 	case *arrow.Date64Type:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			timeVal := arr.(*array.Date64).Value(arrIdx).ToTime()
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Date64).Value(arrIdx).ToTime()
 				return reflect.ValueOf(&timeVal), nil
-			} else {
-				return reflect.ValueOf(timeVal), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Date64).Value(arrIdx).ToTime()), nil
+			}, nil
+		}
 	case *arrow.TimestampType:
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			timeUnit := castArrType.TimeUnit()
-			timeVal := arr.(*array.Timestamp).Value(arrIdx).ToTime(timeUnit)
-			if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())
 				return reflect.ValueOf(&timeVal), nil
-			} else {
-				return reflect.ValueOf(timeVal), nil
-			}
-		}, nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())), nil
+			}, nil
+		}
 	default:
 		return nil, errors.Newf("unsupported array type: %T", arrowType)
 	}
