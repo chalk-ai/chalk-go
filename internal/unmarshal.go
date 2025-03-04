@@ -247,7 +247,7 @@ func InitRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo, err := allMemo.Load(structValue.Type())
+	memo, err := allMemo.LoadOrStore(structValue.Type())
 	if err != nil {
 		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 	}
@@ -576,7 +576,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, err := allMemo.Load(structValue.Type())
+			memo, err := allMemo.LoadOrStore(structValue.Type())
 			if err != nil {
 				return nil, errors.Wrapf(
 					err,
@@ -851,7 +851,7 @@ func MapTableToStructs(
 		}
 	} else {
 		// Multi-namespace unmarshalling
-		//rootMemo, ok := allMemo.Load(structType)
+		//rootMemo, ok := allMemo.LoadOrStore(structType)
 		//if !ok {
 		//	return errors.Newf(
 		//		"memo not found for struct type '%s' - please make sure the codegen'd file has not "+
@@ -860,7 +860,7 @@ func MapTableToStructs(
 		//	)
 		//}
 
-		rootMemo, err := allMemo.Load(structType)
+		rootMemo, err := allMemo.LoadOrStore(structType)
 		if err != nil {
 			return errors.Wrapf(err, "loading namespace memo for struct: %s", structType.Name())
 		}

@@ -18,7 +18,7 @@ type NamespaceMemosT MemosT[reflect.Type, NamespaceMemo]
 
 var NamespaceMemos = &NamespaceMemosT{}
 
-func (m *NamespaceMemosT) Load(structType reflect.Type) (*NamespaceMemo, error) {
+func (m *NamespaceMemosT) LoadOrStore(structType reflect.Type) (*NamespaceMemo, error) {
 	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (*NamespaceMemo, error) {
 		return generateNamespaceMemo(structType, nil)
 	})
@@ -127,7 +127,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 			return nil
 		}
 		visited[typ] = true
-		if _, err := NamespaceMemos.Load(typ); err != nil {
+		if _, err := NamespaceMemos.LoadOrStore(typ); err != nil {
 			return errors.Wrap(err, "load-or-storing memo")
 		}
 	} else if typ.Kind() == reflect.Slice {

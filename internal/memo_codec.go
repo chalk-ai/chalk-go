@@ -42,7 +42,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		structType = leafStructType
 	}
 
-	memo, err := allMemo.Load(structType)
+	memo, err := allMemo.LoadOrStore(structType)
 	if err != nil {
 		return nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 	}
@@ -105,7 +105,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 }
 
 func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *NamespaceMemosT) (InitFeatureFunc, reflect.Type, error) {
-	memo, err := allMemo.Load(structType)
+	memo, err := allMemo.LoadOrStore(structType)
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 	}
@@ -271,7 +271,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			structType = fieldType
 		}
 
-		//memo, ok := allMemo.Load(structType)
+		//memo, ok := allMemo.LoadOrStore(structType)
 		//if !ok {
 		//	return nil, errors.Newf(
 		//		"memo not found for struct type %s, found keys: %v",
@@ -279,7 +279,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 		//	)
 		//}
 
-		memo, err := allMemo.Load(structType)
+		memo, err := allMemo.LoadOrStore(structType)
 		if err != nil {
 			return nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 		}

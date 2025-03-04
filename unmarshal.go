@@ -196,7 +196,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		nsMemo, err := allMemo.Load(holderValue.Elem().Type())
+		nsMemo, err := allMemo.LoadOrStore(holderValue.Elem().Type())
 		if err != nil {
 			return errors.Wrapf(err, "loading memo for namespace '%s'", structName)
 		}
@@ -242,7 +242,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		fieldNsMemo, err := allMemo.Load(field.Type())
+		fieldNsMemo, err := allMemo.LoadOrStore(field.Type())
 		if err != nil {
 			return errors.Wrapf(
 				err,
