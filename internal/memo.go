@@ -35,12 +35,19 @@ func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (V, error)) (V, 
 
 var CodecMemo = &MemosT[string, Codec]{}
 
+type NamespaceMemo struct {
+	// Root and non-root FQN as keys
+	ResolvedFieldNameToIndices map[string][]int
+	// Non-root FQN as keys only
+	StructFieldsSet map[string]bool
+}
+
 type NamespaceMemosT MemosT[reflect.Type, NamespaceMemo]
+
+var AllNamespaceMemo = &NamespaceMemosT{}
 
 func (m *NamespaceMemosT) Load(structType reflect.Type) (NamespaceMemo, error) {
 	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (NamespaceMemo, error) {
 		return generateNamespaceMemo(structType, nil)
 	})
 }
-
-var NamespaceMemos = &NamespaceMemosT{}
