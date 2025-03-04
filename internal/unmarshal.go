@@ -795,11 +795,10 @@ type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx 
 
 func MapTableToStructs(
 	table arrow.Table,
-	structs *reflect.Value,
+	structs reflect.Value,
 	allMemo *AllNamespaceMemoT,
 ) error {
 	structType := structs.Type().Elem()
-	structName := structType.Name()
 
 	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
@@ -863,7 +862,8 @@ func MapTableToStructs(
 		rootMemo, ok := allMemo.Load(structType)
 		if !ok {
 			return errors.Newf(
-				"memo not found for struct type %s, found keys: %v",
+				"memo not found for struct type '%s' - please make sure the codegen'd file has not "+
+					"been edited. Found keys: %v",
 				structType.Name(), allMemo.Keys(),
 			)
 		}
@@ -873,13 +873,11 @@ func MapTableToStructs(
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok || len(namespaceFieldIndices) == 0 {
 				return errors.Newf(
-					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
-						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
-						"If attempting multi-namespace unmarshalling, please make sure that the root struct contains a field "+
-						"whose type is a struct that corresponds to the namespace '%s'",
-					structName,
-					colls.Keys(namespaceToColIndices),
+					"Attempted multi-namespace unmarshalling - please make sure to pass in a list of structs. "+
+						"The struct should contain an inner struct that corresponds to the namespace '%s'. Found only "+
+						"inner structs for these namespaces: %v",
 					childNamespace,
+					colls.Keys(namespaceToColIndices),
 				)
 			} else if len(namespaceFieldIndices) > 1 {
 				var foundFieldNames []string
@@ -909,7 +907,7 @@ func MapTableToStructs(
 					)
 				})
 				if err != nil {
-					return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
+					return errors.Wrapf(err, "loading codec for column '%s'", column.Name)
 				}
 				colIdxToNamespaceMeta[colIdx] = newNamespaceMetaT{
 					codec:           codec,
@@ -923,7 +921,7 @@ func MapTableToStructs(
 				for _, colIdx := range includedColIndices {
 					memo := colIdxToNamespaceMeta[colIdx]
 					if memo.codec == nil {
-						continue
+						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
 					}
 					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
 						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
@@ -1642,7 +1640,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
 	}
 
-	if err := MapTableToStructs(table, &slice, AllNamespaceMemo); err != nil {
+	if err := MapTableToStructs(table, slice, AllNamespaceMemo); err != nil {
 		return errors.Wrap(err, "mapping table to structs")
 	}
 
