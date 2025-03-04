@@ -2,7 +2,6 @@ package internal
 
 import (
 	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/cockroachdb/errors"
 	"reflect"
 	"sync"
 )
@@ -13,42 +12,35 @@ var codecNoOp = func(structValue reflect.Value, arr arrow.Array, arrIdx int) err
 	return nil
 }
 
-type InitFeatureFunc func(structValue reflect.Value) (leafStructValue reflect.Value, err error)
+type Memo[V any] struct {
+	Object V
 
-var initFeatureNoOp InitFeatureFunc = func(structValue reflect.Value) (reflect.Value, error) { return reflect.Value{}, nil }
-
-type GetValueFunc func(arr arrow.Array, arrIdx int) (reflect.Value, error)
-
-type FqnMemo struct {
-	Codec            Codec
-	once             sync.Once
-	generateCodecErr error
+	once sync.Once
+	err  error
 }
 
-type AllFqnMemoT sync.Map
+type MemosT[K, V any] sync.Map
 
-var AllFqnMemo = &AllFqnMemoT{}
-
-func (m *AllFqnMemoT) LoadCodec(key string, generateCodec func() (Codec, error)) (Codec, error) {
+func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (V, error)) (V, error) {
 	value, loaded := (*sync.Map)(m).Load(key)
 	if !loaded {
-		value, loaded = (*sync.Map)(m).LoadOrStore(key, &FqnMemo{})
+		value, loaded = (*sync.Map)(m).LoadOrStore(key, &Memo[V]{})
 	}
-	fqnMemo := value.(*FqnMemo)
-	fqnMemo.once.Do(func() {
-		fqnMemo.Codec, fqnMemo.generateCodecErr = generateCodec()
+	memo := value.(*Memo[V])
+	memo.once.Do(func() {
+		memo.Object, memo.err = generateObject()
 	})
-	if fqnMemo.generateCodecErr != nil {
-		return nil, errors.Wrap(fqnMemo.generateCodecErr, "generating codec")
-	}
-	return fqnMemo.Codec, nil
+	return memo.Object, memo.err
 }
 
-func (m *AllFqnMemoT) Keys() []string {
-	var keys []string
-	(*sync.Map)(m).Range(func(key, _ any) bool {
-		keys = append(keys, key.(string))
-		return true
+var CodecMemo = &MemosT[string, Codec]{}
+
+type NamespaceMemosT MemosT[reflect.Type, NamespaceMemo]
+
+func (m *NamespaceMemosT) Load(structType reflect.Type) (NamespaceMemo, error) {
+	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (NamespaceMemo, error) {
+		return generateNamespaceMemo(structType, nil)
 	})
-	return keys
 }
+
+var NamespaceMemos = &NamespaceMemosT{}

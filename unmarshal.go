@@ -13,7 +13,7 @@ import (
 
 var FieldNotFoundError = errors.New("field not found")
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.AllNamespaceMemoT) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *internal.NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := internal.GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
@@ -171,7 +171,7 @@ To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	allMemo := internal.AllNamespaceMemo
-	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
+	if err := internal.PopulateAllNamespaceMemoNew(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 	scope, err := internal.BuildScope(colls.Keys(fqnToValue))
@@ -196,9 +196,9 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		nsMemo, ok := allMemo.Load(holderValue.Elem().Type())
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo", structName)
+		nsMemo, err := allMemo.Load(holderValue.Elem().Type())
+		if err != nil {
+			return errors.Wrapf(err, "loading memo for namespace '%s'", structName)
 		}
 
 		return thinUnmarshalInto(
@@ -206,7 +206,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			fqnToValue,
 			namespace,
 			nsScope,
-			nsMemo,
+			&nsMemo,
 			allMemo,
 		)
 	}
@@ -242,10 +242,11 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		fieldNsMemo, ok := allMemo.Load(field.Type())
-		if !ok {
-			return errors.Newf(
-				"namespace for struct '%s' of field '%s' not found in memo", field.Type().Name(), fieldMeta.Name,
+		fieldNsMemo, err := allMemo.Load(field.Type())
+		if err != nil {
+			return errors.Wrapf(
+				err,
+				"loading namespace memo for struct '%s' of field '%s'", field.Type().Name(), fieldMeta.Name,
 			)
 		}
 		if err := thinUnmarshalInto(
@@ -253,7 +254,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			fqnToValue,
 			fieldNamespace,
 			fieldNsScope,
-			fieldNsMemo,
+			&fieldNsMemo,
 			allMemo,
 		); err != nil {
 			return errors.Wrapf(err, "unmarshalling field '%s': %w", fieldMeta.Name)
@@ -271,7 +272,7 @@ func thinUnmarshalInto(
 	namespace string,
 	namespaceScope *internal.InitScope,
 	namespaceMemo *internal.NamespaceMemo,
-	allMemo *internal.AllNamespaceMemoT,
+	allMemo *internal.NamespaceMemosT,
 ) (returnErr error) {
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := internal.InitRemoteFeatureMap(
