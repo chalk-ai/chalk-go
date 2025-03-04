@@ -981,6 +981,13 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 // TestUnmarshalBulkQueryTimestampsWithUnitVariety tests that when features
 // are timestamps, we correctly use the time unit to unmarshal the timestamps.
 func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
+	type timestampTypes struct {
+		TimestampS  *time.Time
+		TimestampMs *time.Time
+		TimestampUs *time.Time
+		TimestampNs *time.Time
+	}
+
 	for _, fixture := range []struct {
 		unit           arrow.TimeUnit
 		expectedTime   time.Time
@@ -1009,7 +1016,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 	} {
 		t.Run(fmt.Sprintf("unit=%s", fixture.unit), func(t *testing.T) {
 			schema := arrow.NewSchema([]arrow.Field{
-				{Name: "all_types.timestamp", Type: &arrow.TimestampType{
+				{Name: fmt.Sprintf("timestamp_types.timestamp_%s", fixture.unit.String()), Type: &arrow.TimestampType{
 					Unit:     fixture.unit,
 					TimeZone: "UTC",
 				}},
@@ -1031,13 +1038,27 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 			}
 			defer bulkRes.Release()
 
-			resultHolders := make([]fixtures.AllTypes, 0)
+			resultHolders := make([]timestampTypes, 0)
 			if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 				t.Fatal(err)
 			}
 
+			var actualTime *time.Time
+			switch fixture.unit {
+			case arrow.Second:
+				actualTime = resultHolders[0].TimestampS
+			case arrow.Millisecond:
+				actualTime = resultHolders[0].TimestampMs
+			case arrow.Microsecond:
+				actualTime = resultHolders[0].TimestampUs
+			case arrow.Nanosecond:
+				actualTime = resultHolders[0].TimestampNs
+			default:
+				t.Fatalf("unexpected time unit: %s", fixture.unit)
+			}
+
 			assert.Equal(t, 1, len(resultHolders))
-			assert.Equal(t, fixture.expectedTime, *resultHolders[0].Timestamp)
+			assert.Equal(t, fixture.expectedTime, *actualTime)
 		})
 	}
 }
@@ -1291,19 +1312,19 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 		LatLng      *unmarshalLatLNG
 	}
 	assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
-	_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
-	assert.True(t, ok)
-	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
-	assert.True(t, ok)
-	_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
-	assert.True(t, ok)
+	_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalTransaction{}))
+	assert.NoError(t, err)
+	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalUSER{}))
+	assert.NoError(t, err)
+	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalLatLNG{}))
+	assert.NoError(t, err)
 }
 
 func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	t.Parallel()
 
 	var wg sync.WaitGroup
-	const numConcurrentTests = 10
+	const numConcurrentTests = 100
 	wg.Add(numConcurrentTests)
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
@@ -1329,32 +1350,32 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
 
 			// Check in reverse order of fields to more reliably catch race condition
-			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedTimestampFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedStringFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedBoolFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.TimestampFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.BoolFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.IntFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.FloatFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.StringFeatures{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
-			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
-			assert.True(t, ok)
+			_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedTimestampFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedStringFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedBoolFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.TimestampFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.BoolFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.IntFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.FloatFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.StringFeatures{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalLatLNG{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalUSER{}))
+			assert.NoError(t, err)
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalTransaction{}))
+			assert.NoError(t, err)
 		}()
 	}
 	wg.Wait()
@@ -1362,7 +1383,7 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 
 /*
  * TestUnmarshalConcurrently tests that unmarshalling the same data concurrently
- * works. Particularly the `internal.AllNamespaceMemo` object has to have thread-
+ * works. Particularly the `internal.NamespaceMemos` object has to have thread-
  * safe methods.
  */
 func TestUnmarshalConcurrently(t *testing.T) {
@@ -1454,7 +1475,9 @@ TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the sa
 func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
-	for i := 0; i < 100_000; i++ {
+	numRows := 100_000
+	assert.Greater(t, numRows, internal.TableReaderChunkSize)
+	for i := 0; i < numRows; i++ {
 		transactions = append(transactions, unmarshalTransaction{
 			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
 			AmountP30D:            ptr.Ptr(int64(i)),
