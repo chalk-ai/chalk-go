@@ -7,7 +7,7 @@ import (
 )
 
 type Memo[V any] struct {
-	Object V
+	Object *V
 
 	once sync.Once
 	err  error
@@ -15,7 +15,7 @@ type Memo[V any] struct {
 
 type MemosT[K, V any] sync.Map
 
-func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (V, error)) (V, error) {
+func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (*V, error)) (*V, error) {
 	value, loaded := (*sync.Map)(m).Load(key)
 	if !loaded {
 		value, loaded = (*sync.Map)(m).LoadOrStore(key, &Memo[V]{})
@@ -29,7 +29,7 @@ func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (V, error)) (V, 
 
 type Codec func(structValue reflect.Value, arr arrow.Array, arrIdx int) error
 
-var codecNoOp = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+var codecNoOp Codec = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
 	return nil
 }
 
@@ -48,8 +48,8 @@ type NamespaceMemosT MemosT[reflect.Type, NamespaceMemo]
 
 var NamespaceMemos = &NamespaceMemosT{}
 
-func (m *NamespaceMemosT) Load(structType reflect.Type) (NamespaceMemo, error) {
-	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (NamespaceMemo, error) {
+func (m *NamespaceMemosT) Load(structType reflect.Type) (*NamespaceMemo, error) {
+	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (*NamespaceMemo, error) {
 		return generateNamespaceMemo(structType, nil)
 	})
 }

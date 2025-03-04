@@ -721,10 +721,10 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Na
 	return nil
 }
 
-func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (NamespaceMemo, error) {
+func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (*NamespaceMemo, error) {
 	structName := typ.Name()
 	namespace := ChalkpySnakeCase(structName)
-	nsMemo := &NamespaceMemo{
+	nsMemo := NamespaceMemo{
 		ResolvedFieldNameToIndices: map[string][]int{},
 		StructFieldsSet:            map[string]bool{},
 	}
@@ -732,7 +732,7 @@ func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (Nam
 		fm := typ.Field(fieldIdx)
 		resolvedName, err := ResolveFeatureName(fm)
 		if err != nil {
-			return NamespaceMemo{}, errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
+			return nil, errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
 		}
 		nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
 		// Has-many features come back as a list of structs whose keys are namespaced FQNs.
@@ -746,7 +746,7 @@ func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (Nam
 			// Is a windowed feature
 			intTags, err := GetWindowBucketsSecondsFromStructTag(fm)
 			if err != nil {
-				return NamespaceMemo{}, errors.Wrapf(
+				return nil, errors.Wrapf(
 					err,
 					"error getting window buckets for field '%s' in struct '%s'",
 					fm.Name,
@@ -761,7 +761,7 @@ func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (Nam
 			}
 		} else {
 			if err := PopulateAllNamespaceMemo(fm.Type, visited); err != nil {
-				return NamespaceMemo{}, errors.Wrapf(err, "populating namespace memo for field '%s'", fm.Name)
+				return nil, errors.Wrapf(err, "populating namespace memo for field '%s'", fm.Name)
 			}
 		}
 
@@ -770,7 +770,7 @@ func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (Nam
 		}
 	}
 
-	return *nsMemo, nil
+	return &nsMemo, nil
 }
 
 /*PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
@@ -1012,7 +1012,7 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 	}, currStructType, nil
 }
 
-func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT, fqn string, fqnParts []string) (Codec, error) {
+func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
 	var initFeatureFunc InitFeatureFunc
 	if len(fqnParts) > 2 {
 		// Is has-one feature, init all structs on its path
@@ -1033,7 +1033,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 	if !ok || len(reflectFieldIndices) == 0 {
 		// This happens when we unmarshal new feature fields into old codegen structs
 		// We no-op here to allow for backcompat.
-		return codecNoOp, nil
+		return &codecNoOp, nil
 	}
 
 	fieldType := structType.Field(reflectFieldIndices[0]).Type
@@ -1055,7 +1055,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		return nil, errors.Wrap(err, "generating function to get unmarshalled value from arrow array")
 	}
 
-	return func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+	var codec Codec = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
 		if initFeatureFunc != nil {
 			leafStructValue, err := initFeatureFunc(structValue)
 			if err != nil {
@@ -1082,7 +1082,8 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		}
 		return nil
 
-	}, nil
+	}
+	return &codec, nil
 }
 
 type GetValueFunc func(arr arrow.Array, arrIdx int) (reflect.Value, error)
@@ -1428,7 +1429,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 }
 
 type namespaceMeta struct {
-	codec           Codec
+	codec           *Codec
 	rootStructIndex int
 }
 
@@ -1473,7 +1474,7 @@ func MapTableToStructs(
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
-			codec, err := codecMemo.LoadOrStore(column.Name, func() (Codec, error) {
+			codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
 				return generateUnmarshalValueCodec(
 					// Taking the first field's type because multiple field indices for the same column
 					// means they are just versioned features, which are all the same type.
@@ -1488,7 +1489,7 @@ func MapTableToStructs(
 				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
 			}
 
-			colToCodec[k] = codec
+			colToCodec[k] = *codec
 		}
 
 		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
@@ -1542,7 +1543,7 @@ func MapTableToStructs(
 			innerStructType := structType.Field(rootStructFieldIdx).Type
 			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
-				codec, err := codecMemo.LoadOrStore(column.Name, func() (Codec, error) {
+				codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
 					return generateUnmarshalValueCodec(
 						// Taking the first field's type because multiple field indices for the same column
 						// means they are just versioned features, which are all the same type.
@@ -1570,7 +1571,7 @@ func MapTableToStructs(
 					if memo.codec == nil {
 						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
 					}
-					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
+					if err := (*(memo.codec))(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
 						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
 					}
 				}

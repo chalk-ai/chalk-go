@@ -206,7 +206,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			fqnToValue,
 			namespace,
 			nsScope,
-			&nsMemo,
+			nsMemo,
 			allMemo,
 		)
 	}
@@ -254,7 +254,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			fqnToValue,
 			fieldNamespace,
 			fieldNsScope,
-			&fieldNsMemo,
+			fieldNsMemo,
 			allMemo,
 		); err != nil {
 			return errors.Wrapf(err, "unmarshalling field '%s': %w", fieldMeta.Name)
