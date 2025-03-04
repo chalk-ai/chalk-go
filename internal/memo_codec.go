@@ -30,120 +30,6 @@ type namespaceMeta struct {
 	rootStructIndex int
 }
 
-func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *NamespaceMemosT) (func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error), error) {
-	var sliceType reflect.Type
-	isPointer := sliceReflectType.Kind() == reflect.Ptr
-	if isPointer {
-		sliceType = sliceReflectType.Elem()
-	} else {
-		sliceType = sliceReflectType
-	}
-
-	if sliceType.Kind() != reflect.Slice {
-		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
-	}
-
-	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
-	if err != nil {
-		return nil, errors.Wrap(err, "generating getValue function for array element")
-	}
-
-	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
-		length := endIdx - startIdx
-		newSlice := reflect.MakeSlice(sliceType, length, length)
-		newSliceIdx := 0
-		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
-			val, err := codec(arr, currIdx)
-			if err != nil {
-				return reflect.Value{}, errors.Wrapf(
-					err,
-					"building slice value for row at underlying index %d",
-					currIdx,
-				)
-			}
-			if val.IsValid() {
-				newSlice.Index(newSliceIdx).Set(val)
-			}
-			newSliceIdx += 1
-		}
-
-		if isPointer {
-			slicePtr := reflect.New(newSlice.Type())
-			slicePtr.Elem().Set(newSlice)
-			return slicePtr, nil
-		} else {
-			return newSlice, nil
-		}
-	}, nil
-
-}
-
-func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *NamespaceMemosT) (InitFeatureFunc, reflect.Type, error) {
-	memo, err := allMemo.Load(structType)
-	if err != nil {
-		return nil, nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
-	}
-
-	structFieldsLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
-	fieldIndexChain := make([]int, structFieldsLen)
-	fieldIsPointer := make([]bool, structFieldsLen)
-
-	currStructType := structType
-	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
-		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
-		if !ok || len(indices) == 0 {
-			// Reaching here might mean that a new feature field was
-			// not yet added to the codegen'd structs. Here we return
-			// an no-op function for back-compat.
-			return initFeatureNoOp, nil, nil
-		}
-
-		firstFieldType := currStructType.Field(indices[0]).Type
-		if firstFieldType.Kind() == reflect.Ptr {
-			fieldIsPointer[i] = true
-			firstFieldType = firstFieldType.Elem()
-		}
-
-		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
-			// Not a has-one feature
-			return nil, nil, errors.Newf(
-				"field '%s' in struct '%s' is not a has-one feature",
-				fqnPart, currStructType.Name(),
-			)
-		}
-
-		if len(indices) > 1 {
-			// A has-one feature is never versioned, hence never has multiple fields
-			fieldNames := make([]string, len(indices))
-			for j, idx := range indices {
-				fieldNames[j] = currStructType.Field(idx).Name
-			}
-			return nil, nil, errors.Newf(
-				"has-one feature '%s' in struct '%s' unexpectedly corresponds to multiple fields: %v",
-				fqnPart, currStructType.Name(), fieldNames,
-			)
-		}
-
-		currStructType = firstFieldType
-		fieldIndexChain[i] = indices[0]
-	}
-
-	return func(structValue reflect.Value) (reflect.Value, error) {
-		currValue := structValue
-		for i, fieldIndex := range fieldIndexChain {
-			innerStruct := currValue.Field(fieldIndex)
-			if fieldIsPointer[i] {
-				if innerStruct.IsNil() {
-					innerStruct.Set(reflect.New(currStructType))
-				}
-				innerStruct = innerStruct.Elem()
-			}
-			currValue = innerStruct
-		}
-		return currValue, nil
-	}, currStructType, nil
-}
-
 func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
 	var initFeatureFunc InitFeatureFunc
 	if len(fqnParts) > 2 {
@@ -218,6 +104,130 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 	return &codec, nil
 }
 
+func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *NamespaceMemosT) (InitFeatureFunc, reflect.Type, error) {
+	memo, err := allMemo.Load(structType)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
+	}
+
+	structFieldsLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
+	fieldIndexChain := make([]int, structFieldsLen)
+	fieldIsPointer := make([]bool, structFieldsLen)
+
+	currStructType := structType
+	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
+		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
+		if !ok || len(indices) == 0 {
+			// Reaching here might mean that a new feature field was
+			// not yet added to the codegen'd structs. Here we return
+			// an no-op function for back-compat.
+			return initFeatureNoOp, nil, nil
+		}
+
+		firstFieldType := currStructType.Field(indices[0]).Type
+		if firstFieldType.Kind() == reflect.Ptr {
+			fieldIsPointer[i] = true
+			firstFieldType = firstFieldType.Elem()
+		}
+
+		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
+			// Not a has-one feature
+			return nil, nil, errors.Newf(
+				"field '%s' in struct '%s' is not a has-one feature",
+				fqnPart, currStructType.Name(),
+			)
+		}
+
+		if len(indices) > 1 {
+			// A has-one feature is never versioned, hence never has multiple fields
+			fieldNames := make([]string, len(indices))
+			for j, idx := range indices {
+				fieldNames[j] = currStructType.Field(idx).Name
+			}
+			return nil, nil, errors.Newf(
+				"has-one feature '%s' in struct '%s' unexpectedly corresponds to multiple fields: %v",
+				fqnPart, currStructType.Name(), fieldNames,
+			)
+		}
+
+		currStructType = firstFieldType
+		fieldIndexChain[i] = indices[0]
+	}
+
+	return func(structValue reflect.Value) (reflect.Value, error) {
+		currValue := structValue
+		for i, fieldIndex := range fieldIndexChain {
+			innerStruct := currValue.Field(fieldIndex)
+			if fieldIsPointer[i] {
+				if innerStruct.IsNil() {
+					innerStruct.Set(reflect.New(currStructType))
+				}
+				innerStruct = innerStruct.Elem()
+			}
+			currValue = innerStruct
+		}
+		return currValue, nil
+	}, currStructType, nil
+}
+
+func generateSetMapFunc(bucket string) SetMapFunc {
+	key := reflect.ValueOf(bucket)
+	return func(mapVal reflect.Value, entryValue reflect.Value) {
+		if mapVal.IsNil() {
+			mapVal.Set(reflect.MakeMap(mapVal.Type()))
+		}
+		mapVal.SetMapIndex(key, entryValue)
+	}
+}
+
+func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *NamespaceMemosT) (func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error), error) {
+	var sliceType reflect.Type
+	isPointer := sliceReflectType.Kind() == reflect.Ptr
+	if isPointer {
+		sliceType = sliceReflectType.Elem()
+	} else {
+		sliceType = sliceReflectType
+	}
+
+	if sliceType.Kind() != reflect.Slice {
+		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
+	}
+
+	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "generating getValue function for array element")
+	}
+
+	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
+		length := endIdx - startIdx
+		newSlice := reflect.MakeSlice(sliceType, length, length)
+		newSliceIdx := 0
+		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
+			val, err := codec(arr, currIdx)
+			if err != nil {
+				return reflect.Value{}, errors.Wrapf(
+					err,
+					"building slice value for row at underlying index %d",
+					currIdx,
+				)
+			}
+			if val.IsValid() {
+				newSlice.Index(newSliceIdx).Set(val)
+			}
+			newSliceIdx += 1
+		}
+
+		if isPointer {
+			slicePtr := reflect.New(newSlice.Type())
+			slicePtr.Elem().Set(newSlice)
+			return slicePtr, nil
+		} else {
+			return newSlice, nil
+		}
+	}, nil
+
+}
+
 func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT) (GetValueFunc, error) {
 	codec, err := generateGetValueFuncInner(fieldType, arrowType, allMemo)
 	if err != nil {
@@ -229,16 +239,6 @@ func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allM
 		}
 		return codec(arr, arrIdx)
 	}, nil
-}
-
-func generateSetMapFunc(bucket string) SetMapFunc {
-	key := reflect.ValueOf(bucket)
-	return func(mapVal reflect.Value, entryValue reflect.Value) {
-		if mapVal.IsNil() {
-			mapVal.Set(reflect.MakeMap(mapVal.Type()))
-		}
-		mapVal.SetMapIndex(key, entryValue)
-	}
 }
 
 func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT) (GetValueFunc, error) {
