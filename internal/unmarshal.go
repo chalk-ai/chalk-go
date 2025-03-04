@@ -824,7 +824,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 			return nil
 		}
 		visited[typ] = true
-		if _, err := AllNamespaceMemo.Load(typ); err != nil {
+		if _, err := NamespaceMemos.Load(typ); err != nil {
 			return errors.Wrap(err, "load-or-storing memo")
 		}
 	} else if typ.Kind() == reflect.Slice {
@@ -887,7 +887,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
 	}
 
-	if err := MapTableToStructs(table, slice, AllNamespaceMemo); err != nil {
+	if err := MapTableToStructs(table, slice, NamespaceMemos, CodecMemo); err != nil {
 		return errors.Wrap(err, "mapping table to structs")
 	}
 
@@ -1438,6 +1438,7 @@ func MapTableToStructs(
 	table arrow.Table,
 	structs reflect.Value,
 	allMemo *NamespaceMemosT,
+	codecMemo *CodecMemoT,
 ) error {
 	structType := structs.Type().Elem()
 
@@ -1472,7 +1473,7 @@ func MapTableToStructs(
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
-			codec, err := CodecMemo.LoadOrStore(column.Name, func() (Codec, error) {
+			codec, err := codecMemo.LoadOrStore(column.Name, func() (Codec, error) {
 				return generateUnmarshalValueCodec(
 					// Taking the first field's type because multiple field indices for the same column
 					// means they are just versioned features, which are all the same type.
@@ -1541,7 +1542,7 @@ func MapTableToStructs(
 			innerStructType := structType.Field(rootStructFieldIdx).Type
 			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
-				codec, err := CodecMemo.LoadOrStore(column.Name, func() (Codec, error) {
+				codec, err := codecMemo.LoadOrStore(column.Name, func() (Codec, error) {
 					return generateUnmarshalValueCodec(
 						// Taking the first field's type because multiple field indices for the same column
 						// means they are just versioned features, which are all the same type.

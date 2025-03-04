@@ -6,12 +6,6 @@ import (
 	"sync"
 )
 
-type Codec func(structValue reflect.Value, arr arrow.Array, arrIdx int) error
-
-var codecNoOp = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
-	return nil
-}
-
 type Memo[V any] struct {
 	Object V
 
@@ -33,7 +27,15 @@ func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (V, error)) (V, 
 	return memo.Object, memo.err
 }
 
-var CodecMemo = &MemosT[string, Codec]{}
+type Codec func(structValue reflect.Value, arr arrow.Array, arrIdx int) error
+
+var codecNoOp = func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+	return nil
+}
+
+type CodecMemoT = MemosT[string, Codec]
+
+var CodecMemo = &CodecMemoT{}
 
 type NamespaceMemo struct {
 	// Root and non-root FQN as keys
@@ -44,7 +46,7 @@ type NamespaceMemo struct {
 
 type NamespaceMemosT MemosT[reflect.Type, NamespaceMemo]
 
-var AllNamespaceMemo = &NamespaceMemosT{}
+var NamespaceMemos = &NamespaceMemosT{}
 
 func (m *NamespaceMemosT) Load(structType reflect.Type) (NamespaceMemo, error) {
 	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (NamespaceMemo, error) {
