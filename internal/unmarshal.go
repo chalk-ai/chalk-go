@@ -172,7 +172,8 @@ type GetSliceFunc func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value
 
 func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetSliceFunc, error) {
 	var sliceType reflect.Type
-	if sliceReflectType.Kind() == reflect.Ptr {
+	isPointer := sliceReflectType.Kind() == reflect.Ptr
+	if isPointer {
 		sliceType = sliceReflectType.Elem()
 	} else {
 		sliceType = sliceReflectType
@@ -206,8 +207,10 @@ func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.Dat
 			newSliceIdx += 1
 		}
 
-		if sliceReflectType.Kind() == reflect.Ptr {
-			return ReflectPtr(newSlice), nil
+		if isPointer {
+			slicePtr := reflect.New(newSlice.Type())
+			slicePtr.Elem().Set(newSlice)
+			return slicePtr, nil
 		} else {
 			return newSlice, nil
 		}
@@ -391,7 +394,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 	case *arrow.LargeListType:
 		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
 		if err != nil {
-			return nil, errors.Wrap(err, "generating getSlice function")
+			return nil, errors.Wrap(err, "generating getSlice function for lage list")
 		}
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 			// FIXME: Check if ok everywhere to avoid panic
@@ -401,7 +404,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 	case *arrow.ListType:
 		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
 		if err != nil {
-			return nil, errors.Wrap(err, "generating getSlice function")
+			return nil, errors.Wrap(err, "generating getSlice function for list")
 		}
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 			castArr := arr.(*array.List)
@@ -424,7 +427,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			)
 		}
 
-		arrowFieldToCodec := make([]GetValueFunc, castArrType.NumFields())
+		arrowFieldToGetValueFunc := make([]GetValueFunc, castArrType.NumFields())
 		arrowFieldToSetMapFunc := make([]SetMapFunc, castArrType.NumFields())
 		arrowFieldToReflectFieldIndices := make([][]int, castArrType.NumFields())
 		for k := 0; k < castArrType.NumFields(); k++ {
@@ -462,7 +465,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 				firstFieldType = firstFieldType.Elem()
 			}
 
-			codec, err := generateGetValueFunc(firstFieldType, castArrType.Field(k).Type, allMemo)
+			getValueFunc, err := generateGetValueFunc(firstFieldType, castArrType.Field(k).Type, allMemo)
 			if err != nil {
 				return nil, errors.Wrapf(
 					err,
@@ -471,20 +474,23 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 				)
 			}
 
-			arrowFieldToCodec[k] = codec
+			arrowFieldToGetValueFunc[k] = getValueFunc
 			arrowFieldToReflectFieldIndices[k] = reflectFieldIndices
 		}
 
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 			newStructPtr := reflect.New(structType)
 			for k := 0; k < castArrType.NumFields(); k++ {
-				codec := arrowFieldToCodec[k]
-				if codec == nil {
-					continue
+				getValueFunc := arrowFieldToGetValueFunc[k]
+				if getValueFunc == nil {
+					return reflect.Value{}, errors.Newf(
+						"no get value function found for struct '%s' field: %s",
+						structType.Name(), castArrType.Field(k).Name,
+					)
 				}
 				reflectFieldIndices := arrowFieldToReflectFieldIndices[k]
 
-				value, err := codec(arr.(*array.Struct).Field(k), arrIdx)
+				value, err := getValueFunc(arr.(*array.Struct).Field(k), arrIdx)
 				if err != nil {
 					return reflect.Value{}, errors.Wrapf(
 						err,
@@ -493,14 +499,12 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 					)
 				}
 
-				setMapFunc := arrowFieldToSetMapFunc[k]
 				if value.IsValid() {
-					if setMapFunc == nil {
-						for _, fieldIdx := range reflectFieldIndices {
+					setMapFunc := arrowFieldToSetMapFunc[k]
+					for _, fieldIdx := range reflectFieldIndices {
+						if setMapFunc == nil {
 							newStructPtr.Elem().Field(fieldIdx).Set(value)
-						}
-					} else {
-						for _, fieldIdx := range reflectFieldIndices {
+						} else {
 							setMapFunc(newStructPtr.Elem().Field(fieldIdx), value)
 						}
 					}
