@@ -168,537 +168,6 @@ func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsStr
 	return newSlice, nil
 }
 
-type GetSliceFunc func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error)
-
-func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetSliceFunc, error) {
-	var sliceType reflect.Type
-	isPointer := sliceReflectType.Kind() == reflect.Ptr
-	if isPointer {
-		sliceType = sliceReflectType.Elem()
-	} else {
-		sliceType = sliceReflectType
-	}
-
-	if sliceType.Kind() != reflect.Slice {
-		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
-	}
-
-	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
-	if err != nil {
-		return nil, errors.Wrap(err, "generating getValue function for array element")
-	}
-
-	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
-		length := endIdx - startIdx
-		newSlice := reflect.MakeSlice(sliceType, length, length)
-		newSliceIdx := 0
-		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
-			val, err := codec(arr, currIdx)
-			if err != nil {
-				return reflect.Value{}, errors.Wrapf(
-					err,
-					"building slice value for row at underlying index %d",
-					currIdx,
-				)
-			}
-			if val.IsValid() {
-				newSlice.Index(newSliceIdx).Set(val)
-			}
-			newSliceIdx += 1
-		}
-
-		if isPointer {
-			slicePtr := reflect.New(newSlice.Type())
-			slicePtr.Elem().Set(newSlice)
-			return slicePtr, nil
-		} else {
-			return newSlice, nil
-		}
-	}, nil
-
-}
-
-func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *AllNamespaceMemoT) (InitFeatureFunc, reflect.Type, error) {
-	memo, ok := allMemo.Load(structType)
-	if !ok {
-		return nil, nil, errors.Newf(
-			"memo not found for struct type %s among keys: %v",
-			structType.Name(), allMemo.Keys(),
-		)
-	}
-
-	reflectFieldLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
-	fieldIndexChain := make([]int, reflectFieldLen, reflectFieldLen)
-	fieldIsPointer := make([]bool, reflectFieldLen, reflectFieldLen)
-
-	currStructType := structType
-	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
-		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
-		if !ok || len(indices) == 0 {
-			// Reaching here might mean that a new feature field was
-			// not yet added to the codegen'd structs. Here we return
-			// an no-op function for back-compat.
-			return initFeatureNoOp, nil, nil
-		}
-
-		firstFieldType := currStructType.Field(indices[0]).Type
-		if firstFieldType.Kind() == reflect.Ptr {
-			fieldIsPointer[i] = true
-			firstFieldType = firstFieldType.Elem()
-		}
-
-		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
-			// Not a has-one feature
-			return nil, nil, errors.Newf(
-				"field '%s' in struct '%s' is not a has-one feature",
-				fqnPart, currStructType.Name(),
-			)
-		}
-
-		if len(indices) > 1 {
-			// A has-one feature is never versioned, hence never has multiple fields
-			fieldNames := make([]string, len(indices))
-			for i, idx := range indices {
-				fieldNames[i] = currStructType.Field(idx).Name
-			}
-			return nil, nil, errors.Newf(
-				"has-one feature '%s' in struct '%s' unexpectedly corresponds to multiple fields: %v",
-				fqnPart, currStructType.Name(), fieldNames,
-			)
-		}
-
-		currStructType = firstFieldType
-		fieldIndexChain[i] = indices[0]
-	}
-
-	return func(structValue reflect.Value) (reflect.Value, error) {
-		currValue := structValue
-		for i, fieldIndex := range fieldIndexChain {
-			innerStruct := currValue.Field(fieldIndex)
-			if fieldIsPointer[i] {
-				if innerStruct.IsNil() {
-					innerStruct.Set(reflect.New(currStructType))
-				}
-				innerStruct = innerStruct.Elem()
-			}
-			currValue = innerStruct
-		}
-
-		return currValue, nil
-	}, currStructType, nil
-
-}
-
-func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, fqn string, fqnParts []string) (Codec, error) {
-	var initFeatureFunc InitFeatureFunc
-	if len(fqnParts) > 2 {
-		// Is has-one feature, init all structs on its path
-		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
-		if err != nil {
-			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
-		}
-		initFeatureFunc = initFunc
-		structType = leafStructType
-	}
-
-	memo, ok := allMemo.Load(structType)
-	if !ok {
-		return nil, errors.Newf(
-			"memo not found for struct type '%s', found keys: %v",
-			structType.Name(), allMemo.Keys(),
-		)
-	}
-	reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
-	if !ok || len(reflectFieldIndices) == 0 {
-		// This happens when we unmarshal new feature fields into old codegen structs
-		// We no-op here to allow for backcompat.
-		return codecNoOp, nil
-	}
-
-	fieldType := structType.Field(reflectFieldIndices[0]).Type
-
-	var setMapFunc SetMapFunc
-	if fieldType.Kind() == reflect.Map {
-		bucket, err := GetBucketFromFqn(fqn)
-		if err != nil {
-			return nil, errors.Wrapf(err, "getting bucket from field name '%s'", fqn)
-		}
-		setMapFunc = generateSetMapFunc(bucket)
-
-		// Unwrap map type to get value type
-		fieldType = fieldType.Elem()
-	}
-
-	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemo)
-	if err != nil {
-		return nil, errors.Wrap(err, "generating function to get unmarshalled value from arrow array")
-	}
-
-	return func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
-		if initFeatureFunc != nil {
-			leafStructValue, err := initFeatureFunc(structValue)
-			if err != nil {
-				return errors.Wrap(err, "initializing has-one feature")
-			}
-			structValue = leafStructValue
-		}
-		reflectValue, err := getValueFunc(arr, arrIdx)
-		if err != nil {
-			return errors.Wrap(err, "getting reflect value")
-		}
-		if reflectValue.IsValid() {
-			for _, fieldIdx := range reflectFieldIndices {
-				if fieldIdx >= structValue.NumField() {
-					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
-				}
-				field := structValue.Field(fieldIdx)
-				if setMapFunc == nil {
-					field.Set(reflectValue)
-				} else {
-					setMapFunc(field, reflectValue)
-				}
-			}
-		}
-		return nil
-
-	}, nil
-}
-
-func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
-	codec, err := generateGetValueFuncInner(fieldType, arrowType, allMemo)
-	if err != nil {
-		return nil, err
-	}
-	return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-		if arr.IsNull(arrIdx) {
-			return reflect.Value{}, nil
-		}
-		return codec(arr, arrIdx)
-	}, nil
-}
-
-type SetMapFunc func(mapVal reflect.Value, entryValue reflect.Value)
-
-func generateSetMapFunc(bucket string) SetMapFunc {
-	key := reflect.ValueOf(bucket)
-	return func(mapVal reflect.Value, entryValue reflect.Value) {
-		if mapVal.IsNil() {
-			mapVal.Set(reflect.MakeMap(mapVal.Type()))
-		}
-		mapVal.SetMapIndex(key, entryValue)
-	}
-}
-
-func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
-	switch castArrType := arrowType.(type) {
-	case *arrow.LargeListType:
-		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
-		if err != nil {
-			return nil, errors.Wrap(err, "generating getSlice function for lage list")
-		}
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			// FIXME: Check if ok everywhere to avoid panic
-			castArr := arr.(*array.LargeList)
-			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
-		}, err
-	case *arrow.ListType:
-		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
-		if err != nil {
-			return nil, errors.Wrap(err, "generating getSlice function for list")
-		}
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			castArr := arr.(*array.List)
-			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
-		}, err
-	case *arrow.StructType:
-		var structType reflect.Type
-		isPointer := fieldType.Kind() == reflect.Ptr
-		if isPointer {
-			structType = fieldType.Elem()
-		} else {
-			structType = fieldType
-		}
-
-		memo, ok := allMemo.Load(structType)
-		if !ok {
-			return nil, errors.Newf(
-				"memo not found for struct type %s, found keys: %v",
-				structType.Name(), allMemo.Keys(),
-			)
-		}
-
-		arrowFieldToGetValueFunc := make([]GetValueFunc, castArrType.NumFields())
-		arrowFieldToSetMapFunc := make([]SetMapFunc, castArrType.NumFields())
-		arrowFieldToReflectFieldIndices := make([][]int, castArrType.NumFields())
-		for k := 0; k < castArrType.NumFields(); k++ {
-			fieldName := castArrType.Field(k).Name
-			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
-			if !ok {
-				// For backcompat with old codegen'd structs, because server may
-				// return new features that are not yet in the codegen'd structs.
-				continue
-			}
-
-			if len(reflectFieldIndices) == 0 {
-				return nil, errors.Newf(
-					"no indices found for field '%s' in struct '%s'",
-					fieldName, structType.Name(),
-				)
-			}
-
-			// When we have multiple indices, it means the field is a versioned feature.
-			// Different versions all have the same type, so just use the first type.
-			firstFieldType := structType.Field(reflectFieldIndices[0]).Type
-
-			if firstFieldType.Kind() == reflect.Map {
-				bucket, err := GetBucketFromFqn(fieldName)
-				if err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"getting bucket from field name '%s'",
-						fieldName,
-					)
-				}
-				arrowFieldToSetMapFunc[k] = generateSetMapFunc(bucket)
-
-				// Unwrap the map type to get value type
-				firstFieldType = firstFieldType.Elem()
-			}
-
-			getValueFunc, err := generateGetValueFunc(firstFieldType, castArrType.Field(k).Type, allMemo)
-			if err != nil {
-				return nil, errors.Wrapf(
-					err,
-					"getting codec for struct '%s' field: %s",
-					structType.Name(), castArrType.Field(k).Name,
-				)
-			}
-
-			arrowFieldToGetValueFunc[k] = getValueFunc
-			arrowFieldToReflectFieldIndices[k] = reflectFieldIndices
-		}
-
-		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			newStructPtr := reflect.New(structType)
-			for k := 0; k < castArrType.NumFields(); k++ {
-				getValueFunc := arrowFieldToGetValueFunc[k]
-				if getValueFunc == nil {
-					return reflect.Value{}, errors.Newf(
-						"no get value function found for struct '%s' field: %s",
-						structType.Name(), castArrType.Field(k).Name,
-					)
-				}
-				reflectFieldIndices := arrowFieldToReflectFieldIndices[k]
-
-				value, err := getValueFunc(arr.(*array.Struct).Field(k), arrIdx)
-				if err != nil {
-					return reflect.Value{}, errors.Wrapf(
-						err,
-						"getting value for struct '%s' field: %s",
-						structType.Name(), castArrType.Field(k).Name,
-					)
-				}
-
-				if value.IsValid() {
-					setMapFunc := arrowFieldToSetMapFunc[k]
-					for _, fieldIdx := range reflectFieldIndices {
-						if setMapFunc == nil {
-							newStructPtr.Elem().Field(fieldIdx).Set(value)
-						} else {
-							setMapFunc(newStructPtr.Elem().Field(fieldIdx), value)
-						}
-					}
-				}
-			}
-
-			if isPointer {
-				return newStructPtr, nil
-			} else {
-				return newStructPtr.Elem(), nil
-			}
-		}, nil
-	case *arrow.StringType:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.String).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.String).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.LargeStringType:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.LargeString).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.LargeString).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Uint8Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Uint8).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Uint8).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Uint16Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Uint16).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Uint16).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Uint32Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Uint32).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Uint32).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Uint64Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Uint64).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Uint64).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Int8Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Int8).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Int8).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Int16Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Int16).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Int16).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Int32Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Int32).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Int32).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Int64Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Int64).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Int64).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Float32Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Float32).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Float32).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.Float64Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Float64).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Float64).Value(arrIdx)), nil
-			}, nil
-		}
-	case *arrow.BooleanType:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				val := arr.(*array.Boolean).Value(arrIdx)
-				return reflect.ValueOf(&val), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Boolean).Value(arrIdx)), nil
-			}, nil
-		}
-
-	case *arrow.Date32Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				timeVal := arr.(*array.Date32).Value(arrIdx).ToTime()
-				return reflect.ValueOf(&timeVal), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Date32).Value(arrIdx).ToTime()), nil
-			}, nil
-		}
-	case *arrow.Date64Type:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				timeVal := arr.(*array.Date64).Value(arrIdx).ToTime()
-				return reflect.ValueOf(&timeVal), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Date64).Value(arrIdx).ToTime()), nil
-			}, nil
-		}
-	case *arrow.TimestampType:
-		if fieldType.Kind() == reflect.Ptr {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				timeVal := arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())
-				return reflect.ValueOf(&timeVal), nil
-			}, nil
-		} else {
-			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-				return reflect.ValueOf(arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())), nil
-			}, nil
-		}
-	default:
-		return nil, errors.Newf("unsupported array type: %T", arrowType)
-	}
-}
-
 func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, error) {
 	if a.IsNull(idx) {
 		return nil, nil
@@ -788,169 +257,6 @@ type FeatureMeta struct {
 	SourceId    *string
 	ResolverFqn *string
 	Pkey        any
-}
-
-type newNamespaceMetaT struct {
-	codec           Codec
-	rootStructIndex int
-}
-
-type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
-
-func MapTableToStructs(
-	table arrow.Table,
-	structs reflect.Value,
-	allMemo *AllNamespaceMemoT,
-) error {
-	structType := structs.Type().Elem()
-
-	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
-	defer reader.Release()
-
-	_, err := Int64ToInt(table.NumRows())
-	if err != nil {
-		return errors.Wrapf(err, "table too large")
-	}
-
-	fields := table.Schema().Fields()
-	colFqnParts := make([][]string, len(fields))
-	namespaceToColIndices := map[string][]int{}
-	for i, field := range table.Schema().Fields() {
-		colFqnParts[i] = strings.Split(field.Name, ".")
-		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
-			continue
-		} else {
-			namespace := colFqnParts[i][0]
-			if _, ok := namespaceToColIndices[namespace]; !ok {
-				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
-			}
-			namespaceToColIndices[namespace] = append(namespaceToColIndices[namespace], i)
-		}
-	}
-
-	var rowOp UnmarshalRowOp
-	if len(namespaceToColIndices) == 1 {
-		// Single-namespace unmarshalling
-		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
-		colToCodec := make([]Codec, len(includedColIndices))
-		for k, colIdx := range includedColIndices {
-			column := fields[colIdx]
-			codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
-				return generateUnmarshalValueCodec(
-					// Taking the first field's type because multiple field indices for the same column
-					// means they are just versioned features, which are all the same type.
-					structType,
-					column.Type,
-					allMemo,
-					column.Name,
-					colFqnParts[colIdx],
-				)
-			})
-			if err != nil {
-				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
-			}
-
-			colToCodec[k] = codec
-		}
-
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for k, colIdx := range includedColIndices {
-				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
-					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
-				}
-			}
-			return nil
-		}
-	} else {
-		// Multi-namespace unmarshalling
-		rootMemo, ok := allMemo.Load(structType)
-		if !ok {
-			return errors.Newf(
-				"memo not found for struct type '%s' - please make sure the codegen'd file has not "+
-					"been edited. Found keys: %v",
-				structType.Name(), allMemo.Keys(),
-			)
-		}
-
-		colIdxToNamespaceMeta := make([]newNamespaceMetaT, len(fields))
-		for childNamespace, includedColIndices := range namespaceToColIndices {
-			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
-			if !ok || len(namespaceFieldIndices) == 0 {
-				return errors.Newf(
-					"Attempted multi-namespace unmarshalling - please make sure to pass in a list of structs. "+
-						"The struct should contain an inner struct that corresponds to the namespace '%s'. Found only "+
-						"inner structs for these namespaces: %v",
-					childNamespace,
-					colls.Keys(namespaceToColIndices),
-				)
-			} else if len(namespaceFieldIndices) > 1 {
-				var foundFieldNames []string
-				for _, fieldIdx := range namespaceFieldIndices {
-					foundFieldNames = append(foundFieldNames, structType.Field(fieldIdx).Name)
-				}
-				return errors.Newf(
-					"namespace '%s' corresponds to multiple fields in the struct, but only one field is allowed: %v",
-					childNamespace,
-					foundFieldNames,
-				)
-			}
-
-			rootStructFieldIdx := namespaceFieldIndices[0]
-			innerStructType := structType.Field(rootStructFieldIdx).Type
-			for _, colIdx := range includedColIndices {
-				column := fields[colIdx]
-				codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
-					return generateUnmarshalValueCodec(
-						// Taking the first field's type because multiple field indices for the same column
-						// means they are just versioned features, which are all the same type.
-						innerStructType,
-						column.Type,
-						allMemo,
-						column.Name,
-						colFqnParts[colIdx],
-					)
-				})
-				if err != nil {
-					return errors.Wrapf(err, "loading codec for column '%s'", column.Name)
-				}
-				colIdxToNamespaceMeta[colIdx] = newNamespaceMetaT{
-					codec:           codec,
-					rootStructIndex: rootStructFieldIdx,
-				}
-			}
-		}
-
-		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
-			for _, includedColIndices := range namespaceToColIndices {
-				for _, colIdx := range includedColIndices {
-					memo := colIdxToNamespaceMeta[colIdx]
-					if memo.codec == nil {
-						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
-					}
-					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
-						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
-					}
-				}
-			}
-			return nil
-		}
-	}
-
-	rowOffset := 0
-	batchIdx := 0
-	for reader.Next() {
-		record := reader.Record()
-		recordRows := int(record.NumRows())
-		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
-			structValue := structs.Index(rowOffset + rowIdx)
-			if err := rowOp(structValue, record, rowIdx); err != nil {
-				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
-			}
-		}
-		rowOffset += recordRows
-		batchIdx += 1
-	}
-	return nil
 }
 
 type InitScope struct {
@@ -1648,5 +954,694 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "mapping table to structs")
 	}
 
+	return nil
+}
+
+func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *AllNamespaceMemoT) (func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error), error) {
+	var sliceType reflect.Type
+	isPointer := sliceReflectType.Kind() == reflect.Ptr
+	if isPointer {
+		sliceType = sliceReflectType.Elem()
+	} else {
+		sliceType = sliceReflectType
+	}
+
+	if sliceType.Kind() != reflect.Slice {
+		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
+	}
+
+	codec, err := generateGetValueFunc(sliceType.Elem(), elemArrowType, allMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "generating getValue function for array element")
+	}
+
+	return func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error) {
+		length := endIdx - startIdx
+		newSlice := reflect.MakeSlice(sliceType, length, length)
+		newSliceIdx := 0
+		for currIdx := startIdx; currIdx < endIdx; currIdx++ {
+			val, err := codec(arr, currIdx)
+			if err != nil {
+				return reflect.Value{}, errors.Wrapf(
+					err,
+					"building slice value for row at underlying index %d",
+					currIdx,
+				)
+			}
+			if val.IsValid() {
+				newSlice.Index(newSliceIdx).Set(val)
+			}
+			newSliceIdx += 1
+		}
+
+		if isPointer {
+			slicePtr := reflect.New(newSlice.Type())
+			slicePtr.Elem().Set(newSlice)
+			return slicePtr, nil
+		} else {
+			return newSlice, nil
+		}
+	}, nil
+
+}
+
+func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *AllNamespaceMemoT) (InitFeatureFunc, reflect.Type, error) {
+	memo, ok := allMemo.Load(structType)
+	if !ok {
+		return nil, nil, errors.Newf(
+			"memo not found for struct type %s among keys: %v",
+			structType.Name(), allMemo.Keys(),
+		)
+	}
+
+	structFieldsLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
+	fieldIndexChain := make([]int, structFieldsLen)
+	fieldIsPointer := make([]bool, structFieldsLen)
+
+	currStructType := structType
+	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
+		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
+		if !ok || len(indices) == 0 {
+			// Reaching here might mean that a new feature field was
+			// not yet added to the codegen'd structs. Here we return
+			// an no-op function for back-compat.
+			return initFeatureNoOp, nil, nil
+		}
+
+		firstFieldType := currStructType.Field(indices[0]).Type
+		if firstFieldType.Kind() == reflect.Ptr {
+			fieldIsPointer[i] = true
+			firstFieldType = firstFieldType.Elem()
+		}
+
+		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
+			// Not a has-one feature
+			return nil, nil, errors.Newf(
+				"field '%s' in struct '%s' is not a has-one feature",
+				fqnPart, currStructType.Name(),
+			)
+		}
+
+		if len(indices) > 1 {
+			// A has-one feature is never versioned, hence never has multiple fields
+			fieldNames := make([]string, len(indices))
+			for j, idx := range indices {
+				fieldNames[j] = currStructType.Field(idx).Name
+			}
+			return nil, nil, errors.Newf(
+				"has-one feature '%s' in struct '%s' unexpectedly corresponds to multiple fields: %v",
+				fqnPart, currStructType.Name(), fieldNames,
+			)
+		}
+
+		currStructType = firstFieldType
+		fieldIndexChain[i] = indices[0]
+	}
+
+	return func(structValue reflect.Value) (reflect.Value, error) {
+		currValue := structValue
+		for i, fieldIndex := range fieldIndexChain {
+			innerStruct := currValue.Field(fieldIndex)
+			if fieldIsPointer[i] {
+				if innerStruct.IsNil() {
+					innerStruct.Set(reflect.New(currStructType))
+				}
+				innerStruct = innerStruct.Elem()
+			}
+			currValue = innerStruct
+		}
+		return currValue, nil
+	}, currStructType, nil
+}
+
+func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT, fqn string, fqnParts []string) (Codec, error) {
+	var initFeatureFunc InitFeatureFunc
+	if len(fqnParts) > 2 {
+		// Is has-one feature, init all structs on its path
+		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
+		}
+		initFeatureFunc = initFunc
+		structType = leafStructType
+	}
+
+	memo, ok := allMemo.Load(structType)
+	if !ok {
+		return nil, errors.Newf(
+			"memo not found for struct type '%s', found keys: %v",
+			structType.Name(), allMemo.Keys(),
+		)
+	}
+	reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
+	if !ok || len(reflectFieldIndices) == 0 {
+		// This happens when we unmarshal new feature fields into old codegen structs
+		// We no-op here to allow for backcompat.
+		return codecNoOp, nil
+	}
+
+	fieldType := structType.Field(reflectFieldIndices[0]).Type
+
+	var setMapFunc SetMapFunc
+	if fieldType.Kind() == reflect.Map {
+		bucket, err := GetBucketFromFqn(fqn)
+		if err != nil {
+			return nil, errors.Wrapf(err, "getting bucket from field name '%s'", fqn)
+		}
+		setMapFunc = generateSetMapFunc(bucket)
+
+		// Unwrap map type to get value type
+		fieldType = fieldType.Elem()
+	}
+
+	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemo)
+	if err != nil {
+		return nil, errors.Wrap(err, "generating function to get unmarshalled value from arrow array")
+	}
+
+	return func(structValue reflect.Value, arr arrow.Array, arrIdx int) error {
+		if initFeatureFunc != nil {
+			leafStructValue, err := initFeatureFunc(structValue)
+			if err != nil {
+				return errors.Wrap(err, "initializing has-one feature")
+			}
+			structValue = leafStructValue
+		}
+		reflectValue, err := getValueFunc(arr, arrIdx)
+		if err != nil {
+			return errors.Wrap(err, "getting reflect value")
+		}
+		if reflectValue.IsValid() {
+			for _, fieldIdx := range reflectFieldIndices {
+				if fieldIdx >= structValue.NumField() {
+					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
+				}
+				field := structValue.Field(fieldIdx)
+				if setMapFunc == nil {
+					field.Set(reflectValue)
+				} else {
+					setMapFunc(field, reflectValue)
+				}
+			}
+		}
+		return nil
+
+	}, nil
+}
+
+func generateGetValueFunc(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
+	codec, err := generateGetValueFuncInner(fieldType, arrowType, allMemo)
+	if err != nil {
+		return nil, err
+	}
+	return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+		if arr.IsNull(arrIdx) {
+			return reflect.Value{}, nil
+		}
+		return codec(arr, arrIdx)
+	}, nil
+}
+
+type SetMapFunc func(mapVal reflect.Value, entryValue reflect.Value)
+
+func generateSetMapFunc(bucket string) SetMapFunc {
+	key := reflect.ValueOf(bucket)
+	return func(mapVal reflect.Value, entryValue reflect.Value) {
+		if mapVal.IsNil() {
+			mapVal.Set(reflect.MakeMap(mapVal.Type()))
+		}
+		mapVal.SetMapIndex(key, entryValue)
+	}
+}
+
+func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType, allMemo *AllNamespaceMemoT) (GetValueFunc, error) {
+	switch castArrType := arrowType.(type) {
+	case *arrow.LargeListType:
+		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating getSlice function for lage list")
+		}
+		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+			// FIXME: Check if ok everywhere to avoid panic
+			castArr := arr.(*array.LargeList)
+			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
+		}, err
+	case *arrow.ListType:
+		getSliceFunc, err := generateGetSliceFunc(fieldType, castArrType.Elem(), allMemo)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating getSlice function for list")
+		}
+		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+			castArr := arr.(*array.List)
+			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
+		}, err
+	case *arrow.StructType:
+		var structType reflect.Type
+		isPointer := fieldType.Kind() == reflect.Ptr
+		if isPointer {
+			structType = fieldType.Elem()
+		} else {
+			structType = fieldType
+		}
+
+		memo, ok := allMemo.Load(structType)
+		if !ok {
+			return nil, errors.Newf(
+				"memo not found for struct type %s, found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		arrowFieldToGetValueFunc := make([]GetValueFunc, castArrType.NumFields())
+		arrowFieldToSetMapFunc := make([]SetMapFunc, castArrType.NumFields())
+		arrowFieldToReflectFieldIndices := make([][]int, castArrType.NumFields())
+		for k := 0; k < castArrType.NumFields(); k++ {
+			fieldName := castArrType.Field(k).Name
+			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
+			if !ok {
+				// For backcompat with old codegen'd structs, because server may
+				// return new features that are not yet in the codegen'd structs.
+				continue
+			}
+
+			if len(reflectFieldIndices) == 0 {
+				return nil, errors.Newf(
+					"no indices found for field '%s' in struct '%s'",
+					fieldName, structType.Name(),
+				)
+			}
+
+			// When we have multiple indices, it means the field is a versioned feature.
+			// Different versions all have the same type, so just use the first type.
+			firstFieldType := structType.Field(reflectFieldIndices[0]).Type
+
+			if firstFieldType.Kind() == reflect.Map {
+				bucket, err := GetBucketFromFqn(fieldName)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"getting bucket from field name '%s'",
+						fieldName,
+					)
+				}
+				arrowFieldToSetMapFunc[k] = generateSetMapFunc(bucket)
+
+				// Unwrap the map type to get value type
+				firstFieldType = firstFieldType.Elem()
+			}
+
+			getValueFunc, err := generateGetValueFunc(firstFieldType, castArrType.Field(k).Type, allMemo)
+			if err != nil {
+				return nil, errors.Wrapf(
+					err,
+					"getting codec for struct '%s' field: %s",
+					structType.Name(), castArrType.Field(k).Name,
+				)
+			}
+
+			arrowFieldToGetValueFunc[k] = getValueFunc
+			arrowFieldToReflectFieldIndices[k] = reflectFieldIndices
+		}
+
+		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+			newStructPtr := reflect.New(structType)
+			for k := 0; k < castArrType.NumFields(); k++ {
+				getValueFunc := arrowFieldToGetValueFunc[k]
+				if getValueFunc == nil {
+					return reflect.Value{}, errors.Newf(
+						"no get value function found for struct '%s' field: %s",
+						structType.Name(), castArrType.Field(k).Name,
+					)
+				}
+				reflectFieldIndices := arrowFieldToReflectFieldIndices[k]
+
+				value, err := getValueFunc(arr.(*array.Struct).Field(k), arrIdx)
+				if err != nil {
+					return reflect.Value{}, errors.Wrapf(
+						err,
+						"getting value for struct '%s' field: %s",
+						structType.Name(), castArrType.Field(k).Name,
+					)
+				}
+
+				if value.IsValid() {
+					setMapFunc := arrowFieldToSetMapFunc[k]
+					for _, fieldIdx := range reflectFieldIndices {
+						if setMapFunc == nil {
+							newStructPtr.Elem().Field(fieldIdx).Set(value)
+						} else {
+							setMapFunc(newStructPtr.Elem().Field(fieldIdx), value)
+						}
+					}
+				}
+			}
+
+			if isPointer {
+				return newStructPtr, nil
+			} else {
+				return newStructPtr.Elem(), nil
+			}
+		}, nil
+	case *arrow.StringType:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.String).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.String).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.LargeStringType:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.LargeString).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.LargeString).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Uint8Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint8).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint8).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Uint16Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint16).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint16).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Uint32Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint32).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint32).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Uint64Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Uint64).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Uint64).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Int8Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int8).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int8).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Int16Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int16).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int16).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Int32Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int32).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int32).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Int64Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Int64).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Int64).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Float32Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Float32).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Float32).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.Float64Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Float64).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Float64).Value(arrIdx)), nil
+			}, nil
+		}
+	case *arrow.BooleanType:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				val := arr.(*array.Boolean).Value(arrIdx)
+				return reflect.ValueOf(&val), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Boolean).Value(arrIdx)), nil
+			}, nil
+		}
+
+	case *arrow.Date32Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Date32).Value(arrIdx).ToTime()
+				return reflect.ValueOf(&timeVal), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Date32).Value(arrIdx).ToTime()), nil
+			}, nil
+		}
+	case *arrow.Date64Type:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Date64).Value(arrIdx).ToTime()
+				return reflect.ValueOf(&timeVal), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Date64).Value(arrIdx).ToTime()), nil
+			}, nil
+		}
+	case *arrow.TimestampType:
+		if fieldType.Kind() == reflect.Ptr {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				timeVal := arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())
+				return reflect.ValueOf(&timeVal), nil
+			}, nil
+		} else {
+			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
+				return reflect.ValueOf(arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())), nil
+			}, nil
+		}
+	default:
+		return nil, errors.Newf("unsupported array type: %T", arrowType)
+	}
+}
+
+type namespaceMeta struct {
+	codec           Codec
+	rootStructIndex int
+}
+
+type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
+
+func MapTableToStructs(
+	table arrow.Table,
+	structs reflect.Value,
+	allMemo *AllNamespaceMemoT,
+) error {
+	structType := structs.Type().Elem()
+
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+
+	_, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Wrapf(err, "table too large")
+	}
+
+	fields := table.Schema().Fields()
+	colFqnParts := make([][]string, len(fields))
+	namespaceToColIndices := map[string][]int{}
+	for i, field := range table.Schema().Fields() {
+		colFqnParts[i] = strings.Split(field.Name, ".")
+		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
+			continue
+		} else {
+			namespace := colFqnParts[i][0]
+			if _, ok := namespaceToColIndices[namespace]; !ok {
+				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
+			}
+			namespaceToColIndices[namespace] = append(namespaceToColIndices[namespace], i)
+		}
+	}
+
+	var rowOp UnmarshalRowOp
+	if len(namespaceToColIndices) == 1 {
+		// Single-namespace unmarshalling
+		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
+		colToCodec := make([]Codec, len(includedColIndices))
+		for k, colIdx := range includedColIndices {
+			column := fields[colIdx]
+			codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
+				return generateUnmarshalValueCodec(
+					// Taking the first field's type because multiple field indices for the same column
+					// means they are just versioned features, which are all the same type.
+					structType,
+					column.Type,
+					allMemo,
+					column.Name,
+					colFqnParts[colIdx],
+				)
+			})
+			if err != nil {
+				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
+			}
+
+			colToCodec[k] = codec
+		}
+
+		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+			for k, colIdx := range includedColIndices {
+				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
+					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+				}
+			}
+			return nil
+		}
+	} else {
+		// Multi-namespace unmarshalling
+		rootMemo, ok := allMemo.Load(structType)
+		if !ok {
+			return errors.Newf(
+				"memo not found for struct type '%s' - please make sure the codegen'd file has not "+
+					"been edited. Found keys: %v",
+				structType.Name(), allMemo.Keys(),
+			)
+		}
+
+		colIdxToNamespaceMeta := make([]namespaceMeta, len(fields))
+		for childNamespace, includedColIndices := range namespaceToColIndices {
+			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
+			if !ok || len(namespaceFieldIndices) == 0 {
+				return errors.Newf(
+					"Attempted multi-namespace unmarshalling - please make sure to pass in a list of structs. "+
+						"The struct should contain an inner struct that corresponds to the namespace '%s'. Found only "+
+						"inner structs for these namespaces: %v",
+					childNamespace,
+					colls.Keys(namespaceToColIndices),
+				)
+			} else if len(namespaceFieldIndices) > 1 {
+				var foundFieldNames []string
+				for _, fieldIdx := range namespaceFieldIndices {
+					foundFieldNames = append(foundFieldNames, structType.Field(fieldIdx).Name)
+				}
+				return errors.Newf(
+					"namespace '%s' corresponds to multiple fields in the struct, but only one field is allowed: %v",
+					childNamespace,
+					foundFieldNames,
+				)
+			}
+
+			rootStructFieldIdx := namespaceFieldIndices[0]
+			innerStructType := structType.Field(rootStructFieldIdx).Type
+			for _, colIdx := range includedColIndices {
+				column := fields[colIdx]
+				codec, err := AllFqnMemo.LoadCodec(column.Name, func() (Codec, error) {
+					return generateUnmarshalValueCodec(
+						// Taking the first field's type because multiple field indices for the same column
+						// means they are just versioned features, which are all the same type.
+						innerStructType,
+						column.Type,
+						allMemo,
+						column.Name,
+						colFqnParts[colIdx],
+					)
+				})
+				if err != nil {
+					return errors.Wrapf(err, "loading codec for column '%s'", column.Name)
+				}
+				colIdxToNamespaceMeta[colIdx] = namespaceMeta{
+					codec:           codec,
+					rootStructIndex: rootStructFieldIdx,
+				}
+			}
+		}
+
+		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+			for _, includedColIndices := range namespaceToColIndices {
+				for _, colIdx := range includedColIndices {
+					memo := colIdxToNamespaceMeta[colIdx]
+					if memo.codec == nil {
+						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
+					}
+					if err := memo.codec(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
+						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+					}
+				}
+			}
+			return nil
+		}
+	}
+
+	rowOffset := 0
+	batchIdx := 0
+	for reader.Next() {
+		record := reader.Record()
+		recordRows := int(record.NumRows())
+		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {
+				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+			}
+		}
+		rowOffset += recordRows
+		batchIdx += 1
+	}
 	return nil
 }
