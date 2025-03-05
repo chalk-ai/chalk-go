@@ -749,53 +749,39 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		)
 	}
 
-	slice := reflect.Indirect(slicePtr)
-	if slice.Kind() != reflect.Slice {
+	structs := reflect.Indirect(slicePtr)
+	if structs.Kind() != reflect.Slice {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got '%s' instead",
-			slice.Kind(),
+			structs.Kind(),
 		)
 	}
 
-	sliceElemType := slice.Type().Elem()
-	if sliceElemType.Kind() != reflect.Struct {
+	structType := structs.Type().Elem()
+	if structType.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got a pointer to a slice of '%s' instead",
-			sliceElemType.Kind(),
+			structType.Kind(),
 		)
 	}
 
-	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
+	codecMemo := CodecMemo
+	allMemo := NamespaceMemos
+
+	if err := PopulateAllNamespaceMemo(structType, nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 
-	if slice.Len() != numRows {
-		slice.Set(reflect.MakeSlice(slice.Type(), numRows, numRows))
+	if structs.Len() != numRows {
+		structs.Set(reflect.MakeSlice(structs.Type(), numRows, numRows))
 	}
-
-	if err := MapTableToStructs(table, slice, NamespaceMemos, CodecMemo); err != nil {
-		return errors.Wrap(err, "mapping table to structs")
-	}
-
-	return nil
-}
-
-type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
-
-func MapTableToStructs(
-	table arrow.Table,
-	structs reflect.Value,
-	allMemo *NamespaceMemosT,
-	codecMemo *CodecMemoT,
-) error {
-	structType := structs.Type().Elem()
 
 	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
-	_, err := Int64ToInt(table.NumRows())
+	_, err = Int64ToInt(table.NumRows())
 	if err != nil {
 		return errors.Wrapf(err, "table too large")
 	}
@@ -851,15 +837,6 @@ func MapTableToStructs(
 		}
 	} else {
 		// Multi-namespace unmarshalling
-		//rootMemo, ok := allMemo.LoadOrStore(structType)
-		//if !ok {
-		//	return errors.Newf(
-		//		"memo not found for struct type '%s' - please make sure the codegen'd file has not "+
-		//			"been edited. Found keys: %v",
-		//		structType.Name(), allMemo.Keys(),
-		//	)
-		//}
-
 		rootMemo, err := allMemo.LoadOrStore(structType)
 		if err != nil {
 			return errors.Wrapf(err, "loading namespace memo for struct: %s", structType.Name())
@@ -942,5 +919,8 @@ func MapTableToStructs(
 		rowOffset += recordRows
 		batchIdx += 1
 	}
+
 	return nil
 }
+
+type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error

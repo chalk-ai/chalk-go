@@ -16,7 +16,7 @@ type MemosT[K, V any] sync.Map
 func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (*V, error)) (*V, error) {
 	value, loaded := (*sync.Map)(m).Load(key)
 	if !loaded {
-		value, loaded = (*sync.Map)(m).LoadOrStore(key, &Memo[V]{})
+		value, _ = (*sync.Map)(m).LoadOrStore(key, &Memo[V]{})
 	}
 	memo := value.(*Memo[V])
 	memo.once.Do(func() {

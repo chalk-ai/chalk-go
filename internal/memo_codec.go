@@ -271,14 +271,6 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			structType = fieldType
 		}
 
-		//memo, ok := allMemo.LoadOrStore(structType)
-		//if !ok {
-		//	return nil, errors.Newf(
-		//		"memo not found for struct type %s, found keys: %v",
-		//		structType.Name(), allMemo.Keys(),
-		//	)
-		//}
-
 		memo, err := allMemo.LoadOrStore(structType)
 		if err != nil {
 			return nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
