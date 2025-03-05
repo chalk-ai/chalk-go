@@ -770,7 +770,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	codecMemo := CodecMemo
 	allMemo := NamespaceMemos
 
-	if err := PopulateAllNamespaceMemo(structType, nil); err != nil {
+	if err := PopulateNamespaceMemos(structType, nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 

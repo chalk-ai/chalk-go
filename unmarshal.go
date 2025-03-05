@@ -171,7 +171,7 @@ To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	allMemo := internal.NamespaceMemos
-	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
+	if err := internal.PopulateNamespaceMemos(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 	scope, err := internal.BuildScope(colls.Keys(fqnToValue))

@@ -72,7 +72,7 @@ func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool
 				nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
 			}
 		} else {
-			if err := PopulateAllNamespaceMemo(fm.Type, visited); err != nil {
+			if err := PopulateNamespaceMemos(fm.Type, visited); err != nil {
 				return nil, errors.Wrapf(err, "populating namespace memo for field '%s'", fm.Name)
 			}
 		}
@@ -85,8 +85,8 @@ func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool
 	return &nsMemo, nil
 }
 
-/*PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
- *  i.e. Don't need to do the same work for the same features class multiple times. Given:
+/*PopulateNamespaceMemos populates a memo for each struct to make bulk-unmarshalling and has-many unmarshalling
+* efficient. i.e. Given:
  *  type User struct {
  *      Id *string
  *      Transactions *[]Transactions `has_many:"id,user_id"`
@@ -124,13 +124,13 @@ func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool
  *          }
  *      }
  *  }
- */
-func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) error {
+*/
+func PopulateNamespaceMemos(typ reflect.Type, visited map[reflect.Type]bool) error {
 	if visited == nil {
 		visited = map[reflect.Type]bool{}
 	}
 	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Slice {
-		return PopulateAllNamespaceMemo(typ.Elem(), visited)
+		return PopulateNamespaceMemos(typ.Elem(), visited)
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		if visited[typ] {
 			return nil

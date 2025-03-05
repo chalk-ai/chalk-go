@@ -475,7 +475,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	}
 
 	rootStructs := make([]Root, 1)
-	assert.NoError(t, internal.PopulateAllNamespaceMemo(reflect.TypeOf(rootStructs), nil))
+	assert.NoError(t, internal.PopulateNamespaceMemos(reflect.TypeOf(rootStructs), nil))
 	assert.NoError(t, res.UnmarshalInto(&rootStructs))
 
 	assert.Equal(t, 1, len(rootStructs))
