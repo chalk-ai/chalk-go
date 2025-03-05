@@ -23,6 +23,8 @@ var initFeatureNoOp InitFeatureFunc = func(structValue reflect.Value) (reflect.V
 
 type GetValueFunc func(arr arrow.Array, arrIdx int) (reflect.Value, error)
 
+var getValueNoOp GetValueFunc = func(arr arrow.Array, arrIdx int) (reflect.Value, error) { return reflect.Value{}, nil }
+
 type SetMapFunc func(
 	mapVal reflect.Value,
 	entryValue reflect.Value,
@@ -309,6 +311,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			if !ok {
 				// For backcompat with old codegen'd structs, because server may
 				// return new features that are not yet in the codegen'd structs.
+				arrowFieldToGetValueFunc[k] = getValueNoOp
 				continue
 			}
 
