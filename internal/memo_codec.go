@@ -23,7 +23,12 @@ var initFeatureNoOp InitFeatureFunc = func(structValue reflect.Value) (reflect.V
 
 type GetValueFunc func(arr arrow.Array, arrIdx int) (reflect.Value, error)
 
-type SetMapFunc func(mapVal reflect.Value, entryValue reflect.Value)
+type SetMapFunc func(
+	mapVal reflect.Value,
+	entryValue reflect.Value,
+	// When entryValue is invalid, we still want to initialize the map.
+	isValid bool,
+)
 
 type namespaceMeta struct {
 	codec           *Codec
@@ -38,7 +43,17 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		if err != nil {
 			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
 		}
-		initFeatureFunc = initFunc
+
+		if initFunc == &initFeatureNoOp {
+			return &codecNoOp, nil
+		} else if initFunc == nil {
+			return nil, errors.New("internal error: nil init function")
+		}
+		initFeatureFunc = *initFunc
+
+		if leafStructType == nil {
+			return nil, errors.New("internal error: nil leaf struct type")
+		}
 		structType = leafStructType
 	}
 
@@ -91,22 +106,23 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		if err != nil {
 			return errors.Wrap(err, "getting reflect value")
 		}
-		if reflectValue.IsValid() {
-			for _, fieldIdx := range reflectFieldIndices {
-				if setMapFunc == nil {
+		if setMapFunc == nil {
+			if reflectValue.IsValid() {
+				for _, fieldIdx := range reflectFieldIndices {
 					structValue.Field(fieldIdx).Set(reflectValue)
-				} else {
-					setMapFunc(structValue.Field(fieldIdx), reflectValue)
 				}
+			}
+		} else {
+			for _, fieldIdx := range reflectFieldIndices {
+				setMapFunc(structValue.Field(fieldIdx), reflectValue, reflectValue.IsValid())
 			}
 		}
 		return nil
-
 	}
 	return &codec, nil
 }
 
-func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *NamespaceMemosT) (InitFeatureFunc, reflect.Type, error) {
+func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo *NamespaceMemosT) (*InitFeatureFunc, reflect.Type, error) {
 	memo, err := allMemo.LoadOrStore(structType)
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
@@ -123,7 +139,7 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 			// Reaching here might mean that a new feature field was
 			// not yet added to the codegen'd structs. Here we return
 			// an no-op function for back-compat.
-			return initFeatureNoOp, nil, nil
+			return &initFeatureNoOp, nil, nil
 		} else if len(indices) == 0 {
 			return nil, nil, errors.Newf(
 				"no indices found for field '%s' in struct '%s' - "+
@@ -158,7 +174,7 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 		currStructType = firstFieldType
 	}
 
-	return func(structValue reflect.Value) (reflect.Value, error) {
+	var initFeatureFunc InitFeatureFunc = func(structValue reflect.Value) (reflect.Value, error) {
 		currValue := structValue
 		for i, fieldIndex := range structFieldIndices {
 			innerStruct := currValue.Field(fieldIndex)
@@ -171,16 +187,19 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 			currValue = innerStruct
 		}
 		return currValue, nil
-	}, currStructType, nil
+	}
+	return &initFeatureFunc, currStructType, nil
 }
 
 func generateSetMapFunc(bucket string) SetMapFunc {
 	key := reflect.ValueOf(bucket)
-	return func(mapVal reflect.Value, entryVal reflect.Value) {
+	return func(mapVal reflect.Value, entryVal reflect.Value, isValid bool) {
 		if mapVal.IsNil() {
 			mapVal.Set(reflect.MakeMap(mapVal.Type()))
 		}
-		mapVal.SetMapIndex(key, entryVal)
+		if isValid {
+			mapVal.SetMapIndex(key, entryVal)
+		}
 	}
 }
 
@@ -354,14 +373,16 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 					)
 				}
 
-				if value.IsValid() {
-					setMapFunc := arrowFieldToSetMapFunc[k]
-					for _, fieldIdx := range reflectFieldIndices {
-						if setMapFunc == nil {
+				setMapFunc := arrowFieldToSetMapFunc[k]
+				if setMapFunc == nil {
+					if value.IsValid() {
+						for _, fieldIdx := range reflectFieldIndices {
 							newStructPtr.Elem().Field(fieldIdx).Set(value)
-						} else {
-							setMapFunc(newStructPtr.Elem().Field(fieldIdx), value)
 						}
+					}
+				} else {
+					for _, fieldIdx := range reflectFieldIndices {
+						setMapFunc(newStructPtr.Elem().Field(fieldIdx), value, value.IsValid())
 					}
 				}
 			}

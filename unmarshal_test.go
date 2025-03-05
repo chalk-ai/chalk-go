@@ -448,6 +448,48 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 	assert.NotNil(t, user.AvgSpend) // We intentionally want this to not be nil
 }
 
+func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
+	type Account struct {
+		Id            *string
+		UnmarshalUser unmarshalUSER
+	}
+	type Root struct {
+		Account       Account
+		UnmarshalUser unmarshalUSER
+	}
+
+	bulkData := make(map[string]any)
+	bulkData["unmarshal_user.id"] = []string{"abc"}
+	bulkData["unmarshal_user.avg_spend__60__"] = []*float64{nil}
+	bulkData["unmarshal_user.avg_spend__300__"] = []*float64{nil}
+	bulkData["unmarshal_user.avg_spend__3600__"] = []*float64{nil}
+	bulkData["account.unmarshal_user.id"] = []string{"abc"}
+	bulkData["account.unmarshal_user.avg_spend__60__"] = []*float64{nil}
+
+	record, err := internal.ColumnMapToRecord(bulkData)
+	assert.NoError(t, err)
+
+	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
+	res := OnlineQueryBulkResult{
+		ScalarsTable: table,
+	}
+
+	rootStructs := make([]Root, 1)
+	assert.NoError(t, internal.PopulateAllNamespaceMemo(reflect.TypeOf(rootStructs), nil))
+	assert.NoError(t, res.UnmarshalInto(&rootStructs))
+
+	assert.Equal(t, 1, len(rootStructs))
+	assert.Equal(t, "abc", *rootStructs[0].UnmarshalUser.Id)
+	assert.NotNil(t, rootStructs[0].UnmarshalUser.AvgSpend)
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1m"])
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["5m"])
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1h"])
+
+	assert.Equal(t, "abc", *rootStructs[0].Account.UnmarshalUser.Id)
+	assert.NotNil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend)
+	assert.Nil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend["1m"])
+}
+
 func TestUnmarshalDataclassFeatures(t *testing.T) {
 	data := []FeatureResult{
 		{

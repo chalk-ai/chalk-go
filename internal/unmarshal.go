@@ -846,14 +846,21 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		colIdxToNamespaceMeta := make([]namespaceMeta, len(fields))
 		for childNamespace, includedColIndices := range namespaceToColIndices {
 			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
-			if !ok || len(namespaceFieldIndices) == 0 {
+			if !ok {
 				return errors.Newf(
 					"Attempted multi-namespace unmarshalling - please make sure to pass in a list of structs. "+
-						"The struct should contain an inner struct that corresponds to the namespace '%s'. Found only "+
-						"inner structs for these namespaces: %v",
+						"The struct should contain an inner struct field that corresponds to the namespace '%s'. "+
+						"Found only these fields: %v",
 					childNamespace,
-					colls.Keys(namespaceToColIndices),
+					colls.Keys(rootMemo.ResolvedFieldNameToIndices),
 				)
+			} else if len(namespaceFieldIndices) == 0 {
+				return errors.Newf(
+					"memo indicates namespace '%s' does correspond to any field - "+
+						"this indicates an internal error building the memo",
+					childNamespace,
+				)
+
 			} else if len(namespaceFieldIndices) > 1 {
 				var foundFieldNames []string
 				for _, fieldIdx := range namespaceFieldIndices {
@@ -868,6 +875,18 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 			rootStructFieldIdx := namespaceFieldIndices[0]
 			innerStructType := structType.Field(rootStructFieldIdx).Type
+
+			if innerStructType.Kind() != reflect.Struct {
+				return errors.Newf(
+					"field '%s' in struct '%s' is not a struct. Please make it a struct that corresponds to "+
+						"the namespace '%s'. Found type: %s",
+					structType.Field(rootStructFieldIdx).Name,
+					structType.Name(),
+					childNamespace,
+					innerStructType.Kind().String(),
+				)
+			}
+
 			for _, colIdx := range includedColIndices {
 				column := fields[colIdx]
 				codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
