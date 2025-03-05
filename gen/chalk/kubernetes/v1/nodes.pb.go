@@ -4,6 +4,8 @@
 // 	protoc        (unknown)
 // source: chalk/kubernetes/v1/nodes.proto
 
+//
+
 package kubernetesv1
 
 import (
