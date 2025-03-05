@@ -23,7 +23,7 @@ func TestOnlineQueryBulk(t *testing.T) {
 	}
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithOutputs(testFeatures.User.SocureScore, testFeatures.User.Today)
 
 	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
@@ -35,10 +35,11 @@ func TestOnlineQueryBulk(t *testing.T) {
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0
-	assert.Equal(t, *users[0].Id, userIds[0])
-	assert.Equal(t, *users[0].SocureScore, socureScore)
-	assert.Equal(t, *users[1].Id, userIds[1])
-	assert.Equal(t, *users[1].SocureScore, socureScore)
+	assert.Equal(t, userIds[0], *users[0].Id)
+	assert.Equal(t, socureScore, *users[0].SocureScore)
+	assert.Equal(t, userIds[1], *users[1].Id)
+	assert.Equal(t, socureScore, *users[1].SocureScore)
+	assert.NotNil(t, users[0].Today)
 }
 
 // TestOnlineQueryBulkGrpcNative mainly tests that a
@@ -57,7 +58,7 @@ func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 	}
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore)
+		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore, testFeatures.User.Today)
 
 	res, queryErr := client.OnlineQueryBulk(context.Background(), req)
 	if queryErr != nil {
@@ -70,11 +71,12 @@ func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 
 	socureScore := 123.0
 	assert.NotNil(t, users[0].Id)
-	assert.Equal(t, *users[0].Id, userIds[0])
+	assert.Equal(t, userIds[0], *users[0].Id)
 	assert.NotNil(t, users[0].SocureScore)
-	assert.Equal(t, *users[0].SocureScore, socureScore)
+	assert.Equal(t, socureScore, *users[0].SocureScore)
 	assert.NotNil(t, users[1].Id)
-	assert.Equal(t, *users[1].Id, userIds[1])
+	assert.Equal(t, userIds[1], *users[1].Id)
 	assert.NotNil(t, users[1].SocureScore)
-	assert.Equal(t, *users[1].SocureScore, socureScore)
+	assert.Equal(t, socureScore, *users[1].SocureScore)
+	assert.NotNil(t, users[0].Today)
 }
