@@ -30,11 +30,11 @@ type namespaceMeta struct {
 	rootStructIndex int
 }
 
-func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemo *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
+func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataType, allMemos *NamespaceMemosT, fqn string, fqnParts []string) (*Codec, error) {
 	var initFeatureFunc InitFeatureFunc
 	if len(fqnParts) > 2 {
 		// Is has-one feature, init all structs on its path
-		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemo)
+		initFunc, leafStructType, err := generateInitFeatureFunc(fqnParts, structType, allMemos)
 		if err != nil {
 			return nil, errors.Wrap(err, "generating function to initialize has-one feature")
 		}
@@ -42,16 +42,22 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		structType = leafStructType
 	}
 
-	memo, err := allMemo.LoadOrStore(structType)
+	memo, err := allMemos.LoadOrStore(structType)
 	if err != nil {
 		return nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 	}
 
 	reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fqnParts[len(fqnParts)-1]]
-	if !ok || len(reflectFieldIndices) == 0 {
+	if !ok {
 		// This happens when we unmarshal new feature fields into old codegen structs
 		// We no-op here to allow for backcompat.
 		return &codecNoOp, nil
+	} else if len(reflectFieldIndices) == 0 {
+		return nil, errors.Newf(
+			"no indices found for field '%s' in struct '%s' - "+
+				"this indicates an internal error building memos",
+			fqn, structType.Name(),
+		)
 	}
 
 	fieldType := structType.Field(reflectFieldIndices[0]).Type
@@ -68,7 +74,7 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		fieldType = fieldType.Elem()
 	}
 
-	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemo)
+	getValueFunc, err := generateGetValueFunc(fieldType, arrowType, allMemos)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating function to get unmarshalled value from arrow array")
 	}
@@ -87,14 +93,10 @@ func generateUnmarshalValueCodec(structType reflect.Type, arrowType arrow.DataTy
 		}
 		if reflectValue.IsValid() {
 			for _, fieldIdx := range reflectFieldIndices {
-				if fieldIdx >= structValue.NumField() {
-					return errors.Newf("field index %d out of range for struct '%s'", fieldIdx, structValue.Type())
-				}
-				field := structValue.Field(fieldIdx)
 				if setMapFunc == nil {
-					field.Set(reflectValue)
+					structValue.Field(fieldIdx).Set(reflectValue)
 				} else {
-					setMapFunc(field, reflectValue)
+					setMapFunc(structValue.Field(fieldIdx), reflectValue)
 				}
 			}
 		}
@@ -110,35 +112,25 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 		return nil, nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 	}
 
-	structFieldsLen := len(fqnParts) - 2 // first is namespace, last is a scalar feature
-	fieldIndexChain := make([]int, structFieldsLen)
-	fieldIsPointer := make([]bool, structFieldsLen)
+	structFieldsLen := len(fqnParts) - 2 // first is root namespace, last is a scalar feature
 
+	structFieldIndices := make([]int, structFieldsLen)
+	structFieldIsPointer := make([]bool, structFieldsLen)
 	currStructType := structType
 	for i, fqnPart := range fqnParts[1 : len(fqnParts)-1] { // first is namespace, last is a scalar feature
 		indices, ok := memo.ResolvedFieldNameToIndices[fqnPart]
-		if !ok || len(indices) == 0 {
+		if !ok {
 			// Reaching here might mean that a new feature field was
 			// not yet added to the codegen'd structs. Here we return
 			// an no-op function for back-compat.
 			return initFeatureNoOp, nil, nil
-		}
-
-		firstFieldType := currStructType.Field(indices[0]).Type
-		if firstFieldType.Kind() == reflect.Ptr {
-			fieldIsPointer[i] = true
-			firstFieldType = firstFieldType.Elem()
-		}
-
-		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
-			// Not a has-one feature
+		} else if len(indices) == 0 {
 			return nil, nil, errors.Newf(
-				"field '%s' in struct '%s' is not a has-one feature",
+				"no indices found for field '%s' in struct '%s' - "+
+					"this indicates an internal error building memos",
 				fqnPart, currStructType.Name(),
 			)
-		}
-
-		if len(indices) > 1 {
+		} else if len(indices) > 1 {
 			// A has-one feature is never versioned, hence never has multiple fields
 			fieldNames := make([]string, len(indices))
 			for j, idx := range indices {
@@ -149,16 +141,28 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 				fqnPart, currStructType.Name(), fieldNames,
 			)
 		}
+		structFieldIndices[i] = indices[0]
 
+		firstFieldType := currStructType.Field(indices[0]).Type
+		if firstFieldType.Kind() == reflect.Ptr {
+			structFieldIsPointer[i] = true
+			firstFieldType = firstFieldType.Elem()
+		}
+		if !(IsStruct(firstFieldType) && !IsTypeDataclass(firstFieldType)) {
+			// Not a has-one feature
+			return nil, nil, errors.Newf(
+				"field '%s' in struct '%s' is not a has-one feature",
+				fqnPart, currStructType.Name(),
+			)
+		}
 		currStructType = firstFieldType
-		fieldIndexChain[i] = indices[0]
 	}
 
 	return func(structValue reflect.Value) (reflect.Value, error) {
 		currValue := structValue
-		for i, fieldIndex := range fieldIndexChain {
+		for i, fieldIndex := range structFieldIndices {
 			innerStruct := currValue.Field(fieldIndex)
-			if fieldIsPointer[i] {
+			if structFieldIsPointer[i] {
 				if innerStruct.IsNil() {
 					innerStruct.Set(reflect.New(currStructType))
 				}
@@ -172,23 +176,23 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 
 func generateSetMapFunc(bucket string) SetMapFunc {
 	key := reflect.ValueOf(bucket)
-	return func(mapVal reflect.Value, entryValue reflect.Value) {
+	return func(mapVal reflect.Value, entryVal reflect.Value) {
 		if mapVal.IsNil() {
 			mapVal.Set(reflect.MakeMap(mapVal.Type()))
 		}
-		mapVal.SetMapIndex(key, entryValue)
+		mapVal.SetMapIndex(key, entryVal)
 	}
 }
 
 func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *NamespaceMemosT) (func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error), error) {
-	var sliceType reflect.Type
 	isPointer := sliceReflectType.Kind() == reflect.Ptr
+
+	var sliceType reflect.Type
 	if isPointer {
 		sliceType = sliceReflectType.Elem()
 	} else {
 		sliceType = sliceReflectType
 	}
-
 	if sliceType.Kind() != reflect.Slice {
 		return nil, errors.New("sliceReflectType must be a slice type, found: " + sliceType.Kind().String())
 	}
@@ -249,7 +253,6 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			return nil, errors.Wrap(err, "generating getSlice function for lage list")
 		}
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
-			// FIXME: Check if ok everywhere to avoid panic
 			castArr := arr.(*array.LargeList)
 			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
 		}, err
@@ -263,8 +266,9 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
 		}, err
 	case *arrow.StructType:
-		var structType reflect.Type
 		isPointer := fieldType.Kind() == reflect.Ptr
+
+		var structType reflect.Type
 		if isPointer {
 			structType = fieldType.Elem()
 		} else {
@@ -276,10 +280,11 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			return nil, errors.Wrapf(err, "loading namespace memo for struct '%s'", structType.Name())
 		}
 
-		arrowFieldToGetValueFunc := make([]GetValueFunc, castArrType.NumFields())
-		arrowFieldToSetMapFunc := make([]SetMapFunc, castArrType.NumFields())
-		arrowFieldToReflectFieldIndices := make([][]int, castArrType.NumFields())
-		for k := 0; k < castArrType.NumFields(); k++ {
+		numFields := castArrType.NumFields()
+		arrowFieldToGetValueFunc := make([]GetValueFunc, numFields)
+		arrowFieldToSetMapFunc := make([]SetMapFunc, numFields)
+		arrowFieldToReflectFieldIndices := make([][]int, numFields)
+		for k := 0; k < numFields; k++ {
 			fieldName := castArrType.Field(k).Name
 			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
 			if !ok {
@@ -290,7 +295,8 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 
 			if len(reflectFieldIndices) == 0 {
 				return nil, errors.Newf(
-					"no indices found for field '%s' in struct '%s'",
+					"no indices found for field '%s' in struct '%s' - "+
+						"this indicates an internal error building memos",
 					fieldName, structType.Name(),
 				)
 			}
@@ -329,7 +335,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 			newStructPtr := reflect.New(structType)
-			for k := 0; k < castArrType.NumFields(); k++ {
+			for k := 0; k < numFields; k++ {
 				getValueFunc := arrowFieldToGetValueFunc[k]
 				if getValueFunc == nil {
 					return reflect.Value{}, errors.Newf(

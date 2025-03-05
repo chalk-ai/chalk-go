@@ -8,9 +8,9 @@ import (
 )
 
 type NamespaceMemo struct {
-	// Root and non-root FQN as keys
+	// Rooted and non-rooted FQN as keys
 	ResolvedFieldNameToIndices map[string][]int
-	// Non-root FQN as keys only
+	// Non-rooted FQN as keys only
 	StructFieldsSet map[string]bool
 }
 
@@ -20,11 +20,11 @@ var NamespaceMemos = &NamespaceMemosT{}
 
 func (m *NamespaceMemosT) LoadOrStore(structType reflect.Type) (*NamespaceMemo, error) {
 	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (*NamespaceMemo, error) {
-		return generateNamespaceMemo(structType, nil)
+		return populateNamespaceMemoStruct(structType, nil)
 	})
 }
 
-func generateNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) (*NamespaceMemo, error) {
+func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool) (*NamespaceMemo, error) {
 	structName := typ.Name()
 	namespace := ChalkpySnakeCase(structName)
 	nsMemo := NamespaceMemo{
@@ -120,7 +120,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 	if visited == nil {
 		visited = map[reflect.Type]bool{}
 	}
-	if typ.Kind() == reflect.Ptr {
+	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Slice {
 		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
 		if visited[typ] {
@@ -130,8 +130,6 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 		if _, err := NamespaceMemos.LoadOrStore(typ); err != nil {
 			return errors.Wrap(err, "load-or-storing memo")
 		}
-	} else if typ.Kind() == reflect.Slice {
-		return PopulateAllNamespaceMemo(typ.Elem(), visited)
 	}
 	return nil
 }

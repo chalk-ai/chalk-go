@@ -293,7 +293,6 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
-	//
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
@@ -527,7 +526,7 @@ func BenchmarkUnmarshalBulkSingleNsPrimitivesSingle(b *testing.B) {
 
 /*
  * Query: Bulk
- * Namespaces: Single®
+ * Namespaces: Single
  * Feature Type: Primitives
  * Protocol: REST
  * Run Type: Parallel

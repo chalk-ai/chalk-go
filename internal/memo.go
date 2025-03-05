@@ -5,10 +5,9 @@ import (
 )
 
 type Memo[V any] struct {
-	Object *V
-
-	once sync.Once
-	err  error
+	object *V
+	err    error
+	once   sync.Once
 }
 
 type MemosT[K, V any] sync.Map
@@ -20,7 +19,7 @@ func (m *MemosT[K, V]) LoadOrStore(key K, generateObject func() (*V, error)) (*V
 	}
 	memo := value.(*Memo[V])
 	memo.once.Do(func() {
-		memo.Object, memo.err = generateObject()
+		memo.object, memo.err = generateObject()
 	})
-	return memo.Object, memo.err
+	return memo.object, memo.err
 }
