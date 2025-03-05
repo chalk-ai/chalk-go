@@ -802,7 +802,8 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		}
 	}
 
-	var rowOp UnmarshalRowOp
+	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
+
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
 		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
@@ -922,5 +923,3 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 	return nil
 }
-
-type UnmarshalRowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
