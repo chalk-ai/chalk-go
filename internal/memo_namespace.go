@@ -24,7 +24,16 @@ func (m *NamespaceMemosT) LoadOrStore(structType reflect.Type) (*NamespaceMemo, 
 	})
 }
 
+func (m *NamespaceMemosT) LoadOrStoreWithVisited(structType reflect.Type, visited map[reflect.Type]bool) (*NamespaceMemo, error) {
+	return (*MemosT[reflect.Type, NamespaceMemo])(m).LoadOrStore(structType, func() (*NamespaceMemo, error) {
+		return populateNamespaceMemoStruct(structType, visited)
+	})
+}
+
 func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool) (*NamespaceMemo, error) {
+	if visited == nil {
+		visited = map[reflect.Type]bool{}
+	}
 	structName := typ.Name()
 	namespace := ChalkpySnakeCase(structName)
 	nsMemo := NamespaceMemo{
@@ -127,7 +136,7 @@ func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) e
 			return nil
 		}
 		visited[typ] = true
-		if _, err := NamespaceMemos.LoadOrStore(typ); err != nil {
+		if _, err := NamespaceMemos.LoadOrStoreWithVisited(typ, visited); err != nil {
 			return errors.Wrap(err, "load-or-storing memo")
 		}
 	}
