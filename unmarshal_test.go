@@ -1227,7 +1227,7 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 	lng := 122.4194
 	extra := "extra"
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.Dataclass: []*fixtures.LatLngWithExtraField{
+		fixtures.Root.AllTypes.DataclassWithExtraField: []*fixtures.LatLngWithExtraField{
 			{
 				Lat:   &lat,
 				Lng:   &lng,
@@ -1249,8 +1249,8 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, 1, len(resultHolders))
-	assert.Equal(t, lat, *resultHolders[0].Dataclass.Lat)
-	assert.Equal(t, lng, *resultHolders[0].Dataclass.Lng)
+	assert.Equal(t, lat, *resultHolders[0].DataclassWithExtraField.Lat)
+	assert.Equal(t, lng, *resultHolders[0].DataclassWithExtraField.Lng)
 }
 
 func TestBulkUnmarshalExtraFeatures(t *testing.T) {

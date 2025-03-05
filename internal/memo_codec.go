@@ -367,6 +367,12 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 				}
 				reflectFieldIndices := arrowFieldToReflectFieldIndices[k]
 
+				if k >= arr.(*array.Struct).NumField() {
+					return reflect.Value{}, errors.Newf(
+						"field index %d out of bounds for struct '%s'",
+						k, structType.Name(),
+					)
+				}
 				value, err := getValueFunc(arr.(*array.Struct).Field(k), arrIdx)
 				if err != nil {
 					return reflect.Value{}, errors.Wrapf(
