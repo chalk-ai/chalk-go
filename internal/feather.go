@@ -40,7 +40,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 		return nil, recordErr
 	}
 	defer record.Release()
-	return recordToBytes(record)
+	return RecordToBytes(record)
 }
 func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, error) {
 	if visitedNamespaces == nil {
@@ -542,7 +542,7 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 	return nil
 }
 
-func recordToBytes(record arrow.Record) ([]byte, error) {
+func RecordToBytes(record arrow.Record) ([]byte, error) {
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
 	if err != nil {

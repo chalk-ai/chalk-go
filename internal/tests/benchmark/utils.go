@@ -6,6 +6,20 @@ import (
 	"time"
 )
 
+func benchmarkWithClose(b *testing.B, benchmarkFunc func(), closeFunc func()) {
+	b.Helper()
+	defer closeFunc()
+	benchmark(b, benchmarkFunc)
+	b.StopTimer()
+}
+
+func benchmarkParallelWithClose(b *testing.B, benchmarkFunc func(), closeFunc func()) {
+	b.Helper()
+	defer closeFunc()
+	benchmarkParallel(b, benchmarkFunc)
+	b.StopTimer()
+}
+
 func benchmark(b *testing.B, benchmarkFunc func()) {
 	b.Helper()
 	b.ResetTimer()
