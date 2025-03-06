@@ -150,7 +150,8 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 		if err != nil {
 			return errors.Wrapf(
 				err,
-				"loading namespace memo for struct '%s' of field '%s'", field.Type().Name(), fieldMeta.Name,
+				"loading memo for struct '%s' of field '%s'",
+				field.Type().Name(), fieldMeta.Name,
 			)
 		}
 		if err := internal.ThinUnmarshalInto(
