@@ -18,7 +18,6 @@ import (
 )
 
 type mockQueryServer struct {
-	// Add any fields needed to control mock behavior
 	queryBulkResponse *connect.Response[commonv1.OnlineQueryBulkResponse]
 }
 
