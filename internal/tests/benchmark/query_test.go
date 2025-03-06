@@ -13,22 +13,25 @@ import (
 	"time"
 )
 
-func getBenchmarkQueryBulkLoneMultiNsPrimitives(b *testing.B) (benchFunc func(), closeFunc func()) {
+func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), closeFunc func()) {
 	type root struct {
-		StringFeatures    fixtures.StringFeatures
-		IntFeatures       fixtures.IntFeatures
-		FloatFeatures     fixtures.FloatFeatures
-		BoolFeatures      fixtures.BoolFeatures
-		TimestampFeatures fixtures.TimestampFeatures
+		IntFeatures       fixtures.WindowedIntFeatures
+		FloatFeatures     fixtures.WindowedFloatFeatures
+		BoolFeatures      fixtures.WindowedBoolFeatures
+		StringFeatures    fixtures.WindowedStringFeatures
+		TimestampFeatures fixtures.WindowedTimestampFeatures
 	}
 
 	bulkData := make(map[string]any)
-	for j := 1; j <= 40; j++ {
-		bulkData[fmt.Sprintf("string_features.string_%d", j)] = []string{fmt.Sprintf("string_val_%d", j)}
-		bulkData[fmt.Sprintf("int_features.int_%d", j)] = []int64{int64(j)}
-		bulkData[fmt.Sprintf("float_features.float_%d", j)] = []float64{float64(j)}
-		bulkData[fmt.Sprintf("bool_features.bool_%d", j)] = []bool{j%2 == 0}
-		bulkData[fmt.Sprintf("timestamp_features.timestamp_%d", j)] = []time.Time{time.Date(2021, 1, 1, 0, j, 0, 0, time.UTC)}
+	windows := []int{60, 300, 3600}
+	for i := 1; i <= 13; i++ {
+		for _, window := range windows {
+			bulkData[fmt.Sprintf("windowed_int_features.int_%d__%d__", i, window)] = []int64{122}
+			bulkData[fmt.Sprintf("windowed_float_features.float_%d__%d__", i, window)] = []float64{1.234}
+			bulkData[fmt.Sprintf("windowed_bool_features.bool_%d__%d__", i, window)] = []bool{true}
+			bulkData[fmt.Sprintf("windowed_string_features.string_%d__%d__", i, window)] = []string{"string_val"}
+			bulkData[fmt.Sprintf("windowed_timestamp_features.timestamp_%d__%d__", i, window)] = []time.Time{time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC)}
+		}
 	}
 
 	record, err := internal.ColumnMapToRecord(bulkData)
@@ -51,16 +54,16 @@ func getBenchmarkQueryBulkLoneMultiNsPrimitives(b *testing.B) (benchFunc func(),
 		var results root
 		assert.NoError(b, res.UnmarshalInto(&results))
 		assertOnce.Do(func() {
-			assert.Equal(b, "string_val_1", *results.StringFeatures.String1)
-			assert.Equal(b, "string_val_40", *results.StringFeatures.String40)
-			assert.Equal(b, int64(1), *results.IntFeatures.Int1)
-			assert.Equal(b, int64(40), *results.IntFeatures.Int40)
-			assert.Equal(b, float64(1), *results.FloatFeatures.Float1)
-			assert.Equal(b, float64(40), *results.FloatFeatures.Float40)
-			assert.Equal(b, false, *results.BoolFeatures.Bool1)
-			assert.Equal(b, true, *results.BoolFeatures.Bool40)
-			assert.Equal(b, time.Date(2021, 1, 1, 0, 1, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp1)
-			assert.Equal(b, time.Date(2021, 1, 1, 0, 40, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp40)
+			assert.Equal(b, int64(122), *results.IntFeatures.Int1["1m"])
+			assert.Equal(b, int64(122), *results.IntFeatures.Int13["1h"])
+			assert.Equal(b, float64(1.234), *results.FloatFeatures.Float1["1m"])
+			assert.Equal(b, float64(1.234), *results.FloatFeatures.Float13["1h"])
+			assert.Equal(b, "string_val", *results.StringFeatures.String1["1m"])
+			assert.Equal(b, "string_val", *results.StringFeatures.String13["1h"])
+			assert.True(b, *results.BoolFeatures.Bool1["1m"])
+			assert.True(b, *results.BoolFeatures.Bool13["1h"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp1["1m"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp13["1h"])
 		})
 	}, tf.Close
 }
@@ -68,23 +71,23 @@ func getBenchmarkQueryBulkLoneMultiNsPrimitives(b *testing.B) (benchFunc func(),
 /*
  * Query: Bulk (single row)
  * Namespaces: Multi
- * Feature Type: Primitives
+ * Feature Type: Windowed
  * Protocol: REST
  * Run Type: Single
  */
-func BenchmarkQueryBulkLoneMultiNsPrimitives(b *testing.B) {
-	benchFunc, closeFunc := getBenchmarkQueryBulkLoneMultiNsPrimitives(b)
+func BenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) {
+	benchFunc, closeFunc := getBenchmarkQueryBulkLoneMultiNsWindowed(b)
 	benchmarkWithClose(b, benchFunc, closeFunc)
 }
 
 /*
  * Query: Bulk (single row)
  * Namespaces: Multi
- * Feature Type: Primitives
+ * Feature Type: Windowed
  * Protocol: REST
  * Run Type: Parallel
  */
-func BenchmarkQueryBulkLoneMultiNsPrimitivesParallel(b *testing.B) {
-	benchFunc, closeFunc := getBenchmarkQueryBulkLoneMultiNsPrimitives(b)
+func BenchmarkQueryBulkLoneMultiNsWindowedParallel(b *testing.B) {
+	benchFunc, closeFunc := getBenchmarkQueryBulkLoneMultiNsWindowed(b)
 	benchmarkParallelWithClose(b, benchFunc, closeFunc)
 }
