@@ -51,7 +51,7 @@ func verifyUpdateAggregateResults(t *testing.T, distinctProofIds []int64, client
 		Features.Proof.MeanTheoremLines["30d"],
 		Features.Proof.MeanTheoremLines["90d"],
 	)
-	bulkRes, err := client.OnlineQueryBulk(queryParams)
+	bulkRes, err := client.OnlineQueryBulk(context.Background(), queryParams)
 	assert.NoError(t, err)
 	var proofResults []Proof
 	assert.NoError(t, bulkRes.UnmarshalInto(&proofResults))
@@ -106,7 +106,7 @@ func TestGrpcUpdateAggregates(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	assert.NoError(t, chalk.InitFeatures(&Features))
-	client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -122,7 +122,7 @@ func TestGrpcUpdateAggregates(t *testing.T) {
 	theoremIds := getRandomInts(len(proofIds))
 	now := time.Now().UTC()
 	params := getUpdateAggregateParams(proofIds, theoremIds, now)
-	_, err = client.UpdateAggregates(params)
+	_, err = client.UpdateAggregates(context.Background(), params)
 	assert.NoError(t, err)
 	// Query aggregation results
 	verifyUpdateAggregateResults(t, distinctProofIds, client)
@@ -134,7 +134,7 @@ func TestGrpcUpdateAggregatesNative(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	assert.NoError(t, chalk.InitFeatures(&Features))
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -153,7 +153,7 @@ func TestGrpcUpdateAggregatesNative(t *testing.T) {
 	_, err = client.UpdateAggregates(context.Background(), params)
 	assert.NoError(t, err)
 
-	restClient, err := chalk.NewClient()
+	restClient, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a REST client", err)
 	}

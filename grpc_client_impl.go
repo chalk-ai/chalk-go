@@ -33,7 +33,7 @@ type grpcClientImpl struct {
 	queryClient enginev1connect.QueryServiceClient
 }
 
-func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
+func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	var cfg *GRPCClientConfig
 	if len(configs) == 0 {
 		cfg = &GRPCClientConfig{}
@@ -71,12 +71,12 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 		connect.WithInterceptors(authInterceptors...),
 	)
 
-	config.getToken = func(clientId string, clientSecret string) (*getTokenResult, error) {
-		return getToken(clientId, clientSecret, config.logger, authClient)
+	config.getToken = func(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error) {
+		return getToken(ctx, clientId, clientSecret, config.logger, authClient)
 	}
 
 	// Necessary to get GRPC engines URL
-	if err := config.refresh(false); err != nil {
+	if err := config.refresh(ctx, false); err != nil {
 		return nil, errors.Wrap(err, "fetching initial config")
 	}
 
@@ -139,7 +139,7 @@ func newGrpcClient(configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
 	}, nil
 }
 
-func getToken(clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
+func getToken(ctx context.Context, clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
 	logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
 		&serverv1.GetTokenRequest{
@@ -149,7 +149,7 @@ func getToken(clientId string, clientSecret string, logger LeveledLogger, client
 		},
 	)
 
-	token, err := client.GetToken(context.Background(), authRequest)
+	token, err := client.GetToken(ctx, authRequest)
 	if err != nil {
 		logger.Debugf("Failed to get a new token: %s", err.Error())
 		return nil, err
@@ -231,8 +231,8 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	return res.Msg, err
 }
 
-func (c *grpcClientImpl) GetToken() (*TokenResult, error) {
-	res, err := c.config.getToken(c.config.clientId.Value, c.config.clientSecret.Value)
+func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
+	res, err := c.config.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
 	if err != nil {
 		return nil, err
 	}

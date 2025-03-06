@@ -39,12 +39,16 @@ const (
 	// QueriesServiceListQueryErrorsProcedure is the fully-qualified name of the QueriesService's
 	// ListQueryErrors RPC.
 	QueriesServiceListQueryErrorsProcedure = "/chalk.server.v1.QueriesService/ListQueryErrors"
+	// QueriesServiceGetQueryErrorsChartProcedure is the fully-qualified name of the QueriesService's
+	// GetQueryErrorsChart RPC.
+	QueriesServiceGetQueryErrorsChartProcedure = "/chalk.server.v1.QueriesService/GetQueryErrorsChart"
 )
 
 // QueriesServiceClient is a client for the chalk.server.v1.QueriesService service.
 type QueriesServiceClient interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
 	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
+	GetQueryErrorsChart(context.Context, *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error)
 }
 
 // NewQueriesServiceClient constructs a client for the chalk.server.v1.QueriesService service. By
@@ -70,6 +74,12 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(queriesServiceMethods.ByName("ListQueryErrors")),
 			connect.WithClientOptions(opts...),
 		),
+		getQueryErrorsChart: connect.NewClient[v1.GetQueryErrorsChartRequest, v1.GetQueryErrorsChartResponse](
+			httpClient,
+			baseURL+QueriesServiceGetQueryErrorsChartProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("GetQueryErrorsChart")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -77,6 +87,7 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type queriesServiceClient struct {
 	getQueryPerformanceSummary *connect.Client[v1.GetQueryPerformanceSummaryRequest, v1.GetQueryPerformanceSummaryResponse]
 	listQueryErrors            *connect.Client[v1.ListQueryErrorsRequest, v1.ListQueryErrorsResponse]
+	getQueryErrorsChart        *connect.Client[v1.GetQueryErrorsChartRequest, v1.GetQueryErrorsChartResponse]
 }
 
 // GetQueryPerformanceSummary calls chalk.server.v1.QueriesService.GetQueryPerformanceSummary.
@@ -89,10 +100,16 @@ func (c *queriesServiceClient) ListQueryErrors(ctx context.Context, req *connect
 	return c.listQueryErrors.CallUnary(ctx, req)
 }
 
+// GetQueryErrorsChart calls chalk.server.v1.QueriesService.GetQueryErrorsChart.
+func (c *queriesServiceClient) GetQueryErrorsChart(ctx context.Context, req *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error) {
+	return c.getQueryErrorsChart.CallUnary(ctx, req)
+}
+
 // QueriesServiceHandler is an implementation of the chalk.server.v1.QueriesService service.
 type QueriesServiceHandler interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
 	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
+	GetQueryErrorsChart(context.Context, *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error)
 }
 
 // NewQueriesServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -114,12 +131,20 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 		connect.WithSchema(queriesServiceMethods.ByName("ListQueryErrors")),
 		connect.WithHandlerOptions(opts...),
 	)
+	queriesServiceGetQueryErrorsChartHandler := connect.NewUnaryHandler(
+		QueriesServiceGetQueryErrorsChartProcedure,
+		svc.GetQueryErrorsChart,
+		connect.WithSchema(queriesServiceMethods.ByName("GetQueryErrorsChart")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.QueriesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueriesServiceGetQueryPerformanceSummaryProcedure:
 			queriesServiceGetQueryPerformanceSummaryHandler.ServeHTTP(w, r)
 		case QueriesServiceListQueryErrorsProcedure:
 			queriesServiceListQueryErrorsHandler.ServeHTTP(w, r)
+		case QueriesServiceGetQueryErrorsChartProcedure:
+			queriesServiceGetQueryErrorsChartHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -135,4 +160,8 @@ func (UnimplementedQueriesServiceHandler) GetQueryPerformanceSummary(context.Con
 
 func (UnimplementedQueriesServiceHandler) ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListQueryErrors is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) GetQueryErrorsChart(context.Context, *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetQueryErrorsChart is not implemented"))
 }

@@ -22,12 +22,6 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		outputs = []string{}
 	}
 
-	context := internal.OnlineQueryContext{
-		Environment:          internal.StringOrNil(p.EnvironmentId),
-		Tags:                 p.Tags,
-		RequiredResolverTags: p.RequiredResolverTags,
-	}
-
 	var now *string
 	if len(p.Now) > 1 {
 		return nil, fmt.Errorf(
@@ -48,24 +42,16 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		convertedInputs[fqn] = convertedValues
 	}
 
-	var encodingOptions internal.FeatureEncodingOptions
-	if p.EncodingOptions == nil {
-		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: false,
-		}
-	} else {
-		encodingOptions = internal.FeatureEncodingOptions{
-			EncodeStructsAsObjects: p.EncodingOptions.EncodeStructsAsObjects,
-		}
-	}
-
 	return &internal.OnlineQueryRequestSerialized{
-		Inputs:           convertedInputs,
-		Outputs:          outputs,
-		Context:          context,
+		Inputs:  convertedInputs,
+		Outputs: outputs,
+		Context: internal.OnlineQueryContext{
+			Environment:          internal.StringOrNil(p.EnvironmentId),
+			Tags:                 p.Tags,
+			RequiredResolverTags: p.RequiredResolverTags,
+		},
 		Staleness:        serializeStaleness(p.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
-		IncludeMetrics:   p.IncludeMetrics,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
@@ -75,8 +61,14 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 		StorePlanStages:  p.StorePlanStages,
 		Now:              now,
 		Explain:          p.Explain,
-		EncodingOptions:  encodingOptions,
-		PlannerOptions:   p.PlannerOptions,
+		EncodingOptions: internal.FeatureEncodingOptions{
+			// To ensure backcompat with codegen'd structs.
+			// See https://github.com/chalk-ai/chalk-go/pull/159
+			// And also makes unmarshalling easier. This is
+			// unspecifiable by the user.
+			EncodeStructsAsObjects: true,
+		},
+		PlannerOptions: p.PlannerOptions,
 	}, nil
 }
 
@@ -89,13 +81,13 @@ func serializeStaleness(staleness map[string]time.Duration) map[string]string {
 }
 
 func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
-	var timeObj time.Time
+	var timeObj *time.Time
 	if feature.Timestamp != "" {
 		parsed, err := time.Parse(time.RFC3339, feature.Timestamp)
 		if err != nil {
 			return FeatureResult{}, err
 		}
-		timeObj = parsed
+		timeObj = &parsed
 	}
 
 	var dError *ServerError = nil
@@ -310,9 +302,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
-	}
-	if params.IncludeMetrics {
-		options["include_metrics"] = structpb.NewBoolValue(params.IncludeMetrics)
 	}
 	for k, v := range params.PlannerOptions {
 		protoVal, err := structpb.NewValue(v)

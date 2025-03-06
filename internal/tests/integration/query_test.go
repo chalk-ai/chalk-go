@@ -73,7 +73,7 @@ func TestOnlineQueryE2E(t *testing.T) {
 				},
 			}
 
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -83,7 +83,7 @@ func TestOnlineQueryE2E(t *testing.T) {
 			}
 
 			var implicitUser user
-			res, queryErr := client.OnlineQuery(getParams(), &implicitUser)
+			res, queryErr := client.OnlineQuery(context.Background(), getParams(), &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
@@ -108,7 +108,7 @@ func TestNamedQueriesE2E(t *testing.T) {
 		{useGrpc: true},
 	} {
 		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -122,7 +122,7 @@ func TestNamedQueriesE2E(t *testing.T) {
 				WithInput("user.id", 1).
 				WithQueryName("user_socure_score")
 
-			_, queryErr := client.OnlineQuery(params, &implicitUser)
+			_, queryErr := client.OnlineQuery(context.Background(), params, &implicitUser)
 			if queryErr != nil {
 				t.Fatal("Failed querying features", queryErr)
 			}
@@ -142,7 +142,7 @@ func TestNamedQueriesE2E(t *testing.T) {
 func TestGRPCOnlineQueryE2E(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewGRPCClient()
+	client, err := chalk.NewGRPCClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -182,7 +182,7 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				t.Fatal("Failed initializing features", err)
 			}
 
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -206,7 +206,7 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				WithOutputs(testFeatures.User.FullName).
 				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
-			_, err = client.OnlineQueryBulk(req)
+			_, err = client.OnlineQueryBulk(context.Background(), req)
 			assert.NoError(t, err)
 		})
 	}
@@ -231,7 +231,7 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 			if fixture.useGrpc {
 				t.Skip("CHA-4780")
 			}
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc})
 			if err != nil {
 				t.Fatal("Failed creating a Chalk Client", err)
 			}
@@ -258,7 +258,7 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 				WithOutputs(testFeatures.User.FullName).
 				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
 
-			_, err = client.OnlineQuery(req, nil)
+			_, err = client.OnlineQuery(context.Background(), req, nil)
 			assert.NoError(t, err)
 		})
 	}
@@ -293,7 +293,7 @@ func TestCustomCerts(t *testing.T) {
 				},
 			}
 
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc, HTTPClient: &httpClient})
 			if fixture.shouldFail {
 				assert.Error(t, err)
 				return
@@ -301,7 +301,7 @@ func TestCustomCerts(t *testing.T) {
 				assert.NoError(t, err)
 			}
 			var userObj user
-			_, queryErr := client.OnlineQuery(getParams(), &userObj)
+			_, queryErr := client.OnlineQuery(context.Background(), getParams(), &userObj)
 			assert.NoError(t, queryErr)
 		})
 	}

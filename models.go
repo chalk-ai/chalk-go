@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -24,9 +25,6 @@ type OnlineQueryParams struct {
 
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
-
-	// If true, returns performance metrics about the query execution in the response.
-	IncludeMetrics bool
 
 	// The environment under which to run the resolvers. API tokens can be scoped to an
 	// environment. If no environment is specified in the query, but the token supports
@@ -79,9 +77,6 @@ type OnlineQueryParams struct {
 	// slower than requests using `explain=False`. If `true`, `IncludeMeta` will be set
 	// to `true` as well.
 	Explain bool
-
-	// EncodingOptions is used to specify how features should be encoded in the response.
-	EncodingOptions *FeatureEncodingOptions
 
 	// ResourceGroup specifies the resource group to route this query to. Takes precedence
 	// over the resource group specified on the client level.
@@ -177,9 +172,6 @@ type OnlineQueryResult struct {
 
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
-
-	// Used to validate result holder expected outputs are not nil.
-	expectedOutputs []string
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
@@ -229,9 +221,7 @@ type FeatureResult struct {
 
 	// The time at which this feature was computed.
 	// This value could be significantly in the past if you're using caching.
-	// <<< NOTE >>> This value is nullable, and if it is null, it will be set
-	// to the zero value of `time.Time`.
-	Timestamp time.Time
+	Timestamp *time.Time
 
 	// Detailed information about how this feature was computed.
 	Meta *FeatureResolutionMeta
@@ -255,10 +245,14 @@ type FeatureResult struct {
 //
 //	func printUserDetails(chalkClient chalk.Client) {
 //		user := User{}
-//		chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			 Features.User.Family.Size,
-//			 Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), &user)
+//		chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    &user,
+//		)
 //
 //		fmt.Println("User family size: ", *user.Family.Size)
 //		fmt.Println("User Socure score: ", *user.SocureScore)
@@ -267,10 +261,14 @@ type FeatureResult struct {
 // Equivalent explicit usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQuery(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, 1), nil)
+//		result, _ := chalkClient.OnlineQuery(
+//		    context.Background(),
+//		    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, 1),
+//		    nil
+//		)
 //
 //		user := User{}
 //		result.UnmarshalInto(&user)
@@ -382,10 +380,14 @@ type OnlineQueryBulkResult struct {
 // Usage example:
 //
 //	func printUserDetails(chalkClient chalk.Client) {
-//		result, _ := chalkClient.OnlineQueryBulk(chalk.OnlineQueryParams{}.WithOutputs(
-//			Features.User.Family.Size,
-//			Features.User.SocureScore
-//		).WithInput(Features.User.Id, []int{1, 2}), nil)
+//		result, _ := chalkClient.OnlineQueryBulk(
+//	  	    context.Background(),
+//	  	    chalk.OnlineQueryParams{}.WithOutputs(
+//			    Features.User.Family.Size,
+//			    Features.User.SocureScore
+//		    ).WithInput(Features.User.Id, []int{1, 2}),
+//		    nil,
+//		)
 //
 //		var users []User
 //		result.UnmarshalInto(&users)
@@ -396,7 +398,7 @@ type OnlineQueryBulkResult struct {
 //
 // To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 func (r *OnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	return unmarshalTableInto(r.ScalarsTable, resultHolders)
+	return internal.UnmarshalTableInto(r.ScalarsTable, resultHolders)
 }
 
 // UploadFeaturesParams defines the parameters
@@ -650,12 +652,12 @@ type DatasetRevision struct {
 // Datasets are stored in Chalk as sharded Parquet files. With this
 // method, you can download those raw files into a directory for processing
 // with other tools.
-func (d *DatasetRevision) DownloadData(directory string) error {
-	urls, getUrlsErr := d.client.getDatasetUrls(d.RevisionId, "")
+func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
+	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId, "")
 	if getUrlsErr != nil {
 		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
-	g, _ := errgroup.WithContext(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	for _, url := range urls {
 		// Capture the loop variables in the closure.
 		u := url
@@ -782,12 +784,6 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
-}
-
-type FeatureEncodingOptions struct {
-	// If true, Chalk will return structs as objects
-	// instead of arrays in the response.
-	EncodeStructsAsObjects bool `json:"encode_structs_as_objects"`
 }
 
 type QueryContextValue interface {

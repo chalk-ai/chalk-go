@@ -8,6 +8,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
@@ -21,7 +22,7 @@ import (
 var initErr error
 
 func init() {
-	initErr = InitFeatures(&testRootFeatures)
+	initErr = InitFeatures(&fixtures.Root)
 }
 
 type unmarshalTransaction struct {
@@ -247,12 +248,11 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
-	features := allTypes{}
+	features := fixtures.AllTypes{}
 	unmarshalErr := result.UnmarshalInto(&features)
 	if unmarshalErr != nil {
 		t.Fatal(unmarshalErr)
@@ -332,7 +332,7 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 			Field:     "unmarshal_user.grade",
 			Value:     1,
 			Pkey:      "khjdsfjhdksjfh",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
@@ -340,16 +340,15 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 			Field:     "unmarshal_user.grade@2",
 			Value:     2,
 			Pkey:      "kjhsdfkjkdjfk",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -368,7 +367,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__60__",
 			Value:     60.0,
 			Pkey:      "khjdsfjhdksjfh",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
@@ -376,7 +375,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__300__",
 			Value:     300.0,
 			Pkey:      "kjhsdfkjkdjfk",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
@@ -384,16 +383,15 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__3600__",
 			Value:     3600.0,
 			Pkey:      "kjhsdfkjkdjfk",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -412,7 +410,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__60__",
 			Value:     nil,
 			Pkey:      "khjdsfjhdksjfh",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
@@ -420,7 +418,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__300__",
 			Value:     nil,
 			Pkey:      "kjhsdfkjkdjfk",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
@@ -428,16 +426,15 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 			Field:     "unmarshal_user.avg_spend__3600__",
 			Value:     nil,
 			Pkey:      "kjhsdfkjkdjfk",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -457,16 +454,15 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 			Field:     "unmarshal_user.lat_lng",
 			Value:     []any{1.0, 2.0},
 			Pkey:      "khjdsfjhdksjfh",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -485,16 +481,15 @@ func TestUnmarshalWrongType(t *testing.T) {
 			Field:     fqn,
 			Value:     "1",
 			Pkey:      "abc",
-			Timestamp: time.Time{},
+			Timestamp: nil,
 			Meta:      nil,
 			Error:     nil,
 		},
 	}
 	result := OnlineQueryResult{
-		Data:            data,
-		Meta:            nil,
-		features:        nil,
-		expectedOutputs: nil,
+		Data:     data,
+		Meta:     nil,
+		features: nil,
 	}
 	user := unmarshalUSER{}
 	unmarshalErr := result.UnmarshalInto(&user)
@@ -513,11 +508,11 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.String: []string{"abc", "def"},
-		testRootFeatures.AllTypes.Float:  []float64{1.0, 2.0},
-		testRootFeatures.AllTypes.Bool:   []bool{true, false},
-		testRootFeatures.AllTypes.Int:    []int{1, 2},
-		testRootFeatures.AllTypes.Timestamp: []time.Time{
+		fixtures.Root.AllTypes.String: []string{"abc", "def"},
+		fixtures.Root.AllTypes.Float:  []float64{1.0, 2.0},
+		fixtures.Root.AllTypes.Bool:   []bool{true, false},
+		fixtures.Root.AllTypes.Int:    []int{1, 2},
+		fixtures.Root.AllTypes.Timestamp: []time.Time{
 			time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
 			time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC),
 		},
@@ -530,7 +525,7 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -561,7 +556,7 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	lat2 := 47.6062
 	lng2 := 122.3321
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.Dataclass: []*testLatLng{
+		fixtures.Root.AllTypes.Dataclass: []*fixtures.LatLng{
 			{
 				Lat: &lat,
 				Lng: &lng,
@@ -581,16 +576,16 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
 
 	assert.Equal(t, 3, len(resultHolders))
-	assert.Equal(t, testLatLng{&lat, &lng}, *resultHolders[0].Dataclass)
+	assert.Equal(t, fixtures.LatLng{Lat: &lat, Lng: &lng}, *resultHolders[0].Dataclass)
 	assert.Nil(t, resultHolders[1].Dataclass)
-	assert.Equal(t, testLatLng{&lat2, &lng2}, *resultHolders[2].Dataclass)
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2, Lng: &lng2}, *resultHolders[2].Dataclass)
 }
 
 // TestUnmarshalQueryBulkOptionalDataclassNested
@@ -598,12 +593,12 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.DataclassWithDataclass: []*child{
+		fixtures.Root.AllTypes.DataclassWithDataclass: []*fixtures.Child{
 			{
 				Name: ptr.Ptr("Alice"),
-				Mom: &parent{
+				Mom: &fixtures.Parent{
 					Name: ptr.Ptr("Alice's Mom"),
-					Dad: &grandparent{
+					Dad: &fixtures.Grandparent{
 						Name: ptr.Ptr("Alice's Grandpa"),
 					},
 				},
@@ -618,7 +613,7 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -633,10 +628,10 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
-	assert.Nil(t, InitFeatures(&testRootFeatures))
+	assert.Nil(t, InitFeatures(&fixtures.Root))
 	name := "abc"
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.DataclassWithOverrides: []dclassWithOverrides{
+		fixtures.Root.AllTypes.DataclassWithOverrides: []fixtures.DclassWithOverrides{
 			{
 				CamelName: &name,
 			},
@@ -650,7 +645,7 @@ func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -673,7 +668,7 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	lng2b := 74.0060
 
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.DataclassList: [][]testLatLng{
+		fixtures.Root.AllTypes.DataclassList: [][]fixtures.LatLng{
 			{
 				{
 					Lat: &lat1a,
@@ -704,7 +699,7 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -712,18 +707,18 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 
 	assert.Equal(t, 2, len(resultHolders))
 	assert.Equal(t, 2, len(*resultHolders[0].DataclassList))
-	assert.Equal(t, testLatLng{&lat1a, &lng1a}, (*resultHolders[0].DataclassList)[0])
-	assert.Equal(t, testLatLng{&lat1b, &lng1b}, (*resultHolders[0].DataclassList)[1])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat1a, Lng: &lng1a}, (*resultHolders[0].DataclassList)[0])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat1b, Lng: &lng1b}, (*resultHolders[0].DataclassList)[1])
 	assert.Equal(t, 2, len(*resultHolders[1].DataclassList))
-	assert.Equal(t, testLatLng{&lat2a, &lng2a}, (*resultHolders[1].DataclassList)[0])
-	assert.Equal(t, testLatLng{&lat2b, &lng2b}, (*resultHolders[1].DataclassList)[1])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2a, Lng: &lng2a}, (*resultHolders[1].DataclassList)[0])
+	assert.Equal(t, fixtures.LatLng{Lat: &lat2b, Lng: &lng2b}, (*resultHolders[1].DataclassList)[1])
 }
 
 func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.NestedIntList: [][][]int64{
+		fixtures.Root.AllTypes.NestedIntList: [][][]int64{
 			{
 				{1, 2},
 				nil,
@@ -739,7 +734,7 @@ func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -756,7 +751,7 @@ func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				{3, 4},
@@ -775,7 +770,7 @@ func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -794,7 +789,7 @@ func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				{3, 4},
@@ -814,7 +809,7 @@ func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -834,7 +829,7 @@ func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				nil,
@@ -850,7 +845,7 @@ func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -867,7 +862,7 @@ func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.DataclassWithList: []*favoriteThings{
+		fixtures.Root.AllTypes.DataclassWithList: []*fixtures.FavoriteThings{
 			{
 				Numbers: &[]int64{1, 2},
 				Words:   &[]string{"abc", "def"},
@@ -886,7 +881,7 @@ func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -912,7 +907,7 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	t.Parallel()
 	assert.Nil(t, initErr)
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.DataclassWithNils: []possessions{
+		fixtures.Root.AllTypes.DataclassWithNils: []fixtures.Possessions{
 			{
 				Car:   ptr.Ptr("Toyota"),
 				Yacht: nil,
@@ -933,7 +928,7 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -972,7 +967,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
 	}
@@ -1036,7 +1031,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 			}
 			defer bulkRes.Release()
 
-			resultHolders := make([]allTypes, 0)
+			resultHolders := make([]fixtures.AllTypes, 0)
 			if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 				t.Fatal(err)
 			}
@@ -1143,12 +1138,11 @@ func TestSingleUnmarshalIntoExtraFields(t *testing.T) {
 	} {
 		t.Run(fixture.name, func(t *testing.T) {
 			result := OnlineQueryResult{
-				Data:            fixture.data,
-				Meta:            nil,
-				features:        nil,
-				expectedOutputs: nil,
+				Data:     fixture.data,
+				Meta:     nil,
+				features: nil,
 			}
-			featureStruct := allTypes{}
+			featureStruct := fixtures.AllTypes{}
 			unmarshalErr := result.UnmarshalInto(&featureStruct)
 			if fixture.shouldErr {
 				assert.NotNil(t, unmarshalErr)
@@ -1170,7 +1164,7 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 	lng := 122.4194
 	extra := "extra"
 	scalarsMap := map[any]any{
-		testRootFeatures.AllTypes.Dataclass: []*testLatLngWithExtraField{
+		fixtures.Root.AllTypes.Dataclass: []*fixtures.LatLngWithExtraField{
 			{
 				Lat:   &lat,
 				Lng:   &lng,
@@ -1186,7 +1180,7 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -1214,7 +1208,7 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	}
 	defer bulkRes.Release()
 
-	resultHolders := make([]allTypes, 0)
+	resultHolders := make([]fixtures.AllTypes, 0)
 
 	if err := bulkRes.UnmarshalInto(&resultHolders); err != nil {
 		t.Fatal(err)
@@ -1240,7 +1234,7 @@ func TestBulkUnmarshalExtraFeaturesInHasOne(t *testing.T) {
 		ScalarsTable: scalarsTable,
 	}
 	defer bulkRes.Release()
-	var resultHolders []allTypes
+	var resultHolders []fixtures.AllTypes
 	assert.NoError(t, bulkRes.UnmarshalInto(&resultHolders))
 	assert.Equal(t, 1, len(resultHolders))
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
@@ -1257,10 +1251,10 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	assert.Nil(t, initErr)
 	scalarsMap := map[string]any{
 		"all_types.int": []int64{int64(12345)}, // This field exists
-		"all_types.has_many": [][]levelOneNest{
+		"all_types.has_many": [][]fixtures.LevelOneNest{
 			{
-				levelOneNest{
-					// Using `levelOneNest` instead of `hasMany` because this
+				fixtures.LevelOneNest{
+					// Using `fixtures.LevelOneNest` instead of `fixtures.HasMany` because this
 					// would be the equivalent of having an unknown extra field to
 					// deserialize. Otherwise, we can't use another struct with
 					// the same fields plus one extra, because the struct name
@@ -1281,7 +1275,7 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 		ScalarsTable: scalarsTable,
 	}
 	defer bulkRes.Release()
-	var resultHolders []allTypes
+	var resultHolders []fixtures.AllTypes
 	assert.NoError(t, bulkRes.UnmarshalInto(&resultHolders))
 	assert.Equal(t, 1, len(resultHolders))
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
@@ -1307,11 +1301,6 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 
 func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	t.Parallel()
-	var rootFeatures struct {
-		Transaction *unmarshalTransaction
-		User        *unmarshalUSER
-		LatLng      *unmarshalLatLNG
-	}
 
 	var wg sync.WaitGroup
 	const numConcurrentTests = 10
@@ -1319,12 +1308,52 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	for i := 0; i < numConcurrentTests; i++ {
 		go func() {
 			defer wg.Done()
+			var rootFeatures struct {
+				// The more fields here, the more reliably we can catch the race condition
+				// For multi-namespace unmarshals.
+				Transaction               *unmarshalTransaction
+				User                      *unmarshalUSER
+				LatLng                    *unmarshalLatLNG
+				StringFeatures            *fixtures.StringFeatures
+				FloatFeatures             *fixtures.FloatFeatures
+				IntFeatures               *fixtures.IntFeatures
+				BoolFeatures              *fixtures.BoolFeatures
+				TimestampFeatures         *fixtures.TimestampFeatures
+				WindowedBoolFeatures      *fixtures.WindowedBoolFeatures
+				WindowedIntFeatures       *fixtures.WindowedIntFeatures
+				WindowedFloatFeatures     *fixtures.WindowedFloatFeatures
+				WindowedStringFeatures    *fixtures.WindowedStringFeatures
+				WindowedTimestampFeatures *fixtures.WindowedTimestampFeatures
+			}
+
 			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
-			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
+
+			// Check in reverse order of fields to more reliably catch race condition
+			_, ok := internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedTimestampFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedStringFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.WindowedBoolFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.TimestampFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.BoolFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.IntFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.FloatFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(fixtures.StringFeatures{}))
+			assert.True(t, ok)
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
 			assert.True(t, ok)
 			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalUSER{}))
 			assert.True(t, ok)
-			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalLatLNG{}))
+			_, ok = internal.AllNamespaceMemo.Load(reflect.TypeOf(unmarshalTransaction{}))
 			assert.True(t, ok)
 		}()
 	}
@@ -1409,7 +1438,7 @@ func TestUnmarshalConcurrently(t *testing.T) {
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
-					queryRes.UnmarshalInto(&allTypes{})
+					queryRes.UnmarshalInto(&fixtures.AllTypes{})
 				}()
 			}
 			wg.Wait()

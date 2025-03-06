@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
@@ -40,9 +41,12 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	}
 
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -71,7 +75,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
 
@@ -116,9 +120,12 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 func TestParamsSetInOnlineQuery(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -163,12 +170,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		Now:                  now,
 		Explain:              true,
 		IncludeMeta:          true,
-		IncludeMetrics:       true,
 		QueryContext:         queryContext,
-		EncodingOptions: &chalk.FeatureEncodingOptions{
-			EncodeStructsAsObjects: true,
-		},
-		PlannerOptions: plannerOption,
+		PlannerOptions:       plannerOption,
 	}.
 		WithInput(testFeatures.User.Id, "1").
 		WithOutputs(testFeatures.User.SocureScore)
@@ -177,7 +180,7 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	var request internal.OnlineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Context.Tags)
@@ -196,7 +199,6 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.Equal(t, meta, request.Meta)
 	assert.True(t, request.Explain)
 	assert.True(t, request.IncludeMeta)
-	assert.True(t, request.IncludeMetrics)
 	assert.True(t, request.EncodingOptions.EncodeStructsAsObjects)
 	assert.NotNil(t, request.QueryContext)
 	assert.Equal(t, &map[string]any{"key": "value"}, request.QueryContext)
@@ -208,9 +210,12 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 func TestParamsSetInOfflineQuery(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -227,7 +232,7 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, []any{int64(1)}).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OfflineQuery(req)
+	_, _ = client.OfflineQuery(context.Background(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Tags)

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"net/url"
@@ -15,9 +16,12 @@ func TestHeadersSetOnlineQueryBulk(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -32,7 +36,7 @@ func TestHeadersSetOnlineQueryBulk(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQueryBulk(req)
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
@@ -45,9 +49,11 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -63,7 +69,7 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 	}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
@@ -76,9 +82,12 @@ func TestVersionHeaderSetOfflineQuery(t *testing.T) {
 	//       being performed.
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient: httpClient,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient: httpClient,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -90,7 +99,7 @@ func TestVersionHeaderSetOfflineQuery(t *testing.T) {
 	req := chalk.OfflineQueryParams{}.
 		WithInput(testFeatures.User.Id, userIds).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OfflineQuery(req)
+	_, _ = client.OfflineQuery(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 }
 
@@ -103,10 +112,13 @@ func TestQueryServerOverride(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	httpClient := NewInterceptorHTTPClient()
 	queryServer := "https://my-bogus-server.ai"
-	client, err := chalk.NewClient(&chalk.ClientConfig{
-		HTTPClient:  httpClient,
-		QueryServer: queryServer,
-	})
+	client, err := chalk.NewClient(
+		context.Background(),
+		&chalk.ClientConfig{
+			HTTPClient:  httpClient,
+			QueryServer: queryServer,
+		},
+	)
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -117,7 +129,7 @@ func TestQueryServerOverride(t *testing.T) {
 	req := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.SocureScore)
-	_, _ = client.OnlineQuery(req, nil)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	parsed, err := url.Parse(queryServer)
 	assert.Nil(t, err)
 	assert.Equal(t, httpClient.Intercepted.URL.Host, parsed.Host)

@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -26,13 +27,15 @@ func init() {
 		return
 	}
 
-	restClient, err := chalk.NewClient()
+	ctx := context.Background()
+
+	restClient, err := chalk.NewClient(ctx)
 	if err != nil {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "rest", client: restClient})
 
-	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	grpcClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +65,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
 
 			var resultSeries series
-			res, err := client.OnlineQuery(params, &resultSeries)
+			res, err := client.OnlineQuery(context.Background(), params, &resultSeries)
 			assert.NoError(t, err)
 			assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
 			assert.Equal(t, "amylase", *(*resultSeries.Investors)[0].Id)
@@ -110,7 +113,7 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 				}.
 					WithInput("user.id", 1).
 					WithOutputs("user.socure_score")
-				_, err := client.OnlineQuery(params, nil)
+				_, err := client.OnlineQuery(context.Background(), params, nil)
 				if optionFixture.isValid {
 					assert.NoError(t, err)
 				} else {
@@ -134,7 +137,7 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 				}.
 					WithInput("user.id", []int{1}).
 					WithOutputs("user.socure_score")
-				_, err := client.OnlineQueryBulk(params)
+				_, err := client.OnlineQueryBulk(context.Background(), params)
 				if optionFixture.isValid {
 					assert.NoError(t, err)
 				} else {
@@ -161,7 +164,7 @@ func TestTimeout(t *testing.T) {
 
 	for _, useGrpc := range []bool{true, false} {
 		for _, timeoutFixture := range timeouts {
-			client, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
 				t.Parallel()
 				if timeoutFixture.shouldFail {
@@ -173,7 +176,7 @@ func TestTimeout(t *testing.T) {
 						WithOutputs("user.socure_score")
 					assert.NoError(t, err)
 					myUser := user{}
-					_, err := client.OnlineQuery(params, &myUser)
+					_, err := client.OnlineQuery(context.Background(), params, &myUser)
 					assert.NoError(t, err)
 					assert.NotNil(t, myUser.SocureScore)
 					assert.Equal(t, 123.0, *myUser.SocureScore)

@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -9,31 +10,31 @@ import (
 func TestOfflineQueryParamsAllTypes(t *testing.T) {
 	// Tests that all types of input, output, and required output parameters can be passed
 	// without error.
-	initErr := InitFeatures(&testRootFeatures)
+	initErr := InitFeatures(&fixtures.Root)
 	assert.Nil(t, initErr)
 	params := OfflineQueryParams{}.
-		WithInput(testRootFeatures.AllTypes.String, []any{1}).
+		WithInput(fixtures.Root.AllTypes.String, []any{1}).
 		WithOutputs(
 			"all_types.string",
-			testRootFeatures.AllTypes.Bool,
-			testRootFeatures.AllTypes.Float,
-			testRootFeatures.AllTypes.String,
-			testRootFeatures.AllTypes.Int,
-			testRootFeatures.AllTypes.Timestamp,
-			testRootFeatures.AllTypes.IntList,
+			fixtures.Root.AllTypes.Bool,
+			fixtures.Root.AllTypes.Float,
+			fixtures.Root.AllTypes.String,
+			fixtures.Root.AllTypes.Int,
+			fixtures.Root.AllTypes.Timestamp,
+			fixtures.Root.AllTypes.IntList,
 		).
 		WithRequiredOutputs(
-			testRootFeatures.AllTypes.WindowedInt,
-			testRootFeatures.AllTypes.WindowedInt["1m"],
-			testRootFeatures.AllTypes.WindowedInt["5m"],
-			testRootFeatures.AllTypes.WindowedInt["1h"],
-			testRootFeatures.AllTypes.WindowedList,
-			testRootFeatures.AllTypes.WindowedList["1m"],
-			testRootFeatures.AllTypes.Nested,
-			testRootFeatures.AllTypes.Nested.Id,
-			testRootFeatures.AllTypes.Dataclass,
-			testRootFeatures.AllTypes.Dataclass.Lat,
-			testRootFeatures.AllTypes.Dataclass.Lng,
+			fixtures.Root.AllTypes.WindowedInt,
+			fixtures.Root.AllTypes.WindowedInt["1m"],
+			fixtures.Root.AllTypes.WindowedInt["5m"],
+			fixtures.Root.AllTypes.WindowedInt["1h"],
+			fixtures.Root.AllTypes.WindowedList,
+			fixtures.Root.AllTypes.WindowedList["1m"],
+			fixtures.Root.AllTypes.Nested,
+			fixtures.Root.AllTypes.Nested.Id,
+			fixtures.Root.AllTypes.Dataclass,
+			fixtures.Root.AllTypes.Dataclass.Lat,
+			fixtures.Root.AllTypes.Dataclass.Lng,
 		)
 	assert.Empty(t, params.underlying.builderErrors)
 }
