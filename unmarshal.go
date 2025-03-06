@@ -199,11 +199,11 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 }
 
 func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
-	scalars, err := internal.ConvertBytesToTable(response.GetScalarsData())
+	scalars, err := internal.ConvertBytesToRecord(response.GetScalarsData())
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
-	return internal.UnmarshalTableInto(scalars, resultHolders)
+	return internal.UnmarshalRecordInto(scalars, resultHolders)
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {
