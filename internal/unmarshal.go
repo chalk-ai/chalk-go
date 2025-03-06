@@ -34,17 +34,6 @@ type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
-type NamespaceMemo struct {
-	// Root and non-root FQN as keys
-	ResolvedFieldNameToIndices map[string][]int
-	// Non-root FQN as keys only
-	StructFieldsSet map[string]bool
-}
-
-type AllNamespaceMemoT sync.Map
-
-var AllNamespaceMemo = &AllNamespaceMemoT{}
-
 var FieldNotFoundError = errors.New("field not found")
 
 func init() {
@@ -53,56 +42,6 @@ func init() {
 			tableReaderChunkSize = newChunkSize
 		}
 	}
-}
-
-func NewNamespaceMemo() *NamespaceMemo {
-	return &NamespaceMemo{
-		ResolvedFieldNameToIndices: map[string][]int{},
-		StructFieldsSet:            map[string]bool{},
-	}
-}
-
-type NamespaceMutex struct {
-	mu   sync.RWMutex
-	memo *NamespaceMemo
-}
-
-func (m *AllNamespaceMemoT) Load(key reflect.Type) (*NamespaceMemo, bool) {
-	value, ok := (*sync.Map)(m).Load(key)
-	if !ok {
-		return nil, false
-	}
-	namespaceMutex := value.(*NamespaceMutex)
-	namespaceMutex.mu.RLock()
-	defer namespaceMutex.mu.RUnlock()
-	return namespaceMutex.memo, true
-}
-
-func (m *AllNamespaceMemoT) LoadOrStoreLockedMutex(key reflect.Type, memo *NamespaceMemo) (*NamespaceMutex, bool) {
-	namespaceMutex := &NamespaceMutex{
-		mu:   sync.RWMutex{},
-		memo: memo,
-	}
-	// The mutex should always be inserted in a locked state.
-	// Otherwise, there is an albeit slim possibility where
-	// concurrent readers of the memo retrieve and obtain an
-	// RLock on the mutex before the writer obtains a write
-	// lock.
-	namespaceMutex.mu.Lock()
-	v, loaded := (*sync.Map)(m).LoadOrStore(key, namespaceMutex)
-	if loaded {
-		namespaceMutex.mu.Unlock()
-	}
-	return v.(*NamespaceMutex), loaded
-}
-
-func (m *AllNamespaceMemoT) Keys() []reflect.Type {
-	keys := []reflect.Type{}
-	(*sync.Map)(m).Range(func(key, _ any) bool {
-		keys = append(keys, key.(reflect.Type))
-		return true
-	})
-	return keys
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
@@ -469,7 +408,7 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
@@ -525,16 +464,12 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := allMemo.Load(structValue.Type())
-			if !ok {
-				return nil, fmt.Errorf(
-					"namespace memo not found for struct '%s' - found %v",
-					structValue.Type().Name(),
-					allMemo.Keys(),
-				)
+			memo, err := allMemo.LoadOrStore(structValue.Type())
+			if err != nil {
+				return nil, errors.Newf("loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
-				return nil, fmt.Errorf(
+				return nil, errors.Newf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
@@ -656,7 +591,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *AllNamespaceMemoT) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *NamespaceMemosT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
@@ -777,7 +712,7 @@ func InitRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *InitScope,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -798,9 +733,9 @@ func InitRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo, ok := allMemo.Load(structValue.Type())
-	if !ok {
-		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	memo, err := allMemo.LoadOrStore(structValue.Type())
+	if err != nil {
+		return errors.Newf("loading memo for struct '%s'", structName)
 	}
 
 	var fieldNames []string
@@ -855,7 +790,7 @@ func InitRemoteFeatureMap(
 	return nil
 }
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *AllNamespaceMemoT) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
@@ -885,7 +820,7 @@ func ThinUnmarshalInto(
 	namespace string,
 	namespaceScope *InitScope,
 	namespaceMemo *NamespaceMemo,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 ) (returnErr error) {
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := InitRemoteFeatureMap(
@@ -1015,8 +950,8 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building deserialization scope")
 	}
 
-	allMemo := AllNamespaceMemo
-	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
+	allMemo := NamespaceMemos
+	if err := PopulateNamespaceMemos(sliceElemType, nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 
@@ -1027,9 +962,9 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	var rowToStruct func(map[string]any) (*reflect.Value, error)
 	if nsScope != nil {
 		// single namespace unmarshalling
-		nsMemo, ok := allMemo.Load(sliceElemType)
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+		nsMemo, err := allMemo.LoadOrStore(sliceElemType)
+		if err != nil {
+			return errors.Newf("loading memo for type '%s'", sliceElemType.Name())
 		}
 
 		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
@@ -1086,9 +1021,9 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 				)
 			}
 
-			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
-			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+			fieldMemo, err := allMemo.LoadOrStore(fieldMeta.Type)
+			if err != nil {
+				return errors.Newf("loading memo for type '%s'", fieldMeta.Type.Name())
 			}
 
 			namespaceMeta = append(namespaceMeta, namespaceMetaT{
@@ -1172,119 +1107,5 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 	slice.Set(newSlice)
 
-	return nil
-}
-
-/*PopulateAllNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
- *  i.e. Don't need to do the same work for the same features class multiple times. Given:
- *  type User struct {
- *      Id *string
- *      Transactions *[]Transactions `has_many:"id,user_id"`
- *      Grade   *int `versioned:"default(2)"`
- *      GradeV1 *int `versioned:"true"`
- *      GradeV2 *int `versioned:"true"`
- *  }
- *  type Transactions struct {
- *      Id *string
- *      UserId *string
- *      Amount *float64
- *  }
- *  The namespace memo will be:
- *  {
- *      "User": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "user.id": [0],
- *              "grade@2": [2, 4],
- *              "user.grade@2": [2, 4],
- *              "grade": [3],
- *              "user.grade": [3],
- *              "transactions": [1],
- *              "user.transactions": [1],
- *          }
- *      },
- *      "Transactions": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "transactions.id": [0],
- *              "user_id": [1],
- *              "transactions.user_id": [1],
- *              "amount": [2],
- *              "transactions.amount": [2],
- *          }
- *      }
- *  }
- */
-func PopulateAllNamespaceMemo(typ reflect.Type, visited map[reflect.Type]bool) error {
-	if visited == nil {
-		visited = map[reflect.Type]bool{}
-	}
-	allMemo := AllNamespaceMemo
-	if typ.Kind() == reflect.Ptr {
-		return PopulateAllNamespaceMemo(typ.Elem(), visited)
-	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		if visited[typ] {
-			return nil
-		}
-		visited[typ] = true
-
-		nsMutex, loaded := allMemo.LoadOrStoreLockedMutex(typ, NewNamespaceMemo())
-		if loaded {
-			nsMutex.mu.RLock()
-			//lint:ignore SA2001 Empty is fine because this just waits for the memo of the same type to finish populating
-			nsMutex.mu.RUnlock()
-
-			// Prevent infinite loops and processing the same struct more than once.
-			return nil
-		}
-		defer nsMutex.mu.Unlock()
-
-		structName := typ.Name()
-		namespace := ChalkpySnakeCase(structName)
-		nsMemo := nsMutex.memo
-		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
-			fm := typ.Field(fieldIdx)
-			resolvedName, err := ResolveFeatureName(fm)
-			if err != nil {
-				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
-			}
-			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
-			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
-			// Here we map those keys to their respective indices in the struct, so that we
-			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			rootFqn := namespace + "." + resolvedName
-			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
-
-			// Handle exploding windowed features
-			if fm.Type.Kind() == reflect.Map {
-				// Is a windowed feature
-				intTags, err := GetWindowBucketsSecondsFromStructTag(fm)
-				if err != nil {
-					return errors.Wrapf(
-						err,
-						"error getting window buckets for field '%s' in struct '%s'",
-						fm.Name,
-						structName,
-					)
-				}
-				for _, tag := range intTags {
-					bucketFqn := resolvedName + "__" + strconv.Itoa(tag) + "__"
-					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
-					rootBucketFqn := namespace + "." + bucketFqn
-					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
-				}
-			} else {
-				if err := PopulateAllNamespaceMemo(fm.Type, visited); err != nil {
-					return err
-				}
-			}
-
-			if fm.Type.Kind() == reflect.Ptr && IsStruct(fm.Type.Elem()) && !IsTypeDataclass(fm.Type.Elem()) {
-				nsMemo.StructFieldsSet[resolvedName] = true
-			}
-		}
-	} else if typ.Kind() == reflect.Slice {
-		return PopulateAllNamespaceMemo(typ.Elem(), visited)
-	}
 	return nil
 }
