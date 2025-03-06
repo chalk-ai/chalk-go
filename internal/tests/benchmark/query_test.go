@@ -34,6 +34,7 @@ func getBenchmarkQueryBulkLoneMultiNsPrimitives(b *testing.B) (benchFunc func(),
 	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 	bytes, err := internal.RecordToBytes(record)
+	assert.NoError(b, err)
 	tf, err := fixtures.NewTestFixture(&fixtures.MockServerConfig{
 		QueryBulkResponse: &commonv1.OnlineQueryBulkResponse{
 			ScalarsData: bytes,
