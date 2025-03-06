@@ -3,7 +3,6 @@ package fixtures
 import (
 	"connectrpc.com/connect"
 	"context"
-	"github.com/chalk-ai/chalk-go"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
@@ -139,37 +138,4 @@ func NewMockServer(config *MockServerConfig) (*httptest.Server, error) {
 	server.EnableHTTP2 = true
 	server.StartTLS()
 	return server, nil
-}
-
-type TestFixture struct {
-	Client chalk.Client
-	Server *httptest.Server
-}
-
-func NewTestFixture(serverConfig *MockServerConfig) (*TestFixture, error) {
-	server, err := NewMockServer(serverConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "creating mock server")
-	}
-
-	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{
-		ApiServer:    server.URL,
-		QueryServer:  server.URL,
-		HTTPClient:   server.Client(),
-		ClientId:     "bogus",
-		ClientSecret: "bogus",
-		UseGrpc:      true,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "creating mock client")
-	}
-
-	return &TestFixture{
-		Client: client,
-		Server: server,
-	}, nil
-}
-
-func (m *TestFixture) Close() {
-	m.Server.Close()
 }
