@@ -560,21 +560,6 @@ func RecordToBytes(record arrow.Record) ([]byte, error) {
 	return bws.Bytes(), nil
 }
 
-func RecordToBytesStream(record arrow.Record) ([]byte, error) {
-	bws := &BufferWriteSeeker{}
-	fileWriter := ipc.NewWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	err := fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
-	}
-
-	return bws.Bytes(), nil
-}
-
 // ChalkMarshal converts a map to a byte array.
 // Follows the byte-packing format as described in the Chalk
 // Python repo's `byte_transmit.serialize()` function.
@@ -822,18 +807,4 @@ func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 		rec.Release()
 	}
 	return result, err
-}
-
-func ConvertBytesToRecord(byteArr []byte) (result arrow.Record, err error) {
-	bytesReader := bytes.NewReader(byteArr)
-	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
-	fileReader, err := ipc.NewReader(bytesReader, ipc.WithAllocator(alloc))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow file reader")
-	}
-
-	for fileReader.Next() {
-		return fileReader.Record(), nil
-	}
-	return nil, errors.New("failed to read record")
 }

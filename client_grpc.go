@@ -6,7 +6,7 @@ import (
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
-	"reflect"
+	"time"
 )
 
 type clientGrpc struct {
@@ -81,101 +81,75 @@ func (c *clientGrpc) onlineQueryBulk(ctx context.Context, args OnlineQueryParams
 }
 
 func (c *clientGrpc) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	//res, err := c.underlying.OnlineQuery(ctx, args)
-	//if err != nil {
-	//	return OnlineQueryResult{}, err
-	//}
-	//
-	//if len(res.GetErrors()) > 0 {
-	//	convertedErrs, err := serverErrorsFromProto(res.GetErrors())
-	//	if err != nil {
-	//		return OnlineQueryResult{}, errors.Wrapf(err, "converting server errors")
-	//	}
-	//	return OnlineQueryResult{}, convertedErrs
-	//}
-	//
-	//if resultHolder != nil {
-	//	if err := UnmarshalOnlineQueryResponse(res, resultHolder); err != nil {
-	//		return OnlineQueryResult{}, err
-	//	}
-	//}
-	//
-	//featureResults := make([]FeatureResult, 0)
-	//for _, r := range res.GetData().GetResults() {
-	//	var value any
-	//	if r.GetValue() != nil {
-	//		value = r.GetValue().AsInterface()
-	//	}
-	//	var pkey any
-	//	if r.GetPkey() != nil {
-	//		pkey = r.GetPkey().AsInterface()
-	//	}
-	//	var timestamp time.Time
-	//	if r.GetTs() != nil {
-	//		timestamp = r.GetTs().AsTime()
-	//	}
-	//	serverErr, err := serverErrorFromProto(r.GetError())
-	//	if err != nil {
-	//		return OnlineQueryResult{}, errors.Wrap(err, "converting server error")
-	//	}
-	//	var featureMeta *FeatureResolutionMeta
-	//	if r.GetMeta() != nil {
-	//		metaRaw := r.GetMeta()
-	//		featureMeta = &FeatureResolutionMeta{
-	//			ChosenResolverFqn: metaRaw.GetChosenResolverFqn(),
-	//			CacheHit:          metaRaw.GetCacheHit(),
-	//			PrimitiveType:     metaRaw.GetPrimitiveType(),
-	//			Version:           int(metaRaw.GetVersion()),
-	//		}
-	//	}
-	//
-	//	featureResults = append(featureResults, FeatureResult{
-	//		Field:     r.GetField(),
-	//		Value:     value,
-	//		Pkey:      pkey,
-	//		Meta:      featureMeta,
-	//		Error:     serverErr,
-	//		Timestamp: &timestamp,
-	//	})
-	//}
-	//
-	//features := make(map[string]FeatureResult)
-	//for _, result := range featureResults {
-	//	features[result.Field] = result
-	//}
-	//
-	//return OnlineQueryResult{
-	//	Data:     featureResults,
-	//	Meta:     queryMetaFromProto(res.GetResponseMeta()),
-	//	features: features,
-	//}, nil
-
-	newInputs, err := internal.SingleInputsToBulkInputs(args.underlying.inputs)
+	res, err := c.underlying.OnlineQuery(ctx, args)
 	if err != nil {
-		return OnlineQueryResult{}, errors.Wrap(err, "converting inputs to bulk inputs")
-	}
-	args.underlying.inputs = newInputs
-
-	bulkRes, err := c.underlying.OnlineQueryBulk(ctx, args)
-	if err != nil {
-		// intentionally don't wrap, original error is good enough
 		return OnlineQueryResult{}, err
 	}
 
-	structValue := reflect.ValueOf(resultHolder).Elem()
+	if len(res.GetErrors()) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.GetErrors())
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrapf(err, "converting server errors")
+		}
+		return OnlineQueryResult{}, convertedErrs
+	}
 
-	sliceValue := reflect.MakeSlice(reflect.SliceOf(structValue.Type()), 1, 1)
-	sliceValue.Index(0).Set(structValue)
-	slicePtr := reflect.New(sliceValue.Type())
-	slicePtr.Elem().Set(sliceValue)
-	slicePtrInterface := slicePtr.Interface()
 	if resultHolder != nil {
-		if err := UnmarshalOnlineQueryBulkResponse(bulkRes, slicePtrInterface); err != nil {
+		if err := UnmarshalOnlineQueryResponse(res, resultHolder); err != nil {
 			return OnlineQueryResult{}, err
 		}
 	}
-	structValue.Set(sliceValue.Index(0))
-	return OnlineQueryResult{}, nil
+
+	featureResults := make([]FeatureResult, 0)
+	for _, r := range res.GetData().GetResults() {
+		var value any
+		if r.GetValue() != nil {
+			value = r.GetValue().AsInterface()
+		}
+		var pkey any
+		if r.GetPkey() != nil {
+			pkey = r.GetPkey().AsInterface()
+		}
+		var timestamp time.Time
+		if r.GetTs() != nil {
+			timestamp = r.GetTs().AsTime()
+		}
+		serverErr, err := serverErrorFromProto(r.GetError())
+		if err != nil {
+			return OnlineQueryResult{}, errors.Wrap(err, "converting server error")
+		}
+		var featureMeta *FeatureResolutionMeta
+		if r.GetMeta() != nil {
+			metaRaw := r.GetMeta()
+			featureMeta = &FeatureResolutionMeta{
+				ChosenResolverFqn: metaRaw.GetChosenResolverFqn(),
+				CacheHit:          metaRaw.GetCacheHit(),
+				PrimitiveType:     metaRaw.GetPrimitiveType(),
+				Version:           int(metaRaw.GetVersion()),
+			}
+		}
+
+		featureResults = append(featureResults, FeatureResult{
+			Field:     r.GetField(),
+			Value:     value,
+			Pkey:      pkey,
+			Meta:      featureMeta,
+			Error:     serverErr,
+			Timestamp: &timestamp,
+		})
+	}
+
+	features := make(map[string]FeatureResult)
+	for _, result := range featureResults {
+		features[result.Field] = result
+	}
+
+	return OnlineQueryResult{
+		Data:     featureResults,
+		Meta:     queryMetaFromProto(res.GetResponseMeta()),
+		features: features,
+	}, nil
+
 }
 
 func (c *clientGrpc) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
