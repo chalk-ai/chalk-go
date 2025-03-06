@@ -44,7 +44,21 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	}
 	defer record.Release()
 
-	return RecordToBytes(record)
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
+	}
+	err = fileWriter.Write(record)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
+	}
+
+	return bws.Bytes(), nil
 }
 func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, error) {
 	if visitedNamespaces == nil {
@@ -522,6 +536,7 @@ func filterArrayData(data arrow.ArrayData, namespace string, nsMemo NamespaceMem
 			reflectField := memo.StructType.Field(reflectFieldIndices[0])
 			childData := data.Children()[arrowFieldIdx]
 			chalkTags := strings.Split(reflectField.Tag.Get("chalk"), ",")
+			// FIXME: see whether colls.Contains can be cached
 			if childData.NullN() == childData.Len() && !colls.Contains(chalkTags, "dontomit") {
 				// If all values are null, omit the column
 				collectiveDidFilter = true
@@ -748,24 +763,6 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 		}
 	}
 	return nil
-}
-
-func RecordToBytes(record arrow.Record) ([]byte, error) {
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
-	}
-	err = fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
-	}
-
-	return bws.Bytes(), nil
 }
 
 // ChalkMarshal converts a map to a byte array.
