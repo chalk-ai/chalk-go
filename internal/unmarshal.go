@@ -408,7 +408,7 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
@@ -464,16 +464,12 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := allMemo.Load(structValue.Type())
-			if !ok {
-				return nil, fmt.Errorf(
-					"namespace memo not found for struct '%s' - found %v",
-					structValue.Type().Name(),
-					allMemo.Keys(),
-				)
+			memo, err := allMemo.LoadOrStore(structValue.Type())
+			if err != nil {
+				return nil, errors.Wrapf(err, "loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
-				return nil, fmt.Errorf(
+				return nil, errors.Newf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
@@ -595,7 +591,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *AllNamespaceMemoT) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *NamespaceMemosT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
@@ -716,7 +712,7 @@ func InitRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *InitScope,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -737,9 +733,9 @@ func InitRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo, ok := allMemo.Load(structValue.Type())
-	if !ok {
-		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	memo, err := allMemo.LoadOrStore(structValue.Type())
+	if err != nil {
+		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 	}
 
 	var fieldNames []string
@@ -794,7 +790,7 @@ func InitRemoteFeatureMap(
 	return nil
 }
 
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *AllNamespaceMemoT) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
@@ -824,7 +820,7 @@ func ThinUnmarshalInto(
 	namespace string,
 	namespaceScope *InitScope,
 	namespaceMemo *NamespaceMemo,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 ) (returnErr error) {
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := InitRemoteFeatureMap(
@@ -954,8 +950,8 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		return errors.Wrap(err, "building deserialization scope")
 	}
 
-	allMemo := AllNamespaceMemo
-	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
+	allMemo := NamespaceMemos
+	if err := PopulateNamespaceMemos(sliceElemType, nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 
@@ -966,9 +962,9 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	var rowToStruct func(map[string]any) (*reflect.Value, error)
 	if nsScope != nil {
 		// single namespace unmarshalling
-		nsMemo, ok := allMemo.Load(sliceElemType)
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+		nsMemo, err := allMemo.LoadOrStore(sliceElemType)
+		if err != nil {
+			return errors.Wrapf(err, "loading memo for type '%s'", sliceElemType.Name())
 		}
 
 		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
@@ -1025,9 +1021,9 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 				)
 			}
 
-			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
-			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+			fieldMemo, err := allMemo.LoadOrStore(fieldMeta.Type)
+			if err != nil {
+				return errors.Wrapf(err, "loading memo for type '%s'", fieldMeta.Type.Name())
 			}
 
 			namespaceMeta = append(namespaceMeta, namespaceMetaT{
