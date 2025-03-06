@@ -466,7 +466,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 			// This could be either a dataclass or a feature class.
 			memo, err := allMemo.LoadOrStore(structValue.Type())
 			if err != nil {
-				return nil, errors.Newf("loading memo for struct '%s'", structValue.Type().Name())
+				return nil, errors.Wrapf(err, "loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
 				return nil, errors.Newf(
@@ -735,7 +735,7 @@ func InitRemoteFeatureMap(
 
 	memo, err := allMemo.LoadOrStore(structValue.Type())
 	if err != nil {
-		return errors.Newf("loading memo for struct '%s'", structName)
+		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 	}
 
 	var fieldNames []string
@@ -964,7 +964,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		// single namespace unmarshalling
 		nsMemo, err := allMemo.LoadOrStore(sliceElemType)
 		if err != nil {
-			return errors.Newf("loading memo for type '%s'", sliceElemType.Name())
+			return errors.Wrapf(err, "loading memo for type '%s'", sliceElemType.Name())
 		}
 
 		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
@@ -1023,7 +1023,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 
 			fieldMemo, err := allMemo.LoadOrStore(fieldMeta.Type)
 			if err != nil {
-				return errors.Newf("loading memo for type '%s'", fieldMeta.Type.Name())
+				return errors.Wrapf(err, "loading memo for type '%s'", fieldMeta.Type.Name())
 			}
 
 			namespaceMeta = append(namespaceMeta, namespaceMetaT{

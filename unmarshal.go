@@ -102,7 +102,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 
 		nsMemo, err := allMemo.LoadOrStore(holderValue.Elem().Type())
 		if err != nil {
-			return errors.Newf("loading memo for struct '%s'", structName)
+			return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 		}
 
 		return internal.ThinUnmarshalInto(
