@@ -4,6 +4,7 @@ import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/cockroachdb/errors"
+	"time"
 )
 
 // Client is the primary interface for interacting with Chalk. You can use
@@ -27,6 +28,7 @@ type Client interface {
 	//
 	//		user := User{}
 	//		res, err := client.OnlineQuery(
+	//			context.Background(),
 	//			OnlineQueryParams{
 	//				IncludeMeta: true,
 	//				EnvironmentId: "pipkjlfc3gtmn",
@@ -40,7 +42,7 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQuery(args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error)
+	OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error)
 
 	// OnlineQueryBulk computes features values using online resolvers,
 	// and has the ability to query multiple primary keys at once.
@@ -58,6 +60,7 @@ type Client interface {
 	//
 	//
 	//		res, err := client.OnlineQueryBulk(
+	//			context.Background(),
 	//			OnlineQueryParams{
 	//				IncludeMeta: true,
 	//				EnvironmentId: "pipkjlfc3gtmn",
@@ -81,7 +84,7 @@ type Client interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQueryBulk(args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error)
+	OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (OnlineQueryBulkResult, error)
 
 	// UploadFeatures synchronously persists feature values to the online store and
 	// offline store. The `Inputs` parameter should be a map of features to values.
@@ -94,6 +97,7 @@ type Client interface {
 	// Example:
 	//
 	// 		res, err := client.UploadFeatures(
+	//			context.Background(),
 	// 			UploadFeaturesParams{
 	// 				Inputs: map[any]any{
 	// 					Features.User.Card.Id: []string{"5555-5555-5555-5555", "4444-4444-4444-4444"},
@@ -108,7 +112,7 @@ type Client interface {
 	//      }
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
-	UploadFeatures(args UploadFeaturesParams) (UploadFeaturesResult, error)
+	UploadFeatures(ctx context.Context, args UploadFeaturesParams) (UploadFeaturesResult, error)
 
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
 	// while updating the corresponding aggregate values themselves.
@@ -121,6 +125,7 @@ type Client interface {
 	// Example:
 	//
 	// 		res, err := client.UpdateAggregates(
+	//			context.Background(),
 	// 			UpdateAggregatesParams{
 	// 				Inputs: map[any]any{
 	// 					Features.Txns.Id: []string{5555-5555", "4444-4444"},
@@ -134,7 +139,7 @@ type Client interface {
 	//      }
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
-	UpdateAggregates(args UpdateAggregatesParams) (UpdateAggregatesResult, error)
+	UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (UpdateAggregatesResult, error)
 
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
@@ -142,25 +147,26 @@ type Client interface {
 	// Example:
 	//
 	//		client.OfflineQuery(
+	//			context.Background(),
 	//			OfflineQueryParams{
 	//				EnvironmentId: "pipkjlfc3gtmn",
 	//			}.
 	//	 		WithRequiredOutputs(Features.User.Email, Features.User.Card.Id),
 	//		)
 	//
-	OfflineQuery(args OfflineQueryParamsComplete) (Dataset, error)
+	OfflineQuery(ctx context.Context, args OfflineQueryParamsComplete) (Dataset, error)
 
 	// TriggerResolverRun triggers an offline resolver to run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	TriggerResolverRun(args TriggerResolverRunParams) (TriggerResolverRunResult, error)
+	TriggerResolverRun(ctx context.Context, args TriggerResolverRunParams) (TriggerResolverRunResult, error)
 
 	// GetRunStatus retrieves the status of an offline resolver run.
 	// See https://docs.chalk.ai/docs/runs for more information.
-	GetRunStatus(args GetRunStatusParams) (GetRunStatusResult, error)
+	GetRunStatus(ctx context.Context, args GetRunStatusParams) (GetRunStatusResult, error)
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
-	GetToken() (*TokenResult, error)
+	GetToken(ctx context.Context) (*TokenResult, error)
 
 	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
 
@@ -214,6 +220,15 @@ type ClientConfig struct {
 
 	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
 	UseGrpc bool
+
+	// ResourceGroup specifies the resource group to route all requests to. If set
+	// on the request or query level, this will be overridden.
+	ResourceGroup string
+
+	// Timeout specifies the timeout for all requests. Defaults to no timeout.
+	// Timeout of 0 means no timeout. Deadline or timeout set on the request
+	// context overrides this timeout.
+	Timeout time.Duration
 }
 
 // NewClient creates a Client with authentication settings configured.
@@ -235,16 +250,19 @@ type ClientConfig struct {
 //
 // Example:
 //
-//	     chalkClient, chalkClientErr := chalk.NewClient(&chalk.ClientConfig{
-//		        ClientId:      "id-89140a6614886982a6782106759e30",
-//		        ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-//		        ApiServer:     "https://api.chalk.ai",
-//		        EnvironmentId: "qa",
-//		        Branch:        "jorges-december",
-//	})
+//	     chalkClient, chalkClientErr := chalk.NewClient(
+//	         context.Background(),
+//	         &chalk.ClientConfig{
+//		         ClientId:      "id-89140a6614886982a6782106759e30",
+//		         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+//		         ApiServer:     "https://api.chalk.ai",
+//		         EnvironmentId: "qa",
+//		         Branch:        "jorges-december",
+//	         },
+//	     )
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
-func NewClient(configs ...*ClientConfig) (Client, error) {
+func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
 	var cfg *ClientConfig
 	if len(configs) == 0 {
 		cfg = &ClientConfig{}
@@ -255,8 +273,8 @@ func NewClient(configs ...*ClientConfig) (Client, error) {
 	}
 
 	if cfg.UseGrpc {
-		return newClientGrpc(*cfg)
+		return newClientGrpc(ctx, *cfg)
 	}
 
-	return newClientImpl(*cfg)
+	return newClientImpl(ctx, *cfg)
 }

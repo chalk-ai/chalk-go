@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -19,6 +20,10 @@ var WindowsTag = "windows"
 var ChalkTag = "chalk"
 
 var NowTimeFormat = "2006-01-02T15:04:05.000000-07:00"
+
+var wordGroupsPattern = regexp.MustCompile(`(.)([A-Z][a-z]+)`)
+var dunderPattern = regexp.MustCompile(`__([A-Z])`)
+var trailingUpperPattern = regexp.MustCompile(`([a-z0-9])([A-Z])`)
 
 func FileExists(path string) bool {
 	if _, err := os.Stat(path); err != nil {
@@ -53,6 +58,8 @@ func FormatBucketDuration(duration int) string {
 	return fmt.Sprintf("%dw", duration)
 }
 
+var WindowBucketDurationRe = regexp.MustCompile(`^(\d+)([smhdw])$`)
+
 // ParseBucketDuration parses a bucket duration string
 // and returns the duration in seconds.
 // The input string must be of the form "Nunit" where
@@ -67,8 +74,8 @@ func ParseBucketDuration(durationStr string) (int, error) {
 	}
 
 	// Parse the input string
-	re := regexp.MustCompile(`^(\d+)([smhdw])$`)
-	matches := re.FindStringSubmatch(durationStr)
+
+	matches := WindowBucketDurationRe.FindStringSubmatch(durationStr)
 	if matches == nil {
 		return 0, fmt.Errorf("invalid bucket duration string: %s", durationStr)
 	}
@@ -96,15 +103,6 @@ func ExpandTilde(path string) (string, error) {
 	return strings.Replace(path, "~", homeDir, 1), nil
 }
 
-func getFeatureNameFromFqn(fqn string) string {
-	lastPart := strings.Split(fqn, ".")
-	return lastPart[len(lastPart)-1]
-}
-
-func getFqnRoot(s string) string {
-	return strings.Split(s, ".")[0]
-}
-
 func Int64ToInt(value int64) (int, error) {
 	// Check if the value fits in the range of an int
 	if value < math.MinInt || value > math.MaxInt {
@@ -113,9 +111,28 @@ func Int64ToInt(value int64) (int, error) {
 	return int(value), nil
 }
 
-// ChalkpySnakeCase aims to be in parity with
-// our Python implementation of snake_case
+// ChalkpySnakeCase aims to be in parity with our Python implementation of snake_case.
+// We are supposed to use this in all places over LegacySnakeCase, but that's a breaking
+// change because our CLI generates the `name` struct tag if and only if the snake case
+// generated using LegacySnakeCase does not match the actual feature name. If we switch to
+// using ChalkpySnakeCase, that would make new codegen code incompatible with old chalk-go
+// versions. In short, we want to keep using LegacySnakeCase in chalk-go to snake-case
+// field names, and ChalkpySnakeCase to snake-case struct names.
 func ChalkpySnakeCase(s string) string {
+	s = wordGroupsPattern.ReplaceAllString(s, "${1}_${2}")
+	s = dunderPattern.ReplaceAllString(s, "_${1}")
+	s = trailingUpperPattern.ReplaceAllString(s, "${1}_${2}")
+	return strings.ToLower(s)
+}
+
+// LegacySnakeCase is how we turn our struct field names into feature names. We really
+// should be using ChalkpySnakeCase, but we can't change it now because it would break existing
+// codegen customers. Using this in our CLI to convert struct field names to snake case
+// is still correct because if it does not correctly match the feature name, it generates
+// the `name` struct tag. If we switch to using ChalkpySnakeCase, that would make new codegen
+// code incompatible with old chalk-go versions. In short, we want to keep using LegacySnakeCase
+// in chalk-go to snake-case field names, and ChalkpySnakeCase to snake-case struct names.
+func LegacySnakeCase(s string) string {
 	var b []byte
 	for i := 0; i < len(s); i++ {
 		c := s[i]
@@ -155,7 +172,7 @@ func ResolveFeatureName(field reflect.StructField) (string, error) {
 		}
 	}
 	versioned := field.Tag.Get("versioned")
-	fieldName := ChalkpySnakeCase(field.Name)
+	fieldName := LegacySnakeCase(field.Name)
 	if versioned == "true" {
 		parts := strings.Split(fieldName, "_")
 		nameErr := fmt.Errorf(
@@ -453,104 +470,6 @@ func PreprocessIfStruct(values any) (any, error) {
 	return newSlice.Interface(), nil
 }
 
-/*  BuildNamespaceMemo populates a memo to make bulk-unmarshalling and has-many unmarshalling efficient.
- *  i.e. Don't need to do the same work for the same features class multiple times. Given:
- *  type User struct {
- *      Id *string
- *      Transactions *[]Transactions `has_many:"id,user_id"`
- *      Grade   *int `versioned:"default(2)"`
- *      GradeV1 *int `versioned:"true"`
- *      GradeV2 *int `versioned:"true"`
- *  }
- *  type Transactions struct {
- *      Id *string
- *      UserId *string
- *      Amount *float64
- *  }
- *  The namespace memo will be:
- *  {
- *      "user": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "user.id": [0],
- *              "grade@2": [2, 4],
- *              "user.grade@2": [2, 4],
- *              "grade": [3],
- *              "user.grade": [3],
- *              "transactions": [1],
- *              "user.transactions": [1],
- *          }
- *      },
- *      "transactions": {
- *          ResolvedFieldNameToIndices: {
- *              "id": [0],
- *              "transactions.id": [0],
- *              "user_id": [1],
- *              "transactions.user_id": [1],
- *              "amount": [2],
- *              "transactions.amount": [2],
- *          }
- *      }
- *  }
- */
-func BuildNamespaceMemo(memo NamespaceMemo, typ reflect.Type) error {
-	if typ.Kind() == reflect.Ptr {
-		return BuildNamespaceMemo(memo, typ.Elem())
-	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
-		structName := typ.Name()
-		namespace := ChalkpySnakeCase(structName)
-		for fieldIdx := 0; fieldIdx < typ.NumField(); fieldIdx++ {
-			fm := typ.Field(fieldIdx)
-			resolvedName, err := ResolveFeatureName(fm)
-			if err != nil {
-				return errors.Wrapf(err, "error resolving feature name: %s", fm.Name)
-			}
-
-			if _, ok := memo[namespace]; !ok {
-				memo[namespace] = NewNamespaceMemoItem(typ)
-			}
-			nsMemo := memo[namespace]
-			nsMemo.ResolvedFieldNameToIndices[resolvedName] = append(nsMemo.ResolvedFieldNameToIndices[resolvedName], fieldIdx)
-			// Has-many features come back as a list of structs whose keys are namespaced FQNs.
-			// Here we map those keys to their respective indices in the struct, so that we
-			// don't have to do any string manipulation to deprefix the FQN when unmarshalling.
-			rootFqn := namespace + "." + resolvedName
-			nsMemo.ResolvedFieldNameToIndices[rootFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootFqn], fieldIdx)
-
-			// Handle exploding windowed features
-			if fm.Type.Kind() == reflect.Map {
-				// Is a windowed feature
-				intTags, err := GetWindowBucketsSecondsFromStructTag(fm)
-				if err != nil {
-					return errors.Wrapf(
-						err,
-						"error getting window buckets for field '%s' in struct '%s'",
-						fm.Name,
-						structName,
-					)
-				}
-				for _, tag := range intTags {
-					bucketFqn := fmt.Sprintf("%s__%d__", resolvedName, tag)
-					nsMemo.ResolvedFieldNameToIndices[bucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[bucketFqn], fieldIdx)
-					rootBucketFqn := namespace + "." + bucketFqn
-					nsMemo.ResolvedFieldNameToIndices[rootBucketFqn] = append(nsMemo.ResolvedFieldNameToIndices[rootBucketFqn], fieldIdx)
-				}
-			} else {
-				if err := BuildNamespaceMemo(memo, fm.Type); err != nil {
-					return err
-				}
-			}
-
-			if fm.Type.Kind() == reflect.Ptr && IsFeaturesClass(fm.Type.Elem()) {
-				nsMemo.HasOneFieldsSet[resolvedName] = true
-			}
-		}
-	} else if typ.Kind() == reflect.Slice {
-		return BuildNamespaceMemo(memo, typ.Elem())
-	}
-	return nil
-}
-
 func getForeignNamespace(typ reflect.Type) *string {
 	if typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
@@ -563,4 +482,11 @@ func getForeignNamespace(typ reflect.Type) *string {
 	} else {
 		return nil
 	}
+}
+
+func GetContextWithTimeout(requestCtx context.Context, clientLevelTimeout *time.Duration) (context.Context, context.CancelFunc) {
+	if _, deadlineSet := requestCtx.Deadline(); !deadlineSet && clientLevelTimeout != nil {
+		return context.WithTimeout(requestCtx, *clientLevelTimeout)
+	}
+	return requestCtx, func() {}
 }

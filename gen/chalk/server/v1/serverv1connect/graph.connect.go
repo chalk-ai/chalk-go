@@ -44,15 +44,9 @@ const (
 	// GraphServiceUpdateGraphProcedure is the fully-qualified name of the GraphService's UpdateGraph
 	// RPC.
 	GraphServiceUpdateGraphProcedure = "/chalk.server.v1.GraphService/UpdateGraph"
-)
-
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	graphServiceServiceDescriptor                   = v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService")
-	graphServiceGetFeatureSQLMethodDescriptor       = graphServiceServiceDescriptor.Methods().ByName("GetFeatureSQL")
-	graphServiceGetFeaturesMetadataMethodDescriptor = graphServiceServiceDescriptor.Methods().ByName("GetFeaturesMetadata")
-	graphServiceGetGraphMethodDescriptor            = graphServiceServiceDescriptor.Methods().ByName("GetGraph")
-	graphServiceUpdateGraphMethodDescriptor         = graphServiceServiceDescriptor.Methods().ByName("UpdateGraph")
+	// GraphServiceGetCodegenFeaturesFromGraphProcedure is the fully-qualified name of the
+	// GraphService's GetCodegenFeaturesFromGraph RPC.
+	GraphServiceGetCodegenFeaturesFromGraphProcedure = "/chalk.server.v1.GraphService/GetCodegenFeaturesFromGraph"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -63,6 +57,8 @@ type GraphServiceClient interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
+	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
+	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -74,32 +70,40 @@ type GraphServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) GraphServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	graphServiceMethods := v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService").Methods()
 	return &graphServiceClient{
 		getFeatureSQL: connect.NewClient[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse](
 			httpClient,
 			baseURL+GraphServiceGetFeatureSQLProcedure,
-			connect.WithSchema(graphServiceGetFeatureSQLMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetFeatureSQL")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getFeaturesMetadata: connect.NewClient[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse](
 			httpClient,
 			baseURL+GraphServiceGetFeaturesMetadataProcedure,
-			connect.WithSchema(graphServiceGetFeaturesMetadataMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetFeaturesMetadata")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getGraph: connect.NewClient[v1.GetGraphRequest, v1.GetGraphResponse](
 			httpClient,
 			baseURL+GraphServiceGetGraphProcedure,
-			connect.WithSchema(graphServiceGetGraphMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		updateGraph: connect.NewClient[v1.UpdateGraphRequest, v1.UpdateGraphResponse](
 			httpClient,
 			baseURL+GraphServiceUpdateGraphProcedure,
-			connect.WithSchema(graphServiceUpdateGraphMethodDescriptor),
+			connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
+			connect.WithClientOptions(opts...),
+		),
+		getCodegenFeaturesFromGraph: connect.NewClient[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse](
+			httpClient,
+			baseURL+GraphServiceGetCodegenFeaturesFromGraphProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetCodegenFeaturesFromGraph")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -107,10 +111,11 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // graphServiceClient implements GraphServiceClient.
 type graphServiceClient struct {
-	getFeatureSQL       *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
-	getFeaturesMetadata *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
-	getGraph            *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
-	updateGraph         *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
+	getFeatureSQL               *connect.Client[v1.GetFeatureSQLRequest, v1.GetFeatureSQLResponse]
+	getFeaturesMetadata         *connect.Client[v1.GetFeaturesMetadataRequest, v1.GetFeaturesMetadataResponse]
+	getGraph                    *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
+	updateGraph                 *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
+	getCodegenFeaturesFromGraph *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -133,6 +138,11 @@ func (c *graphServiceClient) UpdateGraph(ctx context.Context, req *connect.Reque
 	return c.updateGraph.CallUnary(ctx, req)
 }
 
+// GetCodegenFeaturesFromGraph calls chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph.
+func (c *graphServiceClient) GetCodegenFeaturesFromGraph(ctx context.Context, req *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error) {
+	return c.getCodegenFeaturesFromGraph.CallUnary(ctx, req)
+}
+
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
 type GraphServiceHandler interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -141,6 +151,8 @@ type GraphServiceHandler interface {
 	GetGraph(context.Context, *connect.Request[v1.GetGraphRequest]) (*connect.Response[v1.GetGraphResponse], error)
 	// UpdateGraph uploads the protobuf graph for a given deployment.
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
+	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
+	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -149,31 +161,39 @@ type GraphServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	graphServiceMethods := v1.File_chalk_server_v1_graph_proto.Services().ByName("GraphService").Methods()
 	graphServiceGetFeatureSQLHandler := connect.NewUnaryHandler(
 		GraphServiceGetFeatureSQLProcedure,
 		svc.GetFeatureSQL,
-		connect.WithSchema(graphServiceGetFeatureSQLMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetFeatureSQL")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceGetFeaturesMetadataHandler := connect.NewUnaryHandler(
 		GraphServiceGetFeaturesMetadataProcedure,
 		svc.GetFeaturesMetadata,
-		connect.WithSchema(graphServiceGetFeaturesMetadataMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetFeaturesMetadata")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceGetGraphHandler := connect.NewUnaryHandler(
 		GraphServiceGetGraphProcedure,
 		svc.GetGraph,
-		connect.WithSchema(graphServiceGetGraphMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("GetGraph")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	graphServiceUpdateGraphHandler := connect.NewUnaryHandler(
 		GraphServiceUpdateGraphProcedure,
 		svc.UpdateGraph,
-		connect.WithSchema(graphServiceUpdateGraphMethodDescriptor),
+		connect.WithSchema(graphServiceMethods.ByName("UpdateGraph")),
+		connect.WithHandlerOptions(opts...),
+	)
+	graphServiceGetCodegenFeaturesFromGraphHandler := connect.NewUnaryHandler(
+		GraphServiceGetCodegenFeaturesFromGraphProcedure,
+		svc.GetCodegenFeaturesFromGraph,
+		connect.WithSchema(graphServiceMethods.ByName("GetCodegenFeaturesFromGraph")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -186,6 +206,8 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceGetGraphHandler.ServeHTTP(w, r)
 		case GraphServiceUpdateGraphProcedure:
 			graphServiceUpdateGraphHandler.ServeHTTP(w, r)
+		case GraphServiceGetCodegenFeaturesFromGraphProcedure:
+			graphServiceGetCodegenFeaturesFromGraphHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -209,4 +231,8 @@ func (UnimplementedGraphServiceHandler) GetGraph(context.Context, *connect.Reque
 
 func (UnimplementedGraphServiceHandler) UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.UpdateGraph is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph is not implemented"))
 }

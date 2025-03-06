@@ -20,7 +20,6 @@ type OnlineQueryRequestSerialized struct {
 	Context          OnlineQueryContext     `json:"context"`
 	Staleness        map[string]string      `json:"staleness"`
 	IncludeMeta      bool                   `json:"include_meta"`
-	IncludeMetrics   bool                   `json:"include_metrics"`
 	DeploymentId     *string                `json:"deployment_id"`
 	QueryName        *string                `json:"query_name"`
 	CorrelationId    *string                `json:"correlation_id"`
@@ -31,6 +30,7 @@ type OnlineQueryRequestSerialized struct {
 	Explain          bool                   `json:"explain"`
 	StorePlanStages  bool                   `json:"store_plan_stages"`
 	EncodingOptions  FeatureEncodingOptions `json:"encoding_options"`
+	PlannerOptions   map[string]any         `json:"planner_options"`
 }
 
 type OfflineQueryInputSerialized struct {

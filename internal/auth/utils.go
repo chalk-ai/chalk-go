@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 )
@@ -38,36 +37,36 @@ func loadProjectDirectory() (string, error) {
 	)
 }
 
-func getConfigPath() (*string, error) {
+func getConfigPath() (string, error) {
 	var err error
 	configDir := os.Getenv("XDG_CONFIG_HOME")
 	if configDir == "" {
 		configDir, err = os.UserHomeDir()
 		if err != nil {
-			return nil, errors.New("error getting home directory")
+			return "", errors.New("error getting home directory")
 		}
 	}
 	path := filepath.Join(configDir, authConfigFileName)
-	return &path, nil
+	return path, nil
 }
 
-func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string) (ProjectToken, error) {
+func getProjectAuthConfigForProjectRoot(config *ProjectTokens, configPath string) (*ProjectToken, error) {
 	projectRoot, err := loadProjectDirectory()
 	if err != nil {
-		return ProjectToken{}, fmt.Errorf("error loading auth config: %s", err)
+		return nil, fmt.Errorf("error loading auth config: %s", err)
 	}
 
 	if config.Tokens == nil {
-		return ProjectToken{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"'tokens' collection does not exist or is empty in the auth config file "+
 				"'%s' -- please try to 'chalk login' again",
 			configPath,
 		)
 	}
 
-	var returnToken *ProjectToken = nil
+	var returnToken *ProjectToken
 
-	tokens := *config.Tokens
+	tokens := config.Tokens
 	if token, ok := tokens[projectRoot]; ok {
 		returnToken = token
 	}
@@ -77,7 +76,7 @@ func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string)
 	}
 
 	if returnToken == nil {
-		return ProjectToken{}, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"project root '%s' does not exist as a key in the collection 'tokens'"+
 				" in the config file '%s', and the fallback key 'default' is also missing. "+
 				"Please try to 'chalk login' again",
@@ -86,32 +85,7 @@ func getProjectAuthConfigForProjectRoot(config ProjectTokens, configPath string)
 		)
 	}
 
-	return *returnToken, nil
-}
-
-func loadAuthConfig() (*ProjectTokens, *string, error) {
-	path, err := getConfigPath()
-	if err != nil || path == nil {
-		return nil, nil, err
-	}
-
-	data, err := os.ReadFile(*path)
-	if err != nil {
-		return nil, path, fmt.Errorf("error reading auth config file from path '%s': %w", *path, err)
-	}
-
-	config := ProjectTokens{}
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		return nil, path, fmt.Errorf(
-			"error parsing auth config file at path '%s'. Please make sure you have run"+
-				" 'chalk login' successfully. Error details: %s",
-			*path,
-			err,
-		)
-	}
-
-	return &config, path, nil
+	return returnToken, nil
 }
 
 func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
@@ -144,7 +118,7 @@ func GetChalkYamlConfig(value string) SourcedConfig {
 	if err != nil {
 		path = "unknown"
 	} else {
-		path = *configPath
+		path = configPath
 	}
 
 	return SourcedConfig{

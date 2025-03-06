@@ -12,15 +12,29 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
 
 const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
-
 const defaultTableReaderChunkSize = 10_000
+const metadataPrefix = "__chalk__.__result_metadata__."
+const pkeyField = "__id__"
+
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
 
 var tableReaderChunkSize = defaultTableReaderChunkSize
+
+type Numbers interface {
+	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
+}
+
+var FieldNotFoundError = errors.New("field not found")
 
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
@@ -28,41 +42,6 @@ func init() {
 			tableReaderChunkSize = newChunkSize
 		}
 	}
-}
-
-type Numbers interface {
-	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
-}
-
-type NamespaceMemoItem struct {
-	StructType reflect.Type
-	// Root and non-root FQN as keys
-	ResolvedFieldNameToIndices map[string][]int
-	// Non-root FQN as keys only
-	HasOneFieldsSet map[string]bool
-}
-
-func NewNamespaceMemoItem(structType reflect.Type) *NamespaceMemoItem {
-	return &NamespaceMemoItem{
-		StructType:                 structType,
-		ResolvedFieldNameToIndices: map[string][]int{},
-		HasOneFieldsSet:            map[string]bool{},
-	}
-}
-
-type NamespaceMemo map[string]*NamespaceMemoItem
-
-var skipUnmarshalFeatureNames = map[string]bool{
-	"__chalk_observed_at__": true,
-}
-
-var skipUnmarshalFields = map[string]bool{
-	"__ts__":    true,
-	"__index__": true,
-}
-
-var SkipUnmarshalFqnRoots = map[string]bool{
-	"__chalk__": true,
 }
 
 func convertNumber[T Numbers](anyNumber any) (T, error) {
@@ -158,6 +137,8 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 			newMap[structType.Field(k).Name] = anyVal
 		}
 		return newMap, nil
+	case *array.Dictionary:
+		return GetValueFromArrowArray(arr.Dictionary(), arr.GetValueIndex(idx), timeAsString)
 	case *array.String:
 		return arr.Value(idx), nil
 	case *array.LargeString:
@@ -208,81 +189,173 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 type ChunkResult struct {
 	chunkIdx int
 	rows     []map[string]any
+	meta     []map[string]FeatureMeta
 	err      error
+}
+
+type FeatureMeta struct {
+	SourceType  *string
+	SourceId    *string
+	ResolverFqn *string
+	Pkey        any
 }
 
 func extractFeatures(
 	record arrow.Record,
-	colIndicesShouldSkip []bool,
+	featureColumnIdxs []int,
+	metaColumnFqnToIdx map[string]int,
 	chunkStart int64,
 	chunkEnd int64,
 	chunkIdx int,
-	resChan chan<- ChunkResult,
+	resChan chan<- *ChunkResult,
 	wg *sync.WaitGroup,
 	timeAsString bool,
 ) {
 	defer wg.Done()
 
-	var results []map[string]any
+	var featureRes []map[string]any
 	chunkEndInt, err := Int64ToInt(chunkEnd)
 	if err != nil {
-		resChan <- ChunkResult{chunkIdx: chunkIdx, err: err}
+		resChan <- &ChunkResult{chunkIdx: chunkIdx, err: err}
 		return
 	}
 	chunkStartInt := int(chunkStart)
 	for i := chunkStartInt; i < chunkEndInt; i++ {
-		m := make(map[string]any, record.NumCols())
-		for j, col := range record.Columns() {
-			if colIndicesShouldSkip[j] {
-				continue
-			}
+		m := make(map[string]any, len(featureColumnIdxs))
+		for j := range featureColumnIdxs {
 			name := record.ColumnName(j)
-			value, err := GetValueFromArrowArray(col, i, timeAsString)
+			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
 			if err != nil {
-				resChan <- ChunkResult{
+				resChan <- &ChunkResult{
 					chunkIdx: chunkIdx,
-					err:      errors.Wrap(err, "error getting value from arrow array"),
+					err:      errors.Wrapf(err, "getting value from arrow array for feature '%s'", name),
 				}
 				return
 			}
 			m[name] = value
 		}
-		results = append(results, m)
+		featureRes = append(featureRes, m)
 	}
-	resChan <- ChunkResult{chunkIdx: chunkIdx, rows: results}
+
+	if len(metaColumnFqnToIdx) == 0 {
+		resChan <- &ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: nil}
+		return
+	}
+
+	var metaRes []map[string]FeatureMeta
+	for i := chunkStartInt; i < chunkEndInt; i++ {
+		m := make(map[string]FeatureMeta)
+
+		var resolvedPkey any
+		if idx, ok := metaColumnFqnToIdx[pkeyField]; ok {
+			value, err := GetValueFromArrowArray(record.Column(idx), i, timeAsString)
+			if err != nil {
+				resChan <- &ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrap(err, "getting primary key from arrow array"),
+				}
+				return
+			}
+			resolvedPkey = value
+			delete(metaColumnFqnToIdx, pkeyField)
+		}
+
+		for fqn, j := range metaColumnFqnToIdx {
+			featureMeta := FeatureMeta{
+				Pkey: resolvedPkey,
+			}
+
+			value, err := GetValueFromArrowArray(record.Column(j), i, timeAsString)
+			if err != nil {
+				resChan <- &ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      errors.Wrapf(err, "getting metadata from arrow array for feature '%s'", fqn),
+				}
+				return
+			}
+			metaCast, ok := value.(map[string]any)
+			if !ok {
+				resChan <- &ChunkResult{
+					chunkIdx: chunkIdx,
+					err:      fmt.Errorf("casting metadata into map for feature '%s'", fqn),
+				}
+				return
+			}
+
+			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
+				val, ok := sourceType.(string)
+				if !ok {
+					resChan <- &ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("casting source_type into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.SourceType = &val
+			}
+			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
+				val, ok := sourceId.(string)
+				if !ok {
+					resChan <- &ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("casting source_id into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.SourceId = &val
+			}
+			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
+				val, ok := resolverFqn.(string)
+				if !ok {
+					resChan <- &ChunkResult{
+						chunkIdx: chunkIdx,
+						err:      fmt.Errorf("casting resolver_fqn into string for feature '%s'", fqn),
+					}
+					return
+				}
+				featureMeta.ResolverFqn = &val
+			}
+
+			m[fqn] = featureMeta
+		}
+
+		metaRes = append(metaRes, m)
+	}
+
+	resChan <- &ChunkResult{chunkIdx: chunkIdx, rows: featureRes, meta: metaRes}
 }
 
 func ExtractFeaturesFromTable(
 	table arrow.Table,
 	timeAsString bool, // CHA-5430
-) ([]map[string]any, error) {
+) ([]map[string]any, []map[string]FeatureMeta, error) {
 	numRows, err := Int64ToInt(table.NumRows())
 	if err != nil {
-		return nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
+		return nil, nil, errors.Wrapf(err, "table too large, found %d rows", table.NumRows())
 	}
-	res := make([]map[string]any, 0, numRows)
+	featureRes := make([]map[string]any, 0, numRows)
+	metaRes := make([]map[string]FeatureMeta, 0, numRows)
 	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
 	defer reader.Release()
 
 	for reader.Next() {
 		record := reader.Record()
-		colIndicesShouldSkip := make([]bool, record.NumCols())
+		var featureColumnIdxs []int
+		metaColumnFqnToIdx := make(map[string]int)
 		for j := range record.Columns() {
 			colName := record.ColumnName(j)
-			if _, ok := skipUnmarshalFields[colName]; ok {
-				colIndicesShouldSkip[j] = true
-			}
-			if _, ok := skipUnmarshalFeatureNames[getFeatureNameFromFqn(colName)]; ok {
-				colIndicesShouldSkip[j] = true
-			}
-			if _, ok := SkipUnmarshalFqnRoots[getFqnRoot(colName)]; ok {
-				colIndicesShouldSkip[j] = true
+			if strings.HasPrefix(colName, metadataPrefix) || colName == pkeyField {
+				metaColumnFqnToIdx[strings.TrimPrefix(colName, metadataPrefix)] = j
+			} else if colName == "__ts__" || colName == "__index__" || strings.HasPrefix(colName, "__chalk__.") || strings.HasSuffix(colName, ".__chalk_observed_at__") {
+				continue
+			} else {
+				featureColumnIdxs = append(featureColumnIdxs, j)
 			}
 		}
 
 		var wg sync.WaitGroup
 		numWorkers := runtime.NumCPU()
-		resChan := make(chan ChunkResult, numWorkers)
+		resChan := make(chan *ChunkResult, numWorkers)
 		chunkSize := (record.NumRows() / int64(numWorkers)) + 1
 
 		chunkIdx := 0
@@ -291,7 +364,8 @@ func ExtractFeaturesFromTable(
 			wg.Add(1)
 			go extractFeatures(
 				record,
-				colIndicesShouldSkip,
+				featureColumnIdxs,
+				metaColumnFqnToIdx,
 				chunkStart,
 				chunkEnd,
 				chunkIdx,
@@ -307,7 +381,7 @@ func ExtractFeaturesFromTable(
 			close(resChan)
 		}()
 
-		var allChunks []ChunkResult
+		var allChunks []*ChunkResult
 		for chunkResult := range resChan {
 			allChunks = append(allChunks, chunkResult)
 		}
@@ -318,12 +392,13 @@ func ExtractFeaturesFromTable(
 
 		for _, chunkResult := range allChunks {
 			if chunkResult.err != nil {
-				return nil, chunkResult.err
+				return nil, nil, chunkResult.err
 			}
-			res = append(res, chunkResult.rows...)
+			featureRes = append(featureRes, chunkResult.rows...)
+			metaRes = append(metaRes, chunkResult.meta...)
 		}
 	}
-	return res, nil
+	return featureRes, metaRes, nil
 }
 
 func ReflectPtr(value reflect.Value) reflect.Value {
@@ -333,12 +408,12 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
-		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), nsMemo)
+		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
@@ -376,7 +451,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 						resolvedName, structValue.Type().Name(),
 					)
 				}
-				rVal, err := GetReflectValue(&memberValue, memberField.Type(), nsMemo)
+				rVal, err := GetReflectValue(&memberValue, memberField.Type(), allMemo)
 				if err != nil {
 					return nil, errors.Wrapf(
 						err,
@@ -389,16 +464,12 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := nsMemo[ChalkpySnakeCase(structValue.Type().Name())]
-			if !ok {
-				return nil, fmt.Errorf(
-					"namespace memo not found for struct '%s' - found %v",
-					structValue.Type().Name(),
-					colls.Keys(nsMemo),
-				)
+			memo, err := allMemo.LoadOrStore(structValue.Type())
+			if err != nil {
+				return nil, errors.Wrapf(err, "loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
-				return nil, fmt.Errorf(
+				return nil, errors.Newf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
@@ -424,7 +495,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 						if err != nil {
 							return nil, errors.Wrapf(err, "error extracting bucket value for feature '%s'", k)
 						}
-						if err := SetMapEntryValue(memberField, bucket, v, nsMemo); err != nil {
+						if err := SetMapEntryValue(memberField, bucket, v, allMemo); err != nil {
 							return nil, errors.Wrapf(
 								err,
 								"error setting map entry value for field '%s' in struct '%s'",
@@ -432,7 +503,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 							)
 						}
 					} else {
-						rVal, err := GetReflectValue(&v, memberField.Type(), nsMemo)
+						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
 								err,
@@ -496,7 +567,7 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 					)
 				}
 			}
-			rVal, err := GetReflectValue(actualValue, typ.Elem(), nsMemo)
+			rVal, err := GetReflectValue(actualValue, typ.Elem(), allMemo)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting reflect value for slice")
 			}
@@ -520,16 +591,521 @@ func GetReflectValue(value any, typ reflect.Type, nsMemo NamespaceMemo) (*reflec
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, nsMemo NamespaceMemo) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *NamespaceMemosT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), nsMemo)
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
 	if err != nil {
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
 	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	return nil
+}
+
+func ConvertIfHasManyMap(value any) (any, error) {
+	// For has-many values, we get this back:
+	//
+	// {
+	//   "columns": ["user.id", "user.email"],
+	//   "values": [
+	//     ["id1", "id2"],
+	//     ["email1@geemail.com", "email2@geemail.com"]
+	//   ]
+	// }
+	//
+	// We want to convert this to:
+	//
+	// [
+	//   {"user.id": "id1", "user.email": "email1@geemail.com"},
+	//   {"user.id": "id2", "user.email": "email2@geemail.com"}
+	// ]
+	//
+	hasMany, ok := value.(map[string]any)
+	if !ok {
+		return value, nil
+	}
+
+	columnsRaw, hasColumns := hasMany["columns"]
+	valuesRaw, hasValues := hasMany["values"]
+	if !hasColumns || !hasValues {
+		return value, nil
+	}
+
+	columnsAny, ok := columnsRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert columns to []any")
+	}
+
+	columns := make([]string, len(columnsAny))
+	for i, column := range columnsAny {
+		columns[i], ok = column.(string)
+		if !ok {
+			return nil, errors.Newf("failed to convert column '%v' to string", column)
+		}
+	}
+
+	valuesAny, ok := valuesRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert values to [][]any")
+	}
+
+	values := make([][]any, len(valuesAny))
+	for i, row := range valuesAny {
+		values[i], ok = row.([]any)
+		if !ok {
+			return nil, errors.Newf("failed to convert row '%v' to []any", row)
+		}
+	}
+
+	if len(values) == 0 {
+		return nil, errors.New("values of has-many results is empty")
+	}
+	numRows := len(values[0])
+
+	newValues := make([]map[string]any, numRows)
+	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
+		newRow := make(map[string]any)
+		for colIdx, colName := range columns {
+			newRow[colName] = values[colIdx][rowIdx]
+		}
+		newValues[rowIdx] = newRow
+	}
+	return newValues, nil
+}
+
+type InitScope struct {
+	Children map[string]*InitScope
+}
+
+func (s *InitScope) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *InitScope) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
+	}
+	firstPart := fqnParts[0]
+	if s.Children == nil {
+		s.Children = map[string]*InitScope{}
+	}
+	if _, found := s.Children[firstPart]; !found {
+		s.Children[firstPart] = &InitScope{}
+	}
+	s.Children[firstPart].add(fqnParts[1:])
+}
+
+func BuildScope(fqns []string) (*InitScope, error) {
+	root := &InitScope{}
+	for _, fqn := range fqns {
+		root.addStr(fqn)
+	}
+	return root, nil
+}
+
+func InitRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *InitScope,
+	allMemo *NamespaceMemosT,
+	scopeToJustStructs bool,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo, err := allMemo.LoadOrStore(structValue.Type())
+	if err != nil {
+		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
+	}
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.Children)
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, inScope := scope.Children[resolvedFieldName]
+		if !inScope {
+			continue
+		}
+		updatedFqn := cumulativeFqn + "." + resolvedFieldName
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		if !ok {
+			// We arrive here when chalk-go receives a response that contains a feature
+			// newly added to one of their has-one feature classes. They have not updated
+			// their codegen'd structs yet, so we simply skip unmarshalling this new
+			// feature to ensure forward compatibility.
+			continue
+		}
+
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				if err := InitRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					allMemo,
+					false,
+				); err != nil {
+					return err
+				}
+			} else {
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+			}
+		}
+	}
+	return nil
+}
+
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
+	if field.Type().Kind() == reflect.Ptr {
+		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
+		if err != nil {
+			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
+		}
+		field.Set(*rVal)
+		return nil
+	} else if field.Kind() == reflect.Map {
+		bucket, err := GetBucketFromFqn(fqn)
+		if err != nil {
+			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
+		}
+		if err := SetMapEntryValue(field, bucket, value, allMemo); err != nil {
+			return errors.Wrapf(err, "setting map entry value for feature '%s'", fqn)
+		}
+		return nil
+	} else {
+		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
+	}
+}
+
+// ThinUnmarshalInto is called per row. Any operation that can be
+// done outside of this function must be done outside of this function.
+func ThinUnmarshalInto(
+	structValue reflect.Value,
+	fqnToValue map[string]any,
+	namespace string,
+	namespaceScope *InitScope,
+	namespaceMemo *NamespaceMemo,
+	allMemo *NamespaceMemosT,
+) (returnErr error) {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := InitRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		namespaceScope,
+		allMemo,
+		true,
+	); err != nil {
+		return errors.Wrap(err, "initializing result holder struct")
+	}
+
+	for fqn, value := range fqnToValue {
+		targetFields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIndices, ok := namespaceMemo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
+			}
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
+			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().String()
+				outputNamespace := "unknown namespace"
+				sections := strings.Split(fqn, ".")
+				if len(sections) > 0 {
+					outputNamespace = sections[0]
+				}
+				if errors.Is(err, FieldNotFoundError) {
+					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+					return errors.New(fieldError)
+				} else {
+					return errors.Wrapf(err, "unmarshaling feature '%s' into the struct '%s'", fqn, structName)
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
+type UnmarshalChunkResult struct {
+	chunkIdx int
+	rows     []reflect.Value
+	err      error
+}
+
+func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
+	defer func() {
+		if panicContents := recover(); panicContents != nil {
+			detail := "details irretrievable"
+			switch typedContents := panicContents.(type) {
+			case *reflect.ValueError:
+				detail = typedContents.Error()
+			case string:
+				detail = typedContents
+			}
+			returnErr = errors.Newf("exception occurred while unmarshalling result: %s", detail)
+		}
+	}()
+
+	numRows, err := Int64ToInt(table.NumRows())
+	if err != nil {
+		return errors.Newf("table too large to unmarshal, found %d rows", table.NumRows())
+	}
+
+	slicePtr := reflect.ValueOf(resultHolders)
+	if slicePtr.Kind() != reflect.Ptr {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slicePtr.Kind(),
+		)
+	}
+
+	slice := reflect.Indirect(slicePtr)
+	if slice.Kind() != reflect.Slice {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got '%s' instead",
+			slice.Kind(),
+		)
+	}
+
+	sliceElemType := slice.Type().Elem()
+	if sliceElemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"result holder should be a pointer to a slice of structs, "+
+				"got a pointer to a slice of '%s' instead",
+			sliceElemType.Kind(),
+		)
+	}
+
+	rows, _, scalarsErr := ExtractFeaturesFromTable(table, false)
+	if scalarsErr != nil {
+		return scalarsErr
+	}
+	if len(rows) == 0 {
+		return nil
+	}
+
+	scope, err := BuildScope(colls.Keys(rows[0]))
+	if err != nil {
+		return errors.Wrap(err, "building deserialization scope")
+	}
+
+	allMemo := NamespaceMemos
+	if err := PopulateNamespaceMemos(sliceElemType, nil); err != nil {
+		return errors.Wrap(err, "building namespace memo")
+	}
+
+	structName := sliceElemType.Name()
+	namespace := ChalkpySnakeCase(structName)
+	nsScope := scope.Children[namespace]
+
+	var rowToStruct func(map[string]any) (*reflect.Value, error)
+	if nsScope != nil {
+		// single namespace unmarshalling
+		nsMemo, err := allMemo.LoadOrStore(sliceElemType)
+		if err != nil {
+			return errors.Wrapf(err, "loading memo for type '%s'", sliceElemType.Name())
+		}
+
+		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
+			featuresStruct := reflect.New(sliceElemType)
+			if err := ThinUnmarshalInto(
+				featuresStruct.Elem(),
+				row,
+				namespace,
+				nsScope,
+				nsMemo,
+				allMemo,
+			); err != nil {
+				return nil, err
+			}
+			return ptr.Ptr(featuresStruct.Elem()), nil
+		}
+	} else {
+		// Multi namespace unmarshalling
+		type namespaceMetaT struct {
+			fieldIdx  int
+			namespace string
+			scope     *InitScope
+			memo      *NamespaceMemo
+		}
+
+		namespaceMeta := []namespaceMetaT{}
+		for i := 0; i < sliceElemType.NumField(); i++ {
+			fieldMeta := sliceElemType.Field(i)
+			if fieldMeta.Type.Kind() != reflect.Struct {
+				return errors.Newf(
+					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
+						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
+						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
+						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
+					structName,
+					colls.Keys(scope.Children),
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+				)
+			}
+
+			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
+
+			fieldScope := scope.Children[fieldNamespace]
+			if fieldScope == nil {
+				return errors.Newf(
+					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
+						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
+						"of type '%s', but results are from these namespaces: %v",
+					structName,
+					fieldMeta.Name,
+					fieldMeta.Type.Name(),
+					colls.Keys(scope.Children),
+				)
+			}
+
+			fieldMemo, err := allMemo.LoadOrStore(fieldMeta.Type)
+			if err != nil {
+				return errors.Wrapf(err, "loading memo for type '%s'", fieldMeta.Type.Name())
+			}
+
+			namespaceMeta = append(namespaceMeta, namespaceMetaT{
+				fieldIdx:  i,
+				namespace: fieldNamespace,
+				scope:     fieldScope,
+				memo:      fieldMemo,
+			})
+		}
+
+		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
+			rootStruct := reflect.New(sliceElemType)
+			for _, meta := range namespaceMeta {
+				if err := ThinUnmarshalInto(
+					rootStruct.Elem().Field(meta.fieldIdx),
+					row,
+					meta.namespace,
+					meta.scope,
+					meta.memo,
+					allMemo,
+				); err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"error unmarshalling into field '%s'",
+						sliceElemType.Field(meta.fieldIdx).Name,
+					)
+				}
+			}
+			return ptr.Ptr(rootStruct.Elem()), nil
+		}
+	}
+
+	var wg sync.WaitGroup
+	numWorkers := runtime.NumCPU()
+	resChan := make(chan *UnmarshalChunkResult, numWorkers)
+	chunkSize := (len(rows) / numWorkers) + 1
+
+	for chunkIdx := 0; (chunkIdx * chunkSize) < len(rows); chunkIdx += 1 {
+		wg.Add(1)
+		go func(routineChunkIdx int) {
+			defer wg.Done()
+			chunkStart := routineChunkIdx * chunkSize
+			chunkEnd := chunkStart + chunkSize
+			chunkRows := rows[chunkStart:min(chunkEnd, len(rows))]
+			results := make([]reflect.Value, len(chunkRows))
+			for rowIdx, row := range chunkRows {
+				res, err := rowToStruct(row)
+				if err != nil {
+					resChan <- &UnmarshalChunkResult{chunkIdx: routineChunkIdx, err: err}
+					return
+				} else {
+					results[rowIdx] = *res
+				}
+			}
+			resChan <- &UnmarshalChunkResult{chunkIdx: routineChunkIdx, rows: results}
+		}(chunkIdx)
+	}
+
+	wg.Wait()
+	close(resChan)
+
+	var allChunks []*UnmarshalChunkResult
+	for chunkResult := range resChan {
+		allChunks = append(allChunks, chunkResult)
+	}
+
+	sort.Slice(allChunks, func(i, j int) bool {
+		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
+	})
+
+	newSlice := reflect.MakeSlice(slice.Type(), numRows, numRows)
+	rowIdx := 0
+	for _, chunkResult := range allChunks {
+		if chunkResult.err != nil {
+			return chunkResult.err
+		}
+		for _, row := range chunkResult.rows {
+			newSlice.Index(rowIdx).Set(row)
+			rowIdx += 1
+		}
+	}
+	slice.Set(newSlice)
+
 	return nil
 }

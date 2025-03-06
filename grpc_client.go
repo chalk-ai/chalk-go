@@ -4,7 +4,7 @@ import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/cockroachdb/errors"
+	"time"
 )
 
 // GRPCClient is the gRPC-native interface for interacting with Chalk.
@@ -26,7 +26,7 @@ type GRPCClient interface {
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
-	GetToken() (*TokenResult, error)
+	GetToken(ctx context.Context) (*TokenResult, error)
 }
 
 type GRPCClientConfig struct {
@@ -71,6 +71,15 @@ type GRPCClientConfig struct {
 	// Chalk can route queries to specific deployments using deployment
 	// tags.
 	DeploymentTag string
+
+	// ResourceGroup specifies the resource group to route all requests to. If set
+	// on the request or query level, this will be overridden.
+	ResourceGroup string
+
+	// Timeout specifies the timeout for all requests. Defaults to no timeout.
+	// Timeout of 0 means no timeout. Deadline or timeout set on the request
+	// context will override this timeout.
+	Timeout time.Duration
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
@@ -92,24 +101,18 @@ type GRPCClientConfig struct {
 //
 // Example:
 //
-//	     chalkClient, err := chalk.NewGRPCClient(&chalk.ClientConfig{
-//		        ClientId:      "id-89140a6614886982a6782106759e30",
-//		        ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-//		        ApiServer:     "https://api.chalk.ai",
-//		        EnvironmentId: "qa",
-//		        Branch:        "jorges-december",
-//	})
+//		     chalkClient, err := chalk.NewGRPCClient(
+//	             context.Background(),
+//		         &chalk.ClientConfig{
+//			         ClientId:      "id-89140a6614886982a6782106759e30",
+//			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+//			         ApiServer:     "https://api.chalk.ai",
+//			         EnvironmentId: "qa",
+//			         Branch:        "jorges-december",
+//		         },
+//		     )
 //
 // [chalk login]: https://docs.chalk.ai/cli#login
-func NewGRPCClient(configs ...*GRPCClientConfig) (GRPCClient, error) {
-	var cfg *GRPCClientConfig
-	if len(configs) == 0 {
-		cfg = &GRPCClientConfig{}
-	} else if len(configs) > 1 {
-		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
-	} else {
-		cfg = configs[len(configs)-1]
-	}
-
-	return newGrpcClient(*cfg)
+func NewGRPCClient(ctx context.Context, configs ...*GRPCClientConfig) (GRPCClient, error) {
+	return newGrpcClient(ctx, configs...)
 }

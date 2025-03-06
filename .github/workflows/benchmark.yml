@@ -1,0 +1,76 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || 'main' }}
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+      - name: Run benchmark
+        run: go test -bench=. ./... | tee output.txt
+
+      - name: Set benchmark directory
+        run: |
+          set -exuo pipefail
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|/|--|g')
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BENCHMARK_DIR="benchmark_results/main"
+          else
+            BENCHMARK_DIR="benchmark_results/$BRANCH_NAME"
+          fi
+          echo "BENCHMARK_DIR=$BENCHMARK_DIR" >> "$GITHUB_ENV"
+          echo "Benchmark directory set to $BENCHMARK_DIR"
+        shell: bash
+
+      - name: If pull request, branch off of the `benchmark_results/main` folder on the `benchmark-results` branch
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          set -exuo pipefail
+          git pull
+          git checkout benchmark-results
+          if [ ! -d "$BENCHMARK_DIR" ]; then
+            echo "Creating new directory: $BENCHMARK_DIR"
+            mkdir -p $BENCHMARK_DIR
+            cp -r benchmark_results/main/* "$BENCHMARK_DIR"/
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add benchmark_results/
+            MAIN_FOLDER_SHORT_HASH=$(git rev-parse --short origin/benchmark-results)
+            git commit -m "Copy benchmark results from main folder (commit $MAIN_FOLDER_SHORT_HASH)"
+            git push
+          else
+            echo "Directory already exists: $BENCHMARK_DIR"
+          fi
+
+      - name: If push to main, get latest `benchmark-results` branch
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          set -exuo pipefail
+          git pull
+          git checkout benchmark-results
+
+      - name: Save benchmark data
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: output.txt
+          fail-on-alert: false
+          alert-threshold: "110%"
+          ref: ${{ github.ref }}
+          gh-pages-branch: benchmark-results
+          skip-fetch-gh-pages: true  # already fetched gh pages branch with checkout action
+          benchmark-data-dir-path: ${{ env.BENCHMARK_DIR }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true

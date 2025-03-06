@@ -3,9 +3,9 @@ package chalk
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -13,109 +13,6 @@ import (
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
 	return initFeatures(structValue, "", make(map[string]bool))
-}
-
-type scopeTrie struct {
-	children map[string]*scopeTrie
-}
-
-func (s *scopeTrie) addStr(fqn string) {
-	s.add(strings.Split(fqn, "."))
-}
-
-func (s *scopeTrie) add(fqnParts []string) {
-	if len(fqnParts) == 0 {
-		return
-	}
-	firstPart := fqnParts[0]
-	if s.children == nil {
-		s.children = map[string]*scopeTrie{}
-	}
-	if _, found := s.children[firstPart]; !found {
-		s.children[firstPart] = &scopeTrie{}
-	}
-	s.children[firstPart].add(fqnParts[1:])
-}
-
-func initRemoteFeatureMap(
-	remoteFeatureMap map[string][]reflect.Value,
-	structValue reflect.Value,
-	cumulativeFqn string,
-	visited map[string]bool,
-	scope *scopeTrie,
-	nsMemo internal.NamespaceMemo,
-	scopeToJustStructs bool,
-) error {
-	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"feature initialization function argument must be a reflect.Value"+
-				" of the kind reflect.Struct, found %s instead",
-			structValue.Kind().String(),
-		)
-	}
-
-	structName := structValue.Type().Name()
-	if isVisited, ok := visited[structName]; ok && isVisited {
-		// Found a cycle. Just return.
-		return nil
-	}
-	visited[structName] = true
-	defer func() {
-		visited[structName] = false
-	}()
-
-	memo := nsMemo[internal.ChalkpySnakeCase(structName)]
-
-	var fieldNames []string
-	if scopeToJustStructs {
-		fieldNames = colls.Keys(memo.HasOneFieldsSet)
-	} else {
-		fieldNames = colls.Keys(scope.children)
-	}
-
-	for _, resolvedFieldName := range fieldNames {
-		nextScope, inScope := scope.children[resolvedFieldName]
-		if !inScope {
-			continue
-		}
-		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedFieldName)
-		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
-		if !ok {
-			// We arrive here when chalk-go receives a response that contains a feature
-			// newly added to one of their has-one feature classes. They have not updated
-			// their codegen'd structs yet, so we simply skip unmarshalling this new
-			// feature to ensure forward compatibility.
-			continue
-		}
-
-		for _, fieldIdx := range fieldIndices {
-			f := structValue.Field(fieldIdx)
-
-			if _, isStruct := memo.HasOneFieldsSet[resolvedFieldName]; isStruct {
-				if !f.CanSet() {
-					continue
-				}
-				if f.IsNil() {
-					featureSet := reflect.New(f.Type().Elem())
-					f.Set(featureSet)
-				}
-				if err := initRemoteFeatureMap(
-					remoteFeatureMap,
-					f.Elem(),
-					updatedFqn,
-					visited,
-					nextScope,
-					nsMemo,
-					false,
-				); err != nil {
-					return err
-				}
-			} else {
-				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
-			}
-		}
-	}
-	return nil
 }
 
 // initFeatures is a recursive function that initializes all features
@@ -166,7 +63,7 @@ func initFeatures(
 			return errors.Wrapf(err, "error resolving feature name: %s", fm.Meta.Name)
 		}
 
-		updatedFqn := fmt.Sprintf("%s.%s", cumulativeFqn, resolvedName)
+		updatedFqn := cumulativeFqn + "." + resolvedName
 		if cumulativeFqn == "" {
 			updatedFqn = resolvedName
 		}
@@ -226,8 +123,7 @@ func initFeatures(
 				if err != nil {
 					return errors.Wrap(err, "error parsing bucket duration: %s")
 				}
-				updatedResolvedName := fmt.Sprintf("%s__%d__", resolvedName, seconds)
-				bucketFqn := fmt.Sprintf("%s.%s", cumulativeFqn, updatedResolvedName)
+				bucketFqn := cumulativeFqn + "." + resolvedName + "__" + strconv.Itoa(seconds) + "__"
 				if f.IsNil() {
 					f.Set(reflect.MakeMap(f.Type()))
 				}
@@ -263,6 +159,48 @@ func initFeatures(
 	return nil
 }
 
+/* WarmUpUnmarshaller builds a memo to make unmarshalling efficient. This function should be called only once
+ * at init time, instead of per query. If this function is not called, the first query will be slower, but
+ * subsequent queries that unmarshals into the same structs will be faster because they will use the memo built
+ * implicitly by the first query.
+ *
+ * This function takes in either an anonymous struct that contains all feature structs, or an individual
+ * feature struct. It also recursively builds memos for all nested feature structs.
+ *
+ * Example usage:
+ *  type User struct {
+ *      Id *string
+ *      Transactions *[]Transactions `has_many:"id,user_id"`
+ *      Grade   *int `versioned:"default(2)"`
+ *      GradeV1 *int `versioned:"true"`
+ *      GradeV2 *int `versioned:"true"`
+ *  }
+ *  type Transactions struct {
+ *      Id *string
+ *      UserId *string
+ *      Amount *float64
+ *  }
+ *  var Features struct {
+ *      User *User
+ *      Transactions *Transactions
+ *  }
+ *  func init() {
+ *      if err := chalk.WarmUpUnmarshaller(&Features); err != nil {
+ *          panic("error initializing unmarshalling")
+ *      }
+ *  }
+ */
+func WarmUpUnmarshaller[T any](featureStruct *T) error {
+	elemType := reflect.TypeOf(featureStruct).Elem()
+	if elemType.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"argument must be a pointer to a struct, found a pointer to `%s` instead",
+			elemType.Kind(),
+		)
+	}
+	return internal.PopulateNamespaceMemos(elemType, nil)
+}
+
 func pointerCheck(field reflect.Value) error {
 	if field.Kind() != reflect.Ptr {
 		return fmt.Errorf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind())
@@ -271,5 +209,5 @@ func pointerCheck(field reflect.Value) error {
 }
 
 func SnakeCase(s string) string {
-	return internal.ChalkpySnakeCase(s)
+	return internal.LegacySnakeCase(s)
 }

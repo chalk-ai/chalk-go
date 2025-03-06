@@ -15,7 +15,7 @@ type onlineQueryResultFeather struct {
 	HasData    bool
 	ScalarData arrow.Table
 	GroupsData map[Fqn]arrow.Table
-	Errors     []ServerError
+	Errors     serverErrorsT
 	Meta       *QueryMeta
 }
 
@@ -47,7 +47,7 @@ type DatasetFilter struct {
 }
 
 type chalkHttpException struct {
-	Detail *string `json:"detail"`
+	Detail any     `json:"detail"`
 	Trace  *string `json:"trace"`
 }
 
@@ -59,10 +59,11 @@ type sendRequestParams struct {
 	Response    any
 	DontRefresh bool
 
-	EnvironmentOverride string
-	PreviewDeploymentId string
-	Versioned           bool
-	Branch              *string
+	EnvironmentOverride   string
+	PreviewDeploymentId   string
+	Versioned             bool
+	Branch                *string
+	ResourceGroupOverride *string
 
 	IsEngineRequest bool
 }

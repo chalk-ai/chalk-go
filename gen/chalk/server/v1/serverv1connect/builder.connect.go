@@ -23,6 +23,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// BuilderServiceName is the fully-qualified name of the BuilderService service.
 	BuilderServiceName = "chalk.server.v1.BuilderService"
+	// ClusterBuilderServiceName is the fully-qualified name of the ClusterBuilderService service.
+	ClusterBuilderServiceName = "chalk.server.v1.ClusterBuilderService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -87,29 +89,27 @@ const (
 	// BuilderServiceStartBranchProcedure is the fully-qualified name of the BuilderService's
 	// StartBranch RPC.
 	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
-)
-
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	builderServiceServiceDescriptor                                  = v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService")
-	builderServiceGetSearchConfigMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("GetSearchConfig")
-	builderServiceActivateDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("ActivateDeployment")
-	builderServiceIndexDeploymentMethodDescriptor                    = builderServiceServiceDescriptor.Methods().ByName("IndexDeployment")
-	builderServiceDeployKubeComponentsMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("DeployKubeComponents")
-	builderServiceRebuildDeploymentMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("RebuildDeployment")
-	builderServiceRedeployDeploymentMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("RedeployDeployment")
-	builderServiceUploadSourceMethodDescriptor                       = builderServiceServiceDescriptor.Methods().ByName("UploadSource")
-	builderServiceGetDeploymentStepsMethodDescriptor                 = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentSteps")
-	builderServiceGetDeploymentLogsMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetDeploymentLogs")
-	builderServiceGetClusterTimescaleDBMethodDescriptor              = builderServiceServiceDescriptor.Methods().ByName("GetClusterTimescaleDB")
-	builderServiceGetClusterGatewayMethodDescriptor                  = builderServiceServiceDescriptor.Methods().ByName("GetClusterGateway")
-	builderServiceGetClusterBackgroundPersistenceMethodDescriptor    = builderServiceServiceDescriptor.Methods().ByName("GetClusterBackgroundPersistence")
-	builderServiceCreateClusterTimescaleDBMethodDescriptor           = builderServiceServiceDescriptor.Methods().ByName("CreateClusterTimescaleDB")
-	builderServiceMigrateClusterTimescaleDBMethodDescriptor          = builderServiceServiceDescriptor.Methods().ByName("MigrateClusterTimescaleDB")
-	builderServiceCreateClusterGatewayMethodDescriptor               = builderServiceServiceDescriptor.Methods().ByName("CreateClusterGateway")
-	builderServiceCreateClusterBackgroundPersistenceMethodDescriptor = builderServiceServiceDescriptor.Methods().ByName("CreateClusterBackgroundPersistence")
-	builderServiceUpdateEnvironmentVariablesMethodDescriptor         = builderServiceServiceDescriptor.Methods().ByName("UpdateEnvironmentVariables")
-	builderServiceStartBranchMethodDescriptor                        = builderServiceServiceDescriptor.Methods().ByName("StartBranch")
+	// BuilderServiceGetKarpenterNodepoolsProcedure is the fully-qualified name of the BuilderService's
+	// GetKarpenterNodepools RPC.
+	BuilderServiceGetKarpenterNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetKarpenterNodepools"
+	// BuilderServiceAddKarpenterNodepoolProcedure is the fully-qualified name of the BuilderService's
+	// AddKarpenterNodepool RPC.
+	BuilderServiceAddKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/AddKarpenterNodepool"
+	// BuilderServiceUpdateKarpenterNodepoolProcedure is the fully-qualified name of the
+	// BuilderService's UpdateKarpenterNodepool RPC.
+	BuilderServiceUpdateKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/UpdateKarpenterNodepool"
+	// BuilderServiceDeleteKarpenterNodepoolProcedure is the fully-qualified name of the
+	// BuilderService's DeleteKarpenterNodepool RPC.
+	BuilderServiceDeleteKarpenterNodepoolProcedure = "/chalk.server.v1.BuilderService/DeleteKarpenterNodepool"
+	// BuilderServiceGetKarpenterInstallationMetadataProcedure is the fully-qualified name of the
+	// BuilderService's GetKarpenterInstallationMetadata RPC.
+	BuilderServiceGetKarpenterInstallationMetadataProcedure = "/chalk.server.v1.BuilderService/GetKarpenterInstallationMetadata"
+	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
+	// ClusterBuilderService's CreateKafkaTopics RPC.
+	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
+	// ClusterBuilderServiceGetKafkaTopicsProcedure is the fully-qualified name of the
+	// ClusterBuilderService's GetKafkaTopics RPC.
+	ClusterBuilderServiceGetKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/GetKafkaTopics"
 )
 
 // BuilderServiceClient is a client for the chalk.server.v1.BuilderService service.
@@ -140,6 +140,11 @@ type BuilderServiceClient interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
+	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
+	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
+	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
+	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -151,114 +156,147 @@ type BuilderServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) BuilderServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	builderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService").Methods()
 	return &builderServiceClient{
 		getSearchConfig: connect.NewClient[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse](
 			httpClient,
 			baseURL+BuilderServiceGetSearchConfigProcedure,
-			connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetSearchConfig")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		activateDeployment: connect.NewClient[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceActivateDeploymentProcedure,
-			connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("ActivateDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		indexDeployment: connect.NewClient[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceIndexDeploymentProcedure,
-			connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("IndexDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		deployKubeComponents: connect.NewClient[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse](
 			httpClient,
 			baseURL+BuilderServiceDeployKubeComponentsProcedure,
-			connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("DeployKubeComponents")),
 			connect.WithClientOptions(opts...),
 		),
 		rebuildDeployment: connect.NewClient[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceRebuildDeploymentProcedure,
-			connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("RebuildDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		redeployDeployment: connect.NewClient[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceRedeployDeploymentProcedure,
-			connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("RedeployDeployment")),
 			connect.WithClientOptions(opts...),
 		),
 		uploadSource: connect.NewClient[v1.UploadSourceRequest, v1.UploadSourceResponse](
 			httpClient,
 			baseURL+BuilderServiceUploadSourceProcedure,
-			connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentSteps: connect.NewClient[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetDeploymentStepsProcedure,
-			connect.WithSchema(builderServiceGetDeploymentStepsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentLogs: connect.NewClient[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetDeploymentLogsProcedure,
-			connect.WithSchema(builderServiceGetDeploymentLogsMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentLogs")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterTimescaleDB: connect.NewClient[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceGetClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterGateway: connect.NewClient[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterGatewayProcedure,
-			connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterBackgroundPersistence: connect.NewClient[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterBackgroundPersistenceProcedure,
-			connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterTimescaleDB: connect.NewClient[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceCreateClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		migrateClusterTimescaleDB: connect.NewClient[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceMigrateClusterTimescaleDBProcedure,
-			connect.WithSchema(builderServiceMigrateClusterTimescaleDBMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterGateway: connect.NewClient[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterGatewayProcedure,
-			connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterGateway")),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterBackgroundPersistence: connect.NewClient[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateClusterBackgroundPersistenceProcedure,
-			connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
 		updateEnvironmentVariables: connect.NewClient[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse](
 			httpClient,
 			baseURL+BuilderServiceUpdateEnvironmentVariablesProcedure,
-			connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("UpdateEnvironmentVariables")),
 			connect.WithClientOptions(opts...),
 		),
 		startBranch: connect.NewClient[v1.StartBranchRequest, v1.StartBranchResponse](
 			httpClient,
 			baseURL+BuilderServiceStartBranchProcedure,
-			connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+			connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
+			connect.WithClientOptions(opts...),
+		),
+		getKarpenterNodepools: connect.NewClient[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetKarpenterNodepoolsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetKarpenterNodepools")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		addKarpenterNodepool: connect.NewClient[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceAddKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("AddKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
+		updateKarpenterNodepool: connect.NewClient[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteKarpenterNodepool: connect.NewClient[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteKarpenterNodepoolProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
+			connect.WithClientOptions(opts...),
+		),
+		getKarpenterInstallationMetadata: connect.NewClient[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse](
+			httpClient,
+			baseURL+BuilderServiceGetKarpenterInstallationMetadataProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetKarpenterInstallationMetadata")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -284,6 +322,11 @@ type builderServiceClient struct {
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
+	getKarpenterNodepools              *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
+	addKarpenterNodepool               *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
+	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
+	deleteKarpenterNodepool            *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
+	getKarpenterInstallationMetadata   *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -378,6 +421,32 @@ func (c *builderServiceClient) StartBranch(ctx context.Context, req *connect.Req
 	return c.startBranch.CallUnary(ctx, req)
 }
 
+// GetKarpenterNodepools calls chalk.server.v1.BuilderService.GetKarpenterNodepools.
+func (c *builderServiceClient) GetKarpenterNodepools(ctx context.Context, req *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
+	return c.getKarpenterNodepools.CallUnary(ctx, req)
+}
+
+// AddKarpenterNodepool calls chalk.server.v1.BuilderService.AddKarpenterNodepool.
+func (c *builderServiceClient) AddKarpenterNodepool(ctx context.Context, req *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error) {
+	return c.addKarpenterNodepool.CallUnary(ctx, req)
+}
+
+// UpdateKarpenterNodepool calls chalk.server.v1.BuilderService.UpdateKarpenterNodepool.
+func (c *builderServiceClient) UpdateKarpenterNodepool(ctx context.Context, req *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error) {
+	return c.updateKarpenterNodepool.CallUnary(ctx, req)
+}
+
+// DeleteKarpenterNodepool calls chalk.server.v1.BuilderService.DeleteKarpenterNodepool.
+func (c *builderServiceClient) DeleteKarpenterNodepool(ctx context.Context, req *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
+	return c.deleteKarpenterNodepool.CallUnary(ctx, req)
+}
+
+// GetKarpenterInstallationMetadata calls
+// chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata.
+func (c *builderServiceClient) GetKarpenterInstallationMetadata(ctx context.Context, req *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error) {
+	return c.getKarpenterInstallationMetadata.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -406,6 +475,11 @@ type BuilderServiceHandler interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
+	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
+	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
+	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
+	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -414,113 +488,146 @@ type BuilderServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	builderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("BuilderService").Methods()
 	builderServiceGetSearchConfigHandler := connect.NewUnaryHandler(
 		BuilderServiceGetSearchConfigProcedure,
 		svc.GetSearchConfig,
-		connect.WithSchema(builderServiceGetSearchConfigMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetSearchConfig")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceActivateDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceActivateDeploymentProcedure,
 		svc.ActivateDeployment,
-		connect.WithSchema(builderServiceActivateDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("ActivateDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceIndexDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceIndexDeploymentProcedure,
 		svc.IndexDeployment,
-		connect.WithSchema(builderServiceIndexDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("IndexDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceDeployKubeComponentsHandler := connect.NewUnaryHandler(
 		BuilderServiceDeployKubeComponentsProcedure,
 		svc.DeployKubeComponents,
-		connect.WithSchema(builderServiceDeployKubeComponentsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("DeployKubeComponents")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceRebuildDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceRebuildDeploymentProcedure,
 		svc.RebuildDeployment,
-		connect.WithSchema(builderServiceRebuildDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("RebuildDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceRedeployDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceRedeployDeploymentProcedure,
 		svc.RedeployDeployment,
-		connect.WithSchema(builderServiceRedeployDeploymentMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("RedeployDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceUploadSourceHandler := connect.NewUnaryHandler(
 		BuilderServiceUploadSourceProcedure,
 		svc.UploadSource,
-		connect.WithSchema(builderServiceUploadSourceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentStepsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetDeploymentStepsProcedure,
 		svc.GetDeploymentSteps,
-		connect.WithSchema(builderServiceGetDeploymentStepsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentSteps")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentLogsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetDeploymentLogsProcedure,
 		svc.GetDeploymentLogs,
-		connect.WithSchema(builderServiceGetDeploymentLogsMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentLogs")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterTimescaleDBProcedure,
 		svc.GetClusterTimescaleDB,
-		connect.WithSchema(builderServiceGetClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterGatewayHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterGatewayProcedure,
 		svc.GetClusterGateway,
-		connect.WithSchema(builderServiceGetClusterGatewayMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterBackgroundPersistenceProcedure,
 		svc.GetClusterBackgroundPersistence,
-		connect.WithSchema(builderServiceGetClusterBackgroundPersistenceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterTimescaleDBProcedure,
 		svc.CreateClusterTimescaleDB,
-		connect.WithSchema(builderServiceCreateClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceMigrateClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceMigrateClusterTimescaleDBProcedure,
 		svc.MigrateClusterTimescaleDB,
-		connect.WithSchema(builderServiceMigrateClusterTimescaleDBMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("MigrateClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterGatewayHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterGatewayProcedure,
 		svc.CreateClusterGateway,
-		connect.WithSchema(builderServiceCreateClusterGatewayMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterGateway")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateClusterBackgroundPersistenceProcedure,
 		svc.CreateClusterBackgroundPersistence,
-		connect.WithSchema(builderServiceCreateClusterBackgroundPersistenceMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceUpdateEnvironmentVariablesHandler := connect.NewUnaryHandler(
 		BuilderServiceUpdateEnvironmentVariablesProcedure,
 		svc.UpdateEnvironmentVariables,
-		connect.WithSchema(builderServiceUpdateEnvironmentVariablesMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("UpdateEnvironmentVariables")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartBranchHandler := connect.NewUnaryHandler(
 		BuilderServiceStartBranchProcedure,
 		svc.StartBranch,
-		connect.WithSchema(builderServiceStartBranchMethodDescriptor),
+		connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetKarpenterNodepoolsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetKarpenterNodepoolsProcedure,
+		svc.GetKarpenterNodepools,
+		connect.WithSchema(builderServiceMethods.ByName("GetKarpenterNodepools")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceAddKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceAddKarpenterNodepoolProcedure,
+		svc.AddKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("AddKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUpdateKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateKarpenterNodepoolProcedure,
+		svc.UpdateKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteKarpenterNodepoolHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteKarpenterNodepoolProcedure,
+		svc.DeleteKarpenterNodepool,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteKarpenterNodepool")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceGetKarpenterInstallationMetadataHandler := connect.NewUnaryHandler(
+		BuilderServiceGetKarpenterInstallationMetadataProcedure,
+		svc.GetKarpenterInstallationMetadata,
+		connect.WithSchema(builderServiceMethods.ByName("GetKarpenterInstallationMetadata")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -561,6 +668,16 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
 		case BuilderServiceStartBranchProcedure:
 			builderServiceStartBranchHandler.ServeHTTP(w, r)
+		case BuilderServiceGetKarpenterNodepoolsProcedure:
+			builderServiceGetKarpenterNodepoolsHandler.ServeHTTP(w, r)
+		case BuilderServiceAddKarpenterNodepoolProcedure:
+			builderServiceAddKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateKarpenterNodepoolProcedure:
+			builderServiceUpdateKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteKarpenterNodepoolProcedure:
+			builderServiceDeleteKarpenterNodepoolHandler.ServeHTTP(w, r)
+		case BuilderServiceGetKarpenterInstallationMetadataProcedure:
+			builderServiceGetKarpenterInstallationMetadataHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -640,4 +757,121 @@ func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Con
 
 func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartBranch is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetKarpenterNodepools is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.AddKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteKarpenterNodepool is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata is not implemented"))
+}
+
+// ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
+type ClusterBuilderServiceClient interface {
+	CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error)
+	GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error)
+}
+
+// NewClusterBuilderServiceClient constructs a client for the chalk.server.v1.ClusterBuilderService
+// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
+// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
+// the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewClusterBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) ClusterBuilderServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	clusterBuilderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("ClusterBuilderService").Methods()
+	return &clusterBuilderServiceClient{
+		createKafkaTopics: connect.NewClient[v1.CreateKafkaTopicsRequest, v1.CreateKafkaTopicsResponse](
+			httpClient,
+			baseURL+ClusterBuilderServiceCreateKafkaTopicsProcedure,
+			connect.WithSchema(clusterBuilderServiceMethods.ByName("CreateKafkaTopics")),
+			connect.WithClientOptions(opts...),
+		),
+		getKafkaTopics: connect.NewClient[v1.GetKafkaTopicsRequest, v1.GetKafkaTopicsResponse](
+			httpClient,
+			baseURL+ClusterBuilderServiceGetKafkaTopicsProcedure,
+			connect.WithSchema(clusterBuilderServiceMethods.ByName("GetKafkaTopics")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// clusterBuilderServiceClient implements ClusterBuilderServiceClient.
+type clusterBuilderServiceClient struct {
+	createKafkaTopics *connect.Client[v1.CreateKafkaTopicsRequest, v1.CreateKafkaTopicsResponse]
+	getKafkaTopics    *connect.Client[v1.GetKafkaTopicsRequest, v1.GetKafkaTopicsResponse]
+}
+
+// CreateKafkaTopics calls chalk.server.v1.ClusterBuilderService.CreateKafkaTopics.
+func (c *clusterBuilderServiceClient) CreateKafkaTopics(ctx context.Context, req *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error) {
+	return c.createKafkaTopics.CallUnary(ctx, req)
+}
+
+// GetKafkaTopics calls chalk.server.v1.ClusterBuilderService.GetKafkaTopics.
+func (c *clusterBuilderServiceClient) GetKafkaTopics(ctx context.Context, req *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error) {
+	return c.getKafkaTopics.CallUnary(ctx, req)
+}
+
+// ClusterBuilderServiceHandler is an implementation of the chalk.server.v1.ClusterBuilderService
+// service.
+type ClusterBuilderServiceHandler interface {
+	CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error)
+	GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error)
+}
+
+// NewClusterBuilderServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewClusterBuilderServiceHandler(svc ClusterBuilderServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	clusterBuilderServiceMethods := v1.File_chalk_server_v1_builder_proto.Services().ByName("ClusterBuilderService").Methods()
+	clusterBuilderServiceCreateKafkaTopicsHandler := connect.NewUnaryHandler(
+		ClusterBuilderServiceCreateKafkaTopicsProcedure,
+		svc.CreateKafkaTopics,
+		connect.WithSchema(clusterBuilderServiceMethods.ByName("CreateKafkaTopics")),
+		connect.WithHandlerOptions(opts...),
+	)
+	clusterBuilderServiceGetKafkaTopicsHandler := connect.NewUnaryHandler(
+		ClusterBuilderServiceGetKafkaTopicsProcedure,
+		svc.GetKafkaTopics,
+		connect.WithSchema(clusterBuilderServiceMethods.ByName("GetKafkaTopics")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.server.v1.ClusterBuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case ClusterBuilderServiceCreateKafkaTopicsProcedure:
+			clusterBuilderServiceCreateKafkaTopicsHandler.ServeHTTP(w, r)
+		case ClusterBuilderServiceGetKafkaTopicsProcedure:
+			clusterBuilderServiceGetKafkaTopicsHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedClusterBuilderServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedClusterBuilderServiceHandler struct{}
+
+func (UnimplementedClusterBuilderServiceHandler) CreateKafkaTopics(context.Context, *connect.Request[v1.CreateKafkaTopicsRequest]) (*connect.Response[v1.CreateKafkaTopicsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClusterBuilderService.CreateKafkaTopics is not implemented"))
+}
+
+func (UnimplementedClusterBuilderServiceHandler) GetKafkaTopics(context.Context, *connect.Request[v1.GetKafkaTopicsRequest]) (*connect.Response[v1.GetKafkaTopicsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClusterBuilderService.GetKafkaTopics is not implemented"))
 }

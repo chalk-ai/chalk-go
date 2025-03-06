@@ -44,26 +44,16 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	}
 	defer record.Release()
 
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	if err != nil {
-		return nil, errors.Wrap(err, "create Arrow Table writer")
-	}
-	err = fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "close Arrow Table writer")
-	}
-	return bws.Bytes(), nil
+	return RecordToBytes(record)
 }
-func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
+func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, error) {
+	if visitedNamespaces == nil {
+		visitedNamespaces = map[string]bool{}
+	}
 	kind := value.Kind()
 	if kind == reflect.Ptr {
 		// e.g. Pointers to an int are stored in an Arrow table the same as an int
-		return convertReflectToArrowType(value.Elem())
+		return convertReflectToArrowType(value.Elem(), visitedNamespaces)
 	}
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
 		return arrowType, nil
@@ -71,7 +61,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 		elem := value.Elem()
 		if elem.Kind() == reflect.Uint8 {
 			return arrow.BinaryTypes.LargeBinary, nil
-		} else if elemType, err := convertReflectToArrowType(elem); err == nil {
+		} else if elemType, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
 			return arrow.LargeListOf(elemType), nil
 		} else {
 			return nil, errors.Wrapf(
@@ -88,11 +78,20 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 			}, nil
 		}
 		var arrowFields []arrow.Field
-		structName := ChalkpySnakeCase(value.Name())
+		namespace := ChalkpySnakeCase(value.Name())
+
+		visitedNamespaces[namespace] = true
+		defer delete(visitedNamespaces, namespace)
+
 		isFeaturesClass := IsFeaturesClass(value)
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
-			dtype, dtypeErr := convertReflectToArrowType(field.Type)
+			if foreignNs := getForeignNamespace(field.Type); foreignNs != nil {
+				if _, ok := visitedNamespaces[*foreignNs]; ok {
+					continue
+				}
+			}
+			dtype, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
 			if dtypeErr != nil {
 				return nil, errors.Wrapf(
 					dtypeErr,
@@ -105,7 +104,7 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 				return nil, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 			}
 			if isFeaturesClass {
-				resolved = structName + "." + resolved
+				resolved = namespace + "." + resolved
 			}
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
@@ -119,7 +118,11 @@ func convertReflectToArrowType(value reflect.Type) (arrow.DataType, error) {
 	}
 }
 
-func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) error {
+func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, visitedNamespaces map[string]bool) error {
+	if visitedNamespaces == nil {
+		visitedNamespaces = map[string]bool{}
+	}
+
 	if len(valid) != slice.Len() {
 		return errors.Errorf(
 			"expected null mask to have length %d, instead found length %d",
@@ -159,7 +162,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				nonPtrSlice = reflect.Append(nonPtrSlice, v.Elem())
 			}
 		}
-		return setBuilderValues(builder, nonPtrSlice, innerValid)
+		return setBuilderValues(builder, nonPtrSlice, innerValid, visitedNamespaces)
 	case reflect.Int:
 		arrayValues := values.([]int)
 		convertedValues := []int64{}
@@ -224,6 +227,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				builder.(*array.LargeListBuilder).ValueBuilder(),
 				flatSlice,
 				allValid(flatSlice.Len()),
+				visitedNamespaces,
 			); err != nil {
 				return errors.Wrap(err, "failed to set values for slice of slices")
 			}
@@ -238,12 +242,32 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			}
 			builder.(*array.TimestampBuilder).AppendValues(timestampSlice, valid)
 		} else {
+			namespace := ChalkpySnakeCase(elemType.Name())
+
+			visitedNamespaces[namespace] = true
+			defer delete(visitedNamespaces, namespace)
+
 			sBuilder, builderOk := builder.(*array.StructBuilder)
 			if !builderOk {
 				return errors.Errorf("internal error: expected struct builder, found %T", builder)
 			}
 
-			numFieldsReflect := elemType.NumField()
+			isVisitedNamespace := make([]bool, elemType.NumField())
+			for i := 0; i < elemType.NumField(); i++ {
+				if foreignNs := getForeignNamespace(elemType.Field(i).Type); foreignNs != nil {
+					if _, ok := visitedNamespaces[*foreignNs]; ok {
+						isVisitedNamespace[i] = true
+					}
+				}
+			}
+
+			numFieldsReflect := 0
+			for i := 0; i < elemType.NumField(); i++ {
+				if isVisitedNamespace[i] {
+					continue
+				}
+				numFieldsReflect++
+			}
 			numFieldsArrow := sBuilder.NumField()
 			if numFieldsReflect != numFieldsArrow {
 				return errors.Errorf(
@@ -264,15 +288,18 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				)
 			}
 
-			structName := ChalkpySnakeCase(elemType.Name())
 			isFeaturesClass := IsFeaturesClass(elemType)
 			for i := 0; i < numFieldsReflect; i++ {
-				resolved, err := ResolveFeatureName(elemType.Field(i))
+				if isVisitedNamespace[i] {
+					continue
+				}
+				field := elemType.Field(i)
+				resolved, err := ResolveFeatureName(field)
 				if err != nil {
 					return errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 				}
 				if isFeaturesClass {
-					resolved = structName + "." + resolved
+					resolved = namespace + "." + resolved
 				}
 				namesReflect = append(namesReflect, resolved)
 				namesArrow = append(namesArrow, arrowStructType.Field(i).Name)
@@ -287,8 +314,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 			}
 
 			var columns []reflect.Value
-			for j := 0; j < numFieldsReflect; j++ {
-				fieldSliceType := reflect.SliceOf(elemType.Field(j).Type)
+			for j := 0; j < elemType.NumField(); j++ {
+				if isVisitedNamespace[j] {
+					continue
+				}
+				fieldType := elemType.Field(j).Type
+				fieldSliceType := reflect.SliceOf(fieldType)
 				fieldSlice := reflect.MakeSlice(fieldSliceType, 0, slice.Len())
 				for i := 0; i < slice.Len(); i++ {
 					fieldSlice = reflect.Append(fieldSlice, slice.Index(i).Field(j))
@@ -296,7 +327,12 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool) 
 				columns = append(columns, fieldSlice)
 			}
 			for i := 0; i < sBuilder.NumField(); i++ {
-				if err := setBuilderValues(sBuilder.FieldBuilder(i), columns[i], allValid(columns[i].Len())); err != nil {
+				if err := setBuilderValues(
+					sBuilder.FieldBuilder(i),
+					columns[i],
+					allValid(columns[i].Len()),
+					visitedNamespaces,
+				); err != nil {
 					return errors.Wrapf(err, "failed to set values for struct field '%d'", i)
 				}
 			}
@@ -325,7 +361,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
 		columnElemType := columnVal.Type().Elem()
-		arrowType, convErr := convertReflectToArrowType(columnElemType)
+		arrowType, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
@@ -346,7 +382,12 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
 		}
 
-		if err := setBuilderValues(recordBuilder.Field(idx), rValues, allValid(rValues.Len())); err != nil {
+		if err := setBuilderValues(
+			recordBuilder.Field(idx),
+			rValues,
+			allValid(rValues.Len()),
+			map[string]bool{},
+		); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
 		}
 	}
@@ -709,6 +750,24 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 	return nil
 }
 
+func RecordToBytes(record arrow.Record) ([]byte, error) {
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
+	}
+	err = fileWriter.Write(record)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
+	}
+	err = fileWriter.Close()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
+	}
+
+	return bws.Bytes(), nil
+}
+
 // ChalkMarshal converts a map to a byte array.
 // Follows the byte-packing format as described in the Chalk
 // Python repo's `byte_transmit.serialize()` function.
@@ -807,6 +866,7 @@ type FeatherRequestHeader struct {
 	QueryContext     *map[string]any     `json:"query_context"`
 	Meta             map[string]string   `json:"meta"`
 	StorePlanStages  bool                `json:"store_plan_stages"`
+	PlannerOptions   map[string]any      `json:"planner_options"`
 }
 
 func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {

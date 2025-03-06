@@ -1,11 +1,14 @@
 package integration
 
 import (
+	"context"
+	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"testing"
+	"time"
 )
 
 var clients []ClientFixture
@@ -24,18 +27,19 @@ func init() {
 		return
 	}
 
-	restClient, err := chalk.NewClient()
+	ctx := context.Background()
+
+	restClient, err := chalk.NewClient(ctx)
 	if err != nil {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "rest", client: restClient})
 
-	grpcClient, err := chalk.NewClient(&chalk.ClientConfig{UseGrpc: true})
+	grpcClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		panic(err)
 	}
 	clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
-
 }
 
 // Test that we can execute an OnlineQuery
@@ -61,7 +65,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
 
 			var resultSeries series
-			res, err := client.OnlineQuery(params, &resultSeries)
+			res, err := client.OnlineQuery(context.Background(), params, &resultSeries)
 			assert.NoError(t, err)
 			assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
 			assert.Equal(t, "amylase", *(*resultSeries.Investors)[0].Id)
@@ -83,5 +87,101 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, resultInvestors)
 		})
+	}
+}
+
+type plannerOptionsFixture struct {
+	isValid        bool
+	plannerOptions map[string]any
+}
+
+var plannerOptionsFixtures = []plannerOptionsFixture{
+	{isValid: true, plannerOptions: map[string]any{"planner_version": "2"}},
+	{isValid: false, plannerOptions: map[string]any{"planner_version": "abcdefg"}},
+}
+
+func TestOnlineQueryPlannerOptions(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, clientFixture := range clients {
+		for _, optionFixture := range plannerOptionsFixtures {
+			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", clientFixture.name, optionFixture.isValid), func(t *testing.T) {
+				client := clientFixture.client
+				params := chalk.OnlineQueryParams{
+					PlannerOptions: optionFixture.plannerOptions,
+				}.
+					WithInput("user.id", 1).
+					WithOutputs("user.socure_score")
+				_, err := client.OnlineQuery(context.Background(), params, nil)
+				if optionFixture.isValid {
+					assert.NoError(t, err)
+				} else {
+					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
+func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, clientFixture := range clients {
+		for _, optionFixture := range plannerOptionsFixtures {
+			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", clientFixture.name, optionFixture.isValid), func(t *testing.T) {
+				client := clientFixture.client
+				params := chalk.OnlineQueryParams{
+					PlannerOptions: optionFixture.plannerOptions,
+				}.
+					WithInput("user.id", []int{1}).
+					WithOutputs("user.socure_score")
+				_, err := client.OnlineQueryBulk(context.Background(), params)
+				if optionFixture.isValid {
+					assert.NoError(t, err)
+				} else {
+					assert.Error(t, err)
+				}
+			})
+		}
+	}
+}
+
+func TestTimeout(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	timeouts := []struct {
+		name       string
+		timeout    time.Duration
+		shouldFail bool
+	}{
+		{name: "1 nanosecond", timeout: 1 * time.Nanosecond, shouldFail: true},
+		{name: "5 seconds", timeout: 5 * time.Second},
+		{name: "unspecified (zero value)", timeout: 0},
+	}
+
+	for _, useGrpc := range []bool{true, false} {
+		for _, timeoutFixture := range timeouts {
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
+				if timeoutFixture.shouldFail {
+					assert.Error(t, err)
+					return
+				} else {
+					params := chalk.OnlineQueryParams{}.
+						WithInput("user.id", 1).
+						WithOutputs("user.socure_score")
+					assert.NoError(t, err)
+					myUser := user{}
+					_, err := client.OnlineQuery(context.Background(), params, &myUser)
+					assert.NoError(t, err)
+					assert.NotNil(t, myUser.SocureScore)
+					assert.Equal(t, 123.0, *myUser.SocureScore)
+				}
+			})
+		}
 	}
 }

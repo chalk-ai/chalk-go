@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
@@ -90,10 +91,10 @@ func TestUnmarshal(t *testing.T) {
 	assert.Nil(t, user.Card.Number)
 }
 
-// TestSnakeCase serves as a unit test.
+// TestLegacySnakeCase serves as a unit test.
 // We should also add all test cases here
 // to the integration test in `init_features_test.go`.
-func TestSnakeCase(t *testing.T) {
+func TestLegacySnakeCase(t *testing.T) {
 	testCases := []struct {
 		input    string
 		expected string
@@ -121,5 +122,28 @@ func TestSnakeCase(t *testing.T) {
 				t.Errorf("SnakeCase(%q) = %q, expected to fail", tc.input, result)
 			}
 		})
+	}
+}
+
+// TestChalkpySnakeCase aims to have to same test cases as chalkpy's snake case function.
+func TestChalkpySnakeCase(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		// Aims to be the exact same test cases as chalkpy's snake case function.
+		{"SEGMENT_ID_HASH", "segment_id_hash"},
+		{"accountId", "account_id"},
+		{"account_id", "account_id"},
+		{"foo", "foo"},
+		{"FOO", "foo"},
+		{"FooBar", "foo_bar"},
+	}
+
+	for _, test := range tests {
+		result := internal.ChalkpySnakeCase(test.input)
+		if result != test.expected {
+			t.Errorf("chalkpySnakeCase(%q) = %q; want %q", test.input, result, test.expected)
+		}
 	}
 }
