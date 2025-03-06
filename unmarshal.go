@@ -9,81 +9,10 @@ import (
 	"reflect"
 )
 
-func convertIfHasManyMap(value any) (any, error) {
-	// For has-many values, we get this back:
-	//
-	// {
-	//   "columns": ["user.id", "user.email"],
-	//   "values": [
-	//     ["id1", "id2"],
-	//     ["email1@geemail.com", "email2@geemail.com"]
-	//   ]
-	// }
-	//
-	// We want to convert this to:
-	//
-	// [
-	//   {"user.id": "id1", "user.email": "email1@geemail.com"},
-	//   {"user.id": "id2", "user.email": "email2@geemail.com"}
-	// ]
-	//
-	hasMany, ok := value.(map[string]any)
-	if !ok {
-		return value, nil
-	}
-
-	columnsRaw, hasColumns := hasMany["columns"]
-	valuesRaw, hasValues := hasMany["values"]
-	if !hasColumns || !hasValues {
-		return value, nil
-	}
-
-	columnsAny, ok := columnsRaw.([]any)
-	if !ok {
-		return nil, errors.New("failed to convert columns to []any")
-	}
-
-	columns := make([]string, len(columnsAny))
-	for i, column := range columnsAny {
-		columns[i], ok = column.(string)
-		if !ok {
-			return nil, errors.Newf("failed to convert column '%v' to string", column)
-		}
-	}
-
-	valuesAny, ok := valuesRaw.([]any)
-	if !ok {
-		return nil, errors.New("failed to convert values to [][]any")
-	}
-
-	values := make([][]any, len(valuesAny))
-	for i, row := range valuesAny {
-		values[i], ok = row.([]any)
-		if !ok {
-			return nil, errors.Newf("failed to convert row '%v' to []any", row)
-		}
-	}
-
-	if len(values) == 0 {
-		return nil, errors.New("values of has-many results is empty")
-	}
-	numRows := len(values[0])
-
-	newValues := make([]map[string]any, numRows)
-	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
-		newRow := make(map[string]any)
-		for colIdx, colName := range columns {
-			newRow[colName] = values[colIdx][rowIdx]
-		}
-		newValues[rowIdx] = newRow
-	}
-	return newValues, nil
-}
-
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr error) {
 	fqnToValue := make(map[Fqn]any, len(result.Data))
 	for _, featureResult := range result.Data {
-		convertedValue, err := convertIfHasManyMap(featureResult.Value)
+		convertedValue, err := internal.ConvertIfHasManyMap(featureResult.Value)
 		if err != nil {
 			return errors.Wrapf(err, "converting feature '%s' value", featureResult.Field)
 		}
@@ -258,7 +187,7 @@ func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, result
 	}
 	fqnToValue := map[Fqn]any{}
 	for _, featureResult := range response.GetData().GetResults() {
-		convertedValue, err := convertIfHasManyMap(featureResult.Value.AsInterface())
+		convertedValue, err := internal.ConvertIfHasManyMap(featureResult.Value.AsInterface())
 		if err != nil {
 			return errors.Wrapf(err, "converting has-many value for feature '%s'", featureResult.Field)
 		}
