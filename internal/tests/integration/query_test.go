@@ -161,6 +161,149 @@ func TestGRPCOnlineQueryE2E(t *testing.T) {
 	testUserValues(t, &testUser)
 }
 
+func TestFisQuery(t *testing.T) {
+	t.Parallel()
+
+	for _, fixture := range []struct {
+		useGrpc bool
+	}{
+		{useGrpc: true},
+	} {
+		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+			err := chalk.InitFeatures(&testFeatures)
+			if err != nil {
+				t.Fatal("Failed initializing features", err)
+			}
+
+			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: fixture.useGrpc,
+				QueryServer: "http://localhost:6666",
+				ApiServer:   "http://localhost:4002"})
+			if err != nil {
+				t.Fatal("Failed creating a Chalk Client", err)
+			}
+
+			var _ = map[any]any{"transaction.fi_transaction_id": "fakeee",
+				"transaction.acquirer_cntry":     "USA",
+				"transaction.acquirer_id":        "someId",
+				"transaction.atc_crd":            "someAtcCrd",
+				"transaction.atc_host":           "someAtcHost",
+				"transaction.atm_network_id":     "someAtmNetworkId",
+				"transaction.atm_processing_xcd": "someXcd",
+				"transaction.bin":                "12345",
+				"transaction.card_verif_results": "1",
+				"transaction.crd_port":           "1",
+				"transaction.crd_psnt_ind":       "1",
+				"transaction.cryptogram_valid":   "1",
+				"transaction.cus_card_typ":       "1",
+				"transaction.mer_cnty_cd":        "USA",
+				"transaction.mer_st":             "IL",
+				"transaction.mer_st_search":      "IL",
+				"transaction.mer_zip_3":          "123",
+				"transaction.pad_response":       "1",
+				"transaction.pos_condition_cd":   "1",
+				"transaction.process_reason_cd":  "1",
+				"transaction.rltm_req":           "1",
+				"transaction.trans_category":     "1",
+				"transaction.trn_cvv_vrfy_cd":    "1",
+				"transaction.trn_pin_vrfy_cd":    "1",
+				"transaction.trn_pos_ent_cd":     "1",
+				"transaction.trn_typ":            "1",
+				"transaction.mer_id":             "fake",
+				"transaction.mer_nm":             "1",
+				"transaction.customer_xid_hash":  "1",
+				"transaction.sic_cd":             "1",
+				"transaction.cashback_amt":       "1.0",
+				"transaction.trn_amt":            "1.0",
+				"transaction.usr_ind_5":          "1",
+				"transaction.ext_scor1":          "1",
+				"transaction.usr_dat_2":          "1",
+				"transaction.trn_dt":             "2025-03-04T00:02:21.339137Z",
+				"transaction.crd_exp_dt":         "2025-03-06T14:02:21.339147Z",
+			}
+
+			req := chalk.OnlineQueryParams{
+				QueryNameVersion: "v1.0.0",
+			}.
+				WithInput(FISFeatures.Transaction.FiTransactionId, "fakeid").
+				WithInput(FISFeatures.Transaction.CashbackAmt, 0.0).
+				WithInput(FISFeatures.Transaction.TrnAmt, 0.0).
+				WithInput(FISFeatures.Transaction.AcquirerCntry, "USA").
+				WithInput(FISFeatures.Transaction.AcquirerId, "someId").
+				WithInput(FISFeatures.Transaction.AtcCrd, "req.GetAtcCrd()").
+				WithInput(FISFeatures.Transaction.AtcHost, "req.GetAtcHost()").
+				WithInput(FISFeatures.Transaction.AtmNetworkId, "req.GetAtmNetworkId()").
+				WithInput(FISFeatures.Transaction.AtmProcessingXcd, "req.GetAtmProcessingXcd()").
+				WithInput(FISFeatures.Transaction.CardVerifResults, "1").
+				WithInput(FISFeatures.Transaction.CrdPsntInd, "1").
+				WithInput(FISFeatures.Transaction.CryptogramValid, "1").
+				WithInput(FISFeatures.Transaction.CustomerXidHash, "1").
+				WithInput(FISFeatures.Transaction.MerId, "fakeMerId").
+				WithInput(FISFeatures.Transaction.MerNm, "1").
+				WithInput(FISFeatures.Transaction.SicCd, "1").
+				WithInput(FISFeatures.Transaction.TrnDt, "2025-03-04T00:02:21.339137Z").
+				WithInput(FISFeatures.Transaction.CrdExpDt, "2025-03-06T14:02:21.339147Z").
+				WithInput(FISFeatures.Transaction.Bin, "12345").
+				WithInput(FISFeatures.Transaction.CrdPort, "1").
+				WithInput(FISFeatures.Transaction.CusCardTyp, "1").
+				WithInput(FISFeatures.Transaction.MerCntyCd, "USA").
+				WithInput(FISFeatures.Transaction.MerSt, "IL").
+				WithInput(FISFeatures.Transaction.MerStSearch, "IL").
+				WithInput(FISFeatures.Transaction.MerZip3, "123").
+				WithInput(FISFeatures.Transaction.PadResponse, "1").
+				WithInput(FISFeatures.Transaction.PosConditionCd, "1").
+				WithInput(FISFeatures.Transaction.ProcessReasonCd, "1").
+				WithInput(FISFeatures.Transaction.RltmReq, "1").
+				WithInput(FISFeatures.Transaction.TransCategory, "1").
+				WithInput(FISFeatures.Transaction.TrnCvvVrfyCd, "1").
+				WithInput(FISFeatures.Transaction.TrnPinVrfyCd, "1").
+				WithInput(FISFeatures.Transaction.TrnPosEntCd, "1").
+				WithInput(FISFeatures.Transaction.TrnTyp, "1").
+				WithInput(FISFeatures.Transaction.UsrInd5, "1").
+				WithInput(FISFeatures.Transaction.ExtScor1, "1").
+				WithInput(FISFeatures.Transaction.UsrDat2, "1").
+				WithQueryName("cardfraud_inference_query").
+				WithQueryNameVersion("v1.0.0")
+
+			res, err := client.OnlineQuery(context.Background(), req, nil)
+			assert.NoError(t, err)
+			transaction := Transaction{}
+			err = res.UnmarshalInto(&transaction)
+			assert.NoError(t, err)
+			// features := createFeaturesFromTransaction(ctx, &transaction)
+			fmt.Printf("WindowedCustomerSicFrdTxnAmtSum\t%v\n", transaction.CustomerSic.WindowedCustomerSicFrdTxnCount)
+			fmt.Printf("transaction.CustomerSic.WindowedCustomerSicFrdTxnCount[\"1d\"]: ")
+			if transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["2d"] != nil {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__172800__ = %d", *transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["2d"])
+			} else {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__172800__ is NIL!!!")
+			}
+			fmt.Println()
+
+			if transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["30d"] != nil {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__2592000__ = %d", *transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["30d"])
+			} else {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__2592000__ is NIL!!!")
+			}
+			fmt.Println()
+
+			if transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["1w"] != nil {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__604800__ = %d", *transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["1w"])
+			} else {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__604800__ is NIL!!!")
+			}
+			fmt.Println()
+
+			if transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["1d"] != nil {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__86400__ = %d", *transaction.CustomerSic.WindowedCustomerSicFrdTxnCount["1d"])
+			} else {
+				fmt.Printf("feature.CustomerSicWindowedCustomerSicFrdTransactionCount__86400__ is NIL!!!")
+
+			}
+			fmt.Println()
+		})
+	}
+}
+
 // TestOnlineQueryBulkParamsDoesNotErr tests that none
 // of the feather header params causes an error when
 // specified. Correctness of the thread through is
