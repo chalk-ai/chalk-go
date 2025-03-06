@@ -200,120 +200,6 @@ type FeatureMeta struct {
 	Pkey        any
 }
 
-type InitScope struct {
-	Children map[string]*InitScope
-}
-
-func (s *InitScope) addStr(fqn string) {
-	s.add(strings.Split(fqn, "."))
-}
-
-func (s *InitScope) add(fqnParts []string) {
-	if len(fqnParts) == 0 {
-		return
-	}
-	firstPart := fqnParts[0]
-	if s.Children == nil {
-		s.Children = map[string]*InitScope{}
-	}
-	if _, found := s.Children[firstPart]; !found {
-		s.Children[firstPart] = &InitScope{}
-	}
-	s.Children[firstPart].add(fqnParts[1:])
-}
-
-func InitRemoteFeatureMap(
-	remoteFeatureMap map[string][]reflect.Value,
-	structValue reflect.Value,
-	cumulativeFqn string,
-	visited map[string]bool,
-	scope *InitScope,
-	allMemo *NamespaceMemosT,
-	scopeToJustStructs bool,
-) error {
-	if structValue.Kind() != reflect.Struct {
-		return fmt.Errorf(
-			"feature initialization function argument must be a reflect.Value"+
-				" of the kind reflect.Struct, found %s instead",
-			structValue.Kind().String(),
-		)
-	}
-
-	structName := structValue.Type().Name()
-	if isVisited, ok := visited[structName]; ok && isVisited {
-		// Found a cycle. Just return.
-		return nil
-	}
-	visited[structName] = true
-	defer func() {
-		visited[structName] = false
-	}()
-
-	memo, err := allMemo.LoadOrStore(structValue.Type())
-	if err != nil {
-		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
-	}
-
-	var fieldNames []string
-	if scopeToJustStructs {
-		fieldNames = colls.Keys(memo.StructFieldsSet)
-	} else {
-		fieldNames = colls.Keys(scope.Children)
-	}
-
-	for _, resolvedFieldName := range fieldNames {
-		nextScope, inScope := scope.Children[resolvedFieldName]
-		if !inScope {
-			continue
-		}
-		updatedFqn := cumulativeFqn + "." + resolvedFieldName
-		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
-		if !ok {
-			// We arrive here when chalk-go receives a response that contains a feature
-			// newly added to one of their has-one feature classes. They have not updated
-			// their codegen'd structs yet, so we simply skip unmarshalling this new
-			// feature to ensure forward compatibility.
-			continue
-		}
-
-		for _, fieldIdx := range fieldIndices {
-			f := structValue.Field(fieldIdx)
-
-			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
-				if !f.CanSet() {
-					continue
-				}
-				if f.IsNil() {
-					featureSet := reflect.New(f.Type().Elem())
-					f.Set(featureSet)
-				}
-				if err := InitRemoteFeatureMap(
-					remoteFeatureMap,
-					f.Elem(),
-					updatedFqn,
-					visited,
-					nextScope,
-					allMemo,
-					false,
-				); err != nil {
-					return err
-				}
-			} else {
-				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
-			}
-		}
-	}
-	return nil
-}
-
-func BuildScope(fqns []string) (*InitScope, error) {
-	root := &InitScope{}
-	for _, fqn := range fqns {
-		root.addStr(fqn)
-	}
-	return root, nil
-}
-
 func extractFeatures(
 	record arrow.Record,
 	featureColumnIdxs []int,
@@ -580,14 +466,10 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 			// This could be either a dataclass or a feature class.
 			memo, err := allMemo.LoadOrStore(structValue.Type())
 			if err != nil {
-				return nil, errors.Wrapf(
-					err,
-					"loading namespace memo for struct '%s'",
-					structValue.Type().Name(),
-				)
+				return nil, errors.Wrapf(err, "loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
-				return nil, fmt.Errorf(
+				return nil, errors.Newf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
@@ -794,6 +676,119 @@ func ConvertIfHasManyMap(value any) (any, error) {
 	return newValues, nil
 }
 
+type InitScope struct {
+	Children map[string]*InitScope
+}
+
+func (s *InitScope) addStr(fqn string) {
+	s.add(strings.Split(fqn, "."))
+}
+
+func (s *InitScope) add(fqnParts []string) {
+	if len(fqnParts) == 0 {
+		return
+	}
+	firstPart := fqnParts[0]
+	if s.Children == nil {
+		s.Children = map[string]*InitScope{}
+	}
+	if _, found := s.Children[firstPart]; !found {
+		s.Children[firstPart] = &InitScope{}
+	}
+	s.Children[firstPart].add(fqnParts[1:])
+}
+
+func BuildScope(fqns []string) (*InitScope, error) {
+	root := &InitScope{}
+	for _, fqn := range fqns {
+		root.addStr(fqn)
+	}
+	return root, nil
+}
+
+func InitRemoteFeatureMap(
+	remoteFeatureMap map[string][]reflect.Value,
+	structValue reflect.Value,
+	cumulativeFqn string,
+	visited map[string]bool,
+	scope *InitScope,
+	allMemo *NamespaceMemosT,
+	scopeToJustStructs bool,
+) error {
+	if structValue.Kind() != reflect.Struct {
+		return fmt.Errorf(
+			"feature initialization function argument must be a reflect.Value"+
+				" of the kind reflect.Struct, found %s instead",
+			structValue.Kind().String(),
+		)
+	}
+
+	structName := structValue.Type().Name()
+	if isVisited, ok := visited[structName]; ok && isVisited {
+		// Found a cycle. Just return.
+		return nil
+	}
+	visited[structName] = true
+	defer func() {
+		visited[structName] = false
+	}()
+
+	memo, err := allMemo.LoadOrStore(structValue.Type())
+	if err != nil {
+		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
+	}
+
+	var fieldNames []string
+	if scopeToJustStructs {
+		fieldNames = colls.Keys(memo.StructFieldsSet)
+	} else {
+		fieldNames = colls.Keys(scope.Children)
+	}
+
+	for _, resolvedFieldName := range fieldNames {
+		nextScope, inScope := scope.Children[resolvedFieldName]
+		if !inScope {
+			continue
+		}
+		updatedFqn := cumulativeFqn + "." + resolvedFieldName
+		fieldIndices, ok := memo.ResolvedFieldNameToIndices[resolvedFieldName]
+		if !ok {
+			// We arrive here when chalk-go receives a response that contains a feature
+			// newly added to one of their has-one feature classes. They have not updated
+			// their codegen'd structs yet, so we simply skip unmarshalling this new
+			// feature to ensure forward compatibility.
+			continue
+		}
+
+		for _, fieldIdx := range fieldIndices {
+			f := structValue.Field(fieldIdx)
+
+			if _, isStruct := memo.StructFieldsSet[resolvedFieldName]; isStruct {
+				if !f.CanSet() {
+					continue
+				}
+				if f.IsNil() {
+					featureSet := reflect.New(f.Type().Elem())
+					f.Set(featureSet)
+				}
+				if err := InitRemoteFeatureMap(
+					remoteFeatureMap,
+					f.Elem(),
+					updatedFqn,
+					visited,
+					nextScope,
+					allMemo,
+					false,
+				); err != nil {
+					return err
+				}
+			} else {
+				remoteFeatureMap[updatedFqn] = append(remoteFeatureMap[updatedFqn], f)
+			}
+		}
+	}
+	return nil
+}
 func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
@@ -935,24 +930,20 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		)
 	}
 
+	if slicePtr.Elem().Len() != numRows {
+		newSlice := reflect.MakeSlice(structs.Type(), numRows, numRows)
+		slicePtr.Elem().Set(newSlice)
+	}
+
 	codecMemo := CodecMemo
 	allMemo := NamespaceMemos
 
 	if err := PopulateNamespaceMemos(structType, nil); err != nil {
-		return errors.Wrap(err, "building namespace memo")
-	}
-
-	if structs.Len() != numRows {
-		structs.Set(reflect.MakeSlice(structs.Type(), numRows, numRows))
+		return errors.Wrapf(err, "populating namespace memos for struct '%s'", structType.Name())
 	}
 
 	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
-
-	_, err = Int64ToInt(table.NumRows())
-	if err != nil {
-		return errors.Wrapf(err, "table too large")
-	}
 
 	fields := table.Schema().Fields()
 	colFqnParts := make([][]string, len(fields))
@@ -971,7 +962,6 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
-
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
 		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
