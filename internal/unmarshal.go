@@ -34,6 +34,8 @@ type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
 }
 
+var FieldNotFoundError = errors.New("field not found")
+
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
 		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
@@ -718,6 +720,172 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Na
 		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
 	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	return nil
+}
+
+func ConvertIfHasManyMap(value any) (any, error) {
+	// For has-many values, we get this back:
+	//
+	// {
+	//   "columns": ["user.id", "user.email"],
+	//   "values": [
+	//     ["id1", "id2"],
+	//     ["email1@geemail.com", "email2@geemail.com"]
+	//   ]
+	// }
+	//
+	// We want to convert this to:
+	//
+	// [
+	//   {"user.id": "id1", "user.email": "email1@geemail.com"},
+	//   {"user.id": "id2", "user.email": "email2@geemail.com"}
+	// ]
+	//
+	hasMany, ok := value.(map[string]any)
+	if !ok {
+		return value, nil
+	}
+
+	columnsRaw, hasColumns := hasMany["columns"]
+	valuesRaw, hasValues := hasMany["values"]
+	if !hasColumns || !hasValues {
+		return value, nil
+	}
+
+	columnsAny, ok := columnsRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert columns to []any")
+	}
+
+	columns := make([]string, len(columnsAny))
+	for i, column := range columnsAny {
+		columns[i], ok = column.(string)
+		if !ok {
+			return nil, errors.Newf("failed to convert column '%v' to string", column)
+		}
+	}
+
+	valuesAny, ok := valuesRaw.([]any)
+	if !ok {
+		return nil, errors.New("failed to convert values to [][]any")
+	}
+
+	values := make([][]any, len(valuesAny))
+	for i, row := range valuesAny {
+		values[i], ok = row.([]any)
+		if !ok {
+			return nil, errors.Newf("failed to convert row '%v' to []any", row)
+		}
+	}
+
+	if len(values) == 0 {
+		return nil, errors.New("values of has-many results is empty")
+	}
+	numRows := len(values[0])
+
+	newValues := make([]map[string]any, numRows)
+	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
+		newRow := make(map[string]any)
+		for colIdx, colName := range columns {
+			newRow[colName] = values[colIdx][rowIdx]
+		}
+		newValues[rowIdx] = newRow
+	}
+	return newValues, nil
+}
+
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
+	if field.Type().Kind() == reflect.Ptr {
+		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
+		if err != nil {
+			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
+		}
+		field.Set(*rVal)
+		return nil
+	} else if field.Kind() == reflect.Map {
+		bucket, err := GetBucketFromFqn(fqn)
+		if err != nil {
+			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
+		}
+		if err := SetMapEntryValue(field, bucket, value, allMemo); err != nil {
+			return errors.Wrapf(err, "setting map entry value for feature '%s'", fqn)
+		}
+		return nil
+	} else {
+		return fmt.Errorf("expected a pointer type for feature '%s', found %s", fqn, field.Type().Kind())
+	}
+}
+
+// ThinUnmarshalInto is called per row. Any operation that can be
+// done outside of this function must be done outside of this function.
+func ThinUnmarshalInto(
+	structValue reflect.Value,
+	fqnToValue map[string]any,
+	namespace string,
+	namespaceScope *InitScope,
+	namespaceMemo *NamespaceMemo,
+	allMemo *NamespaceMemosT,
+) (returnErr error) {
+	remoteFeatureMap := map[string][]reflect.Value{}
+	if err := InitRemoteFeatureMap(
+		remoteFeatureMap,
+		structValue,
+		namespace,
+		map[string]bool{},
+		namespaceScope,
+		allMemo,
+		true,
+	); err != nil {
+		return errors.Wrap(err, "initializing result holder struct")
+	}
+
+	for fqn, value := range fqnToValue {
+		targetFields, ok := remoteFeatureMap[fqn]
+		if !ok {
+			// If not a has-one remote feature, e.g. user.account.balance
+			fieldIndices, ok := namespaceMemo.ResolvedFieldNameToIndices[fqn]
+			if !ok {
+				// For forward compatibility, i.e. when clients add
+				// more fields to their dataclasses in chalkpy, we want
+				// to default to not erring when trying to deserialize
+				// a new field that does not yet exist in the Go struct.
+				// Eventually we might consider exposing a flag.
+				continue
+			}
+			for _, fieldIdx := range fieldIndices {
+				targetFields = append(targetFields, structValue.Field(fieldIdx))
+			}
+		}
+
+		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
+			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
+				structName := structValue.Type().String()
+				outputNamespace := "unknown namespace"
+				sections := strings.Split(fqn, ".")
+				if len(sections) > 0 {
+					outputNamespace = sections[0]
+				}
+				if errors.Is(err, FieldNotFoundError) {
+					fieldError := fmt.Sprintf("Error unmarshaling feature '%s' into the struct '%s'. ", fqn, structName)
+					fieldError += fmt.Sprintf("First, check if you are passing a pointer to a struct that represents the output namespace '%s'. ", outputNamespace)
+					fieldError += fmt.Sprintf("Also, make sure the feature name can be traced to a field in the struct '%s' and or its nested structs.", structName)
+					return errors.New(fieldError)
+				} else {
+					return errors.Wrapf(err, "unmarshaling feature '%s' into the struct '%s'", fqn, structName)
+				}
+			}
+		}
+
+	}
 	return nil
 }
 
