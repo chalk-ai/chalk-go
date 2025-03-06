@@ -61,7 +61,6 @@ type AuthServiceClient interface {
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
-
 func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	authServiceMethods := v1.File_chalk_server_v1_auth_proto.Services().ByName("AuthService").Methods()

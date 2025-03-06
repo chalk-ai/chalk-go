@@ -9,6 +9,8 @@ import (
 
 // buildTableFromFeatureToValuesMap builds an Arrow record from a map of features to values.
 // The features should be codegen-ed `Feature` objects.
+//
+//lint:ignore U1000 Not unused
 func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table, error) {
 	fqnToValues := make(map[string]any)
 	for featureRaw, values := range featureToValues {
@@ -21,6 +23,7 @@ func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table,
 	return tableFromFqnToValues(fqnToValues)
 }
 
+//lint:ignore U1000 Not unused
 func tableFromFqnToValues(fqnToValues map[string]any) (arrow.Table, error) {
 	record, recordErr := internal.ColumnMapToRecord(fqnToValues)
 	if recordErr != nil {
