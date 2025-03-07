@@ -45,7 +45,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	defer record.Release()
 
 	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.DefaultAllocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
 	}
