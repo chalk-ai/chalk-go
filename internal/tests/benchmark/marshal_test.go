@@ -144,5 +144,5 @@ func BenchmarkMakeRecordSingleRowAllTypes(b *testing.B) {
  * Rows: Many
  */
 func BenchmarkMakeRecordManyRowsAllTypes(b *testing.B) {
-	benchmarkParallel(b, getAllTypes(b, 20))
+	benchmarkParallel(b, getAllTypes(b, 200))
 }

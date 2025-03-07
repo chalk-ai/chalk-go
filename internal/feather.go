@@ -37,7 +37,7 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 }
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
-func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+func InputsToArrowBytes(inputs map[string]any) (res []byte, err error) {
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
@@ -47,13 +47,17 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	bws := &BufferWriteSeeker{}
 	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.DefaultAllocator))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
+		return nil, errors.Wrap(err, "creating Arrow Table writer")
 	}
+	defer func() {
+		closeErr := fileWriter.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
+
 	if err = fileWriter.Write(record); err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	if err = fileWriter.Close(); err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
+		return nil, errors.Wrap(err, "writing Arrow Table to request")
 	}
 
 	return bws.Bytes(), nil
