@@ -380,10 +380,9 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
-	// Create the input values
 	allocator := memory.NewGoAllocator()
 	schema := make([]arrow.Field, len(inputs))
-	colIdxToShouldFilter := make([]bool, len(inputs))
+	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false
 	mapIdx := 0
 	for k, v := range inputs {
@@ -393,8 +392,8 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		if convErr != nil {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
-		colIdxToShouldFilter[mapIdx] = shouldOmit
 		shouldFilterRecord = shouldFilterRecord || shouldOmit
+		shouldFilterColumn[mapIdx] = shouldOmit
 		schema[mapIdx] = arrow.Field{Name: k, Type: arrowType}
 		mapIdx++
 	}
@@ -423,9 +422,13 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	record, err := filterRecord(recordBuilder.NewRecord(), colIdxToShouldFilter)
-	if err != nil {
-		return nil, errors.Wrap(err, "filter record")
+	record := recordBuilder.NewRecord()
+	if shouldFilterRecord {
+		newRecord, err := filterRecord(record, shouldFilterColumn)
+		if err != nil {
+			return nil, errors.Wrap(err, "filter record")
+		}
+		record = newRecord
 	}
 
 	return record, nil
@@ -437,18 +440,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 * done so that `nil` features in a has-one or has-many struct do not get mistaken
 * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record, colIdxToShouldFilter []bool) (arrow.Record, error) {
-	nothingToFilter := true
-	for _, shouldFilter := range colIdxToShouldFilter {
-		if shouldFilter {
-			nothingToFilter = false
-			break
-		}
-	}
-	if nothingToFilter {
-		return record, nil
-	}
-
+func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record, error) {
 	newColumns := make([]arrow.Array, 0, record.NumCols())
 	newFields := make([]arrow.Field, 0, record.NumCols())
 	didFilter := false
@@ -457,7 +449,7 @@ func filterRecord(record arrow.Record, colIdxToShouldFilter []bool) (arrow.Recor
 		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
 	}
 	for i := 0; i < numCols; i++ {
-		if colIdxToShouldFilter[i] {
+		if shouldFilterColumn[i] {
 			maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
 			if err != nil {
 				return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
