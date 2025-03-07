@@ -434,10 +434,14 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 * as the user specifying that feature as null.
  */
 func filterRecord(record arrow.Record, colIdxToShouldFilter []bool) (arrow.Record, error) {
+	nothingToFilter := true
 	for _, shouldFilter := range colIdxToShouldFilter {
 		if shouldFilter {
+			nothingToFilter = false
 			break
 		}
+	}
+	if nothingToFilter {
 		return record, nil
 	}
 
