@@ -58,7 +58,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 
 	return bws.Bytes(), nil
 }
-func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (typ arrow.DataType, collectiveShouldOmit bool, err error) {
+func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, bool, error) {
 	if visitedNamespaces == nil {
 		visitedNamespaces = map[string]bool{}
 	}
@@ -96,6 +96,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		defer delete(visitedNamespaces, namespace)
 
 		isFeaturesClass := IsFeaturesClass(value)
+		collectiveShouldOmit := false
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
 			if foreignNs := getForeignNamespace(field.Type); foreignNs != nil {
