@@ -355,7 +355,7 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			table, err := tableFromFqnToValues(fixture.input)
 			assert.NoError(t, err)
 
-			rows, err := internal.ExtractFeaturesFromTable(table, false)
+			rows, _, err := internal.ExtractFeaturesFromTable(table, false)
 			assert.NoError(t, err)
 
 			featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
@@ -367,7 +367,6 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			}
 
 			assert.NoError(t, os.WriteFile(filepath.Join(root, fixture.filename), featherInputJsonBytes, 0644))
-
 			assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 		})
 	}
