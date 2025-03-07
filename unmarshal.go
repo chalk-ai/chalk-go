@@ -74,8 +74,8 @@ fields correspond to the FQNs. An illustration:
 To ensure fast unmarshals, see `WarmUpUnmarshaller`.
 */
 func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
-	allMemo := internal.AllNamespaceMemo
-	if err := internal.PopulateAllNamespaceMemo(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
+	allMemo := internal.NamespaceMemos
+	if err := internal.PopulateNamespaceMemos(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
 	scope, err := internal.BuildScope(colls.Keys(fqnToValue))
@@ -100,9 +100,9 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		nsMemo, ok := allMemo.Load(holderValue.Elem().Type())
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo", structName)
+		nsMemo, err := allMemo.LoadOrStore(holderValue.Elem().Type())
+		if err != nil {
+			return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 		}
 
 		return internal.ThinUnmarshalInto(
@@ -146,10 +146,12 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			)
 		}
 
-		fieldNsMemo, ok := allMemo.Load(field.Type())
-		if !ok {
-			return errors.Newf(
-				"namespace for struct '%s' of field '%s' not found in memo", field.Type().Name(), fieldMeta.Name,
+		fieldNsMemo, err := allMemo.LoadOrStore(field.Type())
+		if err != nil {
+			return errors.Wrapf(
+				err,
+				"loading memo for struct '%s' of field '%s'",
+				field.Type().Name(), fieldMeta.Name,
 			)
 		}
 		if err := internal.ThinUnmarshalInto(

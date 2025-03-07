@@ -79,24 +79,25 @@ type HasMany struct {
 }
 
 type AllTypes struct {
-	Int                    *int64
-	Float                  *float64
-	String                 *string
-	Bool                   *bool
-	Timestamp              *time.Time
-	IntList                *[]int64
-	NestedIntPointerList   *[]*[]int64
-	NestedIntList          *[][]int64
-	WindowedInt            map[string]*int64   `windows:"1m,5m,1h"`
-	WindowedList           map[string]*[]int64 `windows:"1m"`
-	Dataclass              *LatLng             `dataclass:"true"`
-	DataclassList          *[]LatLng
-	DataclassWithList      *FavoriteThings
-	DataclassWithNils      *Possessions
-	DataclassWithDataclass *Child
-	DataclassWithOverrides *DclassWithOverrides
-	Nested                 *LevelOneNest
-	HasMany                *[]HasMany
+	Int                     *int64
+	Float                   *float64
+	String                  *string
+	Bool                    *bool
+	Timestamp               *time.Time
+	IntList                 *[]int64
+	NestedIntPointerList    *[]*[]int64
+	NestedIntList           *[][]int64
+	WindowedInt             map[string]*int64   `windows:"1m,5m,1h"`
+	WindowedList            map[string]*[]int64 `windows:"1m"`
+	Dataclass               *LatLng             `dataclass:"true"`
+	DataclassWithExtraField *LatLng
+	DataclassList           *[]LatLng
+	DataclassWithList       *FavoriteThings
+	DataclassWithNils       *Possessions
+	DataclassWithDataclass  *Child
+	DataclassWithOverrides  *DclassWithOverrides
+	Nested                  *LevelOneNest
+	HasMany                 *[]HasMany
 }
 
 var Root struct {

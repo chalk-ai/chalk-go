@@ -28,7 +28,7 @@ const (
 	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
 )
 
-var tableReaderChunkSize = defaultTableReaderChunkSize
+var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {
 	int | int8 | int16 | int32 | int64 | uint8 | uint16 | uint32 | uint64 | float32 | float64
@@ -39,7 +39,7 @@ var FieldNotFoundError = errors.New("field not found")
 func init() {
 	if chunkSizeStr := os.Getenv(tableReaderChunkSizeKey); chunkSizeStr != "" {
 		if newChunkSize, err := strconv.Atoi(chunkSizeStr); err == nil {
-			tableReaderChunkSize = newChunkSize
+			TableReaderChunkSize = newChunkSize
 		}
 	}
 }
@@ -335,7 +335,7 @@ func ExtractFeaturesFromTable(
 	}
 	featureRes := make([]map[string]any, 0, numRows)
 	metaRes := make([]map[string]FeatureMeta, 0, numRows)
-	reader := array.NewTableReader(table, int64(tableReaderChunkSize))
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
 	defer reader.Release()
 
 	for reader.Next() {
@@ -408,7 +408,7 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 }
 
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
-func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*reflect.Value, error) {
+func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*reflect.Value, error) {
 	if value == nil {
 		return ptr.Ptr(reflect.Zero(typ)), nil
 	}
@@ -464,16 +464,12 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 			return &structValue, nil
 		} else if mapz, isMap := value.(map[string]any); isMap {
 			// This could be either a dataclass or a feature class.
-			memo, ok := allMemo.Load(structValue.Type())
-			if !ok {
-				return nil, fmt.Errorf(
-					"namespace memo not found for struct '%s' - found %v",
-					structValue.Type().Name(),
-					allMemo.Keys(),
-				)
+			memo, err := allMemo.LoadOrStore(structValue.Type())
+			if err != nil {
+				return nil, errors.Wrapf(err, "loading memo for struct '%s'", structValue.Type().Name())
 			}
 			if memo.ResolvedFieldNameToIndices == nil {
-				return nil, fmt.Errorf(
+				return nil, errors.Newf(
 					"resolved field name to index map not found for struct '%s'",
 					structValue.Type().Name(),
 				)
@@ -595,7 +591,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *AllNamespaceMemoT) (*
 // while all other fields are settable and can be passed into GetReflectValue
 // to be set, map field values are not settable, and the entire map has to
 // be passed instead.
-func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *AllNamespaceMemoT) error {
+func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *NamespaceMemosT) error {
 	if mapValue.IsNil() {
 		mapType := mapValue.Type()
 		newMap := reflect.MakeMap(mapType)
@@ -716,7 +712,7 @@ func InitRemoteFeatureMap(
 	cumulativeFqn string,
 	visited map[string]bool,
 	scope *InitScope,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 	scopeToJustStructs bool,
 ) error {
 	if structValue.Kind() != reflect.Struct {
@@ -737,9 +733,9 @@ func InitRemoteFeatureMap(
 		visited[structName] = false
 	}()
 
-	memo, ok := allMemo.Load(structValue.Type())
-	if !ok {
-		return fmt.Errorf("could not find memo for struct %s, found keys: %v", structName, allMemo.Keys())
+	memo, err := allMemo.LoadOrStore(structValue.Type())
+	if err != nil {
+		return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 	}
 
 	var fieldNames []string
@@ -793,8 +789,7 @@ func InitRemoteFeatureMap(
 	}
 	return nil
 }
-
-func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *AllNamespaceMemoT) error {
+func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
@@ -824,7 +819,7 @@ func ThinUnmarshalInto(
 	namespace string,
 	namespaceScope *InitScope,
 	namespaceMemo *NamespaceMemo,
-	allMemo *AllNamespaceMemoT,
+	allMemo *NamespaceMemosT,
 ) (returnErr error) {
 	remoteFeatureMap := map[string][]reflect.Value{}
 	if err := InitRemoteFeatureMap(
@@ -889,12 +884,6 @@ func ThinUnmarshalInto(
 	return nil
 }
 
-type UnmarshalChunkResult struct {
-	chunkIdx int
-	rows     []reflect.Value
-	err      error
-}
-
 func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) {
 	defer func() {
 		if panicContents := recover(); panicContents != nil {
@@ -923,193 +912,191 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 		)
 	}
 
-	slice := reflect.Indirect(slicePtr)
-	if slice.Kind() != reflect.Slice {
+	structs := reflect.Indirect(slicePtr)
+	if structs.Kind() != reflect.Slice {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got '%s' instead",
-			slice.Kind(),
+			structs.Kind(),
 		)
 	}
 
-	sliceElemType := slice.Type().Elem()
-	if sliceElemType.Kind() != reflect.Struct {
+	structType := structs.Type().Elem()
+	if structType.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got a pointer to a slice of '%s' instead",
-			sliceElemType.Kind(),
+			structType.Kind(),
 		)
 	}
 
-	rows, _, scalarsErr := ExtractFeaturesFromTable(table, false)
-	if scalarsErr != nil {
-		return scalarsErr
-	}
-	if len(rows) == 0 {
-		return nil
+	if slicePtr.Elem().Len() != numRows {
+		newSlice := reflect.MakeSlice(structs.Type(), numRows, numRows)
+		slicePtr.Elem().Set(newSlice)
 	}
 
-	scope, err := BuildScope(colls.Keys(rows[0]))
-	if err != nil {
-		return errors.Wrap(err, "building deserialization scope")
+	codecMemo := CodecMemo
+	allMemo := NamespaceMemos
+
+	if err := PopulateNamespaceMemos(structType, nil); err != nil {
+		return errors.Wrapf(err, "populating namespace memos for struct '%s'", structType.Name())
 	}
 
-	allMemo := AllNamespaceMemo
-	if err := PopulateAllNamespaceMemo(sliceElemType, nil); err != nil {
-		return errors.Wrap(err, "building namespace memo")
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+
+	fields := table.Schema().Fields()
+	colFqnParts := make([][]string, len(fields))
+	namespaceToColIndices := map[string][]int{}
+	for i, field := range table.Schema().Fields() {
+		colFqnParts[i] = strings.Split(field.Name, ".")
+		if field.Name == "__ts__" || field.Name == "__index__" || field.Name == "__id__" || strings.HasPrefix(field.Name, "__chalk__.") || strings.HasSuffix(field.Name, ".__chalk_observed_at__") {
+			continue
+		} else {
+			namespace := colFqnParts[i][0]
+			if _, ok := namespaceToColIndices[namespace]; !ok {
+				namespaceToColIndices[namespace] = make([]int, 0, len(fields))
+			}
+			namespaceToColIndices[namespace] = append(namespaceToColIndices[namespace], i)
+		}
 	}
 
-	structName := sliceElemType.Name()
-	namespace := ChalkpySnakeCase(structName)
-	nsScope := scope.Children[namespace]
+	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
+	if len(namespaceToColIndices) == 1 {
+		// Single-namespace unmarshalling
+		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
+		colToCodec := make([]Codec, len(includedColIndices))
+		for k, colIdx := range includedColIndices {
+			column := fields[colIdx]
+			codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
+				return generateUnmarshalValueCodec(
+					// Taking the first field's type because multiple field indices for the same column
+					// means they are just versioned features, which are all the same type.
+					structType,
+					column.Type,
+					allMemo,
+					column.Name,
+					colFqnParts[colIdx],
+				)
+			})
+			if err != nil {
+				return errors.Wrapf(err, "loading memo for column '%s'", column.Name)
+			}
 
-	var rowToStruct func(map[string]any) (*reflect.Value, error)
-	if nsScope != nil {
-		// single namespace unmarshalling
-		nsMemo, ok := allMemo.Load(sliceElemType)
-		if !ok {
-			return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+			colToCodec[k] = *codec
 		}
 
-		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
-			featuresStruct := reflect.New(sliceElemType)
-			if err := ThinUnmarshalInto(
-				featuresStruct.Elem(),
-				row,
-				namespace,
-				nsScope,
-				nsMemo,
-				allMemo,
-			); err != nil {
-				return nil, err
+		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+			for k, colIdx := range includedColIndices {
+				if err := colToCodec[k](structValue, record.Column(colIdx), rowIdx); err != nil {
+					return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+				}
 			}
-			return ptr.Ptr(featuresStruct.Elem()), nil
+			return nil
 		}
 	} else {
-		// Multi namespace unmarshalling
-		type namespaceMetaT struct {
-			fieldIdx  int
-			namespace string
-			scope     *InitScope
-			memo      *NamespaceMemo
+		// Multi-namespace unmarshalling
+		rootMemo, err := allMemo.LoadOrStore(structType)
+		if err != nil {
+			return errors.Wrapf(err, "loading namespace memo for struct: %s", structType.Name())
 		}
 
-		namespaceMeta := []namespaceMetaT{}
-		for i := 0; i < sliceElemType.NumField(); i++ {
-			fieldMeta := sliceElemType.Field(i)
-			if fieldMeta.Type.Kind() != reflect.Struct {
-				return errors.Newf(
-					"If attempting single namespace unmarshalling, please make sure you're unmarshalling into the correct struct. "+
-						"Attempted single namespace unmarshalling into struct '%s', but results are from these namespaces: %v. "+
-						"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
-						"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
-					structName,
-					colls.Keys(scope.Children),
-					fieldMeta.Name,
-					fieldMeta.Type.Name(),
-				)
-			}
-
-			fieldNamespace := ChalkpySnakeCase(fieldMeta.Type.Name())
-
-			fieldScope := scope.Children[fieldNamespace]
-			if fieldScope == nil {
-				return errors.Newf(
-					"Please make sure you're unmarshalling into the correct struct. Attempted single namespace "+
-						"unmarshalling into struct '%s', and attempted multi-namespace unmarshalling into the field '%s' "+
-						"of type '%s', but results are from these namespaces: %v",
-					structName,
-					fieldMeta.Name,
-					fieldMeta.Type.Name(),
-					colls.Keys(scope.Children),
-				)
-			}
-
-			fieldMemo, ok := allMemo.Load(fieldMeta.Type)
+		colIdxToNamespaceMeta := make([]namespaceMeta, len(fields))
+		for childNamespace, includedColIndices := range namespaceToColIndices {
+			namespaceFieldIndices, ok := rootMemo.ResolvedFieldNameToIndices[childNamespace]
 			if !ok {
-				return errors.Newf("namespace '%s' not found in memo, found keys: %v", structName, allMemo.Keys())
+				return errors.Newf(
+					"Attempted multi-namespace unmarshalling - please make sure to pass in a list of structs. "+
+						"The struct should contain an inner struct field that corresponds to the namespace '%s'. "+
+						"Found only these fields: %v",
+					childNamespace,
+					colls.Keys(rootMemo.ResolvedFieldNameToIndices),
+				)
+			} else if len(namespaceFieldIndices) == 0 {
+				return errors.Newf(
+					"memo indicates namespace '%s' does correspond to any field - "+
+						"this indicates an internal error building the memo",
+					childNamespace,
+				)
+
+			} else if len(namespaceFieldIndices) > 1 {
+				var foundFieldNames []string
+				for _, fieldIdx := range namespaceFieldIndices {
+					foundFieldNames = append(foundFieldNames, structType.Field(fieldIdx).Name)
+				}
+				return errors.Newf(
+					"namespace '%s' corresponds to multiple fields in the struct, but only one field is allowed: %v",
+					childNamespace,
+					foundFieldNames,
+				)
 			}
 
-			namespaceMeta = append(namespaceMeta, namespaceMetaT{
-				fieldIdx:  i,
-				namespace: fieldNamespace,
-				scope:     fieldScope,
-				memo:      fieldMemo,
-			})
-		}
+			rootStructFieldIdx := namespaceFieldIndices[0]
+			innerStructType := structType.Field(rootStructFieldIdx).Type
 
-		rowToStruct = func(row map[string]any) (*reflect.Value, error) {
-			rootStruct := reflect.New(sliceElemType)
-			for _, meta := range namespaceMeta {
-				if err := ThinUnmarshalInto(
-					rootStruct.Elem().Field(meta.fieldIdx),
-					row,
-					meta.namespace,
-					meta.scope,
-					meta.memo,
-					allMemo,
-				); err != nil {
-					return nil, errors.Wrapf(
-						err,
-						"error unmarshalling into field '%s'",
-						sliceElemType.Field(meta.fieldIdx).Name,
+			if innerStructType.Kind() != reflect.Struct {
+				return errors.Newf(
+					"field '%s' in struct '%s' is not a struct. Please make it a struct that corresponds to "+
+						"the namespace '%s'. Found type: %s",
+					structType.Field(rootStructFieldIdx).Name,
+					structType.Name(),
+					childNamespace,
+					innerStructType.Kind().String(),
+				)
+			}
+
+			for _, colIdx := range includedColIndices {
+				column := fields[colIdx]
+				codec, err := codecMemo.LoadOrStore(column.Name, func() (*Codec, error) {
+					return generateUnmarshalValueCodec(
+						// Taking the first field's type because multiple field indices for the same column
+						// means they are just versioned features, which are all the same type.
+						innerStructType,
+						column.Type,
+						allMemo,
+						column.Name,
+						colFqnParts[colIdx],
 					)
-				}
-			}
-			return ptr.Ptr(rootStruct.Elem()), nil
-		}
-	}
-
-	var wg sync.WaitGroup
-	numWorkers := runtime.NumCPU()
-	resChan := make(chan *UnmarshalChunkResult, numWorkers)
-	chunkSize := (len(rows) / numWorkers) + 1
-
-	for chunkIdx := 0; (chunkIdx * chunkSize) < len(rows); chunkIdx += 1 {
-		wg.Add(1)
-		go func(routineChunkIdx int) {
-			defer wg.Done()
-			chunkStart := routineChunkIdx * chunkSize
-			chunkEnd := chunkStart + chunkSize
-			chunkRows := rows[chunkStart:min(chunkEnd, len(rows))]
-			results := make([]reflect.Value, len(chunkRows))
-			for rowIdx, row := range chunkRows {
-				res, err := rowToStruct(row)
+				})
 				if err != nil {
-					resChan <- &UnmarshalChunkResult{chunkIdx: routineChunkIdx, err: err}
-					return
-				} else {
-					results[rowIdx] = *res
+					return errors.Wrapf(err, "loading codec for column '%s'", column.Name)
+				}
+				colIdxToNamespaceMeta[colIdx] = namespaceMeta{
+					codec:           codec,
+					rootStructIndex: rootStructFieldIdx,
 				}
 			}
-			resChan <- &UnmarshalChunkResult{chunkIdx: routineChunkIdx, rows: results}
-		}(chunkIdx)
-	}
-
-	wg.Wait()
-	close(resChan)
-
-	var allChunks []*UnmarshalChunkResult
-	for chunkResult := range resChan {
-		allChunks = append(allChunks, chunkResult)
-	}
-
-	sort.Slice(allChunks, func(i, j int) bool {
-		return allChunks[i].chunkIdx < allChunks[j].chunkIdx
-	})
-
-	newSlice := reflect.MakeSlice(slice.Type(), numRows, numRows)
-	rowIdx := 0
-	for _, chunkResult := range allChunks {
-		if chunkResult.err != nil {
-			return chunkResult.err
 		}
-		for _, row := range chunkResult.rows {
-			newSlice.Index(rowIdx).Set(row)
-			rowIdx += 1
+
+		rowOp = func(structValue reflect.Value, record arrow.Record, rowIdx int) error {
+			for _, includedColIndices := range namespaceToColIndices {
+				for _, colIdx := range includedColIndices {
+					memo := colIdxToNamespaceMeta[colIdx]
+					if memo.codec == nil {
+						return errors.Newf("codec not found for column '%s'", fields[colIdx].Name)
+					}
+					if err := (*(memo.codec))(structValue.Field(memo.rootStructIndex), record.Column(colIdx), rowIdx); err != nil {
+						return errors.Wrapf(err, "running codec for column '%s'", fields[colIdx].Name)
+					}
+				}
+			}
+			return nil
 		}
 	}
-	slice.Set(newSlice)
+
+	rowOffset := 0
+	batchIdx := 0
+	for reader.Next() {
+		record := reader.Record()
+		recordRows := int(record.NumRows())
+		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {
+				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
+			}
+		}
+		rowOffset += recordRows
+		batchIdx += 1
+	}
 
 	return nil
 }
