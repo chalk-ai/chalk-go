@@ -20,9 +20,9 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []float64{}
+				bulkData[fqn] = []int64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), int64(122.0))
 
 			fqn = fmt.Sprintf("float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -44,9 +44,9 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 
 			fqn = fmt.Sprintf("timestamp_features.timestamp_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []string{}
+				bulkData[fqn] = []time.Time{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]string), "2024-05-09T22:29:00Z")
+			bulkData[fqn] = append(bulkData[fqn].([]time.Time), time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC))
 		}
 	}
 
@@ -61,13 +61,13 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 
 	assertOnce := sync.Once{}
 	benchFunc := func() {
-		rootStruct := []struct {
+		var rootStruct []struct {
 			IntFeatures       fixtures.IntFeatures
 			FloatFeatures     fixtures.FloatFeatures
 			BoolFeatures      fixtures.BoolFeatures
 			StringFeatures    fixtures.StringFeatures
 			TimestampFeatures fixtures.TimestampFeatures
-		}{}
+		}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
 			for i := 0; i < numRows; i++ {
@@ -293,7 +293,6 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
-
 	res := chalk.OnlineQueryBulkResult{
 		ScalarsTable: table,
 	}
@@ -319,9 +318,9 @@ func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("has_one_root.int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
-				bulkData[fqn] = []float64{}
+				bulkData[fqn] = []int64{}
 			}
-			bulkData[fqn] = append(bulkData[fqn].([]float64), float64(122.0))
+			bulkData[fqn] = append(bulkData[fqn].([]int64), int64(122.0))
 
 			fqn = fmt.Sprintf("has_one_root.float_features.float_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -399,9 +398,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData["all_types.dataclass"] = make([]fixtures.LatLng, numRows)
 	bulkData["all_types.dataclass_list"] = make([][]fixtures.LatLng, numRows)
 	bulkData["all_types.dataclass_with_list"] = make([]fixtures.FavoriteThings, numRows)
-	bulkData["all_types.dataclass_with_nils"] = make([]fixtures.Possessions, numRows)
 	bulkData["all_types.dataclass_with_dataclass"] = make([]fixtures.Child, numRows)
-	bulkData["all_types.dataclass_with_overrides"] = make([]fixtures.DclassWithOverrides, numRows)
 	bulkData["all_types.nested"] = make([]fixtures.LevelOneNest, numRows)
 
 	for i := 0; i < numRows; i++ {
@@ -437,7 +434,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 		assertOnce.Do(func() {
 			assert.Equal(b, int64(numRows), table.NumRows())
 			numSamples := 10
-			interval := numRows / numSamples
+			interval := max(numRows/numSamples, 1)
 			for i := 0; i < numRows; i = i + interval {
 				assert.Equal(b, int64(1), *allTypes[i].Int)
 				assert.Equal(b, float64(1.234), *allTypes[i].Float)
