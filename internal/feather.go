@@ -77,8 +77,8 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		elem := value.Elem()
 		if elem.Kind() == reflect.Uint8 {
 			return arrow.BinaryTypes.LargeBinary, false, nil
-		} else if elemType, innerShouldOmit, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
-			return arrow.LargeListOf(elemType), innerShouldOmit, nil
+		} else if elemType, innerShouldFilter, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
+			return arrow.LargeListOf(elemType), innerShouldFilter, nil
 		} else {
 			return nil, false, errors.Wrapf(
 				err,
@@ -100,7 +100,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		defer delete(visitedNamespaces, namespace)
 
 		isFeaturesClass := IsFeaturesClass(value)
-		collectiveShouldOmit := false
+		atLeastOneShouldFilter := false
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
 			if foreignNs := getForeignNamespace(field.Type); foreignNs != nil {
@@ -108,7 +108,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 					continue
 				}
 			}
-			dtype, innerShouldOmit, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
+			dtype, innerShouldFilter, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
 			if dtypeErr != nil {
 				return nil, false, errors.Wrapf(
 					dtypeErr,
@@ -124,20 +124,20 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 				resolved = namespace + "." + resolved
 			}
 
-			currentShouldOmit := !HasDontOmitTag(field) && !IsTypeDataclass(value)
-			collectiveShouldOmit = currentShouldOmit || innerShouldOmit || collectiveShouldOmit
+			currentShouldFilter := !HasDontOmitTag(field) && !IsTypeDataclass(value)
+			atLeastOneShouldFilter = currentShouldFilter || innerShouldFilter || atLeastOneShouldFilter
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
 				Type:     dtype,
 				Nullable: field.Type.Kind() == reflect.Ptr,
 				Metadata: arrow.MetadataFrom(
 					map[string]string{
-						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", currentShouldOmit),
+						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", currentShouldFilter),
 					},
 				),
 			})
 		}
-		return arrow.StructOf(arrowFields...), collectiveShouldOmit, nil
+		return arrow.StructOf(arrowFields...), atLeastOneShouldFilter, nil
 	} else {
 		return nil, false, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
@@ -384,7 +384,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	allocator := memory.NewGoAllocator()
 	schema := make([]arrow.Field, len(inputs))
 	colIdxToShouldFilter := make([]bool, len(inputs))
-	recordShouldFilter := false
+	shouldFilterRecord := false
 	mapIdx := 0
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
@@ -394,7 +394,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
 		colIdxToShouldFilter[mapIdx] = shouldOmit
-		recordShouldFilter = recordShouldFilter || shouldOmit
+		shouldFilterRecord = shouldFilterRecord || shouldOmit
 		schema[mapIdx] = arrow.Field{Name: k, Type: arrowType}
 		mapIdx++
 	}
