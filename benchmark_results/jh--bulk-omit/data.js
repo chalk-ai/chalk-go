@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1741375035520,
+  "lastUpdate": 1741375160864,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -4426,6 +4426,44 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 650.9,
+            "unit": "ms/op",
+            "extra": "2 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "c28a5790980091791499ac986635fef5e4a47232",
+          "message": "Omit nested feature column in arrow inputs if all nulls [CHA-5430]",
+          "timestamp": "2025-03-07T02:37:12Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/229/commits/c28a5790980091791499ac986635fef5e4a47232"
+        },
+        "date": 1741375160842,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 11.13,
+            "unit": "ms/op",
+            "extra": "118 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 106.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 630.9,
             "unit": "ms/op",
             "extra": "2 times\n4 procs"
           }
