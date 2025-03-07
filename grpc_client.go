@@ -3,7 +3,6 @@ package chalk
 import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"time"
 )
 
@@ -11,16 +10,16 @@ import (
 // Our existing Client interface also works with gRPC, but this interface
 // is more idiomatic for talking to our gRPC endpoints.
 type GRPCClient interface {
-	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error)
+	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
 
-	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error)
+	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error)
 
-	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
+	GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error)
 
 	PlanAggregateBackfill(
 		ctx context.Context,
 		req *aggregatev1.PlanAggregateBackfillRequest,
-	) (*aggregatev1.PlanAggregateBackfillResponse, error)
+	) (*GRPCPlanAggregateBackfillResult, error)
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.

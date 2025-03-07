@@ -9,7 +9,9 @@ import (
 )
 
 type Feature struct {
-	Fqn string
+	Fqn   string
+	Value any
+	Meta  *FeatureMeta
 }
 
 func DesuffixFqn(fqn string) string {

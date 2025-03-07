@@ -18,6 +18,12 @@ import (
 	"time"
 )
 
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
+
 type grpcClientImpl struct {
 	GRPCClient
 	config *configManager
@@ -172,20 +178,41 @@ type GRPCOnlineQueryBulkResult struct {
 	RawResponse *commonv1.OnlineQueryBulkResponse
 }
 
-type GRPCFeatureResult struct {
-	Field string
-	Value any
-	Meta  *FeatureMeta
-}
-
 type FeatureMeta struct {
 	Pkey        any
 	ResolverFqn string
-	SourceType  string
+	SourceType  ResultMetadataSourceType
 	SourceId    string
 }
 
-func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) ([]GRPCFeatureResult, error) {
+type RowResult struct {
+	Features map[string]Feature
+}
+
+func NewRowResult() *RowResult {
+	return &RowResult{
+		Features: make(map[string]Feature),
+	}
+}
+
+func (r *RowResult) GetFeature(fqn string) (*Feature, error) {
+	res, ok := r.Features[fqn]
+	if !ok {
+		return nil, errors.Newf("feature '%s' not found", fqn)
+	}
+	return &res, nil
+}
+
+func (r *RowResult) GetFeatureValue(fqn string) (any, error) {
+	res, err := r.GetFeature(fqn)
+	if err != nil {
+		return nil, err
+	}
+	return res.Value, nil
+}
+
+func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
+	row := NewRowResult()
 	if len(r.RawResponse.GetScalarsData()) == 0 {
 		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
 	}
@@ -195,7 +222,6 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) ([]GRPCFeatureResult, e
 		return nil, errors.Wrap(err, "converting scalars data to table")
 	}
 
-	results := make([]GRPCFeatureResult, 0, scalarsTable.NumCols())
 	rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, false)
 	if err != nil {
 		return nil, errors.Wrap(err, "extracting features from scalars table")
@@ -207,8 +233,8 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) ([]GRPCFeatureResult, e
 	}
 	rowMeta = meta[rowIndex]
 	for fqn, value := range rows[rowIndex] {
-		featureRes := GRPCFeatureResult{
-			Field: fqn,
+		featureRes := Feature{
+			Fqn:   fqn,
 			Value: value,
 		}
 		if rowMeta != nil {
@@ -217,22 +243,23 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) ([]GRPCFeatureResult, e
 				// Features such as has-many features do not have a metadata column.
 				continue
 			}
-			publicMeta := &FeatureMeta{
+			publicMeta := FeatureMeta{
 				Pkey: internalMeta.Pkey,
 			}
 			if internalMeta.ResolverFqn != nil {
 				publicMeta.ResolverFqn = *internalMeta.ResolverFqn
 			}
 			if internalMeta.SourceType != nil {
-				publicMeta.SourceType = *internalMeta.SourceType
+				publicMeta.SourceType = (ResultMetadataSourceType)(*internalMeta.SourceType)
 			}
 			if internalMeta.SourceId != nil {
 				publicMeta.SourceId = *internalMeta.SourceId
 			}
+			featureRes.Meta = &publicMeta
 		}
-		results = append(results, featureRes)
+		row.Features[fqn] = featureRes
 	}
-	return results, nil
+	return row, nil
 }
 
 func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
