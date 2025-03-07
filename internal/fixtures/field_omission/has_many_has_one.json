@@ -1,0 +1,30 @@
+[
+  {
+    "user.has_many": [
+      {
+        "omit_has_one_root.id": "root_1",
+        "omit_has_one_root.txn": {
+          "omit_txn.amount": 100,
+          "omit_txn.id": "txn_1"
+        }
+      }
+    ],
+    "user.id": "user_1"
+  },
+  {
+    "user.has_many": [],
+    "user.id": "user_2"
+  },
+  {
+    "user.has_many": [
+      {
+        "omit_has_one_root.id": "root_3",
+        "omit_has_one_root.txn": {
+          "omit_txn.amount": null,
+          "omit_txn.id": "txn_3"
+        }
+      }
+    ],
+    "user.id": "user_3"
+  }
+]
