@@ -388,12 +388,12 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
 		columnElemType := columnVal.Type().Elem()
-		arrowType, shouldOmit, convErr := convertReflectToArrowType(columnElemType, nil)
+		arrowType, shouldFilter, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
-		shouldFilterRecord = shouldFilterRecord || shouldOmit
-		shouldFilterColumn[mapIdx] = shouldOmit
+		shouldFilterRecord = shouldFilterRecord || shouldFilter
+		shouldFilterColumn[mapIdx] = shouldFilter
 		schema[mapIdx] = arrow.Field{Name: k, Type: arrowType}
 		mapIdx++
 	}
