@@ -70,7 +70,7 @@ func initFeatures(
 
 		f := fm.Field
 		if !f.CanSet() {
-			return errors.Newf("field '%s' is not settable", fm.Meta.Name)
+			continue
 		}
 
 		if f.Type().Elem().Kind() == reflect.Struct &&
