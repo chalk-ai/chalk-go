@@ -168,7 +168,82 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
-func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error) {
+type GRPCOnlineQueryBulkResult struct {
+	RawResponse *commonv1.OnlineQueryBulkResponse
+}
+
+type GRPCFeatureResult struct {
+	Field string
+	Value any
+	Meta  *FeatureMeta
+}
+
+type FeatureMeta struct {
+	Pkey        any
+	ResolverFqn string
+	SourceType  string
+	SourceId    string
+}
+
+func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) ([]GRPCFeatureResult, error) {
+	if len(r.RawResponse.GetScalarsData()) == 0 {
+		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
+	}
+
+	scalarsTable, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData())
+	if err != nil {
+		return nil, errors.Wrap(err, "converting scalars data to table")
+	}
+
+	results := make([]GRPCFeatureResult, 0, scalarsTable.NumCols())
+	rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, false)
+	if err != nil {
+		return nil, errors.Wrap(err, "extracting features from scalars table")
+	}
+
+	var rowMeta map[string]internal.FeatureMeta
+	if len(meta) != len(rows) {
+		return nil, errors.New("metadata length does not match rows length")
+	}
+	rowMeta = meta[rowIndex]
+	for fqn, value := range rows[rowIndex] {
+		featureRes := GRPCFeatureResult{
+			Field: fqn,
+			Value: value,
+		}
+		if rowMeta != nil {
+			internalMeta, ok := rowMeta[fqn]
+			if !ok {
+				// Features such as has-many features do not have a metadata column.
+				continue
+			}
+			publicMeta := &FeatureMeta{
+				Pkey: internalMeta.Pkey,
+			}
+			if internalMeta.ResolverFqn != nil {
+				publicMeta.ResolverFqn = *internalMeta.ResolverFqn
+			}
+			if internalMeta.SourceType != nil {
+				publicMeta.SourceType = *internalMeta.SourceType
+			}
+			if internalMeta.SourceId != nil {
+				publicMeta.SourceId = *internalMeta.SourceId
+			}
+		}
+		results = append(results, featureRes)
+	}
+	return results, nil
+}
+
+func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
+	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData())
+	if err != nil {
+		return errors.Wrap(err, "deserializing scalars table")
+	}
+	return internal.UnmarshalTableInto(scalars, resultHolders)
+}
+
+func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
 	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
@@ -183,10 +258,17 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	if err != nil {
 		return nil, errors.Wrap(err, "executing online query")
 	}
-	return res.Msg, nil
+
+	return &GRPCOnlineQueryBulkResult{
+		RawResponse: res.Msg,
+	}, nil
 }
 
-func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
+type GRPCUpdateAggregatesResult struct {
+	RawResponse *commonv1.UploadFeaturesBulkResponse
+}
+
+func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting inputs map")
@@ -205,10 +287,17 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 	if err != nil {
 		return nil, errors.Wrap(err, "making update aggregates request")
 	}
-	return res.Msg, nil
+
+	return &GRPCUpdateAggregatesResult{
+		RawResponse: res.Msg,
+	}, nil
 }
 
-func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
+type GRPCGetAggregatesResult struct {
+	RawResponse *aggregatev1.GetAggregatesResponse
+}
+
+func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error) {
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
@@ -217,18 +306,26 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 		return nil, errors.Wrap(err, "making get aggregates request")
 	}
 
-	return res.Msg, err
+	return &GRPCGetAggregatesResult{
+		RawResponse: res.Msg,
+	}, nil
+}
+
+type GRPCPlanAggregateBackfillResult struct {
+	RawResponse *aggregatev1.PlanAggregateBackfillResponse
 }
 
 func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
-) (*aggregatev1.PlanAggregateBackfillResponse, error) {
+) (*GRPCPlanAggregateBackfillResult, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}
-	return res.Msg, err
+	return &GRPCPlanAggregateBackfillResult{
+		RawResponse: res.Msg,
+	}, nil
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
