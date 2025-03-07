@@ -496,6 +496,8 @@ func filterArray(arr arrow.Array) (arrow.Array, bool, error) {
 		return array.NewStructData(data), true, nil
 	case *array.LargeList:
 		return array.NewLargeListData(data), true, nil
+	case *array.List:
+		return array.NewListData(data), true, nil
 	default:
 		return nil, true, errors.Newf(
 			"did not expect to be doing any filtering on array of type '%s'",
