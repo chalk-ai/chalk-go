@@ -10,6 +10,7 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
 	"net"
@@ -168,7 +169,29 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
-func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error) {
+type QueryExplainInfo struct {
+	Plan string
+}
+
+type OnlineQueryMetadata struct {
+	ExecutionDuration *time.Duration
+	DeploymentId      string
+	EnvironmentId     string
+	EnvironmentName   string
+	QueryId           string
+	QueryTimestamp    *time.Time
+	QueryHash         string
+	ExplainOutput     *QueryExplainInfo
+}
+type GRPCOnlineQueryBulkResult struct {
+	RawTable []byte
+	Meta     OnlineQueryMetadata
+	Errors   []ServerError
+
+	RawResponse *commonv1.OnlineQueryBulkResponse
+}
+
+func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
 	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
@@ -183,10 +206,47 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	if err != nil {
 		return nil, errors.Wrap(err, "executing online query")
 	}
-	return res.Msg, nil
+
+	grpcMeta := res.Msg.GetResponseMeta()
+
+	var explainOutput *QueryExplainInfo
+	if grpcMeta.GetExplainOutput() != nil {
+		grpcExplain := grpcMeta.GetExplainOutput()
+		explainOutput = &QueryExplainInfo{
+			Plan: grpcExplain.GetPlanString(),
+		}
+	}
+
+	meta := OnlineQueryMetadata{
+		ExecutionDuration: ptr.Ptr(grpcMeta.GetExecutionDuration().AsDuration()),
+		DeploymentId:      grpcMeta.GetDeploymentId(),
+		EnvironmentId:     grpcMeta.GetEnvironmentId(),
+		EnvironmentName:   grpcMeta.GetEnvironmentName(),
+		QueryId:           grpcMeta.GetQueryId(),
+		QueryTimestamp:    ptr.Ptr(grpcMeta.GetQueryTimestamp().AsTime()),
+		QueryHash:         grpcMeta.GetQueryHash(),
+		ExplainOutput:     explainOutput,
+	}
+
+	serverErrors, err := serverErrorsFromProto(res.Msg.GetErrors())
+	if err != nil {
+		return nil, errors.Wrapf(err, "converting raw proto errors: %v", serverErrors)
+	}
+
+	return &GRPCOnlineQueryBulkResult{
+		RawTable:    res.Msg.GetScalarsData(),
+		Meta:        meta,
+		Errors:      serverErrors,
+		RawResponse: res.Msg,
+	}, nil
 }
 
-func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
+type GRPCUpdateAggregatesResult struct {
+	Errors      []ServerError
+	RawResponse *commonv1.UploadFeaturesBulkResponse
+}
+
+func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting inputs map")
@@ -205,10 +265,75 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 	if err != nil {
 		return nil, errors.Wrap(err, "making update aggregates request")
 	}
-	return res.Msg, nil
+
+	serverErrors, err := serverErrorsFromProto(res.Msg.GetErrors())
+	if err != nil {
+		return nil, errors.Wrapf(err, "converting raw proto errors: %v", serverErrors)
+	}
+	return &GRPCUpdateAggregatesResult{
+		Errors:      serverErrors,
+		RawResponse: res.Msg,
+	}, nil
 }
 
-func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
+type AggregateTimeSeriesRule struct {
+	Aggregation       string
+	BucketDuration    *time.Duration
+	DependentFeatures []string
+	Rentention        *time.Duration
+	DatetimeFeature   string
+}
+
+type AggregateTimeSeries struct {
+	Namespace          string
+	AggregateOn        string
+	GroupBy            []string
+	Rules              []AggregateTimeSeriesRule
+	FiltersDescription string
+	BucketFeature      string
+}
+
+type GRPCGetAggregatesResult struct {
+	Series      []AggregateTimeSeries
+	RawResponse *aggregatev1.GetAggregatesResponse
+}
+
+func aggregateTimeSeriesFromProto(raw []*aggregatev1.AggregateTimeSeries) []AggregateTimeSeries {
+	var series []AggregateTimeSeries
+	for _, oneSeries := range raw {
+		var rules []AggregateTimeSeriesRule
+		for _, rawRule := range oneSeries.GetRules() {
+			var bucketDuration *time.Duration
+			if rawRule.GetBucketDuration() != nil {
+				bucketDuration = ptr.Ptr(rawRule.GetBucketDuration().AsDuration())
+			}
+
+			var retention *time.Duration
+			if rawRule.GetRetention() != nil {
+				retention = ptr.Ptr(rawRule.GetRetention().AsDuration())
+			}
+
+			rules = append(rules, AggregateTimeSeriesRule{
+				Aggregation:       rawRule.GetAggregation(),
+				BucketDuration:    bucketDuration,
+				DependentFeatures: rawRule.GetDependentFeatures(),
+				Rentention:        retention,
+				DatetimeFeature:   rawRule.GetDatetimeFeature(),
+			})
+		}
+		series = append(series, AggregateTimeSeries{
+			Namespace:          oneSeries.GetNamespace(),
+			AggregateOn:        oneSeries.GetAggregateOn(),
+			GroupBy:            oneSeries.GetGroupBy(),
+			Rules:              rules,
+			FiltersDescription: oneSeries.GetFiltersDescription(),
+			BucketFeature:      oneSeries.GetBucketFeature(),
+		})
+	}
+	return series
+}
+
+func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error) {
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
@@ -217,18 +342,121 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 		return nil, errors.Wrap(err, "making get aggregates request")
 	}
 
-	return res.Msg, err
+	return &GRPCGetAggregatesResult{
+		Series:      aggregateTimeSeriesFromProto(res.Msg.GetSeries()),
+		RawResponse: res.Msg,
+	}, nil
+}
+
+type AggregateBackfillCostEstimate struct {
+	MaxBuckets          int64
+	ExpectedBuckets     int64
+	ExpectedBytes       int64
+	ExpectedStorageCost float64
+	ExpectedRuntime     *time.Duration
+}
+
+type AggregateBackfill struct {
+	Series             []AggregateTimeSeries
+	Resolver           string
+	DatetimeFeature    string
+	BucketDuration     *time.Duration
+	FiltersDescription string
+	GroupBy            []string
+	MaxRetention       *time.Duration
+	LowerBound         *time.Time
+	UpperBound         *time.Time
+}
+
+type AggregateBackfillWithCostEstimate struct {
+	Backfill *AggregateBackfill
+	Estimate *AggregateBackfillCostEstimate
+}
+
+type GRPCPlanAggregateBackfillResult struct {
+	Estimate            *AggregateBackfillCostEstimate
+	Errors              []ServerError
+	Backfills           []AggregateBackfillWithCostEstimate
+	AggregateBackfillId string
+
+	RawResponse *aggregatev1.PlanAggregateBackfillResponse
+}
+
+func aggregateBackfillCostEstimateFromProto(raw *aggregatev1.AggregateBackfillCostEstimate) *AggregateBackfillCostEstimate {
+	var estimate *AggregateBackfillCostEstimate
+	if raw != nil {
+		var runtime *time.Duration
+		if raw.GetExpectedRuntime() != nil {
+			runtime = ptr.Ptr(raw.GetExpectedRuntime().AsDuration())
+		}
+		estimate = &AggregateBackfillCostEstimate{
+			MaxBuckets:          raw.GetMaxBuckets(),
+			ExpectedBuckets:     raw.GetExpectedBuckets(),
+			ExpectedBytes:       raw.GetExpectedBytes(),
+			ExpectedStorageCost: raw.GetExpectedStorageCost(),
+			ExpectedRuntime:     runtime,
+		}
+	}
+	return estimate
 }
 
 func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
-) (*aggregatev1.PlanAggregateBackfillResponse, error) {
+) (*GRPCPlanAggregateBackfillResult, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}
-	return res.Msg, err
+
+	var backfills []AggregateBackfillWithCostEstimate
+	for _, backfill := range res.Msg.GetBackfills() {
+		var innerBackfill *AggregateBackfill
+		rawBackfill := backfill.GetBackfill()
+		if rawBackfill != nil {
+			var bucketDuration *time.Duration
+			if rawBackfill.GetBucketDuration() != nil {
+				bucketDuration = ptr.Ptr(rawBackfill.GetBucketDuration().AsDuration())
+			}
+
+			var maxRetention *time.Duration
+			if rawBackfill.GetMaxRetention() != nil {
+				maxRetention = ptr.Ptr(rawBackfill.GetMaxRetention().AsDuration())
+			}
+
+			var lowerBound *time.Time
+			if rawBackfill.GetLowerBound() != nil {
+				lowerBound = ptr.Ptr(rawBackfill.GetLowerBound().AsTime())
+			}
+
+			var upperBound *time.Time
+			if rawBackfill.GetUpperBound() != nil {
+				upperBound = ptr.Ptr(rawBackfill.GetUpperBound().AsTime())
+			}
+
+			innerBackfill = &AggregateBackfill{
+				Series:             aggregateTimeSeriesFromProto(rawBackfill.GetSeries()),
+				Resolver:           rawBackfill.GetResolver(),
+				DatetimeFeature:    rawBackfill.GetDatetimeFeature(),
+				BucketDuration:     bucketDuration,
+				FiltersDescription: rawBackfill.GetFiltersDescription(),
+				GroupBy:            rawBackfill.GetGroupBy(),
+				MaxRetention:       maxRetention,
+				LowerBound:         lowerBound,
+				UpperBound:         upperBound,
+			}
+		}
+
+		backfills = append(backfills, AggregateBackfillWithCostEstimate{
+			Backfill: innerBackfill,
+			Estimate: aggregateBackfillCostEstimateFromProto(backfill.GetEstimate()),
+		})
+	}
+
+	return &GRPCPlanAggregateBackfillResult{
+		Estimate:    aggregateBackfillCostEstimateFromProto(res.Msg.GetEstimate()),
+		RawResponse: res.Msg,
+	}, err
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {

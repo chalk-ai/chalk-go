@@ -69,26 +69,10 @@ func GetRow(response *commonv1.OnlineQueryBulkResponse, rowIndex int) ([]Feature
 	}
 	return results, nil
 }
-
-func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, resultHolder any) error {
-	if err := validateOnlineQueryResultHolder(resultHolder); err != nil {
-		return err
-	}
-	fqnToValue := map[Fqn]any{}
-	for _, featureResult := range response.GetData().GetResults() {
-		convertedValue, err := convertIfHasManyMap(featureResult.Value.AsInterface())
-		if err != nil {
-			return errors.Wrapf(err, "converting has-many value for feature '%s'", featureResult.Field)
-		}
-		fqnToValue[featureResult.Field] = convertedValue
-	}
-	return UnmarshalInto(resultHolder, fqnToValue, nil)
-}
-
 func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
 	scalars, err := internal.ConvertBytesToTable(response.GetScalarsData())
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
-	return unmarshalTableInto(scalars, resultHolders)
+	return internal.UnmarshalTableInto(scalars, resultHolders)
 }
