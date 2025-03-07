@@ -555,35 +555,42 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 		), true, nil
 
 	case *arrow.LargeListType:
-		if len(data.Children()) != 1 {
-			return nil, false, errors.Newf(
-				"expected exactly 1 instead of %d child arrays in large list: %v",
-				len(data.Children()),
-				data.Children(),
-			)
-		}
-		onlyChild := data.Children()[0]
-		newChild, didFilter, err := filterArrayData(onlyChild)
-		if err != nil {
-			return nil, false, errors.Wrap(err, "failed to filter child array")
-		}
-		if !didFilter {
-			return data, false, nil
-		}
-		return array.NewData(
-			arrow.LargeListOf(newChild.DataType()),
-			data.Len(),
-			data.Buffers(),
-			[]arrow.ArrayData{newChild},
-			data.NullN(),
-			data.Offset(),
-		), true, nil
+		return filterListArrayData(data, func(innerType arrow.DataType) arrow.DataType {
+			return arrow.LargeListOf(innerType)
+		})
 	case *arrow.ListType:
-		// We arbitrarily exclusively use large lists over lists
-		return data, false, errors.New("unexpected list type")
+		return filterListArrayData(data, func(innerType arrow.DataType) arrow.DataType {
+			return arrow.ListOf(innerType)
+		})
 	default:
 		return data, false, nil
 	}
+}
+
+func filterListArrayData(data arrow.ArrayData, makeListType func(innerType arrow.DataType) arrow.DataType) (arrow.ArrayData, bool, error) {
+	if len(data.Children()) != 1 {
+		return nil, false, errors.Newf(
+			"expected exactly 1 instead of %d child arrays in large list: %v",
+			len(data.Children()),
+			data.Children(),
+		)
+	}
+	onlyChild := data.Children()[0]
+	newChild, didFilter, err := filterArrayData(onlyChild)
+	if err != nil {
+		return nil, false, errors.Wrap(err, "failed to filter child array")
+	}
+	if !didFilter {
+		return data, false, nil
+	}
+	return array.NewData(
+		makeListType(newChild.DataType()),
+		data.Len(),
+		data.Buffers(),
+		[]arrow.ArrayData{newChild},
+		data.NullN(),
+		data.Offset(),
+	), true, nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
