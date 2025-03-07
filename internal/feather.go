@@ -517,7 +517,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 			childData := data.Children()[arrowFieldIdx]
 			shouldOmit, ok := arrowField.Metadata.GetValue(shouldOmitIfAllNullsKey)
 			if !ok {
-				shouldOmit = fmt.Sprintf("%t", true)
+				shouldOmit = "true"
 			}
 			if childData.NullN() == childData.Len() && shouldOmit == "true" {
 				// If all values are null, omit the column
