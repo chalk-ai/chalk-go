@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
@@ -951,10 +950,7 @@ func TestUnmarshalBulkQueryOptionalValues(t *testing.T) {
 	schema := arrow.NewSchema([]arrow.Field{
 		{Name: "all_types.string", Type: arrow.BinaryTypes.LargeString},
 	}, nil)
-	recordBuilder := array.NewRecordBuilder(
-		memory.NewGoAllocator(),
-		schema,
-	)
+	recordBuilder := array.NewRecordBuilder(internal.ChalkAllocator, schema)
 	defer recordBuilder.Release()
 	recordBuilder.Field(0).(*array.LargeStringBuilder).AppendValues(
 		[]string{"abc", "def", "ghi"},
@@ -1014,10 +1010,7 @@ func TestUnmarshalBulkQueryTimestampsWithUnitVariety(t *testing.T) {
 					TimeZone: "UTC",
 				}},
 			}, nil)
-			recordBuilder := array.NewRecordBuilder(
-				memory.NewGoAllocator(),
-				schema,
-			)
+			recordBuilder := array.NewRecordBuilder(internal.ChalkAllocator, schema)
 			defer recordBuilder.Release()
 			recordBuilder.Field(0).(*array.TimestampBuilder).AppendValues(
 				[]arrow.Timestamp{
