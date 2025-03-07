@@ -58,7 +58,7 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 
 	return bws.Bytes(), nil
 }
-func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, error) {
+func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (typ arrow.DataType, collectiveShouldOmit bool, err error) {
 	if visitedNamespaces == nil {
 		visitedNamespaces = map[string]bool{}
 	}
@@ -68,15 +68,15 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		return convertReflectToArrowType(value.Elem(), visitedNamespaces)
 	}
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
-		return arrowType, nil
+		return arrowType, false, nil
 	} else if kind == reflect.Slice || kind == reflect.Array {
 		elem := value.Elem()
 		if elem.Kind() == reflect.Uint8 {
-			return arrow.BinaryTypes.LargeBinary, nil
-		} else if elemType, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
-			return arrow.LargeListOf(elemType), nil
+			return arrow.BinaryTypes.LargeBinary, false, nil
+		} else if elemType, innerShouldOmit, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
+			return arrow.LargeListOf(elemType), innerShouldOmit, nil
 		} else {
-			return nil, errors.Wrapf(
+			return nil, false, errors.Wrapf(
 				err,
 				"arrow conversion failed - a slice of '%s' is currently unsupported",
 				elem,
@@ -87,7 +87,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			return &arrow.TimestampType{
 				Unit:     arrow.Microsecond,
 				TimeZone: "UTC",
-			}, nil
+			}, false, nil
 		}
 		var arrowFields []arrow.Field
 		namespace := ChalkpySnakeCase(value.Name())
@@ -103,9 +103,9 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 					continue
 				}
 			}
-			dtype, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
+			dtype, innerShouldOmit, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
 			if dtypeErr != nil {
-				return nil, errors.Wrapf(
+				return nil, false, errors.Wrapf(
 					dtypeErr,
 					"arrow conversion failed - failed to convert struct field type '%v' to arrow type",
 					field.Type,
@@ -113,27 +113,28 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			}
 			resolved, err := ResolveFeatureName(field)
 			if err != nil {
-				return nil, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+				return nil, false, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 			}
 			if isFeaturesClass {
 				resolved = namespace + "." + resolved
 			}
 
-			shouldOmit := !HasDontOmitTag(field) && !IsTypeDataclass(value)
+			currentShouldOmit := !HasDontOmitTag(field) && !IsTypeDataclass(value)
+			collectiveShouldOmit = currentShouldOmit || innerShouldOmit || collectiveShouldOmit
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
 				Type:     dtype,
 				Nullable: field.Type.Kind() == reflect.Ptr,
 				Metadata: arrow.MetadataFrom(
 					map[string]string{
-						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", shouldOmit),
+						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", currentShouldOmit),
 					},
 				),
 			})
 		}
-		return arrow.StructOf(arrowFields...), nil
+		return arrow.StructOf(arrowFields...), collectiveShouldOmit, nil
 	} else {
-		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
+		return nil, false, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
 }
 
@@ -376,15 +377,21 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 	// Create the input values
 	allocator := memory.NewGoAllocator()
-	var schema []arrow.Field
+	schema := make([]arrow.Field, len(inputs))
+	colIdxToShouldFilter := make([]bool, len(inputs))
+	recordShouldFilter := false
+	mapIdx := 0
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
 		columnElemType := columnVal.Type().Elem()
-		arrowType, convErr := convertReflectToArrowType(columnElemType, nil)
+		arrowType, shouldOmit, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
-		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
+		colIdxToShouldFilter[mapIdx] = shouldOmit
+		recordShouldFilter = recordShouldFilter || shouldOmit
+		schema[mapIdx] = arrow.Field{Name: k, Type: arrowType}
+		mapIdx++
 	}
 
 	recordBuilder := array.NewRecordBuilder(allocator, arrow.NewSchema(schema, nil))
@@ -411,7 +418,7 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	record, err := filterRecord(recordBuilder.NewRecord())
+	record, err := filterRecord(recordBuilder.NewRecord(), colIdxToShouldFilter)
 	if err != nil {
 		return nil, errors.Wrap(err, "filter record")
 	}
@@ -425,15 +432,28 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 * done so that `nil` features in a has-one or has-many struct do not get mistaken
 * as the user specifying that feature as null.
  */
-func filterRecord(record arrow.Record) (arrow.Record, error) {
-	var newColumns []arrow.Array
-	var newFields []arrow.Field
+func filterRecord(record arrow.Record, colIdxToShouldFilter []bool) (arrow.Record, error) {
+	for _, shouldFilter := range colIdxToShouldFilter {
+		if shouldFilter {
+			break
+		}
+		return record, nil
+	}
+
+	newColumns := make([]arrow.Array, 0, record.NumCols())
+	newFields := make([]arrow.Field, 0, record.NumCols())
 	didFilter := false
 	numCols, err := Int64ToInt(record.NumCols())
 	if err != nil {
 		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
 	}
 	for i := 0; i < numCols; i++ {
+		if !colIdxToShouldFilter[i] {
+			newFields = append(newFields, record.Schema().Field(i))
+			newColumns = append(newColumns, record.Column(i))
+			continue
+		}
+
 		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
 		if err != nil {
 			return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
