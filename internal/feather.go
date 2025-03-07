@@ -122,10 +122,6 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 				resolved = namespace + "." + resolved
 			}
 
-			underlyingType := field.Type
-			if underlyingType.Kind() == reflect.Ptr {
-				underlyingType = underlyingType.Elem()
-			}
 			shouldOmit := !HasDontOmitTag(field) && !IsTypeDataclass(value)
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
