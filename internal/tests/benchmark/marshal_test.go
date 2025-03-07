@@ -31,10 +31,7 @@ func getAllTypes(b *testing.B, numRows int) func() {
 	colMap := map[string]any{}
 
 	type customHasMany struct {
-		Id *string
-
-		// The following should be kept in parity with the enumeration of
-		// fields with all types in the `AllTypes` struct.
+		Id     *string
 		Int    *int64
 		Float  *float64
 		String *string
