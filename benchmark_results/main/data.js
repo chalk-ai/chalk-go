@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1741299272782,
+  "lastUpdate": 1741305820634,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -3540,6 +3540,150 @@ window.BENCHMARK_DATA = {
             "value": 1562,
             "unit": "ms/op",
             "extra": "1 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "40910959+rooftoofwoof@users.noreply.github.com",
+            "name": "Jin Hang",
+            "username": "rooftoofwoof"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8ff03236412651acb2ce75ba25fab7db5c7a65ff",
+          "message": "Single-copy, codec based bulk unmarshal [CHA-5929] (#319)\n\n* draft\n\n* wip works\n\n* structs work\n\n* nested dataclasses lets go\n\n* list support but slow\n\n* fix\n\n* all types\n\n* add fixmes\n\n* move to internal\n\n* save\n\n* fix test\n\n* fix\n\n* revert\n\n* multi ns\n\n* fix err\n\n* wip\n\n* fix lock leak\n\n* fix race condition\n\n* ignore lint\n\n* fix\n\n* fix\n\n* wip\n\n* fix inf loop\n\n* fix\n\n* fix timestamp\n\n* fix test\n\n* save\n\n* replace map with list\n\n* faster multi ns\n\n* wip\n\n* wip\n\n* draft save\n\n* full codec\n\n* fix slice\n\n* enable all types in test\n\n* factorize codec load\n\n* fix\n\n* save\n\n* simplify\n\n* fix err\n\n* handle maps\n\n* wip\n\n* remove unused\n\n* support has ones\n\n* fix timestamps\n\n* fix is nil checks\n\n* fix loading codec every row\n\n* fix loop\n\n* prune\n\n* load memo simplified\n\n* fix\n\n* remove unused\n\n* simplify included indices loop\n\n* clean up error messages\n\n* fix\n\n* shuffle\n\n* refactor first pass namespace memo\n\n* refactor populate namespace memo\n\n* pass codec memo\n\n* use pointers for memo object\n\n* file org\n\n* move\n\n* rename\n\n* inline MapTableToStructs\n\n* simplify\n\n* pr comments\n\n* fix nil map init\n\n* fix inf loop\n\n* fix backcompat\n\n* fix race condition in test\n\n* add date deser test\n\n* rename\n\n* use new namespace memos\n\n* empty\n\n* wrap\n\n* one more wrap\n\n* empty\n\n* test diff\n\n* Revert \"test diff\"\n\nThis reverts commit 8114510302b4956d7da231780b8eaa168b49e082.",
+          "timestamp": "2025-03-06T16:02:37-08:00",
+          "tree_id": "34392e51301200f675f8e09e63c4263b49c10a2c",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/8ff03236412651acb2ce75ba25fab7db5c7a65ff"
+        },
+        "date": 1741305820612,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.132,
+            "unit": "ms/op",
+            "extra": "1014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 103.6,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryBulkLoneMultiNsWindowed",
+            "value": 2.782,
+            "unit": "ms/op",
+            "extra": "409 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkQueryBulkLoneMultiNsWindowedParallel",
+            "value": 263.3,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03015,
+            "unit": "ms/op",
+            "extra": "39859 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.3698,
+            "unit": "ms/op",
+            "extra": "2929 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 37.99,
+            "unit": "ms/op",
+            "extra": "28 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1755,
+            "unit": "ms/op",
+            "extra": "6858 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 18.67,
+            "unit": "ms/op",
+            "extra": "60 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 0.2787,
+            "unit": "ms/op",
+            "extra": "4375 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel",
+            "value": 30.97,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle",
+            "value": 0.4107,
+            "unit": "ms/op",
+            "extra": "2924 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel",
+            "value": 47.09,
+            "unit": "ms/op",
+            "extra": "25 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 1.269,
+            "unit": "ms/op",
+            "extra": "944 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 137.1,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle",
+            "value": 0.123,
+            "unit": "ms/op",
+            "extra": "9510 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel",
+            "value": 15.02,
+            "unit": "ms/op",
+            "extra": "84 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes",
+            "value": 23.62,
+            "unit": "ms/op",
+            "extra": "51 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes",
+            "value": 15.97,
+            "unit": "ms/op",
+            "extra": "79 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes",
+            "value": 191.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
