@@ -526,13 +526,12 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 			if didFilter {
 				filteredAtLeastOneColumn = true
 				newChildren = append(newChildren, newChild)
-				newField := arrow.Field{
+				newFields = append(newFields, arrow.Field{
 					Name:     arrowField.Name,
 					Type:     newChild.DataType(),
 					Nullable: arrowField.Nullable,
 					Metadata: arrowField.Metadata,
-				}
-				newFields = append(newFields, newField)
+				})
 			} else {
 				newChildren = append(newChildren, newChild)
 				newFields = append(newFields, arrowField)
