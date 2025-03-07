@@ -448,30 +448,27 @@ func filterRecord(record arrow.Record, colIdxToShouldFilter []bool) (arrow.Recor
 		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
 	}
 	for i := 0; i < numCols; i++ {
-		if !colIdxToShouldFilter[i] {
-			newFields = append(newFields, record.Schema().Field(i))
-			newColumns = append(newColumns, record.Column(i))
-			continue
+		if colIdxToShouldFilter[i] {
+			maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
+			if err != nil {
+				return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
+			}
+			if didFilterColumn {
+				didFilter = true
+				newColumns = append(newColumns, maybeNewArr)
+				newField := arrow.Field{
+					Name:     record.Schema().Field(i).Name,
+					Type:     maybeNewArr.DataType(),
+					Nullable: record.Schema().Field(i).Nullable,
+					Metadata: record.Schema().Field(i).Metadata,
+				}
+				newFields = append(newFields, newField)
+				continue
+			}
 		}
 
-		maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
-		if err != nil {
-			return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
-		}
-		if didFilterColumn {
-			didFilter = true
-			newColumns = append(newColumns, maybeNewArr)
-			newField := arrow.Field{
-				Name:     record.Schema().Field(i).Name,
-				Type:     maybeNewArr.DataType(),
-				Nullable: record.Schema().Field(i).Nullable,
-				Metadata: record.Schema().Field(i).Metadata,
-			}
-			newFields = append(newFields, newField)
-		} else {
-			newFields = append(newFields, record.Schema().Field(i))
-			newColumns = append(newColumns, maybeNewArr)
-		}
+		newFields = append(newFields, record.Schema().Field(i))
+		newColumns = append(newColumns, record.Column(i))
 	}
 
 	if !didFilter {
