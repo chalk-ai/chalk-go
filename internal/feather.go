@@ -506,7 +506,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 	case *arrow.StructType:
 		var newChildren []arrow.ArrayData
 		var newFields []arrow.Field
-		collectiveDidFilter := false
+		filteredAtLeastOneColumn := false
 		for arrowFieldIdx := 0; arrowFieldIdx < typ.NumFields(); arrowFieldIdx++ {
 			arrowField := typ.Field(arrowFieldIdx)
 			childData := data.Children()[arrowFieldIdx]
@@ -516,7 +516,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 			}
 			if childData.NullN() == childData.Len() && shouldOmit == "true" {
 				// If all values are null, omit the column
-				collectiveDidFilter = true
+				filteredAtLeastOneColumn = true
 				continue
 			}
 			newChild, didFilter, err := filterArrayData(childData)
@@ -524,7 +524,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 				return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
 			}
 			if didFilter {
-				collectiveDidFilter = true
+				filteredAtLeastOneColumn = true
 				newChildren = append(newChildren, newChild)
 				newField := arrow.Field{
 					Name:     arrowField.Name,
@@ -538,7 +538,7 @@ func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
 				newFields = append(newFields, arrowField)
 			}
 		}
-		if !collectiveDidFilter {
+		if !filteredAtLeastOneColumn {
 			return data, false, nil
 		}
 
