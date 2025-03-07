@@ -38,7 +38,6 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
 func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
-
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
@@ -50,12 +49,10 @@ func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
 	}
-	err = fileWriter.Write(record)
-	if err != nil {
+	if err = fileWriter.Write(record); err != nil {
 		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
 	}
-	err = fileWriter.Close()
-	if err != nil {
+	if err = fileWriter.Close(); err != nil {
 		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
 	}
 
