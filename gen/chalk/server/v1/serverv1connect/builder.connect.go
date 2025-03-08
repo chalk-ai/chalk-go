@@ -104,6 +104,12 @@ const (
 	// BuilderServiceGetKarpenterInstallationMetadataProcedure is the fully-qualified name of the
 	// BuilderService's GetKarpenterInstallationMetadata RPC.
 	BuilderServiceGetKarpenterInstallationMetadataProcedure = "/chalk.server.v1.BuilderService/GetKarpenterInstallationMetadata"
+	// BuilderServiceGetTagWeightsProcedure is the fully-qualified name of the BuilderService's
+	// GetTagWeights RPC.
+	BuilderServiceGetTagWeightsProcedure = "/chalk.server.v1.BuilderService/GetTagWeights"
+	// BuilderServiceSetTagWeightsProcedure is the fully-qualified name of the BuilderService's
+	// SetTagWeights RPC.
+	BuilderServiceSetTagWeightsProcedure = "/chalk.server.v1.BuilderService/SetTagWeights"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -145,6 +151,8 @@ type BuilderServiceClient interface {
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
+	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
+	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -299,6 +307,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getTagWeights: connect.NewClient[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetTagWeightsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetTagWeights")),
+			connect.WithClientOptions(opts...),
+		),
+		setTagWeights: connect.NewClient[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse](
+			httpClient,
+			baseURL+BuilderServiceSetTagWeightsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("SetTagWeights")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -327,6 +347,8 @@ type builderServiceClient struct {
 	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
 	deleteKarpenterNodepool            *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
 	getKarpenterInstallationMetadata   *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
+	getTagWeights                      *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
+	setTagWeights                      *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -447,6 +469,16 @@ func (c *builderServiceClient) GetKarpenterInstallationMetadata(ctx context.Cont
 	return c.getKarpenterInstallationMetadata.CallUnary(ctx, req)
 }
 
+// GetTagWeights calls chalk.server.v1.BuilderService.GetTagWeights.
+func (c *builderServiceClient) GetTagWeights(ctx context.Context, req *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error) {
+	return c.getTagWeights.CallUnary(ctx, req)
+}
+
+// SetTagWeights calls chalk.server.v1.BuilderService.SetTagWeights.
+func (c *builderServiceClient) SetTagWeights(ctx context.Context, req *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
+	return c.setTagWeights.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -480,6 +512,8 @@ type BuilderServiceHandler interface {
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
+	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
+	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -630,6 +664,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetTagWeightsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetTagWeightsProcedure,
+		svc.GetTagWeights,
+		connect.WithSchema(builderServiceMethods.ByName("GetTagWeights")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceSetTagWeightsHandler := connect.NewUnaryHandler(
+		BuilderServiceSetTagWeightsProcedure,
+		svc.SetTagWeights,
+		connect.WithSchema(builderServiceMethods.ByName("SetTagWeights")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -678,6 +724,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeleteKarpenterNodepoolHandler.ServeHTTP(w, r)
 		case BuilderServiceGetKarpenterInstallationMetadataProcedure:
 			builderServiceGetKarpenterInstallationMetadataHandler.ServeHTTP(w, r)
+		case BuilderServiceGetTagWeightsProcedure:
+			builderServiceGetTagWeightsHandler.ServeHTTP(w, r)
+		case BuilderServiceSetTagWeightsProcedure:
+			builderServiceSetTagWeightsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -777,6 +827,14 @@ func (UnimplementedBuilderServiceHandler) DeleteKarpenterNodepool(context.Contex
 
 func (UnimplementedBuilderServiceHandler) GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetKarpenterInstallationMetadata is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTagWeights is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SetTagWeights is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
