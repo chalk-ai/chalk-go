@@ -22,12 +22,6 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
-type ResultMetadataSourceType string
-
-const (
-	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
-)
-
 var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {

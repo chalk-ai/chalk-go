@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"github.com/apache/arrow/go/v16/arrow"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -181,29 +180,6 @@ func validateOnlineQueryResultHolder(resultHolder any) error {
 		return errors.Newf("argument should be pointer to a struct, got a pointer to a '%s' instead", kindPointedTo.String())
 	}
 	return nil
-}
-
-func UnmarshalOnlineQueryResponse(response *commonv1.OnlineQueryResponse, resultHolder any) error {
-	if err := validateOnlineQueryResultHolder(resultHolder); err != nil {
-		return err
-	}
-	fqnToValue := map[Fqn]any{}
-	for _, featureResult := range response.GetData().GetResults() {
-		convertedValue, err := internal.ConvertIfHasManyMap(featureResult.Value.AsInterface())
-		if err != nil {
-			return errors.Wrapf(err, "converting has-many value for feature '%s'", featureResult.Field)
-		}
-		fqnToValue[featureResult.Field] = convertedValue
-	}
-	return UnmarshalInto(resultHolder, fqnToValue)
-}
-
-func UnmarshalOnlineQueryBulkResponse(response *commonv1.OnlineQueryBulkResponse, resultHolders any) error {
-	scalars, err := internal.ConvertBytesToTable(response.GetScalarsData())
-	if err != nil {
-		return errors.Wrap(err, "deserializing scalars table")
-	}
-	return internal.UnmarshalTableInto(scalars, resultHolders)
 }
 
 func ConvertTableToRows(table arrow.Table) ([]map[string]any, error) {

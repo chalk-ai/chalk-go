@@ -35,11 +35,12 @@ func init() {
 	}
 	clients = append(clients, ClientFixture{name: "rest", client: restClient})
 
-	grpcClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{UseGrpc: true})
-	if err != nil {
-		panic(err)
-	}
-	clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
+	// TODO: Reintroduce GRPC client to this test suite
+	//grpcClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{UseGrpc: true})
+	//if err != nil {
+	//	panic(err)
+	//}
+	//clients = append(clients, ClientFixture{name: "grpc", client: grpcClient})
 }
 
 // Test that we can execute an OnlineQuery
@@ -162,26 +163,25 @@ func TestTimeout(t *testing.T) {
 		{name: "unspecified (zero value)", timeout: 0},
 	}
 
-	for _, useGrpc := range []bool{true, false} {
-		for _, timeoutFixture := range timeouts {
-			client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: useGrpc, Timeout: timeoutFixture.timeout})
-			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
-				t.Parallel()
-				if timeoutFixture.shouldFail {
-					assert.Error(t, err)
-					return
-				} else {
-					params := chalk.OnlineQueryParams{}.
-						WithInput("user.id", 1).
-						WithOutputs("user.socure_score")
-					assert.NoError(t, err)
-					myUser := user{}
-					_, err := client.OnlineQuery(context.Background(), params, &myUser)
-					assert.NoError(t, err)
-					assert.NotNil(t, myUser.SocureScore)
-					assert.Equal(t, 123.0, *myUser.SocureScore)
-				}
-			})
-		}
+	// TODO: Reintroduce GRPC client to this test
+	for _, timeoutFixture := range timeouts {
+		client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+		t.Run(fmt.Sprintf("timeoutFixture=%v", timeoutFixture.name), func(t *testing.T) {
+			t.Parallel()
+			if timeoutFixture.shouldFail {
+				assert.Error(t, err)
+				return
+			} else {
+				params := chalk.OnlineQueryParams{}.
+					WithInput("user.id", 1).
+					WithOutputs("user.socure_score")
+				assert.NoError(t, err)
+				myUser := user{}
+				_, err := client.OnlineQuery(context.Background(), params, &myUser)
+				assert.NoError(t, err)
+				assert.NotNil(t, myUser.SocureScore)
+				assert.Equal(t, 123.0, *myUser.SocureScore)
+			}
+		})
 	}
 }

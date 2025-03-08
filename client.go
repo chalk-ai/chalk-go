@@ -2,7 +2,6 @@ package chalk
 
 import (
 	"context"
-	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/cockroachdb/errors"
 	"time"
 )
@@ -167,13 +166,6 @@ type Client interface {
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
 	GetToken(ctx context.Context) (*TokenResult, error)
-
-	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
-
-	PlanAggregateBackfill(
-		ctx context.Context,
-		req *aggregatev1.PlanAggregateBackfillRequest,
-	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 }
 
 type ClientConfig struct {
@@ -217,9 +209,6 @@ type ClientConfig struct {
 	//
 	// If left unset, it'll be set to a default HTTP client for the package.
 	HTTPClient HTTPClient
-
-	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
-	UseGrpc bool
 
 	// ResourceGroup specifies the resource group to route all requests to. If set
 	// on the request or query level, this will be overridden.
@@ -270,10 +259,6 @@ func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
 		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
 	} else {
 		cfg = configs[len(configs)-1]
-	}
-
-	if cfg.UseGrpc {
-		return newClientGrpc(ctx, *cfg)
 	}
 
 	return newClientImpl(ctx, *cfg)

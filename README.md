@@ -80,17 +80,15 @@ client, err := chalk.NewClient(
 ```
 
 ### gRPC Client
-To use gRPC as the underlying protocol for communication with Chalk, set the `UseGrpc` field in `ClientConfig` to 
-`true`. 
+To use gRPC as the underlying protocol for communication with Chalk: 
 ```go
-client, err := chalk.NewClient(
+client, err := chalk.NewGRPCClient(
 	context.Background(),
-	&chalk.ClientConfig{
-		UseGrpc: true,
+	&chalk.GRPCClientConfig{
+		...
 	},
 )
 ```
-You can then make requests just like you would without `UseGrpc` specified.
 
 
 
