@@ -57,12 +57,6 @@ const (
 	// DeployServiceTagDeploymentProcedure is the fully-qualified name of the DeployService's
 	// TagDeployment RPC.
 	DeployServiceTagDeploymentProcedure = "/chalk.server.v1.DeployService/TagDeployment"
-	// DeployServiceGetTagWeightsProcedure is the fully-qualified name of the DeployService's
-	// GetTagWeights RPC.
-	DeployServiceGetTagWeightsProcedure = "/chalk.server.v1.DeployService/GetTagWeights"
-	// DeployServiceSetTagWeightsProcedure is the fully-qualified name of the DeployService's
-	// SetTagWeights RPC.
-	DeployServiceSetTagWeightsProcedure = "/chalk.server.v1.DeployService/SetTagWeights"
 )
 
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
@@ -75,8 +69,6 @@ type DeployServiceClient interface {
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
-	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
-	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 }
 
 // NewDeployServiceClient constructs a client for the chalk.server.v1.DeployService service. By
@@ -138,18 +130,6 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 			connect.WithClientOptions(opts...),
 		),
-		getTagWeights: connect.NewClient[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse](
-			httpClient,
-			baseURL+DeployServiceGetTagWeightsProcedure,
-			connect.WithSchema(deployServiceMethods.ByName("GetTagWeights")),
-			connect.WithClientOptions(opts...),
-		),
-		setTagWeights: connect.NewClient[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse](
-			httpClient,
-			baseURL+DeployServiceSetTagWeightsProcedure,
-			connect.WithSchema(deployServiceMethods.ByName("SetTagWeights")),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
@@ -163,8 +143,6 @@ type deployServiceClient struct {
 	suspendDeployment                *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
 	scaleDeployment                  *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
 	tagDeployment                    *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
-	getTagWeights                    *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
-	setTagWeights                    *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
@@ -208,16 +186,6 @@ func (c *deployServiceClient) TagDeployment(ctx context.Context, req *connect.Re
 	return c.tagDeployment.CallUnary(ctx, req)
 }
 
-// GetTagWeights calls chalk.server.v1.DeployService.GetTagWeights.
-func (c *deployServiceClient) GetTagWeights(ctx context.Context, req *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error) {
-	return c.getTagWeights.CallUnary(ctx, req)
-}
-
-// SetTagWeights calls chalk.server.v1.DeployService.SetTagWeights.
-func (c *deployServiceClient) SetTagWeights(ctx context.Context, req *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
-	return c.setTagWeights.CallUnary(ctx, req)
-}
-
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
@@ -228,8 +196,6 @@ type DeployServiceHandler interface {
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
-	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
-	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 }
 
 // NewDeployServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -287,18 +253,6 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
-	deployServiceGetTagWeightsHandler := connect.NewUnaryHandler(
-		DeployServiceGetTagWeightsProcedure,
-		svc.GetTagWeights,
-		connect.WithSchema(deployServiceMethods.ByName("GetTagWeights")),
-		connect.WithHandlerOptions(opts...),
-	)
-	deployServiceSetTagWeightsHandler := connect.NewUnaryHandler(
-		DeployServiceSetTagWeightsProcedure,
-		svc.SetTagWeights,
-		connect.WithSchema(deployServiceMethods.ByName("SetTagWeights")),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
@@ -317,10 +271,6 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 			deployServiceScaleDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceTagDeploymentProcedure:
 			deployServiceTagDeploymentHandler.ServeHTTP(w, r)
-		case DeployServiceGetTagWeightsProcedure:
-			deployServiceGetTagWeightsHandler.ServeHTTP(w, r)
-		case DeployServiceSetTagWeightsProcedure:
-			deployServiceSetTagWeightsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -360,12 +310,4 @@ func (UnimplementedDeployServiceHandler) ScaleDeployment(context.Context, *conne
 
 func (UnimplementedDeployServiceHandler) TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.TagDeployment is not implemented"))
-}
-
-func (UnimplementedDeployServiceHandler) GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetTagWeights is not implemented"))
-}
-
-func (UnimplementedDeployServiceHandler) SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.SetTagWeights is not implemented"))
 }
