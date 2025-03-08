@@ -191,7 +191,35 @@ func NewRowResult() *RowResult {
 	}
 }
 
-func (r *RowResult) GetFeature(fqn string) (*Feature, error) {
+// GetFeature takes in a feature string or a codegen'd
+// feature reference and returns the `Feature` object.
+// Given this codegen'd snippet:
+//
+//	type User struct {
+//	 	Id                       *int64
+//	 	FullName                 *string
+//	}
+//
+//	var Features struct {
+//	 	User *User
+//	}
+//
+//	func init() {
+//	 	InitFeaturesErr = chalk.InitFeatures(&Features)
+//	}
+//
+// You would get the feature object for "user.full_name" as follows:
+//
+//	feature, err := row.GetFeature(Features.User.FullName)
+func (r *RowResult) GetFeature(feature any) (*Feature, error) {
+	fqn, ok := feature.(string)
+	if !ok {
+		unwrapped, err := UnwrapFeature(feature)
+		if err != nil {
+			return nil, errors.Wrap(err, "please provide a feature string or a codegen'd feature reference")
+		}
+		fqn = unwrapped.Fqn
+	}
 	res, ok := r.Features[fqn]
 	if !ok {
 		return nil, errors.Newf("feature '%s' not found", fqn)
@@ -199,8 +227,8 @@ func (r *RowResult) GetFeature(fqn string) (*Feature, error) {
 	return &res, nil
 }
 
-func (r *RowResult) GetFeatureValue(fqn string) (any, error) {
-	res, err := r.GetFeature(fqn)
+func (r *RowResult) GetFeatureValue(feature any) (any, error) {
+	res, err := r.GetFeature(feature)
 	if err != nil {
 		return nil, err
 	}

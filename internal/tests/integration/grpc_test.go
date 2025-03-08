@@ -89,7 +89,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	row, err := res.GetRow(0)
 	assert.NoError(t, err)
 
-	socureScore, err := row.GetFeature("user.socure_score")
+	socureScore, err := row.GetFeature(testFeatures.User.SocureScore)
 	assert.Nil(t, err)
 	assert.NotNil(t, socureScore)
 	assert.NotNil(t, socureScore.Meta)
