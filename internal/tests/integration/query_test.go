@@ -297,7 +297,7 @@ func TestCustomCerts(t *testing.T) {
 				)
 				assert.NoError(t, err)
 			} else {
-				client, err := chalk.NewClient(context.Background())
+				client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{HTTPClient: &httpClient})
 				if fixture.shouldFail {
 					assert.Error(t, err)
 					return
@@ -307,8 +307,8 @@ func TestCustomCerts(t *testing.T) {
 				params := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.User.Id, 1).
 					WithOutputs(testFeatures.User.SocureScore)
-				_, queryErr := client.OnlineQuery(context.Background(), params, nil)
-				assert.NoError(t, queryErr)
+				_, err = client.OnlineQuery(context.Background(), params, nil)
+				assert.NoError(t, err)
 			}
 		})
 	}

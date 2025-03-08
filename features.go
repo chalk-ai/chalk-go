@@ -21,6 +21,9 @@ func DesuffixFqn(fqn string) string {
 
 func getFeatureClassFromMember(field reflect.Value) *Feature {
 	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != reflect.TypeOf(time.Time{}) {
+		if field.Type().Elem() == reflect.TypeOf(Feature{}) {
+			return nil
+		}
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)

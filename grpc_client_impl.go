@@ -228,10 +228,12 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 	}
 
 	var rowMeta map[string]internal.FeatureMeta
-	if len(meta) != len(rows) {
-		return nil, errors.New("metadata length does not match rows length")
+	if len(meta) > 0 {
+		if len(meta) != len(rows) {
+			return nil, errors.New("metadata length does not match rows length")
+		}
+		rowMeta = meta[rowIndex]
 	}
-	rowMeta = meta[rowIndex]
 	for fqn, value := range rows[rowIndex] {
 		featureRes := Feature{
 			Fqn:   fqn,
@@ -259,6 +261,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		}
 		row.Features[fqn] = featureRes
 	}
+
 	return row, nil
 }
 
