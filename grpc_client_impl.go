@@ -174,10 +174,6 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
-type GRPCOnlineQueryBulkResult struct {
-	RawResponse *commonv1.OnlineQueryBulkResponse
-}
-
 type FeatureMeta struct {
 	Pkey        any
 	ResolverFqn string
@@ -209,6 +205,10 @@ func (r *RowResult) GetFeatureValue(fqn string) (any, error) {
 		return nil, err
 	}
 	return res.Value, nil
+}
+
+type GRPCOnlineQueryBulkResult struct {
+	RawResponse *commonv1.OnlineQueryBulkResponse
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
@@ -265,6 +265,14 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 	return row, nil
 }
 
+func (r *GRPCOnlineQueryBulkResult) GetQueryMeta() *QueryMeta {
+	return queryMetaFromProto(r.RawResponse.GetResponseMeta())
+}
+
+func (r *GRPCOnlineQueryBulkResult) GetErrors() ([]ServerError, error) {
+	return serverErrorsFromProto(r.RawResponse.GetErrors())
+}
+
 func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
 	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData())
 	if err != nil {
@@ -296,6 +304,10 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 
 type GRPCUpdateAggregatesResult struct {
 	RawResponse *commonv1.UploadFeaturesBulkResponse
+}
+
+func (r *GRPCUpdateAggregatesResult) GetErrors() ([]ServerError, error) {
+	return serverErrorsFromProto(r.RawResponse.GetErrors())
 }
 
 func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
