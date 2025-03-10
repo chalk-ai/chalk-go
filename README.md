@@ -100,15 +100,15 @@ res, err := chalk.OnlineQueryBulk(
 				{Id: utils.ToPtr("txn546d"), Amount: utils.ToPtr(48.95)},
 			},
 		}).
-		WithOutputs(Features.User.Id, Features.User.TrustScore),
+		WithOutputs(Features.User.Id, Features.User.WeightedScore),
 )
 if err != nil {
-	return errors.Wrap(err, "querying trust score")
+	return errors.Wrap(err, "querying weighted score")
 }
 if err = res.UnmarshalInto(&users); err != nil {
 	return errors.Wrap(err, "unmarshalling into users")
 }
-fmt.Println("user %s has trust score %v", users[0].Id, users[0].TrustScore)
+fmt.Println("user %s has weighted score %v", users[0].Id, users[0].WeightedScore)
 
 
 // Multi-namespace online query
@@ -124,20 +124,20 @@ res, err := chalk.OnlineQueryBulk(
         WithInput(Features.Loan.Id, []string{"l273489056"}).
         WithOutputs(
             Features.User.Id, 
-            Features.User.TrustScore, 
+            Features.User.WeightedScore, 
             Features.Loan.Id, 
             Features.Loan.ApprovalStatus,
         ),
 )
 if err != nil {
-	return errors.Wrap(err, "querying trust score and loan approval status")
+	return errors.Wrap(err, "querying weighted score and loan approval status")
 }
 
 var root []underwriting
 if err = res.UnmarshalInto(&root); err != nil {
 	return errors.Wrap(err, "unmarshalling into underwriting")
 }
-fmt.Println("user %s has trust score %v", root[0].User.Id, root[0].User.TrustScore)
+fmt.Println("user %s has weighted score %v", root[0].User.Id, root[0].User.WeightedScore)
 fmt.Println("loan %s has approval status %v", root[0].Loan.Id, root[0].Loan.ApprovalStatus)
 ```
 
