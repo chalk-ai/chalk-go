@@ -11,10 +11,13 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
 )
+
+const shouldOmitIfAllNullsKey = "should-omit-if-all-nulls"
 
 var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 	reflect.Int:     arrow.PrimitiveTypes.Int64,
@@ -34,15 +37,27 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 }
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
-func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
+func InputsToArrowBytes(inputs map[string]any) (res []byte, err error) {
 	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
 	defer record.Release()
-	return RecordToBytes(record)
+
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.DefaultAllocator))
+	if err != nil {
+		return nil, errors.Wrap(err, "creating Arrow Table writer")
+	}
+	if err = fileWriter.Write(record); err != nil {
+		return nil, errors.Wrap(err, "writing Arrow Table to request")
+	}
+	if err = fileWriter.Close(); err != nil {
+		return nil, errors.Wrap(err, "closing Arrow Table writer")
+	}
+	return bws.Bytes(), nil
 }
-func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, error) {
+func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, bool, error) {
 	if visitedNamespaces == nil {
 		visitedNamespaces = map[string]bool{}
 	}
@@ -52,15 +67,15 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		return convertReflectToArrowType(value.Elem(), visitedNamespaces)
 	}
 	if arrowType, isPrimitive := golangToArrowPrimitiveType[kind]; isPrimitive {
-		return arrowType, nil
+		return arrowType, false, nil
 	} else if kind == reflect.Slice || kind == reflect.Array {
 		elem := value.Elem()
 		if elem.Kind() == reflect.Uint8 {
-			return arrow.BinaryTypes.LargeBinary, nil
-		} else if elemType, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
-			return arrow.LargeListOf(elemType), nil
+			return arrow.BinaryTypes.LargeBinary, false, nil
+		} else if elemType, innerShouldFilter, err := convertReflectToArrowType(elem, visitedNamespaces); err == nil {
+			return arrow.LargeListOf(elemType), innerShouldFilter, nil
 		} else {
-			return nil, errors.Wrapf(
+			return nil, false, errors.Wrapf(
 				err,
 				"arrow conversion failed - a slice of '%s' is currently unsupported",
 				elem,
@@ -71,7 +86,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			return &arrow.TimestampType{
 				Unit:     arrow.Microsecond,
 				TimeZone: "UTC",
-			}, nil
+			}, false, nil
 		}
 		var arrowFields []arrow.Field
 		namespace := ChalkpySnakeCase(value.Name())
@@ -80,6 +95,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		defer delete(visitedNamespaces, namespace)
 
 		isFeaturesClass := IsFeaturesClass(value)
+		atLeastOneShouldFilter := false
 		for i := 0; i < value.NumField(); i++ {
 			field := value.Field(i)
 			if foreignNs := getForeignNamespace(field.Type); foreignNs != nil {
@@ -87,9 +103,9 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 					continue
 				}
 			}
-			dtype, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
+			dtype, innerShouldFilter, dtypeErr := convertReflectToArrowType(field.Type, visitedNamespaces)
 			if dtypeErr != nil {
-				return nil, errors.Wrapf(
+				return nil, false, errors.Wrapf(
 					dtypeErr,
 					"arrow conversion failed - failed to convert struct field type '%v' to arrow type",
 					field.Type,
@@ -97,20 +113,28 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			}
 			resolved, err := ResolveFeatureName(field)
 			if err != nil {
-				return nil, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
+				return nil, false, errors.Wrapf(err, "failed to resolve feature name for struct field '%d'", i)
 			}
 			if isFeaturesClass {
 				resolved = namespace + "." + resolved
 			}
+
+			currentShouldFilter := !HasDontOmitTag(field) && !IsTypeDataclass(value)
+			atLeastOneShouldFilter = currentShouldFilter || innerShouldFilter || atLeastOneShouldFilter
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
 				Type:     dtype,
 				Nullable: field.Type.Kind() == reflect.Ptr,
+				Metadata: arrow.MetadataFrom(
+					map[string]string{
+						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", currentShouldFilter),
+					},
+				),
 			})
 		}
-		return arrow.StructOf(arrowFields...), nil
+		return arrow.StructOf(arrowFields...), atLeastOneShouldFilter, nil
 	} else {
-		return nil, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
+		return nil, false, fmt.Errorf("arrow conversion failed - unsupported type: %s", kind)
 	}
 }
 
@@ -351,17 +375,22 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
-	// Create the input values
 	allocator := memory.NewGoAllocator()
-	var schema []arrow.Field
+	schema := make([]arrow.Field, len(inputs))
+	shouldFilterColumn := make([]bool, len(inputs))
+	shouldFilterRecord := false
+	mapIdx := 0
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
 		columnElemType := columnVal.Type().Elem()
-		arrowType, convErr := convertReflectToArrowType(columnElemType, nil)
+		arrowType, shouldFilter, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
 			return nil, errors.Wrapf(convErr, "failed to convert values for column '%s'", k)
 		}
-		schema = append(schema, arrow.Field{Name: k, Type: arrowType})
+		shouldFilterRecord = shouldFilterRecord || shouldFilter
+		shouldFilterColumn[mapIdx] = shouldFilter
+		schema[mapIdx] = arrow.Field{Name: k, Type: arrowType}
+		mapIdx++
 	}
 
 	recordBuilder := array.NewRecordBuilder(allocator, arrow.NewSchema(schema, nil))
@@ -388,7 +417,176 @@ func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
 		}
 	}
 
-	return recordBuilder.NewRecord(), nil
+	record := recordBuilder.NewRecord()
+	if shouldFilterRecord {
+		newRecord, err := filterRecord(record, shouldFilterColumn)
+		if err != nil {
+			return nil, errors.Wrap(err, "filter record")
+		}
+		record = newRecord
+	}
+
+	return record, nil
+}
+
+/* filterRecord recurses into each child array of every column in the record and
+* looks for structs. It then filters out columns that are all null, unless the
+* column corresponds to a struct field tagged with `chalk:"dontomit"`. This is
+* done so that `nil` features in a has-one or has-many struct do not get mistaken
+* as the user specifying that feature as null.
+ */
+func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record, error) {
+	newColumns := make([]arrow.Array, 0, record.NumCols())
+	newFields := make([]arrow.Field, 0, record.NumCols())
+	didFilter := false
+	numCols, err := Int64ToInt(record.NumCols())
+	if err != nil {
+		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
+	}
+	for i := 0; i < numCols; i++ {
+		if shouldFilterColumn[i] {
+			maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
+			if err != nil {
+				return nil, errors.Wrapf(err, "filter column '%s'", record.ColumnName(i))
+			}
+			if didFilterColumn {
+				didFilter = true
+				newColumns = append(newColumns, maybeNewArr)
+				newField := arrow.Field{
+					Name:     record.Schema().Field(i).Name,
+					Type:     maybeNewArr.DataType(),
+					Nullable: record.Schema().Field(i).Nullable,
+					Metadata: record.Schema().Field(i).Metadata,
+				}
+				newFields = append(newFields, newField)
+				continue
+			}
+		}
+
+		newFields = append(newFields, record.Schema().Field(i))
+		newColumns = append(newColumns, record.Column(i))
+	}
+
+	if !didFilter {
+		return record, nil
+	}
+
+	return array.NewRecord(
+		arrow.NewSchema(newFields, ptr.Ptr(record.Schema().Metadata())),
+		newColumns,
+		record.NumRows(),
+	), nil
+}
+
+func filterArray(arr arrow.Array) (arrow.Array, bool, error) {
+	data, didFilter, err := filterArrayData(arr.Data())
+	if err != nil {
+		return nil, false, errors.Wrap(err, "filter array data")
+	}
+	if !didFilter {
+		return arr, false, nil
+	}
+	switch arr.(type) {
+	case *array.Struct:
+		return array.NewStructData(data), true, nil
+	case *array.LargeList:
+		return array.NewLargeListData(data), true, nil
+	case *array.List:
+		return array.NewListData(data), true, nil
+	default:
+		return nil, true, errors.Newf(
+			"did not expect to be doing any filtering on array of type '%s'",
+			arr.DataType().Name(),
+		)
+	}
+}
+
+func filterArrayData(data arrow.ArrayData) (arrow.ArrayData, bool, error) {
+	switch typ := data.DataType().(type) {
+	case *arrow.StructType:
+		var newChildren []arrow.ArrayData
+		var newFields []arrow.Field
+		filteredAtLeastOneColumn := false
+		for arrowFieldIdx := 0; arrowFieldIdx < typ.NumFields(); arrowFieldIdx++ {
+			arrowField := typ.Field(arrowFieldIdx)
+			childData := data.Children()[arrowFieldIdx]
+			shouldOmit, ok := arrowField.Metadata.GetValue(shouldOmitIfAllNullsKey)
+			if !ok {
+				shouldOmit = "true"
+			}
+			if childData.NullN() == childData.Len() && shouldOmit == "true" {
+				// If all values are null, omit the column
+				filteredAtLeastOneColumn = true
+				continue
+			}
+			newChild, didFilter, err := filterArrayData(childData)
+			if err != nil {
+				return nil, false, errors.Wrapf(err, "filter child array with name %s", arrowField.Name)
+			}
+			if didFilter {
+				filteredAtLeastOneColumn = true
+				newChildren = append(newChildren, newChild)
+				newFields = append(newFields, arrow.Field{
+					Name:     arrowField.Name,
+					Type:     newChild.DataType(),
+					Nullable: arrowField.Nullable,
+					Metadata: arrowField.Metadata,
+				})
+			} else {
+				newChildren = append(newChildren, newChild)
+				newFields = append(newFields, arrowField)
+			}
+		}
+		if !filteredAtLeastOneColumn {
+			return data, false, nil
+		}
+
+		return array.NewData(
+			arrow.StructOf(newFields...),
+			data.Len(),
+			data.Buffers(),
+			newChildren,
+			data.NullN(),
+			data.Offset(),
+		), true, nil
+
+	case *arrow.LargeListType:
+		return filterListArrayData(data, func(innerType arrow.DataType) arrow.DataType {
+			return arrow.LargeListOf(innerType)
+		})
+	case *arrow.ListType:
+		return filterListArrayData(data, func(innerType arrow.DataType) arrow.DataType {
+			return arrow.ListOf(innerType)
+		})
+	default:
+		return data, false, nil
+	}
+}
+
+func filterListArrayData(data arrow.ArrayData, makeListType func(innerType arrow.DataType) arrow.DataType) (arrow.ArrayData, bool, error) {
+	if len(data.Children()) != 1 {
+		return nil, false, errors.Newf(
+			"expected exactly 1 instead of %d child arrays in large list: %v",
+			len(data.Children()),
+			data.Children(),
+		)
+	}
+	onlyChild := data.Children()[0]
+	newChild, didFilter, err := filterArrayData(onlyChild)
+	if err != nil {
+		return nil, false, errors.Wrap(err, "failed to filter child array")
+	}
+	if !didFilter {
+		return data, false, nil
+	}
+	return array.NewData(
+		makeListType(newChild.DataType()),
+		data.Len(),
+		data.Buffers(),
+		[]arrow.ArrayData{newChild},
+		data.NullN(),
+		data.Offset(),
+	), true, nil
 }
 
 func consume8ByteLen(startIdx int, bytes []byte) (int, uint64, error) {
@@ -540,24 +738,6 @@ func produceByteAttrs(byteAttrs map[string][]byte, ioWriter *bufio.Writer) error
 		}
 	}
 	return nil
-}
-
-func RecordToBytes(record arrow.Record) ([]byte, error) {
-	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.NewGoAllocator()))
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create Arrow Table writer")
-	}
-	err = fileWriter.Write(record)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to write Arrow Table to request")
-	}
-	err = fileWriter.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to close Arrow Table writer")
-	}
-
-	return bws.Bytes(), nil
 }
 
 // ChalkMarshal converts a map to a byte array.
