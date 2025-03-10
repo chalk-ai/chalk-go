@@ -111,27 +111,44 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
+	for _, optionFixture := range plannerOptionsFixtures {
+		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
+			_, err := restClient.OnlineQuery(
+				context.Background(),
+				chalk.OnlineQueryParams{PlannerOptions: optionFixture.plannerOptions}.
+					WithInput("user.id", 1).
+					WithOutputs("user.socure_score"),
+				nil,
+			)
+			if optionFixture.isValid {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
 	for _, useGrpc := range []bool{false, true} {
 		for _, optionFixture := range plannerOptionsFixtures {
 			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", useGrpc, optionFixture.isValid), func(t *testing.T) {
-				var err error
-				baseParams := chalk.OnlineQueryParams{
+				params := chalk.OnlineQueryParams{
 					PlannerOptions: optionFixture.plannerOptions,
 				}.
+					WithInput("user.id", []int{1}).
 					WithOutputs("user.socure_score")
-				userId := 1
+
+				var err error
 				if useGrpc {
-					_, err = grpcClient.OnlineQueryBulk(
-						context.Background(),
-						baseParams.WithInput("user.id", []int{userId}),
-					)
+					_, err = grpcClient.OnlineQueryBulk(context.Background(), params)
 				} else {
-					_, err = restClient.OnlineQuery(
-						context.Background(),
-						baseParams.WithInput("user.id", userId),
-						nil,
-					)
+					_, err = restClient.OnlineQueryBulk(context.Background(), params)
 				}
+
 				if optionFixture.isValid {
 					assert.NoError(t, err)
 				} else {
@@ -142,63 +159,120 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 	}
 }
 
-//func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
-//	t.Parallel()
-//	SkipIfNotIntegrationTester(t)
-//
-//	for _, clientFixture := range clients {
-//		for _, optionFixture := range plannerOptionsFixtures {
-//			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", clientFixture.name, optionFixture.isValid), func(t *testing.T) {
-//				client := clientFixture.client
-//				params := chalk.OnlineQueryParams{
-//					PlannerOptions: optionFixture.plannerOptions,
-//				}.
-//					WithInput("user.id", []int{1}).
-//					WithOutputs("user.socure_score")
-//				_, err := client.OnlineQueryBulk(context.Background(), params)
-//				if optionFixture.isValid {
-//					assert.NoError(t, err)
-//				} else {
-//					assert.Error(t, err)
-//				}
-//			})
-//		}
-//	}
-//}
+var timeouts = []struct {
+	name       string
+	timeout    time.Duration
+	shouldFail bool
+}{
+	{name: "1 nanosecond", timeout: 1 * time.Nanosecond, shouldFail: true},
+	{name: "5 seconds", timeout: 5 * time.Second},
+	{name: "unspecified (zero value)", timeout: 0},
+}
 
-func TestTimeout(t *testing.T) {
+func TestTimeoutClientLevel(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
-	timeouts := []struct {
-		name       string
-		timeout    time.Duration
-		shouldFail bool
-	}{
-		{name: "1 nanosecond", timeout: 1 * time.Nanosecond, shouldFail: true},
-		{name: "5 seconds", timeout: 5 * time.Second},
-		{name: "unspecified (zero value)", timeout: 0},
-	}
+	for _, useGrpc := range []bool{false, true} {
+		for _, timeoutFixture := range timeouts {
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
+				var err error
+				if useGrpc {
+					_, err = chalk.NewGRPCClient(context.Background(), &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
+				} else {
+					_, err = chalk.NewClient(context.Background(), &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+				}
+				if timeoutFixture.shouldFail {
+					assert.Error(t, err)
+					return
+				} else {
+					assert.NoError(t, err)
+				}
 
-	// TODO: Reintroduce GRPC client to this test
-	for _, timeoutFixture := range timeouts {
-		client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
-		t.Run(fmt.Sprintf("timeoutFixture=%v", timeoutFixture.name), func(t *testing.T) {
-			t.Parallel()
-			if timeoutFixture.shouldFail {
-				assert.Error(t, err)
-				return
-			} else {
-				params := chalk.OnlineQueryParams{}.
-					WithInput("user.id", 1).
-					WithOutputs("user.socure_score")
+			})
+		}
+	}
+}
+
+func TestTimeoutClientOverrides(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	for _, useGrpc := range []bool{false, true} {
+		for _, timeoutFixture := range timeouts {
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
+				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*1)
+				defer cancelFunc()
+				var err error
+				if useGrpc {
+					_, err = chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
+				} else {
+					_, err = chalk.NewClient(ctx, &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+				}
+				// Since we've passed in a context with lenient timeout override,
+				// all client instantiation should succeed.
 				assert.NoError(t, err)
-				myUser := user{}
-				_, err := client.OnlineQuery(context.Background(), params, &myUser)
-				assert.NoError(t, err)
-				assert.NotNil(t, myUser.SocureScore)
-				assert.Equal(t, 123.0, *myUser.SocureScore)
-			}
-		})
+
+			})
+		}
+	}
+}
+
+func TestTimeoutRequestOverrides(t *testing.T) {
+	t.Skip("TODO: Fix request level timeout")
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	lenientTimeout := time.Minute * 1
+	params := chalk.OnlineQueryParams{}.
+		WithInput("user.id", []int{1}).
+		WithOutputs("user.socure_score")
+	for _, useGrpc := range []bool{false, true} {
+		for _, timeoutFixture := range timeouts {
+			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
+				t.Parallel()
+				ctx, cancelFunc := context.WithTimeout(context.Background(), lenientTimeout)
+				defer cancelFunc()
+				var err error
+				if useGrpc {
+					_, err = chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
+					assert.NoError(t, err)
+
+					// lenient override
+					requestCtx, requestCancelFunc := context.WithTimeout(ctx, lenientTimeout)
+					defer requestCancelFunc()
+					res, err := grpcClient.OnlineQueryBulk(requestCtx, params)
+					assert.NoError(t, err)
+					assert.Equal(t, 0, len(res.RawResponse.GetErrors()))
+
+					// no override
+					res, err = grpcClient.OnlineQueryBulk(context.Background(), params)
+					if timeoutFixture.shouldFail {
+						assert.Error(t, err)
+					} else {
+						assert.NoError(t, err)
+					}
+				} else {
+					_, err = chalk.NewClient(ctx, &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+					assert.NoError(t, err)
+
+					// lenient override
+					requestCtx, requestCancelFunc := context.WithTimeout(ctx, lenientTimeout)
+					defer requestCancelFunc()
+					_, err := restClient.OnlineQueryBulk(requestCtx, params)
+					assert.NoError(t, err)
+
+					// no override
+					_, err = restClient.OnlineQueryBulk(context.Background(), params)
+					if timeoutFixture.shouldFail {
+						assert.Error(t, err)
+					} else {
+						assert.NoError(t, err)
+					}
+				}
+			})
+		}
 	}
 }
