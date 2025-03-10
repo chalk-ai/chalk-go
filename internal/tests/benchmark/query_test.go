@@ -15,11 +15,11 @@ import (
 
 func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), closeFunc func()) {
 	type root struct {
-		IntFeatures       fixtures.WindowedIntFeatures
-		FloatFeatures     fixtures.WindowedFloatFeatures
-		BoolFeatures      fixtures.WindowedBoolFeatures
-		StringFeatures    fixtures.WindowedStringFeatures
-		TimestampFeatures fixtures.WindowedTimestampFeatures
+		WindowedIntFeatures       fixtures.WindowedIntFeatures
+		WindowedFloatFeatures     fixtures.WindowedFloatFeatures
+		WindowedBoolFeatures      fixtures.WindowedBoolFeatures
+		WindowedStringFeatures    fixtures.WindowedStringFeatures
+		WindowedTimestampFeatures fixtures.WindowedTimestampFeatures
 	}
 
 	bulkData := make(map[string]any)
@@ -47,7 +47,7 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 	assertOnce := sync.Once{}
 	return func() {
 		req := chalk.OnlineQueryParams{}.
-			WithInput("user.id", 1).
+			WithInput("user.id", []int{1}).
 			WithOutputs("user.id", "user.socure_score")
 		res, err := tf.Client.OnlineQueryBulk(context.Background(), req)
 		assert.NoError(b, err)
@@ -56,16 +56,16 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 		assert.Len(b, results, 1)
 		firstRes := results[0]
 		assertOnce.Do(func() {
-			assert.Equal(b, int64(122), *firstRes.IntFeatures.Int1["1m"])
-			assert.Equal(b, int64(122), *firstRes.IntFeatures.Int13["1h"])
-			assert.Equal(b, float64(1.234), *firstRes.FloatFeatures.Float1["1m"])
-			assert.Equal(b, float64(1.234), *firstRes.FloatFeatures.Float13["1h"])
-			assert.Equal(b, "string_val", *firstRes.StringFeatures.String1["1m"])
-			assert.Equal(b, "string_val", *firstRes.StringFeatures.String13["1h"])
-			assert.True(b, *firstRes.BoolFeatures.Bool1["1m"])
-			assert.True(b, *firstRes.BoolFeatures.Bool13["1h"])
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.TimestampFeatures.Timestamp1["1m"])
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.TimestampFeatures.Timestamp13["1h"])
+			assert.Equal(b, int64(122), *firstRes.WindowedIntFeatures.Int1["1m"])
+			assert.Equal(b, int64(122), *firstRes.WindowedIntFeatures.Int13["1h"])
+			assert.Equal(b, float64(1.234), *firstRes.WindowedFloatFeatures.Float1["1m"])
+			assert.Equal(b, float64(1.234), *firstRes.WindowedFloatFeatures.Float13["1h"])
+			assert.Equal(b, "string_val", *firstRes.WindowedStringFeatures.String1["1m"])
+			assert.Equal(b, "string_val", *firstRes.WindowedStringFeatures.String13["1h"])
+			assert.True(b, *firstRes.WindowedBoolFeatures.Bool1["1m"])
+			assert.True(b, *firstRes.WindowedBoolFeatures.Bool13["1h"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.WindowedTimestampFeatures.Timestamp1["1m"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.WindowedTimestampFeatures.Timestamp13["1h"])
 		})
 	}, tf.Close
 }

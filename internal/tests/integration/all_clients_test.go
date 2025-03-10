@@ -248,7 +248,7 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 					assert.Equal(t, 0, len(res.RawResponse.GetErrors()))
 
 					// no override
-					res, err = grpcClient.OnlineQueryBulk(context.Background(), params)
+					_, err = grpcClient.OnlineQueryBulk(context.Background(), params)
 					if timeoutFixture.shouldFail {
 						assert.Error(t, err)
 					} else {
