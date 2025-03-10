@@ -109,8 +109,7 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 		WithInput(testFeatures.User.Id, []int{1}).
 		WithOutputs(testFeatures.User.CrashingFeature)
 	resp, err := client.OnlineQueryBulk(context.Background(), params)
-	assert.NoError(t, err)
-	assert.NotNil(t, resp.RawResponse.Errors)
+	assert.Error(t, err)
 
 	row, err := resp.GetRow(0)
 	assert.NoError(t, err)
@@ -135,8 +134,7 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 		WithInput(testFeatures.Series.Id, []int{1}).
 		WithOutputs(testFeatures.Series.CrashingInvestors)
 	resp, err := client.OnlineQueryBulk(context.Background(), params)
-	assert.NoError(t, err)
-	assert.Greater(t, len(resp.RawResponse.GetErrors()), 0)
+	assert.Error(t, err)
 
 	row, err := resp.GetRow(0)
 	assert.NoError(t, err)
