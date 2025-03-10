@@ -182,13 +182,19 @@ type FeatureMeta struct {
 }
 
 type RowResult struct {
-	Features map[string]Feature
+	Features map[string]FeatureOutput
 }
 
 func NewRowResult() *RowResult {
 	return &RowResult{
-		Features: make(map[string]Feature),
+		Features: make(map[string]FeatureOutput),
 	}
+}
+
+type FeatureOutput struct {
+	Fqn   string
+	Value any
+	Meta  *FeatureMeta
 }
 
 // GetFeature takes in a feature string or a codegen'd
@@ -211,7 +217,7 @@ func NewRowResult() *RowResult {
 // You would get the feature object for "user.full_name" as follows:
 //
 //	feature, err := row.GetFeature(Features.User.FullName)
-func (r *RowResult) GetFeature(feature any) (*Feature, error) {
+func (r *RowResult) GetFeature(feature any) (*FeatureOutput, error) {
 	fqn, ok := feature.(string)
 	if !ok {
 		unwrapped, err := UnwrapFeature(feature)
@@ -263,7 +269,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		rowMeta = meta[rowIndex]
 	}
 	for fqn, value := range rows[rowIndex] {
-		featureRes := Feature{
+		featureRes := FeatureOutput{
 			Fqn:   fqn,
 			Value: value,
 		}
