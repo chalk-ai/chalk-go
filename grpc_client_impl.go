@@ -331,9 +331,16 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		return nil, errors.Wrap(err, "executing online query")
 	}
 
-	return &GRPCOnlineQueryBulkResult{
-		RawResponse: res.Msg,
-	}, nil
+	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg}
+	if len(res.Msg.GetErrors()) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
+		if err != nil {
+			return nil, errors.Wrap(err, "converting proto errors")
+		}
+		// Must return result even upon error, since there could be partial results
+		return result, convertedErrs
+	}
+	return result, nil
 }
 
 type GRPCUpdateAggregatesResult struct {
@@ -364,9 +371,15 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 		return nil, errors.Wrap(err, "making update aggregates request")
 	}
 
-	return &GRPCUpdateAggregatesResult{
-		RawResponse: res.Msg,
-	}, nil
+	result := &GRPCUpdateAggregatesResult{RawResponse: res.Msg}
+	if len(res.Msg.GetErrors()) > 0 {
+		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
+		if err != nil {
+			return nil, errors.Wrap(err, "converting proto errors")
+		}
+		return result, convertedErrs
+	}
+	return result, nil
 }
 
 type GRPCGetAggregatesResult struct {
@@ -382,9 +395,15 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 		return nil, errors.Wrap(err, "making get aggregates request")
 	}
 
-	return &GRPCGetAggregatesResult{
-		RawResponse: res.Msg,
-	}, nil
+	result := &GRPCGetAggregatesResult{RawResponse: res.Msg}
+	if len(res.Msg.GetErrors()) > 0 {
+		var allErrors []error
+		for _, errStr := range res.Msg.GetErrors() {
+			allErrors = append(allErrors, errors.New(errStr))
+		}
+		return result, errors.Join(allErrors...)
+	}
+	return result, nil
 }
 
 type GRPCPlanAggregateBackfillResult struct {
@@ -399,9 +418,16 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	if err != nil {
 		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}
-	return &GRPCPlanAggregateBackfillResult{
-		RawResponse: res.Msg,
-	}, nil
+
+	result := &GRPCPlanAggregateBackfillResult{RawResponse: res.Msg}
+	if len(res.Msg.GetErrors()) > 0 {
+		var allErrors []error
+		for _, errStr := range res.Msg.GetErrors() {
+			allErrors = append(allErrors, errors.New(errStr))
+		}
+		return result, errors.Join(allErrors...)
+	}
+	return result, nil
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
