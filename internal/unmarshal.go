@@ -256,6 +256,7 @@ func extractFeatures(
 
 		for fqn, j := range metaColumnFqnToIdx {
 			featureMeta := FeatureMeta{
+				// TODO: Server returns incorrect arbitrary pkey for multi-namespace results.
 				Pkey: resolvedPkey,
 			}
 

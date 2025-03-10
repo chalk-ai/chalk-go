@@ -175,7 +175,6 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 }
 
 type FeatureMeta struct {
-	Pkey        any
 	ResolverFqn string
 	SourceType  ResultMetadataSourceType
 	SourceId    string
@@ -280,7 +279,6 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 				continue
 			}
 			featureRes.Meta = &FeatureMeta{
-				Pkey:        internalMeta.Pkey,
 				ResolverFqn: internalMeta.ResolverFqn,
 				SourceType:  (ResultMetadataSourceType)(internalMeta.SourceType),
 				SourceId:    internalMeta.SourceId,

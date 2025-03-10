@@ -90,12 +90,10 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	assert.NotNil(t, socureScore.Meta)
 	assert.Equal(t, expectedSocureScore, socureScore.Value)
 	assert.Equal(t, true, socureScore.Meta.SourceType == chalk.SourceTypeOnlineStore)
-	assert.Equal(t, userId, socureScore.Meta.Pkey)
 
 	today, err := row.GetFeature("user.today")
 	assert.Nil(t, err)
 	assert.Equal(t, "neobank.resolvers.get_today", today.Meta.ResolverFqn)
-	assert.Equal(t, userId, socureScore.Meta.Pkey)
 }
 
 // TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
