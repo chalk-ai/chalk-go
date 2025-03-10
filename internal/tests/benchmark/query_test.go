@@ -15,11 +15,11 @@ import (
 
 func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), closeFunc func()) {
 	type root struct {
-		WindowedIntFeatures       fixtures.WindowedIntFeatures
-		WindowedFloatFeatures     fixtures.WindowedFloatFeatures
-		WindowedBoolFeatures      fixtures.WindowedBoolFeatures
-		WindowedStringFeatures    fixtures.WindowedStringFeatures
-		WindowedTimestampFeatures fixtures.WindowedTimestampFeatures
+		fixtures.WindowedIntFeatures
+		fixtures.WindowedFloatFeatures
+		fixtures.WindowedBoolFeatures
+		fixtures.WindowedStringFeatures
+		fixtures.WindowedTimestampFeatures
 	}
 
 	bulkData := make(map[string]any)

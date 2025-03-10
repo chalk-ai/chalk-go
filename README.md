@@ -82,15 +82,59 @@ client, err := chalk.NewClient(
 ### gRPC Client
 To use gRPC as the underlying protocol for communication with Chalk: 
 ```go
+// Create a client
 client, err := chalk.NewGRPCClient(
 	context.Background(),
-	&chalk.GRPCClientConfig{
-		...
-	},
+	&chalk.GRPCClientConfig{Branch: "my-branch"},
 )
+
+// Online query
+var users []User
+res, err := chalk.OnlineQueryBulk(
+	context.Background(),
+	chalk.OnlineQueryParams{}.
+		WithInput(Features.User.Id, []string{"u273489056"}).
+		WithInput(Features.User.Transactions, [][]Transaction{
+			{
+				{Id: utils.ToPtr("txn8f76"), Amount: utils.ToPtr(13.23)},
+				{Id: utils.ToPtr("txn546d"), Amount: utils.ToPtr(48.95)},
+			}
+		}).
+		WithOutputs(Features.User.Id, Features.User.TrustScore),
+)
+if err != nil {
+	return errors.Wrap(err, "querying trust score")
+}
+if err = res.UnmarshalInto(&users); err != nil {
+	return errors.Wrap(err, "unmarshalling into users")
+}
+fmt.Println("user %s has trust score %v", users[0].Id, users[0].TrustScore)
+
+
+// Multi-namespace online query
+type underwriting struct {
+	User 
+	Loan  
+}
+
+res, err := chalk.OnlineQueryBulk(
+    context.Background(),
+    chalk.OnlineQueryParams{}.
+        WithInput(Features.User.Id, []string{"u273489056"}).
+        WithInput(Features.Loan.Id, []string{"l273489056"}).
+        WithOutputs(Features.User.Id, Features.User.TrustScore, Features.Loan.Id, Features.Loan.ApprovalStatus),
+)
+if err != nil {
+	return errors.Wrap(err, "querying trust score and loan approval status")
+}
+
+var root []underwriting
+if err = res.UnmarshalInto(&root); err != nil {
+	return errors.Wrap(err, "unmarshalling into underwriting")
+}
+fmt.Println("user %s has trust score %v", root[0].User.Id, root[0].User.TrustScore)
+fmt.Println("loan %s has approval status %v", root[0].Loan.Id, root[0].Loan.ApprovalStatus)
 ```
-
-
 
 ### Online Query
 
@@ -102,7 +146,7 @@ _, err = client.OnlineQuery(
     context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, "u273489057").
-		WithInput(Features.User.Transactions, []Transaction{
+        WithInput(Features.User.Transactions, []Transaction{
             {Id: utils.ToPtr("sd8f76"), Amount: utils.ToPtr(13.23)},
             {Id: utils.ToPtr("jk546d"), SeriesId: utils.ToPtr(48.95)},
         }).
