@@ -101,7 +101,6 @@ func TestOnlineQueryE2E(t *testing.T) {
 
 // TestNamedQueriesE2E tests that querying with a query name works.
 func TestNamedQueriesE2E(t *testing.T) {
-	t.Skip("CHA-5086")
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	for _, fixture := range []struct {
@@ -119,7 +118,8 @@ func TestNamedQueriesE2E(t *testing.T) {
 					context.Background(),
 					chalk.OnlineQueryParams{}.
 						WithInput("user.id", []int{1}).
-						WithQueryName("user_socure_score"),
+						WithQueryName("user_socure_score").
+						WithQueryNameVersion("1.0.0"),
 				)
 				assert.NoError(t, err)
 				results := []user{}
@@ -132,7 +132,8 @@ func TestNamedQueriesE2E(t *testing.T) {
 				}
 				params := chalk.OnlineQueryParams{}.
 					WithInput("user.id", 1).
-					WithQueryName("user_socure_score")
+					WithQueryName("user_socure_score").
+					WithQueryNameVersion("1.0.0")
 
 				_, queryErr := client.OnlineQuery(context.Background(), params, &resultUser)
 				if queryErr != nil {
