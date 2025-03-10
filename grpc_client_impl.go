@@ -260,6 +260,13 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		return nil, errors.Wrap(err, "extracting features from scalars table")
 	}
 
+	if rowIndex >= len(rows) {
+		return nil, errors.Newf(
+			"out of bounds: accessing index %d of table with %d rows",
+			rowIndex, len(rows),
+		)
+	}
+
 	var rowMeta map[string]internal.FeatureMeta
 	if len(meta) > 0 {
 		if len(meta) != len(rows) {
@@ -267,6 +274,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		}
 		rowMeta = meta[rowIndex]
 	}
+
 	for fqn, value := range rows[rowIndex] {
 		featureRes := FeatureOutput{
 			Fqn:   fqn,
