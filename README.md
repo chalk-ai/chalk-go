@@ -98,7 +98,7 @@ res, err := chalk.OnlineQueryBulk(
 			{
 				{Id: utils.ToPtr("txn8f76"), Amount: utils.ToPtr(13.23)},
 				{Id: utils.ToPtr("txn546d"), Amount: utils.ToPtr(48.95)},
-			}
+			},
 		}).
 		WithOutputs(Features.User.Id, Features.User.TrustScore),
 )
@@ -122,7 +122,12 @@ res, err := chalk.OnlineQueryBulk(
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, []string{"u273489056"}).
         WithInput(Features.Loan.Id, []string{"l273489056"}).
-        WithOutputs(Features.User.Id, Features.User.TrustScore, Features.Loan.Id, Features.Loan.ApprovalStatus),
+        WithOutputs(
+            Features.User.Id, 
+            Features.User.TrustScore, 
+            Features.Loan.Id, 
+            Features.Loan.ApprovalStatus,
+        ),
 )
 if err != nil {
 	return errors.Wrap(err, "querying trust score and loan approval status")
