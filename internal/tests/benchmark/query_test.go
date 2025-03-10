@@ -49,21 +49,23 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 		req := chalk.OnlineQueryParams{}.
 			WithInput("user.id", 1).
 			WithOutputs("user.id", "user.socure_score")
-		res, err := tf.Client.OnlineQuery(context.Background(), req, nil)
+		res, err := tf.Client.OnlineQueryBulk(context.Background(), req)
 		assert.NoError(b, err)
-		var results root
+		var results []root
 		assert.NoError(b, res.UnmarshalInto(&results))
+		assert.Len(b, results, 1)
+		firstRes := results[0]
 		assertOnce.Do(func() {
-			assert.Equal(b, int64(122), *results.IntFeatures.Int1["1m"])
-			assert.Equal(b, int64(122), *results.IntFeatures.Int13["1h"])
-			assert.Equal(b, float64(1.234), *results.FloatFeatures.Float1["1m"])
-			assert.Equal(b, float64(1.234), *results.FloatFeatures.Float13["1h"])
-			assert.Equal(b, "string_val", *results.StringFeatures.String1["1m"])
-			assert.Equal(b, "string_val", *results.StringFeatures.String13["1h"])
-			assert.True(b, *results.BoolFeatures.Bool1["1m"])
-			assert.True(b, *results.BoolFeatures.Bool13["1h"])
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp1["1m"])
-			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *results.TimestampFeatures.Timestamp13["1h"])
+			assert.Equal(b, int64(122), *firstRes.IntFeatures.Int1["1m"])
+			assert.Equal(b, int64(122), *firstRes.IntFeatures.Int13["1h"])
+			assert.Equal(b, float64(1.234), *firstRes.FloatFeatures.Float1["1m"])
+			assert.Equal(b, float64(1.234), *firstRes.FloatFeatures.Float13["1h"])
+			assert.Equal(b, "string_val", *firstRes.StringFeatures.String1["1m"])
+			assert.Equal(b, "string_val", *firstRes.StringFeatures.String13["1h"])
+			assert.True(b, *firstRes.BoolFeatures.Bool1["1m"])
+			assert.True(b, *firstRes.BoolFeatures.Bool13["1h"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.TimestampFeatures.Timestamp1["1m"])
+			assert.Equal(b, time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC), *firstRes.TimestampFeatures.Timestamp13["1h"])
 		})
 	}, tf.Close
 }
