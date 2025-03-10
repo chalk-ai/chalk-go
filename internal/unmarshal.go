@@ -188,9 +188,9 @@ type ChunkResult struct {
 }
 
 type FeatureMeta struct {
-	SourceType  *string
-	SourceId    *string
-	ResolverFqn *string
+	SourceType  string
+	SourceId    string
+	ResolverFqn string
 	Pkey        any
 }
 
@@ -277,7 +277,7 @@ func extractFeatures(
 			}
 
 			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
-				val, ok := sourceType.(string)
+				featureMeta.SourceType, ok = sourceType.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -285,10 +285,9 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.SourceType = &val
 			}
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
-				val, ok := sourceId.(string)
+				featureMeta.SourceId, ok = sourceId.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -296,10 +295,9 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.SourceId = &val
 			}
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
-				val, ok := resolverFqn.(string)
+				featureMeta.ResolverFqn, ok = resolverFqn.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -307,7 +305,6 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.ResolverFqn = &val
 			}
 
 			m[fqn] = featureMeta

@@ -279,19 +279,12 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 				// Features such as has-many features do not have a metadata column.
 				continue
 			}
-			publicMeta := FeatureMeta{
-				Pkey: internalMeta.Pkey,
+			featureRes.Meta = &FeatureMeta{
+				Pkey:        internalMeta.Pkey,
+				ResolverFqn: internalMeta.ResolverFqn,
+				SourceType:  (ResultMetadataSourceType)(internalMeta.SourceType),
+				SourceId:    internalMeta.SourceId,
 			}
-			if internalMeta.ResolverFqn != nil {
-				publicMeta.ResolverFqn = *internalMeta.ResolverFqn
-			}
-			if internalMeta.SourceType != nil {
-				publicMeta.SourceType = (ResultMetadataSourceType)(*internalMeta.SourceType)
-			}
-			if internalMeta.SourceId != nil {
-				publicMeta.SourceId = *internalMeta.SourceId
-			}
-			featureRes.Meta = &publicMeta
 		}
 		row.Features[fqn] = featureRes
 	}
