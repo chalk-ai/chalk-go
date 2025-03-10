@@ -18,12 +18,6 @@ import (
 	"time"
 )
 
-type ResultMetadataSourceType string
-
-const (
-	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
-)
-
 type grpcClientImpl struct {
 	GRPCClient
 	config *configManager
@@ -174,10 +168,22 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
+
 type FeatureMeta struct {
 	ResolverFqn string
 	SourceType  ResultMetadataSourceType
 	SourceId    string
+}
+
+type FeatureOutput struct {
+	Fqn   string
+	Value any
+	Meta  *FeatureMeta
 }
 
 type RowResult struct {
@@ -190,14 +196,8 @@ func NewRowResult() *RowResult {
 	}
 }
 
-type FeatureOutput struct {
-	Fqn   string
-	Value any
-	Meta  *FeatureMeta
-}
-
 // GetFeature takes in a feature string or a codegen'd
-// feature reference and returns the `Feature` object.
+// feature reference and returns the `FeatureOutput` object.
 // Given this codegen'd snippet:
 //
 //	type User struct {
