@@ -260,7 +260,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		return nil, errors.Wrap(err, "extracting features from scalars table")
 	}
 
-	if rowIndex >= len(rows) {
+	if rowIndex < 0 || rowIndex >= len(rows) {
 		return nil, errors.Newf(
 			"out of bounds: accessing index %d of table with %d rows",
 			rowIndex, len(rows),
