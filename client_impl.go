@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -20,16 +21,18 @@ import (
 
 type clientImpl struct {
 	Client
-	config *configManager
+	config    *configManager
+	allocator memory.Allocator
 
 	Branch        string
 	QueryServer   string
 	DeploymentTag string
 	resourceGroup *string
-	timeout       *time.Duration
 
+	timeout    *time.Duration
 	httpClient HTTPClient
-	logger     LeveledLogger
+
+	logger LeveledLogger
 }
 
 type HTTPClient interface {
@@ -93,7 +96,12 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
 		}
 	}
-	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
+	data, err := params.ToBytes(
+		&SerializationOptions{
+			ClientConfigBranchId: c.Branch,
+			Allocator:            c.allocator,
+		},
+	)
 	if err != nil {
 		return emptyResult, errors.Wrapf(err, "serializing online query params")
 	}
@@ -137,6 +145,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 		ScalarsTable: singleBulkResult.ScalarData,
 		GroupsTables: singleBulkResult.GroupsData,
 		Meta:         singleBulkResult.Meta,
+		allocator:    c.allocator,
 	}, nil
 }
 
@@ -145,7 +154,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 	if err != nil {
 		return UploadFeaturesResult{}, errors.Wrapf(err, "converting input map keys")
 	}
-	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
+	recordBytes, err := internal.InputsToArrowBytes(convertedInputs, c.allocator)
 	if err != nil {
 		return UploadFeaturesResult{}, errors.Wrapf(err, "converting inputs to Arrow Record bytes")
 	}
@@ -193,7 +202,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 
 	emptyResult := OnlineQueryResult{}
 
-	var serializedResponse onlineQueryResponseSerialized
+	var response onlineQueryResponseSerialized
 
 	serializedRequest, err := request.serialize()
 	if err != nil {
@@ -211,7 +220,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			Method:                "POST",
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
-			Response:              &serializedResponse,
+			Response:              &response,
 			EnvironmentOverride:   request.EnvironmentId,
 			PreviewDeploymentId:   request.PreviewDeploymentId,
 			Versioned:             params.underlying.versioned,
@@ -222,8 +231,8 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	); err != nil {
 		return emptyResult, errors.Wrap(err, "sending request")
 	}
-	if len(serializedResponse.Errors) > 0 {
-		serverErrors, err := deserializeChalkErrors(serializedResponse.Errors)
+	if len(response.Errors) > 0 {
+		serverErrors, err := deserializeChalkErrors(response.Errors)
 		if err != nil {
 			return emptyResult, errors.Wrap(err, "deserializing Chalk errors")
 		}
@@ -231,19 +240,32 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 		return emptyResult, serverErrors
 	}
 
-	response, err := serializedResponse.deserialize()
+	features := make(map[string]FeatureResult)
+
+	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "deserializing online query response")
+		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
+	}
+
+	for _, result := range deserializedData {
+		features[result.Field] = result
+	}
+
+	result := OnlineQueryResult{
+		Data:      deserializedData,
+		Meta:      response.Meta,
+		features:  features,
+		allocator: c.allocator,
 	}
 
 	if resultHolder != nil {
-		unmarshalErr := response.UnmarshalInto(resultHolder)
+		unmarshalErr := result.UnmarshalInto(resultHolder)
 		if unmarshalErr != nil {
-			return response, errors.Wrap(unmarshalErr, "unmarshaling result")
+			return result, errors.Wrap(unmarshalErr, "unmarshaling result")
 		}
 	}
 
-	return response, nil
+	return result, nil
 }
 
 func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
@@ -657,6 +679,11 @@ func newClientImpl(
 		timeout = &cfg.Timeout
 	}
 
+	allocator := memory.DefaultAllocator
+	if cfg.Allocator != nil {
+		allocator = cfg.Allocator
+	}
+
 	client := &clientImpl{
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
@@ -666,6 +693,7 @@ func newClientImpl(
 
 		logger:     logger,
 		httpClient: httpClient,
+		allocator:  allocator,
 
 		config: config,
 	}

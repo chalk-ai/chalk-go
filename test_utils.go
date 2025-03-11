@@ -5,6 +5,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 )
 
 // buildTableFromFeatureToValuesMap builds an Arrow record from a map of features to values.
@@ -22,7 +23,7 @@ func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table,
 }
 
 func tableFromFqnToValues(fqnToValues map[string]any) (arrow.Table, error) {
-	record, recordErr := internal.ColumnMapToRecord(fqnToValues)
+	record, recordErr := internal.ColumnMapToRecord(fqnToValues, fixtures.TestAllocator)
 	if recordErr != nil {
 		return nil, fmt.Errorf("error converting a map of column values to an Arrow Record: %w", recordErr)
 	}

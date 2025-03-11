@@ -466,7 +466,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	bulkData["account.unmarshal_user.id"] = []string{"abc"}
 	bulkData["account.unmarshal_user.avg_spend__60__"] = []*float64{nil}
 
-	record, err := internal.ColumnMapToRecord(bulkData)
+	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(t, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})

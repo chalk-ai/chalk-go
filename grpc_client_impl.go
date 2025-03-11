@@ -4,6 +4,7 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"crypto/tls"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
@@ -20,7 +21,8 @@ import (
 
 type grpcClientImpl struct {
 	GRPCClient
-	config *configManager
+	config    *configManager
+	allocator memory.Allocator
 
 	branch        string
 	queryServer   *string
@@ -90,6 +92,11 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
+	allocator := memory.DefaultAllocator
+	if cfg.Allocator != nil {
+		allocator = cfg.Allocator
+	}
+
 	resolvedQueryServer := config.getQueryServer(queryServer)
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
@@ -136,6 +143,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		queryServer:   queryServer,
 		resourceGroup: resourceGroup,
 		timeout:       timeout,
+		allocator:     allocator,
 	}, nil
 }
 
@@ -315,7 +323,7 @@ func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
 }
 
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
-	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
+	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
@@ -355,7 +363,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 	if err != nil {
 		return nil, errors.Wrap(err, "converting inputs map")
 	}
-	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
+	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted, c.allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "serializing inputs as feather")
 	}

@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"context"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"time"
 )
@@ -77,6 +78,10 @@ type GRPCClientConfig struct {
 	// Timeout of 0 means no timeout. Deadline or timeout set on the request
 	// context will override this timeout.
 	Timeout time.Duration
+
+	// Allocator specifies the allocator to use for creating Arrow objects.
+	// Defaults to `memory.DefaultAllocator`.
+	Allocator memory.Allocator
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

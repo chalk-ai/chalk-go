@@ -10,7 +10,6 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
@@ -34,8 +33,8 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 }
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
-func InputsToArrowBytes(inputs map[string]any) ([]byte, error) {
-	record, recordErr := ColumnMapToRecord(inputs)
+func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]byte, error) {
+	record, recordErr := ColumnMapToRecord(inputs, allocator)
 	if recordErr != nil {
 		return nil, recordErr
 	}
@@ -350,9 +349,8 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 }
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
-func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
+func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow.Record, error) {
 	// Create the input values
-	allocator := memory.NewGoAllocator()
 	var schema []arrow.Field
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
@@ -629,21 +627,6 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
-	recordBytes, err := InputsToArrowBytes(inputs)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert inputs to Arrow Record bytes")
-	}
-
-	attrs := map[string]any{
-		"features":          colls.Keys(inputs),
-		"table_compression": "uncompressed",
-		"table_bytes":       recordBytes,
-	}
-
-	return ChalkMarshal(attrs)
-}
-
 type FeatherRequestHeader struct {
 	Outputs          []string            `json:"outputs"`
 	BranchId         *string             `json:"branch_id"`
@@ -661,8 +644,12 @@ type FeatherRequestHeader struct {
 	PlannerOptions   map[string]any      `json:"planner_options"`
 }
 
-func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
-	arrowBytes, err := InputsToArrowBytes(inputs)
+func CreateOnlineQueryBulkBody(
+	inputs map[string]any,
+	header FeatherRequestHeader,
+	allocator memory.Allocator,
+) ([]byte, error) {
+	arrowBytes, err := InputsToArrowBytes(inputs, allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert inputs to Arrow")
 	}

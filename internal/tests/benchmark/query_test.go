@@ -34,7 +34,7 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 		}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData)
+	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
 	bytes, err := internal.RecordToBytes(record)
 	assert.NoError(b, err)

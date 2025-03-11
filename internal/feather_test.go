@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
@@ -15,7 +16,7 @@ func TestColumnMapToRecordOptionalPrimitives(t *testing.T) {
 		"int":   []*int64{&num, nil, &num},
 		"float": []*float64{&numFloat, &numFloat, nil},
 	}
-	record, convertErr := ColumnMapToRecord(in)
+	record, convertErr := ColumnMapToRecord(in, fixtures.TestAllocator)
 	assert.Nil(t, convertErr)
 	for i := 0; i < int(record.NumRows()); i++ {
 		for j, col := range record.Columns() {

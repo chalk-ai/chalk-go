@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
@@ -172,6 +173,8 @@ type OnlineQueryResult struct {
 
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
+
+	allocator memory.Allocator
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
@@ -358,6 +361,8 @@ type OnlineQueryBulkResult struct {
 
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
+
+	allocator memory.Allocator
 }
 
 // UnmarshalInto unmarshals Arrow tables in OnlineQueryBulkResult into the specified slice of

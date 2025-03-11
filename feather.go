@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -19,15 +20,20 @@ func (r OnlineQueryBulkResult) Release() {
 
 type SerializationOptions struct {
 	ClientConfigBranchId string
+	Allocator            memory.Allocator
 }
 
 func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]byte, error) {
 	branchId := p.underlying.BranchId
+	allocator := memory.DefaultAllocator
 	if len(options) > 1 {
 		return nil, fmt.Errorf("expected 1 SerializationOptions, got %d", len(options))
 	} else if len(options) == 1 {
 		if branchId == nil || *branchId == "" && options[0].ClientConfigBranchId != "" {
 			branchId = &options[0].ClientConfigBranchId
+		}
+		if options[0].Allocator != nil {
+			allocator = options[0].Allocator
 		}
 	}
 
@@ -42,28 +48,32 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		outputs = []string{}
 	}
 
-	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
-		Outputs:     outputs,
-		Explain:     p.underlying.Explain,
-		IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,
-		BranchId:    branchId,
-		Context: &internal.OnlineQueryContext{
-			Environment:          ptr.PtrOrNil(p.underlying.EnvironmentId),
-			Tags:                 p.underlying.Tags,
-			RequiredResolverTags: p.underlying.RequiredResolverTags,
+	return internal.CreateOnlineQueryBulkBody(
+		p.underlying.inputs,
+		internal.FeatherRequestHeader{
+			Outputs:     outputs,
+			Explain:     p.underlying.Explain,
+			IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,
+			BranchId:    branchId,
+			Context: &internal.OnlineQueryContext{
+				Environment:          ptr.PtrOrNil(p.underlying.EnvironmentId),
+				Tags:                 p.underlying.Tags,
+				RequiredResolverTags: p.underlying.RequiredResolverTags,
+			},
+			StorePlanStages:  p.underlying.StorePlanStages,
+			CorrelationId:    ptr.PtrOrNil(p.underlying.CorrelationId),
+			QueryName:        ptr.PtrOrNil(p.underlying.QueryName),
+			QueryNameVersion: ptr.PtrOrNil(p.underlying.QueryNameVersion),
+			QueryContext:     p.underlying.QueryContext.ToMap(),
+			Meta:             p.underlying.Meta,
+			Staleness:        convertedStaleness,
+			Now: colls.Map(p.underlying.Now, func(val time.Time) string {
+				return val.Format(internal.NowTimeFormat)
+			}),
+			PlannerOptions: p.underlying.PlannerOptions,
 		},
-		StorePlanStages:  p.underlying.StorePlanStages,
-		CorrelationId:    ptr.PtrOrNil(p.underlying.CorrelationId),
-		QueryName:        ptr.PtrOrNil(p.underlying.QueryName),
-		QueryNameVersion: ptr.PtrOrNil(p.underlying.QueryNameVersion),
-		QueryContext:     p.underlying.QueryContext.ToMap(),
-		Meta:             p.underlying.Meta,
-		Staleness:        convertedStaleness,
-		Now: colls.Map(p.underlying.Now, func(val time.Time) string {
-			return val.Format(internal.NowTimeFormat)
-		}),
-		PlannerOptions: p.underlying.PlannerOptions,
-	})
+		allocator,
+	)
 }
 
 func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {

@@ -3,6 +3,7 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
@@ -106,25 +107,6 @@ func (feature featureResultSerialized) deserialize() (FeatureResult, error) {
 		Timestamp: timeObj,
 		Meta:      feature.Meta,
 		Error:     dError,
-	}, nil
-}
-
-func (response *onlineQueryResponseSerialized) deserialize() (OnlineQueryResult, error) {
-	features := make(map[string]FeatureResult)
-
-	deserializedData, err := deserializeFeatureResults(response.Data)
-	if err != nil {
-		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
-	}
-
-	for _, result := range deserializedData {
-		features[result.Field] = result
-	}
-
-	return OnlineQueryResult{
-		Data:     deserializedData,
-		Meta:     response.Meta,
-		features: features,
 	}, nil
 }
 
@@ -277,8 +259,8 @@ var getErrorCodeCategory = internal.GenerateGetEnumFunction(
 	"error code categories",
 )
 
-func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.OnlineQueryBulkRequest, error) {
-	inputsFeather, err := internal.InputsToArrowBytes(params.inputs)
+func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory.Allocator) (*commonv1.OnlineQueryBulkRequest, error) {
+	inputsFeather, err := internal.InputsToArrowBytes(params.inputs, allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
