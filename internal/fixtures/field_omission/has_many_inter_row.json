@@ -1,0 +1,27 @@
+[
+  {
+    "user.id": "user_1",
+    "user.name": "Alice",
+    "user.txns": [
+      {
+        "omit_txn.amount": 100,
+        "omit_txn.id": "txn_1"
+      }
+    ]
+  },
+  {
+    "user.id": "user_2",
+    "user.name": "Bob",
+    "user.txns": []
+  },
+  {
+    "user.id": "user_3",
+    "user.name": "Chinedum",
+    "user.txns": [
+      {
+        "omit_txn.amount": null,
+        "omit_txn.id": "txn_3"
+      }
+    ]
+  }
+]

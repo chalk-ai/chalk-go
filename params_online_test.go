@@ -121,6 +121,258 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
 }
 
+// TestBulkInputsOmitNilFields tests that for bulk inputs whose
+// feature is nil for every row in the input, the feature is
+// omitted from the serialized input (Arrow table) unless the
+// feature has the `chalk:"dontomit"` tag. This also tests that
+// dataclass fields are never omitted.
+func TestBulkInputsOmitNilFields(t *testing.T) {
+	t.Parallel()
+
+	type omitTxn struct {
+		Id       *string
+		Amount   *int
+		Cashback *int
+	}
+
+	type omitHasManyRoot struct {
+		Id   *string
+		Txns []*omitTxn
+	}
+
+	type omitHasOneRoot struct {
+		Id  *string
+		Txn *omitTxn
+	}
+
+	type omitDont struct {
+		Id       *string
+		Amount   *int
+		Cashback *int `chalk:"dontomit"`
+	}
+
+	type omitDataclass struct {
+		Id       *string `dataclass_field:"true"`
+		Amount   *int
+		Cashback *int
+	}
+
+	root := filepath.Join("internal", "fixtures", "field_omission")
+	for _, fixture := range []struct {
+		name     string
+		input    map[string]any
+		filename string
+	}{
+		{
+			name:     "has-many inter-row",
+			filename: "has_many_inter_row.json",
+			input: map[string]any{
+				"user.id":   []string{"user_1", "user_2", "user_3"},
+				"user.name": []string{"Alice", "Bob", "Chinedum"},
+				"user.txns": [][]omitTxn{
+					{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}},
+					{},
+					{{Id: ptr.Ptr("txn_3")}},
+				},
+			},
+		},
+		{
+			name:     "has-many intra-row",
+			filename: "has_many_intra_row.json",
+			input: map[string]any{
+				"user.id": []string{"user_1"},
+				"user.txns": [][]omitTxn{
+					{
+						{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						{Id: ptr.Ptr("txn_2")},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-one",
+			filename: "has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.txn": []omitTxn{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "has-one with optional",
+			filename: "has_one_with_optional.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.txn": []*omitTxn{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					nil,
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "has-one -> has-one",
+			filename: "has_one_has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_one": []omitHasOneRoot{
+					{
+						Id:  ptr.Ptr("root_1"),
+						Txn: &omitTxn{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					},
+					{},
+					{
+						Id:  ptr.Ptr("root_3"),
+						Txn: &omitTxn{Id: ptr.Ptr("txn_3")},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-many -> has-one",
+			filename: "has_many_has_one.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_many": [][]omitHasOneRoot{
+					{
+						{
+							Id:  ptr.Ptr("root_1"),
+							Txn: &omitTxn{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						},
+					},
+					{},
+					{
+						{
+							Id:  ptr.Ptr("root_3"),
+							Txn: &omitTxn{Id: ptr.Ptr("txn_3")},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-one -> has-many",
+			filename: "has_one_has_many.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_one": []omitHasManyRoot{
+					{
+						Id: ptr.Ptr("root_1"),
+						Txns: []*omitTxn{
+							{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+						},
+					},
+					{},
+					{
+						Id: ptr.Ptr("root_3"),
+						Txns: []*omitTxn{
+							{Id: ptr.Ptr("txn_3")},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "has-many -> has-many",
+			filename: "has_many_has_many.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.has_many": [][]omitHasManyRoot{
+					{
+						{
+							Id: ptr.Ptr("root_1"),
+							Txns: []*omitTxn{
+								{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+							},
+						},
+					},
+					{},
+					{
+						{
+							Id: ptr.Ptr("root_3"),
+							Txns: []*omitTxn{
+								{Id: ptr.Ptr("txn_3")},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:     "dataclass",
+			filename: "dataclass.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclass": []omitDataclass{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "dataclass with nil",
+			filename: "dataclass_with_nil.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclass": []*omitDataclass{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					nil,
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+		{
+			name:     "list of dataclass",
+			filename: "list_of_dataclass.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dataclasses": [][]omitDataclass{
+					{{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)}},
+					{},
+					{{Id: ptr.Ptr("txn_3")}},
+				},
+			},
+		},
+		{
+			name:     "dontomit tag",
+			filename: "dont_omit.json",
+			input: map[string]any{
+				"user.id": []string{"user_1", "user_2", "user_3"},
+				"user.dont": []omitDont{
+					{Id: ptr.Ptr("txn_1"), Amount: ptr.Ptr(100)},
+					{},
+					{Id: ptr.Ptr("txn_3")},
+				},
+			},
+		},
+	} {
+		t.Run(fixture.name, func(t *testing.T) {
+			t.Parallel()
+			table, err := tableFromFqnToValues(fixture.input)
+			assert.NoError(t, err)
+
+			rows, _, err := internal.ExtractFeaturesFromTable(table, false)
+			assert.NoError(t, err)
+
+			featherInputJsonBytes, err := json.MarshalIndent(rows, "", "  ")
+			assert.NoError(t, err)
+
+			fileContent, err := os.ReadFile(filepath.Join(root, fixture.filename))
+			if err != nil {
+				fileContent = []byte("")
+			}
+
+			//assert.NoError(t, os.WriteFile(filepath.Join(root, fixture.filename), featherInputJsonBytes, 0644))
+			assert.Equal(t, string(fileContent), string(featherInputJsonBytes))
+		})
+	}
+
+}
+
 // Tests that OnlineQuery successfully serializes all types of input feature values.
 func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	t.Parallel()

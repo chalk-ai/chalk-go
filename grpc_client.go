@@ -7,9 +7,7 @@ import (
 	"time"
 )
 
-// GRPCClient is the gRPC-native interface for interacting with Chalk.
-// Our existing Client interface also works with gRPC, but this interface
-// is more idiomatic for talking to our gRPC endpoints.
+// GRPCClient is the gRPC interface for interacting with Chalk.
 type GRPCClient interface {
 	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
 
@@ -85,7 +83,7 @@ type GRPCClientConfig struct {
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
-// These settings can be overriden by passing in a ClientConfig
+// These settings can be overriden by passing in a GRPCClientConfig
 // object. Otherwise, for each configuration variable, NewGRPCClient uses its
 // corresponding environment variable if it exists. The environment variables
 // that NewGRPCClient looks for are:
@@ -105,7 +103,7 @@ type GRPCClientConfig struct {
 //
 //		     chalkClient, err := chalk.NewGRPCClient(
 //	             context.Background(),
-//		         &chalk.ClientConfig{
+//		         &chalk.GRPCClientConfig{
 //			         ClientId:      "id-89140a6614886982a6782106759e30",
 //			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
 //			         ApiServer:     "https://api.chalk.ai",
