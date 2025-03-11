@@ -283,10 +283,6 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 	return response, nil
 }
 
-func (c *clientImpl) UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (UpdateAggregatesResult, error) {
-	return UpdateAggregatesResult{}, errors.New("not implemented")
-}
-
 func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 
@@ -309,13 +305,16 @@ func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, Envi
 	return response.Urls, nil
 }
 
-func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
+func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error) {
 	resp, err := c.httpClient.Get(URL)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err = deferFunctionWithError(resp.Body.Close, err)
+		closeErr := resp.Body.Close()
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
 	parsedUrl, urlParseErr := url.Parse(URL)
