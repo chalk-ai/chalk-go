@@ -628,3 +628,20 @@ func TestNamedQuery(t *testing.T) {
 		assert.Equal(t, queryName, params.underlying.QueryName)
 	}
 }
+
+func TestInputsLengthValidation(t *testing.T) {
+	t.Parallel()
+
+	paramsSameLength := OnlineQueryParams{}.
+		WithInput("user.id", []int{1, 2, 3}).
+		WithInput("user.number", []int{1, 2, 3})
+	assert.NoError(t, paramsSameLength.underlying.validateAndPopulateParamFieldsSingle())
+	assert.NoError(t, paramsSameLength.underlying.validateAndPopulateParamFieldsBulk())
+
+	paramsDiffLength := OnlineQueryParams{}.
+		WithInput("user.id", []int{1, 2, 3}).
+		WithInput("user.number", []int{1, 2})
+	assert.NoError(t, paramsDiffLength.underlying.validateAndPopulateParamFieldsSingle())
+	assert.Error(t, paramsDiffLength.underlying.validateAndPopulateParamFieldsBulk())
+
+}
