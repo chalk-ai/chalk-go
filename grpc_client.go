@@ -75,7 +75,7 @@ type GRPCClient interface {
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
 	// while updating the corresponding aggregate values themselves.
 	// The `Inputs` parameter should be a map of features to values. The features should either
-	// be a string or codegen-ed Feature object, and the values a slice of the appropriate type.
+	// be a string or codegen-ed feature reference, and the values a slice of the appropriate type.
 	// All slices should be the same length.
 	//
 	// The update is successful if the response contains no errors.
@@ -93,7 +93,7 @@ type GRPCClient interface {
 	// 			}
 	// 		)
 	//      if err != nil {
-	//          return err.Error()
+	//          return errors.Wrap(err, "updating aggregates for merchant")
 	//      }
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
