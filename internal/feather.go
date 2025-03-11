@@ -374,7 +374,6 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
 func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow.Record, error) {
-	// Create the input values
 	schema := make([]arrow.Field, len(inputs))
 	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false

@@ -259,9 +259,8 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	}
 
 	if resultHolder != nil {
-		unmarshalErr := result.UnmarshalInto(resultHolder)
-		if unmarshalErr != nil {
-			return result, errors.Wrap(unmarshalErr, "unmarshaling result")
+		if err := result.UnmarshalInto(resultHolder); err != nil {
+			return result, errors.Wrap(err, "unmarshaling result")
 		}
 	}
 
