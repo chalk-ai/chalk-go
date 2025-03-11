@@ -201,6 +201,9 @@ func generateSetMapFunc(bucket string) SetMapFunc {
 		}
 		if isValid {
 			mapVal.SetMapIndex(key, entryVal)
+		} else {
+			// Even if null, we'd like the map entry to exist
+			mapVal.SetMapIndex(key, reflect.Zero(mapVal.Type().Elem()))
 		}
 	}
 }

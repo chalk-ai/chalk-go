@@ -478,10 +478,6 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 				}
 				for _, memberFieldIdx := range memberFieldIndices {
 					memberField := structValue.Field(memberFieldIdx)
-					if v == nil {
-						continue
-					}
-
 					if memberField.Type().Kind() == reflect.Map {
 						bucket, err := GetBucketFromFqn(k)
 						if err != nil {
@@ -495,6 +491,9 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 							)
 						}
 					} else {
+						if v == nil {
+							continue
+						}
 						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
@@ -589,12 +588,17 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Na
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
-	if err != nil {
-		return errors.Wrap(err, "error getting reflect value for map entry")
+	if value == nil {
+		mapValue.SetMapIndex(reflect.ValueOf(key), reflect.Zero(mapValue.Type().Elem()))
+		return nil
+	} else {
+		rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
+		if err != nil {
+			return errors.Wrap(err, "error getting reflect value for map entry")
+		}
+		mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+		return nil
 	}
-	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
-	return nil
 }
 
 func ConvertIfHasManyMap(value any) (any, error) {
@@ -783,6 +787,9 @@ func InitRemoteFeatureMap(
 }
 func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
+		if value == nil {
+			return nil
+		}
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
@@ -790,6 +797,11 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *Names
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
+		if value == nil {
+			if field.Type().Kind() == reflect.Map && field.IsNil() {
+				field.Set(reflect.MakeMap(field.Type()))
+			}
+		}
 		bucket, err := GetBucketFromFqn(fqn)
 		if err != nil {
 			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
@@ -845,15 +857,6 @@ func ThinUnmarshalInto(
 		}
 
 		for _, field := range targetFields {
-			if value == nil {
-				if field.Type().Kind() == reflect.Map && field.IsNil() {
-					field.Set(reflect.MakeMap(field.Type()))
-					continue
-				}
-
-				// TODO: Add validation for optional fields
-				continue
-			}
 			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"
