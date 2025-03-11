@@ -797,11 +797,6 @@ func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *Names
 		field.Set(*rVal)
 		return nil
 	} else if field.Kind() == reflect.Map {
-		if value == nil {
-			if field.Type().Kind() == reflect.Map && field.IsNil() {
-				field.Set(reflect.MakeMap(field.Type()))
-			}
-		}
 		bucket, err := GetBucketFromFqn(fqn)
 		if err != nil {
 			return errors.Wrapf(err, "extracting bucket value for feature '%s'", fqn)
