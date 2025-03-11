@@ -9,10 +9,9 @@ import (
 // Supplied an incorrect environment used to cause a panic
 func TestWrongEnvironment(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	_, err := chalk.NewClient(
+	_, err := chalk.NewGRPCClient(
 		context.Background(),
-		&chalk.ClientConfig{
-			UseGrpc:       true,
+		&chalk.GRPCClientConfig{
 			EnvironmentId: "wrong",
 		},
 	)

@@ -22,12 +22,6 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
-type ResultMetadataSourceType string
-
-const (
-	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
-)
-
 var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {
@@ -194,9 +188,9 @@ type ChunkResult struct {
 }
 
 type FeatureMeta struct {
-	SourceType  *string
-	SourceId    *string
-	ResolverFqn *string
+	SourceType  string
+	SourceId    string
+	ResolverFqn string
 	Pkey        any
 }
 
@@ -262,6 +256,7 @@ func extractFeatures(
 
 		for fqn, j := range metaColumnFqnToIdx {
 			featureMeta := FeatureMeta{
+				// TODO: Server returns incorrect arbitrary pkey for multi-namespace results.
 				Pkey: resolvedPkey,
 			}
 
@@ -283,7 +278,7 @@ func extractFeatures(
 			}
 
 			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
-				val, ok := sourceType.(string)
+				featureMeta.SourceType, ok = sourceType.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -291,10 +286,9 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.SourceType = &val
 			}
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
-				val, ok := sourceId.(string)
+				featureMeta.SourceId, ok = sourceId.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -302,10 +296,9 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.SourceId = &val
 			}
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
-				val, ok := resolverFqn.(string)
+				featureMeta.ResolverFqn, ok = resolverFqn.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -313,7 +306,6 @@ func extractFeatures(
 					}
 					return
 				}
-				featureMeta.ResolverFqn = &val
 			}
 
 			m[fqn] = featureMeta

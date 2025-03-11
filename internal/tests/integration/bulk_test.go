@@ -66,7 +66,7 @@ func TestOnlineQueryBulkGrpcNative(t *testing.T) {
 	}
 
 	var users []user
-	assert.Nil(t, chalk.UnmarshalOnlineQueryBulkResponse(res, &users))
+	assert.Nil(t, res.UnmarshalInto(&users))
 	assert.Equal(t, 2, len(users))
 
 	socureScore := 123.0

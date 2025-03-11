@@ -3,26 +3,21 @@ package chalk
 import (
 	"context"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"time"
 )
 
-// GRPCClient is the gRPC-native interface for interacting with Chalk.
-// Our existing Client interface also works with gRPC, but this interface
-// is more idiomatic for talking to our gRPC endpoints.
+// GRPCClient is the gRPC interface for interacting with Chalk.
 type GRPCClient interface {
-	OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error)
+	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
 
-	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error)
+	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error)
 
-	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error)
-
-	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
+	GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error)
 
 	PlanAggregateBackfill(
 		ctx context.Context,
 		req *aggregatev1.PlanAggregateBackfillRequest,
-	) (*aggregatev1.PlanAggregateBackfillResponse, error)
+	) (*GRPCPlanAggregateBackfillResult, error)
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
@@ -83,7 +78,7 @@ type GRPCClientConfig struct {
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
-// These settings can be overriden by passing in a ClientConfig
+// These settings can be overriden by passing in a GRPCClientConfig
 // object. Otherwise, for each configuration variable, NewGRPCClient uses its
 // corresponding environment variable if it exists. The environment variables
 // that NewGRPCClient looks for are:
@@ -103,7 +98,7 @@ type GRPCClientConfig struct {
 //
 //		     chalkClient, err := chalk.NewGRPCClient(
 //	             context.Background(),
-//		         &chalk.ClientConfig{
+//		         &chalk.GRPCClientConfig{
 //			         ClientId:      "id-89140a6614886982a6782106759e30",
 //			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
 //			         ApiServer:     "https://api.chalk.ai",

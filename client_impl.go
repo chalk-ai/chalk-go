@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -36,17 +35,6 @@ type clientImpl struct {
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	Get(url string) (resp *http.Response, err error)
-}
-
-func (c *clientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
-	return nil, errors.New("not implemented")
-}
-
-func (c *clientImpl) PlanAggregateBackfill(
-	ctx context.Context,
-	req *aggregatev1.PlanAggregateBackfillRequest,
-) (*aggregatev1.PlanAggregateBackfillResponse, error) {
-	return nil, errors.New("not implemented")
 }
 
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
