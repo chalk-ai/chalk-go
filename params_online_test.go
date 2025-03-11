@@ -107,7 +107,7 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, arrowBytes)
 
-	table, err := internal.ConvertBytesToTable(arrowBytes)
+	table, err := internal.ConvertBytesToTable(arrowBytes, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.NotNil(t, table)
 

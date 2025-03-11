@@ -97,13 +97,19 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 		return fmt.Errorf("failed to unmarshal 'query_results_bytes' value: %w", err)
 	}
 
+	allocator := r.allocator
+	if allocator == nil {
+		allocator = memory.DefaultAllocator
+	}
+
 	for queryName, queryResultBytes := range queryNameToBytesInMap {
 		queryResultBytesCast, ok := queryResultBytes.([]byte)
 		if !ok {
 			return fmt.Errorf("failed to cast bytes to byte array for query name: %s", queryName)
 		}
 		resultFeather := onlineQueryResultFeather{}
-		err := resultFeather.Unmarshal(queryResultBytesCast, r.allocator)
+
+		err := resultFeather.Unmarshal(queryResultBytesCast, allocator)
 		if err != nil {
 			return fmt.Errorf("failed to unmarshal result bytes for query name '%s': %w", queryName, err)
 		}

@@ -3,6 +3,7 @@ package chalk
 import (
 	"encoding/base64"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
@@ -14,7 +15,13 @@ func TestFeatherSerialization(t *testing.T) {
 		WithInput("user.id", []int{1, 2, 3, 4}).
 		WithOutputs("user.email", "user.card.id")
 
-	_, err := internal.CreateOnlineQueryBulkBody(params.underlying.inputs, internal.FeatherRequestHeader{Outputs: params.underlying.outputs})
+	_, err := internal.CreateOnlineQueryBulkBody(
+		params.underlying.inputs,
+		internal.FeatherRequestHeader{
+			Outputs: params.underlying.outputs,
+		},
+		fixtures.TestAllocator,
+	)
 	assert.Nil(t, err)
 }
 
