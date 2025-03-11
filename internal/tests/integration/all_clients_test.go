@@ -221,7 +221,6 @@ func TestTimeoutClientOverrides(t *testing.T) {
 }
 
 func TestTimeoutRequestOverrides(t *testing.T) {
-	t.Skip("TODO: Fix request level timeout")
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
@@ -235,37 +234,36 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 				t.Parallel()
 				ctx, cancelFunc := context.WithTimeout(context.Background(), lenientTimeout)
 				defer cancelFunc()
-				var err error
 				if useGrpc {
-					_, err = chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
+					timeoutClient, err := chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
 					assert.NoError(t, err)
 
 					// lenient override
 					requestCtx, requestCancelFunc := context.WithTimeout(ctx, lenientTimeout)
 					defer requestCancelFunc()
-					res, err := grpcClient.OnlineQueryBulk(requestCtx, params)
+					res, err := timeoutClient.OnlineQueryBulk(requestCtx, params)
 					assert.NoError(t, err)
 					assert.Equal(t, 0, len(res.RawResponse.GetErrors()))
 
 					// no override
-					_, err = grpcClient.OnlineQueryBulk(context.Background(), params)
+					_, err = timeoutClient.OnlineQueryBulk(context.Background(), params)
 					if timeoutFixture.shouldFail {
 						assert.Error(t, err)
 					} else {
 						assert.NoError(t, err)
 					}
 				} else {
-					_, err = chalk.NewClient(ctx, &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+					timeoutClient, err := chalk.NewClient(ctx, &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
 					assert.NoError(t, err)
 
 					// lenient override
 					requestCtx, requestCancelFunc := context.WithTimeout(ctx, lenientTimeout)
 					defer requestCancelFunc()
-					_, err := restClient.OnlineQueryBulk(requestCtx, params)
+					_, err = timeoutClient.OnlineQueryBulk(requestCtx, params)
 					assert.NoError(t, err)
 
 					// no override
-					_, err = restClient.OnlineQueryBulk(context.Background(), params)
+					_, err = timeoutClient.OnlineQueryBulk(context.Background(), params)
 					if timeoutFixture.shouldFail {
 						assert.Error(t, err)
 					} else {
