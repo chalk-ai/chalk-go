@@ -950,10 +950,9 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	return res, nil
 }
 
-func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
+func ConvertBytesToTable(byteArr []byte, allocator memory.Allocator) (result arrow.Table, err error) {
 	bytesReader := bytes.NewReader(byteArr)
-	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
-	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(alloc))
+	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(allocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}

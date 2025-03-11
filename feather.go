@@ -103,7 +103,7 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 			return fmt.Errorf("failed to cast bytes to byte array for query name: %s", queryName)
 		}
 		resultFeather := onlineQueryResultFeather{}
-		err := resultFeather.Unmarshal(queryResultBytesCast)
+		err := resultFeather.Unmarshal(queryResultBytesCast, r.allocator)
 		if err != nil {
 			return fmt.Errorf("failed to unmarshal result bytes for query name '%s': %w", queryName, err)
 		}
@@ -114,7 +114,7 @@ func (r *OnlineQueryBulkResponse) Unmarshal(body []byte) error {
 	return nil
 }
 
-func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
+func (r *onlineQueryResultFeather) Unmarshal(body []byte, allocator memory.Allocator) error {
 	res, err := internal.ChalkUnmarshal(body)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal bytes: %w", err)
@@ -140,7 +140,7 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 		if !ok {
 			return fmt.Errorf("failed to cast scalar data bytes to bytes array")
 		}
-		table, err = internal.ConvertBytesToTable(scalarDataBytesCast)
+		table, err = internal.ConvertBytesToTable(scalarDataBytesCast, allocator)
 		if err != nil {
 			return fmt.Errorf("failed to convert scalar data bytes to an Arrow Table: %w", err)
 		}
@@ -164,7 +164,7 @@ func (r *onlineQueryResultFeather) Unmarshal(body []byte) error {
 			if !ok {
 				return fmt.Errorf("failed to cast data for has-many feature '%s': %w", k, err)
 			}
-			vTable, err := internal.ConvertBytesToTable(vBytes)
+			vTable, err := internal.ConvertBytesToTable(vBytes, allocator)
 			if err != nil {
 				return fmt.Errorf("failed to convert bytes for has-many feature '%s' to Arrow table batch: %w", k, err)
 			}

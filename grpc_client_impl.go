@@ -250,6 +250,8 @@ func (r *RowResult) GetFeatureValue(feature any) (any, error) {
 
 type GRPCOnlineQueryBulkResult struct {
 	RawResponse *commonv1.OnlineQueryBulkResponse
+
+	allocator memory.Allocator
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
@@ -258,7 +260,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
 	}
 
-	scalarsTable, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData())
+	scalarsTable, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting scalars data to table")
 	}
@@ -315,7 +317,7 @@ func (r *GRPCOnlineQueryBulkResult) GetErrors() ([]ServerError, error) {
 }
 
 func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData())
+	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}
@@ -338,7 +340,7 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		return nil, errors.Wrap(err, "executing online query")
 	}
 
-	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg}
+	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg, allocator: c.allocator}
 	if len(res.Msg.GetErrors()) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
 		if err != nil {

@@ -111,7 +111,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 		resourceGroupOverride = &params.underlying.ResourceGroup
 	}
 
-	var response OnlineQueryBulkResponse
+	response := OnlineQueryBulkResponse{allocator: c.allocator}
 	err = c.sendRequest(
 		ctx,
 		sendRequestParams{

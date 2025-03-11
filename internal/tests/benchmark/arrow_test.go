@@ -29,7 +29,7 @@ func getBenchmarkConvertBytesToTable(b *testing.B) func() {
 	assert.NoError(b, err)
 
 	return func() {
-		_, err := internal.ConvertBytesToTable(bytes)
+		_, err := internal.ConvertBytesToTable(bytes, fixtures.TestAllocator)
 		assert.NoError(b, err)
 	}
 }
