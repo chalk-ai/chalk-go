@@ -34,9 +34,7 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 		}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData)
-	assert.NoError(b, err)
-	bytes, err := internal.RecordToBytes(record)
+	bytes, err := internal.InputsToArrowBytes(bulkData)
 	assert.NoError(b, err)
 	tf, err := NewTestFixture(&fixtures.MockServerConfig{
 		QueryBulkResponse: &commonv1.OnlineQueryBulkResponse{
