@@ -32,17 +32,17 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 	}
 
 	convertedStaleness := make(map[string]string)
-	for k, v := range p.underlying.staleness {
+	for k, v := range p.underlying.validatedStaleness {
 		convertedStaleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
-	outputs := p.underlying.outputs
+	outputs := p.underlying.validatedOutputs
 	if outputs == nil {
 		// `outputs` is a non-optional field
 		outputs = []string{}
 	}
 
-	return internal.CreateOnlineQueryBulkBody(p.underlying.inputs, internal.FeatherRequestHeader{
+	return internal.CreateOnlineQueryBulkBody(p.underlying.validatedInputs, internal.FeatherRequestHeader{
 		Outputs:     outputs,
 		Explain:     p.underlying.Explain,
 		IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,

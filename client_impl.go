@@ -40,8 +40,8 @@ type HTTPClient interface {
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return Dataset{}, errors.Wrapf(request.builderErrors, "building offline query params")
+	if err := params.underlying.validateAndPopulateParamFields(); err != nil {
+		return Dataset{}, errors.Wrap(err, "validating params")
 	}
 
 	emptyResult := Dataset{}
@@ -78,16 +78,11 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return emptyResult, errors.Wrapf(request.builderErrors, "building params")
+	if err := params.underlying.validateAndPopulateParamFieldsBulk(); err != nil {
+		return emptyResult, errors.Wrap(err, "validating params")
 	}
 
-	validationErrors := params.validatePostBuild()
-	if len(validationErrors) > 0 {
-		return emptyResult, validationErrors
-	}
-
-	for _, input := range request.inputs {
+	for _, input := range request.validatedInputs {
 		kind := reflect.ValueOf(input).Kind()
 		if !(kind == reflect.Slice || kind == reflect.Array) {
 			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
@@ -182,22 +177,11 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return OnlineQueryResult{}, errors.Wrap(request.builderErrors, "building online query params")
-	}
-
-	validationErrors := params.validatePostBuild()
-	if len(validationErrors) > 0 {
-		return OnlineQueryResult{}, validationErrors
-	}
-
-	emptyResult := OnlineQueryResult{}
-
 	var serializedResponse onlineQueryResponseSerialized
 
 	serializedRequest, err := request.serialize()
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "serializing online query params")
+		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -220,20 +204,20 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			IsEngineRequest:       true,
 		},
 	); err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+		return OnlineQueryResult{}, errors.Wrap(err, "sending request")
 	}
 	if len(serializedResponse.Errors) > 0 {
 		serverErrors, err := deserializeChalkErrors(serializedResponse.Errors)
 		if err != nil {
-			return emptyResult, errors.Wrap(err, "deserializing Chalk errors")
+			return OnlineQueryResult{}, errors.Wrap(err, "deserializing Chalk errors")
 		}
 
-		return emptyResult, serverErrors
+		return OnlineQueryResult{}, serverErrors
 	}
 
 	response, err := serializedResponse.deserialize()
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "deserializing online query response")
+		return OnlineQueryResult{}, errors.Wrap(err, "deserializing online query response")
 	}
 
 	if resultHolder != nil {

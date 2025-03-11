@@ -44,28 +44,28 @@ func TestOnlineQueryParamsAllTypes(t *testing.T) {
 		WithStaleness(
 			fixtures.Root.AllTypes.Bool, time.Second*5,
 		)
-	assert.Empty(t, params.underlying.builderErrors)
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
 }
 
 func TestOnlineQueryInputParamInteger(t *testing.T) {
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithInput(invalidFeatureReference, "1")
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	assert.Error(t, params.underlying.validateAndPopulateParamFieldsSingle())
 }
 
 func TestOnlineQueryOutputParamInteger(t *testing.T) {
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithOutputs(invalidFeatureReference)
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	assert.Error(t, params.underlying.validateAndPopulateParamFieldsSingle())
 }
 
 func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OnlineQueryParams{}.WithStaleness(invalidFeatureReference, time.Second*5)
-	assert.NotEmpty(t, underlying.builderErrors)
+	assert.Error(t, underlying.validateAndPopulateParamFieldsSingle())
 }
 
 // Tests that Feature structs have their nil fields omitted by default,
@@ -80,6 +80,8 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 		WithInput(fixtures.Root.AllTypes.Dataclass, fixtures.LatLng{
 			Lat: ptr.Ptr(1.1),
 		})
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+
 	request, err := params.underlying.serialize()
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
@@ -101,7 +103,7 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 
 	assert.Equal(t, string(fileContent), string(inputJsonBytes))
 
-	bulkInputs, err := internal.SingleInputsToBulkInputs(params.underlying.inputs)
+	bulkInputs, err := internal.SingleInputsToBulkInputs(params.underlying.validatedInputs)
 	assert.NoError(t, err)
 	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs)
 	assert.NoError(t, err)
@@ -532,14 +534,16 @@ func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 	}
 	params := OnlineQueryParams{}.WithInputs(inputs)
 
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := params.underlying.validatedInputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = params.underlying.validatedInputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -553,14 +557,16 @@ func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 	}
 	params := OnlineQueryParams{}.WithInput(fixtures.Root.AllTypes.Bool, true).WithInputs(inputs)
 
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := params.underlying.validatedInputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = params.underlying.validatedInputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -574,14 +580,16 @@ func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 	}
 	params := OnlineQueryParams{}.WithOutputs(fixtures.Root.AllTypes.Bool).WithInputs(inputs)
 
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := params.underlying.validatedInputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = params.underlying.validatedInputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -595,14 +603,16 @@ func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	}
 	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
 
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := params.underlying.validatedInputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = params.underlying.validatedInputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 

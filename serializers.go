@@ -14,7 +14,11 @@ import (
 )
 
 func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, error) {
-	outputs := p.outputs
+	if err := p.validateAndPopulateParamFieldsSingle(); err != nil {
+		return nil, errors.Wrap(err, "validating params")
+	}
+
+	outputs := p.validatedOutputs
 	if outputs == nil {
 		// If we are passing query name, we don't need to pass outputs,
 		// so outputs is empty, but when JSON serialized should never
@@ -34,7 +38,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 	}
 
 	convertedInputs := make(map[string]any)
-	for fqn, values := range p.inputs {
+	for fqn, values := range p.validatedInputs {
 		convertedValues, err := internal.PreprocessIfStruct(values)
 		if err != nil {
 			return nil, errors.Wrap(err, "convert structs in input feature values")
@@ -50,7 +54,7 @@ func (p OnlineQueryParams) serialize() (*internal.OnlineQueryRequestSerialized, 
 			Tags:                 p.Tags,
 			RequiredResolverTags: p.RequiredResolverTags,
 		},
-		Staleness:        serializeStaleness(p.staleness),
+		Staleness:        serializeStaleness(p.validatedStaleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
 		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
@@ -176,7 +180,11 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	queryInput := internal.OfflineQueryInputSerialized{}
 	globalInputTimes := make([]any, 0)
 
-	for fqn, tsFeatureValues := range p.inputs {
+	if !p.validated {
+		return nil, errors.New("validateAndPopulateParamFields must be called before marshalling")
+	}
+
+	for fqn, tsFeatureValues := range p.validatedInputs {
 		var inputValues []any
 		var inputTimes []any
 		for _, v := range tsFeatureValues {
@@ -191,12 +199,12 @@ func (p OfflineQueryParams) MarshalJSON() ([]byte, error) {
 	queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
 	queryInput.Values = append(queryInput.Values, globalInputTimes)
 
-	output := p.outputs
+	output := p.validatedOutputs
 	if output == nil {
 		output = make([]string, 0)
 	}
 
-	requiredOutput := p.requiredOutputs
+	requiredOutput := p.validatedRequiredOutputs
 	if requiredOutput == nil {
 		requiredOutput = make([]string, 0)
 	}
@@ -278,11 +286,14 @@ var getErrorCodeCategory = internal.GenerateGetEnumFunction(
 )
 
 func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.OnlineQueryBulkRequest, error) {
-	inputsFeather, err := internal.InputsToArrowBytes(params.inputs)
+	if err := params.validateAndPopulateParamFieldsBulk(); err != nil {
+		return nil, errors.Wrap(err, "validating params")
+	}
+	inputsFeather, err := internal.InputsToArrowBytes(params.validatedInputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
-	outputs := colls.Map(params.outputs, func(v string) *commonv1.OutputExpr {
+	outputs := colls.Map(params.validatedOutputs, func(v string) *commonv1.OutputExpr {
 		return &commonv1.OutputExpr{
 			Expr: &commonv1.OutputExpr_FeatureFqn{
 				FeatureFqn: v,
@@ -291,7 +302,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams) (*commonv1.Onlin
 	})
 
 	staleness := make(map[string]string)
-	for k, v := range params.staleness {
+	for k, v := range params.validatedStaleness {
 		staleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 

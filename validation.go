@@ -2,69 +2,136 @@ package chalk
 
 import (
 	"fmt"
+	"github.com/cockroachdb/errors"
 	"reflect"
+	"time"
 )
 
-func isArray(v any) bool {
-	return reflect.TypeOf(v).Kind() == reflect.Array
+func getFqn(feature any) (string, error) {
+	if featureStr, ok := feature.(string); ok {
+		return featureStr, nil
+	} else if featureObj, err := UnwrapFeature(feature); err == nil {
+		return featureObj.Fqn, nil
+	} else {
+		return "", fmt.Errorf(
+			"invalid feature reference - please make sure it's a string "+
+				"or a feature field from a codegen'd struct. Found: %v", feature,
+		)
+	}
 }
 
-func isScalar(v any) bool {
-	return !isArray(v)
-}
-
-func (p OnlineQueryParamsComplete) validateLists() BuilderErrors {
-	lengthList := -1
-	for k, v := range p.underlying.inputs {
-		if !isArray(v) {
-			continue
+func (p *OnlineQueryParams) innerValidate() error {
+	p.validatedInputs = map[string]any{}
+	for k, v := range p.rawInputs {
+		fqn, err := getFqn(k)
+		if err != nil {
+			return errors.Wrap(err, "validating inputs")
 		}
-		v = v.([]any)
-		if lengthList == -1 {
-			lengthList = len(v.([]any))
-		} else {
-			if lengthList != len(v.([]any)) {
-				return BuilderErrors{
-					&BuilderError{
-						Err:       fmt.Errorf("all lists must be the same length - found length %d for feature '%s' but expected length %d", len(v.([]any)), k, lengthList),
-						Type:      InvalidRequest,
-						ParamType: ParamInput,
-						Feature:   nil,
-						Value:     nil,
-					},
-				}
-			}
+		p.validatedInputs[fqn] = v
+	}
+
+	p.validatedOutputs = []string{}
+	for _, output := range p.rawOutputs {
+		fqn, err := getFqn(output)
+		if err != nil {
+			return errors.Wrap(err, "validating outputs")
+		}
+		p.validatedOutputs = append(p.validatedOutputs, fqn)
+	}
+
+	p.validatedStaleness = map[string]time.Duration{}
+	for k, v := range p.rawStaleness {
+		fqn, err := getFqn(k)
+		if err != nil {
+			return errors.Wrap(err, "validating staleness")
+		}
+		p.validatedStaleness[fqn] = v
+	}
+
+	return nil
+}
+
+// Validation for single queries
+func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
+	if err := p.innerValidate(); err != nil {
+		return err // Intentional no wrap
+	}
+	p.validated = true
+	return nil
+}
+
+// Validation for bulk queries
+func (p *OnlineQueryParams) validateAndPopulateParamFieldsBulk() error {
+	if err := p.innerValidate(); err != nil {
+		return err // Intentional no wrap
+	}
+
+	// Validate input values are lists of the same length
+	referenceLen := -1
+	for k, v := range p.validatedInputs {
+		rVal := reflect.ValueOf(v)
+		if rVal.Kind() != reflect.Slice {
+			return errors.New("input values must be slices")
+		}
+		if referenceLen == -1 {
+			referenceLen = rVal.Len()
+		}
+		if rVal.Len() != referenceLen {
+			return errors.Newf(
+				"input values must be slices of the same length, expected %d, got %d for feature '%s'",
+				referenceLen, rVal.Len(), k,
+			)
 		}
 	}
-	return BuilderErrors{}
+	return nil
 }
 
-func (p OnlineQueryParamsComplete) validateAllListsOrAllScalars() BuilderErrors {
-	allScalars := true
-	allLists := true
-	for _, v := range p.underlying.inputs {
-		allScalars = allScalars && isScalar(v)
-		allLists = allLists && isArray(v)
+func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
+	p.validatedInputs = map[string][]TsFeatureValue{}
+	for k, v := range p.rawInputs {
+		fqn, err := getFqn(k)
+		if err != nil {
+			return errors.Wrap(err, "validating inputs")
+		}
+		p.validatedInputs[fqn] = v
 	}
 
-	if allScalars || allLists {
-		return nil
+	p.validatedOutputs = []string{}
+	for _, output := range p.rawOutputs {
+		fqn, err := getFqn(output)
+		if err != nil {
+			return errors.Wrap(err, "validating outputs")
+		}
+		p.validatedOutputs = append(p.validatedOutputs, fqn)
 	}
 
-	return BuilderErrors{
-		&BuilderError{
-			Err:       fmt.Errorf("inputs must be all scalars or all lists"),
-			Type:      InvalidRequest,
-			ParamType: ParamInput,
-			Feature:   nil,
-			Value:     nil,
-		},
+	p.validatedRequiredOutputs = []string{}
+	for _, output := range p.rawRequiredOutputs {
+		fqn, err := getFqn(output)
+		if err != nil {
+			return errors.Wrap(err, "validating required outputs")
+		}
+		p.validatedRequiredOutputs = append(p.validatedRequiredOutputs, fqn)
 	}
-}
 
-func (p OnlineQueryParamsComplete) validatePostBuild() BuilderErrors {
-	errors := BuilderErrors{}
-	errors = append(errors, p.validateLists()...)
-	errors = append(errors, p.validateAllListsOrAllScalars()...)
-	return errors
+	referenceLen := -1
+	for k, v := range p.validatedInputs {
+		if len(v) == 0 {
+			return errors.New("input values must not be empty")
+		}
+
+		// Validate input values are the same length
+		if referenceLen == -1 {
+			referenceLen = len(v)
+		}
+
+		if len(v) != referenceLen {
+			return errors.Newf(
+				"input values must be the same length - expected %d, got %d for feature '%s'",
+				referenceLen, len(v), k,
+			)
+		}
+	}
+	p.validated = true
+	return nil
 }

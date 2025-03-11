@@ -13,8 +13,8 @@ func TestFeatherSerialization(t *testing.T) {
 	params := OnlineQueryParams{}.
 		WithInput("user.id", []int{1, 2, 3, 4}).
 		WithOutputs("user.email", "user.card.id")
-
-	_, err := internal.CreateOnlineQueryBulkBody(params.underlying.inputs, internal.FeatherRequestHeader{Outputs: params.underlying.outputs})
+	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsBulk())
+	_, err := internal.CreateOnlineQueryBulkBody(params.underlying.validatedInputs, internal.FeatherRequestHeader{Outputs: params.underlying.validatedOutputs})
 	assert.Nil(t, err)
 }
 
