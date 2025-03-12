@@ -38,9 +38,7 @@ type HTTPClient interface {
 }
 
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
-	request := params.underlying
-
-	if err := request.validateAndPopulateParamFields(); err != nil {
+	if err := params.underlying.validateAndPopulateParamFields(); err != nil {
 		return Dataset{}, errors.Wrap(err, "validating params")
 	}
 
@@ -52,11 +50,11 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v3/offline_query",
-			Body:                request,
+			Body:                params.underlying,
 			Response:            &response,
-			EnvironmentOverride: request.EnvironmentId,
+			EnvironmentOverride: params.underlying.EnvironmentId,
 			Versioned:           params.underlying.versioned,
-			Branch:              &request.Branch,
+			Branch:              &params.underlying.Branch,
 		},
 	)
 	if err != nil {
@@ -173,11 +171,9 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 }
 
 func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	request := params.underlying
-
 	var serializedResponse onlineQueryResponseSerialized
 
-	serializedRequest, err := request.serialize()
+	serializedRequest, err := params.underlying.serialize()
 	if err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}
@@ -194,8 +190,8 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
 			Response:              &serializedResponse,
-			EnvironmentOverride:   request.EnvironmentId,
-			PreviewDeploymentId:   request.PreviewDeploymentId,
+			EnvironmentOverride:   params.underlying.EnvironmentId,
+			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
 			Versioned:             params.underlying.versioned,
 			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
