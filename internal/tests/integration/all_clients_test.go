@@ -228,7 +228,7 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 	params := chalk.OnlineQueryParams{}.
 		WithInput("user.id", []int{1}).
 		WithOutputs("user.socure_score")
-	for _, useGrpc := range []bool{false, false} {
+	for _, useGrpc := range []bool{false, true} {
 		for _, timeoutFixture := range timeouts {
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
 				t.Parallel()
