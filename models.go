@@ -103,13 +103,14 @@ type OnlineQueryParams struct {
 	// Set by OnlineQueryParams.WithStaleness.
 	rawStaleness map[any]time.Duration
 
-	// Validated fields are populated by the `validate` method.
+	// Validated fields are populated by the validation method.
 	validatedInputs    map[string]any
 	validatedOutputs   []string
 	validatedStaleness map[string]time.Duration
 
 	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs.
+	// codegen-ed structs were used to specify inputs or outputs. Populated
+	// by the validation method.
 	versioned bool
 }
 

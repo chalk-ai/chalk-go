@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func getFqn(feature any) (string, error) {
+func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	if featureStr, ok := feature.(string); ok {
-		return featureStr, nil
+		return featureStr, false, nil
 	} else if featureObj, err := UnwrapFeature(feature); err == nil {
-		return featureObj.Fqn, nil
+		return featureObj.Fqn, true, nil
 	} else {
-		return "", fmt.Errorf(
+		return "", false, fmt.Errorf(
 			"invalid feature reference - please make sure it's a string "+
 				"or a feature field from a codegen'd struct. Found: %v", feature,
 		)
@@ -24,16 +24,19 @@ func getFqn(feature any) (string, error) {
 func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
 	p.validatedInputs = map[string]any{}
 	for k, v := range p.rawInputs {
-		fqn, err := getFqn(k)
+		fqn, isCodegen, err := getFqn(k)
 		if err != nil {
 			return errors.Wrap(err, "validating inputs")
+		}
+		if isCodegen {
+			p.versioned = true
 		}
 		p.validatedInputs[fqn] = v
 	}
 
 	p.validatedOutputs = []string{}
 	for _, output := range p.rawOutputs {
-		fqn, err := getFqn(output)
+		fqn, _, err := getFqn(output)
 		if err != nil {
 			return errors.Wrap(err, "validating outputs")
 		}
@@ -42,7 +45,7 @@ func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
 
 	p.validatedStaleness = map[string]time.Duration{}
 	for k, v := range p.rawStaleness {
-		fqn, err := getFqn(k)
+		fqn, _, err := getFqn(k)
 		if err != nil {
 			return errors.Wrap(err, "validating staleness")
 		}
@@ -81,16 +84,19 @@ func (p *OnlineQueryParams) validateAndPopulateParamFieldsBulk() error {
 func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
 	p.validatedInputs = map[string][]TsFeatureValue{}
 	for k, v := range p.rawInputs {
-		fqn, err := getFqn(k)
+		fqn, isCodegen, err := getFqn(k)
 		if err != nil {
 			return errors.Wrap(err, "validating inputs")
+		}
+		if isCodegen {
+			p.versioned = true
 		}
 		p.validatedInputs[fqn] = v
 	}
 
 	p.validatedOutputs = []string{}
 	for _, output := range p.rawOutputs {
-		fqn, err := getFqn(output)
+		fqn, _, err := getFqn(output)
 		if err != nil {
 			return errors.Wrap(err, "validating outputs")
 		}
@@ -99,7 +105,7 @@ func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
 
 	p.validatedRequiredOutputs = []string{}
 	for _, output := range p.rawRequiredOutputs {
-		fqn, err := getFqn(output)
+		fqn, _, err := getFqn(output)
 		if err != nil {
 			return errors.Wrap(err, "validating required outputs")
 		}
