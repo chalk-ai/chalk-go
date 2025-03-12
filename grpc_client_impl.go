@@ -4,6 +4,7 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"crypto/tls"
+	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -246,6 +247,10 @@ type GRPCOnlineQueryBulkResult struct {
 	RawResponse *commonv1.OnlineQueryBulkResponse
 
 	allocator memory.Allocator
+}
+
+func (r *GRPCOnlineQueryBulkResult) GetTable() (arrow.Table, error) {
+	return internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
