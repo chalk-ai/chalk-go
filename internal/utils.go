@@ -3,8 +3,8 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/v2/internal/colls"
-	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"math"
 	"os"

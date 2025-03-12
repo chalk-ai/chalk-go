@@ -7,10 +7,10 @@
 package serverv1
 
 import (
-	v12 "github.com/chalk-ai/chalk-go/v2/gen/chalk/artifacts/v1"
-	_ "github.com/chalk-ai/chalk-go/v2/gen/chalk/auth/v1"
-	v11 "github.com/chalk-ai/chalk-go/v2/gen/chalk/common/v1"
-	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/graph/v1"
+	v12 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"

@@ -3,7 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/v2/internal"
+	"github.com/chalk-ai/chalk-go/internal"
 	"os"
 	"path/filepath"
 )

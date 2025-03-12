@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/protosql/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/protosql/v1"
 	http "net/http"
 	strings "strings"
 )
