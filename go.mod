@@ -1,10 +1,11 @@
-module github.com/chalk-ai/chalk-go
+module github.com/chalk-ai/chalk-go/v2
 
 go 1.22.0
 
 require (
 	connectrpc.com/connect v1.18.1
 	github.com/apache/arrow/go/v16 v16.1.0
+	github.com/chalk-ai/chalk-go v1.1.2
 	github.com/cockroachdb/errors v1.11.3
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.34.0
