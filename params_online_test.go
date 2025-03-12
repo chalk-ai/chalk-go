@@ -44,28 +44,32 @@ func TestOnlineQueryParamsAllTypes(t *testing.T) {
 		WithStaleness(
 			fixtures.Root.AllTypes.Bool, time.Second*5,
 		)
-	assert.Empty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 }
 
 func TestOnlineQueryInputParamInteger(t *testing.T) {
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithInput(invalidFeatureReference, "1")
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 func TestOnlineQueryOutputParamInteger(t *testing.T) {
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithOutputs(invalidFeatureReference)
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OnlineQueryParams{}.WithStaleness(invalidFeatureReference, time.Second*5)
-	assert.NotEmpty(t, underlying.builderErrors)
+	_, err := underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 // Tests that Feature structs have their nil fields omitted by default,
@@ -80,7 +84,11 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 		WithInput(fixtures.Root.AllTypes.Dataclass, fixtures.LatLng{
 			Lat: ptr.Ptr(1.1),
 		})
-	request, err := params.underlying.serialize()
+
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+
+	request, err := serializeOnlineQueryParams(&params.underlying, resolved)
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
 
@@ -101,13 +109,13 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 
 	assert.Equal(t, string(fileContent), string(inputJsonBytes))
 
-	bulkInputs, err := internal.SingleInputsToBulkInputs(params.underlying.inputs)
+	bulkInputs, err := internal.SingleInputsToBulkInputs(resolved.inputs)
 	assert.NoError(t, err)
-	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs)
+	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.NotNil(t, arrowBytes)
 
-	table, err := internal.ConvertBytesToTable(arrowBytes)
+	table, err := internal.ConvertBytesToTable(arrowBytes, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.NotNil(t, table)
 
@@ -498,7 +506,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 				},
 			},
 		})
-	request, err := params.underlying.serialize()
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+	request, err := serializeOnlineQueryParams(&params.underlying, resolved)
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
 
@@ -531,15 +541,17 @@ func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInputs(inputs)
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -552,15 +564,17 @@ func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInput(fixtures.Root.AllTypes.Bool, true).WithInputs(inputs)
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -574,14 +588,17 @@ func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 	}
 	params := OnlineQueryParams{}.WithOutputs(fixtures.Root.AllTypes.Bool).WithInputs(inputs)
 
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -595,14 +612,17 @@ func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	}
 	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
 
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.inputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.inputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -617,4 +637,25 @@ func TestNamedQuery(t *testing.T) {
 	for _, params := range allParams {
 		assert.Equal(t, queryName, params.underlying.QueryName)
 	}
+}
+
+func TestInputsLengthValidation(t *testing.T) {
+	t.Parallel()
+
+	paramsSameLength := OnlineQueryParams{}.
+		WithInput("user.id", []int{1, 2, 3}).
+		WithInput("user.number", []int{1, 2, 3})
+
+	_, err := paramsSameLength.underlying.resolveSingle()
+	assert.NoError(t, err)
+	_, err = paramsSameLength.underlying.resolveBulk()
+	assert.NoError(t, err)
+
+	paramsDiffLength := OnlineQueryParams{}.
+		WithInput("user.id", []int{1, 2, 3}).
+		WithInput("user.number", []int{1, 2})
+	_, err = paramsDiffLength.underlying.resolveSingle()
+	assert.NoError(t, err)
+	_, err = paramsDiffLength.underlying.resolveBulk()
+	assert.Error(t, err)
 }

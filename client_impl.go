@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -21,16 +21,18 @@ import (
 
 type clientImpl struct {
 	Client
-	config *configManager
+	config    *configManager
+	allocator memory.Allocator
 
 	Branch        string
 	QueryServer   string
 	DeploymentTag string
 	resourceGroup *string
-	timeout       *time.Duration
 
+	timeout    *time.Duration
 	httpClient HTTPClient
-	logger     LeveledLogger
+
+	logger LeveledLogger
 }
 
 type HTTPClient interface {
@@ -38,45 +40,37 @@ type HTTPClient interface {
 	Get(url string) (resp *http.Response, err error)
 }
 
-func (c *clientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
-	return nil, errors.New("not implemented")
-}
-
-func (c *clientImpl) PlanAggregateBackfill(
-	ctx context.Context,
-	req *aggregatev1.PlanAggregateBackfillRequest,
-) (*aggregatev1.PlanAggregateBackfillResponse, error) {
-	return nil, errors.New("not implemented")
-}
-
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return Dataset{}, errors.Wrapf(request.builderErrors, "building offline query params")
+	resolved, err := request.resolve()
+	if err != nil {
+		return Dataset{}, errors.Wrap(err, "resolving params")
 	}
 
-	emptyResult := Dataset{}
-	response := Dataset{}
+	body, err := serializeOfflineQueryParams(&request, resolved)
+	if err != nil {
+		return Dataset{}, errors.Wrap(err, "serializing offline query params")
+	}
 
-	err := c.sendRequest(
+	response := Dataset{}
+	if err = c.sendRequest(
 		ctx,
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v3/offline_query",
-			Body:                request,
+			Body:                body,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
-			Versioned:           params.underlying.versioned,
+			Versioned:           resolved.versioned,
 			Branch:              &request.Branch,
 		},
-	)
-	if err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+	); err != nil {
+		return Dataset{}, errors.Wrap(err, "sending request")
 	}
 
 	if len(response.Errors) > 0 {
-		return emptyResult, response.Errors
+		return Dataset{}, response.Errors
 	}
 
 	for idx := range response.Revisions {
@@ -87,27 +81,30 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 }
 
 func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return emptyResult, errors.Wrapf(request.builderErrors, "building params")
+	resolved, err := request.resolveBulk()
+	if err != nil {
+		return OnlineQueryBulkResult{}, errors.Newf("resolving bulk query params")
 	}
 
-	validationErrors := params.validatePostBuild()
-	if len(validationErrors) > 0 {
-		return emptyResult, validationErrors
-	}
-
-	for _, input := range request.inputs {
+	for _, input := range resolved.inputs {
 		kind := reflect.ValueOf(input).Kind()
 		if !(kind == reflect.Slice || kind == reflect.Array) {
-			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
+			return OnlineQueryBulkResult{}, errors.Newf(
+				"inputs to bulk online query must be a slice or array, found: %s", kind.String(),
+			)
 		}
 	}
-	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
+	data, err := params.ToBytes(
+		&SerializationOptions{
+			ClientConfigBranchId: c.Branch,
+			Allocator:            c.allocator,
+			resolved:             resolved,
+		},
+	)
 	if err != nil {
-		return emptyResult, errors.Wrapf(err, "serializing online query params")
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -115,7 +112,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 		resourceGroupOverride = &params.underlying.ResourceGroup
 	}
 
-	var response OnlineQueryBulkResponse
+	response := OnlineQueryBulkResponse{allocator: c.allocator}
 	err = c.sendRequest(
 		ctx,
 		sendRequestParams{
@@ -126,40 +123,41 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			EnvironmentOverride:   params.underlying.EnvironmentId,
 			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
 			ResourceGroupOverride: resourceGroupOverride,
-			Versioned:             params.underlying.versioned,
+			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			IsEngineRequest:       true,
 		},
 	)
 
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "sending request")
 	}
 
 	singleBulkResult, ok := response.QueryResults["0"]
 	if !ok {
-		return emptyResult, errors.Newf("unexpected bulk online query response from server")
+		return OnlineQueryBulkResult{}, errors.New("unexpected bulk online query response from server")
 	}
 
 	if len(singleBulkResult.Errors) > 0 {
-		return emptyResult, singleBulkResult.Errors
+		return OnlineQueryBulkResult{}, singleBulkResult.Errors
 	}
 
 	return OnlineQueryBulkResult{
 		ScalarsTable: singleBulkResult.ScalarData,
 		GroupsTables: singleBulkResult.GroupsData,
 		Meta:         singleBulkResult.Meta,
+		allocator:    c.allocator,
 	}, nil
 }
 
 func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "converting input map keys")
+		return UploadFeaturesResult{}, errors.Wrap(err, "converting input map keys")
 	}
-	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
+	recordBytes, err := internal.InputsToArrowBytes(convertedInputs, c.allocator)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "converting inputs to Arrow Record bytes")
+		return UploadFeaturesResult{}, errors.Wrap(err, "converting inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
 		"features":          colls.Keys(convertedInputs),
@@ -169,7 +167,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 
 	body, err := internal.ChalkMarshal(attrs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "marshaling upload features request")
+		return UploadFeaturesResult{}, errors.Wrap(err, "marshaling upload features request")
 	}
 
 	response := UploadFeaturesResult{}
@@ -194,22 +192,14 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
 	request := params.underlying
 
-	if len(request.builderErrors) > 0 {
-		return OnlineQueryResult{}, errors.Wrap(request.builderErrors, "building online query params")
-	}
-
-	validationErrors := params.validatePostBuild()
-	if len(validationErrors) > 0 {
-		return OnlineQueryResult{}, validationErrors
-	}
-
-	emptyResult := OnlineQueryResult{}
-
-	var serializedResponse onlineQueryResponseSerialized
-
-	serializedRequest, err := request.serialize()
+	resolved, err := request.resolveSingle()
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "serializing online query params")
+		return OnlineQueryResult{}, errors.Wrap(err, "resolving single query params")
+	}
+
+	serializedRequest, err := serializeOnlineQueryParams(&request, resolved)
+	if err != nil {
+		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -217,45 +207,58 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 		resourceGroupOverride = &params.underlying.ResourceGroup
 	}
 
+	var response onlineQueryResponseSerialized
 	if err = c.sendRequest(
 		ctx,
 		sendRequestParams{
 			Method:                "POST",
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
-			Response:              &serializedResponse,
+			Response:              &response,
 			EnvironmentOverride:   request.EnvironmentId,
 			PreviewDeploymentId:   request.PreviewDeploymentId,
-			Versioned:             params.underlying.versioned,
+			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
 			IsEngineRequest:       true,
 		},
 	); err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+		return OnlineQueryResult{}, errors.Wrap(err, "sending request")
 	}
-	if len(serializedResponse.Errors) > 0 {
-		serverErrors, err := deserializeChalkErrors(serializedResponse.Errors)
+	if len(response.Errors) > 0 {
+		serverErrors, err := deserializeChalkErrors(response.Errors)
 		if err != nil {
-			return emptyResult, errors.Wrap(err, "deserializing Chalk errors")
+			return OnlineQueryResult{}, errors.Wrap(err, "deserializing Chalk errors")
 		}
 
-		return emptyResult, serverErrors
+		return OnlineQueryResult{}, serverErrors
 	}
 
-	response, err := serializedResponse.deserialize()
+	features := make(map[string]FeatureResult)
+
+	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "deserializing online query response")
+		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
+	}
+
+	for _, result := range deserializedData {
+		features[result.Field] = result
+	}
+
+	result := OnlineQueryResult{
+		Data:      deserializedData,
+		Meta:      response.Meta,
+		features:  features,
+		allocator: c.allocator,
 	}
 
 	if resultHolder != nil {
-		unmarshalErr := response.UnmarshalInto(resultHolder)
-		if unmarshalErr != nil {
-			return response, errors.Wrap(unmarshalErr, "unmarshaling result")
+		if err := result.UnmarshalInto(resultHolder); err != nil {
+			return result, errors.Wrap(err, "unmarshaling result")
 		}
 	}
 
-	return response, nil
+	return result, nil
 }
 
 func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerResolverRunParams) (TriggerResolverRunResult, error) {
@@ -295,10 +298,6 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 	return response, nil
 }
 
-func (c *clientImpl) UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (UpdateAggregatesResult, error) {
-	return UpdateAggregatesResult{}, errors.New("not implemented")
-}
-
 func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 
@@ -321,13 +320,16 @@ func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, Envi
 	return response.Urls, nil
 }
 
-func (c *clientImpl) saveUrlToDirectory(URL string, directory string) error {
+func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error) {
 	resp, err := c.httpClient.Get(URL)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err = deferFunctionWithError(resp.Body.Close, err)
+		closeErr := resp.Body.Close()
+		if err == nil {
+			err = closeErr
+		}
 	}()
 
 	parsedUrl, urlParseErr := url.Parse(URL)
@@ -669,6 +671,11 @@ func newClientImpl(
 		timeout = &cfg.Timeout
 	}
 
+	allocator := memory.DefaultAllocator
+	if cfg.Allocator != nil {
+		allocator = cfg.Allocator
+	}
+
 	client := &clientImpl{
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
@@ -678,6 +685,7 @@ func newClientImpl(
 
 		logger:     logger,
 		httpClient: httpClient,
+		allocator:  allocator,
 
 		config: config,
 	}

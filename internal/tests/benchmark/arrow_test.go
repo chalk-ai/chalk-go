@@ -3,6 +3,7 @@ package benchmark
 import (
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
@@ -24,11 +25,11 @@ func getBenchmarkConvertBytesToTable(b *testing.B) func() {
 		}
 	}
 
-	bytes, err := internal.InputsToArrowBytes(inputs)
+	bytes, err := internal.InputsToArrowBytes(inputs, fixtures.TestAllocator)
 	assert.NoError(b, err)
 
 	return func() {
-		_, err := internal.ConvertBytesToTable(bytes)
+		_, err := internal.ConvertBytesToTable(bytes, fixtures.TestAllocator)
 		assert.NoError(b, err)
 	}
 }
