@@ -76,19 +76,17 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 
 func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
 	emptyResult := OnlineQueryBulkResult{}
-	request := params.underlying
-
-	if err := request.validateAndPopulateParamFieldsBulk(); err != nil {
+	if err := params.underlying.validateAndPopulateParamFieldsBulk(); err != nil {
 		return emptyResult, errors.Wrap(err, "validating params")
 	}
 
-	for _, input := range request.validatedInputs {
+	for _, input := range params.underlying.validatedInputs {
 		kind := reflect.ValueOf(input).Kind()
 		if !(kind == reflect.Slice || kind == reflect.Array) {
 			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
 		}
 	}
-	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
+	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch, validated: true})
 	if err != nil {
 		return emptyResult, errors.Wrapf(err, "serializing online query params")
 	}

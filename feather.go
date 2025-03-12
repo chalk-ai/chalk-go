@@ -7,6 +7,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/cockroachdb/errors"
 	"time"
 )
 
@@ -19,15 +20,26 @@ func (r OnlineQueryBulkResult) Release() {
 
 type SerializationOptions struct {
 	ClientConfigBranchId string
+
+	validated bool
 }
 
 func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]byte, error) {
 	branchId := p.underlying.BranchId
+	validated := false
 	if len(options) > 1 {
 		return nil, fmt.Errorf("expected 1 SerializationOptions, got %d", len(options))
 	} else if len(options) == 1 {
 		if branchId == nil || *branchId == "" && options[0].ClientConfigBranchId != "" {
 			branchId = &options[0].ClientConfigBranchId
+		}
+		if options[0].validated {
+			validated = true
+		}
+	}
+	if !validated {
+		if err := p.underlying.validateAndPopulateParamFieldsSingle(); err != nil {
+			return nil, errors.Wrap(err, "validating params")
 		}
 	}
 
