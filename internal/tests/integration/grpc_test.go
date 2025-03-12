@@ -23,7 +23,7 @@ func TestOnlineQueryBulkGrpc(t *testing.T) {
 		t.Fatal("Failed initializing features", initFeaturesErr)
 	}
 
-	client, err := chalk.NewGRPCClient(context.Background())
+	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -65,35 +65,41 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	userId := int64(432)
 	expectedSocureScore := 123.0
 
-	_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
-		Inputs: map[any]any{
-			testFeatures.User.Id:          []int64{userId},
-			testFeatures.User.SocureScore: []float64{expectedSocureScore},
+	restClient, err := chalk.NewClient(context.Background())
+	assert.NoError(t, err)
+	_, err = restClient.UploadFeatures(
+		context.Background(),
+		chalk.UploadFeaturesParams{
+			Inputs: map[any]any{
+				testFeatures.User.Id:          []int64{userId},
+				testFeatures.User.SocureScore: []float64{expectedSocureScore},
+			},
 		},
-	})
+	)
 	assert.NoError(t, err)
 
-	grpcClient, err := chalk.NewGRPCClient(context.Background())
+	grpcClient, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
 	assert.NoError(t, err)
 	req := chalk.OnlineQueryParams{IncludeMeta: true}.
-		WithInput(testFeatures.User.Id, []int64{userId}).
+		WithInput(testFeatures.User.Id, userId).
 		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore, testFeatures.User.Today)
-	res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+	res, err := grpcClient.OnlineQuery(context.Background(), req, nil)
 	assert.NoError(t, err)
 
-	row, err := res.GetRow(0)
-	assert.NoError(t, err)
-
-	socureScore, err := row.GetFeature(testFeatures.User.SocureScore)
+	socureScore, err := res.GetFeature("user.socure_score")
 	assert.Nil(t, err)
 	assert.NotNil(t, socureScore)
 	assert.NotNil(t, socureScore.Meta)
 	assert.Equal(t, expectedSocureScore, socureScore.Value)
-	assert.Equal(t, "online_store", socureScore.Meta.SourceType)
+	assert.Equal(t, true, socureScore.Meta.CacheHit)
+	// Should not expect float64. Limitation of structpb.Value. See CHA-5562
+	assert.Equal(t, float64(userId), socureScore.Pkey)
 
-	today, err := row.GetFeature("user.today")
+	today, err := res.GetFeature("user.today")
 	assert.Nil(t, err)
-	assert.Equal(t, "neobank.resolvers.get_today", today.Meta.ResolverFqn)
+	assert.Equal(t, "neobank.resolvers.get_today", today.Meta.ChosenResolverFqn)
+	// Should not expect float64. Limitation of structpb.Value. See CHA-5562
+	assert.Equal(t, float64(userId), socureScore.Pkey)
 }
 
 // TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
@@ -106,19 +112,12 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, []int{1}).
+		WithInput(testFeatures.User.Id, 1).
 		WithOutputs(testFeatures.User.CrashingFeature)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
-	assert.Error(t, err)
-
-	row, err := resp.GetRow(0)
+	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
-
-	crashingFeature, err := row.GetFeature("user.crashing_feature")
-	assert.NoError(t, err)
-
-	assert.NotNil(t, crashingFeature)
-	assert.Nil(t, crashingFeature.Value)
+	assert.NotNil(t, resp.Errors)
+	assert.NotNil(t, resp.GetData().GetResults()[0].GetValue().GetNullValue())
 }
 
 // TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
@@ -131,20 +130,12 @@ func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.Series.Id, []int{1}).
+		WithInput(testFeatures.Series.Id, 1).
 		WithOutputs(testFeatures.Series.CrashingInvestors)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
-	assert.Error(t, err)
-
-	row, err := resp.GetRow(0)
+	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
-
-	crashingInvestors, err := row.GetFeature("series.crashing_investors")
-	assert.NoError(t, err)
-	assert.NotNil(t, crashingInvestors)
-	castVal, ok := crashingInvestors.Value.([]any)
-	assert.True(t, ok)
-	assert.Equal(t, 0, len(castVal))
+	assert.NotNil(t, resp.Errors)
+	assert.Equal(t, 0, len(resp.GetData().GetResults()[0].GetValue().GetListValue().GetValues()))
 }
 
 // TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
@@ -157,23 +148,18 @@ func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
 	client, err := chalk.NewGRPCClient(context.Background())
 	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.Series.Id, []string{"seed"}).
+		WithInput(testFeatures.Series.Id, "seed").
 		WithOutputs(testFeatures.Series.Investors)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
+	resp, err := client.OnlineQuery(context.Background(), params)
 	assert.NoError(t, err)
-	assert.Nil(t, resp.RawResponse.GetErrors())
-
-	row, err := resp.GetRow(0)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, len(row.Features))
-	mySeries := []series{}
-	if err := resp.UnmarshalInto(&mySeries); err != nil {
+	assert.Nil(t, resp.Errors)
+	assert.Equal(t, 1, len(resp.GetData().GetResults()))
+	mySeries := series{}
+	if err := chalk.UnmarshalOnlineQueryResponse(resp, &mySeries); err != nil {
 		assert.FailNow(t, "Failed to unmarshal response", err)
 	}
-	assert.NotNil(t, mySeries)
-	assert.Equal(t, 1, len(mySeries))
-	assert.NotNil(t, mySeries[0].Investors)
-	assert.Equal(t, 50002, len(*mySeries[0].Investors))
-	assert.NotNil(t, (*mySeries[0].Investors)[0].SeriesId)
-	assert.Equal(t, "seed", *(*mySeries[0].Investors)[0].SeriesId)
+	assert.NotNil(t, mySeries.Investors)
+	assert.Equal(t, 50002, len(*mySeries.Investors))
+	assert.NotNil(t, (*mySeries.Investors)[0].SeriesId)
+	assert.Equal(t, "seed", *(*mySeries.Investors)[0].SeriesId)
 }

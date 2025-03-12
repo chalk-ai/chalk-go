@@ -10,6 +10,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
@@ -36,8 +37,8 @@ var golangToArrowPrimitiveType = map[reflect.Kind]arrow.DataType{
 }
 
 // InputsToArrowBytes converts map of FQNs to slice of values to an Arrow Record, serialized.
-func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]byte, error) {
-	record, recordErr := ColumnMapToRecord(inputs, allocator)
+func InputsToArrowBytes(inputs map[string]any) (res []byte, err error) {
+	record, recordErr := ColumnMapToRecord(inputs)
 	if recordErr != nil {
 		return nil, recordErr
 	}
@@ -373,7 +374,8 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 }
 
 // ColumnMapToRecord converts a map of column names to slices of values to an Arrow Record.
-func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow.Record, error) {
+func ColumnMapToRecord(inputs map[string]any) (arrow.Record, error) {
+	allocator := memory.NewGoAllocator()
 	schema := make([]arrow.Field, len(inputs))
 	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false
@@ -807,6 +809,21 @@ func ChalkMarshal(attrs map[string]any) ([]byte, error) {
 	return result.Bytes(), nil
 }
 
+func CreateUploadFeaturesBody(inputs map[string]any) ([]byte, error) {
+	recordBytes, err := InputsToArrowBytes(inputs)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert inputs to Arrow Record bytes")
+	}
+
+	attrs := map[string]any{
+		"features":          colls.Keys(inputs),
+		"table_compression": "uncompressed",
+		"table_bytes":       recordBytes,
+	}
+
+	return ChalkMarshal(attrs)
+}
+
 type FeatherRequestHeader struct {
 	Outputs          []string            `json:"outputs"`
 	BranchId         *string             `json:"branch_id"`
@@ -824,12 +841,8 @@ type FeatherRequestHeader struct {
 	PlannerOptions   map[string]any      `json:"planner_options"`
 }
 
-func CreateOnlineQueryBulkBody(
-	inputs map[string]any,
-	header FeatherRequestHeader,
-	allocator memory.Allocator,
-) ([]byte, error) {
-	arrowBytes, err := InputsToArrowBytes(inputs, allocator)
+func CreateOnlineQueryBulkBody(inputs map[string]any, header FeatherRequestHeader) ([]byte, error) {
+	arrowBytes, err := InputsToArrowBytes(inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert inputs to Arrow")
 	}
@@ -949,9 +962,10 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 	return res, nil
 }
 
-func ConvertBytesToTable(byteArr []byte, allocator memory.Allocator) (result arrow.Table, err error) {
+func ConvertBytesToTable(byteArr []byte) (result arrow.Table, err error) {
 	bytesReader := bytes.NewReader(byteArr)
-	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(allocator))
+	alloc := memory.NewCheckedAllocator(memory.DefaultAllocator)
+	fileReader, err := ipc.NewFileReader(bytesReader, ipc.WithAllocator(alloc))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create Arrow file reader")
 	}

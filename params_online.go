@@ -96,10 +96,36 @@ func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsCom
 ******************************************/
 
 func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQueryParams) {
-	if p.rawInputs == nil {
-		p.rawInputs = make(map[any]any)
+	validateErr := validateFeature(feature, ParamInput)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
 	}
-	p.rawInputs[feature] = value
+
+	if p.inputs == nil {
+		p.inputs = make(map[string]any)
+	}
+
+	var key string
+	if fqn, ok := feature.(string); ok {
+		key = fqn
+	} else {
+		castedFeature, castErr := UnwrapFeature(feature)
+		if castErr != nil {
+			builderError := BuilderError{
+				Err:       castErr,
+				Type:      UnwrapFeatureError,
+				Feature:   feature,
+				ParamType: ParamInput,
+			}
+			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
+		}
+		p.versioned = true
+		key = castedFeature.Fqn
+	}
+
+	p.inputs[key] = value
 	return p
 }
 
@@ -111,7 +137,33 @@ func (p OnlineQueryParams) withInputs(inputs map[any]any) OnlineQueryParams {
 }
 
 func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
-	p.rawOutputs = append(p.rawOutputs, features...)
+	validateErr := validateFeatures(features, ParamOutput)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
+	}
+
+	for _, feature := range features {
+		var key string
+		if fqn, ok := feature.(string); ok {
+			key = fqn
+		} else {
+			castedFeature, castErr := UnwrapFeature(feature)
+			if castErr != nil {
+				builderError := BuilderError{
+					Err:       castErr,
+					Type:      UnwrapFeatureError,
+					Feature:   feature,
+					ParamType: ParamOutput,
+				}
+				p.builderErrors = append(p.builderErrors, &builderError)
+				return p
+			}
+			p.versioned = true
+			key = castedFeature.Fqn
+		}
+		p.outputs = append(p.outputs, key)
+	}
 	return p
 }
 
@@ -121,10 +173,36 @@ func (p OnlineQueryParams) withQueryName(name string) OnlineQueryParams {
 }
 
 func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) OnlineQueryParams {
-	if p.rawStaleness == nil {
-		p.rawStaleness = make(map[any]time.Duration)
+	validateErr := validateFeature(feature, ParamStaleness)
+	if validateErr != nil {
+		p.builderErrors = append(p.builderErrors, validateErr)
+		return p
 	}
-	p.rawStaleness[feature] = duration
+
+	if p.staleness == nil {
+		p.staleness = make(map[string]time.Duration)
+	}
+
+	var key string
+	if fqn, ok := feature.(string); ok {
+		key = fqn
+	} else {
+		castedFeature, castErr := UnwrapFeature(feature)
+		if castErr != nil {
+			builderError := BuilderError{
+				Err:       castErr,
+				Type:      UnwrapFeatureError,
+				Feature:   feature,
+				Value:     duration,
+				ParamType: ParamStaleness,
+			}
+			p.builderErrors = append(p.builderErrors, &builderError)
+			return p
+		}
+		p.versioned = true
+		key = castedFeature.Fqn
+	}
+	p.staleness[key] = duration
 	return p
 }
 

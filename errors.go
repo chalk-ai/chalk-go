@@ -49,3 +49,11 @@ func (e *HTTPError) Error() string {
 	return fmt.Sprintf("HTTP Error: path=%q, message=%q, status=%d, content-length=%d",
 		e.Path, e.Message, e.StatusCode, e.ContentLength)
 }
+
+func deferFunctionWithError(function func() error, originalError error) error {
+	err := originalError
+	if bodyCloseErr := function(); bodyCloseErr != nil && err == nil {
+		err = bodyCloseErr
+	}
+	return err
+}

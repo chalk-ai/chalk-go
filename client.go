@@ -2,7 +2,7 @@ package chalk
 
 import (
 	"context"
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	"github.com/cockroachdb/errors"
 	"time"
 )
@@ -114,6 +114,33 @@ type Client interface {
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	UploadFeatures(ctx context.Context, args UploadFeaturesParams) (UploadFeaturesResult, error)
 
+	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
+	// while updating the corresponding aggregate values themselves.
+	// The `Inputs` parameter should be a map of features to values. The features should either
+	// be a string or codegen-ed Feature object, and the values a slice of the appropriate type.
+	// All slices should be the same length.
+	//
+	// The update is successful if the response contains no errors.
+	//
+	// Example:
+	//
+	// 		res, err := client.UpdateAggregates(
+	//			context.Background(),
+	// 			UpdateAggregatesParams{
+	// 				Inputs: map[any]any{
+	// 					Features.Txns.Id: []string{5555-5555", "4444-4444"},
+	// 				    "txns.merchant_id": []string{"amezon", "pacman studios"},
+	//					"txns.amount": []float64{126.58, 100.03},
+	// 				},
+	// 			}
+	// 		)
+	//      if err != nil {
+	//          return err.Error()
+	//      }
+	//
+	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
+	UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (UpdateAggregatesResult, error)
+
 	// OfflineQuery queries feature values from the offline store.
 	// See Dataset for more information.
 	//
@@ -140,6 +167,13 @@ type Client interface {
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
 	GetToken(ctx context.Context) (*TokenResult, error)
+
+	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
+
+	PlanAggregateBackfill(
+		ctx context.Context,
+		req *aggregatev1.PlanAggregateBackfillRequest,
+	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 }
 
 type ClientConfig struct {
@@ -184,6 +218,9 @@ type ClientConfig struct {
 	// If left unset, it'll be set to a default HTTP client for the package.
 	HTTPClient HTTPClient
 
+	// UseGrpc, if set to true, will create a gRPC client instead of a REST client.
+	UseGrpc bool
+
 	// ResourceGroup specifies the resource group to route all requests to. If set
 	// on the request or query level, this will be overridden.
 	ResourceGroup string
@@ -192,10 +229,6 @@ type ClientConfig struct {
 	// Timeout of 0 means no timeout. Deadline or timeout set on the request
 	// context overrides this timeout.
 	Timeout time.Duration
-
-	// Allocator specifies the allocator to use for creating Arrow objects.
-	// Defaults to `memory.DefaultAllocator`.
-	Allocator memory.Allocator
 }
 
 // NewClient creates a Client with authentication settings configured.
@@ -237,6 +270,10 @@ func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
 		return nil, errors.Newf("expected at most one ClientConfig, got %d", len(configs))
 	} else {
 		cfg = configs[len(configs)-1]
+	}
+
+	if cfg.UseGrpc {
+		return newClientGrpc(ctx, *cfg)
 	}
 
 	return newClientImpl(ctx, *cfg)
