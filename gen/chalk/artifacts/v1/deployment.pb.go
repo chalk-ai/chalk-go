@@ -7,7 +7,7 @@
 package artifactsv1
 
 import (
-	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/graph/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

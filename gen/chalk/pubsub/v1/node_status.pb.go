@@ -30,7 +30,7 @@
 package pubsubv1
 
 import (
-	_ "github.com/chalk-ai/chalk-go/v2/gen/gen_bq_schema"
+	_ "github.com/chalk-ai/chalk-go/gen/gen_bq_schema"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

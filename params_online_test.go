@@ -3,9 +3,9 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/v2/internal"
-	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
-	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"

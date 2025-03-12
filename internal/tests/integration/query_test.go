@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/v2"
+	"github.com/chalk-ai/chalk-go"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/http2"
 	"net/http"

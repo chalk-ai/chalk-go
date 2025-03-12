@@ -7,10 +7,10 @@
 package graphv1
 
 import (
-	v11 "github.com/chalk-ai/chalk-go/v2/gen/chalk/arrow/v1"
-	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/expression/v1"
-	v2 "github.com/chalk-ai/chalk-go/v2/gen/chalk/graph/v2"
-	v12 "github.com/chalk-ai/chalk-go/v2/gen/chalk/lsp/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	v2 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v2"
+	v12 "github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"

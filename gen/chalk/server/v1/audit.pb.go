@@ -7,7 +7,7 @@
 package serverv1
 
 import (
-	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/auth/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	code "google.golang.org/genproto/googleapis/rpc/code"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

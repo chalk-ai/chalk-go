@@ -1,7 +1,7 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/v2/internal"
+	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )

@@ -3,9 +3,9 @@ package integration
 import (
 	"context"
 	"encoding/json"
-	"github.com/chalk-ai/chalk-go/v2"
-	"github.com/chalk-ai/chalk-go/v2/internal"
-	"github.com/chalk-ai/chalk-go/v2/internal/colls"
+	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
