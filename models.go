@@ -93,21 +93,15 @@ type OnlineQueryParams struct {
 
 	// The features for which there are known values, mapped to those values.
 	// Set by OnlineQueryParams.WithInput.
-	inputs map[string]any
+	rawInputs map[any]any
 
 	// The features that you'd like to compute from the inputs.
 	// Set by OnlineQueryParams.WithOutputs.
-	outputs []string
+	rawOutputs []any
 
 	// Maximum staleness overrides for any output features or intermediate features.
 	// Set by OnlineQueryParams.WithStaleness.
-	staleness map[string]time.Duration
-
-	builderErrors BuilderErrors
-
-	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs.
-	versioned bool
+	rawStaleness map[any]time.Duration
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -492,13 +486,9 @@ type OfflineQueryParams struct {
 	 PRIVATE FIELDS
 	***************/
 
-	inputs          map[string][]TsFeatureValue
-	outputs         []string
-	requiredOutputs []string
-	builderErrors   BuilderErrors
-	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs.
-	versioned bool
+	rawInputs          map[any][]TsFeatureValue
+	rawOutputs         []any
+	rawRequiredOutputs []any
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
