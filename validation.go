@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+type onlineQueryParamsResolved struct {
+	inputs    map[string]any
+	outputs   []string
+	staleness map[string]time.Duration
+	versioned bool
+}
+
 func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	if featureStr, ok := feature.(string); ok {
 		return featureStr, false, nil
@@ -20,65 +27,72 @@ func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	}
 }
 
-// Validation for single queries
-func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
-	p.validatedInputs = map[string]any{}
+func (p *OnlineQueryParams) resolveSingle() (*onlineQueryParamsResolved, error) {
+	var versioned bool
+
+	inputs := map[string]any{}
 	for k, v := range p.rawInputs {
 		fqn, isCodegen, err := getFqn(k)
 		if err != nil {
-			return errors.Wrap(err, "validating inputs")
+			return nil, errors.Wrap(err, "validating inputs")
 		}
 		if isCodegen {
-			p.versioned = true
+			versioned = true
 		}
-		p.validatedInputs[fqn] = v
+		inputs[fqn] = v
 	}
 
-	p.validatedOutputs = []string{}
+	outputs := []string{}
 	for _, output := range p.rawOutputs {
 		fqn, _, err := getFqn(output)
 		if err != nil {
-			return errors.Wrap(err, "validating outputs")
+			return nil, errors.Wrap(err, "validating outputs")
 		}
-		p.validatedOutputs = append(p.validatedOutputs, fqn)
+		outputs = append(outputs, fqn)
 	}
 
-	p.validatedStaleness = map[string]time.Duration{}
-	for k, v := range p.rawStaleness {
+	staleness := map[string]time.Duration{}
+	for k, v := range staleness {
 		fqn, _, err := getFqn(k)
 		if err != nil {
-			return errors.Wrap(err, "validating staleness")
+			return nil, errors.Wrap(err, "validating staleness")
 		}
-		p.validatedStaleness[fqn] = v
+		staleness[fqn] = v
 	}
 
-	return nil
+	return &onlineQueryParamsResolved{
+		inputs:    inputs,
+		outputs:   outputs,
+		staleness: staleness,
+		versioned: versioned,
+	}, nil
 }
 
-// Validation for bulk queries
-func (p *OnlineQueryParams) validateAndPopulateParamFieldsBulk() error {
-	if err := p.validateAndPopulateParamFieldsSingle(); err != nil {
-		return err // Intentional no wrap
+func (p *OnlineQueryParams) resolveBulk() (*onlineQueryParamsResolved, error) {
+	res, err := p.resolveSingle()
+	if err != nil {
+		return nil, err // Intentional no wrap
 	}
 
 	// Validate input values are lists of the same length
 	referenceLen := -1
-	for k, v := range p.validatedInputs {
+	for k, v := range res.inputs {
 		rVal := reflect.ValueOf(v)
 		if rVal.Kind() != reflect.Slice {
-			return errors.New("input values must be slices")
+			return nil, errors.New("input values must be slices")
 		}
 		if referenceLen == -1 {
 			referenceLen = rVal.Len()
 		}
 		if rVal.Len() != referenceLen {
-			return errors.Newf(
+			return nil, errors.Newf(
 				"input values must be slices of the same length, expected %d, got %d for feature '%s'",
 				referenceLen, rVal.Len(), k,
 			)
 		}
 	}
-	return nil
+
+	return res, nil
 }
 
 func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
