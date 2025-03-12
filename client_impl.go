@@ -95,7 +95,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	}
 	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
 	if err != nil {
-		return OnlineQueryBulkResult{}, errors.Wrapf(err, "serializing online query params")
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -126,7 +126,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 
 	singleBulkResult, ok := response.QueryResults["0"]
 	if !ok {
-		return OnlineQueryBulkResult{}, errors.Newf("unexpected bulk online query response from server")
+		return OnlineQueryBulkResult{}, errors.New("unexpected bulk online query response from server")
 	}
 
 	if len(singleBulkResult.Errors) > 0 {
@@ -143,11 +143,11 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesParams) (UploadFeaturesResult, error) {
 	convertedInputs, err := getConvertedInputsMap(params.Inputs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "converting input map keys")
+		return UploadFeaturesResult{}, errors.Wrap(err, "converting input map keys")
 	}
 	recordBytes, err := internal.InputsToArrowBytes(convertedInputs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "converting inputs to Arrow Record bytes")
+		return UploadFeaturesResult{}, errors.Wrap(err, "converting inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
 		"features":          colls.Keys(convertedInputs),
@@ -157,7 +157,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 
 	body, err := internal.ChalkMarshal(attrs)
 	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrapf(err, "marshaling upload features request")
+		return UploadFeaturesResult{}, errors.Wrap(err, "marshaling upload features request")
 	}
 
 	response := UploadFeaturesResult{}
