@@ -40,7 +40,7 @@ type HTTPClient interface {
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
-	if err := params.underlying.validateAndPopulateParamFields(); err != nil {
+	if err := request.validateAndPopulateParamFields(); err != nil {
 		return Dataset{}, errors.Wrap(err, "validating params")
 	}
 
@@ -78,7 +78,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	emptyResult := OnlineQueryBulkResult{}
 	request := params.underlying
 
-	if err := params.underlying.validateAndPopulateParamFieldsBulk(); err != nil {
+	if err := request.validateAndPopulateParamFieldsBulk(); err != nil {
 		return emptyResult, errors.Wrap(err, "validating params")
 	}
 
