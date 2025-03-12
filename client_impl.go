@@ -39,17 +39,16 @@ type HTTPClient interface {
 
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
-	emptyResult := Dataset{}
 	response := Dataset{}
 
 	resolved, err := request.resolve()
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "resolving params")
+		return Dataset{}, errors.Wrap(err, "resolving params")
 	}
 
 	body, err := serializeOfflineQueryParams(&request, resolved)
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "serializing offline query params")
+		return Dataset{}, errors.Wrap(err, "serializing offline query params")
 	}
 
 	if err = c.sendRequest(
@@ -64,11 +63,11 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 			Branch:              &request.Branch,
 		},
 	); err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+		return Dataset{}, errors.Wrap(err, "sending request")
 	}
 
 	if len(response.Errors) > 0 {
-		return emptyResult, response.Errors
+		return Dataset{}, response.Errors
 	}
 
 	for idx := range response.Revisions {
@@ -89,7 +88,9 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	for _, input := range resolved.inputs {
 		kind := reflect.ValueOf(input).Kind()
 		if !(kind == reflect.Slice || kind == reflect.Array) {
-			return OnlineQueryBulkResult{}, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
+			return OnlineQueryBulkResult{}, errors.Newf(
+				"inputs to bulk online query must be a slice or array, found: %s", kind.String(),
+			)
 		}
 	}
 	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
