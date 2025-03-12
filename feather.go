@@ -39,7 +39,7 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 	}
 
 	if resolved == nil {
-		val, err := p.underlying.resolveSingle()
+		val, err := p.underlying.resolveBulk()
 		if err != nil {
 			return nil, errors.Wrap(err, "validating params")
 		}

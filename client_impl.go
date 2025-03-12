@@ -39,7 +39,6 @@ type HTTPClient interface {
 
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
-	response := Dataset{}
 
 	resolved, err := request.resolve()
 	if err != nil {
@@ -51,6 +50,7 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		return Dataset{}, errors.Wrap(err, "serializing offline query params")
 	}
 
+	response := Dataset{}
 	if err = c.sendRequest(
 		ctx,
 		sendRequestParams{
@@ -93,7 +93,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			)
 		}
 	}
-	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
+	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch, resolved: resolved})
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrap(err, "serializing online query params")
 	}
