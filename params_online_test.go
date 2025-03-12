@@ -111,11 +111,11 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 
 	bulkInputs, err := internal.SingleInputsToBulkInputs(resolved.inputs)
 	assert.NoError(t, err)
-	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs)
+	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.NotNil(t, arrowBytes)
 
-	table, err := internal.ConvertBytesToTable(arrowBytes)
+	table, err := internal.ConvertBytesToTable(arrowBytes, fixtures.TestAllocator)
 	assert.NoError(t, err)
 	assert.NotNil(t, table)
 

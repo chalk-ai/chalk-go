@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"context"
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/cockroachdb/errors"
 	"time"
 )
@@ -191,6 +192,10 @@ type ClientConfig struct {
 	// Timeout of 0 means no timeout. Deadline or timeout set on the request
 	// context overrides this timeout.
 	Timeout time.Duration
+
+	// Allocator specifies the allocator to use for creating Arrow objects.
+	// Defaults to `memory.DefaultAllocator`.
+	Allocator memory.Allocator
 }
 
 // NewClient creates a Client with authentication settings configured.
