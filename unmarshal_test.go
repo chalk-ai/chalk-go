@@ -442,10 +442,16 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 		t.Fatal(unmarshalErr)
 	}
 	assert.Nil(t, unmarshalErr)
-	assert.Nil(t, user.AvgSpend["1m"])
-	assert.Nil(t, user.AvgSpend["5m"])
-	assert.Nil(t, user.AvgSpend["1h"])
 	assert.NotNil(t, user.AvgSpend) // We intentionally want this to not be nil
+	val, ok := user.AvgSpend["1m"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
+	val, ok = user.AvgSpend["5m"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
+	val, ok = user.AvgSpend["1h"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
 }
 
 func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
@@ -481,13 +487,21 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	assert.Equal(t, 1, len(rootStructs))
 	assert.Equal(t, "abc", *rootStructs[0].UnmarshalUser.Id)
 	assert.NotNil(t, rootStructs[0].UnmarshalUser.AvgSpend)
-	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1m"])
-	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["5m"])
-	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1h"])
+	val, ok := rootStructs[0].UnmarshalUser.AvgSpend["1m"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
+	val, ok = rootStructs[0].UnmarshalUser.AvgSpend["5m"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
+	val, ok = rootStructs[0].UnmarshalUser.AvgSpend["1h"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
 
 	assert.Equal(t, "abc", *rootStructs[0].Account.UnmarshalUser.Id)
 	assert.NotNil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend)
-	assert.Nil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend["1m"])
+	val, ok = rootStructs[0].Account.UnmarshalUser.AvgSpend["1m"]
+	assert.True(t, ok)
+	assert.Nil(t, val)
 }
 
 func TestUnmarshalDataclassFeatures(t *testing.T) {
