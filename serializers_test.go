@@ -3,7 +3,6 @@ package chalk
 import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	"testing"
 	"time"
 
@@ -93,7 +92,7 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 	protoMap, err := queryContext.toProtoMap()
 	assert.NoError(t, err)
 
-	request, err := convertOnlineQueryParamsToProto(&params, fixtures.TestAllocator)
+	request, err := convertOnlineQueryParamsToProto(&params)
 	assert.NoError(t, err)
 	assert.Equal(t, tags, request.GetContext().GetTags())
 	assert.Equal(t, requiredResolverTags, request.GetContext().GetRequiredResolverTags())
@@ -143,9 +142,9 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 		WithInput(SerdeRoot.SerdeUser.Txns, [][]SerdeTransaction{transactions}).
 		WithOutputs(SerdeRoot.SerdeUser.Id, SerdeRoot.SerdeUser.Txns)
 
-	req, err := convertOnlineQueryParamsToProto(&params.underlying, fixtures.TestAllocator)
+	req, err := convertOnlineQueryParamsToProto(&params.underlying)
 	assert.NoError(t, err)
-	table, err := internal.ConvertBytesToTable(req.GetInputsFeather(), fixtures.TestAllocator)
+	table, err := internal.ConvertBytesToTable(req.GetInputsFeather())
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), table.NumRows())
 	assert.Equal(t, int64(2), table.NumCols())

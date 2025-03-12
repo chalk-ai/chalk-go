@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
@@ -94,15 +93,21 @@ type OnlineQueryParams struct {
 
 	// The features for which there are known values, mapped to those values.
 	// Set by OnlineQueryParams.WithInput.
-	rawInputs map[any]any
+	inputs map[string]any
 
 	// The features that you'd like to compute from the inputs.
 	// Set by OnlineQueryParams.WithOutputs.
-	rawOutputs []any
+	outputs []string
 
 	// Maximum staleness overrides for any output features or intermediate features.
 	// Set by OnlineQueryParams.WithStaleness.
-	rawStaleness map[any]time.Duration
+	staleness map[string]time.Duration
+
+	builderErrors BuilderErrors
+
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs.
+	versioned bool
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -167,8 +172,6 @@ type OnlineQueryResult struct {
 
 	// Used to efficiently get a FeatureResult by FQN.
 	features map[string]FeatureResult
-
-	allocator memory.Allocator
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
@@ -355,8 +358,6 @@ type OnlineQueryBulkResult struct {
 
 	// Execution metadata for the query. See QueryMeta for details.
 	Meta *QueryMeta
-
-	allocator memory.Allocator
 }
 
 // UnmarshalInto unmarshals Arrow tables in OnlineQueryBulkResult into the specified slice of
@@ -491,9 +492,13 @@ type OfflineQueryParams struct {
 	 PRIVATE FIELDS
 	***************/
 
-	rawInputs          map[any][]TsFeatureValue
-	rawOutputs         []any
-	rawRequiredOutputs []any
+	inputs          map[string][]TsFeatureValue
+	outputs         []string
+	requiredOutputs []string
+	builderErrors   BuilderErrors
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs.
+	versioned bool
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.

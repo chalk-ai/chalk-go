@@ -22,7 +22,7 @@ func getSingleRowPrimitives(b *testing.B) func() {
 	}
 
 	return func() {
-		_, err := internal.ColumnMapToRecord(colMap, fixtures.TestAllocator)
+		_, err := internal.ColumnMapToRecord(colMap)
 		assert.NoError(b, err)
 	}
 }
@@ -118,7 +118,7 @@ func getAllTypes(b *testing.B, numRows int) func() {
 	}
 
 	return func() {
-		_, err := internal.ColumnMapToRecord(colMap, fixtures.TestAllocator)
+		_, err := internal.ColumnMapToRecord(colMap)
 		assert.NoError(b, err)
 	}
 }

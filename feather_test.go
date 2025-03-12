@@ -3,7 +3,6 @@ package chalk
 import (
 	"encoding/base64"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"os"
@@ -14,14 +13,9 @@ func TestFeatherSerialization(t *testing.T) {
 	params := OnlineQueryParams{}.
 		WithInput("user.id", []int{1, 2, 3, 4}).
 		WithOutputs("user.email", "user.card.id")
-	resolved, err := params.underlying.resolveBulk()
-	assert.NoError(t, err)
-	_, err = internal.CreateOnlineQueryBulkBody(
-		resolved.inputs,
-		internal.FeatherRequestHeader{Outputs: resolved.outputs},
-		fixtures.TestAllocator,
-	)
-	assert.NoError(t, err)
+
+	_, err := internal.CreateOnlineQueryBulkBody(params.underlying.inputs, internal.FeatherRequestHeader{Outputs: params.underlying.outputs})
+	assert.Nil(t, err)
 }
 
 // TestErrorDeserialization tests that we can successfully deserialize

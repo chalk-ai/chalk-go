@@ -2,110 +2,27 @@ package chalk
 
 import (
 	"context"
-	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"time"
 )
 
-// GRPCClient is the gRPC interface for interacting with Chalk.
+// GRPCClient is the gRPC-native interface for interacting with Chalk.
+// Our existing Client interface also works with gRPC, but this interface
+// is more idiomatic for talking to our gRPC endpoints.
 type GRPCClient interface {
-	// OnlineQueryBulk computes features values using online resolvers,
-	// and has the ability to query multiple primary keys at once.
-	//
-	// The Chalk CLI can codegen structs for all available features with
-	// the [chalk codegen] command.
-	//
-	//	Example usages:
-	//
-	//      // Single-namespace online query
-	//  	var users []User
-	//  	res, err := chalk.OnlineQueryBulk(
-	//  		context.Background(),
-	//  		chalk.OnlineQueryParams{}.
-	//  			WithInput(Features.User.Id, []string{"u273489056"}).
-	//  			WithInput(Features.User.Transactions, [][]Transaction{
-	//  				{
-	//  					{Id: utils.ToPtr("txn8f76"), Amount: utils.ToPtr(13.23)},
-	//  					{Id: utils.ToPtr("txn546d"), Amount: utils.ToPtr(48.95)},
-	//  				},
-	//  			}).
-	//  			WithOutputs(Features.User.Id, Features.User.WeightedScore),
-	//  	)
-	//  	if err != nil {
-	//  		return errors.Wrap(err, "querying weighted score")
-	//  	}
-	//  	if err = res.UnmarshalInto(&users); err != nil {
-	//  		return errors.Wrap(err, "unmarshalling into users")
-	//  	}
-	//  	fmt.Println("user %s has weighted score %v", users[0].Id, users[0].WeightedScore)
-	//
-	//
-	//  	// Multi-namespace online query
-	//  	type underwriting struct {
-	//  		User
-	//  		Loan
-	//  	}
-	//
-	//  	res, err := chalk.OnlineQueryBulk(
-	//  		context.Background(),
-	//  		chalk.OnlineQueryParams{}.
-	//  			WithInput(Features.User.Id, []string{"u273489056"}).
-	//  			WithInput(Features.Loan.Id, []string{"l273489056"}).
-	//  			WithOutputs(
-	//  				Features.User.Id,
-	//  				Features.User.WeightedScore,
-	//  				Features.Loan.Id,
-	//  				Features.Loan.ApprovalStatus,
-	//  			),
-	//  	)
-	//  	if err != nil {
-	//  		return errors.Wrap(err, "querying weighted score and loan approval status")
-	//  	}
-	//
-	//  	var root []underwriting
-	//  	if err = res.UnmarshalInto(&root); err != nil {
-	//  		return errors.Wrap(err, "unmarshalling into underwriting")
-	//  	}
-	//  	fmt.Println("user %s has weighted score %v", root[0].User.Id, root[0].User.WeightedScore)
-	//  	fmt.Println("loan %s has approval status %v", root[0].Loan.Id, root[0].Loan.ApprovalStatus)
-	//
-	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
-	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
+	OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error)
 
-	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
-	// while updating the corresponding aggregate values themselves.
-	// The `Inputs` parameter should be a map of features to values. The features should either
-	// be a string or codegen-ed feature reference, and the values a slice of the appropriate type.
-	// All slices should be the same length.
-	//
-	// The update is successful if the response contains no errors.
-	//
-	// Example:
-	//
-	// 		res, err := client.UpdateAggregates(
-	//			context.Background(),
-	// 			UpdateAggregatesParams{
-	// 				Inputs: map[any]any{
-	// 					Features.Txns.Id: []string{5555-5555", "4444-4444"},
-	// 				    "txns.merchant_id": []string{"amezon", "pacman studios"},
-	//					"txns.amount": []float64{126.58, 100.03},
-	// 				},
-	// 			}
-	// 		)
-	//      if err != nil {
-	//          return errors.Wrap(err, "updating aggregates for merchant")
-	//      }
-	//
-	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
-	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error)
+	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error)
 
-	GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error)
+	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error)
+
+	GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error)
 
 	PlanAggregateBackfill(
 		ctx context.Context,
 		req *aggregatev1.PlanAggregateBackfillRequest,
-	) (*GRPCPlanAggregateBackfillResult, error)
+	) (*aggregatev1.PlanAggregateBackfillResponse, error)
 
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
@@ -163,14 +80,10 @@ type GRPCClientConfig struct {
 	// Timeout of 0 means no timeout. Deadline or timeout set on the request
 	// context will override this timeout.
 	Timeout time.Duration
-
-	// Allocator specifies the allocator to use for creating Arrow objects.
-	// Defaults to `memory.DefaultAllocator`.
-	Allocator memory.Allocator
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
-// These settings can be overriden by passing in a GRPCClientConfig
+// These settings can be overriden by passing in a ClientConfig
 // object. Otherwise, for each configuration variable, NewGRPCClient uses its
 // corresponding environment variable if it exists. The environment variables
 // that NewGRPCClient looks for are:
@@ -190,7 +103,7 @@ type GRPCClientConfig struct {
 //
 //		     chalkClient, err := chalk.NewGRPCClient(
 //	             context.Background(),
-//		         &chalk.GRPCClientConfig{
+//		         &chalk.ClientConfig{
 //			         ClientId:      "id-89140a6614886982a6782106759e30",
 //			         ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
 //			         ApiServer:     "https://api.chalk.ai",

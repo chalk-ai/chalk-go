@@ -442,16 +442,10 @@ func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
 		t.Fatal(unmarshalErr)
 	}
 	assert.Nil(t, unmarshalErr)
+	assert.Nil(t, user.AvgSpend["1m"])
+	assert.Nil(t, user.AvgSpend["5m"])
+	assert.Nil(t, user.AvgSpend["1h"])
 	assert.NotNil(t, user.AvgSpend) // We intentionally want this to not be nil
-	val, ok := user.AvgSpend["1m"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
-	val, ok = user.AvgSpend["5m"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
-	val, ok = user.AvgSpend["1h"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
 }
 
 func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
@@ -472,7 +466,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	bulkData["account.unmarshal_user.id"] = []string{"abc"}
 	bulkData["account.unmarshal_user.avg_spend__60__"] = []*float64{nil}
 
-	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
+	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(t, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
@@ -487,21 +481,13 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	assert.Equal(t, 1, len(rootStructs))
 	assert.Equal(t, "abc", *rootStructs[0].UnmarshalUser.Id)
 	assert.NotNil(t, rootStructs[0].UnmarshalUser.AvgSpend)
-	val, ok := rootStructs[0].UnmarshalUser.AvgSpend["1m"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
-	val, ok = rootStructs[0].UnmarshalUser.AvgSpend["5m"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
-	val, ok = rootStructs[0].UnmarshalUser.AvgSpend["1h"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1m"])
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["5m"])
+	assert.Nil(t, rootStructs[0].UnmarshalUser.AvgSpend["1h"])
 
 	assert.Equal(t, "abc", *rootStructs[0].Account.UnmarshalUser.Id)
 	assert.NotNil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend)
-	val, ok = rootStructs[0].Account.UnmarshalUser.AvgSpend["1m"]
-	assert.True(t, ok)
-	assert.Nil(t, val)
+	assert.Nil(t, rootStructs[0].Account.UnmarshalUser.AvgSpend["1m"])
 }
 
 func TestUnmarshalDataclassFeatures(t *testing.T) {

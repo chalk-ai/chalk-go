@@ -4,15 +4,17 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"crypto/tls"
-	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/apache/arrow/go/v16/arrow"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
+	"google.golang.org/protobuf/types/known/structpb"
 	"net"
 	"net/http"
 	"strings"
@@ -21,8 +23,7 @@ import (
 
 type grpcClientImpl struct {
 	GRPCClient
-	config    *configManager
-	allocator memory.Allocator
+	config *configManager
 
 	branch        string
 	queryServer   *string
@@ -92,11 +93,6 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	allocator := memory.DefaultAllocator
-	if cfg.Allocator != nil {
-		allocator = cfg.Allocator
-	}
-
 	resolvedQueryServer := config.getQueryServer(queryServer)
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
@@ -143,7 +139,6 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		queryServer:   queryServer,
 		resourceGroup: resourceGroup,
 		timeout:       timeout,
-		allocator:     allocator,
 	}, nil
 }
 
@@ -176,153 +171,149 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
-type FeatureMeta struct {
-	ResolverFqn string
-	SourceType  string
-	SourceId    string
-}
-
-type FeatureOutput struct {
-	Fqn   string
-	Value any
-	Meta  *FeatureMeta
-}
-
-type RowResult struct {
-	Features map[string]FeatureOutput
-}
-
-func newRowResult() *RowResult {
-	return &RowResult{
-		Features: make(map[string]FeatureOutput),
-	}
-}
-
-// GetFeature takes in a feature string or a codegen'd
-// feature reference and returns the `FeatureOutput` object.
-// Given this codegen'd snippet:
-//
-//	type User struct {
-//	 	Id                       *int64
-//	 	FullName                 *string
-//	}
-//
-//	var Features struct {
-//	 	User *User
-//	}
-//
-//	func init() {
-//	 	InitFeaturesErr = chalk.InitFeatures(&Features)
-//	}
-//
-// You would get the feature object for "user.full_name" as follows:
-//
-//	feature, err := row.GetFeature(Features.User.FullName)
-func (r *RowResult) GetFeature(feature any) (*FeatureOutput, error) {
-	fqn, ok := feature.(string)
-	if !ok {
-		unwrapped, err := UnwrapFeature(feature)
-		if err != nil {
-			return nil, errors.Wrap(err, "please provide a feature string or a codegen'd feature reference")
-		}
-		fqn = unwrapped.Fqn
-	}
-	res, ok := r.Features[fqn]
-	if !ok {
-		return nil, errors.Newf("feature '%s' not found", fqn)
-	}
-	return &res, nil
-}
-
-func (r *RowResult) GetFeatureValue(feature any) (any, error) {
-	res, err := r.GetFeature(feature)
+func (c *grpcClientImpl) OnlineQuery(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryResponse, error) {
+	newInputs, err := internal.SingleInputsToBulkInputs(args.underlying.inputs)
 	if err != nil {
+		return nil, errors.Wrap(err, "converting inputs to bulk inputs")
+	}
+	args.underlying.inputs = newInputs
+
+	bulkRes, err := c.OnlineQueryBulk(ctx, args)
+	if err != nil {
+		// intentionally don't wrap, original error is good enough
 		return nil, err
 	}
-	return res.Value, nil
-}
 
-type GRPCOnlineQueryBulkResult struct {
-	RawResponse *commonv1.OnlineQueryBulkResponse
+	features := make(map[string]*commonv1.FeatureResult)
+	if len(bulkRes.GetScalarsData()) > 0 {
+		scalarsTable, err := internal.ConvertBytesToTable(bulkRes.GetScalarsData())
+		if err != nil {
+			return nil, errors.Wrap(err, "converting scalars data to table")
+		}
 
-	allocator memory.Allocator
-}
+		// Need to obtain time.Time values as string because structpb.NewValue does not support time.Time.
+		rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, true)
+		if err != nil {
+			return nil, errors.Wrap(err, "extracting features from scalars table")
+		}
 
-func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
-	row := newRowResult()
-	if len(r.RawResponse.GetScalarsData()) == 0 {
-		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
+		if len(rows) == 1 {
+			var rowMeta map[string]internal.FeatureMeta
+			if len(meta) > 0 {
+				if len(meta) != 1 {
+					return nil, errors.Newf("expected exactly one metadata row, found %v", meta)
+				}
+				rowMeta = meta[0]
+			}
+			for fqn, value := range rows[0] {
+				// Needed to obtain time.Time values as string because structpb.NewValue does not support time.Time.
+				newValue, err := structpb.NewValue(value)
+				if err != nil {
+					return nil, errors.Wrapf(
+						err,
+						"converting value for feature '%s' from `any` to `structpb.Value`",
+						fqn,
+					)
+				}
+				featureRes := commonv1.FeatureResult{
+					Field: fqn,
+					Value: newValue,
+				}
+				features[fqn] = &featureRes
+				if rowMeta != nil {
+					featureMeta, ok := rowMeta[fqn]
+					if !ok {
+						// Features such as has-many features do not have a metadata column.
+						continue
+					}
+					if featureMeta.Pkey != nil {
+						val, err := structpb.NewValue(featureMeta.Pkey)
+						if err != nil {
+							return nil, errors.Wrapf(
+								err,
+								"converting primary key for feature '%s' to `structpb.Value`",
+								fqn,
+							)
+						}
+						featureRes.Pkey = val
+					}
+
+					featureRes.Meta = &commonv1.FeatureMeta{}
+					if featureMeta.ResolverFqn != nil {
+						featureRes.Meta.ChosenResolverFqn = *featureMeta.ResolverFqn
+					}
+					if featureMeta.SourceType != nil && *featureMeta.SourceType == string(internal.SourceTypeOnlineStore) {
+						featureRes.Meta.CacheHit = true
+					}
+				}
+			}
+		}
 	}
 
-	scalarsTable, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
-	if err != nil {
-		return nil, errors.Wrap(err, "converting scalars data to table")
-	}
-
-	rows, meta, err := internal.ExtractFeaturesFromTable(scalarsTable, false)
-	if err != nil {
-		return nil, errors.Wrap(err, "extracting features from scalars table")
-	}
-
-	if rowIndex < 0 || rowIndex >= len(rows) {
-		return nil, errors.Newf(
-			"out of bounds: accessing index %d of table with %d rows",
-			rowIndex, len(rows),
-		)
-	}
-
-	var rowMeta map[string]internal.FeatureMeta
-	if len(meta) > 0 {
-		if len(meta) != len(rows) {
-			return nil, errors.Newf(
-				"metadata length %v does not match rows length %v",
-				len(meta), len(rows),
+	for fqn, tableBytes := range bulkRes.GetGroupsData() {
+		table, err := internal.ConvertBytesToTable(tableBytes)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"converting bytes for feature '%s' to table",
+				fqn,
 			)
 		}
-		rowMeta = meta[rowIndex]
-	}
 
-	for fqn, value := range rows[rowIndex] {
-		featureRes := FeatureOutput{
-			Fqn:   fqn,
-			Value: value,
+		rowsHm, _, err := internal.ExtractFeaturesFromTable(table, false)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"extracting features from has-many table for feature '%s'",
+				fqn,
+			)
 		}
-		if rowMeta != nil {
-			internalMeta, ok := rowMeta[fqn]
-			if !ok {
-				// Features such as has-many features do not have a metadata column.
-				continue
-			}
-			featureRes.Meta = &FeatureMeta{
-				ResolverFqn: internalMeta.ResolverFqn,
-				SourceType:  internalMeta.SourceType,
-				SourceId:    internalMeta.SourceId,
-			}
+
+		colNames := colls.Map(
+			table.Schema().Fields(),
+			func(f arrow.Field) string {
+				return f.Name
+			},
+		)
+		colValues := make([][]any, 0, len(rowsHm))
+		for _, col := range colNames {
+			colValues = append(
+				colValues,
+				colls.Map(rowsHm, func(row map[string]any) any {
+					return row[col]
+				}),
+			)
 		}
-		row.Features[fqn] = featureRes
+		hmResult := map[string]any{
+			"columns": colNames,
+			"values":  colValues,
+		}
+		hmProto, err := structpb.NewValue(hmResult)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"converting has-many result for feature '%s' to `structpb.Value`",
+				fqn,
+			)
+		}
+
+		features[fqn] = &commonv1.FeatureResult{
+			Field: fqn,
+			Value: hmProto,
+		}
 	}
 
-	return row, nil
+	return &commonv1.OnlineQueryResponse{
+		Data: &commonv1.OnlineQueryResult{
+			Results: colls.Values(features),
+		},
+		Errors:       bulkRes.Errors,
+		ResponseMeta: bulkRes.ResponseMeta,
+	}, nil
 }
 
-func (r *GRPCOnlineQueryBulkResult) GetQueryMeta() *QueryMeta {
-	return queryMetaFromProto(r.RawResponse.GetResponseMeta())
-}
-
-func (r *GRPCOnlineQueryBulkResult) GetErrors() ([]ServerError, error) {
-	return serverErrorsFromProto(r.RawResponse.GetErrors())
-}
-
-func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
-	if err != nil {
-		return errors.Wrap(err, "deserializing scalars table")
-	}
-	return internal.UnmarshalTableInto(scalars, resultHolders)
-}
-
-func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
-	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
+func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*commonv1.OnlineQueryBulkResponse, error) {
+	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
@@ -336,33 +327,15 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	if err != nil {
 		return nil, errors.Wrap(err, "executing online query")
 	}
-
-	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg, allocator: c.allocator}
-	if len(res.Msg.GetErrors()) > 0 {
-		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
-		if err != nil {
-			return nil, errors.Wrap(err, "converting proto errors")
-		}
-		// Must return result even upon error, since there could be partial results
-		return result, convertedErrs
-	}
-	return result, nil
+	return res.Msg, nil
 }
 
-type GRPCUpdateAggregatesResult struct {
-	RawResponse *commonv1.UploadFeaturesBulkResponse
-}
-
-func (r *GRPCUpdateAggregatesResult) GetErrors() ([]ServerError, error) {
-	return serverErrorsFromProto(r.RawResponse.GetErrors())
-}
-
-func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
+func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*commonv1.UploadFeaturesBulkResponse, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting inputs map")
 	}
-	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted, c.allocator)
+	inputsFeather, err := internal.InputsToArrowBytes(inputsConverted)
 	if err != nil {
 		return nil, errors.Wrap(err, "serializing inputs as feather")
 	}
@@ -376,23 +349,10 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 	if err != nil {
 		return nil, errors.Wrap(err, "making update aggregates request")
 	}
-
-	result := &GRPCUpdateAggregatesResult{RawResponse: res.Msg}
-	if len(res.Msg.GetErrors()) > 0 {
-		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
-		if err != nil {
-			return nil, errors.Wrap(err, "converting proto errors")
-		}
-		return result, convertedErrs
-	}
-	return result, nil
+	return res.Msg, nil
 }
 
-type GRPCGetAggregatesResult struct {
-	RawResponse *aggregatev1.GetAggregatesResponse
-}
-
-func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error) {
+func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (*aggregatev1.GetAggregatesResponse, error) {
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
@@ -401,39 +361,18 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 		return nil, errors.Wrap(err, "making get aggregates request")
 	}
 
-	result := &GRPCGetAggregatesResult{RawResponse: res.Msg}
-	if len(res.Msg.GetErrors()) > 0 {
-		var allErrors []error
-		for _, errStr := range res.Msg.GetErrors() {
-			allErrors = append(allErrors, errors.New(errStr))
-		}
-		return result, errors.Join(allErrors...)
-	}
-	return result, nil
-}
-
-type GRPCPlanAggregateBackfillResult struct {
-	RawResponse *aggregatev1.PlanAggregateBackfillResponse
+	return res.Msg, err
 }
 
 func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
-) (*GRPCPlanAggregateBackfillResult, error) {
+) (*aggregatev1.PlanAggregateBackfillResponse, error) {
 	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}
-
-	result := &GRPCPlanAggregateBackfillResult{RawResponse: res.Msg}
-	if len(res.Msg.GetErrors()) > 0 {
-		var allErrors []error
-		for _, errStr := range res.Msg.GetErrors() {
-			allErrors = append(allErrors, errors.New(errStr))
-		}
-		return result, errors.Join(allErrors...)
-	}
-	return result, nil
+	return res.Msg, err
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {

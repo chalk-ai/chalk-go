@@ -22,6 +22,12 @@ const defaultTableReaderChunkSize = 10_000
 const metadataPrefix = "__chalk__.__result_metadata__."
 const pkeyField = "__id__"
 
+type ResultMetadataSourceType string
+
+const (
+	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
+)
+
 var TableReaderChunkSize = defaultTableReaderChunkSize
 
 type Numbers interface {
@@ -188,9 +194,9 @@ type ChunkResult struct {
 }
 
 type FeatureMeta struct {
-	SourceType  string
-	SourceId    string
-	ResolverFqn string
+	SourceType  *string
+	SourceId    *string
+	ResolverFqn *string
 	Pkey        any
 }
 
@@ -256,7 +262,6 @@ func extractFeatures(
 
 		for fqn, j := range metaColumnFqnToIdx {
 			featureMeta := FeatureMeta{
-				// TODO: Server returns incorrect arbitrary pkey for multi-namespace results.
 				Pkey: resolvedPkey,
 			}
 
@@ -278,7 +283,7 @@ func extractFeatures(
 			}
 
 			if sourceType, ok := metaCast["source_type"]; ok && sourceType != nil {
-				featureMeta.SourceType, ok = sourceType.(string)
+				val, ok := sourceType.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -286,9 +291,10 @@ func extractFeatures(
 					}
 					return
 				}
+				featureMeta.SourceType = &val
 			}
 			if sourceId, ok := metaCast["source_id"]; ok && sourceId != nil {
-				featureMeta.SourceId, ok = sourceId.(string)
+				val, ok := sourceId.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -296,9 +302,10 @@ func extractFeatures(
 					}
 					return
 				}
+				featureMeta.SourceId = &val
 			}
 			if resolverFqn, ok := metaCast["resolver_fqn"]; ok && resolverFqn != nil {
-				featureMeta.ResolverFqn, ok = resolverFqn.(string)
+				val, ok := resolverFqn.(string)
 				if !ok {
 					resChan <- &ChunkResult{
 						chunkIdx: chunkIdx,
@@ -306,6 +313,7 @@ func extractFeatures(
 					}
 					return
 				}
+				featureMeta.ResolverFqn = &val
 			}
 
 			m[fqn] = featureMeta
@@ -478,6 +486,10 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 				}
 				for _, memberFieldIdx := range memberFieldIndices {
 					memberField := structValue.Field(memberFieldIdx)
+					if v == nil {
+						continue
+					}
+
 					if memberField.Type().Kind() == reflect.Map {
 						bucket, err := GetBucketFromFqn(k)
 						if err != nil {
@@ -491,9 +503,6 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 							)
 						}
 					} else {
-						if v == nil {
-							continue
-						}
 						rVal, err := GetReflectValue(&v, memberField.Type(), allMemo)
 						if err != nil {
 							return nil, errors.Wrapf(
@@ -588,17 +597,12 @@ func SetMapEntryValue(mapValue reflect.Value, key string, value any, allMemo *Na
 		newMap := reflect.MakeMap(mapType)
 		mapValue.Set(newMap)
 	}
-	if value == nil {
-		mapValue.SetMapIndex(reflect.ValueOf(key), reflect.Zero(mapValue.Type().Elem()))
-		return nil
-	} else {
-		rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
-		if err != nil {
-			return errors.Wrap(err, "error getting reflect value for map entry")
-		}
-		mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
-		return nil
+	rVal, err := GetReflectValue(value, mapValue.Type().Elem().Elem(), allMemo)
+	if err != nil {
+		return errors.Wrap(err, "error getting reflect value for map entry")
 	}
+	mapValue.SetMapIndex(reflect.ValueOf(key), ReflectPtr(*rVal))
+	return nil
 }
 
 func ConvertIfHasManyMap(value any) (any, error) {
@@ -787,9 +791,6 @@ func InitRemoteFeatureMap(
 }
 func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
 	if field.Type().Kind() == reflect.Ptr {
-		if value == nil {
-			return nil
-		}
 		rVal, err := GetReflectValue(&value, field.Type(), allMemo)
 		if err != nil {
 			return errors.Wrapf(err, "getting reflect value for feature '%s'", fqn)
@@ -852,6 +853,15 @@ func ThinUnmarshalInto(
 		}
 
 		for _, field := range targetFields {
+			if value == nil {
+				if field.Type().Kind() == reflect.Map && field.IsNil() {
+					field.Set(reflect.MakeMap(field.Type()))
+					continue
+				}
+
+				// TODO: Add validation for optional fields
+				continue
+			}
 			if err := setFeatureSingle(field, fqn, value, allMemo); err != nil {
 				structName := structValue.Type().String()
 				outputNamespace := "unknown namespace"

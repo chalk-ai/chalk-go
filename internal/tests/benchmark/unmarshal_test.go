@@ -50,7 +50,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 		}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
+	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
@@ -289,7 +289,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 		}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
+	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
@@ -348,7 +348,7 @@ func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 		}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
+	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
@@ -421,7 +421,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 		bulkData["all_types.nested"].([]fixtures.LevelOneNest)[i] = fixtures.LevelOneNest{Id: ptr.Ptr("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.Ptr("level-2-id")}}
 	}
 
-	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
+	record, err := internal.ColumnMapToRecord(bulkData)
 	assert.NoError(b, err)
 
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
