@@ -36,26 +36,30 @@ func TestOfflineQueryParamsAllTypes(t *testing.T) {
 			fixtures.Root.AllTypes.Dataclass.Lat,
 			fixtures.Root.AllTypes.Dataclass.Lng,
 		)
-	assert.Empty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolve()
+	assert.NoError(t, err)
 }
 
 func TestOfflineQueryInputParamInteger(t *testing.T) {
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OfflineQueryParams{}.WithInput(invalidFeatureReference, []any{1})
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolve()
+	assert.Error(t, err)
 }
 
 func TestOfflineQueryOutputParamInteger(t *testing.T) {
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OfflineQueryParams{}.WithOutputs(invalidFeatureReference)
-	assert.NotEmpty(t, params.underlying.builderErrors)
+	_, err := params.underlying.resolve()
+	assert.Error(t, err)
 }
 
 func TestOfflineQueryRequiredOutputsParamInteger(t *testing.T) {
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OfflineQueryParams{}.withRequiredOutputs(invalidFeatureReference, time.Second*5)
-	assert.NotEmpty(t, underlying.builderErrors)
+	_, err := underlying.resolve()
+	assert.Error(t, err)
 }

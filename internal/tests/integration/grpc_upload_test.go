@@ -40,44 +40,6 @@ func getRandomInts(n int) []int64 {
 	return result
 }
 
-func verifyUpdateAggregateResults(t *testing.T, distinctProofIds []int64, client chalk.Client) {
-	// Query aggregation results
-	queryParams := chalk.OnlineQueryParams{}.WithInput(
-		Features.Proof.Id,
-		distinctProofIds,
-	).WithOutputs(
-		Features.Proof.TotalTheoremLines["30d"],
-		Features.Proof.TotalTheoremLines["90d"],
-		Features.Proof.MeanTheoremLines["30d"],
-		Features.Proof.MeanTheoremLines["90d"],
-	)
-	bulkRes, err := client.OnlineQueryBulk(context.Background(), queryParams)
-	assert.NoError(t, err)
-	var proofResults []Proof
-	assert.NoError(t, bulkRes.UnmarshalInto(&proofResults))
-
-	assert.Equal(t, 4, len(proofResults))
-	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["30d"])
-	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["90d"])
-	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["30d"])
-	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["90d"])
-
-	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["30d"])
-	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["90d"])
-	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["30d"])
-	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["90d"])
-
-	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["30d"])
-	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["90d"])
-	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["30d"])
-	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["90d"])
-
-	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["30d"])
-	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["90d"])
-	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["30d"])
-	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["90d"])
-}
-
 func getUpdateAggregateParams(proofIds []int64, theoremIds []int64, now time.Time) chalk.UpdateAggregatesParams {
 	return chalk.UpdateAggregatesParams{Inputs: map[any]any{
 		Features.Theorem.Id:       theoremIds,
@@ -98,34 +60,6 @@ func getUpdateAggregateParams(proofIds []int64, theoremIds []int64, now time.Tim
 			now.Add(-5 * 24 * time.Hour),
 		},
 	}}
-}
-
-// TestGrpcUpdateAggregates is a separate test from the non-grpc upload test
-// because the GRPC endpoint only handles uploading windowed agg aggregations.
-func TestGrpcUpdateAggregates(t *testing.T) {
-	t.Parallel()
-	SkipIfNotIntegrationTester(t)
-	assert.NoError(t, chalk.InitFeatures(&Features))
-	client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{UseGrpc: true})
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
-
-	distinctProofIds := getRandomInts(4)
-	proofIds := []int64{
-		distinctProofIds[0],
-		distinctProofIds[0],
-		distinctProofIds[1],
-		distinctProofIds[2],
-		distinctProofIds[3],
-	}
-	theoremIds := getRandomInts(len(proofIds))
-	now := time.Now().UTC()
-	params := getUpdateAggregateParams(proofIds, theoremIds, now)
-	_, err = client.UpdateAggregates(context.Background(), params)
-	assert.NoError(t, err)
-	// Query aggregation results
-	verifyUpdateAggregateResults(t, distinctProofIds, client)
 }
 
 // TestGrpcUpdateAggregatesNative tests the same functionality as TestGrpcUpdateAggregates
@@ -153,10 +87,37 @@ func TestGrpcUpdateAggregatesNative(t *testing.T) {
 	_, err = client.UpdateAggregates(context.Background(), params)
 	assert.NoError(t, err)
 
-	restClient, err := chalk.NewClient(context.Background())
-	if err != nil {
-		t.Fatal("Failed creating a REST client", err)
-	}
-	// Query aggregation results
-	verifyUpdateAggregateResults(t, distinctProofIds, restClient)
+	queryParams := chalk.OnlineQueryParams{}.WithInput(
+		Features.Proof.Id,
+		distinctProofIds,
+	).WithOutputs(
+		Features.Proof.TotalTheoremLines["30d"],
+		Features.Proof.TotalTheoremLines["90d"],
+		Features.Proof.MeanTheoremLines["30d"],
+		Features.Proof.MeanTheoremLines["90d"],
+	)
+	bulkRes, err := client.OnlineQueryBulk(context.Background(), queryParams)
+	assert.NoError(t, err)
+	var proofResults []Proof
+	assert.NoError(t, bulkRes.UnmarshalInto(&proofResults))
+	assert.Equal(t, 4, len(proofResults))
+	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(89), *proofResults[0].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(44.5), *proofResults[0].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(89), *proofResults[1].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(89), *proofResults[1].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(144), *proofResults[2].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(144), *proofResults[2].MeanTheoremLines["90d"])
+
+	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["30d"])
+	assert.Equal(t, int64(233), *proofResults[3].TotalTheoremLines["90d"])
+	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["30d"])
+	assert.Equal(t, float64(233), *proofResults[3].MeanTheoremLines["90d"])
 }

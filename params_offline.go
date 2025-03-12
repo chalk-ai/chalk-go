@@ -88,38 +88,11 @@ func (p offlineQueryParamsWithInputs) WithRequiredOutputs(features ...any) Offli
 ***********************************/
 
 func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryParams {
-	validateErr := validateFeature(feature, ParamInput)
-	if validateErr != nil {
-		p.builderErrors = append(p.builderErrors, validateErr)
-		return p
-	}
-
 	timestampedValues := p.getTimestampedFeatures(values)
-
-	if p.inputs == nil {
-		p.inputs = make(map[string][]TsFeatureValue)
+	if p.rawInputs == nil {
+		p.rawInputs = make(map[any][]TsFeatureValue)
 	}
-
-	var key string
-	if fqn, ok := feature.(string); ok {
-		key = fqn
-	} else {
-		castedFeature, castErr := UnwrapFeature(feature)
-		if castErr != nil {
-			builderError := BuilderError{
-				Err:       castErr,
-				Type:      UnwrapFeatureError,
-				Feature:   feature,
-				Value:     values,
-				ParamType: ParamInput,
-			}
-			p.builderErrors = append(p.builderErrors, &builderError)
-			return p
-		}
-		p.versioned = true
-		key = castedFeature.Fqn
-	}
-	p.inputs[key] = append(p.inputs[key], timestampedValues...)
+	p.rawInputs[feature] = append(p.rawInputs[feature], timestampedValues...)
 	return p
 }
 
@@ -131,64 +104,12 @@ func (p OfflineQueryParams) withInputs(inputs map[any][]any) OfflineQueryParams 
 }
 
 func (p OfflineQueryParams) withOutputs(features ...any) OfflineQueryParams {
-	validateErr := validateFeatures(features, ParamOutput)
-	if validateErr != nil {
-		p.builderErrors = append(p.builderErrors, validateErr)
-		return p
-	}
-
-	for _, feature := range features {
-		var key string
-		if fqn, ok := feature.(string); ok {
-			key = fqn
-		} else {
-			castedFeature, castErr := UnwrapFeature(feature)
-			if castErr != nil {
-				builderError := BuilderError{
-					Err:       castErr,
-					Type:      UnwrapFeatureError,
-					Feature:   feature,
-					ParamType: ParamOutput,
-				}
-				p.builderErrors = append(p.builderErrors, &builderError)
-				return p
-			}
-			p.versioned = true
-			key = castedFeature.Fqn
-		}
-		p.outputs = append(p.outputs, key)
-	}
+	p.rawOutputs = append(p.rawOutputs, features...)
 	return p
 }
 
 func (p OfflineQueryParams) withRequiredOutputs(features ...any) OfflineQueryParams {
-	validateErr := validateFeatures(features, ParamRequiredOutput)
-	if validateErr != nil {
-		p.builderErrors = append(p.builderErrors, validateErr)
-		return p
-	}
-
-	for _, feature := range features {
-		var key string
-		if fqn, ok := feature.(string); ok {
-			key = fqn
-		} else {
-			castedFeature, castErr := UnwrapFeature(feature)
-			if castErr != nil {
-				builderError := BuilderError{
-					Err:       castErr,
-					Type:      UnwrapFeatureError,
-					Feature:   feature,
-					ParamType: ParamRequiredOutput,
-				}
-				p.builderErrors = append(p.builderErrors, &builderError)
-				return p
-			}
-			p.versioned = true
-			key = castedFeature.Fqn
-		}
-		p.requiredOutputs = append(p.requiredOutputs, key)
-	}
+	p.rawRequiredOutputs = append(p.rawRequiredOutputs, features...)
 	return p
 }
 
