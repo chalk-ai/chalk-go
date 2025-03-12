@@ -46,7 +46,10 @@ func (p *OnlineQueryParams) resolveSingle() (*onlineQueryParamsResolved, error) 
 
 	outputs := []string{}
 	for _, output := range p.rawOutputs {
-		fqn, _, err := getFqn(output)
+		fqn, isCodegen, err := getFqn(output)
+		if isCodegen {
+			versioned = true
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "validating outputs")
 		}
@@ -123,7 +126,10 @@ func (p *OfflineQueryParams) resolve() (*offlineQueryParamsResolved, error) {
 
 	outputs := []string{}
 	for _, output := range p.rawOutputs {
-		fqn, _, err := getFqn(output)
+		fqn, isCodegen, err := getFqn(output)
+		if isCodegen {
+			versioned = true
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "validating outputs")
 		}
@@ -132,7 +138,10 @@ func (p *OfflineQueryParams) resolve() (*offlineQueryParamsResolved, error) {
 
 	requiredOutputs := []string{}
 	for _, output := range p.rawRequiredOutputs {
-		fqn, _, err := getFqn(output)
+		fqn, isCodegen, err := getFqn(output)
+		if isCodegen {
+			versioned = true
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "validating required outputs")
 		}
