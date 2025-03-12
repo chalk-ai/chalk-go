@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"

@@ -4,7 +4,7 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal"
 	"github.com/cockroachdb/errors"
 	"strings"
 	"time"

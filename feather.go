@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/v2/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal/colls"
+	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"time"
 )

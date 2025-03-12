@@ -10,7 +10,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"

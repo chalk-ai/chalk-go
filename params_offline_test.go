@@ -1,7 +1,7 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"

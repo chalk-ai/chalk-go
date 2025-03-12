@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v2 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v2"
+	v2 "github.com/chalk-ai/chalk-go/v2/gen/chalk/engine/v2"
 	http "net/http"
 	strings "strings"
 )
