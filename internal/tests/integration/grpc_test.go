@@ -89,7 +89,7 @@ func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	assert.NotNil(t, socureScore)
 	assert.NotNil(t, socureScore.Meta)
 	assert.Equal(t, expectedSocureScore, socureScore.Value)
-	assert.Equal(t, true, socureScore.Meta.SourceType == chalk.SourceTypeOnlineStore)
+	assert.Equal(t, "online_store", socureScore.Meta.SourceType)
 
 	today, err := row.GetFeature("user.today")
 	assert.Nil(t, err)

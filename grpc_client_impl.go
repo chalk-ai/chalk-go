@@ -176,15 +176,9 @@ func getToken(ctx context.Context, clientId string, clientSecret string, logger 
 	}, nil
 }
 
-type ResultMetadataSourceType string
-
-const (
-	SourceTypeOnlineStore ResultMetadataSourceType = "online_store"
-)
-
 type FeatureMeta struct {
 	ResolverFqn string
-	SourceType  ResultMetadataSourceType
+	SourceType  string
 	SourceId    string
 }
 
@@ -198,7 +192,7 @@ type RowResult struct {
 	Features map[string]FeatureOutput
 }
 
-func NewRowResult() *RowResult {
+func newRowResult() *RowResult {
 	return &RowResult{
 		Features: make(map[string]FeatureOutput),
 	}
@@ -255,7 +249,7 @@ type GRPCOnlineQueryBulkResult struct {
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
-	row := NewRowResult()
+	row := newRowResult()
 	if len(r.RawResponse.GetScalarsData()) == 0 {
 		return nil, errors.New("results table empty, either the query has errors or the data is malformed")
 	}
@@ -280,7 +274,10 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 	var rowMeta map[string]internal.FeatureMeta
 	if len(meta) > 0 {
 		if len(meta) != len(rows) {
-			return nil, errors.New("metadata length does not match rows length")
+			return nil, errors.Newf(
+				"metadata length %v does not match rows length %v",
+				len(meta), len(rows),
+			)
 		}
 		rowMeta = meta[rowIndex]
 	}
@@ -298,7 +295,7 @@ func (r *GRPCOnlineQueryBulkResult) GetRow(rowIndex int) (*RowResult, error) {
 			}
 			featureRes.Meta = &FeatureMeta{
 				ResolverFqn: internalMeta.ResolverFqn,
-				SourceType:  (ResultMetadataSourceType)(internalMeta.SourceType),
+				SourceType:  internalMeta.SourceType,
 				SourceId:    internalMeta.SourceId,
 			}
 		}
