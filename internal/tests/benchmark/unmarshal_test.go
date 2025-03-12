@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/v2"
 	"github.com/chalk-ai/chalk-go/v2/internal"
 	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
 	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"

@@ -2,7 +2,7 @@ package benchmark
 
 import (
 	"context"
-	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/v2"
 	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
 	"github.com/cockroachdb/errors"
 	"net/http/httptest"

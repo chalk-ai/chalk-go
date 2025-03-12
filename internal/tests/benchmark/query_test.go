@@ -3,7 +3,7 @@ package benchmark
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/v2"
 	commonv1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/v2/internal"
 	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
