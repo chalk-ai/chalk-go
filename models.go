@@ -104,7 +104,6 @@ type OnlineQueryParams struct {
 	rawStaleness map[any]time.Duration
 
 	// Validated fields are populated by the `validate` method.
-	validated          bool
 	validatedInputs    map[string]any
 	validatedOutputs   []string
 	validatedStaleness map[string]time.Duration

@@ -20,7 +20,8 @@ func getFqn(feature any) (string, error) {
 	}
 }
 
-func (p *OnlineQueryParams) innerValidate() error {
+// Validation for single queries
+func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
 	p.validatedInputs = map[string]any{}
 	for k, v := range p.rawInputs {
 		fqn, err := getFqn(k)
@@ -51,18 +52,9 @@ func (p *OnlineQueryParams) innerValidate() error {
 	return nil
 }
 
-// Validation for single queries
-func (p *OnlineQueryParams) validateAndPopulateParamFieldsSingle() error {
-	if err := p.innerValidate(); err != nil {
-		return err // Intentional no wrap
-	}
-	p.validated = true
-	return nil
-}
-
 // Validation for bulk queries
 func (p *OnlineQueryParams) validateAndPopulateParamFieldsBulk() error {
-	if err := p.innerValidate(); err != nil {
+	if err := p.validateAndPopulateParamFieldsSingle(); err != nil {
 		return err // Intentional no wrap
 	}
 
