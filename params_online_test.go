@@ -44,28 +44,32 @@ func TestOnlineQueryParamsAllTypes(t *testing.T) {
 		WithStaleness(
 			fixtures.Root.AllTypes.Bool, time.Second*5,
 		)
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	_, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 }
 
 func TestOnlineQueryInputParamInteger(t *testing.T) {
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithInput(invalidFeatureReference, "1")
-	assert.Error(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	_, err := params.underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 func TestOnlineQueryOutputParamInteger(t *testing.T) {
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithOutputs(invalidFeatureReference)
-	assert.Error(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	_, err := params.underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OnlineQueryParams{}.WithStaleness(invalidFeatureReference, time.Second*5)
-	assert.Error(t, underlying.validateAndPopulateParamFieldsSingle())
+	_, err := underlying.resolveSingle()
+	assert.Error(t, err)
 }
 
 // Tests that Feature structs have their nil fields omitted by default,
@@ -80,9 +84,11 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 		WithInput(fixtures.Root.AllTypes.Dataclass, fixtures.LatLng{
 			Lat: ptr.Ptr(1.1),
 		})
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
 
-	request, err := params.underlying.serialize()
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+
+	request, err := serializeOnlineQueryParams(&params.underlying, resolved)
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
 
@@ -103,7 +109,7 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 
 	assert.Equal(t, string(fileContent), string(inputJsonBytes))
 
-	bulkInputs, err := internal.SingleInputsToBulkInputs(params.underlying.validatedInputs)
+	bulkInputs, err := internal.SingleInputsToBulkInputs(resolved.inputs)
 	assert.NoError(t, err)
 	arrowBytes, err := internal.InputsToArrowBytes(bulkInputs)
 	assert.NoError(t, err)
@@ -500,7 +506,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 				},
 			},
 		})
-	request, err := params.underlying.serialize()
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
+	request, err := serializeOnlineQueryParams(&params.underlying, resolved)
 	assert.NoError(t, err)
 	assert.NotNil(t, request)
 
@@ -533,17 +541,17 @@ func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInputs(inputs)
-
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.validatedInputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.validatedInputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -556,17 +564,17 @@ func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 		fixtures.Root.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInput(fixtures.Root.AllTypes.Bool, true).WithInputs(inputs)
-
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.validatedInputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.validatedInputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -580,16 +588,17 @@ func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 	}
 	params := OnlineQueryParams{}.WithOutputs(fixtures.Root.AllTypes.Bool).WithInputs(inputs)
 
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.validatedInputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.validatedInputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -603,16 +612,17 @@ func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	}
 	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
 
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsSingle())
+	resolved, err := params.underlying.resolveSingle()
+	assert.NoError(t, err)
 
 	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
 	assert.Nil(t, err)
 	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
 	assert.Nil(t, err)
 
-	_, ok := params.underlying.validatedInputs[feature1.Fqn]
+	_, ok := resolved.inputs[feature1.Fqn]
 	assert.True(t, ok)
-	_, ok = params.underlying.validatedInputs[feature2.Fqn]
+	_, ok = resolved.inputs[feature2.Fqn]
 	assert.True(t, ok)
 }
 
@@ -635,13 +645,17 @@ func TestInputsLengthValidation(t *testing.T) {
 	paramsSameLength := OnlineQueryParams{}.
 		WithInput("user.id", []int{1, 2, 3}).
 		WithInput("user.number", []int{1, 2, 3})
-	assert.NoError(t, paramsSameLength.underlying.validateAndPopulateParamFieldsSingle())
-	assert.NoError(t, paramsSameLength.underlying.validateAndPopulateParamFieldsBulk())
+
+	_, err := paramsSameLength.underlying.resolveSingle()
+	assert.NoError(t, err)
+	_, err = paramsSameLength.underlying.resolveBulk()
+	assert.NoError(t, err)
 
 	paramsDiffLength := OnlineQueryParams{}.
 		WithInput("user.id", []int{1, 2, 3}).
 		WithInput("user.number", []int{1, 2})
-	assert.NoError(t, paramsDiffLength.underlying.validateAndPopulateParamFieldsSingle())
-	assert.Error(t, paramsDiffLength.underlying.validateAndPopulateParamFieldsBulk())
-
+	_, err = paramsDiffLength.underlying.resolveSingle()
+	assert.NoError(t, err)
+	_, err = paramsDiffLength.underlying.resolveBulk()
+	assert.Error(t, err)
 }

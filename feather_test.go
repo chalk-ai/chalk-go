@@ -13,9 +13,10 @@ func TestFeatherSerialization(t *testing.T) {
 	params := OnlineQueryParams{}.
 		WithInput("user.id", []int{1, 2, 3, 4}).
 		WithOutputs("user.email", "user.card.id")
-	assert.NoError(t, params.underlying.validateAndPopulateParamFieldsBulk())
-	_, err := internal.CreateOnlineQueryBulkBody(params.underlying.validatedInputs, internal.FeatherRequestHeader{Outputs: params.underlying.validatedOutputs})
-	assert.Nil(t, err)
+	resolved, err := params.underlying.resolveBulk()
+	assert.NoError(t, err)
+	_, err = internal.CreateOnlineQueryBulkBody(resolved.inputs, internal.FeatherRequestHeader{Outputs: resolved.outputs})
+	assert.NoError(t, err)
 }
 
 // TestErrorDeserialization tests that we can successfully deserialize

@@ -21,40 +21,43 @@ func (r OnlineQueryBulkResult) Release() {
 type SerializationOptions struct {
 	ClientConfigBranchId string
 
-	validated bool
+	resolved *onlineQueryParamsResolved
 }
 
 func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]byte, error) {
 	branchId := p.underlying.BranchId
-	validated := false
+	var resolved *onlineQueryParamsResolved
 	if len(options) > 1 {
 		return nil, fmt.Errorf("expected 1 SerializationOptions, got %d", len(options))
 	} else if len(options) == 1 {
 		if branchId == nil || *branchId == "" && options[0].ClientConfigBranchId != "" {
 			branchId = &options[0].ClientConfigBranchId
 		}
-		if options[0].validated {
-			validated = true
+		if options[0].resolved != nil {
+			resolved = options[0].resolved
 		}
 	}
-	if !validated {
-		if err := p.underlying.validateAndPopulateParamFieldsSingle(); err != nil {
+
+	if resolved == nil {
+		val, err := p.underlying.resolveSingle()
+		if err != nil {
 			return nil, errors.Wrap(err, "validating params")
 		}
+		resolved = val
 	}
 
 	convertedStaleness := make(map[string]string)
-	for k, v := range p.underlying.validatedStaleness {
+	for k, v := range resolved.staleness {
 		convertedStaleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
-	outputs := p.underlying.validatedOutputs
+	outputs := resolved.outputs
 	if outputs == nil {
 		// `outputs` is a non-optional field
 		outputs = []string{}
 	}
 
-	return internal.CreateOnlineQueryBulkBody(p.underlying.validatedInputs, internal.FeatherRequestHeader{
+	return internal.CreateOnlineQueryBulkBody(resolved.inputs, internal.FeatherRequestHeader{
 		Outputs:     outputs,
 		Explain:     p.underlying.Explain,
 		IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,

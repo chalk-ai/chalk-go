@@ -38,26 +38,32 @@ type HTTPClient interface {
 }
 
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
-	if err := params.underlying.validateAndPopulateParamFields(); err != nil {
-		return Dataset{}, errors.Wrap(err, "validating params")
-	}
-
+	request := params.underlying
 	emptyResult := Dataset{}
 	response := Dataset{}
 
-	err := c.sendRequest(
+	resolved, err := request.resolve()
+	if err != nil {
+		return emptyResult, errors.Wrap(err, "resolving params")
+	}
+
+	body, err := serializeOfflineQueryParams(&request, resolved)
+	if err != nil {
+		return emptyResult, errors.Wrap(err, "serializing offline query params")
+	}
+
+	if err = c.sendRequest(
 		ctx,
 		sendRequestParams{
 			Method:              "POST",
 			URL:                 "v3/offline_query",
-			Body:                params.underlying,
+			Body:                body,
 			Response:            &response,
-			EnvironmentOverride: params.underlying.EnvironmentId,
-			Versioned:           params.underlying.versioned,
-			Branch:              &params.underlying.Branch,
+			EnvironmentOverride: request.EnvironmentId,
+			Versioned:           resolved.versioned,
+			Branch:              &request.Branch,
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return emptyResult, errors.Wrap(err, "sending request")
 	}
 
@@ -73,20 +79,22 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 }
 
 func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (OnlineQueryBulkResult, error) {
-	emptyResult := OnlineQueryBulkResult{}
-	if err := params.underlying.validateAndPopulateParamFieldsBulk(); err != nil {
-		return emptyResult, errors.Wrap(err, "validating params")
+	request := params.underlying
+
+	resolved, err := request.resolveBulk()
+	if err != nil {
+		return OnlineQueryBulkResult{}, errors.Newf("resolving bulk query params")
 	}
 
-	for _, input := range params.underlying.validatedInputs {
+	for _, input := range resolved.inputs {
 		kind := reflect.ValueOf(input).Kind()
 		if !(kind == reflect.Slice || kind == reflect.Array) {
-			return emptyResult, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
+			return OnlineQueryBulkResult{}, errors.Newf("Inputs to bulk online query must be a slice or array, found: ", kind.String())
 		}
 	}
-	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch, validated: true})
+	data, err := params.ToBytes(&SerializationOptions{ClientConfigBranchId: c.Branch})
 	if err != nil {
-		return emptyResult, errors.Wrapf(err, "serializing online query params")
+		return OnlineQueryBulkResult{}, errors.Wrapf(err, "serializing online query params")
 	}
 
 	var resourceGroupOverride *string
@@ -105,23 +113,23 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			EnvironmentOverride:   params.underlying.EnvironmentId,
 			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
 			ResourceGroupOverride: resourceGroupOverride,
-			Versioned:             params.underlying.versioned,
+			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			IsEngineRequest:       true,
 		},
 	)
 
 	if err != nil {
-		return emptyResult, errors.Wrap(err, "sending request")
+		return OnlineQueryBulkResult{}, errors.Wrap(err, "sending request")
 	}
 
 	singleBulkResult, ok := response.QueryResults["0"]
 	if !ok {
-		return emptyResult, errors.Newf("unexpected bulk online query response from server")
+		return OnlineQueryBulkResult{}, errors.Newf("unexpected bulk online query response from server")
 	}
 
 	if len(singleBulkResult.Errors) > 0 {
-		return emptyResult, singleBulkResult.Errors
+		return OnlineQueryBulkResult{}, singleBulkResult.Errors
 	}
 
 	return OnlineQueryBulkResult{
@@ -171,9 +179,14 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 }
 
 func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
-	var serializedResponse onlineQueryResponseSerialized
+	request := params.underlying
 
-	serializedRequest, err := params.underlying.serialize()
+	resolved, err := request.resolveSingle()
+	if err != nil {
+		return OnlineQueryResult{}, errors.Wrap(err, "resolving single query params")
+	}
+
+	serializedRequest, err := serializeOnlineQueryParams(&request, resolved)
 	if err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}
@@ -183,6 +196,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 		resourceGroupOverride = &params.underlying.ResourceGroup
 	}
 
+	var serializedResponse onlineQueryResponseSerialized
 	if err = c.sendRequest(
 		ctx,
 		sendRequestParams{
@@ -190,9 +204,9 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
 			Response:              &serializedResponse,
-			EnvironmentOverride:   params.underlying.EnvironmentId,
-			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
-			Versioned:             params.underlying.versioned,
+			EnvironmentOverride:   request.EnvironmentId,
+			PreviewDeploymentId:   request.PreviewDeploymentId,
+			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
 			IsEngineRequest:       true,

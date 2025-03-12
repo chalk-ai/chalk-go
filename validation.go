@@ -11,6 +11,8 @@ type onlineQueryParamsResolved struct {
 	inputs    map[string]any
 	outputs   []string
 	staleness map[string]time.Duration
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs.
 	versioned bool
 }
 
@@ -52,7 +54,7 @@ func (p *OnlineQueryParams) resolveSingle() (*onlineQueryParamsResolved, error) 
 	}
 
 	staleness := map[string]time.Duration{}
-	for k, v := range staleness {
+	for k, v := range p.rawStaleness {
 		fqn, _, err := getFqn(k)
 		if err != nil {
 			return nil, errors.Wrap(err, "validating staleness")
@@ -95,41 +97,52 @@ func (p *OnlineQueryParams) resolveBulk() (*onlineQueryParamsResolved, error) {
 	return res, nil
 }
 
-func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
-	p.validatedInputs = map[string][]TsFeatureValue{}
+type offlineQueryParamsResolved struct {
+	inputs          map[string][]TsFeatureValue
+	outputs         []string
+	requiredOutputs []string
+	// Whether features have been versioned. Features have been versioned if
+	// codegen-ed structs were used to specify inputs or outputs. Populated
+	// by the validation method.
+	versioned bool
+}
+
+func (p *OfflineQueryParams) resolve() (*offlineQueryParamsResolved, error) {
+	var versioned bool
+	inputs := map[string][]TsFeatureValue{}
 	for k, v := range p.rawInputs {
 		fqn, isCodegen, err := getFqn(k)
 		if err != nil {
-			return errors.Wrap(err, "validating inputs")
+			return nil, errors.Wrap(err, "validating inputs")
 		}
 		if isCodegen {
-			p.versioned = true
+			versioned = true
 		}
-		p.validatedInputs[fqn] = v
+		inputs[fqn] = v
 	}
 
-	p.validatedOutputs = []string{}
+	outputs := []string{}
 	for _, output := range p.rawOutputs {
 		fqn, _, err := getFqn(output)
 		if err != nil {
-			return errors.Wrap(err, "validating outputs")
+			return nil, errors.Wrap(err, "validating outputs")
 		}
-		p.validatedOutputs = append(p.validatedOutputs, fqn)
+		outputs = append(outputs, fqn)
 	}
 
-	p.validatedRequiredOutputs = []string{}
+	requiredOutputs := []string{}
 	for _, output := range p.rawRequiredOutputs {
 		fqn, _, err := getFqn(output)
 		if err != nil {
-			return errors.Wrap(err, "validating required outputs")
+			return nil, errors.Wrap(err, "validating required outputs")
 		}
-		p.validatedRequiredOutputs = append(p.validatedRequiredOutputs, fqn)
+		requiredOutputs = append(requiredOutputs, fqn)
 	}
 
 	referenceLen := -1
-	for k, v := range p.validatedInputs {
+	for k, v := range inputs {
 		if len(v) == 0 {
-			return errors.New("input values must not be empty")
+			return nil, errors.New("input values must not be empty")
 		}
 
 		// Validate input values are the same length
@@ -138,12 +151,16 @@ func (p *OfflineQueryParams) validateAndPopulateParamFields() error {
 		}
 
 		if len(v) != referenceLen {
-			return errors.Newf(
+			return nil, errors.Newf(
 				"input values must be the same length - expected %d, got %d for feature '%s'",
 				referenceLen, len(v), k,
 			)
 		}
 	}
-	p.validated = true
-	return nil
+	return &offlineQueryParamsResolved{
+		inputs:          inputs,
+		outputs:         outputs,
+		requiredOutputs: requiredOutputs,
+		versioned:       versioned,
+	}, nil
 }

@@ -102,16 +102,6 @@ type OnlineQueryParams struct {
 	// Maximum staleness overrides for any output features or intermediate features.
 	// Set by OnlineQueryParams.WithStaleness.
 	rawStaleness map[any]time.Duration
-
-	// Validated fields are populated by the validation method.
-	validatedInputs    map[string]any
-	validatedOutputs   []string
-	validatedStaleness map[string]time.Duration
-	versioned          bool
-	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs. Populated
-	// by the validation method.
-
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -499,16 +489,6 @@ type OfflineQueryParams struct {
 	rawInputs          map[any][]TsFeatureValue
 	rawOutputs         []any
 	rawRequiredOutputs []any
-
-	validated                bool
-	validatedInputs          map[string][]TsFeatureValue
-	validatedOutputs         []string
-	validatedRequiredOutputs []string
-	versioned                bool
-	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs. Populated
-	// by the validation method.
-
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
