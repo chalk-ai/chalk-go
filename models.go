@@ -107,11 +107,11 @@ type OnlineQueryParams struct {
 	validatedInputs    map[string]any
 	validatedOutputs   []string
 	validatedStaleness map[string]time.Duration
-
+	versioned          bool
 	// Whether features have been versioned. Features have been versioned if
 	// codegen-ed structs were used to specify inputs or outputs. Populated
 	// by the validation method.
-	versioned bool
+
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -504,10 +504,11 @@ type OfflineQueryParams struct {
 	validatedInputs          map[string][]TsFeatureValue
 	validatedOutputs         []string
 	validatedRequiredOutputs []string
-
+	versioned                bool
 	// Whether features have been versioned. Features have been versioned if
-	// codegen-ed structs were used to specify inputs or outputs.
-	versioned bool
+	// codegen-ed structs were used to specify inputs or outputs. Populated
+	// by the validation method.
+
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
