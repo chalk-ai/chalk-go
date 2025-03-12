@@ -7,7 +7,7 @@
 package serverv1
 
 import (
-	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
+	_ "github.com/chalk-ai/chalk-go/v2/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/descriptorpb"

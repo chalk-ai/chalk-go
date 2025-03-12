@@ -1,13 +1,13 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/v2/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
+	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
 	"testing"
 	"time"
 
-	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/chalk-ai/chalk-go/v2/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )

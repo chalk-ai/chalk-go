@@ -2,8 +2,8 @@ package benchmark
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/v2/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )

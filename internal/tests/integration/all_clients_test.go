@@ -3,8 +3,8 @@ package integration
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"github.com/chalk-ai/chalk-go/v2"
+	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"testing"

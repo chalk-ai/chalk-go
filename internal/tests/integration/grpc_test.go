@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/v2"
 	assert "github.com/stretchr/testify/require"
 )
 

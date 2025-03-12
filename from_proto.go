@@ -2,8 +2,8 @@ package chalk
 
 import (
 	"fmt"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
+	commonv1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/common/v1"
+	"github.com/chalk-ai/chalk-go/v2/internal/ptr"
 	"time"
 )
 

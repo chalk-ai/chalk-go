@@ -2,7 +2,7 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/v2/internal"
 	"github.com/cockroachdb/errors"
 	"reflect"
 	"strconv"

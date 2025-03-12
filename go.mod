@@ -1,4 +1,4 @@
-module github.com/chalk-ai/chalk-go
+module github.com/chalk-ai/chalk-go/v2
 
 go 1.22.0
 

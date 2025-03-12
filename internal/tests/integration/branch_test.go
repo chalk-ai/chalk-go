@@ -2,8 +2,8 @@ package integration
 
 import (
 	"context"
-	"github.com/chalk-ai/chalk-go"
-	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/v2"
+	"github.com/chalk-ai/chalk-go/v2/internal"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )

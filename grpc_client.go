@@ -3,7 +3,7 @@ package chalk
 import (
 	"context"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	aggregatev1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/aggregate/v1"
 	"time"
 )
 

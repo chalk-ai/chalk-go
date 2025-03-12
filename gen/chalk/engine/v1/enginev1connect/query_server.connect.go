@@ -8,9 +8,9 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v12 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
-	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
+	v12 "github.com/chalk-ai/chalk-go/v2/gen/chalk/aggregate/v1"
+	v11 "github.com/chalk-ai/chalk-go/v2/gen/chalk/common/v1"
+	v1 "github.com/chalk-ai/chalk-go/v2/gen/chalk/engine/v1"
 	http "net/http"
 	strings "strings"
 )
