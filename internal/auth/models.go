@@ -18,7 +18,7 @@ type ProjectToken struct {
 }
 
 func (t *JWT) IsValid() bool {
-	return t.ValidUntil.After(time.Now().UTC().Add(-10 * time.Second))
+	return t.ValidUntil.After(time.Now().UTC().Add(-60 * 5 * time.Second))
 }
 
 type ProjectTokens struct {
