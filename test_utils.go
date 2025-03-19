@@ -8,6 +8,13 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 )
 
+// CreateFeatureTable creates an Arrow table from a map of feature to values.
+// A feature can be either a string or a codegen'd feature reference.
+// The values should be a slice of the appropriate type for the feature.
+func CreateFeatureTable(featureToValues map[any]any) (arrow.Table, error) {
+	return buildTableFromFeatureToValuesMap(featureToValues)
+}
+
 // buildTableFromFeatureToValuesMap builds an Arrow record from a map of features to values.
 // The features should be codegen-ed `Feature` objects.
 func buildTableFromFeatureToValuesMap(featureToValues map[any]any) (arrow.Table, error) {
