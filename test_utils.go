@@ -11,7 +11,7 @@ import (
 )
 
 type FeatureTable struct {
-	Table arrow.Table
+	ArrowTable arrow.Table
 
 	allocator memory.Allocator
 }
@@ -21,11 +21,11 @@ func (f *FeatureTable) ToBytes() ([]byte, error) {
 	if allocator == nil {
 		allocator = memory.DefaultAllocator
 	}
-	return internal.TableToBytes(f.Table, allocator)
+	return internal.TableToBytes(f.ArrowTable, allocator)
 }
 
 func (f *FeatureTable) Release() {
-	f.Table.Release()
+	f.ArrowTable.Release()
 }
 
 type MakeFeatureTableOptions struct {
@@ -55,7 +55,7 @@ func MakeFeatureTable(featureToValues map[any]any, options ...MakeFeatureTableOp
 	}
 	defer record.Release()
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
-	return &FeatureTable{Table: table}, nil
+	return &FeatureTable{ArrowTable: table}, nil
 }
 
 func convertFeatureToValues(featureToValues map[any]any) (map[string]any, error) {

@@ -66,7 +66,7 @@ func TableToBytes(table arrow.Table, allocator memory.Allocator) ([]byte, error)
 	defer reader.Release()
 	for reader.Next() {
 		if err = fileWriter.Write(reader.Record()); err != nil {
-			return nil, errors.Wrap(err, "writing Arrow Table to request")
+			return nil, errors.Wrap(err, "writing Arrow Table to buffer")
 		}
 	}
 	if err = fileWriter.Close(); err != nil {
