@@ -574,12 +574,10 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 			time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC),
 		},
 	}
-	scalarsTable, scalarsErr := MakeFeatureTable(scalarsMap)
+	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
 	assert.NoError(t, scalarsErr)
 
-	bulkRes := OnlineQueryBulkResult{
-		ScalarsTable: scalarsTable.Table,
-	}
+	bulkRes := OnlineQueryBulkResult{ScalarsTable: scalarsTable}
 	defer bulkRes.Release()
 
 	resultHolders := make([]fixtures.AllTypes, 0)
