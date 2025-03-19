@@ -319,7 +319,11 @@ func (r *GRPCOnlineQueryBulkResult) GetErrors() ([]ServerError, error) {
 }
 
 func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
-	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), r.allocator)
+	allocator := r.allocator
+	if allocator == nil {
+		allocator = memory.DefaultAllocator
+	}
+	scalars, err := internal.ConvertBytesToTable(r.RawResponse.GetScalarsData(), allocator)
 	if err != nil {
 		return errors.Wrap(err, "deserializing scalars table")
 	}

@@ -42,9 +42,8 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 		return nil, recordErr
 	}
 	defer record.Release()
-
 	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.DefaultAllocator))
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(allocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "creating Arrow Table writer")
 	}
@@ -56,6 +55,27 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 	}
 	return bws.Bytes(), nil
 }
+
+func TableToBytes(table arrow.Table, allocator memory.Allocator) ([]byte, error) {
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(table.Schema()), ipc.WithAllocator(allocator))
+	if err != nil {
+		return nil, errors.Wrap(err, "creating Arrow Table writer")
+	}
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+	for reader.Next() {
+		if err = fileWriter.Write(reader.Record()); err != nil {
+			return nil, errors.Wrap(err, "writing Arrow Table to buffer")
+		}
+	}
+	if err = fileWriter.Close(); err != nil {
+		return nil, errors.Wrap(err, "closing Arrow Table writer")
+	}
+	return bws.Bytes(), nil
+
+}
+
 func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, bool, error) {
 	if visitedNamespaces == nil {
 		visitedNamespaces = map[string]bool{}
@@ -378,8 +398,23 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false
 	mapIdx := 0
+	referenceLen := -1
+	inputsToReflectValue := make(map[string]reflect.Value, len(inputs))
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
+		if columnVal.Kind() != reflect.Slice {
+			return nil, fmt.Errorf("expected values to be a slice, found %s for '%s'", columnVal.Kind(), k)
+		}
+		if referenceLen == -1 {
+			referenceLen = columnVal.Len()
+		} else if referenceLen != columnVal.Len() {
+			return nil, errors.Newf(
+				"expected all slices to be of the same length %d but found %d for '%s'",
+				referenceLen, columnVal.Len(), k,
+			)
+		}
+		inputsToReflectValue[k] = columnVal
+
 		columnElemType := columnVal.Type().Elem()
 		arrowType, shouldFilter, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
@@ -395,20 +430,14 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 	defer recordBuilder.Release()
 
 	for idx, field := range schema {
-		values, ok := inputs[field.Name]
+		values, ok := inputsToReflectValue[field.Name]
 		if !ok {
-			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
+			return nil, fmt.Errorf("failed to find values for feature '%s'", field.Name)
 		}
-
-		rValues := reflect.ValueOf(values)
-		if rValues.Kind() != reflect.Slice {
-			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
-		}
-
 		if err := setBuilderValues(
 			recordBuilder.Field(idx),
-			rValues,
-			allValid(rValues.Len()),
+			values,
+			allValid(values.Len()),
 			map[string]bool{},
 		); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)
