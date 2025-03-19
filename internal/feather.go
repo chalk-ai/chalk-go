@@ -398,8 +398,23 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 	shouldFilterColumn := make([]bool, len(inputs))
 	shouldFilterRecord := false
 	mapIdx := 0
+	referenceLen := -1
+	inputsToReflectValue := make(map[string]reflect.Value, len(inputs))
 	for k, v := range inputs {
 		columnVal := reflect.ValueOf(v)
+		if columnVal.Kind() != reflect.Slice {
+			return nil, fmt.Errorf("expected values to be a slice, found %s for '%s'", columnVal.Kind(), k)
+		}
+		if referenceLen == -1 {
+			referenceLen = columnVal.Len()
+		} else if referenceLen != columnVal.Len() {
+			return nil, errors.Newf(
+				"expected all slices to be of the same length %d but found %d for '%s'",
+				referenceLen, columnVal.Len(), k,
+			)
+		}
+		inputsToReflectValue[k] = columnVal
+
 		columnElemType := columnVal.Type().Elem()
 		arrowType, shouldFilter, convErr := convertReflectToArrowType(columnElemType, nil)
 		if convErr != nil {
@@ -415,20 +430,14 @@ func ColumnMapToRecord(inputs map[string]any, allocator memory.Allocator) (arrow
 	defer recordBuilder.Release()
 
 	for idx, field := range schema {
-		values, ok := inputs[field.Name]
+		values, ok := inputsToReflectValue[field.Name]
 		if !ok {
-			return nil, fmt.Errorf("failed to find input values for feature '%s'", field.Name)
+			return nil, fmt.Errorf("failed to find values for feature '%s'", field.Name)
 		}
-
-		rValues := reflect.ValueOf(values)
-		if rValues.Kind() != reflect.Slice {
-			return nil, fmt.Errorf("expected input values to be a slice, found %s", rValues.Kind())
-		}
-
 		if err := setBuilderValues(
 			recordBuilder.Field(idx),
-			rValues,
-			allValid(rValues.Len()),
+			values,
+			allValid(values.Len()),
 			map[string]bool{},
 		); err != nil {
 			return nil, errors.Wrapf(err, "failed to set values for feature '%s'", field.Name)

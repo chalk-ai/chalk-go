@@ -36,9 +36,6 @@ type MakeFeatureTableOptions struct {
 // MakeFeatureTable creates an Arrow table from a map of feature to values.
 // A feature can be either a string or a codegen'd feature reference.
 // The values should be a slice of the appropriate type for the feature.
-// The first return value is the Arrow table, and the second return value
-// is the serialized Arrow table, which you can pass to raw response objects
-// such as GRPCOnlineQueryBulkResult.
 func MakeFeatureTable(featureToValues map[any]any, options ...MakeFeatureTableOptions) (*FeatureTable, error) {
 	allocator := memory.DefaultAllocator
 	if len(options) > 1 {
@@ -52,9 +49,9 @@ func MakeFeatureTable(featureToValues map[any]any, options ...MakeFeatureTableOp
 		return nil, errors.Wrap(err, "mapping features to FQN")
 	}
 
-	record, recordErr := internal.ColumnMapToRecord(fqnToValues, allocator)
-	if recordErr != nil {
-		return nil, fmt.Errorf("error converting a map of column values to an Arrow Record: %w", recordErr)
+	record, err := internal.ColumnMapToRecord(fqnToValues, allocator)
+	if err != nil {
+		return nil, errors.Wrap(err, "converting to record")
 	}
 	defer record.Release()
 	table := array.NewTableFromRecords(record.Schema(), []arrow.Record{record})
