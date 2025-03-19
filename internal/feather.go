@@ -42,9 +42,8 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 		return nil, recordErr
 	}
 	defer record.Release()
-
 	bws := &BufferWriteSeeker{}
-	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(memory.DefaultAllocator))
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(record.Schema()), ipc.WithAllocator(allocator))
 	if err != nil {
 		return nil, errors.Wrap(err, "creating Arrow Table writer")
 	}
@@ -56,6 +55,27 @@ func InputsToArrowBytes(inputs map[string]any, allocator memory.Allocator) ([]by
 	}
 	return bws.Bytes(), nil
 }
+
+func TableToBytes(table arrow.Table, allocator memory.Allocator) ([]byte, error) {
+	bws := &BufferWriteSeeker{}
+	fileWriter, err := ipc.NewFileWriter(bws, ipc.WithSchema(table.Schema()), ipc.WithAllocator(allocator))
+	if err != nil {
+		return nil, errors.Wrap(err, "creating Arrow Table writer")
+	}
+	reader := array.NewTableReader(table, int64(TableReaderChunkSize))
+	defer reader.Release()
+	for reader.Next() {
+		if err = fileWriter.Write(reader.Record()); err != nil {
+			return nil, errors.Wrap(err, "writing Arrow Table to request")
+		}
+	}
+	if err = fileWriter.Close(); err != nil {
+		return nil, errors.Wrap(err, "closing Arrow Table writer")
+	}
+	return bws.Bytes(), nil
+
+}
+
 func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]bool) (arrow.DataType, bool, error) {
 	if visitedNamespaces == nil {
 		visitedNamespaces = map[string]bool{}
