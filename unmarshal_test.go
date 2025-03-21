@@ -6,6 +6,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
@@ -574,11 +575,9 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 		},
 	}
 	scalarsTable, scalarsErr := buildTableFromFeatureToValuesMap(scalarsMap)
-	assert.Nil(t, scalarsErr)
+	assert.NoError(t, scalarsErr)
 
-	bulkRes := OnlineQueryBulkResult{
-		ScalarsTable: scalarsTable,
-	}
+	bulkRes := OnlineQueryBulkResult{ScalarsTable: scalarsTable}
 	defer bulkRes.Release()
 
 	resultHolders := make([]fixtures.AllTypes, 0)
@@ -1358,6 +1357,33 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	assert.Equal(t, int64(12345), *resultHolders[0].Int)
 	// Struct initialized but not populated with "extra" fields, which is what we want.
 	assert.Equal(t, 1, len(*resultHolders[0].HasMany))
+}
+
+// Test that customers can construct a GRPCOnlineQueryBulkResult for testing
+func TestUnmarshalExternallyConstructedGRPCOnlineQueryBulkResult(t *testing.T) {
+	testData := map[any]any{
+		fixtures.Root.AllTypes.Int: []int64{1, 2, 3},
+		"all_types.float":          []float64{1.1, 2.2, 3.3},
+	}
+	testDataTable, err := MakeFeatureTable(testData)
+	assert.NoError(t, err)
+	tableBytes, err := testDataTable.ToBytes()
+	assert.NoError(t, err)
+	result := &GRPCOnlineQueryBulkResult{
+		RawResponse: &commonv1.OnlineQueryBulkResponse{
+			ScalarsData: tableBytes,
+		},
+	}
+	resultHolders := make([]fixtures.AllTypes, 0)
+	assert.NoError(t, result.UnmarshalInto(&resultHolders))
+	assert.Equal(t, 3, len(resultHolders))
+	assert.Equal(t, int64(1), *resultHolders[0].Int)
+	assert.Equal(t, int64(2), *resultHolders[1].Int)
+	assert.Equal(t, int64(3), *resultHolders[2].Int)
+
+	assert.Equal(t, 1.1, *resultHolders[0].Float)
+	assert.Equal(t, 2.2, *resultHolders[1].Float)
+	assert.Equal(t, 3.3, *resultHolders[2].Float)
 }
 
 func TestWarmUpUnmarshaller(t *testing.T) {
