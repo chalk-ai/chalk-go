@@ -56,6 +56,9 @@ const (
 	// BuilderServiceUploadSourceProcedure is the fully-qualified name of the BuilderService's
 	// UploadSource RPC.
 	BuilderServiceUploadSourceProcedure = "/chalk.server.v1.BuilderService/UploadSource"
+	// BuilderServiceLintSourceProcedure is the fully-qualified name of the BuilderService's LintSource
+	// RPC.
+	BuilderServiceLintSourceProcedure = "/chalk.server.v1.BuilderService/LintSource"
 	// BuilderServiceGetDeploymentStepsProcedure is the fully-qualified name of the BuilderService's
 	// GetDeploymentSteps RPC.
 	BuilderServiceGetDeploymentStepsProcedure = "/chalk.server.v1.BuilderService/GetDeploymentSteps"
@@ -135,6 +138,7 @@ type BuilderServiceClient interface {
 	RedeployDeployment(context.Context, *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error)
 	// Triggers a new build with the provided source code archive and deploys the result
 	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
+	LintSource(context.Context, *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error)
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
@@ -207,6 +211,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceUploadSourceProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
+			connect.WithClientOptions(opts...),
+		),
+		lintSource: connect.NewClient[v1.LintSourceRequest, v1.LintSourceResponse](
+			httpClient,
+			baseURL+BuilderServiceLintSourceProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("LintSource")),
 			connect.WithClientOptions(opts...),
 		),
 		getDeploymentSteps: connect.NewClient[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse](
@@ -331,6 +341,7 @@ type builderServiceClient struct {
 	rebuildDeployment                  *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
 	redeployDeployment                 *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
 	uploadSource                       *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
+	lintSource                         *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
 	getDeploymentSteps                 *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
 	getDeploymentLogs                  *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
 	getClusterTimescaleDB              *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
@@ -384,6 +395,11 @@ func (c *builderServiceClient) RedeployDeployment(ctx context.Context, req *conn
 // UploadSource calls chalk.server.v1.BuilderService.UploadSource.
 func (c *builderServiceClient) UploadSource(ctx context.Context, req *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error) {
 	return c.uploadSource.CallUnary(ctx, req)
+}
+
+// LintSource calls chalk.server.v1.BuilderService.LintSource.
+func (c *builderServiceClient) LintSource(ctx context.Context, req *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error) {
+	return c.lintSource.CallUnary(ctx, req)
 }
 
 // GetDeploymentSteps calls chalk.server.v1.BuilderService.GetDeploymentSteps.
@@ -496,6 +512,7 @@ type BuilderServiceHandler interface {
 	RedeployDeployment(context.Context, *connect.Request[v1.RedeployDeploymentRequest]) (*connect.Response[v1.RedeployDeploymentResponse], error)
 	// Triggers a new build with the provided source code archive and deploys the result
 	UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error)
+	LintSource(context.Context, *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error)
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
@@ -564,6 +581,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceUploadSourceProcedure,
 		svc.UploadSource,
 		connect.WithSchema(builderServiceMethods.ByName("UploadSource")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceLintSourceHandler := connect.NewUnaryHandler(
+		BuilderServiceLintSourceProcedure,
+		svc.LintSource,
+		connect.WithSchema(builderServiceMethods.ByName("LintSource")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetDeploymentStepsHandler := connect.NewUnaryHandler(
@@ -692,6 +715,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceRedeployDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceUploadSourceProcedure:
 			builderServiceUploadSourceHandler.ServeHTTP(w, r)
+		case BuilderServiceLintSourceProcedure:
+			builderServiceLintSourceHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentStepsProcedure:
 			builderServiceGetDeploymentStepsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentLogsProcedure:
@@ -763,6 +788,10 @@ func (UnimplementedBuilderServiceHandler) RedeployDeployment(context.Context, *c
 
 func (UnimplementedBuilderServiceHandler) UploadSource(context.Context, *connect.Request[v1.UploadSourceRequest]) (*connect.Response[v1.UploadSourceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UploadSource is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) LintSource(context.Context, *connect.Request[v1.LintSourceRequest]) (*connect.Response[v1.LintSourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.LintSource is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error) {
