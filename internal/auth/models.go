@@ -2,6 +2,8 @@ package auth
 
 import "time"
 
+var validityBuffer = 5 * time.Minute
+
 type JWT struct {
 	Token      string    `yaml:"value"`
 	ValidUntil time.Time `yaml:"validUntil"`
@@ -18,7 +20,8 @@ type ProjectToken struct {
 }
 
 func (t *JWT) IsValid() bool {
-	return t.ValidUntil.After(time.Now().UTC().Add(-60 * 5 * time.Second))
+	expiry := t.ValidUntil.Add(-validityBuffer)
+	return time.Now().UTC().Before(expiry)
 }
 
 type ProjectTokens struct {
