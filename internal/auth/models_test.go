@@ -30,7 +30,7 @@ func TestIsValid(t *testing.T) {
 		},
 		{
 			name:            "now after valid until plus validity buffer",
-			validUntil:      now.Add(validityBuffer + time.Second),
+			validUntil:      now.Add(-(validityBuffer + time.Second)),
 			expectedIsValid: false,
 		},
 	} {
