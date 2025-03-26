@@ -20,8 +20,7 @@ type ProjectToken struct {
 }
 
 func (t *JWT) IsValid() bool {
-	expiry := t.ValidUntil.Add(-validityBuffer)
-	return time.Now().UTC().Before(expiry)
+	return t.ValidUntil.After(time.Now().UTC().Add(-validityBuffer))
 }
 
 type ProjectTokens struct {
