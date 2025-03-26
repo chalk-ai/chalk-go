@@ -8,6 +8,7 @@ import (
 var now = time.Now().UTC()
 
 func TestIsValid(t *testing.T) {
+	t.Parallel()
 	for _, fixture := range []struct {
 		name            string
 		validUntil      time.Time
@@ -35,6 +36,7 @@ func TestIsValid(t *testing.T) {
 		},
 	} {
 		t.Run(fixture.name, func(t *testing.T) {
+			t.Parallel()
 			jwt := JWT{
 				ValidUntil: fixture.validUntil,
 			}
