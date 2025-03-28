@@ -87,6 +87,18 @@ type newGradAngelInvestor struct {
 	HowBroke *int64
 }
 
+type allTypes struct {
+	Id      *int64
+	StrFeat *string
+	HasMany *[]hasManyFeature `has_many:"id,all_types_id"`
+}
+
+type hasManyFeature struct {
+	Id         *string
+	Name       *string
+	AllTypesId *int64
+}
+
 type kindInvestor struct {
 	Id       *string
 	SeriesId *string
@@ -101,8 +113,9 @@ type series struct {
 }
 
 var testFeatures struct {
-	User   *user
-	Series *series
+	User     *user
+	Series   *series
+	AllTypes *allTypes
 }
 
 type Intercepted struct {

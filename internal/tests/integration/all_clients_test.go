@@ -3,7 +3,6 @@ package integration
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
@@ -48,51 +47,52 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
-	investorsInput := []newGradAngelInvestor{
-		{Id: ptr.Ptr("amylase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(1))},
-		{Id: ptr.Ptr("lipase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(2))},
+	hmInput := []hasManyFeature{
+		{Id: ptr.Ptr("id_a"), Name: ptr.Ptr("name_a"), AllTypesId: ptr.Ptr(int64(1))},
+		{Id: ptr.Ptr("id_b"), Name: ptr.Ptr("name_b"), AllTypesId: ptr.Ptr(int64(1))},
 	}
 
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
-			var resultSeries series
+			var row allTypes
+
 			if useGrpc {
-				var resultSeriesBulk []series
-				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.Series.Id, []string{"seed"}).
-					WithInput(testFeatures.Series.Investors, [][]newGradAngelInvestor{investorsInput}).
-					WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
-				res, err := grpcClient.OnlineQueryBulk(context.Background(), params)
+				var allResults []allTypes
+				bulkParams := chalk.OnlineQueryParams{}.
+					WithInput(testFeatures.AllTypes.Id, []int64{1}).
+					WithInput(testFeatures.AllTypes.HasMany, [][]hasManyFeature{hmInput}).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
 				assert.NoError(t, err)
-				assert.NoError(t, res.UnmarshalInto(&resultSeriesBulk))
-				assert.Equal(t, 1, len(resultSeriesBulk))
-				resultSeries = resultSeriesBulk[0]
+				assert.NoError(t, res.UnmarshalInto(&allResults))
+				assert.Equal(t, 1, len(allResults))
+				row = allResults[0]
 
 				row, err := res.GetRow(0)
 				assert.NoError(t, err)
-				resultInvestors, err := row.GetFeatureValue(testFeatures.Series.Investors)
+				hmOutput, err := row.GetFeatureValue(testFeatures.AllTypes.HasMany)
 				assert.NoError(t, err)
-				assert.NotNil(t, resultInvestors)
+				assert.NotNil(t, hmOutput)
 			} else {
 				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.Series.Id, "seed").
-					WithInput(testFeatures.Series.Investors, investorsInput).
-					WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
-				res, err := restClient.OnlineQuery(context.Background(), params, &resultSeries)
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithInput(testFeatures.AllTypes.HasMany, hmInput).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := restClient.OnlineQuery(context.Background(), params, &row)
 				assert.NoError(t, err)
 
-				resultInvestors, err := res.GetFeatureValue(testFeatures.Series.Investors)
+				resultInvestors, err := res.GetFeatureValue(testFeatures.AllTypes.HasMany)
 				assert.NoError(t, err)
 				assert.NotNil(t, resultInvestors)
 			}
 
-			assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
-			assert.Equal(t, "amylase", *(*resultSeries.Investors)[0].Id)
-			assert.Equal(t, "lipase", *(*resultSeries.Investors)[1].Id)
-			assert.Equal(t, int64(1), *(*resultSeries.Investors)[0].HowBroke)
-			assert.Equal(t, int64(2), *(*resultSeries.Investors)[1].HowBroke)
-			assert.Equal(t, "seed", *(*resultSeries.Investors)[0].SeriesId)
-			assert.Equal(t, "seed", *(*resultSeries.Investors)[1].SeriesId)
+			assert.Equal(t, len(hmInput), len(*row.HasMany))
+			assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
+			assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
+			assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
+			assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
+			assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
+			assert.Equal(t, int64(2), *(*row.HasMany)[1].AllTypesId)
 		})
 	}
 }
