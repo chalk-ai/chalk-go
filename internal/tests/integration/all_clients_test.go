@@ -36,7 +36,43 @@ func init() {
 		panic(err)
 	}
 	grpcClient = clientGrpc
+}
 
+// TestOnlineQueryBulk mainly tests that a
+// real query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryBulk(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+			ids := []int64{1, 2}
+			var results []allTypes
+			req := chalk.OnlineQueryParams{}.
+				WithInput(testFeatures.AllTypes.Id, ids).
+				WithOutputs(
+					testFeatures.AllTypes.Id,
+					testFeatures.AllTypes.StrFeat,
+					testFeatures.AllTypes.IntFeat,
+				)
+			if useGrpc {
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			} else {
+				res, err := restClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			}
+			assert.Equal(t, 2, len(results))
+			assert.Equal(t, ids[0], *results[0].Id)
+			assert.Equal(t, "1", *results[0].StrFeat)
+			assert.Equal(t, int64(1), *results[0].IntFeat)
+			assert.Equal(t, ids[1], *results[1].Id)
+			assert.Equal(t, "2", *results[1].StrFeat)
+			assert.Equal(t, int64(2), *results[1].IntFeat)
+		})
+	}
 }
 
 // Test that we can execute an OnlineQuery

@@ -90,6 +90,7 @@ type newGradAngelInvestor struct {
 type allTypes struct {
 	Id      *int64
 	StrFeat *string
+	IntFeat *int64
 	HasMany *[]hasManyFeature `has_many:"id,all_types_id"`
 }
 
