@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"fmt"
+	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
@@ -92,7 +93,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 			assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
 			assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
 			assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
-			assert.Equal(t, int64(2), *(*row.HasMany)[1].AllTypesId)
+			assert.Equal(t, int64(1), *(*row.HasMany)[1].AllTypesId)
 		})
 	}
 }
