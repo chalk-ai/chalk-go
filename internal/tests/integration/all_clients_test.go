@@ -55,6 +55,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
 			var row allTypes
 
 			if useGrpc {
@@ -114,11 +115,12 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 
 	for _, optionFixture := range plannerOptionsFixtures {
 		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
+			t.Parallel()
 			_, err := restClient.OnlineQuery(
 				context.Background(),
 				chalk.OnlineQueryParams{PlannerOptions: optionFixture.plannerOptions}.
-					WithInput("user.id", 1).
-					WithOutputs("user.socure_score"),
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithOutputs(testFeatures.AllTypes.StrFeat),
 				nil,
 			)
 			if optionFixture.isValid {
@@ -137,11 +139,12 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 	for _, useGrpc := range []bool{false, true} {
 		for _, optionFixture := range plannerOptionsFixtures {
 			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", useGrpc, optionFixture.isValid), func(t *testing.T) {
+				t.Parallel()
 				params := chalk.OnlineQueryParams{
 					PlannerOptions: optionFixture.plannerOptions,
 				}.
-					WithInput("user.id", []int{1}).
-					WithOutputs("user.socure_score")
+					WithInput(testFeatures.AllTypes.Id, []int{1}).
+					WithOutputs(testFeatures.AllTypes.StrFeat)
 
 				var err error
 				if useGrpc {
@@ -227,8 +230,8 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 
 	lenientTimeout := time.Minute * 1
 	params := chalk.OnlineQueryParams{}.
-		WithInput("user.id", []int{1}).
-		WithOutputs("user.socure_score")
+		WithInput(testFeatures.AllTypes.Id, []int{1}).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	for _, useGrpc := range []bool{false, true} {
 		for _, timeoutFixture := range timeouts {
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
