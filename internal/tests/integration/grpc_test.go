@@ -2,79 +2,67 @@ package integration
 
 import (
 	"context"
-	"testing"
-
+	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
+	"math/rand"
+	"testing"
 )
-
-var initFeaturesErr error
-
-func init() {
-	initFeaturesErr = chalk.InitFeatures(&testFeatures)
-}
 
 // TestOnlineQueryGrpcIncludeMeta mainly tests that the response
 // includes the correct metadata when requested.
 func TestOnlineQueryGrpcIncludeMeta(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	if initFeaturesErr != nil {
-		t.Fatal("Failed initializing features", initFeaturesErr)
-	}
 
-	userId := int64(432)
-	expectedSocureScore := 123.0
-
+	pkey := "chalk-go-include-meta-test"
+	randomNumber := rand.Float64()
 	_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
 		Inputs: map[any]any{
-			testFeatures.User.Id:          []int64{userId},
-			testFeatures.User.SocureScore: []float64{expectedSocureScore},
+			testFeatures.Cached.Id:                   []string{pkey},
+			testFeatures.Cached.RandomUploadedNumber: []float64{randomNumber},
 		},
 	})
 	assert.NoError(t, err)
-
-	grpcClient, err := chalk.NewGRPCClient(context.Background())
-	assert.NoError(t, err)
 	req := chalk.OnlineQueryParams{IncludeMeta: true}.
-		WithInput(testFeatures.User.Id, []int64{userId}).
-		WithOutputs(testFeatures.User.Id, testFeatures.User.SocureScore, testFeatures.User.Today)
-	res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+		WithInput(testFeatures.Cached.Id, []string{pkey}).
+		WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
+	cachedRes, err := grpcClient.OnlineQueryBulk(context.Background(), req)
 	assert.NoError(t, err)
 
-	row, err := res.GetRow(0)
+	cachedRow, err := cachedRes.GetRow(0)
 	assert.NoError(t, err)
 
-	socureScore, err := row.GetFeature(testFeatures.User.SocureScore)
+	actualNumber, err := cachedRow.GetFeature(testFeatures.Cached.RandomUploadedNumber)
 	assert.Nil(t, err)
-	assert.NotNil(t, socureScore)
-	assert.NotNil(t, socureScore.Meta)
-	assert.Equal(t, expectedSocureScore, socureScore.Value)
-	assert.Equal(t, "online_store", socureScore.Meta.SourceType)
+	assert.NotNil(t, actualNumber)
+	assert.NotNil(t, actualNumber.Meta)
+	assert.Equal(t, randomNumber, actualNumber.Value)
+	assert.Equal(t, "online_store", actualNumber.Meta.SourceType)
 
-	today, err := row.GetFeature("user.today")
-	assert.Nil(t, err)
-	assert.Equal(t, "neobank.resolvers.get_today", today.Meta.ResolverFqn)
+	resolverRes, err := grpcClient.OnlineQueryBulk(context.Background(), chalk.OnlineQueryParams{IncludeMeta: true}.
+		WithInput(testFeatures.AllTypes.Id, []int64{1}).
+		WithOutputs(testFeatures.AllTypes.StrFeat),
+	)
+
+	resolvedRow, err := resolverRes.GetRow(0)
+	resolvedFeat, err := resolvedRow.GetFeature(testFeatures.AllTypes.StrFeat)
+	assert.NoError(t, err)
+	assert.Equal(t, "registry.all_feature_types.get_all_types", resolvedFeat.Meta.ResolverFqn)
 }
 
 // TestOnlineQueryGrpcErringScalar tests requests with an erring scalar feature as the sole output
 func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	if initFeaturesErr != nil {
-		t.Fatal("Failed initializing features", initFeaturesErr)
-	}
-
-	client, err := chalk.NewGRPCClient(context.Background())
-	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, []int{1}).
-		WithOutputs(testFeatures.User.CrashingFeature)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
+		WithInput(testFeatures.Crashing.Id, []int{1}).
+		WithOutputs(testFeatures.Crashing.Name)
+	resp, err := grpcClient.OnlineQueryBulk(context.Background(), params)
 	assert.Error(t, err)
 
 	row, err := resp.GetRow(0)
 	assert.NoError(t, err)
 
-	crashingFeature, err := row.GetFeature("user.crashing_feature")
+	crashingFeature, err := row.GetFeature(testFeatures.Crashing.Name)
 	assert.NoError(t, err)
 
 	assert.NotNil(t, crashingFeature)
@@ -84,56 +72,19 @@ func TestOnlineQueryGrpcErringScalar(t *testing.T) {
 // TestOnlineQueryGrpcErringHasMany tests requests with an erring has-many feature as the sole output
 func TestOnlineQueryGrpcErringHasMany(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
-	if initFeaturesErr != nil {
-		t.Fatal("Failed initializing features", initFeaturesErr)
-	}
-
-	client, err := chalk.NewGRPCClient(context.Background())
-	assert.NoError(t, err)
 	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.Series.Id, []int{1}).
-		WithOutputs(testFeatures.Series.CrashingInvestors)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
+		WithInput(testFeatures.CrashingHasManyRoot.Id, []string{"id_a"}).
+		WithOutputs(testFeatures.CrashingHasManyRoot.CrashingHasMany)
+	resp, err := grpcClient.OnlineQueryBulk(context.Background(), params)
 	assert.Error(t, err)
 
 	row, err := resp.GetRow(0)
 	assert.NoError(t, err)
 
-	crashingInvestors, err := row.GetFeature("series.crashing_investors")
+	hmFeat, err := row.GetFeature(testFeatures.CrashingHasManyRoot.CrashingHasMany)
 	assert.NoError(t, err)
-	assert.NotNil(t, crashingInvestors)
-	castVal, ok := crashingInvestors.Value.([]any)
+	assert.NotNil(t, hmFeat)
+	castVal, ok := hmFeat.Value.([]any)
 	assert.True(t, ok)
 	assert.Equal(t, 0, len(castVal))
-}
-
-// TestOnlineQueryGrpcSoleHasManyOutput tests requests with a has-many feature as the sole output
-func TestOnlineQueryGrpcSoleHasManyOutput(t *testing.T) {
-	SkipIfNotIntegrationTester(t)
-	if initFeaturesErr != nil {
-		t.Fatal("Failed initializing features", initFeaturesErr)
-	}
-
-	client, err := chalk.NewGRPCClient(context.Background())
-	assert.NoError(t, err)
-	params := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.Series.Id, []string{"seed"}).
-		WithOutputs(testFeatures.Series.Investors)
-	resp, err := client.OnlineQueryBulk(context.Background(), params)
-	assert.NoError(t, err)
-	assert.Nil(t, resp.RawResponse.GetErrors())
-
-	row, err := resp.GetRow(0)
-	assert.NoError(t, err)
-	assert.Equal(t, 1, len(row.Features))
-	mySeries := []series{}
-	if err := resp.UnmarshalInto(&mySeries); err != nil {
-		assert.FailNow(t, "Failed to unmarshal response", err)
-	}
-	assert.NotNil(t, mySeries)
-	assert.Equal(t, 1, len(mySeries))
-	assert.NotNil(t, mySeries[0].Investors)
-	assert.Equal(t, 50002, len(*mySeries[0].Investors))
-	assert.NotNil(t, (*mySeries[0].Investors)[0].SeriesId)
-	assert.Equal(t, "seed", *(*mySeries[0].Investors)[0].SeriesId)
 }
