@@ -14,41 +14,56 @@ import (
 func TestCacheHitMeta(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	
+	for _, useGrpc := range []bool{true, false} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+			
+			// Use separate keys for each test to avoid interference
+			pkey := fmt.Sprintf("chalk-go-cache-hit-meta-test-%v", useGrpc)
+			randomNumber := rand.Float64()
+			
+			// Upload feature to cache
+			_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
+				Inputs: map[any]any{
+					testFeatures.Cached.Id:                   []string{pkey},
+					testFeatures.Cached.RandomUploadedNumber: []float64{randomNumber},
+				},
+			})
+			assert.NoError(t, err)
+			
+			if useGrpc {
+				bulkParams := chalk.OnlineQueryParams{IncludeMeta: true}.
+					WithInput(testFeatures.Cached.Id, []string{pkey}).
+					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
+				cachedRes, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
+				assert.NoError(t, err)
 
-	pkey := "chalk-go-cache-hit-meta-test"
-	randomNumber := rand.Float64()
-	_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
-		Inputs: map[any]any{
-			testFeatures.Cached.Id:                   []string{pkey},
-			testFeatures.Cached.RandomUploadedNumber: []float64{randomNumber},
-		},
-	})
-	assert.NoError(t, err)
-	req := chalk.OnlineQueryParams{IncludeMeta: true}.
-		WithInput(testFeatures.Cached.Id, []string{pkey}).
-		WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
-	cachedRes, err := grpcClient.OnlineQueryBulk(context.Background(), req)
-	assert.NoError(t, err)
+				cachedRow, err := cachedRes.GetRow(0)
+				assert.NoError(t, err)
 
-	cachedRow, err := cachedRes.GetRow(0)
-	assert.NoError(t, err)
-
-	actualNumber, err := cachedRow.GetFeature(testFeatures.Cached.RandomUploadedNumber)
-	assert.Nil(t, err)
-	assert.NotNil(t, actualNumber)
-	assert.NotNil(t, actualNumber.Meta)
-	assert.Equal(t, randomNumber, actualNumber.Value)
-	assert.Equal(t, "online_store", actualNumber.Meta.SourceType)
-
-	resolverRes, err := grpcClient.OnlineQueryBulk(context.Background(), chalk.OnlineQueryParams{IncludeMeta: true}.
-		WithInput(testFeatures.AllTypes.Id, []int64{1}).
-		WithOutputs(testFeatures.AllTypes.StrFeat),
-	)
-
-	resolvedRow, err := resolverRes.GetRow(0)
-	resolvedFeat, err := resolvedRow.GetFeature(testFeatures.AllTypes.StrFeat)
-	assert.NoError(t, err)
-	assert.Equal(t, "registry.all_feature_types.get_all_types", resolvedFeat.Meta.ResolverFqn)
+				actualNumber, err := cachedRow.GetFeature(testFeatures.Cached.RandomUploadedNumber)
+				assert.Nil(t, err)
+				assert.NotNil(t, actualNumber)
+				assert.NotNil(t, actualNumber.Meta)
+				assert.Equal(t, randomNumber, actualNumber.Value)
+				assert.Equal(t, "online_store", actualNumber.Meta.SourceType)
+			} else {
+				singularParams := chalk.OnlineQueryParams{IncludeMeta: true}.
+					WithInput(testFeatures.Cached.Id, pkey).
+					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
+				res, err := restClient.OnlineQuery(context.Background(), singularParams, nil)
+				assert.NoError(t, err)
+				
+				actualNumber, err := res.GetFeature(testFeatures.Cached.RandomUploadedNumber)
+				assert.Nil(t, err)
+				assert.NotNil(t, actualNumber)
+				assert.NotNil(t, actualNumber.Meta)
+				assert.Equal(t, randomNumber, actualNumber.Value)
+				assert.True(t, actualNumber.Meta.CacheHit)
+			}
+		})
+	}
 }
 
 // TestResolverFqnMeta mainly tests that the response
