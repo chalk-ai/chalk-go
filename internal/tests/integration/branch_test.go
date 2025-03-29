@@ -2,7 +2,7 @@ package integration
 
 import (
 	"context"
-	"github.com/chalk-ai/chalk-go"
+	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -33,16 +33,16 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 		t.Fatal("Failed initializing features", err)
 	}
 	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds[0]).
-		WithOutputs(testFeatures.User.SocureScore).
+		WithInput(testFeatures.AllTypes.Id, userIds[0]).
+		WithOutputs(testFeatures.AllTypes.StrFeat).
 		WithBranchId(branchId)
 	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 
 	bulkBranchId := "bulk-branch-id"
 	bulkReq := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore).
+		WithInput(testFeatures.AllTypes.Id, userIds).
+		WithOutputs(testFeatures.AllTypes.StrFeat).
 		WithBranchId(bulkBranchId)
 	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
@@ -74,8 +74,8 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 		t.Fatal("Failed initializing features", err)
 	}
 	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds[0]).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput(testFeatures.AllTypes.Id, userIds[0]).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	_, _ = client.OnlineQuery(context.Background(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
@@ -106,8 +106,8 @@ func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 		t.Fatal("Failed initializing features", err)
 	}
 	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput(testFeatures.AllTypes.Id, userIds).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
@@ -135,8 +135,8 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 		t.Fatal("Failed initializing features", err)
 	}
 	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput(testFeatures.AllTypes.Id, userIds).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	_, _ = client.OnlineQueryBulk(context.Background(), req)
 	header, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)

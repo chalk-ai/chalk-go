@@ -2,7 +2,7 @@ package integration
 
 import (
 	"context"
-	"github.com/chalk-ai/chalk-go"
+	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
@@ -27,21 +27,21 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
-	userIds := []int{1}
+	ids := []int{1}
 	err = chalk.InitFeatures(&testFeatures)
 	if err != nil {
 		t.Fatal("Failed initializing features", err)
 	}
 	req := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds[0]).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput(testFeatures.AllTypes.Id, ids[0]).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	_, _ = client.OnlineQuery(context.Background(), req, nil)
 
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 
 	bulkReq := chalk.OnlineQueryParams{}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput(testFeatures.AllTypes.Id, ids).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 }

@@ -3,7 +3,7 @@ package integration
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go"
+	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	assert "github.com/stretchr/testify/require"
 	"os"
@@ -36,7 +36,43 @@ func init() {
 		panic(err)
 	}
 	grpcClient = clientGrpc
+}
 
+// TestOnlineQueryBulk mainly tests that a
+// real query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryBulk(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+			ids := []int64{1, 2}
+			var results []allTypes
+			req := chalk.OnlineQueryParams{}.
+				WithInput(testFeatures.AllTypes.Id, ids).
+				WithOutputs(
+					testFeatures.AllTypes.Id,
+					testFeatures.AllTypes.StrFeat,
+					testFeatures.AllTypes.IntFeat,
+				)
+			if useGrpc {
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			} else {
+				res, err := restClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			}
+			assert.Equal(t, 2, len(results))
+			assert.Equal(t, ids[0], *results[0].Id)
+			assert.Equal(t, "1", *results[0].StrFeat)
+			assert.Equal(t, int64(1), *results[0].IntFeat)
+			assert.Equal(t, ids[1], *results[1].Id)
+			assert.Equal(t, "2", *results[1].StrFeat)
+			assert.Equal(t, int64(2), *results[1].IntFeat)
+		})
+	}
 }
 
 // Test that we can execute an OnlineQuery
@@ -48,51 +84,53 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
-	investorsInput := []newGradAngelInvestor{
-		{Id: ptr.Ptr("amylase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(1))},
-		{Id: ptr.Ptr("lipase"), SeriesId: ptr.Ptr("seed"), HowBroke: ptr.Ptr(int64(2))},
+	hmInput := []hasManyFeature{
+		{Id: ptr.Ptr("id_a"), Name: ptr.Ptr("name_a"), AllTypesId: ptr.Ptr(int64(1))},
+		{Id: ptr.Ptr("id_b"), Name: ptr.Ptr("name_b"), AllTypesId: ptr.Ptr(int64(1))},
 	}
 
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
-			var resultSeries series
+			t.Parallel()
+			var row allTypes
+
 			if useGrpc {
-				var resultSeriesBulk []series
-				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.Series.Id, []string{"seed"}).
-					WithInput(testFeatures.Series.Investors, [][]newGradAngelInvestor{investorsInput}).
-					WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
-				res, err := grpcClient.OnlineQueryBulk(context.Background(), params)
+				var allResults []allTypes
+				bulkParams := chalk.OnlineQueryParams{}.
+					WithInput(testFeatures.AllTypes.Id, []int64{1}).
+					WithInput(testFeatures.AllTypes.HasMany, [][]hasManyFeature{hmInput}).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
 				assert.NoError(t, err)
-				assert.NoError(t, res.UnmarshalInto(&resultSeriesBulk))
-				assert.Equal(t, 1, len(resultSeriesBulk))
-				resultSeries = resultSeriesBulk[0]
+				assert.NoError(t, res.UnmarshalInto(&allResults))
+				assert.Equal(t, 1, len(allResults))
+				row = allResults[0]
 
 				row, err := res.GetRow(0)
 				assert.NoError(t, err)
-				resultInvestors, err := row.GetFeatureValue(testFeatures.Series.Investors)
+				hmOutput, err := row.GetFeatureValue(testFeatures.AllTypes.HasMany)
 				assert.NoError(t, err)
-				assert.NotNil(t, resultInvestors)
+				assert.NotNil(t, hmOutput)
 			} else {
 				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.Series.Id, "seed").
-					WithInput(testFeatures.Series.Investors, investorsInput).
-					WithOutputs(testFeatures.Series.Name, testFeatures.Series.Investors)
-				res, err := restClient.OnlineQuery(context.Background(), params, &resultSeries)
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithInput(testFeatures.AllTypes.HasMany, hmInput).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := restClient.OnlineQuery(context.Background(), params, &row)
 				assert.NoError(t, err)
 
-				resultInvestors, err := res.GetFeatureValue(testFeatures.Series.Investors)
+				resultInvestors, err := res.GetFeatureValue(testFeatures.AllTypes.HasMany)
 				assert.NoError(t, err)
 				assert.NotNil(t, resultInvestors)
 			}
 
-			assert.Equal(t, len(investorsInput), len(*resultSeries.Investors))
-			assert.Equal(t, "amylase", *(*resultSeries.Investors)[0].Id)
-			assert.Equal(t, "lipase", *(*resultSeries.Investors)[1].Id)
-			assert.Equal(t, int64(1), *(*resultSeries.Investors)[0].HowBroke)
-			assert.Equal(t, int64(2), *(*resultSeries.Investors)[1].HowBroke)
-			assert.Equal(t, "seed", *(*resultSeries.Investors)[0].SeriesId)
-			assert.Equal(t, "seed", *(*resultSeries.Investors)[1].SeriesId)
+			assert.Equal(t, len(hmInput), len(*row.HasMany))
+			assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
+			assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
+			assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
+			assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
+			assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
+			assert.Equal(t, int64(1), *(*row.HasMany)[1].AllTypesId)
 		})
 	}
 }
@@ -113,11 +151,12 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 
 	for _, optionFixture := range plannerOptionsFixtures {
 		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
+			t.Parallel()
 			_, err := restClient.OnlineQuery(
 				context.Background(),
 				chalk.OnlineQueryParams{PlannerOptions: optionFixture.plannerOptions}.
-					WithInput("user.id", 1).
-					WithOutputs("user.socure_score"),
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithOutputs(testFeatures.AllTypes.StrFeat),
 				nil,
 			)
 			if optionFixture.isValid {
@@ -136,11 +175,12 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 	for _, useGrpc := range []bool{false, true} {
 		for _, optionFixture := range plannerOptionsFixtures {
 			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", useGrpc, optionFixture.isValid), func(t *testing.T) {
+				t.Parallel()
 				params := chalk.OnlineQueryParams{
 					PlannerOptions: optionFixture.plannerOptions,
 				}.
-					WithInput("user.id", []int{1}).
-					WithOutputs("user.socure_score")
+					WithInput(testFeatures.AllTypes.Id, []int{1}).
+					WithOutputs(testFeatures.AllTypes.StrFeat)
 
 				var err error
 				if useGrpc {
@@ -226,8 +266,8 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 
 	lenientTimeout := time.Minute * 1
 	params := chalk.OnlineQueryParams{}.
-		WithInput("user.id", []int{1}).
-		WithOutputs("user.socure_score")
+		WithInput(testFeatures.AllTypes.Id, []int{1}).
+		WithOutputs(testFeatures.AllTypes.StrFeat)
 	for _, useGrpc := range []bool{false, true} {
 		for _, timeoutFixture := range timeouts {
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
