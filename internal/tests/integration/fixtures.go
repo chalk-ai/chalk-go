@@ -2,11 +2,41 @@ package integration
 
 import (
 	"bytes"
+	"context"
+	chalk "github.com/chalk-ai/chalk-go"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
+
+var restClient chalk.Client
+var grpcClient chalk.GRPCClient
+
+func init() {
+	if err := chalk.InitFeatures(&testFeatures); err != nil {
+		panic(err)
+	}
+
+	if os.Getenv("INTEGRATION_TESTER") == "" {
+		return
+	}
+
+	ctx := context.Background()
+
+	client, err := chalk.NewClient(ctx)
+	if err != nil {
+		panic(err)
+	}
+	restClient = client
+
+	clientGrpc, err := chalk.NewGRPCClient(ctx)
+	if err != nil {
+		panic(err)
+	}
+	grpcClient = clientGrpc
+}
 
 type creditReport struct {
 	Id          *string
