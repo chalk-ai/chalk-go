@@ -16,6 +16,7 @@ func TestCachedFeatures(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
 			if useGrpc {
 				pkey := "chalk-go-upload-features-test-gRPC"
 				expectedNum := rand.Float64()
