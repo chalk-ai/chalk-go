@@ -46,10 +46,10 @@ func TestWindowedAggregates(t *testing.T) {
 	txnAmounts := []float64{100, 200, 300, 400}
 	txnAggIds := []int64{autoIncrementId1, autoIncrementId1, autoIncrementId1, autoIncrementId2}
 	txnTimes := []time.Time{
-		now.Add(-1 * time.Minute),     // 1 minute ago for Alice
-		now.Add(-7 * 24 * time.Hour),  // 7 days ago for Alice
-		now.Add(-15 * 24 * time.Hour), // 15 days ago for Alice
-		now.Add(-1 * 24 * time.Hour),  // 1 day ago for Bob
+		now.Add(-1 * time.Minute),     // 1 minute ago for ID 1
+		now.Add(-7 * 24 * time.Hour),  // 7 days ago for ID 1
+		now.Add(-15 * 24 * time.Hour), // 15 days ago for ID 1
+		now.Add(-1 * 24 * time.Hour),  // 1 day ago for ID 2
 	}
 
 	txnParams := chalk.UpdateAggregatesParams{Inputs: map[any]any{
