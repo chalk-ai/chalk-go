@@ -54,8 +54,8 @@ func TestCustomCerts(t *testing.T) {
 				_, err = client.OnlineQueryBulk(
 					context.Background(),
 					chalk.OnlineQueryParams{}.
-						WithInput(testFeatures.User.Id, []int{1}).
-						WithOutputs(testFeatures.User.SocureScore),
+						WithInput(testFeatures.AllTypes.Id, []int{1}).
+						WithOutputs(testFeatures.AllTypes.StrFeat),
 				)
 				assert.NoError(t, err)
 			} else {
@@ -67,8 +67,8 @@ func TestCustomCerts(t *testing.T) {
 					assert.NoError(t, err)
 				}
 				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.User.Id, 1).
-					WithOutputs(testFeatures.User.SocureScore)
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithOutputs(testFeatures.AllTypes.StrFeat)
 				_, err = client.OnlineQuery(context.Background(), params, nil)
 				assert.NoError(t, err)
 			}
