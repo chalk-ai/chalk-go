@@ -39,12 +39,12 @@ func TestWindowedAggregates(t *testing.T) {
 
 	now := time.Now().UTC()
 
-	randomId1 := now.UnixMicro()
-	randomId2 := randomId1 + 1
+	autoIncrementId1 := now.UnixMicro()
+	autoIncrementId2 := autoIncrementId1 + 1
 
 	txnIds := []string{"txn_1", "txn_2", "txn_3", "txn_4"}
 	txnAmounts := []float64{100, 200, 300, 400}
-	txnAggIds := []int64{randomId1, randomId1, randomId1, randomId2}
+	txnAggIds := []int64{autoIncrementId1, autoIncrementId1, autoIncrementId1, autoIncrementId2}
 	txnTimes := []time.Time{
 		now.Add(-1 * time.Minute),     // 1 minute ago for Alice
 		now.Add(-7 * 24 * time.Hour),  // 7 days ago for Alice
@@ -63,7 +63,7 @@ func TestWindowedAggregates(t *testing.T) {
 
 	queryParams := chalk.OnlineQueryParams{}.WithInput(
 		matAggFeatures.MatAggs.Id,
-		[]int64{randomId1, randomId2},
+		[]int64{autoIncrementId1, autoIncrementId2},
 	).WithOutputs(
 		matAggFeatures.MatAggs.TxnCount["3d"],
 		matAggFeatures.MatAggs.TxnCount["10d"],
