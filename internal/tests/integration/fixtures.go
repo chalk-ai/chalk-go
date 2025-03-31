@@ -171,6 +171,11 @@ type nqFeatures struct {
 	Name *string
 }
 
+type optionals struct {
+	Id   *int64
+	Name *string
+}
+
 var testFeatures struct {
 	User                *user
 	Series              *series
@@ -179,6 +184,7 @@ var testFeatures struct {
 	Crashing            *crashing
 	CrashingHasManyRoot *crashingHasManyRoot
 	NQFeatures          *nqFeatures `name:"nq_features"`
+	Optionals           *optionals
 }
 
 type Intercepted struct {

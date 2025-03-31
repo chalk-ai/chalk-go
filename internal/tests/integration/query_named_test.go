@@ -38,7 +38,6 @@ func TestNamedQueries(t *testing.T) {
 			t.Parallel()
 
 			for _, useGrpc := range []bool{false, true} {
-				useGrpc := useGrpc // capture range variable
 				t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 					t.Parallel()
 
