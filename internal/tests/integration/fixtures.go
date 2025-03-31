@@ -165,6 +165,12 @@ type series struct {
 	CrashingInvestors *[]kindInvestor         `has_many:"id,series_id"`
 }
 
+// Named Query feature structure for simple tests
+type nqFeatures struct {
+	Id   *int64
+	Name *string
+}
+
 var testFeatures struct {
 	User                *user
 	Series              *series
@@ -172,6 +178,7 @@ var testFeatures struct {
 	Cached              *cached
 	Crashing            *crashing
 	CrashingHasManyRoot *crashingHasManyRoot
+	NQFeatures          *nqFeatures `name:"nq_features"`
 }
 
 type Intercepted struct {
