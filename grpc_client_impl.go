@@ -331,15 +331,9 @@ func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
 }
 
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
-	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
+	req, err := c.GetOnlineQueryBulkRequest(ctx, args)
 	if err != nil {
-		return nil, errors.Wrap(err, "converting online query params to proto")
-	}
-	req := connect.NewRequest(paramsProto)
-	if args.underlying.ResourceGroup != "" {
-		req.Header().Set(HeaderKeyResourceGroup, args.underlying.ResourceGroup)
-	} else if c.resourceGroup != nil {
-		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
+		return nil, errors.Wrap(err, "generating online query request")
 	}
 	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
@@ -356,6 +350,24 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		return result, convertedErrs
 	}
 	return result, nil
+}
+
+func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error) {
+	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
+	if err != nil {
+		return nil, errors.Wrap(err, "converting online query params to proto")
+	}
+	req := connect.NewRequest(paramsProto)
+	if args.underlying.ResourceGroup != "" {
+		req.Header().Set(HeaderKeyResourceGroup, args.underlying.ResourceGroup)
+	} else if c.resourceGroup != nil {
+		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
+	}
+	return req, nil
+}
+
+func (c *grpcClientImpl) GetQueryEndpoint() string {
+	return c.config.apiServer.Value
 }
 
 type GRPCUpdateAggregatesResult struct {
