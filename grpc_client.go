@@ -1,9 +1,11 @@
 package chalk
 
 import (
+	"connectrpc.com/connect"
 	"context"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"time"
 )
 
@@ -72,6 +74,8 @@ type GRPCClient interface {
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
+	GetOnlineQueryBulkRequest(ctx context.Context, params OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error)
+	GetQueryEndpoint() string
 
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
 	// while updating the corresponding aggregate values themselves.
