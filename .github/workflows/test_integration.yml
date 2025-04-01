@@ -29,5 +29,5 @@ jobs:
           INTEGRATION_TESTER: "true"
           CHALK_ACTIVE_ENVIRONMENT: "dmo4rhgcdu89j"
           CHALK_CLIENT_ID: ${{ steps.doppler.outputs.CHALK_CLIENT_ID }}
-          CHALK_CLIENT_SECRET: ${{ secrets.CHALK_CLIENT_SECRET }}
+          CHALK_CLIENT_SECRET: ${{ steps.doppler.outputs.CHALK_CLIENT_SECRET }}
           CHALK_API_SERVER: "https://api.staging.chalk.ai"
