@@ -194,3 +194,26 @@ func TestParamsSetInOfflineQueryBody(t *testing.T) {
 	assert.NotNil(t, request.QueryContext)
 	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
 }
+
+// TestClientBranchSetInFeatherHeader tests that when we
+// specify a branch ID in the client, the feather request
+// header that we serialize includes the branch ID header.
+func TestClientBranchSetInFeatherHeader(t *testing.T) {
+	expectedBranchId := "test-branch-id"
+	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
+		Branch: expectedBranchId,
+	})
+	assert.NoError(t, err)
+	
+	req := chalk.OnlineQueryParams{}.
+		WithInput("bogus.feature", []int{1}).
+		WithOutputs("bogus.output")
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	
+	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
+	assert.Nil(t, headerErr)
+	
+	branchId, ok := headerMap["branch_id"]
+	assert.True(t, ok)
+	assert.Equal(t, expectedBranchId, branchId)
+}

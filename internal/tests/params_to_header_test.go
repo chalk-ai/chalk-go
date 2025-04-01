@@ -88,3 +88,61 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 }
+
+// TestOnlineQueryAndQueryBulkBranchInRequest tests that when we
+// specify a branch ID in online query params, the request
+// includes the branch ID header.
+func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
+	branchId := "test-branch-id"
+	client, httpClient, err := newClientWithInterceptor()
+	assert.NoError(t, err)
+
+	req := chalk.OnlineQueryParams{}.
+		WithInput("bogus.feature", 1).
+		WithOutputs("bogus.output").
+		WithBranchId(branchId)
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
+
+	bulkBranchId := "bulk-branch-id"
+	bulkReq := chalk.OnlineQueryParams{}.
+		WithInput("bogus.feature", []int{1}).
+		WithOutputs("bogus.output").
+		WithBranchId(bulkBranchId)
+	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
+}
+
+// TestOnlineQueryBranchInClient tests that when we
+// specify a branch ID in the client, the online query
+// request includes the branch ID header.
+func TestOnlineQueryBranchInClient(t *testing.T) {
+	branchId := "test-branch-id"
+	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
+		Branch: branchId,
+	})
+	assert.NoError(t, err)
+
+	req := chalk.OnlineQueryParams{}.
+		WithInput("bogus.feature", 1).
+		WithOutputs("bogus.output")
+	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
+}
+
+// TestOnlineQueryBulkBranchInClient tests that when we
+// specify a branch ID in the client, the bulk online query
+// request includes the branch ID header.
+func TestOnlineQueryBulkBranchInClient(t *testing.T) {
+	branchId := "test-branch-id"
+	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
+		Branch: branchId,
+	})
+	assert.NoError(t, err)
+
+	req := chalk.OnlineQueryParams{}.
+		WithInput("bogus.feature", []int{1}).
+		WithOutputs("bogus.output")
+	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
+}

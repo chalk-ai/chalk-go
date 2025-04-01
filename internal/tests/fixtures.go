@@ -9,16 +9,19 @@ import (
 type interceptorClientOverrides struct {
 	QueryServer   string
 	DeploymentTag string
+	Branch        string
 }
 
 func newClientWithInterceptor(overrides ...interceptorClientOverrides) (chalk.Client, *InterceptorHTTPClient, error) {
 	var queryServer = ""
 	var deploymentTag = ""
+	var branch = ""
 	if len(overrides) > 1 {
 		return nil, nil, errors.New("too many overrides")
 	} else if len(overrides) == 1 {
 		queryServer = overrides[0].QueryServer
 		deploymentTag = overrides[0].DeploymentTag
+		branch = overrides[0].Branch
 	}
 
 	httpClient := NewInterceptorHTTPClient()
@@ -31,6 +34,7 @@ func newClientWithInterceptor(overrides ...interceptorClientOverrides) (chalk.Cl
 			ClientSecret:  "ts-bogus-client-secret",
 			QueryServer:   queryServer,
 			DeploymentTag: deploymentTag,
+			Branch:        branch,
 		},
 	)
 	if err != nil {
