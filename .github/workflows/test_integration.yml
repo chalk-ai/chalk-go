@@ -21,7 +21,7 @@ jobs:
           go test -v $GITHUB_WORKSPACE/internal/tests/integration
         env:
           INTEGRATION_TESTER: "true"
-          CHALK_ACTIVE_ENVIRONMENT: "dmo4rhgcdu89j"
+          CHALK_ACTIVE_ENVIRONMENT: ${{ secrets.CHALK_ACTIVE_ENVIRONMENT }}
           CHALK_CLIENT_ID: ${{ secrets.CHALK_CLIENT_ID }}
           CHALK_CLIENT_SECRET: ${{ secrets.CHALK_CLIENT_SECRET }}
-          CHALK_API_SERVER: "https://api.staging.chalk.ai"
+          CHALK_API_SERVER: ${{ secrets.CHALK_API_SERVER }}
