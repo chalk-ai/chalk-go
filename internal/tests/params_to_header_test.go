@@ -2,10 +2,8 @@ package tests
 
 import (
 	"context"
-	"errors"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
-	"net/url"
 	"testing"
 )
 
@@ -22,39 +20,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-type interceptorClientOverrides struct {
-	QueryServer   string
-	DeploymentTag string
-}
-
-func newClientWithInterceptor(overrides ...interceptorClientOverrides) (chalk.Client, *InterceptorHTTPClient, error) {
-	var queryServer = ""
-	var deploymentTag = ""
-	if len(overrides) > 1 {
-		return nil, nil, errors.New("too many overrides")
-	} else if len(overrides) == 1 {
-		queryServer = overrides[0].QueryServer
-		deploymentTag = overrides[0].DeploymentTag
-	}
-
-	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(
-		context.Background(),
-		&chalk.ClientConfig{
-			HTTPClient:    httpClient,
-			ApiServer:     "https://bogus.com",
-			ClientId:      "bogus-client-id",
-			ClientSecret:  "ts-bogus-client-secret",
-			QueryServer:   queryServer,
-			DeploymentTag: deploymentTag,
-		},
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	return client, httpClient, nil
 }
 
 // TestHeadersSetInOnlineQueryBulk tests that when we specify certain params,
@@ -98,23 +63,6 @@ func TestHeadersSetOfflineQuery(t *testing.T) {
 		WithOutputs(paramsTestRoot.MyFeaturesClass.MyFeature)
 	_, _ = client.OfflineQuery(context.Background(), req)
 	assert.Equal(t, "true", interceptor.Intercepted.Header.Get("X-Chalk-Features-Versioned"))
-}
-
-// TestQueryServerOverride tests that when we specify
-// a query server override that query server is actually used.
-func TestQueryServerOverride(t *testing.T) {
-	queryServer := "https://my-bogus-server.ai"
-	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
-		QueryServer: queryServer,
-	})
-	assert.NoError(t, err)
-	req := chalk.OnlineQueryParams{}.
-		WithInput("bogus.feature", 1).
-		WithOutputs("bogus.output")
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
-	parsed, err := url.Parse(queryServer)
-	assert.Nil(t, err)
-	assert.Equal(t, httpClient.Intercepted.URL.Host, parsed.Host)
 }
 
 // TestOnlineQueryAndQueryBulkDeploymentTagInRequest tests that when we

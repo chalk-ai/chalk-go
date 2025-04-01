@@ -1,9 +1,9 @@
-package integration
+package tests
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/chalk-ai/chalk-go"
+	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
@@ -14,19 +14,12 @@ import (
 // TestParamsSetInFeatherHeader tests that params are threaded
 // through to the feather request header.
 func TestParamsSetInFeatherHeader(t *testing.T) {
-	t.Parallel()
-	SkipIfNotIntegrationTester(t)
-	err := chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
-
 	expectedBranchId := "test-branch-id"
 	expectedTags := []string{"tags-1", "tags-2"}
 	requiredResolverTags := []string{"required1tag", "required-2tag"}
 	now := []time.Time{time.Now(), time.Now()}
 	staleness := map[any]time.Duration{
-		testFeatures.User.SocureScore: time.Minute,
+		"bogus.socure_score": time.Minute,
 	}
 	correlationId := "correlating-id"
 	queryName := "fraud_fighter"
@@ -40,16 +33,9 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		"CHALK_SOME_PLANNER_OPTION": "some_value",
 	}
 
-	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(
-		context.Background(),
-		&chalk.ClientConfig{
-			HTTPClient: httpClient,
-		},
-	)
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
+	client, httpClient, err := newClientWithInterceptor()
+	assert.NoError(t, err)
+
 	userIds := []int{1}
 	queryContext, err := chalk.NewQueryContext(map[string]any{"key": "value"})
 	assert.NoError(t, err)
@@ -68,8 +54,8 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		QueryContext:         queryContext,
 		PlannerOptions:       plannerOptions,
 	}.
-		WithInput(testFeatures.User.Id, userIds).
-		WithOutputs(testFeatures.User.SocureScore).
+		WithInput("bogus.feature", userIds).
+		WithOutputs("bogus.output").
 		WithBranchId(expectedBranchId)
 	for k, v := range staleness {
 		req = req.WithStaleness(k, v)
@@ -86,9 +72,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 
 	stalenessConverted := make(map[string]string)
 	for k, v := range staleness {
-		feature, err := chalk.UnwrapFeature(k)
-		assert.NoError(t, err)
-		stalenessConverted[feature.Fqn] = internal.FormatBucketDuration(int(v.Seconds()))
+		stalenessConverted[k.(string)] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
 	nowConverted := colls.Map(now, func(val time.Time) string {
@@ -115,31 +99,16 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 	assert.Equal(t, plannerOptions, header.PlannerOptions)
 }
 
-// TestParamsSetInOnlineQuery tests that we set all params
-// correctly in online query.
-func TestParamsSetInOnlineQuery(t *testing.T) {
-	SkipIfNotIntegrationTester(t)
-	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(
-		context.Background(),
-		&chalk.ClientConfig{
-			HTTPClient: httpClient,
-		},
-	)
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
+// TestParamsSetInOnlineQueryBody tests that we set all params
+// correctly in online query request body.
+func TestParamsSetInOnlineQueryBody(t *testing.T) {
+	client, httpClient, err := newClientWithInterceptor()
+	assert.NoError(t, err)
 
 	expectedTags := []string{"tags-1", "tags-2"}
 	requiredResolverTags := []string{"required1tag", "required-2tag"}
 	now := []time.Time{time.Now()}
-	staleness := map[any]time.Duration{
-		testFeatures.User.SocureScore: time.Minute,
-	}
+	staleness := map[any]time.Duration{}
 	correlationId := "correlating-id"
 	queryName := "fraud_fighter"
 	queryNameVersion := "fraud_fighter_first"
@@ -151,8 +120,6 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.NoError(t, err)
 
 	stalenessConverted := make(map[string]string)
-	staleness = map[any]time.Duration{}
-
 	nowConverted := colls.Map(now, func(val time.Time) string {
 		return val.Format(internal.NowTimeFormat)
 	})
@@ -173,8 +140,8 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 		QueryContext:         queryContext,
 		PlannerOptions:       plannerOption,
 	}.
-		WithInput(testFeatures.User.Id, "1").
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput("bogus.feature", 1).
+		WithOutputs("bogus.output")
 
 	for k, v := range staleness {
 		req = req.WithStaleness(k, v)
@@ -205,24 +172,12 @@ func TestParamsSetInOnlineQuery(t *testing.T) {
 	assert.Equal(t, plannerOption, request.PlannerOptions)
 }
 
-// TestParamsSetInOfflineQuery tests that we set params in
-// online query.
-func TestParamsSetInOfflineQuery(t *testing.T) {
-	SkipIfNotIntegrationTester(t)
-	httpClient := NewInterceptorHTTPClient()
-	client, err := chalk.NewClient(
-		context.Background(),
-		&chalk.ClientConfig{
-			HTTPClient: httpClient,
-		},
-	)
-	if err != nil {
-		t.Fatal("Failed creating a Chalk Client", err)
-	}
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
-	}
+// TestParamsSetInOfflineQuery tests that offline query
+// params gets propagated through to the request body.
+func TestParamsSetInOfflineQueryBody(t *testing.T) {
+	client, httpClient, err := newClientWithInterceptor()
+	assert.NoError(t, err)
+
 	queryContext, err := chalk.NewQueryContext(map[string]any{"key": "value"})
 	assert.NoError(t, err)
 	expectedTags := []string{"tags-1", "tags-2"}
@@ -230,8 +185,8 @@ func TestParamsSetInOfflineQuery(t *testing.T) {
 		Tags:         expectedTags,
 		QueryContext: queryContext,
 	}.
-		WithInput(testFeatures.User.Id, []any{int64(1)}).
-		WithOutputs(testFeatures.User.SocureScore)
+		WithInput("bogus.feature", []any{int64(1)}).
+		WithOutputs("bogus.output")
 	_, _ = client.OfflineQuery(context.Background(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
