@@ -68,7 +68,6 @@ type hasManyFeature struct {
 	AllTypesId *int64
 }
 
-// Named Query feature structure for simple tests
 type nqFeatures struct {
 	Id   *int64
 	Name *string
