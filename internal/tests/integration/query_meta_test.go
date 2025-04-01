@@ -14,15 +14,15 @@ import (
 func TestCacheHitMeta(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	
+
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
-			
+
 			// Use separate keys for each test to avoid interference
 			pkey := fmt.Sprintf("chalk-go-cache-hit-meta-test-%v", useGrpc)
 			randomNumber := rand.Float64()
-			
+
 			// Upload feature to cache
 			_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
 				Inputs: map[any]any{
@@ -31,7 +31,7 @@ func TestCacheHitMeta(t *testing.T) {
 				},
 			})
 			assert.NoError(t, err)
-			
+
 			if useGrpc {
 				bulkParams := chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.Cached.Id, []string{pkey}).
@@ -54,7 +54,7 @@ func TestCacheHitMeta(t *testing.T) {
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
 				res, err := restClient.OnlineQuery(context.Background(), singularParams, nil)
 				assert.NoError(t, err)
-				
+
 				actualNumber, err := res.GetFeature(testFeatures.Cached.RandomUploadedNumber)
 				assert.Nil(t, err)
 				assert.NotNil(t, actualNumber)
@@ -79,7 +79,7 @@ func TestResolverMeta(t *testing.T) {
 					WithInput(testFeatures.AllTypes.Id, []int64{1}).
 					WithOutputs(testFeatures.AllTypes.StrFeat),
 				)
-
+				assert.NoError(t, err)
 				resolvedRow, err := resolverRes.GetRow(0)
 				assert.NoError(t, err)
 				resolvedFeat, err := resolvedRow.GetFeature(testFeatures.AllTypes.StrFeat)
