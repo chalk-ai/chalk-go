@@ -10,12 +10,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Fetch doppler secrets
-        uses: dopplerhq/secrets-fetch-action@v1.3.0
-        id: doppler
-        with:
-          doppler-token: ${{ secrets.INTEGRATION_TEST_DOPPLER_TOKEN }}
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -28,6 +22,6 @@ jobs:
         env:
           INTEGRATION_TESTER: "true"
           CHALK_ACTIVE_ENVIRONMENT: "dmo4rhgcdu89j"
-          CHALK_CLIENT_ID: ${{ steps.doppler.outputs.CHALK_CLIENT_ID }}
-          CHALK_CLIENT_SECRET: ${{ steps.doppler.outputs.CHALK_CLIENT_SECRET }}
+          CHALK_CLIENT_ID: ${{ secrets.CHALK_CLIENT_ID }}
+          CHALK_CLIENT_SECRET: ${{ secrets.CHALK_CLIENT_SECRET }}
           CHALK_API_SERVER: "https://api.staging.chalk.ai"
