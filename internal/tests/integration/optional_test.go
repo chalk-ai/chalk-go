@@ -2,30 +2,74 @@ package integration
 
 import (
 	"context"
-	"github.com/chalk-ai/chalk-go"
+	"fmt"
+	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 )
 
 func TestQueryOptionalFeatures(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient(context.Background())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
-	userIds := []int{1}
 
-	err = chalk.InitFeatures(&testFeatures)
-	if err != nil {
-		t.Fatal("Failed initializing features", err)
+	idWithNone := 1
+	res := chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Optionals.Id, idWithNone).
+		WithOutputs(testFeatures.Optionals.Name)
+	resWithNone := optionals{}
+	_, err = client.OnlineQuery(context.Background(), res, &resWithNone)
+	assert.NoError(t, err)
+	assert.Nil(t, resWithNone.Name)
+
+	idNotNone := 0
+	res = chalk.OnlineQueryParams{}.
+		WithInput(testFeatures.Optionals.Id, idNotNone).
+		WithOutputs(testFeatures.Optionals.Name)
+	resNotNone := optionals{}
+	_, err = client.OnlineQuery(context.Background(), res, &resNotNone)
+	assert.NoError(t, err)
+	assert.NotNil(t, resNotNone.Name)
+	assert.Equal(t, "name_0", *resNotNone.Name)
+}
+
+// TestBulkQueryOptionalFeatures tests bulk queries with optional features
+// parameterized between gRPC and REST clients
+func TestBulkQueryOptionalFeatures(t *testing.T) {
+	t.Parallel()
+	SkipIfNotIntegrationTester(t)
+
+	// Test IDs where one returns nil and one returns a value
+	ids := []int64{0, 1}
+
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+
+			// Create params for bulk query
+			params := chalk.OnlineQueryParams{}.
+				WithInput(testFeatures.Optionals.Id, ids).
+				WithOutputs(testFeatures.Optionals.Name)
+
+			var results []optionals
+
+			if useGrpc {
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), params)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			} else {
+				res, err := restClient.OnlineQueryBulk(context.Background(), params)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
+			}
+
+			assert.Equal(t, len(ids), len(results))
+			assert.NotNil(t, results[0].Name)
+			assert.Equal(t, "name_0", *results[0].Name)
+			assert.Nil(t, results[1].Name)
+		})
 	}
-	res := chalk.OnlineQueryParams{}.WithInput(testFeatures.User.Id, userIds[0]).WithOutputs(testFeatures.User.FullNameOptional, testFeatures.User.SocureScore)
-	result := user{}
-	_, err = client.OnlineQuery(context.Background(), res, &result)
-	if err != nil {
-		t.Fatal("Failed querying features", err)
-	}
-	assert.NotNil(t, result.SocureScore)
-	assert.Equal(t, 123.0, *result.SocureScore)
-	assert.Nil(t, result.FullNameOptional)
 }
