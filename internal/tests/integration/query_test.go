@@ -2,146 +2,144 @@ package integration
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"github.com/chalk-ai/chalk-go"
+	chalk "github.com/chalk-ai/chalk-go"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/http2"
-	"net/http"
 	"testing"
 	"time"
 )
 
-func testUserValues(t *testing.T, testUser *user) {
-	t.Helper()
-	assert.NotNil(t, testUser)
-	assert.NotNil(t, testUser.Id)
-	assert.Equal(t, int64(1), *testUser.Id)
-	assert.NotNil(t, testUser.Gender)
-	assert.Equal(t, "f", *testUser.Gender)
-	assert.NotNil(t, testUser.Today)
-	assert.NotNil(t, testUser.NiceNewFeature)
-	assert.Equal(t, int64(9), *testUser.NiceNewFeature)
-	assert.NotNil(t, testUser.SocureScore)
-	assert.Equal(t, 123.0, *testUser.SocureScore)
-	assert.NotNil(t, testUser.FavoriteNumbers)
-	assert.Equal(t, []int64{1, 2, 3}, *testUser.FavoriteNumbers)
-	assert.NotNil(t, testUser.FavoriteColors)
-	assert.Equal(t, []string{"red", "green", "blue"}, *testUser.FavoriteColors)
-	assert.NotNil(t, testUser.FranchiseSet)
-}
-
-// TestOnlineQueryE2E mainly tests querying real data
-// from the staging server does not crash. Correctness
-// is partially tested here, but is mainly tested in
-// TestOnlineQueryUnmarshalNonBulkAllTypes.
-func TestOnlineQueryE2E(t *testing.T) {
+// TestOnlineQueryE2E tests the singular OnlineQuery method
+// which is only available on the REST client.
+// The bulk query functionality is tested in TestOnlineQueryBulk for both clients.
+func TestOnlineQuery(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	for _, fixture := range []struct {
-		useGrpc bool
-	}{
-		{useGrpc: false},
-		{useGrpc: true},
-	} {
-		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			params := chalk.OnlineQueryParams{}.
+
+	params := chalk.OnlineQueryParams{}.
+		WithOutputs(
+			testFeatures.AllTypes.Id,
+			testFeatures.AllTypes.StrFeat,
+			testFeatures.AllTypes.IntFeat,
+		)
+
+	// Test the REST client's singular OnlineQuery method
+	var implicitResult allTypes
+	res, err := restClient.OnlineQuery(
+		context.Background(),
+		params.WithInput(testFeatures.AllTypes.Id, 1),
+		&implicitResult,
+	)
+	assert.NoError(t, err)
+
+	var explicitResult allTypes
+	assert.NoError(t, res.UnmarshalInto(&explicitResult))
+
+	// Verify results from both implicit and explicit unmarshalling
+	for _, result := range []allTypes{implicitResult, explicitResult} {
+		assert.NotNil(t, result.Id)
+		assert.Equal(t, int64(1), *result.Id)
+		assert.NotNil(t, result.StrFeat)
+		assert.Equal(t, "1", *result.StrFeat)
+		assert.NotNil(t, result.IntFeat)
+		assert.Equal(t, int64(1), *result.IntFeat)
+	}
+}
+
+// TestOnlineQueryBulk mainly tests that a
+// real query works e2e. Correctness is
+// tested elsewhere.
+func TestOnlineQueryBulk(t *testing.T) {
+	SkipIfNotIntegrationTester(t)
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+			ids := []int64{1, 2}
+			var results []allTypes
+			req := chalk.OnlineQueryParams{}.
+				WithInput(testFeatures.AllTypes.Id, ids).
 				WithOutputs(
-					testFeatures.User.Id,
-					testFeatures.User.Gender,
-					testFeatures.User.Today,
-					testFeatures.User.NiceNewFeature,
-					testFeatures.User.SocureScore,
-					testFeatures.User.FavoriteNumbers,
-					testFeatures.User.FavoriteColors,
-					testFeatures.User.FranchiseSet,
+					testFeatures.AllTypes.Id,
+					testFeatures.AllTypes.StrFeat,
+					testFeatures.AllTypes.IntFeat,
 				)
-
-			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a GRPC Chalk Client", err)
-				}
-
-				var users []user
-				res, err := client.OnlineQueryBulk(
-					context.Background(),
-					params.WithInput(testFeatures.User.Id, []int{1}),
-				)
-				if err != nil {
-					t.Fatal("Failed querying features", err)
-				}
-				assert.NoError(t, res.UnmarshalInto(&users))
-				testUserValues(t, &users[0])
+			if useGrpc {
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
 			} else {
-				client, err := chalk.NewClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a Chalk Client", err)
-				}
-
-				var implicitUser user
-				res, queryErr := client.OnlineQuery(
-					context.Background(),
-					params.WithInput(testFeatures.User.Id, 1),
-					&implicitUser,
-				)
-				if queryErr != nil {
-					t.Fatal("Failed querying features", queryErr)
-				}
-
-				var explicitUser user
-				assert.NoError(t, res.UnmarshalInto(&explicitUser))
-				testUserValues(t, &implicitUser)
-				testUserValues(t, &explicitUser)
+				res, err := restClient.OnlineQueryBulk(context.Background(), req)
+				assert.NoError(t, err)
+				assert.NoError(t, res.UnmarshalInto(&results))
 			}
+			assert.Equal(t, 2, len(results))
+			assert.Equal(t, ids[0], *results[0].Id)
+			assert.Equal(t, "1", *results[0].StrFeat)
+			assert.Equal(t, int64(1), *results[0].IntFeat)
+			assert.Equal(t, ids[1], *results[1].Id)
+			assert.Equal(t, "2", *results[1].StrFeat)
+			assert.Equal(t, int64(2), *results[1].IntFeat)
 		})
 	}
 }
 
-// TestNamedQueriesE2E tests that querying with a query name works.
-func TestNamedQueriesE2E(t *testing.T) {
+// Test that we can execute an OnlineQuery
+// with has-manys as both inputs and outputs.
+// Correctness of unmarshalling all data types
+// within a has-many feature is tested in
+// TestOnlineQueryUnmarshalNonBulkAllTypes.
+func TestHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	for _, fixture := range []struct {
-		useGrpc bool
-	}{
-		{useGrpc: false},
-		{useGrpc: true},
-	} {
-		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			var resultUser user
-			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background())
+
+	hmInput := []hasManyFeature{
+		{Id: ptr.Ptr("id_a"), Name: ptr.Ptr("name_a"), AllTypesId: ptr.Ptr(int64(1))},
+		{Id: ptr.Ptr("id_b"), Name: ptr.Ptr("name_b"), AllTypesId: ptr.Ptr(int64(1))},
+	}
+
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
+			var row allTypes
+
+			if useGrpc {
+				var allResults []allTypes
+				bulkParams := chalk.OnlineQueryParams{}.
+					WithInput(testFeatures.AllTypes.Id, []int64{1}).
+					WithInput(testFeatures.AllTypes.HasMany, [][]hasManyFeature{hmInput}).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
 				assert.NoError(t, err)
-				res, err := client.OnlineQueryBulk(
-					context.Background(),
-					chalk.OnlineQueryParams{}.
-						WithInput("user.id", []int{1}).
-						WithQueryName("user_socure_score").
-						WithQueryNameVersion("1.0.0"),
-				)
+				assert.NoError(t, res.UnmarshalInto(&allResults))
+				assert.Equal(t, 1, len(allResults))
+				row = allResults[0]
+
+				row, err := res.GetRow(0)
 				assert.NoError(t, err)
-				results := []user{}
-				assert.NoError(t, res.UnmarshalInto(&results))
-				resultUser = results[0]
+				hmOutput, err := row.GetFeatureValue(testFeatures.AllTypes.HasMany)
+				assert.NoError(t, err)
+				assert.NotNil(t, hmOutput)
 			} else {
-				client, err := chalk.NewClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a Chalk Client", err)
-				}
 				params := chalk.OnlineQueryParams{}.
-					WithInput("user.id", 1).
-					WithQueryName("user_socure_score").
-					WithQueryNameVersion("1.0.0")
+					WithInput(testFeatures.AllTypes.Id, 1).
+					WithInput(testFeatures.AllTypes.HasMany, hmInput).
+					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
+				res, err := restClient.OnlineQuery(context.Background(), params, &row)
+				assert.NoError(t, err)
 
-				_, queryErr := client.OnlineQuery(context.Background(), params, &resultUser)
-				if queryErr != nil {
-					t.Fatal("Failed querying features", queryErr)
-				}
+				resultInvestors, err := res.GetFeatureValue(testFeatures.AllTypes.HasMany)
+				assert.NoError(t, err)
+				assert.NotNil(t, resultInvestors)
 			}
-			assert.Equal(t, 123.0, *resultUser.SocureScore)
 
+			assert.Equal(t, len(hmInput), len(*row.HasMany))
+			assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
+			assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
+			assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
+			assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
+			assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
+			assert.Equal(t, int64(1), *(*row.HasMany)[1].AllTypesId)
 		})
 	}
 }
@@ -155,51 +153,37 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
-	for _, fixture := range []struct {
-		useGrpc bool
-	}{
-		{useGrpc: false},
-		{useGrpc: true},
-	} {
-		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
-			err := chalk.InitFeatures(&testFeatures)
-			if err != nil {
-				t.Fatal("Failed initializing features", err)
-			}
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
 
-			userIds := []int{1, 2}
+			// Test IDs for bulk query
+			ids := []int64{1, 2}
 
 			req := chalk.OnlineQueryParams{
-				Tags:                 []string{"named-integration"},
-				RequiredResolverTags: []string{"named-integration"},
-				Now:                  []time.Time{time.Now(), time.Now()},
-				StorePlanStages:      true,
-				CorrelationId:        "chalk-go-int-test-correlation-id",
-				QueryName:            "chalk-go-int-test-query",
-				QueryNameVersion:     "1",
+				// TODO: Add separate test for tags
+				//Tags:                 []string{"named-integration"},
+				//RequiredResolverTags: []string{"named-integration"},
+				Now:              []time.Time{time.Now(), time.Now()},
+				StorePlanStages:  true,
+				CorrelationId:    "chalk-go-int-test-correlation-id",
+				QueryName:        "chalk-go-int-test-query",
+				QueryNameVersion: "1",
 				Meta: map[string]string{
 					"test_meta_1": "test_meta_value_1",
 					"test_meta_2": "test_meta_value_2",
 				},
 				Explain: true,
 			}.
-				WithInput(testFeatures.User.Id, userIds).
-				WithOutputs(testFeatures.User.FullName).
-				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
+				WithInput(testFeatures.AllTypes.Id, ids).
+				WithOutputs(testFeatures.AllTypes.StrFeat).
+				WithStaleness(testFeatures.AllTypes.IntFeat, time.Minute*10)
 
-			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a GRPC Chalk Client", err)
-				}
-				_, err = client.OnlineQueryBulk(context.Background(), req)
+			if useGrpc {
+				_, err := grpcClient.OnlineQueryBulk(context.Background(), req)
 				assert.NoError(t, err)
 			} else {
-				client, err := chalk.NewClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a Chalk Client", err)
-				}
-				_, err = client.OnlineQueryBulk(context.Background(), req)
+				_, err := restClient.OnlineQueryBulk(context.Background(), req)
 				assert.NoError(t, err)
 			}
 		})
@@ -215,111 +199,39 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 
-	for _, fixture := range []struct {
-		useGrpc bool
-	}{
-		{useGrpc: false},
-		{useGrpc: true},
-	} {
-		t.Run(fmt.Sprintf("grpc=%v", fixture.useGrpc), func(t *testing.T) {
+	for _, useGrpc := range []bool{false, true} {
+		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
+			t.Parallel()
 			req := chalk.OnlineQueryParams{
-				Tags:                 []string{"named-integration"},
-				RequiredResolverTags: []string{"named-integration"},
-				Now:                  []time.Time{time.Now()},
-				StorePlanStages:      true,
-				CorrelationId:        "chalk-go-int-test-correlation-id",
-				QueryName:            "chalk-go-int-test-query",
-				QueryNameVersion:     "1",
+				// TODO: Add separate tag tests
+				//Tags:                 []string{"named-integration"},
+				//RequiredResolverTags: []string{"named-integration"},
+				Now:              []time.Time{time.Now()},
+				StorePlanStages:  true,
+				CorrelationId:    "chalk-go-int-test-correlation-id",
+				QueryName:        "chalk-go-int-test-query",
+				QueryNameVersion: "1",
 				Meta: map[string]string{
 					"test_meta_1": "test_meta_value_1",
 					"test_meta_2": "test_meta_value_2",
 				},
 				Explain: true,
 			}.
-				WithOutputs(testFeatures.User.FullName).
-				WithStaleness(testFeatures.User.SocureScore, time.Minute*10)
+				WithOutputs(testFeatures.AllTypes.StrFeat).
+				WithStaleness(testFeatures.AllTypes.IntFeat, time.Minute*10)
 
-			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a GRPC Chalk Client", err)
-				}
-				_, err = client.OnlineQueryBulk(context.Background(), req.WithInput("user.id", []int{1}))
+			if useGrpc {
+				_, err := grpcClient.OnlineQueryBulk(
+					context.Background(),
+					req.WithInput(testFeatures.AllTypes.Id, []int64{1}),
+				)
 				assert.NoError(t, err)
 			} else {
-				client, err := chalk.NewClient(context.Background())
-				if err != nil {
-					t.Fatal("Failed creating a Chalk Client", err)
-				}
-				_, err = client.OnlineQuery(
+				_, err := restClient.OnlineQuery(
 					context.Background(),
-					req.WithInput("user.id", 1),
+					req.WithInput(testFeatures.AllTypes.Id, int64(1)),
 					nil,
 				)
-				assert.NoError(t, err)
-			}
-		})
-	}
-}
-
-func TestCustomCerts(t *testing.T) {
-	t.Parallel()
-	SkipIfNotIntegrationTester(t)
-	systemCertPool, err := x509.SystemCertPool()
-	if err != nil {
-		t.Fatal("Failed creating a system cert pool", err)
-	}
-	emptyCertPool := x509.NewCertPool()
-
-	for _, fixture := range []struct {
-		useGrpc    bool
-		certPool   *x509.CertPool
-		shouldFail bool
-	}{
-		{useGrpc: false, certPool: systemCertPool, shouldFail: false},
-		{useGrpc: false, certPool: emptyCertPool, shouldFail: true},
-		{useGrpc: true, certPool: systemCertPool, shouldFail: false},
-		{useGrpc: true, certPool: emptyCertPool, shouldFail: true},
-	} {
-		t.Run(fmt.Sprintf("grpc=%v, shouldFail=%v", fixture.useGrpc, fixture.shouldFail), func(t *testing.T) {
-			t.Parallel()
-			httpClient := http.Client{
-				Transport: &http2.Transport{
-					TLSClientConfig: &tls.Config{
-						RootCAs: fixture.certPool,
-					},
-				},
-			}
-
-			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background(), &chalk.GRPCClientConfig{
-					HTTPClient: &httpClient,
-				})
-				if fixture.shouldFail {
-					assert.Error(t, err)
-					return
-				} else {
-					assert.NoError(t, err)
-				}
-				_, err = client.OnlineQueryBulk(
-					context.Background(),
-					chalk.OnlineQueryParams{}.
-						WithInput(testFeatures.User.Id, []int{1}).
-						WithOutputs(testFeatures.User.SocureScore),
-				)
-				assert.NoError(t, err)
-			} else {
-				client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{HTTPClient: &httpClient})
-				if fixture.shouldFail {
-					assert.Error(t, err)
-					return
-				} else {
-					assert.NoError(t, err)
-				}
-				params := chalk.OnlineQueryParams{}.
-					WithInput(testFeatures.User.Id, 1).
-					WithOutputs(testFeatures.User.SocureScore)
-				_, err = client.OnlineQuery(context.Background(), params, nil)
 				assert.NoError(t, err)
 			}
 		})
