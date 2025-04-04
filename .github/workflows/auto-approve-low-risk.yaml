@@ -1,0 +1,56 @@
+name: Auto approve
+on:
+  workflow_dispatch: {}
+  pull_request_target:
+    paths:
+      - 'gen/chalk/**'
+jobs:
+  auto-approve:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          ref: "refs/pull/${{ github.event.number }}/merge"
+
+
+      - name: Get List of Changed Files
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git diff --name-only origin/${{ github.event.pull_request.base.ref }} > files_changed.txt
+
+      - name: Check Changes Against Allowlist
+        id: check_allowlist
+        run: |
+          ALLOWLIST=( 
+            "gen/chalk/"
+          )
+          CHANGES=$(<files_changed.txt)
+          ALL_ALLOWED=true
+          for FILE in $CHANGES; do
+            ALLOWED=false
+            for ALLOWED_PATH in "${ALLOWLIST[@]}"; do
+              if [[ $FILE == $ALLOWED_PATH* ]]; then
+                ALLOWED=true
+                break
+              fi
+            done
+            if [ "$ALLOWED" = false ]; then
+              echo "File $FILE is not in the allowlist."
+              echo "::set-output name=allowlist_check::failure"
+              ALL_ALLOWED=false
+              break
+            fi
+          done
+          if [ "$ALL_ALLOWED" = true ]; then
+            echo "::set-output name=allowlist_check::success"
+          fi
+        shell: bash
+        continue-on-error: true # Don't mark the job as failed
+      - uses: hmarr/auto-approve-action@v4
+        with:
+          review-message: "Auto approved automated PR"
+        if: steps.check_allowlist.outputs.allowlist_check == 'success'
