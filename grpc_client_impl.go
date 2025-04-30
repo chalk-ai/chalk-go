@@ -12,6 +12,7 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
 	"net"
@@ -32,8 +33,10 @@ type grpcClientImpl struct {
 	httpClient    HTTPClient
 	timeout       *time.Duration
 
-	authClient  serverv1connect.AuthServiceClient
-	queryClient enginev1connect.QueryServiceClient
+	authClient       serverv1connect.AuthServiceClient
+	queryClient      enginev1connect.QueryServiceClient
+	tokenInterceptor connect.UnaryInterceptorFunc
+	deploymentTag    string
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -119,8 +122,9 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if cfg.DeploymentTag != "" {
 		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
 	}
+	tokenInterceptor := makeTokenInterceptor(config)
 	engineInterceptors := []connect.Interceptor{
-		makeTokenInterceptor(config),
+		tokenInterceptor,
 		headerInterceptor(headers),
 	}
 	if timeout != nil {
@@ -135,16 +139,18 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	)
 
 	return &grpcClientImpl{
-		branch:        cfg.Branch,
-		httpClient:    httpClient,
-		logger:        config.logger,
-		config:        config,
-		authClient:    authClient,
-		queryClient:   queryClient,
-		queryServer:   queryServer,
-		resourceGroup: resourceGroup,
-		timeout:       timeout,
-		allocator:     allocator,
+		deploymentTag:    cfg.DeploymentTag,
+		branch:           cfg.Branch,
+		httpClient:       httpClient,
+		logger:           config.logger,
+		config:           config,
+		authClient:       authClient,
+		queryClient:      queryClient,
+		queryServer:      queryServer,
+		resourceGroup:    resourceGroup,
+		timeout:          timeout,
+		allocator:        allocator,
+		tokenInterceptor: tokenInterceptor,
 	}, nil
 }
 
@@ -368,6 +374,35 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 
 func (c *grpcClientImpl) GetQueryEndpoint() string {
 	return c.config.apiServer.Value
+}
+
+func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
+	//httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption
+	return []connect.ClientOption{
+		connect.WithInterceptors(
+			headerInterceptor(map[string]string{
+				HeaderKeyServerType: serverTypeApi,
+			}),
+			c.tokenInterceptor,
+		),
+	}
+}
+
+func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
+	return &GRPCClientConfig{
+		ClientId:      c.config.clientId.Value,
+		ClientSecret:  c.config.clientSecret.Value,
+		ApiServer:     c.config.apiServer.Value,
+		EnvironmentId: c.config.environmentId.Value,
+		Branch:        c.branch,
+		QueryServer:   ptr.OrZero(c.queryServer),
+		Logger:        c.logger,
+		HTTPClient:    c.httpClient,
+		DeploymentTag: c.deploymentTag,
+		ResourceGroup: ptr.OrZero(c.resourceGroup),
+		Timeout:       ptr.OrZero(c.timeout),
+		Allocator:     c.allocator,
+	}
 }
 
 type GRPCUpdateAggregatesResult struct {

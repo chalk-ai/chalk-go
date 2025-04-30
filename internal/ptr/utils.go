@@ -16,3 +16,11 @@ func PtrOrNil[T any](x T) *T {
 func Ptr[T any](value T) *T {
 	return &value
 }
+
+func OrZero[T any](t *T) T {
+	if t != nil {
+		return *t
+	}
+	var result T
+	return result
+}

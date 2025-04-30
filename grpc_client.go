@@ -114,6 +114,13 @@ type GRPCClient interface {
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
 	GetToken(ctx context.Context) (*TokenResult, error)
+
+	// GetConfig retrieves the current configuration of the GRPCClient.
+	// This will not necessarily be the same config as was used to create the
+	// GRPCClient, as default values may have been set.
+	GetConfig() *GRPCClientConfig
+
+	GetMetadataServerInterceptor() []connect.ClientOption
 }
 
 type GRPCClientConfig struct {
