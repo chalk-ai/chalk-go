@@ -12,6 +12,7 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
 	"net"
@@ -35,6 +36,7 @@ type grpcClientImpl struct {
 	authClient       serverv1connect.AuthServiceClient
 	queryClient      enginev1connect.QueryServiceClient
 	tokenInterceptor connect.UnaryInterceptorFunc
+	deploymentTag    string
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -137,6 +139,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	)
 
 	return &grpcClientImpl{
+		deploymentTag:    cfg.DeploymentTag,
 		branch:           cfg.Branch,
 		httpClient:       httpClient,
 		logger:           config.logger,
@@ -373,14 +376,32 @@ func (c *grpcClientImpl) GetQueryEndpoint() string {
 	return c.config.apiServer.Value
 }
 
-func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.Option {
-	return []connect.Option{
+func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
+	//httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption
+	return []connect.ClientOption{
 		connect.WithInterceptors(
 			headerInterceptor(map[string]string{
 				HeaderKeyServerType: serverTypeApi,
 			}),
 			c.tokenInterceptor,
 		),
+	}
+}
+
+func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
+	return &GRPCClientConfig{
+		ClientId:      c.config.clientId.Value,
+		ClientSecret:  c.config.clientSecret.Value,
+		ApiServer:     c.config.apiServer.Value,
+		EnvironmentId: c.config.environmentId.Value,
+		Branch:        c.config.initialEnvironment.Value,
+		QueryServer:   ptr.OrZero(c.queryServer),
+		Logger:        c.logger,
+		HTTPClient:    c.httpClient,
+		DeploymentTag: c.deploymentTag,
+		ResourceGroup: ptr.OrZero(c.resourceGroup),
+		Timeout:       ptr.OrZero(c.timeout),
+		Allocator:     c.allocator,
 	}
 }
 

@@ -115,7 +115,12 @@ type GRPCClient interface {
 	// along with other using the client's credentials.
 	GetToken(ctx context.Context) (*TokenResult, error)
 
-	MetadataSeverConnectOptions() []connect.Option
+	// GetConfig retrieves the current configuration of the GRPCClient.
+	// This will not necessarily be the same config as was used to create the
+	// GRPCClient, as default values may have been set.
+	GetConfig() *GRPCClientConfig
+
+	MetadataSeverClientOptions() []connect.ClientOption
 }
 
 type GRPCClientConfig struct {
