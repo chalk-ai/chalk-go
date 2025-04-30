@@ -394,7 +394,7 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ClientSecret:  c.config.clientSecret.Value,
 		ApiServer:     c.config.apiServer.Value,
 		EnvironmentId: c.config.environmentId.Value,
-		Branch:        c.config.initialEnvironment.Value,
+		Branch:        c.branch,
 		QueryServer:   ptr.OrZero(c.queryServer),
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
