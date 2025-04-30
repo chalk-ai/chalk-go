@@ -120,7 +120,7 @@ type GRPCClient interface {
 	// GRPCClient, as default values may have been set.
 	GetConfig() *GRPCClientConfig
 
-	MetadataSeverClientOptions() []connect.ClientOption
+	GetMetadataServerInterceptor() []connect.ClientOption
 }
 
 type GRPCClientConfig struct {
