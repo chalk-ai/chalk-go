@@ -32,8 +32,9 @@ type grpcClientImpl struct {
 	httpClient    HTTPClient
 	timeout       *time.Duration
 
-	authClient  serverv1connect.AuthServiceClient
-	queryClient enginev1connect.QueryServiceClient
+	authClient       serverv1connect.AuthServiceClient
+	queryClient      enginev1connect.QueryServiceClient
+	tokenInterceptor connect.UnaryInterceptorFunc
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -119,8 +120,9 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if cfg.DeploymentTag != "" {
 		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
 	}
+	tokenInterceptor := makeTokenInterceptor(config)
 	engineInterceptors := []connect.Interceptor{
-		makeTokenInterceptor(config),
+		tokenInterceptor,
 		headerInterceptor(headers),
 	}
 	if timeout != nil {
@@ -135,16 +137,17 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	)
 
 	return &grpcClientImpl{
-		branch:        cfg.Branch,
-		httpClient:    httpClient,
-		logger:        config.logger,
-		config:        config,
-		authClient:    authClient,
-		queryClient:   queryClient,
-		queryServer:   queryServer,
-		resourceGroup: resourceGroup,
-		timeout:       timeout,
-		allocator:     allocator,
+		branch:           cfg.Branch,
+		httpClient:       httpClient,
+		logger:           config.logger,
+		config:           config,
+		authClient:       authClient,
+		queryClient:      queryClient,
+		queryServer:      queryServer,
+		resourceGroup:    resourceGroup,
+		timeout:          timeout,
+		allocator:        allocator,
+		tokenInterceptor: tokenInterceptor,
 	}, nil
 }
 
@@ -368,6 +371,17 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 
 func (c *grpcClientImpl) GetQueryEndpoint() string {
 	return c.config.apiServer.Value
+}
+
+func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.Option {
+	return []connect.Option{
+		connect.WithInterceptors(
+			headerInterceptor(map[string]string{
+				HeaderKeyServerType: serverTypeApi,
+			}),
+			c.tokenInterceptor,
+		),
+	}
 }
 
 type GRPCUpdateAggregatesResult struct {
