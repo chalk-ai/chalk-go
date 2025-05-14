@@ -1,8 +1,6 @@
 module github.com/chalk-ai/chalk-go
 
-go 1.23.0
-
-toolchain go1.24.3
+go 1.24.0
 
 require (
 	connectrpc.com/connect v1.18.1
