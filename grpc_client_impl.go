@@ -251,8 +251,34 @@ func (r *RowResult) GetFeatureValue(feature any) (any, error) {
 
 type GRPCOnlineQueryBulkResult struct {
 	RawResponse *commonv1.OnlineQueryBulkResponse
+	allocator   memory.Allocator
+}
 
+type NewGRPCOnlineQueryBulkResultOptions struct {
 	allocator memory.Allocator
+}
+
+// NewGRPCOnlineQueryBulkResult creates a GRPCOnlineQueryBulkResult
+// for testing. This function sets up a result object with Arrow
+// artifacts such as a `memory.Allocator` which is required during
+// unmarshalling operations.
+func NewGRPCOnlineQueryBulkResult(
+	response *commonv1.OnlineQueryBulkResponse,
+	options ...NewGRPCOnlineQueryBulkResultOptions,
+) (*GRPCOnlineQueryBulkResult, error) {
+	allocator := memory.DefaultAllocator
+	if len(options) == 1 {
+		opt := options[0]
+		if opt.allocator != nil {
+			allocator = opt.allocator
+		}
+	} else if len(options) > 1 {
+		return nil, errors.Newf("expected only one set of options, found %d", len(options))
+	}
+	return &GRPCOnlineQueryBulkResult{
+		RawResponse: response,
+		allocator:   allocator,
+	}, nil
 }
 
 func (r *GRPCOnlineQueryBulkResult) GetTable() (arrow.Table, error) {

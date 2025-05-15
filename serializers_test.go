@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
@@ -158,4 +159,20 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 	assert.Equal(t, 1, len(actualUser))
 	assert.Equal(t, transactions, *actualUser[0].Txns)
 
+}
+
+func TestGRPCOnlineQueryBulkResultConstructor(t *testing.T) {
+	table, err := MakeFeatureTable(map[any]any{
+		"user.id": []string{"1"},
+	})
+	assert.NoError(t, err)
+	tableBytes, err := table.ToBytes()
+	assert.NoError(t, err)
+	result, err := NewGRPCOnlineQueryBulkResult(&commonv1.OnlineQueryBulkResponse{
+		ScalarsData: tableBytes,
+	})
+	assert.NoError(t, err)
+	row, err := result.GetRow(0)
+	assert.NoError(t, err)
+	assert.Equal(t, "1", row.Features["user.id"].Value)
 }
