@@ -255,7 +255,7 @@ type GRPCOnlineQueryBulkResult struct {
 }
 
 type NewGRPCOnlineQueryBulkResultOptions struct {
-	allocator memory.Allocator
+	Allocator memory.Allocator
 }
 
 // NewGRPCOnlineQueryBulkResult creates a GRPCOnlineQueryBulkResult
@@ -269,8 +269,8 @@ func NewGRPCOnlineQueryBulkResult(
 	allocator := memory.DefaultAllocator
 	if len(options) == 1 {
 		opt := options[0]
-		if opt.allocator != nil {
-			allocator = opt.allocator
+		if opt.Allocator != nil {
+			allocator = opt.Allocator
 		}
 	} else if len(options) > 1 {
 		return nil, errors.Newf("expected only one set of options, found %d", len(options))
