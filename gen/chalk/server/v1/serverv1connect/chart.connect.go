@@ -36,11 +36,15 @@ const (
 	// ChartsServiceListChartsProcedure is the fully-qualified name of the ChartsService's ListCharts
 	// RPC.
 	ChartsServiceListChartsProcedure = "/chalk.server.v1.ChartsService/ListCharts"
+	// ChartsServiceGetChartSnapshotProcedure is the fully-qualified name of the ChartsService's
+	// GetChartSnapshot RPC.
+	ChartsServiceGetChartSnapshotProcedure = "/chalk.server.v1.ChartsService/GetChartSnapshot"
 )
 
 // ChartsServiceClient is a client for the chalk.server.v1.ChartsService service.
 type ChartsServiceClient interface {
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
+	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 }
 
 // NewChartsServiceClient constructs a client for the chalk.server.v1.ChartsService service. By
@@ -60,12 +64,19 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(chartsServiceMethods.ByName("ListCharts")),
 			connect.WithClientOptions(opts...),
 		),
+		getChartSnapshot: connect.NewClient[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse](
+			httpClient,
+			baseURL+ChartsServiceGetChartSnapshotProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetChartSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // chartsServiceClient implements ChartsServiceClient.
 type chartsServiceClient struct {
-	listCharts *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
+	listCharts       *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
+	getChartSnapshot *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
 }
 
 // ListCharts calls chalk.server.v1.ChartsService.ListCharts.
@@ -73,9 +84,15 @@ func (c *chartsServiceClient) ListCharts(ctx context.Context, req *connect.Reque
 	return c.listCharts.CallUnary(ctx, req)
 }
 
+// GetChartSnapshot calls chalk.server.v1.ChartsService.GetChartSnapshot.
+func (c *chartsServiceClient) GetChartSnapshot(ctx context.Context, req *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error) {
+	return c.getChartSnapshot.CallUnary(ctx, req)
+}
+
 // ChartsServiceHandler is an implementation of the chalk.server.v1.ChartsService service.
 type ChartsServiceHandler interface {
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
+	GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error)
 }
 
 // NewChartsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -91,10 +108,18 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(chartsServiceMethods.ByName("ListCharts")),
 		connect.WithHandlerOptions(opts...),
 	)
+	chartsServiceGetChartSnapshotHandler := connect.NewUnaryHandler(
+		ChartsServiceGetChartSnapshotProcedure,
+		svc.GetChartSnapshot,
+		connect.WithSchema(chartsServiceMethods.ByName("GetChartSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ChartsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ChartsServiceListChartsProcedure:
 			chartsServiceListChartsHandler.ServeHTTP(w, r)
+		case ChartsServiceGetChartSnapshotProcedure:
+			chartsServiceGetChartSnapshotHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -106,4 +131,8 @@ type UnimplementedChartsServiceHandler struct{}
 
 func (UnimplementedChartsServiceHandler) ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListCharts is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetChartSnapshot(context.Context, *connect.Request[v1.GetChartSnapshotRequest]) (*connect.Response[v1.GetChartSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetChartSnapshot is not implemented"))
 }
