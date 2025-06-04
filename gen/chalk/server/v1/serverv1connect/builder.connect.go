@@ -92,6 +92,9 @@ const (
 	// BuilderServiceStartBranchProcedure is the fully-qualified name of the BuilderService's
 	// StartBranch RPC.
 	BuilderServiceStartBranchProcedure = "/chalk.server.v1.BuilderService/StartBranch"
+	// BuilderServiceGetGKENodepoolsProcedure is the fully-qualified name of the BuilderService's
+	// GetGKENodepools RPC.
+	BuilderServiceGetGKENodepoolsProcedure = "/chalk.server.v1.BuilderService/GetGKENodepools"
 	// BuilderServiceGetKarpenterNodepoolsProcedure is the fully-qualified name of the BuilderService's
 	// GetKarpenterNodepools RPC.
 	BuilderServiceGetKarpenterNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetKarpenterNodepools"
@@ -150,6 +153,7 @@ type BuilderServiceClient interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetGKENodepools(context.Context, *connect.Request[v1.GetGKENodepoolsRequest]) (*connect.Response[v1.GetGKENodepoolsResponse], error)
 	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
@@ -285,6 +289,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 			connect.WithClientOptions(opts...),
 		),
+		getGKENodepools: connect.NewClient[v1.GetGKENodepoolsRequest, v1.GetGKENodepoolsResponse](
+			httpClient,
+			baseURL+BuilderServiceGetGKENodepoolsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetGKENodepools")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getKarpenterNodepools: connect.NewClient[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetKarpenterNodepoolsProcedure,
@@ -353,6 +364,7 @@ type builderServiceClient struct {
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
 	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
+	getGKENodepools                    *connect.Client[v1.GetGKENodepoolsRequest, v1.GetGKENodepoolsResponse]
 	getKarpenterNodepools              *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
 	addKarpenterNodepool               *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
 	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
@@ -459,6 +471,11 @@ func (c *builderServiceClient) StartBranch(ctx context.Context, req *connect.Req
 	return c.startBranch.CallUnary(ctx, req)
 }
 
+// GetGKENodepools calls chalk.server.v1.BuilderService.GetGKENodepools.
+func (c *builderServiceClient) GetGKENodepools(ctx context.Context, req *connect.Request[v1.GetGKENodepoolsRequest]) (*connect.Response[v1.GetGKENodepoolsResponse], error) {
+	return c.getGKENodepools.CallUnary(ctx, req)
+}
+
 // GetKarpenterNodepools calls chalk.server.v1.BuilderService.GetKarpenterNodepools.
 func (c *builderServiceClient) GetKarpenterNodepools(ctx context.Context, req *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
 	return c.getKarpenterNodepools.CallUnary(ctx, req)
@@ -524,6 +541,7 @@ type BuilderServiceHandler interface {
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
+	GetGKENodepools(context.Context, *connect.Request[v1.GetGKENodepoolsRequest]) (*connect.Response[v1.GetGKENodepoolsResponse], error)
 	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
@@ -655,6 +673,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("StartBranch")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetGKENodepoolsHandler := connect.NewUnaryHandler(
+		BuilderServiceGetGKENodepoolsProcedure,
+		svc.GetGKENodepools,
+		connect.WithSchema(builderServiceMethods.ByName("GetGKENodepools")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetKarpenterNodepoolsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetKarpenterNodepoolsProcedure,
 		svc.GetKarpenterNodepools,
@@ -739,6 +764,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
 		case BuilderServiceStartBranchProcedure:
 			builderServiceStartBranchHandler.ServeHTTP(w, r)
+		case BuilderServiceGetGKENodepoolsProcedure:
+			builderServiceGetGKENodepoolsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetKarpenterNodepoolsProcedure:
 			builderServiceGetKarpenterNodepoolsHandler.ServeHTTP(w, r)
 		case BuilderServiceAddKarpenterNodepoolProcedure:
@@ -836,6 +863,10 @@ func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Con
 
 func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.StartBranch is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetGKENodepools(context.Context, *connect.Request[v1.GetGKENodepoolsRequest]) (*connect.Response[v1.GetGKENodepoolsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetGKENodepools is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
