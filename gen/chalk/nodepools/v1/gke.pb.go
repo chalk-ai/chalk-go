@@ -597,6 +597,7 @@ type StatusCondition struct {
 	// Human-friendly representation of the condition
 	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	// Canonical code of the condition.
+	// has red underline but appears to work
 	CanonicalCode code.Code `protobuf:"varint,3,opt,name=canonical_code,json=canonicalCode,proto3,enum=google.rpc.Code" json:"canonical_code,omitempty"`
 }
 
