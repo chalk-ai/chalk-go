@@ -54,6 +54,24 @@ const (
 	// MonitoringServiceGetPagerDutyIntegrationProcedure is the fully-qualified name of the
 	// MonitoringService's GetPagerDutyIntegration RPC.
 	MonitoringServiceGetPagerDutyIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetPagerDutyIntegration"
+	// MonitoringServiceTestIncidentIoIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's TestIncidentIoIntegration RPC.
+	MonitoringServiceTestIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/TestIncidentIoIntegration"
+	// MonitoringServiceAddIncidentIoIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's AddIncidentIoIntegration RPC.
+	MonitoringServiceAddIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/AddIncidentIoIntegration"
+	// MonitoringServiceDeleteIncidentIoIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's DeleteIncidentIoIntegration RPC.
+	MonitoringServiceDeleteIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/DeleteIncidentIoIntegration"
+	// MonitoringServiceUpdateIncidentIoIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's UpdateIncidentIoIntegration RPC.
+	MonitoringServiceUpdateIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/UpdateIncidentIoIntegration"
+	// MonitoringServiceGetAllIncidentIoIntegrationsProcedure is the fully-qualified name of the
+	// MonitoringService's GetAllIncidentIoIntegrations RPC.
+	MonitoringServiceGetAllIncidentIoIntegrationsProcedure = "/chalk.server.v1.MonitoringService/GetAllIncidentIoIntegrations"
+	// MonitoringServiceGetIncidentIoIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's GetIncidentIoIntegration RPC.
+	MonitoringServiceGetIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetIncidentIoIntegration"
 )
 
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
@@ -65,6 +83,12 @@ type MonitoringServiceClient interface {
 	UpdatePagerDutyIntegration(context.Context, *connect.Request[v1.UpdatePagerDutyIntegrationRequest]) (*connect.Response[v1.UpdatePagerDutyIntegrationResponse], error)
 	GetAllPagerDutyIntegrations(context.Context, *connect.Request[v1.GetAllPagerDutyIntegrationsRequest]) (*connect.Response[v1.GetAllPagerDutyIntegrationsResponse], error)
 	GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error)
+	TestIncidentIoIntegration(context.Context, *connect.Request[v1.TestIncidentIoIntegrationRequest]) (*connect.Response[v1.TestIncidentIoIntegrationResponse], error)
+	AddIncidentIoIntegration(context.Context, *connect.Request[v1.AddIncidentIoIntegrationRequest]) (*connect.Response[v1.AddIncidentIoIntegrationResponse], error)
+	DeleteIncidentIoIntegration(context.Context, *connect.Request[v1.DeleteIncidentIoIntegrationRequest]) (*connect.Response[v1.DeleteIncidentIoIntegrationResponse], error)
+	UpdateIncidentIoIntegration(context.Context, *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error)
+	GetAllIncidentIoIntegrations(context.Context, *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error)
+	GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error)
 }
 
 // NewMonitoringServiceClient constructs a client for the chalk.server.v1.MonitoringService service.
@@ -124,6 +148,45 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		testIncidentIoIntegration: connect.NewClient[v1.TestIncidentIoIntegrationRequest, v1.TestIncidentIoIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceTestIncidentIoIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("TestIncidentIoIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		addIncidentIoIntegration: connect.NewClient[v1.AddIncidentIoIntegrationRequest, v1.AddIncidentIoIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceAddIncidentIoIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("AddIncidentIoIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteIncidentIoIntegration: connect.NewClient[v1.DeleteIncidentIoIntegrationRequest, v1.DeleteIncidentIoIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceDeleteIncidentIoIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("DeleteIncidentIoIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		updateIncidentIoIntegration: connect.NewClient[v1.UpdateIncidentIoIntegrationRequest, v1.UpdateIncidentIoIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceUpdateIncidentIoIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("UpdateIncidentIoIntegration")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		getAllIncidentIoIntegrations: connect.NewClient[v1.GetAllIncidentIoIntegrationsRequest, v1.GetAllIncidentIoIntegrationsResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetAllIncidentIoIntegrationsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetAllIncidentIoIntegrations")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getIncidentIoIntegration: connect.NewClient[v1.GetIncidentIoIntegrationRequest, v1.GetIncidentIoIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetIncidentIoIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetIncidentIoIntegration")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -136,6 +199,12 @@ type monitoringServiceClient struct {
 	updatePagerDutyIntegration     *connect.Client[v1.UpdatePagerDutyIntegrationRequest, v1.UpdatePagerDutyIntegrationResponse]
 	getAllPagerDutyIntegrations    *connect.Client[v1.GetAllPagerDutyIntegrationsRequest, v1.GetAllPagerDutyIntegrationsResponse]
 	getPagerDutyIntegration        *connect.Client[v1.GetPagerDutyIntegrationRequest, v1.GetPagerDutyIntegrationResponse]
+	testIncidentIoIntegration      *connect.Client[v1.TestIncidentIoIntegrationRequest, v1.TestIncidentIoIntegrationResponse]
+	addIncidentIoIntegration       *connect.Client[v1.AddIncidentIoIntegrationRequest, v1.AddIncidentIoIntegrationResponse]
+	deleteIncidentIoIntegration    *connect.Client[v1.DeleteIncidentIoIntegrationRequest, v1.DeleteIncidentIoIntegrationResponse]
+	updateIncidentIoIntegration    *connect.Client[v1.UpdateIncidentIoIntegrationRequest, v1.UpdateIncidentIoIntegrationResponse]
+	getAllIncidentIoIntegrations   *connect.Client[v1.GetAllIncidentIoIntegrationsRequest, v1.GetAllIncidentIoIntegrationsResponse]
+	getIncidentIoIntegration       *connect.Client[v1.GetIncidentIoIntegrationRequest, v1.GetIncidentIoIntegrationResponse]
 }
 
 // TestPagerDutyIntegration calls chalk.server.v1.MonitoringService.TestPagerDutyIntegration.
@@ -174,6 +243,37 @@ func (c *monitoringServiceClient) GetPagerDutyIntegration(ctx context.Context, r
 	return c.getPagerDutyIntegration.CallUnary(ctx, req)
 }
 
+// TestIncidentIoIntegration calls chalk.server.v1.MonitoringService.TestIncidentIoIntegration.
+func (c *monitoringServiceClient) TestIncidentIoIntegration(ctx context.Context, req *connect.Request[v1.TestIncidentIoIntegrationRequest]) (*connect.Response[v1.TestIncidentIoIntegrationResponse], error) {
+	return c.testIncidentIoIntegration.CallUnary(ctx, req)
+}
+
+// AddIncidentIoIntegration calls chalk.server.v1.MonitoringService.AddIncidentIoIntegration.
+func (c *monitoringServiceClient) AddIncidentIoIntegration(ctx context.Context, req *connect.Request[v1.AddIncidentIoIntegrationRequest]) (*connect.Response[v1.AddIncidentIoIntegrationResponse], error) {
+	return c.addIncidentIoIntegration.CallUnary(ctx, req)
+}
+
+// DeleteIncidentIoIntegration calls chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration.
+func (c *monitoringServiceClient) DeleteIncidentIoIntegration(ctx context.Context, req *connect.Request[v1.DeleteIncidentIoIntegrationRequest]) (*connect.Response[v1.DeleteIncidentIoIntegrationResponse], error) {
+	return c.deleteIncidentIoIntegration.CallUnary(ctx, req)
+}
+
+// UpdateIncidentIoIntegration calls chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration.
+func (c *monitoringServiceClient) UpdateIncidentIoIntegration(ctx context.Context, req *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error) {
+	return c.updateIncidentIoIntegration.CallUnary(ctx, req)
+}
+
+// GetAllIncidentIoIntegrations calls
+// chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations.
+func (c *monitoringServiceClient) GetAllIncidentIoIntegrations(ctx context.Context, req *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error) {
+	return c.getAllIncidentIoIntegrations.CallUnary(ctx, req)
+}
+
+// GetIncidentIoIntegration calls chalk.server.v1.MonitoringService.GetIncidentIoIntegration.
+func (c *monitoringServiceClient) GetIncidentIoIntegration(ctx context.Context, req *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error) {
+	return c.getIncidentIoIntegration.CallUnary(ctx, req)
+}
+
 // MonitoringServiceHandler is an implementation of the chalk.server.v1.MonitoringService service.
 type MonitoringServiceHandler interface {
 	TestPagerDutyIntegration(context.Context, *connect.Request[v1.TestPagerDutyIntegrationRequest]) (*connect.Response[v1.TestPagerDutyIntegrationResponse], error)
@@ -183,6 +283,12 @@ type MonitoringServiceHandler interface {
 	UpdatePagerDutyIntegration(context.Context, *connect.Request[v1.UpdatePagerDutyIntegrationRequest]) (*connect.Response[v1.UpdatePagerDutyIntegrationResponse], error)
 	GetAllPagerDutyIntegrations(context.Context, *connect.Request[v1.GetAllPagerDutyIntegrationsRequest]) (*connect.Response[v1.GetAllPagerDutyIntegrationsResponse], error)
 	GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error)
+	TestIncidentIoIntegration(context.Context, *connect.Request[v1.TestIncidentIoIntegrationRequest]) (*connect.Response[v1.TestIncidentIoIntegrationResponse], error)
+	AddIncidentIoIntegration(context.Context, *connect.Request[v1.AddIncidentIoIntegrationRequest]) (*connect.Response[v1.AddIncidentIoIntegrationResponse], error)
+	DeleteIncidentIoIntegration(context.Context, *connect.Request[v1.DeleteIncidentIoIntegrationRequest]) (*connect.Response[v1.DeleteIncidentIoIntegrationResponse], error)
+	UpdateIncidentIoIntegration(context.Context, *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error)
+	GetAllIncidentIoIntegrations(context.Context, *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error)
+	GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error)
 }
 
 // NewMonitoringServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -238,6 +344,45 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitoringServiceTestIncidentIoIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceTestIncidentIoIntegrationProcedure,
+		svc.TestIncidentIoIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("TestIncidentIoIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceAddIncidentIoIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceAddIncidentIoIntegrationProcedure,
+		svc.AddIncidentIoIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("AddIncidentIoIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceDeleteIncidentIoIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceDeleteIncidentIoIntegrationProcedure,
+		svc.DeleteIncidentIoIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("DeleteIncidentIoIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceUpdateIncidentIoIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceUpdateIncidentIoIntegrationProcedure,
+		svc.UpdateIncidentIoIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("UpdateIncidentIoIntegration")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetAllIncidentIoIntegrationsHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetAllIncidentIoIntegrationsProcedure,
+		svc.GetAllIncidentIoIntegrations,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetAllIncidentIoIntegrations")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetIncidentIoIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetIncidentIoIntegrationProcedure,
+		svc.GetIncidentIoIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetIncidentIoIntegration")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.MonitoringService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case MonitoringServiceTestPagerDutyIntegrationProcedure:
@@ -254,6 +399,18 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 			monitoringServiceGetAllPagerDutyIntegrationsHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetPagerDutyIntegrationProcedure:
 			monitoringServiceGetPagerDutyIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceTestIncidentIoIntegrationProcedure:
+			monitoringServiceTestIncidentIoIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceAddIncidentIoIntegrationProcedure:
+			monitoringServiceAddIncidentIoIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceDeleteIncidentIoIntegrationProcedure:
+			monitoringServiceDeleteIncidentIoIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceUpdateIncidentIoIntegrationProcedure:
+			monitoringServiceUpdateIncidentIoIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetAllIncidentIoIntegrationsProcedure:
+			monitoringServiceGetAllIncidentIoIntegrationsHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetIncidentIoIntegrationProcedure:
+			monitoringServiceGetIncidentIoIntegrationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -289,4 +446,28 @@ func (UnimplementedMonitoringServiceHandler) GetAllPagerDutyIntegrations(context
 
 func (UnimplementedMonitoringServiceHandler) GetPagerDutyIntegration(context.Context, *connect.Request[v1.GetPagerDutyIntegrationRequest]) (*connect.Response[v1.GetPagerDutyIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetPagerDutyIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) TestIncidentIoIntegration(context.Context, *connect.Request[v1.TestIncidentIoIntegrationRequest]) (*connect.Response[v1.TestIncidentIoIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.TestIncidentIoIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) AddIncidentIoIntegration(context.Context, *connect.Request[v1.AddIncidentIoIntegrationRequest]) (*connect.Response[v1.AddIncidentIoIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.AddIncidentIoIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) DeleteIncidentIoIntegration(context.Context, *connect.Request[v1.DeleteIncidentIoIntegrationRequest]) (*connect.Response[v1.DeleteIncidentIoIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.DeleteIncidentIoIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) UpdateIncidentIoIntegration(context.Context, *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.UpdateIncidentIoIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetAllIncidentIoIntegrations(context.Context, *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetAllIncidentIoIntegrations is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncidentIoIntegration is not implemented"))
 }
