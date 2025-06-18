@@ -239,9 +239,9 @@ type GCPRegionConfig struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Valid values currently, string for readability:
-	// GLOBAL
-	// SINGLE_REGION
-	// STRICT_REGIONAL
+	// GLOBAL - default, gcp resources are globally-scoped when possible
+	// SINGLE_REGION - gcp resources are replicated to specific regions, but still globally addressable
+	// STRICT_REGIONAL - gcp resources are strictly region-locked, requiring regional api endpoint configuration
 	ScopeType *string `protobuf:"bytes,1,opt,name=scope_type,json=scopeType,proto3,oneof" json:"scope_type,omitempty"`
 }
 
