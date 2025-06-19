@@ -3,6 +3,8 @@ comment:
   hide_project_coverage: true
 
 coverage:
+  ignore:
+    - "gen/"
   status:
     project:
       default:
