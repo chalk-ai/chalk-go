@@ -42,7 +42,7 @@ func (e *ServerError) Error() string {
 }
 
 func (e *HTTPError) Error() string {
-	if e.Trace != nil {
+	if e != nil && e.Trace != nil {
 		return fmt.Sprintf("HTTP Error: path=%q, message=%q, status=%d, content-length=%d, trace=%q",
 			e.Path, e.Message, e.StatusCode, e.ContentLength, *e.Trace)
 	}

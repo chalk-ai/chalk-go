@@ -630,7 +630,7 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 
 	if errorResponse.Detail != nil {
 		errDetailJson, err := json.Marshal(errorResponse.Detail)
-		if err == nil {
+		if err != nil {
 			return nil, errors.Wrapf(
 				err,
 				"error marshalling error detail into string - original error detail: %v",
