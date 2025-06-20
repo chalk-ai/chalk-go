@@ -12,7 +12,7 @@ type Feature struct {
 	Fqn string
 }
 
-func DesuffixFqn(fqn string) string {
+func deSuffixFqn(fqn string) string {
 	sections := strings.Split(fqn, ".")
 	return strings.Join(sections[:len(sections)-1], ".")
 }
@@ -37,7 +37,7 @@ func getFeatureClassFromMember(field reflect.Value) *Feature {
 				// that share the same FQN as the feature class.
 				featureClassFqn = memberFqn
 			} else {
-				featureClassFqn = DesuffixFqn(memberFqn)
+				featureClassFqn = deSuffixFqn(memberFqn)
 			}
 			return &Feature{
 				Fqn: featureClassFqn,

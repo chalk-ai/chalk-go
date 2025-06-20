@@ -148,7 +148,7 @@ func initFeatures(
 			// we want to return the parent (real) feature FQN
 			// instead of the fake FQN of the dataclass child field.
 			if internal.IsDataclass(structValue) {
-				updatedFqn = DesuffixFqn(updatedFqn)
+				updatedFqn = deSuffixFqn(updatedFqn)
 			}
 
 			feature := Feature{Fqn: updatedFqn}
