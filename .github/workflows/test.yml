@@ -37,4 +37,10 @@ jobs:
           --format-hide-empty-pkg \
           --junitfile-hide-empty-pkg \
           --format=github-actions -- \
-            -shuffle=on -vet=all ./...
+            -shuffle=on -vet=all -coverprofile=coverage.out ./...
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage.out
