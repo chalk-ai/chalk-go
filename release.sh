@@ -15,4 +15,15 @@ confirm() {
             ;;
     esac
 }
-confirm "Submit to GitHub (Y/n)?" && echo "Submitting..." && gh release create "${NEXT_TAG}" --generate-notes
+
+if confirm "Push tags and create GitHub release? [y/N] "; then
+  # tag root module and sub-module at the SAME commit
+  git tag -a "${NEXT_TAG}" -m "Release chalk-go ${NEXT_TAG}"
+  git tag -a "gen/${NEXT_TAG}" -m "Release chalk-go/gen ${NEXT_TAG}"
+
+  # push both tags
+  git push origin "${NEXT_TAG}" "gen/${NEXT_TAG}"
+
+  # create GitHub release for the root tag
+  gh release create "${NEXT_TAG}" --generate-notes
+fi
