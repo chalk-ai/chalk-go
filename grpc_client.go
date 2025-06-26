@@ -1,12 +1,13 @@
 package chalk
 
 import (
-	"connectrpc.com/connect"
 	"context"
+	"time"
+
+	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"time"
 )
 
 // GRPCClient is the gRPC interface for interacting with Chalk.
@@ -178,6 +179,10 @@ type GRPCClientConfig struct {
 	// Allocator specifies the allocator to use for creating Arrow objects.
 	// Defaults to `memory.DefaultAllocator`.
 	Allocator memory.Allocator
+
+	// Interceptors are middleware functions that can intercept and modify
+	// gRPC requests and responses for logging, auth, metrics, etc.
+	Interceptors []connect.Interceptor
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

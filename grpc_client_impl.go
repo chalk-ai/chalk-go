@@ -1,9 +1,14 @@
 package chalk
 
 import (
-	"connectrpc.com/connect"
 	"context"
 	"crypto/tls"
+	"net"
+	"net/http"
+	"strings"
+	"time"
+
+	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
@@ -15,10 +20,6 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
-	"net"
-	"net/http"
-	"strings"
-	"time"
 )
 
 type grpcClientImpl struct {
@@ -74,7 +75,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	authClient := serverv1connect.NewAuthServiceClient(
 		httpClient,
 		config.apiServer.Value,
-		connect.WithInterceptors(authInterceptors...),
+		connect.WithInterceptors(append(cfg.Interceptors, authInterceptors...)...),
 	)
 
 	config.getToken = func(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error) {
@@ -134,7 +135,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	queryClient := enginev1connect.NewQueryServiceClient(
 		httpClient,
 		ensureHTTPSPrefix(resolvedQueryServer),
-		connect.WithInterceptors(engineInterceptors...),
+		connect.WithInterceptors(append(cfg.Interceptors, engineInterceptors...)...),
 		connect.WithGRPC(),
 	)
 
