@@ -56,6 +56,7 @@ Create a client using the `NewClient` method.  The returned client gets its conf
 3. From a ~/.chalk.yml file if neither 1 nor 2 are available
 
 (2) and (3) are applicable only for these [options](https://github.com/chalk-ai/chalk-go/blob/main/internal/constants.go).
+
 #### Without overrides
 ```go
 import (
