@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"github.com/chalk-ai/chalk-go/expr"
 	"time"
 )
 
@@ -66,6 +67,12 @@ func (p OnlineQueryParamsComplete) WithInputs(inputs map[any]any) OnlineQueryPar
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParamsComplete) WithOutputs(features ...any) OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withOutputs(features...)
+	return p
+}
+
+// WithOutputExprs returns a copy of Online Query parameters with the specified output expressions added.
+func (p OnlineQueryParamsComplete) WithOutputExprs(exprs ...expr.ExprI) OnlineQueryParamsComplete {
+	p.underlying = p.underlying.withOutputExprs(exprs...)
 	return p
 }
 
