@@ -44,7 +44,7 @@ func (p *OnlineQueryParams) resolveSingle() (*onlineQueryParamsResolved, error) 
 		inputs[fqn] = v
 	}
 
-	outputs := []string{}
+	var outputs []string
 	for _, output := range p.rawOutputs {
 		fqn, isCodegen, err := getFqn(output)
 		if err != nil {
