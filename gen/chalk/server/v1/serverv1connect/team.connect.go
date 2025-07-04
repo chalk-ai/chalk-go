@@ -89,9 +89,6 @@ const (
 	// TeamServiceGetTeamPermissionsProcedure is the fully-qualified name of the TeamService's
 	// GetTeamPermissions RPC.
 	TeamServiceGetTeamPermissionsProcedure = "/chalk.server.v1.TeamService/GetTeamPermissions"
-	// TeamServiceArchiveEnvironmentProcedure is the fully-qualified name of the TeamService's
-	// ArchiveEnvironment RPC.
-	TeamServiceArchiveEnvironmentProcedure = "/chalk.server.v1.TeamService/ArchiveEnvironment"
 )
 
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
@@ -116,7 +113,6 @@ type TeamServiceClient interface {
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
-	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 }
 
 // NewTeamServiceClient constructs a client for the chalk.server.v1.TeamService service. By default,
@@ -256,12 +252,6 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 			connect.WithClientOptions(opts...),
 		),
-		archiveEnvironment: connect.NewClient[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse](
-			httpClient,
-			baseURL+TeamServiceArchiveEnvironmentProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
@@ -287,7 +277,6 @@ type teamServiceClient struct {
 	upsertFeaturePermissions *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
 	updateScimGroupSettings  *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
 	getTeamPermissions       *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
-	archiveEnvironment       *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -390,11 +379,6 @@ func (c *teamServiceClient) GetTeamPermissions(ctx context.Context, req *connect
 	return c.getTeamPermissions.CallUnary(ctx, req)
 }
 
-// ArchiveEnvironment calls chalk.server.v1.TeamService.ArchiveEnvironment.
-func (c *teamServiceClient) ArchiveEnvironment(ctx context.Context, req *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
-	return c.archiveEnvironment.CallUnary(ctx, req)
-}
-
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -417,7 +401,6 @@ type TeamServiceHandler interface {
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
-	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 }
 
 // NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -553,12 +536,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 		connect.WithHandlerOptions(opts...),
 	)
-	teamServiceArchiveEnvironmentHandler := connect.NewUnaryHandler(
-		TeamServiceArchiveEnvironmentProcedure,
-		svc.ArchiveEnvironment,
-		connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
@@ -601,8 +578,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceUpdateScimGroupSettingsHandler.ServeHTTP(w, r)
 		case TeamServiceGetTeamPermissionsProcedure:
 			teamServiceGetTeamPermissionsHandler.ServeHTTP(w, r)
-		case TeamServiceArchiveEnvironmentProcedure:
-			teamServiceArchiveEnvironmentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -690,8 +665,4 @@ func (UnimplementedTeamServiceHandler) UpdateScimGroupSettings(context.Context, 
 
 func (UnimplementedTeamServiceHandler) GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetTeamPermissions is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ArchiveEnvironment is not implemented"))
 }

@@ -38,18 +38,12 @@ const (
 	SqlServiceExecuteSqlQueryProcedure = "/chalk.protosql.v1.SqlService/ExecuteSqlQuery"
 	// SqlServicePlanSqlQueryProcedure is the fully-qualified name of the SqlService's PlanSqlQuery RPC.
 	SqlServicePlanSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PlanSqlQuery"
-	// SqlServiceGetDbSchemasProcedure is the fully-qualified name of the SqlService's GetDbSchemas RPC.
-	SqlServiceGetDbSchemasProcedure = "/chalk.protosql.v1.SqlService/GetDbSchemas"
-	// SqlServiceGetTablesProcedure is the fully-qualified name of the SqlService's GetTables RPC.
-	SqlServiceGetTablesProcedure = "/chalk.protosql.v1.SqlService/GetTables"
 )
 
 // SqlServiceClient is a client for the chalk.protosql.v1.SqlService service.
 type SqlServiceClient interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
-	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
-	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
 }
 
 // NewSqlServiceClient constructs a client for the chalk.protosql.v1.SqlService service. By default,
@@ -75,18 +69,6 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
 			connect.WithClientOptions(opts...),
 		),
-		getDbSchemas: connect.NewClient[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse](
-			httpClient,
-			baseURL+SqlServiceGetDbSchemasProcedure,
-			connect.WithSchema(sqlServiceMethods.ByName("GetDbSchemas")),
-			connect.WithClientOptions(opts...),
-		),
-		getTables: connect.NewClient[v1.GetTablesRequest, v1.GetTablesResponse](
-			httpClient,
-			baseURL+SqlServiceGetTablesProcedure,
-			connect.WithSchema(sqlServiceMethods.ByName("GetTables")),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
@@ -94,8 +76,6 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 type sqlServiceClient struct {
 	executeSqlQuery *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
 	planSqlQuery    *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
-	getDbSchemas    *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
-	getTables       *connect.Client[v1.GetTablesRequest, v1.GetTablesResponse]
 }
 
 // ExecuteSqlQuery calls chalk.protosql.v1.SqlService.ExecuteSqlQuery.
@@ -108,22 +88,10 @@ func (c *sqlServiceClient) PlanSqlQuery(ctx context.Context, req *connect.Reques
 	return c.planSqlQuery.CallUnary(ctx, req)
 }
 
-// GetDbSchemas calls chalk.protosql.v1.SqlService.GetDbSchemas.
-func (c *sqlServiceClient) GetDbSchemas(ctx context.Context, req *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error) {
-	return c.getDbSchemas.CallUnary(ctx, req)
-}
-
-// GetTables calls chalk.protosql.v1.SqlService.GetTables.
-func (c *sqlServiceClient) GetTables(ctx context.Context, req *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error) {
-	return c.getTables.CallUnary(ctx, req)
-}
-
 // SqlServiceHandler is an implementation of the chalk.protosql.v1.SqlService service.
 type SqlServiceHandler interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
-	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
-	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
 }
 
 // NewSqlServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -145,28 +113,12 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
-	sqlServiceGetDbSchemasHandler := connect.NewUnaryHandler(
-		SqlServiceGetDbSchemasProcedure,
-		svc.GetDbSchemas,
-		connect.WithSchema(sqlServiceMethods.ByName("GetDbSchemas")),
-		connect.WithHandlerOptions(opts...),
-	)
-	sqlServiceGetTablesHandler := connect.NewUnaryHandler(
-		SqlServiceGetTablesProcedure,
-		svc.GetTables,
-		connect.WithSchema(sqlServiceMethods.ByName("GetTables")),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.protosql.v1.SqlService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SqlServiceExecuteSqlQueryProcedure:
 			sqlServiceExecuteSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServicePlanSqlQueryProcedure:
 			sqlServicePlanSqlQueryHandler.ServeHTTP(w, r)
-		case SqlServiceGetDbSchemasProcedure:
-			sqlServiceGetDbSchemasHandler.ServeHTTP(w, r)
-		case SqlServiceGetTablesProcedure:
-			sqlServiceGetTablesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -182,12 +134,4 @@ func (UnimplementedSqlServiceHandler) ExecuteSqlQuery(context.Context, *connect.
 
 func (UnimplementedSqlServiceHandler) PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.PlanSqlQuery is not implemented"))
-}
-
-func (UnimplementedSqlServiceHandler) GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetDbSchemas is not implemented"))
-}
-
-func (UnimplementedSqlServiceHandler) GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetTables is not implemented"))
 }
