@@ -400,7 +400,7 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 }
 
 func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.config.apiServer.Value
+	return c.config.getQueryServer(nil)
 }
 
 func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
