@@ -197,7 +197,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 		return OnlineQueryResult{}, errors.Wrap(err, "resolving single query params")
 	}
 
-	serializedRequest, err := serializeOnlineQueryParams(&request, resolved)
+	serializedRequest, err := serializeOnlineQueryParams(request, resolved)
 	if err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}

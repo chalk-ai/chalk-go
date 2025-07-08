@@ -14,6 +14,17 @@ import (
 	"time"
 )
 
+func generateGetEnumFunction[K comparable](valueToEnum map[string]K, enumName string) func(string) (*K, error) {
+	return func(value string) (*K, error) {
+		enum, found := valueToEnum[value]
+		if !found {
+			return nil, fmt.Errorf("cannot find enum value '%s' among all %s", value, enumName)
+		}
+
+		return &enum, nil
+	}
+}
+
 func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParamsResolved) (*internal.OnlineQueryRequestSerialized, error) {
 	outputs := resolved.outputs
 	if outputs == nil {
@@ -232,7 +243,7 @@ func deserializeChalkErrors(errors []chalkErrorSerialized) (serverErrorsT, error
 	return deserializedErrors, nil
 }
 
-var getErrorCode = internal.GenerateGetEnumFunction(
+var getErrorCode = generateGetEnumFunction(
 	map[string]ErrorCode{
 		ParseFailed.Value:         ParseFailed,
 		ResolverTimedOut.Value:    ResolverTimedOut,
@@ -250,7 +261,7 @@ var getErrorCode = internal.GenerateGetEnumFunction(
 	"error codes",
 )
 
-var getErrorCodeCategory = internal.GenerateGetEnumFunction(
+var getErrorCodeCategory = generateGetEnumFunction(
 	map[string]ErrorCodeCategory{
 		Request.Value: Request,
 		Field.Value:   Field,

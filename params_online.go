@@ -17,7 +17,7 @@ import (
 //
 //		client.OnlineQuery(
 //			context.Background(),
-//			OnlineQueryParams{
+//			&OnlineQueryParams{
 //				IncludeMeta: true,
 //				EnvironmentId: "pipkjlfc3gtmn",
 //			}.
@@ -31,40 +31,40 @@ import (
 // Otherwise, an incomplete type will be returned, and it cannot
 // be passed into Client.OnlineQuery.
 type OnlineQueryParamsComplete struct {
-	underlying OnlineQueryParams
+	underlying *OnlineQueryParams
 }
 
 // WithQueryName returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithQueryName(queryName string) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithQueryName(queryName string) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withQueryName(queryName)
 	return p
 }
 
 // WithQueryNameVersion returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithQueryNameVersion(queryNameVersion string) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithQueryNameVersion(queryNameVersion string) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.WithQueryNameVersion(queryNameVersion)
 	return p
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithInput(feature any, value any) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithInput(feature any, value any) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withInput(feature, value)
 	return p
 }
 
 // WithInputs returns a copy of Online Query parameters with the specified inputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithInputs(inputs map[any]any) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithInputs(inputs map[any]any) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withInputs(inputs)
 	return p
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithOutputs(features ...any) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithOutputs(features ...any) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withOutputs(features...)
 	return p
 }
@@ -72,21 +72,21 @@ func (p OnlineQueryParamsComplete) WithOutputs(features ...any) OnlineQueryParam
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
-func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Duration) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Duration) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
 
 // WithBranchId returns a copy of Online Query parameters with the specified branch id added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithBranchId(branchId string) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithBranchId(branchId string) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.WithBranchId(branchId)
 	return p
 }
 
 // WithTags returns a copy of Online Query parameters with the specified tags added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsComplete {
+func (p *OnlineQueryParamsComplete) WithTags(tags ...string) *OnlineQueryParamsComplete {
 	p.underlying = p.underlying.WithTags(tags...)
 	return p
 }
@@ -95,7 +95,7 @@ func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsCom
  Definitions for OnlineQueryParams
 ******************************************/
 
-func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQueryParams) {
+func (p *OnlineQueryParams) withInput(feature any, value any) (result *OnlineQueryParams) {
 	if p.rawInputs == nil {
 		p.rawInputs = make(map[any]any)
 	}
@@ -103,24 +103,24 @@ func (p OnlineQueryParams) withInput(feature any, value any) (result OnlineQuery
 	return p
 }
 
-func (p OnlineQueryParams) withInputs(inputs map[any]any) OnlineQueryParams {
+func (p *OnlineQueryParams) withInputs(inputs map[any]any) *OnlineQueryParams {
 	for key, value := range inputs {
 		p = p.withInput(key, value)
 	}
 	return p
 }
 
-func (p OnlineQueryParams) withOutputs(features ...any) OnlineQueryParams {
+func (p *OnlineQueryParams) withOutputs(features ...any) *OnlineQueryParams {
 	p.rawOutputs = append(p.rawOutputs, features...)
 	return p
 }
 
-func (p OnlineQueryParams) withQueryName(name string) OnlineQueryParams {
+func (p *OnlineQueryParams) withQueryName(name string) *OnlineQueryParams {
 	p.QueryName = name
 	return p
 }
 
-func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) OnlineQueryParams {
+func (p *OnlineQueryParams) withStaleness(feature any, duration time.Duration) *OnlineQueryParams {
 	if p.rawStaleness == nil {
 		p.rawStaleness = make(map[any]time.Duration)
 	}
@@ -133,39 +133,39 @@ func (p OnlineQueryParams) withStaleness(feature any, duration time.Duration) On
 *********************************************/
 
 type onlineQueryParamsWithInputs struct {
-	underlying OnlineQueryParams
+	underlying *OnlineQueryParams
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithInputs) WithInput(feature any, value any) onlineQueryParamsWithInputs {
+func (p *onlineQueryParamsWithInputs) WithInput(feature any, value any) *onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withInput(feature, value)
 	return p
 }
 
 // WithInputs returns a copy of Online Query parameters with the specified inputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithInputs) WithInputs(inputs map[any]any) onlineQueryParamsWithInputs {
+func (p *onlineQueryParamsWithInputs) WithInputs(inputs map[any]any) *onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withInputs(inputs)
 	return p
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithInputs) WithOutputs(features ...any) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.underlying.withOutputs(features...)}
+func (p *onlineQueryParamsWithInputs) WithOutputs(features ...any) *OnlineQueryParamsComplete {
+	return &OnlineQueryParamsComplete{p.underlying.withOutputs(features...)}
 }
 
 // WithQueryName returns a copy of Online Query parameters with the specified query name set.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithInputs) WithQueryName(name string) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.underlying.withQueryName(name)}
+func (p *onlineQueryParamsWithInputs) WithQueryName(name string) *OnlineQueryParamsComplete {
+	return &OnlineQueryParamsComplete{p.underlying.withQueryName(name)}
 }
 
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
-func (p onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Duration) onlineQueryParamsWithInputs {
+func (p *onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Duration) *onlineQueryParamsWithInputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }
@@ -175,31 +175,31 @@ func (p onlineQueryParamsWithInputs) WithStaleness(feature any, duration time.Du
 *********************************************/
 
 type onlineQueryParamsWithOutputs struct {
-	underlying OnlineQueryParams
+	underlying *OnlineQueryParams
 }
 
 // WithInput returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithOutputs) WithInput(feature any, value any) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.underlying.withInput(feature, value)}
+func (p *onlineQueryParamsWithOutputs) WithInput(feature any, value any) *OnlineQueryParamsComplete {
+	return &OnlineQueryParamsComplete{p.underlying.withInput(feature, value)}
 }
 
 // WithInputs returns a copy of Online Query parameters with the specified input added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithOutputs) WithInputs(inputs map[any]any) OnlineQueryParamsComplete {
-	return OnlineQueryParamsComplete{p.underlying.withInputs(inputs)}
+func (p *onlineQueryParamsWithOutputs) WithInputs(inputs map[any]any) *OnlineQueryParamsComplete {
+	return &OnlineQueryParamsComplete{p.underlying.withInputs(inputs)}
 }
 
 // WithOutputs returns a copy of Online Query parameters with the specified outputs added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithOutputs) WithOutputs(features ...any) onlineQueryParamsWithOutputs {
+func (p *onlineQueryParamsWithOutputs) WithOutputs(features ...any) *onlineQueryParamsWithOutputs {
 	p.underlying = p.underlying.withOutputs(features...)
 	return p
 }
 
 // WithQueryName returns a copy of Online Query parameters with the specified query name set.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p onlineQueryParamsWithOutputs) WithQueryName(name string) onlineQueryParamsWithOutputs {
+func (p *onlineQueryParamsWithOutputs) WithQueryName(name string) *onlineQueryParamsWithOutputs {
 	p.underlying = p.underlying.withQueryName(name)
 	return p
 }
@@ -207,7 +207,7 @@ func (p onlineQueryParamsWithOutputs) WithQueryName(name string) onlineQueryPara
 // WithStaleness returns a copy of Online Query parameters with the specified staleness added.
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
-func (p onlineQueryParamsWithOutputs) WithStaleness(feature any, duration time.Duration) onlineQueryParamsWithOutputs {
+func (p *onlineQueryParamsWithOutputs) WithStaleness(feature any, duration time.Duration) *onlineQueryParamsWithOutputs {
 	p.underlying = p.underlying.withStaleness(feature, duration)
 	return p
 }

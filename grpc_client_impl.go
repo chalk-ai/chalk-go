@@ -363,7 +363,7 @@ func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
 	return internal.UnmarshalTableInto(scalars, resultHolders)
 }
 
-func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
+func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args *OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
 	req, err := c.GetOnlineQueryBulkRequest(ctx, args)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating online query request")
@@ -385,8 +385,8 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	return result, nil
 }
 
-func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error) {
-	paramsProto, err := convertOnlineQueryParamsToProto(&args.underlying, c.allocator)
+func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args *OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error) {
+	paramsProto, err := convertOnlineQueryParamsToProto(args.underlying, c.allocator)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
@@ -440,7 +440,7 @@ func (r *GRPCUpdateAggregatesResult) GetErrors() ([]ServerError, error) {
 	return serverErrorsFromProto(r.RawResponse.GetErrors())
 }
 
-func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
+func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args *UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error) {
 	inputsConverted, err := getConvertedInputsMap(args.Inputs)
 	if err != nil {
 		return nil, errors.Wrap(err, "converting inputs map")
