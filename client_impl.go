@@ -56,7 +56,7 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 	response := Dataset{}
 	if err = c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:              "POST",
 			URL:                 "v3/offline_query",
 			Body:                body,
@@ -115,7 +115,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	response := OnlineQueryBulkResponse{allocator: c.allocator}
 	err = c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:                "POST",
 			URL:                   "v1/query/feather",
 			Body:                  data,
@@ -173,7 +173,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 	response := UploadFeaturesResult{}
 	err = c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/upload_features/multi",
 			Body:                body,
@@ -183,10 +183,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 			IsEngineRequest:     true,
 		},
 	)
-	if err != nil {
-		return UploadFeaturesResult{}, errors.Wrap(err, "sending request")
-	}
-	return response, nil
+	return response, errors.Wrap(err, "sending request")
 }
 
 func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsComplete, resultHolder any) (OnlineQueryResult, error) {
@@ -210,7 +207,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	var response onlineQueryResponseSerialized
 	if err = c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:                "POST",
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
@@ -265,7 +262,7 @@ func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerReso
 	response := TriggerResolverRunResult{}
 	err := c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:              "POST",
 			URL:                 "v1/runs/trigger",
 			Body:                request,
@@ -274,17 +271,14 @@ func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerReso
 			PreviewDeploymentId: request.PreviewDeploymentId,
 		},
 	)
-	if err != nil {
-		return TriggerResolverRunResult{}, errors.Wrap(err, "sending request")
-	}
-	return response, nil
+	return response, errors.Wrap(err, "triggering resolver run")
 }
 
 func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParams) (GetRunStatusResult, error) {
 	response := GetRunStatusResult{}
 	err := c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:              "GET",
 			URL:                 fmt.Sprintf("v1/runs/%s", request.RunId),
 			Body:                request,
@@ -292,19 +286,15 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 			PreviewDeploymentId: request.PreviewDeploymentId,
 		},
 	)
-	if err != nil {
-		return GetRunStatusResult{}, errors.Wrap(err, "sending request")
-	}
-	return response, nil
+	return response, errors.Wrap(err, "getting run status")
 }
 
 func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
-
 	for !response.IsFinished {
 		err := c.sendRequest(
 			ctx,
-			sendRequestParams{
+			&sendRequestParams{
 				Method:              "GET",
 				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
 				EnvironmentOverride: EnvironmentId,
@@ -312,7 +302,7 @@ func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, Envi
 			},
 		)
 		if err != nil {
-			return []string{}, errors.Wrap(err, "sending request")
+			return []string{}, errors.Wrap(err, "getting dataset urls")
 		}
 		time.Sleep(500 * time.Millisecond)
 	}
@@ -354,21 +344,19 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error
 	}
 
 	destinationPath := filepath.Join(directory, destinationFilepath)
-	err = os.WriteFile(destinationPath, data, os.ModePerm)
-
-	return err
+	return errors.Wrapf(os.WriteFile(destinationPath, data, os.ModePerm), "saving file to %s", destinationPath)
 }
 
 func (c *clientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	getTokenResult, err := c.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
+	res, err := c.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
 	if err != nil {
 		return nil, err // Intentionally not wrapping
 	}
 	return &TokenResult{
-		AccessToken:        getTokenResult.AccessToken,
-		PrimaryEnvironment: getTokenResult.PrimaryEnvironment,
-		ValidUntil:         getTokenResult.ValidUntil,
-		Engines:            getTokenResult.Engines,
+		AccessToken:        res.AccessToken,
+		PrimaryEnvironment: res.PrimaryEnvironment,
+		ValidUntil:         res.ValidUntil,
+		Engines:            res.Engines,
 	}, nil
 }
 
@@ -381,7 +369,7 @@ func (c *clientImpl) getToken(ctx context.Context, clientId string, clientSecret
 	response := getTokenResponse{}
 	err := c.sendRequest(
 		ctx,
-		sendRequestParams{
+		&sendRequestParams{
 			Method:      "POST",
 			URL:         "v1/oauth/token",
 			Body:        body,
@@ -433,7 +421,7 @@ func getBodyBuffer(body any) (io.Reader, error) {
 	}
 }
 
-func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) error {
+func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) error {
 	body, getBufferErr := getBodyBuffer(args.Body)
 	if getBufferErr != nil {
 		return getBufferErr
@@ -501,12 +489,9 @@ func (c *clientImpl) sendRequest(ctx context.Context, args sendRequestParams) er
 	out, _ := io.ReadAll(res.Body)
 	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
 	if isBulkResponse {
-		err = castResponse.Unmarshal(out)
-	} else {
-		err = json.Unmarshal(out, args.Response)
+		return castResponse.Unmarshal(out)
 	}
-
-	return err
+	return json.Unmarshal(out, args.Response)
 }
 
 func (c *clientImpl) retryRequest(
@@ -644,9 +629,16 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 }
 
 func newClientImpl(
-	ctx context.Context, cfg ClientConfig,
+	ctx context.Context,
+	cfg *ClientConfig,
 ) (*clientImpl, error) {
-	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
+	config, err := newConfigManager(
+		cfg.ApiServer,
+		cfg.ClientId,
+		cfg.ClientSecret,
+		cfg.EnvironmentId,
+		cfg.Logger,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
 	}
@@ -690,8 +682,5 @@ func newClientImpl(
 		config: config,
 	}
 	client.config.getToken = client.getToken
-	if err := client.config.refresh(ctx, false); err != nil {
-		return nil, errors.Wrap(err, "error fetching initial config")
-	}
-	return client, nil
+	return client, errors.Wrap(client.config.refresh(ctx, false), "refreshing config on client creation")
 }

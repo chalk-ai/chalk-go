@@ -239,5 +239,5 @@ func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
 		cfg = configs[len(configs)-1]
 	}
 
-	return newClientImpl(ctx, *cfg)
+	return newClientImpl(ctx, cfg)
 }
