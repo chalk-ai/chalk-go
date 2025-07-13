@@ -74,8 +74,8 @@ type GRPCClient interface {
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
-	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
-	GetOnlineQueryBulkRequest(ctx context.Context, params OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error)
+	OnlineQueryBulk(ctx context.Context, params *OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
+	GetOnlineQueryBulkRequest(ctx context.Context, params *OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error)
 	GetQueryEndpoint() string
 
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
@@ -103,7 +103,7 @@ type GRPCClient interface {
 	//      }
 	//
 	// [chalk codegen]: https://docs.chalk.ai/cli#codegen
-	UpdateAggregates(ctx context.Context, params UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error)
+	UpdateAggregates(ctx context.Context, params *UpdateAggregatesParams) (*GRPCUpdateAggregatesResult, error)
 
 	GetAggregates(ctx context.Context, features []string) (*GRPCGetAggregatesResult, error)
 
