@@ -45,6 +45,12 @@ const (
 	// QueriesServiceGetQueryPlanProcedure is the fully-qualified name of the QueriesService's
 	// GetQueryPlan RPC.
 	QueriesServiceGetQueryPlanProcedure = "/chalk.server.v1.QueriesService/GetQueryPlan"
+	// QueriesServiceAggregateQueryErrorsProcedure is the fully-qualified name of the QueriesService's
+	// AggregateQueryErrors RPC.
+	QueriesServiceAggregateQueryErrorsProcedure = "/chalk.server.v1.QueriesService/AggregateQueryErrors"
+	// QueriesServiceListMetaQueryRunsProcedure is the fully-qualified name of the QueriesService's
+	// ListMetaQueryRuns RPC.
+	QueriesServiceListMetaQueryRunsProcedure = "/chalk.server.v1.QueriesService/ListMetaQueryRuns"
 )
 
 // QueriesServiceClient is a client for the chalk.server.v1.QueriesService service.
@@ -53,6 +59,8 @@ type QueriesServiceClient interface {
 	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
 	GetQueryErrorsChart(context.Context, *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error)
 	GetQueryPlan(context.Context, *connect.Request[v1.GetQueryPlanRequest]) (*connect.Response[v1.GetQueryPlanResponse], error)
+	AggregateQueryErrors(context.Context, *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error)
+	ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error)
 }
 
 // NewQueriesServiceClient constructs a client for the chalk.server.v1.QueriesService service. By
@@ -90,6 +98,18 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(queriesServiceMethods.ByName("GetQueryPlan")),
 			connect.WithClientOptions(opts...),
 		),
+		aggregateQueryErrors: connect.NewClient[v1.AggregateQueryErrorsRequest, v1.AggregateQueryErrorsResponse](
+			httpClient,
+			baseURL+QueriesServiceAggregateQueryErrorsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("AggregateQueryErrors")),
+			connect.WithClientOptions(opts...),
+		),
+		listMetaQueryRuns: connect.NewClient[v1.ListMetaQueryRunsRequest, v1.ListMetaQueryRunsResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueryRunsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryRuns")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -99,6 +119,8 @@ type queriesServiceClient struct {
 	listQueryErrors            *connect.Client[v1.ListQueryErrorsRequest, v1.ListQueryErrorsResponse]
 	getQueryErrorsChart        *connect.Client[v1.GetQueryErrorsChartRequest, v1.GetQueryErrorsChartResponse]
 	getQueryPlan               *connect.Client[v1.GetQueryPlanRequest, v1.GetQueryPlanResponse]
+	aggregateQueryErrors       *connect.Client[v1.AggregateQueryErrorsRequest, v1.AggregateQueryErrorsResponse]
+	listMetaQueryRuns          *connect.Client[v1.ListMetaQueryRunsRequest, v1.ListMetaQueryRunsResponse]
 }
 
 // GetQueryPerformanceSummary calls chalk.server.v1.QueriesService.GetQueryPerformanceSummary.
@@ -121,12 +143,24 @@ func (c *queriesServiceClient) GetQueryPlan(ctx context.Context, req *connect.Re
 	return c.getQueryPlan.CallUnary(ctx, req)
 }
 
+// AggregateQueryErrors calls chalk.server.v1.QueriesService.AggregateQueryErrors.
+func (c *queriesServiceClient) AggregateQueryErrors(ctx context.Context, req *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error) {
+	return c.aggregateQueryErrors.CallUnary(ctx, req)
+}
+
+// ListMetaQueryRuns calls chalk.server.v1.QueriesService.ListMetaQueryRuns.
+func (c *queriesServiceClient) ListMetaQueryRuns(ctx context.Context, req *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error) {
+	return c.listMetaQueryRuns.CallUnary(ctx, req)
+}
+
 // QueriesServiceHandler is an implementation of the chalk.server.v1.QueriesService service.
 type QueriesServiceHandler interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
 	ListQueryErrors(context.Context, *connect.Request[v1.ListQueryErrorsRequest]) (*connect.Response[v1.ListQueryErrorsResponse], error)
 	GetQueryErrorsChart(context.Context, *connect.Request[v1.GetQueryErrorsChartRequest]) (*connect.Response[v1.GetQueryErrorsChartResponse], error)
 	GetQueryPlan(context.Context, *connect.Request[v1.GetQueryPlanRequest]) (*connect.Response[v1.GetQueryPlanResponse], error)
+	AggregateQueryErrors(context.Context, *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error)
+	ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error)
 }
 
 // NewQueriesServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -160,6 +194,18 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 		connect.WithSchema(queriesServiceMethods.ByName("GetQueryPlan")),
 		connect.WithHandlerOptions(opts...),
 	)
+	queriesServiceAggregateQueryErrorsHandler := connect.NewUnaryHandler(
+		QueriesServiceAggregateQueryErrorsProcedure,
+		svc.AggregateQueryErrors,
+		connect.WithSchema(queriesServiceMethods.ByName("AggregateQueryErrors")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListMetaQueryRunsHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueryRunsProcedure,
+		svc.ListMetaQueryRuns,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryRuns")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.QueriesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueriesServiceGetQueryPerformanceSummaryProcedure:
@@ -170,6 +216,10 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 			queriesServiceGetQueryErrorsChartHandler.ServeHTTP(w, r)
 		case QueriesServiceGetQueryPlanProcedure:
 			queriesServiceGetQueryPlanHandler.ServeHTTP(w, r)
+		case QueriesServiceAggregateQueryErrorsProcedure:
+			queriesServiceAggregateQueryErrorsHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueryRunsProcedure:
+			queriesServiceListMetaQueryRunsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -193,4 +243,12 @@ func (UnimplementedQueriesServiceHandler) GetQueryErrorsChart(context.Context, *
 
 func (UnimplementedQueriesServiceHandler) GetQueryPlan(context.Context, *connect.Request[v1.GetQueryPlanRequest]) (*connect.Response[v1.GetQueryPlanResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetQueryPlan is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) AggregateQueryErrors(context.Context, *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.AggregateQueryErrors is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueryRuns is not implemented"))
 }

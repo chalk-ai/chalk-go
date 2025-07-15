@@ -22,9 +22,11 @@ jobs:
         run: go test -bench=. ./... | tee output.txt
 
       - name: Set benchmark directory
+        env:
+          branch_name: "${{ github.head_ref }}"
         run: |
           set -exuo pipefail
-          BRANCH_NAME=$(echo "${{ github.head_ref }}" | sed 's|/|--|g')
+          BRANCH_NAME=$(echo "$branch_name" | sed 's|/|--|g')
           if [ "${{ github.event_name }}" = "push" ]; then
             BENCHMARK_DIR="benchmark_results/main"
           else
@@ -42,7 +44,7 @@ jobs:
           git checkout benchmark-results
           if [ ! -d "$BENCHMARK_DIR" ]; then
             echo "Creating new directory: $BENCHMARK_DIR"
-            mkdir -p $BENCHMARK_DIR
+            mkdir -p "$BENCHMARK_DIR"
             cp -r benchmark_results/main/* "$BENCHMARK_DIR"/
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"

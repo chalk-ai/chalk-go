@@ -10,6 +10,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/pkg/errors"
 	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
@@ -558,6 +559,36 @@ func TestUnmarshalWrongType(t *testing.T) {
 		assert.Contains(t, unmarshalErr.Error(), internal.KindMismatchError(reflect.Int64, reflect.String).Error())
 		fmt.Println("We correctly surfaced an unmarshal type mismatch error - the error is: ", unmarshalErr)
 	}
+}
+
+func TestUnmarshalHasManyWithNoValues(t *testing.T) {
+	t.Parallel()
+	assert.Nil(t, initErr)
+	data := []FeatureResult{
+		{
+			Field:     "all_types.has_many",
+			Value:     map[string]any{"columns": []any{}, "values": []any{}},
+			Pkey:      "abc",
+			Timestamp: nil,
+			Meta:      nil,
+			Error:     nil,
+		},
+	}
+
+	result := OnlineQueryResult{
+		Data:     data,
+		Meta:     nil,
+		features: nil,
+	}
+
+	features := fixtures.AllTypes{}
+	unmarshalErr := result.UnmarshalInto(&features)
+	if unmarshalErr == nil {
+		t.Fatal("Expected an error when unmarshalling has-many with no values")
+	} else {
+		assert.ErrorIs(t, unmarshalErr, errors.ErrEmptyHasManyValues)
+	}
+
 }
 
 // Test primitives unmarshalling only.

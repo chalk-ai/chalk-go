@@ -6,6 +6,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
+	chalkerrors "github.com/chalk-ai/chalk-go/pkg/errors"
 	"github.com/cockroachdb/errors"
 	"os"
 	"reflect"
@@ -657,7 +658,7 @@ func ConvertIfHasManyMap(value any) (any, error) {
 	}
 
 	if len(values) == 0 {
-		return nil, errors.New("values of has-many results is empty")
+		return nil, chalkerrors.ErrEmptyHasManyValues
 	}
 	numRows := len(values[0])
 
