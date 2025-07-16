@@ -4,8 +4,9 @@ import (
 	"context"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/auth"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"maps"
+	"slices"
 	"time"
 )
 
@@ -94,13 +95,13 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 	if !ok {
 		if m.engines != nil {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine found for environment '%s' - engine map keys: '%s'",
+				"query endpoint falling back to api server - no engine found for environment %q - engine map keys: %q",
 				m.environmentId.Value,
-				colls.Keys(m.engines),
+				slices.Collect(maps.Keys(m.engines)),
 			)
 		} else {
 			m.logger.Errorf(
-				"query endpoint falling back to api server - no engine found for environment '%s'",
+				"query endpoint falling back to api server - no engine found for environment %q",
 				m.environmentId.Value,
 			)
 		}

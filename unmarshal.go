@@ -3,9 +3,10 @@ package chalk
 import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"maps"
 	"reflect"
+	"slices"
 )
 
 func (result *OnlineQueryResult) unmarshal(resultHolder any) (returnErr error) {
@@ -77,7 +78,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 	if err := internal.PopulateNamespaceMemos(reflect.ValueOf(resultHolder).Elem().Type(), nil); err != nil {
 		return errors.Wrap(err, "building namespace memo")
 	}
-	scope, err := internal.BuildScope(colls.Keys(fqnToValue))
+	scope, err := internal.BuildScope(slices.Collect(maps.Keys(fqnToValue)))
 	if err != nil {
 		return errors.Wrap(err, "building scope for initializing result holder struct")
 	}
@@ -90,20 +91,10 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 
 	if nsScope != nil {
 		// Single namespace unmarshalling
-		if nsScope == nil {
-			return errors.Newf(
-				"Attempted to unmarshal into the feature struct '%s', "+
-					"but results are from these feature class(es) '%v'",
-				structName,
-				colls.Keys(scope.Children),
-			)
-		}
-
 		nsMemo, err := allMemo.LoadOrStore(holderValue.Elem().Type())
 		if err != nil {
 			return errors.Wrapf(err, "loading memo for struct '%s'", structName)
 		}
-
 		return internal.ThinUnmarshalInto(
 			holderValue.Elem(),
 			fqnToValue,
@@ -125,7 +116,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 					"If attempting multi-namespace unmarshalling, please pass in a pointer to a struct whose fields are all "+
 					"structs (not struct pointers) corresponding to the output namespaces. The problematic field is '%s' of type '%s'.",
 				structName,
-				colls.Keys(scope.Children),
+				slices.Collect(maps.Keys(scope.Children)),
 				fieldMeta.Name,
 				field.Type().Name(),
 			)
@@ -141,7 +132,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 				structName,
 				fieldMeta.Name,
 				field.Type().Name(),
-				colls.Keys(scope.Children),
+				slices.Collect(maps.Keys(scope.Children)),
 			)
 		}
 
@@ -161,7 +152,7 @@ func UnmarshalInto(resultHolder any, fqnToValue map[Fqn]any) (returnErr error) {
 			fieldNsMemo,
 			allMemo,
 		); err != nil {
-			return errors.Wrapf(err, "unmarshalling field '%s': %w", fieldMeta.Name)
+			return errors.Wrapf(err, "unmarshalling field %q", fieldMeta.Name)
 		}
 	}
 

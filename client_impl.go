@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"time"
 )
@@ -160,7 +161,7 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 		return UploadFeaturesResult{}, errors.Wrap(err, "converting inputs to Arrow Record bytes")
 	}
 	attrs := map[string]any{
-		"features":          colls.Keys(convertedInputs),
+		"features":          slices.Collect(maps.Keys(convertedInputs)),
 		"table_compression": "uncompressed",
 		"table_bytes":       recordBytes,
 	}

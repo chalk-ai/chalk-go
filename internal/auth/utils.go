@@ -17,19 +17,15 @@ func loadProjectDirectory() (string, error) {
 	}
 	currentDirectory := wd
 	rootChecked := false
-	for currentDirectory != "/" && !rootChecked {
+	for currentDirectory != "/" || !rootChecked {
+		rootChecked = rootChecked || currentDirectory == "/"
 		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
 			chalkYamlExists := internal.FileExists(filepath.Join(currentDirectory, filename))
 			if chalkYamlExists {
 				return currentDirectory, nil
 			}
 		}
-
-		if currentDirectory == "/" {
-			rootChecked = true
-		} else {
-			currentDirectory = filepath.Dir(currentDirectory)
-		}
+		currentDirectory = filepath.Dir(currentDirectory)
 	}
 
 	return "", fmt.Errorf("cannot determine project root directory: "+
@@ -99,15 +95,15 @@ func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
 
 func GetEnvVarConfig(key string) SourcedConfig {
 	return SourcedConfig{
-		os.Getenv(key),
-		fmt.Sprintf("environment variable '%s'", key),
+		Value:  os.Getenv(key),
+		Source: fmt.Sprintf("environment variable '%s'", key),
 	}
 }
 
 func GetChalkClientArgConfig(value string) SourcedConfig {
 	return SourcedConfig{
-		value,
-		"NewClient argument",
+		Value:  value,
+		Source: "NewClient argument",
 	}
 }
 
@@ -122,8 +118,8 @@ func GetChalkYamlConfig(value string) SourcedConfig {
 	}
 
 	return SourcedConfig{
-		value,
-		fmt.Sprintf("config file %s", path),
+		Value:  value,
+		Source: fmt.Sprintf("config file %s", path),
 	}
 }
 

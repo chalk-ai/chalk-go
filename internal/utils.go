@@ -3,7 +3,6 @@ package internal
 import (
 	"context"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"math"
@@ -228,7 +227,12 @@ func GetWindowBucketsFromStructTag(field reflect.StructField) ([]string, error) 
 
 func HasDontOmitTag(field reflect.StructField) bool {
 	chalkTags := strings.Split(field.Tag.Get(ChalkTag), ",")
-	return colls.Contains(chalkTags, "dontomit")
+	for _, v := range chalkTags {
+		if v == "dontomit" {
+			return true
+		}
+	}
+	return false
 }
 
 func GetWindowBucketsSecondsFromStructTag(field reflect.StructField) ([]int, error) {
