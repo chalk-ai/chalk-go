@@ -6,7 +6,6 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -279,22 +278,24 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
-	outputs := colls.Map(resolved.outputs, func(v string) *commonv1.OutputExpr {
-		return &commonv1.OutputExpr{
+	outputs := make([]*commonv1.OutputExpr, len(resolved.outputs))
+	for i, v := range resolved.outputs {
+		outputs[i] = &commonv1.OutputExpr{
 			Expr: &commonv1.OutputExpr_FeatureFqn{
 				FeatureFqn: v,
 			},
 		}
-	})
+	}
 
 	staleness := make(map[string]string)
 	for k, v := range resolved.staleness {
 		staleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
-	nowProto := colls.Map(params.Now, func(v time.Time) *timestamppb.Timestamp {
-		return timestamppb.New(v)
-	})
+	nowProto := make([]*timestamppb.Timestamp, len(params.Now))
+	for i, p := range params.Now {
+		nowProto[i] = timestamppb.New(p)
+	}
 
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {

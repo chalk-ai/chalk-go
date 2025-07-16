@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -75,9 +74,10 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		stalenessConverted[k.(string)] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
-	nowConverted := colls.Map(now, func(val time.Time) string {
-		return val.Format(internal.NowTimeFormat)
-	})
+	var nowConverted []string
+	for _, val := range now {
+		nowConverted = append(nowConverted, val.Format(internal.NowTimeFormat))
+	}
 
 	assert.Equal(t, expectedBranchId, *header.BranchId)
 	assert.Equal(t, expectedTags, header.Context.Tags)
@@ -120,9 +120,10 @@ func TestParamsSetInOnlineQueryBody(t *testing.T) {
 	assert.NoError(t, err)
 
 	stalenessConverted := make(map[string]string)
-	nowConverted := colls.Map(now, func(val time.Time) string {
-		return val.Format(internal.NowTimeFormat)
-	})
+	var nowConverted []string
+	for _, v := range now {
+		nowConverted = append(nowConverted, v.Format(internal.NowTimeFormat))
+	}
 
 	plannerOption := map[string]any{"CHALK_SOME_PLANNER_OPTION": "1"}
 
@@ -204,15 +205,15 @@ func TestClientBranchSetInFeatherHeader(t *testing.T) {
 		Branch: expectedBranchId,
 	})
 	assert.NoError(t, err)
-	
+
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", []int{1}).
 		WithOutputs("bogus.output")
 	_, _ = client.OnlineQueryBulk(context.Background(), req)
-	
+
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
-	
+
 	branchId, ok := headerMap["branch_id"]
 	assert.True(t, ok)
 	assert.Equal(t, expectedBranchId, branchId)

@@ -6,10 +6,8 @@ import (
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
-	"time"
 )
 
 func (r OnlineQueryBulkResult) Release() {
@@ -63,6 +61,11 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		outputs = []string{}
 	}
 
+	convertedNow := make([]string, len(p.underlying.Now))
+	for i, val := range p.underlying.Now {
+		convertedNow[i] = val.Format(internal.NowTimeFormat)
+	}
+
 	return internal.CreateOnlineQueryBulkBody(
 		resolved.inputs,
 		internal.FeatherRequestHeader{
@@ -82,10 +85,8 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 			QueryContext:     p.underlying.QueryContext.ToMap(),
 			Meta:             p.underlying.Meta,
 			Staleness:        convertedStaleness,
-			Now: colls.Map(p.underlying.Now, func(val time.Time) string {
-				return val.Format(internal.NowTimeFormat)
-			}),
-			PlannerOptions: p.underlying.PlannerOptions,
+			Now:              convertedNow,
+			PlannerOptions:   p.underlying.PlannerOptions,
 		},
 		allocator,
 	)
