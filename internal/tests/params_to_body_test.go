@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"encoding/json"
 	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
@@ -34,7 +33,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		"CHALK_SOME_PLANNER_OPTION": "some_value",
 	}
 
-	client, httpClient, err := newClientWithInterceptor()
+	client, httpClient, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 
 	userIds := []int{1}
@@ -62,7 +61,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	_, _ = client.OnlineQueryBulk(t.Context(), req)
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
 
@@ -104,7 +103,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 // correctly in online query request body.
 func TestParamsSetInOnlineQueryBody(t *testing.T) {
 	t.Parallel()
-	client, httpClient, err := newClientWithInterceptor()
+	client, httpClient, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 
 	expectedTags := []string{"tags-1", "tags-2"}
@@ -149,7 +148,7 @@ func TestParamsSetInOnlineQueryBody(t *testing.T) {
 		req = req.WithStaleness(k, v)
 	}
 
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	_, _ = client.OnlineQuery(t.Context(), req, nil)
 	var request internal.OnlineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, expectedTags, request.Context.Tags)
@@ -178,7 +177,7 @@ func TestParamsSetInOnlineQueryBody(t *testing.T) {
 // params gets propagated through to the request body.
 func TestParamsSetInOfflineQueryBody(t *testing.T) {
 	t.Parallel()
-	client, httpClient, err := newClientWithInterceptor()
+	client, httpClient, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 
 	queryContext, err := chalk.NewQueryContext(map[string]any{"key": "value"})
@@ -190,7 +189,7 @@ func TestParamsSetInOfflineQueryBody(t *testing.T) {
 	}.
 		WithInput("bogus.feature", []any{int64(1)}).
 		WithOutputs("bogus.output")
-	_, _ = client.OfflineQuery(context.Background(), req)
+	_, _ = client.OfflineQuery(t.Context(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
 	assert.Equal(t, &expectedTags, request.Tags)
@@ -204,15 +203,17 @@ func TestParamsSetInOfflineQueryBody(t *testing.T) {
 func TestClientBranchSetInFeatherHeader(t *testing.T) {
 	t.Parallel()
 	expectedBranchId := "test-branch-id"
-	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
-		Branch: expectedBranchId,
-	})
+	client, httpClient, err := newClientWithInterceptor(
+		t.Context(),
+		interceptorClientOverrides{
+			Branch: expectedBranchId,
+		})
 	assert.NoError(t, err)
 
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", []int{1}).
 		WithOutputs("bogus.output")
-	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	_, _ = client.OnlineQueryBulk(t.Context(), req)
 
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)

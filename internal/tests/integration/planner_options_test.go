@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -26,7 +25,7 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
 			t.Parallel()
 			_, err := restClient.OnlineQuery(
-				context.Background(),
+				t.Context(),
 				chalk.OnlineQueryParams{PlannerOptions: optionFixture.plannerOptions}.
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithOutputs(testFeatures.AllTypes.StrFeat),
@@ -57,9 +56,9 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 
 				var err error
 				if useGrpc {
-					_, err = grpcClient.OnlineQueryBulk(context.Background(), params)
+					_, err = grpcClient.OnlineQueryBulk(t.Context(), params)
 				} else {
-					_, err = restClient.OnlineQueryBulk(context.Background(), params)
+					_, err = restClient.OnlineQueryBulk(t.Context(), params)
 				}
 
 				if optionFixture.isValid {

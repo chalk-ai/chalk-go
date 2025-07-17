@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"github.com/chalk-ai/chalk-go"
 	"testing"
 )
@@ -11,7 +10,7 @@ func TestWrongEnvironment(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	_, err := chalk.NewGRPCClient(
-		context.Background(),
+		t.Context(),
 		&chalk.GRPCClientConfig{
 			EnvironmentId: "wrong",
 		},
@@ -20,7 +19,7 @@ func TestWrongEnvironment(t *testing.T) {
 		t.Fatal("Failed creating a Chalk GRPC Client", err)
 	}
 	_, err = chalk.NewClient(
-		context.Background(),
+		t.Context(),
 		&chalk.ClientConfig{
 			EnvironmentId: "wrong",
 		},

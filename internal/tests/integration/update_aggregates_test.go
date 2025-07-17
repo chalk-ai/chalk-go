@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -58,7 +57,7 @@ func TestWindowedAggregates(t *testing.T) {
 		matAggFeatures.MatAggTxn.AggId:  txnAggIds,
 		matAggFeatures.MatAggTxn.Ts:     txnTimes,
 	}}
-	_, err := grpcClient.UpdateAggregates(context.Background(), txnParams)
+	_, err := grpcClient.UpdateAggregates(t.Context(), txnParams)
 	assert.NoError(t, err)
 
 	queryParams := chalk.OnlineQueryParams{}.WithInput(
@@ -73,7 +72,7 @@ func TestWindowedAggregates(t *testing.T) {
 		matAggFeatures.MatAggs.TxnSum["30d"],
 	)
 
-	bulkRes, err := grpcClient.OnlineQueryBulk(context.Background(), queryParams)
+	bulkRes, err := grpcClient.OnlineQueryBulk(t.Context(), queryParams)
 	assert.NoError(t, err)
 
 	var aggResults []MatAggs

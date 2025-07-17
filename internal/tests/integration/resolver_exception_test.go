@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -21,7 +20,7 @@ func TestErringScalar(t *testing.T) {
 					WithInput(testFeatures.Crashing.Id, []int{1}).
 					WithOutputs(testFeatures.Crashing.Name)
 
-				resp, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
+				resp, err := grpcClient.OnlineQueryBulk(t.Context(), bulkParams)
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "3.14")
 
@@ -35,7 +34,7 @@ func TestErringScalar(t *testing.T) {
 				singularParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.Crashing.Id, 1).
 					WithOutputs(testFeatures.Crashing.Name)
-				_, err := restClient.OnlineQuery(context.Background(), singularParams, nil)
+				_, err := restClient.OnlineQuery(t.Context(), singularParams, nil)
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "3.14")
 			}
@@ -55,7 +54,7 @@ func TestErringHasMany(t *testing.T) {
 				bulkParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.CrashingHasManyRoot.Id, []string{"id_a"}).
 					WithOutputs(testFeatures.CrashingHasManyRoot.CrashingHasMany)
-				resp, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
+				resp, err := grpcClient.OnlineQueryBulk(t.Context(), bulkParams)
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "42")
 
@@ -72,7 +71,7 @@ func TestErringHasMany(t *testing.T) {
 				singularParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.CrashingHasManyRoot.Id, "id_a").
 					WithOutputs(testFeatures.CrashingHasManyRoot.CrashingHasMany)
-				_, err := restClient.OnlineQuery(context.Background(), singularParams, nil)
+				_, err := restClient.OnlineQuery(t.Context(), singularParams, nil)
 				assert.Error(t, err)
 				assert.Contains(t, err.Error(), "42")
 			}

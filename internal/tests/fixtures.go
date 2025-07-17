@@ -12,7 +12,10 @@ type interceptorClientOverrides struct {
 	Branch        string
 }
 
-func newClientWithInterceptor(overrides ...interceptorClientOverrides) (chalk.Client, *InterceptorHTTPClient, error) {
+func newClientWithInterceptor(
+	ctx context.Context,
+	overrides ...interceptorClientOverrides,
+) (chalk.Client, *InterceptorHTTPClient, error) {
 	var queryServer = ""
 	var deploymentTag = ""
 	var branch = ""
@@ -26,7 +29,7 @@ func newClientWithInterceptor(overrides ...interceptorClientOverrides) (chalk.Cl
 
 	httpClient := NewInterceptorHTTPClient()
 	client, err := chalk.NewClient(
-		context.Background(),
+		ctx,
 		&chalk.ClientConfig{
 			HTTPClient:    httpClient,
 			ApiServer:     "https://bogus.com",

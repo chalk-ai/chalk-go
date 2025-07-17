@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -24,7 +23,7 @@ func TestCacheHitMeta(t *testing.T) {
 			randomNumber := rand.Float64()
 
 			// Upload feature to cache
-			_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
+			_, err := restClient.UploadFeatures(t.Context(), chalk.UploadFeaturesParams{
 				Inputs: map[any]any{
 					testFeatures.Cached.Id:                   []string{pkey},
 					testFeatures.Cached.RandomUploadedNumber: []float64{randomNumber},
@@ -36,7 +35,7 @@ func TestCacheHitMeta(t *testing.T) {
 				bulkParams := chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.Cached.Id, []string{pkey}).
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
-				cachedRes, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
+				cachedRes, err := grpcClient.OnlineQueryBulk(t.Context(), bulkParams)
 				assert.NoError(t, err)
 
 				cachedRow, err := cachedRes.GetRow(0)
@@ -52,7 +51,7 @@ func TestCacheHitMeta(t *testing.T) {
 				singularParams := chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.Cached.Id, pkey).
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
-				res, err := restClient.OnlineQuery(context.Background(), singularParams, nil)
+				res, err := restClient.OnlineQuery(t.Context(), singularParams, nil)
 				assert.NoError(t, err)
 
 				actualNumber, err := res.GetFeature(testFeatures.Cached.RandomUploadedNumber)
@@ -75,7 +74,7 @@ func TestResolverMeta(t *testing.T) {
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			if useGrpc {
-				resolverRes, err := grpcClient.OnlineQueryBulk(context.Background(), chalk.OnlineQueryParams{IncludeMeta: true}.
+				resolverRes, err := grpcClient.OnlineQueryBulk(t.Context(), chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.AllTypes.Id, []int64{1}).
 					WithOutputs(testFeatures.AllTypes.StrFeat),
 				)
@@ -86,7 +85,7 @@ func TestResolverMeta(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, resolverFqn, resolvedFeat.Meta.ResolverFqn)
 			} else {
-				res, err := restClient.OnlineQuery(context.Background(), chalk.OnlineQueryParams{IncludeMeta: true}.
+				res, err := restClient.OnlineQuery(t.Context(), chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithOutputs(testFeatures.AllTypes.StrFeat),
 					nil,

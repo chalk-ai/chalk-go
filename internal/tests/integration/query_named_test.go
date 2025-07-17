@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -47,7 +46,7 @@ func TestNamedQueries(t *testing.T) {
 							WithQueryName(tc.queryName).
 							WithQueryNameVersion(tc.version)
 
-						res, err := grpcClient.OnlineQueryBulk(context.Background(), params)
+						res, err := grpcClient.OnlineQueryBulk(t.Context(), params)
 						assert.NoError(t, err)
 
 						var results []nqFeatures
@@ -63,7 +62,7 @@ func TestNamedQueries(t *testing.T) {
 							WithQueryNameVersion(tc.version)
 
 						var result nqFeatures
-						_, err := restClient.OnlineQuery(context.Background(), params, &result)
+						_, err := restClient.OnlineQuery(t.Context(), params, &result)
 						assert.NoError(t, err)
 						assert.NotNil(t, result.Name)
 
