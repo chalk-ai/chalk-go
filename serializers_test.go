@@ -511,36 +511,36 @@ func TestEdgeCasesAndBoundaryConditions(t *testing.T) {
 	// Test various edge cases that might occur in real usage
 	
 	// Test very small durations
-	smallDuration := time.Nanosecond
-	result := timeDurationToChalkDuration(smallDuration)
+	nanosecond := time.Nanosecond
+	result := timeDurationToChalkDuration(nanosecond)
 	// Nanoseconds should be rounded down to 0 and return empty string
 	if result != "" {
 		t.Errorf("Expected empty string for nanosecond duration, got %q", result)
 	}
 
 	// Test microsecond duration (should also be empty)
-	microDuration := time.Microsecond
-	result = timeDurationToChalkDuration(microDuration)
+	microsecond := time.Microsecond
+	result = timeDurationToChalkDuration(microsecond)
 	if result != "" {
 		t.Errorf("Expected empty string for microsecond duration, got %q", result)
 	}
 
 	// Test exactly 1 millisecond
-	oneMilli := time.Millisecond
-	result = timeDurationToChalkDuration(oneMilli)
+	oneMillisecond := time.Millisecond
+	result = timeDurationToChalkDuration(oneMillisecond)
 	if result != "1ms" {
 		t.Errorf("Expected '1ms' for 1 millisecond duration, got %q", result)
 	}
 
 	// Test boundary at seconds
-	almostOneSecond := 999 * time.Millisecond
-	result = timeDurationToChalkDuration(almostOneSecond)
+	almostSecond := 999 * time.Millisecond
+	result = timeDurationToChalkDuration(almostSecond)
 	if result != "999ms" {
 		t.Errorf("Expected '999ms' for 999 milliseconds, got %q", result)
 	}
 
-	exactlyOneSecond := 1000 * time.Millisecond
-	result = timeDurationToChalkDuration(exactlyOneSecond)
+	exactlySecond := 1000 * time.Millisecond
+	result = timeDurationToChalkDuration(exactlySecond)
 	if result != "1s" {
 		t.Errorf("Expected '1s' for exactly 1000 milliseconds, got %q", result)
 	}
