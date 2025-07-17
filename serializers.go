@@ -232,7 +232,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		ObservedAtUpperBound:        nil,
 		DatasetName:                 internal.StringOrNil(p.DatasetName),
 		Branch:                      internal.StringOrNil(p.Branch),
-		RecomputeFeatures:           false,
+		RecomputeFeatures:           p.RecomputeFeatures,
 		SampleFeatures:              nil,
 		StorePlanStages:             false,
 		Explain:                     false,

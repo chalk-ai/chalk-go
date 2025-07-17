@@ -550,6 +550,9 @@ type OfflineQueryParams struct {
 	// EnableProfiling enables profiling for the query execution.
 	EnableProfiling bool
 
+	// RecomputeFeatures forces recomputation of features instead of using cached values.
+	RecomputeFeatures bool
+
 	/***************
 	 PRIVATE FIELDS
 	***************/
