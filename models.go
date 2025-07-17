@@ -444,6 +444,25 @@ type UpdateAggregatesResult struct {
 	TraceId string `json:"trace_id"`
 }
 
+// ResourceRequests defines resource requirements for offline queries
+// and cron jobs that run in isolated environments.
+type ResourceRequests struct {
+	// CPU requests (e.g., "8", "0.5", "500m" for millicore)
+	CPU *string `json:"cpu,omitempty"`
+	
+	// Memory requests (e.g., "1G", "500M", "1000000000" bytes)
+	Memory *string `json:"memory,omitempty"`
+	
+	// Ephemeral volume size for spilling intermediate state
+	EphemeralVolumeSize *string `json:"ephemeral_volume_size,omitempty"`
+	
+	// Ephemeral storage size
+	EphemeralStorage *string `json:"ephemeral_storage,omitempty"`
+	
+	// Resource group
+	ResourceGroup *string `json:"resource_group,omitempty"`
+}
+
 // OfflineQueryParams defines the parameters
 // that help you execute an online query.
 // OfflineQueryParams is the starting point
@@ -486,6 +505,50 @@ type OfflineQueryParams struct {
 	Tags []string
 
 	QueryContext *QueryContext
+
+	// RunAsynchronously boots a kubernetes job to run the queries in their own pods,
+	// separate from the engine and branch servers. This is useful for large datasets
+	// and jobs that require a long time to run.
+	RunAsynchronously bool
+
+	// NumShards specifies the number of shards to split the input across.
+	// If specified, the query will be run asynchronously.
+	NumShards *int
+
+	// NumWorkers specifies the maximum number of pod workers to run at any time.
+	// This parameter is useful if you have a large number of shards and would like
+	// to limit the number of pods running at once.
+	NumWorkers *int
+
+	// Resources override resource requests for processes with isolated resources,
+	// e.g., offline queries and cron jobs.
+	Resources *ResourceRequests
+
+	// CompletionDeadline specifies the duration shards must complete within,
+	// or they will be terminated. Terminated shards can be retried.
+	CompletionDeadline *time.Duration
+
+	// MaxRetries specifies the number of times failed offline query shards will be retried.
+	// The retry budget is shared across all shards. By default, max_retries=num_shards.
+	MaxRetries *int
+
+	// StoreOnline specifies whether the output of the query will be stored in the online store.
+	StoreOnline bool
+
+	// StoreOffline specifies whether the output of the query will be stored in the offline store.
+	StoreOffline bool
+
+	// UseMultipleComputers specifies whether to use multiple computers for the query.
+	UseMultipleComputers bool
+
+	// UploadInputAsTable specifies whether to upload the input as a table.
+	UploadInputAsTable bool
+
+	// EnvOverrides specifies environment variable overrides for the query execution.
+	EnvOverrides map[string]string
+
+	// EnableProfiling enables profiling for the query execution.
+	EnableProfiling bool
 
 	/***************
 	 PRIVATE FIELDS

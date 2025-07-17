@@ -56,6 +56,90 @@ func (p OfflineQueryParamsComplete) WithRequiredOutputs(features ...any) Offline
 	return p
 }
 
+// WithRunAsynchronously returns a copy of Offline Query parameters with RunAsynchronously set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithRunAsynchronously(runAsynchronously bool) OfflineQueryParamsComplete {
+	p.underlying.RunAsynchronously = runAsynchronously
+	return p
+}
+
+// WithNumShards returns a copy of Offline Query parameters with NumShards set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithNumShards(numShards int) OfflineQueryParamsComplete {
+	p.underlying.NumShards = &numShards
+	return p
+}
+
+// WithNumWorkers returns a copy of Offline Query parameters with NumWorkers set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithNumWorkers(numWorkers int) OfflineQueryParamsComplete {
+	p.underlying.NumWorkers = &numWorkers
+	return p
+}
+
+// WithResources returns a copy of Offline Query parameters with Resources set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithResources(resources *ResourceRequests) OfflineQueryParamsComplete {
+	p.underlying.Resources = resources
+	return p
+}
+
+// WithCompletionDeadline returns a copy of Offline Query parameters with CompletionDeadline set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithCompletionDeadline(deadline time.Duration) OfflineQueryParamsComplete {
+	p.underlying.CompletionDeadline = &deadline
+	return p
+}
+
+// WithMaxRetries returns a copy of Offline Query parameters with MaxRetries set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithMaxRetries(maxRetries int) OfflineQueryParamsComplete {
+	p.underlying.MaxRetries = &maxRetries
+	return p
+}
+
+// WithStoreOnline returns a copy of Offline Query parameters with StoreOnline set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithStoreOnline(storeOnline bool) OfflineQueryParamsComplete {
+	p.underlying.StoreOnline = storeOnline
+	return p
+}
+
+// WithStoreOffline returns a copy of Offline Query parameters with StoreOffline set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithStoreOffline(storeOffline bool) OfflineQueryParamsComplete {
+	p.underlying.StoreOffline = storeOffline
+	return p
+}
+
+// WithUseMultipleComputers returns a copy of Offline Query parameters with UseMultipleComputers set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithUseMultipleComputers(useMultipleComputers bool) OfflineQueryParamsComplete {
+	p.underlying.UseMultipleComputers = useMultipleComputers
+	return p
+}
+
+// WithUploadInputAsTable returns a copy of Offline Query parameters with UploadInputAsTable set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithUploadInputAsTable(uploadInputAsTable bool) OfflineQueryParamsComplete {
+	p.underlying.UploadInputAsTable = uploadInputAsTable
+	return p
+}
+
+// WithEnvOverrides returns a copy of Offline Query parameters with EnvOverrides set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithEnvOverrides(envOverrides map[string]string) OfflineQueryParamsComplete {
+	p.underlying.EnvOverrides = envOverrides
+	return p
+}
+
+// WithEnableProfiling returns a copy of Offline Query parameters with EnableProfiling set.
+// For use via method chaining. See OfflineQueryParamsComplete for usage examples.
+func (p OfflineQueryParamsComplete) WithEnableProfiling(enableProfiling bool) OfflineQueryParamsComplete {
+	p.underlying.EnableProfiling = enableProfiling
+	return p
+}
+
 /********************************************
  Definitions for offlineQueryParamsWithInputs
 *********************************************/

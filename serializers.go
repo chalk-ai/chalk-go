@@ -185,16 +185,78 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		requiredOutput = make([]string, 0)
 	}
 
+	// Convert ResourceRequests to ResourceRequestsSerialized
+	var resourcesSerialized *internal.ResourceRequestsSerialized
+	if p.Resources != nil {
+		resourcesSerialized = &internal.ResourceRequestsSerialized{
+			CPU:                 p.Resources.CPU,
+			Memory:              p.Resources.Memory,
+			EphemeralVolumeSize: p.Resources.EphemeralVolumeSize,
+			EphemeralStorage:    p.Resources.EphemeralStorage,
+			ResourceGroup:       p.Resources.ResourceGroup,
+		}
+	}
+
+	// Convert CompletionDeadline to string format
+	var completionDeadlineStr *string
+	if p.CompletionDeadline != nil {
+		duration := p.CompletionDeadline.String()
+		completionDeadlineStr = &duration
+	}
+
+	// Convert Tags to pointer if not empty
+	var tagsPtr *[]string
+	if len(p.Tags) > 0 {
+		tagsPtr = &p.Tags
+	}
+
+	// Convert EnvOverrides to pointer if not empty
+	var envOverridesPtr *map[string]string
+	if len(p.EnvOverrides) > 0 {
+		envOverridesPtr = &p.EnvOverrides
+	}
+
+	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
-		Input:             queryInput,
-		Output:            output,
-		RequiredOutput:    requiredOutput,
-		DatasetName:       internal.StringOrNil(p.DatasetName),
-		Branch:            internal.StringOrNil(p.Branch),
-		MaxSamples:        p.MaxSamples,
-		QueryContext:      p.QueryContext.ToMap(),
-		DestinationFormat: "PARQUET",
-		Tags:              p.Tags,
+		// Core fields
+		Input:                        queryInput,
+		Output:                       output,
+		OutputExpressions:           []string{},
+		RequiredOutput:              requiredOutput,
+		RequiredOutputExpressions:   []string{},
+		DestinationFormat:           "PARQUET",
+		JobId:                       nil,
+		MaxSamples:                  p.MaxSamples,
+		MaxCacheAge:                 nil,
+		ObservedAtLowerBound:        nil,
+		ObservedAtUpperBound:        nil,
+		DatasetName:                 internal.StringOrNil(p.DatasetName),
+		Branch:                      internal.StringOrNil(p.Branch),
+		RecomputeFeatures:           false,
+		SampleFeatures:              nil,
+		StorePlanStages:             false,
+		Explain:                     false,
+		Tags:                        tagsPtr,
+		RequiredResolverTags:        nil,
+		CorrelationId:               nil,
+		QueryContext:                p.QueryContext.ToMap(),
+		PlannerOptions:              nil,
+		UseMultipleComputers:        p.UseMultipleComputers || p.RunAsynchronously,
+		SpineSqlQuery:               nil,
+		RecomputeRequestRevisionId:  nil,
+		Resources:                   resourcesSerialized,
+		EnvOverrides:                envOverridesPtr,
+		OverrideTargetImageTag:      nil,
+		EnableProfiling:             p.EnableProfiling,
+		StoreOnline:                 p.StoreOnline,
+		StoreOffline:                p.StoreOffline,
+		NumShards:                   p.NumShards,
+		NumWorkers:                  p.NumWorkers,
+		FeatureForLowerUpperBound:   nil,
+		CompletionDeadline:          completionDeadlineStr,
+		MaxRetries:                  p.MaxRetries,
+		UseJobQueue:                 false,
+		OverlayGraph:                nil,
 	}
 
 	return json.Marshal(serializedObj)
