@@ -1,9 +1,5 @@
 package internal
 
-import (
-	"time"
-)
-
 type OnlineQueryContext struct {
 	Environment          *string  `json:"environment"`
 	Tags                 []string `json:"tags"`
@@ -38,18 +34,52 @@ type OfflineQueryInputSerialized struct {
 	Values  [][]any  `json:"values"`
 }
 
+type ResourceRequestsSerialized struct {
+	CPU                 *string `json:"cpu"`
+	Memory              *string `json:"memory"`
+	EphemeralVolumeSize *string `json:"ephemeral_volume_size"`
+	EphemeralStorage    *string `json:"ephemeral_storage"`
+	ResourceGroup       *string `json:"resource_group"`
+}
+
 type OfflineQueryRequestSerialized struct {
-	Input                *OfflineQueryInputSerialized `json:"input"`
-	Output               []string                     `json:"output"`
-	RequiredOutput       []string                     `json:"required_output"`
-	DatasetName          *string                      `json:"dataset_name"`
-	Branch               *string                      `json:"branch"`
-	MaxSamples           *int                         `json:"max_samples"`
-	DestinationFormat    string                       `json:"destination_format"`
-	JobId                *string                      `json:"job_id"`
-	MaxCacheAge          *int                         `json:"max_cache_age_secs"`
-	ObservedAtLowerBound *time.Time                   `json:"observed_at_lower_bound"`
-	ObservedAtUpperBound *time.Time                   `json:"observed_at_upper_bound"`
-	QueryContext         *map[string]any              `json:"query_context"`
-	Tags                 []string                     `json:"tags"`
+	// Core fields
+	Input                        *OfflineQueryInputSerialized `json:"input"`
+	Output                       []string                     `json:"output"`
+	OutputExpressions           []string                     `json:"output_expressions"`
+	RequiredOutput              []string                     `json:"required_output"`
+	RequiredOutputExpressions   []string                     `json:"required_output_expressions"`
+	DestinationFormat           string                       `json:"destination_format"`
+	JobId                       *string                      `json:"job_id"`
+	MaxSamples                  *int                         `json:"max_samples"`
+	MaxCacheAge                 *int                         `json:"max_cache_age_secs"`
+	ObservedAtLowerBound        *string                      `json:"observed_at_lower_bound"`
+	ObservedAtUpperBound        *string                      `json:"observed_at_upper_bound"`
+	DatasetName                 *string                      `json:"dataset_name"`
+	Branch                      *string                      `json:"branch"`
+	RecomputeFeatures           bool                         `json:"recompute_features"`
+	SampleFeatures              *string                      `json:"sample_features"`
+	StorePlanStages             bool                         `json:"store_plan_stages"`
+	Explain                     bool                         `json:"explain"`
+	Tags                        *[]string                    `json:"tags"`
+	RequiredResolverTags        *[]string                    `json:"required_resolver_tags"`
+	CorrelationId               *string                      `json:"correlation_id"`
+	QueryContext                *map[string]any              `json:"query_context"`
+	PlannerOptions              *map[string]any              `json:"planner_options"`
+	UseMultipleComputers        bool                         `json:"use_multiple_computers"`
+	SpineSqlQuery               *string                      `json:"spine_sql_query"`
+	RecomputeRequestRevisionId  *string                      `json:"recompute_request_revision_id"`
+	Resources                   *ResourceRequestsSerialized `json:"resources"`
+	EnvOverrides                *map[string]string           `json:"env_overrides"`
+	OverrideTargetImageTag      *string                      `json:"override_target_image_tag"`
+	EnableProfiling             bool                         `json:"enable_profiling"`
+	StoreOnline                 bool                         `json:"store_online"`
+	StoreOffline                bool                         `json:"store_offline"`
+	NumShards                   *int                         `json:"num_shards"`
+	NumWorkers                  *int                         `json:"num_workers"`
+	FeatureForLowerUpperBound   *string                      `json:"feature_for_lower_upper_bound"`
+	CompletionDeadline          *string                      `json:"completion_deadline"`
+	MaxRetries                  *int                         `json:"max_retries"`
+	UseJobQueue                 bool                         `json:"use_job_queue"`
+	OverlayGraph                *string                      `json:"overlay_graph"`
 }

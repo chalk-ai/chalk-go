@@ -190,7 +190,7 @@ func TestParamsSetInOfflineQueryBody(t *testing.T) {
 	_, _ = client.OfflineQuery(context.Background(), req)
 	var request internal.OfflineQueryRequestSerialized
 	assert.NoError(t, json.Unmarshal(httpClient.Intercepted.Body, &request))
-	assert.Equal(t, expectedTags, request.Tags)
+	assert.Equal(t, &expectedTags, request.Tags)
 	assert.NotNil(t, request.QueryContext)
 	assert.Equal(t, request.QueryContext, &map[string]any{"key": "value"})
 }
