@@ -73,11 +73,23 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		return Dataset{}, response.Errors
 	}
 
+	// Set the environment ID
+	if response.EnvironmentID == "" {
+		response.EnvironmentID = request.EnvironmentId
+		if response.EnvironmentID == "" {
+			response.EnvironmentID = c.config.environmentId.Value
+		}
+	}
+
 	// Set the client reference for Wait() method
 	response.client = c
 
 	for idx := range response.Revisions {
 		response.Revisions[idx].client = c
+		// Set environment ID for each revision if not already set
+		if response.Revisions[idx].EnvironmentID == "" {
+			response.Revisions[idx].EnvironmentID = response.EnvironmentID
+		}
 	}
 
 	return response, nil
