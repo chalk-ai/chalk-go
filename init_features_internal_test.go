@@ -27,6 +27,7 @@ type goUser struct {
 }
 
 func TestUnmarshal(t *testing.T) {
+	t.Parallel()
 	userId := FeatureResult{
 		Value: "1",
 		Field: "go_user.id",
@@ -95,6 +96,7 @@ func TestUnmarshal(t *testing.T) {
 // We should also add all test cases here
 // to the integration test in `init_features_test.go`.
 func TestLegacySnakeCase(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		input    string
 		expected string
@@ -115,6 +117,7 @@ func TestLegacySnakeCase(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.input, func(t *testing.T) {
+			t.Parallel()
 			result := SnakeCase(tc.input)
 			if tc.success && result != tc.expected {
 				t.Errorf("SnakeCase(%q) = %q, want %q", tc.input, result, tc.expected)
@@ -127,6 +130,7 @@ func TestLegacySnakeCase(t *testing.T) {
 
 // TestChalkpySnakeCase aims to have to same test cases as chalkpy's snake case function.
 func TestChalkpySnakeCase(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		input    string
 		expected string

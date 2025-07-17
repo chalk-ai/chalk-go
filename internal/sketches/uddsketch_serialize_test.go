@@ -5,6 +5,7 @@ import (
 )
 
 func TestRoundtripSerialize(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(5, 0.000001)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)

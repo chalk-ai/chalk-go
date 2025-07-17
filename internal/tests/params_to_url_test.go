@@ -11,6 +11,7 @@ import (
 // TestQueryServerOverride tests that when we specify
 // a query server override that query server is actually used.
 func TestQueryServerOverride(t *testing.T) {
+	t.Parallel()
 	queryServer := "https://my-bogus-server.ai"
 	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
 		QueryServer: queryServer,

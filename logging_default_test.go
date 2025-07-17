@@ -8,11 +8,13 @@ import (
 )
 
 func TestDefaultStdOutLeveledLogger(t *testing.T) {
+	t.Parallel()
 	_, ok := DefaultLeveledLogger.(*StdOutLeveledLogger)
 	assert.True(t, ok)
 }
 
 func TestStdOutLeveledLoggerDebugf(t *testing.T) {
+	t.Parallel()
 	var stdout, stderr bytes.Buffer
 	logger := &StdOutLeveledLogger{stdoutOverride: &stdout, stderrOverride: &stderr}
 
@@ -37,6 +39,7 @@ func TestStdOutLeveledLoggerDebugf(t *testing.T) {
 }
 
 func TestStdOutLeveledLoggerInfof(t *testing.T) {
+	t.Parallel()
 	var stdout, stderr bytes.Buffer
 	logger := &StdOutLeveledLogger{stdoutOverride: &stdout, stderrOverride: &stderr}
 
@@ -61,6 +64,7 @@ func TestStdOutLeveledLoggerInfof(t *testing.T) {
 }
 
 func TestStdOutLeveledLoggerWarnf(t *testing.T) {
+	t.Parallel()
 	var stdout, stderr bytes.Buffer
 	logger := &StdOutLeveledLogger{stdoutOverride: &stdout, stderrOverride: &stderr}
 
@@ -85,6 +89,7 @@ func TestStdOutLeveledLoggerWarnf(t *testing.T) {
 }
 
 func TestStdOutLeveledLoggerErrorf(t *testing.T) {
+	t.Parallel()
 	var stdout, stderr bytes.Buffer
 	logger := &StdOutLeveledLogger{stdoutOverride: &stdout, stderrOverride: &stderr}
 

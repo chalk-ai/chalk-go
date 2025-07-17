@@ -35,6 +35,7 @@ type SerdeTransaction struct {
 }
 
 func TestFeatureResultDeserialization(t *testing.T) {
+	t.Parallel()
 	withTimestamp := featureResultSerialized{
 		Field:     "user.id",
 		Value:     "1",
@@ -63,6 +64,7 @@ func TestFeatureResultDeserialization(t *testing.T) {
 }
 
 func TestConvertOnlineQueryParamsToProto(t *testing.T) {
+	t.Parallel()
 	tags := []string{"tag1", "tag2"}
 	requiredResolverTags := []string{"tag3", "tag4"}
 	queryName := "test-name"
@@ -117,6 +119,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 			"For reference, we are testing that for singular queries in " +
 			"TestOnlineQueryParamsOmitNilFields",
 	)
+	t.Parallel()
 	assert.NoError(t, InitFeatures(&SerdeRoot))
 
 	transactions := []SerdeTransaction{
@@ -162,6 +165,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 }
 
 func TestGRPCOnlineQueryBulkResultConstructor(t *testing.T) {
+	t.Parallel()
 	table, err := MakeFeatureTable(map[any]any{
 		"user.id": []string{"1"},
 	})

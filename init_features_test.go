@@ -62,6 +62,7 @@ func init() {
 // TestInitFeatures serves to test feature FQN resolution e2e,
 // on top of the snake casing unit tests.
 func TestInitFeatures(t *testing.T) {
+	t.Parallel()
 	assert.Nil(t, initFeaturesErr)
 
 	userId, err := chalk.UnwrapFeature(testFeatures.User.Id)

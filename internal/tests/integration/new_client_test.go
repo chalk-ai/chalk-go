@@ -8,6 +8,7 @@ import (
 
 // Supplied an incorrect environment used to cause a panic
 func TestWrongEnvironment(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	_, err := chalk.NewGRPCClient(
 		context.Background(),

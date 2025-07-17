@@ -25,6 +25,7 @@ func init() {
 // TestHeadersSetInOnlineQueryBulk tests that when we specify certain params,
 // they propagate to the request.
 func TestHeadersSetInOnlineQueryBulk(t *testing.T) {
+	t.Parallel()
 	client, interceptor, err := newClientWithInterceptor()
 	assert.NoError(t, err)
 	resourceGroup := "bogus-resource-group"
@@ -41,6 +42,7 @@ func TestHeadersSetInOnlineQueryBulk(t *testing.T) {
 // TestHeadersSetOnlineQuery tests that when we specify
 // features using codegen-ed structs, we set the "versioned" header.
 func TestHeadersSetOnlineQuery(t *testing.T) {
+	t.Parallel()
 	client, httpClient, err := newClientWithInterceptor()
 	assert.NoError(t, err)
 
@@ -56,6 +58,7 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 }
 
 func TestHeadersSetOfflineQuery(t *testing.T) {
+	t.Parallel()
 	client, interceptor, err := newClientWithInterceptor()
 	assert.NoError(t, err)
 	req := chalk.OfflineQueryParams{}.
@@ -69,6 +72,7 @@ func TestHeadersSetOfflineQuery(t *testing.T) {
 // specify a deployment Tag in the client build, the request
 // includes the deployment Tag header.
 func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
+	t.Parallel()
 	deploymentTag := "test-deployment-tag"
 	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
 		DeploymentTag: deploymentTag,
@@ -93,6 +97,7 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 // specify a branch ID in online query params, the request
 // includes the branch ID header.
 func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
+	t.Parallel()
 	branchId := "test-branch-id"
 	client, httpClient, err := newClientWithInterceptor()
 	assert.NoError(t, err)
@@ -117,6 +122,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 // specify a branch ID in the client, the online query
 // request includes the branch ID header.
 func TestOnlineQueryBranchInClient(t *testing.T) {
+	t.Parallel()
 	branchId := "test-branch-id"
 	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
 		Branch: branchId,
@@ -134,6 +140,7 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 // specify a branch ID in the client, the bulk online query
 // request includes the branch ID header.
 func TestOnlineQueryBulkBranchInClient(t *testing.T) {
+	t.Parallel()
 	branchId := "test-branch-id"
 	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
 		Branch: branchId,

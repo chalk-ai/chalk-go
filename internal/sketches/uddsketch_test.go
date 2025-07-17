@@ -10,6 +10,7 @@ import (
 const epsilon = 1e-3
 
 func TestBuildAndAddValues(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(20, 0.1)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)
@@ -31,6 +32,7 @@ func TestBuildAndAddValues(t *testing.T) {
 }
 
 func TestExceedBuckets(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(20, 0.1)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)
@@ -72,6 +74,7 @@ func TestExceedBuckets(t *testing.T) {
 }
 
 func TestMergeSketches(t *testing.T) {
+	t.Parallel()
 	a1 := 0.1                                // alpha for up to 20 buckets
 	a2 := 0.2 / 1.01                         // alpha for 1 compaction
 	a3 := 2.0 * a2 / (1.0 + math.Pow(a2, 2)) // alpha for 2 compactions
@@ -187,6 +190,7 @@ func TestMergeSketches(t *testing.T) {
 }
 
 func TestZeroCount(t *testing.T) {
+	t.Parallel()
 	sketch1, err := NewUDDSketch(50, 0.1)
 	if err != nil {
 		t.Fatalf("Failed to create sketch1: %v", err)
@@ -217,6 +221,7 @@ func TestZeroCount(t *testing.T) {
 }
 
 func TestQuantileAndValueEstimates(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(50, 0.1)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)
@@ -269,6 +274,7 @@ func TestQuantileAndValueEstimates(t *testing.T) {
 }
 
 func TestExtremeQuantileAtValue(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(50, 0.1)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)
@@ -301,6 +307,7 @@ func TestExtremeQuantileAtValue(t *testing.T) {
 }
 
 func TestRandomStress(t *testing.T) {
+	t.Parallel()
 	sketch, err := NewUDDSketch(1000, 0.01)
 	if err != nil {
 		t.Fatalf("Failed to create sketch: %v", err)
@@ -350,6 +357,7 @@ func sortFloats(a []float64) {
 	}
 }
 func TestFuzzing(t *testing.T) {
+	t.Parallel()
 	rng := rand.New(rand.NewSource(12345))
 
 	// Match the Rust test exactly - generate 4 batches of values
@@ -427,6 +435,7 @@ func TestFuzzing(t *testing.T) {
 }
 
 func TestFeatureStatistics(t *testing.T) {
+	t.Parallel()
 	// Create a new UDDSketch with parameters matching the test
 	sketch, err := NewUDDSketch(200, 0.001)
 	if err != nil {

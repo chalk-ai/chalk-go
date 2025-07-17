@@ -1392,6 +1392,7 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 
 // Test that customers can construct a GRPCOnlineQueryBulkResult for testing
 func TestUnmarshalExternallyConstructedGRPCOnlineQueryBulkResult(t *testing.T) {
+	t.Parallel()
 	testData := map[any]any{
 		fixtures.Root.AllTypes.Int: []int64{1, 2, 3},
 		"all_types.float":          []float64{1.1, 2.2, 3.3},
@@ -1586,6 +1587,7 @@ TestBenchmarkListOfStructsUnmarshal prints the time it takes to unmarshal the sa
 2. a list of root feature classes
 */
 func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
+	t.Parallel()
 	// TODO: Make this an actual benchmark
 	var transactions []unmarshalTransaction
 	numRows := 100_000
@@ -1700,6 +1702,7 @@ type infLoopUser struct {
 
 // Testing User -> Account -> User
 func TestSerdeInfiniteLoopFeatures(t *testing.T) {
+	t.Parallel()
 	fqnToValue := map[string]any{
 		"inf_loop_user.id": []string{"user-1", "user-2"},
 		"inf_loop_user.account": []infLoopAccount{
@@ -1743,6 +1746,7 @@ type infLoopC struct {
 
 // Testing A -> B -> C -> A
 func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
+	t.Parallel()
 	fqnToValue := map[string]any{
 		"inf_loop_a.id": []string{"a-1"},
 		"inf_loop_a.b": []infLoopB{
@@ -1809,6 +1813,7 @@ type infLoopZ struct {
 // and R and Z still gets serialized
 // even with visitedNamespaces handling.
 func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
+	t.Parallel()
 	fqnToValue := map[string]any{
 		"inf_loop_root.id": []string{"root-only"},
 		"inf_loop_root.p": []infLoopP{

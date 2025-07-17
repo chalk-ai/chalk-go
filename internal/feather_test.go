@@ -8,6 +8,7 @@ import (
 )
 
 func TestColumnMapToRecordOptionalPrimitives(t *testing.T) {
+	t.Parallel()
 	// Tests that we can convert a slice of pointers to primitive
 	// types to an Arrow column with nulls correctly set.
 	num := int64(1)
