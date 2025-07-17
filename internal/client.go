@@ -58,7 +58,7 @@ type OfflineQueryRequestSerialized struct {
 	DatasetName                 *string                      `json:"dataset_name"`
 	Branch                      *string                      `json:"branch"`
 	RecomputeFeatures           bool                         `json:"recompute_features"`
-	SampleFeatures              *string                      `json:"sample_features"`
+	SampleFeatures              *[]string                    `json:"sample_features"`
 	StorePlanStages             bool                         `json:"store_plan_stages"`
 	Explain                     bool                         `json:"explain"`
 	Tags                        *[]string                    `json:"tags"`

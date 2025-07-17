@@ -11,6 +11,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 	"time"
 )
 
@@ -197,10 +198,10 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		}
 	}
 
-	// Convert CompletionDeadline to string format
+	// Convert CompletionDeadline to string format (matching Python's timedelta_to_duration)
 	var completionDeadlineStr *string
 	if p.CompletionDeadline != nil {
-		duration := p.CompletionDeadline.String()
+		duration := timeDurationToChalkDuration(*p.CompletionDeadline)
 		completionDeadlineStr = &duration
 	}
 
@@ -216,50 +217,172 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		envOverridesPtr = &p.EnvOverrides
 	}
 
+	// Convert RequiredResolverTags to pointer if not empty
+	var requiredResolverTagsPtr *[]string
+	if len(p.RequiredResolverTags) > 0 {
+		requiredResolverTagsPtr = &p.RequiredResolverTags
+	}
+
+	// Convert CorrelationId to pointer if not empty
+	var correlationIdPtr *string
+	if p.CorrelationId != "" {
+		correlationIdPtr = &p.CorrelationId
+	}
+
+	// Convert PlannerOptions to pointer if not empty
+	var plannerOptionsPtr *map[string]any
+	if len(p.PlannerOptions) > 0 {
+		plannerOptionsPtr = &p.PlannerOptions
+	}
+
+	// Convert SampleFeatures to pointer if not empty
+	var sampleFeaturesPtr *[]string
+	if len(p.SampleFeatures) > 0 {
+		sampleFeaturesPtr = &p.SampleFeatures
+	}
+
+	// Convert remaining string fields to pointers if not empty
+	var spineSqlQueryPtr *string
+	if p.SpineSqlQuery != "" {
+		spineSqlQueryPtr = &p.SpineSqlQuery
+	}
+
+	var recomputeRequestRevisionIdPtr *string
+	if p.RecomputeRequestRevisionId != "" {
+		recomputeRequestRevisionIdPtr = &p.RecomputeRequestRevisionId
+	}
+
+	var overrideTargetImageTagPtr *string
+	if p.OverrideTargetImageTag != "" {
+		overrideTargetImageTagPtr = &p.OverrideTargetImageTag
+	}
+
+	var featureForLowerUpperBoundPtr *string
+	if p.FeatureForLowerUpperBound != "" {
+		featureForLowerUpperBoundPtr = &p.FeatureForLowerUpperBound
+	}
+
 	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
 		// Core fields
-		Input:                        queryInput,
-		Output:                       output,
-		OutputExpressions:           []string{},
-		RequiredOutput:              requiredOutput,
-		RequiredOutputExpressions:   []string{},
-		DestinationFormat:           "PARQUET",
-		JobId:                       nil,
-		MaxSamples:                  p.MaxSamples,
-		MaxCacheAge:                 nil,
-		ObservedAtLowerBound:        nil,
-		ObservedAtUpperBound:        nil,
-		DatasetName:                 internal.StringOrNil(p.DatasetName),
-		Branch:                      internal.StringOrNil(p.Branch),
-		RecomputeFeatures:           false,
-		SampleFeatures:              nil,
-		StorePlanStages:             false,
-		Explain:                     false,
-		Tags:                        tagsPtr,
-		RequiredResolverTags:        nil,
-		CorrelationId:               nil,
-		QueryContext:                p.QueryContext.ToMap(),
-		PlannerOptions:              nil,
-		UseMultipleComputers:        p.UseMultipleComputers || p.RunAsynchronously,
-		SpineSqlQuery:               nil,
-		RecomputeRequestRevisionId:  nil,
-		Resources:                   resourcesSerialized,
-		EnvOverrides:                envOverridesPtr,
-		OverrideTargetImageTag:      nil,
-		EnableProfiling:             p.EnableProfiling,
-		StoreOnline:                 p.StoreOnline,
-		StoreOffline:                p.StoreOffline,
-		NumShards:                   p.NumShards,
-		NumWorkers:                  p.NumWorkers,
-		FeatureForLowerUpperBound:   nil,
-		CompletionDeadline:          completionDeadlineStr,
-		MaxRetries:                  p.MaxRetries,
-		UseJobQueue:                 false,
-		OverlayGraph:                nil,
+		Input:                      queryInput,
+		Output:                     output,
+		OutputExpressions:          []string{},
+		RequiredOutput:             requiredOutput,
+		RequiredOutputExpressions:  []string{},
+		DestinationFormat:          "PARQUET",
+		JobId:                      nil, // Always nil - server auto-generates
+		MaxSamples:                 p.MaxSamples,
+		MaxCacheAge:                nil, // Deprecated in Python - always nil
+		ObservedAtLowerBound:       processBound(p.ObservedAtLowerBound),
+		ObservedAtUpperBound:       processBound(p.ObservedAtUpperBound),
+		DatasetName:                internal.StringOrNil(p.DatasetName),
+		Branch:                     internal.StringOrNil(p.Branch),
+		RecomputeFeatures:          p.RecomputeFeatures,
+		SampleFeatures:             sampleFeaturesPtr,
+		StorePlanStages:            p.StorePlanStages,
+		Explain:                    p.Explain,
+		Tags:                       tagsPtr,
+		RequiredResolverTags:       requiredResolverTagsPtr,
+		CorrelationId:              correlationIdPtr,
+		QueryContext:               p.QueryContext.ToMap(),
+		PlannerOptions:             plannerOptionsPtr,
+		UseMultipleComputers:       p.UseMultipleComputers || p.RunAsynchronously,
+		SpineSqlQuery:              spineSqlQueryPtr,
+		RecomputeRequestRevisionId: recomputeRequestRevisionIdPtr,
+		Resources:                  resourcesSerialized,
+		EnvOverrides:               envOverridesPtr,
+		OverrideTargetImageTag:     overrideTargetImageTagPtr,
+		EnableProfiling:            p.EnableProfiling,
+		StoreOnline:                p.StoreOnline,
+		StoreOffline:               p.StoreOffline,
+		NumShards:                  p.NumShards,
+		NumWorkers:                 p.NumWorkers,
+		FeatureForLowerUpperBound:  featureForLowerUpperBoundPtr,
+		CompletionDeadline:         completionDeadlineStr,
+		MaxRetries:                 p.MaxRetries,
+		UseJobQueue:                p.UseJobQueue,
+		OverlayGraph:               nil,
 	}
 
 	return json.Marshal(serializedObj)
+}
+
+// TIMEDELTA_PREFIX is used to disambiguate datetimes and timedeltas in string form
+// This matches the Python client's TIMEDELTA_PREFIX constant
+const TIMEDELTA_PREFIX = "delta:"
+
+// processBound converts an ObservedTimeBound to a string, matching Python's process_bound function
+func processBound(bound *ObservedTimeBound) *string {
+	if bound == nil {
+		return nil
+	}
+	
+	if bound.Timestamp != nil {
+		// For datetime: use ISO format, converting to local timezone if no timezone info (matching Python)
+		timestamp := *bound.Timestamp
+		if timestamp.Location() == time.UTC {
+			// If UTC, convert to local timezone to match Python's astimezone() behavior
+			timestamp = timestamp.In(time.Local)
+		}
+		isoString := timestamp.Format(time.RFC3339)
+		return &isoString
+	}
+	
+	if bound.Duration != nil {
+		// For timedelta: use TIMEDELTA_PREFIX + timedelta_to_duration
+		durationStr := TIMEDELTA_PREFIX + timeDurationToChalkDuration(*bound.Duration)
+		return &durationStr
+	}
+	
+	return nil
+}
+
+// timeDurationToChalkDuration converts a Go time.Duration to a Chalk duration string
+// that matches the format produced by Python's timedelta_to_duration() function
+func timeDurationToChalkDuration(d time.Duration) string {
+	if d == 0 {
+		return ""
+	}
+	
+	totalSeconds := d.Seconds()
+	negative := totalSeconds < 0
+	if negative {
+		totalSeconds = -totalSeconds
+	}
+	
+	seconds := int(totalSeconds)
+	milliseconds := int((totalSeconds - float64(seconds)) * 1000)
+	
+	days := seconds / 86400
+	remainder := seconds % 86400
+	hours := remainder / 3600
+	remainder = remainder % 3600
+	minutes := remainder / 60
+	seconds = remainder % 60
+	
+	var parts []string
+	if days > 0 {
+		parts = append(parts, fmt.Sprintf("%dd", days))
+	}
+	if hours > 0 {
+		parts = append(parts, fmt.Sprintf("%dh", hours))
+	}
+	if minutes > 0 {
+		parts = append(parts, fmt.Sprintf("%dm", minutes))
+	}
+	if seconds > 0 {
+		parts = append(parts, fmt.Sprintf("%ds", seconds))
+	}
+	if milliseconds > 0 {
+		parts = append(parts, fmt.Sprintf("%dms", milliseconds))
+	}
+	
+	result := strings.Join(parts, "")
+	if negative {
+		result = "-" + result
+	}
+	return result
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
