@@ -140,6 +140,96 @@ func (p OfflineQueryParamsComplete) WithEnableProfiling(enableProfiling bool) Of
 	return p
 }
 
+// WithCorrelationId returns a copy of Offline Query parameters with the specified correlation ID set.
+func (p OfflineQueryParamsComplete) WithCorrelationId(correlationId string) OfflineQueryParamsComplete {
+	p.underlying.CorrelationId = correlationId
+	return p
+}
+
+// WithRequiredResolverTags returns a copy of Offline Query parameters with the specified required resolver tags set.
+func (p OfflineQueryParamsComplete) WithRequiredResolverTags(tags []string) OfflineQueryParamsComplete {
+	p.underlying.RequiredResolverTags = tags
+	return p
+}
+
+// WithPlannerOptions returns a copy of Offline Query parameters with the specified planner options set.
+func (p OfflineQueryParamsComplete) WithPlannerOptions(options map[string]any) OfflineQueryParamsComplete {
+	p.underlying.PlannerOptions = options
+	return p
+}
+
+// WithStorePlanStages returns a copy of Offline Query parameters with the specified store plan stages setting.
+func (p OfflineQueryParamsComplete) WithStorePlanStages(storePlanStages bool) OfflineQueryParamsComplete {
+	p.underlying.StorePlanStages = storePlanStages
+	return p
+}
+
+// WithExplain returns a copy of Offline Query parameters with the specified explain setting.
+func (p OfflineQueryParamsComplete) WithExplain(explain bool) OfflineQueryParamsComplete {
+	p.underlying.Explain = explain
+	return p
+}
+
+// WithObservedAtLowerBound returns a copy of Offline Query parameters with the specified observed at lower bound set.
+func (p OfflineQueryParamsComplete) WithObservedAtLowerBound(lowerBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtLowerBound = &lowerBound
+	return p
+}
+
+// WithObservedAtUpperBound returns a copy of Offline Query parameters with the specified observed at upper bound set.
+func (p OfflineQueryParamsComplete) WithObservedAtUpperBound(upperBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtUpperBound = &upperBound
+	return p
+}
+
+// WithRecomputeFeatures returns a copy of Offline Query parameters with the specified recompute features setting.
+func (p OfflineQueryParamsComplete) WithRecomputeFeatures(recomputeFeatures bool) OfflineQueryParamsComplete {
+	p.underlying.RecomputeFeatures = recomputeFeatures
+	return p
+}
+
+// WithSampleFeatures returns a copy of Offline Query parameters with the specified sample features set.
+func (p OfflineQueryParamsComplete) WithSampleFeatures(sampleFeatures []string) OfflineQueryParamsComplete {
+	p.underlying.SampleFeatures = sampleFeatures
+	return p
+}
+
+// WithSpineSqlQuery returns a copy of Offline Query parameters with the specified spine SQL query set.
+func (p OfflineQueryParamsComplete) WithSpineSqlQuery(spineSqlQuery string) OfflineQueryParamsComplete {
+	p.underlying.SpineSqlQuery = spineSqlQuery
+	return p
+}
+
+// WithRecomputeRequestRevisionId returns a copy of Offline Query parameters with the specified recompute request revision ID set.
+func (p OfflineQueryParamsComplete) WithRecomputeRequestRevisionId(revisionId string) OfflineQueryParamsComplete {
+	p.underlying.RecomputeRequestRevisionId = revisionId
+	return p
+}
+
+// WithOverrideTargetImageTag returns a copy of Offline Query parameters with the specified override target image tag set.
+func (p OfflineQueryParamsComplete) WithOverrideTargetImageTag(imageTag string) OfflineQueryParamsComplete {
+	p.underlying.OverrideTargetImageTag = imageTag
+	return p
+}
+
+// WithFeatureForLowerUpperBound returns a copy of Offline Query parameters with the specified feature for lower/upper bound set.
+func (p OfflineQueryParamsComplete) WithFeatureForLowerUpperBound(feature string) OfflineQueryParamsComplete {
+	p.underlying.FeatureForLowerUpperBound = feature
+	return p
+}
+
+// WithUseJobQueue returns a copy of Offline Query parameters with the specified use job queue setting.
+func (p OfflineQueryParamsComplete) WithUseJobQueue(useJobQueue bool) OfflineQueryParamsComplete {
+	p.underlying.UseJobQueue = useJobQueue
+	return p
+}
+
+// WithOverlayGraph returns a copy of Offline Query parameters with the specified overlay graph set.
+func (p OfflineQueryParamsComplete) WithOverlayGraph(overlayGraph string) OfflineQueryParamsComplete {
+	p.underlying.OverlayGraph = overlayGraph
+	return p
+}
+
 /********************************************
  Definitions for offlineQueryParamsWithInputs
 *********************************************/

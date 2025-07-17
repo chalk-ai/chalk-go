@@ -444,6 +444,7 @@ type UpdateAggregatesResult struct {
 	TraceId string `json:"trace_id"`
 }
 
+
 // ResourceRequests defines resource requirements for offline queries
 // and cron jobs that run in isolated environments.
 type ResourceRequests struct {
@@ -506,6 +507,21 @@ type OfflineQueryParams struct {
 
 	QueryContext *QueryContext
 
+	// A globally unique ID for the query, used alongside logs and available in web
+	// interfaces. If empty, a correlation ID will be generated for you and returned on
+	// the response.
+	CorrelationId string
+
+	// RequiredResolverTags are all the [tags] that must be present on a resolver for
+	// it to be considered eligible to execute.
+	// [tags]: https://docs.chalk.ai/docs/resolver-tags
+	RequiredResolverTags []string
+
+	// Map of additional options to pass to the Chalk query engine. Values may be provided
+	// as part of conversations with Chalk Support to enable or disable specific
+	// functionality.
+	PlannerOptions map[string]any
+
 	// RunAsynchronously boots a kubernetes job to run the queries in their own pods,
 	// separate from the engine and branch servers. This is useful for large datasets
 	// and jobs that require a long time to run.
@@ -550,6 +566,48 @@ type OfflineQueryParams struct {
 	// EnableProfiling enables profiling for the query execution.
 	EnableProfiling bool
 
+	// StorePlanStages triggers storing the output of each of the query plan stages in
+	// S3/GCS. This will dramatically impact the performance of the query, so it should
+	// only be used for debugging. These files will be visible in the web dashboard's
+	// query detail view, and can be downloaded in full by clicking on a plan node in
+	// the query plan visualizer.
+	StorePlanStages bool
+
+	// Explain will log the query execution plan. Requests using `explain=True` will be
+	// slower than requests using `explain=False`.
+	Explain bool
+
+	// RecomputeFeatures forces recomputation of features instead of using cached values.
+	RecomputeFeatures bool
+
+	// ObservedAtLowerBound specifies the lower bound for the observation time.
+	// Features will be queried as of this time or later.
+	ObservedAtLowerBound *time.Time
+
+	// ObservedAtUpperBound specifies the upper bound for the observation time.
+	// Features will be queried as of this time or earlier.
+	ObservedAtUpperBound *time.Time
+
+	// SampleFeatures is a list of features to sample.
+	SampleFeatures []string
+
+	// SpineSqlQuery is an alternative way to specify inputs - a SQL query that retrieves outputs.
+	SpineSqlQuery string
+
+	// RecomputeRequestRevisionId is the revision ID for recompute requests.
+	RecomputeRequestRevisionId string
+
+	// OverrideTargetImageTag specifies the image tag to use for the query execution.
+	OverrideTargetImageTag string
+
+	// FeatureForLowerUpperBound specifies the feature to use for lower/upper bound calculations.
+	FeatureForLowerUpperBound string
+
+	// UseJobQueue specifies whether to use the job queue for processing.
+	UseJobQueue bool
+
+	// OverlayGraph specifies additional features and resolvers to be used to plan this specific query.
+	OverlayGraph string
 	/***************
 	 PRIVATE FIELDS
 	***************/
@@ -650,11 +708,12 @@ type Dataset struct {
 	// Version number representing the format of the data. The client
 	// uses this version number to properly decode and load the query
 	// results into DataFrames.
-	Version     int               `json:"version"`
-	DatasetId   *string           `json:"dataset_id"`
-	DatasetName *string           `json:"dataset_name"`
-	Revisions   []DatasetRevision `json:"revisions"`
-	Errors      serverErrorsT     `json:"errors"`
+	Version       int               `json:"version"`
+	DatasetId     *string           `json:"dataset_id"`
+	DatasetName   *string           `json:"dataset_name"`
+	EnvironmentID string            `json:"environment_id"`
+	Revisions     []DatasetRevision `json:"revisions"`
+	Errors        serverErrorsT     `json:"errors"`
 
 	// client is used internally for the Wait method
 	client Client `json:"-"`
@@ -666,6 +725,9 @@ type DatasetRevision struct {
 
 	// UUID for the creator of the job.
 	CreatorId string `json:"creator_id"`
+
+	// Environment ID for the revision job.
+	EnvironmentID string `json:"environment_id"`
 
 	// Output features for the dataset revision.
 	Outputs []string `json:"outputs"`
@@ -695,7 +757,7 @@ type DatasetRevision struct {
 	CreatedAt *time.Time `json:"created_at"`
 
 	// Timestamp for start of revision job.
-	StartedAt *string `json:"started_at"`
+	StartedAt *time.Time `json:"started_at"`
 
 	// Timestamp for end of revision job.
 	TerminatedAt *time.Time `json:"terminated_at"`
@@ -705,6 +767,15 @@ type DatasetRevision struct {
 
 	// ID of revision, if name is given.
 	DatasetId *string `json:"dataset_id"`
+
+	// Branch of revision.
+	Branch *string `json:"branch"`
+
+	// Dashboard URL for the revision.
+	DashboardURL *string `json:"dashboard_url"`
+
+	// Number of computers for the revision.
+	NumComputers int `json:"num_computers"`
 
 	client *clientImpl
 }
@@ -762,6 +833,38 @@ func (d *Dataset) Wait(ctx context.Context) error {
 	}
 }
 
+// DownloadUris retrieves the download URIs for the dataset using the last revision.
+// This method matches the Python client behavior where calling download_uris() on a Dataset
+// automatically uses the last revision (self.revisions[-1]).
+//
+// Example:
+//
+//		dataset, err := client.GetDataset(context.Background(), revisionId)
+//		if err != nil {
+//			return err
+//		}
+//		
+//		// This automatically uses the last revision
+//		urls, err := dataset.DownloadUris(context.Background())
+//		if err != nil {
+//			return err
+//		}
+//		
+//		for _, url := range urls {
+//			fmt.Println(url)
+//		}
+//
+func (d *Dataset) DownloadUris(ctx context.Context) ([]string, error) {
+	if len(d.Revisions) == 0 {
+		return nil, errors.New("no revisions found in dataset")
+	}
+	
+	// Use the last revision, matching Python's behavior: self.revisions[-1]
+	lastRevision := d.Revisions[len(d.Revisions)-1]
+	
+	return lastRevision.DownloadUris(ctx)
+}
+
 // DownloadData downloads output files pertaining to the revision to given path.
 // Datasets are stored in Chalk as sharded Parquet files. With this
 // method, you can download those raw files into a directory for processing
@@ -780,6 +883,34 @@ func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) er
 		})
 	}
 	return errors.Wrap(g.Wait(), "save urls to directory")
+}
+
+// DownloadUris retrieves the download URIs for the dataset revision.
+// This method returns a list of signed URLs that can be used to download
+// the Parquet files containing the dataset data.
+//
+// Example:
+//
+//		urls, err := datasetRevision.DownloadUris(context.Background())
+//		if err != nil {
+//			return err
+//		}
+//		
+//		for _, url := range urls {
+//			fmt.Println(url)
+//		}
+//
+func (d *DatasetRevision) DownloadUris(ctx context.Context) ([]string, error) {
+	if d.client == nil {
+		return nil, errors.New("DatasetRevision client is not initialized")
+	}
+	
+	urls, err := d.client.getDatasetUrls(ctx, d.RevisionId, "")
+	if err != nil {
+		return nil, errors.Wrap(err, "get dataset urls")
+	}
+	
+	return urls, nil
 }
 
 type ColumnMetadata struct {

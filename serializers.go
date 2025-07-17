@@ -11,6 +11,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 	"time"
 )
 
@@ -216,47 +217,105 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		envOverridesPtr = &p.EnvOverrides
 	}
 
+	// Convert RequiredResolverTags to pointer if not empty
+	var requiredResolverTagsPtr *[]string
+	if len(p.RequiredResolverTags) > 0 {
+		requiredResolverTagsPtr = &p.RequiredResolverTags
+	}
+
+	// Convert CorrelationId to pointer if not empty
+	var correlationIdPtr *string
+	if p.CorrelationId != "" {
+		correlationIdPtr = &p.CorrelationId
+	}
+
+	// Convert PlannerOptions to pointer if not empty
+	var plannerOptionsPtr *map[string]any
+	if len(p.PlannerOptions) > 0 {
+		plannerOptionsPtr = &p.PlannerOptions
+	}
+
+	// Convert SampleFeatures to pointer if not empty
+	var sampleFeaturesPtr *[]string
+	if len(p.SampleFeatures) > 0 {
+		sampleFeaturesPtr = &p.SampleFeatures
+	}
+
+	// Convert remaining string fields to pointers if not empty
+	var spineSqlQueryPtr *string
+	if p.SpineSqlQuery != "" {
+		spineSqlQueryPtr = &p.SpineSqlQuery
+	}
+
+	var recomputeRequestRevisionIdPtr *string
+	if p.RecomputeRequestRevisionId != "" {
+		recomputeRequestRevisionIdPtr = &p.RecomputeRequestRevisionId
+	}
+
+	var overrideTargetImageTagPtr *string
+	if p.OverrideTargetImageTag != "" {
+		overrideTargetImageTagPtr = &p.OverrideTargetImageTag
+	}
+
+	var featureForLowerUpperBoundPtr *string
+	if p.FeatureForLowerUpperBound != "" {
+		featureForLowerUpperBoundPtr = &p.FeatureForLowerUpperBound
+	}
+
+	// Convert time bounds to string format (using foreign branch's approach)
+	var lowerBoundStr *string
+	if p.ObservedAtLowerBound != nil {
+		formatted := strings.Replace(p.ObservedAtLowerBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		lowerBoundStr = &formatted
+	}
+
+	var upperBoundStr *string
+	if p.ObservedAtUpperBound != nil {
+		formatted := strings.Replace(p.ObservedAtUpperBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		upperBoundStr = &formatted
+	}
+
 	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
 		// Core fields
-		Input:                        queryInput,
-		Output:                       output,
-		OutputExpressions:           []string{},
-		RequiredOutput:              requiredOutput,
-		RequiredOutputExpressions:   []string{},
-		DestinationFormat:           "PARQUET",
-		JobId:                       nil,
-		MaxSamples:                  p.MaxSamples,
-		MaxCacheAge:                 nil,
-		ObservedAtLowerBound:        nil,
-		ObservedAtUpperBound:        nil,
-		DatasetName:                 internal.StringOrNil(p.DatasetName),
-		Branch:                      internal.StringOrNil(p.Branch),
-		RecomputeFeatures:           false,
-		SampleFeatures:              nil,
-		StorePlanStages:             false,
-		Explain:                     false,
-		Tags:                        tagsPtr,
-		RequiredResolverTags:        nil,
-		CorrelationId:               nil,
-		QueryContext:                p.QueryContext.ToMap(),
-		PlannerOptions:              nil,
-		UseMultipleComputers:        p.UseMultipleComputers || p.RunAsynchronously,
-		SpineSqlQuery:               nil,
-		RecomputeRequestRevisionId:  nil,
-		Resources:                   resourcesSerialized,
-		EnvOverrides:                envOverridesPtr,
-		OverrideTargetImageTag:      nil,
-		EnableProfiling:             p.EnableProfiling,
-		StoreOnline:                 p.StoreOnline,
-		StoreOffline:                p.StoreOffline,
-		NumShards:                   p.NumShards,
-		NumWorkers:                  p.NumWorkers,
-		FeatureForLowerUpperBound:   nil,
-		CompletionDeadline:          completionDeadlineStr,
-		MaxRetries:                  p.MaxRetries,
-		UseJobQueue:                 false,
-		OverlayGraph:                nil,
+		Input:                      queryInput,
+		Output:                     output,
+		OutputExpressions:          []string{},
+		RequiredOutput:             requiredOutput,
+		RequiredOutputExpressions:  []string{},
+		DestinationFormat:          "PARQUET",
+		JobId:                      nil, // Always nil - server auto-generates
+		MaxSamples:                 p.MaxSamples,
+		MaxCacheAge:                nil, // Deprecated in Python - always nil
+		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
+		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
+		DatasetName:                internal.StringOrNil(p.DatasetName),
+		Branch:                     internal.StringOrNil(p.Branch),
+		RecomputeFeatures:          p.RecomputeFeatures,
+		SampleFeatures:             sampleFeaturesPtr,
+		StorePlanStages:            p.StorePlanStages,
+		Explain:                    p.Explain,
+		Tags:                       tagsPtr,
+		RequiredResolverTags:       requiredResolverTagsPtr,
+		CorrelationId:              correlationIdPtr,
+		QueryContext:               p.QueryContext.ToMap(),
+		PlannerOptions:             plannerOptionsPtr,
+		UseMultipleComputers:       p.UseMultipleComputers || p.RunAsynchronously,
+		SpineSqlQuery:              spineSqlQueryPtr,
+		RecomputeRequestRevisionId: recomputeRequestRevisionIdPtr,
+		Resources:                  resourcesSerialized,
+		EnvOverrides:               envOverridesPtr,
+		OverrideTargetImageTag:     overrideTargetImageTagPtr,
+		EnableProfiling:            p.EnableProfiling,
+		StoreOnline:                p.StoreOnline,
+		StoreOffline:               p.StoreOffline,
+		NumShards:                  p.NumShards,
+		NumWorkers:                 p.NumWorkers,
+		FeatureForLowerUpperBound:  featureForLowerUpperBoundPtr,
+		CompletionDeadline:         completionDeadlineStr,
+		MaxRetries:                 p.MaxRetries,
+		UseJobQueue:                p.UseJobQueue,
+		OverlayGraph:               nil,
 	}
 
 	return json.Marshal(serializedObj)

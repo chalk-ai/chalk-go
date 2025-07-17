@@ -144,6 +144,29 @@ type Client interface {
 	// GetOfflineQueryStatus retrieves the status of an offline query job.
 	// See https://docs.chalk.ai/docs/query-basics for more information.
 	GetOfflineQueryStatus(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error)
+
+	// GetDataset retrieves a dataset by its revision ID.
+	// This allows you to access datasets that were created from previous offline queries.
+	//
+	// Example:
+	//
+	//		revisionId := "550e8400-e29b-41d4-a716-446655440000"
+	//		dataset, err := client.GetDataset(context.Background(), revisionId)
+	//		if err != nil {
+	//			return err
+	//		}
+	//		
+	//		// Get download URIs for the dataset
+	//		downloadUris, err := dataset.Revisions[0].DownloadUris(context.Background())
+	//		if err != nil {
+	//			return err
+	//		}
+	//		
+	//		for _, uri := range downloadUris {
+	//			fmt.Println(uri)
+	//		}
+	//
+	GetDataset(ctx context.Context, revisionId string) (Dataset, error)
 }
 
 type ClientConfig struct {

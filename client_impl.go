@@ -73,11 +73,23 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		return Dataset{}, response.Errors
 	}
 
+	// Set the environment ID
+	if response.EnvironmentID == "" {
+		response.EnvironmentID = request.EnvironmentId
+		if response.EnvironmentID == "" {
+			response.EnvironmentID = c.config.environmentId.Value
+		}
+	}
+
 	// Set the client reference for Wait() method
 	response.client = c
 
 	for idx := range response.Revisions {
 		response.Revisions[idx].client = c
+		// Set environment ID for each revision if not already set
+		if response.Revisions[idx].EnvironmentID == "" {
+			response.Revisions[idx].EnvironmentID = response.EnvironmentID
+		}
 	}
 
 	return response, nil
@@ -643,6 +655,32 @@ func (c *clientImpl) GetOfflineQueryStatus(ctx context.Context, request GetOffli
 		},
 	)
 	return response, errors.Wrap(err, "getting offline query status")
+}
+
+func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset, error) {
+	// Get the dataset URLs using the existing getDatasetUrls method
+	// This also validates that the dataset exists and is ready
+	_, err := c.getDatasetUrls(ctx, revisionId, "")
+	if err != nil {
+		return Dataset{}, errors.Wrap(err, "getting dataset urls")
+	}
+	
+	// Create a dataset revision with the retrieved information
+	revision := DatasetRevision{
+		RevisionId: revisionId,
+		Status:     QueryStatusSuccessful, // Since we got URLs, the dataset is complete
+		client:     c,
+	}
+	
+	// Create and return the dataset
+	dataset := Dataset{
+		IsFinished: true,
+		Version:    1,
+		Revisions:  []DatasetRevision{revision},
+		client:     c,
+	}
+	
+	return dataset, nil
 }
 
 func newClientImpl(
