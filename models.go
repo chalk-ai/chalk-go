@@ -553,6 +553,14 @@ type OfflineQueryParams struct {
 	// RecomputeFeatures forces recomputation of features instead of using cached values.
 	RecomputeFeatures bool
 
+	// ObservedAtLowerBound specifies the lower bound for the observation time.
+	// Features will be queried as of this time or later.
+	ObservedAtLowerBound *time.Time
+
+	// ObservedAtUpperBound specifies the upper bound for the observation time.
+	// Features will be queried as of this time or earlier.
+	ObservedAtUpperBound *time.Time
+
 	/***************
 	 PRIVATE FIELDS
 	***************/

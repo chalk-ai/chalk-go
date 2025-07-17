@@ -11,6 +11,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strings"
 	"time"
 )
 
@@ -216,47 +217,60 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		envOverridesPtr = &p.EnvOverrides
 	}
 
+	// Convert time bounds to string format
+	var lowerBoundStr *string
+	if p.ObservedAtLowerBound != nil {
+		formatted := strings.Replace(p.ObservedAtLowerBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		lowerBoundStr = &formatted
+	}
+
+	var upperBoundStr *string
+	if p.ObservedAtUpperBound != nil {
+		formatted := strings.Replace(p.ObservedAtUpperBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		upperBoundStr = &formatted
+	}
+
 	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
 		// Core fields
-		Input:                        queryInput,
-		Output:                       output,
-		OutputExpressions:           []string{},
-		RequiredOutput:              requiredOutput,
-		RequiredOutputExpressions:   []string{},
-		DestinationFormat:           "PARQUET",
-		JobId:                       nil,
-		MaxSamples:                  p.MaxSamples,
-		MaxCacheAge:                 nil,
-		ObservedAtLowerBound:        nil,
-		ObservedAtUpperBound:        nil,
-		DatasetName:                 internal.StringOrNil(p.DatasetName),
-		Branch:                      internal.StringOrNil(p.Branch),
-		RecomputeFeatures:           p.RecomputeFeatures,
-		SampleFeatures:              nil,
-		StorePlanStages:             false,
-		Explain:                     false,
-		Tags:                        tagsPtr,
-		RequiredResolverTags:        nil,
-		CorrelationId:               nil,
-		QueryContext:                p.QueryContext.ToMap(),
-		PlannerOptions:              nil,
-		UseMultipleComputers:        p.UseMultipleComputers || p.RunAsynchronously,
-		SpineSqlQuery:               nil,
-		RecomputeRequestRevisionId:  nil,
-		Resources:                   resourcesSerialized,
-		EnvOverrides:                envOverridesPtr,
-		OverrideTargetImageTag:      nil,
-		EnableProfiling:             p.EnableProfiling,
-		StoreOnline:                 p.StoreOnline,
-		StoreOffline:                p.StoreOffline,
-		NumShards:                   p.NumShards,
-		NumWorkers:                  p.NumWorkers,
-		FeatureForLowerUpperBound:   nil,
-		CompletionDeadline:          completionDeadlineStr,
-		MaxRetries:                  p.MaxRetries,
-		UseJobQueue:                 false,
-		OverlayGraph:                nil,
+		Input:                      queryInput,
+		Output:                     output,
+		OutputExpressions:          []string{},
+		RequiredOutput:             requiredOutput,
+		RequiredOutputExpressions:  []string{},
+		DestinationFormat:          "PARQUET",
+		JobId:                      nil,
+		MaxSamples:                 p.MaxSamples,
+		MaxCacheAge:                nil,
+		ObservedAtLowerBound:       lowerBoundStr,
+		ObservedAtUpperBound:       upperBoundStr,
+		DatasetName:                internal.StringOrNil(p.DatasetName),
+		Branch:                     internal.StringOrNil(p.Branch),
+		RecomputeFeatures:          p.RecomputeFeatures,
+		SampleFeatures:             nil,
+		StorePlanStages:            false,
+		Explain:                    false,
+		Tags:                       tagsPtr,
+		RequiredResolverTags:       nil,
+		CorrelationId:              nil,
+		QueryContext:               p.QueryContext.ToMap(),
+		PlannerOptions:             nil,
+		UseMultipleComputers:       p.UseMultipleComputers || p.RunAsynchronously,
+		SpineSqlQuery:              nil,
+		RecomputeRequestRevisionId: nil,
+		Resources:                  resourcesSerialized,
+		EnvOverrides:               envOverridesPtr,
+		OverrideTargetImageTag:     nil,
+		EnableProfiling:            p.EnableProfiling,
+		StoreOnline:                p.StoreOnline,
+		StoreOffline:               p.StoreOffline,
+		NumShards:                  p.NumShards,
+		NumWorkers:                 p.NumWorkers,
+		FeatureForLowerUpperBound:  nil,
+		CompletionDeadline:         completionDeadlineStr,
+		MaxRetries:                 p.MaxRetries,
+		UseJobQueue:                false,
+		OverlayGraph:               nil,
 	}
 
 	return json.Marshal(serializedObj)
