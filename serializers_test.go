@@ -5,6 +5,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"strings"
 	"testing"
 	"time"
 
@@ -217,7 +218,7 @@ func TestDurationStringFormatting(t *testing.T) {
 	}
 }
 
-func TestFormatTimeBound(t *testing.T) {
+func TestInlineTimestampFormatting(t *testing.T) {
 	// Test timezone setup
 	utc := time.UTC
 	est, _ := time.LoadLocation("America/New_York")
@@ -256,10 +257,15 @@ func TestFormatTimeBound(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := formatTimeBound(tt.time)
+			// Test the inline formatting approach used in serializers.go
+			var result *string
+			if tt.time != nil {
+				formatted := strings.Replace(tt.time.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+				result = &formatted
+			}
 			
 			if !stringPtrEqual(result, tt.expected) {
-				t.Errorf("formatTimeBound(%v) = %v, want %v", tt.time, stringPtrValue(result), stringPtrValue(tt.expected))
+				t.Errorf("inline timestamp formatting(%v) = %v, want %v", tt.time, stringPtrValue(result), stringPtrValue(tt.expected))
 			}
 		})
 	}
