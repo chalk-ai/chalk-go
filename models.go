@@ -577,6 +577,9 @@ type OfflineQueryParams struct {
 	// slower than requests using `explain=False`.
 	Explain bool
 
+	// RecomputeFeatures forces recomputation of features instead of using cached values.
+	RecomputeFeatures bool
+
 	// ObservedAtLowerBound specifies the lower bound for the observation time.
 	// Features will be queried as of this time or later.
 	ObservedAtLowerBound *time.Time
@@ -584,9 +587,6 @@ type OfflineQueryParams struct {
 	// ObservedAtUpperBound specifies the upper bound for the observation time.
 	// Features will be queried as of this time or earlier.
 	ObservedAtUpperBound *time.Time
-
-	// RecomputeFeatures specifies whether to recompute features.
-	RecomputeFeatures bool
 
 	// SampleFeatures is a list of features to sample.
 	SampleFeatures []string
@@ -608,7 +608,6 @@ type OfflineQueryParams struct {
 
 	// OverlayGraph specifies additional features and resolvers to be used to plan this specific query.
 	OverlayGraph string
-
 	/***************
 	 PRIVATE FIELDS
 	***************/
@@ -709,11 +708,12 @@ type Dataset struct {
 	// Version number representing the format of the data. The client
 	// uses this version number to properly decode and load the query
 	// results into DataFrames.
-	Version     int               `json:"version"`
-	DatasetId   *string           `json:"dataset_id"`
-	DatasetName *string           `json:"dataset_name"`
-	Revisions   []DatasetRevision `json:"revisions"`
-	Errors      serverErrorsT     `json:"errors"`
+	Version       int               `json:"version"`
+	DatasetId     *string           `json:"dataset_id"`
+	DatasetName   *string           `json:"dataset_name"`
+	EnvironmentID string            `json:"environment_id"`
+	Revisions     []DatasetRevision `json:"revisions"`
+	Errors        serverErrorsT     `json:"errors"`
 
 	// client is used internally for the Wait method
 	client Client `json:"-"`
@@ -725,6 +725,9 @@ type DatasetRevision struct {
 
 	// UUID for the creator of the job.
 	CreatorId string `json:"creator_id"`
+
+	// Environment ID for the revision job.
+	EnvironmentID string `json:"environment_id"`
 
 	// Output features for the dataset revision.
 	Outputs []string `json:"outputs"`
@@ -754,7 +757,7 @@ type DatasetRevision struct {
 	CreatedAt *time.Time `json:"created_at"`
 
 	// Timestamp for start of revision job.
-	StartedAt *string `json:"started_at"`
+	StartedAt *time.Time `json:"started_at"`
 
 	// Timestamp for end of revision job.
 	TerminatedAt *time.Time `json:"terminated_at"`
@@ -764,6 +767,15 @@ type DatasetRevision struct {
 
 	// ID of revision, if name is given.
 	DatasetId *string `json:"dataset_id"`
+
+	// Branch of revision.
+	Branch *string `json:"branch"`
+
+	// Dashboard URL for the revision.
+	DashboardURL *string `json:"dashboard_url"`
+
+	// Number of computers for the revision.
+	NumComputers int `json:"num_computers"`
 
 	client *clientImpl
 }

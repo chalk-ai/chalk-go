@@ -39,9 +39,9 @@ type featureResultSerialized struct {
 }
 
 type DatasetSampleFilter struct {
-	LowerBound *time.Time
-	UpperBound *time.Time
-	MaxSamples *int
+	LowerBound *time.Time `json:"lower_bound"`
+	UpperBound *time.Time `json:"upper_bound"`
+	MaxSamples *int       `json:"max_samples"`
 }
 
 type DatasetFilter struct {

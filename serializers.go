@@ -262,6 +262,19 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		featureForLowerUpperBoundPtr = &p.FeatureForLowerUpperBound
 	}
 
+	// Convert time bounds to string format (using foreign branch's approach)
+	var lowerBoundStr *string
+	if p.ObservedAtLowerBound != nil {
+		formatted := strings.Replace(p.ObservedAtLowerBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		lowerBoundStr = &formatted
+	}
+
+	var upperBoundStr *string
+	if p.ObservedAtUpperBound != nil {
+		formatted := strings.Replace(p.ObservedAtUpperBound.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+		upperBoundStr = &formatted
+	}
+
 	// Build the serialized object to match Python structure exactly
 	serializedObj := internal.OfflineQueryRequestSerialized{
 		// Core fields
@@ -274,8 +287,8 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		JobId:                      nil, // Always nil - server auto-generates
 		MaxSamples:                 p.MaxSamples,
 		MaxCacheAge:                nil, // Deprecated in Python - always nil
-		ObservedAtLowerBound:       formatTimeBound(p.ObservedAtLowerBound),
-		ObservedAtUpperBound:       formatTimeBound(p.ObservedAtUpperBound),
+		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
+		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
 		DatasetName:                internal.StringOrNil(p.DatasetName),
 		Branch:                     internal.StringOrNil(p.Branch),
 		RecomputeFeatures:          p.RecomputeFeatures,
@@ -306,17 +319,6 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 	}
 
 	return json.Marshal(serializedObj)
-}
-
-// formatTimeBound formats a time.Time pointer for use in offline query bounds
-func formatTimeBound(t *time.Time) *string {
-	if t == nil {
-		return nil
-	}
-	
-	// Use RFC3339Nano format and replace Z with +00:00 for consistency
-	formatted := strings.Replace(t.Format(time.RFC3339Nano), "Z", "+00:00", 1)
-	return &formatted
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {
