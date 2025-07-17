@@ -592,6 +592,9 @@ type Dataset struct {
 	DatasetName *string           `json:"dataset_name"`
 	Revisions   []DatasetRevision `json:"revisions"`
 	Errors      serverErrorsT     `json:"errors"`
+
+	// client is used internally for the Wait method
+	client Client `json:"-"`
 }
 
 type DatasetRevision struct {
@@ -641,6 +644,59 @@ type DatasetRevision struct {
 	DatasetId *string `json:"dataset_id"`
 
 	client *clientImpl
+}
+
+// Wait polls the offline query status until the job is complete.
+// It returns an error if the job fails or if there's an error polling the status.
+// The method will continue polling until the job reaches a terminal state
+// (COMPLETED or FAILED).
+func (d *Dataset) Wait(ctx context.Context) error {
+	if d.client == nil {
+		return errors.New("Dataset client is not initialized")
+	}
+
+	if len(d.Revisions) == 0 {
+		return errors.New("No revisions found in dataset")
+	}
+
+	// Check if already finished
+	if d.IsFinished {
+		return nil
+	}
+
+	// Poll the first revision's status
+	revisionId := d.Revisions[0].RevisionId
+
+	for {
+		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
+			JobId: revisionId,
+		})
+		if err != nil {
+			return errors.Wrap(err, "failed to get offline query status")
+		}
+
+		// Check for terminal states
+		if jobStatus.Report.Status == "COMPLETED" {
+			d.IsFinished = true
+			return nil
+		}
+
+		if jobStatus.Report.Status == "FAILED" {
+			d.IsFinished = true
+			if jobStatus.Report.Error != nil {
+				return errors.Newf("offline query failed: %s", jobStatus.Report.Error.Message)
+			}
+			return errors.New("offline query failed")
+		}
+
+		// Sleep before next poll
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(1 * time.Second):
+			// Continue polling
+		}
+	}
 }
 
 // DownloadData downloads output files pertaining to the revision to given path.
@@ -779,6 +835,36 @@ type TokenResult struct {
 
 	// The GRPC endpoint for the engine.
 	Engines map[string]string `json:"engines"`
+}
+
+// GetOfflineQueryStatusParams defines the parameters
+// that help you execute a get offline query status request.
+type GetOfflineQueryStatusParams struct {
+	// JobId is the ID of the offline query job to check.
+	JobId string `json:"job_id"`
+
+	// PreviewDeploymentId, if specified, will be used by Chalk to route
+	// your request to the relevant preview deployment.
+	PreviewDeploymentId string `json:"preview_deployment_id"`
+}
+
+// BatchReport represents the status of a batch operation.
+type BatchReport struct {
+	OperationID       string             `json:"operation_id"`
+	Status            string             `json:"status"`
+	EnvironmentID     string             `json:"environment_id"`
+	TeamID            string             `json:"team_id"`
+	DeploymentID      string             `json:"deployment_id"`
+	Error             *ServerError       `json:"error,omitempty"`
+	GeneratedAt       string             `json:"generated_at"`
+	AllErrors         []ServerError      `json:"all_errors,omitempty"`
+	OperationMetadata *map[string]string `json:"operation_metadata,omitempty"`
+	ComputerID        *int               `json:"computer_id,omitempty"`
+}
+
+// GetOfflineQueryStatusResult holds the result of a get offline query status request.
+type GetOfflineQueryStatusResult struct {
+	Report BatchReport `json:"report"`
 }
 
 type QueryContextValue interface {
