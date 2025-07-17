@@ -198,10 +198,10 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		}
 	}
 
-	// Convert CompletionDeadline to string format (matching Python's timedelta_to_duration)
+	// Convert CompletionDeadline to string format
 	var completionDeadlineStr *string
 	if p.CompletionDeadline != nil {
-		duration := timeDurationToChalkDuration(*p.CompletionDeadline)
+		duration := p.CompletionDeadline.String()
 		completionDeadlineStr = &duration
 	}
 
@@ -274,8 +274,8 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		JobId:                      nil, // Always nil - server auto-generates
 		MaxSamples:                 p.MaxSamples,
 		MaxCacheAge:                nil, // Deprecated in Python - always nil
-		ObservedAtLowerBound:       processBound(p.ObservedAtLowerBound),
-		ObservedAtUpperBound:       processBound(p.ObservedAtUpperBound),
+		ObservedAtLowerBound:       formatTimeBound(p.ObservedAtLowerBound),
+		ObservedAtUpperBound:       formatTimeBound(p.ObservedAtUpperBound),
 		DatasetName:                internal.StringOrNil(p.DatasetName),
 		Branch:                     internal.StringOrNil(p.Branch),
 		RecomputeFeatures:          p.RecomputeFeatures,
@@ -308,81 +308,15 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 	return json.Marshal(serializedObj)
 }
 
-// TIMEDELTA_PREFIX is used to disambiguate datetimes and timedeltas in string form
-// This matches the Python client's TIMEDELTA_PREFIX constant
-const TIMEDELTA_PREFIX = "delta:"
-
-// processBound converts an ObservedTimeBound to a string, matching Python's process_bound function
-func processBound(bound *ObservedTimeBound) *string {
-	if bound == nil {
+// formatTimeBound formats a time.Time pointer for use in offline query bounds
+func formatTimeBound(t *time.Time) *string {
+	if t == nil {
 		return nil
 	}
 	
-	if bound.Timestamp != nil {
-		// For datetime: use ISO format, converting to local timezone if no timezone info (matching Python)
-		timestamp := *bound.Timestamp
-		if timestamp.Location() == time.UTC {
-			// If UTC, convert to local timezone to match Python's astimezone() behavior
-			timestamp = timestamp.In(time.Local)
-		}
-		isoString := timestamp.Format(time.RFC3339)
-		return &isoString
-	}
-	
-	if bound.Duration != nil {
-		// For timedelta: use TIMEDELTA_PREFIX + timedelta_to_duration
-		durationStr := TIMEDELTA_PREFIX + timeDurationToChalkDuration(*bound.Duration)
-		return &durationStr
-	}
-	
-	return nil
-}
-
-// timeDurationToChalkDuration converts a Go time.Duration to a Chalk duration string
-// that matches the format produced by Python's timedelta_to_duration() function
-func timeDurationToChalkDuration(d time.Duration) string {
-	if d == 0 {
-		return ""
-	}
-	
-	totalSeconds := d.Seconds()
-	negative := totalSeconds < 0
-	if negative {
-		totalSeconds = -totalSeconds
-	}
-	
-	seconds := int(totalSeconds)
-	milliseconds := int((totalSeconds - float64(seconds)) * 1000)
-	
-	days := seconds / 86400
-	remainder := seconds % 86400
-	hours := remainder / 3600
-	remainder = remainder % 3600
-	minutes := remainder / 60
-	seconds = remainder % 60
-	
-	var parts []string
-	if days > 0 {
-		parts = append(parts, fmt.Sprintf("%dd", days))
-	}
-	if hours > 0 {
-		parts = append(parts, fmt.Sprintf("%dh", hours))
-	}
-	if minutes > 0 {
-		parts = append(parts, fmt.Sprintf("%dm", minutes))
-	}
-	if seconds > 0 {
-		parts = append(parts, fmt.Sprintf("%ds", seconds))
-	}
-	if milliseconds > 0 {
-		parts = append(parts, fmt.Sprintf("%dms", milliseconds))
-	}
-	
-	result := strings.Join(parts, "")
-	if negative {
-		result = "-" + result
-	}
-	return result
+	// Use RFC3339Nano format and replace Z with +00:00 for consistency
+	formatted := strings.Replace(t.Format(time.RFC3339Nano), "Z", "+00:00", 1)
+	return &formatted
 }
 
 func (e *chalkErrorSerialized) deserialize() (ServerError, error) {

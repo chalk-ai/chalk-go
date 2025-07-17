@@ -444,23 +444,6 @@ type UpdateAggregatesResult struct {
 	TraceId string `json:"trace_id"`
 }
 
-// ObservedTimeBound represents a time boundary that can be either an absolute time
-// or a relative duration. This matches Python's process_bound function behavior.
-type ObservedTimeBound struct {
-	// Exactly one of these fields should be set
-	Timestamp *time.Time     `json:"timestamp,omitempty"`
-	Duration  *time.Duration `json:"duration,omitempty"`
-}
-
-// NewObservedTimeBoundFromTime creates an ObservedTimeBound from an absolute timestamp
-func NewObservedTimeBoundFromTime(t time.Time) *ObservedTimeBound {
-	return &ObservedTimeBound{Timestamp: &t}
-}
-
-// NewObservedTimeBoundFromDuration creates an ObservedTimeBound from a relative duration
-func NewObservedTimeBoundFromDuration(d time.Duration) *ObservedTimeBound {
-	return &ObservedTimeBound{Duration: &d}
-}
 
 // ResourceRequests defines resource requirements for offline queries
 // and cron jobs that run in isolated environments.
@@ -594,15 +577,13 @@ type OfflineQueryParams struct {
 	// slower than requests using `explain=False`.
 	Explain bool
 
-	// ObservedAtLowerBound is the lower bound for the observed at timestamp (inclusive).
-	// If not specified, defaults to the beginning of time.
-	// Can be either a time.Time (absolute timestamp) or time.Duration (relative duration).
-	ObservedAtLowerBound *ObservedTimeBound
+	// ObservedAtLowerBound specifies the lower bound for the observation time.
+	// Features will be queried as of this time or later.
+	ObservedAtLowerBound *time.Time
 
-	// ObservedAtUpperBound is the upper bound for the observed at timestamp (inclusive).
-	// If not specified, defaults to the end of time.
-	// Can be either a time.Time (absolute timestamp) or time.Duration (relative duration).
-	ObservedAtUpperBound *ObservedTimeBound
+	// ObservedAtUpperBound specifies the upper bound for the observation time.
+	// Features will be queried as of this time or earlier.
+	ObservedAtUpperBound *time.Time
 
 	// RecomputeFeatures specifies whether to recompute features.
 	RecomputeFeatures bool

@@ -171,38 +171,14 @@ func (p OfflineQueryParamsComplete) WithExplain(explain bool) OfflineQueryParams
 }
 
 // WithObservedAtLowerBound returns a copy of Offline Query parameters with the specified observed at lower bound set.
-func (p OfflineQueryParamsComplete) WithObservedAtLowerBound(lowerBound *ObservedTimeBound) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtLowerBound = lowerBound
+func (p OfflineQueryParamsComplete) WithObservedAtLowerBound(lowerBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtLowerBound = &lowerBound
 	return p
 }
 
 // WithObservedAtUpperBound returns a copy of Offline Query parameters with the specified observed at upper bound set.
-func (p OfflineQueryParamsComplete) WithObservedAtUpperBound(upperBound *ObservedTimeBound) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtUpperBound = upperBound
-	return p
-}
-
-// WithObservedAtLowerBoundTime returns a copy of Offline Query parameters with the specified observed at lower bound timestamp set.
-func (p OfflineQueryParamsComplete) WithObservedAtLowerBoundTime(lowerBound time.Time) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtLowerBound = NewObservedTimeBoundFromTime(lowerBound)
-	return p
-}
-
-// WithObservedAtUpperBoundTime returns a copy of Offline Query parameters with the specified observed at upper bound timestamp set.
-func (p OfflineQueryParamsComplete) WithObservedAtUpperBoundTime(upperBound time.Time) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtUpperBound = NewObservedTimeBoundFromTime(upperBound)
-	return p
-}
-
-// WithObservedAtLowerBoundDuration returns a copy of Offline Query parameters with the specified observed at lower bound duration set.
-func (p OfflineQueryParamsComplete) WithObservedAtLowerBoundDuration(lowerBound time.Duration) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtLowerBound = NewObservedTimeBoundFromDuration(lowerBound)
-	return p
-}
-
-// WithObservedAtUpperBoundDuration returns a copy of Offline Query parameters with the specified observed at upper bound duration set.
-func (p OfflineQueryParamsComplete) WithObservedAtUpperBoundDuration(upperBound time.Duration) OfflineQueryParamsComplete {
-	p.underlying.ObservedAtUpperBound = NewObservedTimeBoundFromDuration(upperBound)
+func (p OfflineQueryParamsComplete) WithObservedAtUpperBound(upperBound time.Time) OfflineQueryParamsComplete {
+	p.underlying.ObservedAtUpperBound = &upperBound
 	return p
 }
 

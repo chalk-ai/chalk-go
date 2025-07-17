@@ -181,139 +181,43 @@ func TestGRPCOnlineQueryBulkResultConstructor(t *testing.T) {
 	assert.Equal(t, "1", row.Features["user.id"].Value)
 }
 
-func TestTimeDurationToChalkDuration(t *testing.T) {
+func TestDurationStringFormatting(t *testing.T) {
+	// Test that Go's duration string formatting works as expected
+	// We're now using the simpler Duration.String() approach
+	
 	tests := []struct {
 		name     string
 		duration time.Duration
 		expected string
 	}{
-		// Zero duration
-		{
-			name:     "zero duration",
-			duration: 0,
-			expected: "",
-		},
-		// Basic units
-		{
-			name:     "1 second",
-			duration: time.Second,
-			expected: "1s",
-		},
-		{
-			name:     "1 minute",
-			duration: time.Minute,
-			expected: "1m",
-		},
 		{
 			name:     "1 hour",
 			duration: time.Hour,
-			expected: "1h",
+			expected: "1h0m0s",
 		},
-		{
-			name:     "1 day",
-			duration: 24 * time.Hour,
-			expected: "1d",
-		},
-		// Compound durations
 		{
 			name:     "1 hour 30 minutes",
 			duration: time.Hour + 30*time.Minute,
-			expected: "1h30m",
+			expected: "1h30m0s",
 		},
 		{
-			name:     "2 days 3 hours 45 minutes",
-			duration: 2*24*time.Hour + 3*time.Hour + 45*time.Minute,
-			expected: "2d3h45m",
-		},
-		{
-			name:     "1 day 2 hours 30 minutes 15 seconds",
-			duration: 24*time.Hour + 2*time.Hour + 30*time.Minute + 15*time.Second,
-			expected: "1d2h30m15s",
-		},
-		// Milliseconds
-		{
-			name:     "500 milliseconds",
-			duration: 500 * time.Millisecond,
-			expected: "500ms",
-		},
-		{
-			name:     "1 second 500 milliseconds",
-			duration: time.Second + 500*time.Millisecond,
-			expected: "1s500ms",
-		},
-		{
-			name:     "1 minute 30 seconds 250 milliseconds",
-			duration: time.Minute + 30*time.Second + 250*time.Millisecond,
-			expected: "1m30s250ms",
-		},
-		// Edge cases with milliseconds
-		{
-			name:     "1 millisecond",
-			duration: time.Millisecond,
-			expected: "1ms",
-		},
-		{
-			name:     "999 milliseconds",
-			duration: 999 * time.Millisecond,
-			expected: "999ms",
-		},
-		// Complex combinations
-		{
-			name:     "7 days 23 hours 59 minutes 59 seconds 999 milliseconds",
-			duration: 7*24*time.Hour + 23*time.Hour + 59*time.Minute + 59*time.Second + 999*time.Millisecond,
-			expected: "7d23h59m59s998ms", // Due to floating-point precision, this becomes 998ms
-		},
-		// Negative durations
-		{
-			name:     "negative 1 hour",
-			duration: -time.Hour,
-			expected: "-1h",
-		},
-		{
-			name:     "negative 1 hour 30 minutes",
-			duration: -(time.Hour + 30*time.Minute),
-			expected: "-1h30m",
-		},
-		{
-			name:     "negative 2 days 3 hours 45 minutes 30 seconds",
-			duration: -(2*24*time.Hour + 3*time.Hour + 45*time.Minute + 30*time.Second),
-			expected: "-2d3h45m30s",
-		},
-		// Large values
-		{
-			name:     "365 days",
-			duration: 365 * 24 * time.Hour,
-			expected: "365d",
-		},
-		{
-			name:     "10000 hours",
-			duration: 10000 * time.Hour,
-			expected: "416d16h",
-		},
-		// Sub-second precision
-		{
-			name:     "1.5 seconds",
-			duration: time.Second + 500*time.Millisecond,
-			expected: "1s500ms",
-		},
-		{
-			name:     "0.001 seconds",
-			duration: time.Millisecond,
-			expected: "1ms",
+			name:     "2 hours",
+			duration: 2 * time.Hour,
+			expected: "2h0m0s",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := timeDurationToChalkDuration(tt.duration)
+			result := tt.duration.String()
 			if result != tt.expected {
-				t.Errorf("timeDurationToChalkDuration(%v) = %q, want %q", tt.duration, result, tt.expected)
+				t.Errorf("Duration.String() = %q, want %q", result, tt.expected)
 			}
 		})
 	}
 }
 
-func TestProcessBound(t *testing.T) {
+func TestFormatTimeBound(t *testing.T) {
 	// Test timezone setup
 	utc := time.UTC
 	est, _ := time.LoadLocation("America/New_York")
@@ -321,168 +225,59 @@ func TestProcessBound(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		bound    *ObservedTimeBound
+		time     *time.Time
 		expected *string
 	}{
-		// Nil bound
+		// Nil time
 		{
-			name:     "nil bound",
-			bound:    nil,
+			name:     "nil time",
+			time:     nil,
 			expected: nil,
 		},
-		// Empty bound
+		// UTC timestamp
 		{
-			name:     "empty bound",
-			bound:    &ObservedTimeBound{},
-			expected: nil,
+			name:     "UTC timestamp",
+			time:     timePtr(time.Date(2024, 5, 9, 22, 29, 0, 0, utc)),
+			expected: stringPtr("2024-05-09T22:29:00+00:00"),
 		},
-		// Timestamp bounds - Note: These tests will be timezone-dependent
+		// EST timestamp
 		{
-			name: "UTC timestamp gets converted to local",
-			bound: &ObservedTimeBound{
-				Timestamp: timePtr(time.Date(2024, 5, 9, 22, 29, 0, 0, utc)),
-			},
-			// Will be converted to local timezone - exact value depends on system timezone
-			expected: stringPtr("2024-05-09T22:29:00Z"), // This will vary by system
+			name:     "EST timestamp",
+			time:     timePtr(time.Date(2024, 5, 9, 18, 29, 0, 0, est)),
+			expected: stringPtr("2024-05-09T18:29:00-04:00"),
 		},
+		// PST timestamp
 		{
-			name: "EST timestamp stays in EST",
-			bound: &ObservedTimeBound{
-				Timestamp: timePtr(time.Date(2024, 5, 9, 18, 29, 0, 0, est)),
-			},
-			expected: stringPtr("2024-05-09T18:29:00-04:00"), // Should stay in EST
-		},
-		{
-			name: "PST timestamp stays in PST",
-			bound: &ObservedTimeBound{
-				Timestamp: timePtr(time.Date(2024, 5, 9, 15, 29, 0, 0, pst)),
-			},
-			expected: stringPtr("2024-05-09T15:29:00-07:00"), // Should stay in PST
-		},
-		// Duration bounds
-		{
-			name: "zero duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(0),
-			},
-			expected: stringPtr("delta:"),
-		},
-		{
-			name: "1 hour 30 minutes duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(time.Hour + 30*time.Minute),
-			},
-			expected: stringPtr("delta:1h30m"),
-		},
-		{
-			name: "2 days 3 hours 45 minutes 30 seconds duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(2*24*time.Hour + 3*time.Hour + 45*time.Minute + 30*time.Second),
-			},
-			expected: stringPtr("delta:2d3h45m30s"),
-		},
-		{
-			name: "negative duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(-time.Hour),
-			},
-			expected: stringPtr("delta:-1h"),
-		},
-		{
-			name: "millisecond duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(500 * time.Millisecond),
-			},
-			expected: stringPtr("delta:500ms"),
-		},
-		{
-			name: "complex duration",
-			bound: &ObservedTimeBound{
-				Duration: durationPtr(7*24*time.Hour + 23*time.Hour + 59*time.Minute + 59*time.Second + 999*time.Millisecond),
-			},
-			expected: stringPtr("delta:7d23h59m59s998ms"), // Due to floating-point precision, this becomes 998ms
+			name:     "PST timestamp",
+			time:     timePtr(time.Date(2024, 5, 9, 15, 29, 0, 0, pst)),
+			expected: stringPtr("2024-05-09T15:29:00-07:00"),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := processBound(tt.bound)
+			result := formatTimeBound(tt.time)
 			
-			// Special handling for timestamp tests that depend on system timezone
-			if tt.bound != nil && tt.bound.Timestamp != nil {
-				// Just verify the result is not nil and starts with expected format
-				if result == nil {
-					t.Errorf("processBound(%v) returned nil, expected non-nil timestamp string", tt.bound)
-					return
-				}
-				
-				// Verify it's a valid RFC3339 timestamp
-				if len(*result) < 19 { // Minimum RFC3339 length
-					t.Errorf("processBound(%v) = %q, expected RFC3339 timestamp format", tt.bound, *result)
-				}
-				
-				// For UTC timestamps, verify they get converted
-				if tt.bound.Timestamp.Location() == time.UTC {
-					// Should be converted to local time, so shouldn't end with 'Z' unless local is UTC
-					localTime := tt.bound.Timestamp.In(time.Local)
-					expectedFormat := localTime.Format(time.RFC3339)
-					if *result != expectedFormat {
-						t.Errorf("processBound(%v) = %q, expected %q (converted to local)", tt.bound, *result, expectedFormat)
-					}
-				}
-			} else {
-				// For non-timestamp cases, use exact comparison
-				if !stringPtrEqual(result, tt.expected) {
-					t.Errorf("processBound(%v) = %v, want %v", tt.bound, stringPtrValue(result), stringPtrValue(tt.expected))
-				}
+			if !stringPtrEqual(result, tt.expected) {
+				t.Errorf("formatTimeBound(%v) = %v, want %v", tt.time, stringPtrValue(result), stringPtrValue(tt.expected))
 			}
 		})
 	}
 }
 
-func TestObservedTimeBoundConstructors(t *testing.T) {
-	// Test NewObservedTimeBoundFromTime
-	timestamp := time.Date(2024, 5, 9, 15, 29, 0, 0, time.UTC)
-	timeBound := NewObservedTimeBoundFromTime(timestamp)
-	
-	if timeBound.Timestamp == nil {
-		t.Error("NewObservedTimeBoundFromTime should set Timestamp")
-	}
-	if timeBound.Duration != nil {
-		t.Error("NewObservedTimeBoundFromTime should not set Duration")
-	}
-	if !timeBound.Timestamp.Equal(timestamp) {
-		t.Errorf("NewObservedTimeBoundFromTime timestamp = %v, want %v", *timeBound.Timestamp, timestamp)
-	}
-
-	// Test NewObservedTimeBoundFromDuration
-	duration := time.Hour + 30*time.Minute
-	durationBound := NewObservedTimeBoundFromDuration(duration)
-	
-	if durationBound.Duration == nil {
-		t.Error("NewObservedTimeBoundFromDuration should set Duration")
-	}
-	if durationBound.Timestamp != nil {
-		t.Error("NewObservedTimeBoundFromDuration should not set Timestamp")
-	}
-	if *durationBound.Duration != duration {
-		t.Errorf("NewObservedTimeBoundFromDuration duration = %v, want %v", *durationBound.Duration, duration)
-	}
-}
 
 func TestTimestampSerializationIntegration(t *testing.T) {
 	// Test that the complete serialization pipeline works correctly
-	// This tests the integration of timeDurationToChalkDuration and processBound
+	// This tests the integration of formatTimeBound and duration string formatting
 	
-	// Create test parameters with various timestamp/duration combinations
+	// Create test parameters with timestamp bounds
+	lowerBound := time.Date(2024, 5, 9, 15, 29, 0, 0, time.UTC)
+	upperBound := time.Date(2024, 5, 9, 16, 29, 0, 0, time.UTC)
+	
 	params := &OfflineQueryParams{
-		CompletionDeadline: durationPtr(2 * time.Hour),
-		ObservedAtLowerBound: &ObservedTimeBound{
-			Timestamp: timePtr(time.Date(2024, 5, 9, 15, 29, 0, 0, time.UTC)),
-		},
-		ObservedAtUpperBound: &ObservedTimeBound{
-			Duration: durationPtr(time.Hour + 30*time.Minute),
-		},
+		CompletionDeadline:   durationPtr(2 * time.Hour),
+		ObservedAtLowerBound: &lowerBound,
+		ObservedAtUpperBound: &upperBound,
 	}
 
 	// Test serialization
@@ -507,97 +302,8 @@ func TestTimestampSerializationIntegration(t *testing.T) {
 	t.Logf("Serialized successfully: %d bytes", len(serialized))
 }
 
-func TestEdgeCasesAndBoundaryConditions(t *testing.T) {
-	// Test various edge cases that might occur in real usage
-	
-	// Test very small durations
-	nanosecond := time.Nanosecond
-	result := timeDurationToChalkDuration(nanosecond)
-	// Nanoseconds should be rounded down to 0 and return empty string
-	if result != "" {
-		t.Errorf("Expected empty string for nanosecond duration, got %q", result)
-	}
 
-	// Test microsecond duration (should also be empty)
-	microsecond := time.Microsecond
-	result = timeDurationToChalkDuration(microsecond)
-	if result != "" {
-		t.Errorf("Expected empty string for microsecond duration, got %q", result)
-	}
 
-	// Test exactly 1 millisecond
-	oneMillisecond := time.Millisecond
-	result = timeDurationToChalkDuration(oneMillisecond)
-	if result != "1ms" {
-		t.Errorf("Expected '1ms' for 1 millisecond duration, got %q", result)
-	}
-
-	// Test boundary at seconds
-	almostSecond := 999 * time.Millisecond
-	result = timeDurationToChalkDuration(almostSecond)
-	if result != "999ms" {
-		t.Errorf("Expected '999ms' for 999 milliseconds, got %q", result)
-	}
-
-	exactlySecond := 1000 * time.Millisecond
-	result = timeDurationToChalkDuration(exactlySecond)
-	if result != "1s" {
-		t.Errorf("Expected '1s' for exactly 1000 milliseconds, got %q", result)
-	}
-}
-
-func TestTimeDeltaPrefixConstant(t *testing.T) {
-	// Test that the TIMEDELTA_PREFIX constant matches Python's value
-	expectedPrefix := "delta:"
-	if TIMEDELTA_PREFIX != expectedPrefix {
-		t.Errorf("TIMEDELTA_PREFIX = %q, want %q", TIMEDELTA_PREFIX, expectedPrefix)
-	}
-	
-	// Test that processBound uses the prefix correctly
-	bound := &ObservedTimeBound{
-		Duration: durationPtr(time.Hour),
-	}
-	result := processBound(bound)
-	expected := "delta:1h"
-	
-	if result == nil || *result != expected {
-		t.Errorf("processBound with duration should use TIMEDELTA_PREFIX, got %v, want %q", stringPtrValue(result), expected)
-	}
-}
-
-func TestNegativeDurationEdgeCases(t *testing.T) {
-	// Test various negative duration scenarios
-	tests := []struct {
-		name     string
-		duration time.Duration
-		expected string
-	}{
-		{
-			name:     "negative 1 millisecond",
-			duration: -time.Millisecond,
-			expected: "-1ms",
-		},
-		{
-			name:     "negative 1 second 500 milliseconds",
-			duration: -(time.Second + 500*time.Millisecond),
-			expected: "-1s500ms",
-		},
-		{
-			name:     "negative large duration",
-			duration: -(365*24*time.Hour + 12*time.Hour + 30*time.Minute + 45*time.Second + 123*time.Millisecond),
-			expected: "-365d12h30m45s122ms", // Due to floating-point precision, this becomes 122ms
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := timeDurationToChalkDuration(tt.duration)
-			if result != tt.expected {
-				t.Errorf("timeDurationToChalkDuration(%v) = %q, want %q", tt.duration, result, tt.expected)
-			}
-		})
-	}
-}
 
 // Helper functions for testing
 func timePtr(t time.Time) *time.Time {
