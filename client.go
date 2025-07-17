@@ -140,6 +140,10 @@ type Client interface {
 	// GetToken retrieves a token that can be used to authenticate requests to the Chalk API
 	// along with other using the client's credentials.
 	GetToken(ctx context.Context) (*TokenResult, error)
+
+	// GetOfflineQueryStatus retrieves the status of an offline query job.
+	// See https://docs.chalk.ai/docs/query-basics for more information.
+	GetOfflineQueryStatus(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error)
 }
 
 type ClientConfig struct {

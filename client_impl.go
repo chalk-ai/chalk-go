@@ -73,6 +73,9 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		return Dataset{}, response.Errors
 	}
 
+	// Set the client reference for Wait() method
+	response.client = c
+
 	for idx := range response.Revisions {
 		response.Revisions[idx].client = c
 	}
@@ -626,6 +629,20 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 	}
 
 	return &clientError, nil
+}
+
+func (c *clientImpl) GetOfflineQueryStatus(ctx context.Context, request GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error) {
+	response := GetOfflineQueryStatusResult{}
+	err := c.sendRequest(
+		ctx,
+		&sendRequestParams{
+			Method:              "GET",
+			URL:                 fmt.Sprintf("v4/offline_query/%s/status", request.JobId),
+			Response:            &response,
+			PreviewDeploymentId: request.PreviewDeploymentId,
+		},
+	)
+	return response, errors.Wrap(err, "getting offline query status")
 }
 
 func newClientImpl(
