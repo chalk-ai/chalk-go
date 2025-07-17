@@ -158,20 +158,21 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 	queryInput := internal.OfflineQueryInputSerialized{}
 	globalInputTimes := make([]any, 0)
 
-	for fqn, tsFeatureValues := range resolved.inputs {
-		var inputValues []any
-		var inputTimes []any
-		for _, v := range tsFeatureValues {
-			inputTimes = append(inputTimes, v.ObservationTime.Format(time.RFC3339))
-			inputValues = append(inputValues, v.Value)
+	if len(resolved.inputs) > 0 {
+		for fqn, tsFeatureValues := range resolved.inputs {
+			var inputValues []any
+			var inputTimes []any
+			for _, v := range tsFeatureValues {
+				inputTimes = append(inputTimes, v.ObservationTime.Format(time.RFC3339))
+				inputValues = append(inputValues, v.Value)
+			}
+			queryInput.Columns = append(queryInput.Columns, fqn)
+			queryInput.Values = append(queryInput.Values, inputValues)
+			globalInputTimes = inputTimes
 		}
-		queryInput.Columns = append(queryInput.Columns, fqn)
-		queryInput.Values = append(queryInput.Values, inputValues)
-		globalInputTimes = inputTimes
+		queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
+		queryInput.Values = append(queryInput.Values, globalInputTimes)
 	}
-
-	queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
-	queryInput.Values = append(queryInput.Values, globalInputTimes)
 
 	output := resolved.outputs
 	if output == nil {
