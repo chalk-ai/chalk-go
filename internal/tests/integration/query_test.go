@@ -51,6 +51,7 @@ func TestOnlineQuery(t *testing.T) {
 // real query works e2e. Correctness is
 // tested elsewhere.
 func TestOnlineQueryBulk(t *testing.T) {
+	t.Parallel()
 	SkipIfNotIntegrationTester(t)
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {

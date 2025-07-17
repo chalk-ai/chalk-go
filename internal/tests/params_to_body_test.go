@@ -14,6 +14,7 @@ import (
 // TestParamsSetInFeatherHeader tests that params are threaded
 // through to the feather request header.
 func TestParamsSetInFeatherHeader(t *testing.T) {
+	t.Parallel()
 	expectedBranchId := "test-branch-id"
 	expectedTags := []string{"tags-1", "tags-2"}
 	requiredResolverTags := []string{"required1tag", "required-2tag"}
@@ -102,6 +103,7 @@ func TestParamsSetInFeatherHeader(t *testing.T) {
 // TestParamsSetInOnlineQueryBody tests that we set all params
 // correctly in online query request body.
 func TestParamsSetInOnlineQueryBody(t *testing.T) {
+	t.Parallel()
 	client, httpClient, err := newClientWithInterceptor()
 	assert.NoError(t, err)
 
@@ -175,6 +177,7 @@ func TestParamsSetInOnlineQueryBody(t *testing.T) {
 // TestParamsSetInOfflineQuery tests that offline query
 // params gets propagated through to the request body.
 func TestParamsSetInOfflineQueryBody(t *testing.T) {
+	t.Parallel()
 	client, httpClient, err := newClientWithInterceptor()
 	assert.NoError(t, err)
 
@@ -199,20 +202,21 @@ func TestParamsSetInOfflineQueryBody(t *testing.T) {
 // specify a branch ID in the client, the feather request
 // header that we serialize includes the branch ID header.
 func TestClientBranchSetInFeatherHeader(t *testing.T) {
+	t.Parallel()
 	expectedBranchId := "test-branch-id"
 	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
 		Branch: expectedBranchId,
 	})
 	assert.NoError(t, err)
-	
+
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", []int{1}).
 		WithOutputs("bogus.output")
 	_, _ = client.OnlineQueryBulk(context.Background(), req)
-	
+
 	headerMap, headerErr := internal.GetHeaderFromSerializedOnlineQueryBulkBody(httpClient.Intercepted.Body)
 	assert.Nil(t, headerErr)
-	
+
 	branchId, ok := headerMap["branch_id"]
 	assert.True(t, ok)
 	assert.Equal(t, expectedBranchId, branchId)
