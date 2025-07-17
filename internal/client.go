@@ -39,17 +39,17 @@ type OfflineQueryInputSerialized struct {
 }
 
 type OfflineQueryRequestSerialized struct {
-	Input                OfflineQueryInputSerialized `json:"input"`
-	Output               []string                    `json:"output"`
-	RequiredOutput       []string                    `json:"required_output"`
-	DatasetName          *string                     `json:"dataset_name"`
-	Branch               *string                     `json:"branch"`
-	MaxSamples           *int                        `json:"max_samples"`
-	DestinationFormat    string                      `json:"destination_format"`
-	JobId                *string                     `json:"job_id"`
-	MaxCacheAge          *int                        `json:"max_cache_age_secs"`
-	ObservedAtLowerBound *time.Time                  `json:"observed_at_lower_bound"`
-	ObservedAtUpperBound *time.Time                  `json:"observed_at_upper_bound"`
-	QueryContext         *map[string]any             `json:"query_context"`
-	Tags                 []string                    `json:"tags"`
+	Input                *OfflineQueryInputSerialized `json:"input"`
+	Output               []string                     `json:"output"`
+	RequiredOutput       []string                     `json:"required_output"`
+	DatasetName          *string                      `json:"dataset_name"`
+	Branch               *string                      `json:"branch"`
+	MaxSamples           *int                         `json:"max_samples"`
+	DestinationFormat    string                       `json:"destination_format"`
+	JobId                *string                      `json:"job_id"`
+	MaxCacheAge          *int                         `json:"max_cache_age_secs"`
+	ObservedAtLowerBound *time.Time                   `json:"observed_at_lower_bound"`
+	ObservedAtUpperBound *time.Time                   `json:"observed_at_upper_bound"`
+	QueryContext         *map[string]any              `json:"query_context"`
+	Tags                 []string                     `json:"tags"`
 }

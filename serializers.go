@@ -155,10 +155,11 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 }
 
 func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryParamsResolved) ([]byte, error) {
-	queryInput := internal.OfflineQueryInputSerialized{}
-	globalInputTimes := make([]any, 0)
+	var queryInput *internal.OfflineQueryInputSerialized
 
 	if len(resolved.inputs) > 0 {
+		queryInput = &internal.OfflineQueryInputSerialized{}
+		globalInputTimes := make([]any, 0)
 		for fqn, tsFeatureValues := range resolved.inputs {
 			var inputValues []any
 			var inputTimes []any
