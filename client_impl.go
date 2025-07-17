@@ -58,7 +58,7 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 		ctx,
 		&sendRequestParams{
 			Method:              "POST",
-			URL:                 "v3/offline_query",
+			URL:                 "v4/offline_query",
 			Body:                body,
 			Response:            &response,
 			EnvironmentOverride: request.EnvironmentId,
