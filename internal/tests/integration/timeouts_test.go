@@ -29,9 +29,9 @@ func TestTimeoutClientLevel(t *testing.T) {
 				t.Parallel()
 				var err error
 				if useGrpc {
-					_, err = chalk.NewGRPCClient(context.Background(), &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
+					_, err = chalk.NewGRPCClient(t.Context(), &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
 				} else {
-					_, err = chalk.NewClient(context.Background(), &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
+					_, err = chalk.NewClient(t.Context(), &chalk.ClientConfig{Timeout: timeoutFixture.timeout})
 				}
 				if timeoutFixture.shouldFail {
 					assert.Error(t, err)
@@ -53,7 +53,7 @@ func TestTimeoutClientOverrides(t *testing.T) {
 		for _, timeoutFixture := range timeouts {
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
 				t.Parallel()
-				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Minute*1)
+				ctx, cancelFunc := context.WithTimeout(t.Context(), time.Minute*1)
 				defer cancelFunc()
 				var err error
 				if useGrpc {
@@ -82,7 +82,7 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 		for _, timeoutFixture := range timeouts {
 			t.Run(fmt.Sprintf("grpc=%v, timeoutFixture=%v", useGrpc, timeoutFixture.name), func(t *testing.T) {
 				t.Parallel()
-				ctx, cancelFunc := context.WithTimeout(context.Background(), lenientTimeout)
+				ctx, cancelFunc := context.WithTimeout(t.Context(), lenientTimeout)
 				defer cancelFunc()
 				if useGrpc {
 					timeoutClient, err := chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{Timeout: timeoutFixture.timeout})
@@ -96,7 +96,7 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 					assert.Equal(t, 0, len(res.RawResponse.GetErrors()))
 
 					// no override
-					_, err = timeoutClient.OnlineQueryBulk(context.Background(), params)
+					_, err = timeoutClient.OnlineQueryBulk(t.Context(), params)
 					if timeoutFixture.shouldFail {
 						assert.Error(t, err)
 					} else {
@@ -113,7 +113,7 @@ func TestTimeoutRequestOverrides(t *testing.T) {
 					assert.NoError(t, err)
 
 					// no override
-					_, err = timeoutClient.OnlineQueryBulk(context.Background(), params)
+					_, err = timeoutClient.OnlineQueryBulk(t.Context(), params)
 					if timeoutFixture.shouldFail {
 						assert.Error(t, err)
 					} else {

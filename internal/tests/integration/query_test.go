@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -27,7 +26,7 @@ func TestOnlineQuery(t *testing.T) {
 	// Test the REST client's singular OnlineQuery method
 	var implicitResult allTypes
 	res, err := restClient.OnlineQuery(
-		context.Background(),
+		t.Context(),
 		params.WithInput(testFeatures.AllTypes.Id, 1),
 		&implicitResult,
 	)
@@ -66,11 +65,11 @@ func TestOnlineQueryBulk(t *testing.T) {
 					testFeatures.AllTypes.IntFeat,
 				)
 			if useGrpc {
-				res, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+				res, err := grpcClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			} else {
-				res, err := restClient.OnlineQueryBulk(context.Background(), req)
+				res, err := restClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			}
@@ -110,7 +109,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 					WithInput(testFeatures.AllTypes.Id, []int64{1}).
 					WithInput(testFeatures.AllTypes.HasMany, [][]hasManyFeature{hmInput}).
 					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
-				res, err := grpcClient.OnlineQueryBulk(context.Background(), bulkParams)
+				res, err := grpcClient.OnlineQueryBulk(t.Context(), bulkParams)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&allResults))
 				assert.Equal(t, 1, len(allResults))
@@ -126,7 +125,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithInput(testFeatures.AllTypes.HasMany, hmInput).
 					WithOutputs(testFeatures.AllTypes.StrFeat, testFeatures.AllTypes.HasMany)
-				res, err := restClient.OnlineQuery(context.Background(), params, &row)
+				res, err := restClient.OnlineQuery(t.Context(), params, &row)
 				assert.NoError(t, err)
 
 				resultInvestors, err := res.GetFeatureValue(testFeatures.AllTypes.HasMany)
@@ -181,10 +180,10 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				WithStaleness(testFeatures.AllTypes.IntFeat, time.Minute*10)
 
 			if useGrpc {
-				_, err := grpcClient.OnlineQueryBulk(context.Background(), req)
+				_, err := grpcClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 			} else {
-				_, err := restClient.OnlineQueryBulk(context.Background(), req)
+				_, err := restClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 			}
 		})
@@ -223,13 +222,13 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 
 			if useGrpc {
 				_, err := grpcClient.OnlineQueryBulk(
-					context.Background(),
+					t.Context(),
 					req.WithInput(testFeatures.AllTypes.Id, []int64{1}),
 				)
 				assert.NoError(t, err)
 			} else {
 				_, err := restClient.OnlineQuery(
-					context.Background(),
+					t.Context(),
 					req.WithInput(testFeatures.AllTypes.Id, int64(1)),
 					nil,
 				)

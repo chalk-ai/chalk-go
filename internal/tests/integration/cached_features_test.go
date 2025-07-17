@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -20,7 +19,7 @@ func TestCachedFeatures(t *testing.T) {
 			if useGrpc {
 				pkey := "chalk-go-upload-features-test-gRPC"
 				expectedNum := rand.Float64()
-				_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
+				_, err := restClient.UploadFeatures(t.Context(), chalk.UploadFeaturesParams{
 					Inputs: map[any]any{
 						testFeatures.Cached.Id:                   []string{pkey},
 						testFeatures.Cached.RandomUploadedNumber: []float64{expectedNum},
@@ -30,7 +29,7 @@ func TestCachedFeatures(t *testing.T) {
 				bulkReq := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.Cached.Id, []string{pkey}).
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
-				cachedRes, err := grpcClient.OnlineQueryBulk(context.Background(), bulkReq)
+				cachedRes, err := grpcClient.OnlineQueryBulk(t.Context(), bulkReq)
 				assert.NoError(t, err)
 
 				cachedRow, err := cachedRes.GetRow(0)
@@ -43,7 +42,7 @@ func TestCachedFeatures(t *testing.T) {
 			} else {
 				pkey := "chalk-go-upload-features-test-REST"
 				expectedNum := rand.Float64()
-				_, err := restClient.UploadFeatures(context.Background(), chalk.UploadFeaturesParams{
+				_, err := restClient.UploadFeatures(t.Context(), chalk.UploadFeaturesParams{
 					Inputs: map[any]any{
 						testFeatures.Cached.Id:                   []string{pkey},
 						testFeatures.Cached.RandomUploadedNumber: []float64{expectedNum},
@@ -53,7 +52,7 @@ func TestCachedFeatures(t *testing.T) {
 				singularReq := chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.Cached.Id, pkey).
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
-				cachedRes, err := restClient.OnlineQuery(context.Background(), singularReq, nil)
+				cachedRes, err := restClient.OnlineQuery(t.Context(), singularReq, nil)
 				assert.NoError(t, err)
 				actualNum, err := cachedRes.GetFeatureValue(testFeatures.Cached.RandomUploadedNumber)
 				assert.NoError(t, err)

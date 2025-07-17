@@ -13,13 +13,13 @@ type TestFixture struct {
 	Server *httptest.Server
 }
 
-func NewTestFixture(serverConfig *fixtures.MockServerConfig) (*TestFixture, error) {
+func NewTestFixture(ctx context.Context, serverConfig *fixtures.MockServerConfig) (*TestFixture, error) {
 	server, err := fixtures.NewMockServer(serverConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating mock server")
 	}
 
-	client, err := chalk.NewGRPCClient(context.Background(), &chalk.GRPCClientConfig{
+	client, err := chalk.NewGRPCClient(ctx, &chalk.GRPCClientConfig{
 		ApiServer:    server.URL,
 		QueryServer:  server.URL,
 		HTTPClient:   server.Client(),

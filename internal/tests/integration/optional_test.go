@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"fmt"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
@@ -11,7 +10,7 @@ import (
 func TestQueryOptionalFeatures(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-	client, err := chalk.NewClient(context.Background())
+	client, err := chalk.NewClient(t.Context())
 	if err != nil {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
@@ -21,7 +20,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 		WithInput(testFeatures.Optionals.Id, idWithNone).
 		WithOutputs(testFeatures.Optionals.Name)
 	resWithNone := optionals{}
-	_, err = client.OnlineQuery(context.Background(), res, &resWithNone)
+	_, err = client.OnlineQuery(t.Context(), res, &resWithNone)
 	assert.NoError(t, err)
 	assert.Nil(t, resWithNone.Name)
 
@@ -30,7 +29,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 		WithInput(testFeatures.Optionals.Id, idNotNone).
 		WithOutputs(testFeatures.Optionals.Name)
 	resNotNone := optionals{}
-	_, err = client.OnlineQuery(context.Background(), res, &resNotNone)
+	_, err = client.OnlineQuery(t.Context(), res, &resNotNone)
 	assert.NoError(t, err)
 	assert.NotNil(t, resNotNone.Name)
 	assert.Equal(t, "name_0", *resNotNone.Name)
@@ -57,11 +56,11 @@ func TestBulkQueryOptionalFeatures(t *testing.T) {
 			var results []optionals
 
 			if useGrpc {
-				res, err := grpcClient.OnlineQueryBulk(context.Background(), params)
+				res, err := grpcClient.OnlineQueryBulk(t.Context(), params)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			} else {
-				res, err := restClient.OnlineQueryBulk(context.Background(), params)
+				res, err := restClient.OnlineQueryBulk(t.Context(), params)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			}

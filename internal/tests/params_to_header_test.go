@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
 	"testing"
@@ -26,7 +25,7 @@ func init() {
 // they propagate to the request.
 func TestHeadersSetInOnlineQueryBulk(t *testing.T) {
 	t.Parallel()
-	client, interceptor, err := newClientWithInterceptor()
+	client, interceptor, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 	resourceGroup := "bogus-resource-group"
 	req := chalk.OnlineQueryParams{
@@ -34,7 +33,7 @@ func TestHeadersSetInOnlineQueryBulk(t *testing.T) {
 	}.
 		WithInput(paramsTestRoot.MyFeaturesClass.MyFeature, []int{1}).
 		WithOutputs(paramsTestRoot.MyFeaturesClass.MyFeature)
-	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	_, _ = client.OnlineQueryBulk(t.Context(), req)
 	assert.Equal(t, resourceGroup, interceptor.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 	assert.Equal(t, "true", interceptor.Intercepted.Header.Get("X-Chalk-Features-Versioned"))
 }
@@ -43,7 +42,7 @@ func TestHeadersSetInOnlineQueryBulk(t *testing.T) {
 // features using codegen-ed structs, we set the "versioned" header.
 func TestHeadersSetOnlineQuery(t *testing.T) {
 	t.Parallel()
-	client, httpClient, err := newClientWithInterceptor()
+	client, httpClient, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 
 	resourceGroup := "bogus-resource-group"
@@ -52,19 +51,19 @@ func TestHeadersSetOnlineQuery(t *testing.T) {
 	}.
 		WithInput(paramsTestRoot.MyFeaturesClass.MyFeature, 1).
 		WithOutputs(paramsTestRoot.MyFeaturesClass.MyFeature)
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	_, _ = client.OnlineQuery(t.Context(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Features-Versioned"), "true")
 	assert.Equal(t, resourceGroup, httpClient.Intercepted.Header.Get(chalk.HeaderKeyResourceGroup))
 }
 
 func TestHeadersSetOfflineQuery(t *testing.T) {
 	t.Parallel()
-	client, interceptor, err := newClientWithInterceptor()
+	client, interceptor, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 	req := chalk.OfflineQueryParams{}.
 		WithInput(paramsTestRoot.MyFeaturesClass.MyFeature, []any{1}).
 		WithOutputs(paramsTestRoot.MyFeaturesClass.MyFeature)
-	_, _ = client.OfflineQuery(context.Background(), req)
+	_, _ = client.OfflineQuery(t.Context(), req)
 	assert.Equal(t, "true", interceptor.Intercepted.Header.Get("X-Chalk-Features-Versioned"))
 }
 
@@ -74,22 +73,24 @@ func TestHeadersSetOfflineQuery(t *testing.T) {
 func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 	t.Parallel()
 	deploymentTag := "test-deployment-tag"
-	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
-		DeploymentTag: deploymentTag,
-	})
+	client, httpClient, err := newClientWithInterceptor(
+		t.Context(),
+		interceptorClientOverrides{
+			DeploymentTag: deploymentTag,
+		})
 	assert.NoError(t, err)
 	ids := []int{1}
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", ids[0]).
 		WithOutputs("bogus.output")
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	_, _ = client.OnlineQuery(t.Context(), req, nil)
 
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 
 	bulkReq := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", ids).
 		WithOutputs("bogus.output")
-	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
+	_, _ = client.OnlineQueryBulk(t.Context(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Deployment-Tag"), deploymentTag)
 }
 
@@ -99,14 +100,14 @@ func TestOnlineQueryAndQueryBulkDeploymentTagInRequest(t *testing.T) {
 func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 	t.Parallel()
 	branchId := "test-branch-id"
-	client, httpClient, err := newClientWithInterceptor()
+	client, httpClient, err := newClientWithInterceptor(t.Context())
 	assert.NoError(t, err)
 
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", 1).
 		WithOutputs("bogus.output").
 		WithBranchId(branchId)
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	_, _ = client.OnlineQuery(t.Context(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 
 	bulkBranchId := "bulk-branch-id"
@@ -114,7 +115,7 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 		WithInput("bogus.feature", []int{1}).
 		WithOutputs("bogus.output").
 		WithBranchId(bulkBranchId)
-	_, _ = client.OnlineQueryBulk(context.Background(), bulkReq)
+	_, _ = client.OnlineQueryBulk(t.Context(), bulkReq)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), bulkBranchId)
 }
 
@@ -124,15 +125,17 @@ func TestOnlineQueryAndQueryBulkBranchInRequest(t *testing.T) {
 func TestOnlineQueryBranchInClient(t *testing.T) {
 	t.Parallel()
 	branchId := "test-branch-id"
-	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
-		Branch: branchId,
-	})
+	client, httpClient, err := newClientWithInterceptor(
+		t.Context(),
+		interceptorClientOverrides{
+			Branch: branchId,
+		})
 	assert.NoError(t, err)
 
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", 1).
 		WithOutputs("bogus.output")
-	_, _ = client.OnlineQuery(context.Background(), req, nil)
+	_, _ = client.OnlineQuery(t.Context(), req, nil)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }
 
@@ -142,14 +145,16 @@ func TestOnlineQueryBranchInClient(t *testing.T) {
 func TestOnlineQueryBulkBranchInClient(t *testing.T) {
 	t.Parallel()
 	branchId := "test-branch-id"
-	client, httpClient, err := newClientWithInterceptor(interceptorClientOverrides{
-		Branch: branchId,
-	})
+	client, httpClient, err := newClientWithInterceptor(
+		t.Context(),
+		interceptorClientOverrides{
+			Branch: branchId,
+		})
 	assert.NoError(t, err)
 
 	req := chalk.OnlineQueryParams{}.
 		WithInput("bogus.feature", []int{1}).
 		WithOutputs("bogus.output")
-	_, _ = client.OnlineQueryBulk(context.Background(), req)
+	_, _ = client.OnlineQueryBulk(t.Context(), req)
 	assert.Equal(t, httpClient.Intercepted.Header.Get("X-Chalk-Branch-Id"), branchId)
 }

@@ -1,7 +1,6 @@
 package benchmark
 
 import (
-	"context"
 	"fmt"
 	"github.com/chalk-ai/chalk-go"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -36,18 +35,20 @@ func getBenchmarkQueryBulkLoneMultiNsWindowed(b *testing.B) (benchFunc func(), c
 
 	bytes, err := internal.InputsToArrowBytes(bulkData, fixtures.TestAllocator)
 	assert.NoError(b, err)
-	tf, err := NewTestFixture(&fixtures.MockServerConfig{
-		QueryBulkResponse: &commonv1.OnlineQueryBulkResponse{
-			ScalarsData: bytes,
-		},
-	})
+	tf, err := NewTestFixture(
+		b.Context(),
+		&fixtures.MockServerConfig{
+			QueryBulkResponse: &commonv1.OnlineQueryBulkResponse{
+				ScalarsData: bytes,
+			},
+		})
 	assert.NoError(b, err)
 	assertOnce := sync.Once{}
 	return func() {
 		req := chalk.OnlineQueryParams{}.
 			WithInput("user.id", []int{1}).
 			WithOutputs("user.id", "user.socure_score")
-		res, err := tf.Client.OnlineQueryBulk(context.Background(), req)
+		res, err := tf.Client.OnlineQueryBulk(b.Context(), req)
 		assert.NoError(b, err)
 		var results []root
 		assert.NoError(b, res.UnmarshalInto(&results))

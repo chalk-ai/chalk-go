@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -42,7 +41,7 @@ func TestCustomCerts(t *testing.T) {
 			}
 
 			if fixture.useGrpc {
-				client, err := chalk.NewGRPCClient(context.Background(), &chalk.GRPCClientConfig{
+				client, err := chalk.NewGRPCClient(t.Context(), &chalk.GRPCClientConfig{
 					HTTPClient: &httpClient,
 				})
 				if fixture.shouldFail {
@@ -52,14 +51,14 @@ func TestCustomCerts(t *testing.T) {
 					assert.NoError(t, err)
 				}
 				_, err = client.OnlineQueryBulk(
-					context.Background(),
+					t.Context(),
 					chalk.OnlineQueryParams{}.
 						WithInput(testFeatures.AllTypes.Id, []int{1}).
 						WithOutputs(testFeatures.AllTypes.StrFeat),
 				)
 				assert.NoError(t, err)
 			} else {
-				client, err := chalk.NewClient(context.Background(), &chalk.ClientConfig{HTTPClient: &httpClient})
+				client, err := chalk.NewClient(t.Context(), &chalk.ClientConfig{HTTPClient: &httpClient})
 				if fixture.shouldFail {
 					assert.Error(t, err)
 					return
@@ -69,7 +68,7 @@ func TestCustomCerts(t *testing.T) {
 				params := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithOutputs(testFeatures.AllTypes.StrFeat)
-				_, err = client.OnlineQuery(context.Background(), params, nil)
+				_, err = client.OnlineQuery(t.Context(), params, nil)
 				assert.NoError(t, err)
 			}
 		})
