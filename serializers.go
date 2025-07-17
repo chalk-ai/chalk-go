@@ -158,7 +158,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 	queryInput := internal.OfflineQueryInputSerialized{}
 	globalInputTimes := make([]any, 0)
 
-	if resolved.inputs != nil && len(resolved.inputs) > 0 {
+	if len(resolved.inputs) > 0 {
 		for fqn, tsFeatureValues := range resolved.inputs {
 			var inputValues []any
 			var inputTimes []any
