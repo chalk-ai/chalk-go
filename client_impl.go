@@ -304,22 +304,45 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 	return response, errors.Wrap(err, "getting run status")
 }
 
-func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
+// GetJobStatusV4 matches Python's get_job_status_v4 method exactly
+func (c *clientImpl) GetJobStatusV4(ctx context.Context, request DatasetJobStatusRequest, environmentId string) (GetOfflineQueryJobResponse, error) {
 	response := GetOfflineQueryJobResponse{}
+	err := c.sendRequest(
+		ctx,
+		&sendRequestParams{
+			Method:              "POST",
+			URL:                 "v4/offline_query/status",
+			EnvironmentOverride: environmentId,
+			Body:                request,
+			Response:            &response,
+		},
+	)
+	if err != nil {
+		return GetOfflineQueryJobResponse{}, errors.Wrap(err, "getting job status v4")
+	}
+	return response, nil
+}
+
+func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
+	// Use v4 API to match Python client behavior
+	request := DatasetJobStatusRequest{
+		JobId:        &RevisionId,
+		IgnoreErrors: false,
+		QueryInputs:  false,
+	}
+	
+	response, err := c.GetJobStatusV4(ctx, request, EnvironmentId)
+	if err != nil {
+		return []string{}, errors.Wrap(err, "getting dataset urls")
+	}
+	
+	// Poll until finished, matching the original behavior
 	for !response.IsFinished {
-		err := c.sendRequest(
-			ctx,
-			&sendRequestParams{
-				Method:              "GET",
-				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
-				EnvironmentOverride: EnvironmentId,
-				Response:            &response,
-			},
-		)
+		time.Sleep(500 * time.Millisecond)
+		response, err = c.GetJobStatusV4(ctx, request, EnvironmentId)
 		if err != nil {
 			return []string{}, errors.Wrap(err, "getting dataset urls")
 		}
-		time.Sleep(500 * time.Millisecond)
 	}
 
 	return response.Urls, nil

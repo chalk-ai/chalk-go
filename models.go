@@ -802,25 +802,20 @@ func (d *Dataset) Wait(ctx context.Context) error {
 	revisionId := d.Revisions[0].RevisionId
 
 	for {
-		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
-			JobId: revisionId,
-		})
+		// Use the same v4 endpoint as Python's get_job_status_v4
+		jobStatus, err := d.client.GetJobStatusV4(ctx, DatasetJobStatusRequest{
+			JobId:        &revisionId,
+			IgnoreErrors: false,
+			QueryInputs:  false,
+		}, "")
 		if err != nil {
 			return errors.Wrap(err, "failed to get offline query status")
 		}
 
-		// Check for terminal states
-		if jobStatus.Report.Status == "COMPLETED" {
+		// Check for terminal states based on the v4 response
+		if jobStatus.IsFinished {
 			d.IsFinished = true
 			return nil
-		}
-
-		if jobStatus.Report.Status == "FAILED" {
-			d.IsFinished = true
-			if jobStatus.Report.Error != nil {
-				return errors.Newf("offline query failed: %s", jobStatus.Report.Error.Message)
-			}
-			return errors.New("offline query failed")
 		}
 
 		// Sleep before next poll
@@ -925,6 +920,21 @@ type GetOfflineQueryJobResponse struct {
 	Urls       []string         `json:"urls"`
 	Errors     []ServerError    `json:"errors"`
 	Columns    []ColumnMetadata `json:"columns"`
+}
+
+// DatasetJobStatusRequest defines the request for getting offline query job status
+// using the v4 API endpoint, matching Python's DatasetJobStatusRequest.
+type DatasetJobStatusRequest struct {
+	// JobId is the same as revision_id
+	JobId *string `json:"job_id,omitempty"`
+	// DatasetId is the dataset ID (optional)
+	DatasetId *string `json:"dataset_id,omitempty"`
+	// DatasetName is the dataset name (optional)
+	DatasetName *string `json:"dataset_name,omitempty"`
+	// IgnoreErrors indicates whether to ignore errors when retrieving status
+	IgnoreErrors bool `json:"ignore_errors"`
+	// QueryInputs indicates whether to include query inputs in the response
+	QueryInputs bool `json:"query_inputs"`
 }
 
 type TriggerResolverRunParams struct {
