@@ -327,15 +327,15 @@ func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, Envi
 	// Use v4 API to match Python client behavior
 	request := DatasetJobStatusRequest{
 		JobId:        &RevisionId,
-		IgnoreErrors: false,
+		IgnoreErrors: true, // different from python
 		QueryInputs:  false,
 	}
-	
+
 	response, err := c.GetJobStatusV4(ctx, request, EnvironmentId)
 	if err != nil {
 		return []string{}, errors.Wrap(err, "getting dataset urls")
 	}
-	
+
 	// Poll until finished, matching the original behavior
 	for !response.IsFinished {
 		time.Sleep(500 * time.Millisecond)
@@ -687,14 +687,14 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	if err != nil {
 		return Dataset{}, errors.Wrap(err, "getting dataset urls")
 	}
-	
+
 	// Create a dataset revision with the retrieved information
 	revision := DatasetRevision{
 		RevisionId: revisionId,
 		Status:     QueryStatusSuccessful, // Since we got URLs, the dataset is complete
 		client:     c,
 	}
-	
+
 	// Create and return the dataset
 	dataset := Dataset{
 		IsFinished: true,
@@ -702,7 +702,7 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 		Revisions:  []DatasetRevision{revision},
 		client:     c,
 	}
-	
+
 	return dataset, nil
 }
 
