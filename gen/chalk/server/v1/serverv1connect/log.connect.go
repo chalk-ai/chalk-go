@@ -36,11 +36,15 @@ const (
 	// LogSearchServiceSearchLogEntriesProcedure is the fully-qualified name of the LogSearchService's
 	// SearchLogEntries RPC.
 	LogSearchServiceSearchLogEntriesProcedure = "/chalk.server.v1.LogSearchService/SearchLogEntries"
+	// LogSearchServiceSearchLogEntriesAggregatedProcedure is the fully-qualified name of the
+	// LogSearchService's SearchLogEntriesAggregated RPC.
+	LogSearchServiceSearchLogEntriesAggregatedProcedure = "/chalk.server.v1.LogSearchService/SearchLogEntriesAggregated"
 )
 
 // LogSearchServiceClient is a client for the chalk.server.v1.LogSearchService service.
 type LogSearchServiceClient interface {
 	SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error)
+	SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error)
 }
 
 // NewLogSearchServiceClient constructs a client for the chalk.server.v1.LogSearchService service.
@@ -61,12 +65,20 @@ func NewLogSearchServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		searchLogEntriesAggregated: connect.NewClient[v1.SearchLogEntriesAggregatedRequest, v1.SearchLogEntriesAggregatedResponse](
+			httpClient,
+			baseURL+LogSearchServiceSearchLogEntriesAggregatedProcedure,
+			connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntriesAggregated")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // logSearchServiceClient implements LogSearchServiceClient.
 type logSearchServiceClient struct {
-	searchLogEntries *connect.Client[v1.SearchLogEntriesRequest, v1.SearchLogEntriesResponse]
+	searchLogEntries           *connect.Client[v1.SearchLogEntriesRequest, v1.SearchLogEntriesResponse]
+	searchLogEntriesAggregated *connect.Client[v1.SearchLogEntriesAggregatedRequest, v1.SearchLogEntriesAggregatedResponse]
 }
 
 // SearchLogEntries calls chalk.server.v1.LogSearchService.SearchLogEntries.
@@ -74,9 +86,15 @@ func (c *logSearchServiceClient) SearchLogEntries(ctx context.Context, req *conn
 	return c.searchLogEntries.CallUnary(ctx, req)
 }
 
+// SearchLogEntriesAggregated calls chalk.server.v1.LogSearchService.SearchLogEntriesAggregated.
+func (c *logSearchServiceClient) SearchLogEntriesAggregated(ctx context.Context, req *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error) {
+	return c.searchLogEntriesAggregated.CallUnary(ctx, req)
+}
+
 // LogSearchServiceHandler is an implementation of the chalk.server.v1.LogSearchService service.
 type LogSearchServiceHandler interface {
 	SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error)
+	SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error)
 }
 
 // NewLogSearchServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -93,10 +111,19 @@ func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	logSearchServiceSearchLogEntriesAggregatedHandler := connect.NewUnaryHandler(
+		LogSearchServiceSearchLogEntriesAggregatedProcedure,
+		svc.SearchLogEntriesAggregated,
+		connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntriesAggregated")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.LogSearchService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case LogSearchServiceSearchLogEntriesProcedure:
 			logSearchServiceSearchLogEntriesHandler.ServeHTTP(w, r)
+		case LogSearchServiceSearchLogEntriesAggregatedProcedure:
+			logSearchServiceSearchLogEntriesAggregatedHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -108,4 +135,8 @@ type UnimplementedLogSearchServiceHandler struct{}
 
 func (UnimplementedLogSearchServiceHandler) SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.SearchLogEntries is not implemented"))
+}
+
+func (UnimplementedLogSearchServiceHandler) SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.SearchLogEntriesAggregated is not implemented"))
 }
