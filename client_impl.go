@@ -582,6 +582,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	headers.Set("Content-Type", "application/json")
 	headers.Set("User-Agent", "chalk-go-0.0")
 	headers.Set("X-Chalk-Client-Id", c.config.clientId.Value)
+	
 
 	var branchResolved string
 	if branchOverride != nil && *branchOverride != "" {
@@ -610,6 +611,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	} else if c.resourceGroup != nil {
 		headers.Set(HeaderKeyResourceGroup, *c.resourceGroup)
 	}
+	
 
 	return headers
 }

@@ -44,7 +44,7 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 		convertedInputs[fqn] = convertedValues
 	}
 
-	return &internal.OnlineQueryRequestSerialized{
+	result := &internal.OnlineQueryRequestSerialized{
 		Inputs:  convertedInputs,
 		Outputs: outputs,
 		Context: internal.OnlineQueryContext{
@@ -71,7 +71,11 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 			EncodeStructsAsObjects: true,
 		},
 		PlannerOptions: p.PlannerOptions,
-	}, nil
+		BranchId:       p.BranchId,
+	}
+	
+	
+	return result, nil
 }
 
 func serializeStaleness(staleness map[string]time.Duration) map[string]string {
