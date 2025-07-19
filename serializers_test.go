@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"encoding/json"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
@@ -339,4 +340,68 @@ func stringPtrValue(s *string) string {
 		return "<nil>"
 	}
 	return *s
+}
+
+func TestOnlineQueryRequestSerializationWithBranch(t *testing.T) {
+	// Test that ensures BranchId is properly serialized in OnlineQueryRequestSerialized JSON
+	// This prevents regression of the critical bug fix where BranchId was missing from JSON body
+	t.Parallel()
+
+	branchId := "test-branch"
+	params := OnlineQueryParams{
+		BranchId: &branchId,
+		Explain:  true,
+	}.WithInput("user.id", 1).WithOutputs("user.full_name")
+
+	resolved := &onlineQueryParamsResolved{
+		inputs:  map[string]any{"user.id": 1},
+		outputs: []string{"user.full_name"},
+	}
+
+	serialized, err := serializeOnlineQueryParams(&params.underlying, resolved)
+	assert.NoError(t, err)
+	assert.NotNil(t, serialized)
+
+	// Verify BranchId is included in the serialized struct
+	assert.Equal(t, &branchId, serialized.BranchId)
+	assert.Equal(t, true, serialized.Explain)
+
+	// Test JSON marshaling to ensure BranchId appears in the actual JSON
+	jsonBytes, err := json.Marshal(serialized)
+	assert.NoError(t, err)
+
+	jsonString := string(jsonBytes)
+	assert.Contains(t, jsonString, `"branch_id":"test-branch"`)
+	assert.Contains(t, jsonString, `"explain":true`)
+}
+
+func TestOnlineQueryRequestSerializationWithoutBranch(t *testing.T) {
+	// Test that serialization works correctly when BranchId is nil
+	t.Parallel()
+
+	params := OnlineQueryParams{
+		BranchId: nil,
+		Explain:  true,
+	}.WithInput("user.id", 1).WithOutputs("user.full_name")
+
+	resolved := &onlineQueryParamsResolved{
+		inputs:  map[string]any{"user.id": 1},
+		outputs: []string{"user.full_name"},
+	}
+
+	serialized, err := serializeOnlineQueryParams(&params.underlying, resolved)
+	assert.NoError(t, err)
+	assert.NotNil(t, serialized)
+
+	// Verify BranchId is nil in the serialized struct
+	assert.Nil(t, serialized.BranchId)
+	assert.Equal(t, true, serialized.Explain)
+
+	// Test JSON marshaling to ensure BranchId appears as null in JSON
+	jsonBytes, err := json.Marshal(serialized)
+	assert.NoError(t, err)
+
+	jsonString := string(jsonBytes)
+	assert.Contains(t, jsonString, `"branch_id":null`)
+	assert.Contains(t, jsonString, `"explain":true`)
 }
