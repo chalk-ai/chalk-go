@@ -798,8 +798,8 @@ func (d *Dataset) Wait(ctx context.Context) error {
 		return nil
 	}
 
-	// Poll the first revision's status
-	revisionId := d.Revisions[0].RevisionId
+	// Poll the last revision's status
+	revisionId := d.Revisions[len(d.Revisions)-1].RevisionId
 
 	for {
 		jobStatus, err := d.client.GetOfflineQueryStatus(ctx, GetOfflineQueryStatusParams{
