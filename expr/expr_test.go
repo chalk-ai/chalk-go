@@ -20,6 +20,7 @@ func TestBasicLiterals(t *testing.T) {
 		{"uint32", Uint32(123), "123"},
 		{"uint16", Uint16(456), "456"},
 		{"uint8", Uint8(78), "78"},
+		{"float", Float(3.14), "3.14"},
 		{"float64", Float64(3.14), "3.14"},
 		{"float32", Float32(2.71), "2.71"},
 		{"string_utf8", String("hello"), "hello"},
@@ -130,7 +131,6 @@ func TestFluentAPI(t *testing.T) {
 			Col("array").Attr("length"),
 			"array.length",
 		},
-
 
 		// Aggregations
 		{
