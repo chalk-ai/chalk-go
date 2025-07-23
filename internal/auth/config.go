@@ -7,8 +7,8 @@ import (
 	"os"
 )
 
-func GetProjectAuthConfig() (*ProjectToken, error) {
-	path, err := getConfigPath()
+func GetProjectAuthConfig(configDir *string) (*ProjectToken, error) {
+	path, err := getConfigPath(configDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting project path for auth config")
 	}

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/config"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -21,7 +22,7 @@ import (
 
 type clientImpl struct {
 	Client
-	config    *configManager
+	config    *ConfigManager
 	allocator memory.Allocator
 
 	Branch        string
@@ -689,11 +690,12 @@ func newClientImpl(
 	ctx context.Context,
 	cfg *ClientConfig,
 ) (*clientImpl, error) {
-	config, err := newConfigManager(
-		cfg.ApiServer,
-		cfg.ClientId,
-		cfg.ClientSecret,
-		cfg.EnvironmentId,
+	config, err := NewConfigManager(
+		config.NewFromArg[string](cfg.ApiServer),
+		config.NewFromArg[string](cfg.ClientId),
+		config.NewFromArg[string](cfg.ClientSecret),
+		config.NewFromArg[string](cfg.EnvironmentId),
+		cfg.ConfigDir,
 		cfg.Logger,
 	)
 	if err != nil {

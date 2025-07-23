@@ -44,7 +44,7 @@ func timeoutInterceptor(clientLevelTimeout *time.Duration) connect.UnaryIntercep
 	}
 }
 
-func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptorFunc {
+func makeTokenInterceptor(configManager *ConfigManager) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
