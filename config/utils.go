@@ -1,6 +1,7 @@
-package auth
+package config
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/chalk-ai/chalk-go/internal"
@@ -37,14 +38,15 @@ func loadProjectDirectory() (string, error) {
 	)
 }
 
-func getConfigPath(configDir *string) (string, error) {
+func getConfigPath(ctx context.Context, configDir *string) (string, error) {
 	var dir string
 	var err error
+	getter := EnvironmentGetterFromContext(ctx)
 
 	if configDir != nil {
 		dir = *configDir
 	} else {
-		dir = os.Getenv("XDG_CONFIG_HOME")
+		dir = getter.Getenv("XDG_CONFIG_HOME")
 		if dir == "" {
 			dir, err = os.UserHomeDir()
 			if err != nil {

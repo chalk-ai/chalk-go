@@ -435,12 +435,16 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		})
 	}
 	for _, o := range params.OutputExprs {
+		outputColumnName := ""
+		if casted, ok := o.(*expr.AliasExpr); ok {
+			outputColumnName = casted.Alias
+		}
 		outputs = append(
 			outputs,
 			&commonv1.OutputExpr{
 				Expr: &commonv1.OutputExpr_FeatureExpression{
 					FeatureExpression: &commonv1.FeatureExpression{
-						OutputColumnName: "",
+						OutputColumnName: outputColumnName,
 						Namespace:        "",
 						Expr:             expr.ToProto(o),
 					},

@@ -11,7 +11,6 @@ import (
 type ExprI interface {
 	// String representation
 	String() string
-
 	// Internal method to get the expression type for building
 	exprType() string
 }
@@ -320,7 +319,6 @@ func (e *CallExpr) As(alias string) Expr {
 
 // AliasExpr represents an aliased expression
 type AliasExpr struct {
-	Expr
 	Expression Expr
 	Alias      string
 }
