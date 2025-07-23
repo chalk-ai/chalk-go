@@ -74,8 +74,7 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 		PlannerOptions: p.PlannerOptions,
 		BranchId:       p.BranchId,
 	}
-	
-	
+
 	return result, nil
 }
 
@@ -291,7 +290,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		DestinationFormat:          "PARQUET",
 		JobId:                      nil, // Always nil - server auto-generates
 		MaxSamples:                 p.MaxSamples,
-		MaxCacheAge:                nil, // Deprecated in Python - always nil
+		MaxCacheAge:                nil,           // Deprecated in Python - always nil
 		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
 		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
 		DatasetName:                internal.StringOrNil(p.DatasetName),
@@ -417,12 +416,16 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		})
 	}
 	for _, o := range params.OutputExprs {
+		outputColumnName := ""
+		if casted, ok := o.(*expr.AliasExpr); ok {
+			outputColumnName = casted.Alias
+		}
 		outputs = append(
 			outputs,
 			&commonv1.OutputExpr{
 				Expr: &commonv1.OutputExpr_FeatureExpression{
 					FeatureExpression: &commonv1.FeatureExpression{
-						OutputColumnName: "",
+						OutputColumnName: outputColumnName,
 						Namespace:        "",
 						Expr:             expr.ToProto(o),
 					},

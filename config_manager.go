@@ -2,10 +2,13 @@ package chalk
 
 import (
 	"context"
+	"fmt"
+	"github.com/chalk-ai/chalk-go/config"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/auth"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
+	"strings"
 	"time"
 )
 
@@ -18,12 +21,13 @@ type getTokenResult struct {
 	Engines            map[string]string
 }
 
-type configManager struct {
-	apiServer          auth.SourcedConfig
-	clientId           auth.SourcedConfig
-	clientSecret       auth.SourcedConfig
-	environmentId      auth.SourcedConfig
-	initialEnvironment auth.SourcedConfig
+// ConfigManager manages configuration for the Chalk client
+type ConfigManager struct {
+	apiServer          *config.SourcedConfig[string]
+	clientId           *config.SourcedConfig[string]
+	clientSecret       *config.SourcedConfig[string]
+	environmentId      *config.SourcedConfig[string]
+	initialEnvironment *config.SourcedConfig[string]
 
 	jwt      *auth.JWT
 	engines  map[string]string
@@ -32,43 +36,45 @@ type configManager struct {
 	logger LeveledLogger
 }
 
-func newConfigManager(
-	apiServer string,
-	clientId string,
-	clientSecret string,
-	environmentId string,
+// NewConfigManager creates a new configuration manager with the specified parameters
+func NewConfigManager(
+	apiServer *config.SourcedConfig[string],
+	clientId *config.SourcedConfig[string],
+	clientSecret *config.SourcedConfig[string],
+	environmentId *config.SourcedConfig[string],
+	configDir *string,
 	logger LeveledLogger,
-) (*configManager, error) {
-	chalkYamlConfigOrNil, chalkYamlErr := auth.GetProjectAuthConfig()
+) (*ConfigManager, error) {
+	chalkYamlConfigOrNil, chalkYamlErr := auth.GetProjectAuthConfig(configDir)
 	chalkYamlConfig := auth.ProjectToken{}
 	if chalkYamlConfigOrNil != nil {
 		chalkYamlConfig = *chalkYamlConfigOrNil
 	}
 
-	envIdConfig := auth.GetFirstNonEmptyConfig(
-		auth.GetChalkClientArgConfig(environmentId),
+	envIdConfig := config.GetFirstNonEmpty(
+		environmentId,
 		auth.GetEnvVarConfig(internal.EnvironmentEnvVarKey),
-		auth.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment),
+		auth.GetChalkYamlConfig(chalkYamlConfig.ActiveEnvironment, configDir),
 	)
 
 	if logger == nil {
 		logger = DefaultLeveledLogger
 	}
-	manager := &configManager{
-		apiServer: auth.GetFirstNonEmptyConfig(
-			auth.GetChalkClientArgConfig(apiServer),
+	manager := &ConfigManager{
+		apiServer: config.GetFirstNonEmpty(
+			apiServer,
 			auth.GetEnvVarConfig(internal.ApiServerEnvVarKey),
-			auth.GetChalkYamlConfig(chalkYamlConfig.ApiServer),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ApiServer, configDir),
 		),
-		clientId: auth.GetFirstNonEmptyConfig(
-			auth.GetChalkClientArgConfig(clientId),
+		clientId: config.GetFirstNonEmpty(
+			clientId,
 			auth.GetEnvVarConfig(internal.ClientIdEnvVarKey),
-			auth.GetChalkYamlConfig(chalkYamlConfig.ClientId),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ClientId, configDir),
 		),
-		clientSecret: auth.GetFirstNonEmptyConfig(
-			auth.GetChalkClientArgConfig(clientSecret),
+		clientSecret: config.GetFirstNonEmpty(
+			clientSecret,
 			auth.GetEnvVarConfig(internal.ClientSecretEnvVarKey),
-			auth.GetChalkYamlConfig(chalkYamlConfig.ClientSecret),
+			auth.GetChalkYamlConfig(chalkYamlConfig.ClientSecret, configDir),
 		),
 		environmentId:      envIdConfig,
 		initialEnvironment: envIdConfig,
@@ -85,7 +91,7 @@ func newConfigManager(
 	return manager, nil
 }
 
-func (m *configManager) getQueryServer(queryServerOverride *string) string {
+func (m *ConfigManager) getQueryServer(queryServerOverride *string) string {
 	if queryServerOverride != nil {
 		return *queryServerOverride
 	}
@@ -106,31 +112,35 @@ func (m *configManager) getQueryServer(queryServerOverride *string) string {
 		}
 		endpoint = m.apiServer.Value
 	}
-	return endpoint
+
+	if strings.HasPrefix(endpoint, "https://") || strings.HasPrefix(endpoint, "http://") {
+		return endpoint
+	}
+	return fmt.Sprintf("https://%s", endpoint)
 }
 
-func (m *configManager) refresh(ctx context.Context, force bool) error {
+func (m *ConfigManager) refresh(ctx context.Context, force bool) error {
 	if !force && m.jwt != nil && m.jwt.IsValid() {
 		return nil
 	}
 
-	config, err := m.getToken(ctx, m.clientId.Value, m.clientSecret.Value)
+	c, err := m.getToken(ctx, m.clientId.Value, m.clientSecret.Value)
 	if err != nil {
 		return errors.Wrap(err, "refreshing token")
 	}
 
 	if m.initialEnvironment.Value == "" {
-		m.environmentId = auth.SourcedConfig{
-			Value:  config.PrimaryEnvironment,
+		m.environmentId = &config.SourcedConfig[string]{
+			Value:  c.PrimaryEnvironment,
 			Source: "Primary Environment from credentials exchange response",
 		}
 	} else {
 		m.environmentId = m.initialEnvironment
 	}
 	m.jwt = &auth.JWT{
-		Token:      config.AccessToken,
-		ValidUntil: config.ValidUntil,
+		Token:      c.AccessToken,
+		ValidUntil: c.ValidUntil,
 	}
-	m.engines = config.Engines
+	m.engines = c.Engines
 	return nil
 }

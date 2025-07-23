@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/config"
 	"github.com/chalk-ai/chalk-go/internal"
 	"os"
 	"path/filepath"
@@ -37,16 +38,32 @@ func loadProjectDirectory() (string, error) {
 	)
 }
 
-func getConfigPath() (string, error) {
+func getConfigPath(configDir *string) (string, error) {
+	var dir string
 	var err error
-	configDir := os.Getenv("XDG_CONFIG_HOME")
-	if configDir == "" {
-		configDir, err = os.UserHomeDir()
-		if err != nil {
-			return "", errors.New("error getting home directory")
+
+	if configDir != nil {
+		dir = *configDir
+	} else {
+		dir = os.Getenv("XDG_CONFIG_HOME")
+		if dir == "" {
+			dir, err = os.UserHomeDir()
+			if err != nil {
+				return "", errors.New("error getting home directory")
+			}
 		}
 	}
-	path := filepath.Join(configDir, authConfigFileName)
+
+	// Check for both chalk.yml and chalk.yaml
+	for _, filename := range []string{".chalk.yml", ".chalk.yaml"} {
+		path := filepath.Join(dir, filename)
+		if internal.FileExists(path) {
+			return path, nil
+		}
+	}
+
+	// Default to .chalk.yml if neither exists
+	path := filepath.Join(dir, authConfigFileName)
 	return path, nil
 }
 
@@ -88,46 +105,23 @@ func getProjectAuthConfigForProjectRoot(config *ProjectTokens, configPath string
 	return returnToken, nil
 }
 
-func GetFirstNonEmptyConfig(configs ...SourcedConfig) SourcedConfig {
-	for _, config := range configs {
-		if config.Value != "" {
-			return config
-		}
-	}
-	return SourcedConfig{Source: "value in '~/.chalk.yml' does not exist or is empty"}
+func GetEnvVarConfig(key string) *config.SourcedConfig[string] {
+	return config.NewFromEnvVar(key, os.Getenv(key))
 }
 
-func GetEnvVarConfig(key string) SourcedConfig {
-	return SourcedConfig{
-		os.Getenv(key),
-		fmt.Sprintf("environment variable '%s'", key),
-	}
+func GetChalkClientArgConfig(value string) *config.SourcedConfig[string] {
+	return config.NewFromArg(value)
 }
 
-func GetChalkClientArgConfig(value string) SourcedConfig {
-	return SourcedConfig{
-		value,
-		"NewClient argument",
-	}
-}
-
-func GetChalkYamlConfig(value string) SourcedConfig {
+func GetChalkYamlConfig(value string, configDir *string) *config.SourcedConfig[string] {
 	var path string
 
-	configPath, err := getConfigPath()
+	configPath, err := getConfigPath(configDir)
 	if err != nil {
 		path = "unknown"
 	} else {
 		path = configPath
 	}
 
-	return SourcedConfig{
-		value,
-		fmt.Sprintf("config file %s", path),
-	}
-}
-
-type SourcedConfig struct {
-	Value  string
-	Source string
+	return config.NewFromFile(path, value)
 }

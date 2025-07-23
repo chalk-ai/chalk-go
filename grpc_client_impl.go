@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/chalk-ai/chalk-go/config"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
@@ -24,7 +25,7 @@ import (
 
 type grpcClientImpl struct {
 	GRPCClient
-	config    *configManager
+	config    *ConfigManager
 	allocator memory.Allocator
 
 	branch        string
@@ -50,7 +51,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
 	}
 
-	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
+	config, err := NewConfigManager(
+		config.NewFromArg[string](cfg.ApiServer),
+		config.NewFromArg[string](cfg.ClientId),
+		config.NewFromArg[string](cfg.ClientSecret),
+		config.NewFromArg[string](cfg.EnvironmentId),
+		cfg.ConfigDir,
+		cfg.Logger,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
@@ -134,7 +142,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 	queryClient := enginev1connect.NewQueryServiceClient(
 		httpClient,
-		ensureHTTPSPrefix(resolvedQueryServer),
+		resolvedQueryServer,
 		connect.WithInterceptors(append(cfg.Interceptors, engineInterceptors...)...),
 		connect.WithGRPC(),
 	)
@@ -155,7 +163,13 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	}, nil
 }
 
-func getToken(ctx context.Context, clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
+func getToken(
+	ctx context.Context,
+	clientId string,
+	clientSecret string,
+	logger LeveledLogger,
+	client serverv1connect.AuthServiceClient,
+) (*getTokenResult, error) {
 	logger.Debugf("Getting new token via gRPC")
 	authRequest := connect.NewRequest(
 		&serverv1.GetTokenRequest{
