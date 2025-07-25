@@ -51,6 +51,33 @@ const (
 	// QueriesServiceListMetaQueryRunsProcedure is the fully-qualified name of the QueriesService's
 	// ListMetaQueryRuns RPC.
 	QueriesServiceListMetaQueryRunsProcedure = "/chalk.server.v1.QueriesService/ListMetaQueryRuns"
+	// QueriesServiceListMetaQueriesProcedure is the fully-qualified name of the QueriesService's
+	// ListMetaQueries RPC.
+	QueriesServiceListMetaQueriesProcedure = "/chalk.server.v1.QueriesService/ListMetaQueries"
+	// QueriesServiceListLatestMetaQueriesProcedure is the fully-qualified name of the QueriesService's
+	// ListLatestMetaQueries RPC.
+	QueriesServiceListLatestMetaQueriesProcedure = "/chalk.server.v1.QueriesService/ListLatestMetaQueries"
+	// QueriesServiceGetMetaQueryProcedure is the fully-qualified name of the QueriesService's
+	// GetMetaQuery RPC.
+	QueriesServiceGetMetaQueryProcedure = "/chalk.server.v1.QueriesService/GetMetaQuery"
+	// QueriesServiceGetMetaQueryByNameProcedure is the fully-qualified name of the QueriesService's
+	// GetMetaQueryByName RPC.
+	QueriesServiceGetMetaQueryByNameProcedure = "/chalk.server.v1.QueriesService/GetMetaQueryByName"
+	// QueriesServiceListMetaQueriesByIdsProcedure is the fully-qualified name of the QueriesService's
+	// ListMetaQueriesByIds RPC.
+	QueriesServiceListMetaQueriesByIdsProcedure = "/chalk.server.v1.QueriesService/ListMetaQueriesByIds"
+	// QueriesServiceListArchivedMetaQueriesProcedure is the fully-qualified name of the
+	// QueriesService's ListArchivedMetaQueries RPC.
+	QueriesServiceListArchivedMetaQueriesProcedure = "/chalk.server.v1.QueriesService/ListArchivedMetaQueries"
+	// QueriesServiceListMetaQueriesForResolverProcedure is the fully-qualified name of the
+	// QueriesService's ListMetaQueriesForResolver RPC.
+	QueriesServiceListMetaQueriesForResolverProcedure = "/chalk.server.v1.QueriesService/ListMetaQueriesForResolver"
+	// QueriesServiceListMetaQueriesForFeatureProcedure is the fully-qualified name of the
+	// QueriesService's ListMetaQueriesForFeature RPC.
+	QueriesServiceListMetaQueriesForFeatureProcedure = "/chalk.server.v1.QueriesService/ListMetaQueriesForFeature"
+	// QueriesServiceListMetaQueryVersionsProcedure is the fully-qualified name of the QueriesService's
+	// ListMetaQueryVersions RPC.
+	QueriesServiceListMetaQueryVersionsProcedure = "/chalk.server.v1.QueriesService/ListMetaQueryVersions"
 )
 
 // QueriesServiceClient is a client for the chalk.server.v1.QueriesService service.
@@ -61,6 +88,15 @@ type QueriesServiceClient interface {
 	GetQueryPlan(context.Context, *connect.Request[v1.GetQueryPlanRequest]) (*connect.Response[v1.GetQueryPlanResponse], error)
 	AggregateQueryErrors(context.Context, *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error)
 	ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error)
+	ListMetaQueries(context.Context, *connect.Request[v1.ListMetaQueriesRequest]) (*connect.Response[v1.ListMetaQueriesResponse], error)
+	ListLatestMetaQueries(context.Context, *connect.Request[v1.ListLatestMetaQueriesRequest]) (*connect.Response[v1.ListLatestMetaQueriesResponse], error)
+	GetMetaQuery(context.Context, *connect.Request[v1.GetMetaQueryRequest]) (*connect.Response[v1.GetMetaQueryResponse], error)
+	GetMetaQueryByName(context.Context, *connect.Request[v1.GetMetaQueryByNameRequest]) (*connect.Response[v1.GetMetaQueryByNameResponse], error)
+	ListMetaQueriesByIds(context.Context, *connect.Request[v1.ListMetaQueriesByIdsRequest]) (*connect.Response[v1.ListMetaQueriesByIdsResponse], error)
+	ListArchivedMetaQueries(context.Context, *connect.Request[v1.ListArchivedMetaQueriesRequest]) (*connect.Response[v1.ListArchivedMetaQueriesResponse], error)
+	ListMetaQueriesForResolver(context.Context, *connect.Request[v1.ListMetaQueriesForResolverRequest]) (*connect.Response[v1.ListMetaQueriesForResolverResponse], error)
+	ListMetaQueriesForFeature(context.Context, *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error)
+	ListMetaQueryVersions(context.Context, *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error)
 }
 
 // NewQueriesServiceClient constructs a client for the chalk.server.v1.QueriesService service. By
@@ -110,6 +146,60 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryRuns")),
 			connect.WithClientOptions(opts...),
 		),
+		listMetaQueries: connect.NewClient[v1.ListMetaQueriesRequest, v1.ListMetaQueriesResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueriesProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		listLatestMetaQueries: connect.NewClient[v1.ListLatestMetaQueriesRequest, v1.ListLatestMetaQueriesResponse](
+			httpClient,
+			baseURL+QueriesServiceListLatestMetaQueriesProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListLatestMetaQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		getMetaQuery: connect.NewClient[v1.GetMetaQueryRequest, v1.GetMetaQueryResponse](
+			httpClient,
+			baseURL+QueriesServiceGetMetaQueryProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("GetMetaQuery")),
+			connect.WithClientOptions(opts...),
+		),
+		getMetaQueryByName: connect.NewClient[v1.GetMetaQueryByNameRequest, v1.GetMetaQueryByNameResponse](
+			httpClient,
+			baseURL+QueriesServiceGetMetaQueryByNameProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("GetMetaQueryByName")),
+			connect.WithClientOptions(opts...),
+		),
+		listMetaQueriesByIds: connect.NewClient[v1.ListMetaQueriesByIdsRequest, v1.ListMetaQueriesByIdsResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueriesByIdsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesByIds")),
+			connect.WithClientOptions(opts...),
+		),
+		listArchivedMetaQueries: connect.NewClient[v1.ListArchivedMetaQueriesRequest, v1.ListArchivedMetaQueriesResponse](
+			httpClient,
+			baseURL+QueriesServiceListArchivedMetaQueriesProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListArchivedMetaQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		listMetaQueriesForResolver: connect.NewClient[v1.ListMetaQueriesForResolverRequest, v1.ListMetaQueriesForResolverResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueriesForResolverProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesForResolver")),
+			connect.WithClientOptions(opts...),
+		),
+		listMetaQueriesForFeature: connect.NewClient[v1.ListMetaQueriesForFeatureRequest, v1.ListMetaQueriesForFeatureResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueriesForFeatureProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesForFeature")),
+			connect.WithClientOptions(opts...),
+		),
+		listMetaQueryVersions: connect.NewClient[v1.ListMetaQueryVersionsRequest, v1.ListMetaQueryVersionsResponse](
+			httpClient,
+			baseURL+QueriesServiceListMetaQueryVersionsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryVersions")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -121,6 +211,15 @@ type queriesServiceClient struct {
 	getQueryPlan               *connect.Client[v1.GetQueryPlanRequest, v1.GetQueryPlanResponse]
 	aggregateQueryErrors       *connect.Client[v1.AggregateQueryErrorsRequest, v1.AggregateQueryErrorsResponse]
 	listMetaQueryRuns          *connect.Client[v1.ListMetaQueryRunsRequest, v1.ListMetaQueryRunsResponse]
+	listMetaQueries            *connect.Client[v1.ListMetaQueriesRequest, v1.ListMetaQueriesResponse]
+	listLatestMetaQueries      *connect.Client[v1.ListLatestMetaQueriesRequest, v1.ListLatestMetaQueriesResponse]
+	getMetaQuery               *connect.Client[v1.GetMetaQueryRequest, v1.GetMetaQueryResponse]
+	getMetaQueryByName         *connect.Client[v1.GetMetaQueryByNameRequest, v1.GetMetaQueryByNameResponse]
+	listMetaQueriesByIds       *connect.Client[v1.ListMetaQueriesByIdsRequest, v1.ListMetaQueriesByIdsResponse]
+	listArchivedMetaQueries    *connect.Client[v1.ListArchivedMetaQueriesRequest, v1.ListArchivedMetaQueriesResponse]
+	listMetaQueriesForResolver *connect.Client[v1.ListMetaQueriesForResolverRequest, v1.ListMetaQueriesForResolverResponse]
+	listMetaQueriesForFeature  *connect.Client[v1.ListMetaQueriesForFeatureRequest, v1.ListMetaQueriesForFeatureResponse]
+	listMetaQueryVersions      *connect.Client[v1.ListMetaQueryVersionsRequest, v1.ListMetaQueryVersionsResponse]
 }
 
 // GetQueryPerformanceSummary calls chalk.server.v1.QueriesService.GetQueryPerformanceSummary.
@@ -153,6 +252,51 @@ func (c *queriesServiceClient) ListMetaQueryRuns(ctx context.Context, req *conne
 	return c.listMetaQueryRuns.CallUnary(ctx, req)
 }
 
+// ListMetaQueries calls chalk.server.v1.QueriesService.ListMetaQueries.
+func (c *queriesServiceClient) ListMetaQueries(ctx context.Context, req *connect.Request[v1.ListMetaQueriesRequest]) (*connect.Response[v1.ListMetaQueriesResponse], error) {
+	return c.listMetaQueries.CallUnary(ctx, req)
+}
+
+// ListLatestMetaQueries calls chalk.server.v1.QueriesService.ListLatestMetaQueries.
+func (c *queriesServiceClient) ListLatestMetaQueries(ctx context.Context, req *connect.Request[v1.ListLatestMetaQueriesRequest]) (*connect.Response[v1.ListLatestMetaQueriesResponse], error) {
+	return c.listLatestMetaQueries.CallUnary(ctx, req)
+}
+
+// GetMetaQuery calls chalk.server.v1.QueriesService.GetMetaQuery.
+func (c *queriesServiceClient) GetMetaQuery(ctx context.Context, req *connect.Request[v1.GetMetaQueryRequest]) (*connect.Response[v1.GetMetaQueryResponse], error) {
+	return c.getMetaQuery.CallUnary(ctx, req)
+}
+
+// GetMetaQueryByName calls chalk.server.v1.QueriesService.GetMetaQueryByName.
+func (c *queriesServiceClient) GetMetaQueryByName(ctx context.Context, req *connect.Request[v1.GetMetaQueryByNameRequest]) (*connect.Response[v1.GetMetaQueryByNameResponse], error) {
+	return c.getMetaQueryByName.CallUnary(ctx, req)
+}
+
+// ListMetaQueriesByIds calls chalk.server.v1.QueriesService.ListMetaQueriesByIds.
+func (c *queriesServiceClient) ListMetaQueriesByIds(ctx context.Context, req *connect.Request[v1.ListMetaQueriesByIdsRequest]) (*connect.Response[v1.ListMetaQueriesByIdsResponse], error) {
+	return c.listMetaQueriesByIds.CallUnary(ctx, req)
+}
+
+// ListArchivedMetaQueries calls chalk.server.v1.QueriesService.ListArchivedMetaQueries.
+func (c *queriesServiceClient) ListArchivedMetaQueries(ctx context.Context, req *connect.Request[v1.ListArchivedMetaQueriesRequest]) (*connect.Response[v1.ListArchivedMetaQueriesResponse], error) {
+	return c.listArchivedMetaQueries.CallUnary(ctx, req)
+}
+
+// ListMetaQueriesForResolver calls chalk.server.v1.QueriesService.ListMetaQueriesForResolver.
+func (c *queriesServiceClient) ListMetaQueriesForResolver(ctx context.Context, req *connect.Request[v1.ListMetaQueriesForResolverRequest]) (*connect.Response[v1.ListMetaQueriesForResolverResponse], error) {
+	return c.listMetaQueriesForResolver.CallUnary(ctx, req)
+}
+
+// ListMetaQueriesForFeature calls chalk.server.v1.QueriesService.ListMetaQueriesForFeature.
+func (c *queriesServiceClient) ListMetaQueriesForFeature(ctx context.Context, req *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error) {
+	return c.listMetaQueriesForFeature.CallUnary(ctx, req)
+}
+
+// ListMetaQueryVersions calls chalk.server.v1.QueriesService.ListMetaQueryVersions.
+func (c *queriesServiceClient) ListMetaQueryVersions(ctx context.Context, req *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error) {
+	return c.listMetaQueryVersions.CallUnary(ctx, req)
+}
+
 // QueriesServiceHandler is an implementation of the chalk.server.v1.QueriesService service.
 type QueriesServiceHandler interface {
 	GetQueryPerformanceSummary(context.Context, *connect.Request[v1.GetQueryPerformanceSummaryRequest]) (*connect.Response[v1.GetQueryPerformanceSummaryResponse], error)
@@ -161,6 +305,15 @@ type QueriesServiceHandler interface {
 	GetQueryPlan(context.Context, *connect.Request[v1.GetQueryPlanRequest]) (*connect.Response[v1.GetQueryPlanResponse], error)
 	AggregateQueryErrors(context.Context, *connect.Request[v1.AggregateQueryErrorsRequest]) (*connect.Response[v1.AggregateQueryErrorsResponse], error)
 	ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error)
+	ListMetaQueries(context.Context, *connect.Request[v1.ListMetaQueriesRequest]) (*connect.Response[v1.ListMetaQueriesResponse], error)
+	ListLatestMetaQueries(context.Context, *connect.Request[v1.ListLatestMetaQueriesRequest]) (*connect.Response[v1.ListLatestMetaQueriesResponse], error)
+	GetMetaQuery(context.Context, *connect.Request[v1.GetMetaQueryRequest]) (*connect.Response[v1.GetMetaQueryResponse], error)
+	GetMetaQueryByName(context.Context, *connect.Request[v1.GetMetaQueryByNameRequest]) (*connect.Response[v1.GetMetaQueryByNameResponse], error)
+	ListMetaQueriesByIds(context.Context, *connect.Request[v1.ListMetaQueriesByIdsRequest]) (*connect.Response[v1.ListMetaQueriesByIdsResponse], error)
+	ListArchivedMetaQueries(context.Context, *connect.Request[v1.ListArchivedMetaQueriesRequest]) (*connect.Response[v1.ListArchivedMetaQueriesResponse], error)
+	ListMetaQueriesForResolver(context.Context, *connect.Request[v1.ListMetaQueriesForResolverRequest]) (*connect.Response[v1.ListMetaQueriesForResolverResponse], error)
+	ListMetaQueriesForFeature(context.Context, *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error)
+	ListMetaQueryVersions(context.Context, *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error)
 }
 
 // NewQueriesServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -206,6 +359,60 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryRuns")),
 		connect.WithHandlerOptions(opts...),
 	)
+	queriesServiceListMetaQueriesHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueriesProcedure,
+		svc.ListMetaQueries,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListLatestMetaQueriesHandler := connect.NewUnaryHandler(
+		QueriesServiceListLatestMetaQueriesProcedure,
+		svc.ListLatestMetaQueries,
+		connect.WithSchema(queriesServiceMethods.ByName("ListLatestMetaQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceGetMetaQueryHandler := connect.NewUnaryHandler(
+		QueriesServiceGetMetaQueryProcedure,
+		svc.GetMetaQuery,
+		connect.WithSchema(queriesServiceMethods.ByName("GetMetaQuery")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceGetMetaQueryByNameHandler := connect.NewUnaryHandler(
+		QueriesServiceGetMetaQueryByNameProcedure,
+		svc.GetMetaQueryByName,
+		connect.WithSchema(queriesServiceMethods.ByName("GetMetaQueryByName")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListMetaQueriesByIdsHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueriesByIdsProcedure,
+		svc.ListMetaQueriesByIds,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesByIds")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListArchivedMetaQueriesHandler := connect.NewUnaryHandler(
+		QueriesServiceListArchivedMetaQueriesProcedure,
+		svc.ListArchivedMetaQueries,
+		connect.WithSchema(queriesServiceMethods.ByName("ListArchivedMetaQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListMetaQueriesForResolverHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueriesForResolverProcedure,
+		svc.ListMetaQueriesForResolver,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesForResolver")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListMetaQueriesForFeatureHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueriesForFeatureProcedure,
+		svc.ListMetaQueriesForFeature,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueriesForFeature")),
+		connect.WithHandlerOptions(opts...),
+	)
+	queriesServiceListMetaQueryVersionsHandler := connect.NewUnaryHandler(
+		QueriesServiceListMetaQueryVersionsProcedure,
+		svc.ListMetaQueryVersions,
+		connect.WithSchema(queriesServiceMethods.ByName("ListMetaQueryVersions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.QueriesService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueriesServiceGetQueryPerformanceSummaryProcedure:
@@ -220,6 +427,24 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 			queriesServiceAggregateQueryErrorsHandler.ServeHTTP(w, r)
 		case QueriesServiceListMetaQueryRunsProcedure:
 			queriesServiceListMetaQueryRunsHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueriesProcedure:
+			queriesServiceListMetaQueriesHandler.ServeHTTP(w, r)
+		case QueriesServiceListLatestMetaQueriesProcedure:
+			queriesServiceListLatestMetaQueriesHandler.ServeHTTP(w, r)
+		case QueriesServiceGetMetaQueryProcedure:
+			queriesServiceGetMetaQueryHandler.ServeHTTP(w, r)
+		case QueriesServiceGetMetaQueryByNameProcedure:
+			queriesServiceGetMetaQueryByNameHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueriesByIdsProcedure:
+			queriesServiceListMetaQueriesByIdsHandler.ServeHTTP(w, r)
+		case QueriesServiceListArchivedMetaQueriesProcedure:
+			queriesServiceListArchivedMetaQueriesHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueriesForResolverProcedure:
+			queriesServiceListMetaQueriesForResolverHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueriesForFeatureProcedure:
+			queriesServiceListMetaQueriesForFeatureHandler.ServeHTTP(w, r)
+		case QueriesServiceListMetaQueryVersionsProcedure:
+			queriesServiceListMetaQueryVersionsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -251,4 +476,40 @@ func (UnimplementedQueriesServiceHandler) AggregateQueryErrors(context.Context, 
 
 func (UnimplementedQueriesServiceHandler) ListMetaQueryRuns(context.Context, *connect.Request[v1.ListMetaQueryRunsRequest]) (*connect.Response[v1.ListMetaQueryRunsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueryRuns is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueries(context.Context, *connect.Request[v1.ListMetaQueriesRequest]) (*connect.Response[v1.ListMetaQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueries is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListLatestMetaQueries(context.Context, *connect.Request[v1.ListLatestMetaQueriesRequest]) (*connect.Response[v1.ListLatestMetaQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListLatestMetaQueries is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) GetMetaQuery(context.Context, *connect.Request[v1.GetMetaQueryRequest]) (*connect.Response[v1.GetMetaQueryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetMetaQuery is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) GetMetaQueryByName(context.Context, *connect.Request[v1.GetMetaQueryByNameRequest]) (*connect.Response[v1.GetMetaQueryByNameResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetMetaQueryByName is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueriesByIds(context.Context, *connect.Request[v1.ListMetaQueriesByIdsRequest]) (*connect.Response[v1.ListMetaQueriesByIdsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueriesByIds is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListArchivedMetaQueries(context.Context, *connect.Request[v1.ListArchivedMetaQueriesRequest]) (*connect.Response[v1.ListArchivedMetaQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListArchivedMetaQueries is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueriesForResolver(context.Context, *connect.Request[v1.ListMetaQueriesForResolverRequest]) (*connect.Response[v1.ListMetaQueriesForResolverResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueriesForResolver is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueriesForFeature(context.Context, *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueriesForFeature is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListMetaQueryVersions(context.Context, *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListMetaQueryVersions is not implemented"))
 }
