@@ -29,10 +29,11 @@ type GetTokenRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ClientId     string  `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	ClientSecret string  `protobuf:"bytes,2,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
-	GrantType    string  `protobuf:"bytes,3,opt,name=grant_type,json=grantType,proto3" json:"grant_type,omitempty"`
-	Scope        *string `protobuf:"bytes,4,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
+	ClientId     string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ClientSecret string `protobuf:"bytes,2,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
+	// always `"client_credentials"` presently
+	GrantType string  `protobuf:"bytes,3,opt,name=grant_type,json=grantType,proto3" json:"grant_type,omitempty"`
+	Scope     *string `protobuf:"bytes,4,opt,name=scope,proto3,oneof" json:"scope,omitempty"`
 }
 
 func (x *GetTokenRequest) Reset() {
@@ -104,7 +105,8 @@ type GetTokenResponse struct {
 	ExpiresAt          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	ApiServer          string                 `protobuf:"bytes,5,opt,name=api_server,json=apiServer,proto3" json:"api_server,omitempty"`
 	PrimaryEnvironment *string                `protobuf:"bytes,6,opt,name=primary_environment,json=primaryEnvironment,proto3,oneof" json:"primary_environment,omitempty"`
-	// Maps of environment_id --> url
+	// Clients speak directly to the engines on their own urls.
+	// This field gives the mapping from environment id to url.
 	Engines             map[string]string `protobuf:"bytes,7,rep,name=engines,proto3" json:"engines,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	GrpcEngines         map[string]string `protobuf:"bytes,8,rep,name=grpc_engines,json=grpcEngines,proto3" json:"grpc_engines,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	EnvironmentIdToName map[string]string `protobuf:"bytes,9,rep,name=environment_id_to_name,json=environmentIdToName,proto3" json:"environment_id_to_name,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`

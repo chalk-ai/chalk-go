@@ -95,6 +95,9 @@ const (
 	// BuilderServiceScaleBranchProcedure is the fully-qualified name of the BuilderService's
 	// ScaleBranch RPC.
 	BuilderServiceScaleBranchProcedure = "/chalk.server.v1.BuilderService/ScaleBranch"
+	// BuilderServiceGetBranchProfileProcedure is the fully-qualified name of the BuilderService's
+	// GetBranchProfile RPC.
+	BuilderServiceGetBranchProfileProcedure = "/chalk.server.v1.BuilderService/GetBranchProfile"
 	// BuilderServiceGetNodepoolsProcedure is the fully-qualified name of the BuilderService's
 	// GetNodepools RPC.
 	BuilderServiceGetNodepoolsProcedure = "/chalk.server.v1.BuilderService/GetNodepools"
@@ -166,6 +169,7 @@ type BuilderServiceClient interface {
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 	ScaleBranch(context.Context, *connect.Request[v1.ScaleBranchRequest]) (*connect.Response[v1.ScaleBranchResponse], error)
+	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
@@ -315,6 +319,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("ScaleBranch")),
 			connect.WithClientOptions(opts...),
 		),
+		getBranchProfile: connect.NewClient[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse](
+			httpClient,
+			baseURL+BuilderServiceGetBranchProfileProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetBranchProfile")),
+			connect.WithClientOptions(opts...),
+		),
 		getNodepools: connect.NewClient[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse](
 			httpClient,
 			baseURL+BuilderServiceGetNodepoolsProcedure,
@@ -409,6 +419,7 @@ type builderServiceClient struct {
 	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
 	scaleBranch                        *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
+	getBranchProfile                   *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
 	getNodepools                       *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
 	addNodepool                        *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
 	updateNodepool                     *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
@@ -524,6 +535,11 @@ func (c *builderServiceClient) ScaleBranch(ctx context.Context, req *connect.Req
 	return c.scaleBranch.CallUnary(ctx, req)
 }
 
+// GetBranchProfile calls chalk.server.v1.BuilderService.GetBranchProfile.
+func (c *builderServiceClient) GetBranchProfile(ctx context.Context, req *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error) {
+	return c.getBranchProfile.CallUnary(ctx, req)
+}
+
 // GetNodepools calls chalk.server.v1.BuilderService.GetNodepools.
 func (c *builderServiceClient) GetNodepools(ctx context.Context, req *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error) {
 	return c.getNodepools.CallUnary(ctx, req)
@@ -610,6 +626,7 @@ type BuilderServiceHandler interface {
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 	ScaleBranch(context.Context, *connect.Request[v1.ScaleBranchRequest]) (*connect.Response[v1.ScaleBranchResponse], error)
+	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
 	GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error)
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
@@ -755,6 +772,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("ScaleBranch")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetBranchProfileHandler := connect.NewUnaryHandler(
+		BuilderServiceGetBranchProfileProcedure,
+		svc.GetBranchProfile,
+		connect.WithSchema(builderServiceMethods.ByName("GetBranchProfile")),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetNodepoolsHandler := connect.NewUnaryHandler(
 		BuilderServiceGetNodepoolsProcedure,
 		svc.GetNodepools,
@@ -866,6 +889,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceStartBranchHandler.ServeHTTP(w, r)
 		case BuilderServiceScaleBranchProcedure:
 			builderServiceScaleBranchHandler.ServeHTTP(w, r)
+		case BuilderServiceGetBranchProfileProcedure:
+			builderServiceGetBranchProfileHandler.ServeHTTP(w, r)
 		case BuilderServiceGetNodepoolsProcedure:
 			builderServiceGetNodepoolsHandler.ServeHTTP(w, r)
 		case BuilderServiceAddNodepoolProcedure:
@@ -975,6 +1000,10 @@ func (UnimplementedBuilderServiceHandler) StartBranch(context.Context, *connect.
 
 func (UnimplementedBuilderServiceHandler) ScaleBranch(context.Context, *connect.Request[v1.ScaleBranchRequest]) (*connect.Response[v1.ScaleBranchResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ScaleBranch is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetBranchProfile is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetNodepools(context.Context, *connect.Request[v1.GetNodepoolsRequest]) (*connect.Response[v1.GetNodepoolsResponse], error) {
