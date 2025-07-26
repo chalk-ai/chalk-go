@@ -631,6 +631,12 @@ func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryPar
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
 }
 
+// WithFileInput returns a copy of Offline Query parameters with the specified file input added.
+// File is expected to be a URI to a parquet file in S3 or GCS.
+// Columns in the file should match the features you want to query, using the python `str(...)` format for the
+// feature names -- i.e. `BankAccount.user` -> `"bank_account.user"`.
+// If provided, cannot be used in conjunction with `WithInput` or `WithInputs`.
+// Your query server must have access to the file.
 func (p OfflineQueryParams) WithFileInput(fileUri string) offlineQueryParamsWithInputs {
 	return offlineQueryParamsWithInputs{underlying: p.withFileInput(fileUri)}
 }

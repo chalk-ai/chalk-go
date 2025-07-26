@@ -73,8 +73,7 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 		PlannerOptions: p.PlannerOptions,
 		BranchId:       p.BranchId,
 	}
-	
-	
+
 	return result, nil
 }
 
@@ -298,7 +297,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		DestinationFormat:          "PARQUET",
 		JobId:                      nil, // Always nil - server auto-generates
 		MaxSamples:                 p.MaxSamples,
-		MaxCacheAge:                nil, // Deprecated in Python - always nil
+		MaxCacheAge:                nil,           // Deprecated in Python - always nil
 		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
 		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
 		DatasetName:                internal.StringOrNil(p.DatasetName),
