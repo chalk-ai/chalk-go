@@ -35,6 +35,20 @@ type OfflineQueryInputSerialized struct {
 	Values  [][]any  `json:"values"`
 }
 
+type OfflineQueryInputUri struct {
+	ParquetUri                string            `json:"parquet_uri"`
+	StartRow                  *int              `json:"start_row,omitempty"`
+	EndRow                    *int              `json:"end_row,omitempty"`
+	IsIceberg                 bool              `json:"is_iceberg,omitempty"`
+	IcebergSnapshotId         *int              `json:"iceberg_snapshot_id,omitempty"`
+	IcebergStartPartition     *int              `json:"iceberg_start_partition,omitempty"`
+	IcebergEndPartition       *int              `json:"iceberg_end_partition,omitempty"`
+	IcebergFilter             *string           `json:"iceberg_filter,omitempty"`
+	AwsRoleArn                *string           `json:"aws_role_arn,omitempty"`
+	AwsRegion                 *string           `json:"aws_region,omitempty"`
+	ColumnNameToFeatureName   map[string]string `json:"column_name_to_feature_name,omitempty"`
+}
+
 type ResourceRequestsSerialized struct {
 	CPU                 *string `json:"cpu"`
 	Memory              *string `json:"memory"`
@@ -45,7 +59,7 @@ type ResourceRequestsSerialized struct {
 
 type OfflineQueryRequestSerialized struct {
 	// Core fields
-	Input                        *OfflineQueryInputSerialized `json:"input"`
+	Input                        interface{} `json:"input"`
 	Output                       []string                     `json:"output"`
 	OutputExpressions           []string                     `json:"output_expressions"`
 	RequiredOutput              []string                     `json:"required_output"`

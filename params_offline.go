@@ -270,6 +270,12 @@ func (p OfflineQueryParams) withInput(feature any, values []any) OfflineQueryPar
 	return p
 }
 
+func (p OfflineQueryParams) withFileInput(fileUri string) OfflineQueryParams {
+	p.rawFileInput = &fileUri
+
+	return p
+}
+
 func (p OfflineQueryParams) withInputs(inputs map[any][]any) OfflineQueryParams {
 	for key, values := range inputs {
 		p = p.withInput(key, values)
