@@ -444,22 +444,21 @@ type UpdateAggregatesResult struct {
 	TraceId string `json:"trace_id"`
 }
 
-
 // ResourceRequests defines resource requirements for offline queries
 // and cron jobs that run in isolated environments.
 type ResourceRequests struct {
 	// CPU requests (e.g., "8", "0.5", "500m" for millicore)
 	CPU *string `json:"cpu,omitempty"`
-	
+
 	// Memory requests (e.g., "1G", "500M", "1000000000" bytes)
 	Memory *string `json:"memory,omitempty"`
-	
+
 	// Ephemeral volume size for spilling intermediate state
 	EphemeralVolumeSize *string `json:"ephemeral_volume_size,omitempty"`
-	
+
 	// Ephemeral storage size
 	EphemeralStorage *string `json:"ephemeral_storage,omitempty"`
-	
+
 	// Resource group
 	ResourceGroup *string `json:"resource_group,omitempty"`
 }
@@ -615,6 +614,8 @@ type OfflineQueryParams struct {
 	rawInputs          map[any][]TsFeatureValue
 	rawOutputs         []any
 	rawRequiredOutputs []any
+
+	rawFileInput *string
 }
 
 // WithInput returns a copy of Offline Query parameters with the specified inputs added.
@@ -628,6 +629,10 @@ type OfflineQueryParams struct {
 // [Temporal Consistency]: https://docs.chalk.ai/docs/temporal-consistency
 func (p OfflineQueryParams) WithInput(feature any, values []any) offlineQueryParamsWithInputs {
 	return offlineQueryParamsWithInputs{underlying: p.withInput(feature, values)}
+}
+
+func (p OfflineQueryParams) WithFileInput(fileUri string) offlineQueryParamsWithInputs {
+	return offlineQueryParamsWithInputs{underlying: p.withFileInput(fileUri)}
 }
 
 // WithInputs returns a copy of Offline Query parameters with the specified inputs added.
@@ -839,29 +844,28 @@ func (d *Dataset) Wait(ctx context.Context) error {
 //
 // Example:
 //
-//		dataset, err := client.GetDataset(context.Background(), revisionId)
-//		if err != nil {
-//			return err
-//		}
-//		
-//		// This automatically uses the last revision
-//		urls, err := dataset.DownloadUris(context.Background())
-//		if err != nil {
-//			return err
-//		}
-//		
-//		for _, url := range urls {
-//			fmt.Println(url)
-//		}
+//	dataset, err := client.GetDataset(context.Background(), revisionId)
+//	if err != nil {
+//		return err
+//	}
 //
+//	// This automatically uses the last revision
+//	urls, err := dataset.DownloadUris(context.Background())
+//	if err != nil {
+//		return err
+//	}
+//
+//	for _, url := range urls {
+//		fmt.Println(url)
+//	}
 func (d *Dataset) DownloadUris(ctx context.Context) ([]string, error) {
 	if len(d.Revisions) == 0 {
 		return nil, errors.New("no revisions found in dataset")
 	}
-	
+
 	// Use the last revision, matching Python's behavior: self.revisions[-1]
 	lastRevision := d.Revisions[len(d.Revisions)-1]
-	
+
 	return lastRevision.DownloadUris(ctx)
 }
 
@@ -891,25 +895,24 @@ func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) er
 //
 // Example:
 //
-//		urls, err := datasetRevision.DownloadUris(context.Background())
-//		if err != nil {
-//			return err
-//		}
-//		
-//		for _, url := range urls {
-//			fmt.Println(url)
-//		}
+//	urls, err := datasetRevision.DownloadUris(context.Background())
+//	if err != nil {
+//		return err
+//	}
 //
+//	for _, url := range urls {
+//		fmt.Println(url)
+//	}
 func (d *DatasetRevision) DownloadUris(ctx context.Context) ([]string, error) {
 	if d.client == nil {
 		return nil, errors.New("DatasetRevision client is not initialized")
 	}
-	
+
 	urls, err := d.client.getDatasetUrls(ctx, d.RevisionId, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get dataset urls")
 	}
-	
+
 	return urls, nil
 }
 
