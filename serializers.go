@@ -160,10 +160,17 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 }
 
 func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryParamsResolved) ([]byte, error) {
-	var queryInput *internal.OfflineQueryInputSerialized
+	var queryInput interface{}
 
-	if len(resolved.inputs) > 0 {
-		queryInput = &internal.OfflineQueryInputSerialized{}
+	// Check if rawFileInput is provided
+	if p.rawFileInput != nil && *p.rawFileInput != "" {
+		// Use OfflineQueryInputUri format
+		queryInput = &internal.OfflineQueryInputUri{
+			ParquetUri: *p.rawFileInput,
+		}
+	} else if len(resolved.inputs) > 0 {
+		// Use OfflineQueryInputSerialized format
+		queryInputSerialized := &internal.OfflineQueryInputSerialized{}
 		globalInputTimes := make([]any, 0)
 		for fqn, tsFeatureValues := range resolved.inputs {
 			var inputValues []any
@@ -172,12 +179,13 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 				inputTimes = append(inputTimes, v.ObservationTime.Format(time.RFC3339))
 				inputValues = append(inputValues, v.Value)
 			}
-			queryInput.Columns = append(queryInput.Columns, fqn)
-			queryInput.Values = append(queryInput.Values, inputValues)
+			queryInputSerialized.Columns = append(queryInputSerialized.Columns, fqn)
+			queryInputSerialized.Values = append(queryInputSerialized.Values, inputValues)
 			globalInputTimes = inputTimes
 		}
-		queryInput.Columns = append(queryInput.Columns, "__chalk__.CHALK_TS")
-		queryInput.Values = append(queryInput.Values, globalInputTimes)
+		queryInputSerialized.Columns = append(queryInputSerialized.Columns, "__chalk__.CHALK_TS")
+		queryInputSerialized.Values = append(queryInputSerialized.Values, globalInputTimes)
+		queryInput = queryInputSerialized
 	}
 
 	output := resolved.outputs

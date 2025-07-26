@@ -405,3 +405,70 @@ func TestOnlineQueryRequestSerializationWithoutBranch(t *testing.T) {
 	assert.Contains(t, jsonString, `"branch_id":null`)
 	assert.Contains(t, jsonString, `"explain":true`)
 }
+
+func TestOfflineQuerySerializationWithFileInput(t *testing.T) {
+	t.Parallel()
+	
+	// Test with file input URI
+	fileUri := "s3://my-bucket/data.parquet"
+	params := OfflineQueryParams{
+		rawFileInput: &fileUri,
+	}
+	
+	resolved := &offlineQueryParamsResolved{
+		inputs:          map[string][]TsFeatureValue{},
+		outputs:         []string{"user.id", "user.name"},
+		requiredOutputs: []string{},
+		versioned:       false,
+	}
+	
+	serialized, err := serializeOfflineQueryParams(&params, resolved)
+	assert.NoError(t, err)
+	
+	// Parse the JSON to verify structure
+	var result map[string]interface{}
+	err = json.Unmarshal(serialized, &result)
+	assert.NoError(t, err)
+	
+	// Verify that input is an OfflineQueryInputUri
+	input, ok := result["input"].(map[string]interface{})
+	assert.True(t, ok, "input should be a map")
+	assert.Equal(t, fileUri, input["parquet_uri"])
+	assert.NotContains(t, input, "columns")
+	assert.NotContains(t, input, "values")
+}
+
+func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
+	t.Parallel()
+	
+	// Test with regular input (not file input)
+	params := OfflineQueryParams{}
+	
+	observationTime := time.Now()
+	resolved := &offlineQueryParamsResolved{
+		inputs: map[string][]TsFeatureValue{
+			"user.id": {
+				{Value: int64(1), ObservationTime: &observationTime},
+				{Value: int64(2), ObservationTime: &observationTime},
+			},
+		},
+		outputs:         []string{"user.name"},
+		requiredOutputs: []string{},
+		versioned:       false,
+	}
+	
+	serialized, err := serializeOfflineQueryParams(&params, resolved)
+	assert.NoError(t, err)
+	
+	// Parse the JSON to verify structure
+	var result map[string]interface{}
+	err = json.Unmarshal(serialized, &result)
+	assert.NoError(t, err)
+	
+	// Verify that input is an OfflineQueryInputSerialized
+	input, ok := result["input"].(map[string]interface{})
+	assert.True(t, ok, "input should be a map")
+	assert.Contains(t, input, "columns")
+	assert.Contains(t, input, "values")
+	assert.NotContains(t, input, "parquet_uri")
+}
