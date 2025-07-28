@@ -472,3 +472,84 @@ func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
 	assert.Contains(t, input, "values")
 	assert.NotContains(t, input, "parquet_uri")
 }
+
+func TestOfflineQuerySerializationWithRecomputeFeatures(t *testing.T) {
+	t.Parallel()
+	
+	// Test with RecomputeFeatures boolean
+	params := OfflineQueryParams{
+		RecomputeFeatures: true,
+	}
+	
+	resolved := &offlineQueryParamsResolved{
+		inputs:          map[string][]TsFeatureValue{},
+		outputs:         []string{"user.id"},
+		requiredOutputs: []string{},
+		versioned:       false,
+	}
+	
+	serialized, err := serializeOfflineQueryParams(&params, resolved)
+	assert.NoError(t, err)
+	
+	// Parse the JSON to verify structure
+	var result map[string]interface{}
+	err = json.Unmarshal(serialized, &result)
+	assert.NoError(t, err)
+	
+	// Verify that recompute_features is a boolean
+	recomputeFeatures, ok := result["recompute_features"].(bool)
+	assert.True(t, ok, "recompute_features should be a boolean")
+	assert.True(t, recomputeFeatures)
+}
+
+func TestOfflineQuerySerializationWithRecomputeFeaturesList(t *testing.T) {
+	t.Parallel()
+	
+	// Test with RecomputeFeaturesList
+	featuresList := []string{"user.id", "user.name", "user.email"}
+	params := OfflineQueryParams{
+		RecomputeFeaturesList: featuresList,
+	}
+	
+	resolved := &offlineQueryParamsResolved{
+		inputs:          map[string][]TsFeatureValue{},
+		outputs:         []string{"user.score"},
+		requiredOutputs: []string{},
+		versioned:       false,
+	}
+	
+	serialized, err := serializeOfflineQueryParams(&params, resolved)
+	assert.NoError(t, err)
+	
+	// Parse the JSON to verify structure
+	var result map[string]interface{}
+	err = json.Unmarshal(serialized, &result)
+	assert.NoError(t, err)
+	
+	// Verify that recompute_features is an array
+	recomputeFeaturesInterface, ok := result["recompute_features"].([]interface{})
+	assert.True(t, ok, "recompute_features should be an array")
+	
+	// Convert to string array and verify contents
+	var recomputeFeatures []string
+	for _, v := range recomputeFeaturesInterface {
+		str, ok := v.(string)
+		assert.True(t, ok, "each element should be a string")
+		recomputeFeatures = append(recomputeFeatures, str)
+	}
+	assert.Equal(t, featuresList, recomputeFeatures)
+}
+
+func TestOfflineQueryValidationRecomputeFeaturesConflict(t *testing.T) {
+	t.Parallel()
+	
+	// Test validation error when both are set
+	params := OfflineQueryParams{
+		RecomputeFeatures:     true,
+		RecomputeFeaturesList: []string{"user.id"},
+	}
+	
+	_, err := params.resolve()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "cannot set both RecomputeFeatures and RecomputeFeaturesList")
+}

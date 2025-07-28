@@ -188,6 +188,13 @@ func (p OfflineQueryParamsComplete) WithRecomputeFeatures(recomputeFeatures bool
 	return p
 }
 
+// WithRecomputeFeaturesList returns a copy of Offline Query parameters with specific features to recompute.
+// This is mutually exclusive with WithRecomputeFeatures - only one should be used.
+func (p OfflineQueryParamsComplete) WithRecomputeFeaturesList(features []string) OfflineQueryParamsComplete {
+	p.underlying.RecomputeFeaturesList = features
+	return p
+}
+
 // WithSampleFeatures returns a copy of Offline Query parameters with the specified sample features set.
 func (p OfflineQueryParamsComplete) WithSampleFeatures(sampleFeatures []string) OfflineQueryParamsComplete {
 	p.underlying.SampleFeatures = sampleFeatures

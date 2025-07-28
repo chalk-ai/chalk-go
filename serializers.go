@@ -158,6 +158,17 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// getRecomputeFeaturesValue returns the appropriate value for recompute_features field
+// based on whether RecomputeFeatures or RecomputeFeaturesList is set
+func getRecomputeFeaturesValue(p *OfflineQueryParams) interface{} {
+	// If RecomputeFeaturesList is set, use that
+	if len(p.RecomputeFeaturesList) > 0 {
+		return p.RecomputeFeaturesList
+	}
+	// Otherwise use the boolean value
+	return p.RecomputeFeatures
+}
+
 func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryParamsResolved) ([]byte, error) {
 	var queryInput interface{}
 
@@ -302,7 +313,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
 		DatasetName:                internal.StringOrNil(p.DatasetName),
 		Branch:                     internal.StringOrNil(p.Branch),
-		RecomputeFeatures:          p.RecomputeFeatures,
+		RecomputeFeatures:          getRecomputeFeaturesValue(p),
 		SampleFeatures:             sampleFeaturesPtr,
 		StorePlanStages:            p.StorePlanStages,
 		Explain:                    p.Explain,

@@ -579,6 +579,10 @@ type OfflineQueryParams struct {
 	// RecomputeFeatures forces recomputation of features instead of using cached values.
 	RecomputeFeatures bool
 
+	// RecomputeFeaturesList specifies a list of specific features to recompute.
+	// This is mutually exclusive with RecomputeFeatures - only one should be set.
+	RecomputeFeaturesList []string
+
 	// ObservedAtLowerBound specifies the lower bound for the observation time.
 	// Features will be queried as of this time or later.
 	ObservedAtLowerBound *time.Time

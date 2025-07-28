@@ -72,7 +72,7 @@ type OfflineQueryRequestSerialized struct {
 	ObservedAtUpperBound        *string                      `json:"observed_at_upper_bound"`
 	DatasetName                 *string                      `json:"dataset_name"`
 	Branch                      *string                      `json:"branch"`
-	RecomputeFeatures           bool                         `json:"recompute_features"`
+	RecomputeFeatures           interface{}                  `json:"recompute_features"`
 	SampleFeatures              *[]string                    `json:"sample_features"`
 	StorePlanStages             bool                         `json:"store_plan_stages"`
 	Explain                     bool                         `json:"explain"`
