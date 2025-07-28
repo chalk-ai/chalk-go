@@ -166,6 +166,12 @@ func (p *OfflineQueryParams) resolve() (*offlineQueryParamsResolved, error) {
 			)
 		}
 	}
+	
+	// Validate that only one of RecomputeFeatures or RecomputeFeaturesList is set
+	if p.RecomputeFeatures && len(p.RecomputeFeaturesList) > 0 {
+		return nil, errors.New("cannot set both RecomputeFeatures and RecomputeFeaturesList - use only one")
+	}
+	
 	return &offlineQueryParamsResolved{
 		inputs:          inputs,
 		outputs:         outputs,
