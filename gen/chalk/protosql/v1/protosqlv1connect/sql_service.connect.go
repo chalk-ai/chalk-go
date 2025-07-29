@@ -38,6 +38,9 @@ const (
 	SqlServiceExecuteSqlQueryProcedure = "/chalk.protosql.v1.SqlService/ExecuteSqlQuery"
 	// SqlServicePlanSqlQueryProcedure is the fully-qualified name of the SqlService's PlanSqlQuery RPC.
 	SqlServicePlanSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PlanSqlQuery"
+	// SqlServiceGetDbCatalogsProcedure is the fully-qualified name of the SqlService's GetDbCatalogs
+	// RPC.
+	SqlServiceGetDbCatalogsProcedure = "/chalk.protosql.v1.SqlService/GetDbCatalogs"
 	// SqlServiceGetDbSchemasProcedure is the fully-qualified name of the SqlService's GetDbSchemas RPC.
 	SqlServiceGetDbSchemasProcedure = "/chalk.protosql.v1.SqlService/GetDbSchemas"
 	// SqlServiceGetTablesProcedure is the fully-qualified name of the SqlService's GetTables RPC.
@@ -48,6 +51,7 @@ const (
 type SqlServiceClient interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
 	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
 	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
 }
@@ -75,6 +79,12 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
 			connect.WithClientOptions(opts...),
 		),
+		getDbCatalogs: connect.NewClient[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse](
+			httpClient,
+			baseURL+SqlServiceGetDbCatalogsProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("GetDbCatalogs")),
+			connect.WithClientOptions(opts...),
+		),
 		getDbSchemas: connect.NewClient[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse](
 			httpClient,
 			baseURL+SqlServiceGetDbSchemasProcedure,
@@ -94,6 +104,7 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 type sqlServiceClient struct {
 	executeSqlQuery *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
 	planSqlQuery    *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
+	getDbCatalogs   *connect.Client[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse]
 	getDbSchemas    *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
 	getTables       *connect.Client[v1.GetTablesRequest, v1.GetTablesResponse]
 }
@@ -106,6 +117,11 @@ func (c *sqlServiceClient) ExecuteSqlQuery(ctx context.Context, req *connect.Req
 // PlanSqlQuery calls chalk.protosql.v1.SqlService.PlanSqlQuery.
 func (c *sqlServiceClient) PlanSqlQuery(ctx context.Context, req *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return c.planSqlQuery.CallUnary(ctx, req)
+}
+
+// GetDbCatalogs calls chalk.protosql.v1.SqlService.GetDbCatalogs.
+func (c *sqlServiceClient) GetDbCatalogs(ctx context.Context, req *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error) {
+	return c.getDbCatalogs.CallUnary(ctx, req)
 }
 
 // GetDbSchemas calls chalk.protosql.v1.SqlService.GetDbSchemas.
@@ -122,6 +138,7 @@ func (c *sqlServiceClient) GetTables(ctx context.Context, req *connect.Request[v
 type SqlServiceHandler interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
 	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
 	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
 }
@@ -145,6 +162,12 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sqlServiceGetDbCatalogsHandler := connect.NewUnaryHandler(
+		SqlServiceGetDbCatalogsProcedure,
+		svc.GetDbCatalogs,
+		connect.WithSchema(sqlServiceMethods.ByName("GetDbCatalogs")),
+		connect.WithHandlerOptions(opts...),
+	)
 	sqlServiceGetDbSchemasHandler := connect.NewUnaryHandler(
 		SqlServiceGetDbSchemasProcedure,
 		svc.GetDbSchemas,
@@ -163,6 +186,8 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 			sqlServiceExecuteSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServicePlanSqlQueryProcedure:
 			sqlServicePlanSqlQueryHandler.ServeHTTP(w, r)
+		case SqlServiceGetDbCatalogsProcedure:
+			sqlServiceGetDbCatalogsHandler.ServeHTTP(w, r)
 		case SqlServiceGetDbSchemasProcedure:
 			sqlServiceGetDbSchemasHandler.ServeHTTP(w, r)
 		case SqlServiceGetTablesProcedure:
@@ -182,6 +207,10 @@ func (UnimplementedSqlServiceHandler) ExecuteSqlQuery(context.Context, *connect.
 
 func (UnimplementedSqlServiceHandler) PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.PlanSqlQuery is not implemented"))
+}
+
+func (UnimplementedSqlServiceHandler) GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.GetDbCatalogs is not implemented"))
 }
 
 func (UnimplementedSqlServiceHandler) GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error) {
