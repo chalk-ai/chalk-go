@@ -18,6 +18,7 @@ func init() {
 }
 
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
+	t.Parallel()
 	// Tests that all types of input, output, and staleness parameters can be passed
 	// without error.
 	assert.Nil(t, initErr)
@@ -49,6 +50,7 @@ func TestOnlineQueryParamsAllTypes(t *testing.T) {
 }
 
 func TestOnlineQueryInputParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithInput(invalidFeatureReference, "1")
@@ -57,6 +59,7 @@ func TestOnlineQueryInputParamInteger(t *testing.T) {
 }
 
 func TestOnlineQueryOutputParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OnlineQueryParams{}.WithOutputs(invalidFeatureReference)
@@ -65,6 +68,7 @@ func TestOnlineQueryOutputParamInteger(t *testing.T) {
 }
 
 func TestOnlineQueryStalenessParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OnlineQueryParams{}.WithStaleness(invalidFeatureReference, time.Second*5)

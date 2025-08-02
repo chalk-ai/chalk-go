@@ -329,6 +329,7 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.grade",
@@ -364,6 +365,7 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWindowedFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.avg_spend__60__",
@@ -407,6 +409,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.avg_spend__60__",
@@ -507,6 +510,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 }
 
 func TestUnmarshalDataclassFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.lat_lng",
@@ -533,6 +537,7 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
+	t.Parallel()
 	fqn := "unmarshal_user.int"
 	data := []FeatureResult{
 		{
@@ -714,6 +719,7 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
+	t.Parallel()
 	assert.Nil(t, InitFeatures(&fixtures.Root))
 	name := "abc"
 	scalarsMap := map[any]any{

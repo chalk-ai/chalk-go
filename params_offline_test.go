@@ -8,6 +8,7 @@ import (
 )
 
 func TestOfflineQueryParamsAllTypes(t *testing.T) {
+	t.Parallel()
 	// Tests that all types of input, output, and required output parameters can be passed
 	// without error.
 	initErr := InitFeatures(&fixtures.Root)
@@ -41,6 +42,7 @@ func TestOfflineQueryParamsAllTypes(t *testing.T) {
 }
 
 func TestOfflineQueryInputParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as input feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OfflineQueryParams{}.WithInput(invalidFeatureReference, []any{1})
@@ -49,6 +51,7 @@ func TestOfflineQueryInputParamInteger(t *testing.T) {
 }
 
 func TestOfflineQueryOutputParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as output feature reference. Should fail.
 	var invalidFeatureReference int
 	params := OfflineQueryParams{}.WithOutputs(invalidFeatureReference)
@@ -57,6 +60,7 @@ func TestOfflineQueryOutputParamInteger(t *testing.T) {
 }
 
 func TestOfflineQueryRequiredOutputsParamInteger(t *testing.T) {
+	t.Parallel()
 	// Tests passing an integer as staleness feature reference. Should fail.
 	var invalidFeatureReference int
 	underlying := OfflineQueryParams{}.withRequiredOutputs(invalidFeatureReference, time.Second*5)
