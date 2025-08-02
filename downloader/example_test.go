@@ -11,6 +11,7 @@ import (
 )
 
 func TestDownloader(t *testing.T) {
+	t.Parallel()
 	tmpDir, err := os.MkdirTemp("", "downloader_test")
 	if err != nil {
 		t.Fatal(err)

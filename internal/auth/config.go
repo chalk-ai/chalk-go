@@ -1,14 +1,15 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"github.com/cockroachdb/errors"
 	"gopkg.in/yaml.v3"
 	"os"
 )
 
-func GetProjectAuthConfig(configDir *string) (*ProjectToken, error) {
-	path, err := getConfigPath(configDir)
+func GetProjectAuthConfig(ctx context.Context, configDir *string) (*ProjectToken, error) {
+	path, err := getConfigPath(ctx, configDir)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting project path for auth config")
 	}
