@@ -129,7 +129,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		config:           c,
 		tokenManager:     tokenManager,
 		queryClient:      queryClient,
-		queryServer:      ptr.PtrOrNil(cfg.QueryServer),
+		queryServer:      ptr.OrNil(cfg.QueryServer),
 		resourceGroup:    resourceGroup,
 		timeout:          timeout,
 		allocator:        cfg.Allocator,

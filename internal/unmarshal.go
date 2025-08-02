@@ -403,14 +403,14 @@ func ReflectPtr(value reflect.Value) reflect.Value {
 // GetReflectValue returns a reflect.Value of the given type from the given non-reflect value.
 func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*reflect.Value, error) {
 	if value == nil {
-		return ptr.Ptr(reflect.Zero(typ)), nil
+		return ptr.New(reflect.Zero(typ)), nil
 	}
 	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
 		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
 		}
-		return ptr.Ptr(ReflectPtr(*indirectValue)), nil
+		return ptr.New(ReflectPtr(*indirectValue)), nil
 	}
 	if IsStruct(typ) {
 		structValue := reflect.New(typ).Elem()
@@ -521,7 +521,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 				// reflect.ValueOf(&timeValue) will give
 				// us a reflect value of the pointer to
 				// an interface.
-				return ptr.Ptr(reflect.ValueOf(timeValue)), nil
+				return ptr.New(reflect.ValueOf(timeValue)), nil
 			} else {
 				return nil, fmt.Errorf(
 					"error getting reflect value: expected `time.Time`, got %s",
@@ -534,7 +534,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 		stringValue := reflect.ValueOf(value).String()
 		timeValue, timeErr := time.Parse(time.RFC3339, stringValue)
 		if timeErr == nil {
-			return ptr.Ptr(reflect.ValueOf(timeValue)), nil
+			return ptr.New(reflect.ValueOf(timeValue)), nil
 		}
 
 		// Dates are returned as strings in online query (non-bulk)
@@ -543,7 +543,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 			// Return original datetime parsing error
 			return nil, errors.Wrap(timeErr, "error parsing date string")
 		}
-		return ptr.Ptr(reflect.ValueOf(dateValue)), nil
+		return ptr.New(reflect.ValueOf(dateValue)), nil
 	} else if typ.Kind() == reflect.Slice {
 		actualSlice := reflect.ValueOf(value)
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
