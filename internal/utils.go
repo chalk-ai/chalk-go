@@ -478,7 +478,7 @@ func getForeignNamespace(typ reflect.Type) *string {
 	if typ.Kind() == reflect.Slice {
 		return getForeignNamespace(typ.Elem())
 	} else if IsFeaturesClass(typ) {
-		return ptr.Ptr(ChalkpySnakeCase(typ.Name()))
+		return ptr.New(ChalkpySnakeCase(typ.Name()))
 	} else {
 		return nil
 	}

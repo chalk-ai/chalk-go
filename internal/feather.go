@@ -499,7 +499,7 @@ func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record,
 	}
 
 	return array.NewRecord(
-		arrow.NewSchema(newFields, ptr.Ptr(record.Schema().Metadata())),
+		arrow.NewSchema(newFields, ptr.New(record.Schema().Metadata())),
 		newColumns,
 		record.NumRows(),
 	), nil
