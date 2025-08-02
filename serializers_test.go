@@ -126,21 +126,21 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 
 	transactions := []SerdeTransaction{
 		{
-			Id:         ptr.Ptr("1"),
-			LocationId: ptr.Ptr(int64(1)),
+			Id:         ptr.New("1"),
+			LocationId: ptr.New(int64(1)),
 			Details: &SerdeDetails{
-				Name:      ptr.Ptr("name"),
-				OutAmount: ptr.Ptr(2.2),
-				InAmount:  ptr.Ptr(3.3),
+				Name:      ptr.New("name"),
+				OutAmount: ptr.New(2.2),
+				InAmount:  ptr.New(3.3),
 			},
 		},
 		{
-			Id:         ptr.Ptr("2"),
-			LocationId: ptr.Ptr(int64(2)),
+			Id:         ptr.New("2"),
+			LocationId: ptr.New(int64(2)),
 			Details: &SerdeDetails{
-				Name:      ptr.Ptr("name2"),
-				OutAmount: ptr.Ptr(3.2),
-				InAmount:  ptr.Ptr(4.3),
+				Name:      ptr.New("name2"),
+				OutAmount: ptr.New(3.2),
+				InAmount:  ptr.New(4.3),
 			},
 		},
 	}
@@ -186,7 +186,7 @@ func TestGRPCOnlineQueryBulkResultConstructor(t *testing.T) {
 func TestDurationStringFormatting(t *testing.T) {
 	// Test that Go's duration string formatting works as expected
 	// We're now using the simpler Duration.String() approach
-	
+
 	tests := []struct {
 		name     string
 		duration time.Duration
@@ -264,7 +264,7 @@ func TestInlineTimestampFormatting(t *testing.T) {
 				formatted := strings.Replace(tt.time.Format(time.RFC3339Nano), "Z", "+00:00", 1)
 				result = &formatted
 			}
-			
+
 			if !stringPtrEqual(result, tt.expected) {
 				t.Errorf("inline timestamp formatting(%v) = %v, want %v", tt.time, stringPtrValue(result), stringPtrValue(tt.expected))
 			}
@@ -272,15 +272,14 @@ func TestInlineTimestampFormatting(t *testing.T) {
 	}
 }
 
-
 func TestTimestampSerializationIntegration(t *testing.T) {
 	// Test that the complete serialization pipeline works correctly
 	// This tests the integration of formatTimeBound and duration string formatting
-	
+
 	// Create test parameters with timestamp bounds
 	lowerBound := time.Date(2024, 5, 9, 15, 29, 0, 0, time.UTC)
 	upperBound := time.Date(2024, 5, 9, 16, 29, 0, 0, time.UTC)
-	
+
 	params := &OfflineQueryParams{
 		CompletionDeadline:   durationPtr(2 * time.Hour),
 		ObservedAtLowerBound: &lowerBound,
@@ -308,9 +307,6 @@ func TestTimestampSerializationIntegration(t *testing.T) {
 	// but the important thing is that the functions don't panic and produce valid output
 	t.Logf("Serialized successfully: %d bytes", len(serialized))
 }
-
-
-
 
 // Helper functions for testing
 func timePtr(t time.Time) *time.Time {
@@ -408,28 +404,28 @@ func TestOnlineQueryRequestSerializationWithoutBranch(t *testing.T) {
 
 func TestOfflineQuerySerializationWithFileInput(t *testing.T) {
 	t.Parallel()
-	
+
 	// Test with file input URI
 	fileUri := "s3://my-bucket/data.parquet"
 	params := OfflineQueryParams{
 		rawFileInput: &fileUri,
 	}
-	
+
 	resolved := &offlineQueryParamsResolved{
 		inputs:          map[string][]TsFeatureValue{},
 		outputs:         []string{"user.id", "user.name"},
 		requiredOutputs: []string{},
 		versioned:       false,
 	}
-	
+
 	serialized, err := serializeOfflineQueryParams(&params, resolved)
 	assert.NoError(t, err)
-	
+
 	// Parse the JSON to verify structure
 	var result map[string]interface{}
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
-	
+
 	// Verify that input is an OfflineQueryInputUri
 	input, ok := result["input"].(map[string]interface{})
 	assert.True(t, ok, "input should be a map")
@@ -440,10 +436,10 @@ func TestOfflineQuerySerializationWithFileInput(t *testing.T) {
 
 func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
 	t.Parallel()
-	
+
 	// Test with regular input (not file input)
 	params := OfflineQueryParams{}
-	
+
 	observationTime := time.Now()
 	resolved := &offlineQueryParamsResolved{
 		inputs: map[string][]TsFeatureValue{
@@ -456,15 +452,15 @@ func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
 		requiredOutputs: []string{},
 		versioned:       false,
 	}
-	
+
 	serialized, err := serializeOfflineQueryParams(&params, resolved)
 	assert.NoError(t, err)
-	
+
 	// Parse the JSON to verify structure
 	var result map[string]interface{}
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
-	
+
 	// Verify that input is an OfflineQueryInputSerialized
 	input, ok := result["input"].(map[string]interface{})
 	assert.True(t, ok, "input should be a map")
@@ -475,27 +471,27 @@ func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
 
 func TestOfflineQuerySerializationWithRecomputeFeatures(t *testing.T) {
 	t.Parallel()
-	
+
 	// Test with RecomputeFeatures boolean
 	params := OfflineQueryParams{
 		RecomputeFeatures: true,
 	}
-	
+
 	resolved := &offlineQueryParamsResolved{
 		inputs:          map[string][]TsFeatureValue{},
 		outputs:         []string{"user.id"},
 		requiredOutputs: []string{},
 		versioned:       false,
 	}
-	
+
 	serialized, err := serializeOfflineQueryParams(&params, resolved)
 	assert.NoError(t, err)
-	
+
 	// Parse the JSON to verify structure
 	var result map[string]interface{}
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
-	
+
 	// Verify that recompute_features is a boolean
 	recomputeFeatures, ok := result["recompute_features"].(bool)
 	assert.True(t, ok, "recompute_features should be a boolean")
@@ -504,32 +500,32 @@ func TestOfflineQuerySerializationWithRecomputeFeatures(t *testing.T) {
 
 func TestOfflineQuerySerializationWithRecomputeFeaturesList(t *testing.T) {
 	t.Parallel()
-	
+
 	// Test with RecomputeFeaturesList
 	featuresList := []string{"user.id", "user.name", "user.email"}
 	params := OfflineQueryParams{
 		RecomputeFeaturesList: featuresList,
 	}
-	
+
 	resolved := &offlineQueryParamsResolved{
 		inputs:          map[string][]TsFeatureValue{},
 		outputs:         []string{"user.score"},
 		requiredOutputs: []string{},
 		versioned:       false,
 	}
-	
+
 	serialized, err := serializeOfflineQueryParams(&params, resolved)
 	assert.NoError(t, err)
-	
+
 	// Parse the JSON to verify structure
 	var result map[string]interface{}
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
-	
+
 	// Verify that recompute_features is an array
 	recomputeFeaturesInterface, ok := result["recompute_features"].([]interface{})
 	assert.True(t, ok, "recompute_features should be an array")
-	
+
 	// Convert to string array and verify contents
 	var recomputeFeatures []string
 	for _, v := range recomputeFeaturesInterface {
@@ -542,13 +538,13 @@ func TestOfflineQuerySerializationWithRecomputeFeaturesList(t *testing.T) {
 
 func TestOfflineQueryValidationRecomputeFeaturesConflict(t *testing.T) {
 	t.Parallel()
-	
+
 	// Test validation error when both are set
 	params := OfflineQueryParams{
 		RecomputeFeatures:     true,
 		RecomputeFeaturesList: []string{"user.id"},
 	}
-	
+
 	_, err := params.resolve()
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "cannot set both RecomputeFeatures and RecomputeFeaturesList")

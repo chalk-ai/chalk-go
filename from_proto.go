@@ -18,7 +18,7 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 
 	var queryTimestamp *time.Time
 	if metaRaw.GetQueryTimestamp() != nil {
-		queryTimestamp = ptr.Ptr(metaRaw.GetQueryTimestamp().AsTime())
+		queryTimestamp = ptr.New(metaRaw.GetQueryTimestamp().AsTime())
 	}
 
 	return &QueryMeta{

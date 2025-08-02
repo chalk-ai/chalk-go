@@ -329,6 +329,7 @@ func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 }
 
 func TestUnmarshalVersionedFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.grade",
@@ -364,6 +365,7 @@ func TestUnmarshalVersionedFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWindowedFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.avg_spend__60__",
@@ -407,6 +409,7 @@ func TestUnmarshalWindowedFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWindowedFeaturesChildrenAllNil(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.avg_spend__60__",
@@ -507,6 +510,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 }
 
 func TestUnmarshalDataclassFeatures(t *testing.T) {
+	t.Parallel()
 	data := []FeatureResult{
 		{
 			Field:     "unmarshal_user.lat_lng",
@@ -533,6 +537,7 @@ func TestUnmarshalDataclassFeatures(t *testing.T) {
 }
 
 func TestUnmarshalWrongType(t *testing.T) {
+	t.Parallel()
 	fqn := "unmarshal_user.int"
 	data := []FeatureResult{
 		{
@@ -681,11 +686,11 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	scalarsMap := map[any]any{
 		fixtures.Root.AllTypes.DataclassWithDataclass: []*fixtures.Child{
 			{
-				Name: ptr.Ptr("Alice"),
+				Name: ptr.New("Alice"),
 				Mom: &fixtures.Parent{
-					Name: ptr.Ptr("Alice's Mom"),
+					Name: ptr.New("Alice's Mom"),
 					Dad: &fixtures.Grandparent{
-						Name: ptr.Ptr("Alice's Grandpa"),
+						Name: ptr.New("Alice's Grandpa"),
 					},
 				},
 			},
@@ -714,6 +719,7 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 }
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
+	t.Parallel()
 	assert.Nil(t, InitFeatures(&fixtures.Root))
 	name := "abc"
 	scalarsMap := map[any]any{
@@ -995,13 +1001,13 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	scalarsMap := map[any]any{
 		fixtures.Root.AllTypes.DataclassWithNils: []fixtures.Possessions{
 			{
-				Car:   ptr.Ptr("Toyota"),
+				Car:   ptr.New("Toyota"),
 				Yacht: nil,
-				Plane: ptr.Ptr("Boeing"),
+				Plane: ptr.New("Boeing"),
 			},
 			{
-				Car:   ptr.Ptr("Honda"),
-				Yacht: ptr.Ptr("Yamaha"),
+				Car:   ptr.New("Honda"),
+				Yacht: ptr.New("Yamaha"),
 				Plane: nil,
 			},
 		},
@@ -1371,7 +1377,7 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 					// which defeats the purpose of trying to deserialize into
 					// one existing field in the has-many struct, while deserializing
 					// into a non-existent field in the same has-many struct.
-					Id: ptr.Ptr("nested_id"),
+					Id: ptr.New("nested_id"),
 				},
 			},
 		}, // This field exists
@@ -1594,21 +1600,21 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	assert.Greater(t, numRows, internal.TableReaderChunkSize)
 	for i := 0; i < numRows; i++ {
 		transactions = append(transactions, unmarshalTransaction{
-			Id:                    ptr.Ptr(fmt.Sprintf("id-%d", i)),
-			AmountP30D:            ptr.Ptr(int64(i)),
-			FeatureWithLongName1:  ptr.Ptr(fmt.Sprintf("feature_with_long_name1-%d", i)),
-			FeatureWithLongName2:  ptr.Ptr(fmt.Sprintf("feature_with_long_name2-%d", i)),
-			FeatureWithLongName3:  ptr.Ptr(fmt.Sprintf("feature_with_long_name3-%d", i)),
-			FeatureWithLongName4:  ptr.Ptr(fmt.Sprintf("feature_with_long_name4-%d", i)),
-			FeatureWithLongName5:  ptr.Ptr(fmt.Sprintf("feature_with_long_name5-%d", i)),
-			FeatureWithLongName6:  ptr.Ptr(fmt.Sprintf("feature_with_long_name6-%d", i)),
-			FeatureWithLongName7:  ptr.Ptr(fmt.Sprintf("feature_with_long_name7-%d", i)),
-			FeatureWithLongName8:  ptr.Ptr(fmt.Sprintf("feature_with_long_name8-%d", i)),
-			FeatureWithLongName9:  ptr.Ptr(fmt.Sprintf("feature_with_long_name9-%d", i)),
-			FeatureWithLongName10: ptr.Ptr(fmt.Sprintf("feature_with_long_name10-%d", i)),
-			FeatureWithLongName11: ptr.Ptr(fmt.Sprintf("feature_with_long_name11-%d", i)),
-			FeatureWithLongName12: ptr.Ptr(fmt.Sprintf("feature_with_long_name12-%d", i)),
-			FeatureWithLongName13: ptr.Ptr(fmt.Sprintf("feature_with_long_name13-%d", i)),
+			Id:                    ptr.New(fmt.Sprintf("id-%d", i)),
+			AmountP30D:            ptr.New(int64(i)),
+			FeatureWithLongName1:  ptr.New(fmt.Sprintf("feature_with_long_name1-%d", i)),
+			FeatureWithLongName2:  ptr.New(fmt.Sprintf("feature_with_long_name2-%d", i)),
+			FeatureWithLongName3:  ptr.New(fmt.Sprintf("feature_with_long_name3-%d", i)),
+			FeatureWithLongName4:  ptr.New(fmt.Sprintf("feature_with_long_name4-%d", i)),
+			FeatureWithLongName5:  ptr.New(fmt.Sprintf("feature_with_long_name5-%d", i)),
+			FeatureWithLongName6:  ptr.New(fmt.Sprintf("feature_with_long_name6-%d", i)),
+			FeatureWithLongName7:  ptr.New(fmt.Sprintf("feature_with_long_name7-%d", i)),
+			FeatureWithLongName8:  ptr.New(fmt.Sprintf("feature_with_long_name8-%d", i)),
+			FeatureWithLongName9:  ptr.New(fmt.Sprintf("feature_with_long_name9-%d", i)),
+			FeatureWithLongName10: ptr.New(fmt.Sprintf("feature_with_long_name10-%d", i)),
+			FeatureWithLongName11: ptr.New(fmt.Sprintf("feature_with_long_name11-%d", i)),
+			FeatureWithLongName12: ptr.New(fmt.Sprintf("feature_with_long_name12-%d", i)),
+			FeatureWithLongName13: ptr.New(fmt.Sprintf("feature_with_long_name13-%d", i)),
 		})
 	}
 
@@ -1707,12 +1713,12 @@ func TestSerdeInfiniteLoopFeatures(t *testing.T) {
 		"inf_loop_user.id": []string{"user-1", "user-2"},
 		"inf_loop_user.account": []infLoopAccount{
 			{
-				Id:   ptr.Ptr("acc-1"),
-				Name: ptr.Ptr("hello"),
+				Id:   ptr.New("acc-1"),
+				Name: ptr.New("hello"),
 			},
 			{
-				Id:   ptr.Ptr("acc-2"),
-				Name: ptr.Ptr("world"),
+				Id:   ptr.New("acc-2"),
+				Name: ptr.New("world"),
 			},
 		},
 	}
@@ -1751,9 +1757,9 @@ func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
 		"inf_loop_a.id": []string{"a-1"},
 		"inf_loop_a.b": []infLoopB{
 			{
-				Id: ptr.Ptr("b-1"),
+				Id: ptr.New("b-1"),
 				C: &infLoopC{
-					Id: ptr.Ptr("c-1"),
+					Id: ptr.New("c-1"),
 				},
 			},
 		},
@@ -1818,25 +1824,25 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 		"inf_loop_root.id": []string{"root-only"},
 		"inf_loop_root.p": []infLoopP{
 			{
-				Id: ptr.Ptr("p-1"),
+				Id: ptr.New("p-1"),
 				Common: &infLoopCommon{
-					Id: ptr.Ptr("common-1"),
+					Id: ptr.New("common-1"),
 					R: &infLoopR{
-						Id: ptr.Ptr("r-1"),
+						Id: ptr.New("r-1"),
 					},
 					Z: &infLoopZ{
-						Id: ptr.Ptr("z-1"),
+						Id: ptr.New("z-1"),
 					},
 				},
 				Q: &infLoopQ{
-					Id: ptr.Ptr("q-1"),
+					Id: ptr.New("q-1"),
 					Common: &infLoopCommon{
-						Id: ptr.Ptr("common-2"),
+						Id: ptr.New("common-2"),
 						R: &infLoopR{
-							Id: ptr.Ptr("r-2"),
+							Id: ptr.New("r-2"),
 						},
 						Z: &infLoopZ{
-							Id: ptr.Ptr("z-2"),
+							Id: ptr.New("z-2"),
 						},
 					},
 				},

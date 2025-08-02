@@ -4,18 +4,11 @@ import (
 	"connectrpc.com/connect"
 	"context"
 	"fmt"
+	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
-	"strings"
 	"time"
 )
-
-func ensureHTTPSPrefix(inputURL string) string {
-	if strings.HasPrefix(inputURL, "https://") || strings.HasPrefix(inputURL, "http://") {
-		return inputURL
-	}
-	return "https://" + inputURL
-}
 
 func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
@@ -44,17 +37,18 @@ func timeoutInterceptor(clientLevelTimeout *time.Duration) connect.UnaryIntercep
 	}
 }
 
-func makeTokenInterceptor(configManager *configManager) connect.UnaryInterceptorFunc {
+func makeTokenInterceptor(tm *auth.TokenRefresher) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-			if err := configManager.refresh(ctx, false); err != nil {
+			token, err := tm.GetJWT(ctx, time.Now().Add(time.Minute))
+			if err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set(HeaderKeyEnvironmentId, configManager.environmentId.Value)
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", configManager.jwt.Token))
+			req.Header().Set("x-chalk-env-id", tm.GetEnvironmentId(""))
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 			return next(ctx, req)
 		}
 	}
