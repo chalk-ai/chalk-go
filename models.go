@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/expr"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
@@ -103,6 +104,8 @@ type OnlineQueryParams struct {
 	// Maximum staleness overrides for any output features or intermediate features.
 	// Set by OnlineQueryParams.WithStaleness.
 	rawStaleness map[any]time.Duration
+
+	OutputExprs []expr.ExprI
 }
 
 // WithInput returns a copy of Online Query parameters with the specified inputs added.
@@ -154,6 +157,11 @@ func (p OnlineQueryParams) WithQueryNameVersion(version string) OnlineQueryParam
 // For use via method chaining. See OnlineQueryParamsComplete for usage examples.
 func (p OnlineQueryParams) WithTags(feature ...string) OnlineQueryParams {
 	p.Tags = append(p.Tags, feature...)
+	return p
+}
+
+func (p OnlineQueryParams) withOutputExprs(exprs ...expr.ExprI) OnlineQueryParams {
+	p.OutputExprs = append(p.OutputExprs, exprs...)
 	return p
 }
 

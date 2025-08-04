@@ -55,35 +55,16 @@ type chalkHttpException struct {
 }
 
 type sendRequestParams struct {
-	Body   any
-	Method string
-	URL    string
-
-	Response    any
-	DontRefresh bool
-
+	Body                  any
+	Method                string
+	URL                   string
+	Response              any
 	EnvironmentOverride   string
 	PreviewDeploymentId   string
 	Versioned             bool
 	Branch                *string
 	ResourceGroupOverride *string
-
-	IsEngineRequest bool
-}
-
-type getTokenRequest struct {
-	ClientId     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	GrantType    string `json:"grant_type"`
-}
-
-type getTokenResponse struct {
-	AccessToken        string            `json:"access_token"`
-	TokenType          string            `json:"token_type"`
-	ExpiresIn          int               `json:"expires_in"`
-	ApiServer          string            `json:"api_server"`
-	PrimaryEnvironment string            `json:"primary_environment"`
-	Engines            map[string]string `json:"engines"`
+	IsEngineRequest       bool
 }
 
 type chalkErrorSerialized struct {

@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/auth"
+	"github.com/chalk-ai/chalk-go/config"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/cockroachdb/errors"
@@ -21,7 +23,7 @@ import (
 
 type clientImpl struct {
 	Client
-	config    *configManager
+	config    *config.Manager
 	allocator memory.Allocator
 
 	Branch        string
@@ -32,7 +34,8 @@ type clientImpl struct {
 	timeout    *time.Duration
 	httpClient HTTPClient
 
-	logger LeveledLogger
+	logger       LeveledLogger
+	tokenManager *auth.TokenRefresher
 }
 
 type HTTPClient interface {
@@ -77,7 +80,7 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 	if response.EnvironmentID == "" {
 		response.EnvironmentID = request.EnvironmentId
 		if response.EnvironmentID == "" {
-			response.EnvironmentID = c.config.environmentId.Value
+			response.EnvironmentID = c.config.EnvironmentId.Value
 		}
 	}
 
@@ -363,59 +366,15 @@ func (c *clientImpl) saveUrlToDirectory(URL string, directory string) (err error
 }
 
 func (c *clientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	res, err := c.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
+	res, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
 	if err != nil {
-		return nil, err // Intentionally not wrapping
+		return nil, errors.WithStack(err)
 	}
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
-		PrimaryEnvironment: res.PrimaryEnvironment,
-		ValidUntil:         res.ValidUntil,
+		PrimaryEnvironment: c.config.EnvironmentId.Value,
+		ValidUntil:         res.ExpiresAt.AsTime(),
 		Engines:            res.Engines,
-	}, nil
-}
-
-func (c *clientImpl) getToken(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error) {
-	body := getTokenRequest{
-		ClientId:     clientId,
-		ClientSecret: clientSecret,
-		GrantType:    "client_credentials",
-	}
-	response := getTokenResponse{}
-	err := c.sendRequest(
-		ctx,
-		&sendRequestParams{
-			Method:      "POST",
-			URL:         "v1/oauth/token",
-			Body:        body,
-			Response:    &response,
-			DontRefresh: true,
-		},
-	)
-	if err != nil {
-		return nil, errors.Newf(
-			"Error obtaining access token: %s.\n"+
-				"  Auth config:\n"+
-				"    api_server=%q (source: %s),\n"+
-				"    client_id=%q (source: %s),\n"+
-				"    client_secret=*** (source: %s),\n"+
-				"    environment_id=%q (source: %s)\n",
-			err.Error(),
-			c.config.apiServer.Value,
-			c.config.apiServer.Source,
-			c.config.clientId.Value,
-			c.config.clientId.Source,
-			c.config.clientSecret.Source,
-			c.config.environmentId.Value,
-			c.config.environmentId.Source,
-		)
-	}
-	expiry := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
-	return &getTokenResult{
-		ValidUntil:         expiry,
-		AccessToken:        response.AccessToken,
-		PrimaryEnvironment: response.PrimaryEnvironment,
-		Engines:            response.Engines,
 	}, nil
 }
 
@@ -450,26 +409,33 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 		return newRequestErr
 	}
 
-	headers := c.getHeaders(args.EnvironmentOverride, args.PreviewDeploymentId, args.Branch, args.ResourceGroupOverride)
+	headers := c.getHeaders(
+		args.EnvironmentOverride,
+		args.PreviewDeploymentId,
+		args.Branch,
+		args.ResourceGroupOverride,
+	)
 	request.Header = headers
 
-	if !args.DontRefresh {
-		if err := c.config.refresh(ctx, false); err != nil {
-			(c.logger).Debugf("Error pre-emptively refreshing access token: %s", err)
-		}
+	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
+	if err != nil {
+		return errors.Wrap(err, "getting JWT for request")
 	}
-	if c.config.jwt != nil && c.config.jwt.Token != "" {
-		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.jwt.Token))
-	}
+
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 	if args.Versioned {
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
 	}
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
+		urlBase := c.config.ApiServer.Value
+		if args.IsEngineRequest {
+			urlBase = c.tokenManager.GetQueryServerURL(args.EnvironmentOverride)
+		}
 		var err error
 		request.URL, err = url.Parse(fmt.Sprintf(
 			"%s/%s",
-			c.GetResolvedServer(args.EnvironmentOverride, args.IsEngineRequest),
+			urlBase,
 			request.URL.String(),
 		))
 		if err != nil {
@@ -486,7 +452,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	(c.logger).Debugf("Response Status: ", res.Status)
 	defer res.Body.Close()
 
-	if res.StatusCode == 401 && !args.DontRefresh && request != nil {
+	if res.StatusCode == 401 {
 		res, err = c.retryRequest(ctx, *request, args.Body, res, err)
 		if err != nil {
 			return err
@@ -511,14 +477,11 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 
 func (c *clientImpl) retryRequest(
 	ctx context.Context,
-	originalRequest http.Request, originalBody any,
-	originalResponse *http.Response, originalError error,
+	originalRequest http.Request,
+	originalBody any,
+	originalResponse *http.Response,
+	originalError error,
 ) (*http.Response, error) {
-	if err := c.config.refresh(ctx, true); err != nil {
-		(c.logger).Debugf("Error refreshing access token upon 401: %s", err.Error())
-		return originalResponse, originalError
-	}
-
 	originalBodyBuffer, getBufferErr := getBodyBuffer(originalBody)
 	if getBufferErr != nil {
 		return nil, getBufferErr
@@ -538,10 +501,12 @@ func (c *clientImpl) retryRequest(
 		return nil, err
 	}
 	newRequest.Header = originalRequest.Header
-	if c.config.jwt != nil && c.config.jwt.Token != "" {
-		newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.config.jwt.Token))
+	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
+	if err != nil {
+		return originalResponse, errors.CombineErrors(originalError, err)
 	}
 
+	newRequest.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 	res, err := c.httpClient.Do(newRequest)
 	if err != nil {
 		return nil, err
@@ -551,38 +516,18 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getResolvedEnvironment(envOverride string) string {
-	if envOverride == "" {
-		return c.config.environmentId.Value
-	}
-	return envOverride
-}
-
-func (c *clientImpl) GetResolvedServer(envOverride string, useQueryServer bool) string {
-	if !useQueryServer {
-		return c.config.apiServer.Value
-	}
-
-	if c.QueryServer != "" {
-		return c.QueryServer
-	}
-
-	env := c.getResolvedEnvironment(envOverride)
-	if engine, foundEngine := c.config.engines[env]; foundEngine && env != "" {
-		return engine
-	}
-
-	return c.config.apiServer.Value
-}
-
-func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId string, branchOverride *string, resourceGroupOverride *string) http.Header {
+func (c *clientImpl) getHeaders(
+	environmentOverride string,
+	previewDeploymentId string,
+	branchOverride *string,
+	resourceGroupOverride *string,
+) http.Header {
 	headers := http.Header{}
 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
-	headers.Set("User-Agent", "chalk-go-0.0")
-	headers.Set("X-Chalk-Client-Id", c.config.clientId.Value)
-	
+	headers.Set("User-Agent", "chalk-go")
+	headers.Set("X-Chalk-Client-Id", string(c.config.ClientId.Value))
 
 	var branchResolved string
 	if branchOverride != nil && *branchOverride != "" {
@@ -601,7 +546,7 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 	}
 
-	headers.Set("X-Chalk-Env-Id", c.getResolvedEnvironment(environmentOverride))
+	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId(environmentOverride))
 	if previewDeploymentId != "" {
 		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
 	}
@@ -611,7 +556,6 @@ func (c *clientImpl) getHeaders(environmentOverride string, previewDeploymentId 
 	} else if c.resourceGroup != nil {
 		headers.Set(HeaderKeyResourceGroup, *c.resourceGroup)
 	}
-	
 
 	return headers
 }
@@ -645,7 +589,10 @@ func getHttpError(logger LeveledLogger, res http.Response, req http.Request) (*H
 	return &clientError, nil
 }
 
-func (c *clientImpl) GetOfflineQueryStatus(ctx context.Context, request GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error) {
+func (c *clientImpl) GetOfflineQueryStatus(
+	ctx context.Context,
+	request GetOfflineQueryStatusParams,
+) (GetOfflineQueryStatusResult, error) {
 	response := GetOfflineQueryStatusResult{}
 	err := c.sendRequest(
 		ctx,
@@ -666,14 +613,14 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	if err != nil {
 		return Dataset{}, errors.Wrap(err, "getting dataset urls")
 	}
-	
+
 	// Create a dataset revision with the retrieved information
 	revision := DatasetRevision{
 		RevisionId: revisionId,
 		Status:     QueryStatusSuccessful, // Since we got URLs, the dataset is complete
 		client:     c,
 	}
-	
+
 	// Create and return the dataset
 	dataset := Dataset{
 		IsFinished: true,
@@ -681,7 +628,7 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 		Revisions:  []DatasetRevision{revision},
 		client:     c,
 	}
-	
+
 	return dataset, nil
 }
 
@@ -689,12 +636,13 @@ func newClientImpl(
 	ctx context.Context,
 	cfg *ClientConfig,
 ) (*clientImpl, error) {
-	config, err := newConfigManager(
-		cfg.ApiServer,
-		cfg.ClientId,
-		cfg.ClientSecret,
-		cfg.EnvironmentId,
-		cfg.Logger,
+	manager, err := config.NewManager(
+		ctx,
+		config.NewFromArg[string](cfg.ApiServer),
+		config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
+		config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
+		config.NewFromArg[string](cfg.EnvironmentId),
+		cfg.ConfigDir,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
@@ -707,7 +655,7 @@ func newClientImpl(
 
 	httpClient := cfg.HTTPClient
 	if httpClient == nil {
-		httpClient = &http.Client{}
+		httpClient = http.DefaultClient
 	}
 
 	var resourceGroup *string
@@ -725,19 +673,21 @@ func newClientImpl(
 		allocator = cfg.Allocator
 	}
 
-	client := &clientImpl{
+	tokenManager, err := auth.NewTokenRefresher(ctx, httpClient, manager)
+	if err != nil {
+		return nil, errors.Wrap(err, "creating token refresher")
+	}
+
+	return &clientImpl{
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
 		QueryServer:   cfg.QueryServer,
 		resourceGroup: resourceGroup,
 		timeout:       timeout,
-
-		logger:     logger,
-		httpClient: httpClient,
-		allocator:  allocator,
-
-		config: config,
-	}
-	client.config.getToken = client.getToken
-	return client, errors.Wrap(client.config.refresh(ctx, false), "refreshing config on client creation")
+		logger:        logger,
+		httpClient:    httpClient,
+		allocator:     allocator,
+		config:        manager,
+		tokenManager:  tokenManager,
+	}, nil
 }

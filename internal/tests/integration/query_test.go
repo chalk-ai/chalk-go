@@ -94,8 +94,8 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 	SkipIfNotIntegrationTester(t)
 
 	hmInput := []hasManyFeature{
-		{Id: ptr.Ptr("id_a"), Name: ptr.Ptr("name_a"), AllTypesId: ptr.Ptr(int64(1))},
-		{Id: ptr.Ptr("id_b"), Name: ptr.Ptr("name_b"), AllTypesId: ptr.Ptr(int64(1))},
+		{Id: ptr.New("id_a"), Name: ptr.New("name_a"), AllTypesId: ptr.New(int64(1))},
+		{Id: ptr.New("id_b"), Name: ptr.New("name_b"), AllTypesId: ptr.New(int64(1))},
 	}
 
 	for _, useGrpc := range []bool{false, true} {

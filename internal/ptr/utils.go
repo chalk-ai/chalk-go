@@ -2,9 +2,9 @@ package ptr
 
 import "reflect"
 
-// PtrOrNil returns a pointer copy of value if it's nonzero.
+// OrNil returns a pointer copy of value if it's nonzero.
 // Otherwise, returns nil pointer.
-func PtrOrNil[T any](x T) *T {
+func OrNil[T any](x T) *T {
 	isZero := reflect.ValueOf(&x).Elem().IsZero()
 	if isZero {
 		return nil
@@ -13,7 +13,7 @@ func PtrOrNil[T any](x T) *T {
 	return &x
 }
 
-func Ptr[T any](value T) *T {
+func New[T any](value T) *T {
 	return &value
 }
 

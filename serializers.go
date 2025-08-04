@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/expr"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
@@ -27,8 +28,8 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 	var now *string
 	if len(p.Now) > 1 {
 		return nil, fmt.Errorf(
-			"for non-bulk queries, there should only"+
-				" be 1 `Now` value, found %d", len(p.Now),
+			"for non-bulk queries, there should only be 1 `Now` value, found %d",
+			len(p.Now),
 		)
 	} else if len(p.Now) == 1 {
 		n := p.Now[0].Format(internal.NowTimeFormat)
@@ -424,13 +425,33 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 	if err != nil {
 		return nil, errors.Wrap(err, "error serializing inputs as feather")
 	}
-	outputs := colls.Map(resolved.outputs, func(v string) *commonv1.OutputExpr {
-		return &commonv1.OutputExpr{
+
+	var outputs []*commonv1.OutputExpr
+	for _, o := range resolved.outputs {
+		outputs = append(outputs, &commonv1.OutputExpr{
 			Expr: &commonv1.OutputExpr_FeatureFqn{
-				FeatureFqn: v,
+				FeatureFqn: o,
 			},
+		})
+	}
+	for _, o := range params.OutputExprs {
+		outputColumnName := ""
+		if casted, ok := o.(*expr.AliasExpr); ok {
+			outputColumnName = casted.Alias
 		}
-	})
+		outputs = append(
+			outputs,
+			&commonv1.OutputExpr{
+				Expr: &commonv1.OutputExpr_FeatureExpression{
+					FeatureExpression: &commonv1.FeatureExpression{
+						OutputColumnName: outputColumnName,
+						Namespace:        "",
+						Expr:             expr.ToProto(o),
+					},
+				},
+			},
+		)
+	}
 
 	staleness := make(map[string]string)
 	for k, v := range resolved.staleness {
@@ -475,11 +496,11 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		Context: &commonv1.OnlineQueryContext{
 			Environment:          params.EnvironmentId,
 			Tags:                 params.Tags,
-			DeploymentId:         ptr.PtrOrNil(params.PreviewDeploymentId),
+			DeploymentId:         ptr.OrNil(params.PreviewDeploymentId),
 			BranchId:             params.BranchId,
-			CorrelationId:        ptr.PtrOrNil(params.CorrelationId),
-			QueryName:            ptr.PtrOrNil(params.QueryName),
-			QueryNameVersion:     ptr.PtrOrNil(params.QueryNameVersion),
+			CorrelationId:        ptr.OrNil(params.CorrelationId),
+			QueryName:            ptr.OrNil(params.QueryName),
+			QueryNameVersion:     ptr.OrNil(params.QueryNameVersion),
 			QueryContext:         queryContextProto,
 			RequiredResolverTags: params.RequiredResolverTags,
 			Options:              options,

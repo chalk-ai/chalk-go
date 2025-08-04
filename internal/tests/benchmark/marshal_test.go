@@ -76,13 +76,13 @@ func getAllTypes(b *testing.B, numRows int) func() {
 			colMap[fqn] = append(colMap[fqn].([][]int64), []int64{int64(i)})
 			fqn = fmt.Sprintf("all_types.dataclass_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.LatLng), &fixtures.LatLng{
-				Lat: ptr.Ptr(float64(i)),
-				Lng: ptr.Ptr(float64(i)),
+				Lat: ptr.New(float64(i)),
+				Lng: ptr.New(float64(i)),
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_list_%d", j)
 			colMap[fqn] = append(colMap[fqn].([][]fixtures.LatLng), []fixtures.LatLng{
-				{Lat: ptr.Ptr(float64(i)), Lng: ptr.Ptr(float64(i))},
-				{Lat: ptr.Ptr(float64(i)), Lng: ptr.Ptr(float64(i))},
+				{Lat: ptr.New(float64(i)), Lng: ptr.New(float64(i))},
+				{Lat: ptr.New(float64(i)), Lng: ptr.New(float64(i))},
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_list_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.FavoriteThings), &fixtures.FavoriteThings{
@@ -91,28 +91,28 @@ func getAllTypes(b *testing.B, numRows int) func() {
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_nils_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.Possessions), &fixtures.Possessions{
-				Car:   ptr.Ptr(fmt.Sprintf("car_%d", i)),
-				Yacht: ptr.Ptr(fmt.Sprintf("yacht_%d", i)),
+				Car:   ptr.New(fmt.Sprintf("car_%d", i)),
+				Yacht: ptr.New(fmt.Sprintf("yacht_%d", i)),
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_dataclass_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.Child), &fixtures.Child{
-				Name: ptr.Ptr(fmt.Sprintf("child_%d", i)),
+				Name: ptr.New(fmt.Sprintf("child_%d", i)),
 				Mom: &fixtures.Parent{
-					Name: ptr.Ptr(fmt.Sprintf("mom_%d", i)),
+					Name: ptr.New(fmt.Sprintf("mom_%d", i)),
 				},
 			})
 			fqn = fmt.Sprintf("all_types.nested_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.LevelOneNest), &fixtures.LevelOneNest{
-				Id: ptr.Ptr(fmt.Sprintf("id_%d", i)),
+				Id: ptr.New(fmt.Sprintf("id_%d", i)),
 				Nested: &fixtures.LevelTwoNest{
-					Id: ptr.Ptr(fmt.Sprintf("id_%d", i)),
+					Id: ptr.New(fmt.Sprintf("id_%d", i)),
 				},
 			})
 			fqn = fmt.Sprintf("all_types.has_many_%d", j)
 			colMap[fqn] = append(colMap[fqn].([][]customHasMany), []customHasMany{
-				{Int: ptr.Ptr(int64(i)), Float: ptr.Ptr(float64(i)), String: ptr.Ptr(fmt.Sprintf("string_%d", i))},
-				{Int: ptr.Ptr(int64(i)), Float: ptr.Ptr(float64(i)), String: ptr.Ptr(fmt.Sprintf("string_%d", i))},
-				{Int: ptr.Ptr(int64(i)), Float: ptr.Ptr(float64(i)), String: ptr.Ptr(fmt.Sprintf("string_%d", i))},
+				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
+				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
+				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
 			})
 		}
 	}
