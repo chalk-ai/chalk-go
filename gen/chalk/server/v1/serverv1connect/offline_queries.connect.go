@@ -44,6 +44,9 @@ const (
 	// fully-qualified name of the OfflineQueryMetadataService's
 	// ListOfflineQueryShardPerformanceSummaries RPC.
 	OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure = "/chalk.server.v1.OfflineQueryMetadataService/ListOfflineQueryShardPerformanceSummaries"
+	// OfflineQueryMetadataServiceListRelevantJobQueueConsumersProcedure is the fully-qualified name of
+	// the OfflineQueryMetadataService's ListRelevantJobQueueConsumers RPC.
+	OfflineQueryMetadataServiceListRelevantJobQueueConsumersProcedure = "/chalk.server.v1.OfflineQueryMetadataService/ListRelevantJobQueueConsumers"
 )
 
 // OfflineQueryMetadataServiceClient is a client for the chalk.server.v1.OfflineQueryMetadataService
@@ -52,6 +55,7 @@ type OfflineQueryMetadataServiceClient interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
+	ListRelevantJobQueueConsumers(context.Context, *connect.Request[v1.ListRelevantJobQueueConsumersRequest]) (*connect.Response[v1.ListRelevantJobQueueConsumersResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceClient constructs a client for the
@@ -87,6 +91,13 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listRelevantJobQueueConsumers: connect.NewClient[v1.ListRelevantJobQueueConsumersRequest, v1.ListRelevantJobQueueConsumersResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceListRelevantJobQueueConsumersProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("ListRelevantJobQueueConsumers")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -95,6 +106,7 @@ type offlineQueryMetadataServiceClient struct {
 	listOfflineQueries                        *connect.Client[v1.ListOfflineQueriesRequest, v1.ListOfflineQueriesResponse]
 	getOfflineQuery                           *connect.Client[v1.GetOfflineQueryRequest, v1.GetOfflineQueryResponse]
 	listOfflineQueryShardPerformanceSummaries *connect.Client[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse]
+	listRelevantJobQueueConsumers             *connect.Client[v1.ListRelevantJobQueueConsumersRequest, v1.ListRelevantJobQueueConsumersResponse]
 }
 
 // ListOfflineQueries calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries.
@@ -113,12 +125,19 @@ func (c *offlineQueryMetadataServiceClient) ListOfflineQueryShardPerformanceSumm
 	return c.listOfflineQueryShardPerformanceSummaries.CallUnary(ctx, req)
 }
 
+// ListRelevantJobQueueConsumers calls
+// chalk.server.v1.OfflineQueryMetadataService.ListRelevantJobQueueConsumers.
+func (c *offlineQueryMetadataServiceClient) ListRelevantJobQueueConsumers(ctx context.Context, req *connect.Request[v1.ListRelevantJobQueueConsumersRequest]) (*connect.Response[v1.ListRelevantJobQueueConsumersResponse], error) {
+	return c.listRelevantJobQueueConsumers.CallUnary(ctx, req)
+}
+
 // OfflineQueryMetadataServiceHandler is an implementation of the
 // chalk.server.v1.OfflineQueryMetadataService service.
 type OfflineQueryMetadataServiceHandler interface {
 	ListOfflineQueries(context.Context, *connect.Request[v1.ListOfflineQueriesRequest]) (*connect.Response[v1.ListOfflineQueriesResponse], error)
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
+	ListRelevantJobQueueConsumers(context.Context, *connect.Request[v1.ListRelevantJobQueueConsumersRequest]) (*connect.Response[v1.ListRelevantJobQueueConsumersResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -149,6 +168,13 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineQueryMetadataServiceListRelevantJobQueueConsumersHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceListRelevantJobQueueConsumersProcedure,
+		svc.ListRelevantJobQueueConsumers,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("ListRelevantJobQueueConsumers")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineQueryMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineQueryMetadataServiceListOfflineQueriesProcedure:
@@ -157,6 +183,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceGetOfflineQueryHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure:
 			offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceListRelevantJobQueueConsumersProcedure:
+			offlineQueryMetadataServiceListRelevantJobQueueConsumersHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -176,4 +204,8 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQuery(context.C
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) ListRelevantJobQueueConsumers(context.Context, *connect.Request[v1.ListRelevantJobQueueConsumersRequest]) (*connect.Response[v1.ListRelevantJobQueueConsumersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.ListRelevantJobQueueConsumers is not implemented"))
 }
