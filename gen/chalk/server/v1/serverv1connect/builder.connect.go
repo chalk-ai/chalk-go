@@ -131,6 +131,9 @@ const (
 	// BuilderServiceSetTagWeightsProcedure is the fully-qualified name of the BuilderService's
 	// SetTagWeights RPC.
 	BuilderServiceSetTagWeightsProcedure = "/chalk.server.v1.BuilderService/SetTagWeights"
+	// BuilderServiceCreateDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// CreateDeployment RPC.
+	BuilderServiceCreateDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateDeployment"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -174,17 +177,18 @@ type BuilderServiceClient interface {
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
+	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -394,6 +398,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("SetTagWeights")),
 			connect.WithClientOptions(opts...),
 		),
+		createDeployment: connect.NewClient[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -431,6 +441,7 @@ type builderServiceClient struct {
 	getKarpenterInstallationMetadata   *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
 	getTagWeights                      *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
 	setTagWeights                      *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
+	createDeployment                   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -561,21 +572,29 @@ func (c *builderServiceClient) DeleteNodepool(ctx context.Context, req *connect.
 }
 
 // GetKarpenterNodepools calls chalk.server.v1.BuilderService.GetKarpenterNodepools.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) GetKarpenterNodepools(ctx context.Context, req *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error) {
 	return c.getKarpenterNodepools.CallUnary(ctx, req)
 }
 
 // AddKarpenterNodepool calls chalk.server.v1.BuilderService.AddKarpenterNodepool.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) AddKarpenterNodepool(ctx context.Context, req *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error) {
 	return c.addKarpenterNodepool.CallUnary(ctx, req)
 }
 
 // UpdateKarpenterNodepool calls chalk.server.v1.BuilderService.UpdateKarpenterNodepool.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) UpdateKarpenterNodepool(ctx context.Context, req *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error) {
 	return c.updateKarpenterNodepool.CallUnary(ctx, req)
 }
 
 // DeleteKarpenterNodepool calls chalk.server.v1.BuilderService.DeleteKarpenterNodepool.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) DeleteKarpenterNodepool(ctx context.Context, req *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error) {
 	return c.deleteKarpenterNodepool.CallUnary(ctx, req)
 }
@@ -594,6 +613,11 @@ func (c *builderServiceClient) GetTagWeights(ctx context.Context, req *connect.R
 // SetTagWeights calls chalk.server.v1.BuilderService.SetTagWeights.
 func (c *builderServiceClient) SetTagWeights(ctx context.Context, req *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
 	return c.setTagWeights.CallUnary(ctx, req)
+}
+
+// CreateDeployment calls chalk.server.v1.BuilderService.CreateDeployment.
+func (c *builderServiceClient) CreateDeployment(ctx context.Context, req *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
+	return c.createDeployment.CallUnary(ctx, req)
 }
 
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
@@ -631,17 +655,18 @@ type BuilderServiceHandler interface {
 	AddNodepool(context.Context, *connect.Request[v1.AddNodepoolRequest]) (*connect.Response[v1.AddNodepoolResponse], error)
 	UpdateNodepool(context.Context, *connect.Request[v1.UpdateNodepoolRequest]) (*connect.Response[v1.UpdateNodepoolResponse], error)
 	DeleteNodepool(context.Context, *connect.Request[v1.DeleteNodepoolRequest]) (*connect.Response[v1.DeleteNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	GetKarpenterNodepools(context.Context, *connect.Request[v1.GetKarpenterNodepoolsRequest]) (*connect.Response[v1.GetKarpenterNodepoolsResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	AddKarpenterNodepool(context.Context, *connect.Request[v1.AddKarpenterNodepoolRequest]) (*connect.Response[v1.AddKarpenterNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	UpdateKarpenterNodepool(context.Context, *connect.Request[v1.UpdateKarpenterNodepoolRequest]) (*connect.Response[v1.UpdateKarpenterNodepoolResponse], error)
-	// to be deprecated
+	// Deprecated: do not use.
 	DeleteKarpenterNodepool(context.Context, *connect.Request[v1.DeleteKarpenterNodepoolRequest]) (*connect.Response[v1.DeleteKarpenterNodepoolResponse], error)
 	GetKarpenterInstallationMetadata(context.Context, *connect.Request[v1.GetKarpenterInstallationMetadataRequest]) (*connect.Response[v1.GetKarpenterInstallationMetadataResponse], error)
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
+	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -847,6 +872,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("SetTagWeights")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceCreateDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateDeploymentProcedure,
+		svc.CreateDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -913,6 +944,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetTagWeightsHandler.ServeHTTP(w, r)
 		case BuilderServiceSetTagWeightsProcedure:
 			builderServiceSetTagWeightsHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateDeploymentProcedure:
+			builderServiceCreateDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1048,6 +1081,10 @@ func (UnimplementedBuilderServiceHandler) GetTagWeights(context.Context, *connec
 
 func (UnimplementedBuilderServiceHandler) SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SetTagWeights is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateDeployment is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
