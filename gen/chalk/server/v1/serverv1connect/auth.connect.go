@@ -44,6 +44,44 @@ const (
 	// AuthServiceUpdateLinkSessionProcedure is the fully-qualified name of the AuthService's
 	// UpdateLinkSession RPC.
 	AuthServiceUpdateLinkSessionProcedure = "/chalk.server.v1.AuthService/UpdateLinkSession"
+	// AuthServiceCheckTeamInvitesProcedure is the fully-qualified name of the AuthService's
+	// CheckTeamInvites RPC.
+	AuthServiceCheckTeamInvitesProcedure = "/chalk.server.v1.AuthService/CheckTeamInvites"
+	// AuthServiceCreateUserProcedure is the fully-qualified name of the AuthService's CreateUser RPC.
+	AuthServiceCreateUserProcedure = "/chalk.server.v1.AuthService/CreateUser"
+	// AuthServiceGetUserByIdProcedure is the fully-qualified name of the AuthService's GetUserById RPC.
+	AuthServiceGetUserByIdProcedure = "/chalk.server.v1.AuthService/GetUserById"
+	// AuthServiceGetUserByEmailProcedure is the fully-qualified name of the AuthService's
+	// GetUserByEmail RPC.
+	AuthServiceGetUserByEmailProcedure = "/chalk.server.v1.AuthService/GetUserByEmail"
+	// AuthServiceGetUserByAccountProcedure is the fully-qualified name of the AuthService's
+	// GetUserByAccount RPC.
+	AuthServiceGetUserByAccountProcedure = "/chalk.server.v1.AuthService/GetUserByAccount"
+	// AuthServiceUpdateUserProcedure is the fully-qualified name of the AuthService's UpdateUser RPC.
+	AuthServiceUpdateUserProcedure = "/chalk.server.v1.AuthService/UpdateUser"
+	// AuthServiceLinkAccountProcedure is the fully-qualified name of the AuthService's LinkAccount RPC.
+	AuthServiceLinkAccountProcedure = "/chalk.server.v1.AuthService/LinkAccount"
+	// AuthServiceCreateSessionProcedure is the fully-qualified name of the AuthService's CreateSession
+	// RPC.
+	AuthServiceCreateSessionProcedure = "/chalk.server.v1.AuthService/CreateSession"
+	// AuthServiceGetSessionAndUserProcedure is the fully-qualified name of the AuthService's
+	// GetSessionAndUser RPC.
+	AuthServiceGetSessionAndUserProcedure = "/chalk.server.v1.AuthService/GetSessionAndUser"
+	// AuthServiceUpdateSessionProcedure is the fully-qualified name of the AuthService's UpdateSession
+	// RPC.
+	AuthServiceUpdateSessionProcedure = "/chalk.server.v1.AuthService/UpdateSession"
+	// AuthServiceDeleteSessionProcedure is the fully-qualified name of the AuthService's DeleteSession
+	// RPC.
+	AuthServiceDeleteSessionProcedure = "/chalk.server.v1.AuthService/DeleteSession"
+	// AuthServiceCreateVerificationTokenProcedure is the fully-qualified name of the AuthService's
+	// CreateVerificationToken RPC.
+	AuthServiceCreateVerificationTokenProcedure = "/chalk.server.v1.AuthService/CreateVerificationToken"
+	// AuthServiceUseVerificationTokenProcedure is the fully-qualified name of the AuthService's
+	// UseVerificationToken RPC.
+	AuthServiceUseVerificationTokenProcedure = "/chalk.server.v1.AuthService/UseVerificationToken"
+	// AuthServiceUpsertUserByEmailProcedure is the fully-qualified name of the AuthService's
+	// UpsertUserByEmail RPC.
+	AuthServiceUpsertUserByEmailProcedure = "/chalk.server.v1.AuthService/UpsertUserByEmail"
 )
 
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
@@ -52,6 +90,20 @@ type AuthServiceClient interface {
 	CreateLinkSession(context.Context, *connect.Request[v1.CreateLinkSessionRequest]) (*connect.Response[v1.CreateLinkSessionResponse], error)
 	GetLinkSession(context.Context, *connect.Request[v1.GetLinkSessionRequest]) (*connect.Response[v1.GetLinkSessionResponse], error)
 	UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error)
+	CheckTeamInvites(context.Context, *connect.Request[v1.CheckTeamInvitesRequest]) (*connect.Response[v1.CheckTeamInvitesResponse], error)
+	CreateUser(context.Context, *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error)
+	GetUserById(context.Context, *connect.Request[v1.GetUserByIdRequest]) (*connect.Response[v1.GetUserByIdResponse], error)
+	GetUserByEmail(context.Context, *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error)
+	GetUserByAccount(context.Context, *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error)
+	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error)
+	CreateSession(context.Context, *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error)
+	GetSessionAndUser(context.Context, *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error)
+	UpdateSession(context.Context, *connect.Request[v1.UpdateSessionRequest]) (*connect.Response[v1.UpdateSessionResponse], error)
+	DeleteSession(context.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error)
+	CreateVerificationToken(context.Context, *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error)
+	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
+	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the chalk.server.v1.AuthService service. By default,
@@ -89,15 +141,113 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("UpdateLinkSession")),
 			connect.WithClientOptions(opts...),
 		),
+		checkTeamInvites: connect.NewClient[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse](
+			httpClient,
+			baseURL+AuthServiceCheckTeamInvitesProcedure,
+			connect.WithSchema(authServiceMethods.ByName("CheckTeamInvites")),
+			connect.WithClientOptions(opts...),
+		),
+		createUser: connect.NewClient[v1.CreateUserRequest, v1.CreateUserResponse](
+			httpClient,
+			baseURL+AuthServiceCreateUserProcedure,
+			connect.WithSchema(authServiceMethods.ByName("CreateUser")),
+			connect.WithClientOptions(opts...),
+		),
+		getUserById: connect.NewClient[v1.GetUserByIdRequest, v1.GetUserByIdResponse](
+			httpClient,
+			baseURL+AuthServiceGetUserByIdProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetUserById")),
+			connect.WithClientOptions(opts...),
+		),
+		getUserByEmail: connect.NewClient[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse](
+			httpClient,
+			baseURL+AuthServiceGetUserByEmailProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetUserByEmail")),
+			connect.WithClientOptions(opts...),
+		),
+		getUserByAccount: connect.NewClient[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse](
+			httpClient,
+			baseURL+AuthServiceGetUserByAccountProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetUserByAccount")),
+			connect.WithClientOptions(opts...),
+		),
+		updateUser: connect.NewClient[v1.UpdateUserRequest, v1.UpdateUserResponse](
+			httpClient,
+			baseURL+AuthServiceUpdateUserProcedure,
+			connect.WithSchema(authServiceMethods.ByName("UpdateUser")),
+			connect.WithClientOptions(opts...),
+		),
+		linkAccount: connect.NewClient[v1.LinkAccountRequest, v1.LinkAccountResponse](
+			httpClient,
+			baseURL+AuthServiceLinkAccountProcedure,
+			connect.WithSchema(authServiceMethods.ByName("LinkAccount")),
+			connect.WithClientOptions(opts...),
+		),
+		createSession: connect.NewClient[v1.CreateSessionRequest, v1.CreateSessionResponse](
+			httpClient,
+			baseURL+AuthServiceCreateSessionProcedure,
+			connect.WithSchema(authServiceMethods.ByName("CreateSession")),
+			connect.WithClientOptions(opts...),
+		),
+		getSessionAndUser: connect.NewClient[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse](
+			httpClient,
+			baseURL+AuthServiceGetSessionAndUserProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetSessionAndUser")),
+			connect.WithClientOptions(opts...),
+		),
+		updateSession: connect.NewClient[v1.UpdateSessionRequest, v1.UpdateSessionResponse](
+			httpClient,
+			baseURL+AuthServiceUpdateSessionProcedure,
+			connect.WithSchema(authServiceMethods.ByName("UpdateSession")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteSession: connect.NewClient[v1.DeleteSessionRequest, v1.DeleteSessionResponse](
+			httpClient,
+			baseURL+AuthServiceDeleteSessionProcedure,
+			connect.WithSchema(authServiceMethods.ByName("DeleteSession")),
+			connect.WithClientOptions(opts...),
+		),
+		createVerificationToken: connect.NewClient[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse](
+			httpClient,
+			baseURL+AuthServiceCreateVerificationTokenProcedure,
+			connect.WithSchema(authServiceMethods.ByName("CreateVerificationToken")),
+			connect.WithClientOptions(opts...),
+		),
+		useVerificationToken: connect.NewClient[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse](
+			httpClient,
+			baseURL+AuthServiceUseVerificationTokenProcedure,
+			connect.WithSchema(authServiceMethods.ByName("UseVerificationToken")),
+			connect.WithClientOptions(opts...),
+		),
+		upsertUserByEmail: connect.NewClient[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse](
+			httpClient,
+			baseURL+AuthServiceUpsertUserByEmailProcedure,
+			connect.WithSchema(authServiceMethods.ByName("UpsertUserByEmail")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // authServiceClient implements AuthServiceClient.
 type authServiceClient struct {
-	getToken          *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
-	createLinkSession *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
-	getLinkSession    *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
-	updateLinkSession *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
+	getToken                *connect.Client[v1.GetTokenRequest, v1.GetTokenResponse]
+	createLinkSession       *connect.Client[v1.CreateLinkSessionRequest, v1.CreateLinkSessionResponse]
+	getLinkSession          *connect.Client[v1.GetLinkSessionRequest, v1.GetLinkSessionResponse]
+	updateLinkSession       *connect.Client[v1.UpdateLinkSessionRequest, v1.UpdateLinkSessionResponse]
+	checkTeamInvites        *connect.Client[v1.CheckTeamInvitesRequest, v1.CheckTeamInvitesResponse]
+	createUser              *connect.Client[v1.CreateUserRequest, v1.CreateUserResponse]
+	getUserById             *connect.Client[v1.GetUserByIdRequest, v1.GetUserByIdResponse]
+	getUserByEmail          *connect.Client[v1.GetUserByEmailRequest, v1.GetUserByEmailResponse]
+	getUserByAccount        *connect.Client[v1.GetUserByAccountRequest, v1.GetUserByAccountResponse]
+	updateUser              *connect.Client[v1.UpdateUserRequest, v1.UpdateUserResponse]
+	linkAccount             *connect.Client[v1.LinkAccountRequest, v1.LinkAccountResponse]
+	createSession           *connect.Client[v1.CreateSessionRequest, v1.CreateSessionResponse]
+	getSessionAndUser       *connect.Client[v1.GetSessionAndUserRequest, v1.GetSessionAndUserResponse]
+	updateSession           *connect.Client[v1.UpdateSessionRequest, v1.UpdateSessionResponse]
+	deleteSession           *connect.Client[v1.DeleteSessionRequest, v1.DeleteSessionResponse]
+	createVerificationToken *connect.Client[v1.CreateVerificationTokenRequest, v1.CreateVerificationTokenResponse]
+	useVerificationToken    *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
+	upsertUserByEmail       *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -120,12 +270,96 @@ func (c *authServiceClient) UpdateLinkSession(ctx context.Context, req *connect.
 	return c.updateLinkSession.CallUnary(ctx, req)
 }
 
+// CheckTeamInvites calls chalk.server.v1.AuthService.CheckTeamInvites.
+func (c *authServiceClient) CheckTeamInvites(ctx context.Context, req *connect.Request[v1.CheckTeamInvitesRequest]) (*connect.Response[v1.CheckTeamInvitesResponse], error) {
+	return c.checkTeamInvites.CallUnary(ctx, req)
+}
+
+// CreateUser calls chalk.server.v1.AuthService.CreateUser.
+func (c *authServiceClient) CreateUser(ctx context.Context, req *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error) {
+	return c.createUser.CallUnary(ctx, req)
+}
+
+// GetUserById calls chalk.server.v1.AuthService.GetUserById.
+func (c *authServiceClient) GetUserById(ctx context.Context, req *connect.Request[v1.GetUserByIdRequest]) (*connect.Response[v1.GetUserByIdResponse], error) {
+	return c.getUserById.CallUnary(ctx, req)
+}
+
+// GetUserByEmail calls chalk.server.v1.AuthService.GetUserByEmail.
+func (c *authServiceClient) GetUserByEmail(ctx context.Context, req *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error) {
+	return c.getUserByEmail.CallUnary(ctx, req)
+}
+
+// GetUserByAccount calls chalk.server.v1.AuthService.GetUserByAccount.
+func (c *authServiceClient) GetUserByAccount(ctx context.Context, req *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error) {
+	return c.getUserByAccount.CallUnary(ctx, req)
+}
+
+// UpdateUser calls chalk.server.v1.AuthService.UpdateUser.
+func (c *authServiceClient) UpdateUser(ctx context.Context, req *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
+	return c.updateUser.CallUnary(ctx, req)
+}
+
+// LinkAccount calls chalk.server.v1.AuthService.LinkAccount.
+func (c *authServiceClient) LinkAccount(ctx context.Context, req *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error) {
+	return c.linkAccount.CallUnary(ctx, req)
+}
+
+// CreateSession calls chalk.server.v1.AuthService.CreateSession.
+func (c *authServiceClient) CreateSession(ctx context.Context, req *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error) {
+	return c.createSession.CallUnary(ctx, req)
+}
+
+// GetSessionAndUser calls chalk.server.v1.AuthService.GetSessionAndUser.
+func (c *authServiceClient) GetSessionAndUser(ctx context.Context, req *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error) {
+	return c.getSessionAndUser.CallUnary(ctx, req)
+}
+
+// UpdateSession calls chalk.server.v1.AuthService.UpdateSession.
+func (c *authServiceClient) UpdateSession(ctx context.Context, req *connect.Request[v1.UpdateSessionRequest]) (*connect.Response[v1.UpdateSessionResponse], error) {
+	return c.updateSession.CallUnary(ctx, req)
+}
+
+// DeleteSession calls chalk.server.v1.AuthService.DeleteSession.
+func (c *authServiceClient) DeleteSession(ctx context.Context, req *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error) {
+	return c.deleteSession.CallUnary(ctx, req)
+}
+
+// CreateVerificationToken calls chalk.server.v1.AuthService.CreateVerificationToken.
+func (c *authServiceClient) CreateVerificationToken(ctx context.Context, req *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error) {
+	return c.createVerificationToken.CallUnary(ctx, req)
+}
+
+// UseVerificationToken calls chalk.server.v1.AuthService.UseVerificationToken.
+func (c *authServiceClient) UseVerificationToken(ctx context.Context, req *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error) {
+	return c.useVerificationToken.CallUnary(ctx, req)
+}
+
+// UpsertUserByEmail calls chalk.server.v1.AuthService.UpsertUserByEmail.
+func (c *authServiceClient) UpsertUserByEmail(ctx context.Context, req *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error) {
+	return c.upsertUserByEmail.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the chalk.server.v1.AuthService service.
 type AuthServiceHandler interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
 	CreateLinkSession(context.Context, *connect.Request[v1.CreateLinkSessionRequest]) (*connect.Response[v1.CreateLinkSessionResponse], error)
 	GetLinkSession(context.Context, *connect.Request[v1.GetLinkSessionRequest]) (*connect.Response[v1.GetLinkSessionResponse], error)
 	UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error)
+	CheckTeamInvites(context.Context, *connect.Request[v1.CheckTeamInvitesRequest]) (*connect.Response[v1.CheckTeamInvitesResponse], error)
+	CreateUser(context.Context, *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error)
+	GetUserById(context.Context, *connect.Request[v1.GetUserByIdRequest]) (*connect.Response[v1.GetUserByIdResponse], error)
+	GetUserByEmail(context.Context, *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error)
+	GetUserByAccount(context.Context, *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error)
+	UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error)
+	LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error)
+	CreateSession(context.Context, *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error)
+	GetSessionAndUser(context.Context, *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error)
+	UpdateSession(context.Context, *connect.Request[v1.UpdateSessionRequest]) (*connect.Response[v1.UpdateSessionResponse], error)
+	DeleteSession(context.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error)
+	CreateVerificationToken(context.Context, *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error)
+	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
+	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -159,6 +393,90 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("UpdateLinkSession")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceCheckTeamInvitesHandler := connect.NewUnaryHandler(
+		AuthServiceCheckTeamInvitesProcedure,
+		svc.CheckTeamInvites,
+		connect.WithSchema(authServiceMethods.ByName("CheckTeamInvites")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceCreateUserHandler := connect.NewUnaryHandler(
+		AuthServiceCreateUserProcedure,
+		svc.CreateUser,
+		connect.WithSchema(authServiceMethods.ByName("CreateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceGetUserByIdHandler := connect.NewUnaryHandler(
+		AuthServiceGetUserByIdProcedure,
+		svc.GetUserById,
+		connect.WithSchema(authServiceMethods.ByName("GetUserById")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceGetUserByEmailHandler := connect.NewUnaryHandler(
+		AuthServiceGetUserByEmailProcedure,
+		svc.GetUserByEmail,
+		connect.WithSchema(authServiceMethods.ByName("GetUserByEmail")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceGetUserByAccountHandler := connect.NewUnaryHandler(
+		AuthServiceGetUserByAccountProcedure,
+		svc.GetUserByAccount,
+		connect.WithSchema(authServiceMethods.ByName("GetUserByAccount")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceUpdateUserHandler := connect.NewUnaryHandler(
+		AuthServiceUpdateUserProcedure,
+		svc.UpdateUser,
+		connect.WithSchema(authServiceMethods.ByName("UpdateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceLinkAccountHandler := connect.NewUnaryHandler(
+		AuthServiceLinkAccountProcedure,
+		svc.LinkAccount,
+		connect.WithSchema(authServiceMethods.ByName("LinkAccount")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceCreateSessionHandler := connect.NewUnaryHandler(
+		AuthServiceCreateSessionProcedure,
+		svc.CreateSession,
+		connect.WithSchema(authServiceMethods.ByName("CreateSession")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceGetSessionAndUserHandler := connect.NewUnaryHandler(
+		AuthServiceGetSessionAndUserProcedure,
+		svc.GetSessionAndUser,
+		connect.WithSchema(authServiceMethods.ByName("GetSessionAndUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceUpdateSessionHandler := connect.NewUnaryHandler(
+		AuthServiceUpdateSessionProcedure,
+		svc.UpdateSession,
+		connect.WithSchema(authServiceMethods.ByName("UpdateSession")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceDeleteSessionHandler := connect.NewUnaryHandler(
+		AuthServiceDeleteSessionProcedure,
+		svc.DeleteSession,
+		connect.WithSchema(authServiceMethods.ByName("DeleteSession")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceCreateVerificationTokenHandler := connect.NewUnaryHandler(
+		AuthServiceCreateVerificationTokenProcedure,
+		svc.CreateVerificationToken,
+		connect.WithSchema(authServiceMethods.ByName("CreateVerificationToken")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceUseVerificationTokenHandler := connect.NewUnaryHandler(
+		AuthServiceUseVerificationTokenProcedure,
+		svc.UseVerificationToken,
+		connect.WithSchema(authServiceMethods.ByName("UseVerificationToken")),
+		connect.WithHandlerOptions(opts...),
+	)
+	authServiceUpsertUserByEmailHandler := connect.NewUnaryHandler(
+		AuthServiceUpsertUserByEmailProcedure,
+		svc.UpsertUserByEmail,
+		connect.WithSchema(authServiceMethods.ByName("UpsertUserByEmail")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceGetTokenProcedure:
@@ -169,6 +487,34 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceGetLinkSessionHandler.ServeHTTP(w, r)
 		case AuthServiceUpdateLinkSessionProcedure:
 			authServiceUpdateLinkSessionHandler.ServeHTTP(w, r)
+		case AuthServiceCheckTeamInvitesProcedure:
+			authServiceCheckTeamInvitesHandler.ServeHTTP(w, r)
+		case AuthServiceCreateUserProcedure:
+			authServiceCreateUserHandler.ServeHTTP(w, r)
+		case AuthServiceGetUserByIdProcedure:
+			authServiceGetUserByIdHandler.ServeHTTP(w, r)
+		case AuthServiceGetUserByEmailProcedure:
+			authServiceGetUserByEmailHandler.ServeHTTP(w, r)
+		case AuthServiceGetUserByAccountProcedure:
+			authServiceGetUserByAccountHandler.ServeHTTP(w, r)
+		case AuthServiceUpdateUserProcedure:
+			authServiceUpdateUserHandler.ServeHTTP(w, r)
+		case AuthServiceLinkAccountProcedure:
+			authServiceLinkAccountHandler.ServeHTTP(w, r)
+		case AuthServiceCreateSessionProcedure:
+			authServiceCreateSessionHandler.ServeHTTP(w, r)
+		case AuthServiceGetSessionAndUserProcedure:
+			authServiceGetSessionAndUserHandler.ServeHTTP(w, r)
+		case AuthServiceUpdateSessionProcedure:
+			authServiceUpdateSessionHandler.ServeHTTP(w, r)
+		case AuthServiceDeleteSessionProcedure:
+			authServiceDeleteSessionHandler.ServeHTTP(w, r)
+		case AuthServiceCreateVerificationTokenProcedure:
+			authServiceCreateVerificationTokenHandler.ServeHTTP(w, r)
+		case AuthServiceUseVerificationTokenProcedure:
+			authServiceUseVerificationTokenHandler.ServeHTTP(w, r)
+		case AuthServiceUpsertUserByEmailProcedure:
+			authServiceUpsertUserByEmailHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -192,4 +538,60 @@ func (UnimplementedAuthServiceHandler) GetLinkSession(context.Context, *connect.
 
 func (UnimplementedAuthServiceHandler) UpdateLinkSession(context.Context, *connect.Request[v1.UpdateLinkSessionRequest]) (*connect.Response[v1.UpdateLinkSessionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateLinkSession is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CheckTeamInvites(context.Context, *connect.Request[v1.CheckTeamInvitesRequest]) (*connect.Response[v1.CheckTeamInvitesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CheckTeamInvites is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CreateUser(context.Context, *connect.Request[v1.CreateUserRequest]) (*connect.Response[v1.CreateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CreateUser is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetUserById(context.Context, *connect.Request[v1.GetUserByIdRequest]) (*connect.Response[v1.GetUserByIdResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetUserById is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetUserByEmail(context.Context, *connect.Request[v1.GetUserByEmailRequest]) (*connect.Response[v1.GetUserByEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetUserByEmail is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetUserByAccount(context.Context, *connect.Request[v1.GetUserByAccountRequest]) (*connect.Response[v1.GetUserByAccountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetUserByAccount is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) UpdateUser(context.Context, *connect.Request[v1.UpdateUserRequest]) (*connect.Response[v1.UpdateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateUser is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) LinkAccount(context.Context, *connect.Request[v1.LinkAccountRequest]) (*connect.Response[v1.LinkAccountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.LinkAccount is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CreateSession(context.Context, *connect.Request[v1.CreateSessionRequest]) (*connect.Response[v1.CreateSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CreateSession is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetSessionAndUser(context.Context, *connect.Request[v1.GetSessionAndUserRequest]) (*connect.Response[v1.GetSessionAndUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetSessionAndUser is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) UpdateSession(context.Context, *connect.Request[v1.UpdateSessionRequest]) (*connect.Response[v1.UpdateSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpdateSession is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) DeleteSession(context.Context, *connect.Request[v1.DeleteSessionRequest]) (*connect.Response[v1.DeleteSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.DeleteSession is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) CreateVerificationToken(context.Context, *connect.Request[v1.CreateVerificationTokenRequest]) (*connect.Response[v1.CreateVerificationTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.CreateVerificationToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UseVerificationToken is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.UpsertUserByEmail is not implemented"))
 }
