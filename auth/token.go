@@ -20,11 +20,25 @@ type TokenRefresher struct {
 	token *serverv1.GetTokenResponse
 }
 
+type Opts struct {
+	Token *serverv1.GetTokenResponse
+}
+
 func NewTokenRefresher(
 	ctx context.Context,
 	httpClient connect.HTTPClient,
 	manager *config.Manager,
+	opts ...*Opts,
 ) (*TokenRefresher, error) {
+	var opt *Opts
+	if len(opts) == 0 {
+		opt = &Opts{}
+	} else if len(opts) == 1 {
+		opt = opts[0]
+	} else {
+		return nil, errors.New("only one Opts can be provided")
+	}
+
 	r := &TokenRefresher{
 		manager: manager,
 		AuthClient: serverv1connect.NewAuthServiceClient(
@@ -43,6 +57,11 @@ func NewTokenRefresher(
 		),
 		mu: &sync.Mutex{},
 	}
+
+	if opt.Token != nil {
+		r.token = opt.Token
+	}
+
 	if _, err := r.GetJWT(ctx, time.Now()); err != nil {
 		return nil, errors.Wrap(err, "initializing token refresher")
 	}
