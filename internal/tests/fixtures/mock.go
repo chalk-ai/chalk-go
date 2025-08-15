@@ -113,6 +113,104 @@ func (m *mockAuthServer) UpdateLinkSession(
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
+func (m *mockAuthServer) CheckTeamInvites(
+	ctx context.Context,
+	req *connect.Request[serverv1.CheckTeamInvitesRequest],
+) (*connect.Response[serverv1.CheckTeamInvitesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) CreateUser(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateUserRequest],
+) (*connect.Response[serverv1.CreateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) GetUserById(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetUserByIdRequest],
+) (*connect.Response[serverv1.GetUserByIdResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) GetUserByEmail(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetUserByEmailRequest],
+) (*connect.Response[serverv1.GetUserByEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) GetUserByAccount(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetUserByAccountRequest],
+) (*connect.Response[serverv1.GetUserByAccountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) UpdateUser(
+	ctx context.Context,
+	req *connect.Request[serverv1.UpdateUserRequest],
+) (*connect.Response[serverv1.UpdateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) LinkAccount(
+	ctx context.Context,
+	req *connect.Request[serverv1.LinkAccountRequest],
+) (*connect.Response[serverv1.LinkAccountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) CreateSession(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateSessionRequest],
+) (*connect.Response[serverv1.CreateSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) GetSessionAndUser(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetSessionAndUserRequest],
+) (*connect.Response[serverv1.GetSessionAndUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) UpdateSession(
+	ctx context.Context,
+	req *connect.Request[serverv1.UpdateSessionRequest],
+) (*connect.Response[serverv1.UpdateSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) DeleteSession(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteSessionRequest],
+) (*connect.Response[serverv1.DeleteSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) CreateVerificationToken(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateVerificationTokenRequest],
+) (*connect.Response[serverv1.CreateVerificationTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) UseVerificationToken(
+	ctx context.Context,
+	req *connect.Request[serverv1.UseVerificationTokenRequest],
+) (*connect.Response[serverv1.UseVerificationTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) UpsertUserByEmail(
+	ctx context.Context,
+	req *connect.Request[serverv1.UpsertUserByEmailRequest],
+) (*connect.Response[serverv1.UpsertUserByEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
 type MockServerConfig struct {
 	QueryBulkResponse *commonv1.OnlineQueryBulkResponse
 }

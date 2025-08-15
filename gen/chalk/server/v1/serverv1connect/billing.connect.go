@@ -51,6 +51,9 @@ const (
 	// BillingServiceSyncUtilizationProcedure is the fully-qualified name of the BillingService's
 	// SyncUtilization RPC.
 	BillingServiceSyncUtilizationProcedure = "/chalk.server.v1.BillingService/SyncUtilization"
+	// BillingServiceGetCreditBundlesProcedure is the fully-qualified name of the BillingService's
+	// GetCreditBundles RPC.
+	BillingServiceGetCreditBundlesProcedure = "/chalk.server.v1.BillingService/GetCreditBundles"
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -74,6 +77,8 @@ type BillingServiceClient interface {
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
 	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 	SyncUtilization(context.Context, *connect.Request[v1.SyncUtilizationRequest]) (*connect.Response[v1.SyncUtilizationResponse], error)
+	// GetCreditBundles returns the available credit bundles for purchase
+	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -129,6 +134,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getCreditBundles: connect.NewClient[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse](
+			httpClient,
+			baseURL+BillingServiceGetCreditBundlesProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetCreditBundles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -140,6 +152,7 @@ type billingServiceClient struct {
 	getUtilizationRates *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 	getPodRequestCharts *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
 	syncUtilization     *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
+	getCreditBundles    *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -172,6 +185,11 @@ func (c *billingServiceClient) SyncUtilization(ctx context.Context, req *connect
 	return c.syncUtilization.CallUnary(ctx, req)
 }
 
+// GetCreditBundles calls chalk.server.v1.BillingService.GetCreditBundles.
+func (c *billingServiceClient) GetCreditBundles(ctx context.Context, req *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error) {
+	return c.getCreditBundles.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -193,6 +211,8 @@ type BillingServiceHandler interface {
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
 	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 	SyncUtilization(context.Context, *connect.Request[v1.SyncUtilizationRequest]) (*connect.Response[v1.SyncUtilizationResponse], error)
+	// GetCreditBundles returns the available credit bundles for purchase
+	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -244,6 +264,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetCreditBundlesHandler := connect.NewUnaryHandler(
+		BillingServiceGetCreditBundlesProcedure,
+		svc.GetCreditBundles,
+		connect.WithSchema(billingServiceMethods.ByName("GetCreditBundles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsUIProcedure:
@@ -258,6 +285,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetPodRequestChartsHandler.ServeHTTP(w, r)
 		case BillingServiceSyncUtilizationProcedure:
 			billingServiceSyncUtilizationHandler.ServeHTTP(w, r)
+		case BillingServiceGetCreditBundlesProcedure:
+			billingServiceGetCreditBundlesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -289,4 +318,8 @@ func (UnimplementedBillingServiceHandler) GetPodRequestCharts(context.Context, *
 
 func (UnimplementedBillingServiceHandler) SyncUtilization(context.Context, *connect.Request[v1.SyncUtilizationRequest]) (*connect.Response[v1.SyncUtilizationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.SyncUtilization is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetCreditBundles is not implemented"))
 }
