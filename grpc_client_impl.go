@@ -70,7 +70,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
-	tokenManager, err := auth.NewTokenRefresher(ctx, cfg.HTTPClient, c)
+	tokenManager, err := auth.NewTokenRefresher(ctx, cfg.HTTPClient, c, &auth.Opts{Token: cfg.JWT})
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing token manager")
 	}
