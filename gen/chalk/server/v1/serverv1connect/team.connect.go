@@ -92,6 +92,12 @@ const (
 	// TeamServiceArchiveEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// ArchiveEnvironment RPC.
 	TeamServiceArchiveEnvironmentProcedure = "/chalk.server.v1.TeamService/ArchiveEnvironment"
+	// TeamServiceDeactivateUserProcedure is the fully-qualified name of the TeamService's
+	// DeactivateUser RPC.
+	TeamServiceDeactivateUserProcedure = "/chalk.server.v1.TeamService/DeactivateUser"
+	// TeamServiceReactivateUserProcedure is the fully-qualified name of the TeamService's
+	// ReactivateUser RPC.
+	TeamServiceReactivateUserProcedure = "/chalk.server.v1.TeamService/ReactivateUser"
 )
 
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
@@ -117,6 +123,8 @@ type TeamServiceClient interface {
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
+	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
+	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 }
 
 // NewTeamServiceClient constructs a client for the chalk.server.v1.TeamService service. By default,
@@ -262,6 +270,18 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
+		deactivateUser: connect.NewClient[v1.DeactivateUserRequest, v1.DeactivateUserResponse](
+			httpClient,
+			baseURL+TeamServiceDeactivateUserProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("DeactivateUser")),
+			connect.WithClientOptions(opts...),
+		),
+		reactivateUser: connect.NewClient[v1.ReactivateUserRequest, v1.ReactivateUserResponse](
+			httpClient,
+			baseURL+TeamServiceReactivateUserProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("ReactivateUser")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -288,6 +308,8 @@ type teamServiceClient struct {
 	updateScimGroupSettings  *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
 	getTeamPermissions       *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
 	archiveEnvironment       *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
+	deactivateUser           *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
+	reactivateUser           *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -395,6 +417,16 @@ func (c *teamServiceClient) ArchiveEnvironment(ctx context.Context, req *connect
 	return c.archiveEnvironment.CallUnary(ctx, req)
 }
 
+// DeactivateUser calls chalk.server.v1.TeamService.DeactivateUser.
+func (c *teamServiceClient) DeactivateUser(ctx context.Context, req *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error) {
+	return c.deactivateUser.CallUnary(ctx, req)
+}
+
+// ReactivateUser calls chalk.server.v1.TeamService.ReactivateUser.
+func (c *teamServiceClient) ReactivateUser(ctx context.Context, req *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error) {
+	return c.reactivateUser.CallUnary(ctx, req)
+}
+
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -418,6 +450,8 @@ type TeamServiceHandler interface {
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
+	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
+	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 }
 
 // NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -559,6 +593,18 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("ArchiveEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceDeactivateUserHandler := connect.NewUnaryHandler(
+		TeamServiceDeactivateUserProcedure,
+		svc.DeactivateUser,
+		connect.WithSchema(teamServiceMethods.ByName("DeactivateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceReactivateUserHandler := connect.NewUnaryHandler(
+		TeamServiceReactivateUserProcedure,
+		svc.ReactivateUser,
+		connect.WithSchema(teamServiceMethods.ByName("ReactivateUser")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
@@ -603,6 +649,10 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceGetTeamPermissionsHandler.ServeHTTP(w, r)
 		case TeamServiceArchiveEnvironmentProcedure:
 			teamServiceArchiveEnvironmentHandler.ServeHTTP(w, r)
+		case TeamServiceDeactivateUserProcedure:
+			teamServiceDeactivateUserHandler.ServeHTTP(w, r)
+		case TeamServiceReactivateUserProcedure:
+			teamServiceReactivateUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -694,4 +744,12 @@ func (UnimplementedTeamServiceHandler) GetTeamPermissions(context.Context, *conn
 
 func (UnimplementedTeamServiceHandler) ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ArchiveEnvironment is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeactivateUser is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ReactivateUser is not implemented"))
 }
