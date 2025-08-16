@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"crypto/tls"
+	"github.com/chalk-ai/chalk-go/auth"
 	"net"
 	"net/http"
 	"strings"
@@ -11,11 +12,10 @@ import (
 	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/config"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
-	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
-	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
@@ -24,7 +24,7 @@ import (
 
 type grpcClientImpl struct {
 	GRPCClient
-	config    *configManager
+	config    *config.Manager
 	allocator memory.Allocator
 
 	branch        string
@@ -34,10 +34,10 @@ type grpcClientImpl struct {
 	httpClient    HTTPClient
 	timeout       *time.Duration
 
-	authClient       serverv1connect.AuthServiceClient
 	queryClient      enginev1connect.QueryServiceClient
 	tokenInterceptor connect.UnaryInterceptorFunc
 	deploymentTag    string
+	tokenManager     *auth.TokenRefresher
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -49,64 +49,46 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	} else {
 		return nil, errors.Newf("expected at most one GRPCClientConfig, got %d", len(configs))
 	}
+	if cfg.Logger == nil {
+		cfg.Logger = DefaultLeveledLogger
+	}
+	if cfg.HTTPClient == nil {
+		cfg.HTTPClient = http.DefaultClient
+	}
+	if cfg.Allocator == nil {
+		cfg.Allocator = memory.DefaultAllocator
+	}
 
-	config, err := newConfigManager(cfg.ApiServer, cfg.ClientId, cfg.ClientSecret, cfg.EnvironmentId, cfg.Logger)
+	c, err := config.NewManager(
+		ctx,
+		config.NewFromArg[string](cfg.ApiServer),
+		config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
+		config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
+		config.NewFromArg[string](cfg.EnvironmentId),
+		cfg.ConfigDir,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
-	httpClient := cfg.HTTPClient
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+	tokenManager, err := auth.NewTokenRefresher(ctx, cfg.HTTPClient, c, &auth.Opts{Token: cfg.JWT})
+	if err != nil {
+		return nil, errors.Wrap(err, "initializing token manager")
 	}
 
 	var timeout *time.Duration
 	if cfg.Timeout != 0 { // If unspecified (zero value)
 		timeout = &cfg.Timeout
 	}
-
-	authInterceptors := []connect.Interceptor{
-		headerInterceptor(map[string]string{
-			HeaderKeyServerType: serverTypeApi,
-		}),
-	}
-	if timeout != nil {
-		authInterceptors = append(authInterceptors, timeoutInterceptor(timeout))
-	}
-	authClient := serverv1connect.NewAuthServiceClient(
-		httpClient,
-		config.apiServer.Value,
-		connect.WithInterceptors(append(cfg.Interceptors, authInterceptors...)...),
-	)
-
-	config.getToken = func(ctx context.Context, clientId string, clientSecret string) (*getTokenResult, error) {
-		return getToken(ctx, clientId, clientSecret, config.logger, authClient)
-	}
-
-	// Necessary to get GRPC engines URL
-	if err := config.refresh(ctx, false); err != nil {
-		return nil, errors.Wrap(err, "fetching initial config")
-	}
-
-	var queryServer *string
-	if cfg.QueryServer != "" {
-		queryServer = &cfg.QueryServer
-	}
-
 	var resourceGroup *string
 	if cfg.ResourceGroup != "" {
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	allocator := memory.DefaultAllocator
-	if cfg.Allocator != nil {
-		allocator = cfg.Allocator
-	}
-
-	resolvedQueryServer := config.getQueryServer(queryServer)
+	resolvedQueryServer := tokenManager.GetQueryServerURL(cfg.QueryServer)
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
-		httpClient = &http.Client{
+		cfg.HTTPClient = &http.Client{
 			Transport: &http2.Transport{
 				AllowHTTP: true,
 				DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
@@ -123,7 +105,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if cfg.DeploymentTag != "" {
 		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
 	}
-	tokenInterceptor := makeTokenInterceptor(config)
+	tokenInterceptor := makeTokenInterceptor(tokenManager)
 	engineInterceptors := []connect.Interceptor{
 		tokenInterceptor,
 		headerInterceptor(headers),
@@ -133,8 +115,8 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	}
 
 	queryClient := enginev1connect.NewQueryServiceClient(
-		httpClient,
-		ensureHTTPSPrefix(resolvedQueryServer),
+		cfg.HTTPClient,
+		resolvedQueryServer,
 		connect.WithInterceptors(append(cfg.Interceptors, engineInterceptors...)...),
 		connect.WithGRPC(),
 	)
@@ -142,45 +124,16 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	return &grpcClientImpl{
 		deploymentTag:    cfg.DeploymentTag,
 		branch:           cfg.Branch,
-		httpClient:       httpClient,
-		logger:           config.logger,
-		config:           config,
-		authClient:       authClient,
+		httpClient:       cfg.HTTPClient,
+		logger:           cfg.Logger,
+		config:           c,
+		tokenManager:     tokenManager,
 		queryClient:      queryClient,
-		queryServer:      queryServer,
+		queryServer:      ptr.OrNil(cfg.QueryServer),
 		resourceGroup:    resourceGroup,
 		timeout:          timeout,
-		allocator:        allocator,
+		allocator:        cfg.Allocator,
 		tokenInterceptor: tokenInterceptor,
-	}, nil
-}
-
-func getToken(ctx context.Context, clientId string, clientSecret string, logger LeveledLogger, client serverv1connect.AuthServiceClient) (*getTokenResult, error) {
-	logger.Debugf("Getting new token via gRPC")
-	authRequest := connect.NewRequest(
-		&serverv1.GetTokenRequest{
-			ClientId:     clientId,
-			ClientSecret: clientSecret,
-			GrantType:    "client_credentials",
-		},
-	)
-
-	token, err := client.GetToken(ctx, authRequest)
-	if err != nil {
-		logger.Debugf("Failed to get a new token: %s", err.Error())
-		return nil, err
-	}
-
-	expiresAt := token.Msg.GetExpiresAt()
-	if token.Msg.GetExpiresAt() == nil {
-		return nil, errors.New("token has no expiration date")
-	}
-
-	return &getTokenResult{
-		ValidUntil:         expiresAt.AsTime(),
-		AccessToken:        token.Msg.GetAccessToken(),
-		PrimaryEnvironment: token.Msg.GetPrimaryEnvironment(),
-		Engines:            token.Msg.GetGrpcEngines(),
 	}, nil
 }
 
@@ -400,7 +353,7 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 }
 
 func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.config.getQueryServer(nil)
+	return c.tokenManager.GetQueryServerURL("")
 }
 
 func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
@@ -417,10 +370,10 @@ func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
 
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 	return &GRPCClientConfig{
-		ClientId:      c.config.clientId.Value,
-		ClientSecret:  c.config.clientSecret.Value,
-		ApiServer:     c.config.apiServer.Value,
-		EnvironmentId: c.config.environmentId.Value,
+		ClientId:      string(c.config.ClientId.Value),
+		ClientSecret:  string(c.config.ClientSecret.Value),
+		ApiServer:     c.config.ApiServer.Value,
+		EnvironmentId: c.tokenManager.GetEnvironmentId(""),
 		Branch:        c.branch,
 		QueryServer:   ptr.OrZero(c.queryServer),
 		Logger:        c.logger,
@@ -520,14 +473,15 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 }
 
 func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
-	res, err := c.config.getToken(ctx, c.config.clientId.Value, c.config.clientSecret.Value)
+	res, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "getting JWT token")
 	}
+
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
-		ValidUntil:         res.ValidUntil,
-		PrimaryEnvironment: res.PrimaryEnvironment,
+		ValidUntil:         res.ExpiresAt.AsTime(),
+		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(ptr.OrZero(res.PrimaryEnvironment)),
 		Engines:            res.Engines,
 	}, nil
 }

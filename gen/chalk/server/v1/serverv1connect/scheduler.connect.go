@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// SchedulerServiceManualTriggerCronResolverProcedure is the fully-qualified name of the
+	// SchedulerService's ManualTriggerCronResolver RPC.
+	SchedulerServiceManualTriggerCronResolverProcedure = "/chalk.server.v1.SchedulerService/ManualTriggerCronResolver"
 	// SchedulerServiceManualTriggerScheduledQueryProcedure is the fully-qualified name of the
 	// SchedulerService's ManualTriggerScheduledQuery RPC.
 	SchedulerServiceManualTriggerScheduledQueryProcedure = "/chalk.server.v1.SchedulerService/ManualTriggerScheduledQuery"
@@ -40,6 +43,7 @@ const (
 
 // SchedulerServiceClient is a client for the chalk.server.v1.SchedulerService service.
 type SchedulerServiceClient interface {
+	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
 }
 
@@ -54,6 +58,12 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 	baseURL = strings.TrimRight(baseURL, "/")
 	schedulerServiceMethods := v1.File_chalk_server_v1_scheduler_proto.Services().ByName("SchedulerService").Methods()
 	return &schedulerServiceClient{
+		manualTriggerCronResolver: connect.NewClient[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse](
+			httpClient,
+			baseURL+SchedulerServiceManualTriggerCronResolverProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerCronResolver")),
+			connect.WithClientOptions(opts...),
+		),
 		manualTriggerScheduledQuery: connect.NewClient[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse](
 			httpClient,
 			baseURL+SchedulerServiceManualTriggerScheduledQueryProcedure,
@@ -65,7 +75,13 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 
 // schedulerServiceClient implements SchedulerServiceClient.
 type schedulerServiceClient struct {
+	manualTriggerCronResolver   *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
 	manualTriggerScheduledQuery *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
+}
+
+// ManualTriggerCronResolver calls chalk.server.v1.SchedulerService.ManualTriggerCronResolver.
+func (c *schedulerServiceClient) ManualTriggerCronResolver(ctx context.Context, req *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error) {
+	return c.manualTriggerCronResolver.CallUnary(ctx, req)
 }
 
 // ManualTriggerScheduledQuery calls chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery.
@@ -75,6 +91,7 @@ func (c *schedulerServiceClient) ManualTriggerScheduledQuery(ctx context.Context
 
 // SchedulerServiceHandler is an implementation of the chalk.server.v1.SchedulerService service.
 type SchedulerServiceHandler interface {
+	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
 }
 
@@ -85,6 +102,12 @@ type SchedulerServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	schedulerServiceMethods := v1.File_chalk_server_v1_scheduler_proto.Services().ByName("SchedulerService").Methods()
+	schedulerServiceManualTriggerCronResolverHandler := connect.NewUnaryHandler(
+		SchedulerServiceManualTriggerCronResolverProcedure,
+		svc.ManualTriggerCronResolver,
+		connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerCronResolver")),
+		connect.WithHandlerOptions(opts...),
+	)
 	schedulerServiceManualTriggerScheduledQueryHandler := connect.NewUnaryHandler(
 		SchedulerServiceManualTriggerScheduledQueryProcedure,
 		svc.ManualTriggerScheduledQuery,
@@ -93,6 +116,8 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 	)
 	return "/chalk.server.v1.SchedulerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case SchedulerServiceManualTriggerCronResolverProcedure:
+			schedulerServiceManualTriggerCronResolverHandler.ServeHTTP(w, r)
 		case SchedulerServiceManualTriggerScheduledQueryProcedure:
 			schedulerServiceManualTriggerScheduledQueryHandler.ServeHTTP(w, r)
 		default:
@@ -103,6 +128,10 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 
 // UnimplementedSchedulerServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedSchedulerServiceHandler struct{}
+
+func (UnimplementedSchedulerServiceHandler) ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ManualTriggerCronResolver is not implemented"))
+}
 
 func (UnimplementedSchedulerServiceHandler) ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery is not implemented"))

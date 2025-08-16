@@ -175,6 +175,10 @@ type ClientConfig struct {
 	ApiServer     string
 	EnvironmentId string
 
+	// ConfigDir specifies the directory to look for configuration files.
+	// If nil, will use the default XDG_CONFIG_HOME or user home directory.
+	ConfigDir *string
+
 	// If specified, Chalk will route all requests from this client
 	// instance to the relevant branch.
 	Branch string

@@ -3,7 +3,7 @@ package integration
 import (
 	"context"
 	chalk "github.com/chalk-ai/chalk-go"
-	"os"
+	"github.com/chalk-ai/chalk-go/config"
 )
 
 var restClient chalk.Client
@@ -14,11 +14,10 @@ func init() {
 		panic(err)
 	}
 
-	if os.Getenv("INTEGRATION_TESTER") == "" {
+	ctx := context.Background()
+	if config.EnvironmentGetterFromContext(ctx).Getenv("INTEGRATION_TESTER") == "" {
 		return
 	}
-
-	ctx := context.Background()
 
 	client, err := chalk.NewClient(ctx)
 	if err != nil {

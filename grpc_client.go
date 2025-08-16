@@ -8,6 +8,7 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 )
 
 // GRPCClient is the gRPC interface for interacting with Chalk.
@@ -130,6 +131,10 @@ type GRPCClientConfig struct {
 	ApiServer     string
 	EnvironmentId string
 
+	// ConfigDir specifies the directory to look for configuration files.
+	// If nil, will use the default XDG_CONFIG_HOME or user home directory.
+	ConfigDir *string
+
 	// If specified, Chalk will route all requests from this client
 	// instance to the relevant branch.
 	Branch string
@@ -183,6 +188,10 @@ type GRPCClientConfig struct {
 	// Interceptors are middleware functions that can intercept and modify
 	// gRPC requests and responses for logging, auth, metrics, etc.
 	Interceptors []connect.Interceptor
+
+	// JWT is a valid Chalk JWT that can be used to authenticate requests
+	// uncommon to be used, prefer ClientId and ClientSecret instead.
+	JWT *serverv1.GetTokenResponse
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
