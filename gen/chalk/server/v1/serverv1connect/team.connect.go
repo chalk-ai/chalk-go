@@ -50,6 +50,12 @@ const (
 	// TeamServiceCreateProjectProcedure is the fully-qualified name of the TeamService's CreateProject
 	// RPC.
 	TeamServiceCreateProjectProcedure = "/chalk.server.v1.TeamService/CreateProject"
+	// TeamServiceUpdateProjectProcedure is the fully-qualified name of the TeamService's UpdateProject
+	// RPC.
+	TeamServiceUpdateProjectProcedure = "/chalk.server.v1.TeamService/UpdateProject"
+	// TeamServiceArchiveProjectProcedure is the fully-qualified name of the TeamService's
+	// ArchiveProject RPC.
+	TeamServiceArchiveProjectProcedure = "/chalk.server.v1.TeamService/ArchiveProject"
 	// TeamServiceCreateEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// CreateEnvironment RPC.
 	TeamServiceCreateEnvironmentProcedure = "/chalk.server.v1.TeamService/CreateEnvironment"
@@ -109,6 +115,8 @@ type TeamServiceClient interface {
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
+	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.UpdateProjectResponse], error)
+	ArchiveProject(context.Context, *connect.Request[v1.ArchiveProjectRequest]) (*connect.Response[v1.ArchiveProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
 	UpdateEnvironment(context.Context, *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
@@ -183,6 +191,18 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceCreateProjectProcedure,
 			connect.WithSchema(teamServiceMethods.ByName("CreateProject")),
+			connect.WithClientOptions(opts...),
+		),
+		updateProject: connect.NewClient[v1.UpdateProjectRequest, v1.UpdateProjectResponse](
+			httpClient,
+			baseURL+TeamServiceUpdateProjectProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("UpdateProject")),
+			connect.WithClientOptions(opts...),
+		),
+		archiveProject: connect.NewClient[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse](
+			httpClient,
+			baseURL+TeamServiceArchiveProjectProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("ArchiveProject")),
 			connect.WithClientOptions(opts...),
 		),
 		createEnvironment: connect.NewClient[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse](
@@ -294,6 +314,8 @@ type teamServiceClient struct {
 	getTeam                  *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
 	createTeam               *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
 	createProject            *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
+	updateProject            *connect.Client[v1.UpdateProjectRequest, v1.UpdateProjectResponse]
+	archiveProject           *connect.Client[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse]
 	createEnvironment        *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
 	updateEnvironment        *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
 	getAvailablePermissions  *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
@@ -345,6 +367,16 @@ func (c *teamServiceClient) CreateTeam(ctx context.Context, req *connect.Request
 // CreateProject calls chalk.server.v1.TeamService.CreateProject.
 func (c *teamServiceClient) CreateProject(ctx context.Context, req *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error) {
 	return c.createProject.CallUnary(ctx, req)
+}
+
+// UpdateProject calls chalk.server.v1.TeamService.UpdateProject.
+func (c *teamServiceClient) UpdateProject(ctx context.Context, req *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.UpdateProjectResponse], error) {
+	return c.updateProject.CallUnary(ctx, req)
+}
+
+// ArchiveProject calls chalk.server.v1.TeamService.ArchiveProject.
+func (c *teamServiceClient) ArchiveProject(ctx context.Context, req *connect.Request[v1.ArchiveProjectRequest]) (*connect.Response[v1.ArchiveProjectResponse], error) {
+	return c.archiveProject.CallUnary(ctx, req)
 }
 
 // CreateEnvironment calls chalk.server.v1.TeamService.CreateEnvironment.
@@ -436,6 +468,8 @@ type TeamServiceHandler interface {
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
+	UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.UpdateProjectResponse], error)
+	ArchiveProject(context.Context, *connect.Request[v1.ArchiveProjectRequest]) (*connect.Response[v1.ArchiveProjectResponse], error)
 	CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error)
 	UpdateEnvironment(context.Context, *connect.Request[v1.UpdateEnvironmentRequest]) (*connect.Response[v1.UpdateEnvironmentResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
@@ -506,6 +540,18 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceCreateProjectProcedure,
 		svc.CreateProject,
 		connect.WithSchema(teamServiceMethods.ByName("CreateProject")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceUpdateProjectHandler := connect.NewUnaryHandler(
+		TeamServiceUpdateProjectProcedure,
+		svc.UpdateProject,
+		connect.WithSchema(teamServiceMethods.ByName("UpdateProject")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceArchiveProjectHandler := connect.NewUnaryHandler(
+		TeamServiceArchiveProjectProcedure,
+		svc.ArchiveProject,
+		connect.WithSchema(teamServiceMethods.ByName("ArchiveProject")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceCreateEnvironmentHandler := connect.NewUnaryHandler(
@@ -621,6 +667,10 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceCreateTeamHandler.ServeHTTP(w, r)
 		case TeamServiceCreateProjectProcedure:
 			teamServiceCreateProjectHandler.ServeHTTP(w, r)
+		case TeamServiceUpdateProjectProcedure:
+			teamServiceUpdateProjectHandler.ServeHTTP(w, r)
+		case TeamServiceArchiveProjectProcedure:
+			teamServiceArchiveProjectHandler.ServeHTTP(w, r)
 		case TeamServiceCreateEnvironmentProcedure:
 			teamServiceCreateEnvironmentHandler.ServeHTTP(w, r)
 		case TeamServiceUpdateEnvironmentProcedure:
@@ -688,6 +738,14 @@ func (UnimplementedTeamServiceHandler) CreateTeam(context.Context, *connect.Requ
 
 func (UnimplementedTeamServiceHandler) CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateProject is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) UpdateProject(context.Context, *connect.Request[v1.UpdateProjectRequest]) (*connect.Response[v1.UpdateProjectResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateProject is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) ArchiveProject(context.Context, *connect.Request[v1.ArchiveProjectRequest]) (*connect.Response[v1.ArchiveProjectResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ArchiveProject is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) CreateEnvironment(context.Context, *connect.Request[v1.CreateEnvironmentRequest]) (*connect.Response[v1.CreateEnvironmentResponse], error) {
