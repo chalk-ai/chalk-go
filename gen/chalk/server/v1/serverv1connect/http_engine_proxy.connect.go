@@ -39,7 +39,10 @@ const (
 )
 
 // HTTPEngineProxyServiceClient is a client for the chalk.server.v1.HTTPEngineProxyService service.
+//
+// Deprecated: do not use.
 type HTTPEngineProxyServiceClient interface {
+	// Deprecated: do not use.
 	CreateOfflineQuery(context.Context, *connect.Request[v1.CreateOfflineQueryRequest]) (*connect.Response[v1.CreateOfflineQueryResponse], error)
 }
 
@@ -50,6 +53,8 @@ type HTTPEngineProxyServiceClient interface {
 //
 // The URL supplied here should be the base URL for the Connect or gRPC server (for example,
 // http://api.acme.com or https://acme.com/grpc).
+//
+// Deprecated: do not use.
 func NewHTTPEngineProxyServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) HTTPEngineProxyServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	hTTPEngineProxyServiceMethods := v1.File_chalk_server_v1_http_engine_proxy_proto.Services().ByName("HTTPEngineProxyService").Methods()
@@ -69,13 +74,18 @@ type hTTPEngineProxyServiceClient struct {
 }
 
 // CreateOfflineQuery calls chalk.server.v1.HTTPEngineProxyService.CreateOfflineQuery.
+//
+// Deprecated: do not use.
 func (c *hTTPEngineProxyServiceClient) CreateOfflineQuery(ctx context.Context, req *connect.Request[v1.CreateOfflineQueryRequest]) (*connect.Response[v1.CreateOfflineQueryResponse], error) {
 	return c.createOfflineQuery.CallUnary(ctx, req)
 }
 
 // HTTPEngineProxyServiceHandler is an implementation of the chalk.server.v1.HTTPEngineProxyService
 // service.
+//
+// Deprecated: do not use.
 type HTTPEngineProxyServiceHandler interface {
+	// Deprecated: do not use.
 	CreateOfflineQuery(context.Context, *connect.Request[v1.CreateOfflineQueryRequest]) (*connect.Response[v1.CreateOfflineQueryResponse], error)
 }
 
@@ -84,6 +94,8 @@ type HTTPEngineProxyServiceHandler interface {
 //
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
+//
+// Deprecated: do not use.
 func NewHTTPEngineProxyServiceHandler(svc HTTPEngineProxyServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	hTTPEngineProxyServiceMethods := v1.File_chalk_server_v1_http_engine_proxy_proto.Services().ByName("HTTPEngineProxyService").Methods()
 	hTTPEngineProxyServiceCreateOfflineQueryHandler := connect.NewUnaryHandler(

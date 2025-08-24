@@ -39,6 +39,9 @@ const (
 	// DataPlaneJobQueueServiceListDataPlaneJobQueueProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's ListDataPlaneJobQueue RPC.
 	DataPlaneJobQueueServiceListDataPlaneJobQueueProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ListDataPlaneJobQueue"
+	// DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's GetJobQueueAuxiliaryResources RPC.
+	DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure = "/chalk.server.v1.DataPlaneJobQueueService/GetJobQueueAuxiliaryResources"
 )
 
 // DataPlaneJobQueueServiceClient is a client for the chalk.server.v1.DataPlaneJobQueueService
@@ -46,6 +49,7 @@ const (
 type DataPlaneJobQueueServiceClient interface {
 	GetDataPlaneJobQueue(context.Context, *connect.Request[v1.GetDataPlaneJobQueueRequest]) (*connect.Response[v1.GetDataPlaneJobQueueResponse], error)
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
+	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceClient constructs a client for the
@@ -73,13 +77,21 @@ func NewDataPlaneJobQueueServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getJobQueueAuxiliaryResources: connect.NewClient[v1.GetJobQueueAuxiliaryResourcesRequest, v1.GetJobQueueAuxiliaryResourcesResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueAuxiliaryResources")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // dataPlaneJobQueueServiceClient implements DataPlaneJobQueueServiceClient.
 type dataPlaneJobQueueServiceClient struct {
-	getDataPlaneJobQueue  *connect.Client[v1.GetDataPlaneJobQueueRequest, v1.GetDataPlaneJobQueueResponse]
-	listDataPlaneJobQueue *connect.Client[v1.ListDataPlaneJobQueueRequest, v1.ListDataPlaneJobQueueResponse]
+	getDataPlaneJobQueue          *connect.Client[v1.GetDataPlaneJobQueueRequest, v1.GetDataPlaneJobQueueResponse]
+	listDataPlaneJobQueue         *connect.Client[v1.ListDataPlaneJobQueueRequest, v1.ListDataPlaneJobQueueResponse]
+	getJobQueueAuxiliaryResources *connect.Client[v1.GetJobQueueAuxiliaryResourcesRequest, v1.GetJobQueueAuxiliaryResourcesResponse]
 }
 
 // GetDataPlaneJobQueue calls chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue.
@@ -92,11 +104,18 @@ func (c *dataPlaneJobQueueServiceClient) ListDataPlaneJobQueue(ctx context.Conte
 	return c.listDataPlaneJobQueue.CallUnary(ctx, req)
 }
 
+// GetJobQueueAuxiliaryResources calls
+// chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources.
+func (c *dataPlaneJobQueueServiceClient) GetJobQueueAuxiliaryResources(ctx context.Context, req *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error) {
+	return c.getJobQueueAuxiliaryResources.CallUnary(ctx, req)
+}
+
 // DataPlaneJobQueueServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneJobQueueService service.
 type DataPlaneJobQueueServiceHandler interface {
 	GetDataPlaneJobQueue(context.Context, *connect.Request[v1.GetDataPlaneJobQueueRequest]) (*connect.Response[v1.GetDataPlaneJobQueueResponse], error)
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
+	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceHandler builds an HTTP handler from the service implementation. It
@@ -120,12 +139,21 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure,
+		svc.GetJobQueueAuxiliaryResources,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueAuxiliaryResources")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneJobQueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneJobQueueServiceGetDataPlaneJobQueueProcedure:
 			dataPlaneJobQueueServiceGetDataPlaneJobQueueHandler.ServeHTTP(w, r)
 		case DataPlaneJobQueueServiceListDataPlaneJobQueueProcedure:
 			dataPlaneJobQueueServiceListDataPlaneJobQueueHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure:
+			dataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -141,4 +169,8 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) GetDataPlaneJobQueue(context
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ListDataPlaneJobQueue is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources is not implemented"))
 }
