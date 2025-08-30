@@ -54,6 +54,9 @@ const (
 	// AuthTestingServiceGetOwnerTestEndpointProcedure is the fully-qualified name of the
 	// AuthTestingService's GetOwnerTestEndpoint RPC.
 	AuthTestingServiceGetOwnerTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetOwnerTestEndpoint"
+	// AuthTestingServiceGetFeatureFlagTestEndpointProcedure is the fully-qualified name of the
+	// AuthTestingService's GetFeatureFlagTestEndpoint RPC.
+	AuthTestingServiceGetFeatureFlagTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetFeatureFlagTestEndpoint"
 )
 
 // AuthTestingServiceClient is a client for the chalk.server.v1.AuthTestingService service.
@@ -65,6 +68,7 @@ type AuthTestingServiceClient interface {
 	GetDeveloperTestEndpoint(context.Context, *connect.Request[v1.GetDeveloperTestEndpointRequest]) (*connect.Response[v1.GetDeveloperTestEndpointResponse], error)
 	GetAdminTestEndpoint(context.Context, *connect.Request[v1.GetAdminTestEndpointRequest]) (*connect.Response[v1.GetAdminTestEndpointResponse], error)
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
+	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
 }
 
 // NewAuthTestingServiceClient constructs a client for the chalk.server.v1.AuthTestingService
@@ -127,6 +131,13 @@ func NewAuthTestingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getFeatureFlagTestEndpoint: connect.NewClient[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse](
+			httpClient,
+			baseURL+AuthTestingServiceGetFeatureFlagTestEndpointProcedure,
+			connect.WithSchema(authTestingServiceMethods.ByName("GetFeatureFlagTestEndpoint")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -139,6 +150,7 @@ type authTestingServiceClient struct {
 	getDeveloperTestEndpoint     *connect.Client[v1.GetDeveloperTestEndpointRequest, v1.GetDeveloperTestEndpointResponse]
 	getAdminTestEndpoint         *connect.Client[v1.GetAdminTestEndpointRequest, v1.GetAdminTestEndpointResponse]
 	getOwnerTestEndpoint         *connect.Client[v1.GetOwnerTestEndpointRequest, v1.GetOwnerTestEndpointResponse]
+	getFeatureFlagTestEndpoint   *connect.Client[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse]
 }
 
 // GetUnauthedTestEndpoint calls chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint.
@@ -177,6 +189,11 @@ func (c *authTestingServiceClient) GetOwnerTestEndpoint(ctx context.Context, req
 	return c.getOwnerTestEndpoint.CallUnary(ctx, req)
 }
 
+// GetFeatureFlagTestEndpoint calls chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint.
+func (c *authTestingServiceClient) GetFeatureFlagTestEndpoint(ctx context.Context, req *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error) {
+	return c.getFeatureFlagTestEndpoint.CallUnary(ctx, req)
+}
+
 // AuthTestingServiceHandler is an implementation of the chalk.server.v1.AuthTestingService service.
 type AuthTestingServiceHandler interface {
 	GetUnauthedTestEndpoint(context.Context, *connect.Request[v1.GetUnauthedTestEndpointRequest]) (*connect.Response[v1.GetUnauthedTestEndpointResponse], error)
@@ -186,6 +203,7 @@ type AuthTestingServiceHandler interface {
 	GetDeveloperTestEndpoint(context.Context, *connect.Request[v1.GetDeveloperTestEndpointRequest]) (*connect.Response[v1.GetDeveloperTestEndpointResponse], error)
 	GetAdminTestEndpoint(context.Context, *connect.Request[v1.GetAdminTestEndpointRequest]) (*connect.Response[v1.GetAdminTestEndpointResponse], error)
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
+	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
 }
 
 // NewAuthTestingServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -244,6 +262,13 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	authTestingServiceGetFeatureFlagTestEndpointHandler := connect.NewUnaryHandler(
+		AuthTestingServiceGetFeatureFlagTestEndpointProcedure,
+		svc.GetFeatureFlagTestEndpoint,
+		connect.WithSchema(authTestingServiceMethods.ByName("GetFeatureFlagTestEndpoint")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthTestingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthTestingServiceGetUnauthedTestEndpointProcedure:
@@ -260,6 +285,8 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 			authTestingServiceGetAdminTestEndpointHandler.ServeHTTP(w, r)
 		case AuthTestingServiceGetOwnerTestEndpointProcedure:
 			authTestingServiceGetOwnerTestEndpointHandler.ServeHTTP(w, r)
+		case AuthTestingServiceGetFeatureFlagTestEndpointProcedure:
+			authTestingServiceGetFeatureFlagTestEndpointHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -295,4 +322,8 @@ func (UnimplementedAuthTestingServiceHandler) GetAdminTestEndpoint(context.Conte
 
 func (UnimplementedAuthTestingServiceHandler) GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetOwnerTestEndpoint is not implemented"))
+}
+
+func (UnimplementedAuthTestingServiceHandler) GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint is not implemented"))
 }

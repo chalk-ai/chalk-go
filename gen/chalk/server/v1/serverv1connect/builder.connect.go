@@ -86,6 +86,12 @@ const (
 	// BuilderServiceDeleteClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's DeleteClusterTimescaleDB RPC.
 	BuilderServiceDeleteClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/DeleteClusterTimescaleDB"
+	// BuilderServiceCreateEnvironmentCloudResourcesProcedure is the fully-qualified name of the
+	// BuilderService's CreateEnvironmentCloudResources RPC.
+	BuilderServiceCreateEnvironmentCloudResourcesProcedure = "/chalk.server.v1.BuilderService/CreateEnvironmentCloudResources"
+	// BuilderServiceDeleteEnvironmentCloudResourcesProcedure is the fully-qualified name of the
+	// BuilderService's DeleteEnvironmentCloudResources RPC.
+	BuilderServiceDeleteEnvironmentCloudResourcesProcedure = "/chalk.server.v1.BuilderService/DeleteEnvironmentCloudResources"
 	// BuilderServiceMigrateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's MigrateClusterTimescaleDB RPC.
 	BuilderServiceMigrateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/MigrateClusterTimescaleDB"
@@ -143,6 +149,12 @@ const (
 	// BuilderServiceCreateDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// CreateDeployment RPC.
 	BuilderServiceCreateDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateDeployment"
+	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// GetTelemetryDeployment RPC.
+	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
+	// BuilderServiceCreateTelemetryDeploymentProcedure is the fully-qualified name of the
+	// BuilderService's CreateTelemetryDeployment RPC.
+	BuilderServiceCreateTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateTelemetryDeployment"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -178,6 +190,8 @@ type BuilderServiceClient interface {
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
+	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
+	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
@@ -201,6 +215,8 @@ type BuilderServiceClient interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -315,6 +331,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceDeleteClusterTimescaleDBProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		createEnvironmentCloudResources: connect.NewClient[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateEnvironmentCloudResourcesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("CreateEnvironmentCloudResources")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteEnvironmentCloudResources: connect.NewClient[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteEnvironmentCloudResourcesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteEnvironmentCloudResources")),
 			connect.WithClientOptions(opts...),
 		),
 		migrateClusterTimescaleDB: connect.NewClient[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse](
@@ -434,6 +462,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		getTelemetryDeployment: connect.NewClient[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceGetTelemetryDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
+			connect.WithClientOptions(opts...),
+		),
+		createTelemetryDeployment: connect.NewClient[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateTelemetryDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("CreateTelemetryDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -456,6 +496,8 @@ type builderServiceClient struct {
 	createClusterTimescaleDB           *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
 	getClusterTimescaleDefault         *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
 	deleteClusterTimescaleDB           *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
+	createEnvironmentCloudResources    *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
+	deleteEnvironmentCloudResources    *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
 	migrateClusterTimescaleDB          *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
 	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
@@ -475,6 +517,8 @@ type builderServiceClient struct {
 	getTagWeights                      *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
 	setTagWeights                      *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
 	createDeployment                   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
+	getTelemetryDeployment             *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
+	createTelemetryDeployment          *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -561,6 +605,18 @@ func (c *builderServiceClient) GetClusterTimescaleDefault(ctx context.Context, r
 // DeleteClusterTimescaleDB calls chalk.server.v1.BuilderService.DeleteClusterTimescaleDB.
 func (c *builderServiceClient) DeleteClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error) {
 	return c.deleteClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// CreateEnvironmentCloudResources calls
+// chalk.server.v1.BuilderService.CreateEnvironmentCloudResources.
+func (c *builderServiceClient) CreateEnvironmentCloudResources(ctx context.Context, req *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error) {
+	return c.createEnvironmentCloudResources.CallUnary(ctx, req)
+}
+
+// DeleteEnvironmentCloudResources calls
+// chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources.
+func (c *builderServiceClient) DeleteEnvironmentCloudResources(ctx context.Context, req *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error) {
+	return c.deleteEnvironmentCloudResources.CallUnary(ctx, req)
 }
 
 // MigrateClusterTimescaleDB calls chalk.server.v1.BuilderService.MigrateClusterTimescaleDB.
@@ -668,6 +724,16 @@ func (c *builderServiceClient) CreateDeployment(ctx context.Context, req *connec
 	return c.createDeployment.CallUnary(ctx, req)
 }
 
+// GetTelemetryDeployment calls chalk.server.v1.BuilderService.GetTelemetryDeployment.
+func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
+	return c.getTelemetryDeployment.CallUnary(ctx, req)
+}
+
+// CreateTelemetryDeployment calls chalk.server.v1.BuilderService.CreateTelemetryDeployment.
+func (c *builderServiceClient) CreateTelemetryDeployment(ctx context.Context, req *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error) {
+	return c.createTelemetryDeployment.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -695,6 +761,8 @@ type BuilderServiceHandler interface {
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
+	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
+	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
@@ -718,6 +786,8 @@ type BuilderServiceHandler interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -828,6 +898,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceDeleteClusterTimescaleDBProcedure,
 		svc.DeleteClusterTimescaleDB,
 		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceCreateEnvironmentCloudResourcesHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateEnvironmentCloudResourcesProcedure,
+		svc.CreateEnvironmentCloudResources,
+		connect.WithSchema(builderServiceMethods.ByName("CreateEnvironmentCloudResources")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteEnvironmentCloudResourcesHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteEnvironmentCloudResourcesProcedure,
+		svc.DeleteEnvironmentCloudResources,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteEnvironmentCloudResources")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceMigrateClusterTimescaleDBHandler := connect.NewUnaryHandler(
@@ -947,6 +1029,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceGetTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceGetTelemetryDeploymentProcedure,
+		svc.GetTelemetryDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceCreateTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateTelemetryDeploymentProcedure,
+		svc.CreateTelemetryDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("CreateTelemetryDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -983,6 +1077,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetClusterTimescaleDefaultHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteClusterTimescaleDBProcedure:
 			builderServiceDeleteClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateEnvironmentCloudResourcesProcedure:
+			builderServiceCreateEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteEnvironmentCloudResourcesProcedure:
+			builderServiceDeleteEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
 		case BuilderServiceMigrateClusterTimescaleDBProcedure:
 			builderServiceMigrateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterGatewayProcedure:
@@ -1021,6 +1119,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSetTagWeightsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateDeploymentProcedure:
 			builderServiceCreateDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceGetTelemetryDeploymentProcedure:
+			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateTelemetryDeploymentProcedure:
+			builderServiceCreateTelemetryDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1098,6 +1200,14 @@ func (UnimplementedBuilderServiceHandler) DeleteClusterTimescaleDB(context.Conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterTimescaleDB is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateEnvironmentCloudResources is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.MigrateClusterTimescaleDB is not implemented"))
 }
@@ -1172,6 +1282,14 @@ func (UnimplementedBuilderServiceHandler) SetTagWeights(context.Context, *connec
 
 func (UnimplementedBuilderServiceHandler) CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateTelemetryDeployment is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
