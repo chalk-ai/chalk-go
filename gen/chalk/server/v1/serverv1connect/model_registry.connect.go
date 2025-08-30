@@ -57,6 +57,15 @@ const (
 	// ModelRegistryServiceUpdateModelVersionProcedure is the fully-qualified name of the
 	// ModelRegistryService's UpdateModelVersion RPC.
 	ModelRegistryServiceUpdateModelVersionProcedure = "/chalk.server.v1.ModelRegistryService/UpdateModelVersion"
+	// ModelRegistryServiceGetModelReferencesProcedure is the fully-qualified name of the
+	// ModelRegistryService's GetModelReferences RPC.
+	ModelRegistryServiceGetModelReferencesProcedure = "/chalk.server.v1.ModelRegistryService/GetModelReferences"
+	// ModelRegistryServiceGetModelReferenceProcedure is the fully-qualified name of the
+	// ModelRegistryService's GetModelReference RPC.
+	ModelRegistryServiceGetModelReferenceProcedure = "/chalk.server.v1.ModelRegistryService/GetModelReference"
+	// ModelRegistryServiceGetModelArtifactUploadUrlsProcedure is the fully-qualified name of the
+	// ModelRegistryService's GetModelArtifactUploadUrls RPC.
+	ModelRegistryServiceGetModelArtifactUploadUrlsProcedure = "/chalk.server.v1.ModelRegistryService/GetModelArtifactUploadUrls"
 )
 
 // ModelRegistryServiceClient is a client for the chalk.server.v1.ModelRegistryService service.
@@ -69,6 +78,9 @@ type ModelRegistryServiceClient interface {
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
+	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
+	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
+	GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error)
 }
 
 // NewModelRegistryServiceClient constructs a client for the chalk.server.v1.ModelRegistryService
@@ -134,19 +146,42 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModelVersion")),
 			connect.WithClientOptions(opts...),
 		),
+		getModelReferences: connect.NewClient[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceGetModelReferencesProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelReferences")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getModelReference: connect.NewClient[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceGetModelReferenceProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelReference")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getModelArtifactUploadUrls: connect.NewClient[v1.GetModelArtifactUploadUrlsRequest, v1.GetModelArtifactUploadUrlsResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceGetModelArtifactUploadUrlsProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifactUploadUrls")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // modelRegistryServiceClient implements ModelRegistryServiceClient.
 type modelRegistryServiceClient struct {
-	listModels         *connect.Client[v1.ListModelsRequest, v1.ListModelsResponse]
-	getModel           *connect.Client[v1.GetModelRequest, v1.GetModelResponse]
-	createModel        *connect.Client[v1.CreateModelRequest, v1.CreateModelResponse]
-	updateModel        *connect.Client[v1.UpdateModelRequest, v1.UpdateModelResponse]
-	listModelVersions  *connect.Client[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse]
-	getModelVersion    *connect.Client[v1.GetModelVersionRequest, v1.GetModelVersionResponse]
-	createModelVersion *connect.Client[v1.CreateModelVersionRequest, v1.CreateModelVersionResponse]
-	updateModelVersion *connect.Client[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse]
+	listModels                 *connect.Client[v1.ListModelsRequest, v1.ListModelsResponse]
+	getModel                   *connect.Client[v1.GetModelRequest, v1.GetModelResponse]
+	createModel                *connect.Client[v1.CreateModelRequest, v1.CreateModelResponse]
+	updateModel                *connect.Client[v1.UpdateModelRequest, v1.UpdateModelResponse]
+	listModelVersions          *connect.Client[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse]
+	getModelVersion            *connect.Client[v1.GetModelVersionRequest, v1.GetModelVersionResponse]
+	createModelVersion         *connect.Client[v1.CreateModelVersionRequest, v1.CreateModelVersionResponse]
+	updateModelVersion         *connect.Client[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse]
+	getModelReferences         *connect.Client[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse]
+	getModelReference          *connect.Client[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse]
+	getModelArtifactUploadUrls *connect.Client[v1.GetModelArtifactUploadUrlsRequest, v1.GetModelArtifactUploadUrlsResponse]
 }
 
 // ListModels calls chalk.server.v1.ModelRegistryService.ListModels.
@@ -189,6 +224,21 @@ func (c *modelRegistryServiceClient) UpdateModelVersion(ctx context.Context, req
 	return c.updateModelVersion.CallUnary(ctx, req)
 }
 
+// GetModelReferences calls chalk.server.v1.ModelRegistryService.GetModelReferences.
+func (c *modelRegistryServiceClient) GetModelReferences(ctx context.Context, req *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error) {
+	return c.getModelReferences.CallUnary(ctx, req)
+}
+
+// GetModelReference calls chalk.server.v1.ModelRegistryService.GetModelReference.
+func (c *modelRegistryServiceClient) GetModelReference(ctx context.Context, req *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error) {
+	return c.getModelReference.CallUnary(ctx, req)
+}
+
+// GetModelArtifactUploadUrls calls chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls.
+func (c *modelRegistryServiceClient) GetModelArtifactUploadUrls(ctx context.Context, req *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error) {
+	return c.getModelArtifactUploadUrls.CallUnary(ctx, req)
+}
+
 // ModelRegistryServiceHandler is an implementation of the chalk.server.v1.ModelRegistryService
 // service.
 type ModelRegistryServiceHandler interface {
@@ -200,6 +250,9 @@ type ModelRegistryServiceHandler interface {
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
+	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
+	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
+	GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error)
 }
 
 // NewModelRegistryServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -261,6 +314,26 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 		connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModelVersion")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelRegistryServiceGetModelReferencesHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceGetModelReferencesProcedure,
+		svc.GetModelReferences,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelReferences")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRegistryServiceGetModelReferenceHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceGetModelReferenceProcedure,
+		svc.GetModelReference,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelReference")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRegistryServiceGetModelArtifactUploadUrlsHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceGetModelArtifactUploadUrlsProcedure,
+		svc.GetModelArtifactUploadUrls,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifactUploadUrls")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ModelRegistryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ModelRegistryServiceListModelsProcedure:
@@ -279,6 +352,12 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 			modelRegistryServiceCreateModelVersionHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceUpdateModelVersionProcedure:
 			modelRegistryServiceUpdateModelVersionHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceGetModelReferencesProcedure:
+			modelRegistryServiceGetModelReferencesHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceGetModelReferenceProcedure:
+			modelRegistryServiceGetModelReferenceHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceGetModelArtifactUploadUrlsProcedure:
+			modelRegistryServiceGetModelArtifactUploadUrlsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -318,4 +397,16 @@ func (UnimplementedModelRegistryServiceHandler) CreateModelVersion(context.Conte
 
 func (UnimplementedModelRegistryServiceHandler) UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.UpdateModelVersion is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.GetModelReferences is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.GetModelReference is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls is not implemented"))
 }
