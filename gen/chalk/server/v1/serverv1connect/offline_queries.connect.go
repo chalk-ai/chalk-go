@@ -47,6 +47,9 @@ const (
 	// OfflineQueryMetadataServiceCreateOfflineQueryJobProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's CreateOfflineQueryJob RPC.
 	OfflineQueryMetadataServiceCreateOfflineQueryJobProcedure = "/chalk.server.v1.OfflineQueryMetadataService/CreateOfflineQueryJob"
+	// OfflineQueryMetadataServiceCreateModelTrainingJobProcedure is the fully-qualified name of the
+	// OfflineQueryMetadataService's CreateModelTrainingJob RPC.
+	OfflineQueryMetadataServiceCreateModelTrainingJobProcedure = "/chalk.server.v1.OfflineQueryMetadataService/CreateModelTrainingJob"
 )
 
 // OfflineQueryMetadataServiceClient is a client for the chalk.server.v1.OfflineQueryMetadataService
@@ -56,6 +59,7 @@ type OfflineQueryMetadataServiceClient interface {
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
+	CreateModelTrainingJob(context.Context, *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceClient constructs a client for the
@@ -97,6 +101,12 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CreateOfflineQueryJob")),
 			connect.WithClientOptions(opts...),
 		),
+		createModelTrainingJob: connect.NewClient[v1.CreateModelTrainingJobRequest, v1.CreateModelTrainingJobResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceCreateModelTrainingJobProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CreateModelTrainingJob")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -106,6 +116,7 @@ type offlineQueryMetadataServiceClient struct {
 	getOfflineQuery                           *connect.Client[v1.GetOfflineQueryRequest, v1.GetOfflineQueryResponse]
 	listOfflineQueryShardPerformanceSummaries *connect.Client[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse]
 	createOfflineQueryJob                     *connect.Client[v1.CreateOfflineQueryJobRequest, v1.CreateOfflineQueryJobResponse]
+	createModelTrainingJob                    *connect.Client[v1.CreateModelTrainingJobRequest, v1.CreateModelTrainingJobResponse]
 }
 
 // ListOfflineQueries calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries.
@@ -129,6 +140,11 @@ func (c *offlineQueryMetadataServiceClient) CreateOfflineQueryJob(ctx context.Co
 	return c.createOfflineQueryJob.CallUnary(ctx, req)
 }
 
+// CreateModelTrainingJob calls chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob.
+func (c *offlineQueryMetadataServiceClient) CreateModelTrainingJob(ctx context.Context, req *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error) {
+	return c.createModelTrainingJob.CallUnary(ctx, req)
+}
+
 // OfflineQueryMetadataServiceHandler is an implementation of the
 // chalk.server.v1.OfflineQueryMetadataService service.
 type OfflineQueryMetadataServiceHandler interface {
@@ -136,6 +152,7 @@ type OfflineQueryMetadataServiceHandler interface {
 	GetOfflineQuery(context.Context, *connect.Request[v1.GetOfflineQueryRequest]) (*connect.Response[v1.GetOfflineQueryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
+	CreateModelTrainingJob(context.Context, *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -172,6 +189,12 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CreateOfflineQueryJob")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineQueryMetadataServiceCreateModelTrainingJobHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceCreateModelTrainingJobProcedure,
+		svc.CreateModelTrainingJob,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CreateModelTrainingJob")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineQueryMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineQueryMetadataServiceListOfflineQueriesProcedure:
@@ -182,6 +205,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceCreateOfflineQueryJobProcedure:
 			offlineQueryMetadataServiceCreateOfflineQueryJobHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceCreateModelTrainingJobProcedure:
+			offlineQueryMetadataServiceCreateModelTrainingJobHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -205,4 +230,8 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShardPerf
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) CreateModelTrainingJob(context.Context, *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob is not implemented"))
 }
