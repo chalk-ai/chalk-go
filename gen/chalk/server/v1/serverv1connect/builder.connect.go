@@ -86,6 +86,12 @@ const (
 	// BuilderServiceDeleteClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's DeleteClusterTimescaleDB RPC.
 	BuilderServiceDeleteClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/DeleteClusterTimescaleDB"
+	// BuilderServiceCreateEnvironmentCloudResourcesProcedure is the fully-qualified name of the
+	// BuilderService's CreateEnvironmentCloudResources RPC.
+	BuilderServiceCreateEnvironmentCloudResourcesProcedure = "/chalk.server.v1.BuilderService/CreateEnvironmentCloudResources"
+	// BuilderServiceDeleteEnvironmentCloudResourcesProcedure is the fully-qualified name of the
+	// BuilderService's DeleteEnvironmentCloudResources RPC.
+	BuilderServiceDeleteEnvironmentCloudResourcesProcedure = "/chalk.server.v1.BuilderService/DeleteEnvironmentCloudResources"
 	// BuilderServiceMigrateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's MigrateClusterTimescaleDB RPC.
 	BuilderServiceMigrateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/MigrateClusterTimescaleDB"
@@ -178,6 +184,8 @@ type BuilderServiceClient interface {
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
+	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
+	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
@@ -315,6 +323,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceDeleteClusterTimescaleDBProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		createEnvironmentCloudResources: connect.NewClient[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse](
+			httpClient,
+			baseURL+BuilderServiceCreateEnvironmentCloudResourcesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("CreateEnvironmentCloudResources")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteEnvironmentCloudResources: connect.NewClient[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteEnvironmentCloudResourcesProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteEnvironmentCloudResources")),
 			connect.WithClientOptions(opts...),
 		),
 		migrateClusterTimescaleDB: connect.NewClient[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse](
@@ -456,6 +476,8 @@ type builderServiceClient struct {
 	createClusterTimescaleDB           *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
 	getClusterTimescaleDefault         *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
 	deleteClusterTimescaleDB           *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
+	createEnvironmentCloudResources    *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
+	deleteEnvironmentCloudResources    *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
 	migrateClusterTimescaleDB          *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
 	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
@@ -561,6 +583,18 @@ func (c *builderServiceClient) GetClusterTimescaleDefault(ctx context.Context, r
 // DeleteClusterTimescaleDB calls chalk.server.v1.BuilderService.DeleteClusterTimescaleDB.
 func (c *builderServiceClient) DeleteClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error) {
 	return c.deleteClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// CreateEnvironmentCloudResources calls
+// chalk.server.v1.BuilderService.CreateEnvironmentCloudResources.
+func (c *builderServiceClient) CreateEnvironmentCloudResources(ctx context.Context, req *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error) {
+	return c.createEnvironmentCloudResources.CallUnary(ctx, req)
+}
+
+// DeleteEnvironmentCloudResources calls
+// chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources.
+func (c *builderServiceClient) DeleteEnvironmentCloudResources(ctx context.Context, req *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error) {
+	return c.deleteEnvironmentCloudResources.CallUnary(ctx, req)
 }
 
 // MigrateClusterTimescaleDB calls chalk.server.v1.BuilderService.MigrateClusterTimescaleDB.
@@ -695,6 +729,8 @@ type BuilderServiceHandler interface {
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
+	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
+	DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error)
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
@@ -828,6 +864,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceDeleteClusterTimescaleDBProcedure,
 		svc.DeleteClusterTimescaleDB,
 		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceCreateEnvironmentCloudResourcesHandler := connect.NewUnaryHandler(
+		BuilderServiceCreateEnvironmentCloudResourcesProcedure,
+		svc.CreateEnvironmentCloudResources,
+		connect.WithSchema(builderServiceMethods.ByName("CreateEnvironmentCloudResources")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteEnvironmentCloudResourcesHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteEnvironmentCloudResourcesProcedure,
+		svc.DeleteEnvironmentCloudResources,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteEnvironmentCloudResources")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceMigrateClusterTimescaleDBHandler := connect.NewUnaryHandler(
@@ -983,6 +1031,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetClusterTimescaleDefaultHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteClusterTimescaleDBProcedure:
 			builderServiceDeleteClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceCreateEnvironmentCloudResourcesProcedure:
+			builderServiceCreateEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteEnvironmentCloudResourcesProcedure:
+			builderServiceDeleteEnvironmentCloudResourcesHandler.ServeHTTP(w, r)
 		case BuilderServiceMigrateClusterTimescaleDBProcedure:
 			builderServiceMigrateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterGatewayProcedure:
@@ -1096,6 +1148,14 @@ func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDefault(context.Con
 
 func (UnimplementedBuilderServiceHandler) DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateEnvironmentCloudResources is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteEnvironmentCloudResources(context.Context, *connect.Request[v1.DeleteEnvironmentCloudResourcesRequest]) (*connect.Response[v1.DeleteEnvironmentCloudResourcesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteEnvironmentCloudResources is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error) {
