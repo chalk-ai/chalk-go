@@ -145,6 +145,10 @@ type Client interface {
 	// See https://docs.chalk.ai/docs/query-basics for more information.
 	GetOfflineQueryStatus(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error)
 
+	// GetJobStatusV4 retrieves job status using the v4 API endpoint, matching Python's get_job_status_v4.
+	// This is the preferred method for getting job status and download URIs.
+	GetJobStatusV4(ctx context.Context, request DatasetJobStatusRequest, environmentId string) (GetOfflineQueryJobResponse, error)
+
 	// GetDataset retrieves a dataset by its revision ID.
 	// This allows you to access datasets that were created from previous offline queries.
 	//
