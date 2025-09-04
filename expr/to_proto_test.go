@@ -23,19 +23,6 @@ func TestToProto(t *testing.T) {
 			expected: nil,
 		},
 
-		// Identifier
-		{
-			name: "identifier",
-			expr: Identifier("my_var"),
-			expected: &expressionv1.LogicalExprNode{
-				ExprForm: &expressionv1.LogicalExprNode_Identifier{
-					Identifier: &expressionv1.Identifier{
-						Name: "my_var",
-					},
-				},
-			},
-		},
-
 		// Literals
 		{
 			name: "integer_literal",
@@ -163,7 +150,6 @@ func TestToProto(t *testing.T) {
 				},
 			},
 		},
-
 
 		// Function calls
 		{
@@ -532,6 +518,78 @@ func TestToProto(t *testing.T) {
 							},
 						},
 						Kwargs: make(map[string]*expressionv1.LogicalExprNode),
+					},
+				},
+			},
+		},
+		{
+			name: "dataframe_filter",
+			expr: DataFrame("transactions").
+				//Filter(Col("amount").Gt(Float(4.0))).
+				Agg("sum"),
+			//	call {
+			//  func {
+			//    get_attribute {
+			//      parent {
+			//        get_attribute {
+			//          parent {
+			//            identifier {
+			//              name: "_"
+			//            }
+			//            expr_id: "c22d577b-a770-449b-a839-dd0476799bcc"
+			//          }
+			//          attribute {
+			//            name: "a"
+			//          }
+			//        }
+			//        expr_id: "baa2c8e5-5c79-4c88-b0f6-a1e075b1e12e"
+			//      }
+			//      attribute {
+			//        name: "sum"
+			//      }
+			//    }
+			//    expr_id: "5c149c8e-568f-4011-b3d8-3b8cc3173cc1"
+			//  }
+			//}
+			//expr_id: "9437ad12-169a-4164-a439-bfd76086c75c"
+			expected: &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_Call{
+					Call: &expressionv1.ExprCall{
+						Func: &expressionv1.LogicalExprNode{
+							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+								GetAttribute: &expressionv1.ExprGetAttribute{
+									Attribute: &expressionv1.Identifier{
+										Name: "sum",
+									},
+
+									Parent: &expressionv1.LogicalExprNode{
+										ExprForm: &expressionv1.LogicalExprNode_Identifier{
+											Identifier: &expressionv1.Identifier{
+												Name: "transactions",
+											},
+										},
+									},
+
+									//Parent: &expressionv1.LogicalExprNode{
+									//	ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+									//		GetAttribute: &expressionv1.ExprGetAttribute{
+									//			Attribute: &expressionv1.Identifier{
+									//				Name: "transactions",
+									//			},
+									//			Parent: &expressionv1.LogicalExprNode{
+									//				ExprForm: &expressionv1.LogicalExprNode_Identifier{
+									//					Identifier: &expressionv1.Identifier{
+									//						Name: "_",
+									//					},
+									//				},
+									//			},
+									//		},
+									//	},
+									//},
+
+								},
+							},
+						},
 					},
 				},
 			},
