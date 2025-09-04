@@ -59,7 +59,7 @@ type DataFrameExpr interface {
 // Binary operation helper
 func binaryOp(left Expr, op string, right Expr) Expr {
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: op},
+		Function: op,
 		Args:     []Expr{left, right},
 	}
 }
@@ -67,46 +67,9 @@ func binaryOp(left Expr, op string, right Expr) Expr {
 // Unary operation helper
 func unaryOp(op string, operand Expr) Expr {
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: op},
+		Function: op,
 		Args:     []Expr{operand},
 	}
-}
-
-// IdentifierExpr represents an identifier (variable name, column name, etc.)
-type IdentifierExpr struct {
-	Expr
-	Name string
-}
-
-func (e *IdentifierExpr) exprType() string {
-	return "identifier"
-}
-
-func (e *IdentifierExpr) String() string {
-	return e.Name
-}
-
-// Implement Expr interface for IdentifierExpr
-func (e *IdentifierExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
-func (e *IdentifierExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
-func (e *IdentifierExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
-func (e *IdentifierExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *IdentifierExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
-func (e *IdentifierExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
-func (e *IdentifierExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
-func (e *IdentifierExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
-func (e *IdentifierExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
-func (e *IdentifierExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *IdentifierExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *IdentifierExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *IdentifierExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *IdentifierExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
-func (e *IdentifierExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
-func (e *IdentifierExpr) Attr(attribute string) Expr {
-	return &GetAttributeExpr{Parent: e, Attribute: attribute}
-}
-func (e *IdentifierExpr) As(alias string) Expr {
-	return &AliasExpr{Expression: e, Alias: alias}
 }
 
 // LiteralExpr represents a literal value using Arrow scalar values
@@ -266,7 +229,7 @@ func (e *GetAttributeExpr) As(alias string) Expr {
 // CallExpr represents function calls and method calls
 type CallExpr struct {
 	Expr
-	Function Expr
+	Function string
 	Args     []Expr
 	Kwargs   map[string]Expr
 }

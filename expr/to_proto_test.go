@@ -23,19 +23,6 @@ func TestToProto(t *testing.T) {
 			expected: nil,
 		},
 
-		// Identifier
-		{
-			name: "identifier",
-			expr: Identifier("my_var"),
-			expected: &expressionv1.LogicalExprNode{
-				ExprForm: &expressionv1.LogicalExprNode_Identifier{
-					Identifier: &expressionv1.Identifier{
-						Name: "my_var",
-					},
-				},
-			},
-		},
-
 		// Literals
 		{
 			name: "integer_literal",
@@ -163,7 +150,6 @@ func TestToProto(t *testing.T) {
 				},
 			},
 		},
-
 
 		// Function calls
 		{
@@ -425,17 +411,58 @@ func TestToProto(t *testing.T) {
 				ExprForm: &expressionv1.LogicalExprNode_Call{
 					Call: &expressionv1.ExprCall{
 						Func: &expressionv1.LogicalExprNode{
-							ExprForm: &expressionv1.LogicalExprNode_Identifier{
-								Identifier: &expressionv1.Identifier{
-									Name: "sum",
-								},
-							},
-						},
-						Args: []*expressionv1.LogicalExprNode{
-							{
-								ExprForm: &expressionv1.LogicalExprNode_Identifier{
-									Identifier: &expressionv1.Identifier{
-										Name: "transactions",
+							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+								GetAttribute: &expressionv1.ExprGetAttribute{
+									Attribute: &expressionv1.Identifier{
+										Name: "sum",
+									},
+									Parent: &expressionv1.LogicalExprNode{
+										ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+											GetSubscript: &expressionv1.ExprGetSubscript{
+												Parent: &expressionv1.LogicalExprNode{
+													ExprForm: &expressionv1.LogicalExprNode_Identifier{
+														Identifier: &expressionv1.Identifier{
+															Name: "transactions",
+														},
+													},
+												},
+												Subscript: []*expressionv1.LogicalExprNode{
+													{
+														ExprForm: &expressionv1.LogicalExprNode_Call{
+															Call: &expressionv1.ExprCall{
+																Func: &expressionv1.LogicalExprNode{
+																	ExprForm: &expressionv1.LogicalExprNode_Identifier{
+																		Identifier: &expressionv1.Identifier{
+																			Name: ">",
+																		},
+																	},
+																},
+																Args: []*expressionv1.LogicalExprNode{
+																	{
+																		ExprForm: &expressionv1.LogicalExprNode_Identifier{
+																			Identifier: &expressionv1.Identifier{
+																				Name: "amount",
+																			},
+																		},
+																	},
+																	{
+																		ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
+																			LiteralValue: &expressionv1.ExprLiteral{
+																				Value: &arrowv1.ScalarValue{
+																					Value: &arrowv1.ScalarValue_Int64Value{
+																						Int64Value: 100,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
 									},
 								},
 							},
@@ -532,6 +559,100 @@ func TestToProto(t *testing.T) {
 							},
 						},
 						Kwargs: make(map[string]*expressionv1.LogicalExprNode),
+					},
+				},
+			},
+		},
+		{
+			name: "dataframe_filter_float",
+			expr: DataFrame("transactions").Filter(Col("amount").Gt(Float(4.0))).Agg("sum"),
+			expected: &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_Call{
+					Call: &expressionv1.ExprCall{
+						Func: &expressionv1.LogicalExprNode{
+							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+								GetAttribute: &expressionv1.ExprGetAttribute{
+									Attribute: &expressionv1.Identifier{
+										Name: "sum",
+									},
+									Parent: &expressionv1.LogicalExprNode{
+										ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+											GetSubscript: &expressionv1.ExprGetSubscript{
+												Parent: &expressionv1.LogicalExprNode{
+													ExprForm: &expressionv1.LogicalExprNode_Identifier{
+														Identifier: &expressionv1.Identifier{
+															Name: "transactions",
+														},
+													},
+												},
+												Subscript: []*expressionv1.LogicalExprNode{
+													{
+														ExprForm: &expressionv1.LogicalExprNode_Call{
+															Call: &expressionv1.ExprCall{
+																Func: &expressionv1.LogicalExprNode{
+																	ExprForm: &expressionv1.LogicalExprNode_Identifier{
+																		Identifier: &expressionv1.Identifier{
+																			Name: ">",
+																		},
+																	},
+																},
+																Args: []*expressionv1.LogicalExprNode{
+																	{
+																		ExprForm: &expressionv1.LogicalExprNode_Identifier{
+																			Identifier: &expressionv1.Identifier{
+																				Name: "amount",
+																			},
+																		},
+																	},
+																	{
+																		ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
+																			LiteralValue: &expressionv1.ExprLiteral{
+																				Value: &arrowv1.ScalarValue{
+																					Value: &arrowv1.ScalarValue_Float64Value{
+																						Float64Value: 4.0,
+																					},
+																				},
+																			},
+																		},
+																	},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "dataframe_filter",
+			expr: DataFrame("transactions").Agg("sum"),
+			expected: &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_Call{
+					Call: &expressionv1.ExprCall{
+						Func: &expressionv1.LogicalExprNode{
+							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+								GetAttribute: &expressionv1.ExprGetAttribute{
+									Attribute: &expressionv1.Identifier{
+										Name: "sum",
+									},
+
+									Parent: &expressionv1.LogicalExprNode{
+										ExprForm: &expressionv1.LogicalExprNode_Identifier{
+											Identifier: &expressionv1.Identifier{
+												Name: "transactions",
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
