@@ -7,9 +7,6 @@
 The official [Chalk](https://chalk.ai) client library.
 
 ## Usage
-### Requirements
-
-- Go 1.19 or later
 
 ### Installation
 
@@ -36,62 +33,69 @@ Alternatively, you can also explicitly `go get` the package into a project:
 ```bash
 go get -u github.com/chalk-ai/chalk-go
 ```
+
+You will need to be on Go 1.24.6 or later.
+
 ### Codegen
 
-Chalk generates Go structs from your python feature definitions, which makes it easy to use your features from Go.
+Chalk generates Go structs from your Python feature definitions,
+which makes it easy to use your features from Go.
 
-Run the code-gen command inside your chalk project to generate a file containing your generated structs, then copy that file into your go project.
+Run the codegen command inside your chalk project to generate a
+file containing your generated structs, then copy that file into
+your Go project.
 
 ```sh
 chalk codegen go --out=<OUTPUT_FILEPATH> 
 ```
 
+You can read more at https://docs.chalk.ai/cli?command=codegen_go
 
-### Connect to chalk
 
-Create a client using the `NewClient` method.  The returned client gets its configuration:
+### Connect to Chalk
+
+Create a client using the `NewClient` method.
+The returned client gets its configuration from the first available source in this order:
 
 1. From overrides configured by passing in a `*chalk.ClientConfig`
-2. From environment variables if no arguments are passed 
-3. From a ~/.chalk.yml file if neither 1 nor 2 are available
-
-(2) and (3) are applicable only for these [options](https://github.com/chalk-ai/chalk-go/blob/main/internal/constants.go).
-#### Without overrides
-```go
-import (
-    "github.com/chalk-ai/chalk-go"
-)
-
-client := chalk.NewClient(context.Background())
-```
-
-#### With overrides
-```go
-client, err := chalk.NewClient(
-	context.Background(),
-	&chalk.ClientConfig{
-		ClientId:      "id-89140a6614886982a6782106759e30",
-		ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
-		ApiServer:     "https://api.chalk.ai",
-		EnvironmentId: "qa",
-		Branch:        "jorges-december",
-	}
-)
-```
+    ```go
+    client, err := chalk.NewClient(
+        ctx,
+        &chalk.ClientConfig{
+            ClientId:      "id-89140a6614886982a6782106759e30",
+            ClientSecret:  "sec-b1ba98e658d7ada4ff4c7464fb0fcee65fe2cbd86b3dd34141e16f6314267b7b",
+            ApiServer:     "https://api.chalk.ai",
+            EnvironmentId: "qa",
+            Branch:        "jorges-december",
+        },
+    )
+    ```
+2. From the environment variables:
+    - `CHALK_ACTIVE_ENVIRONMENT`
+    - `CHALK_API_SERVER`
+    - `CHALK_CLIENT_ID`
+    - `CHALK_CLIENT_SECRET`
+    ```go
+    client := chalk.NewClient(ctx)
+    ```
+3. From the file `~/.chalk.yml`, which is created and updated when you run `chalk login`
+    ```go
+    client := chalk.NewClient(ctx)
+    ```
 
 ### gRPC Client
 To use gRPC as the underlying protocol for communication with Chalk: 
 ```go
 // Create a client
 client, err := chalk.NewGRPCClient(
-	context.Background(),
+	ctx,
 	&chalk.GRPCClientConfig{Branch: "my-branch"},
 )
 
 // Online query
 var users []User
 res, err := chalk.OnlineQueryBulk(
-	context.Background(),
+	ctx,
 	chalk.OnlineQueryParams{}.
 		WithInput(Features.User.Id, []string{"u273489056"}).
 		WithInput(Features.User.Transactions, [][]Transaction{
@@ -176,8 +180,6 @@ _, err = client.OnlineQuery(
 )
 ```
 
-
-
 ### Offline Query
 
 When executing an offline query, a dataset is returned and can be downloaded as parquet files using the `DownloadData` method.
@@ -192,7 +194,6 @@ res, _ := client.OfflineQuery(
 
 err = res.Revisions[0].DownloadData(<FILE_DIRECTORY>)
 ```
-
 
 ### Upload Features
 
@@ -304,6 +305,50 @@ support this interface natively, so it's possible to set
 `DefaultLeveledLogger` to a `*logrus.Logger` or `*zap.SugaredLogger` directly.
 To use other loggers, you may need a shim layer.
 
+
+## Querying for expressions
+
+From the GRPC client, you can also query for expressions that are not part of your feature set.
+
+```go
+client, err := chalk.NewGRPCClient(ctx)
+result, err := client.OnlineQueryBulk(
+    ctx,
+    chalk.OnlineQueryParams{}.
+        WithInput("user.id", []int{1}).
+        WithOutputs("user.id").
+        WithOutputExprs(
+            expr.FunctionCall(
+                "jaccard_similarity",
+                expr.Col("name"),
+                expr.Col("email"),
+            ).
+                As("name_email_sim"),
+            expr.DataFrame("transactions").
+                Filter(expr.Col("amount").Gt(expr.Float(400000.0))).
+                Agg("count").
+                As("user_transaction_count"),
+        ),
+)
+row, err := result.GetRow(0)
+for feature, value := range row.Features {
+    println("Feature: %s, Value: %+v", feature, value.Value)
+}
+```
+
+This API allows for computing both scalar expressions (like `jaccard_similarity` above)
+as well as aggregations over `DataFrames` (like `user_transaction_count` above).
+
+The script above prints out
+
+```azure
+Feature: user.id, Value: 1
+Feature: name_email_sim, Value: 0.4375
+Feature: user_transaction_count, Value: 0
+```
+
+Note that the `.As(...)` method gives the
+name of the expression in the returned result.
 
 ## Contributing
 

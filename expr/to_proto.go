@@ -11,15 +11,6 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 	}
 
 	switch e := expr.(type) {
-	case *IdentifierExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_Identifier{
-				Identifier: &expressionv1.Identifier{
-					Name: e.Name,
-				},
-			},
-		}
-
 	case *LiteralExpr:
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
@@ -51,7 +42,6 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 			},
 		}
 
-
 	case *CallExpr:
 		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
 		for i, arg := range e.Args {
@@ -66,7 +56,13 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_Call{
 				Call: &expressionv1.ExprCall{
-					Func:   ToProto(e.Function),
+					Func: &expressionv1.LogicalExprNode{
+						ExprForm: &expressionv1.LogicalExprNode_Identifier{
+							Identifier: &expressionv1.Identifier{
+								Name: e.Function,
+							},
+						},
+					},
 					Args:   args,
 					Kwargs: kwargs,
 				},
@@ -89,23 +85,42 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		}
 
 	case *aggregateExprImpl:
-		// Represent aggregation as a function call
-		args := []*expressionv1.LogicalExprNode{
-			ToProto(e.DataFrame),
+		// Build the base DataFrame reference
+		dataframeNode := ToProto(e.DataFrame)
+		
+		// If there are filter conditions, wrap the DataFrame in a GetSubscript
+		if len(e.Conditions) > 0 {
+			// Convert all conditions to proto nodes
+			subscriptNodes := make([]*expressionv1.LogicalExprNode, len(e.Conditions))
+			for i, condition := range e.Conditions {
+				subscriptNodes[i] = ToProto(condition)
+			}
+			
+			// Wrap the DataFrame in a GetSubscript with all filter conditions
+			dataframeNode = &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+					GetSubscript: &expressionv1.ExprGetSubscript{
+						Parent:    dataframeNode,
+						Subscript: subscriptNodes,
+					},
+				},
+			}
 		}
-		// No need to add filters separately since DataFrame.String() includes them
-
+		
+		// Apply the aggregation function as a GetAttribute on the (possibly filtered) DataFrame
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_Call{
 				Call: &expressionv1.ExprCall{
 					Func: &expressionv1.LogicalExprNode{
-						ExprForm: &expressionv1.LogicalExprNode_Identifier{
-							Identifier: &expressionv1.Identifier{
-								Name: e.Function,
+						ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+							GetAttribute: &expressionv1.ExprGetAttribute{
+								Attribute: &expressionv1.Identifier{
+									Name: e.Function,
+								},
+								Parent: dataframeNode,
 							},
 						},
 					},
-					Args: args,
 				},
 			},
 		}

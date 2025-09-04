@@ -370,13 +370,6 @@ func Col(name string) Expr {
 	}
 }
 
-// Identifier creates an identifier expression
-func Identifier(name string) Expr {
-	return &IdentifierExpr{
-		Name: name,
-	}
-}
-
 // ColumnExpr represents a column reference
 type ColumnExpr struct {
 	Expr
@@ -431,7 +424,7 @@ func (e *ColumnExpr) As(alias string) Expr {
 // FunctionCall creates a function call expression
 func FunctionCall(name string, args ...Expr) Expr {
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: name},
+		Function: name,
 		Args:     args,
 		Kwargs:   make(map[string]Expr),
 	}
@@ -443,10 +436,14 @@ func FunctionCallWithKwargs(name string, args []Expr, kwargs map[string]Expr) Ex
 		kwargs = make(map[string]Expr)
 	}
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: name},
+		Function: name,
 		Args:     args,
 		Kwargs:   kwargs,
 	}
+}
+
+func ChalkNow() Expr {
+	return Col("_").Attr("chalk_now")
 }
 
 // DataFrame creates a dataframe reference for aggregations
@@ -521,7 +518,6 @@ func (e *dataFrameExprImpl) Agg(aggFunc string) Expr {
 		Function:   aggFunc,
 		DataFrame:  e,
 		Conditions: e.Conditions,
-		Filter:     nil,
 	}
 }
 
@@ -531,7 +527,6 @@ type aggregateExprImpl struct {
 	Function   string
 	DataFrame  DataFrameExpr
 	Conditions []Expr // Accumulated filter conditions
-	Filter     Expr   // Legacy field for backward compatibility
 	Distinct   bool
 }
 
@@ -572,7 +567,6 @@ func (e *aggregateExprImpl) WithDistinct() *aggregateExprImpl {
 	return &aggregateExprImpl{
 		Function:  e.Function,
 		DataFrame: e.DataFrame,
-		Filter:    e.Filter,
 		Distinct:  true,
 	}
 }
