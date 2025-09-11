@@ -1,12 +1,19 @@
 package graph
 
 import (
+	"fmt"
+
 	"github.com/chalk-ai/chalk-go/expr"
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	"github.com/iancoleman/strcase"
 	proto "google.golang.org/protobuf/proto"
 )
+
+// shorthand useful for defining underscore expressions
+func __(name string) expr.Expr {
+	return expr.Identifier("_").Attr(name)
+}
 
 type Definitions struct {
 	FeatureSets []*FeatureSet
@@ -67,11 +74,11 @@ type FeatureBuilder interface {
 }
 
 type ScalarFeatureBuilder struct {
-	Proto *graphv1.ScalarFeatureType
+	proto *graphv1.ScalarFeatureType
 }
 
 func (f ScalarFeatureBuilder) ToProto(fieldName string, className string) *graphv1.FeatureType {
-	scalar := proto.Clone(f.Proto).(*graphv1.ScalarFeatureType)
+	scalar := proto.Clone(f.proto).(*graphv1.ScalarFeatureType)
 	scalar.Name = fieldName
 	scalar.Namespace = strcase.ToSnake(className)
 	scalar.AttributeName = fieldName
@@ -84,56 +91,59 @@ func (f ScalarFeatureBuilder) ToProto(fieldName string, className string) *graph
 }
 
 func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) FeatureBuilder {
-	scalar := proto.Clone(ofType.Proto).(*graphv1.ScalarFeatureType)
+	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
 	scalar.Expression = expr.ToProto(expression)
 	return ScalarFeatureBuilder{
-		Proto: scalar,
+		proto: scalar,
+	}
+}
+
+func Primitive(name string) *graphv1.FeatureRichTypeInfo {
+	return &graphv1.FeatureRichTypeInfo{
+		RichTypeIsSameAsPrimitiveType: true,
+		RichType: &graphv1.FeatureRichType{
+			Type: &graphv1.FeatureRichType_ClassType{
+				ClassType: &graphv1.RichClassType{
+					ModuleName: "builtins",
+					Qualname:   name,
+				},
+			},
+		},
+		RichTypeName: maybeStr(fmt.Sprintf("<class '%s'>", name)),
 	}
 }
 
 func Int() *ScalarFeatureBuilder {
 	TRUE := true
-	RICH_TYPE_NAME := "<class 'int'>"
 	return &ScalarFeatureBuilder{
-		Proto: &graphv1.ScalarFeatureType{
+		proto: &graphv1.ScalarFeatureType{
 			ArrowType: &arrowv1.ArrowType{
 				ArrowTypeEnum: &arrowv1.ArrowType_Int64{},
 			},
 			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
 			StoreOnline:   &TRUE,
 			StoreOffline:  &TRUE,
-			RichTypeInfo: &graphv1.FeatureRichTypeInfo{
-				RichTypeIsSameAsPrimitiveType: true,
-				RichType: &graphv1.FeatureRichType{
-					Type: &graphv1.FeatureRichType_ClassType{
-						ClassType: &graphv1.RichClassType{
-							ModuleName: "builtins",
-							Qualname:   "int",
-						},
-					},
-				},
-				RichTypeName: &RICH_TYPE_NAME,
-			},
+			RichTypeInfo:  Primitive("int"),
 		},
 	}
 }
 
 type HasOneFeatureBuilder struct {
-	Proto *graphv1.HasOneFeatureType
+	proto *graphv1.HasOneFeatureType
 }
 
 type HasManyFeatureBuilder struct {
-	Proto *graphv1.HasManyFeatureType
+	proto *graphv1.HasManyFeatureType
 }
 
-type TimeFeatureBuilder struct {
-	Proto *graphv1.FeatureTimeFeatureType
+type FeatureTimeFeatureBuilder struct {
+	proto *graphv1.FeatureTimeFeatureType
 }
 
 type WindowedFeatureBuilder struct {
-	Proto *graphv1.WindowedFeatureType
+	proto *graphv1.WindowedFeatureType
 }
 
 type GroupByFeatureBuilder struct {
-	Proto *graphv1.GroupByFeatureType
+	proto *graphv1.GroupByFeatureType
 }
