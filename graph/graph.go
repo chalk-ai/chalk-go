@@ -16,6 +16,7 @@ func (d Definitions) WithFeatureSets(fs ...FeatureSet) Definitions {
 	for _, f := range fs {
 		d.FeatureSets = append(d.FeatureSets, &f)
 	}
+	return d
 }
 
 func (d Definitions) ToGraph() *graphv1.Graph {
@@ -135,12 +136,4 @@ type WindowedFeatureBuilder struct {
 
 type GroupByFeatureBuilder struct {
 	Proto *graphv1.GroupByFeatureType
-}
-
-func main() {
-	Definitions{}.WithFeatureSets(
-		FeatureSet{
-			Name: "Example",
-		}.WithFeature("id", Int()).WithFeature("val", Int().Expr(expr.Identifier("_").Attr("id").Add(expr.Int64(1)))),
-	).ToGraph()
 }
