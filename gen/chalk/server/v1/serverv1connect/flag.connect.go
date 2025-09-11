@@ -36,6 +36,9 @@ const (
 	// FeatureFlagServiceGetFeatureFlagsProcedure is the fully-qualified name of the
 	// FeatureFlagService's GetFeatureFlags RPC.
 	FeatureFlagServiceGetFeatureFlagsProcedure = "/chalk.server.v1.FeatureFlagService/GetFeatureFlags"
+	// FeatureFlagServiceGetFeatureFlagProcedure is the fully-qualified name of the FeatureFlagService's
+	// GetFeatureFlag RPC.
+	FeatureFlagServiceGetFeatureFlagProcedure = "/chalk.server.v1.FeatureFlagService/GetFeatureFlag"
 	// FeatureFlagServiceSetFeatureFlagProcedure is the fully-qualified name of the FeatureFlagService's
 	// SetFeatureFlag RPC.
 	FeatureFlagServiceSetFeatureFlagProcedure = "/chalk.server.v1.FeatureFlagService/SetFeatureFlag"
@@ -44,6 +47,7 @@ const (
 // FeatureFlagServiceClient is a client for the chalk.server.v1.FeatureFlagService service.
 type FeatureFlagServiceClient interface {
 	GetFeatureFlags(context.Context, *connect.Request[v1.GetFeatureFlagsRequest]) (*connect.Response[v1.GetFeatureFlagsResponse], error)
+	GetFeatureFlag(context.Context, *connect.Request[v1.GetFeatureFlagRequest]) (*connect.Response[v1.GetFeatureFlagResponse], error)
 	SetFeatureFlag(context.Context, *connect.Request[v1.SetFeatureFlagRequest]) (*connect.Response[v1.SetFeatureFlagResponse], error)
 }
 
@@ -65,6 +69,13 @@ func NewFeatureFlagServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getFeatureFlag: connect.NewClient[v1.GetFeatureFlagRequest, v1.GetFeatureFlagResponse](
+			httpClient,
+			baseURL+FeatureFlagServiceGetFeatureFlagProcedure,
+			connect.WithSchema(featureFlagServiceMethods.ByName("GetFeatureFlag")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		setFeatureFlag: connect.NewClient[v1.SetFeatureFlagRequest, v1.SetFeatureFlagResponse](
 			httpClient,
 			baseURL+FeatureFlagServiceSetFeatureFlagProcedure,
@@ -78,12 +89,18 @@ func NewFeatureFlagServiceClient(httpClient connect.HTTPClient, baseURL string, 
 // featureFlagServiceClient implements FeatureFlagServiceClient.
 type featureFlagServiceClient struct {
 	getFeatureFlags *connect.Client[v1.GetFeatureFlagsRequest, v1.GetFeatureFlagsResponse]
+	getFeatureFlag  *connect.Client[v1.GetFeatureFlagRequest, v1.GetFeatureFlagResponse]
 	setFeatureFlag  *connect.Client[v1.SetFeatureFlagRequest, v1.SetFeatureFlagResponse]
 }
 
 // GetFeatureFlags calls chalk.server.v1.FeatureFlagService.GetFeatureFlags.
 func (c *featureFlagServiceClient) GetFeatureFlags(ctx context.Context, req *connect.Request[v1.GetFeatureFlagsRequest]) (*connect.Response[v1.GetFeatureFlagsResponse], error) {
 	return c.getFeatureFlags.CallUnary(ctx, req)
+}
+
+// GetFeatureFlag calls chalk.server.v1.FeatureFlagService.GetFeatureFlag.
+func (c *featureFlagServiceClient) GetFeatureFlag(ctx context.Context, req *connect.Request[v1.GetFeatureFlagRequest]) (*connect.Response[v1.GetFeatureFlagResponse], error) {
+	return c.getFeatureFlag.CallUnary(ctx, req)
 }
 
 // SetFeatureFlag calls chalk.server.v1.FeatureFlagService.SetFeatureFlag.
@@ -94,6 +111,7 @@ func (c *featureFlagServiceClient) SetFeatureFlag(ctx context.Context, req *conn
 // FeatureFlagServiceHandler is an implementation of the chalk.server.v1.FeatureFlagService service.
 type FeatureFlagServiceHandler interface {
 	GetFeatureFlags(context.Context, *connect.Request[v1.GetFeatureFlagsRequest]) (*connect.Response[v1.GetFeatureFlagsResponse], error)
+	GetFeatureFlag(context.Context, *connect.Request[v1.GetFeatureFlagRequest]) (*connect.Response[v1.GetFeatureFlagResponse], error)
 	SetFeatureFlag(context.Context, *connect.Request[v1.SetFeatureFlagRequest]) (*connect.Response[v1.SetFeatureFlagResponse], error)
 }
 
@@ -111,6 +129,13 @@ func NewFeatureFlagServiceHandler(svc FeatureFlagServiceHandler, opts ...connect
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	featureFlagServiceGetFeatureFlagHandler := connect.NewUnaryHandler(
+		FeatureFlagServiceGetFeatureFlagProcedure,
+		svc.GetFeatureFlag,
+		connect.WithSchema(featureFlagServiceMethods.ByName("GetFeatureFlag")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	featureFlagServiceSetFeatureFlagHandler := connect.NewUnaryHandler(
 		FeatureFlagServiceSetFeatureFlagProcedure,
 		svc.SetFeatureFlag,
@@ -122,6 +147,8 @@ func NewFeatureFlagServiceHandler(svc FeatureFlagServiceHandler, opts ...connect
 		switch r.URL.Path {
 		case FeatureFlagServiceGetFeatureFlagsProcedure:
 			featureFlagServiceGetFeatureFlagsHandler.ServeHTTP(w, r)
+		case FeatureFlagServiceGetFeatureFlagProcedure:
+			featureFlagServiceGetFeatureFlagHandler.ServeHTTP(w, r)
 		case FeatureFlagServiceSetFeatureFlagProcedure:
 			featureFlagServiceSetFeatureFlagHandler.ServeHTTP(w, r)
 		default:
@@ -135,6 +162,10 @@ type UnimplementedFeatureFlagServiceHandler struct{}
 
 func (UnimplementedFeatureFlagServiceHandler) GetFeatureFlags(context.Context, *connect.Request[v1.GetFeatureFlagsRequest]) (*connect.Response[v1.GetFeatureFlagsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureFlagService.GetFeatureFlags is not implemented"))
+}
+
+func (UnimplementedFeatureFlagServiceHandler) GetFeatureFlag(context.Context, *connect.Request[v1.GetFeatureFlagRequest]) (*connect.Response[v1.GetFeatureFlagResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureFlagService.GetFeatureFlag is not implemented"))
 }
 
 func (UnimplementedFeatureFlagServiceHandler) SetFeatureFlag(context.Context, *connect.Request[v1.SetFeatureFlagRequest]) (*connect.Response[v1.SetFeatureFlagResponse], error) {
