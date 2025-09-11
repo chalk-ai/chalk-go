@@ -3,13 +3,14 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
-	"time"
 )
 
 func (r OnlineQueryBulkResult) Release() {
@@ -71,7 +72,6 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 			IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,
 			BranchId:    branchId,
 			Context: &internal.OnlineQueryContext{
-				Environment:          ptr.OrNil(p.underlying.EnvironmentId),
 				Tags:                 p.underlying.Tags,
 				RequiredResolverTags: p.underlying.RequiredResolverTags,
 			},
