@@ -3,6 +3,9 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
@@ -10,8 +13,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"
-	"reflect"
-	"time"
 )
 
 // OnlineQueryParams defines the parameters
