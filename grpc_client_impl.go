@@ -3,11 +3,12 @@ package chalk
 import (
 	"context"
 	"crypto/tls"
-	"github.com/chalk-ai/chalk-go/auth"
 	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/auth"
 
 	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow"
@@ -481,7 +482,7 @@ func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
 		ValidUntil:         res.ExpiresAt.AsTime(),
-		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(ptr.OrZero(res.PrimaryEnvironment)),
+		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(""),
 		Engines:            res.Engines,
 	}, nil
 }

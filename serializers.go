@@ -3,6 +3,9 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
@@ -12,8 +15,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"strings"
-	"time"
 )
 
 func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParamsResolved) (*internal.OnlineQueryRequestSerialized, error) {
@@ -49,13 +50,11 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 		Inputs:  convertedInputs,
 		Outputs: outputs,
 		Context: internal.OnlineQueryContext{
-			Environment:          internal.StringOrNil(p.EnvironmentId),
 			Tags:                 p.Tags,
 			RequiredResolverTags: p.RequiredResolverTags,
 		},
 		Staleness:        serializeStaleness(resolved.staleness),
 		IncludeMeta:      p.IncludeMeta || p.Explain,
-		DeploymentId:     internal.StringOrNil(p.PreviewDeploymentId),
 		QueryName:        internal.StringOrNil(p.QueryName),
 		QueryNameVersion: internal.StringOrNil(p.QueryNameVersion),
 		CorrelationId:    internal.StringOrNil(p.CorrelationId),
@@ -494,9 +493,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		Staleness:     staleness,
 		Now:           now,
 		Context: &commonv1.OnlineQueryContext{
-			Environment:          params.EnvironmentId,
 			Tags:                 params.Tags,
-			DeploymentId:         ptr.OrNil(params.PreviewDeploymentId),
 			BranchId:             params.BranchId,
 			CorrelationId:        ptr.OrNil(params.CorrelationId),
 			QueryName:            ptr.OrNil(params.QueryName),

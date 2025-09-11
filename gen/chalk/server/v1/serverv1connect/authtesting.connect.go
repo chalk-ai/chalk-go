@@ -54,6 +54,9 @@ const (
 	// AuthTestingServiceGetOwnerTestEndpointProcedure is the fully-qualified name of the
 	// AuthTestingService's GetOwnerTestEndpoint RPC.
 	AuthTestingServiceGetOwnerTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetOwnerTestEndpoint"
+	// AuthTestingServiceGetAuthServiceManagerTestEndpointProcedure is the fully-qualified name of the
+	// AuthTestingService's GetAuthServiceManagerTestEndpoint RPC.
+	AuthTestingServiceGetAuthServiceManagerTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetAuthServiceManagerTestEndpoint"
 	// AuthTestingServiceGetFeatureFlagTestEndpointProcedure is the fully-qualified name of the
 	// AuthTestingService's GetFeatureFlagTestEndpoint RPC.
 	AuthTestingServiceGetFeatureFlagTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetFeatureFlagTestEndpoint"
@@ -68,6 +71,7 @@ type AuthTestingServiceClient interface {
 	GetDeveloperTestEndpoint(context.Context, *connect.Request[v1.GetDeveloperTestEndpointRequest]) (*connect.Response[v1.GetDeveloperTestEndpointResponse], error)
 	GetAdminTestEndpoint(context.Context, *connect.Request[v1.GetAdminTestEndpointRequest]) (*connect.Response[v1.GetAdminTestEndpointResponse], error)
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
+	GetAuthServiceManagerTestEndpoint(context.Context, *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error)
 	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
 }
 
@@ -131,6 +135,13 @@ func NewAuthTestingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getAuthServiceManagerTestEndpoint: connect.NewClient[v1.GetAuthServiceManagerTestEndpointRequest, v1.GetAuthServiceManagerTestEndpointResponse](
+			httpClient,
+			baseURL+AuthTestingServiceGetAuthServiceManagerTestEndpointProcedure,
+			connect.WithSchema(authTestingServiceMethods.ByName("GetAuthServiceManagerTestEndpoint")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getFeatureFlagTestEndpoint: connect.NewClient[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse](
 			httpClient,
 			baseURL+AuthTestingServiceGetFeatureFlagTestEndpointProcedure,
@@ -143,14 +154,15 @@ func NewAuthTestingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // authTestingServiceClient implements AuthTestingServiceClient.
 type authTestingServiceClient struct {
-	getUnauthedTestEndpoint      *connect.Client[v1.GetUnauthedTestEndpointRequest, v1.GetUnauthedTestEndpointResponse]
-	getAuthedTestEndpoint        *connect.Client[v1.GetAuthedTestEndpointRequest, v1.GetAuthedTestEndpointResponse]
-	getViewerTestEndpoint        *connect.Client[v1.GetViewerTestEndpointRequest, v1.GetViewerTestEndpointResponse]
-	getDataScientistTestEndpoint *connect.Client[v1.GetDataScientistTestEndpointRequest, v1.GetDataScientistTestEndpointResponse]
-	getDeveloperTestEndpoint     *connect.Client[v1.GetDeveloperTestEndpointRequest, v1.GetDeveloperTestEndpointResponse]
-	getAdminTestEndpoint         *connect.Client[v1.GetAdminTestEndpointRequest, v1.GetAdminTestEndpointResponse]
-	getOwnerTestEndpoint         *connect.Client[v1.GetOwnerTestEndpointRequest, v1.GetOwnerTestEndpointResponse]
-	getFeatureFlagTestEndpoint   *connect.Client[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse]
+	getUnauthedTestEndpoint           *connect.Client[v1.GetUnauthedTestEndpointRequest, v1.GetUnauthedTestEndpointResponse]
+	getAuthedTestEndpoint             *connect.Client[v1.GetAuthedTestEndpointRequest, v1.GetAuthedTestEndpointResponse]
+	getViewerTestEndpoint             *connect.Client[v1.GetViewerTestEndpointRequest, v1.GetViewerTestEndpointResponse]
+	getDataScientistTestEndpoint      *connect.Client[v1.GetDataScientistTestEndpointRequest, v1.GetDataScientistTestEndpointResponse]
+	getDeveloperTestEndpoint          *connect.Client[v1.GetDeveloperTestEndpointRequest, v1.GetDeveloperTestEndpointResponse]
+	getAdminTestEndpoint              *connect.Client[v1.GetAdminTestEndpointRequest, v1.GetAdminTestEndpointResponse]
+	getOwnerTestEndpoint              *connect.Client[v1.GetOwnerTestEndpointRequest, v1.GetOwnerTestEndpointResponse]
+	getAuthServiceManagerTestEndpoint *connect.Client[v1.GetAuthServiceManagerTestEndpointRequest, v1.GetAuthServiceManagerTestEndpointResponse]
+	getFeatureFlagTestEndpoint        *connect.Client[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse]
 }
 
 // GetUnauthedTestEndpoint calls chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint.
@@ -189,6 +201,12 @@ func (c *authTestingServiceClient) GetOwnerTestEndpoint(ctx context.Context, req
 	return c.getOwnerTestEndpoint.CallUnary(ctx, req)
 }
 
+// GetAuthServiceManagerTestEndpoint calls
+// chalk.server.v1.AuthTestingService.GetAuthServiceManagerTestEndpoint.
+func (c *authTestingServiceClient) GetAuthServiceManagerTestEndpoint(ctx context.Context, req *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error) {
+	return c.getAuthServiceManagerTestEndpoint.CallUnary(ctx, req)
+}
+
 // GetFeatureFlagTestEndpoint calls chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint.
 func (c *authTestingServiceClient) GetFeatureFlagTestEndpoint(ctx context.Context, req *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error) {
 	return c.getFeatureFlagTestEndpoint.CallUnary(ctx, req)
@@ -203,6 +221,7 @@ type AuthTestingServiceHandler interface {
 	GetDeveloperTestEndpoint(context.Context, *connect.Request[v1.GetDeveloperTestEndpointRequest]) (*connect.Response[v1.GetDeveloperTestEndpointResponse], error)
 	GetAdminTestEndpoint(context.Context, *connect.Request[v1.GetAdminTestEndpointRequest]) (*connect.Response[v1.GetAdminTestEndpointResponse], error)
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
+	GetAuthServiceManagerTestEndpoint(context.Context, *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error)
 	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
 }
 
@@ -262,6 +281,13 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	authTestingServiceGetAuthServiceManagerTestEndpointHandler := connect.NewUnaryHandler(
+		AuthTestingServiceGetAuthServiceManagerTestEndpointProcedure,
+		svc.GetAuthServiceManagerTestEndpoint,
+		connect.WithSchema(authTestingServiceMethods.ByName("GetAuthServiceManagerTestEndpoint")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	authTestingServiceGetFeatureFlagTestEndpointHandler := connect.NewUnaryHandler(
 		AuthTestingServiceGetFeatureFlagTestEndpointProcedure,
 		svc.GetFeatureFlagTestEndpoint,
@@ -285,6 +311,8 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 			authTestingServiceGetAdminTestEndpointHandler.ServeHTTP(w, r)
 		case AuthTestingServiceGetOwnerTestEndpointProcedure:
 			authTestingServiceGetOwnerTestEndpointHandler.ServeHTTP(w, r)
+		case AuthTestingServiceGetAuthServiceManagerTestEndpointProcedure:
+			authTestingServiceGetAuthServiceManagerTestEndpointHandler.ServeHTTP(w, r)
 		case AuthTestingServiceGetFeatureFlagTestEndpointProcedure:
 			authTestingServiceGetFeatureFlagTestEndpointHandler.ServeHTTP(w, r)
 		default:
@@ -322,6 +350,10 @@ func (UnimplementedAuthTestingServiceHandler) GetAdminTestEndpoint(context.Conte
 
 func (UnimplementedAuthTestingServiceHandler) GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetOwnerTestEndpoint is not implemented"))
+}
+
+func (UnimplementedAuthTestingServiceHandler) GetAuthServiceManagerTestEndpoint(context.Context, *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetAuthServiceManagerTestEndpoint is not implemented"))
 }
 
 func (UnimplementedAuthTestingServiceHandler) GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error) {

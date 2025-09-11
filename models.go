@@ -3,6 +3,9 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
@@ -10,8 +13,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/structpb"
-	"reflect"
-	"time"
 )
 
 // OnlineQueryParams defines the parameters
@@ -28,17 +29,8 @@ type OnlineQueryParams struct {
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
 
-	// The environment under which to run the resolvers. API tokens can be scoped to an
-	// environment. If no environment is specified in the query, but the token supports
-	// only a single environment, then that environment will be taken as the scope for
-	// executing the request.
-	EnvironmentId string
-
 	// The tags used to scope the resolvers.
 	Tags []string
-
-	// If specified, Chalk will route your request to the relevant preview deployment.
-	PreviewDeploymentId string
 
 	// The name for class of query you're making, for example, "loan_application_model".
 	QueryName string
@@ -417,15 +409,6 @@ type UploadFeaturesParams struct {
 	// be the same length as the number of entities you want to upload
 	// features for.
 	Inputs map[any]any
-
-	// EnvironmentOverride is the environment to which you want to upload
-	// features. If not specified, defaults to the environment specified
-	// in the client configuration.
-	EnvironmentOverride string
-
-	// PreviewDeploymentId is the preview deployment to which you want to upload
-	// features. If not specified, defaults to the main deployment.
-	PreviewDeploymentId string
 }
 
 // UploadFeaturesResult holds the result of an upload features request.
@@ -481,14 +464,6 @@ type OfflineQueryParams struct {
 	/**************
 	 PUBLIC FIELDS
 	**************/
-
-	// The environment under which to run the resolvers.
-	// API tokens can be scoped to an environment.
-	// If no environment is specified in the query,
-	// but the token supports only a single environment,
-	// then that environment will be taken as the scope
-	// for executing the request.
-	EnvironmentId string
 
 	// A unique name that if provided will be used to generate and
 	// save a Dataset constructed from the list of features computed
@@ -892,7 +867,7 @@ func (d *Dataset) DownloadUris(ctx context.Context) ([]string, error) {
 // method, you can download those raw files into a directory for processing
 // with other tools.
 func (d *DatasetRevision) DownloadData(ctx context.Context, directory string) error {
-	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId, "")
+	urls, getUrlsErr := d.client.getDatasetUrls(ctx, d.RevisionId)
 	if getUrlsErr != nil {
 		return errors.Wrap(getUrlsErr, "get dataset urls")
 	}
@@ -926,7 +901,7 @@ func (d *DatasetRevision) DownloadUris(ctx context.Context) ([]string, error) {
 		return nil, errors.New("DatasetRevision client is not initialized")
 	}
 
-	urls, err := d.client.getDatasetUrls(ctx, d.RevisionId, "")
+	urls, err := d.client.getDatasetUrls(ctx, d.RevisionId)
 	if err != nil {
 		return nil, errors.Wrap(err, "get dataset urls")
 	}
@@ -951,13 +926,6 @@ type GetOfflineQueryJobResponse struct {
 type TriggerResolverRunParams struct {
 	// ResolverFqn is the fully qualified name of the offline resolver to trigger.
 	ResolverFqn string `json:"resolver_fqn"`
-
-	// EnvironmentId is the environment under which you'd like to query your data.
-	EnvironmentId string `json:"environment_id"`
-
-	// PreviewDeploymentId, if specified, will be used by Chalk to route
-	// your request to the relevant preview deployment.
-	PreviewDeploymentId string `json:"preview_deployment_id"`
 }
 
 type TriggerResolverRunResult struct {
@@ -971,10 +939,6 @@ type TriggerResolverRunResult struct {
 type GetRunStatusParams struct {
 	// RunId is the ID of the resolver run to check.
 	RunId string `json:"resolver_fqn"`
-
-	// PreviewDeploymentId, if specified, will be used by Chalk to route
-	// your request to the relevant preview deployment.
-	PreviewDeploymentId string `json:"preview_deployment_id"`
 }
 
 type GetRunStatusResult struct {
@@ -1057,10 +1021,6 @@ type TokenResult struct {
 type GetOfflineQueryStatusParams struct {
 	// JobId is the ID of the offline query job to check.
 	JobId string `json:"job_id"`
-
-	// PreviewDeploymentId, if specified, will be used by Chalk to route
-	// your request to the relevant preview deployment.
-	PreviewDeploymentId string `json:"preview_deployment_id"`
 }
 
 // BatchReport represents the status of a batch operation.

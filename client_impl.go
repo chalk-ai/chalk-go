@@ -5,12 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/auth"
-	"github.com/chalk-ai/chalk-go/config"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
-	"github.com/cockroachdb/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -19,6 +13,13 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/apache/arrow/go/v16/arrow/memory"
+	"github.com/chalk-ai/chalk-go/auth"
+	"github.com/chalk-ai/chalk-go/config"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/colls"
+	"github.com/cockroachdb/errors"
 )
 
 type clientImpl struct {
@@ -60,13 +61,12 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 	if err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:              "POST",
-			URL:                 "v4/offline_query",
-			Body:                body,
-			Response:            &response,
-			EnvironmentOverride: request.EnvironmentId,
-			Versioned:           resolved.versioned,
-			Branch:              &request.Branch,
+			Method:    "POST",
+			URL:       "v4/offline_query",
+			Body:      body,
+			Response:  &response,
+			Versioned: resolved.versioned,
+			Branch:    &request.Branch,
 		},
 	); err != nil {
 		return Dataset{}, errors.Wrap(err, "sending request")
@@ -74,14 +74,6 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 
 	if len(response.Errors) > 0 {
 		return Dataset{}, response.Errors
-	}
-
-	// Set the environment ID
-	if response.EnvironmentID == "" {
-		response.EnvironmentID = request.EnvironmentId
-		if response.EnvironmentID == "" {
-			response.EnvironmentID = c.config.EnvironmentId.Value
-		}
 	}
 
 	// Set the client reference for Wait() method
@@ -138,8 +130,6 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			URL:                   "v1/query/feather",
 			Body:                  data,
 			Response:              &response,
-			EnvironmentOverride:   params.underlying.EnvironmentId,
-			PreviewDeploymentId:   params.underlying.PreviewDeploymentId,
 			ResourceGroupOverride: resourceGroupOverride,
 			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
@@ -192,13 +182,11 @@ func (c *clientImpl) UploadFeatures(ctx context.Context, params UploadFeaturesPa
 	err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:              "POST",
-			URL:                 "v1/upload_features/multi",
-			Body:                body,
-			Response:            &response,
-			EnvironmentOverride: params.EnvironmentOverride,
-			PreviewDeploymentId: params.PreviewDeploymentId,
-			IsEngineRequest:     true,
+			Method:          "POST",
+			URL:             "v1/upload_features/multi",
+			Body:            body,
+			Response:        &response,
+			IsEngineRequest: true,
 		},
 	)
 	return response, errors.Wrap(err, "sending request")
@@ -230,8 +218,6 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			URL:                   "v1/query/online",
 			Body:                  *serializedRequest,
 			Response:              &response,
-			EnvironmentOverride:   request.EnvironmentId,
-			PreviewDeploymentId:   request.PreviewDeploymentId,
 			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
@@ -281,12 +267,10 @@ func (c *clientImpl) TriggerResolverRun(ctx context.Context, request TriggerReso
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:              "POST",
-			URL:                 "v1/runs/trigger",
-			Body:                request,
-			Response:            &response,
-			EnvironmentOverride: request.EnvironmentId,
-			PreviewDeploymentId: request.PreviewDeploymentId,
+			Method:   "POST",
+			URL:      "v1/runs/trigger",
+			Body:     request,
+			Response: &response,
 		},
 	)
 	return response, errors.Wrap(err, "triggering resolver run")
@@ -297,26 +281,24 @@ func (c *clientImpl) GetRunStatus(ctx context.Context, request GetRunStatusParam
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:              "GET",
-			URL:                 fmt.Sprintf("v1/runs/%s", request.RunId),
-			Body:                request,
-			Response:            &response,
-			PreviewDeploymentId: request.PreviewDeploymentId,
+			Method:   "GET",
+			URL:      fmt.Sprintf("v1/runs/%s", request.RunId),
+			Body:     request,
+			Response: &response,
 		},
 	)
 	return response, errors.Wrap(err, "getting run status")
 }
 
-func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string, EnvironmentId string) ([]string, error) {
+func (c *clientImpl) getDatasetUrls(ctx context.Context, RevisionId string) ([]string, error) {
 	response := GetOfflineQueryJobResponse{}
 	for !response.IsFinished {
 		err := c.sendRequest(
 			ctx,
 			&sendRequestParams{
-				Method:              "GET",
-				URL:                 fmt.Sprintf("v2/offline_query/%s", RevisionId),
-				EnvironmentOverride: EnvironmentId,
-				Response:            &response,
+				Method:   "GET",
+				URL:      fmt.Sprintf("v2/offline_query/%s", RevisionId),
+				Response: &response,
 			},
 		)
 		if err != nil {
@@ -410,8 +392,6 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	}
 
 	headers := c.getHeaders(
-		args.EnvironmentOverride,
-		args.PreviewDeploymentId,
 		args.Branch,
 		args.ResourceGroupOverride,
 	)
@@ -430,7 +410,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		urlBase := c.config.ApiServer.Value
 		if args.IsEngineRequest {
-			urlBase = c.tokenManager.GetQueryServerURL(args.EnvironmentOverride)
+			urlBase = c.tokenManager.GetQueryServerURL("")
 		}
 		var err error
 		request.URL, err = url.Parse(fmt.Sprintf(
@@ -517,8 +497,6 @@ func (c *clientImpl) retryRequest(
 }
 
 func (c *clientImpl) getHeaders(
-	environmentOverride string,
-	previewDeploymentId string,
 	branchOverride *string,
 	resourceGroupOverride *string,
 ) http.Header {
@@ -546,11 +524,7 @@ func (c *clientImpl) getHeaders(
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 	}
 
-	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId(environmentOverride))
-	if previewDeploymentId != "" {
-		headers.Set("X-Chalk-Preview-Deployment", previewDeploymentId)
-	}
-
+	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId(""))
 	if resourceGroupOverride != nil {
 		headers.Set(HeaderKeyResourceGroup, *resourceGroupOverride)
 	} else if c.resourceGroup != nil {
@@ -597,10 +571,9 @@ func (c *clientImpl) GetOfflineQueryStatus(
 	err := c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:              "GET",
-			URL:                 fmt.Sprintf("v4/offline_query/%s/status", request.JobId),
-			Response:            &response,
-			PreviewDeploymentId: request.PreviewDeploymentId,
+			Method:   "GET",
+			URL:      fmt.Sprintf("v4/offline_query/%s/status", request.JobId),
+			Response: &response,
 		},
 	)
 	return response, errors.Wrap(err, "getting offline query status")
@@ -609,7 +582,7 @@ func (c *clientImpl) GetOfflineQueryStatus(
 func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset, error) {
 	// Get the dataset URLs using the existing getDatasetUrls method
 	// This also validates that the dataset exists and is ready
-	_, err := c.getDatasetUrls(ctx, revisionId, "")
+	_, err := c.getDatasetUrls(ctx, revisionId)
 	if err != nil {
 		return Dataset{}, errors.Wrap(err, "getting dataset urls")
 	}

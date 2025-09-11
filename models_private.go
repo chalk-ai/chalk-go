@@ -1,9 +1,10 @@
 package chalk
 
 import (
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"time"
 )
 
 type onlineQueryResponseSerialized struct {
@@ -59,8 +60,6 @@ type sendRequestParams struct {
 	Method                string
 	URL                   string
 	Response              any
-	EnvironmentOverride   string
-	PreviewDeploymentId   string
 	Versioned             bool
 	Branch                *string
 	ResourceGroupOverride *string
