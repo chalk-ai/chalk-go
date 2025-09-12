@@ -65,11 +65,12 @@ func TestWindowed(t *testing.T) {
 			With("total_spend", Windowed(Float(), Days(30), Days(60), Days(90)).
 				WithDefault(expr.Int(0)).
 				WithBucketDuration(Days(1)).
-				WithExpr(__("transactions").Get(
-					__("amount"),
-					__("at").Gt(__("chalk_window")),
-					__("at").Lt(__("chalk_now")),
-				).Attr("sum").Apply())),
+				WithExpr(expr.DataFrame("transactions").
+					Filter(__("at").Gt(__("chalk_window"))).
+					Filter(__("at").Lt(__("chalk_now"))).
+					Select(__("amount")).
+					Agg("sum"),
+				)),
 	).ToGraph()
 
 	assert.NoError(t, err)

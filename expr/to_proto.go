@@ -1,8 +1,20 @@
 package expr
 
 import (
+	"fmt"
+
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 )
+
+func ToIdentifierLiteral(name string) *expressionv1.LogicalExprNode {
+	return &expressionv1.LogicalExprNode{
+		ExprForm: &expressionv1.LogicalExprNode_Identifier{
+			Identifier: &expressionv1.Identifier{
+				Name: name,
+			},
+		},
+	}
+}
 
 // ToProto converts an ExprI to a LogicalExprNode proto message
 func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
@@ -12,13 +24,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	switch e := expr.(type) {
 	case *IdentifierExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_Identifier{
-				Identifier: &expressionv1.Identifier{
-					Name: e.Name,
-				},
-			},
-		}
+		return ToIdentifierLiteral(e.Name)
 
 	case *LiteralExpr:
 		return &expressionv1.LogicalExprNode{
@@ -79,60 +85,58 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	case *dataFrameExprImpl:
 		// DataFrame reference as identifier
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_Identifier{
-				Identifier: &expressionv1.Identifier{
-					Name: e.Name,
-				},
-			},
-		}
+		return ToIdentifierLiteral(e.Name)
 
 	case *aggregateExprImpl:
-		// Represent aggregation as a function call
-		args := []*expressionv1.LogicalExprNode{
-			ToProto(e.DataFrame),
-		}
-		// No need to add filters separately since DataFrame.String() includes them
+		// Build the base DataFrame reference
+		dataframeNode := ToProto(e.DataFrame)
 
+		// If there are filter conditions or selections, wrap the DataFrame in a GetSubscript
+		if len(e.Conditions) > 0 || e.Selection != nil {
+			subscriptNodes := make([]*expressionv1.LogicalExprNode, 0, len(e.Conditions)+1)
+
+			// Convert selection to proto node if it exists
+			if e.Selection != nil {
+				subscriptNodes = append(subscriptNodes, ToProto(e.Selection))
+			}
+
+			// Convert all conditions to proto nodes
+			for _, condition := range e.Conditions {
+				subscriptNodes = append(subscriptNodes, ToProto(condition))
+			}
+
+			// Wrap the DataFrame in a GetSubscript with all filter conditions
+			dataframeNode = &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+					GetSubscript: &expressionv1.ExprGetSubscript{
+						Parent:    dataframeNode,
+						Subscript: subscriptNodes,
+					},
+				},
+			}
+		}
+
+		// Apply the aggregation function as a GetAttribute on the (possibly filtered) DataFrame
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_Call{
 				Call: &expressionv1.ExprCall{
 					Func: &expressionv1.LogicalExprNode{
-						ExprForm: &expressionv1.LogicalExprNode_Identifier{
-							Identifier: &expressionv1.Identifier{
-								Name: e.Function,
+						ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+							GetAttribute: &expressionv1.ExprGetAttribute{
+								Attribute: &expressionv1.Identifier{
+									Name: e.Function,
+								},
+								Parent: dataframeNode,
 							},
 						},
 					},
-					Args: args,
-				},
-			},
-		}
-
-	case *SubscriptExpr:
-		subscript := make([]*expressionv1.LogicalExprNode, len(e.Keys))
-		for i, k := range e.Keys {
-			subscript[i] = ToProto(k)
-		}
-
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
-				GetSubscript: &expressionv1.ExprGetSubscript{
-					Parent:    ToProto(e.Parent),
-					Subscript: subscript,
 				},
 			},
 		}
 
 	default:
 		// Fallback for unknown expression types
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_Identifier{
-				Identifier: &expressionv1.Identifier{
-					Name: "unknown",
-				},
-			},
-		}
+		return ToIdentifierLiteral(fmt.Sprintf("unknown (%T)", e))
 	}
 }
 

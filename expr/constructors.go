@@ -370,6 +370,7 @@ func Col(name string) Expr {
 	}
 }
 
+// maybe replace with a relation.name call to Col?
 func ColIn(name string, relation string) Expr {
 	return &ColumnExpr{
 		Name:     name,
@@ -432,9 +433,6 @@ func (e *ColumnExpr) Attr(attribute string) Expr {
 func (e *ColumnExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
-func (e *ColumnExpr) Get(keys ...Expr) Expr {
-	return &SubscriptExpr{Parent: e, Keys: keys}
-}
 func (e *ColumnExpr) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
@@ -444,7 +442,7 @@ func (e *ColumnExpr) Apply(args ...Expr) Expr {
 // FunctionCall creates a function call expression
 func FunctionCall(name string, args ...Expr) Expr {
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: name},
+		Function: Identifier(name),
 		Args:     args,
 		Kwargs:   make(map[string]Expr),
 	}
@@ -456,10 +454,14 @@ func FunctionCallWithKwargs(name string, args []Expr, kwargs map[string]Expr) Ex
 		kwargs = make(map[string]Expr)
 	}
 	return &CallExpr{
-		Function: &IdentifierExpr{Name: name},
+		Function: Identifier(name),
 		Args:     args,
 		Kwargs:   kwargs,
 	}
+}
+
+func ChalkNow() Expr {
+	return Col("_").Attr("chalk_now")
 }
 
 // DataFrame creates a dataframe reference for aggregations
@@ -474,6 +476,7 @@ type dataFrameExprImpl struct {
 	Expr
 	Name       string
 	Conditions []Expr // Store accumulated filter conditions
+	Selection  Expr   // Store expression to be aggregated
 }
 
 func (e *dataFrameExprImpl) exprType() string {
@@ -515,9 +518,6 @@ func (e *dataFrameExprImpl) Attr(attribute string) Expr {
 func (e *dataFrameExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
-func (e *dataFrameExprImpl) Get(keys ...Expr) Expr {
-	return &SubscriptExpr{Parent: e, Keys: keys}
-}
 func (e *dataFrameExprImpl) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
@@ -532,6 +532,15 @@ func (e *dataFrameExprImpl) Filter(condition ExprI) DataFrameExpr {
 	return &dataFrameExprImpl{
 		Name:       e.Name,
 		Conditions: conditions,
+		Selection:  e.Selection,
+	}
+}
+
+func (e *dataFrameExprImpl) Select(selection Expr) DataFrameExpr {
+	return &dataFrameExprImpl{
+		Name:       e.Name,
+		Conditions: e.Conditions,
+		Selection:  selection,
 	}
 }
 
@@ -540,7 +549,7 @@ func (e *dataFrameExprImpl) Agg(aggFunc string) Expr {
 		Function:   aggFunc,
 		DataFrame:  e,
 		Conditions: e.Conditions,
-		Filter:     nil,
+		Selection:  e.Selection,
 	}
 }
 
@@ -550,8 +559,8 @@ type aggregateExprImpl struct {
 	Function   string
 	DataFrame  DataFrameExpr
 	Conditions []Expr // Accumulated filter conditions
-	Filter     Expr   // Legacy field for backward compatibility
 	Distinct   bool
+	Selection  Expr
 }
 
 func (e *aggregateExprImpl) exprType() string {
@@ -585,9 +594,6 @@ func (e *aggregateExprImpl) Attr(attribute string) Expr {
 func (e *aggregateExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
-func (e *aggregateExprImpl) Get(keys ...Expr) Expr {
-	return &SubscriptExpr{Parent: e, Keys: keys}
-}
 func (e *aggregateExprImpl) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
@@ -597,7 +603,7 @@ func (e *aggregateExprImpl) WithDistinct() *aggregateExprImpl {
 	return &aggregateExprImpl{
 		Function:  e.Function,
 		DataFrame: e.DataFrame,
-		Filter:    e.Filter,
+		Selection: e.Selection,
 		Distinct:  true,
 	}
 }
