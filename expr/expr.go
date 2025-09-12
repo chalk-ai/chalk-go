@@ -46,6 +46,9 @@ type Expr interface {
 
 	// Alias
 	As(alias string) Expr
+
+	// Bracket access
+	Get(others ...Expr) Expr
 }
 
 // DataFrameExpr represents expressions that operate on DataFrames
@@ -107,6 +110,9 @@ func (e *IdentifierExpr) Attr(attribute string) Expr {
 }
 func (e *IdentifierExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *IdentifierExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
 }
 
 // LiteralExpr represents a literal value using Arrow scalar values
@@ -225,6 +231,9 @@ func (e *LiteralExpr) Attr(attribute string) Expr {
 func (e *LiteralExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *LiteralExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
 
 // GetAttributeExpr represents field access like arr.length
 type GetAttributeExpr struct {
@@ -261,6 +270,9 @@ func (e *GetAttributeExpr) Attr(attribute string) Expr {
 }
 func (e *GetAttributeExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *GetAttributeExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
 }
 
 // CallExpr represents function calls and method calls
@@ -316,6 +328,9 @@ func (e *CallExpr) Attr(attribute string) Expr {
 func (e *CallExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *CallExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
 
 // AliasExpr represents an aliased expression
 type AliasExpr struct {
@@ -352,4 +367,53 @@ func (e *AliasExpr) Attr(attribute string) Expr {
 }
 func (e *AliasExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *AliasExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+
+type SubscriptExpr struct {
+	Parent Expr
+	Keys   []Expr
+}
+
+func (e *SubscriptExpr) exprType() string {
+	return "subscript"
+}
+
+func (e *SubscriptExpr) String() string {
+	keys := ""
+	for i, key := range e.Keys {
+		if i > 0 {
+			keys += ", "
+		}
+		keys += key.String()
+	}
+	return fmt.Sprintf("%s[%s]", e.Parent, keys)
+}
+
+// Implement Expr interface for SubscriptExpr
+func (e *SubscriptExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
+func (e *SubscriptExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
+func (e *SubscriptExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
+func (e *SubscriptExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
+func (e *SubscriptExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *SubscriptExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
+func (e *SubscriptExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
+func (e *SubscriptExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
+func (e *SubscriptExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
+func (e *SubscriptExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
+func (e *SubscriptExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
+func (e *SubscriptExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
+func (e *SubscriptExpr) Not() Expr           { return unaryOp("NOT", e) }
+func (e *SubscriptExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *SubscriptExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
+func (e *SubscriptExpr) Attr(attribute string) Expr {
+	return &GetAttributeExpr{Parent: e, Attribute: attribute}
+}
+func (e *SubscriptExpr) As(alias string) Expr {
+	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *SubscriptExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
 }

@@ -51,7 +51,6 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 			},
 		}
 
-
 	case *CallExpr:
 		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
 		for i, arg := range e.Args {
@@ -106,6 +105,21 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 						},
 					},
 					Args: args,
+				},
+			},
+		}
+
+	case *SubscriptExpr:
+		subscript := make([]*expressionv1.LogicalExprNode, len(e.Keys))
+		for i, k := range e.Keys {
+			subscript[i] = ToProto(k)
+		}
+
+		return &expressionv1.LogicalExprNode{
+			ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+				GetSubscript: &expressionv1.ExprGetSubscript{
+					Parent:    ToProto(e.Parent),
+					Subscript: subscript,
 				},
 			},
 		}
