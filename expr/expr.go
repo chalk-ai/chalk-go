@@ -49,6 +49,9 @@ type Expr interface {
 
 	// Bracket access
 	Get(others ...Expr) Expr
+
+	// Function application
+	Apply(args ...Expr) Expr
 }
 
 // DataFrameExpr represents expressions that operate on DataFrames
@@ -113,6 +116,9 @@ func (e *IdentifierExpr) As(alias string) Expr {
 }
 func (e *IdentifierExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *IdentifierExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // LiteralExpr represents a literal value using Arrow scalar values
@@ -234,6 +240,9 @@ func (e *LiteralExpr) As(alias string) Expr {
 func (e *LiteralExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
 }
+func (e *LiteralExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
 
 // GetAttributeExpr represents field access like arr.length
 type GetAttributeExpr struct {
@@ -273,6 +282,9 @@ func (e *GetAttributeExpr) As(alias string) Expr {
 }
 func (e *GetAttributeExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *GetAttributeExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // CallExpr represents function calls and method calls
@@ -331,6 +343,9 @@ func (e *CallExpr) As(alias string) Expr {
 func (e *CallExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
 }
+func (e *CallExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
 
 // AliasExpr represents an aliased expression
 type AliasExpr struct {
@@ -370,6 +385,9 @@ func (e *AliasExpr) As(alias string) Expr {
 }
 func (e *AliasExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *AliasExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 type SubscriptExpr struct {
@@ -416,4 +434,7 @@ func (e *SubscriptExpr) As(alias string) Expr {
 }
 func (e *SubscriptExpr) Get(keys ...Expr) Expr {
 	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *SubscriptExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }

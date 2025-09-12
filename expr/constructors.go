@@ -370,6 +370,13 @@ func Col(name string) Expr {
 	}
 }
 
+func ColIn(name string, relation string) Expr {
+	return &ColumnExpr{
+		Name:     name,
+		Relation: relation,
+	}
+}
+
 // Identifier creates an identifier expression
 func Identifier(name string) Expr {
 	return &IdentifierExpr{
@@ -424,6 +431,12 @@ func (e *ColumnExpr) Attr(attribute string) Expr {
 }
 func (e *ColumnExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *ColumnExpr) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *ColumnExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // Function call constructors
@@ -502,6 +515,12 @@ func (e *dataFrameExprImpl) Attr(attribute string) Expr {
 func (e *dataFrameExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *dataFrameExprImpl) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *dataFrameExprImpl) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
 
 // Implement DataFrameExpr interface
 func (e *dataFrameExprImpl) Filter(condition ExprI) DataFrameExpr {
@@ -565,6 +584,12 @@ func (e *aggregateExprImpl) Attr(attribute string) Expr {
 }
 func (e *aggregateExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *aggregateExprImpl) Get(keys ...Expr) Expr {
+	return &SubscriptExpr{Parent: e, Keys: keys}
+}
+func (e *aggregateExprImpl) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // WithDistinct adds DISTINCT to the aggregation
