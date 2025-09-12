@@ -207,11 +207,3 @@ func (hm *HasManyFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 		},
 	}, nil
 }
-
-type HasOneFeatureBuilder struct {
-	proto *graphv1.HasOneFeatureType
-}
-
-type GroupByFeatureBuilder struct {
-	proto *graphv1.GroupByFeatureType
-}

@@ -67,7 +67,7 @@ func (w *WindowedFeatureBuilder) WithExpr(expression expr.Expr) *WindowedFeature
 // https://docs.chalk.ai/api-docs#windowed.materialization
 type MaterializationOptions struct {
 	// map window -> bucket duration
-	// NOTE: OPPOSITE OF chalkpy
+	// NOTE: OPPOSITE ORDER AS chalkpy if construction is being done via struct
 	BucketDurations       map[time.Duration]time.Duration
 	DefaultBucketDuration time.Duration
 	// The period for which to use the continuous resolver, instead
