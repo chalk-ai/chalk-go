@@ -38,6 +38,9 @@ type Inputs struct {
 	// Environment is name of the environment or its id. Not required for service tokens,
 	// which default to the environment in which they are created.
 	Environment string
+
+	// QueryServer, if provided, overrides the query server that comes back from token exchange.
+	QueryServer string
 }
 
 func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
@@ -98,8 +101,13 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		if r.environment == "" {
 			return nil, errors.Newf("could not find environment %q", opts.Environment)
 		}
-		r.grpcEngineURL = token.GrpcEngines[r.environment]
-		r.engineURL = token.Engines[r.environment]
+		if opts.QueryServer == "" {
+			r.grpcEngineURL = token.GrpcEngines[r.environment]
+			r.engineURL = token.Engines[r.environment]
+		} else {
+			r.grpcEngineURL = opts.QueryServer
+			r.engineURL = opts.QueryServer
+		}
 	}
 	return r, nil
 }
@@ -139,20 +147,10 @@ func (r *Manager) GetJWT(
 	return r.token, nil
 }
 
-func (r *Manager) GetQueryServerURL(envOverride string) string {
-	token := r.token
-	if token == nil {
-		return r.manager.ApiServer.Value
-	}
+func (r *Manager) GetQueryServerURL() string {
+	return r.engineURL
+}
 
-	env := envOverride
-	if env == "" {
-		env = r.manager.EnvironmentId.Value
-	}
-
-	if engine, foundEngine := token.Engines[env]; foundEngine && env != "" {
-		return engine
-	}
-
-	return r.manager.ApiServer.Value
+func (r *Manager) GetGRPCQueryServerURL() string {
+	return r.grpcEngineURL
 }

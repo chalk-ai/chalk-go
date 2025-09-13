@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -35,10 +36,9 @@ type grpcClientImpl struct {
 	httpClient    connect.HTTPClient
 	timeout       *time.Duration
 
-	queryClient      enginev1connect.QueryServiceClient
-	tokenInterceptor connect.UnaryInterceptorFunc
-	deploymentTag    string
-	tokenManager     *auth.Manager
+	queryClient   enginev1connect.QueryServiceClient
+	deploymentTag string
+	tokenManager  *auth.Manager
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -74,9 +74,10 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:      cfg.JWT,
-			HttpClient: cfg.HTTPClient,
-			Manager:    c,
+			Token:       cfg.JWT,
+			HttpClient:  cfg.HTTPClient,
+			Manager:     c,
+			QueryServer: cfg.QueryServer,
 		},
 	)
 	if err != nil {
@@ -91,9 +92,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if cfg.ResourceGroup != "" {
 		resourceGroup = &cfg.ResourceGroup
 	}
-
-	resolvedQueryServer := tokenManager.GetQueryServerURL(cfg.QueryServer)
-	if strings.HasPrefix(resolvedQueryServer, "http://") {
+	if strings.HasPrefix(tokenManager.GetGRPCQueryServerURL(), "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
 		cfg.HTTPClient = &http.Client{
@@ -106,42 +105,52 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		}
 	}
 
-	headers := map[string]string{
-		HeaderKeyDeploymentType: "engine-grpc",
-		HeaderKeyServerType:     serverTypeEngine,
+	envId := tokenManager.GetEnvironmentId()
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			if timeout != nil {
+				cancelCtx, cancel := internal.GetContextWithTimeout(ctx, timeout)
+				defer cancel()
+				ctx = cancelCtx
+			}
+			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			if err != nil {
+				return nil, errors.Wrap(err, "error refreshing token")
+			}
+			if cfg.DeploymentTag != "" {
+				req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
+			}
+			if resourceGroup != nil {
+				req.Header().Set("x-chalk-resource-group", *resourceGroup)
+			}
+			req.Header().Set("x-chalk-env-id", envId)
+			req.Header().Set("x-chalk-deployment-type", "engine-grpc")
+			req.Header().Set("x-chalk-server", "engine")
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			return next(ctx, req)
+		}
 	}
-	if cfg.DeploymentTag != "" {
-		headers[HeaderKeyDeploymentTag] = cfg.DeploymentTag
-	}
-	tokenInterceptor := makeTokenInterceptor(tokenManager)
-	engineInterceptors := []connect.Interceptor{
-		tokenInterceptor,
-		headerInterceptor(headers),
-	}
-	if timeout != nil {
-		engineInterceptors = append(engineInterceptors, timeoutInterceptor(timeout))
-	}
-
-	queryClient := enginev1connect.NewQueryServiceClient(
-		cfg.HTTPClient,
-		resolvedQueryServer,
-		connect.WithInterceptors(append(cfg.Interceptors, engineInterceptors...)...),
-		connect.WithGRPC(),
-	)
 
 	return &grpcClientImpl{
-		deploymentTag:    cfg.DeploymentTag,
-		branch:           cfg.Branch,
-		httpClient:       cfg.HTTPClient,
-		logger:           cfg.Logger,
-		config:           c,
-		tokenManager:     tokenManager,
-		queryClient:      queryClient,
-		queryServer:      ptr.OrNil(cfg.QueryServer),
-		resourceGroup:    resourceGroup,
-		timeout:          timeout,
-		allocator:        cfg.Allocator,
-		tokenInterceptor: tokenInterceptor,
+		deploymentTag: cfg.DeploymentTag,
+		branch:        cfg.Branch,
+		httpClient:    cfg.HTTPClient,
+		logger:        cfg.Logger,
+		config:        c,
+		tokenManager:  tokenManager,
+		queryClient: enginev1connect.NewQueryServiceClient(
+			cfg.HTTPClient,
+			tokenManager.GetGRPCQueryServerURL(),
+			connect.WithInterceptors(append(cfg.Interceptors, connect.UnaryInterceptorFunc(interceptor))...),
+			connect.WithGRPC(),
+		),
+		queryServer:   ptr.OrNil(cfg.QueryServer),
+		resourceGroup: resourceGroup,
+		timeout:       timeout,
+		allocator:     cfg.Allocator,
 	}, nil
 }
 
@@ -351,29 +360,11 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 	if err != nil {
 		return nil, errors.Wrap(err, "converting online query params to proto")
 	}
-	req := connect.NewRequest(paramsProto)
-	if args.underlying.ResourceGroup != "" {
-		req.Header().Set(HeaderKeyResourceGroup, args.underlying.ResourceGroup)
-	} else if c.resourceGroup != nil {
-		req.Header().Set(HeaderKeyResourceGroup, *c.resourceGroup)
-	}
-	return req, nil
+	return connect.NewRequest(paramsProto), nil
 }
 
 func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.tokenManager.GetQueryServerURL("")
-}
-
-func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
-	//httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption
-	return []connect.ClientOption{
-		connect.WithInterceptors(
-			headerInterceptor(map[string]string{
-				HeaderKeyServerType: serverTypeApi,
-			}),
-			c.tokenInterceptor,
-		),
-	}
+	return c.tokenManager.GetQueryServerURL()
 }
 
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {

@@ -25,7 +25,6 @@ type OnlineQueryRequestSerialized struct {
 	StorePlanStages  bool                   `json:"store_plan_stages"`
 	EncodingOptions  FeatureEncodingOptions `json:"encoding_options"`
 	PlannerOptions   map[string]any         `json:"planner_options"`
-	BranchId         *string                `json:"branch_id"`
 }
 
 type OfflineQueryInputSerialized struct {
@@ -69,7 +68,6 @@ type OfflineQueryRequestSerialized struct {
 	ObservedAtLowerBound       *string                     `json:"observed_at_lower_bound"`
 	ObservedAtUpperBound       *string                     `json:"observed_at_upper_bound"`
 	DatasetName                *string                     `json:"dataset_name"`
-	Branch                     *string                     `json:"branch"`
 	RecomputeFeatures          interface{}                 `json:"recompute_features"`
 	SampleFeatures             *[]string                   `json:"sample_features"`
 	StorePlanStages            bool                        `json:"store_plan_stages"`

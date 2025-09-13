@@ -11,7 +11,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/apache/arrow/go/v16/arrow/memory"
@@ -66,7 +65,6 @@ func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParams
 			Body:      body,
 			Response:  &response,
 			Versioned: resolved.versioned,
-			Branch:    &request.Branch,
 		},
 	); err != nil {
 		return Dataset{}, errors.Wrap(err, "sending request")
@@ -106,34 +104,20 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			)
 		}
 	}
-	data, err := params.ToBytes(
-		&SerializationOptions{
-			ClientConfigBranchId: c.Branch,
-			Allocator:            c.allocator,
-			resolved:             resolved,
-		},
-	)
+	data, err := params.ToBytes(c.allocator, resolved)
 	if err != nil {
 		return OnlineQueryBulkResult{}, errors.Wrap(err, "serializing online query params")
-	}
-
-	var resourceGroupOverride *string
-	if params.underlying.ResourceGroup != "" {
-		resourceGroupOverride = &params.underlying.ResourceGroup
 	}
 
 	response := OnlineQueryBulkResponse{allocator: c.allocator}
 	err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:                "POST",
-			URL:                   "v1/query/feather",
-			Body:                  data,
-			Response:              &response,
-			ResourceGroupOverride: resourceGroupOverride,
-			Versioned:             resolved.versioned,
-			Branch:                params.underlying.BranchId,
-			IsEngineRequest:       true,
+			Method:    "POST",
+			URL:       "v1/query/feather",
+			Body:      data,
+			Response:  &response,
+			Versioned: resolved.versioned,
 		},
 	)
 
@@ -205,23 +189,16 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 		return OnlineQueryResult{}, errors.Wrap(err, "serializing online query params")
 	}
 
-	var resourceGroupOverride *string
-	if params.underlying.ResourceGroup != "" {
-		resourceGroupOverride = &params.underlying.ResourceGroup
-	}
-
 	var response onlineQueryResponseSerialized
 	if err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
-			Method:                "POST",
-			URL:                   "v1/query/online",
-			Body:                  *serializedRequest,
-			Response:              &response,
-			Versioned:             resolved.versioned,
-			Branch:                params.underlying.BranchId,
-			ResourceGroupOverride: resourceGroupOverride,
-			IsEngineRequest:       true,
+			Method:          "POST",
+			URL:             "v1/query/online",
+			Body:            *serializedRequest,
+			Response:        &response,
+			Versioned:       resolved.versioned,
+			IsEngineRequest: true,
 		},
 	); err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "sending request")
@@ -382,10 +359,6 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	if getBufferErr != nil {
 		return getBufferErr
 	}
-	if args.Branch == nil && c.Branch != "" {
-		args.Branch = &c.Branch
-	}
-
 	ctx, cancel := internal.GetContextWithTimeout(ctx, c.timeout)
 	defer cancel()
 	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
@@ -394,7 +367,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 		return errors.Wrap(newRequestErr, "creating request")
 	}
 
-	headers := c.getHeaders(args.Branch, args.ResourceGroupOverride)
+	headers := c.getHeaders()
 	request.Header = headers
 
 	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
@@ -407,20 +380,13 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 		request.Header.Set("X-Chalk-Features-Versioned", "true")
 	}
 
-	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
-		urlBase := c.config.ApiServer.Value
-		if args.IsEngineRequest && args.Branch == nil {
-			urlBase = c.tokenManager.GetQueryServerURL("")
-		}
-		var err error
-		request.URL, err = url.Parse(fmt.Sprintf(
-			"%s/%s",
-			urlBase,
-			request.URL.String(),
-		))
-		if err != nil {
-			return errors.Wrap(err, "creating url")
-		}
+	urlBase := c.config.ApiServer.Value
+	if args.IsEngineRequest && c.Branch == "" {
+		urlBase = c.tokenManager.GetQueryServerURL()
+	}
+	request.URL, err = url.Parse(fmt.Sprintf("%s/%s", urlBase, request.URL.String()))
+	if err != nil {
+		return errors.Wrap(err, "creating url")
 	}
 
 	(c.logger).Debugf("Sending request to ", request.URL)
@@ -496,41 +462,26 @@ func (c *clientImpl) retryRequest(
 	return res, nil
 }
 
-func (c *clientImpl) getHeaders(
-	branchOverride *string,
-	resourceGroupOverride *string,
-) http.Header {
-	headers := http.Header{}
-
-	headers.Set("Accept", "application/json")
-	headers.Set("Content-Type", "application/json")
-	headers.Set("User-Agent", "chalk-go")
-	headers.Set("X-Chalk-Client-Id", string(c.config.ClientId.Value))
-
-	var branchResolved string
-	if branchOverride != nil && *branchOverride != "" {
-		branchResolved = *branchOverride
-	} else if c.Branch != "" {
-		branchResolved = c.Branch
+func (c *clientImpl) getHeaders() http.Header {
+	headers := http.Header{
+		"Accept":            []string{"application/json"},
+		"Content-Type":      []string{"application/json"},
+		"User-Agent":        []string{"chalk-go"},
+		"X-Chalk-Client-Id": []string{string(c.config.ClientId.Value)},
+		"X-Chalk-Env-Id":    []string{c.tokenManager.GetEnvironmentId()},
 	}
-
-	if branchResolved == "" {
+	if c.Branch == "" {
 		headers.Set("X-Chalk-Deployment-Type", "engine")
 	} else {
 		headers.Set("X-Chalk-Deployment-Type", "branch")
-		headers.Set("X-Chalk-Branch-Id", branchResolved)
+		headers.Set("X-Chalk-Branch-Id", c.Branch)
 	}
 	if c.DeploymentTag != "" {
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 	}
-
-	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId())
-	if resourceGroupOverride != nil {
-		headers.Set(HeaderKeyResourceGroup, *resourceGroupOverride)
-	} else if c.resourceGroup != nil {
-		headers.Set(HeaderKeyResourceGroup, *c.resourceGroup)
+	if c.resourceGroup != nil {
+		headers.Set("x-chalk-resource-group", *c.resourceGroup)
 	}
-
 	return headers
 }
 

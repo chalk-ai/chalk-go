@@ -21,30 +21,14 @@ func (r OnlineQueryBulkResult) Release() {
 }
 
 type SerializationOptions struct {
-	ClientConfigBranchId string
-	Allocator            memory.Allocator
-
-	resolved *onlineQueryParamsResolved
+	Allocator memory.Allocator
+	resolved  *onlineQueryParamsResolved
 }
 
-func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]byte, error) {
-	branchId := p.underlying.BranchId
-	allocator := memory.DefaultAllocator
-	var resolved *onlineQueryParamsResolved
-	if len(options) > 1 {
-		return nil, fmt.Errorf("expected 1 SerializationOptions, got %d", len(options))
-	} else if len(options) == 1 {
-		if branchId == nil || *branchId == "" && options[0].ClientConfigBranchId != "" {
-			branchId = &options[0].ClientConfigBranchId
-		}
-		if options[0].Allocator != nil {
-			allocator = options[0].Allocator
-		}
-		if options[0].resolved != nil {
-			resolved = options[0].resolved
-		}
-	}
-
+func (p OnlineQueryParamsComplete) ToBytes(
+	allocator memory.Allocator,
+	resolved *onlineQueryParamsResolved,
+) ([]byte, error) {
 	if resolved == nil {
 		val, err := p.underlying.resolveBulk()
 		if err != nil {
@@ -70,7 +54,6 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 			Outputs:     outputs,
 			Explain:     p.underlying.Explain,
 			IncludeMeta: p.underlying.IncludeMeta || p.underlying.Explain,
-			BranchId:    branchId,
 			Context: &internal.OnlineQueryContext{
 				Tags:                 p.underlying.Tags,
 				RequiredResolverTags: p.underlying.RequiredResolverTags,

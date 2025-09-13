@@ -48,9 +48,6 @@ type OnlineQueryParams struct {
 
 	QueryContext *QueryContext
 
-	// The branch id
-	BranchId *string
-
 	// RequiredResolverTags are all the [tags] that must be present on a resolver for
 	// it to be considered eligible to execute.
 	// [tags]: https://docs.chalk.ai/docs/resolver-tags
@@ -71,10 +68,6 @@ type OnlineQueryParams struct {
 	// slower than requests using `explain=False`. If `true`, `IncludeMeta` will be set
 	// to `true` as well.
 	Explain bool
-
-	// ResourceGroup specifies the resource group to route this query to. Takes precedence
-	// over the resource group specified on the client level.
-	ResourceGroup string
 
 	// Map of additional options to pass to the Chalk query engine. Values may be provided
 	// as part of conversations with Chalk Support to enable or disable specific
@@ -129,13 +122,6 @@ func (p OnlineQueryParams) WithQueryName(name string) onlineQueryParamsWithOutpu
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p OnlineQueryParams) WithStaleness(feature any, duration time.Duration) OnlineQueryParams {
 	return p.withStaleness(feature, duration)
-}
-
-// WithBranchId returns a copy of Online Query parameters with the branch id added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParams) WithBranchId(branchId string) OnlineQueryParams {
-	p.BranchId = &branchId
-	return p
 }
 
 // WithQueryNameVersion returns a copy of Online Query parameters with the query name version added.
@@ -469,9 +455,6 @@ type OfflineQueryParams struct {
 	// save a Dataset constructed from the list of features computed
 	// from the inputs.
 	DatasetName string
-
-	// The branch under which to run the resolvers.
-	Branch string
 
 	// The maximum number of samples to include in the `DataFrame`.
 	MaxSamples *int

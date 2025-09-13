@@ -1,8 +1,9 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/expr"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/expr"
 )
 
 /*****************************************
@@ -81,13 +82,6 @@ func (p OnlineQueryParamsComplete) WithOutputExprs(exprs ...expr.ExprI) OnlineQu
 // See https://docs.chalk.ai/docs/query-caching for more information on staleness.
 func (p OnlineQueryParamsComplete) WithStaleness(feature any, duration time.Duration) OnlineQueryParamsComplete {
 	p.underlying = p.underlying.withStaleness(feature, duration)
-	return p
-}
-
-// WithBranchId returns a copy of Online Query parameters with the specified branch id added.
-// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
-func (p OnlineQueryParamsComplete) WithBranchId(branchId string) OnlineQueryParamsComplete {
-	p.underlying = p.underlying.WithBranchId(branchId)
 	return p
 }
 

@@ -71,7 +71,6 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 			EncodeStructsAsObjects: true,
 		},
 		PlannerOptions: p.PlannerOptions,
-		BranchId:       p.BranchId,
 	}
 
 	return result, nil
@@ -312,7 +311,6 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		ObservedAtLowerBound:       lowerBoundStr, // Using foreign branch's inline approach
 		ObservedAtUpperBound:       upperBoundStr, // Using foreign branch's inline approach
 		DatasetName:                internal.StringOrNil(p.DatasetName),
-		Branch:                     internal.StringOrNil(p.Branch),
 		RecomputeFeatures:          getRecomputeFeaturesValue(p),
 		SampleFeatures:             sampleFeaturesPtr,
 		StorePlanStages:            p.StorePlanStages,
@@ -494,7 +492,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		Now:           now,
 		Context: &commonv1.OnlineQueryContext{
 			Tags:                 params.Tags,
-			BranchId:             params.BranchId,
 			CorrelationId:        ptr.OrNil(params.CorrelationId),
 			QueryName:            ptr.OrNil(params.QueryName),
 			QueryNameVersion:     ptr.OrNil(params.QueryNameVersion),

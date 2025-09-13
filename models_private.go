@@ -56,14 +56,12 @@ type chalkHttpException struct {
 }
 
 type sendRequestParams struct {
-	Body                  any
-	Method                string
-	URL                   string
-	Response              any
-	Versioned             bool
-	Branch                *string
-	ResourceGroupOverride *string
-	IsEngineRequest       bool
+	Body            any
+	Method          string
+	URL             string
+	Response        any
+	Versioned       bool
+	IsEngineRequest bool
 }
 
 type chalkErrorSerialized struct {
