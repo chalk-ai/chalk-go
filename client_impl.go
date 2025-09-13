@@ -36,7 +36,7 @@ type clientImpl struct {
 	httpClient HTTPClient
 
 	logger       LeveledLogger
-	tokenManager *auth.TokenRefresher
+	tokenManager *auth.Manager
 }
 
 type HTTPClient interface {
@@ -382,19 +382,19 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	if getBufferErr != nil {
 		return getBufferErr
 	}
+	if args.Branch == nil && c.Branch != "" {
+		args.Branch = &c.Branch
+	}
 
 	ctx, cancel := internal.GetContextWithTimeout(ctx, c.timeout)
 	defer cancel()
 	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
 	if newRequestErr != nil {
-		(c.logger).Debugf("error sending request: %s", newRequestErr.Error())
-		return newRequestErr
+		c.logger.Debugf("creating request: %s", newRequestErr.Error())
+		return errors.Wrap(newRequestErr, "creating request")
 	}
 
-	headers := c.getHeaders(
-		args.Branch,
-		args.ResourceGroupOverride,
-	)
+	headers := c.getHeaders(args.Branch, args.ResourceGroupOverride)
 	request.Header = headers
 
 	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
@@ -409,7 +409,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		urlBase := c.config.ApiServer.Value
-		if args.IsEngineRequest {
+		if args.IsEngineRequest && args.Branch == nil {
 			urlBase = c.tokenManager.GetQueryServerURL("")
 		}
 		var err error
@@ -419,7 +419,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 			request.URL.String(),
 		))
 		if err != nil {
-			return err
+			return errors.Wrap(err, "creating url")
 		}
 	}
 
@@ -646,7 +646,14 @@ func newClientImpl(
 		allocator = cfg.Allocator
 	}
 
-	tokenManager, err := auth.NewTokenRefresher(ctx, httpClient, manager)
+	tokenManager, err := auth.NewManager(
+		ctx,
+		&auth.Inputs{
+			Manager:    manager,
+			HttpClient: httpClient,
+			Token:      nil,
+		},
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating token refresher")
 	}

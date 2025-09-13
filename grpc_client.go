@@ -166,7 +166,7 @@ type GRPCClientConfig struct {
 	// Connect gRPC-compatible client.
 	//
 	// If left unset, it'll be set to a default HTTP client for the package.
-	HTTPClient HTTPClient
+	HTTPClient connect.HTTPClient
 
 	// Chalk can route queries to specific deployments using deployment
 	// tags.
