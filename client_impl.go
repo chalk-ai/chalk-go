@@ -211,10 +211,6 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	}
 
 	var response onlineQueryResponseSerialized
-	branch := params.underlying.BranchId
-	if branch == nil && c.Branch != "" {
-		branch = &c.Branch
-	}
 	if err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
@@ -223,7 +219,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			Body:                  *serializedRequest,
 			Response:              &response,
 			Versioned:             resolved.versioned,
-			Branch:                branch,
+			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
 			IsEngineRequest:       true,
 		},
@@ -385,6 +381,9 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	body, getBufferErr := getBodyBuffer(args.Body)
 	if getBufferErr != nil {
 		return getBufferErr
+	}
+	if args.Branch == nil && c.Branch != "" {
+		args.Branch = &c.Branch
 	}
 
 	ctx, cancel := internal.GetContextWithTimeout(ctx, c.timeout)
