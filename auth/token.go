@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"net/http"
 	"sync"
 	"time"
 
@@ -20,16 +21,29 @@ type Manager struct {
 }
 
 type Inputs struct {
-	Token      *serverv1.GetTokenResponse
+	// Token overrides the default token, if provided. It's unlikely you'll want to provide this.
+	Token *serverv1.GetTokenResponse
+
+	// HttpClient is used as the underlying http.client. Connect provides an interface for abstracting over the
+	// standard library version of the auth client
 	HttpClient connect.HTTPClient
-	Manager    *config.Manager
+
+	// Manager holds the credentials for this client to use. Non-optional.
+	Manager *config.Manager
 }
 
 func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
+	httpClient := opts.HttpClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	if opts.Manager == nil {
+		return nil, errors.New("missing config manager")
+	}
 	r := &Manager{
 		manager: opts.Manager,
 		authClient: serverv1connect.NewAuthServiceClient(
-			opts.HttpClient,
+			httpClient,
 			opts.Manager.ApiServer.Value,
 			connect.WithInterceptors(
 				connect.UnaryInterceptorFunc(
