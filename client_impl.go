@@ -409,7 +409,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		urlBase := c.config.ApiServer.Value
-		if args.IsEngineRequest {
+		if args.IsEngineRequest && args.Branch == nil {
 			urlBase = c.tokenManager.GetQueryServerURL("")
 		}
 		var err error
