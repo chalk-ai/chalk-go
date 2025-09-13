@@ -36,7 +36,7 @@ type clientImpl struct {
 	httpClient HTTPClient
 
 	logger       LeveledLogger
-	tokenManager *auth.TokenRefresher
+	tokenManager *auth.Manager
 }
 
 type HTTPClient interface {
@@ -646,7 +646,13 @@ func newClientImpl(
 		allocator = cfg.Allocator
 	}
 
-	tokenManager, err := auth.NewTokenRefresher(ctx, httpClient, manager)
+	tokenManager, err := auth.NewManager(
+		ctx,
+		&auth.Inputs{
+			Manager:    manager,
+			HttpClient: httpClient,
+		},
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating token refresher")
 	}

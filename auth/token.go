@@ -1,49 +1,36 @@
 package auth
 
 import (
-	"connectrpc.com/connect"
 	"context"
+	"sync"
+	"time"
+
+	"connectrpc.com/connect"
 	"github.com/chalk-ai/chalk-go/config"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/cockroachdb/errors"
-	"sync"
-	"time"
 )
 
-type TokenRefresher struct {
+type Manager struct {
 	mu         *sync.Mutex
 	manager    *config.Manager
-	AuthClient serverv1connect.AuthServiceClient
-
-	// Initially null
-	token *serverv1.GetTokenResponse
+	authClient serverv1connect.AuthServiceClient
+	token      *serverv1.GetTokenResponse
 }
 
-type Opts struct {
-	Token *serverv1.GetTokenResponse
+type Inputs struct {
+	Token      *serverv1.GetTokenResponse
+	HttpClient connect.HTTPClient
+	Manager    *config.Manager
 }
 
-func NewTokenRefresher(
-	ctx context.Context,
-	httpClient connect.HTTPClient,
-	manager *config.Manager,
-	opts ...*Opts,
-) (*TokenRefresher, error) {
-	var opt *Opts
-	if len(opts) == 0 {
-		opt = &Opts{}
-	} else if len(opts) == 1 {
-		opt = opts[0]
-	} else {
-		return nil, errors.New("only one Opts can be provided")
-	}
-
-	r := &TokenRefresher{
-		manager: manager,
-		AuthClient: serverv1connect.NewAuthServiceClient(
-			httpClient,
-			manager.ApiServer.Value,
+func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
+	r := &Manager{
+		manager: opts.Manager,
+		authClient: serverv1connect.NewAuthServiceClient(
+			opts.HttpClient,
+			opts.Manager.ApiServer.Value,
 			connect.WithInterceptors(
 				connect.UnaryInterceptorFunc(
 					func(next connect.UnaryFunc) connect.UnaryFunc {
@@ -55,11 +42,8 @@ func NewTokenRefresher(
 				),
 			),
 		),
-		mu: &sync.Mutex{},
-	}
-
-	if opt.Token != nil {
-		r.token = opt.Token
+		mu:    &sync.Mutex{},
+		token: opts.Token,
 	}
 
 	if _, err := r.GetJWT(ctx, time.Now()); err != nil {
@@ -68,7 +52,7 @@ func NewTokenRefresher(
 	return r, nil
 }
 
-func (r *TokenRefresher) GetEnvironmentId(override string) string {
+func (r *Manager) GetEnvironmentId(override string) string {
 	if override != "" {
 		return override
 	}
@@ -79,7 +63,7 @@ func (r *TokenRefresher) GetEnvironmentId(override string) string {
 	return r.manager.EnvironmentId.Value
 }
 
-func (r *TokenRefresher) GetJWT(
+func (r *Manager) GetJWT(
 	ctx context.Context,
 	newerThan time.Time,
 ) (*serverv1.GetTokenResponse, error) {
@@ -102,7 +86,7 @@ func (r *TokenRefresher) GetJWT(
 		req.Scope = &r.manager.Scope.Value
 	}
 
-	t, err := r.AuthClient.GetToken(ctx, connect.NewRequest(req))
+	t, err := r.authClient.GetToken(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, errors.Wrap(err, "refreshing token")
 	}
@@ -110,7 +94,7 @@ func (r *TokenRefresher) GetJWT(
 	return r.token, nil
 }
 
-func (r *TokenRefresher) GetQueryServerURL(envOverride string) string {
+func (r *Manager) GetQueryServerURL(envOverride string) string {
 	token := r.token
 	if token == nil {
 		return r.manager.ApiServer.Value

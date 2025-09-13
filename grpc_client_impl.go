@@ -32,13 +32,13 @@ type grpcClientImpl struct {
 	queryServer   *string
 	resourceGroup *string
 	logger        LeveledLogger
-	httpClient    HTTPClient
+	httpClient    connect.HTTPClient
 	timeout       *time.Duration
 
 	queryClient      enginev1connect.QueryServiceClient
 	tokenInterceptor connect.UnaryInterceptorFunc
 	deploymentTag    string
-	tokenManager     *auth.TokenRefresher
+	tokenManager     *auth.Manager
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -71,7 +71,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
-	tokenManager, err := auth.NewTokenRefresher(ctx, cfg.HTTPClient, c, &auth.Opts{Token: cfg.JWT})
+	tokenManager, err := auth.NewManager(
+		ctx,
+		&auth.Inputs{
+			Token:      cfg.JWT,
+			HttpClient: cfg.HTTPClient,
+			Manager:    c,
+		},
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing token manager")
 	}
