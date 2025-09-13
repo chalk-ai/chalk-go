@@ -1,13 +1,14 @@
 package chalk
 
 import (
-	"connectrpc.com/connect"
 	"context"
 	"fmt"
+	"time"
+
+	"connectrpc.com/connect"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
-	"time"
 )
 
 func headerInterceptor(headers map[string]string) connect.UnaryInterceptorFunc {
@@ -47,7 +48,7 @@ func makeTokenInterceptor(tm *auth.Manager) connect.UnaryInterceptorFunc {
 			if err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set("x-chalk-env-id", tm.GetEnvironmentId(""))
+			req.Header().Set("x-chalk-env-id", tm.GetEnvironmentId())
 			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 			return next(ctx, req)
 		}

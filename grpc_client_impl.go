@@ -381,7 +381,7 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ClientId:      string(c.config.ClientId.Value),
 		ClientSecret:  string(c.config.ClientSecret.Value),
 		ApiServer:     c.config.ApiServer.Value,
-		EnvironmentId: c.tokenManager.GetEnvironmentId(""),
+		EnvironmentId: c.tokenManager.GetEnvironmentId(),
 		Branch:        c.branch,
 		QueryServer:   ptr.OrZero(c.queryServer),
 		Logger:        c.logger,
@@ -489,7 +489,7 @@ func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
 		ValidUntil:         res.ExpiresAt.AsTime(),
-		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(""),
+		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(),
 		Engines:            res.Engines,
 	}, nil
 }
