@@ -524,7 +524,7 @@ func (c *clientImpl) getHeaders(
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 	}
 
-	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId(""))
+	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId())
 	if resourceGroupOverride != nil {
 		headers.Set(HeaderKeyResourceGroup, *resourceGroupOverride)
 	} else if c.resourceGroup != nil {
