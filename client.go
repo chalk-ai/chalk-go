@@ -2,9 +2,10 @@ package chalk
 
 import (
 	"context"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/cockroachdb/errors"
-	"time"
 )
 
 // Client is the primary interface for interacting with Chalk. You can use
@@ -155,13 +156,13 @@ type Client interface {
 	//		if err != nil {
 	//			return err
 	//		}
-	//		
+	//
 	//		// Get download URIs for the dataset
 	//		downloadUris, err := dataset.Revisions[0].DownloadUris(context.Background())
 	//		if err != nil {
 	//			return err
 	//		}
-	//		
+	//
 	//		for _, uri := range downloadUris {
 	//			fmt.Println(uri)
 	//		}
@@ -269,6 +270,5 @@ func NewClient(ctx context.Context, configs ...*ClientConfig) (Client, error) {
 	} else {
 		cfg = configs[len(configs)-1]
 	}
-
 	return newClientImpl(ctx, cfg)
 }

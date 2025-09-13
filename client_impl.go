@@ -211,6 +211,10 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	}
 
 	var response onlineQueryResponseSerialized
+	branch := params.underlying.BranchId
+	if branch == nil && c.Branch != "" {
+		branch = &c.Branch
+	}
 	if err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
@@ -219,7 +223,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			Body:                  *serializedRequest,
 			Response:              &response,
 			Versioned:             resolved.versioned,
-			Branch:                params.underlying.BranchId,
+			Branch:                branch,
 			ResourceGroupOverride: resourceGroupOverride,
 			IsEngineRequest:       true,
 		},
@@ -387,14 +391,11 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	defer cancel()
 	request, newRequestErr := http.NewRequestWithContext(ctx, args.Method, args.URL, body)
 	if newRequestErr != nil {
-		(c.logger).Debugf("error sending request: %s", newRequestErr.Error())
-		return newRequestErr
+		c.logger.Debugf("creating request: %s", newRequestErr.Error())
+		return errors.Wrap(newRequestErr, "creating request")
 	}
 
-	headers := c.getHeaders(
-		args.Branch,
-		args.ResourceGroupOverride,
-	)
+	headers := c.getHeaders(args.Branch, args.ResourceGroupOverride)
 	request.Header = headers
 
 	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(1*time.Minute))
@@ -419,7 +420,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 			request.URL.String(),
 		))
 		if err != nil {
-			return err
+			return errors.Wrap(err, "creating url")
 		}
 	}
 
@@ -651,6 +652,7 @@ func newClientImpl(
 		&auth.Inputs{
 			Manager:    manager,
 			HttpClient: httpClient,
+			Token:      nil,
 		},
 	)
 	if err != nil {
