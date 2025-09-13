@@ -82,14 +82,14 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		// The provided environment isn't valid, but it may be a name
 		r.environment = ""
 		for envId := range token.EnvironmentIdToName {
-			if strings.ToLower(envId) == strings.ToLower(r.environment) {
+			if strings.EqualFold(envId, r.environment) {
 				r.environment = envId
 				break
 			}
 		}
 		if r.environment == "" {
 			for envId, name := range token.EnvironmentIdToName {
-				if strings.ToLower(name) == strings.ToLower(r.environment) {
+				if strings.EqualFold(name, r.environment) {
 					r.environment = envId
 					break
 				}
