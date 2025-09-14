@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1757814206530,
+  "lastUpdate": 1757820319511,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -24654,6 +24654,60 @@ window.BENCHMARK_DATA = {
             "value": 335.8,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b27d8a97a4c0b00dd25c4e855fe08d4a58252d66",
+          "message": "Merge pull request #461 from chalk-ai/ab/set-graph-demo\n\nprototype of pure-Go ProtoGraph definition and deployment",
+          "timestamp": "2025-09-13T20:23:56-07:00",
+          "tree_id": "772963ba1349fba3e80564af388a3e532227c903",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/b27d8a97a4c0b00dd25c4e855fe08d4a58252d66"
+        },
+        "date": 1757820319448,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.364,
+            "unit": "ms/op",
+            "extra": "910 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 127.4,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 43.47,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 238.5,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 339.2,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
