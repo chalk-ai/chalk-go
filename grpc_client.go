@@ -77,7 +77,6 @@ type GRPCClient interface {
 	// [query basics]: https://docs.chalk.ai/docs/query-basics
 	OnlineQueryBulk(ctx context.Context, params OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error)
 	GetOnlineQueryBulkRequest(ctx context.Context, params OnlineQueryParamsComplete) (*connect.Request[commonv1.OnlineQueryBulkRequest], error)
-	GetQueryEndpoint() string
 
 	// UpdateAggregates synchronously persists feature values that back windowed aggregations,
 	// while updating the corresponding aggregate values themselves.

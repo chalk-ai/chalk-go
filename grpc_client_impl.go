@@ -363,10 +363,6 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 	return connect.NewRequest(paramsProto), nil
 }
 
-func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.tokenManager.GetQueryServerURL()
-}
-
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 	return &GRPCClientConfig{
 		ClientId:      string(c.config.ClientId.Value),
@@ -374,7 +370,7 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ApiServer:     c.config.ApiServer.Value,
 		EnvironmentId: c.tokenManager.GetEnvironmentId(),
 		Branch:        c.branch,
-		QueryServer:   ptr.OrZero(c.queryServer),
+		QueryServer:   c.tokenManager.GetGRPCQueryServerURL(),
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
 		DeploymentTag: c.deploymentTag,
