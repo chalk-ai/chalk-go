@@ -17,6 +17,8 @@ import (
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/engine/v1/enginev1connect"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
@@ -36,6 +38,7 @@ type grpcClientImpl struct {
 	timeout       *time.Duration
 
 	queryClient      enginev1connect.QueryServiceClient
+	graphClient      serverv1connect.GraphServiceClient
 	tokenInterceptor connect.UnaryInterceptorFunc
 	deploymentTag    string
 	tokenManager     *auth.Manager
@@ -129,6 +132,25 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		connect.WithGRPC(),
 	)
 
+	// Create GraphServiceClient with API server endpoint
+	apiServerURL := c.ApiServer.Value
+	apiInterceptors := []connect.Interceptor{
+		tokenInterceptor,
+		headerInterceptor(map[string]string{
+			HeaderKeyServerType: serverTypeApi,
+		}),
+	}
+	if timeout != nil {
+		apiInterceptors = append(apiInterceptors, timeoutInterceptor(timeout))
+	}
+
+	graphClient := serverv1connect.NewGraphServiceClient(
+		cfg.HTTPClient,
+		apiServerURL,
+		connect.WithInterceptors(append(cfg.Interceptors, apiInterceptors...)...),
+		connect.WithGRPC(),
+	)
+
 	return &grpcClientImpl{
 		deploymentTag:    cfg.DeploymentTag,
 		branch:           cfg.Branch,
@@ -137,6 +159,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		config:           c,
 		tokenManager:     tokenManager,
 		queryClient:      queryClient,
+		graphClient:      graphClient,
 		queryServer:      ptr.OrNil(cfg.QueryServer),
 		resourceGroup:    resourceGroup,
 		timeout:          timeout,
@@ -492,4 +515,36 @@ func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
 		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(),
 		Engines:            res.Engines,
 	}, nil
+}
+
+type GRPCGetGraphResult struct {
+	RawResponse *serverv1.GetGraphResponse
+}
+
+func (c *grpcClientImpl) GetGraph(ctx context.Context, deploymentId string) (*GRPCGetGraphResult, error) {
+	req := connect.NewRequest(&serverv1.GetGraphRequest{
+		DeploymentId: deploymentId,
+	})
+	
+	res, err := c.graphClient.GetGraph(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "getting graph")
+	}
+
+	return &GRPCGetGraphResult{RawResponse: res.Msg}, nil
+}
+
+type GRPCUpdateGraphResult struct {
+	RawResponse *serverv1.UpdateGraphResponse
+}
+
+func (c *grpcClientImpl) UpdateGraph(ctx context.Context, req *serverv1.UpdateGraphRequest) (*GRPCUpdateGraphResult, error) {
+	connectReq := connect.NewRequest(req)
+	
+	res, err := c.graphClient.UpdateGraph(ctx, connectReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "updating graph")
+	}
+
+	return &GRPCUpdateGraphResult{RawResponse: res.Msg}, nil
 }
