@@ -46,6 +46,11 @@ type Expr interface {
 
 	// Alias
 	As(alias string) Expr
+
+	// Bracket access
+
+	// Function application
+	Apply(args ...Expr) Expr
 }
 
 // DataFrameExpr represents expressions that operate on DataFrames
@@ -53,13 +58,14 @@ type DataFrameExpr interface {
 	ExprI
 
 	Filter(condition ExprI) DataFrameExpr
+	Select(selection Expr) DataFrameExpr
 	Agg(aggFunc string) Expr
 }
 
 // Binary operation helper
 func binaryOp(left Expr, op string, right Expr) Expr {
 	return &CallExpr{
-		Function: op,
+		Function: Identifier(op),
 		Args:     []Expr{left, right},
 	}
 }
@@ -67,9 +73,49 @@ func binaryOp(left Expr, op string, right Expr) Expr {
 // Unary operation helper
 func unaryOp(op string, operand Expr) Expr {
 	return &CallExpr{
-		Function: op,
+		Function: Identifier(op),
 		Args:     []Expr{operand},
 	}
+}
+
+// IdentifierExpr represents an identifier (variable name, column name, etc.)
+type IdentifierExpr struct {
+	Expr
+	Name string
+}
+
+func (e *IdentifierExpr) exprType() string {
+	return "identifier"
+}
+
+func (e *IdentifierExpr) String() string {
+	return e.Name
+}
+
+// Implement Expr interface for IdentifierExpr
+func (e *IdentifierExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
+func (e *IdentifierExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
+func (e *IdentifierExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
+func (e *IdentifierExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
+func (e *IdentifierExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *IdentifierExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
+func (e *IdentifierExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
+func (e *IdentifierExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
+func (e *IdentifierExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
+func (e *IdentifierExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
+func (e *IdentifierExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
+func (e *IdentifierExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
+func (e *IdentifierExpr) Not() Expr           { return unaryOp("NOT", e) }
+func (e *IdentifierExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *IdentifierExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
+func (e *IdentifierExpr) Attr(attribute string) Expr {
+	return &GetAttributeExpr{Parent: e, Attribute: attribute}
+}
+func (e *IdentifierExpr) As(alias string) Expr {
+	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *IdentifierExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // LiteralExpr represents a literal value using Arrow scalar values
@@ -162,7 +208,7 @@ func (e *LiteralExpr) String() string {
 		}
 		return "timestamp(null)"
 	default:
-		return "unknown"
+		return fmt.Sprintf("unknown (%T)", e.ScalarValue.Value)
 	}
 }
 
@@ -187,6 +233,9 @@ func (e *LiteralExpr) Attr(attribute string) Expr {
 }
 func (e *LiteralExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
+}
+func (e *LiteralExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
 }
 
 // GetAttributeExpr represents field access like arr.length
@@ -225,11 +274,14 @@ func (e *GetAttributeExpr) Attr(attribute string) Expr {
 func (e *GetAttributeExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *GetAttributeExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
 
 // CallExpr represents function calls and method calls
 type CallExpr struct {
 	Expr
-	Function string
+	Function Expr
 	Args     []Expr
 	Kwargs   map[string]Expr
 }
@@ -279,6 +331,9 @@ func (e *CallExpr) Attr(attribute string) Expr {
 func (e *CallExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *CallExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
 
 // AliasExpr represents an aliased expression
 type AliasExpr struct {
@@ -316,3 +371,7 @@ func (e *AliasExpr) Attr(attribute string) Expr {
 func (e *AliasExpr) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
+func (e *AliasExpr) Apply(args ...Expr) Expr {
+	return &CallExpr{Function: e, Args: args}
+}
+
