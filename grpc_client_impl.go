@@ -77,9 +77,11 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:      cfg.JWT,
-			HttpClient: cfg.HTTPClient,
-			Manager:    c,
+			Token:       cfg.JWT,
+			HttpClient:  cfg.HTTPClient,
+			Manager:     c,
+			Environment: cfg.EnvironmentId,
+			QueryServer: cfg.QueryServer,
 		},
 	)
 	if err != nil {
@@ -95,7 +97,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := tokenManager.GetQueryServerURL(cfg.QueryServer)
+	resolvedQueryServer := tokenManager.GetQueryServerURL()
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
@@ -383,10 +385,6 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 	return req, nil
 }
 
-func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.tokenManager.GetQueryServerURL("")
-}
-
 func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
 	//httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption
 	return []connect.ClientOption{
@@ -406,7 +404,7 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ApiServer:     c.config.ApiServer.Value,
 		EnvironmentId: c.tokenManager.GetEnvironmentId(),
 		Branch:        c.branch,
-		QueryServer:   ptr.OrZero(c.queryServer),
+		QueryServer:   c.tokenManager.GetGRPCQueryServerURL(),
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
 		DeploymentTag: c.deploymentTag,
@@ -525,7 +523,7 @@ func (c *grpcClientImpl) GetGraph(ctx context.Context, deploymentId string) (*GR
 	req := connect.NewRequest(&serverv1.GetGraphRequest{
 		DeploymentId: deploymentId,
 	})
-	
+
 	res, err := c.graphClient.GetGraph(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting graph")
@@ -540,7 +538,7 @@ type GRPCUpdateGraphResult struct {
 
 func (c *grpcClientImpl) UpdateGraph(ctx context.Context, req *serverv1.UpdateGraphRequest) (*GRPCUpdateGraphResult, error) {
 	connectReq := connect.NewRequest(req)
-	
+
 	res, err := c.graphClient.UpdateGraph(ctx, connectReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "updating graph")
