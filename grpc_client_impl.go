@@ -31,7 +31,7 @@ type grpcClientImpl struct {
 	allocator memory.Allocator
 
 	branch        string
-	queryServer   *string
+	queryServer   string
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    connect.HTTPClient
@@ -65,11 +65,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 	c, err := config.NewManager(
 		ctx,
-		config.NewFromArg[string](cfg.ApiServer),
-		config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
-		config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
-		config.NewFromArg[string](cfg.EnvironmentId),
-		cfg.ConfigDir,
+		&config.ManagerInputs{
+			ApiServer:       config.NewFromArg[string](cfg.ApiServer),
+			GRPCQueryServer: config.NewFromArg[string](cfg.QueryServer),
+			ClientId:        config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
+			ClientSecret:    config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
+			EnvironmentId:   config.NewFromArg[string](cfg.EnvironmentId),
+			ConfigDir:       cfg.ConfigDir,
+		},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
@@ -95,7 +98,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := tokenManager.GetQueryServerURL(cfg.QueryServer)
+	resolvedQueryServer := c.JSONQueryServer.Value
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
@@ -160,7 +163,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		tokenManager:     tokenManager,
 		queryClient:      queryClient,
 		graphClient:      graphClient,
-		queryServer:      ptr.OrNil(cfg.QueryServer),
+		queryServer:      c.GRPCQueryServer.Value,
 		resourceGroup:    resourceGroup,
 		timeout:          timeout,
 		allocator:        cfg.Allocator,
@@ -383,10 +386,6 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 	return req, nil
 }
 
-func (c *grpcClientImpl) GetQueryEndpoint() string {
-	return c.tokenManager.GetQueryServerURL("")
-}
-
 func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
 	//httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption
 	return []connect.ClientOption{
@@ -404,9 +403,9 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ClientId:      string(c.config.ClientId.Value),
 		ClientSecret:  string(c.config.ClientSecret.Value),
 		ApiServer:     c.config.ApiServer.Value,
-		EnvironmentId: c.tokenManager.GetEnvironmentId(),
+		EnvironmentId: c.config.EnvironmentId.Value,
 		Branch:        c.branch,
-		QueryServer:   ptr.OrZero(c.queryServer),
+		QueryServer:   c.config.GRPCQueryServer.Value,
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
 		DeploymentTag: c.deploymentTag,
@@ -512,7 +511,7 @@ func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
 		ValidUntil:         res.ExpiresAt.AsTime(),
-		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(),
+		PrimaryEnvironment: c.config.EnvironmentId.Value,
 		Engines:            res.Engines,
 	}, nil
 }
@@ -525,7 +524,7 @@ func (c *grpcClientImpl) GetGraph(ctx context.Context, deploymentId string) (*GR
 	req := connect.NewRequest(&serverv1.GetGraphRequest{
 		DeploymentId: deploymentId,
 	})
-	
+
 	res, err := c.graphClient.GetGraph(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting graph")
@@ -540,7 +539,7 @@ type GRPCUpdateGraphResult struct {
 
 func (c *grpcClientImpl) UpdateGraph(ctx context.Context, req *serverv1.UpdateGraphRequest) (*GRPCUpdateGraphResult, error) {
 	connectReq := connect.NewRequest(req)
-	
+
 	res, err := c.graphClient.UpdateGraph(ctx, connectReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "updating graph")

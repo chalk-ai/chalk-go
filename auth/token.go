@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -15,13 +16,10 @@ import (
 )
 
 type Manager struct {
-	mu            *sync.Mutex
-	manager       *config.Manager
-	authClient    serverv1connect.AuthServiceClient
-	token         *serverv1.GetTokenResponse
-	environment   string
-	engineURL     string
-	grpcEngineURL string
+	mu         *sync.Mutex
+	manager    *config.Manager
+	authClient serverv1connect.AuthServiceClient
+	token      *serverv1.GetTokenResponse
 }
 
 type Inputs struct {
@@ -34,10 +32,39 @@ type Inputs struct {
 
 	// Manager holds the credentials for this client to use. Non-optional.
 	Manager *config.Manager
+}
 
-	// Environment is name of the environment or its id. Not required for service tokens,
-	// which default to the environment in which they are created.
-	Environment string
+func cleanEnvironmentId(
+	provided *config.SourcedConfig[string],
+	token *serverv1.GetTokenResponse,
+) (*config.SourcedConfig[string], error) {
+	if provided.Value == "" && token.PrimaryEnvironment != nil {
+		return config.NewFromToken(
+			*token.PrimaryEnvironment,
+			fmt.Sprintf("Default environment %q", token.EnvironmentIdToName[*token.PrimaryEnvironment]),
+		), nil
+	} else if provided.Value == "" {
+		return nil, errors.New("environment was not specified, and the token did not include a primary environment")
+	} else if _, ok := token.EnvironmentIdToName[provided.Value]; ok {
+		return provided, nil
+	} else {
+		// The provided environment isn't valid, but it may be a name
+		for envId := range token.EnvironmentIdToName {
+			if strings.EqualFold(envId, provided.Value) {
+				return provided.
+					WithValue(envId).
+					WithSourceF("%s (transformed from name %q)", provided.Source, envId), nil
+			}
+		}
+		for envId, name := range token.EnvironmentIdToName {
+			if strings.EqualFold(name, provided.Value) {
+				return provided.
+					WithValue(envId).
+					WithSourceF("%s (transformed from name %q)", provided.Source, envId), nil
+			}
+		}
+		return nil, errors.Newf("could not find environment %q from source %q", provided.Value, provided.Source)
+	}
 }
 
 func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
@@ -64,48 +91,33 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 				),
 			),
 		),
-		mu:            &sync.Mutex{},
-		token:         opts.Token,
-		environment:   opts.Environment,
-		engineURL:     "",
-		grpcEngineURL: "",
+		mu:    &sync.Mutex{},
+		token: opts.Token,
 	}
 
-	if token, err := r.GetJWT(ctx, time.Now()); err != nil {
-		return nil, errors.Wrap(err, "initializing token refresher")
-	} else if r.environment == "" {
-		if token.PrimaryEnvironment != nil {
-			r.environment = *token.PrimaryEnvironment
+	var err error
+	if r.token == nil {
+		r.token, err = r.GetJWT(ctx, time.Now())
+		if err != nil {
+			return nil, errors.Wrap(err, "initializing token refresher")
 		}
-		return nil, errors.Newf("environment was not specified, and the token did not include a primary environment")
-	} else if _, ok := token.EnvironmentIdToName[r.environment]; !ok {
-		// The provided environment isn't valid, but it may be a name
-		r.environment = ""
-		for envId := range token.EnvironmentIdToName {
-			if strings.EqualFold(envId, r.environment) {
-				r.environment = envId
-				break
-			}
-		}
-		if r.environment == "" {
-			for envId, name := range token.EnvironmentIdToName {
-				if strings.EqualFold(name, r.environment) {
-					r.environment = envId
-					break
-				}
-			}
-		}
-		if r.environment == "" {
-			return nil, errors.Newf("could not find environment %q", opts.Environment)
-		}
-		r.grpcEngineURL = token.GrpcEngines[r.environment]
-		r.engineURL = token.Engines[r.environment]
 	}
+
+	r.manager.EnvironmentId, err = cleanEnvironmentId(r.manager.EnvironmentId, r.token)
+	if err != nil {
+		return nil, errors.Wrap(err, "initializing environment id")
+	}
+
+	envName := r.token.EnvironmentIdToName[r.manager.EnvironmentId.Value]
+	if e := r.token.Engines[r.manager.EnvironmentId.Value]; r.manager.JSONQueryServer.Kind == config.DefaultSourceKind && e != "" {
+		r.manager.JSONQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	}
+
+	if e := r.token.GrpcEngines[r.manager.EnvironmentId.Value]; r.manager.GRPCQueryServer.Kind == config.DefaultSourceKind && e != "" {
+		r.manager.GRPCQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	}
+
 	return r, nil
-}
-
-func (r *Manager) GetEnvironmentId() string {
-	return r.environment
 }
 
 func (r *Manager) GetJWT(
@@ -139,20 +151,6 @@ func (r *Manager) GetJWT(
 	return r.token, nil
 }
 
-func (r *Manager) GetQueryServerURL(envOverride string) string {
-	token := r.token
-	if token == nil {
-		return r.manager.ApiServer.Value
-	}
-
-	env := envOverride
-	if env == "" {
-		env = r.manager.EnvironmentId.Value
-	}
-
-	if engine, foundEngine := token.Engines[env]; foundEngine && env != "" {
-		return engine
-	}
-
-	return r.manager.ApiServer.Value
+func (r *Manager) GetConfig() *config.Manager {
+	return r.manager
 }
