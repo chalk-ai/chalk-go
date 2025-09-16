@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
 	"os"
 	"path/filepath"
+
+	"github.com/chalk-ai/chalk-go/internal"
 )
 
 var authConfigFileName = ".chalk.yml"

@@ -7,13 +7,13 @@ import (
 )
 
 type Manager struct {
-	ApiServer       *SourcedConfig[string]
-	GRPCQueryServer *SourcedConfig[string]
-	JSONQueryServer *SourcedConfig[string]
-	ClientId        *SourcedConfig[ClientId]
-	ClientSecret    *SourcedConfig[ClientSecret]
-	EnvironmentId   *SourcedConfig[string]
-	Scope           *SourcedConfig[string]
+	ApiServer       SourcedConfig[string]
+	GRPCQueryServer SourcedConfig[string]
+	JSONQueryServer SourcedConfig[string]
+	ClientId        SourcedConfig[ClientId]
+	ClientSecret    SourcedConfig[ClientSecret]
+	EnvironmentId   SourcedConfig[string]
+	Scope           SourcedConfig[string]
 }
 
 type ManagerInputs struct {
@@ -67,24 +67,11 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 			NewFromEnvVar[string](ctx, "CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
-			&SourcedConfig[string]{
-				Value:  "",
-				Source: "empty",
-				Kind:   EmptySourceKind,
-			},
 		),
-		Scope: GetFirstNonEmpty(
-			NewFromArg(inputs.Scope),
-			&SourcedConfig[string]{
-				Value:  "",
-				Source: "empty",
-				Kind:   EmptySourceKind,
-			},
-		),
+		Scope: GetFirstNonEmpty(NewFromArg(inputs.Scope)),
 	}
 
-	if manager.ClientId == nil || manager.ClientSecret == nil ||
-		manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
+	if manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
 		if chalkYamlErr != nil {
 			return nil, errors.Wrap(
 				chalkYamlErr,

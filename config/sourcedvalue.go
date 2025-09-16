@@ -27,32 +27,32 @@ type SourcedConfig[T SourcedValueT] struct {
 	Kind   SourceKind
 }
 
-func (c *SourcedConfig[T]) WithValue(value T) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func (c SourcedConfig[T]) WithValue(value T) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  value,
 		Source: c.Source,
 		Kind:   c.Kind,
 	}
 }
 
-func (c *SourcedConfig[T]) WithSource(source string) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func (c SourcedConfig[T]) WithSource(source string) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  c.Value,
 		Source: source,
 		Kind:   c.Kind,
 	}
 }
 
-func (c *SourcedConfig[T]) WithSourceF(source string, args ...any) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func (c SourcedConfig[T]) WithSourceF(source string, args ...any) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  c.Value,
 		Source: fmt.Sprintf(source, args...),
 		Kind:   c.Kind,
 	}
 }
 
-func NewFromToken[T SourcedValueT](value T, description string) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func NewFromToken[T SourcedValueT](value T, description string) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  value,
 		Source: description,
 		Kind:   TokenSourceKind,
@@ -60,16 +60,16 @@ func NewFromToken[T SourcedValueT](value T, description string) *SourcedConfig[T
 }
 
 // NewFromFile creates a SourcedConfig from a config file
-func NewFromFile[T SourcedValueT](path string, value T) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func NewFromFile[T SourcedValueT](path string, value T) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  value,
 		Source: fmt.Sprintf("config file %s", path),
 		Kind:   FileSourceKind,
 	}
 }
 
-func NewFromDefault[T SourcedValueT](value T, desc string) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func NewFromDefault[T SourcedValueT](value T, desc string) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  value,
 		Source: desc,
 		Kind:   DefaultSourceKind,
@@ -77,16 +77,16 @@ func NewFromDefault[T SourcedValueT](value T, desc string) *SourcedConfig[T] {
 }
 
 // NewFromArg creates a SourcedConfig from a direct argument
-func NewFromArg[T SourcedValueT](value T) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func NewFromArg[T SourcedValueT](value T) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  value,
 		Source: "explicit argument",
 		Kind:   ArgSourceKind,
 	}
 }
 
-func NewFromEnvVar[T ~string](ctx context.Context, key string) *SourcedConfig[T] {
-	return &SourcedConfig[T]{
+func NewFromEnvVar[T ~string](ctx context.Context, key string) SourcedConfig[T] {
+	return SourcedConfig[T]{
 		Value:  T(EnvironmentGetterFromContext(ctx).Getenv(key)),
 		Source: fmt.Sprintf("environment variable '%s'", key),
 		Kind:   EnvSourceKind,
@@ -95,12 +95,16 @@ func NewFromEnvVar[T ~string](ctx context.Context, key string) *SourcedConfig[T]
 
 // GetFirstNonEmpty returns the first non-empty SourcedConfig from the provided list
 // using the provided zero-check function
-func GetFirstNonEmpty[T SourcedValueT](configs ...*SourcedConfig[T]) *SourcedConfig[T] {
+func GetFirstNonEmpty[T SourcedValueT](configs ...SourcedConfig[T]) SourcedConfig[T] {
 	var empty T
 	for _, config := range configs {
 		if config.Value != empty {
 			return config
 		}
 	}
-	return nil
+	return SourcedConfig[T]{
+		Value:  empty,
+		Source: "empty",
+		Kind:   EnvSourceKind,
+	}
 }

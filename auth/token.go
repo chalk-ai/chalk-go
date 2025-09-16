@@ -35,16 +35,20 @@ type Inputs struct {
 }
 
 func cleanEnvironmentId(
-	provided *config.SourcedConfig[string],
+	provided config.SourcedConfig[string],
 	token *serverv1.GetTokenResponse,
-) (*config.SourcedConfig[string], error) {
+) (config.SourcedConfig[string], error) {
 	if provided.Value == "" && token.PrimaryEnvironment != nil {
 		return config.NewFromToken(
 			*token.PrimaryEnvironment,
 			fmt.Sprintf("Default environment %q", token.EnvironmentIdToName[*token.PrimaryEnvironment]),
 		), nil
 	} else if provided.Value == "" {
-		return nil, errors.New("environment was not specified, and the token did not include a primary environment")
+		return config.SourcedConfig[string]{
+			Value:  "",
+			Source: "empty",
+			Kind:   config.EmptySourceKind,
+		}, errors.New("environment was not specified, and the token did not include a primary environment")
 	} else if _, ok := token.EnvironmentIdToName[provided.Value]; ok {
 		return provided, nil
 	} else {
@@ -63,7 +67,11 @@ func cleanEnvironmentId(
 					WithSourceF("%s (transformed from name %q)", provided.Source, envId), nil
 			}
 		}
-		return nil, errors.Newf("could not find environment %q from source %q", provided.Value, provided.Source)
+		return config.SourcedConfig[string]{
+			Value:  "",
+			Source: "empty",
+			Kind:   config.EmptySourceKind,
+		}, errors.Newf("could not find environment %q from source %q", provided.Value, provided.Source)
 	}
 }
 
