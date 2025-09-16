@@ -32,6 +32,8 @@ type Inputs struct {
 
 	// Manager holds the credentials for this client to use. Non-optional.
 	Config *config.Manager
+
+	Timeout *time.Duration
 }
 
 func cleanEnvironmentId(
@@ -99,6 +101,13 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 				connect.UnaryInterceptorFunc(
 					func(next connect.UnaryFunc) connect.UnaryFunc {
 						return func(c context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+							if opts.Timeout != nil {
+								if _, deadlineSet := ctx.Deadline(); !deadlineSet {
+									timeoutCtx, cancel := context.WithTimeout(ctx, *opts.Timeout)
+									ctx = timeoutCtx
+									defer cancel()
+								}
+							}
 							req.Header().Set("x-chalk-server", "go-api")
 							return next(c, req)
 						}

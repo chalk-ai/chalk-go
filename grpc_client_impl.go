@@ -77,22 +77,23 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
+	var timeout *time.Duration
+	if cfg.Timeout != 0 {
+		timeout = &cfg.Timeout
+	}
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
 			Token:      cfg.JWT,
 			HttpClient: cfg.HTTPClient,
 			Config:     configManager,
+			Timeout:    timeout,
 		},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing token manager")
 	}
 
-	var timeout *time.Duration
-	if cfg.Timeout != 0 { // If unspecified (zero value)
-		timeout = &cfg.Timeout
-	}
 	var resourceGroup *string
 	if cfg.ResourceGroup != "" {
 		resourceGroup = &cfg.ResourceGroup
