@@ -32,7 +32,6 @@ type grpcClientImpl struct {
 	allocator memory.Allocator
 
 	branch        string
-	queryServer   string
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    connect.HTTPClient
@@ -64,7 +63,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		cfg.Allocator = memory.DefaultAllocator
 	}
 
-	c, err := config.NewManager(
+	configManager, err := config.NewManager(
 		ctx,
 		&config.ManagerInputs{
 			ApiServer:       cfg.ApiServer,
@@ -78,28 +77,29 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
 	}
+	var timeout *time.Duration
+	if cfg.Timeout != 0 {
+		timeout = &cfg.Timeout
+	}
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
 			Token:      cfg.JWT,
 			HttpClient: cfg.HTTPClient,
-			Manager:    c,
+			Config:     configManager,
+			Timeout:    timeout,
 		},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing token manager")
 	}
 
-	var timeout *time.Duration
-	if cfg.Timeout != 0 { // If unspecified (zero value)
-		timeout = &cfg.Timeout
-	}
 	var resourceGroup *string
 	if cfg.ResourceGroup != "" {
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := c.JSONQueryServer.Value
+	resolvedQueryServer := configManager.JSONQueryServer.Value
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
@@ -147,12 +147,13 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	queryClient := enginev1connect.NewQueryServiceClient(
 		cfg.HTTPClient,
 		resolvedQueryServer,
-		connect.WithInterceptors(append(cfg.Interceptors, connect.UnaryInterceptorFunc(engineInterceptor))...),
+		connect.WithInterceptors(cfg.Interceptors...),
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(engineInterceptor)),
 		connect.WithGRPC(),
 	)
 
 	// Create GraphServiceClient with API server endpoint
-	apiServerURL := c.ApiServer.Value
+	apiServerURL := configManager.ApiServer.Value
 	authedServerInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
@@ -181,8 +182,8 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	graphClient := serverv1connect.NewGraphServiceClient(
 		cfg.HTTPClient,
 		apiServerURL,
-		connect.WithInterceptors(append(cfg.Interceptors, connect.UnaryInterceptorFunc(authedServerInterceptor))...),
-		connect.WithGRPC(),
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedServerInterceptor)),
+		connect.WithInterceptors(cfg.Interceptors...),
 	)
 
 	return &grpcClientImpl{
@@ -190,15 +191,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		branch:              cfg.Branch,
 		httpClient:          cfg.HTTPClient,
 		logger:              cfg.Logger,
-		config:              c,
+		config:              configManager,
 		tokenManager:        tokenManager,
 		queryClient:         queryClient,
 		graphClient:         graphClient,
-		queryServer:         c.GRPCQueryServer.Value,
 		resourceGroup:       resourceGroup,
 		timeout:             timeout,
 		allocator:           cfg.Allocator,
-		metadataInterceptor: connect.UnaryInterceptorFunc(authedServerInterceptor),
+		metadataInterceptor: authedServerInterceptor,
 	}, nil
 }
 

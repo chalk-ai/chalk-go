@@ -7,13 +7,13 @@ import (
 )
 
 type Manager struct {
-	ApiServer       *SourcedConfig[string]
-	GRPCQueryServer *SourcedConfig[string]
-	JSONQueryServer *SourcedConfig[string]
-	ClientId        *SourcedConfig[ClientId]
-	ClientSecret    *SourcedConfig[ClientSecret]
-	EnvironmentId   *SourcedConfig[string]
-	Scope           *SourcedConfig[string]
+	ApiServer       SourcedConfig[string]
+	GRPCQueryServer SourcedConfig[string]
+	JSONQueryServer SourcedConfig[string]
+	ClientId        SourcedConfig[ClientId]
+	ClientSecret    SourcedConfig[ClientSecret]
+	EnvironmentId   SourcedConfig[string]
+	Scope           SourcedConfig[string]
 }
 
 type ManagerInputs struct {
@@ -37,7 +37,7 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 	manager := &Manager{
 		ApiServer: GetFirstNonEmpty(
 			NewFromArg(inputs.ApiServer),
-			NewFromEnvVar[string](ctx, ApiServerEnvVarKey),
+			NewFromEnvVar[string](ctx, "CHALK_API_SERVER"),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
@@ -52,31 +52,26 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 		),
 		ClientId: GetFirstNonEmpty(
 			NewFromArg(inputs.ClientId),
-			NewFromEnvVar[ClientId](ctx, ClientIdEnvVarKey),
+			NewFromEnvVar[ClientId](ctx, "CHALK_CLIENT_ID"),
 			NewFromEnvVar[ClientId](ctx, "_CHALK_CLIENT_ID"),
 			NewFromFile(configPath, chalkYamlConfig.ClientId),
 		),
 		ClientSecret: GetFirstNonEmpty(
 			NewFromArg(inputs.ClientSecret),
-			NewFromEnvVar[ClientSecret](ctx, ClientSecretEnvVarKey),
+			NewFromEnvVar[ClientSecret](ctx, "CHALK_CLIENT_SECRET"),
 			NewFromEnvVar[ClientSecret](ctx, "_CHALK_CLIENT_SECRET"),
 			NewFromFile(configPath, chalkYamlConfig.ClientSecret),
 		),
 		EnvironmentId: GetFirstNonEmpty(
 			NewFromArg(inputs.EnvironmentId),
-			NewFromEnvVar[string](ctx, EnvironmentEnvVarKey),
+			NewFromEnvVar[string](ctx, "CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
-			&SourcedConfig[string]{
-				Value:  "",
-				Source: "empty",
-				Kind:   EmptySourceKind,
-			},
 		),
+		Scope: GetFirstNonEmpty(NewFromArg(inputs.Scope)),
 	}
 
-	if manager.ClientId == nil || manager.ClientSecret == nil ||
-		manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
+	if manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
 		if chalkYamlErr != nil {
 			return nil, errors.Wrap(
 				chalkYamlErr,

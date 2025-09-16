@@ -651,7 +651,8 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		&auth.Inputs{
 			Token:      nil,
 			HttpClient: httpClient,
-			Manager:    manager,
+			Config:     manager,
+			Timeout:    timeout,
 		},
 	)
 	if err != nil {

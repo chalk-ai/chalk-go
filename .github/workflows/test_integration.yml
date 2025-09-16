@@ -8,17 +8,22 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           cache: true
           go-version-file: ./go.mod
 
       - name: Run integration tests
         run: |
-          go test -v $GITHUB_WORKSPACE/internal/tests/integration
+          GOWORK=off CGO_ENABLED=0 \
+          go run gotest.tools/gotestsum@latest \
+            --hide-summary=skipped \
+            --format-hide-empty-pkg \
+            --format=github-actions -- \
+              -shuffle=on -vet=all -v $GITHUB_WORKSPACE/internal/tests/integration
         env:
           INTEGRATION_TESTER: "true"
           CHALK_ACTIVE_ENVIRONMENT: ${{ secrets.CHALK_ACTIVE_ENVIRONMENT }}
