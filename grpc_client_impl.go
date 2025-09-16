@@ -32,7 +32,6 @@ type grpcClientImpl struct {
 	allocator memory.Allocator
 
 	branch        string
-	queryServer   string
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    connect.HTTPClient
@@ -195,7 +194,6 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		tokenManager:        tokenManager,
 		queryClient:         queryClient,
 		graphClient:         graphClient,
-		queryServer:         configManager.GRPCQueryServer.Value,
 		resourceGroup:       resourceGroup,
 		timeout:             timeout,
 		allocator:           cfg.Allocator,
