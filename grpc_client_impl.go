@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -137,20 +138,34 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 	// Create GraphServiceClient with API server endpoint
 	apiServerURL := c.ApiServer.Value
-	apiInterceptors := []connect.Interceptor{
-		tokenInterceptor,
-		headerInterceptor(map[string]string{
-			HeaderKeyServerType: serverTypeApi,
-		}),
+	authedServerInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			if timeout != nil {
+				if _, deadlineSet := ctx.Deadline(); !deadlineSet {
+					timeoutCtx, cancel := context.WithTimeout(ctx, *timeout)
+					ctx = timeoutCtx
+					defer cancel()
+				}
+			}
+			req.Header().Set("x-chalk-server", "go-api")
+			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+				req.Header().Set("x-chalk-env-id", envId)
+			}
+			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			if err != nil {
+				return nil, errors.Wrap(err, "error refreshing config")
+			}
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			return next(ctx, req)
+		}
 	}
-	if timeout != nil {
-		apiInterceptors = append(apiInterceptors, timeoutInterceptor(timeout))
-	}
-
 	graphClient := serverv1connect.NewGraphServiceClient(
 		cfg.HTTPClient,
 		apiServerURL,
-		connect.WithInterceptors(append(cfg.Interceptors, apiInterceptors...)...),
+		connect.WithInterceptors(append(cfg.Interceptors, connect.UnaryInterceptorFunc(authedServerInterceptor))...),
 		connect.WithGRPC(),
 	)
 
