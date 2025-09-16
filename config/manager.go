@@ -67,14 +67,23 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 			NewFromEnvVar[string](ctx, EnvironmentEnvVarKey),
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
+			&SourcedConfig[string]{
+				Value:  "",
+				Source: "empty",
+				Kind:   EmptySourceKind,
+			},
 		),
 	}
 
-	if chalkYamlErr != nil && manager.ClientId.Value == "" && manager.ClientSecret.Value == "" {
-		return nil, errors.Wrap(
-			chalkYamlErr,
-			"could not read chalk.yml and no client ID and client secret were provided",
-		)
+	if manager.ClientId == nil || manager.ClientSecret == nil ||
+		manager.ClientId.Value == "" || manager.ClientSecret.Value == "" {
+		if chalkYamlErr != nil {
+			return nil, errors.Wrap(
+				chalkYamlErr,
+				"could not read chalk.yml and no client ID and client secret were provided",
+			)
+		}
+		return nil, errors.Newf("could not find values for client id and client secret")
 	}
 
 	return manager, nil

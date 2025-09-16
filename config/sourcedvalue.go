@@ -17,6 +17,7 @@ var (
 	FileSourceKind    = SourceKind("file")
 	ArgSourceKind     = SourceKind("arg")
 	TokenSourceKind   = SourceKind("service")
+	EmptySourceKind   = SourceKind("empty")
 )
 
 // SourcedConfig represents a configuration value along with information about where it came from

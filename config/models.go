@@ -6,6 +6,7 @@ var validityBuffer = 5 * time.Minute
 
 type ClientId string
 type ClientSecret string
+type EnvironmentId string
 
 type JWT struct {
 	Token      string    `yaml:"value"`
