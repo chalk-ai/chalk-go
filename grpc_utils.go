@@ -48,7 +48,7 @@ func makeTokenInterceptor(tm *auth.Manager) connect.UnaryInterceptorFunc {
 			if err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set("x-chalk-env-id", tm.GetEnvironmentId())
+			req.Header().Set("x-chalk-env-id", tm.GetConfig().EnvironmentId.Value)
 			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 			return next(ctx, req)
 		}

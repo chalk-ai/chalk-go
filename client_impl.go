@@ -410,7 +410,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
 		urlBase := c.config.ApiServer.Value
 		if args.IsEngineRequest && args.Branch == nil {
-			urlBase = c.tokenManager.GetQueryServerURL()
+			urlBase = c.config.JSONQueryServer.Value
 		}
 		var err error
 		request.URL, err = url.Parse(fmt.Sprintf(
@@ -524,7 +524,7 @@ func (c *clientImpl) getHeaders(
 		headers.Set("X-Chalk-Deployment-Tag", c.DeploymentTag)
 	}
 
-	headers.Set("X-Chalk-Env-Id", c.tokenManager.GetEnvironmentId())
+	headers.Set("X-Chalk-Env-Id", c.config.EnvironmentId.Value)
 	if resourceGroupOverride != nil {
 		headers.Set(HeaderKeyResourceGroup, *resourceGroupOverride)
 	} else if c.resourceGroup != nil {
@@ -605,17 +605,17 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	return dataset, nil
 }
 
-func newClientImpl(
-	ctx context.Context,
-	cfg *ClientConfig,
-) (*clientImpl, error) {
+func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) {
 	manager, err := config.NewManager(
 		ctx,
-		config.NewFromArg[string](cfg.ApiServer),
-		config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
-		config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
-		config.NewFromArg[string](cfg.EnvironmentId),
-		cfg.ConfigDir,
+		&config.ManagerInputs{
+			ApiServer:       config.NewFromArg[string](cfg.ApiServer),
+			JSONQueryServer: config.NewFromArg[string](cfg.QueryServer),
+			ClientId:        config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
+			ClientSecret:    config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
+			EnvironmentId:   config.NewFromArg[string](cfg.EnvironmentId),
+			ConfigDir:       cfg.ConfigDir,
+		},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting resolved config")
@@ -649,9 +649,9 @@ func newClientImpl(
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Manager:    manager,
-			HttpClient: httpClient,
 			Token:      nil,
+			HttpClient: httpClient,
+			Manager:    manager,
 		},
 	)
 	if err != nil {

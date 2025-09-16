@@ -31,7 +31,7 @@ type grpcClientImpl struct {
 	allocator memory.Allocator
 
 	branch        string
-	queryServer   *string
+	queryServer   string
 	resourceGroup *string
 	logger        LeveledLogger
 	httpClient    connect.HTTPClient
@@ -65,11 +65,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 	c, err := config.NewManager(
 		ctx,
-		config.NewFromArg[string](cfg.ApiServer),
-		config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
-		config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
-		config.NewFromArg[string](cfg.EnvironmentId),
-		cfg.ConfigDir,
+		&config.ManagerInputs{
+			ApiServer:       config.NewFromArg[string](cfg.ApiServer),
+			GRPCQueryServer: config.NewFromArg[string](cfg.QueryServer),
+			ClientId:        config.NewFromArg[config.ClientId](config.ClientId(cfg.ClientId)),
+			ClientSecret:    config.NewFromArg[config.ClientSecret](config.ClientSecret(cfg.ClientSecret)),
+			EnvironmentId:   config.NewFromArg[string](cfg.EnvironmentId),
+			ConfigDir:       cfg.ConfigDir,
+		},
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting resolved config")
@@ -77,11 +80,9 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:       cfg.JWT,
-			HttpClient:  cfg.HTTPClient,
-			Manager:     c,
-			Environment: cfg.EnvironmentId,
-			QueryServer: cfg.QueryServer,
+			Token:      cfg.JWT,
+			HttpClient: cfg.HTTPClient,
+			Manager:    c,
 		},
 	)
 	if err != nil {
@@ -97,7 +98,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := tokenManager.GetQueryServerURL()
+	resolvedQueryServer := c.JSONQueryServer.Value
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
@@ -162,7 +163,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		tokenManager:     tokenManager,
 		queryClient:      queryClient,
 		graphClient:      graphClient,
-		queryServer:      ptr.OrNil(cfg.QueryServer),
+		queryServer:      c.GRPCQueryServer.Value,
 		resourceGroup:    resourceGroup,
 		timeout:          timeout,
 		allocator:        cfg.Allocator,
@@ -402,9 +403,9 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 		ClientId:      string(c.config.ClientId.Value),
 		ClientSecret:  string(c.config.ClientSecret.Value),
 		ApiServer:     c.config.ApiServer.Value,
-		EnvironmentId: c.tokenManager.GetEnvironmentId(),
+		EnvironmentId: c.config.EnvironmentId.Value,
 		Branch:        c.branch,
-		QueryServer:   c.tokenManager.GetGRPCQueryServerURL(),
+		QueryServer:   c.config.GRPCQueryServer.Value,
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
 		DeploymentTag: c.deploymentTag,
@@ -510,7 +511,7 @@ func (c *grpcClientImpl) GetToken(ctx context.Context) (*TokenResult, error) {
 	return &TokenResult{
 		AccessToken:        res.AccessToken,
 		ValidUntil:         res.ExpiresAt.AsTime(),
-		PrimaryEnvironment: c.tokenManager.GetEnvironmentId(),
+		PrimaryEnvironment: c.config.EnvironmentId.Value,
 		Engines:            res.Engines,
 	}, nil
 }

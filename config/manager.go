@@ -2,27 +2,33 @@ package config
 
 import (
 	"context"
+
 	"github.com/cockroachdb/errors"
 )
 
 type Manager struct {
-	ApiServer     SourcedConfig[string]
-	ClientId      SourcedConfig[ClientId]
-	ClientSecret  SourcedConfig[ClientSecret]
-	EnvironmentId SourcedConfig[string]
-	Scope         SourcedConfig[string]
+	ApiServer       *SourcedConfig[string]
+	GRPCQueryServer *SourcedConfig[string]
+	JSONQueryServer *SourcedConfig[string]
+	ClientId        *SourcedConfig[ClientId]
+	ClientSecret    *SourcedConfig[ClientSecret]
+	EnvironmentId   *SourcedConfig[string]
+	Scope           *SourcedConfig[string]
 }
 
-// NewManager creates a new configuration manager with the specified parameters
-func NewManager(
-	ctx context.Context,
-	apiServer SourcedConfig[string],
-	clientId SourcedConfig[ClientId],
-	clientSecret SourcedConfig[ClientSecret],
-	environmentId SourcedConfig[string],
-	configDir *string,
-) (*Manager, error) {
-	chalkYamlConfigOrNil, configPath, chalkYamlErr := GetProjectAuthConfig(ctx, configDir)
+type ManagerInputs struct {
+	ApiServer       *SourcedConfig[string]
+	GRPCQueryServer *SourcedConfig[string]
+	JSONQueryServer *SourcedConfig[string]
+	ClientId        *SourcedConfig[ClientId]
+	ClientSecret    *SourcedConfig[ClientSecret]
+	EnvironmentId   *SourcedConfig[string]
+	Scope           *SourcedConfig[string]
+	ConfigDir       *string
+}
+
+func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
+	chalkYamlConfigOrNil, configPath, chalkYamlErr := GetProjectAuthConfig(ctx, inputs.ConfigDir)
 	chalkYamlConfig := ProjectToken{}
 	if chalkYamlConfigOrNil != nil {
 		chalkYamlConfig = *chalkYamlConfigOrNil
@@ -30,25 +36,34 @@ func NewManager(
 
 	manager := &Manager{
 		ApiServer: GetFirstNonEmpty(
-			apiServer,
+			inputs.ApiServer,
 			NewFromEnvVar[string](ctx, ApiServerEnvVarKey),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),
+			NewFromDefault("https://api.chalk.ai", "default server"),
+		),
+		JSONQueryServer: GetFirstNonEmpty(
+			inputs.JSONQueryServer,
+			NewFromDefault("https://api.chalk.ai", "default server"),
+		),
+		GRPCQueryServer: GetFirstNonEmpty(
+			inputs.GRPCQueryServer,
+			NewFromDefault("https://api.chalk.ai", "default server"),
 		),
 		ClientId: GetFirstNonEmpty(
-			clientId,
+			inputs.ClientId,
 			NewFromEnvVar[ClientId](ctx, ClientIdEnvVarKey),
 			NewFromEnvVar[ClientId](ctx, "_CHALK_CLIENT_ID"),
 			NewFromFile(configPath, chalkYamlConfig.ClientId),
 		),
 		ClientSecret: GetFirstNonEmpty(
-			clientSecret,
+			inputs.ClientSecret,
 			NewFromEnvVar[ClientSecret](ctx, ClientSecretEnvVarKey),
 			NewFromEnvVar[ClientSecret](ctx, "_CHALK_CLIENT_SECRET"),
 			NewFromFile(configPath, chalkYamlConfig.ClientSecret),
 		),
 		EnvironmentId: GetFirstNonEmpty(
-			environmentId,
+			inputs.EnvironmentId,
 			NewFromEnvVar[string](ctx, EnvironmentEnvVarKey),
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
