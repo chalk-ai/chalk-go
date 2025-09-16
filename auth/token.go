@@ -67,11 +67,18 @@ func cleanEnvironmentId(
 					WithSourceF("%s (transformed from name %q)", provided.Source, envId), nil
 			}
 		}
+		var available []string
+		for id, name := range token.EnvironmentIdToName {
+			available = append(available, fmt.Sprintf("%s (%s)", name, id))
+		}
 		return config.SourcedConfig[string]{
-			Value:  "",
-			Source: "empty",
-			Kind:   config.EmptySourceKind,
-		}, errors.Newf("could not find environment %q from source %q", provided.Value, provided.Source)
+				Value:  "",
+				Source: "empty",
+				Kind:   config.EmptySourceKind,
+			}, errors.Newf(
+				"could not find environment %q from source %q. available environments: %s",
+				provided.Value, provided.Source, strings.Join(available, ", "),
+			)
 	}
 }
 

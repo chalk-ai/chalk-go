@@ -1,11 +1,11 @@
 package integration
 
 import (
-	"github.com/chalk-ai/chalk-go"
 	"testing"
+
+	"github.com/chalk-ai/chalk-go"
 )
 
-// Supplied an incorrect environment used to cause a panic
 func TestWrongEnvironment(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
