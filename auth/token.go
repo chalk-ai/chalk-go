@@ -110,9 +110,9 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 					func(next connect.UnaryFunc) connect.UnaryFunc {
 						return func(c context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 							if opts.Timeout != nil {
-								if _, deadlineSet := ctx.Deadline(); !deadlineSet {
-									timeoutCtx, cancel := context.WithTimeout(ctx, *opts.Timeout)
-									ctx = timeoutCtx
+								if _, deadlineSet := c.Deadline(); !deadlineSet {
+									timeoutCtx, cancel := context.WithTimeout(c, *opts.Timeout)
+									c = timeoutCtx
 									defer cancel()
 								}
 							}
