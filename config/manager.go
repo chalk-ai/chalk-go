@@ -17,13 +17,13 @@ type Manager struct {
 }
 
 type ManagerInputs struct {
-	ApiServer       *SourcedConfig[string]
-	GRPCQueryServer *SourcedConfig[string]
-	JSONQueryServer *SourcedConfig[string]
-	ClientId        *SourcedConfig[ClientId]
-	ClientSecret    *SourcedConfig[ClientSecret]
-	EnvironmentId   *SourcedConfig[string]
-	Scope           *SourcedConfig[string]
+	ApiServer       string
+	GRPCQueryServer string
+	JSONQueryServer string
+	ClientId        ClientId
+	ClientSecret    ClientSecret
+	EnvironmentId   string
+	Scope           string
 	ConfigDir       *string
 }
 
@@ -36,34 +36,34 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 
 	manager := &Manager{
 		ApiServer: GetFirstNonEmpty(
-			inputs.ApiServer,
+			NewFromArg(inputs.ApiServer),
 			NewFromEnvVar[string](ctx, ApiServerEnvVarKey),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		),
 		JSONQueryServer: GetFirstNonEmpty(
-			inputs.JSONQueryServer,
+			NewFromArg(inputs.JSONQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		),
 		GRPCQueryServer: GetFirstNonEmpty(
-			inputs.GRPCQueryServer,
+			NewFromArg(inputs.GRPCQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		),
 		ClientId: GetFirstNonEmpty(
-			inputs.ClientId,
+			NewFromArg(inputs.ClientId),
 			NewFromEnvVar[ClientId](ctx, ClientIdEnvVarKey),
 			NewFromEnvVar[ClientId](ctx, "_CHALK_CLIENT_ID"),
 			NewFromFile(configPath, chalkYamlConfig.ClientId),
 		),
 		ClientSecret: GetFirstNonEmpty(
-			inputs.ClientSecret,
+			NewFromArg(inputs.ClientSecret),
 			NewFromEnvVar[ClientSecret](ctx, ClientSecretEnvVarKey),
 			NewFromEnvVar[ClientSecret](ctx, "_CHALK_CLIENT_SECRET"),
 			NewFromFile(configPath, chalkYamlConfig.ClientSecret),
 		),
 		EnvironmentId: GetFirstNonEmpty(
-			inputs.EnvironmentId,
+			NewFromArg(inputs.EnvironmentId),
 			NewFromEnvVar[string](ctx, EnvironmentEnvVarKey),
 			NewFromEnvVar[string](ctx, "_CHALK_ACTIVE_ENVIRONMENT"),
 			NewFromFile(configPath, chalkYamlConfig.ActiveEnvironment),
