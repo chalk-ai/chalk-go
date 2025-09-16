@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1757999096220,
+  "lastUpdate": 1757999520005,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -24976,6 +24976,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 334.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "elliot@chalk.ai",
+            "name": "Elliot Marx",
+            "username": "emarx"
+          },
+          "committer": {
+            "email": "elliot@chalk.ai",
+            "name": "Elliot Marx",
+            "username": "emarx"
+          },
+          "distinct": true,
+          "id": "726c609351375007d6a63c2b72155858098ad0f4",
+          "message": "better error message",
+          "timestamp": "2025-09-15T22:11:04-07:00",
+          "tree_id": "893e14d99d88446f42b95ca7f913eae57b80e19c",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/726c609351375007d6a63c2b72155858098ad0f4"
+        },
+        "date": 1757999519945,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.11,
+            "unit": "ms/op",
+            "extra": "964 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114.3,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 40.61,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 223.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 308.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
