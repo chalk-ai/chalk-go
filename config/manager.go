@@ -73,6 +73,14 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 				Kind:   EmptySourceKind,
 			},
 		),
+		Scope: GetFirstNonEmpty(
+			NewFromArg(inputs.Scope),
+			&SourcedConfig[string]{
+				Value:  "",
+				Source: "empty",
+				Kind:   EmptySourceKind,
+			},
+		),
 	}
 
 	if manager.ClientId == nil || manager.ClientSecret == nil ||
