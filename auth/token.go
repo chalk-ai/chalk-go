@@ -46,11 +46,19 @@ func cleanEnvironmentId(
 			fmt.Sprintf("Default environment %q", token.EnvironmentIdToName[*token.PrimaryEnvironment]),
 		), nil
 	} else if provided.Value == "" {
+		var availableEnvironments []string
+		for id, name := range token.EnvironmentIdToName {
+			availableEnvironments = append(availableEnvironments, fmt.Sprintf("%s (%s)", name, id))
+		}
 		return config.SourcedConfig[string]{
-			Value:  "",
-			Source: "empty",
-			Kind:   config.EmptySourceKind,
-		}, errors.New("environment was not specified, and the token did not include a primary environment")
+				Value:  "",
+				Source: "empty",
+				Kind:   config.EmptySourceKind,
+			}, errors.Newf(
+				"environment was not specified, and the token did not include a primary environment; all available environments are %s; primary environment was %q",
+				strings.Join(availableEnvironments, ", "),
+				token.PrimaryEnvironment,
+			)
 	} else if _, ok := token.EnvironmentIdToName[provided.Value]; ok {
 		return provided, nil
 	} else {
