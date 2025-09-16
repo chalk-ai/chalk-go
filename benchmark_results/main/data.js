@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1757999520005,
+  "lastUpdate": 1758000850474,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -25032,6 +25032,60 @@ window.BENCHMARK_DATA = {
             "value": 308.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "elliot@chalk.ai",
+            "name": "Elliot Marx",
+            "username": "emarx"
+          },
+          "committer": {
+            "email": "elliot@chalk.ai",
+            "name": "Elliot Marx",
+            "username": "emarx"
+          },
+          "distinct": true,
+          "id": "68b42716c00596bf707b01a0065e9ccfc7912910",
+          "message": "timeout",
+          "timestamp": "2025-09-15T22:33:21-07:00",
+          "tree_id": "4c404309312d95fdf57155a6592a2ff8618f2522",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/68b42716c00596bf707b01a0065e9ccfc7912910"
+        },
+        "date": 1758000850416,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.156,
+            "unit": "ms/op",
+            "extra": "1014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 112.3,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.14,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 233.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 305.7,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
