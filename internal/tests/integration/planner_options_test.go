@@ -2,9 +2,10 @@ package integration
 
 import (
 	"fmt"
+	"testing"
+
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
-	"testing"
 )
 
 type plannerOptionsFixture struct {
@@ -62,7 +63,11 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 				}
 
 				if optionFixture.isValid {
-					assert.NoError(t, err)
+					assert.NoError(
+						t,
+						err,
+						fmt.Sprintf("failed for environment %s", grpcClient.GetConfig().EnvironmentId),
+					)
 				} else {
 					assert.Error(t, err)
 				}
