@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1757993463458,
+  "lastUpdate": 1757993774080,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -24920,6 +24920,56 @@ window.BENCHMARK_DATA = {
             "value": 311.5,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "60b107714946c20279866eeacbb59b6ada4bf8ac",
+          "message": "Clean up interceptors",
+          "timestamp": "2025-09-16T03:09:26Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/467/commits/60b107714946c20279866eeacbb59b6ada4bf8ac"
+        },
+        "date": 1757993774019,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.12,
+            "unit": "ms/op",
+            "extra": "1015 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 120.8,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.32,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 225.7,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 313.9,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
