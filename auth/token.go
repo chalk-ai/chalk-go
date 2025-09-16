@@ -17,7 +17,7 @@ import (
 
 type Manager struct {
 	mu         *sync.Mutex
-	manager    *config.Manager
+	config     *config.Manager
 	authClient serverv1connect.AuthServiceClient
 	token      *serverv1.GetTokenResponse
 }
@@ -31,7 +31,7 @@ type Inputs struct {
 	HttpClient connect.HTTPClient
 
 	// Manager holds the credentials for this client to use. Non-optional.
-	Manager *config.Manager
+	Config *config.Manager
 }
 
 func cleanEnvironmentId(
@@ -72,14 +72,14 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	if opts.Manager == nil {
+	if opts.Config == nil {
 		return nil, errors.New("missing config manager")
 	}
 	r := &Manager{
-		manager: opts.Manager,
+		config: opts.Config,
 		authClient: serverv1connect.NewAuthServiceClient(
 			httpClient,
-			opts.Manager.ApiServer.Value,
+			opts.Config.ApiServer.Value,
 			connect.WithInterceptors(
 				connect.UnaryInterceptorFunc(
 					func(next connect.UnaryFunc) connect.UnaryFunc {
@@ -103,18 +103,18 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		}
 	}
 
-	r.manager.EnvironmentId, err = cleanEnvironmentId(r.manager.EnvironmentId, r.token)
+	r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, r.token)
 	if err != nil {
 		return nil, errors.Wrap(err, "initializing environment id")
 	}
 
-	envName := r.token.EnvironmentIdToName[r.manager.EnvironmentId.Value]
-	if e := r.token.Engines[r.manager.EnvironmentId.Value]; r.manager.JSONQueryServer.Kind == config.DefaultSourceKind && e != "" {
-		r.manager.JSONQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	envName := r.token.EnvironmentIdToName[r.config.EnvironmentId.Value]
+	if e := r.token.Engines[r.config.EnvironmentId.Value]; r.config.JSONQueryServer.Kind == config.DefaultSourceKind && e != "" {
+		r.config.JSONQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
 	}
 
-	if e := r.token.GrpcEngines[r.manager.EnvironmentId.Value]; r.manager.GRPCQueryServer.Kind == config.DefaultSourceKind && e != "" {
-		r.manager.GRPCQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	if e := r.token.GrpcEngines[r.config.EnvironmentId.Value]; r.config.GRPCQueryServer.Kind == config.DefaultSourceKind && e != "" {
+		r.config.GRPCQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
 	}
 
 	return r, nil
@@ -134,13 +134,13 @@ func (r *Manager) GetJWT(
 		return r.token, nil
 	}
 	req := &serverv1.GetTokenRequest{
-		ClientId:     string(r.manager.ClientId.Value),
-		ClientSecret: string(r.manager.ClientSecret.Value),
+		ClientId:     string(r.config.ClientId.Value),
+		ClientSecret: string(r.config.ClientSecret.Value),
 		GrantType:    "client_credentials",
 		Scope:        nil,
 	}
-	if r.manager.Scope.Value != "" {
-		req.Scope = &r.manager.Scope.Value
+	if r.config.Scope.Value != "" {
+		req.Scope = &r.config.Scope.Value
 	}
 
 	t, err := r.authClient.GetToken(ctx, connect.NewRequest(req))
@@ -152,5 +152,5 @@ func (r *Manager) GetJWT(
 }
 
 func (r *Manager) GetConfig() *config.Manager {
-	return r.manager
+	return r.config
 }

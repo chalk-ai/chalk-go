@@ -7,14 +7,3 @@ func Map[T, U any](ts []T, f func(T) U) []U {
 	}
 	return us
 }
-
-// Contains returns true if an element is present in a collection.
-func Contains[T comparable](collection []T, element T) bool {
-	for i := range collection {
-		if collection[i] == element {
-			return true
-		}
-	}
-
-	return false
-}
