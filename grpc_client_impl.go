@@ -99,7 +99,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := configManager.JSONQueryServer.Value
+	resolvedQueryServer := configManager.GRPCQueryServer.Value
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
