@@ -42,6 +42,9 @@ const (
 	// DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's GetJobQueueAuxiliaryResources RPC.
 	DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure = "/chalk.server.v1.DataPlaneJobQueueService/GetJobQueueAuxiliaryResources"
+	// DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's GetJobQueueOperationSummary RPC.
+	DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure = "/chalk.server.v1.DataPlaneJobQueueService/GetJobQueueOperationSummary"
 )
 
 // DataPlaneJobQueueServiceClient is a client for the chalk.server.v1.DataPlaneJobQueueService
@@ -50,6 +53,7 @@ type DataPlaneJobQueueServiceClient interface {
 	GetDataPlaneJobQueue(context.Context, *connect.Request[v1.GetDataPlaneJobQueueRequest]) (*connect.Response[v1.GetDataPlaneJobQueueResponse], error)
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
 	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
+	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceClient constructs a client for the
@@ -84,6 +88,13 @@ func NewDataPlaneJobQueueServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getJobQueueOperationSummary: connect.NewClient[v1.GetJobQueueOperationSummaryRequest, v1.GetJobQueueOperationSummaryResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueOperationSummary")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -92,6 +103,7 @@ type dataPlaneJobQueueServiceClient struct {
 	getDataPlaneJobQueue          *connect.Client[v1.GetDataPlaneJobQueueRequest, v1.GetDataPlaneJobQueueResponse]
 	listDataPlaneJobQueue         *connect.Client[v1.ListDataPlaneJobQueueRequest, v1.ListDataPlaneJobQueueResponse]
 	getJobQueueAuxiliaryResources *connect.Client[v1.GetJobQueueAuxiliaryResourcesRequest, v1.GetJobQueueAuxiliaryResourcesResponse]
+	getJobQueueOperationSummary   *connect.Client[v1.GetJobQueueOperationSummaryRequest, v1.GetJobQueueOperationSummaryResponse]
 }
 
 // GetDataPlaneJobQueue calls chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue.
@@ -110,12 +122,19 @@ func (c *dataPlaneJobQueueServiceClient) GetJobQueueAuxiliaryResources(ctx conte
 	return c.getJobQueueAuxiliaryResources.CallUnary(ctx, req)
 }
 
+// GetJobQueueOperationSummary calls
+// chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary.
+func (c *dataPlaneJobQueueServiceClient) GetJobQueueOperationSummary(ctx context.Context, req *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error) {
+	return c.getJobQueueOperationSummary.CallUnary(ctx, req)
+}
+
 // DataPlaneJobQueueServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneJobQueueService service.
 type DataPlaneJobQueueServiceHandler interface {
 	GetDataPlaneJobQueue(context.Context, *connect.Request[v1.GetDataPlaneJobQueueRequest]) (*connect.Response[v1.GetDataPlaneJobQueueResponse], error)
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
 	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
+	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceHandler builds an HTTP handler from the service implementation. It
@@ -146,6 +165,13 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneJobQueueServiceGetJobQueueOperationSummaryHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure,
+		svc.GetJobQueueOperationSummary,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("GetJobQueueOperationSummary")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneJobQueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneJobQueueServiceGetDataPlaneJobQueueProcedure:
@@ -154,6 +180,8 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 			dataPlaneJobQueueServiceListDataPlaneJobQueueHandler.ServeHTTP(w, r)
 		case DataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesProcedure:
 			dataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure:
+			dataPlaneJobQueueServiceGetJobQueueOperationSummaryHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -173,4 +201,8 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) ListDataPlaneJobQueue(contex
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary is not implemented"))
 }
