@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758135115497,
+  "lastUpdate": 1758228898390,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -25246,6 +25246,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 317.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "aridbennett@gmail.com",
+            "name": "aribennett",
+            "username": "aribennett"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "caaa595041ec577516dee90935e09775ba40f6b9",
+          "message": "Merge pull request #472 from chalk-ai/ari/update-protos-cluster-bindings\n\nAdded Cluster Binding Protos",
+          "timestamp": "2025-09-18T13:54:04-07:00",
+          "tree_id": "001949d1e062bef3f90244b3e7d7a962d38dbd76",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/caaa595041ec577516dee90935e09775ba40f6b9"
+        },
+        "date": 1758228898326,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.261,
+            "unit": "ms/op",
+            "extra": "1018 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 110.7,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.18,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 217.4,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 308.6,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
