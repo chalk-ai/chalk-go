@@ -16,6 +16,7 @@ func TestErringScalar(t *testing.T) {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				bulkParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.Crashing.Id, []int{1}).
 					WithOutputs(testFeatures.Crashing.Name)
@@ -31,6 +32,7 @@ func TestErringScalar(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Nil(t, crashingFeature.Value)
 			} else {
+				restClient := newRestClient(t)
 				singularParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.Crashing.Id, 1).
 					WithOutputs(testFeatures.Crashing.Name)
@@ -51,6 +53,7 @@ func TestErringHasMany(t *testing.T) {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				bulkParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.CrashingHasManyRoot.Id, []string{"id_a"}).
 					WithOutputs(testFeatures.CrashingHasManyRoot.CrashingHasMany)
@@ -68,6 +71,7 @@ func TestErringHasMany(t *testing.T) {
 				assert.True(t, ok)
 				assert.Equal(t, 0, len(castVal))
 			} else {
+				restClient := newRestClient(t)
 				singularParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.CrashingHasManyRoot.Id, "id_a").
 					WithOutputs(testFeatures.CrashingHasManyRoot.CrashingHasMany)

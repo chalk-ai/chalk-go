@@ -56,10 +56,12 @@ func TestBulkQueryOptionalFeatures(t *testing.T) {
 			var results []optionals
 
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				res, err := grpcClient.OnlineQueryBulk(t.Context(), params)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			} else {
+				restClient := newRestClient(t)
 				res, err := restClient.OnlineQueryBulk(t.Context(), params)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
