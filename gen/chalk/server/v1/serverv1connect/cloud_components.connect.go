@@ -84,6 +84,15 @@ const (
 	// fully-qualified name of the CloudComponentsService's
 	// DeleteBindingClusterBackgroundPersistenceDeployment RPC.
 	CloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterBackgroundPersistenceDeployment"
+	// CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure is the fully-qualified
+	// name of the CloudComponentsService's CreateBindingClusterTelemetryDeployment RPC.
+	CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingClusterTelemetryDeployment"
+	// CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure is the fully-qualified name
+	// of the CloudComponentsService's GetBindingClusterTelemetryDeployment RPC.
+	CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterTelemetryDeployment"
+	// CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure is the fully-qualified
+	// name of the CloudComponentsService's DeleteBindingClusterTelemetryDeployment RPC.
+	CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterTelemetryDeployment"
 )
 
 // CloudComponentsServiceClient is a client for the chalk.server.v1.CloudComponentsService service.
@@ -104,6 +113,9 @@ type CloudComponentsServiceClient interface {
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
+	CreateBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error)
+	GetBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error)
+	DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error)
 }
 
 // NewCloudComponentsServiceClient constructs a client for the
@@ -218,6 +230,25 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterBackgroundPersistenceDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		createBindingClusterTelemetryDeployment: connect.NewClient[v1.CreateBindingClusterTelemetryDeploymentRequest, v1.CreateBindingClusterTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterTelemetryDeployment")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingClusterTelemetryDeployment: connect.NewClient[v1.GetBindingClusterTelemetryDeploymentRequest, v1.GetBindingClusterTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterTelemetryDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingClusterTelemetryDeployment: connect.NewClient[v1.DeleteBindingClusterTelemetryDeploymentRequest, v1.DeleteBindingClusterTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterTelemetryDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -239,6 +270,9 @@ type cloudComponentsServiceClient struct {
 	createBindingClusterBackgroundPersistenceDeployment *connect.Client[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest, v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse]
 	getBindingClusterBackgroundPersistenceDeployment    *connect.Client[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest, v1.GetBindingClusterBackgroundPersistenceDeploymentResponse]
 	deleteBindingClusterBackgroundPersistenceDeployment *connect.Client[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest, v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse]
+	createBindingClusterTelemetryDeployment             *connect.Client[v1.CreateBindingClusterTelemetryDeploymentRequest, v1.CreateBindingClusterTelemetryDeploymentResponse]
+	getBindingClusterTelemetryDeployment                *connect.Client[v1.GetBindingClusterTelemetryDeploymentRequest, v1.GetBindingClusterTelemetryDeploymentResponse]
+	deleteBindingClusterTelemetryDeployment             *connect.Client[v1.DeleteBindingClusterTelemetryDeploymentRequest, v1.DeleteBindingClusterTelemetryDeploymentResponse]
 }
 
 // CreateCloudComponentVpc calls chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc.
@@ -331,6 +365,24 @@ func (c *cloudComponentsServiceClient) DeleteBindingClusterBackgroundPersistence
 	return c.deleteBindingClusterBackgroundPersistenceDeployment.CallUnary(ctx, req)
 }
 
+// CreateBindingClusterTelemetryDeployment calls
+// chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment.
+func (c *cloudComponentsServiceClient) CreateBindingClusterTelemetryDeployment(ctx context.Context, req *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error) {
+	return c.createBindingClusterTelemetryDeployment.CallUnary(ctx, req)
+}
+
+// GetBindingClusterTelemetryDeployment calls
+// chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment.
+func (c *cloudComponentsServiceClient) GetBindingClusterTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error) {
+	return c.getBindingClusterTelemetryDeployment.CallUnary(ctx, req)
+}
+
+// DeleteBindingClusterTelemetryDeployment calls
+// chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment.
+func (c *cloudComponentsServiceClient) DeleteBindingClusterTelemetryDeployment(ctx context.Context, req *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error) {
+	return c.deleteBindingClusterTelemetryDeployment.CallUnary(ctx, req)
+}
+
 // CloudComponentsServiceHandler is an implementation of the chalk.server.v1.CloudComponentsService
 // service.
 type CloudComponentsServiceHandler interface {
@@ -350,6 +402,9 @@ type CloudComponentsServiceHandler interface {
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
+	CreateBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error)
+	GetBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error)
+	DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error)
 }
 
 // NewCloudComponentsServiceHandler builds an HTTP handler from the service implementation. It
@@ -460,6 +515,25 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterBackgroundPersistenceDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceCreateBindingClusterTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure,
+		svc.CreateBindingClusterTelemetryDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterTelemetryDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetBindingClusterTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure,
+		svc.GetBindingClusterTelemetryDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterTelemetryDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteBindingClusterTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure,
+		svc.DeleteBindingClusterTelemetryDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterTelemetryDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.CloudComponentsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CloudComponentsServiceCreateCloudComponentVpcProcedure:
@@ -494,6 +568,12 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure:
+			cloudComponentsServiceCreateBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure:
+			cloudComponentsServiceGetBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure:
+			cloudComponentsServiceDeleteBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -565,4 +645,16 @@ func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterBackgroundPer
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment is not implemented"))
 }
