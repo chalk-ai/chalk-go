@@ -2,8 +2,6 @@ package config
 
 import "time"
 
-var validityBuffer = 5 * time.Minute
-
 type ClientId string
 type ClientSecret string
 type EnvironmentId string
@@ -21,11 +19,6 @@ type ProjectToken struct {
 	ApiServer         string       `yaml:"apiServer"`
 	ActiveEnvironment string       `yaml:"activeEnvironment"`
 	JWT               JWT          `yaml:"jwt,omitempty"`
-}
-
-func (t *JWT) IsValid() bool {
-	expiry := t.ValidUntil.Add(-validityBuffer)
-	return time.Now().UTC().Before(expiry)
 }
 
 type ProjectTokens struct {
