@@ -2,10 +2,11 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
 )
 
 type Feature struct {
@@ -18,11 +19,11 @@ func DesuffixFqn(fqn string) string {
 }
 
 func getFeatureClassFromMember(field reflect.Value) *Feature {
-	if field.Kind() == reflect.Ptr && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != reflect.TypeOf(time.Time{}) {
+	if field.Kind() == reflect.Pointer && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != reflect.TypeOf(time.Time{}) {
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)
-			if memberField.Kind() != reflect.Ptr {
+			if memberField.Kind() != reflect.Pointer {
 				continue
 			}
 			memberFeature, unwrapErr := UnwrapFeature(memberField.Interface())
@@ -53,14 +54,14 @@ func unwrapFeature(t any) (*Feature, error) {
 		// If the user is querying a feature class, e.g.
 		//   Features.User.CreditReport instead of Features.User.CreditReport.CreditScore
 		return featureClass, nil
-	} else if reflectValue.Kind() == reflect.Ptr {
+	} else if reflectValue.Kind() == reflect.Pointer {
 		// Everything but windowed features
 		return (*Feature)(reflectValue.UnsafePointer()), nil
 	} else if reflectValue.Kind() == reflect.Map {
 		// Base windowed feature is typed as a Map.
 		// But it is natural for a user to try querying
 		// a base windowed feature when they want to query
-		// every pseudofeature in the windowed feature.
+		// every pseudo-feature in the windowed feature.
 		// So here we return the base windowed feature
 		// with a valid FQN.
 		windowedFeatureMap := reflectValue
