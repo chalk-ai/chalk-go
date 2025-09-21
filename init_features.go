@@ -2,12 +2,12 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/cockroachdb/errors"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/cockroachdb/errors"
 )
 
 func InitFeatures[T any](t *T) error {
@@ -74,7 +74,7 @@ func initFeatures(
 		}
 
 		if f.Type().Elem().Kind() == reflect.Struct &&
-			f.Type().Elem() != reflect.TypeOf(time.Time{}) {
+			f.Type().Elem() != timeType {
 			// RECURSIVE CASE.
 			// Create new Feature Set instance and point to it.
 			// The equivalent way of doing it without 'reflect':

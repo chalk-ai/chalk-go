@@ -1,10 +1,10 @@
 package internal
 
 import (
-	"github.com/cockroachdb/errors"
 	"reflect"
 	"strconv"
-	"time"
+
+	"github.com/cockroachdb/errors"
 )
 
 type NamespaceMemo struct {
@@ -131,7 +131,7 @@ func PopulateNamespaceMemos(typ reflect.Type, visited map[reflect.Type]bool) err
 	}
 	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Slice {
 		return PopulateNamespaceMemos(typ.Elem(), visited)
-	} else if typ.Kind() == reflect.Struct && typ != reflect.TypeOf(time.Time{}) {
+	} else if typ.Kind() == reflect.Struct && typ != timeType {
 		if visited[typ] {
 			return nil
 		}

@@ -2,11 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	chalkerrors "github.com/chalk-ai/chalk-go/pkg/errors"
-	"github.com/cockroachdb/errors"
 	"maps"
 	"os"
 	"reflect"
@@ -17,6 +12,12 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
+	chalkerrors "github.com/chalk-ai/chalk-go/pkg/errors"
+	"github.com/cockroachdb/errors"
 )
 
 const tableReaderChunkSizeKey = "CHALK_TABLE_READER_CHUNK_SIZE"
@@ -72,13 +73,15 @@ func IsDataclass(field reflect.Value) bool {
 	return IsTypeDataclass(field.Type())
 }
 
+var timeType = reflect.TypeOf(time.Time{})
+
 func IsStruct(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Struct {
 		// Not a dataclass nor a has-many feature.
 		return false
 	}
 
-	if typ == reflect.TypeOf(time.Time{}) {
+	if typ == timeType {
 		return false
 	}
 
@@ -94,8 +97,8 @@ func IsFeaturesClass(typ reflect.Type) bool {
 func getInnerSliceFromArray(arr arrow.Array, offsets []int64, idx int, timeAsString bool) (any, error) {
 	newSlice := make([]any, offsets[idx+1]-offsets[idx])
 	newSliceIdx := 0
-	for ptr := offsets[idx]; ptr < offsets[idx+1]; ptr++ {
-		anyVal, err := GetValueFromArrowArray(arr, int(ptr), timeAsString)
+	for p := offsets[idx]; p < offsets[idx+1]; p++ {
+		anyVal, err := GetValueFromArrowArray(arr, int(p), timeAsString)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting value for LargeList column")
 		}
@@ -514,7 +517,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 				"struct value is not an `any` slice or a `map[string]any`",
 			)
 		}
-	} else if typ == reflect.TypeOf(time.Time{}) {
+	} else if typ == timeType {
 		// Datetimes have already been unmarshalled into time.Time in bulk online query
 		if reflect.TypeOf(value) == typ {
 			if timeValue, ok := value.(time.Time); ok {

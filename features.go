@@ -18,8 +18,10 @@ func DesuffixFqn(fqn string) string {
 	return strings.Join(sections[:len(sections)-1], ".")
 }
 
+var timeType = reflect.TypeOf(time.Time{})
+
 func getFeatureClassFromMember(field reflect.Value) *Feature {
-	if field.Kind() == reflect.Pointer && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != reflect.TypeOf(time.Time{}) {
+	if field.Kind() == reflect.Pointer && field.Elem().Kind() == reflect.Struct && field.Type().Elem() != timeType {
 		structValue := field.Elem()
 		for i := 0; i < structValue.NumField(); i++ {
 			memberField := structValue.Field(i)
