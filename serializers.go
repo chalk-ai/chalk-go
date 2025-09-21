@@ -10,7 +10,6 @@ import (
 	"github.com/chalk-ai/chalk-go/expr"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -457,9 +456,10 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		staleness[k] = internal.FormatBucketDuration(int(v.Seconds()))
 	}
 
-	nowProto := colls.Map(params.Now, func(v time.Time) *timestamppb.Timestamp {
-		return timestamppb.New(v)
-	})
+	nowProto := make([]*timestamppb.Timestamp, len(params.Now))
+	for i, v := range params.Now {
+		nowProto[i] = timestamppb.New(v)
+	}
 
 	options := map[string]*structpb.Value{}
 	if params.StorePlanStages {
