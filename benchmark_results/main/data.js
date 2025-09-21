@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758480499432,
+  "lastUpdate": 1758480788706,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -25734,6 +25734,60 @@ window.BENCHMARK_DATA = {
             "value": 337.5,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "elliot@chalk.ai",
+            "name": "Elliot Marx",
+            "username": "emarx"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6994eaefa88d6cf4bb0f4cc13e18a104568757be",
+          "message": "Remove unused method (#480)",
+          "timestamp": "2025-09-21T11:52:20-07:00",
+          "tree_id": "5009e34c03a2333fd8f537d548f50d44d9903817",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/6994eaefa88d6cf4bb0f4cc13e18a104568757be"
+        },
+        "date": 1758480788640,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.071,
+            "unit": "ms/op",
+            "extra": "1005 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 115.9,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.16,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 217,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 312.4,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
