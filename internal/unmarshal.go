@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	chalkerrors "github.com/chalk-ai/chalk-go/pkg/errors"
 	"github.com/cockroachdb/errors"
+	"maps"
 	"os"
 	"reflect"
 	"runtime"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -737,9 +738,9 @@ func InitRemoteFeatureMap(
 
 	var fieldNames []string
 	if scopeToJustStructs {
-		fieldNames = colls.Keys(memo.StructFieldsSet)
+		fieldNames = slices.Collect(maps.Keys(memo.StructFieldsSet))
 	} else {
-		fieldNames = colls.Keys(scope.Children)
+		fieldNames = slices.Collect(maps.Keys(scope.Children))
 	}
 
 	for _, resolvedFieldName := range fieldNames {
@@ -955,7 +956,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	var rowOp func(structValue reflect.Value, record arrow.Record, rowIdx int) error
 	if len(namespaceToColIndices) == 1 {
 		// Single-namespace unmarshalling
-		includedColIndices := namespaceToColIndices[colls.Keys(namespaceToColIndices)[0]]
+		includedColIndices := namespaceToColIndices[slices.Collect(maps.Keys(namespaceToColIndices))[0]]
 		colToCodec := make([]Codec, len(includedColIndices))
 		for k, colIdx := range includedColIndices {
 			column := fields[colIdx]
@@ -1001,7 +1002,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 						"The struct should contain an inner struct field that corresponds to the namespace '%s'. "+
 						"Found only these fields: %v",
 					childNamespace,
-					colls.Keys(rootMemo.ResolvedFieldNameToIndices),
+					slices.Collect(maps.Keys(rootMemo.ResolvedFieldNameToIndices)),
 				)
 			} else if len(namespaceFieldIndices) == 0 {
 				return errors.Newf(

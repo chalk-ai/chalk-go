@@ -2,9 +2,10 @@ package chalk
 
 import (
 	"fmt"
+	"time"
+
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"time"
 )
 
 func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
@@ -12,13 +13,13 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 		return nil
 	}
 	var executionDuration float64
-	if metaRaw.GetExecutionDuration() != nil {
-		executionDuration = metaRaw.GetExecutionDuration().AsDuration().Seconds()
+	if ed := metaRaw.GetExecutionDuration(); ed != nil {
+		executionDuration = ed.AsDuration().Seconds()
 	}
 
 	var queryTimestamp *time.Time
-	if metaRaw.GetQueryTimestamp() != nil {
-		queryTimestamp = ptr.New(metaRaw.GetQueryTimestamp().AsTime())
+	if qs := metaRaw.GetQueryTimestamp(); qs != nil {
+		queryTimestamp = ptr.New(qs.AsTime())
 	}
 
 	return &QueryMeta{
