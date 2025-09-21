@@ -6,14 +6,15 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
-	"reflect"
-	"time"
 )
 
 const shouldOmitIfAllNullsKey = "should-omit-if-all-nulls"
@@ -101,7 +102,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			)
 		}
 	} else if kind == reflect.Struct {
-		if value == reflect.TypeOf(time.Time{}) {
+		if value == timeType {
 			return &arrow.TimestampType{
 				Unit:     arrow.Microsecond,
 				TimeZone: "UTC",
@@ -273,7 +274,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 			builder.(*array.LargeListBuilder).AppendValues(offsets, valid)
 		}
 	case reflect.Struct:
-		if elemType == reflect.TypeOf(time.Time{}) {
+		if elemType == timeType {
 			timeSlice := values.([]time.Time)
 			timestampSlice := make([]arrow.Timestamp, 0, len(timeSlice))
 			for _, t := range timeSlice {
