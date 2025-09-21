@@ -10,7 +10,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chalk-ai/chalk-go/internal/colls"
 	assert "github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -92,9 +91,10 @@ func TestConvertOnlineQueryParamsToProto(t *testing.T) {
 		Meta:                 meta,
 		Now:                  now,
 	}
-	nowProto := colls.Map(now, func(t time.Time) *timestamppb.Timestamp {
-		return timestamppb.New(t)
-	})
+	nowProto := make([]*timestamppb.Timestamp, len(now))
+	for i, t := range now {
+		nowProto[i] = timestamppb.New(t)
+	}
 	protoMap, err := queryContext.toProtoMap()
 	assert.NoError(t, err)
 
