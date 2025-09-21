@@ -273,23 +273,23 @@ func TestComplexChalkFunctionCombinations(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "Nested string functions",
-			expr: Upper(Trim(Lower(Col("name")))),
+			name:     "Nested string functions",
+			expr:     Upper(Trim(Lower(Col("name")))),
 			expected: "upper(trim(lower(name)))",
 		},
 		{
-			name: "Array operations with filtering",
-			expr: ArrayMax(ArraySort(Col("scores"))),
+			name:     "Array operations with filtering",
+			expr:     ArrayMax(ArraySort(Col("scores"))),
 			expected: "array_max(array_sort(scores))",
 		},
 		{
-			name: "Mathematical expression with functions",
-			expr: Round(Sqrt(Col("area").Div(Float64(3.14159))), Int(2)),
+			name:     "Mathematical expression with functions",
+			expr:     Round(Sqrt(Col("area").Div(Float64(3.14159))), Int(2)),
 			expected: "round(sqrt(/(area, 3.14159)), 2)",
 		},
 		{
-			name: "Date extraction chain",
-			expr: Year(FromIso8601Timestamp(Col("date_string"))),
+			name:     "Date extraction chain",
+			expr:     Year(FromIso8601Timestamp(Col("date_string"))),
 			expected: "year(from_iso8601_timestamp(date_string))",
 		},
 		{
@@ -302,13 +302,13 @@ func TestComplexChalkFunctionCombinations(t *testing.T) {
 			expected: "if_else(starts_with(email, admin), upper(admin), lower(role))",
 		},
 		{
-			name: "Array manipulation chain",
-			expr: ArrayJoin(ArrayDistinct(ArraySort(Col("tags"))), String(", ")),
+			name:     "Array manipulation chain",
+			expr:     ArrayJoin(ArrayDistinct(ArraySort(Col("tags"))), String(", ")),
 			expected: "array_join(array_distinct(array_sort(tags)), , )",
 		},
 		{
-			name: "Hash chain with encoding",
-			expr: ToHex(Sha256(ToUtf8(Col("password")))),
+			name:     "Hash chain with encoding",
+			expr:     ToHex(Sha256(ToUtf8(Col("password")))),
 			expected: "to_hex(sha256(to_utf8(password)))",
 		},
 	}
@@ -330,7 +330,7 @@ func TestFunctionFluentAPI(t *testing.T) {
 	// Test that function results can be used in fluent API
 	result := Upper(Col("name")).Eq(String("JOHN")).And(Length(Col("email")).Gt(Int(5)))
 	expected := "AND(=(upper(name), JOHN), >(length(email), 5))"
-	
+
 	actual := result.String()
 	if actual != expected {
 		t.Errorf("Expected %q, got %q", expected, actual)

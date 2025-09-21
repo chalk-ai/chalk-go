@@ -374,4 +374,3 @@ func (e *AliasExpr) As(alias string) Expr {
 func (e *AliasExpr) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
-
