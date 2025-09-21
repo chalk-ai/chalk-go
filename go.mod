@@ -4,6 +4,8 @@ go 1.24.6
 
 replace github.com/chalk-ai/chalk-go/gen => ./gen
 
+exclude google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1
+
 require (
 	connectrpc.com/connect v1.18.1
 	github.com/apache/arrow/go/v16 v16.1.0
