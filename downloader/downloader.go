@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-
-	"golang.org/x/sync/errgroup"
 )
 
 type DownloadRequest struct {
