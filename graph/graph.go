@@ -9,13 +9,9 @@ import (
 )
 
 // shorthand useful for defining underscore expressions
+// not to be confused with double underscore
 func __(name string) expr.Expr {
 	return expr.Identifier("_").Attr(name)
-}
-
-// double underscore
-func ___(name string) expr.Expr {
-	return expr.Identifier("__").Attr(name)
 }
 
 type Definitions struct {
