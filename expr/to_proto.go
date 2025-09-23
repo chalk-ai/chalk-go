@@ -3,16 +3,23 @@ package expr
 import (
 	"fmt"
 
+	"github.com/google/uuid"
+
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 )
 
-func ToIdentifierLiteral(name string) *expressionv1.LogicalExprNode {
+func ToIdentifierLiteral(name string, withExprId bool) *expressionv1.LogicalExprNode {
+	exprId := ""
+	if withExprId {
+		exprId = uuid.NewString()
+	}
 	return &expressionv1.LogicalExprNode{
 		ExprForm: &expressionv1.LogicalExprNode_Identifier{
 			Identifier: &expressionv1.Identifier{
 				Name: name,
 			},
 		},
+		ExprId: exprId,
 	}
 }
 
@@ -24,7 +31,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	switch e := expr.(type) {
 	case *IdentifierExpr:
-		return ToIdentifierLiteral(e.Name)
+		return ToIdentifierLiteral(e.Name, e.Name == "_")
 
 	case *LiteralExpr:
 		return &expressionv1.LogicalExprNode{
@@ -37,13 +44,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		}
 
 	case *ColumnExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_Identifier{
-				Identifier: &expressionv1.Identifier{
-					Name: formatColumnName(e),
-				},
-			},
-		}
+		return ToIdentifierLiteral(formatColumnName(e), false)
 
 	case *GetAttributeExpr:
 		return &expressionv1.LogicalExprNode{
@@ -85,7 +86,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	case *dataFrameExprImpl:
 		// DataFrame reference as identifier
-		return ToIdentifierLiteral(e.Name)
+		return ToIdentifierLiteral(e.Name, false)
 
 	case *aggregateExprImpl:
 		// Build the base DataFrame reference
@@ -136,7 +137,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	default:
 		// Fallback for unknown expression types
-		return ToIdentifierLiteral(fmt.Sprintf("unknown (%T)", e))
+		return ToIdentifierLiteral(fmt.Sprintf("unknown (%T)", e), false)
 	}
 }
 

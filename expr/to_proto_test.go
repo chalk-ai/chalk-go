@@ -5,6 +5,7 @@ import (
 
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -678,4 +679,17 @@ func TestToProto(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestUnderscoreExprId(t *testing.T) {
+	expr_ := Identifier("_")
+	expr__ := Identifier("__")
+	proto_1 := ToProto(expr_)
+	proto_2 := ToProto(expr_)
+	proto__ := ToProto(expr__)
+
+	// expression ids must be distinct
+	assert.NotEqual(t, proto_1.ExprId, proto_2.ExprId)
+	// double underscore expressions are identical
+	assert.Equal(t, proto__.ExprId, "")
 }
