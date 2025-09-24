@@ -142,7 +142,10 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 		if !ok {
 			return nil, fmt.Errorf("windowed features must be scalar")
 		}
-		f := scalarPtr.ToProto(fieldName, namespace)
+		// Add duration suffix to the scalar feature name
+		durationSeconds := int64(d.AsDuration().Seconds())
+		suffixedFieldName := fmt.Sprintf("%s__%d__", fieldName, durationSeconds)
+		f := scalarPtr.ToProto(suffixedFieldName, namespace)
 		f.Type.(*graphv1.FeatureType_Scalar).Scalar.WindowInfo = &graphv1.WindowInfo{
 			Duration: d,
 			Aggregation: &graphv1.WindowAggregation{
