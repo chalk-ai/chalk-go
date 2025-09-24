@@ -2,6 +2,8 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 )
@@ -34,22 +36,29 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 		chalkYamlConfig = *chalkYamlConfigOrNil
 	}
 
+	addScheme := func(c SourcedConfig[string]) SourcedConfig[string] {
+		if strings.HasPrefix(c.Value, "http://") || strings.HasPrefix(c.Value, "https://") || c.Value == "" {
+			return c
+		}
+		return c.WithValue(fmt.Sprintf("https://%s", c.Value))
+	}
+
 	manager := &Manager{
-		ApiServer: GetFirstNonEmpty(
+		ApiServer: addScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.ApiServer),
 			NewFromEnvVar[string](ctx, "CHALK_API_SERVER"),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
-		),
-		JSONQueryServer: GetFirstNonEmpty(
+		)),
+		JSONQueryServer: addScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.JSONQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
-		),
-		GRPCQueryServer: GetFirstNonEmpty(
+		)),
+		GRPCQueryServer: addScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.GRPCQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
-		),
+		)),
 		ClientId: GetFirstNonEmpty(
 			NewFromArg(inputs.ClientId),
 			NewFromEnvVar[ClientId](ctx, "CHALK_CLIENT_ID"),
