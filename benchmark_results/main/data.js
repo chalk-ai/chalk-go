@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758571688317,
+  "lastUpdate": 1758686462379,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -25840,6 +25840,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 325.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "359de0b9bb3f36fb59a632475d9d5d0c3c230faf",
+          "message": "Merge pull request #484 from chalk-ai/feature/windowed-duration-suffix\n\nfeat: Add duration suffix to windowed scalar feature names",
+          "timestamp": "2025-09-23T21:00:06-07:00",
+          "tree_id": "3a23fb79cdc45645add8e8f3b319ae63a580cb96",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/359de0b9bb3f36fb59a632475d9d5d0c3c230faf"
+        },
+        "date": 1758686462305,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.377,
+            "unit": "ms/op",
+            "extra": "879 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 127.6,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 40.25,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 249.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 409,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
