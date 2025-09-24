@@ -80,3 +80,18 @@ func TestWindowed(t *testing.T) {
 	// 3 regular features + 4 windowed columns + feature time
 	assert.Equal(t, 8, len(graph.FeatureSets[1].Features))
 }
+
+
+/*
+recent_source_evals_day: Windowed[int] = windowed(
+	"1d",
+	"7d",
+	"30d",
+	expression=_.source_evals[
+		_.eval_at > _.chalk_window,
+		_.eval_at < _.chalk_now
+	].count()
+)
+*/
+
+func Test

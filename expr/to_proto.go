@@ -8,7 +8,7 @@ import (
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 )
 
-func ToIdentifierLiteral(name string, withExprId bool) *expressionv1.LogicalExprNode {
+func ToIdentifierExprNode(name string, withExprId bool) *expressionv1.LogicalExprNode {
 	exprId := ""
 	if withExprId {
 		exprId = uuid.NewString()
@@ -23,6 +23,19 @@ func ToIdentifierLiteral(name string, withExprId bool) *expressionv1.LogicalExpr
 	}
 }
 
+func ToGetAttributeExprNode(parent *expressionv1.LogicalExprNode, attrName string) *expressionv1.LogicalExprNode {
+	return &expressionv1.LogicalExprNode{
+		ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+			GetAttribute: &expressionv1.ExprGetAttribute{
+				Parent: parent,
+				Attribute: &expressionv1.Identifier{
+					Name: attrName,
+				},
+			},
+		},
+	}
+}
+
 // ToProto converts an ExprI to a LogicalExprNode proto message
 func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 	if expr == nil {
@@ -31,7 +44,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	switch e := expr.(type) {
 	case *IdentifierExpr:
-		return ToIdentifierLiteral(e.Name, e.Name == "_")
+		return ToIdentifierExprNode(e.Name, e.Name == "_")
 
 	case *LiteralExpr:
 		return &expressionv1.LogicalExprNode{
@@ -44,19 +57,10 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		}
 
 	case *ColumnExpr:
-		return ToIdentifierLiteral(formatColumnName(e), false)
+		return ToIdentifierExprNode(formatColumnName(e), e.Name == "_" || e.Relation == "_")
 
 	case *GetAttributeExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
-				GetAttribute: &expressionv1.ExprGetAttribute{
-					Parent: ToProto(e.Parent),
-					Attribute: &expressionv1.Identifier{
-						Name: e.Attribute,
-					},
-				},
-			},
-		}
+		return ToGetAttributeExprNode(ToProto(e.Parent), e.Attribute)
 
 	case *CallExpr:
 		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
@@ -86,7 +90,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 
 	case *dataFrameExprImpl:
 		// DataFrame reference as identifier
-		return ToIdentifierLiteral(e.Name, false)
+		return ToIdentifierExprNode(e.Name, true)
 
 	case *aggregateExprImpl:
 		// Build the base DataFrame reference
@@ -121,23 +125,14 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_Call{
 				Call: &expressionv1.ExprCall{
-					Func: &expressionv1.LogicalExprNode{
-						ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
-							GetAttribute: &expressionv1.ExprGetAttribute{
-								Attribute: &expressionv1.Identifier{
-									Name: e.Function,
-								},
-								Parent: dataframeNode,
-							},
-						},
-					},
+					Func: ToGetAttributeExprNode(dataframeNode, e.Function),
 				},
 			},
 		}
 
 	default:
 		// Fallback for unknown expression types
-		return ToIdentifierLiteral(fmt.Sprintf("unknown (%T)", e), false)
+		return ToIdentifierExprNode(fmt.Sprintf("unknown (%T)", e), false)
 	}
 }
 
