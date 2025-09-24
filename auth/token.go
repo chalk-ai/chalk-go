@@ -104,7 +104,7 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		config: opts.Config,
 		authClient: serverv1connect.NewAuthServiceClient(
 			httpClient,
-			opts.Config.ApiServer.Value,
+			opts.Config.GetAPIServer().Value,
 			connect.WithInterceptors(
 				connect.UnaryInterceptorFunc(
 					func(next connect.UnaryFunc) connect.UnaryFunc {
@@ -141,12 +141,12 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 	}
 
 	envName := r.token.EnvironmentIdToName[r.config.EnvironmentId.Value]
-	if e := r.token.Engines[r.config.EnvironmentId.Value]; r.config.JSONQueryServer.Kind == config.DefaultSourceKind && e != "" {
-		r.config.JSONQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	if e := r.token.Engines[r.config.EnvironmentId.Value]; r.config.GetJSONQueryServer().Kind == config.DefaultSourceKind && e != "" {
+		r.config.SetJSONQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
 	}
 
-	if e := r.token.GrpcEngines[r.config.EnvironmentId.Value]; r.config.GRPCQueryServer.Kind == config.DefaultSourceKind && e != "" {
-		r.config.GRPCQueryServer = config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName))
+	if e := r.token.GrpcEngines[r.config.EnvironmentId.Value]; r.config.GetGRPCQueryServer().Kind == config.DefaultSourceKind && e != "" {
+		r.config.SetGRPCQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
 	}
 
 	return r, nil

@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"strings"
 )
 
 type SourcedValueT interface {
@@ -25,6 +26,13 @@ type SourcedConfig[T SourcedValueT] struct {
 	Value  T
 	Source string
 	Kind   SourceKind
+}
+
+func AddScheme(c SourcedConfig[string]) SourcedConfig[string] {
+	if strings.HasPrefix(c.Value, "http://") || strings.HasPrefix(c.Value, "https://") || c.Value == "" {
+		return c
+	}
+	return c
 }
 
 func (c SourcedConfig[T]) WithValue(value T) SourcedConfig[T] {

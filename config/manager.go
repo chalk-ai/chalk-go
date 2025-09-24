@@ -2,16 +2,14 @@ package config
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
 	"github.com/cockroachdb/errors"
 )
 
 type Manager struct {
-	ApiServer       SourcedConfig[string]
-	GRPCQueryServer SourcedConfig[string]
-	JSONQueryServer SourcedConfig[string]
+	apiServer       SourcedConfig[string]
+	grpcQueryServer SourcedConfig[string]
+	jsonQueryServer SourcedConfig[string]
 	ClientId        SourcedConfig[ClientId]
 	ClientSecret    SourcedConfig[ClientSecret]
 	EnvironmentId   SourcedConfig[string]
@@ -29,6 +27,27 @@ type ManagerInputs struct {
 	ConfigDir       *string
 }
 
+func (m *Manager) GetAPIServer() SourcedConfig[string] {
+	return m.apiServer
+}
+func (m *Manager) SetAPIServer(server SourcedConfig[string]) {
+	m.apiServer = AddScheme(server)
+}
+
+func (m *Manager) GetGRPCQueryServer() SourcedConfig[string] {
+	return m.grpcQueryServer
+}
+func (m *Manager) SetGRPCQueryServer(server SourcedConfig[string]) {
+	m.grpcQueryServer = AddScheme(server)
+}
+
+func (m *Manager) GetJSONQueryServer() SourcedConfig[string] {
+	return m.jsonQueryServer
+}
+func (m *Manager) SetJSONQueryServer(server SourcedConfig[string]) {
+	m.jsonQueryServer = AddScheme(server)
+}
+
 func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 	chalkYamlConfigOrNil, configPath, chalkYamlErr := GetProjectAuthConfig(ctx, inputs.ConfigDir)
 	chalkYamlConfig := ProjectToken{}
@@ -36,26 +55,19 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 		chalkYamlConfig = *chalkYamlConfigOrNil
 	}
 
-	addScheme := func(c SourcedConfig[string]) SourcedConfig[string] {
-		if strings.HasPrefix(c.Value, "http://") || strings.HasPrefix(c.Value, "https://") || c.Value == "" {
-			return c
-		}
-		return c.WithValue(fmt.Sprintf("https://%s", c.Value))
-	}
-
 	manager := &Manager{
-		ApiServer: addScheme(GetFirstNonEmpty(
+		apiServer: AddScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.ApiServer),
 			NewFromEnvVar[string](ctx, "CHALK_API_SERVER"),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		)),
-		JSONQueryServer: addScheme(GetFirstNonEmpty(
+		jsonQueryServer: AddScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.JSONQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		)),
-		GRPCQueryServer: addScheme(GetFirstNonEmpty(
+		grpcQueryServer: AddScheme(GetFirstNonEmpty(
 			NewFromArg(inputs.GRPCQueryServer),
 			NewFromDefault("https://api.chalk.ai", "default server"),
 		)),

@@ -3,7 +3,7 @@ package config
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestManagerURLPrefixes(t *testing.T) {
@@ -21,9 +21,9 @@ func TestManagerURLPrefixes(t *testing.T) {
 			ConfigDir:       nil,
 		},
 	)
-	require.NoError(t, err)
-	require.NotNil(t, manager)
-	require.Equal(t, "https://api.chalk.ai", manager.ApiServer.Value)
-	require.Equal(t, "https://grpc.chalk.ai", manager.GRPCQueryServer.Value)
-	require.Equal(t, "https://json.chalk.ai", manager.JSONQueryServer.Value)
+	assert.NoError(t, err)
+	assert.NotNil(t, manager)
+	assert.Equal(t, "https://api.chalk.ai", manager.GetAPIServer().Value)
+	assert.Equal(t, "https://grpc.chalk.ai", manager.GetGRPCQueryServer().Value)
+	assert.Equal(t, "https://json.chalk.ai", manager.GetJSONQueryServer().Value)
 }

@@ -409,9 +409,9 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 	}
 
 	if !strings.HasPrefix(request.URL.String(), "http:") && !strings.HasPrefix(request.URL.String(), "https:") {
-		urlBase := c.config.ApiServer.Value
+		urlBase := c.config.GetAPIServer().Value
 		if args.IsEngineRequest && args.Branch == nil {
-			urlBase = c.config.JSONQueryServer.Value
+			urlBase = c.config.GetJSONQueryServer().Value
 		}
 		var err error
 		request.URL, err = url.Parse(fmt.Sprintf(
