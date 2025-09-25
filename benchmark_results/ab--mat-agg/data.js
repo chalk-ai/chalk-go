@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758823447427,
+  "lastUpdate": 1758828715361,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26112,6 +26112,56 @@ window.BENCHMARK_DATA = {
             "value": 314.4,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "53f162d4ebac00ebdfd48e8bd25b17e1f670c560",
+          "message": "Add materialized aggregation support",
+          "timestamp": "2025-09-25T18:03:23Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/488/commits/53f162d4ebac00ebdfd48e8bd25b17e1f670c560"
+        },
+        "date": 1758828715289,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.112,
+            "unit": "ms/op",
+            "extra": "1004 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 112.8,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 35.88,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 204.2,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 382.9,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
