@@ -3,8 +3,8 @@ package config
 import (
 	"context"
 	"fmt"
-	"os"
 
+	"github.com/chalk-ai/chalk-go/envfs"
 	"github.com/cockroachdb/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -15,7 +15,8 @@ func GetProjectAuthConfig(ctx context.Context, configDir *string) (*ProjectToken
 		return nil, "", errors.Wrap(err, "getting project path for auth config")
 	}
 
-	data, err := os.ReadFile(path)
+	getter := envfs.EnvironmentGetterFromContext(ctx)
+	data, err := getter.ReadFile(path)
 	if err != nil {
 		return nil, "", fmt.Errorf("reading auth config file from path '%s': %w", path, err)
 	}
@@ -29,6 +30,6 @@ func GetProjectAuthConfig(ctx context.Context, configDir *string) (*ProjectToken
 		)
 	}
 
-	projectAuthConfig, err := getProjectAuthConfigForProjectRoot(&config, path)
+	projectAuthConfig, err := getProjectAuthConfigForProjectRoot(&config, path, getter)
 	return projectAuthConfig, path, errors.Wrap(err, "error getting project auth config")
 }

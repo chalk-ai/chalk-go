@@ -3,7 +3,7 @@ package integration
 import (
 	"context"
 	chalk "github.com/chalk-ai/chalk-go"
-	"github.com/chalk-ai/chalk-go/config"
+	"github.com/chalk-ai/chalk-go/envfs"
 )
 
 var restClient chalk.Client
@@ -15,7 +15,7 @@ func init() {
 	}
 
 	ctx := context.Background()
-	if config.EnvironmentGetterFromContext(ctx).Getenv("INTEGRATION_TESTER") == "" {
+	if envfs.EnvironmentGetterFromContext(ctx).Getenv("INTEGRATION_TESTER") == "" {
 		return
 	}
 

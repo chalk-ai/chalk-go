@@ -3,9 +3,9 @@ package config
 import (
 	"context"
 	"errors"
-	"os"
 	"path/filepath"
 
+	"github.com/chalk-ai/chalk-go/envfs"
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"gopkg.in/yaml.v3"
 )
@@ -26,19 +26,19 @@ func getDefaultConfig(project string) ProjectSettings {
 var DefaultRequirements = "requirements.txt"
 var ChalkIgnore = ".chalkignore"
 
-func checkDirectory(directory string, filename string) (*ProjectSettings, error) {
+func checkDirectory(getter envfs.EnvironmentGetter, directory string, filename string) (*ProjectSettings, error) {
 	configFilename := filepath.Join(directory, filename)
-	if _, err := os.Stat(configFilename); err != nil {
+	if _, err := getter.Stat(configFilename); err != nil {
 		return nil, nil
 	}
 
 	hasDefaultRequirements := false
 	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
-	if _, err := os.Stat(defaultRequirementsFilename); err == nil {
+	if _, err := getter.Stat(defaultRequirementsFilename); err == nil {
 		hasDefaultRequirements = true
 	}
 
-	yfile, err := os.ReadFile(configFilename)
+	yfile, err := getter.ReadFile(configFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 	}
 
 	chalkIgnoreFilename := filepath.Join(directory, ChalkIgnore)
-	if _, err := os.Stat(chalkIgnoreFilename); err == nil {
+	if _, err := getter.Stat(chalkIgnoreFilename); err == nil {
 		settings.ChalkIgnore = &chalkIgnoreFilename
 	}
 
@@ -66,13 +66,14 @@ func checkDirectory(directory string, filename string) (*ProjectSettings, error)
 }
 
 func LoadProjectConfig(ctx context.Context) (*ProjectSettings, error) {
-	currentDirectory, err := EnvironmentGetterFromContext(ctx).Getwd()
+	getter := envfs.EnvironmentGetterFromContext(ctx)
+	currentDirectory, err := getter.Getwd()
 	if err != nil {
 		return nil, err
 	}
 	for lastCheckedDirectory := ""; lastCheckedDirectory != currentDirectory; currentDirectory = filepath.Dir(currentDirectory) {
 		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
-			if settings, err := checkDirectory(currentDirectory, filename); settings != nil && err == nil {
+			if settings, err := checkDirectory(getter, currentDirectory, filename); settings != nil && err == nil {
 				return settings, nil
 			}
 		}

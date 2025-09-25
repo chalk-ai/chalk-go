@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/chalk-ai/chalk-go/envfs"
 )
 
 type SourcedValueT interface {
@@ -95,7 +97,7 @@ func NewFromArg[T SourcedValueT](value T) SourcedConfig[T] {
 
 func NewFromEnvVar[T ~string](ctx context.Context, key string) SourcedConfig[T] {
 	return SourcedConfig[T]{
-		Value:  T(EnvironmentGetterFromContext(ctx).Getenv(key)),
+		Value:  T(envfs.EnvironmentGetterFromContext(ctx).Getenv(key)),
 		Source: fmt.Sprintf("environment variable '%s'", key),
 		Kind:   EnvSourceKind,
 	}
