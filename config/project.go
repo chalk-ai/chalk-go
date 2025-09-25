@@ -2,32 +2,81 @@ package config
 
 import (
 	"context"
-	"fmt"
-	"github.com/cockroachdb/errors"
-	"gopkg.in/yaml.v3"
+	"errors"
 	"os"
+	"path/filepath"
+
+	"github.com/chalk-ai/chalk-go/internal/ptr"
+	"gopkg.in/yaml.v3"
 )
 
-func GetProjectAuthConfig(ctx context.Context, configDir *string) (*ProjectToken, string, error) {
-	path, err := getConfigPath(ctx, configDir)
+func getDefaultConfig(project string) ProjectSettings {
+	return ProjectSettings{
+		Project: project,
+		Environments: map[string]*EnvironmentSettings{
+			"default": {
+				Runtime:      ptr.New("python312"),
+				Dockerfile:   nil,
+				Requirements: ptr.New("requirements.txt"),
+			},
+		},
+	}
+}
+
+var DefaultRequirements = "requirements.txt"
+var ChalkIgnore = ".chalkignore"
+
+func checkDirectory(directory string, filename string) (*ProjectSettings, error) {
+	configFilename := filepath.Join(directory, filename)
+	if _, err := os.Stat(configFilename); err != nil {
+		return nil, nil
+	}
+
+	hasDefaultRequirements := false
+	defaultRequirementsFilename := filepath.Join(directory, DefaultRequirements)
+	if _, err := os.Stat(defaultRequirementsFilename); err == nil {
+		hasDefaultRequirements = true
+	}
+
+	yfile, err := os.ReadFile(configFilename)
 	if err != nil {
-		return nil, "", errors.Wrap(err, "getting project path for auth config")
+		return nil, err
 	}
 
-	data, err := os.ReadFile(path)
+	settings := ProjectSettings{
+		LocalDirectory: directory,
+		Filename:       configFilename,
+	}
+	err = yaml.Unmarshal(yfile, &settings)
 	if err != nil {
-		return nil, "", fmt.Errorf("reading auth config file from path '%s': %w", path, err)
+		return nil, err
+	}
+	for _, env := range settings.Environments {
+		if (env.Requirements == nil || *env.Requirements == "") && hasDefaultRequirements {
+			env.Requirements = &DefaultRequirements
+		}
 	}
 
-	config := ProjectTokens{}
-	if err = yaml.Unmarshal(data, &config); err != nil {
-		return nil, "", errors.Wrapf(
-			err,
-			"parsing auth config file at path '%s': make sure you have run 'chalk login' successfully.",
-			path,
-		)
+	chalkIgnoreFilename := filepath.Join(directory, ChalkIgnore)
+	if _, err := os.Stat(chalkIgnoreFilename); err == nil {
+		settings.ChalkIgnore = &chalkIgnoreFilename
 	}
 
-	projectAuthConfig, err := getProjectAuthConfigForProjectRoot(&config, path)
-	return projectAuthConfig, path, errors.Wrap(err, "error getting project auth config")
+	return &settings, err
+}
+
+func LoadProjectConfig(ctx context.Context) (*ProjectSettings, error) {
+	currentDirectory, err := EnvironmentGetterFromContext(ctx).Getwd()
+	if err != nil {
+		return nil, err
+	}
+	for lastCheckedDirectory := ""; lastCheckedDirectory != currentDirectory; currentDirectory = filepath.Dir(currentDirectory) {
+		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
+			if settings, err := checkDirectory(currentDirectory, filename); settings != nil && err == nil {
+				return settings, nil
+			}
+		}
+		lastCheckedDirectory = currentDirectory
+	}
+	return nil, errors.New("no chalk.yaml or chalk.yml in this directory or any parent directory")
 }
