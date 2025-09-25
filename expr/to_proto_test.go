@@ -5,6 +5,7 @@ import (
 
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -673,9 +674,43 @@ func TestToProto(t *testing.T) {
 			}
 
 			actualProto := ToProto(tt.expr)
+			// need to set innermost expr_id to empty string, otherwise the equality check fails
+			exprType := tt.expr.exprType()
+			if exprType == "aggregate" {
+				switch e := actualProto.ExprForm.(type) {
+				case *expressionv1.LogicalExprNode_Call:
+					expr := e.Call.Func.GetGetAttribute().GetParent()
+					for expr.GetGetSubscript() != nil {
+						expr = expr.GetGetSubscript().GetParent()
+					}
+					//assert.True(t, expr.GetIdentifier() != nil)
+					expr.ExprId = ""
+				default:
+					t.Errorf("Invalid type %v", e)
+				}
+			} else if exprType == "dataframe" {
+				actualProto.ExprId = ""
+			}
 			if !proto.Equal(actualProto, tt.expected) {
-				t.Errorf("Proto mismatch for %s.\nExpected: %v\nActual: %v", tt.name, tt.expected, actualProto)
+				t.Errorf("Proto mismatch for %s.\nExpected: %v\nActual: %v\nType: %s", tt.name, tt.expected, actualProto, exprType)
 			}
 		})
 	}
+}
+
+func TestUnderscoreExprId(t *testing.T) {
+	expr_ := Identifier("_")
+	expr__ := Identifier("__")
+	expr_col := Col("_")
+	proto_1 := ToProto(expr_)
+	proto_2 := ToProto(expr_)
+	proto_col1 := ToProto(expr_col)
+	proto_col2 := ToProto(expr_col)
+	proto__ := ToProto(expr__)
+
+	// expression ids must be distinct
+	assert.NotEqual(t, proto_1.ExprId, proto_2.ExprId)
+	assert.NotEqual(t, proto_col1.ExprId, proto_col2.ExprId)
+	// double underscore expressions are identical
+	assert.Equal(t, proto__.ExprId, "")
 }

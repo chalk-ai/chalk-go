@@ -464,6 +464,10 @@ func ChalkNow() Expr {
 	return Col("_").Attr("chalk_now")
 }
 
+func ChalkWindow() Expr {
+	return Col("_").Attr("chalk_window")
+}
+
 // DataFrame creates a dataframe reference for aggregations
 func DataFrame(name string) DataFrameExpr {
 	return &dataFrameExprImpl{

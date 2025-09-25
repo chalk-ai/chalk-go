@@ -9,6 +9,8 @@ require (
 	github.com/apache/arrow/go/v16 v16.1.0
 	github.com/chalk-ai/chalk-go/gen v0.0.0-00010101000000-000000000000
 	github.com/cockroachdb/errors v1.12.0
+	github.com/google/uuid v1.6.0
+	github.com/iancoleman/strcase v0.3.0
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/net v0.42.0
 	golang.org/x/sync v0.16.0
@@ -24,7 +26,6 @@ require (
 	github.com/goccy/go-json v0.10.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/flatbuffers v24.12.23+incompatible // indirect
-	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/kr/pretty v0.3.1 // indirect

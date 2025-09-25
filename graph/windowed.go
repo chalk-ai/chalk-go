@@ -12,6 +12,8 @@ import (
 )
 
 // Duration helper functions
+// time library doesn't easily support units longer than an hour
+// due to underlying int representation, you can define durations like Weeks(1)+Days(5)+Hours(3)
 func Seconds(n int64) time.Duration {
 	return time.Duration(n) * time.Second
 }
