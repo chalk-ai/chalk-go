@@ -17,7 +17,7 @@ type Manager struct {
 }
 
 type ManagerInputs struct {
-	ApiServer       string
+	APIServer       string
 	GRPCQueryServer string
 	JSONQueryServer string
 	ClientId        ClientId
@@ -57,7 +57,7 @@ func NewManager(ctx context.Context, inputs *ManagerInputs) (*Manager, error) {
 
 	manager := &Manager{
 		apiServer: AddScheme(GetFirstNonEmpty(
-			NewFromArg(inputs.ApiServer),
+			NewFromArg(inputs.APIServer),
 			NewFromEnvVar[string](ctx, "CHALK_API_SERVER"),
 			NewFromEnvVar[string](ctx, "_CHALK_API_SERVER"),
 			NewFromFile(configPath, chalkYamlConfig.ApiServer),

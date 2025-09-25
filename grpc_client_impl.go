@@ -66,7 +66,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	configManager, err := config.NewManager(
 		ctx,
 		&config.ManagerInputs{
-			ApiServer:       cfg.ApiServer,
+			APIServer:       cfg.ApiServer,
 			GRPCQueryServer: cfg.QueryServer,
 			ClientId:        config.ClientId(cfg.ClientId),
 			ClientSecret:    config.ClientSecret(cfg.ClientSecret),

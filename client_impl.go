@@ -610,7 +610,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 	manager, err := config.NewManager(
 		ctx,
 		&config.ManagerInputs{
-			ApiServer:       cfg.ApiServer,
+			APIServer:       cfg.ApiServer,
 			JSONQueryServer: cfg.QueryServer,
 			ClientId:        config.ClientId(cfg.ClientId),
 			ClientSecret:    config.ClientSecret(cfg.ClientSecret),
