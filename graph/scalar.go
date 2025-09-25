@@ -105,7 +105,12 @@ func Datetime() *ScalarFeatureBuilder {
 	return &ScalarFeatureBuilder{
 		proto: &graphv1.ScalarFeatureType{
 			ArrowType: &arrowv1.ArrowType{
-				ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{},
+				ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{
+					Timestamp: &arrowv1.Timestamp{
+						TimeUnit: arrowv1.TimeUnit_TIME_UNIT_MICROSECOND,
+						Timezone: "UTC",
+					},
+				},
 			},
 			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
 			StoreOnline:   &TRUE,
