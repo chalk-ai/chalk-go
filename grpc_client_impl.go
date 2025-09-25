@@ -66,7 +66,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	configManager, err := config.NewManager(
 		ctx,
 		&config.ManagerInputs{
-			ApiServer:       cfg.ApiServer,
+			APIServer:       cfg.ApiServer,
 			GRPCQueryServer: cfg.QueryServer,
 			ClientId:        config.ClientId(cfg.ClientId),
 			ClientSecret:    config.ClientSecret(cfg.ClientSecret),
@@ -99,7 +99,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		resourceGroup = &cfg.ResourceGroup
 	}
 
-	resolvedQueryServer := configManager.GRPCQueryServer.Value
+	resolvedQueryServer := configManager.GetGRPCQueryServer().Value
 	if strings.HasPrefix(resolvedQueryServer, "http://") {
 		// Unsecured client
 		// From https://connectrpc.com/docs/go/deployment#h2c
@@ -153,7 +153,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	)
 
 	// Create GraphServiceClient with API server endpoint
-	apiServerURL := configManager.ApiServer.Value
+	apiServerURL := configManager.GetAPIServer().Value
 	authedServerInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
@@ -425,10 +425,10 @@ func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {
 	return &GRPCClientConfig{
 		ClientId:      string(c.config.ClientId.Value),
 		ClientSecret:  string(c.config.ClientSecret.Value),
-		ApiServer:     c.config.ApiServer.Value,
+		ApiServer:     c.config.GetAPIServer().Value,
 		EnvironmentId: c.config.EnvironmentId.Value,
 		Branch:        c.branch,
-		QueryServer:   c.config.GRPCQueryServer.Value,
+		QueryServer:   c.config.GetGRPCQueryServer().Value,
 		Logger:        c.logger,
 		HTTPClient:    c.httpClient,
 		DeploymentTag: c.deploymentTag,
