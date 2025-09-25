@@ -15,6 +15,7 @@ import (
 func TestOnlineQuery(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	restClient := newRestClient(t)
 
 	params := chalk.OnlineQueryParams{}.
 		WithOutputs(
@@ -65,10 +66,12 @@ func TestOnlineQueryBulk(t *testing.T) {
 					testFeatures.AllTypes.IntFeat,
 				)
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				res, err := grpcClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
 			} else {
+				restClient := newRestClient(t)
 				res, err := restClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 				assert.NoError(t, res.UnmarshalInto(&results))
@@ -104,6 +107,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 			var row allTypes
 
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				var allResults []allTypes
 				bulkParams := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.AllTypes.Id, []int64{1}).
@@ -121,6 +125,7 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, hmOutput)
 			} else {
+				restClient := newRestClient(t)
 				params := chalk.OnlineQueryParams{}.
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithInput(testFeatures.AllTypes.HasMany, hmInput).
@@ -180,9 +185,11 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 				WithStaleness(testFeatures.AllTypes.IntFeat, time.Minute*10)
 
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				_, err := grpcClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 			} else {
+				restClient := newRestClient(t)
 				_, err := restClient.OnlineQueryBulk(t.Context(), req)
 				assert.NoError(t, err)
 			}
@@ -221,12 +228,14 @@ func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 				WithStaleness(testFeatures.AllTypes.IntFeat, time.Minute*10)
 
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				_, err := grpcClient.OnlineQueryBulk(
 					t.Context(),
 					req.WithInput(testFeatures.AllTypes.Id, []int64{1}),
 				)
 				assert.NoError(t, err)
 			} else {
+				restClient := newRestClient(t)
 				_, err := restClient.OnlineQuery(
 					t.Context(),
 					req.WithInput(testFeatures.AllTypes.Id, int64(1)),

@@ -41,6 +41,7 @@ func TestNamedQueries(t *testing.T) {
 					t.Parallel()
 
 					if useGrpc {
+						grpcClient := newGRPCClient(t)
 						params := chalk.OnlineQueryParams{}.
 							WithInput(testFeatures.NQFeatures.Id, []int64{1}).
 							WithQueryName(tc.queryName).
@@ -56,6 +57,7 @@ func TestNamedQueries(t *testing.T) {
 
 						assert.Equal(t, tc.expectedName, *results[0].Name)
 					} else {
+						restClient := newRestClient(t)
 						params := chalk.OnlineQueryParams{}.
 							WithInput(testFeatures.NQFeatures.Id, int64(1)).
 							WithQueryName(tc.queryName).

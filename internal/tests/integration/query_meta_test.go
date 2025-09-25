@@ -23,6 +23,7 @@ func TestCacheHitMeta(t *testing.T) {
 			randomNumber := rand.Float64()
 
 			// Upload feature to cache
+			restClient := newRestClient(t)
 			_, err := restClient.UploadFeatures(t.Context(), chalk.UploadFeaturesParams{
 				Inputs: map[any]any{
 					testFeatures.Cached.Id:                   []string{pkey},
@@ -32,6 +33,7 @@ func TestCacheHitMeta(t *testing.T) {
 			assert.NoError(t, err)
 
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				bulkParams := chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.Cached.Id, []string{pkey}).
 					WithOutputs(testFeatures.Cached.Id, testFeatures.Cached.RandomUploadedNumber)
@@ -74,6 +76,7 @@ func TestResolverMeta(t *testing.T) {
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			if useGrpc {
+				grpcClient := newGRPCClient(t)
 				resolverRes, err := grpcClient.OnlineQueryBulk(t.Context(), chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.AllTypes.Id, []int64{1}).
 					WithOutputs(testFeatures.AllTypes.StrFeat),
@@ -85,6 +88,7 @@ func TestResolverMeta(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, resolverFqn, resolvedFeat.Meta.ResolverFqn)
 			} else {
+				restClient := newRestClient(t)
 				res, err := restClient.OnlineQuery(t.Context(), chalk.OnlineQueryParams{IncludeMeta: true}.
 					WithInput(testFeatures.AllTypes.Id, 1).
 					WithOutputs(testFeatures.AllTypes.StrFeat),

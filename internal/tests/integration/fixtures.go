@@ -1,35 +1,31 @@
 package integration
 
 import (
-	"context"
+	"sync"
+	"testing"
+
 	chalk "github.com/chalk-ai/chalk-go"
-	"github.com/chalk-ai/chalk-go/config"
+	"github.com/stretchr/testify/assert"
 )
 
-var restClient chalk.Client
-var grpcClient chalk.GRPCClient
+var initOnce sync.Once
 
-func init() {
-	if err := chalk.InitFeatures(&testFeatures); err != nil {
-		panic(err)
-	}
+func newRestClient(t *testing.T) chalk.Client {
+	initOnce.Do(func() {
+		assert.NoError(t, chalk.InitFeatures(&testFeatures))
+	})
+	client, err := chalk.NewClient(t.Context())
+	assert.NoError(t, err)
+	return client
+}
 
-	ctx := context.Background()
-	if config.EnvironmentGetterFromContext(ctx).Getenv("INTEGRATION_TESTER") == "" {
-		return
-	}
-
-	client, err := chalk.NewClient(ctx)
-	if err != nil {
-		panic(err)
-	}
-	restClient = client
-
-	clientGrpc, err := chalk.NewGRPCClient(ctx)
-	if err != nil {
-		panic(err)
-	}
-	grpcClient = clientGrpc
+func newGRPCClient(t *testing.T) chalk.GRPCClient {
+	initOnce.Do(func() {
+		assert.NoError(t, chalk.InitFeatures(&testFeatures))
+	})
+	client, err := chalk.NewGRPCClient(t.Context())
+	assert.NoError(t, err)
+	return client
 }
 
 type allTypes struct {
