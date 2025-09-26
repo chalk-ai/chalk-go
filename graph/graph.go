@@ -231,10 +231,23 @@ func toFilterParsedProto(expression expr.ExprI) (*expressionv1.LogicalExprNode, 
 		}, nil
 
 	case *expr.GetAttributeExpr:
+		// 			ExprType: &expressionv1.LogicalExprNode_Column{
+		//				Column: &expressionv1.Column{
+		//					Name: e.Attribute,
+		//			ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+		//				GetAttribute: &expressionv1.ExprGetAttribute{
+		//					Parent: expr.ToProto(e.Parent),
+		//					Attribute: &expressionv1.Identifier{
+		//						Name: e.Attribute,
+		//					},
+		//				},
 		return &expressionv1.LogicalExprNode{
 			ExprType: &expressionv1.LogicalExprNode_Column{
 				Column: &expressionv1.Column{
 					Name: e.Attribute,
+					Relation: &expressionv1.ColumnRelation{
+						Relation: e.Parent.String(),
+					},
 				},
 			},
 		}, nil

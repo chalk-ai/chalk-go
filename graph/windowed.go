@@ -238,7 +238,7 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 				ArrowType:                scalarPtr.proto.ArrowType,
 
 				// set from MaterializationOptions
-				GroupBy:                  m.GroupBy,
+				//GroupBy:                  m.GroupBy,
 				ApproxTopKArgK:           &m.ApproxTopKArgK,
 				BackfillResolver:         &m.BackfillResolver,
 				BackfillLookbackDuration: durationpb.New(m.BackfillLookbackDuration),
