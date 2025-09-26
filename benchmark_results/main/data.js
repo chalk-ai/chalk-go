@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758848585804,
+  "lastUpdate": 1758861739011,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26166,6 +26166,60 @@ window.BENCHMARK_DATA = {
             "value": 311.5,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "26ba2a31863726291b5e8446b1b2796d4b6543b5",
+          "message": "Minor bugfixes on goproto definitions for Windowed features",
+          "timestamp": "2025-09-25T21:41:26-07:00",
+          "tree_id": "1520b1aa994353c708fddf7937c8cb23cebfe844",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/26ba2a31863726291b5e8446b1b2796d4b6543b5"
+        },
+        "date": 1758861738941,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.115,
+            "unit": "ms/op",
+            "extra": "1009 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 121.9,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 46.27,
+            "unit": "ms/op",
+            "extra": "22 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 204.2,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 310.7,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
