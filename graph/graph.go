@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	"github.com/chalk-ai/chalk-go/expr"
+	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	"github.com/iancoleman/strcase"
 )
 
 // shorthand useful for defining underscore expressions
+// NOTE: this isn't exported since it doesn't start with a capital letter
 func __(name string) expr.Expr {
 	return expr.Identifier("_").Attr(name)
 }
@@ -59,11 +61,15 @@ func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 		// create join conditions for any has_many without them
 		for _, f := range fs.Features {
 			hm := f.GetHasMany()
-			if hm != nil && hm.Join != nil {
+			if hm != nil && hm.Join == nil {
 				foreignExtras := nameToFeatureSet[hm.ForeignNamespace]
-				foreignCol := expr.ColIn(foreignExtras.foreignKeys[fs.Name], hm.ForeignNamespace)
-				primaryCol := expr.ColIn(extras.primaryName, fs.Name)
-				hm.Join = expr.ToProto(foreignCol.Eq(primaryCol))
+				foreignCol := expr.ColIn(hm.ForeignNamespace, foreignExtras.foreignKeys[fs.Name])
+				primaryCol := expr.ColIn(fs.Name, extras.primaryName)
+				join, err := toFilterParsedProto(foreignCol.Eq(primaryCol))
+				if err != nil {
+					return nil, err
+				}
+				hm.Join = join
 			}
 		}
 		// materialize foreign keys
@@ -206,4 +212,94 @@ func (hm *HasManyFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 			},
 		},
 	}, nil
+}
+
+// ToProto converts an ExprI to a LogicalExprNode proto message using legacy FilterParsed operators
+func toFilterParsedProto(expression expr.ExprI) (*expressionv1.LogicalExprNode, error) {
+	if expression == nil {
+		return nil, nil
+	}
+
+	switch e := expression.(type) {
+	case *expr.IdentifierExpr:
+		return &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_Column{
+				Column: &expressionv1.Column{
+					Name: e.Name,
+				},
+			},
+		}, nil
+
+	case *expr.GetAttributeExpr:
+		return &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_Column{
+				Column: &expressionv1.Column{
+					Name: e.Attribute,
+				},
+			},
+		}, nil
+
+	case *expr.LiteralExpr:
+		return &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_Literal{
+				Literal: e.ScalarValue,
+			},
+		}, nil
+
+	case *expr.ColumnExpr:
+		return &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_Column{
+				Column: &expressionv1.Column{
+					Name: e.Name,
+					Relation: &expressionv1.ColumnRelation{
+						Relation: e.Relation,
+					},
+				},
+			},
+		}, nil
+
+	case *expr.CallExpr:
+		op := e.Function.String()
+		switch op {
+		case "=":
+			op = "=="
+		case "AND":
+			op = "and"
+		case "OR":
+			op = "or"
+		case "NOT":
+			op = "not"
+		// these have the same symbol
+		case "!=":
+		case "<":
+		case "<=":
+		case ">":
+		case ">=":
+		// any others are not supported
+		default:
+			return nil, fmt.Errorf("operator %s not allowed in filters", op)
+		}
+
+		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
+		for i, e := range e.Args {
+			proto, err := toFilterParsedProto(e)
+			if err != nil {
+				return nil, err
+			}
+			args[i] = proto
+		}
+
+		return &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
+				BinaryExpr: &expressionv1.BinaryExprNode{
+					Op:       op,
+					Operands: args,
+				},
+			},
+		}, nil
+
+	default:
+		// Fallback for unknown expression types
+		return nil, fmt.Errorf("invalid expression type for filter (%T)", e)
+	}
 }

@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
+	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	"github.com/iancoleman/strcase"
 	proto "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -37,6 +39,7 @@ type WindowedFeatureBuilder struct {
 	ofType          FeatureBuilder
 	Default         expr.Expr
 	Expression      expr.Expr
+	isMaterialized  bool
 	Materialization MaterializationOptions
 	err             error
 }
@@ -84,7 +87,6 @@ type MaterializationOptions struct {
 	GroupBy []*graphv1.FeatureReference
 	// The 'k' arg of approx_top_k.
 	ApproxTopKArgK int64
-	Filters        []expr.Expr
 	// The resolver to use for back-filling the materialized aggregate.
 	// If not provided, the data will be back filled using the resolver
 	// that would run for an offline query.
@@ -104,18 +106,22 @@ type MaterializationOptions struct {
 }
 
 func (w *WindowedFeatureBuilder) WithBucketDuration(duration time.Duration) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	w.Materialization.DefaultBucketDuration = duration
 	return w
 }
 
 func (w *WindowedFeatureBuilder) WithDurationForWindows(duration time.Duration, windows ...time.Duration) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	for _, d := range windows {
 		w.Materialization.BucketDurations[d] = duration
 	}
 	return w
 }
 
+// NOTE: this will override all previous materialization settings (WithBucketDuration,WithDurationForWindows)
 func (w *WindowedFeatureBuilder) WithMaterialization(mo MaterializationOptions) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	w.Materialization = mo
 	return w
 }
@@ -125,6 +131,57 @@ func GetDefault[M ~map[K]V, K comparable, V any](m M, k K, def V) V {
 		return v
 	}
 	return def
+}
+
+func combineFilters(filters []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
+	f := filters[len(filters)-1]
+	for i := len(filters) - 2; i >= 0; i-- {
+		f = &expressionv1.LogicalExprNode{
+			ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
+				BinaryExpr: &expressionv1.BinaryExprNode{
+					Op: "and",
+					Operands: []*expressionv1.LogicalExprNode{
+						filters[i],
+						f,
+					},
+				},
+			},
+		}
+	}
+	return f
+}
+
+func aggregateOnFromExpr(namespace string, filters []*expressionv1.LogicalExprNode, aggPtr *expr.AggregateExprImpl) (*graphv1.FeatureReference, error) {
+	s := aggPtr.Selection
+	name := ""
+	switch e := s.(type) {
+	case nil:
+		if aggPtr.Function != "count" {
+			return nil, fmt.Errorf("did not select an expression in non-count dataframe aggregation: %s", aggPtr.Function)
+		} else { // return null feature reference
+			return nil, nil
+		}
+	case *expr.ColumnExpr:
+		name = e.Name
+	case *expr.IdentifierExpr:
+		name = e.Name
+	case *expr.GetAttributeExpr:
+		name = e.Attribute
+	default:
+		return nil, fmt.Errorf("invalid expression selected in dataframe aggregation: %T", s)
+	}
+	if name == "" {
+		return nil, fmt.Errorf("incorrectly extracted name from %s", s.String())
+	}
+	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
+	return &graphv1.FeatureReference{
+		Name:      name,
+		Namespace: namespace,
+		Df: &graphv1.DataFrameType{
+			RootNamespace: strcase.ToSnake(df.Name),
+			Filter:        combineFilters(filters),
+		},
+	}, nil
 }
 
 func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
@@ -142,6 +199,23 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 		if !ok {
 			return nil, fmt.Errorf("windowed features must be scalar")
 		}
+		aggPtr, ok := w.Expression.(*expr.AggregateExprImpl)
+		if !ok {
+			return nil, fmt.Errorf("windowed feature expression must be dataframe aggregation")
+		}
+		filters := make([]*expressionv1.LogicalExprNode, len(aggPtr.Conditions))
+		for i, cond := range aggPtr.Conditions {
+			f, err := toFilterParsedProto(cond)
+			if err != nil {
+				return nil, err
+			}
+			filters[i] = f
+		}
+		aggOn, err := aggregateOnFromExpr(namespace, filters, aggPtr)
+		if err != nil {
+			return nil, err
+		}
+
 		// Add duration suffix to the scalar feature name
 		durationSeconds := int64(d.AsDuration().Seconds())
 		suffixedFieldName := fmt.Sprintf("%s__%d__", fieldName, durationSeconds)
@@ -158,12 +232,21 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 				ContinuousBufferDuration: durationpb.New(m.ContinuousBufferDuration),
 				BackfillSchedule:         MaybeStr(m.BackfillSchedule),
 				BucketStart:              timestamppb.New(m.BucketStart),
-				//do we get this from the expression?
-				//Aggregation    string
-				//AggregateOn    *graphv1.FeatureReference
-				//ArrowType      *v11.ArrowType
+				Aggregation:              aggPtr.Function,
+				AggregateOn:              aggOn,
+				Filters:                  filters,
+				ArrowType:                scalarPtr.proto.ArrowType,
+
+				// set from MaterializationOptions
+				GroupBy:                  m.GroupBy,
+				ApproxTopKArgK:           &m.ApproxTopKArgK,
+				BackfillResolver:         &m.BackfillResolver,
+				BackfillLookbackDuration: durationpb.New(m.BackfillLookbackDuration),
+				BackfillStartTime:        timestamppb.New(m.BackfillStartTime),
+				ContinuousResolver:       &m.ContinuousResolver,
 			},
 		}
+		f.Type.(*graphv1.FeatureType_Scalar).Scalar.Expression = expr.ToProto(w.Expression)
 		if w.Default != nil {
 			lit, ok := w.Default.(*expr.LiteralExpr)
 			if !ok {

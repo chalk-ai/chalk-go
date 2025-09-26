@@ -83,11 +83,11 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 		// but we can represent them as the underlying expression for now
 		return ToProto(e.Expression)
 
-	case *dataFrameExprImpl:
+case *DataFrameExprImpl:
 		// DataFrame reference as identifier
 		return ToIdentifierLiteral(e.Name)
 
-	case *aggregateExprImpl:
+case *AggregateExprImpl:
 		// Build the base DataFrame reference
 		dataframeNode := ToProto(e.DataFrame)
 

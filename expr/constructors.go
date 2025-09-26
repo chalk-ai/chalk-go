@@ -371,7 +371,7 @@ func Col(name string) Expr {
 }
 
 // maybe replace with a relation.name call to Col?
-func ColIn(name string, relation string) Expr {
+func ColIn(relation string, name string) Expr {
 	return &ColumnExpr{
 		Name:     name,
 		Relation: relation,
@@ -466,24 +466,24 @@ func ChalkNow() Expr {
 
 // DataFrame creates a dataframe reference for aggregations
 func DataFrame(name string) DataFrameExpr {
-	return &dataFrameExprImpl{
+	return &DataFrameExprImpl{
 		Name: name,
 	}
 }
 
-// dataFrameExprImpl represents a dataframe for aggregation operations
-type dataFrameExprImpl struct {
+// DataFrameExprImpl represents a dataframe for aggregation operations
+type DataFrameExprImpl struct {
 	Expr
 	Name       string
 	Conditions []Expr // Store accumulated filter conditions
 	Selection  Expr   // Store expression to be aggregated
 }
 
-func (e *dataFrameExprImpl) exprType() string {
+func (e *DataFrameExprImpl) exprType() string {
 	return "dataframe"
 }
 
-func (e *dataFrameExprImpl) String() string {
+func (e *DataFrameExprImpl) String() string {
 	if len(e.Conditions) == 0 {
 		return e.Name
 	}
@@ -496,56 +496,56 @@ func (e *dataFrameExprImpl) String() string {
 	return result
 }
 
-// Implement Expr interface for dataFrameExprImpl
-func (e *dataFrameExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other) }
-func (e *dataFrameExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
-func (e *dataFrameExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
-func (e *dataFrameExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *dataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
-func (e *dataFrameExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
-func (e *dataFrameExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
-func (e *dataFrameExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
-func (e *dataFrameExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
-func (e *dataFrameExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *dataFrameExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *dataFrameExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *dataFrameExprImpl) Not() Expr           { return unaryOp("NOT", e) }
-func (e *dataFrameExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
-func (e *dataFrameExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
-func (e *dataFrameExprImpl) Attr(attribute string) Expr {
+// Implement Expr interface for DataFrameExprImpl
+func (e *DataFrameExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other) }
+func (e *DataFrameExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
+func (e *DataFrameExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
+func (e *DataFrameExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
+func (e *DataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *DataFrameExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
+func (e *DataFrameExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
+func (e *DataFrameExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
+func (e *DataFrameExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
+func (e *DataFrameExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
+func (e *DataFrameExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
+func (e *DataFrameExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
+func (e *DataFrameExprImpl) Not() Expr           { return unaryOp("NOT", e) }
+func (e *DataFrameExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *DataFrameExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
+func (e *DataFrameExprImpl) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
 }
-func (e *dataFrameExprImpl) As(alias string) Expr {
+func (e *DataFrameExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
-func (e *dataFrameExprImpl) Apply(args ...Expr) Expr {
+func (e *DataFrameExprImpl) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
 
 // Implement DataFrameExpr interface
-func (e *dataFrameExprImpl) Filter(condition ExprI) DataFrameExpr {
+func (e *DataFrameExprImpl) Filter(condition ExprI) DataFrameExpr {
 	// Chain conditions with AND logic
 	conditions := make([]Expr, len(e.Conditions)+1)
 	copy(conditions, e.Conditions)
 	conditions[len(e.Conditions)] = condition.(Expr)
 
-	return &dataFrameExprImpl{
+	return &DataFrameExprImpl{
 		Name:       e.Name,
 		Conditions: conditions,
 		Selection:  e.Selection,
 	}
 }
 
-func (e *dataFrameExprImpl) Select(selection Expr) DataFrameExpr {
-	return &dataFrameExprImpl{
+func (e *DataFrameExprImpl) Select(selection Expr) DataFrameExpr {
+	return &DataFrameExprImpl{
 		Name:       e.Name,
 		Conditions: e.Conditions,
 		Selection:  selection,
 	}
 }
 
-func (e *dataFrameExprImpl) Agg(aggFunc string) Expr {
-	return &aggregateExprImpl{
+func (e *DataFrameExprImpl) Agg(aggFunc string) Expr {
+	return &AggregateExprImpl{
 		Function:   aggFunc,
 		DataFrame:  e,
 		Conditions: e.Conditions,
@@ -553,8 +553,8 @@ func (e *dataFrameExprImpl) Agg(aggFunc string) Expr {
 	}
 }
 
-// aggregateExprImpl represents an aggregation expression that returns a scalar
-type aggregateExprImpl struct {
+// AggregateExprImpl represents an aggregation expression that returns a scalar
+type AggregateExprImpl struct {
 	Expr
 	Function   string
 	DataFrame  DataFrameExpr
@@ -563,44 +563,44 @@ type aggregateExprImpl struct {
 	Selection  Expr
 }
 
-func (e *aggregateExprImpl) exprType() string {
+func (e *AggregateExprImpl) exprType() string {
 	return "aggregate"
 }
 
-func (e *aggregateExprImpl) String() string {
+func (e *AggregateExprImpl) String() string {
 	// Use the DataFrame's string representation which includes filters
 	return fmt.Sprintf("%s.agg(%s)", e.DataFrame, e.Function)
 }
 
-// Implement Expr interface for aggregateExprImpl
-func (e *aggregateExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other) }
-func (e *aggregateExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
-func (e *aggregateExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
-func (e *aggregateExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *aggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
-func (e *aggregateExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
-func (e *aggregateExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
-func (e *aggregateExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
-func (e *aggregateExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
-func (e *aggregateExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *aggregateExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *aggregateExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *aggregateExprImpl) Not() Expr           { return unaryOp("NOT", e) }
-func (e *aggregateExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
-func (e *aggregateExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
-func (e *aggregateExprImpl) Attr(attribute string) Expr {
+// Implement Expr interface for AggregateExprImpl
+func (e *AggregateExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other) }
+func (e *AggregateExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
+func (e *AggregateExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
+func (e *AggregateExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
+func (e *AggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *AggregateExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
+func (e *AggregateExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
+func (e *AggregateExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
+func (e *AggregateExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
+func (e *AggregateExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
+func (e *AggregateExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
+func (e *AggregateExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
+func (e *AggregateExprImpl) Not() Expr           { return unaryOp("NOT", e) }
+func (e *AggregateExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *AggregateExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
+func (e *AggregateExprImpl) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
 }
-func (e *aggregateExprImpl) As(alias string) Expr {
+func (e *AggregateExprImpl) As(alias string) Expr {
 	return &AliasExpr{Expression: e, Alias: alias}
 }
-func (e *aggregateExprImpl) Apply(args ...Expr) Expr {
+func (e *AggregateExprImpl) Apply(args ...Expr) Expr {
 	return &CallExpr{Function: e, Args: args}
 }
 
 // WithDistinct adds DISTINCT to the aggregation
-func (e *aggregateExprImpl) WithDistinct() *aggregateExprImpl {
-	return &aggregateExprImpl{
+func (e *AggregateExprImpl) WithDistinct() *AggregateExprImpl {
+	return &AggregateExprImpl{
 		Function:  e.Function,
 		DataFrame: e.DataFrame,
 		Selection: e.Selection,
