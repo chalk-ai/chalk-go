@@ -371,7 +371,7 @@ func Col(name string) Expr {
 }
 
 // maybe replace with a relation.name call to Col?
-func ColIn(name string, relation string) Expr {
+func ColIn(relation string, name string) Expr {
 	return &ColumnExpr{
 		Name:     name,
 		Relation: relation,

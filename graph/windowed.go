@@ -133,16 +133,14 @@ func GetDefault[M ~map[K]V, K comparable, V any](m M, k K, def V) V {
 	return def
 }
 
-// TODO: do I need to convert inner exprs to binaryexprs as well?
-/* this results in a deprecation warning
 func combineFilters(filters []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
 	f := filters[len(filters)-1]
 	for i := len(filters) - 2; i >= 0; i-- {
 		f = &expressionv1.LogicalExprNode{
-			ExprForm: &expressionv1.LogicalExprNode_BinaryExpr{
+			ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
 				BinaryExpr: &expressionv1.BinaryExprNode{
 					Op: "and",
-					Operands: []*LogicalExprNode{
+					Operands: []*expressionv1.LogicalExprNode{
 						filters[i],
 						f,
 					},
@@ -152,12 +150,17 @@ func combineFilters(filters []*expressionv1.LogicalExprNode) *expressionv1.Logic
 	}
 	return f
 }
-*/
 
-func aggregateOnFromExpr(aggPtr *expr.AggregateExprImpl) (*graphv1.FeatureReference, error) {
+func aggregateOnFromExpr(namespace string, filters []*expressionv1.LogicalExprNode, aggPtr *expr.AggregateExprImpl) (*graphv1.FeatureReference, error) {
 	s := aggPtr.Selection
 	name := ""
 	switch e := s.(type) {
+	case nil:
+		if aggPtr.Function != "count" {
+			return nil, fmt.Errorf("did not select an expression in non-count dataframe aggregation: %s", aggPtr.Function)
+		} else { // return null feature reference
+			return nil, nil
+		}
 	case *expr.ColumnExpr:
 		name = e.Name
 	case *expr.IdentifierExpr:
@@ -165,15 +168,18 @@ func aggregateOnFromExpr(aggPtr *expr.AggregateExprImpl) (*graphv1.FeatureRefere
 	case *expr.GetAttributeExpr:
 		name = e.Attribute
 	default:
-return nil, fmt.Errorf("invalid expression selected in dataframe aggregation: %T", s)
+		return nil, fmt.Errorf("invalid expression selected in dataframe aggregation: %T", s)
+	}
+	if name == "" {
+		return nil, fmt.Errorf("incorrectly extracted name from %s", s.String())
 	}
 	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
 	return &graphv1.FeatureReference{
 		Name:      name,
-		Namespace: strcase.ToSnake(df.Name),
+		Namespace: namespace,
 		Df: &graphv1.DataFrameType{
 			RootNamespace: strcase.ToSnake(df.Name),
-			//Filter:        combineFilters(filters),
+			Filter:        combineFilters(filters),
 		},
 	}, nil
 }
@@ -199,9 +205,13 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 		}
 		filters := make([]*expressionv1.LogicalExprNode, len(aggPtr.Conditions))
 		for i, cond := range aggPtr.Conditions {
-			filters[i] = expr.ToProto(cond)
+			f, err := toFilterParsedProto(cond)
+			if err != nil {
+				return nil, err
+			}
+			filters[i] = f
 		}
-		aggOn, err := aggregateOnFromExpr(aggPtr)
+		aggOn, err := aggregateOnFromExpr(namespace, filters, aggPtr)
 		if err != nil {
 			return nil, err
 		}
@@ -226,6 +236,14 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 				AggregateOn:              aggOn,
 				Filters:                  filters,
 				ArrowType:                scalarPtr.proto.ArrowType,
+
+				// set from MaterializationOptions
+				GroupBy:                  m.GroupBy,
+				ApproxTopKArgK:           &m.ApproxTopKArgK,
+				BackfillResolver:         &m.BackfillResolver,
+				BackfillLookbackDuration: durationpb.New(m.BackfillLookbackDuration),
+				BackfillStartTime:        timestamppb.New(m.BackfillStartTime),
+				ContinuousResolver:       &m.ContinuousResolver,
 			},
 		}
 		f.Type.(*graphv1.FeatureType_Scalar).Scalar.Expression = expr.ToProto(w.Expression)
