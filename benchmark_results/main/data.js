@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1758823447427,
+  "lastUpdate": 1758848585804,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26112,6 +26112,60 @@ window.BENCHMARK_DATA = {
             "value": 314.4,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9f1438f1973f810cfea054888cdd75bb9a00caef",
+          "message": "Merge pull request #488 from chalk-ai/ab/mat-agg\n\nAdd materialized aggregation support",
+          "timestamp": "2025-09-25T18:02:12-07:00",
+          "tree_id": "675a5c51dad4b113609b4343df77ba801e448252",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/9f1438f1973f810cfea054888cdd75bb9a00caef"
+        },
+        "date": 1758848585732,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.064,
+            "unit": "ms/op",
+            "extra": "1105 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 120.5,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 43.39,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 216.8,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 311.5,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
