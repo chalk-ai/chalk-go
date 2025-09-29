@@ -65,7 +65,7 @@ func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 				foreignExtras := nameToFeatureSet[hm.ForeignNamespace]
 				foreignCol := expr.ColIn(hm.ForeignNamespace, foreignExtras.foreignKeys[fs.Name])
 				primaryCol := expr.ColIn(fs.Name, extras.primaryName)
-				join, err := toFilterParsedProto(foreignCol.Eq(primaryCol))
+				join, err := toFilterParsedProto(foreignCol.Eq(primaryCol), "")
 				if err != nil {
 					return nil, err
 				}
@@ -214,60 +214,53 @@ func (hm *HasManyFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 	}, nil
 }
 
+func toFilterParsedColumnProto(relation string, name string) *expressionv1.LogicalExprNode {
+	return &expressionv1.LogicalExprNode{
+		ExprType: &expressionv1.LogicalExprNode_Column{
+			Column: &expressionv1.Column{
+				Name: name,
+				Relation: &expressionv1.ColumnRelation{
+					Relation: relation,
+				},
+			},
+		},
+	}
+}
+
+func toFilterParsedBinaryProto(op string, operands []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
+	return &expressionv1.LogicalExprNode{
+		ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
+			BinaryExpr: &expressionv1.BinaryExprNode{
+				Op:       op,
+				Operands: operands,
+			},
+		},
+	}
+}
+
 // ToProto converts an ExprI to a LogicalExprNode proto message using legacy FilterParsed operators
-func toFilterParsedProto(expression expr.ExprI) (*expressionv1.LogicalExprNode, error) {
+func toFilterParsedProto(expression expr.ExprI, namespace string) (*expressionv1.LogicalExprNode, error) {
 	if expression == nil {
 		return nil, nil
 	}
 
 	switch e := expression.(type) {
-	case *expr.IdentifierExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprType: &expressionv1.LogicalExprNode_Column{
-				Column: &expressionv1.Column{
-					Name: e.Name,
-				},
-			},
-		}, nil
+	case *expr.ColumnExpr:
+		return toFilterParsedColumnProto(e.Relation, e.Name), nil
 
 	case *expr.GetAttributeExpr:
-		// 			ExprType: &expressionv1.LogicalExprNode_Column{
-		//				Column: &expressionv1.Column{
-		//					Name: e.Attribute,
-		//			ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
-		//				GetAttribute: &expressionv1.ExprGetAttribute{
-		//					Parent: expr.ToProto(e.Parent),
-		//					Attribute: &expressionv1.Identifier{
-		//						Name: e.Attribute,
-		//					},
-		//				},
-		return &expressionv1.LogicalExprNode{
-			ExprType: &expressionv1.LogicalExprNode_Column{
-				Column: &expressionv1.Column{
-					Name: e.Attribute,
-					Relation: &expressionv1.ColumnRelation{
-						Relation: e.Parent.String(),
-					},
-				},
-			},
-		}, nil
+		if e.Attribute == "chalk_now" && e.Parent.String() == "_" {
+			return toFilterParsedColumnProto("__chalk__", "now"), nil
+		}
+
+		return toFilterParsedBinaryProto("foreign_feature_access", []*expressionv1.LogicalExprNode{
+			toFilterParsedColumnProto(namespace, e.Attribute),
+		}), nil
 
 	case *expr.LiteralExpr:
 		return &expressionv1.LogicalExprNode{
 			ExprType: &expressionv1.LogicalExprNode_Literal{
 				Literal: e.ScalarValue,
-			},
-		}, nil
-
-	case *expr.ColumnExpr:
-		return &expressionv1.LogicalExprNode{
-			ExprType: &expressionv1.LogicalExprNode_Column{
-				Column: &expressionv1.Column{
-					Name: e.Name,
-					Relation: &expressionv1.ColumnRelation{
-						Relation: e.Relation,
-					},
-				},
 			},
 		}, nil
 
@@ -295,21 +288,14 @@ func toFilterParsedProto(expression expr.ExprI) (*expressionv1.LogicalExprNode, 
 
 		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
 		for i, e := range e.Args {
-			proto, err := toFilterParsedProto(e)
+			proto, err := toFilterParsedProto(e, namespace)
 			if err != nil {
 				return nil, err
 			}
 			args[i] = proto
 		}
 
-		return &expressionv1.LogicalExprNode{
-			ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
-				BinaryExpr: &expressionv1.BinaryExprNode{
-					Op:       op,
-					Operands: args,
-				},
-			},
-		}, nil
+		return toFilterParsedBinaryProto(op, args), nil
 
 	default:
 		// Fallback for unknown expression types

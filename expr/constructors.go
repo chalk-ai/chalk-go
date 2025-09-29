@@ -461,7 +461,11 @@ func FunctionCallWithKwargs(name string, args []Expr, kwargs map[string]Expr) Ex
 }
 
 func ChalkNow() Expr {
-	return Col("_").Attr("chalk_now")
+	return Identifier("_").Attr("chalk_now")
+}
+
+func ChalkWindow() Expr {
+	return Identifier("_").Attr("chalk_window")
 }
 
 // DataFrame creates a dataframe reference for aggregations
