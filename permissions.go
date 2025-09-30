@@ -5,17 +5,22 @@ import (
 	"strings"
 
 	authv1 "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	utilsv1 "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	"google.golang.org/protobuf/proto"
 )
 
 var permissionNameToEnum map[string]authv1.Permission = func() map[string]authv1.Permission {
 	m := make(map[string]authv1.Permission)
-	for k, v := range proto.GetExtension(
-		authv1.File_chalk_auth_v1_permissions_proto.Enums().ByName("Permission").Options(),
-		utilsv1.E_Encoding,
-	).(*utilsv1.StringEncoding).Mapping {
-		m[v] = authv1.Permission(k)
+	permissionEnum := authv1.File_chalk_auth_v1_permissions_proto.Enums().ByName("Permission")
+	values := permissionEnum.Values()
+	for i := 0; i < values.Len(); i++ {
+		value := values.Get(i)
+		// Skip PERMISSION_UNSPECIFIED (value 0)
+		if value.Number() == 0 {
+			continue
+		}
+		if slug := proto.GetExtension(value.Options(), authv1.E_Slug); slug != nil {
+			m[slug.(string)] = authv1.Permission(value.Number())
+		}
 	}
 	return m
 }()
