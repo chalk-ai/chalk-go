@@ -35,6 +35,7 @@ func init() {
 func TestWindowedAggregates(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	grpcClient := newGRPCClient(t)
 
 	now := time.Now().UTC()
 

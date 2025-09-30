@@ -21,6 +21,7 @@ var plannerOptionsFixtures = []plannerOptionsFixture{
 func TestOnlineQueryPlannerOptions(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	restClient := newRestClient(t)
 
 	for _, optionFixture := range plannerOptionsFixtures {
 		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
@@ -57,8 +58,10 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 
 				var err error
 				if useGrpc {
+					grpcClient := newGRPCClient(t)
 					_, err = grpcClient.OnlineQueryBulk(t.Context(), params)
 				} else {
+					restClient := newRestClient(t)
 					_, err = restClient.OnlineQueryBulk(t.Context(), params)
 				}
 
@@ -66,7 +69,7 @@ func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 					assert.NoError(
 						t,
 						err,
-						fmt.Sprintf("failed for environment %s", grpcClient.GetConfig().EnvironmentId),
+						"failed for test",
 					)
 				} else {
 					assert.Error(t, err)
