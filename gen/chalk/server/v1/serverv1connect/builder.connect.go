@@ -203,6 +203,10 @@ type BuilderServiceClient interface {
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
+	// Initiates the branch server for the environment if it isn't already running.
+	// If the branch server isn't running, it starts the branch server and returns
+	// a state of IN_PROGRESS. This endpoint should be polled until the state
+	// returns SUCCESS, or an error is returned.
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 	ScaleBranch(context.Context, *connect.Request[v1.ScaleBranchRequest]) (*connect.Response[v1.ScaleBranchResponse], error)
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
@@ -800,6 +804,10 @@ type BuilderServiceHandler interface {
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
+	// Initiates the branch server for the environment if it isn't already running.
+	// If the branch server isn't running, it starts the branch server and returns
+	// a state of IN_PROGRESS. This endpoint should be polled until the state
+	// returns SUCCESS, or an error is returned.
 	StartBranch(context.Context, *connect.Request[v1.StartBranchRequest]) (*connect.Response[v1.StartBranchResponse], error)
 	ScaleBranch(context.Context, *connect.Request[v1.ScaleBranchRequest]) (*connect.Response[v1.ScaleBranchResponse], error)
 	GetBranchProfile(context.Context, *connect.Request[v1.GetBranchProfileRequest]) (*connect.Response[v1.GetBranchProfileResponse], error)
