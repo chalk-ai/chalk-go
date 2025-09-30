@@ -37,7 +37,7 @@ func (d *DirectoryOverrideEnvironmentGetter) Getwd() (string, error) {
 }
 
 func (d *DirectoryOverrideEnvironmentGetter) Abs(path string) (string, error) {
-	return defaultAbs(d, path)
+	return d.base.Abs(path)
 }
 
 func (d *DirectoryOverrideEnvironmentGetter) Stat(name string) (fs.FileInfo, error) {
