@@ -144,42 +144,23 @@ func GetDefault[M ~map[K]V, K comparable, V any](m M, k K, def V) V {
 }
 
 type ParsedAggregation struct {
-	aggregateOn *graphv1.FeatureReference
-	groupBy     []*graphv1.FeatureReference
-	filters     []*expressionv1.LogicalExprNode
-}
-
-func combineFilters(filters []*expressionv1.LogicalExprNode) *expressionv1.LogicalExprNode {
-	return &expressionv1.LogicalExprNode{
-		ExprType: &expressionv1.LogicalExprNode_BinaryExpr{
-			BinaryExpr: &expressionv1.BinaryExprNode{
-				Op:       "and",
-				Operands: filters,
-			},
-		},
-	}
+	aggregateOn      *graphv1.FeatureReference
+	filters          []*expressionv1.LogicalExprNode
+	foreignNamespace string
 }
 
 func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*ParsedAggregation, error) {
 	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
 	dfName := strcase.ToSnake(df.Name)
 
-	primaryField := ""
 	foreignNamespace := ""
 	for _, f := range features {
 		switch t := f.Type.(type) {
-		case *graphv1.FeatureType_Scalar:
-			if t.Scalar.IsPrimary {
-				primaryField = t.Scalar.Name
-			}
 		case *graphv1.FeatureType_HasMany:
 			if t.HasMany.Name == dfName {
 				foreignNamespace = t.HasMany.ForeignNamespace
 			}
 		}
-	}
-	if primaryField == "" {
-		return nil, fmt.Errorf("must define primary field prior to any windowed aggregates")
 	}
 	if foreignNamespace == "" {
 		return nil, fmt.Errorf("could not find definition of dataframe %s prior to windowed aggregate", dfName)
@@ -194,6 +175,11 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 		filters[i] = f
 	}
 
+	parsedAgg := &ParsedAggregation{
+		filters:          filters,
+		foreignNamespace: foreignNamespace,
+	}
+
 	s := aggPtr.Selection
 	name := ""
 	switch e := s.(type) {
@@ -201,13 +187,7 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 		if aggPtr.Function != "count" {
 			return nil, fmt.Errorf("did not select an expression in non-count dataframe aggregation: %s", aggPtr.Function)
 		} else { // return null feature reference
-			return &ParsedAggregation{
-				groupBy: []*graphv1.FeatureReference{{
-					Name:      primaryField,
-					Namespace: namespace,
-				}},
-				filters: filters,
-			}, nil
+			return parsedAgg, nil
 		}
 	case *expr.ColumnExpr:
 		name = e.Name
@@ -222,17 +202,25 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 		return nil, fmt.Errorf("incorrectly extracted name from %s", s.String())
 	}
 
-	return &ParsedAggregation{
-		aggregateOn: &graphv1.FeatureReference{
-			Name:      name,
-			Namespace: foreignNamespace,
-		},
-		groupBy: []*graphv1.FeatureReference{{
-			Name:      primaryField,
-			Namespace: namespace,
-		}},
-		filters: filters,
-	}, nil
+	parsedAgg.aggregateOn = &graphv1.FeatureReference{
+		Name:      name,
+		Namespace: foreignNamespace,
+	}
+	return parsedAgg, nil
+}
+
+func getDurationProto(duration time.Duration) *durationpb.Duration {
+	if duration != 0 {
+		return durationpb.New(duration)
+	}
+	return nil
+}
+
+func getTimeProto(time time.Time) *timestamppb.Timestamp {
+	if !time.IsZero() {
+		return timestamppb.New(time)
+	}
+	return nil
 }
 
 func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
@@ -270,13 +258,13 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 		f := scalarPtr.ToProto(suffixedFieldName, namespace)
 		scalar := f.Type.(*graphv1.FeatureType_Scalar).Scalar
 		scalar.MaxStalenessDuration = durationpb.New(w.MaxStaleness)
+
 		scalar.WindowInfo = &graphv1.WindowInfo{
 			Duration: durationProto,
 			Aggregation: &graphv1.WindowAggregation{
-				Namespace:   namespace,
+				Namespace:   parsedAgg.foreignNamespace,
 				Aggregation: aggPtr.Function,
 				AggregateOn: parsedAgg.aggregateOn,
-				GroupBy:     parsedAgg.groupBy,
 				Filters:     parsedAgg.filters,
 				ArrowType:   scalarPtr.proto.ArrowType,
 
@@ -286,13 +274,13 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 					duration,
 					m.DefaultBucketDuration,
 				)),
-				ContinuousBufferDuration: durationpb.New(m.ContinuousBufferDuration),
+				ContinuousBufferDuration: getDurationProto(m.ContinuousBufferDuration),
 				BackfillSchedule:         &m.BackfillSchedule,
-				BucketStart:              timestamppb.New(m.BucketStart),
+				BucketStart:              getTimeProto(m.BucketStart),
 				ApproxTopKArgK:           &m.ApproxTopKArgK,
 				BackfillResolver:         &m.BackfillResolver,
-				BackfillLookbackDuration: durationpb.New(m.BackfillLookbackDuration),
-				BackfillStartTime:        timestamppb.New(m.BackfillStartTime),
+				BackfillLookbackDuration: getDurationProto(m.BackfillLookbackDuration),
+				BackfillStartTime:        getTimeProto(m.BackfillStartTime),
 				ContinuousResolver:       &m.ContinuousResolver,
 			},
 		}
@@ -310,7 +298,7 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 	oldLength := len(features)
 	if numPeriods == 0 {
 		newFeatures := make([]*graphv1.FeatureType, oldLength+2)
-		copy(features, newFeatures)
+		copy(newFeatures, features)
 		suffixedFieldName := fmt.Sprintf("%s__all__", fieldName)
 		duration := Years(10)
 		durationProto := durationpb.New(duration)
@@ -325,7 +313,7 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 		return newFeatures, nil
 	} else {
 		newFeatures := make([]*graphv1.FeatureType, oldLength+numPeriods+1)
-		copy(features, newFeatures)
+		copy(newFeatures, features)
 		for i := range numPeriods {
 			durationProto := w.proto.WindowDurations[i]
 			duration := durationProto.AsDuration()

@@ -50,8 +50,8 @@ func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 	// resolve foreign references
 	for _, fs := range g.FeatureSets {
 		extras := nameToFeatureSet[fs.Name]
-		// create join conditions for any has_many without them
 		for _, f := range fs.Features {
+			// create join conditions for any has_many without them
 			hm := f.GetHasMany()
 			if hm != nil && hm.Join == nil {
 				foreignExtras := nameToFeatureSet[hm.ForeignNamespace]
@@ -62,6 +62,18 @@ func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 					return nil, err
 				}
 				hm.Join = join
+			}
+
+			// create groupby's using dataframe feature set's foreign key
+			s := f.GetScalar()
+			if s != nil && s.WindowInfo != nil {
+				foreignNamespace := s.WindowInfo.Aggregation.Namespace
+				foreignExtras := nameToFeatureSet[foreignNamespace]
+				foreignCol := foreignExtras.foreignKeys[fs.Name]
+				s.WindowInfo.Aggregation.GroupBy = []*graphv1.FeatureReference{{
+					Name:      foreignCol,
+					Namespace: foreignNamespace,
+				}}
 			}
 		}
 		// materialize foreign keys
@@ -153,7 +165,7 @@ func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet 
 	return fs
 }
 
-func (fs FeatureSet) WithForeignKey(name string, relation string) FeatureSet {
+func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	if fs.foreignKeys == nil {
 		fs.foreignKeys = make(map[string]string)
 	}
@@ -180,8 +192,7 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 	features := fs.Features
 
 	names := make(map[string]struct{}, len(fs.Features))
-	for i, f := range features {
-		fmt.Printf("%d\n", i)
+	for _, f := range features {
 		name := FeatureName(f)
 		_, ok := names[name]
 		if ok {
@@ -260,7 +271,7 @@ func DataFrame(foreignName string) *HasManyFeatureBuilder {
 	}
 }
 
-func (hm *HasManyFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+func (hm *HasManyFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
 	return append(features,
 		&graphv1.FeatureType{
 			Type: &graphv1.FeatureType_HasMany{
@@ -307,7 +318,7 @@ func toFilterParsedBinaryProto(op string, operands []*expressionv1.LogicalExprNo
 }
 
 // ToProto converts an ExprI to a LogicalExprNode proto message using legacy FilterParsed operators
-func toFilterParsedProto(expression expr.ExprI, namespace string) (*expressionv1.LogicalExprNode, error) {
+func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expressionv1.LogicalExprNode, error) {
 	if expression == nil {
 		return nil, nil
 	}
@@ -315,19 +326,11 @@ func toFilterParsedProto(expression expr.ExprI, namespace string) (*expressionv1
 	switch e := expression.(type) {
 	case *expr.ColumnExpr:
 		// treat as an underscore expression
-		if e.Relation == "" {
-			return toFilterParsedProto(expr.Identifier("_").Attr(e.Name), namespace)
+		relation := e.Relation
+		if relation == "" {
+			relation = foreignNamespace
 		}
-		return toFilterParsedColumnProto(e.Relation, e.Name), nil
-
-	case *expr.GetAttributeExpr:
-		if e.Attribute == "chalk_now" && e.Parent.String() == "_" {
-			return toFilterParsedColumnProto("__chalk__", "now"), nil
-		}
-
-		return toFilterParsedBinaryProto("foreign_feature_access", []*expressionv1.LogicalExprNode{
-			toFilterParsedColumnProto(namespace, e.Attribute),
-		}), nil
+		return toFilterParsedColumnProto(relation, e.Name), nil
 
 	case *expr.LiteralExpr:
 		return &expressionv1.LogicalExprNode{
@@ -360,7 +363,7 @@ func toFilterParsedProto(expression expr.ExprI, namespace string) (*expressionv1
 
 		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
 		for i, e := range e.Args {
-			proto, err := toFilterParsedProto(e, namespace)
+			proto, err := toFilterParsedProto(e, foreignNamespace)
 			if err != nil {
 				return nil, err
 			}
@@ -369,8 +372,14 @@ func toFilterParsedProto(expression expr.ExprI, namespace string) (*expressionv1
 
 		return toFilterParsedBinaryProto(op, args), nil
 
-	default:
-		// Fallback for unknown expression types
-		return nil, fmt.Errorf("invalid expression type for filter (%T)", e)
+	case *expr.GetAttributeExpr:
+		if e.Attribute == "chalk_now" && e.Parent.String() == "_" {
+			return toFilterParsedColumnProto("__chalk__", "now"), nil
+		}
+
+		if e.Attribute == "chalk_window" && e.Parent.String() == "_" {
+			return expr.ToProto(expression), nil
+		}
 	}
+	return nil, fmt.Errorf("invalid expression type for filter (%T): %s", expression, expression.String())
 }

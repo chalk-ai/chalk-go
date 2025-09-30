@@ -75,11 +75,10 @@ func TestWindowedSum(t *testing.T) {
 	).ToGraph()
 
 	assert.NoError(t, err)
-	println(graph)
-	// 4 regular features + feature time
-	assert.Equal(t, 5, len(graph.FeatureSets[0].Features))
-	// 3 regular features + 4 windowed columns + feature time
-	assert.Equal(t, 8, len(graph.FeatureSets[1].Features))
+	// 4 regular features + feature time + singleton relation
+	assert.Equal(t, 6, len(graph.FeatureSets[0].Features))
+	// 3 regular features + 4 windowed columns + feature time + singleton relation
+	assert.Equal(t, 9, len(graph.FeatureSets[1].Features))
 }
 
 func TestWindowedGroupedCount(t *testing.T) {
@@ -145,6 +144,8 @@ func TestWindowedAllTime(t *testing.T) {
 					Windowed(Int()).
 						WithExpr(expr.DataFrame("other_accounts_df").Select(expr.Col("other_account_id")).Agg("approx_count_distinct"))),
 		)
-	_, err := definitions.ToGraph()
+	graph, err := definitions.ToGraph()
 	assert.NoError(t, err)
+	assert.Equal(t, 4, len(graph.FeatureSets[0].Features))
+	assert.Equal(t, 6, len(graph.FeatureSets[1].Features))
 }
