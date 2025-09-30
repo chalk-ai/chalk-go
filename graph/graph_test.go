@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
-	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +19,7 @@ func TestSimpleAdd(t *testing.T) {
 	_, err := Definitions{}.WithFeatureSets(
 		FeatureSet{Name: "Example"}.
 			WithPrimary("id", Int()).
-			With("val", Int().Expr(__("id").Add(expr.Int64(1)))),
+			With("val", Int().Expr(expr.Col("id").Add(expr.Int64(1)))),
 	).ToGraph()
 
 	assert.NoError(t, err)
@@ -68,9 +67,9 @@ func TestWindowedSum(t *testing.T) {
 				WithDefault(expr.Int(0)).
 				WithBucketDuration(Days(1)).
 				WithExpr(expr.DataFrame("transactions").
-					Filter(__("at").Gt(__("chalk_window"))).
-					Filter(__("at").Lt(__("chalk_now"))).
-					Select(__("amount")).
+					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
+					Filter(expr.Col("at").Lt(expr.ChalkNow())).
+					Select(expr.Col("amount")).
 					Agg("sum"),
 				)),
 	).ToGraph()
@@ -86,8 +85,8 @@ func TestWindowedSum(t *testing.T) {
 func TestWindowedGroupedCount(t *testing.T) {
 	// Create the windowed aggregation expression
 	expression := expr.DataFrame("events").
-		Filter(expr.Col("ts").Gt(expr.Col("chalk_window"))).
-		Filter(expr.Col("ts").Lt(expr.Col("chalk_now"))).
+		Filter(expr.Col("ts").Gt(expr.ChalkWindow())).
+		Filter(expr.Col("ts").Lt(expr.ChalkNow())).
 		Agg("count")
 
 	// Define feature sets using the graph builder API
@@ -121,12 +120,31 @@ func TestWindowedGroupedCount(t *testing.T) {
 					Windowed(Int(), Minutes(1), Minutes(5)).WithMaterialization(
 						MaterializationOptions{
 							DefaultBucketDuration: time.Minute * 1,
-							GroupBy:               []*graphv1.FeatureReference{{Name: "id", Namespace: "user"}},
 						},
 					).WithExpr(expression)),
 		)
 
-	// Convert to protobuf Graph
+	_, err := definitions.ToGraph()
+	assert.NoError(t, err)
+}
+
+func TestWindowedAllTime(t *testing.T) {
+	definitions := Definitions{}.
+		WithFeatureSets(
+			// SimpleEvent feature set
+			FeatureSet{Name: "other_account_id_with_same_stripe_fingerprint_found"}.
+				WithPrimary("account_id", Int()).
+				With("other_account_id", String()).
+				With("ts", Datetime()),
+
+			// User feature set with windowed aggregation
+			FeatureSet{Name: "other_account_id_with_same_stripe_fingerprint_found_count"}.
+				WithPrimary("account_id", Int()).
+				With("other_accounts_df", DataFrame("other_account_id_with_same_stripe_fingerprint_found").WithMaxStaleness(Days(1))).
+				With("other_account_id_count",
+					Windowed(Int()).
+						WithExpr(expr.DataFrame("other_accounts_df").Select(expr.Col("other_account_id")).Agg("approx_count_distinct"))),
+		)
 	_, err := definitions.ToGraph()
 	assert.NoError(t, err)
 }
