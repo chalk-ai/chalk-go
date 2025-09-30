@@ -209,16 +209,30 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 	return parsedAgg, nil
 }
 
-func getDurationProto(duration time.Duration) *durationpb.Duration {
+func durationProto(duration time.Duration) *durationpb.Duration {
 	if duration != 0 {
 		return durationpb.New(duration)
 	}
 	return nil
 }
 
-func getTimeProto(time time.Time) *timestamppb.Timestamp {
+func timeProto(time time.Time) *timestamppb.Timestamp {
 	if !time.IsZero() {
 		return timestamppb.New(time)
+	}
+	return nil
+}
+
+func stringProto(s string) *string {
+	if s != "" {
+		return &s
+	}
+	return nil
+}
+
+func int64Proto(i int64) *int64 {
+	if i != 0 {
+		return &i
 	}
 	return nil
 }
@@ -254,13 +268,13 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 		defaultProto = lit.ScalarValue
 	}
 
-	featureForWindow := func(suffixedFieldName string, duration time.Duration, durationProto *durationpb.Duration) *graphv1.FeatureType {
+	featureForWindow := func(suffixedFieldName string, d time.Duration, dp *durationpb.Duration) *graphv1.FeatureType {
 		f := scalarPtr.ToProto(suffixedFieldName, namespace)
 		scalar := f.Type.(*graphv1.FeatureType_Scalar).Scalar
 		scalar.MaxStalenessDuration = durationpb.New(w.MaxStaleness)
 
 		scalar.WindowInfo = &graphv1.WindowInfo{
-			Duration: durationProto,
+			Duration: dp,
 			Aggregation: &graphv1.WindowAggregation{
 				Namespace:   parsedAgg.foreignNamespace,
 				Aggregation: aggPtr.Function,
@@ -271,17 +285,17 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 				// set from MaterializationOptions
 				BucketDuration: durationpb.New(GetDefault(
 					m.BucketDurations,
-					duration,
+					d,
 					m.DefaultBucketDuration,
 				)),
-				ContinuousBufferDuration: getDurationProto(m.ContinuousBufferDuration),
-				BackfillSchedule:         &m.BackfillSchedule,
-				BucketStart:              getTimeProto(m.BucketStart),
-				ApproxTopKArgK:           &m.ApproxTopKArgK,
-				BackfillResolver:         &m.BackfillResolver,
-				BackfillLookbackDuration: getDurationProto(m.BackfillLookbackDuration),
-				BackfillStartTime:        getTimeProto(m.BackfillStartTime),
-				ContinuousResolver:       &m.ContinuousResolver,
+				ContinuousBufferDuration: durationProto(m.ContinuousBufferDuration),
+				BackfillSchedule:         stringProto(m.BackfillSchedule),
+				BucketStart:              timeProto(m.BucketStart),
+				ApproxTopKArgK:           int64Proto(m.ApproxTopKArgK),
+				BackfillResolver:         stringProto(m.BackfillResolver),
+				BackfillLookbackDuration: durationProto(m.BackfillLookbackDuration),
+				BackfillStartTime:        timeProto(m.BackfillStartTime),
+				ContinuousResolver:       stringProto(m.ContinuousResolver),
 			},
 		}
 		scalar.Expression = exprProto
