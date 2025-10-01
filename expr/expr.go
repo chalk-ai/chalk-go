@@ -249,7 +249,7 @@ func (e *GetAttributeExpr) exprType() string {
 }
 
 func (e *GetAttributeExpr) String() string {
-	return fmt.Sprintf("%s.%s", e.Parent, e.Attribute)
+	return fmt.Sprintf("%s.%s", e.Parent.String(), e.Attribute)
 }
 
 // Implement Expr interface for GetAttributeExpr
