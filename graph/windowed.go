@@ -223,14 +223,14 @@ func timeProto(time time.Time) *timestamppb.Timestamp {
 	return nil
 }
 
-func stringProto(s string) *string {
+func maybeStr(s string) *string {
 	if s != "" {
 		return &s
 	}
 	return nil
 }
 
-func int64Proto(i int64) *int64 {
+func maybeInt64(i int64) *int64 {
 	if i != 0 {
 		return &i
 	}
@@ -289,13 +289,13 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 					m.DefaultBucketDuration,
 				)),
 				ContinuousBufferDuration: durationProto(m.ContinuousBufferDuration),
-				BackfillSchedule:         stringProto(m.BackfillSchedule),
+				BackfillSchedule:         maybeStr(m.BackfillSchedule),
 				BucketStart:              timeProto(m.BucketStart),
-				ApproxTopKArgK:           int64Proto(m.ApproxTopKArgK),
-				BackfillResolver:         stringProto(m.BackfillResolver),
+				ApproxTopKArgK:           maybeInt64(m.ApproxTopKArgK),
+				BackfillResolver:         maybeStr(m.BackfillResolver),
 				BackfillLookbackDuration: durationProto(m.BackfillLookbackDuration),
 				BackfillStartTime:        timeProto(m.BackfillStartTime),
-				ContinuousResolver:       stringProto(m.ContinuousResolver),
+				ContinuousResolver:       maybeStr(m.ContinuousResolver),
 			},
 		}
 		scalar.Expression = exprProto
@@ -311,20 +311,20 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 
 	oldLength := len(features)
 	if numPeriods == 0 {
-		newFeatures := make([]*graphv1.FeatureType, oldLength+2)
-		copy(newFeatures, features)
 		suffixedFieldName := fmt.Sprintf("%s__all__", fieldName)
-		duration := Years(10)
+		duration := Years(100)
 		durationProto := durationpb.New(duration)
-		newFeatures[oldLength] = featureForWindow(suffixedFieldName, duration, durationProto)
 
 		windowed.WindowDurations = []*durationpb.Duration{durationProto}
-		newFeatures[oldLength+1] = &graphv1.FeatureType{
-			Type: &graphv1.FeatureType_Windowed{
-				Windowed: windowed,
+		return append(
+			features,
+			featureForWindow(suffixedFieldName, duration, durationProto),
+			&graphv1.FeatureType{
+				Type: &graphv1.FeatureType_Windowed{
+					Windowed: windowed,
+				},
 			},
-		}
-		return newFeatures, nil
+		), nil
 	} else {
 		newFeatures := make([]*graphv1.FeatureType, oldLength+numPeriods+1)
 		copy(newFeatures, features)

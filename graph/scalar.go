@@ -60,7 +60,7 @@ func (f ScalarFeatureBuilder) WithMaxStaleness(d time.Duration) ScalarFeatureBui
 	return f
 }
 
-func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) FeatureBuilder {
+func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
 	scalar.Expression = expr.ToProto(expression)
 	return ScalarFeatureBuilder{
@@ -68,93 +68,81 @@ func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) FeatureBuilder {
 	}
 }
 
-func Primitive(name string) *graphv1.FeatureRichTypeInfo {
+func richType(name string) *graphv1.FeatureRichTypeInfo {
+	module := "builtins"
+	class := name
+	if name == "datetime" {
+		module = "datetime"
+		class = "datetime.datetime"
+	}
 	return &graphv1.FeatureRichTypeInfo{
 		RichTypeIsSameAsPrimitiveType: true,
 		RichType: &graphv1.FeatureRichType{
 			Type: &graphv1.FeatureRichType_ClassType{
 				ClassType: &graphv1.RichClassType{
-					ModuleName: "builtins",
+					ModuleName: module,
 					Qualname:   name,
 				},
 			},
 		},
-		RichTypeName: MaybeStr(fmt.Sprintf("<class '%s'>", name)),
+		RichTypeName: maybeStr(fmt.Sprintf("<class '%s'>", class)),
 	}
 }
 
-func Int() *ScalarFeatureBuilder {
-	TRUE := true
-	return &ScalarFeatureBuilder{
-		proto: &graphv1.ScalarFeatureType{
-			ArrowType: &arrowv1.ArrowType{
-				ArrowTypeEnum: &arrowv1.ArrowType_Int64{},
-			},
-			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
-			StoreOnline:   &TRUE,
-			StoreOffline:  &TRUE,
-			RichTypeInfo:  Primitive("int"),
-		},
-	}
-}
-
-func Float() *ScalarFeatureBuilder {
-	TRUE := true
-	return &ScalarFeatureBuilder{
-		proto: &graphv1.ScalarFeatureType{
-			ArrowType: &arrowv1.ArrowType{
-				ArrowTypeEnum: &arrowv1.ArrowType_Float64{},
-			},
-			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
-			StoreOnline:   &TRUE,
-			StoreOffline:  &TRUE,
-			RichTypeInfo:  Primitive("float"),
-		},
-	}
-}
-
-func String() *ScalarFeatureBuilder {
-	TRUE := true
-	return &ScalarFeatureBuilder{
-		proto: &graphv1.ScalarFeatureType{
-			ArrowType: &arrowv1.ArrowType{
-				ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{},
-			},
-			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
-			StoreOnline:   &TRUE,
-			StoreOffline:  &TRUE,
-			RichTypeInfo:  Primitive("str"),
-		},
-	}
-}
-
-func Datetime() *ScalarFeatureBuilder {
-	TRUE := true
-	return &ScalarFeatureBuilder{
-		proto: &graphv1.ScalarFeatureType{
-			ArrowType: &arrowv1.ArrowType{
-				ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{
-					Timestamp: &arrowv1.Timestamp{
-						TimeUnit: arrowv1.TimeUnit_TIME_UNIT_MICROSECOND,
-						Timezone: "UTC",
-					},
+func arrowType(name string) *arrowv1.ArrowType {
+	switch name {
+	case "int":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Int64{},
+		}
+	case "float":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Float64{},
+		}
+	case "str":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{},
+		}
+	case "datetime":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{
+				Timestamp: &arrowv1.Timestamp{
+					TimeUnit: arrowv1.TimeUnit_TIME_UNIT_MICROSECOND,
+					Timezone: "UTC",
 				},
 			},
-			CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
-			StoreOnline:   &TRUE,
-			StoreOffline:  &TRUE,
-			RichTypeInfo: &graphv1.FeatureRichTypeInfo{
-				RichTypeIsSameAsPrimitiveType: true,
-				RichType: &graphv1.FeatureRichType{
-					Type: &graphv1.FeatureRichType_ClassType{
-						ClassType: &graphv1.RichClassType{
-							ModuleName: "datetime",
-							Qualname:   "datetime",
-						},
-					},
-				},
-				RichTypeName: MaybeStr("<class 'datetime.datetime'>"),
-			},
+		}
+	case "bool":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Bool{},
+		}
+	default:
+		panic(fmt.Sprintf("invalid primitive name %s", name))
+	}
+}
+
+var TRUE = true
+var CENTURY = durationpb.Duration{Seconds: 3153600000}
+
+func primitive(name string) *ScalarFeatureBuilder {
+	return &ScalarFeatureBuilder{
+		proto: &graphv1.ScalarFeatureType{
+			ArrowType:          arrowType(name),
+			CacheStrategy:      graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
+			StoreOnline:        &TRUE,
+			StoreOffline:       &TRUE,
+			RichTypeInfo:       richType(name),
+			OfflineTtlDuration: &CENTURY,
 		},
 	}
+}
+
+var Int = primitive("int")
+var Float = primitive("float")
+var String = primitive("str")
+var Datetime = primitive("datetime")
+var Boolean = primitive("bool")
+
+func TypeName(scalar *graphv1.ScalarFeatureType) string {
+	return scalar.RichTypeInfo.RichType.Type.(*graphv1.FeatureRichType_ClassType).ClassType.Qualname
 }
