@@ -2,6 +2,7 @@ package graph
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
@@ -24,75 +25,155 @@ func (d Definitions) WithFeatureSets(fs ...FeatureSet) Definitions {
 }
 
 func (d Definitions) ToGraph() (*graphv1.Graph, error) {
+	g := graphv1.Graph{}
+	err := d.UpdateGraph(&g)
+	if err != nil {
+		return nil, err
+	}
+	return &g, nil
+}
+
+func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 	type protoWithExtras struct {
 		proto       *graphv1.FeatureSet
 		foreignKeys map[string]string
 		primaryName string
 		primaryType *ScalarFeatureBuilder
+		graphIndex  int
+		fromUs      bool
 	}
-	g := graphv1.Graph{}
 	nameToFeatureSet := map[string]protoWithExtras{}
+
+	// index feature sets in graph g
+	for i, fs := range g.FeatureSets {
+		primaryName := ""
+		var primaryType *ScalarFeatureBuilder
+		for _, f := range fs.Features {
+			scalar := f.GetScalar()
+			if scalar != nil && scalar.IsPrimary {
+				primaryName = scalar.Name
+				switch TypeName(scalar) {
+				case "str":
+					primaryType = String
+				case "int":
+					primaryType = Int
+				default:
+					panic("unreachable state")
+				}
+			}
+		}
+
+		nameToFeatureSet[fs.Name] = protoWithExtras{
+			primaryName: primaryName,
+			primaryType: primaryType,
+			// assume we won't be redefining any feature sets
+			// which are the target of a has_one in the target graph
+			foreignKeys: nil,
+			proto:       fs,
+			graphIndex:  i,
+			fromUs:      false,
+		}
+	}
+
+	// index feature sets in definitions
 	for _, fs := range d.FeatureSets {
 		proto, err := fs.ToProto()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		g.FeatureSets = append(g.FeatureSets, proto)
+		graphIndex := -1
+
+		prev, withSameName := nameToFeatureSet[fs.namespace]
+		if withSameName {
+			if prev.foreignKeys == nil {
+				graphIndex = prev.graphIndex
+				log.Printf("   🔄 Replaced existing FeatureSet: %s", prev.proto.Name)
+			} else {
+				return fmt.Errorf("defined multiple FeatureSets with the same name: %s", fs.namespace)
+			}
+		}
+
 		nameToFeatureSet[fs.namespace] = protoWithExtras{
 			primaryName: fs.primaryName,
 			primaryType: fs.primaryType,
 			foreignKeys: fs.foreignKeys,
 			proto:       proto,
+			graphIndex:  graphIndex,
+			fromUs:      true,
 		}
 	}
 
 	// resolve foreign references
-	for _, fs := range g.FeatureSets {
-		extras := nameToFeatureSet[fs.Name]
-		for _, f := range fs.Features {
+	for namespace, extras := range nameToFeatureSet {
+		if !extras.fromUs {
+			continue
+		}
+		for _, f := range extras.proto.Features {
+			switch t := f.Type.(type) {
 			// create join conditions for any has_many without them
-			hm := f.GetHasMany()
-			if hm != nil && hm.Join == nil {
-				foreignExtras := nameToFeatureSet[hm.ForeignNamespace]
-				foreignCol := expr.ColIn(hm.ForeignNamespace, foreignExtras.foreignKeys[fs.Name])
-				primaryCol := expr.ColIn(fs.Name, extras.primaryName)
-				join, err := toFilterParsedProto(foreignCol.Eq(primaryCol), "")
-				if err != nil {
-					return nil, err
+			case *graphv1.FeatureType_HasMany:
+				hm := t.HasMany
+				if hm.Join == nil {
+					foreignExtras, valid := nameToFeatureSet[hm.ForeignNamespace]
+					if !valid {
+						return fmt.Errorf("dataframe %s referenced nonexistant feature set %s", hm.Name, hm.ForeignNamespace)
+					}
+					foreignCol := expr.ColIn(hm.ForeignNamespace, foreignExtras.foreignKeys[namespace])
+					primaryCol := expr.ColIn(namespace, extras.primaryName)
+					join, err := toFilterParsedProto(foreignCol.Eq(primaryCol), "")
+					if err != nil {
+						return err
+					}
+					hm.Join = join
 				}
-				hm.Join = join
-			}
 
 			// create groupby's using dataframe feature set's foreign key
-			s := f.GetScalar()
-			if s != nil && s.WindowInfo != nil {
-				foreignNamespace := s.WindowInfo.Aggregation.Namespace
-				foreignExtras := nameToFeatureSet[foreignNamespace]
-				foreignCol := foreignExtras.foreignKeys[fs.Name]
-				s.WindowInfo.Aggregation.GroupBy = []*graphv1.FeatureReference{{
-					Name:      foreignCol,
-					Namespace: foreignNamespace,
-				}}
+			case *graphv1.FeatureType_Scalar:
+				s := t.Scalar
+				if s.WindowInfo != nil && s.WindowInfo.Aggregation != nil {
+					foreignNamespace := s.WindowInfo.Aggregation.Namespace
+					foreignExtras := nameToFeatureSet[foreignNamespace]
+					foreignCol := foreignExtras.foreignKeys[namespace]
+					s.WindowInfo.Aggregation.GroupBy = []*graphv1.FeatureReference{{
+						Name:      foreignCol,
+						Namespace: foreignNamespace,
+					}}
+				}
 			}
 		}
+
 		// materialize foreign keys
 		for featureSetName, foreignKeyName := range extras.foreignKeys {
 			foreignExtras, exists := nameToFeatureSet[featureSetName]
 			if !exists || foreignExtras.primaryType == nil {
-				continue
+				return fmt.Errorf("invalid foreign key %s", foreignKeyName)
 			}
 			extras.proto.Features = append(
 				extras.proto.Features,
-				foreignExtras.primaryType.ToProto(foreignKeyName, fs.Name),
+				foreignExtras.primaryType.ToProto(foreignKeyName, namespace),
 			)
 		}
 	}
 
-	return &g, nil
+	newFeatureSets := make([]*graphv1.FeatureSet, len(nameToFeatureSet))
+	size := len(g.FeatureSets)
+	for name, extras := range nameToFeatureSet {
+		if extras.graphIndex == -1 {
+			newFeatureSets[size] = extras.proto
+			size++
+			log.Printf("   ✅ Added new FeatureSet: %s", name)
+		} else {
+			newFeatureSets[extras.graphIndex] = extras.proto
+		}
+	}
+	g.FeatureSets = newFeatureSets
+
+	return nil
 }
 
 type FeatureSet struct {
+	// metadata fields
 	Name               string
 	Features           []*graphv1.FeatureType
 	IsSingleton        bool
@@ -100,7 +181,9 @@ type FeatureSet struct {
 	Owner              string
 	Doc                string
 	EtlOfflineToOnline bool
+	MaxStaleness       time.Duration
 
+	// private fields
 	// snakecase version of Name
 	namespace string
 	// whether errors were encountered during construction
@@ -144,24 +227,38 @@ func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
 	return fs
 }
 
+type Features map[string]FeatureBuilder
+
+func (fs FeatureSet) WithAll(m Features) FeatureSet {
+	if len(fs.namespace) == 0 {
+		fs.namespace = strcase.ToSnake(fs.Name)
+	}
+	features := make([]*graphv1.FeatureType, len(fs.Features), len(fs.Features)+len(m))
+	copy(features, fs.Features)
+	for name, ofType := range m {
+		features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+	}
+	fs.Features = features
+	return fs
+}
+
 func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet {
 	if fs.primaryType != nil {
-		fs.err = fmt.Errorf("tried to add primary column %s, when %s already exists", name, fs.primaryName)
+		fs.err = fmt.Errorf("tried to add primary column %s to %s, when %s already exists", name, fs.Name, fs.primaryName)
 	}
 	if len(fs.namespace) == 0 {
 		fs.namespace = strcase.ToSnake(fs.Name)
 	}
 	scalarPtr, ok := ofType.(*ScalarFeatureBuilder)
 	if !ok {
-		fs.err = fmt.Errorf("primary column %s must be scalar (int or str)", name)
+		fs.err = fmt.Errorf("primary column %s.%s must be scalar (int or str)", fs.Name, name)
 		return fs
 	}
-	scalar := *scalarPtr
 	newFeature := scalarPtr.ToProto(name, fs.namespace)
 	newFeature.Type.(*graphv1.FeatureType_Scalar).Scalar.IsPrimary = true
 	fs.Features = append(fs.Features, newFeature)
 	fs.primaryName = name
-	fs.primaryType = &scalar
+	fs.primaryType = scalarPtr
 	return fs
 }
 
@@ -171,13 +268,6 @@ func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	}
 	fs.foreignKeys[strcase.ToSnake(relation)] = name
 	return fs
-}
-
-func MaybeStr(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
 }
 
 // zero size type to define hashset
@@ -204,7 +294,7 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 	// define autogenerated features
 	if fs.primaryType == nil {
 		fs.primaryName = "id"
-		fs.primaryType = Int()
+		fs.primaryType = Int
 		features = append(features, fs.primaryType.ToProto(fs.primaryName, fs.namespace))
 	}
 	_, hasFeatureCalledTs := names["ts"]
@@ -235,7 +325,7 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 					CacheStrategy: graphv1.CacheStrategy_CACHE_STRATEGY_ALL,
 					StoreOnline:   &TRUE,
 					StoreOffline:  &TRUE,
-					RichTypeInfo:  Primitive("int"),
+					RichTypeInfo:  richType("int"),
 				},
 			},
 		}
@@ -243,12 +333,13 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 	}
 
 	return &graphv1.FeatureSet{
-		Name:        fs.namespace,
-		Features:    features,
-		IsSingleton: fs.IsSingleton,
-		Tags:        fs.Tags,
-		Owner:       MaybeStr(fs.Owner),
-		Doc:         MaybeStr(fs.Doc),
+		Name:                 fs.namespace,
+		Features:             features,
+		IsSingleton:          fs.IsSingleton,
+		Tags:                 fs.Tags,
+		Owner:                maybeStr(fs.Owner),
+		Doc:                  maybeStr(fs.Doc),
+		MaxStalenessDuration: durationProto(fs.MaxStaleness),
 	}, nil
 }
 
