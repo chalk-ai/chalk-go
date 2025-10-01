@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759275664251,
+  "lastUpdate": 1759285137067,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26328,6 +26328,60 @@ window.BENCHMARK_DATA = {
             "value": 305.6,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "adde537aeedd2f769503dc58dc5827388b61d117",
+          "message": "Merge pull request #490 from chalk-ai/ab/mat-agg-redux\n\nadditional fixes blocking socure demo",
+          "timestamp": "2025-09-30T19:18:06-07:00",
+          "tree_id": "074651f7f893b18e78c8d439902592f91af29922",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/adde537aeedd2f769503dc58dc5827388b61d117"
+        },
+        "date": 1759285136996,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.154,
+            "unit": "ms/op",
+            "extra": "1017 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 128.3,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.83,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 210,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 297.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
