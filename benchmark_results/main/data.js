@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759285137067,
+  "lastUpdate": 1759333507411,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26380,6 +26380,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 297.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5061cb67fd8ff262288fd7ff121aecb01ec76300",
+          "message": "Merge pull request #492 from chalk-ai/ab/interface-adjustments\n\nergonomic adjustments for socure demo",
+          "timestamp": "2025-10-01T08:44:09-07:00",
+          "tree_id": "836a58797d6c072a7962a79025e96812c9ab543b",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/5061cb67fd8ff262288fd7ff121aecb01ec76300"
+        },
+        "date": 1759333507341,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.209,
+            "unit": "ms/op",
+            "extra": "915 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 105.6,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.99,
+            "unit": "ms/op",
+            "extra": "38 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 206,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 284.1,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
