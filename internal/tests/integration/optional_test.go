@@ -9,6 +9,8 @@ import (
 
 func TestQueryOptionalFeatures(t *testing.T) {
 	t.Parallel()
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	SkipIfNotIntegrationTester(t)
 	client, err := chalk.NewClient(t.Context())
 	if err != nil {
