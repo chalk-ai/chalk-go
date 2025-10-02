@@ -9,17 +9,12 @@ import (
 	assert "github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
-	"sync"
 	"testing"
 	"time"
 )
 
-var initOnce sync.Once
-
 func init() {
-	initOnce.Do(func() {
-		initErr = InitFeatures(&fixtures.Root)
-	})
+	initErr = InitFeatures(&fixtures.Root)
 }
 
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
