@@ -548,9 +548,10 @@ func (e *DataFrameExprImpl) Select(selection Expr) DataFrameExpr {
 	}
 }
 
-func (e *DataFrameExprImpl) Agg(aggFunc string) Expr {
+func (e *DataFrameExprImpl) Agg(aggFunc string, args ...int) Expr {
 	return &AggregateExprImpl{
 		Function:   aggFunc,
+		Arguments:  args,
 		DataFrame:  e,
 		Conditions: e.Conditions,
 		Selection:  e.Selection,
@@ -561,6 +562,7 @@ func (e *DataFrameExprImpl) Agg(aggFunc string) Expr {
 type AggregateExprImpl struct {
 	Expr
 	Function   string
+	Arguments  []int
 	DataFrame  DataFrameExpr
 	Conditions []Expr // Accumulated filter conditions
 	Distinct   bool

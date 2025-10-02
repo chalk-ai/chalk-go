@@ -5,6 +5,7 @@ import (
 
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -657,22 +658,76 @@ func TestToProto(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "dataframe_filter_with_argk",
+			expr: DataFrame("transactions").Agg("max_by_n", 10),
+			expected: &expressionv1.LogicalExprNode{
+				ExprForm: &expressionv1.LogicalExprNode_Call{
+					Call: &expressionv1.ExprCall{
+						Func: &expressionv1.LogicalExprNode{
+							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
+								GetAttribute: &expressionv1.ExprGetAttribute{
+									Attribute: &expressionv1.Identifier{
+										Name: "max_by_n",
+									},
+
+									Parent: &expressionv1.LogicalExprNode{
+										ExprForm: &expressionv1.LogicalExprNode_Identifier{
+											Identifier: &expressionv1.Identifier{
+												Name: "transactions",
+											},
+										},
+									},
+								},
+							},
+						},
+						Args: []*expressionv1.LogicalExprNode{
+							{
+								ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
+									LiteralValue: &expressionv1.ExprLiteral{
+										Value: &arrowv1.ScalarValue{
+											Value: &arrowv1.ScalarValue_Int64Value{
+												Int64Value: 10,
+											},
+										},
+									},
+								},
+							},
+						},
+						Kwargs: map[string]*expressionv1.LogicalExprNode{
+							"k": &expressionv1.LogicalExprNode{
+								ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
+									LiteralValue: &expressionv1.ExprLiteral{
+										Value: &arrowv1.ScalarValue{
+											Value: &arrowv1.ScalarValue_Int64Value{
+												Int64Value: 10,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
+			actualProto, err := ToProto(tt.expr)
+			assert.NoError(t, err)
+
 			// Handle nil case specially
 			if tt.expr == nil {
-				actualProto := ToProto(nil)
 				if actualProto != nil {
 					t.Errorf("Expected nil, got %v", actualProto)
 				}
 				return
 			}
 
-			actualProto := ToProto(tt.expr)
 			if !proto.Equal(actualProto, tt.expected) {
 				t.Errorf("Proto mismatch for %s.\nExpected: %v\nActual: %v", tt.name, tt.expected, actualProto)
 			}

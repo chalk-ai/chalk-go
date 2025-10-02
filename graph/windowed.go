@@ -258,7 +258,10 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 		return nil, err
 	}
 
-	exprProto := expr.ToProto(w.Expression)
+	exprProto, err := expr.ToProto(w.Expression)
+	if err != nil {
+		return nil, err
+	}
 	var defaultProto *arrowv1.ScalarValue
 	if w.Default != nil {
 		lit, ok := w.Default.(*expr.LiteralExpr)
