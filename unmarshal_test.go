@@ -24,7 +24,9 @@ import (
 var initErr error
 
 func init() {
-	initErr = InitFeatures(&fixtures.Root)
+	initOnce.Do(func() {
+		initErr = InitFeatures(&fixtures.Root)
+	})
 }
 
 type unmarshalTransaction struct {
