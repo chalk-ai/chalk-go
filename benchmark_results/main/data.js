@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759424092186,
+  "lastUpdate": 1759439208182,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26544,6 +26544,60 @@ window.BENCHMARK_DATA = {
             "value": 348,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "winwinstonliu@gmail.com",
+            "name": "Winston Liu",
+            "username": "l-winston"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "97eea0252fbfd39157eddd4b61654ab3907b8a0f",
+          "message": "Merge pull request #495 from chalk-ai/wl/pointer-bug\n\nfixes nondeterminism in tests by using sync.Once to initialize features",
+          "timestamp": "2025-10-02T14:05:53-07:00",
+          "tree_id": "b924203cf92e759795f2ec8216cbfb6ee7d1d386",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/97eea0252fbfd39157eddd4b61654ab3907b8a0f"
+        },
+        "date": 1759439208109,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.106,
+            "unit": "ms/op",
+            "extra": "1124 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 123.4,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.32,
+            "unit": "ms/op",
+            "extra": "28 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 222.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 304.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
