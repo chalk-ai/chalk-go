@@ -21,12 +21,6 @@ import (
 	"time"
 )
 
-var initErr error
-
-func init() {
-	initErr = InitFeatures(&fixtures.Root)
-}
-
 type unmarshalTransaction struct {
 	Id                    *string
 	AmountP30D            *int64 `name:"amount_p30d"`
@@ -83,7 +77,6 @@ type user struct {
 
 func TestOnlineQueryUnmarshalNonBulkAllTypes(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
 
 	// Mimic JSON deser which returns all numbers as `float64`
 	data := []FeatureResult{
@@ -568,7 +561,6 @@ func TestUnmarshalWrongType(t *testing.T) {
 
 func TestUnmarshalHasManyWithNoValues(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
 	data := []FeatureResult{
 		{
 			Field:     "all_types.has_many",
@@ -599,13 +591,14 @@ func TestUnmarshalHasManyWithNoValues(t *testing.T) {
 // Test primitives unmarshalling only.
 func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.String: []string{"abc", "def"},
-		fixtures.Root.AllTypes.Float:  []float64{1.0, 2.0},
-		fixtures.Root.AllTypes.Bool:   []bool{true, false},
-		fixtures.Root.AllTypes.Int:    []int{1, 2},
-		fixtures.Root.AllTypes.Timestamp: []time.Time{
+		fixtureRoot.AllTypes.String: []string{"abc", "def"},
+		fixtureRoot.AllTypes.Float:  []float64{1.0, 2.0},
+		fixtureRoot.AllTypes.Bool:   []bool{true, false},
+		fixtureRoot.AllTypes.Int:    []int{1, 2},
+		fixtureRoot.AllTypes.Timestamp: []time.Time{
 			time.Date(2024, 5, 9, 22, 29, 0, 0, time.UTC),
 			time.Date(2024, 5, 9, 22, 30, 0, 0, time.UTC),
 		},
@@ -641,13 +634,14 @@ func TestUnmarshalOnlineQueryBulkResultPrimitives(t *testing.T) {
 // then unmarshals the table into appropriate structs.
 func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	lat := 37.7749
 	lng := 122.4194
 	lat2 := 47.6062
 	lng2 := 122.3321
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.Dataclass: []*fixtures.LatLng{
+		fixtureRoot.AllTypes.Dataclass: []*fixtures.LatLng{
 			{
 				Lat: &lat,
 				Lng: &lng,
@@ -682,9 +676,10 @@ func TestUnmarshalOnlineQueryBulkResultDataclasses(t *testing.T) {
 // TestUnmarshalQueryBulkOptionalDataclassNested
 func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassWithDataclass: []*fixtures.Child{
+		fixtureRoot.AllTypes.DataclassWithDataclass: []*fixtures.Child{
 			{
 				Name: ptr.New("Alice"),
 				Mom: &fixtures.Parent{
@@ -720,10 +715,11 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 
 func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, InitFeatures(&fixtures.Root))
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	name := "abc"
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassWithOverrides: []fixtures.DclassWithOverrides{
+		fixtureRoot.AllTypes.DataclassWithOverrides: []fixtures.DclassWithOverrides{
 			{
 				CamelName: &name,
 			},
@@ -749,7 +745,8 @@ func TestUnmarshalBulkQueryDataclassWithOverrides(t *testing.T) {
 
 func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	lat1a := 37.7749
 	lng1a := 122.4194
 	lat1b := 47.6062
@@ -760,7 +757,7 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 	lng2b := 74.0060
 
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassList: [][]fixtures.LatLng{
+		fixtureRoot.AllTypes.DataclassList: [][]fixtures.LatLng{
 			{
 				{
 					Lat: &lat1a,
@@ -808,9 +805,10 @@ func TestUnmarshalBulkQueryDataclassList(t *testing.T) {
 
 func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.NestedIntList: [][][]int64{
+		fixtureRoot.AllTypes.NestedIntList: [][][]int64{
 			{
 				{1, 2},
 				nil,
@@ -841,9 +839,10 @@ func TestUnmarshalBulkQueryNestedIntListWithInnerNilSlice(t *testing.T) {
 
 func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtureRoot.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				{3, 4},
@@ -879,9 +878,10 @@ func TestUnmarshalBulkQueryNestedIntPointerList(t *testing.T) {
 
 func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtureRoot.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				{3, 4},
@@ -919,9 +919,10 @@ func TestUnmarshalBulkQueryNestedIntPointerListWithFirstLevelNil(t *testing.T) {
 
 func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.NestedIntPointerList: []*[]*[]int64{
+		fixtureRoot.AllTypes.NestedIntPointerList: []*[]*[]int64{
 			{
 				{1, 2},
 				nil,
@@ -952,9 +953,10 @@ func TestUnmarshalBulkQueryNestedPointerListWithInnerLevelNil(t *testing.T) {
 
 func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassWithList: []*fixtures.FavoriteThings{
+		fixtureRoot.AllTypes.DataclassWithList: []*fixtures.FavoriteThings{
 			{
 				Numbers: &[]int64{1, 2},
 				Words:   &[]string{"abc", "def"},
@@ -997,9 +999,10 @@ func TestUnmarshalBulkQueryDataclassWithList(t *testing.T) {
 
 func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassWithNils: []fixtures.Possessions{
+		fixtureRoot.AllTypes.DataclassWithNils: []fixtures.Possessions{
 			{
 				Car:   ptr.New("Toyota"),
 				Yacht: nil,
@@ -1272,12 +1275,13 @@ func TestBulkUnmarshalExtraFields(t *testing.T) {
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	lat := 37.7749
 	lng := 122.4194
 	extra := "extra"
 	scalarsMap := map[any]any{
-		fixtures.Root.AllTypes.DataclassWithExtraField: []*fixtures.LatLngWithExtraField{
+		fixtureRoot.AllTypes.DataclassWithExtraField: []*fixtures.LatLngWithExtraField{
 			{
 				Lat:   &lat,
 				Lng:   &lng,
@@ -1309,7 +1313,6 @@ func TestBulkUnmarshalExtraFeatures(t *testing.T) {
 	// to default to not erring when trying to deserialize
 	// a new field that does not yet exist in the Go struct.
 	t.Parallel()
-	assert.Nil(t, initErr)
 	scalarsMap := map[string]any{
 		"all_types.extra_feature": []float64{1.0, 2.0},
 	}
@@ -1335,7 +1338,6 @@ func TestBulkUnmarshalExtraFeaturesInHasOne(t *testing.T) {
 	// a new field that does not yet exist in the Go struct.
 	t.Parallel()
 
-	assert.Nil(t, initErr)
 	scalarsMap := map[string]any{
 		"all_types.int":                []int64{int64(12345)}, // This field exists
 		"all_types.nested.id":          []string{"nested_id"}, // This field exists
@@ -1361,7 +1363,6 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 	// a new field that does not yet exist in the Go struct.
 	t.Parallel()
 
-	assert.Nil(t, initErr)
 	scalarsMap := map[string]any{
 		"all_types.int": []int64{int64(12345)}, // This field exists
 		"all_types.has_many": [][]fixtures.LevelOneNest{
@@ -1399,9 +1400,11 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 // Test that customers can construct a GRPCOnlineQueryBulkResult for testing
 func TestUnmarshalExternallyConstructedGRPCOnlineQueryBulkResult(t *testing.T) {
 	t.Parallel()
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	testData := map[any]any{
-		fixtures.Root.AllTypes.Int: []int64{1, 2, 3},
-		"all_types.float":          []float64{1.1, 2.2, 3.3},
+		fixtureRoot.AllTypes.Int: []int64{1, 2, 3},
+		"all_types.float":        []float64{1.1, 2.2, 3.3},
 	}
 	testDataTable, err := MakeFeatureTable(testData)
 	assert.NoError(t, err)

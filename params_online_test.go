@@ -13,37 +13,34 @@ import (
 	"time"
 )
 
-func init() {
-	initErr = InitFeatures(&fixtures.Root)
-}
-
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
 	t.Parallel()
 	// Tests that all types of input, output, and staleness parameters can be passed
 	// without error.
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	params := OnlineQueryParams{}.
-		WithInput(fixtures.Root.AllTypes.String, 1).
+		WithInput(fixtureRoot.AllTypes.String, 1).
 		WithOutputs(
 			"all_types.string",
-			fixtures.Root.AllTypes.Float,
-			fixtures.Root.AllTypes.Int,
-			fixtures.Root.AllTypes.Timestamp,
-			fixtures.Root.AllTypes.IntList,
-			fixtures.Root.AllTypes.WindowedInt,
-			fixtures.Root.AllTypes.WindowedInt["1m"],
-			fixtures.Root.AllTypes.WindowedInt["5m"],
-			fixtures.Root.AllTypes.WindowedInt["1h"],
-			fixtures.Root.AllTypes.WindowedList,
-			fixtures.Root.AllTypes.WindowedList["1m"],
-			fixtures.Root.AllTypes.Nested,
-			fixtures.Root.AllTypes.Nested.Id,
-			fixtures.Root.AllTypes.Dataclass,
-			fixtures.Root.AllTypes.Dataclass.Lat,
-			fixtures.Root.AllTypes.Dataclass.Lng,
+			fixtureRoot.AllTypes.Float,
+			fixtureRoot.AllTypes.Int,
+			fixtureRoot.AllTypes.Timestamp,
+			fixtureRoot.AllTypes.IntList,
+			fixtureRoot.AllTypes.WindowedInt,
+			fixtureRoot.AllTypes.WindowedInt["1m"],
+			fixtureRoot.AllTypes.WindowedInt["5m"],
+			fixtureRoot.AllTypes.WindowedInt["1h"],
+			fixtureRoot.AllTypes.WindowedList,
+			fixtureRoot.AllTypes.WindowedList["1m"],
+			fixtureRoot.AllTypes.Nested,
+			fixtureRoot.AllTypes.Nested.Id,
+			fixtureRoot.AllTypes.Dataclass,
+			fixtureRoot.AllTypes.Dataclass.Lat,
+			fixtureRoot.AllTypes.Dataclass.Lng,
 		).
 		WithStaleness(
-			fixtures.Root.AllTypes.Bool, time.Second*5,
+			fixtureRoot.AllTypes.Bool, time.Second*5,
 		)
 	_, err := params.underlying.resolveSingle()
 	assert.NoError(t, err)
@@ -80,12 +77,13 @@ func TestOnlineQueryStalenessParamInteger(t *testing.T) {
 // and not omitted when `chalk:"dontomit"` flag is set.
 func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	params := OnlineQueryParams{}.
-		WithInput(fixtures.Root.AllTypes.Nested, fixtures.LevelOneNest{
+		WithInput(fixtureRoot.AllTypes.Nested, fixtures.LevelOneNest{
 			Id: ptr.New("1"),
 		}).
-		WithInput(fixtures.Root.AllTypes.Dataclass, fixtures.LatLng{
+		WithInput(fixtureRoot.AllTypes.Dataclass, fixtures.LatLng{
 			Lat: ptr.New(1.1),
 		})
 
@@ -388,16 +386,17 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 // Tests that OnlineQuery successfully serializes all types of input feature values.
 func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
-		WithInput(fixtures.Root.AllTypes.Nested, fixtures.LevelOneNest{
+		WithInput(fixtureRoot.AllTypes.Nested, fixtures.LevelOneNest{
 			Id: ptr.New("1"),
 			Nested: &fixtures.LevelTwoNest{
 				Id: ptr.New("2"),
 			},
 		}).
-		WithInput(fixtures.Root.AllTypes.HasMany, []fixtures.HasMany{
+		WithInput(fixtureRoot.AllTypes.HasMany, []fixtures.HasMany{
 			{
 				Id:        ptr.New("1"),
 				Int:       ptr.New(int64(1)),
@@ -538,19 +537,19 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 
 func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
-
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	inputs := map[any]any{
-		fixtures.Root.AllTypes.String: 1,
-		fixtures.Root.AllTypes.Float:  1.1,
+		fixtureRoot.AllTypes.String: 1,
+		fixtureRoot.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParams{}.WithInputs(inputs)
 	resolved, err := params.underlying.resolveSingle()
 	assert.NoError(t, err)
 
-	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtureRoot.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtureRoot.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := resolved.inputs[feature1.Fqn]
@@ -561,19 +560,19 @@ func TestWithInputsMapFromOnlineQueryParams(t *testing.T) {
 
 func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
-
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	inputs := map[any]any{
-		fixtures.Root.AllTypes.String: 1,
-		fixtures.Root.AllTypes.Float:  1.1,
+		fixtureRoot.AllTypes.String: 1,
+		fixtureRoot.AllTypes.Float:  1.1,
 	}
-	params := OnlineQueryParams{}.WithInput(fixtures.Root.AllTypes.Bool, true).WithInputs(inputs)
+	params := OnlineQueryParams{}.WithInput(fixtureRoot.AllTypes.Bool, true).WithInputs(inputs)
 	resolved, err := params.underlying.resolveSingle()
 	assert.NoError(t, err)
 
-	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtureRoot.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtureRoot.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := resolved.inputs[feature1.Fqn]
@@ -584,20 +583,20 @@ func TestWithInputsMapFromOnlineQueryParamsWithInputs(t *testing.T) {
 
 func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
-
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	inputs := map[any]any{
-		fixtures.Root.AllTypes.String: 1,
-		fixtures.Root.AllTypes.Float:  1.1,
+		fixtureRoot.AllTypes.String: 1,
+		fixtureRoot.AllTypes.Float:  1.1,
 	}
-	params := OnlineQueryParams{}.WithOutputs(fixtures.Root.AllTypes.Bool).WithInputs(inputs)
+	params := OnlineQueryParams{}.WithOutputs(fixtureRoot.AllTypes.Bool).WithInputs(inputs)
 
 	resolved, err := params.underlying.resolveSingle()
 	assert.NoError(t, err)
 
-	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtureRoot.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtureRoot.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := resolved.inputs[feature1.Fqn]
@@ -608,20 +607,20 @@ func TestWithInputsMapFromOnlineQueryParamsWithOutputs(t *testing.T) {
 
 func TestWithInputsMapFromOnlineQueryParamsComplete(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initErr)
-
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	inputs := map[any]any{
-		fixtures.Root.AllTypes.String: 1,
-		fixtures.Root.AllTypes.Float:  1.1,
+		fixtureRoot.AllTypes.String: 1,
+		fixtureRoot.AllTypes.Float:  1.1,
 	}
 	params := OnlineQueryParamsComplete{}.WithInputs(inputs)
 
 	resolved, err := params.underlying.resolveSingle()
 	assert.NoError(t, err)
 
-	feature1, err := UnwrapFeature(fixtures.Root.AllTypes.String)
+	feature1, err := UnwrapFeature(fixtureRoot.AllTypes.String)
 	assert.Nil(t, err)
-	feature2, err := UnwrapFeature(fixtures.Root.AllTypes.Float)
+	feature2, err := UnwrapFeature(fixtureRoot.AllTypes.Float)
 	assert.Nil(t, err)
 
 	_, ok := resolved.inputs[feature1.Fqn]
