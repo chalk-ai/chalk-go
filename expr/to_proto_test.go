@@ -695,7 +695,7 @@ func TestToProto(t *testing.T) {
 							},
 						},
 						Kwargs: map[string]*expressionv1.LogicalExprNode{
-							"k": &expressionv1.LogicalExprNode{
+							"k": {
 								ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
 									LiteralValue: &expressionv1.ExprLiteral{
 										Value: &arrowv1.ScalarValue{

@@ -13,6 +13,7 @@ import (
 
 type ScalarFeatureBuilder struct {
 	proto *graphv1.ScalarFeatureType
+	err   error
 }
 
 func (f ScalarFeatureBuilder) ToProto(fieldName string, namespace string) *graphv1.FeatureType {
@@ -42,6 +43,9 @@ func featureTime(fieldName string, namespace string) *graphv1.FeatureType {
 }
 
 func (f ScalarFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
 	// handle special case of feature time
 	if fieldName == "ts" {
 		// check if ts is a datetime
@@ -62,9 +66,13 @@ func (f ScalarFeatureBuilder) WithMaxStaleness(d time.Duration) ScalarFeatureBui
 
 func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
-	scalar.Expression = expr.ToProto(expression)
+	exproto, err := expr.ToProto(expression)
+	if exproto != nil {
+		scalar.Expression = exproto
+	}
 	return ScalarFeatureBuilder{
 		proto: scalar,
+		err:   err,
 	}
 }
 
@@ -145,4 +153,24 @@ var Boolean = primitive("bool")
 
 func TypeName(scalar *graphv1.ScalarFeatureType) string {
 	return scalar.RichTypeInfo.RichType.Type.(*graphv1.FeatureRichType_ClassType).ClassType.Qualname
+}
+
+func ArrowStruct(spec map[string]string) *arrowv1.ArrowType {
+	fields := make([]*arrowv1.Field, len(spec))
+	i := 0
+	for name, typ := range spec {
+		fields[i] = &arrowv1.Field{
+			Name:      name,
+			ArrowType: arrowType(typ),
+			Nullable:  true,
+		}
+		i++
+	}
+	return &arrowv1.ArrowType{
+		ArrowTypeEnum: &arrowv1.ArrowType_Struct{
+			Struct: &arrowv1.Struct{
+				SubFieldTypes: fields,
+			},
+		},
+	}
 }
