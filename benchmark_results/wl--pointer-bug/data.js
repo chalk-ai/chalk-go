@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759427443380,
+  "lastUpdate": 1759437464636,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26842,6 +26842,56 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 392.5,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "c1ec9899529e5099cb464dceedebd66b3e0d0c1c",
+          "message": "fix `unwrapFeature` causing `nil` pointer",
+          "timestamp": "2025-10-02T16:54:10Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/495/commits/c1ec9899529e5099cb464dceedebd66b3e0d0c1c"
+        },
+        "date": 1759437464556,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.098,
+            "unit": "ms/op",
+            "extra": "1050 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 115.9,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.37,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 229.4,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 351.2,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
           }
