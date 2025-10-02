@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759384418613,
+  "lastUpdate": 1759424092186,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26490,6 +26490,60 @@ window.BENCHMARK_DATA = {
             "value": 304.9,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "winwinstonliu@gmail.com",
+            "name": "Winston Liu",
+            "username": "l-winston"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ae5633ebca145da0f1bfe307f0b294872a87b3c5",
+          "message": "Merge pull request #494 from chalk-ai/ab/fix-graph-test-nondeterminism\n\nfix nondeterminism in graph tests",
+          "timestamp": "2025-10-02T09:54:04-07:00",
+          "tree_id": "9d050ca5e7b6adb6020401c644f81dc9ca56b26c",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/ae5633ebca145da0f1bfe307f0b294872a87b3c5"
+        },
+        "date": 1759424092115,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.234,
+            "unit": "ms/op",
+            "extra": "909 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 116.5,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.52,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 230.3,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 348,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
