@@ -13,7 +13,8 @@ import (
 func TestCacheHitMeta(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
@@ -70,6 +71,8 @@ func TestCacheHitMeta(t *testing.T) {
 func TestResolverMeta(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	resolverFqn := "registry.all_feature_types.get_all_types"
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {

@@ -73,7 +73,8 @@ func TestTimeoutClientOverrides(t *testing.T) {
 func TestTimeoutRequestOverrides(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	lenientTimeout := time.Minute * 1
 	params := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.AllTypes.Id, []int{1}).

@@ -13,6 +13,8 @@ import (
 
 func TestCustomCerts(t *testing.T) {
 	t.Parallel()
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	SkipIfNotIntegrationTester(t)
 	systemCertPool, err := x509.SystemCertPool()
 	if err != nil {

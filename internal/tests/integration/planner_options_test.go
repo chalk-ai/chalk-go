@@ -21,7 +21,8 @@ var plannerOptionsFixtures = []plannerOptionsFixture{
 func TestOnlineQueryPlannerOptions(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, optionFixture := range plannerOptionsFixtures {
 		t.Run(fmt.Sprintf("plannerOptionValid=%v", optionFixture.isValid), func(t *testing.T) {
 			t.Parallel()
@@ -44,7 +45,8 @@ func TestOnlineQueryPlannerOptions(t *testing.T) {
 func TestOnlineQueryBulkPlannerOptions(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{false, true} {
 		for _, optionFixture := range plannerOptionsFixtures {
 			t.Run(fmt.Sprintf("grpc=%v, plannerOptionValid=%v", useGrpc, optionFixture.isValid), func(t *testing.T) {

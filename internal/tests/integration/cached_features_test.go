@@ -12,6 +12,8 @@ import (
 // includes the correct metadata when requested.
 func TestCachedFeatures(t *testing.T) {
 	t.Parallel()
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	SkipIfNotIntegrationTester(t)
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
