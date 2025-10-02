@@ -3,6 +3,7 @@ package integration
 import (
 	chalk "github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
+	"sync"
 	"testing"
 	"time"
 )
@@ -21,20 +22,27 @@ type MatAggs struct {
 	TxnSum   map[string]*float64 `windows:"3d,10d,30d"`
 }
 
-var matAggFeatures struct {
+type matAggFeaturesType struct {
 	MatAggTxn *MatAggTxn
 	MatAggs   *MatAggs
 }
 
-func init() {
-	if err := chalk.InitFeatures(&matAggFeatures); err != nil {
-		panic(err)
-	}
+var initMatAggFeaturesOnce sync.Once
+var matAggFeaturesSingleton matAggFeaturesType
+var initMatAggFeaturesError error
+
+func GetMatAggFeatures() (matAggFeaturesType, error) {
+	initMatAggFeaturesOnce.Do(func() {
+		initMatAggFeaturesError = chalk.InitFeatures(&matAggFeaturesSingleton)
+	})
+	return matAggFeaturesSingleton, initMatAggFeaturesError
 }
 
 func TestWindowedAggregates(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	matAggFeatures, initErr := GetMatAggFeatures()
+	assert.NoError(t, initErr)
 
 	now := time.Now().UTC()
 

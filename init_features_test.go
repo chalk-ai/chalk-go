@@ -3,10 +3,9 @@ package chalk_test
 import (
 	"github.com/chalk-ai/chalk-go"
 	assert "github.com/stretchr/testify/require"
+	"sync"
 	"testing"
 )
-
-var initFeaturesErr error
 
 type goLatLng struct {
 	Lat *float64 `dataclass_field:"true"`
@@ -49,21 +48,29 @@ type goUser struct {
 	LatLng *goLatLng `dataclass:"true"`
 }
 
-var testFeatures struct {
+type testFeaturesType struct {
 	User    *goUser
 	Card    *goCard
 	Address *goAddress
 }
 
-func init() {
-	initFeaturesErr = chalk.InitFeatures(&testFeatures)
+var initTestFeaturesOnce sync.Once
+var testFeaturesSingleton testFeaturesType
+var initTestFeaturesError error
+
+func GetTestFeatures() (testFeaturesType, error) {
+	initTestFeaturesOnce.Do(func() {
+		initTestFeaturesError = chalk.InitFeatures(&testFeaturesSingleton)
+	})
+	return testFeaturesSingleton, initTestFeaturesError
 }
 
 // TestInitFeatures serves to test feature FQN resolution e2e,
 // on top of the snake casing unit tests.
 func TestInitFeatures(t *testing.T) {
 	t.Parallel()
-	assert.Nil(t, initFeaturesErr)
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 
 	userId, err := chalk.UnwrapFeature(testFeatures.User.Id)
 	assert.Nil(t, err)
