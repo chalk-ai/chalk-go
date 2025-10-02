@@ -35,6 +35,12 @@ type SerdeTransaction struct {
 	Details    *SerdeDetails `dataclass:"true"`
 }
 
+var initFeaturesErr error
+
+func init() {
+	initFeaturesErr = InitFeatures(&SerdeRoot)
+}
+
 func TestFeatureResultDeserialization(t *testing.T) {
 	t.Parallel()
 	withTimestamp := featureResultSerialized{
@@ -122,7 +128,7 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 			"TestOnlineQueryParamsOmitNilFields",
 	)
 	t.Parallel()
-	assert.NoError(t, InitFeatures(&SerdeRoot))
+	assert.NoError(t, initFeaturesErr)
 
 	transactions := []SerdeTransaction{
 		{
