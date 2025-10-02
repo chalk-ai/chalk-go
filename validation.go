@@ -20,6 +20,11 @@ func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	if featureStr, ok := feature.(string); ok {
 		return featureStr, false, nil
 	} else if featureObj, err := UnwrapFeature(feature); err == nil {
+		if featureObj == nil {
+			return "", false, fmt.Errorf(
+				"feature reference is nil - this indicates InitFeatures was not called or did not complete successfully",
+			)
+		}
 		return featureObj.Fqn, true, nil
 	} else {
 		return "", false, fmt.Errorf(

@@ -58,9 +58,6 @@ func unwrapFeature(t any) (*Feature, error) {
 		return featureClass, nil
 	} else if reflectValue.Kind() == reflect.Pointer {
 		// Everything but windowed features
-		if reflectValue.IsNil() {
-			return nil, fmt.Errorf("cannot unwrap nil pointer")
-		}
 		return (*Feature)(reflectValue.UnsafePointer()), nil
 	} else if reflectValue.Kind() == reflect.Map {
 		// Base windowed feature is typed as a Map.
