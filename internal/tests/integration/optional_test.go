@@ -42,7 +42,8 @@ func TestQueryOptionalFeatures(t *testing.T) {
 func TestBulkQueryOptionalFeatures(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	// Test IDs where one returns nil and one returns a value
 	ids := []int64{0, 1}
 
