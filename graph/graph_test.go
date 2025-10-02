@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/chalk-ai/chalk-go/expr"
+	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -75,10 +76,12 @@ func TestWindowedSum(t *testing.T) {
 	).ToGraph()
 
 	assert.NoError(t, err)
-	// 4 regular features + feature time + singleton relation
-	assert.Equal(t, 6, len(graph.FeatureSets[0].Features))
-	// 3 regular features + 4 windowed columns + feature time + singleton relation
-	assert.Equal(t, 9, len(graph.FeatureSets[1].Features))
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		// 4 regular features + feature time + singleton relation
+		"transaction": 6,
+		// 3 regular features + 4 windowed columns + feature time + singleton relation
+		"user": 9,
+	})
 }
 
 // getEvalRecordFeatureSet creates the EvalRecord FeatureSet for the given namespace
@@ -152,6 +155,15 @@ func TestWindowedGroupedCount(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatures map[string]int) {
+	for _, fs := range graph.FeatureSets {
+		num, ok := nameToNumFeatures[fs.Name]
+		if ok {
+			assert.Equal(t, num, len(fs.Features), "incorrect number of features in %s", fs.Name)
+		}
+	}
+}
+
 func TestWindowedAllTime(t *testing.T) {
 	definitions := Definitions{}.
 		WithFeatureSets(
@@ -171,6 +183,8 @@ func TestWindowedAllTime(t *testing.T) {
 		)
 	graph, err := definitions.ToGraph()
 	assert.NoError(t, err)
-	assert.Equal(t, 4, len(graph.FeatureSets[0].Features))
-	assert.Equal(t, 6, len(graph.FeatureSets[1].Features))
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		"other_account_id_with_same_stripe_fingerprint_found":       4,
+		"other_account_id_with_same_stripe_fingerprint_found_count": 6,
+	})
 }

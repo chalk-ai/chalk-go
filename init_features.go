@@ -2,17 +2,29 @@ package chalk
 
 import (
 	"fmt"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/cockroachdb/errors"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/cockroachdb/errors"
+	"sync"
 )
 
 func InitFeatures[T any](t *T) error {
 	structValue := reflect.ValueOf(t).Elem()
 	return initFeatures(structValue, "", make(map[string]bool))
+}
+
+var initRootFeaturesOnce sync.Once
+var RootFeaturesSingleton fixtures.RootType
+var initRootErr error
+
+func GetRootFeatures() (fixtures.RootType, error) {
+	initRootFeaturesOnce.Do(func() {
+		initRootErr = InitFeatures(&RootFeaturesSingleton)
+	})
+	return RootFeaturesSingleton, initRootErr
 }
 
 // initFeatures is a recursive function that initializes all features

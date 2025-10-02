@@ -1,6 +1,8 @@
 package fixtures
 
-import "time"
+import (
+	"time"
+)
 
 type LatLng struct {
 	Lat *float64 `dataclass_field:"true"`
@@ -100,6 +102,6 @@ type AllTypes struct {
 	HasMany                 *[]HasMany
 }
 
-var Root struct {
+type RootType struct {
 	AllTypes *AllTypes
 }
