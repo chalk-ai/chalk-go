@@ -17,13 +17,9 @@ class Example:
 	val: _.id + 1
 */
 func TestSimpleAdd(t *testing.T) {
-	_, err := Definitions{}.WithFeatureSets(
-		FeatureSet{Name: "Example"}.
-			WithPrimary("id", Int).
-			With("val", Int.Expr(expr.Col("id").Add(expr.Int64(1)))),
-	).ToGraph()
-
-	assert.NoError(t, err)
+	assertValid(t, FeatureSet{Name: "Example"}.
+		WithPrimary("id", Int).
+		With("val", Int.Expr(expr.Col("id").Add(expr.Int64(1)))))
 }
 
 /*
