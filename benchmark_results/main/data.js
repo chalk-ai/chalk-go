@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759445743223,
+  "lastUpdate": 1759471122542,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26652,6 +26652,60 @@ window.BENCHMARK_DATA = {
             "value": 349.5,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "bfce4f042020f16cad57beb762a4dfa78274c7a4",
+          "message": "Merge branch 'ab/topk-aggs-and-stream-resolvers'",
+          "timestamp": "2025-10-02T22:57:48-07:00",
+          "tree_id": "37211558ed9ee8ea08f088114a237c15cc1a6443",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/bfce4f042020f16cad57beb762a4dfa78274c7a4"
+        },
+        "date": 1759471122472,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.241,
+            "unit": "ms/op",
+            "extra": "1116 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.06,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 213.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 302.3,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
