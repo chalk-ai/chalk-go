@@ -42,6 +42,9 @@ const (
 	// ScriptTaskServiceGetScriptTaskProcedure is the fully-qualified name of the ScriptTaskService's
 	// GetScriptTask RPC.
 	ScriptTaskServiceGetScriptTaskProcedure = "/chalk.server.v1.ScriptTaskService/GetScriptTask"
+	// ScriptTaskServiceGetScriptTaskSourceProcedure is the fully-qualified name of the
+	// ScriptTaskService's GetScriptTaskSource RPC.
+	ScriptTaskServiceGetScriptTaskSourceProcedure = "/chalk.server.v1.ScriptTaskService/GetScriptTaskSource"
 )
 
 // ScriptTaskServiceClient is a client for the chalk.server.v1.ScriptTaskService service.
@@ -49,6 +52,7 @@ type ScriptTaskServiceClient interface {
 	CreateScriptTask(context.Context, *connect.Request[v1.CreateScriptTaskRequest]) (*connect.Response[v1.CreateScriptTaskResponse], error)
 	ListScriptTasks(context.Context, *connect.Request[v1.ListScriptTasksRequest]) (*connect.Response[v1.ListScriptTasksResponse], error)
 	GetScriptTask(context.Context, *connect.Request[v1.GetScriptTaskRequest]) (*connect.Response[v1.GetScriptTaskResponse], error)
+	GetScriptTaskSource(context.Context, *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error)
 }
 
 // NewScriptTaskServiceClient constructs a client for the chalk.server.v1.ScriptTaskService service.
@@ -82,14 +86,22 @@ func NewScriptTaskServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getScriptTaskSource: connect.NewClient[v1.GetScriptTaskSourceRequest, v1.GetScriptTaskSourceResponse](
+			httpClient,
+			baseURL+ScriptTaskServiceGetScriptTaskSourceProcedure,
+			connect.WithSchema(scriptTaskServiceMethods.ByName("GetScriptTaskSource")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // scriptTaskServiceClient implements ScriptTaskServiceClient.
 type scriptTaskServiceClient struct {
-	createScriptTask *connect.Client[v1.CreateScriptTaskRequest, v1.CreateScriptTaskResponse]
-	listScriptTasks  *connect.Client[v1.ListScriptTasksRequest, v1.ListScriptTasksResponse]
-	getScriptTask    *connect.Client[v1.GetScriptTaskRequest, v1.GetScriptTaskResponse]
+	createScriptTask    *connect.Client[v1.CreateScriptTaskRequest, v1.CreateScriptTaskResponse]
+	listScriptTasks     *connect.Client[v1.ListScriptTasksRequest, v1.ListScriptTasksResponse]
+	getScriptTask       *connect.Client[v1.GetScriptTaskRequest, v1.GetScriptTaskResponse]
+	getScriptTaskSource *connect.Client[v1.GetScriptTaskSourceRequest, v1.GetScriptTaskSourceResponse]
 }
 
 // CreateScriptTask calls chalk.server.v1.ScriptTaskService.CreateScriptTask.
@@ -107,11 +119,17 @@ func (c *scriptTaskServiceClient) GetScriptTask(ctx context.Context, req *connec
 	return c.getScriptTask.CallUnary(ctx, req)
 }
 
+// GetScriptTaskSource calls chalk.server.v1.ScriptTaskService.GetScriptTaskSource.
+func (c *scriptTaskServiceClient) GetScriptTaskSource(ctx context.Context, req *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error) {
+	return c.getScriptTaskSource.CallUnary(ctx, req)
+}
+
 // ScriptTaskServiceHandler is an implementation of the chalk.server.v1.ScriptTaskService service.
 type ScriptTaskServiceHandler interface {
 	CreateScriptTask(context.Context, *connect.Request[v1.CreateScriptTaskRequest]) (*connect.Response[v1.CreateScriptTaskResponse], error)
 	ListScriptTasks(context.Context, *connect.Request[v1.ListScriptTasksRequest]) (*connect.Response[v1.ListScriptTasksResponse], error)
 	GetScriptTask(context.Context, *connect.Request[v1.GetScriptTaskRequest]) (*connect.Response[v1.GetScriptTaskResponse], error)
+	GetScriptTaskSource(context.Context, *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error)
 }
 
 // NewScriptTaskServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -141,6 +159,13 @@ func NewScriptTaskServiceHandler(svc ScriptTaskServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	scriptTaskServiceGetScriptTaskSourceHandler := connect.NewUnaryHandler(
+		ScriptTaskServiceGetScriptTaskSourceProcedure,
+		svc.GetScriptTaskSource,
+		connect.WithSchema(scriptTaskServiceMethods.ByName("GetScriptTaskSource")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ScriptTaskService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ScriptTaskServiceCreateScriptTaskProcedure:
@@ -149,6 +174,8 @@ func NewScriptTaskServiceHandler(svc ScriptTaskServiceHandler, opts ...connect.H
 			scriptTaskServiceListScriptTasksHandler.ServeHTTP(w, r)
 		case ScriptTaskServiceGetScriptTaskProcedure:
 			scriptTaskServiceGetScriptTaskHandler.ServeHTTP(w, r)
+		case ScriptTaskServiceGetScriptTaskSourceProcedure:
+			scriptTaskServiceGetScriptTaskSourceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -168,4 +195,8 @@ func (UnimplementedScriptTaskServiceHandler) ListScriptTasks(context.Context, *c
 
 func (UnimplementedScriptTaskServiceHandler) GetScriptTask(context.Context, *connect.Request[v1.GetScriptTaskRequest]) (*connect.Response[v1.GetScriptTaskResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScriptTaskService.GetScriptTask is not implemented"))
+}
+
+func (UnimplementedScriptTaskServiceHandler) GetScriptTaskSource(context.Context, *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScriptTaskService.GetScriptTaskSource is not implemented"))
 }
