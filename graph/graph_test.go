@@ -17,13 +17,9 @@ class Example:
 	val: _.id + 1
 */
 func TestSimpleAdd(t *testing.T) {
-	_, err := Definitions{}.WithFeatureSets(
-		FeatureSet{Name: "Example"}.
-			WithPrimary("id", Int).
-			With("val", Int.Expr(expr.Col("id").Add(expr.Int64(1)))),
-	).ToGraph()
-
-	assert.NoError(t, err)
+	assertValid(t, FeatureSet{Name: "Example"}.
+		WithPrimary("id", Int).
+		With("val", Int.Expr(expr.Col("id").Add(expr.Int64(1)))))
 }
 
 /*
@@ -107,14 +103,14 @@ func getEvalRecordFeatureSet(accountNamespace string) FeatureSet {
 		})
 }
 
-func TestWindowedGroupedCount(t *testing.T) {
+func TestWindowedCount(t *testing.T) {
 	// Create the windowed aggregation expression
 	expression := expr.DataFrame("events").
 		Filter(expr.Col("ts").Gt(expr.ChalkWindow())).
 		Filter(expr.Col("ts").Lt(expr.ChalkNow())).
 		Agg("count")
 
-	evalRecordFS := getEvalRecordFeatureSet("acctns")
+	evalRecordFS := getEvalRecordFeatureSet("acctxns")
 
 	// Define feature sets using the graph builder API
 	definitions := Definitions{}.
@@ -157,6 +153,13 @@ func TestWindowedGroupedCount(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, CheckHasFeature(graph, "simple_event", "id"))
 	assert.NoError(t, CheckHasFeature(graph, "user", "id"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "count_events__60__"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "count_events__300__"))
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		"simple_events":        5,
+		"user":                 20,
+		"eval_record_accttxns": 24,
+	})
 }
 
 func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatures map[string]int) {
@@ -182,7 +185,7 @@ func TestWindowedAllTime(t *testing.T) {
 				WithPrimary("account_id", Int).
 				With("other_accounts_df", DataFrame("other_account_id_with_same_stripe_fingerprint_found").WithMaxStaleness(Days(1))).
 				With("other_account_id_count",
-					Windowed(Int).
+					Windowed(Int, All).
 						WithExpr(expr.DataFrame("other_accounts_df").Select(expr.Col("other_account_id")).Agg("approx_count_distinct"))),
 		)
 	graph, err := definitions.ToGraph()
@@ -191,4 +194,57 @@ func TestWindowedAllTime(t *testing.T) {
 		"other_account_id_with_same_stripe_fingerprint_found":       4,
 		"other_account_id_with_same_stripe_fingerprint_found_count": 6,
 	})
+
+	assert.NoError(t, CheckHasFeature(
+		graph,
+		"other_account_id_with_same_stripe_fingerprint_found_count",
+		"other_account_id_count__all__",
+	))
+}
+
+func assertValid(t *testing.T, fs FeatureSet) {
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.NoError(t, err)
+}
+
+func assertInvalid(t *testing.T, fs FeatureSet) {
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestDuplicateFeatureTimeNotAllowed(t *testing.T) {
+	assertInvalid(t, FeatureSet{Name: "event"}.
+		WithPrimary("id", Int).
+		With("ts", Datetime).
+		With("at", FeatureTime))
+}
+
+func TestWithForeignKey(t *testing.T) {
+	assertInvalid(t, FeatureSet{Name: "event"}.
+		WithPrimary("id", Int).
+		WithForeignKey("other_id", "DoesNotExist"))
+}
+
+func TestMaxByN(t *testing.T) {
+	_, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("amount", Float).
+			With("at", Datetime),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("transactions", DataFrame("Transaction")).
+			With("top_5_txns", Windowed(List(Int), Days(30), Days(60), Days(90)).
+				WithDefault(expr.Int(0)).
+				WithBucketDuration(Days(1)).
+				WithExpr(expr.DataFrame("transactions").
+					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
+					Filter(expr.Col("at").Lt(expr.ChalkNow())).
+					Select(expr.Col("id")).
+					Agg("max_by_n", expr.Col("amount"), expr.Int64(5)),
+				)),
+	).ToGraph()
+	assert.NoError(t, err)
 }

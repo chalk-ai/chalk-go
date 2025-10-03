@@ -85,6 +85,34 @@ func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	}
 }
 
+func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
+	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
+	scalar.ArrowType = &arrowv1.ArrowType{
+		ArrowTypeEnum: &arrowv1.ArrowType_LargeList{
+			LargeList: &arrowv1.List{
+				FieldType: &arrowv1.Field{
+					Name:      "item",
+					ArrowType: scalar.ArrowType,
+					Nullable:  true,
+				},
+			},
+		},
+	}
+	scalar.RichTypeInfo.RichTypeName = maybeStr(fmt.Sprintf("list[%s]", *scalar.RichTypeInfo.RichTypeName))
+	return &ScalarFeatureBuilder{
+		proto: scalar,
+		err:   ofType.err,
+	}
+}
+
+type FeatureTimeBuilder struct{}
+
+func (f FeatureTimeBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+	return append(features, featureTime(fieldName, namespace)), nil
+}
+
+var FeatureTime = &FeatureTimeBuilder{}
+
 func richType(name string) *graphv1.FeatureRichTypeInfo {
 	module := "builtins"
 	class := name
@@ -164,7 +192,7 @@ func TypeName(scalar *graphv1.ScalarFeatureType) string {
 	return scalar.RichTypeInfo.RichType.Type.(*graphv1.FeatureRichType_ClassType).ClassType.Qualname
 }
 
-func ArrowStruct(spec map[string]string) *arrowv1.ArrowType {
+func arrowStruct(spec map[string]string) *arrowv1.ArrowType {
 	fields := make([]*arrowv1.Field, len(spec))
 	i := 0
 	for name, typ := range spec {
