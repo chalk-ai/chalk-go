@@ -329,7 +329,7 @@ func HasOne(relation string, join expr.Expr) *HasOneFeatureBuilder {
 }
 
 func (ho HasOneFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
-	exproto, err := expr.ToProto(ho.join)
+	exproto, err := toFilterParsedProto(ho.join, "")
 	if err != nil {
 		return nil, err
 	}
@@ -494,7 +494,7 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	switch e := expression.(type) {
 	case *expr.ColumnExpr:
 		// treat as an underscore expression
-		relation := e.Relation
+		relation := strcase.ToSnake(e.Relation)
 		if relation == "" {
 			relation = foreignNamespace
 		}
