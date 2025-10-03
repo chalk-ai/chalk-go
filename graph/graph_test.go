@@ -82,13 +82,15 @@ func TestWindowedSum(t *testing.T) {
 		// 3 regular features + 4 windowed columns + feature time + singleton relation
 		"user": 9,
 	})
+	assert.NoError(t, CheckHasFeature(graph, "transaction", "id"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "id"))
 }
 
 // getEvalRecordFeatureSet creates the EvalRecord FeatureSet for the given namespace
 func getEvalRecordFeatureSet(accountNamespace string) FeatureSet {
 	evalRecordFeatureSetName := fmt.Sprintf("eval_record_%s", accountNamespace)
 
-	return FeatureSet{Name: evalRecordFeatureSetName, EtlOfflineToOnline: false}.
+	return FeatureSet{Name: evalRecordFeatureSetName}.
 		WithPrimary("id", String).
 		WithAll(Features{
 			"case_status":                          String,
@@ -151,8 +153,10 @@ func TestWindowedGroupedCount(t *testing.T) {
 		)
 
 	// Convert to protobuf Graph
-	_, err := definitions.ToGraph()
+	graph, err := definitions.ToGraph()
 	assert.NoError(t, err)
+	assert.NoError(t, CheckHasFeature(graph, "simple_event", "id"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "id"))
 }
 
 func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatures map[string]int) {

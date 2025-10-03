@@ -59,7 +59,7 @@ type DataFrameExpr interface {
 
 	Filter(condition ExprI) DataFrameExpr
 	Select(selection Expr) DataFrameExpr
-	Agg(aggFunc string) Expr
+	Agg(aggFunc string, args ...Expr) Expr
 }
 
 // Binary operation helper

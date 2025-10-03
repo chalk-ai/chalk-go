@@ -3,23 +3,33 @@ package graph
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	graphv2 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v2"
 	"github.com/iancoleman/strcase"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 type Definitions struct {
-	FeatureSets []*FeatureSet
+	FeatureSets     []*FeatureSet
+	StreamResolvers []*StreamResolver
 }
 
 func (d Definitions) WithFeatureSets(fs ...FeatureSet) Definitions {
 	for _, f := range fs {
 		d.FeatureSets = append(d.FeatureSets, &f)
+	}
+	return d
+}
+
+func (d Definitions) WithStreamResolvers(srs ...StreamResolver) Definitions {
+	for _, sr := range srs {
+		d.StreamResolvers = append(d.StreamResolvers, &sr)
 	}
 	return d
 }
@@ -156,6 +166,29 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		}
 	}
 
+	streamResolvers := make(map[string]*graphv1.StreamResolver, len(d.StreamResolvers))
+	for _, sr := range d.StreamResolvers {
+		extras, found := nameToFeatureSet[sr.OutputFeatureSet]
+		if !found {
+			return fmt.Errorf("feature set %s referenced by stream resolver %s not found", sr.OutputFeatureSet, sr.Name)
+		}
+		numFound := 0
+		for _, f := range extras.proto.Features {
+			_, found := sr.OutputFeatures[FeatureName(f)]
+			if found {
+				numFound += 1
+			}
+		}
+		if numFound != len(sr.OutputFeatures) {
+			return fmt.Errorf("%d output features in stream resolver %s are not present in the target feature set %s", len(sr.OutputFeatures)-numFound, sr.Name, sr.OutputFeatureSet)
+		}
+		proto, err := sr.ToProto()
+		if err != nil {
+			return err
+		}
+		streamResolvers[proto.Fqn] = proto
+	}
+
 	newFeatureSets := make([]*graphv1.FeatureSet, len(nameToFeatureSet))
 	size := len(g.FeatureSets)
 	for name, extras := range nameToFeatureSet {
@@ -168,6 +201,19 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		}
 	}
 	g.FeatureSets = newFeatureSets
+
+	for i, sr := range g.StreamResolvers {
+		newSr, sameName := streamResolvers[sr.Fqn]
+		if sameName {
+			g.StreamResolvers[i] = newSr
+			delete(streamResolvers, newSr.Fqn)
+			log.Printf("   🔄 Updated streaming resolver: %s", sr.Fqn)
+		}
+	}
+	for _, sr := range streamResolvers {
+		g.StreamResolvers = append(g.StreamResolvers, sr)
+		log.Printf("   ✅ Added streaming resolver: %s", sr.Fqn)
+	}
 
 	return nil
 }
@@ -268,6 +314,37 @@ func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	}
 	fs.foreignKeys[strcase.ToSnake(relation)] = name
 	return fs
+}
+
+type HasOneFeatureBuilder struct {
+	foreignNamespace string
+	join             expr.Expr
+}
+
+func HasOne(relation string, join expr.Expr) *HasOneFeatureBuilder {
+	return &HasOneFeatureBuilder{
+		foreignNamespace: strcase.ToSnake(relation),
+		join:             join,
+	}
+}
+
+func (ho HasOneFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
+	exproto, err := toFilterParsedProto(ho.join, "")
+	if err != nil {
+		return nil, err
+	}
+	return append(features, &graphv1.FeatureType{
+		Type: &graphv1.FeatureType_HasOne{
+			HasOne: &graphv1.HasOneFeatureType{
+				ForeignNamespace:         ho.foreignNamespace,
+				Name:                     fieldName,
+				Namespace:                namespace,
+				AttributeName:            fieldName,
+				UnversionedAttributeName: fieldName,
+				Join:                     exproto,
+			},
+		},
+	}), nil
 }
 
 // zero size type to define hashset
@@ -417,7 +494,7 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	switch e := expression.(type) {
 	case *expr.ColumnExpr:
 		// treat as an underscore expression
-		relation := e.Relation
+		relation := strcase.ToSnake(e.Relation)
 		if relation == "" {
 			relation = foreignNamespace
 		}
@@ -469,8 +546,113 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 		}
 
 		if e.Attribute == "chalk_window" && e.Parent.String() == "_" {
-			return expr.ToProto(expression), nil
+			return expr.ToProto(expression)
 		}
 	}
 	return nil, fmt.Errorf("invalid expression type for filter (%T): %s", expression, expression.String())
+}
+
+type StreamResolver struct {
+	Name  string
+	Owner string
+	Doc   string
+
+	StreamSourceName string
+	StreamSourceType string
+
+	OutputFeatureSet  string
+	OutputFeatures    map[string]expr.Expr
+	MessageType       map[string]string
+	MachineType       string
+	RunInEnvironments []string
+}
+
+func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
+	if sr.StreamSourceType != "kafka" &&
+		sr.StreamSourceType != "kinesis" &&
+		sr.StreamSourceType != "pubsub" {
+		return nil, fmt.Errorf("[190] Invalid stream source: Invalid source for stream resolver '%s': expected KafkaSource, KinesisSource, or PubSubSource, got %s", sr.Name, sr.StreamSourceType)
+	}
+
+	// Validate name is a valid FQN (basic validation)
+	if strings.TrimSpace(sr.Name) == "" {
+		return nil, fmt.Errorf("[192] Empty resolver name: Stream resolver name cannot be empty")
+	}
+	if strings.Contains(sr.Name, ".") {
+		return nil, fmt.Errorf("[193] Invalid resolver name format: Stream resolver name '%s' cannot contain dots. Use underscores instead", sr.Name)
+	}
+
+	messageSchema := ArrowStruct(sr.MessageType)
+
+	namespace := strcase.ToSnake(sr.OutputFeatureSet)
+	featureExprs := make(map[string]*graphv1.FeatureExpression, len(sr.OutputFeatures))
+	outputs := make([]*graphv1.ResolverOutput, len(sr.OutputFeatures))
+	i := 0
+	for k, v := range sr.OutputFeatures {
+		exproto, err := expr.ToProto(v)
+		if err != nil {
+			return nil, err
+		}
+		featureExprs[fmt.Sprintf("%s.%s", namespace, k)] = &graphv1.FeatureExpression{
+			Expr: &graphv1.FeatureExpression_UnderscoreExpr{
+				UnderscoreExpr: exproto,
+			},
+		}
+		outputs[i] = &graphv1.ResolverOutput{
+			Annotation: &graphv1.ResolverOutput_Feature{
+				Feature: &graphv1.FeatureReference{
+					Name:      k,
+					Namespace: namespace,
+				},
+			},
+		}
+		i++
+	}
+
+	return &graphv1.StreamResolver{
+		Fqn:                             strcase.ToSnake(sr.Name),
+		Environments:                    sr.RunInEnvironments,
+		Doc:                             maybeStr(sr.Doc),
+		MachineType:                     maybeStr(sr.MachineType),
+		Owner:                           maybeStr(sr.Owner),
+		UpdatesMaterializedAggregations: true,
+		ExplicitSchema:                  messageSchema,
+		FeatureExpressions:              featureExprs,
+		SourceV2: &graphv2.StreamSourceReference{
+			Name:       sr.StreamSourceName,
+			SourceType: sr.StreamSourceType,
+		},
+		Outputs: outputs,
+		Params: []*graphv1.StreamResolverParam{
+			{
+				Type: &graphv1.StreamResolverParam_Message{
+					Message: &graphv1.StreamResolverParamMessage{
+						Name:      "message",
+						ArrowType: messageSchema,
+						StructType: &graphv1.StreamResolverParamMessage_Struct{
+							Struct: &graphv1.FunctionGlobalCapturedStruct{
+								Module:  "graphtest.streaming",
+								Name:    "EvalRecordMessage",
+								PaDtype: messageSchema,
+							},
+						},
+					},
+				},
+			},
+		},
+	}, nil
+}
+
+func CheckHasFeature(graph *graphv1.Graph, fsName, fName string) error {
+	for _, fs := range graph.FeatureSets {
+		if fs.Name == fsName {
+			for _, f := range fs.Features {
+				if FeatureName(f) == fName {
+					return nil
+				}
+			}
+			return fmt.Errorf("could not find %s in %s", fName, fsName)
+		}
+	}
+	return fmt.Errorf("could not find feature set %s", fsName)
 }
