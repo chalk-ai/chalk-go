@@ -660,7 +660,7 @@ func TestToProto(t *testing.T) {
 		},
 		{
 			name: "dataframe_filter_with_argk",
-			expr: DataFrame("transactions").Agg("max_by_n", 10),
+			expr: DataFrame("transactions").Select(Col("name")).Agg("max_by_n", Col("timestamp"), Int(10)),
 			expected: &expressionv1.LogicalExprNode{
 				ExprForm: &expressionv1.LogicalExprNode_Call{
 					Call: &expressionv1.ExprCall{
@@ -672,9 +672,24 @@ func TestToProto(t *testing.T) {
 									},
 
 									Parent: &expressionv1.LogicalExprNode{
-										ExprForm: &expressionv1.LogicalExprNode_Identifier{
-											Identifier: &expressionv1.Identifier{
-												Name: "transactions",
+										ExprForm: &expressionv1.LogicalExprNode_GetSubscript{
+											GetSubscript: &expressionv1.ExprGetSubscript{
+												Parent: &expressionv1.LogicalExprNode{
+													ExprForm: &expressionv1.LogicalExprNode_Identifier{
+														Identifier: &expressionv1.Identifier{
+															Name: "transactions",
+														},
+													},
+												},
+												Subscript: []*expressionv1.LogicalExprNode{
+													{
+														ExprForm: &expressionv1.LogicalExprNode_Identifier{
+															Identifier: &expressionv1.Identifier{
+																Name: "name",
+															},
+														},
+													},
+												},
 											},
 										},
 									},
@@ -682,6 +697,13 @@ func TestToProto(t *testing.T) {
 							},
 						},
 						Args: []*expressionv1.LogicalExprNode{
+							{
+								ExprForm: &expressionv1.LogicalExprNode_Identifier{
+									Identifier: &expressionv1.Identifier{
+										Name: "timestamp",
+									},
+								},
+							},
 							{
 								ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
 									LiteralValue: &expressionv1.ExprLiteral{

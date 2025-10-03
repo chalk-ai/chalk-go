@@ -152,20 +152,35 @@ func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 			}
 		}
 
-		args := make([]*expressionv1.LogicalExprNode, 0, 1)
+		args, err := toProtos(e.Arguments...)
+		if err != nil {
+			return nil, err
+		}
 		kwargs := make(map[string]*expressionv1.LogicalExprNode, 1)
-		if e.Function == "approx_top_k" || e.Function == "min_by_n" || e.Function == "max_by_n" {
-			if len(e.Arguments) != 1 {
-				return nil, fmt.Errorf("expecting exactly one argument 'k' to %s, got %d", e.Function, len(e.Arguments))
-			}
-			if e.Arguments[0] <= 0 {
-				return nil, fmt.Errorf("argument 'k' to %s but be nonnegative, was %d", e.Function, e.Arguments[0])
-			}
-			k, _ := ToProto(Int(int64(e.Arguments[0])))
-			args = append(args, k)
-			kwargs["k"] = k
-		} else if len(e.Arguments) > 0 {
-			return nil, fmt.Errorf("aggregation %s must be called with zero arguments", e.Function)
+
+		expectedNumArgs := 0
+		endsWithK := false
+		switch e.Function {
+		case "approx_top_k":
+			expectedNumArgs = 1
+			endsWithK = true
+		case "min_by":
+			expectedNumArgs = 1
+		case "max_by":
+			expectedNumArgs = 1
+		case "min_by_n":
+			expectedNumArgs = 2
+			endsWithK = true
+		case "max_by_n":
+			expectedNumArgs = 2
+			endsWithK = true
+		}
+		if len(e.Arguments) != expectedNumArgs {
+			return nil, fmt.Errorf("expecting exactly %d arguments to %s, got %d", expectedNumArgs, e.Function, len(e.Arguments))
+		}
+
+		if endsWithK {
+			kwargs["k"] = args[len(args)-1]
 		}
 
 		// Apply the aggregation function as a GetAttribute on the (possibly filtered) DataFrame
