@@ -271,7 +271,7 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 	kargProto, hasKarg := call.Kwargs["k"]
 	karg := m.ApproxTopKArgK
 	if hasKarg {
-		karg = kargProto.GetLiteral().GetInt64Value()
+		karg = kargProto.GetLiteralValue().Value.GetInt64Value()
 	}
 	var defaultProto *arrowv1.ScalarValue
 	if w.Default != nil {

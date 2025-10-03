@@ -670,7 +670,7 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 		return nil, fmt.Errorf("[193] Invalid resolver name format: Stream resolver name '%s' cannot contain dots. Use underscores instead", sr.Name)
 	}
 
-	messageSchema := ArrowStruct(sr.MessageType)
+	messageSchema := arrowStruct(sr.MessageType)
 
 	namespace := strcase.ToSnake(sr.OutputFeatureSet)
 	featureExprs := make(map[string]*graphv1.FeatureExpression, len(sr.OutputFeatures))
@@ -719,8 +719,8 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 						ArrowType: messageSchema,
 						StructType: &graphv1.StreamResolverParamMessage_Struct{
 							Struct: &graphv1.FunctionGlobalCapturedStruct{
-								Module:  "graphtest.streaming",
-								Name:    "EvalRecordMessage",
+								Module:  "chalk-go",
+								Name:    fmt.Sprintf("%s_message", sr.OutputFeatureSet),
 								PaDtype: messageSchema,
 							},
 						},

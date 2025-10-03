@@ -172,7 +172,7 @@ func TypeName(scalar *graphv1.ScalarFeatureType) string {
 	return scalar.RichTypeInfo.RichType.Type.(*graphv1.FeatureRichType_ClassType).ClassType.Qualname
 }
 
-func ArrowStruct(spec map[string]string) *arrowv1.ArrowType {
+func arrowStruct(spec map[string]string) *arrowv1.ArrowType {
 	fields := make([]*arrowv1.Field, len(spec))
 	i := 0
 	for name, typ := range spec {
