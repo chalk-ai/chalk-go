@@ -85,6 +85,26 @@ func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	}
 }
 
+func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
+	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
+	scalar.ArrowType = &arrowv1.ArrowType{
+		ArrowTypeEnum: &arrowv1.ArrowType_LargeList{
+			LargeList: &arrowv1.List{
+				FieldType: &arrowv1.Field{
+					Name:      "item",
+					ArrowType: scalar.ArrowType,
+					Nullable:  true,
+				},
+			},
+		},
+	}
+	scalar.RichTypeInfo.RichTypeName = maybeStr(fmt.Sprintf("list[%s]", *scalar.RichTypeInfo.RichTypeName))
+	return &ScalarFeatureBuilder{
+		proto: scalar,
+		err:   ofType.err,
+	}
+}
+
 type FeatureTimeBuilder struct{}
 
 func (f FeatureTimeBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {

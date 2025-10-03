@@ -206,6 +206,11 @@ func TestWindowedAllTime(t *testing.T) {
 	))
 }
 
+func assertValid(t *testing.T, fs FeatureSet) {
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.NoError(t, err)
+}
+
 func assertInvalid(t *testing.T, fs FeatureSet) {
 	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
 	assert.Error(t, err)
@@ -222,4 +227,28 @@ func TestWithForeignKey(t *testing.T) {
 	assertInvalid(t, FeatureSet{Name: "event"}.
 		WithPrimary("id", Int).
 		WithForeignKey("other_id", "DoesNotExist"))
+}
+
+func TestMaxByN(t *testing.T) {
+	_, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("amount", Float).
+			With("at", Datetime),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("transactions", DataFrame("Transaction")).
+			With("top_5_txns", Windowed(List(Int), Days(30), Days(60), Days(90)).
+				WithDefault(expr.Int(0)).
+				WithBucketDuration(Days(1)).
+				WithExpr(expr.DataFrame("transactions").
+					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
+					Filter(expr.Col("at").Lt(expr.ChalkNow())).
+					Select(expr.Col("id")).
+					Agg("max_by_n", expr.Col("amount"), expr.Int64(5)),
+				)),
+	).ToGraph()
+	assert.NoError(t, err)
 }

@@ -273,6 +273,12 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 	if hasKarg {
 		karg = kargProto.GetLiteralValue().Value.GetInt64Value()
 	}
+	if karg != 0 {
+		_, isList := scalarPtr.proto.ArrowType.ArrowTypeEnum.(*arrowv1.ArrowType_LargeList)
+		if !isList {
+			return nil, fmt.Errorf("type of windowed feature %s must be a list", fieldName)
+		}
+	}
 	var defaultProto *arrowv1.ScalarValue
 	if w.Default != nil {
 		lit, ok := w.Default.(*expr.LiteralExpr)
