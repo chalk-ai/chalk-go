@@ -39,6 +39,8 @@ func Years(n int64) time.Duration {
 	return time.Duration(n) * 365 * 24 * time.Hour
 }
 
+var All = Years(100)
+
 type WindowedFeatureBuilder struct {
 	proto           *graphv1.WindowedFeatureType
 	ofType          FeatureBuilder
@@ -322,39 +324,26 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 	windowed.UnversionedAttributeName = fieldName
 
 	oldLength := len(features)
-	if numPeriods == 0 {
-		suffixedFieldName := fmt.Sprintf("%s__all__", fieldName)
-		duration := Years(100)
-		durationProto := durationpb.New(duration)
-
-		windowed.WindowDurations = []*durationpb.Duration{durationProto}
-		return append(
-			features,
-			featureForWindow(suffixedFieldName, duration, durationProto),
-			&graphv1.FeatureType{
-				Type: &graphv1.FeatureType_Windowed{
-					Windowed: windowed,
-				},
-			},
-		), nil
-	} else {
-		newFeatures := make([]*graphv1.FeatureType, oldLength+numPeriods+1)
-		copy(newFeatures, features)
-		for i := range numPeriods {
-			durationProto := w.proto.WindowDurations[i]
-			duration := durationProto.AsDuration()
-
+	newFeatures := make([]*graphv1.FeatureType, oldLength+numPeriods+1)
+	copy(newFeatures, features)
+	for i := range numPeriods {
+		durationProto := w.proto.WindowDurations[i]
+		duration := durationProto.AsDuration()
+		durationSeconds := int64(duration.Seconds())
+		if duration == All {
+			suffixedFieldName := fmt.Sprintf("%s__all__", fieldName)
+			newFeatures[oldLength+i] = featureForWindow(suffixedFieldName, duration, durationProto)
+		} else {
 			// Add duration suffix to the scalar feature name
-			durationSeconds := int64(duration.Seconds())
 			suffixedFieldName := fmt.Sprintf("%s__%d__", fieldName, durationSeconds)
 			newFeatures[oldLength+i] = featureForWindow(suffixedFieldName, duration, durationProto)
 		}
-
-		newFeatures[oldLength+numPeriods] = &graphv1.FeatureType{
-			Type: &graphv1.FeatureType_Windowed{
-				Windowed: windowed,
-			},
-		}
-		return newFeatures, nil
 	}
+
+	newFeatures[oldLength+numPeriods] = &graphv1.FeatureType{
+		Type: &graphv1.FeatureType_Windowed{
+			Windowed: windowed,
+		},
+	}
+	return newFeatures, nil
 }

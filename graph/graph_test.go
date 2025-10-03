@@ -157,6 +157,8 @@ func TestWindowedCount(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, CheckHasFeature(graph, "simple_event", "id"))
 	assert.NoError(t, CheckHasFeature(graph, "user", "id"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "count_events__60__"))
+	assert.NoError(t, CheckHasFeature(graph, "user", "count_events__300__"))
 	checkCorrectNumFeatures(t, graph, map[string]int{
 		"simple_events":        5,
 		"user":                 20,
@@ -187,7 +189,7 @@ func TestWindowedAllTime(t *testing.T) {
 				WithPrimary("account_id", Int).
 				With("other_accounts_df", DataFrame("other_account_id_with_same_stripe_fingerprint_found").WithMaxStaleness(Days(1))).
 				With("other_account_id_count",
-					Windowed(Int).
+					Windowed(Int, All).
 						WithExpr(expr.DataFrame("other_accounts_df").Select(expr.Col("other_account_id")).Agg("approx_count_distinct"))),
 		)
 	graph, err := definitions.ToGraph()
@@ -196,4 +198,10 @@ func TestWindowedAllTime(t *testing.T) {
 		"other_account_id_with_same_stripe_fingerprint_found":       4,
 		"other_account_id_with_same_stripe_fingerprint_found_count": 6,
 	})
+
+	assert.NoError(t, CheckHasFeature(
+		graph,
+		"other_account_id_with_same_stripe_fingerprint_found_count",
+		"other_account_id_count__all__",
+	))
 }
