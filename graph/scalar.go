@@ -85,6 +85,14 @@ func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	}
 }
 
+type FeatureTimeBuilder struct{}
+
+func (f FeatureTimeBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+	return append(features, featureTime(fieldName, namespace)), nil
+}
+
+var FeatureTime = &FeatureTimeBuilder{}
+
 func richType(name string) *graphv1.FeatureRichTypeInfo {
 	module := "builtins"
 	class := name

@@ -205,3 +205,21 @@ func TestWindowedAllTime(t *testing.T) {
 		"other_account_id_count__all__",
 	))
 }
+
+func assertInvalid(t *testing.T, fs FeatureSet) {
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestDuplicateFeatureTimeNotAllowed(t *testing.T) {
+	assertInvalid(t, FeatureSet{Name: "event"}.
+		WithPrimary("id", Int).
+		With("ts", Datetime).
+		With("at", FeatureTime))
+}
+
+func TestWithForeignKey(t *testing.T) {
+	assertInvalid(t, FeatureSet{Name: "event"}.
+		WithPrimary("id", Int).
+		WithForeignKey("other_id", "DoesNotExist"))
+}
