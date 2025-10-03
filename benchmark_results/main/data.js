@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759477027455,
+  "lastUpdate": 1759525166257,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -26758,6 +26758,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 292.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "alexb@chalk.ai",
+            "name": "Alex Bondarenko",
+            "username": "abondrnco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a0ce40c5fd055a94b213e72b851d25bdba91e418",
+          "message": "added approxtopk kwarg handling (#499)\n\n* added approxtopk kwarg handling\n\n* added explicit All duration\n\n* added explicit FeatureTime\n\n* minor fixes\n\n* added List scalars and max_by_n test\n\n* fix staticcheck failure",
+          "timestamp": "2025-10-03T13:58:30-07:00",
+          "tree_id": "31cfb40a53ba30da3e5d59ca4d9e35ca65eb6c33",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/a0ce40c5fd055a94b213e72b851d25bdba91e418"
+        },
+        "date": 1759525166180,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.244,
+            "unit": "ms/op",
+            "extra": "986 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 141.2,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.97,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 239.8,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 339.4,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
