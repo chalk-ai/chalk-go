@@ -1,7 +1,6 @@
 package chalk
 
 import (
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -11,31 +10,31 @@ func TestOfflineQueryParamsAllTypes(t *testing.T) {
 	t.Parallel()
 	// Tests that all types of input, output, and required output parameters can be passed
 	// without error.
-	initErr := InitFeatures(&fixtures.Root)
-	assert.Nil(t, initErr)
+	fixtureRoot, initErr := GetRootFeatures()
+	assert.NoError(t, initErr)
 	params := OfflineQueryParams{}.
-		WithInput(fixtures.Root.AllTypes.String, []any{1}).
+		WithInput(fixtureRoot.AllTypes.String, []any{1}).
 		WithOutputs(
 			"all_types.string",
-			fixtures.Root.AllTypes.Bool,
-			fixtures.Root.AllTypes.Float,
-			fixtures.Root.AllTypes.String,
-			fixtures.Root.AllTypes.Int,
-			fixtures.Root.AllTypes.Timestamp,
-			fixtures.Root.AllTypes.IntList,
+			fixtureRoot.AllTypes.Bool,
+			fixtureRoot.AllTypes.Float,
+			fixtureRoot.AllTypes.String,
+			fixtureRoot.AllTypes.Int,
+			fixtureRoot.AllTypes.Timestamp,
+			fixtureRoot.AllTypes.IntList,
 		).
 		WithRequiredOutputs(
-			fixtures.Root.AllTypes.WindowedInt,
-			fixtures.Root.AllTypes.WindowedInt["1m"],
-			fixtures.Root.AllTypes.WindowedInt["5m"],
-			fixtures.Root.AllTypes.WindowedInt["1h"],
-			fixtures.Root.AllTypes.WindowedList,
-			fixtures.Root.AllTypes.WindowedList["1m"],
-			fixtures.Root.AllTypes.Nested,
-			fixtures.Root.AllTypes.Nested.Id,
-			fixtures.Root.AllTypes.Dataclass,
-			fixtures.Root.AllTypes.Dataclass.Lat,
-			fixtures.Root.AllTypes.Dataclass.Lng,
+			fixtureRoot.AllTypes.WindowedInt,
+			fixtureRoot.AllTypes.WindowedInt["1m"],
+			fixtureRoot.AllTypes.WindowedInt["5m"],
+			fixtureRoot.AllTypes.WindowedInt["1h"],
+			fixtureRoot.AllTypes.WindowedList,
+			fixtureRoot.AllTypes.WindowedList["1m"],
+			fixtureRoot.AllTypes.Nested,
+			fixtureRoot.AllTypes.Nested.Id,
+			fixtureRoot.AllTypes.Dataclass,
+			fixtureRoot.AllTypes.Dataclass.Lat,
+			fixtureRoot.AllTypes.Dataclass.Lng,
 		)
 	_, err := params.underlying.resolve()
 	assert.NoError(t, err)

@@ -11,7 +11,8 @@ import (
 func TestNamedQueries(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	testCases := []struct {
 		name         string
 		queryName    string

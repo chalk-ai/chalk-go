@@ -59,7 +59,7 @@ type DataFrameExpr interface {
 
 	Filter(condition ExprI) DataFrameExpr
 	Select(selection Expr) DataFrameExpr
-	Agg(aggFunc string) Expr
+	Agg(aggFunc string, args ...Expr) Expr
 }
 
 // Binary operation helper
@@ -249,7 +249,7 @@ func (e *GetAttributeExpr) exprType() string {
 }
 
 func (e *GetAttributeExpr) String() string {
-	return fmt.Sprintf("%s.%s", e.Parent, e.Attribute)
+	return fmt.Sprintf("%s.%s", e.Parent.String(), e.Attribute)
 }
 
 // Implement Expr interface for GetAttributeExpr

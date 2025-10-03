@@ -461,7 +461,11 @@ func FunctionCallWithKwargs(name string, args []Expr, kwargs map[string]Expr) Ex
 }
 
 func ChalkNow() Expr {
-	return Col("_").Attr("chalk_now")
+	return Identifier("_").Attr("chalk_now")
+}
+
+func ChalkWindow() Expr {
+	return Identifier("_").Attr("chalk_window")
 }
 
 // DataFrame creates a dataframe reference for aggregations
@@ -544,9 +548,10 @@ func (e *DataFrameExprImpl) Select(selection Expr) DataFrameExpr {
 	}
 }
 
-func (e *DataFrameExprImpl) Agg(aggFunc string) Expr {
+func (e *DataFrameExprImpl) Agg(aggFunc string, args ...Expr) Expr {
 	return &AggregateExprImpl{
 		Function:   aggFunc,
+		Arguments:  args,
 		DataFrame:  e,
 		Conditions: e.Conditions,
 		Selection:  e.Selection,
@@ -557,6 +562,7 @@ func (e *DataFrameExprImpl) Agg(aggFunc string) Expr {
 type AggregateExprImpl struct {
 	Expr
 	Function   string
+	Arguments  []Expr
 	DataFrame  DataFrameExpr
 	Conditions []Expr // Accumulated filter conditions
 	Distinct   bool

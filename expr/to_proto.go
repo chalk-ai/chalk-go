@@ -16,15 +16,27 @@ func ToIdentifierLiteral(name string) *expressionv1.LogicalExprNode {
 	}
 }
 
+func toProtos(exprs ...Expr) ([]*expressionv1.LogicalExprNode, error) {
+	protos := make([]*expressionv1.LogicalExprNode, len(exprs))
+	for i, e := range exprs {
+		proto, err := ToProto(e)
+		if err != nil {
+			return nil, err
+		}
+		protos[i] = proto
+	}
+	return protos, nil
+}
+
 // ToProto converts an ExprI to a LogicalExprNode proto message
-func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
+func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 	if expr == nil {
-		return nil
+		return nil, nil
 	}
 
 	switch e := expr.(type) {
 	case *IdentifierExpr:
-		return ToIdentifierLiteral(e.Name)
+		return ToIdentifierLiteral(e.Name), nil
 
 	case *LiteralExpr:
 		return &expressionv1.LogicalExprNode{
@@ -34,7 +46,7 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 					IsArrowScalarObject: false,
 				},
 			},
-		}
+		}, nil
 
 	case *ColumnExpr:
 		return &expressionv1.LogicalExprNode{
@@ -43,53 +55,69 @@ func ToProto(expr ExprI) *expressionv1.LogicalExprNode {
 					Name: formatColumnName(e),
 				},
 			},
-		}
+		}, nil
 
 	case *GetAttributeExpr:
+		parent, err := ToProto(e.Parent)
+		if err != nil {
+			return nil, err
+		}
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
 				GetAttribute: &expressionv1.ExprGetAttribute{
-					Parent: ToProto(e.Parent),
+					Parent: parent,
 					Attribute: &expressionv1.Identifier{
 						Name: e.Attribute,
 					},
 				},
 			},
-		}
+		}, nil
 
 	case *CallExpr:
-		args := make([]*expressionv1.LogicalExprNode, len(e.Args))
-		for i, arg := range e.Args {
-			args[i] = ToProto(arg)
+		args, err := toProtos(e.Args...)
+		if err != nil {
+			return nil, err
 		}
 
 		kwargs := make(map[string]*expressionv1.LogicalExprNode)
 		for key, value := range e.Kwargs {
-			kwargs[key] = ToProto(value)
+			proto, err := ToProto(value)
+			if err != nil {
+				return nil, err
+			}
+			kwargs[key] = proto
 		}
 
+		fn, err := ToProto(e.Function)
+		if err != nil {
+			return nil, err
+		}
 		return &expressionv1.LogicalExprNode{
 			ExprForm: &expressionv1.LogicalExprNode_Call{
 				Call: &expressionv1.ExprCall{
-					Func:   ToProto(e.Function),
+					Func:   fn,
 					Args:   args,
 					Kwargs: kwargs,
 				},
 			},
-		}
+		}, nil
 
 	case *AliasExpr:
 		// Aliases are typically handled at a higher level in the query plan,
 		// but we can represent them as the underlying expression for now
 		return ToProto(e.Expression)
 
-case *DataFrameExprImpl:
+	case *DataFrameExprImpl:
 		// DataFrame reference as identifier
-		return ToIdentifierLiteral(e.Name)
+		// return ToProto(Identifier("_").Attr(e.Name))
+		return ToIdentifierLiteral(e.Name), nil
 
-case *AggregateExprImpl:
+	case *AggregateExprImpl:
 		// Build the base DataFrame reference
-		dataframeNode := ToProto(e.DataFrame)
+		dataframeNode, err := ToProto(e.DataFrame)
+		if err != nil {
+			return nil, err
+		}
 
 		// If there are filter conditions or selections, wrap the DataFrame in a GetSubscript
 		if len(e.Conditions) > 0 || e.Selection != nil {
@@ -97,12 +125,20 @@ case *AggregateExprImpl:
 
 			// Convert selection to proto node if it exists
 			if e.Selection != nil {
-				subscriptNodes = append(subscriptNodes, ToProto(e.Selection))
+				proto, err := ToProto(e.Selection)
+				if err != nil {
+					return nil, err
+				}
+				subscriptNodes = append(subscriptNodes, proto)
 			}
 
 			// Convert all conditions to proto nodes
 			for _, condition := range e.Conditions {
-				subscriptNodes = append(subscriptNodes, ToProto(condition))
+				proto, err := ToProto(condition)
+				if err != nil {
+					return nil, err
+				}
+				subscriptNodes = append(subscriptNodes, proto)
 			}
 
 			// Wrap the DataFrame in a GetSubscript with all filter conditions
@@ -114,6 +150,37 @@ case *AggregateExprImpl:
 					},
 				},
 			}
+		}
+
+		args, err := toProtos(e.Arguments...)
+		if err != nil {
+			return nil, err
+		}
+		kwargs := make(map[string]*expressionv1.LogicalExprNode, 1)
+
+		expectedNumArgs := 0
+		endsWithK := false
+		switch e.Function {
+		case "approx_top_k":
+			expectedNumArgs = 1
+			endsWithK = true
+		case "min_by":
+			expectedNumArgs = 1
+		case "max_by":
+			expectedNumArgs = 1
+		case "min_by_n":
+			expectedNumArgs = 2
+			endsWithK = true
+		case "max_by_n":
+			expectedNumArgs = 2
+			endsWithK = true
+		}
+		if len(e.Arguments) != expectedNumArgs {
+			return nil, fmt.Errorf("expecting exactly %d arguments to %s, got %d", expectedNumArgs, e.Function, len(e.Arguments))
+		}
+
+		if endsWithK {
+			kwargs["k"] = args[len(args)-1]
 		}
 
 		// Apply the aggregation function as a GetAttribute on the (possibly filtered) DataFrame
@@ -130,13 +197,14 @@ case *AggregateExprImpl:
 							},
 						},
 					},
+					Args:   args,
+					Kwargs: kwargs,
 				},
 			},
-		}
+		}, nil
 
 	default:
-		// Fallback for unknown expression types
-		return ToIdentifierLiteral(fmt.Sprintf("unknown (%T)", e))
+		return nil, fmt.Errorf("unknown (%T)", e)
 	}
 }
 

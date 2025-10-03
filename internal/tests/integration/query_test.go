@@ -15,7 +15,8 @@ import (
 func TestOnlineQuery(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	params := chalk.OnlineQueryParams{}.
 		WithOutputs(
 			testFeatures.AllTypes.Id,
@@ -52,6 +53,8 @@ func TestOnlineQuery(t *testing.T) {
 func TestOnlineQueryBulk(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
@@ -92,7 +95,8 @@ func TestOnlineQueryBulk(t *testing.T) {
 func TestHasManyInputsAndOutputs(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	hmInput := []hasManyFeature{
 		{Id: ptr.New("id_a"), Name: ptr.New("name_a"), AllTypesId: ptr.New(int64(1))},
 		{Id: ptr.New("id_b"), Name: ptr.New("name_b"), AllTypesId: ptr.New(int64(1))},
@@ -152,7 +156,8 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
@@ -198,7 +203,8 @@ func TestOnlineQueryBulkParamsDoesNotErr(t *testing.T) {
 func TestOnlineQueryParamsDoesNotErr(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{false, true} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
