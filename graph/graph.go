@@ -87,9 +87,18 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 
 	// index feature sets in definitions
 	for _, fs := range d.FeatureSets {
-		proto, err := fs.ToProto()
-		if err != nil {
-			return err
+		var proto *graphv1.FeatureSet
+		var err error
+		i := 0
+		for check := true; check; check = fs.checkSameFeatures(proto) != nil {
+			proto, err = fs.ToProto()
+			if err != nil {
+				return err
+			}
+			if i != 0 {
+				println("rebuilding")
+			}
+			i++
 		}
 
 		graphIndex := -1
@@ -261,6 +270,9 @@ func FeatureName(f *graphv1.FeatureType) string {
 }
 
 func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
+	if fs.err != nil {
+		return fs
+	}
 	if len(fs.namespace) == 0 {
 		fs.namespace = strcase.ToSnake(fs.Name)
 	}
@@ -276,19 +288,41 @@ func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
 type Features map[string]FeatureBuilder
 
 func (fs FeatureSet) WithAll(m Features) FeatureSet {
+	if fs.err != nil {
+		return fs
+	}
 	if len(fs.namespace) == 0 {
 		fs.namespace = strcase.ToSnake(fs.Name)
 	}
 	features := make([]*graphv1.FeatureType, len(fs.Features), len(fs.Features)+len(m))
 	copy(features, fs.Features)
+	// needed because windowed features reference has many features
 	for name, ofType := range m {
-		features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+		_, check := ofType.(*WindowedFeatureBuilder)
+		if !check {
+			features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+			if fs.err != nil {
+				return fs
+			}
+		}
+	}
+	for name, ofType := range m {
+		_, check := ofType.(*WindowedFeatureBuilder)
+		if check {
+			features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+			if fs.err != nil {
+				return fs
+			}
+		}
 	}
 	fs.Features = features
 	return fs
 }
 
 func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet {
+	if fs.err != nil {
+		return fs
+	}
 	if fs.primaryType != nil {
 		fs.err = fmt.Errorf("tried to add primary column %s to %s, when %s already exists", name, fs.Name, fs.primaryName)
 	}
@@ -309,11 +343,57 @@ func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet 
 }
 
 func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
+	if fs.err != nil {
+		return fs
+	}
 	if fs.foreignKeys == nil {
 		fs.foreignKeys = make(map[string]string)
 	}
 	fs.foreignKeys[strcase.ToSnake(relation)] = name
 	return fs
+}
+
+func getFeatureSetNamed(graph *graphv1.Graph, fsName string) *graphv1.FeatureSet {
+	for _, fs := range graph.FeatureSets {
+		if fs.Name == fsName {
+			return fs
+		}
+	}
+	return nil
+}
+
+func CheckHasFeature(graph *graphv1.Graph, fsName, fName string) error {
+	fs := getFeatureSetNamed(graph, fsName)
+	if fs == nil {
+		return fmt.Errorf("could not find feature set %s", fsName)
+	}
+	return checkHasFeatures(fs, fName)
+}
+
+func checkHasFeatures(fsProto *graphv1.FeatureSet, featureNames ...string) error {
+	for _, fn := range featureNames {
+		found := false
+		for _, f2 := range fsProto.Features {
+			if fn == FeatureName(f2) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("could not find %s in %s", fn, fsProto.Name)
+		}
+	}
+	return nil
+}
+
+func (fs *FeatureSet) checkSameFeatures(fsProto *graphv1.FeatureSet) error {
+	for _, f1 := range fs.Features {
+		err := checkHasFeatures(fsProto, FeatureName(f1))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type HasOneFeatureBuilder struct {
@@ -641,18 +721,4 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 			},
 		},
 	}, nil
-}
-
-func CheckHasFeature(graph *graphv1.Graph, fsName, fName string) error {
-	for _, fs := range graph.FeatureSets {
-		if fs.Name == fsName {
-			for _, f := range fs.Features {
-				if FeatureName(f) == fName {
-					return nil
-				}
-			}
-			return fmt.Errorf("could not find %s in %s", fName, fsName)
-		}
-	}
-	return fmt.Errorf("could not find feature set %s", fsName)
 }

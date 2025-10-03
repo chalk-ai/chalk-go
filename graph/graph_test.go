@@ -107,14 +107,14 @@ func getEvalRecordFeatureSet(accountNamespace string) FeatureSet {
 		})
 }
 
-func TestWindowedGroupedCount(t *testing.T) {
+func TestWindowedCount(t *testing.T) {
 	// Create the windowed aggregation expression
 	expression := expr.DataFrame("events").
 		Filter(expr.Col("ts").Gt(expr.ChalkWindow())).
 		Filter(expr.Col("ts").Lt(expr.ChalkNow())).
 		Agg("count")
 
-	evalRecordFS := getEvalRecordFeatureSet("acctns")
+	evalRecordFS := getEvalRecordFeatureSet("acctxns")
 
 	// Define feature sets using the graph builder API
 	definitions := Definitions{}.
@@ -157,6 +157,11 @@ func TestWindowedGroupedCount(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NoError(t, CheckHasFeature(graph, "simple_event", "id"))
 	assert.NoError(t, CheckHasFeature(graph, "user", "id"))
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		"simple_events":        5,
+		"user":                 20,
+		"eval_record_accttxns": 24,
+	})
 }
 
 func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatures map[string]int) {

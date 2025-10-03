@@ -262,6 +262,15 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 	if err != nil {
 		return nil, err
 	}
+	call := exprProto.GetCall()
+	if call == nil {
+		return nil, fmt.Errorf("expected top-level aggregate")
+	}
+	kargProto, hasKarg := call.Kwargs["k"]
+	karg := m.ApproxTopKArgK
+	if hasKarg {
+		karg = kargProto.GetLiteral().GetInt64Value()
+	}
 	var defaultProto *arrowv1.ScalarValue
 	if w.Default != nil {
 		lit, ok := w.Default.(*expr.LiteralExpr)
@@ -294,7 +303,7 @@ func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType,
 				ContinuousBufferDuration: durationProto(m.ContinuousBufferDuration),
 				BackfillSchedule:         maybeStr(m.BackfillSchedule),
 				BucketStart:              timeProto(m.BucketStart),
-				ApproxTopKArgK:           maybeInt64(m.ApproxTopKArgK),
+				ApproxTopKArgK:           maybeInt64(karg),
 				BackfillResolver:         maybeStr(m.BackfillResolver),
 				BackfillLookbackDuration: durationProto(m.BackfillLookbackDuration),
 				BackfillStartTime:        timeProto(m.BackfillStartTime),
