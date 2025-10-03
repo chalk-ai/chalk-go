@@ -43,6 +43,9 @@ const (
 	// CloudAccountCredentialsServiceCreateCloudCredentialsProcedure is the fully-qualified name of the
 	// CloudAccountCredentialsService's CreateCloudCredentials RPC.
 	CloudAccountCredentialsServiceCreateCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/CreateCloudCredentials"
+	// CloudAccountCredentialsServiceUpdateCloudCredentialsProcedure is the fully-qualified name of the
+	// CloudAccountCredentialsService's UpdateCloudCredentials RPC.
+	CloudAccountCredentialsServiceUpdateCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/UpdateCloudCredentials"
 	// CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure is the fully-qualified name of the
 	// CloudAccountCredentialsService's DeleteCloudCredentials RPC.
 	CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/DeleteCloudCredentials"
@@ -54,6 +57,7 @@ type CloudAccountCredentialsServiceClient interface {
 	ListCloudCredentials(context.Context, *connect.Request[v1.ListCloudCredentialsRequest]) (*connect.Response[v1.ListCloudCredentialsResponse], error)
 	GetCloudCredentials(context.Context, *connect.Request[v1.GetCloudCredentialsRequest]) (*connect.Response[v1.GetCloudCredentialsResponse], error)
 	CreateCloudCredentials(context.Context, *connect.Request[v1.CreateCloudCredentialsRequest]) (*connect.Response[v1.CreateCloudCredentialsResponse], error)
+	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
 }
 
@@ -89,6 +93,12 @@ func NewCloudAccountCredentialsServiceClient(httpClient connect.HTTPClient, base
 			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("CreateCloudCredentials")),
 			connect.WithClientOptions(opts...),
 		),
+		updateCloudCredentials: connect.NewClient[v1.UpdateCloudCredentialsRequest, v1.UpdateCloudCredentialsResponse](
+			httpClient,
+			baseURL+CloudAccountCredentialsServiceUpdateCloudCredentialsProcedure,
+			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("UpdateCloudCredentials")),
+			connect.WithClientOptions(opts...),
+		),
 		deleteCloudCredentials: connect.NewClient[v1.DeleteCloudCredentialsRequest, v1.DeleteCloudCredentialsResponse](
 			httpClient,
 			baseURL+CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure,
@@ -103,6 +113,7 @@ type cloudAccountCredentialsServiceClient struct {
 	listCloudCredentials   *connect.Client[v1.ListCloudCredentialsRequest, v1.ListCloudCredentialsResponse]
 	getCloudCredentials    *connect.Client[v1.GetCloudCredentialsRequest, v1.GetCloudCredentialsResponse]
 	createCloudCredentials *connect.Client[v1.CreateCloudCredentialsRequest, v1.CreateCloudCredentialsResponse]
+	updateCloudCredentials *connect.Client[v1.UpdateCloudCredentialsRequest, v1.UpdateCloudCredentialsResponse]
 	deleteCloudCredentials *connect.Client[v1.DeleteCloudCredentialsRequest, v1.DeleteCloudCredentialsResponse]
 }
 
@@ -122,6 +133,12 @@ func (c *cloudAccountCredentialsServiceClient) CreateCloudCredentials(ctx contex
 	return c.createCloudCredentials.CallUnary(ctx, req)
 }
 
+// UpdateCloudCredentials calls
+// chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials.
+func (c *cloudAccountCredentialsServiceClient) UpdateCloudCredentials(ctx context.Context, req *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error) {
+	return c.updateCloudCredentials.CallUnary(ctx, req)
+}
+
 // DeleteCloudCredentials calls
 // chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials.
 func (c *cloudAccountCredentialsServiceClient) DeleteCloudCredentials(ctx context.Context, req *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error) {
@@ -134,6 +151,7 @@ type CloudAccountCredentialsServiceHandler interface {
 	ListCloudCredentials(context.Context, *connect.Request[v1.ListCloudCredentialsRequest]) (*connect.Response[v1.ListCloudCredentialsResponse], error)
 	GetCloudCredentials(context.Context, *connect.Request[v1.GetCloudCredentialsRequest]) (*connect.Response[v1.GetCloudCredentialsResponse], error)
 	CreateCloudCredentials(context.Context, *connect.Request[v1.CreateCloudCredentialsRequest]) (*connect.Response[v1.CreateCloudCredentialsResponse], error)
+	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
 }
 
@@ -164,6 +182,12 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("CreateCloudCredentials")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudAccountCredentialsServiceUpdateCloudCredentialsHandler := connect.NewUnaryHandler(
+		CloudAccountCredentialsServiceUpdateCloudCredentialsProcedure,
+		svc.UpdateCloudCredentials,
+		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("UpdateCloudCredentials")),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudAccountCredentialsServiceDeleteCloudCredentialsHandler := connect.NewUnaryHandler(
 		CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure,
 		svc.DeleteCloudCredentials,
@@ -178,6 +202,8 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 			cloudAccountCredentialsServiceGetCloudCredentialsHandler.ServeHTTP(w, r)
 		case CloudAccountCredentialsServiceCreateCloudCredentialsProcedure:
 			cloudAccountCredentialsServiceCreateCloudCredentialsHandler.ServeHTTP(w, r)
+		case CloudAccountCredentialsServiceUpdateCloudCredentialsProcedure:
+			cloudAccountCredentialsServiceUpdateCloudCredentialsHandler.ServeHTTP(w, r)
 		case CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure:
 			cloudAccountCredentialsServiceDeleteCloudCredentialsHandler.ServeHTTP(w, r)
 		default:
@@ -199,6 +225,10 @@ func (UnimplementedCloudAccountCredentialsServiceHandler) GetCloudCredentials(co
 
 func (UnimplementedCloudAccountCredentialsServiceHandler) CreateCloudCredentials(context.Context, *connect.Request[v1.CreateCloudCredentialsRequest]) (*connect.Response[v1.CreateCloudCredentialsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.CreateCloudCredentials is not implemented"))
+}
+
+func (UnimplementedCloudAccountCredentialsServiceHandler) UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.UpdateCloudCredentials is not implemented"))
 }
 
 func (UnimplementedCloudAccountCredentialsServiceHandler) DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error) {
