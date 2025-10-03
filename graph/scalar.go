@@ -76,6 +76,15 @@ func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) ScalarFeatureBuild
 	}
 }
 
+func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
+	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
+	ofType.proto.IsNullable = true
+	return &ScalarFeatureBuilder{
+		proto: scalar,
+		err:   ofType.err,
+	}
+}
+
 func richType(name string) *graphv1.FeatureRichTypeInfo {
 	module := "builtins"
 	class := name

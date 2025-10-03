@@ -168,6 +168,20 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 
 	streamResolvers := make(map[string]*graphv1.StreamResolver, len(d.StreamResolvers))
 	for _, sr := range d.StreamResolvers {
+		extras, found := nameToFeatureSet[sr.OutputFeatureSet]
+		if !found {
+			return fmt.Errorf("feature set %s referenced by stream resolver %s not found", sr.OutputFeatureSet, sr.Name)
+		}
+		numFound := 0
+		for _, f := range extras.proto.Features {
+			_, found := sr.OutputFeatures[FeatureName(f)]
+			if found {
+				numFound += 1
+			}
+		}
+		if numFound != len(sr.OutputFeatures) {
+			return fmt.Errorf("%d output features in stream resolver %s are not present in the target feature set %s", len(sr.OutputFeatures)-numFound, sr.Name, sr.OutputFeatureSet)
+		}
 		proto, err := sr.ToProto()
 		if err != nil {
 			return err
@@ -300,6 +314,37 @@ func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	}
 	fs.foreignKeys[strcase.ToSnake(relation)] = name
 	return fs
+}
+
+type HasOneFeatureBuilder struct {
+	foreignNamespace string
+	join             expr.Expr
+}
+
+func HasOne(relation string, join expr.Expr) *HasOneFeatureBuilder {
+	return &HasOneFeatureBuilder{
+		foreignNamespace: strcase.ToSnake(relation),
+		join:             join,
+	}
+}
+
+func (ho HasOneFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
+	exproto, err := expr.ToProto(ho.join)
+	if err != nil {
+		return nil, err
+	}
+	return append(features, &graphv1.FeatureType{
+		Type: &graphv1.FeatureType_HasOne{
+			HasOne: &graphv1.HasOneFeatureType{
+				ForeignNamespace:         ho.foreignNamespace,
+				Name:                     fieldName,
+				Namespace:                namespace,
+				AttributeName:            fieldName,
+				UnversionedAttributeName: fieldName,
+				Join:                     exproto,
+			},
+		},
+	}), nil
 }
 
 // zero size type to define hashset
@@ -598,18 +643,16 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 	}, nil
 }
 
-/*
-   for f in output_features.keys():
-       if not isinstance(f, FeatureWrapper):  # pyright: ignore[reportUnnecessaryIsInstance]
-           error_builder.add_diagnostic(
-               message=f"Stream resolver output feature '{f}' is not a Feature, got {type(f)} instead",
-               code="194",
-               label="Invalid output feature",
-               range=error_builder.function_arg_range_by_name("output_features"),
-           )
-       unwrapped_features.append(unwrap_feature(f))
-   _validate_output_features(unwrapped_features, error_builder, name)
-   validate_message_attributes(
-       expressions=output_features.values(), message_type=message_type, error_builder=error_builder, name=name
-   )
-*/
+func CheckHasFeature(graph *graphv1.Graph, fsName, fName string) error {
+	for _, fs := range graph.FeatureSets {
+		if fs.Name == fsName {
+			for _, f := range fs.Features {
+				if FeatureName(f) == fName {
+					return nil
+				}
+			}
+			return fmt.Errorf("could not find %s in %s", fName, fsName)
+		}
+	}
+	return fmt.Errorf("could not find feature set %s", fsName)
+}
