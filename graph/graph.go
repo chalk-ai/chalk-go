@@ -60,7 +60,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		primaryType *ScalarFeatureBuilder
 		graphIndex  int
 		fromUs      bool
-		names       HashSet[string]
+		names       hset[string]
 	}
 	nameToFeatureSet := map[string]protoWithExtras{}
 
@@ -167,7 +167,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		// materialize foreign keys
 		for featureSetName, foreignKeyName := range extras.foreignKeys {
 			foreignExtras, exists := nameToFeatureSet[featureSetName]
-			if !exists || foreignExtras.primaryType == nil {
+			if !exists {
 				return fmt.Errorf("invalid foreign key %s", foreignKeyName)
 			}
 			// only add if the feature doesn't already exist
@@ -457,17 +457,17 @@ func (ho HasOneFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, f
 }
 
 // zero size type to define hashset
-type HashSet[T comparable] map[T]struct{}
+type hset[T comparable] map[T]struct{}
 
-func add[T comparable](k T, hs HashSet[T]) {
+func add[T comparable](k T, hs hset[T]) {
 	hs[k] = struct{}{}
 }
-func contains[T comparable](k T, hs HashSet[T]) bool {
+func contains[T comparable](k T, hs hset[T]) bool {
 	_, ok := hs[k]
 	return ok
 }
 
-func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
+func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, hset[string], error) {
 	// propagate errors (in the future, list all?)
 	if fs.err != nil {
 		return nil, nil, fs.err
@@ -475,12 +475,11 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
 
 	features := fs.Features
 
-	names := make(HashSet[string], len(fs.Features))
+	names := make(hset[string], len(fs.Features))
 	featureTimeName := ""
 	for _, f := range features {
 		name := FeatureName(f)
-		_, ok := names[name]
-		if ok {
+		if contains(name, names) {
 			return nil, nil, fmt.Errorf("duplicate feature %s found in %s", name, fs.Name)
 		} else {
 			add(name, names)
@@ -503,9 +502,11 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
 		fs.primaryName = "id"
 		fs.primaryType = Int
 		features = append(features, fs.primaryType.ToProto(fs.primaryName, fs.namespace))
+		add("id", names)
 	}
 	if featureTimeName == "" {
 		features = append(features, featureTime("__chalk_observed__", fs.namespace))
+		add("__chalk_observed__", names)
 	}
 
 	if !fs.IsSingleton {
@@ -536,6 +537,7 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
 			},
 		}
 		features = append(features, chalkFkSingleton)
+		add("__chalk_fk_singleton__", names)
 	}
 
 	return &graphv1.FeatureSet{
@@ -546,7 +548,7 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
 		Owner:                maybeStr(fs.Owner),
 		Doc:                  maybeStr(fs.Doc),
 		MaxStalenessDuration: durationProto(fs.MaxStaleness),
-	}, nil, nil
+	}, names, nil
 }
 
 type FeatureBuilder interface {
