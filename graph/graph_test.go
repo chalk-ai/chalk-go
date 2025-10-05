@@ -166,6 +166,11 @@ func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatur
 	for _, fs := range graph.FeatureSets {
 		num, ok := nameToNumFeatures[fs.Name]
 		if ok {
+			println(fs.Name)
+			for _, f := range fs.Features {
+				println(FeatureName(f))
+			}
+			println()
 			assert.Equal(t, num, len(fs.Features), "incorrect number of features in %s", fs.Name)
 		}
 	}
@@ -247,4 +252,21 @@ func TestMaxByN(t *testing.T) {
 				)),
 	).ToGraph()
 	assert.NoError(t, err)
+}
+
+func TestForeignKeyWithExpr(t *testing.T) {
+	graph, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("user_id", Int.Expr(expr.Int64(69))),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int),
+	).ToGraph()
+	assert.NoError(t, err)
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		"user":        3,
+		"transaction": 4,
+	})
 }

@@ -91,12 +91,12 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		var err error
 		i := 0
 		for check := true; check; check = fs.checkSameFeatures(proto) != nil {
+			if i != 0 {
+				println("rebuilding")
+			}
 			proto, err = fs.ToProto()
 			if err != nil {
 				return err
-			}
-			if i != 0 {
-				println("rebuilding")
 			}
 			i++
 		}
@@ -168,10 +168,14 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 			if !exists || foreignExtras.primaryType == nil {
 				return fmt.Errorf("invalid foreign key %s", foreignKeyName)
 			}
-			extras.proto.Features = append(
-				extras.proto.Features,
-				foreignExtras.primaryType.ToProto(foreignKeyName, namespace),
-			)
+			// only add if the feature doesn't already exist
+			err := checkHasFeatures(extras.proto, foreignKeyName)
+			if err != nil {
+				extras.proto.Features = append(
+					extras.proto.Features,
+					foreignExtras.primaryType.ToProto(foreignKeyName, namespace),
+				)
+			}
 		}
 	}
 
@@ -198,6 +202,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		streamResolvers[proto.Fqn] = proto
 	}
 
+	log.Printf("Adding %d new FeatureSets", len(nameToFeatureSet)-len(g.FeatureSets))
 	newFeatureSets := make([]*graphv1.FeatureSet, len(nameToFeatureSet))
 	size := len(g.FeatureSets)
 	for name, extras := range nameToFeatureSet {
@@ -325,6 +330,9 @@ func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet 
 	}
 	if fs.primaryType != nil {
 		fs.err = fmt.Errorf("tried to add primary column %s to %s, when %s already exists", name, fs.Name, fs.primaryName)
+		if fs.err != nil {
+			return fs
+		}
 	}
 	if len(fs.namespace) == 0 {
 		fs.namespace = strcase.ToSnake(fs.Name)
@@ -332,6 +340,9 @@ func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet 
 	scalarPtr, ok := ofType.(*ScalarFeatureBuilder)
 	if !ok {
 		fs.err = fmt.Errorf("primary column %s.%s must be scalar (int or str)", fs.Name, name)
+		if fs.err != nil {
+			return fs
+		}
 		return fs
 	}
 	newFeature := scalarPtr.ToProto(name, fs.namespace)
