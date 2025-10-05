@@ -42,7 +42,7 @@ func featureTime(fieldName string, namespace string) *graphv1.FeatureType {
 	}
 }
 
-func (f ScalarFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+func (f ScalarFeatureBuilder) appendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
 	if f.err != nil {
 		return nil, f.err
 	}
@@ -59,11 +59,24 @@ func (f ScalarFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fi
 	}
 }
 
+// WithMaxStaleness is equivalent to the max_staleness kwarg on feature in chalkpy
 func (f ScalarFeatureBuilder) WithMaxStaleness(d time.Duration) ScalarFeatureBuilder {
 	f.proto.MaxStalenessDuration = durationpb.New(d)
 	return f
 }
 
+// Expr lets you define an underscore expression to compute a scalar feature
+// For example
+//
+//	graph.FeatureSet{name: "Transaction"}.WithAll(graph.Features{"total": graph.Float, "sales_tax": graph.Float, "subtotal": graph.Float.Expr(expr.Col("total").Sub(expr.Col("sales_tax")))})
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class Transaction:
+//	  total: float
+//	  sales_tax: float
+//	  subtotal: float = _.total - _.sales_tax
 func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
 	exproto, err := expr.ToProto(expression)
@@ -76,6 +89,16 @@ func (ofType ScalarFeatureBuilder) Expr(expression expr.Expr) ScalarFeatureBuild
 	}
 }
 
+// Optional modifies a scalar type to also specify None as a possible
+// For example
+//
+//	graph.FeatureSet{name: "Transaction"}.With("memo": graph.Optional(graph.String))
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class Transaction:
+//	  memo: Optional[str]
 func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
 	ofType.proto.IsNullable = true
@@ -85,6 +108,16 @@ func Optional(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	}
 }
 
+// List lets you specify lists of a certain type
+// For example
+//
+//	graph.FeatureSet{name: "User"}.With("recent_transaction_ids": graph.List(graph.Int))
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class User:
+//	  recent_transaction_ids: List[int]
 func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	scalar := proto.Clone(ofType.proto).(*graphv1.ScalarFeatureType)
 	scalar.ArrowType = &arrowv1.ArrowType{
@@ -107,10 +140,11 @@ func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 
 type FeatureTimeBuilder struct{}
 
-func (f FeatureTimeBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+func (f FeatureTimeBuilder) appendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
 	return append(features, featureTime(fieldName, namespace)), nil
 }
 
+// FeatureTime is equivalent to chalkpy FeatureTime
 var FeatureTime = &FeatureTimeBuilder{}
 
 func richType(name string) *graphv1.FeatureRichTypeInfo {
@@ -182,10 +216,19 @@ func primitive(name string) *ScalarFeatureBuilder {
 	}
 }
 
+// Int is equivalent to chalkpy int
 var Int = primitive("int")
+
+// Float is equivalent to chalkpy float
 var Float = primitive("float")
+
+// String is equivalent to chalkpy str
 var String = primitive("str")
+
+// Datetime is equivalent to chalkpy datetime.datetime
 var Datetime = primitive("datetime")
+
+// Boolean is equivalent to chalkpy bool
 var Boolean = primitive("bool")
 
 func TypeName(scalar *graphv1.ScalarFeatureType) string {

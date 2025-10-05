@@ -1,3 +1,4 @@
+// Package graph exposes functionality to express Chalk definitions and modify the protograph.
 package graph
 
 import (
@@ -15,11 +16,14 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 )
 
+// Definitions stores either Feature Set or Stream Resolver definitions
 type Definitions struct {
 	FeatureSets     []*FeatureSet
 	StreamResolvers []*StreamResolver
 }
 
+// WithFeatureSets is a variadic function that adds Feature Set definitions
+// note it is a chaining method and not in-place
 func (d Definitions) WithFeatureSets(fs ...FeatureSet) Definitions {
 	for _, f := range fs {
 		d.FeatureSets = append(d.FeatureSets, &f)
@@ -27,6 +31,8 @@ func (d Definitions) WithFeatureSets(fs ...FeatureSet) Definitions {
 	return d
 }
 
+// WithFeatureSets is a variadic function that adds Stream Resolver definitions
+// note it is a chaining method and not in-place
 func (d Definitions) WithStreamResolvers(srs ...StreamResolver) Definitions {
 	for _, sr := range srs {
 		d.StreamResolvers = append(d.StreamResolvers, &sr)
@@ -34,6 +40,7 @@ func (d Definitions) WithStreamResolvers(srs ...StreamResolver) Definitions {
 	return d
 }
 
+// ToGraph converts a Definitions struct to a protograph
 func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 	g := graphv1.Graph{}
 	err := d.UpdateGraph(&g)
@@ -43,6 +50,8 @@ func (d Definitions) ToGraph() (*graphv1.Graph, error) {
 	return &g, nil
 }
 
+// UpdateGraph will modify protograph g in-place to include Feature Sets and Stream Resolvers from d,
+// replacing any with the same name.
 func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 	type protoWithExtras struct {
 		proto       *graphv1.FeatureSet
@@ -51,6 +60,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		primaryType *ScalarFeatureBuilder
 		graphIndex  int
 		fromUs      bool
+		names       HashSet[string]
 	}
 	nameToFeatureSet := map[string]protoWithExtras{}
 
@@ -87,18 +97,9 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 
 	// index feature sets in definitions
 	for _, fs := range d.FeatureSets {
-		var proto *graphv1.FeatureSet
-		var err error
-		i := 0
-		for check := true; check; check = fs.checkSameFeatures(proto) != nil {
-			if i != 0 {
-				println("rebuilding")
-			}
-			proto, err = fs.ToProto()
-			if err != nil {
-				return err
-			}
-			i++
+		proto, names, err := fs.ToProto()
+		if err != nil {
+			return err
 		}
 
 		graphIndex := -1
@@ -120,6 +121,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 			proto:       proto,
 			graphIndex:  graphIndex,
 			fromUs:      true,
+			names:       names,
 		}
 	}
 
@@ -169,8 +171,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 				return fmt.Errorf("invalid foreign key %s", foreignKeyName)
 			}
 			// only add if the feature doesn't already exist
-			err := checkHasFeatures(extras.proto, foreignKeyName)
-			if err != nil {
+			if !contains(foreignKeyName, extras.names) {
 				extras.proto.Features = append(
 					extras.proto.Features,
 					foreignExtras.primaryType.ToProto(foreignKeyName, namespace),
@@ -185,15 +186,10 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		if !found {
 			return fmt.Errorf("feature set %s referenced by stream resolver %s not found", sr.OutputFeatureSet, sr.Name)
 		}
-		numFound := 0
-		for _, f := range extras.proto.Features {
-			_, found := sr.OutputFeatures[FeatureName(f)]
-			if found {
-				numFound += 1
+		for k := range sr.OutputFeatures {
+			if !contains(k, extras.names) {
+				return fmt.Errorf("output feature %s in stream resolver %s are not present in the target feature set %s", k, sr.Name, sr.OutputFeatureSet)
 			}
-		}
-		if numFound != len(sr.OutputFeatures) {
-			return fmt.Errorf("%d output features in stream resolver %s are not present in the target feature set %s", len(sr.OutputFeatures)-numFound, sr.Name, sr.OutputFeatureSet)
 		}
 		proto, err := sr.ToProto()
 		if err != nil {
@@ -255,6 +251,7 @@ type FeatureSet struct {
 	primaryType *ScalarFeatureBuilder
 }
 
+// FeatureName gets the field name of a feature, useful for debugging
 func FeatureName(f *graphv1.FeatureType) string {
 	switch t := f.Type.(type) {
 	case *graphv1.FeatureType_FeatureTime:
@@ -274,6 +271,7 @@ func FeatureName(f *graphv1.FeatureType) string {
 	}
 }
 
+// With adds a new feature to a Feature Set; roughly equivalent to one line of equivalent Python
 func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
 	if fs.err != nil {
 		return fs
@@ -281,7 +279,7 @@ func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
 	if len(fs.namespace) == 0 {
 		fs.namespace = strcase.ToSnake(fs.Name)
 	}
-	newFeatures, err := ofType.AppendFeatures(fs.Features, name, fs.namespace)
+	newFeatures, err := ofType.appendFeatures(fs.Features, name, fs.namespace)
 	if err != nil {
 		fs.err = err
 	} else {
@@ -292,6 +290,12 @@ func (fs FeatureSet) With(name string, ofType FeatureBuilder) FeatureSet {
 
 type Features map[string]FeatureBuilder
 
+// WithAll lets you define features in bulk
+// For example the following line:
+//
+//	FeatureSet{name: "user"}.WithAll(Features{"name": graph.String, "age": graph.Int})
+//
+// is equivalent to two .With chained calls
 func (fs FeatureSet) WithAll(m Features) FeatureSet {
 	if fs.err != nil {
 		return fs
@@ -305,7 +309,7 @@ func (fs FeatureSet) WithAll(m Features) FeatureSet {
 	for name, ofType := range m {
 		_, check := ofType.(*WindowedFeatureBuilder)
 		if !check {
-			features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+			features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
 			if fs.err != nil {
 				return fs
 			}
@@ -314,7 +318,7 @@ func (fs FeatureSet) WithAll(m Features) FeatureSet {
 	for name, ofType := range m {
 		_, check := ofType.(*WindowedFeatureBuilder)
 		if check {
-			features, fs.err = ofType.AppendFeatures(features, name, fs.namespace)
+			features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
 			if fs.err != nil {
 				return fs
 			}
@@ -324,6 +328,9 @@ func (fs FeatureSet) WithAll(m Features) FeatureSet {
 	return fs
 }
 
+// WithPrimary defines a primary field, of type Int or String
+// Note this must be called separately from WithAll,
+// and if you do not manually define one, an implicit `id: Primary[int]` field will be added
 func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet {
 	if fs.err != nil {
 		return fs
@@ -353,6 +360,16 @@ func (fs FeatureSet) WithPrimary(name string, ofType FeatureBuilder) FeatureSet 
 	return fs
 }
 
+// WithForeignKey allows specifying fields which refer to primary fields of other Feature Sets
+// For example
+//
+//	FeatureSet{name: "Transaction"}.WithForeignKey("user_id", User)
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class Transaction:
+//	  user_id: 'User'
 func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	if fs.err != nil {
 		return fs
@@ -397,21 +414,22 @@ func checkHasFeatures(fsProto *graphv1.FeatureSet, featureNames ...string) error
 	return nil
 }
 
-func (fs *FeatureSet) checkSameFeatures(fsProto *graphv1.FeatureSet) error {
-	for _, f1 := range fs.Features {
-		err := checkHasFeatures(fsProto, FeatureName(f1))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 type HasOneFeatureBuilder struct {
 	foreignNamespace string
 	join             expr.Expr
 }
 
+// HasOne defines a new has_one feature
+// For example
+//
+//	FeatureSet{name: "Transaction"}.With("user_id", graph.Int).With("user", HasOne("User", expr.Col("User", "id").Eq(expr.Col("Transaction", "user_id"))))
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class Transaction:
+//	  user_id: int
+//	  user: has_one('User', lambda: User.id == Transaction.user_id)
 func HasOne(relation string, join expr.Expr) *HasOneFeatureBuilder {
 	return &HasOneFeatureBuilder{
 		foreignNamespace: strcase.ToSnake(relation),
@@ -439,33 +457,45 @@ func (ho HasOneFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, f
 }
 
 // zero size type to define hashset
-var Empty struct{}
+type HashSet[T comparable] map[T]struct{}
 
-func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
+func add[T comparable](k T, hs HashSet[T]) {
+	hs[k] = struct{}{}
+}
+func contains[T comparable](k T, hs HashSet[T]) bool {
+	_, ok := hs[k]
+	return ok
+}
+
+func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, HashSet[string], error) {
 	// propagate errors (in the future, list all?)
 	if fs.err != nil {
-		return nil, fs.err
+		return nil, nil, fs.err
 	}
 
 	features := fs.Features
 
-	names := make(map[string]struct{}, len(fs.Features))
+	names := make(HashSet[string], len(fs.Features))
 	featureTimeName := ""
 	for _, f := range features {
 		name := FeatureName(f)
 		_, ok := names[name]
 		if ok {
-			return nil, fmt.Errorf("duplicate feature %s found in %s", name, fs.Name)
+			return nil, nil, fmt.Errorf("duplicate feature %s found in %s", name, fs.Name)
 		} else {
-			names[name] = Empty
+			add(name, names)
 		}
 		ft := f.GetFeatureTime()
 		if ft != nil {
 			if featureTimeName == "" {
 				featureTimeName = name
 			} else {
-				return nil, fmt.Errorf("%s has more than one feature time features (%s and %s)", fs.Name, featureTimeName, name)
+				return nil, nil, fmt.Errorf("%s has more than one feature time features (%s and %s)", fs.Name, featureTimeName, name)
 			}
+		}
+		ho := f.GetHasOne()
+		if ho != nil {
+			fs.foreignKeys[ho.ForeignNamespace] = ho.Name
 		}
 	}
 	// define autogenerated features
@@ -516,14 +546,14 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 		Owner:                maybeStr(fs.Owner),
 		Doc:                  maybeStr(fs.Doc),
 		MaxStalenessDuration: durationProto(fs.MaxStaleness),
-	}, nil
+	}, nil, nil
 }
 
 type FeatureBuilder interface {
 	// chained methods (return the same type)
 	//WithMaxStaleness(time.Duration) FeatureBuilder
 
-	AppendFeatures([]*graphv1.FeatureType, string, string) ([]*graphv1.FeatureType, error)
+	appendFeatures([]*graphv1.FeatureType, string, string) ([]*graphv1.FeatureType, error)
 }
 
 type HasManyFeatureBuilder struct {
@@ -531,6 +561,16 @@ type HasManyFeatureBuilder struct {
 	MaxStaleness     time.Duration
 }
 
+// DataFrame defines a new dataframe feature
+// For example
+//
+//	FeatureSet{name: "User"}.With("transactions", DataFrame("Transactions")))
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class User:
+//	  transactions: DataFrame[Transactions]
 func DataFrame(foreignName string) *HasManyFeatureBuilder {
 	return &HasManyFeatureBuilder{
 		ForeignNamespace: strcase.ToSnake(foreignName),
@@ -538,7 +578,7 @@ func DataFrame(foreignName string) *HasManyFeatureBuilder {
 	}
 }
 
-func (hm *HasManyFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
+func (hm *HasManyFeatureBuilder) appendFeatures(features []*graphv1.FeatureType, fieldName, namespace string) ([]*graphv1.FeatureType, error) {
 	return append(features,
 		&graphv1.FeatureType{
 			Type: &graphv1.FeatureType_HasMany{
@@ -651,18 +691,25 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	return nil, fmt.Errorf("invalid expression type for filter (%T): %s", expression, expression.String())
 }
 
+// StreamResolver represents a Native Streaming Resolver
 type StreamResolver struct {
 	Name  string
 	Owner string
 	Doc   string
 
+	// must match up to a UI-defined Data Source
 	StreamSourceName string
+	// "kafka" or "kinesis" or "pubsub"
 	StreamSourceType string
 
-	OutputFeatureSet  string
-	OutputFeatures    map[string]expr.Expr
-	MessageType       map[string]string
-	MachineType       string
+	OutputFeatureSet string
+	OutputFeatures   map[string]expr.Expr
+	// defines the structure of message
+	// should be a mapping from JSON key name to value type ("int" or "float" or "bool" or "str")
+	MessageType map[string]string
+	// if provided, only run on this machine type (defaults to all)
+	MachineType string
+	// if provided, only run in these environments (defaults to all)
 	RunInEnvironments []string
 }
 

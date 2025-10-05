@@ -39,6 +39,7 @@ func Years(n int64) time.Duration {
 	return time.Duration(n) * 365 * 24 * time.Hour
 }
 
+// All can be passed in as a duration to Windowed, equivalent to "all" in chalkpy
 var All = Years(100)
 
 type WindowedFeatureBuilder struct {
@@ -52,6 +53,23 @@ type WindowedFeatureBuilder struct {
 	err             error
 }
 
+// Windowed defines a new windowed feature
+// For example
+//
+//	FeatureSet{name: "User"}.
+//	 With("transactions", DataFrame("Transactions"))).
+//	 With("txn_count", Windowed(graph.Int, graph.Hours(1), graph.Days(1), graph.Weeks(1)).
+//	  WithExpr(expr.DataFrame("transactions").
+//	   Filter(expr.Col("ts").Gt(expr.ChalkWindow())).
+//	   Filter(expr.Col("ts").Lt(expr.ChalkNow())).
+//	   Agg("count")))
+//
+// is equivalent to the following chalkpy
+//
+//	@features
+//	class User:
+//	  transactions: DataFrame[Transactions]
+//	  txn_count: int = windowed("1h", "1d", "1w", expression=_.transactions[_.ts > _.chalk_window, _.ts < _.chalk_now].count())
 func Windowed(ofType FeatureBuilder, windows ...time.Duration) *WindowedFeatureBuilder {
 	durations := make([]*durationpb.Duration, len(windows))
 	for i, d := range windows {
@@ -145,13 +163,13 @@ func GetDefault[M ~map[K]V, K comparable, V any](m M, k K, def V) V {
 	return def
 }
 
-type ParsedAggregation struct {
+type parsedAggregation struct {
 	aggregateOn      *graphv1.FeatureReference
 	filters          []*expressionv1.LogicalExprNode
 	foreignNamespace string
 }
 
-func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*ParsedAggregation, error) {
+func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*parsedAggregation, error) {
 	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
 	dfName := strcase.ToSnake(df.Name)
 
@@ -177,7 +195,7 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 		filters[i] = f
 	}
 
-	parsedAgg := &ParsedAggregation{
+	parsedAgg := &parsedAggregation{
 		filters:          filters,
 		foreignNamespace: foreignNamespace,
 	}
@@ -239,7 +257,7 @@ func maybeInt64(i int64) *int64 {
 	return nil
 }
 
-func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
 	if w.err != nil {
 		return []*graphv1.FeatureType{}, w.err
 	}
