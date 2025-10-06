@@ -481,7 +481,6 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 	if _, exists := names[fs.primaryName]; !exists {
 		features = append(features, fs.primaryType.ToProto(fs.primaryName, fs.namespace))
 	}
-
 	if featureTimeName == "" {
 		features = append(features, featureTime("__chalk_observed__", fs.namespace))
 	}
