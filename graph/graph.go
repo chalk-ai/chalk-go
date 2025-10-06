@@ -476,8 +476,9 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, error) {
 	if fs.primaryType == nil {
 		fs.primaryName = "id"
 		fs.primaryType = Int
-		features = append(features, fs.primaryType.ToProto(fs.primaryName, fs.namespace))
-	} else if _, exists := names[fs.primaryName]; !exists {
+	}
+
+	if _, exists := names[fs.primaryName]; !exists {
 		features = append(features, fs.primaryType.ToProto(fs.primaryName, fs.namespace))
 	}
 
