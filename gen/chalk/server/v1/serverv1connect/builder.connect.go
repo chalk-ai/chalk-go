@@ -164,6 +164,12 @@ const (
 	// BuilderServiceGetEnvironmentKubeClustersProcedure is the fully-qualified name of the
 	// BuilderService's GetEnvironmentKubeClusters RPC.
 	BuilderServiceGetEnvironmentKubeClustersProcedure = "/chalk.server.v1.BuilderService/GetEnvironmentKubeClusters"
+	// BuilderServiceSuspendEnvironmentProcedure is the fully-qualified name of the BuilderService's
+	// SuspendEnvironment RPC.
+	BuilderServiceSuspendEnvironmentProcedure = "/chalk.server.v1.BuilderService/SuspendEnvironment"
+	// BuilderServiceResumeEnvironmentProcedure is the fully-qualified name of the BuilderService's
+	// ResumeEnvironment RPC.
+	BuilderServiceResumeEnvironmentProcedure = "/chalk.server.v1.BuilderService/ResumeEnvironment"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -233,6 +239,8 @@ type BuilderServiceClient interface {
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
+	SuspendEnvironment(context.Context, *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error)
+	ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -509,6 +517,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		suspendEnvironment: connect.NewClient[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse](
+			httpClient,
+			baseURL+BuilderServiceSuspendEnvironmentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("SuspendEnvironment")),
+			connect.WithClientOptions(opts...),
+		),
+		resumeEnvironment: connect.NewClient[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse](
+			httpClient,
+			baseURL+BuilderServiceResumeEnvironmentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ResumeEnvironment")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -557,6 +577,8 @@ type builderServiceClient struct {
 	createTelemetryDeployment          *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
 	deleteTelemetryDeployment          *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
 	getEnvironmentKubeClusters         *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
+	suspendEnvironment                 *connect.Client[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse]
+	resumeEnvironment                  *connect.Client[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -787,6 +809,16 @@ func (c *builderServiceClient) GetEnvironmentKubeClusters(ctx context.Context, r
 	return c.getEnvironmentKubeClusters.CallUnary(ctx, req)
 }
 
+// SuspendEnvironment calls chalk.server.v1.BuilderService.SuspendEnvironment.
+func (c *builderServiceClient) SuspendEnvironment(ctx context.Context, req *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error) {
+	return c.suspendEnvironment.CallUnary(ctx, req)
+}
+
+// ResumeEnvironment calls chalk.server.v1.BuilderService.ResumeEnvironment.
+func (c *builderServiceClient) ResumeEnvironment(ctx context.Context, req *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error) {
+	return c.resumeEnvironment.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -848,6 +880,8 @@ type BuilderServiceHandler interface {
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
+	SuspendEnvironment(context.Context, *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error)
+	ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -1120,6 +1154,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceSuspendEnvironmentHandler := connect.NewUnaryHandler(
+		BuilderServiceSuspendEnvironmentProcedure,
+		svc.SuspendEnvironment,
+		connect.WithSchema(builderServiceMethods.ByName("SuspendEnvironment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceResumeEnvironmentHandler := connect.NewUnaryHandler(
+		BuilderServiceResumeEnvironmentProcedure,
+		svc.ResumeEnvironment,
+		connect.WithSchema(builderServiceMethods.ByName("ResumeEnvironment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -1208,6 +1254,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceDeleteTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceGetEnvironmentKubeClustersProcedure:
 			builderServiceGetEnvironmentKubeClustersHandler.ServeHTTP(w, r)
+		case BuilderServiceSuspendEnvironmentProcedure:
+			builderServiceSuspendEnvironmentHandler.ServeHTTP(w, r)
+		case BuilderServiceResumeEnvironmentProcedure:
+			builderServiceResumeEnvironmentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1387,6 +1437,14 @@ func (UnimplementedBuilderServiceHandler) DeleteTelemetryDeployment(context.Cont
 
 func (UnimplementedBuilderServiceHandler) GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetEnvironmentKubeClusters is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) SuspendEnvironment(context.Context, *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SuspendEnvironment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeEnvironment is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.
