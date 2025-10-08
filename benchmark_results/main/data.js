@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1759879361297,
+  "lastUpdate": 1759944908718,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -27030,6 +27030,60 @@ window.BENCHMARK_DATA = {
             "value": 315,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "julian@chalk.ai",
+            "name": "Julian Early",
+            "username": "hiporox"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f03442513441489a8281e9b7197784d3d49737f6",
+          "message": "Merge pull request #507 from chalk-ai/je/telemetry-protos-dns-host-name-override\n\nupdate protos",
+          "timestamp": "2025-10-08T10:33:50-07:00",
+          "tree_id": "405a4af277b1645f0ee41e0cd834804e1af6fdda",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/f03442513441489a8281e9b7197784d3d49737f6"
+        },
+        "date": 1759944908642,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.314,
+            "unit": "ms/op",
+            "extra": "982 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 134.1,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.77,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 231.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 328.8,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
