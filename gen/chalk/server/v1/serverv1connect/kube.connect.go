@@ -42,6 +42,9 @@ const (
 	// KubeServiceGetKubernetesPersistentVolumesProcedure is the fully-qualified name of the
 	// KubeService's GetKubernetesPersistentVolumes RPC.
 	KubeServiceGetKubernetesPersistentVolumesProcedure = "/chalk.server.v1.KubeService/GetKubernetesPersistentVolumes"
+	// KubeServiceGetKubernetesServiceAccountsProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesServiceAccounts RPC.
+	KubeServiceGetKubernetesServiceAccountsProcedure = "/chalk.server.v1.KubeService/GetKubernetesServiceAccounts"
 )
 
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
@@ -51,6 +54,7 @@ type KubeServiceClient interface {
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
+	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 }
 
 // NewKubeServiceClient constructs a client for the chalk.server.v1.KubeService service. By default,
@@ -85,6 +89,13 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getKubernetesServiceAccounts: connect.NewClient[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesServiceAccountsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesServiceAccounts")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -93,6 +104,7 @@ type kubeServiceClient struct {
 	getPodStackTraceDump           *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
 	getKubernetesEvents            *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
 	getKubernetesPersistentVolumes *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
+	getKubernetesServiceAccounts   *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
 }
 
 // GetPodStackTraceDump calls chalk.server.v1.KubeService.GetPodStackTraceDump.
@@ -110,6 +122,11 @@ func (c *kubeServiceClient) GetKubernetesPersistentVolumes(ctx context.Context, 
 	return c.getKubernetesPersistentVolumes.CallUnary(ctx, req)
 }
 
+// GetKubernetesServiceAccounts calls chalk.server.v1.KubeService.GetKubernetesServiceAccounts.
+func (c *kubeServiceClient) GetKubernetesServiceAccounts(ctx context.Context, req *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error) {
+	return c.getKubernetesServiceAccounts.CallUnary(ctx, req)
+}
+
 // KubeServiceHandler is an implementation of the chalk.server.v1.KubeService service.
 type KubeServiceHandler interface {
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
@@ -117,6 +134,7 @@ type KubeServiceHandler interface {
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
+	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 }
 
 // NewKubeServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -147,6 +165,13 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeServiceGetKubernetesServiceAccountsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesServiceAccountsProcedure,
+		svc.GetKubernetesServiceAccounts,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesServiceAccounts")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.KubeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeServiceGetPodStackTraceDumpProcedure:
@@ -155,6 +180,8 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetKubernetesEventsHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesPersistentVolumesProcedure:
 			kubeServiceGetKubernetesPersistentVolumesHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesServiceAccountsProcedure:
+			kubeServiceGetKubernetesServiceAccountsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -174,4 +201,8 @@ func (UnimplementedKubeServiceHandler) GetKubernetesEvents(context.Context, *con
 
 func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesPersistentVolumes is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesServiceAccounts is not implemented"))
 }
