@@ -54,6 +54,12 @@ const (
 	// ModelRegistryServiceCreateModelVersionProcedure is the fully-qualified name of the
 	// ModelRegistryService's CreateModelVersion RPC.
 	ModelRegistryServiceCreateModelVersionProcedure = "/chalk.server.v1.ModelRegistryService/CreateModelVersion"
+	// ModelRegistryServiceCreateModelArtifactProcedure is the fully-qualified name of the
+	// ModelRegistryService's CreateModelArtifact RPC.
+	ModelRegistryServiceCreateModelArtifactProcedure = "/chalk.server.v1.ModelRegistryService/CreateModelArtifact"
+	// ModelRegistryServiceCreateModelVersionFromArtifactProcedure is the fully-qualified name of the
+	// ModelRegistryService's CreateModelVersionFromArtifact RPC.
+	ModelRegistryServiceCreateModelVersionFromArtifactProcedure = "/chalk.server.v1.ModelRegistryService/CreateModelVersionFromArtifact"
 	// ModelRegistryServiceUpdateModelVersionProcedure is the fully-qualified name of the
 	// ModelRegistryService's UpdateModelVersion RPC.
 	ModelRegistryServiceUpdateModelVersionProcedure = "/chalk.server.v1.ModelRegistryService/UpdateModelVersion"
@@ -77,6 +83,8 @@ type ModelRegistryServiceClient interface {
 	ListModelVersions(context.Context, *connect.Request[v1.ListModelVersionsRequest]) (*connect.Response[v1.ListModelVersionsResponse], error)
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
+	CreateModelArtifact(context.Context, *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error)
+	CreateModelVersionFromArtifact(context.Context, *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
@@ -140,6 +148,18 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelVersion")),
 			connect.WithClientOptions(opts...),
 		),
+		createModelArtifact: connect.NewClient[v1.CreateModelArtifactRequest, v1.CreateModelArtifactResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceCreateModelArtifactProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelArtifact")),
+			connect.WithClientOptions(opts...),
+		),
+		createModelVersionFromArtifact: connect.NewClient[v1.CreateModelVersionFromArtifactRequest, v1.CreateModelVersionFromArtifactResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceCreateModelVersionFromArtifactProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelVersionFromArtifact")),
+			connect.WithClientOptions(opts...),
+		),
 		updateModelVersion: connect.NewClient[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse](
 			httpClient,
 			baseURL+ModelRegistryServiceUpdateModelVersionProcedure,
@@ -171,17 +191,19 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 
 // modelRegistryServiceClient implements ModelRegistryServiceClient.
 type modelRegistryServiceClient struct {
-	listModels                 *connect.Client[v1.ListModelsRequest, v1.ListModelsResponse]
-	getModel                   *connect.Client[v1.GetModelRequest, v1.GetModelResponse]
-	createModel                *connect.Client[v1.CreateModelRequest, v1.CreateModelResponse]
-	updateModel                *connect.Client[v1.UpdateModelRequest, v1.UpdateModelResponse]
-	listModelVersions          *connect.Client[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse]
-	getModelVersion            *connect.Client[v1.GetModelVersionRequest, v1.GetModelVersionResponse]
-	createModelVersion         *connect.Client[v1.CreateModelVersionRequest, v1.CreateModelVersionResponse]
-	updateModelVersion         *connect.Client[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse]
-	getModelReferences         *connect.Client[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse]
-	getModelReference          *connect.Client[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse]
-	getModelArtifactUploadUrls *connect.Client[v1.GetModelArtifactUploadUrlsRequest, v1.GetModelArtifactUploadUrlsResponse]
+	listModels                     *connect.Client[v1.ListModelsRequest, v1.ListModelsResponse]
+	getModel                       *connect.Client[v1.GetModelRequest, v1.GetModelResponse]
+	createModel                    *connect.Client[v1.CreateModelRequest, v1.CreateModelResponse]
+	updateModel                    *connect.Client[v1.UpdateModelRequest, v1.UpdateModelResponse]
+	listModelVersions              *connect.Client[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse]
+	getModelVersion                *connect.Client[v1.GetModelVersionRequest, v1.GetModelVersionResponse]
+	createModelVersion             *connect.Client[v1.CreateModelVersionRequest, v1.CreateModelVersionResponse]
+	createModelArtifact            *connect.Client[v1.CreateModelArtifactRequest, v1.CreateModelArtifactResponse]
+	createModelVersionFromArtifact *connect.Client[v1.CreateModelVersionFromArtifactRequest, v1.CreateModelVersionFromArtifactResponse]
+	updateModelVersion             *connect.Client[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse]
+	getModelReferences             *connect.Client[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse]
+	getModelReference              *connect.Client[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse]
+	getModelArtifactUploadUrls     *connect.Client[v1.GetModelArtifactUploadUrlsRequest, v1.GetModelArtifactUploadUrlsResponse]
 }
 
 // ListModels calls chalk.server.v1.ModelRegistryService.ListModels.
@@ -219,6 +241,17 @@ func (c *modelRegistryServiceClient) CreateModelVersion(ctx context.Context, req
 	return c.createModelVersion.CallUnary(ctx, req)
 }
 
+// CreateModelArtifact calls chalk.server.v1.ModelRegistryService.CreateModelArtifact.
+func (c *modelRegistryServiceClient) CreateModelArtifact(ctx context.Context, req *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error) {
+	return c.createModelArtifact.CallUnary(ctx, req)
+}
+
+// CreateModelVersionFromArtifact calls
+// chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact.
+func (c *modelRegistryServiceClient) CreateModelVersionFromArtifact(ctx context.Context, req *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error) {
+	return c.createModelVersionFromArtifact.CallUnary(ctx, req)
+}
+
 // UpdateModelVersion calls chalk.server.v1.ModelRegistryService.UpdateModelVersion.
 func (c *modelRegistryServiceClient) UpdateModelVersion(ctx context.Context, req *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error) {
 	return c.updateModelVersion.CallUnary(ctx, req)
@@ -249,6 +282,8 @@ type ModelRegistryServiceHandler interface {
 	ListModelVersions(context.Context, *connect.Request[v1.ListModelVersionsRequest]) (*connect.Response[v1.ListModelVersionsResponse], error)
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
+	CreateModelArtifact(context.Context, *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error)
+	CreateModelVersionFromArtifact(context.Context, *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
@@ -308,6 +343,18 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 		connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelVersion")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelRegistryServiceCreateModelArtifactHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceCreateModelArtifactProcedure,
+		svc.CreateModelArtifact,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelArtifact")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRegistryServiceCreateModelVersionFromArtifactHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceCreateModelVersionFromArtifactProcedure,
+		svc.CreateModelVersionFromArtifact,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("CreateModelVersionFromArtifact")),
+		connect.WithHandlerOptions(opts...),
+	)
 	modelRegistryServiceUpdateModelVersionHandler := connect.NewUnaryHandler(
 		ModelRegistryServiceUpdateModelVersionProcedure,
 		svc.UpdateModelVersion,
@@ -350,6 +397,10 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 			modelRegistryServiceGetModelVersionHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceCreateModelVersionProcedure:
 			modelRegistryServiceCreateModelVersionHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceCreateModelArtifactProcedure:
+			modelRegistryServiceCreateModelArtifactHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceCreateModelVersionFromArtifactProcedure:
+			modelRegistryServiceCreateModelVersionFromArtifactHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceUpdateModelVersionProcedure:
 			modelRegistryServiceUpdateModelVersionHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceGetModelReferencesProcedure:
@@ -393,6 +444,14 @@ func (UnimplementedModelRegistryServiceHandler) GetModelVersion(context.Context,
 
 func (UnimplementedModelRegistryServiceHandler) CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.CreateModelVersion is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) CreateModelArtifact(context.Context, *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.CreateModelArtifact is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) CreateModelVersionFromArtifact(context.Context, *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact is not implemented"))
 }
 
 func (UnimplementedModelRegistryServiceHandler) UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error) {

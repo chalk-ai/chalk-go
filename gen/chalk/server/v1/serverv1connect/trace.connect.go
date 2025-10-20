@@ -35,12 +35,16 @@ const (
 const (
 	// TraceServiceGetTraceProcedure is the fully-qualified name of the TraceService's GetTrace RPC.
 	TraceServiceGetTraceProcedure = "/chalk.server.v1.TraceService/GetTrace"
+	// TraceServiceListTraceProcedure is the fully-qualified name of the TraceService's ListTrace RPC.
+	TraceServiceListTraceProcedure = "/chalk.server.v1.TraceService/ListTrace"
 )
 
 // TraceServiceClient is a client for the chalk.server.v1.TraceService service.
 type TraceServiceClient interface {
 	// GetTrace retrieves a trace, optionally by operation ID
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
+	// ListTrace retrieves a list of traces with optional filtering
+	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
 }
 
 // NewTraceServiceClient constructs a client for the chalk.server.v1.TraceService service. By
@@ -61,12 +65,20 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listTrace: connect.NewClient[v1.ListTraceRequest, v1.ListTraceResponse](
+			httpClient,
+			baseURL+TraceServiceListTraceProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("ListTrace")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // traceServiceClient implements TraceServiceClient.
 type traceServiceClient struct {
-	getTrace *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
+	getTrace  *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
+	listTrace *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
 }
 
 // GetTrace calls chalk.server.v1.TraceService.GetTrace.
@@ -74,10 +86,17 @@ func (c *traceServiceClient) GetTrace(ctx context.Context, req *connect.Request[
 	return c.getTrace.CallUnary(ctx, req)
 }
 
+// ListTrace calls chalk.server.v1.TraceService.ListTrace.
+func (c *traceServiceClient) ListTrace(ctx context.Context, req *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error) {
+	return c.listTrace.CallUnary(ctx, req)
+}
+
 // TraceServiceHandler is an implementation of the chalk.server.v1.TraceService service.
 type TraceServiceHandler interface {
 	// GetTrace retrieves a trace, optionally by operation ID
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
+	// ListTrace retrieves a list of traces with optional filtering
+	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
 }
 
 // NewTraceServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -94,10 +113,19 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	traceServiceListTraceHandler := connect.NewUnaryHandler(
+		TraceServiceListTraceProcedure,
+		svc.ListTrace,
+		connect.WithSchema(traceServiceMethods.ByName("ListTrace")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TraceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TraceServiceGetTraceProcedure:
 			traceServiceGetTraceHandler.ServeHTTP(w, r)
+		case TraceServiceListTraceProcedure:
+			traceServiceListTraceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +137,8 @@ type UnimplementedTraceServiceHandler struct{}
 
 func (UnimplementedTraceServiceHandler) GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetTrace is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListTrace is not implemented"))
 }
