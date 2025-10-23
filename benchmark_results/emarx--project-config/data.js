@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1761171956518,
+  "lastUpdate": 1761179332699,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -27354,6 +27354,56 @@ window.BENCHMARK_DATA = {
             "value": 366.1,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "dec3d8cb4c6ac510c5e329e015fd432c4b94dccd",
+          "message": "emarx/project config",
+          "timestamp": "2025-10-22T22:25:04Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/508/commits/dec3d8cb4c6ac510c5e329e015fd432c4b94dccd"
+        },
+        "date": 1761179332678,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.129,
+            "unit": "ms/op",
+            "extra": "1212 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 119.8,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.14,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 214.6,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 316,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
