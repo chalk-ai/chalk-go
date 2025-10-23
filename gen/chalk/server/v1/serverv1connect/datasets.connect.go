@@ -45,6 +45,9 @@ const (
 	// DatasetMetadataServiceGetDatasetRevisionProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GetDatasetRevision RPC.
 	DatasetMetadataServiceGetDatasetRevisionProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevision"
+	// DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GetDatasetRevisionDownloadLinks RPC.
+	DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevisionDownloadLinks"
 )
 
 // DatasetMetadataServiceClient is a client for the chalk.server.v1.DatasetMetadataService service.
@@ -53,6 +56,7 @@ type DatasetMetadataServiceClient interface {
 	GetDataset(context.Context, *connect.Request[v1.GetDatasetRequest]) (*connect.Response[v1.GetDatasetResponse], error)
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
+	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
 }
 
 // NewDatasetMetadataServiceClient constructs a client for the
@@ -94,15 +98,23 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getDatasetRevisionDownloadLinks: connect.NewClient[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionDownloadLinks")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // datasetMetadataServiceClient implements DatasetMetadataServiceClient.
 type datasetMetadataServiceClient struct {
-	listDatasets         *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
-	getDataset           *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
-	listDatasetRevisions *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
-	getDatasetRevision   *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
+	listDatasets                    *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
+	getDataset                      *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
+	listDatasetRevisions            *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
+	getDatasetRevision              *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
+	getDatasetRevisionDownloadLinks *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -125,6 +137,12 @@ func (c *datasetMetadataServiceClient) GetDatasetRevision(ctx context.Context, r
 	return c.getDatasetRevision.CallUnary(ctx, req)
 }
 
+// GetDatasetRevisionDownloadLinks calls
+// chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks.
+func (c *datasetMetadataServiceClient) GetDatasetRevisionDownloadLinks(ctx context.Context, req *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error) {
+	return c.getDatasetRevisionDownloadLinks.CallUnary(ctx, req)
+}
+
 // DatasetMetadataServiceHandler is an implementation of the chalk.server.v1.DatasetMetadataService
 // service.
 type DatasetMetadataServiceHandler interface {
@@ -132,6 +150,7 @@ type DatasetMetadataServiceHandler interface {
 	GetDataset(context.Context, *connect.Request[v1.GetDatasetRequest]) (*connect.Response[v1.GetDatasetResponse], error)
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
+	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
 }
 
 // NewDatasetMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -169,6 +188,13 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetDatasetRevisionDownloadLinksHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure,
+		svc.GetDatasetRevisionDownloadLinks,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionDownloadLinks")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DatasetMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasetMetadataServiceListDatasetsProcedure:
@@ -179,6 +205,8 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceListDatasetRevisionsHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionProcedure:
 			datasetMetadataServiceGetDatasetRevisionHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure:
+			datasetMetadataServiceGetDatasetRevisionDownloadLinksHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -202,4 +230,8 @@ func (UnimplementedDatasetMetadataServiceHandler) ListDatasetRevisions(context.C
 
 func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetRevision is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks is not implemented"))
 }
