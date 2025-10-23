@@ -437,6 +437,10 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		if casted, ok := o.(*expr.AliasExpr); ok {
 			outputColumnName = casted.Alias
 		}
+		exproto, err := expr.ToProto(o)
+		if err != nil {
+			return nil, err
+		}
 		outputs = append(
 			outputs,
 			&commonv1.OutputExpr{
@@ -444,7 +448,7 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 					FeatureExpression: &commonv1.FeatureExpression{
 						OutputColumnName: outputColumnName,
 						Namespace:        "",
-						Expr:             expr.ToProto(o),
+						Expr:             exproto,
 					},
 				},
 			},

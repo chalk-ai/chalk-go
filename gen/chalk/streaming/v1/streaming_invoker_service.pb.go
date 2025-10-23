@@ -30,7 +30,7 @@ type StreamingUnaryInvokeRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	FunctionName string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"` // The name of the function to invoke
-	InputTable   []byte `protobuf:"bytes,2,opt,name=input_table,json=inputTable,proto3" json:"input_table,omitempty"`       // The input data for the function, serialized as bytes
+	InputTable   []byte `protobuf:"bytes,2,opt,name=input_table,json=inputTable,proto3" json:"input_table,omitempty"`       // The input data for the function, serialized as bytes (Arrow Stream IPC)
 }
 
 func (x *StreamingUnaryInvokeRequest) Reset() {
@@ -82,7 +82,7 @@ type StreamingUnaryInvokeResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	OutputTable []byte                 `protobuf:"bytes,1,opt,name=output_table,json=outputTable,proto3" json:"output_table,omitempty"` // The output data from the function, serialized as bytes
+	OutputTable []byte                 `protobuf:"bytes,1,opt,name=output_table,json=outputTable,proto3" json:"output_table,omitempty"` // The output data from the function, serialized as bytes (Arrow Stream IPC)
 	Timestamp   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`                        // Timestamp of when the response was generated
 	Error       *v1.ChalkError         `protobuf:"bytes,3,opt,name=error,proto3,oneof" json:"error,omitempty"`                          // Optional error if the invocation failed
 }

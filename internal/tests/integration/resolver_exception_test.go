@@ -11,7 +11,8 @@ import (
 func TestErringScalar(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()
@@ -46,7 +47,8 @@ func TestErringScalar(t *testing.T) {
 func TestErringHasMany(t *testing.T) {
 	t.Parallel()
 	SkipIfNotIntegrationTester(t)
-
+	testFeatures, initErr := GetTestFeatures()
+	assert.NoError(t, initErr)
 	for _, useGrpc := range []bool{true, false} {
 		t.Run(fmt.Sprintf("grpc=%v", useGrpc), func(t *testing.T) {
 			t.Parallel()

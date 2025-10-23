@@ -7,6 +7,7 @@ import (
 	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -25,7 +26,7 @@ type SerdeUser struct {
 	Txns *[]SerdeTransaction `has_many:"id,location_id"`
 }
 
-var SerdeRoot struct {
+type SerdeRootType struct {
 	SerdeUser *SerdeUser
 }
 
@@ -33,6 +34,17 @@ type SerdeTransaction struct {
 	Id         *string
 	LocationId *int64
 	Details    *SerdeDetails `dataclass:"true"`
+}
+
+var initSerdeRootFeaturesOnce sync.Once
+var SerdeRootFeaturesSingleton SerdeRootType
+var initSerdeRootFeaturesError error
+
+func GetSerdeRootFeatures() (SerdeRootType, error) {
+	initSerdeRootFeaturesOnce.Do(func() {
+		initSerdeRootFeaturesError = InitFeatures(&SerdeRootFeaturesSingleton)
+	})
+	return SerdeRootFeaturesSingleton, initSerdeRootFeaturesError
 }
 
 func TestFeatureResultDeserialization(t *testing.T) {
@@ -122,7 +134,8 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 			"TestOnlineQueryParamsOmitNilFields",
 	)
 	t.Parallel()
-	assert.NoError(t, InitFeatures(&SerdeRoot))
+	serdeRoot, initErr := GetSerdeRootFeatures()
+	assert.NoError(t, initErr)
 
 	transactions := []SerdeTransaction{
 		{
@@ -145,9 +158,9 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 		},
 	}
 	params := OnlineQueryParams{}.
-		WithInput(SerdeRoot.SerdeUser.Id, []int64{1}).
-		WithInput(SerdeRoot.SerdeUser.Txns, [][]SerdeTransaction{transactions}).
-		WithOutputs(SerdeRoot.SerdeUser.Id, SerdeRoot.SerdeUser.Txns)
+		WithInput(serdeRoot.SerdeUser.Id, []int64{1}).
+		WithInput(serdeRoot.SerdeUser.Txns, [][]SerdeTransaction{transactions}).
+		WithOutputs(serdeRoot.SerdeUser.Id, serdeRoot.SerdeUser.Txns)
 
 	req, err := convertOnlineQueryParamsToProto(&params.underlying, fixtures.TestAllocator)
 	assert.NoError(t, err)

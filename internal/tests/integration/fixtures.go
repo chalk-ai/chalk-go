@@ -4,13 +4,34 @@ import (
 	"context"
 	chalk "github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/envfs"
+	"sync"
 )
 
 var restClient chalk.Client
 var grpcClient chalk.GRPCClient
 
+type testFeaturesType struct {
+	AllTypes            *allTypes
+	Cached              *cached
+	Crashing            *crashing
+	CrashingHasManyRoot *crashingHasManyRoot
+	NQFeatures          *nqFeatures `name:"nq_features"`
+	Optionals           *optionals
+}
+
+var initTestFeaturesOnce sync.Once
+var testFeaturesSingleton testFeaturesType
+var initTestFeaturesError error
+
+func GetTestFeatures() (testFeaturesType, error) {
+	initTestFeaturesOnce.Do(func() {
+		initTestFeaturesError = chalk.InitFeatures(&testFeaturesSingleton)
+	})
+	return testFeaturesSingleton, initTestFeaturesError
+}
+
 func init() {
-	if err := chalk.InitFeatures(&testFeatures); err != nil {
+	if _, err := GetTestFeatures(); err != nil {
 		panic(err)
 	}
 
@@ -75,13 +96,4 @@ type nqFeatures struct {
 type optionals struct {
 	Id   *int64
 	Name *string
-}
-
-var testFeatures struct {
-	AllTypes            *allTypes
-	Cached              *cached
-	Crashing            *crashing
-	CrashingHasManyRoot *crashingHasManyRoot
-	NQFeatures          *nqFeatures `name:"nq_features"`
-	Optionals           *optionals
 }

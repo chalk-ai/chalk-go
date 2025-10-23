@@ -5,7 +5,10 @@ import (
 	"time"
 
 	"github.com/chalk-ai/chalk-go/expr"
+	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	expressionv1 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	"github.com/iancoleman/strcase"
 	proto "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -32,11 +35,19 @@ func Weeks(n int64) time.Duration {
 	return time.Duration(n) * 7 * 24 * time.Hour
 }
 
+func Years(n int64) time.Duration {
+	return time.Duration(n) * 365 * 24 * time.Hour
+}
+
+var All = Years(100)
+
 type WindowedFeatureBuilder struct {
 	proto           *graphv1.WindowedFeatureType
 	ofType          FeatureBuilder
 	Default         expr.Expr
 	Expression      expr.Expr
+	MaxStaleness    time.Duration
+	isMaterialized  bool
 	Materialization MaterializationOptions
 	err             error
 }
@@ -64,6 +75,11 @@ func (w *WindowedFeatureBuilder) WithExpr(expression expr.Expr) *WindowedFeature
 	return w
 }
 
+func (w *WindowedFeatureBuilder) WithMaxStaleness(d time.Duration) *WindowedFeatureBuilder {
+	w.MaxStaleness = d
+	return w
+}
+
 // https://docs.chalk.ai/api-docs#windowed.materialization
 type MaterializationOptions struct {
 	// map window -> bucket duration
@@ -81,10 +97,8 @@ type MaterializationOptions struct {
 	BucketStart time.Time
 
 	// technically not part of materialization kwarg, but still useful to expose (for now)
-	GroupBy []*graphv1.FeatureReference
 	// The 'k' arg of approx_top_k.
 	ApproxTopKArgK int64
-	Filters        []expr.Expr
 	// The resolver to use for back-filling the materialized aggregate.
 	// If not provided, the data will be back filled using the resolver
 	// that would run for an offline query.
@@ -104,18 +118,22 @@ type MaterializationOptions struct {
 }
 
 func (w *WindowedFeatureBuilder) WithBucketDuration(duration time.Duration) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	w.Materialization.DefaultBucketDuration = duration
 	return w
 }
 
 func (w *WindowedFeatureBuilder) WithDurationForWindows(duration time.Duration, windows ...time.Duration) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	for _, d := range windows {
 		w.Materialization.BucketDurations[d] = duration
 	}
 	return w
 }
 
+// NOTE: this will override all previous materialization settings (WithBucketDuration,WithDurationForWindows)
 func (w *WindowedFeatureBuilder) WithMaterialization(mo MaterializationOptions) *WindowedFeatureBuilder {
+	w.isMaterialized = true
 	w.Materialization = mo
 	return w
 }
@@ -127,51 +145,182 @@ func GetDefault[M ~map[K]V, K comparable, V any](m M, k K, def V) V {
 	return def
 }
 
-func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
+type ParsedAggregation struct {
+	aggregateOn      *graphv1.FeatureReference
+	filters          []*expressionv1.LogicalExprNode
+	foreignNamespace string
+}
+
+func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*ParsedAggregation, error) {
+	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
+	dfName := strcase.ToSnake(df.Name)
+
+	foreignNamespace := ""
+	for _, f := range features {
+		switch t := f.Type.(type) {
+		case *graphv1.FeatureType_HasMany:
+			if t.HasMany.Name == dfName {
+				foreignNamespace = t.HasMany.ForeignNamespace
+			}
+		}
+	}
+	if foreignNamespace == "" {
+		return nil, fmt.Errorf("could not find definition of dataframe %s prior to windowed aggregate", dfName)
+	}
+
+	filters := make([]*expressionv1.LogicalExprNode, len(aggPtr.Conditions))
+	for i, cond := range aggPtr.Conditions {
+		f, err := toFilterParsedProto(cond, foreignNamespace)
+		if err != nil {
+			return nil, err
+		}
+		filters[i] = f
+	}
+
+	parsedAgg := &ParsedAggregation{
+		filters:          filters,
+		foreignNamespace: foreignNamespace,
+	}
+
+	s := aggPtr.Selection
+	name := ""
+	switch e := s.(type) {
+	case nil:
+		if aggPtr.Function != "count" {
+			return nil, fmt.Errorf("did not select an expression in non-count dataframe aggregation: %s", aggPtr.Function)
+		} else { // return null feature reference
+			return parsedAgg, nil
+		}
+	case *expr.ColumnExpr:
+		name = e.Name
+	case *expr.IdentifierExpr:
+		name = e.Name
+	case *expr.GetAttributeExpr:
+		name = e.Attribute
+	default:
+		return nil, fmt.Errorf("invalid expression selected in dataframe aggregation: %T", s)
+	}
+	if name == "" {
+		return nil, fmt.Errorf("incorrectly extracted name from %s", s.String())
+	}
+
+	parsedAgg.aggregateOn = &graphv1.FeatureReference{
+		Name:      name,
+		Namespace: foreignNamespace,
+	}
+	return parsedAgg, nil
+}
+
+func durationProto(duration time.Duration) *durationpb.Duration {
+	if duration != 0 {
+		return durationpb.New(duration)
+	}
+	return nil
+}
+
+func timeProto(time time.Time) *timestamppb.Timestamp {
+	if !time.IsZero() {
+		return timestamppb.New(time)
+	}
+	return nil
+}
+
+func maybeStr(s string) *string {
+	if s != "" {
+		return &s
+	}
+	return nil
+}
+
+func maybeInt64(i int64) *int64 {
+	if i != 0 {
+		return &i
+	}
+	return nil
+}
+
+func (w *WindowedFeatureBuilder) AppendFeatures(features []*graphv1.FeatureType, fieldName string, namespace string) ([]*graphv1.FeatureType, error) {
 	if w.err != nil {
 		return []*graphv1.FeatureType{}, w.err
 	}
 
 	numPeriods := len(w.proto.WindowDurations)
 	m := w.Materialization
-	features := make([]*graphv1.FeatureType, numPeriods+1)
 
-	for i := range numPeriods {
-		d := w.proto.WindowDurations[i]
-		scalarPtr, ok := w.ofType.(*ScalarFeatureBuilder)
-		if !ok {
-			return nil, fmt.Errorf("windowed features must be scalar")
+	scalarPtr, ok := w.ofType.(*ScalarFeatureBuilder)
+	if !ok {
+		return nil, fmt.Errorf("windowed features must be scalar")
+	}
+	aggPtr, ok := w.Expression.(*expr.AggregateExprImpl)
+	if !ok {
+		return nil, fmt.Errorf("windowed feature expression must be dataframe aggregation")
+	}
+	parsedAgg, err := extractFromExpr(namespace, features, aggPtr)
+	if err != nil {
+		return nil, err
+	}
+
+	exprProto, err := expr.ToProto(w.Expression)
+	if err != nil {
+		return nil, err
+	}
+	call := exprProto.GetCall()
+	if call == nil {
+		return nil, fmt.Errorf("expected top-level aggregate")
+	}
+	kargProto, hasKarg := call.Kwargs["k"]
+	karg := m.ApproxTopKArgK
+	if hasKarg {
+		karg = kargProto.GetLiteralValue().Value.GetInt64Value()
+	}
+	if karg != 0 {
+		_, isList := scalarPtr.proto.ArrowType.ArrowTypeEnum.(*arrowv1.ArrowType_LargeList)
+		if !isList {
+			return nil, fmt.Errorf("type of windowed feature %s must be a list", fieldName)
 		}
-		// Add duration suffix to the scalar feature name
-		durationSeconds := int64(d.AsDuration().Seconds())
-		suffixedFieldName := fmt.Sprintf("%s__%d__", fieldName, durationSeconds)
+	}
+	var defaultProto *arrowv1.ScalarValue
+	if w.Default != nil {
+		lit, ok := w.Default.(*expr.LiteralExpr)
+		if !ok {
+			return []*graphv1.FeatureType{}, w.err
+		}
+		defaultProto = lit.ScalarValue
+	}
+
+	featureForWindow := func(suffixedFieldName string, d time.Duration, dp *durationpb.Duration) *graphv1.FeatureType {
 		f := scalarPtr.ToProto(suffixedFieldName, namespace)
-		f.Type.(*graphv1.FeatureType_Scalar).Scalar.WindowInfo = &graphv1.WindowInfo{
-			Duration: d,
+		scalar := f.Type.(*graphv1.FeatureType_Scalar).Scalar
+		scalar.MaxStalenessDuration = durationpb.New(w.MaxStaleness)
+
+		scalar.WindowInfo = &graphv1.WindowInfo{
+			Duration: dp,
 			Aggregation: &graphv1.WindowAggregation{
-				Namespace: namespace,
+				Namespace:   parsedAgg.foreignNamespace,
+				Aggregation: aggPtr.Function,
+				AggregateOn: parsedAgg.aggregateOn,
+				Filters:     parsedAgg.filters,
+				ArrowType:   scalarPtr.proto.ArrowType,
+
+				// set from MaterializationOptions
 				BucketDuration: durationpb.New(GetDefault(
 					m.BucketDurations,
-					d.AsDuration(),
+					d,
 					m.DefaultBucketDuration,
 				)),
-				ContinuousBufferDuration: durationpb.New(m.ContinuousBufferDuration),
-				BackfillSchedule:         MaybeStr(m.BackfillSchedule),
-				BucketStart:              timestamppb.New(m.BucketStart),
-				//do we get this from the expression?
-				//Aggregation    string
-				//AggregateOn    *graphv1.FeatureReference
-				//ArrowType      *v11.ArrowType
+				ContinuousBufferDuration: durationProto(m.ContinuousBufferDuration),
+				BackfillSchedule:         maybeStr(m.BackfillSchedule),
+				BucketStart:              timeProto(m.BucketStart),
+				ApproxTopKArgK:           maybeInt64(karg),
+				BackfillResolver:         maybeStr(m.BackfillResolver),
+				BackfillLookbackDuration: durationProto(m.BackfillLookbackDuration),
+				BackfillStartTime:        timeProto(m.BackfillStartTime),
+				ContinuousResolver:       maybeStr(m.ContinuousResolver),
 			},
 		}
-		if w.Default != nil {
-			lit, ok := w.Default.(*expr.LiteralExpr)
-			if !ok {
-				return []*graphv1.FeatureType{}, w.err
-			}
-			f.Type.(*graphv1.FeatureType_Scalar).Scalar.DefaultValue = lit.ScalarValue
-		}
-		features[i] = f
+		scalar.Expression = exprProto
+		scalar.DefaultValue = defaultProto
+		return f
 	}
 
 	windowed := proto.Clone(w.proto).(*graphv1.WindowedFeatureType)
@@ -179,11 +328,28 @@ func (w *WindowedFeatureBuilder) ToProtos(fieldName string, namespace string) ([
 	windowed.Namespace = namespace
 	windowed.AttributeName = fieldName
 	windowed.UnversionedAttributeName = fieldName
-	features[numPeriods] = &graphv1.FeatureType{
+
+	oldLength := len(features)
+	newFeatures := make([]*graphv1.FeatureType, oldLength+numPeriods+1)
+	copy(newFeatures, features)
+	for i := range numPeriods {
+		durationProto := w.proto.WindowDurations[i]
+		duration := durationProto.AsDuration()
+		durationSeconds := int64(duration.Seconds())
+		if duration == All {
+			suffixedFieldName := fmt.Sprintf("%s__all__", fieldName)
+			newFeatures[oldLength+i] = featureForWindow(suffixedFieldName, duration, durationProto)
+		} else {
+			// Add duration suffix to the scalar feature name
+			suffixedFieldName := fmt.Sprintf("%s__%d__", fieldName, durationSeconds)
+			newFeatures[oldLength+i] = featureForWindow(suffixedFieldName, duration, durationProto)
+		}
+	}
+
+	newFeatures[oldLength+numPeriods] = &graphv1.FeatureType{
 		Type: &graphv1.FeatureType_Windowed{
 			Windowed: windowed,
 		},
 	}
-
-	return features, nil
+	return newFeatures, nil
 }
