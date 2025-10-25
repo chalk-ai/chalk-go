@@ -115,6 +115,11 @@ func WithFile(path string, content []byte) MockEnvironmentOption {
 	}
 }
 
+// WithFileString adds a single file to the mock filesystem with string content
+func WithFileString(path string, content string) MockEnvironmentOption {
+	return WithFile(path, []byte(content))
+}
+
 // WithFileInfo adds a file with custom FileInfo to the mock filesystem
 func WithFileInfo(path string, content []byte, info fs.FileInfo) MockEnvironmentOption {
 	return func(m *MapEnvironmentGetter) {
