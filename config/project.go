@@ -6,22 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/chalk-ai/chalk-go/envfs"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"gopkg.in/yaml.v3"
 )
-
-func getDefaultConfig(project string) ProjectSettings {
-	return ProjectSettings{
-		Project: project,
-		Environments: map[string]*EnvironmentSettings{
-			"default": {
-				Runtime:      ptr.New("python312"),
-				Dockerfile:   nil,
-				Requirements: ptr.New("requirements.txt"),
-			},
-		},
-	}
-}
 
 var DefaultRequirements = "requirements.txt"
 var ChalkIgnore = ".chalkignore"
