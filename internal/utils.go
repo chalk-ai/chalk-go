@@ -26,13 +26,6 @@ var wordGroupsPattern = regexp.MustCompile(`(.)([A-Z][a-z]+)`)
 var dunderPattern = regexp.MustCompile(`__([A-Z])`)
 var trailingUpperPattern = regexp.MustCompile(`([a-z0-9])([A-Z])`)
 
-func FileExists(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		return false
-	}
-	return true
-}
-
 func StringOrNil(value string) *string {
 	if value == "" {
 		return nil

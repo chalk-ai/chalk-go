@@ -7,13 +7,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/envfs"
 )
 
 var authConfigFileName = ".chalk.yml"
 
-func loadProjectDirectory() (string, error) {
-	wd, err := os.Getwd()
+func loadProjectDirectory(getter envfs.EnvironmentGetter) (string, error) {
+	wd, err := getter.Getwd()
 	if err != nil {
 		return "", err
 	}
@@ -21,8 +21,7 @@ func loadProjectDirectory() (string, error) {
 	rootChecked := false
 	for currentDirectory != "/" && !rootChecked {
 		for _, filename := range []string{"chalk.yaml", "chalk.yml"} {
-			chalkYamlExists := internal.FileExists(filepath.Join(currentDirectory, filename))
-			if chalkYamlExists {
+			if _, err := getter.Stat(filepath.Join(currentDirectory, filename)); err == nil {
 				return currentDirectory, nil
 			}
 		}
@@ -42,7 +41,7 @@ func loadProjectDirectory() (string, error) {
 func getConfigPath(ctx context.Context, configDir *string) (string, error) {
 	var dir string
 	var err error
-	getter := EnvironmentGetterFromContext(ctx)
+	getter := envfs.EnvironmentGetterFromContext(ctx)
 
 	if configDir != nil {
 		dir = *configDir
@@ -59,18 +58,17 @@ func getConfigPath(ctx context.Context, configDir *string) (string, error) {
 	// Check for both chalk.yml and chalk.yaml
 	for _, filename := range []string{".chalk.yml", ".chalk.yaml"} {
 		path := filepath.Join(dir, filename)
-		if internal.FileExists(path) {
+		if _, err := getter.Stat(path); err == nil {
 			return path, nil
 		}
 	}
 
 	// Default to .chalk.yml if neither exists
-	path := filepath.Join(dir, authConfigFileName)
-	return path, nil
+	return filepath.Join(dir, authConfigFileName), nil
 }
 
-func getProjectAuthConfigForProjectRoot(config *ProjectTokens, configPath string) (*ProjectToken, error) {
-	projectRoot, err := loadProjectDirectory()
+func getProjectAuthConfigForProjectRoot(config *ProjectTokens, configPath string, getter envfs.EnvironmentGetter) (*ProjectToken, error) {
+	projectRoot, err := loadProjectDirectory(getter)
 	if err != nil {
 		return nil, fmt.Errorf("error loading auth config: %s", err)
 	}
