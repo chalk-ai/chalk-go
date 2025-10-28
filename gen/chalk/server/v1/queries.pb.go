@@ -2419,6 +2419,556 @@ func (x *ListMetaQueryVersionsResponse) GetMetaQueryVersions() []*MetaQuery {
 	return nil
 }
 
+type QueryRun struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	MetaQueryId   string                 `protobuf:"bytes,2,opt,name=meta_query_id,json=metaQueryId,proto3" json:"meta_query_id,omitempty"`
+	ExternalId    string                 `protobuf:"bytes,3,opt,name=external_id,json=externalId,proto3" json:"external_id,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	QueryPlanId   *string                `protobuf:"bytes,5,opt,name=query_plan_id,json=queryPlanId,proto3,oneof" json:"query_plan_id,omitempty"`
+	CorrelationId *string                `protobuf:"bytes,6,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
+	HasErrors     *bool                  `protobuf:"varint,7,opt,name=has_errors,json=hasErrors,proto3,oneof" json:"has_errors,omitempty"`
+	AgentId       *string                `protobuf:"bytes,8,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
+	BranchName    *string                `protobuf:"bytes,9,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"`
+	DeploymentId  *string                `protobuf:"bytes,10,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	HasPlanStages *bool                  `protobuf:"varint,11,opt,name=has_plan_stages,json=hasPlanStages,proto3,oneof" json:"has_plan_stages,omitempty"`
+	Duration      *float64               `protobuf:"fixed64,12,opt,name=duration,proto3,oneof" json:"duration,omitempty"`
+	TraceId       *string                `protobuf:"bytes,13,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
+	ResourceGroup *string                `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+}
+
+func (x *QueryRun) Reset() {
+	*x = QueryRun{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryRun) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryRun) ProtoMessage() {}
+
+func (x *QueryRun) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryRun.ProtoReflect.Descriptor instead.
+func (*QueryRun) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *QueryRun) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *QueryRun) GetMetaQueryId() string {
+	if x != nil {
+		return x.MetaQueryId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetExternalId() string {
+	if x != nil {
+		return x.ExternalId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *QueryRun) GetQueryPlanId() string {
+	if x != nil && x.QueryPlanId != nil {
+		return *x.QueryPlanId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetCorrelationId() string {
+	if x != nil && x.CorrelationId != nil {
+		return *x.CorrelationId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetHasErrors() bool {
+	if x != nil && x.HasErrors != nil {
+		return *x.HasErrors
+	}
+	return false
+}
+
+func (x *QueryRun) GetAgentId() string {
+	if x != nil && x.AgentId != nil {
+		return *x.AgentId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetBranchName() string {
+	if x != nil && x.BranchName != nil {
+		return *x.BranchName
+	}
+	return ""
+}
+
+func (x *QueryRun) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetHasPlanStages() bool {
+	if x != nil && x.HasPlanStages != nil {
+		return *x.HasPlanStages
+	}
+	return false
+}
+
+func (x *QueryRun) GetDuration() float64 {
+	if x != nil && x.Duration != nil {
+		return *x.Duration
+	}
+	return 0
+}
+
+func (x *QueryRun) GetTraceId() string {
+	if x != nil && x.TraceId != nil {
+		return *x.TraceId
+	}
+	return ""
+}
+
+func (x *QueryRun) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
+}
+
+type GetQueryRunRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OperationId          string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	ApproximateTimestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=approximate_timestamp,json=approximateTimestamp,proto3,oneof" json:"approximate_timestamp,omitempty"`
+}
+
+func (x *GetQueryRunRequest) Reset() {
+	*x = GetQueryRunRequest{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetQueryRunRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetQueryRunRequest) ProtoMessage() {}
+
+func (x *GetQueryRunRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetQueryRunRequest.ProtoReflect.Descriptor instead.
+func (*GetQueryRunRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetQueryRunRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *GetQueryRunRequest) GetApproximateTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ApproximateTimestamp
+	}
+	return nil
+}
+
+type GetQueryRunResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	QueryRun *QueryRun `protobuf:"bytes,1,opt,name=query_run,json=queryRun,proto3" json:"query_run,omitempty"`
+}
+
+func (x *GetQueryRunResponse) Reset() {
+	*x = GetQueryRunResponse{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetQueryRunResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetQueryRunResponse) ProtoMessage() {}
+
+func (x *GetQueryRunResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetQueryRunResponse.ProtoReflect.Descriptor instead.
+func (*GetQueryRunResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *GetQueryRunResponse) GetQueryRun() *QueryRun {
+	if x != nil {
+		return x.QueryRun
+	}
+	return nil
+}
+
+// Retrieves the mapping plan for a streaming resolver.
+// The mapping plan parses raw message bytes and extracts mapped features.
+// This plan is expected to exist for all streaming resolvers.
+// Note that this json is slightly different from the standard query plan json.
+type GetStreamingResolverMappingPlanRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ResolverFqn  string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+}
+
+func (x *GetStreamingResolverMappingPlanRequest) Reset() {
+	*x = GetStreamingResolverMappingPlanRequest{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverMappingPlanRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverMappingPlanRequest) ProtoMessage() {}
+
+func (x *GetStreamingResolverMappingPlanRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverMappingPlanRequest.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverMappingPlanRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *GetStreamingResolverMappingPlanRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *GetStreamingResolverMappingPlanRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+type GetStreamingResolverMappingPlanResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	QueryPlan *QueryPlan `protobuf:"bytes,1,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
+}
+
+func (x *GetStreamingResolverMappingPlanResponse) Reset() {
+	*x = GetStreamingResolverMappingPlanResponse{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverMappingPlanResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverMappingPlanResponse) ProtoMessage() {}
+
+func (x *GetStreamingResolverMappingPlanResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverMappingPlanResponse.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverMappingPlanResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{42}
+}
+
+func (x *GetStreamingResolverMappingPlanResponse) GetQueryPlan() *QueryPlan {
+	if x != nil {
+		return x.QueryPlan
+	}
+	return nil
+}
+
+// Retrieves the sink plan for a streaming resolver.
+// The sink plan computes additional features beyond what's mapped from the message.
+// This plan may not exist for all streaming resolvers (only if stream_sink_config is configured).
+type GetStreamingResolverSinkPlanRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ResolverFqn  string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+}
+
+func (x *GetStreamingResolverSinkPlanRequest) Reset() {
+	*x = GetStreamingResolverSinkPlanRequest{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverSinkPlanRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverSinkPlanRequest) ProtoMessage() {}
+
+func (x *GetStreamingResolverSinkPlanRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverSinkPlanRequest.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverSinkPlanRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *GetStreamingResolverSinkPlanRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *GetStreamingResolverSinkPlanRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+type GetStreamingResolverSinkPlanResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	QueryPlan *QueryPlan `protobuf:"bytes,1,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
+}
+
+func (x *GetStreamingResolverSinkPlanResponse) Reset() {
+	*x = GetStreamingResolverSinkPlanResponse{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverSinkPlanResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverSinkPlanResponse) ProtoMessage() {}
+
+func (x *GetStreamingResolverSinkPlanResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverSinkPlanResponse.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverSinkPlanResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *GetStreamingResolverSinkPlanResponse) GetQueryPlan() *QueryPlan {
+	if x != nil {
+		return x.QueryPlan
+	}
+	return nil
+}
+
+// Retrieves the materialized aggregation plan for a streaming resolver.
+// This plan updates streaming aggregations (e.g., windowed counts, sums) using mapped features.
+type GetStreamingResolverMaterializedAggregationPlanRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ResolverFqn  string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanRequest) Reset() {
+	*x = GetStreamingResolverMaterializedAggregationPlanRequest{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverMaterializedAggregationPlanRequest) ProtoMessage() {}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverMaterializedAggregationPlanRequest.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverMaterializedAggregationPlanRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{45}
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+type GetStreamingResolverMaterializedAggregationPlanResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	QueryPlan *QueryPlan `protobuf:"bytes,1,opt,name=query_plan,json=queryPlan,proto3" json:"query_plan,omitempty"`
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanResponse) Reset() {
+	*x = GetStreamingResolverMaterializedAggregationPlanResponse{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingResolverMaterializedAggregationPlanResponse) ProtoMessage() {}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingResolverMaterializedAggregationPlanResponse.ProtoReflect.Descriptor instead.
+func (*GetStreamingResolverMaterializedAggregationPlanResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *GetStreamingResolverMaterializedAggregationPlanResponse) GetQueryPlan() *QueryPlan {
+	if x != nil {
+		return x.QueryPlan
+	}
+	return nil
+}
+
 var File_chalk_server_v1_queries_proto protoreflect.FileDescriptor
 
 var file_chalk_server_v1_queries_proto_rawDesc = []byte{
@@ -2908,7 +3458,109 @@ var file_chalk_server_v1_queries_proto_rawDesc = []byte{
 	0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76,
 	0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52,
 	0x11, 0x6d, 0x65, 0x74, 0x61, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f,
-	0x6e, 0x73, 0x32, 0x9c, 0x0e, 0x0a, 0x0e, 0x51, 0x75, 0x65, 0x72, 0x69, 0x65, 0x73, 0x53, 0x65,
+	0x6e, 0x73, 0x22, 0xc1, 0x05, 0x0a, 0x08, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x75, 0x6e, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x22, 0x0a, 0x0d, 0x6d, 0x65, 0x74, 0x61, 0x5f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x6d, 0x65, 0x74, 0x61, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x49, 0x64, 0x12, 0x1f, 0x0a, 0x0b, 0x65, 0x78, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x5f,
+	0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x65, 0x78, 0x74, 0x65, 0x72, 0x6e,
+	0x61, 0x6c, 0x49, 0x64, 0x12, 0x39, 0x0a, 0x0a, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x5f,
+	0x61, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
+	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73,
+	0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12,
+	0x27, 0x0a, 0x0d, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x5f, 0x69, 0x64,
+	0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x0b, 0x71, 0x75, 0x65, 0x72, 0x79, 0x50,
+	0x6c, 0x61, 0x6e, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x2a, 0x0a, 0x0e, 0x63, 0x6f, 0x72, 0x72,
+	0x65, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09,
+	0x48, 0x01, 0x52, 0x0d, 0x63, 0x6f, 0x72, 0x72, 0x65, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49,
+	0x64, 0x88, 0x01, 0x01, 0x12, 0x22, 0x0a, 0x0a, 0x68, 0x61, 0x73, 0x5f, 0x65, 0x72, 0x72, 0x6f,
+	0x72, 0x73, 0x18, 0x07, 0x20, 0x01, 0x28, 0x08, 0x48, 0x02, 0x52, 0x09, 0x68, 0x61, 0x73, 0x45,
+	0x72, 0x72, 0x6f, 0x72, 0x73, 0x88, 0x01, 0x01, 0x12, 0x1e, 0x0a, 0x08, 0x61, 0x67, 0x65, 0x6e,
+	0x74, 0x5f, 0x69, 0x64, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x48, 0x03, 0x52, 0x07, 0x61, 0x67,
+	0x65, 0x6e, 0x74, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x24, 0x0a, 0x0b, 0x62, 0x72, 0x61, 0x6e,
+	0x63, 0x68, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x48, 0x04, 0x52,
+	0x0a, 0x62, 0x72, 0x61, 0x6e, 0x63, 0x68, 0x4e, 0x61, 0x6d, 0x65, 0x88, 0x01, 0x01, 0x12, 0x28,
+	0x0a, 0x0d, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18,
+	0x0a, 0x20, 0x01, 0x28, 0x09, 0x48, 0x05, 0x52, 0x0c, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d,
+	0x65, 0x6e, 0x74, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x2b, 0x0a, 0x0f, 0x68, 0x61, 0x73, 0x5f,
+	0x70, 0x6c, 0x61, 0x6e, 0x5f, 0x73, 0x74, 0x61, 0x67, 0x65, 0x73, 0x18, 0x0b, 0x20, 0x01, 0x28,
+	0x08, 0x48, 0x06, 0x52, 0x0d, 0x68, 0x61, 0x73, 0x50, 0x6c, 0x61, 0x6e, 0x53, 0x74, 0x61, 0x67,
+	0x65, 0x73, 0x88, 0x01, 0x01, 0x12, 0x1f, 0x0a, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x01, 0x48, 0x07, 0x52, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x88, 0x01, 0x01, 0x12, 0x1e, 0x0a, 0x08, 0x74, 0x72, 0x61, 0x63, 0x65, 0x5f,
+	0x69, 0x64, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x48, 0x08, 0x52, 0x07, 0x74, 0x72, 0x61, 0x63,
+	0x65, 0x49, 0x64, 0x88, 0x01, 0x01, 0x12, 0x2a, 0x0a, 0x0e, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72,
+	0x63, 0x65, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x18, 0x0e, 0x20, 0x01, 0x28, 0x09, 0x48, 0x09,
+	0x52, 0x0d, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x88,
+	0x01, 0x01, 0x42, 0x10, 0x0a, 0x0e, 0x5f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61,
+	0x6e, 0x5f, 0x69, 0x64, 0x42, 0x11, 0x0a, 0x0f, 0x5f, 0x63, 0x6f, 0x72, 0x72, 0x65, 0x6c, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x42, 0x0d, 0x0a, 0x0b, 0x5f, 0x68, 0x61, 0x73, 0x5f,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x61, 0x67, 0x65, 0x6e, 0x74,
+	0x5f, 0x69, 0x64, 0x42, 0x0e, 0x0a, 0x0c, 0x5f, 0x62, 0x72, 0x61, 0x6e, 0x63, 0x68, 0x5f, 0x6e,
+	0x61, 0x6d, 0x65, 0x42, 0x10, 0x0a, 0x0e, 0x5f, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65,
+	0x6e, 0x74, 0x5f, 0x69, 0x64, 0x42, 0x12, 0x0a, 0x10, 0x5f, 0x68, 0x61, 0x73, 0x5f, 0x70, 0x6c,
+	0x61, 0x6e, 0x5f, 0x73, 0x74, 0x61, 0x67, 0x65, 0x73, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x64, 0x75,
+	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x74, 0x72, 0x61, 0x63, 0x65,
+	0x5f, 0x69, 0x64, 0x42, 0x11, 0x0a, 0x0f, 0x5f, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
+	0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x22, 0xa7, 0x01, 0x0a, 0x12, 0x47, 0x65, 0x74, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x52, 0x75, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a,
+	0x0c, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x0b, 0x6f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x64,
+	0x12, 0x54, 0x0a, 0x15, 0x61, 0x70, 0x70, 0x72, 0x6f, 0x78, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x5f,
+	0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
+	0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x48, 0x00, 0x52, 0x14, 0x61,
+	0x70, 0x70, 0x72, 0x6f, 0x78, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x88, 0x01, 0x01, 0x42, 0x18, 0x0a, 0x16, 0x5f, 0x61, 0x70, 0x70, 0x72, 0x6f,
+	0x78, 0x69, 0x6d, 0x61, 0x74, 0x65, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
+	0x22, 0x4d, 0x0a, 0x13, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x75, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x36, 0x0a, 0x09, 0x71, 0x75, 0x65, 0x72, 0x79,
+	0x5f, 0x72, 0x75, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x68, 0x61,
+	0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x52, 0x75, 0x6e, 0x52, 0x08, 0x71, 0x75, 0x65, 0x72, 0x79, 0x52, 0x75, 0x6e, 0x22,
+	0x70, 0x0a, 0x26, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52,
+	0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67, 0x50, 0x6c,
+	0x61, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x72, 0x65, 0x73,
+	0x6f, 0x6c, 0x76, 0x65, 0x72, 0x5f, 0x66, 0x71, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x0b, 0x72, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x46, 0x71, 0x6e, 0x12, 0x23, 0x0a, 0x0d,
+	0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x0c, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x49,
+	0x64, 0x22, 0x64, 0x0a, 0x27, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e,
+	0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67,
+	0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x39, 0x0a, 0x0a,
+	0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x09, 0x71, 0x75,
+	0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x22, 0x6d, 0x0a, 0x23, 0x47, 0x65, 0x74, 0x53, 0x74,
+	0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x53,
+	0x69, 0x6e, 0x6b, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x21,
+	0x0a, 0x0c, 0x72, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x5f, 0x66, 0x71, 0x6e, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x72, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x46, 0x71,
+	0x6e, 0x12, 0x23, 0x0a, 0x0d, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x5f,
+	0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79,
+	0x6d, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x22, 0x61, 0x0a, 0x24, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72,
+	0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x53, 0x69,
+	0x6e, 0x6b, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x39,
+	0x0a, 0x0a, 0x71, 0x75, 0x65, 0x72, 0x79, 0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x09,
+	0x71, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x22, 0x80, 0x01, 0x0a, 0x36, 0x47, 0x65,
+	0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76,
+	0x65, 0x72, 0x4d, 0x61, 0x74, 0x65, 0x72, 0x69, 0x61, 0x6c, 0x69, 0x7a, 0x65, 0x64, 0x41, 0x67,
+	0x67, 0x72, 0x65, 0x67, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x72, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72,
+	0x5f, 0x66, 0x71, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x72, 0x65, 0x73, 0x6f,
+	0x6c, 0x76, 0x65, 0x72, 0x46, 0x71, 0x6e, 0x12, 0x23, 0x0a, 0x0d, 0x64, 0x65, 0x70, 0x6c, 0x6f,
+	0x79, 0x6d, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c,
+	0x64, 0x65, 0x70, 0x6c, 0x6f, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x22, 0x74, 0x0a, 0x37,
+	0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f,
+	0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x74, 0x65, 0x72, 0x69, 0x61, 0x6c, 0x69, 0x7a, 0x65, 0x64,
+	0x41, 0x67, 0x67, 0x72, 0x65, 0x67, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x50, 0x6c, 0x61, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x39, 0x0a, 0x0a, 0x71, 0x75, 0x65, 0x72, 0x79,
+	0x5f, 0x70, 0x6c, 0x61, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x68,
+	0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x09, 0x71, 0x75, 0x65, 0x72, 0x79, 0x50, 0x6c,
+	0x61, 0x6e, 0x32, 0xf6, 0x12, 0x0a, 0x0e, 0x51, 0x75, 0x65, 0x72, 0x69, 0x65, 0x73, 0x53, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x8a, 0x01, 0x0a, 0x1a, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65,
 	0x72, 0x79, 0x50, 0x65, 0x72, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x6e, 0x63, 0x65, 0x53, 0x75, 0x6d,
 	0x6d, 0x61, 0x72, 0x79, 0x12, 0x32, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
@@ -3022,19 +3674,57 @@ var file_chalk_server_v1_queries_proto_rawDesc = []byte{
 	0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x4c,
 	0x69, 0x73, 0x74, 0x4d, 0x65, 0x74, 0x61, 0x51, 0x75, 0x65, 0x72, 0x79, 0x56, 0x65, 0x72, 0x73,
 	0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d,
-	0x03, 0x42, 0xbc, 0x01, 0x0a, 0x13, 0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
-	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x42, 0x0c, 0x51, 0x75, 0x65, 0x72, 0x69,
-	0x65, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61, 0x69, 0x2f, 0x63,
-	0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x67, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63, 0x68, 0x61, 0x6c,
-	0x6b, 0x2f, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x73, 0x65, 0x72, 0x76,
-	0x65, 0x72, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x43, 0x53, 0x58, 0xaa, 0x02, 0x0f, 0x43, 0x68, 0x61,
-	0x6c, 0x6b, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0f, 0x43,
-	0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02,
-	0x1b, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x11, 0x43,
-	0x68, 0x61, 0x6c, 0x6b, 0x3a, 0x3a, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x3a, 0x3a, 0x56, 0x31,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x03, 0x12, 0x5d, 0x0a, 0x0b, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x75, 0x6e,
+	0x12, 0x23, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
+	0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65, 0x72, 0x79, 0x52, 0x75, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x51, 0x75, 0x65, 0x72, 0x79,
+	0x52, 0x75, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x06,
+	0x12, 0x99, 0x01, 0x0a, 0x1f, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e,
+	0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67,
+	0x50, 0x6c, 0x61, 0x6e, 0x12, 0x37, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d,
+	0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x70, 0x70, 0x69,
+	0x6e, 0x67, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x38, 0x2e,
+	0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f,
+	0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x70, 0x70, 0x69, 0x6e, 0x67, 0x50, 0x6c, 0x61, 0x6e, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x06, 0x12, 0x90, 0x01, 0x0a,
+	0x1c, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73,
+	0x6f, 0x6c, 0x76, 0x65, 0x72, 0x53, 0x69, 0x6e, 0x6b, 0x50, 0x6c, 0x61, 0x6e, 0x12, 0x34, 0x2e,
+	0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e,
+	0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f,
+	0x6c, 0x76, 0x65, 0x72, 0x53, 0x69, 0x6e, 0x6b, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x35, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69,
+	0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x53, 0x69, 0x6e, 0x6b, 0x50, 0x6c,
+	0x61, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x06, 0x12,
+	0xc9, 0x01, 0x0a, 0x2f, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67,
+	0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x74, 0x65, 0x72, 0x69, 0x61, 0x6c,
+	0x69, 0x7a, 0x65, 0x64, 0x41, 0x67, 0x67, 0x72, 0x65, 0x67, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x50,
+	0x6c, 0x61, 0x6e, 0x12, 0x47, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47, 0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69,
+	0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c, 0x76, 0x65, 0x72, 0x4d, 0x61, 0x74, 0x65, 0x72, 0x69,
+	0x61, 0x6c, 0x69, 0x7a, 0x65, 0x64, 0x41, 0x67, 0x67, 0x72, 0x65, 0x67, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x48, 0x2e, 0x63,
+	0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x76, 0x31, 0x2e, 0x47,
+	0x65, 0x74, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x6f, 0x6c,
+	0x76, 0x65, 0x72, 0x4d, 0x61, 0x74, 0x65, 0x72, 0x69, 0x61, 0x6c, 0x69, 0x7a, 0x65, 0x64, 0x41,
+	0x67, 0x67, 0x72, 0x65, 0x67, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x50, 0x6c, 0x61, 0x6e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x03, 0x80, 0x7d, 0x06, 0x42, 0xbc, 0x01, 0x0a, 0x13,
+	0x63, 0x6f, 0x6d, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
+	0x2e, 0x76, 0x31, 0x42, 0x0c, 0x51, 0x75, 0x65, 0x72, 0x69, 0x65, 0x73, 0x50, 0x72, 0x6f, 0x74,
+	0x6f, 0x50, 0x01, 0x5a, 0x39, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x61, 0x69, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2d, 0x67,
+	0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2f, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x2f, 0x76, 0x31, 0x3b, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x76, 0x31, 0xa2, 0x02,
+	0x03, 0x43, 0x53, 0x58, 0xaa, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x53, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x0f, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x5c, 0x53,
+	0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1b, 0x43, 0x68, 0x61, 0x6c, 0x6b,
+	0x5c, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
+	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x11, 0x43, 0x68, 0x61, 0x6c, 0x6b, 0x3a, 0x3a,
+	0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -3049,83 +3739,92 @@ func file_chalk_server_v1_queries_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_queries_proto_rawDescData
 }
 
-var file_chalk_server_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
+var file_chalk_server_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
 var file_chalk_server_v1_queries_proto_goTypes = []any{
-	(*GetQueryPerformanceSummaryRequest)(nil),  // 0: chalk.server.v1.GetQueryPerformanceSummaryRequest
-	(*GetQueryPerformanceSummaryResponse)(nil), // 1: chalk.server.v1.GetQueryPerformanceSummaryResponse
-	(*ListQueryErrorsPageToken)(nil),           // 2: chalk.server.v1.ListQueryErrorsPageToken
-	(*QueryErrorFilters)(nil),                  // 3: chalk.server.v1.QueryErrorFilters
-	(*QueryErrorMeta)(nil),                     // 4: chalk.server.v1.QueryErrorMeta
-	(*ListQueryErrorsRequest)(nil),             // 5: chalk.server.v1.ListQueryErrorsRequest
-	(*ListQueryErrorsResponse)(nil),            // 6: chalk.server.v1.ListQueryErrorsResponse
-	(*GetQueryErrorsChartRequest)(nil),         // 7: chalk.server.v1.GetQueryErrorsChartRequest
-	(*GetQueryErrorsChartResponse)(nil),        // 8: chalk.server.v1.GetQueryErrorsChartResponse
-	(*GetQueryPlanRequest)(nil),                // 9: chalk.server.v1.GetQueryPlanRequest
-	(*QueryPlan)(nil),                          // 10: chalk.server.v1.QueryPlan
-	(*GetQueryPlanResponse)(nil),               // 11: chalk.server.v1.GetQueryPlanResponse
-	(*AggregatedQueryError)(nil),               // 12: chalk.server.v1.AggregatedQueryError
-	(*AggregateQueryErrorsRequest)(nil),        // 13: chalk.server.v1.AggregateQueryErrorsRequest
-	(*AggregateQueryErrorsResponse)(nil),       // 14: chalk.server.v1.AggregateQueryErrorsResponse
-	(*MetaQueryRun)(nil),                       // 15: chalk.server.v1.MetaQueryRun
-	(*MetaQueryRunWithMeta)(nil),               // 16: chalk.server.v1.MetaQueryRunWithMeta
-	(*ListMetaQueryRunsRequest)(nil),           // 17: chalk.server.v1.ListMetaQueryRunsRequest
-	(*ListMetaQueryRunsResponse)(nil),          // 18: chalk.server.v1.ListMetaQueryRunsResponse
-	(*MetaQuery)(nil),                          // 19: chalk.server.v1.MetaQuery
-	(*ListMetaQueriesRequest)(nil),             // 20: chalk.server.v1.ListMetaQueriesRequest
-	(*ListMetaQueriesResponse)(nil),            // 21: chalk.server.v1.ListMetaQueriesResponse
-	(*ListLatestMetaQueriesRequest)(nil),       // 22: chalk.server.v1.ListLatestMetaQueriesRequest
-	(*ListLatestMetaQueriesResponse)(nil),      // 23: chalk.server.v1.ListLatestMetaQueriesResponse
-	(*GetMetaQueryRequest)(nil),                // 24: chalk.server.v1.GetMetaQueryRequest
-	(*GetMetaQueryResponse)(nil),               // 25: chalk.server.v1.GetMetaQueryResponse
-	(*GetMetaQueryByNameRequest)(nil),          // 26: chalk.server.v1.GetMetaQueryByNameRequest
-	(*GetMetaQueryByNameResponse)(nil),         // 27: chalk.server.v1.GetMetaQueryByNameResponse
-	(*ListMetaQueriesByIdsRequest)(nil),        // 28: chalk.server.v1.ListMetaQueriesByIdsRequest
-	(*ListMetaQueriesByIdsResponse)(nil),       // 29: chalk.server.v1.ListMetaQueriesByIdsResponse
-	(*ListArchivedMetaQueriesRequest)(nil),     // 30: chalk.server.v1.ListArchivedMetaQueriesRequest
-	(*ListArchivedMetaQueriesResponse)(nil),    // 31: chalk.server.v1.ListArchivedMetaQueriesResponse
-	(*ListMetaQueriesForResolverRequest)(nil),  // 32: chalk.server.v1.ListMetaQueriesForResolverRequest
-	(*ListMetaQueriesForResolverResponse)(nil), // 33: chalk.server.v1.ListMetaQueriesForResolverResponse
-	(*ListMetaQueriesForFeatureRequest)(nil),   // 34: chalk.server.v1.ListMetaQueriesForFeatureRequest
-	(*ListMetaQueriesForFeatureResponse)(nil),  // 35: chalk.server.v1.ListMetaQueriesForFeatureResponse
-	(*ListMetaQueryVersionsRequest)(nil),       // 36: chalk.server.v1.ListMetaQueryVersionsRequest
-	(*ListMetaQueryVersionsResponse)(nil),      // 37: chalk.server.v1.ListMetaQueryVersionsResponse
-	(*timestamppb.Timestamp)(nil),              // 38: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                // 39: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),            // 40: chalk.chart.v1.DenseTimeSeriesChart
+	(*GetQueryPerformanceSummaryRequest)(nil),                       // 0: chalk.server.v1.GetQueryPerformanceSummaryRequest
+	(*GetQueryPerformanceSummaryResponse)(nil),                      // 1: chalk.server.v1.GetQueryPerformanceSummaryResponse
+	(*ListQueryErrorsPageToken)(nil),                                // 2: chalk.server.v1.ListQueryErrorsPageToken
+	(*QueryErrorFilters)(nil),                                       // 3: chalk.server.v1.QueryErrorFilters
+	(*QueryErrorMeta)(nil),                                          // 4: chalk.server.v1.QueryErrorMeta
+	(*ListQueryErrorsRequest)(nil),                                  // 5: chalk.server.v1.ListQueryErrorsRequest
+	(*ListQueryErrorsResponse)(nil),                                 // 6: chalk.server.v1.ListQueryErrorsResponse
+	(*GetQueryErrorsChartRequest)(nil),                              // 7: chalk.server.v1.GetQueryErrorsChartRequest
+	(*GetQueryErrorsChartResponse)(nil),                             // 8: chalk.server.v1.GetQueryErrorsChartResponse
+	(*GetQueryPlanRequest)(nil),                                     // 9: chalk.server.v1.GetQueryPlanRequest
+	(*QueryPlan)(nil),                                               // 10: chalk.server.v1.QueryPlan
+	(*GetQueryPlanResponse)(nil),                                    // 11: chalk.server.v1.GetQueryPlanResponse
+	(*AggregatedQueryError)(nil),                                    // 12: chalk.server.v1.AggregatedQueryError
+	(*AggregateQueryErrorsRequest)(nil),                             // 13: chalk.server.v1.AggregateQueryErrorsRequest
+	(*AggregateQueryErrorsResponse)(nil),                            // 14: chalk.server.v1.AggregateQueryErrorsResponse
+	(*MetaQueryRun)(nil),                                            // 15: chalk.server.v1.MetaQueryRun
+	(*MetaQueryRunWithMeta)(nil),                                    // 16: chalk.server.v1.MetaQueryRunWithMeta
+	(*ListMetaQueryRunsRequest)(nil),                                // 17: chalk.server.v1.ListMetaQueryRunsRequest
+	(*ListMetaQueryRunsResponse)(nil),                               // 18: chalk.server.v1.ListMetaQueryRunsResponse
+	(*MetaQuery)(nil),                                               // 19: chalk.server.v1.MetaQuery
+	(*ListMetaQueriesRequest)(nil),                                  // 20: chalk.server.v1.ListMetaQueriesRequest
+	(*ListMetaQueriesResponse)(nil),                                 // 21: chalk.server.v1.ListMetaQueriesResponse
+	(*ListLatestMetaQueriesRequest)(nil),                            // 22: chalk.server.v1.ListLatestMetaQueriesRequest
+	(*ListLatestMetaQueriesResponse)(nil),                           // 23: chalk.server.v1.ListLatestMetaQueriesResponse
+	(*GetMetaQueryRequest)(nil),                                     // 24: chalk.server.v1.GetMetaQueryRequest
+	(*GetMetaQueryResponse)(nil),                                    // 25: chalk.server.v1.GetMetaQueryResponse
+	(*GetMetaQueryByNameRequest)(nil),                               // 26: chalk.server.v1.GetMetaQueryByNameRequest
+	(*GetMetaQueryByNameResponse)(nil),                              // 27: chalk.server.v1.GetMetaQueryByNameResponse
+	(*ListMetaQueriesByIdsRequest)(nil),                             // 28: chalk.server.v1.ListMetaQueriesByIdsRequest
+	(*ListMetaQueriesByIdsResponse)(nil),                            // 29: chalk.server.v1.ListMetaQueriesByIdsResponse
+	(*ListArchivedMetaQueriesRequest)(nil),                          // 30: chalk.server.v1.ListArchivedMetaQueriesRequest
+	(*ListArchivedMetaQueriesResponse)(nil),                         // 31: chalk.server.v1.ListArchivedMetaQueriesResponse
+	(*ListMetaQueriesForResolverRequest)(nil),                       // 32: chalk.server.v1.ListMetaQueriesForResolverRequest
+	(*ListMetaQueriesForResolverResponse)(nil),                      // 33: chalk.server.v1.ListMetaQueriesForResolverResponse
+	(*ListMetaQueriesForFeatureRequest)(nil),                        // 34: chalk.server.v1.ListMetaQueriesForFeatureRequest
+	(*ListMetaQueriesForFeatureResponse)(nil),                       // 35: chalk.server.v1.ListMetaQueriesForFeatureResponse
+	(*ListMetaQueryVersionsRequest)(nil),                            // 36: chalk.server.v1.ListMetaQueryVersionsRequest
+	(*ListMetaQueryVersionsResponse)(nil),                           // 37: chalk.server.v1.ListMetaQueryVersionsResponse
+	(*QueryRun)(nil),                                                // 38: chalk.server.v1.QueryRun
+	(*GetQueryRunRequest)(nil),                                      // 39: chalk.server.v1.GetQueryRunRequest
+	(*GetQueryRunResponse)(nil),                                     // 40: chalk.server.v1.GetQueryRunResponse
+	(*GetStreamingResolverMappingPlanRequest)(nil),                  // 41: chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	(*GetStreamingResolverMappingPlanResponse)(nil),                 // 42: chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	(*GetStreamingResolverSinkPlanRequest)(nil),                     // 43: chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	(*GetStreamingResolverSinkPlanResponse)(nil),                    // 44: chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	(*GetStreamingResolverMaterializedAggregationPlanRequest)(nil),  // 45: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	(*GetStreamingResolverMaterializedAggregationPlanResponse)(nil), // 46: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	(*timestamppb.Timestamp)(nil),                                   // 47: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                                     // 48: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),                                 // 49: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_queries_proto_depIdxs = []int32{
-	38, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
-	38, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
-	38, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	38, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	47, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
+	47, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
+	47, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	47, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
 	3,  // 4: chalk.server.v1.ListQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
 	4,  // 5: chalk.server.v1.ListQueryErrorsResponse.query_errors:type_name -> chalk.server.v1.QueryErrorMeta
-	38, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
-	38, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
-	39, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
+	47, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	47, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	48, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
 	3,  // 9: chalk.server.v1.GetQueryErrorsChartRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	40, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	38, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
+	49, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	47, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
 	10, // 12: chalk.server.v1.GetQueryPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
 	4,  // 13: chalk.server.v1.AggregatedQueryError.sample_error:type_name -> chalk.server.v1.QueryErrorMeta
-	38, // 14: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
-	38, // 15: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
-	38, // 16: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	38, // 17: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	47, // 14: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
+	47, // 15: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
+	47, // 16: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	47, // 17: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
 	3,  // 18: chalk.server.v1.AggregateQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
 	12, // 19: chalk.server.v1.AggregateQueryErrorsResponse.aggregated_errors:type_name -> chalk.server.v1.AggregatedQueryError
-	38, // 20: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
+	47, // 20: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
 	15, // 21: chalk.server.v1.MetaQueryRunWithMeta.run:type_name -> chalk.server.v1.MetaQueryRun
-	38, // 22: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
-	38, // 23: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
-	38, // 24: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
+	47, // 22: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
+	47, // 23: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
+	47, // 24: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
 	16, // 25: chalk.server.v1.ListMetaQueryRunsResponse.query_runs:type_name -> chalk.server.v1.MetaQueryRunWithMeta
-	38, // 26: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
-	38, // 27: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
-	38, // 28: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
-	38, // 29: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	38, // 30: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
-	38, // 31: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
+	47, // 26: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
+	47, // 27: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
+	47, // 28: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
+	47, // 29: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	47, // 30: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	47, // 31: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
 	19, // 32: chalk.server.v1.ListMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
 	19, // 33: chalk.server.v1.ListLatestMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
 	19, // 34: chalk.server.v1.GetMetaQueryResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
@@ -3134,43 +3833,57 @@ var file_chalk_server_v1_queries_proto_depIdxs = []int32{
 	19, // 37: chalk.server.v1.ListArchivedMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
 	19, // 38: chalk.server.v1.ListMetaQueriesForResolverResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
 	19, // 39: chalk.server.v1.ListMetaQueriesForFeatureResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	38, // 40: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
+	47, // 40: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
 	19, // 41: chalk.server.v1.ListMetaQueryVersionsResponse.meta_query_versions:type_name -> chalk.server.v1.MetaQuery
-	0,  // 42: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
-	5,  // 43: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
-	7,  // 44: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
-	9,  // 45: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
-	13, // 46: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
-	17, // 47: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
-	20, // 48: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
-	22, // 49: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
-	24, // 50: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
-	26, // 51: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
-	28, // 52: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
-	30, // 53: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
-	32, // 54: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
-	34, // 55: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
-	36, // 56: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
-	1,  // 57: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
-	6,  // 58: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
-	8,  // 59: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
-	11, // 60: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
-	14, // 61: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
-	18, // 62: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
-	21, // 63: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
-	23, // 64: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
-	25, // 65: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
-	27, // 66: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
-	29, // 67: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
-	31, // 68: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
-	33, // 69: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
-	35, // 70: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
-	37, // 71: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
-	57, // [57:72] is the sub-list for method output_type
-	42, // [42:57] is the sub-list for method input_type
-	42, // [42:42] is the sub-list for extension type_name
-	42, // [42:42] is the sub-list for extension extendee
-	0,  // [0:42] is the sub-list for field type_name
+	47, // 42: chalk.server.v1.QueryRun.created_at:type_name -> google.protobuf.Timestamp
+	47, // 43: chalk.server.v1.GetQueryRunRequest.approximate_timestamp:type_name -> google.protobuf.Timestamp
+	38, // 44: chalk.server.v1.GetQueryRunResponse.query_run:type_name -> chalk.server.v1.QueryRun
+	10, // 45: chalk.server.v1.GetStreamingResolverMappingPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	10, // 46: chalk.server.v1.GetStreamingResolverSinkPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	10, // 47: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	0,  // 48: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
+	5,  // 49: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
+	7,  // 50: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
+	9,  // 51: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
+	13, // 52: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
+	17, // 53: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
+	20, // 54: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
+	22, // 55: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
+	24, // 56: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
+	26, // 57: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
+	28, // 58: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
+	30, // 59: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
+	32, // 60: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
+	34, // 61: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
+	36, // 62: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
+	39, // 63: chalk.server.v1.QueriesService.GetQueryRun:input_type -> chalk.server.v1.GetQueryRunRequest
+	41, // 64: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:input_type -> chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	43, // 65: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:input_type -> chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	45, // 66: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:input_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	1,  // 67: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
+	6,  // 68: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
+	8,  // 69: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
+	11, // 70: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
+	14, // 71: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
+	18, // 72: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
+	21, // 73: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
+	23, // 74: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
+	25, // 75: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
+	27, // 76: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
+	29, // 77: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
+	31, // 78: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
+	33, // 79: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
+	35, // 80: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
+	37, // 81: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
+	40, // 82: chalk.server.v1.QueriesService.GetQueryRun:output_type -> chalk.server.v1.GetQueryRunResponse
+	42, // 83: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:output_type -> chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	44, // 84: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:output_type -> chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	46, // 85: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:output_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	67, // [67:86] is the sub-list for method output_type
+	48, // [48:67] is the sub-list for method input_type
+	48, // [48:48] is the sub-list for extension type_name
+	48, // [48:48] is the sub-list for extension extendee
+	0,  // [0:48] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_queries_proto_init() }
@@ -3193,13 +3906,15 @@ func file_chalk_server_v1_queries_proto_init() {
 	file_chalk_server_v1_queries_proto_msgTypes[20].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[22].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[38].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[39].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_server_v1_queries_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   38,
+			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
