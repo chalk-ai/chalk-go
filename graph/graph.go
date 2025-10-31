@@ -209,15 +209,31 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		streamResolvers[proto.Fqn] = proto
 	}
 
-	newFeatureSets := make([]*graphv1.FeatureSet, len(nameToFeatureSet))
-	size := len(g.FeatureSets)
+	// Count how many new feature sets we're adding
+	numNew := 0
+	for _, extras := range nameToFeatureSet {
+		if extras.graphIndex == -1 {
+			numNew++
+		}
+	}
+
+	// Allocate slice with correct size: existing + new
+	newFeatureSets := make([]*graphv1.FeatureSet, len(g.FeatureSets)+numNew)
+
+	// First, copy existing feature sets that we're replacing
+	for _, extras := range nameToFeatureSet {
+		if extras.graphIndex != -1 {
+			newFeatureSets[extras.graphIndex] = extras.proto
+		}
+	}
+
+	// Then, append new feature sets
+	newIdx := len(g.FeatureSets)
 	for name, extras := range nameToFeatureSet {
 		if extras.graphIndex == -1 {
-			newFeatureSets[size] = extras.proto
-			size++
+			newFeatureSets[newIdx] = extras.proto
+			newIdx++
 			log.Printf("   ✅ Added new FeatureSet: %s", name)
-		} else {
-			newFeatureSets[extras.graphIndex] = extras.proto
 		}
 	}
 	g.FeatureSets = newFeatureSets
