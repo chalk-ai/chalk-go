@@ -57,7 +57,18 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		cfg.Logger = DefaultLeveledLogger
 	}
 	if cfg.HTTPClient == nil {
-		cfg.HTTPClient = http.DefaultClient
+		if cfg.InsecureSkipVerify {
+			// Create HTTP client with TLS config that skips certificate verification
+			cfg.HTTPClient = &http.Client{
+				Transport: &http.Transport{
+					TLSClientConfig: &tls.Config{
+						InsecureSkipVerify: true,
+					},
+				},
+			}
+		} else {
+			cfg.HTTPClient = http.DefaultClient
+		}
 	}
 	if cfg.Allocator == nil {
 		cfg.Allocator = memory.DefaultAllocator
@@ -106,8 +117,17 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		cfg.HTTPClient = &http.Client{
 			Transport: &http2.Transport{
 				AllowHTTP: true,
-				DialTLSContext: func(_ context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+				DialTLSContext: func(_ context.Context, network, addr string, tlsConfig *tls.Config) (net.Conn, error) {
 					return net.Dial(network, addr)
+				},
+			},
+		}
+	} else if cfg.InsecureSkipVerify {
+		// For HTTPS with InsecureSkipVerify, we need HTTP/2 support
+		cfg.HTTPClient = &http.Client{
+			Transport: &http2.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true,
 				},
 			},
 		}

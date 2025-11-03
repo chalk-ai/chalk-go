@@ -198,6 +198,12 @@ type GRPCClientConfig struct {
 	// JWT is a valid Chalk JWT that can be used to authenticate requests
 	// uncommon to be used, prefer ClientId and ClientSecret instead.
 	JWT *serverv1.GetTokenResponse
+
+	// InsecureSkipVerify controls whether the client verifies the server's
+	// certificate chain and host name. If true, accepts any certificate
+	// presented by the server and any host name in that certificate.
+	// This should only be used for testing or in controlled environments.
+	InsecureSkipVerify bool
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.
