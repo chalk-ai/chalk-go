@@ -721,6 +721,8 @@ type StreamResolver struct {
 	MachineType string
 	// if provided, only run in these environments (defaults to all)
 	RunInEnvironments []string
+	// if provided, evaluate this expression against incoming messages to either parse or filter
+	Parse expr.Expr
 }
 
 func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
@@ -765,6 +767,30 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 		i++
 	}
 
+	var parseInfo *graphv1.ParseInfo
+	if sr.Parse != nil {
+		exproto, err := expr.ToProto(sr.Parse)
+		if err != nil {
+			return nil, err
+		}
+		parseInfo = &graphv1.ParseInfo{
+			ParseFunction: &graphv1.FunctionReference{
+				Name:               "_dummy_parse_fn",
+				Module:             "chalk.features.resolver",
+				FileName:           "chalk/chalk/features/resolver.py",
+				FunctionDefinition: "    def _dummy_parse_fn(*args: Any, **kwargs: Any):\n        raise ValueError(\n            f\"Stream resolver '{name}' has expression-based parse function so it can't be called directly.\"\n        )\n",
+			},
+			ParseFunctionInputType: &arrowv1.ArrowType{
+				ArrowTypeEnum: &arrowv1.ArrowType_LargeBinary{},
+			},
+			ParseFunctionOutputType:       messageSchema,
+			IsParseFunctionOutputOptional: TRUE,
+			ParseExpression: &graphv1.ParseInfo_UnderscoreExpr{
+				UnderscoreExpr: exproto,
+			},
+		}
+	}
+
 	return &graphv1.StreamResolver{
 		Fqn:                             strcase.ToSnake(sr.Name),
 		Environments:                    sr.RunInEnvironments,
@@ -796,5 +822,6 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 				},
 			},
 		},
+		ParseInfo: parseInfo,
 	}, nil
 }

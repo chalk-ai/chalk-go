@@ -224,6 +224,12 @@ func TestDuplicateFeatureTimeNotAllowed(t *testing.T) {
 		With("at", FeatureTime))
 }
 
+func TestWithForeignKey(t *testing.T) {
+	assertInvalid(t, FeatureSet{Name: "event"}.
+		WithPrimary("id", Int).
+		WithForeignKey("other_id", "DoesNotExist"))
+}
+
 func TestMaxByN(t *testing.T) {
 	_, err := Definitions{}.WithFeatureSets(
 		FeatureSet{Name: "Transaction"}.
@@ -236,7 +242,7 @@ func TestMaxByN(t *testing.T) {
 			WithPrimary("id", Int).
 			With("transactions", DataFrame("Transaction")).
 			With("top_5_txns", Windowed(List(Int), Days(30), Days(60), Days(90)).
-				WithDefault(expr.Int(0)).
+				WithDefault(expr.Int(0)). //
 				WithBucketDuration(Days(1)).
 				WithExpr(expr.DataFrame("transactions").
 					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
@@ -551,6 +557,7 @@ func TestStreamResolverValid(t *testing.T) {
 					"is_approve": "bool",
 					"timestamp":  "datetime",
 				},
+				Parse: expr.IfElse(expr.GetJsonValue(expr.Col("_"), expr.String("$.is_approve")), expr.Col("_"), expr.Null()),
 			},
 		)
 
