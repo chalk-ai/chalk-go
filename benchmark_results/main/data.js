@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762154346887,
+  "lastUpdate": 1762227144518,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -27624,6 +27624,60 @@ window.BENCHMARK_DATA = {
             "value": 325,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d9e152841d9d294f73f18e81d6304e891e47ce92",
+          "message": "Merge pull request #503 from chalk-ai/ab/foreign-key-fix\n\navoid adding duplicate foreign id feature",
+          "timestamp": "2025-11-03T19:31:26-08:00",
+          "tree_id": "3cdebe62933fd0257369d8f2489dcc9ddcbca355",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/d9e152841d9d294f73f18e81d6304e891e47ce92"
+        },
+        "date": 1762227144444,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.155,
+            "unit": "ms/op",
+            "extra": "1083 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114.7,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 46.13,
+            "unit": "ms/op",
+            "extra": "25 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 202.2,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 312.8,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
