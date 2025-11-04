@@ -530,34 +530,79 @@ func TestApproxTopKMustBeListError(t *testing.T) {
 	assert.Error(t, err)
 }
 
+/*
+from pydantic import BaseModel
+
+from chalk import functions as F
+from chalk import features
+from chalk.features import _
+from chalk.features.resolver import make_stream_resolver
+from chalk.streams import KafkaSource
+
+@features
+class Transaction:
+
+	id: int
+	user_id: str
+	amount: float
+
+class TxnMessage(BaseModel):
+
+	id: int
+	user_id: str
+	amount: float
+
+parse_expression = F.if_then_else(
+
+	F.json_value(_, "$.amount") > 0,
+	_,
+	None,
+
+)
+
+kafka_source = KafkaSource(...)
+
+streaming_resolver = make_stream_resolver(
+
+	name="get_txn_stream",
+	source=kafka_source,
+	message_type=TxnMessage,
+	parse=parse_expression,
+	output_features={
+	    Transaction.id: _.id,
+	    Transaction.user_id: _.user_id,
+	    Transaction.amount: _.amount,
+	},
+
+)
+*/
 func TestStreamResolverValid(t *testing.T) {
-	evalRecordFS := FeatureSet{Name: "eval_record"}.
-		WithPrimary("id", String).
+	transactionFS := FeatureSet{Name: "Transaction"}.
+		WithPrimary("id", Int).
 		WithAll(Features{
-			"decision":   String,
-			"is_approve": Boolean,
-			"eval_at":    Datetime,
+			"user_id": String,
+			"amount":  Float,
 		})
 
 	defs := Definitions{}.
-		WithFeatureSets(evalRecordFS).
+		WithFeatureSets(transactionFS).
 		WithStreamResolvers(
 			StreamResolver{
-				Name:             "eval_record_stream",
+				Name:             "get_txn_stream",
 				StreamSourceName: "kafka_source",
 				StreamSourceType: "kafka",
-				OutputFeatureSet: "eval_record",
+				OutputFeatureSet: "transaction",
 				OutputFeatures: map[string]expr.Expr{
-					"decision":   expr.Col("decision"),
-					"is_approve": expr.Col("is_approve"),
-					"eval_at":    expr.Col("timestamp"),
+					"id":      expr.Col("id"),
+					"user_id": expr.Col("user_id"),
+					"amount":  expr.Col("amount"),
 				},
 				MessageType: map[string]string{
-					"decision":   "str",
-					"is_approve": "bool",
-					"timestamp":  "datetime",
+					"id":      "int",
+					"user_id": "str",
+					"amount":  "float",
 				},
-				Parse: expr.IfElse(expr.GetJsonValue(expr.Col("_"), expr.String("$.is_approve")), expr.Col("_"), expr.Null()),
+				Parse: expr.IfElse(expr.GetJsonValue(expr.Col("_"), expr.String("$.amount")).Gt(expr.Float(0)), expr.Col("_"), expr.Null()),
 			},
 		)
 
