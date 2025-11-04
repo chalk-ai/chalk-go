@@ -166,6 +166,11 @@ func checkCorrectNumFeatures(t *testing.T, graph *graphv1.Graph, nameToNumFeatur
 	for _, fs := range graph.FeatureSets {
 		num, ok := nameToNumFeatures[fs.Name]
 		if ok {
+			println(fs.Name)
+			for _, f := range fs.Features {
+				println(FeatureName(f))
+			}
+			println()
 			assert.Equal(t, num, len(fs.Features), "incorrect number of features in %s", fs.Name)
 		}
 	}
@@ -237,7 +242,7 @@ func TestMaxByN(t *testing.T) {
 			WithPrimary("id", Int).
 			With("transactions", DataFrame("Transaction")).
 			With("top_5_txns", Windowed(List(Int), Days(30), Days(60), Days(90)).
-				WithDefault(expr.Int(0)).
+				WithDefault(expr.Int(0)). //
 				WithBucketDuration(Days(1)).
 				WithExpr(expr.DataFrame("transactions").
 					Filter(expr.Col("at").Gt(expr.ChalkWindow())).
@@ -247,4 +252,361 @@ func TestMaxByN(t *testing.T) {
 				)),
 	).ToGraph()
 	assert.NoError(t, err)
+}
+
+func TestForeignKeyWithExpr(t *testing.T) {
+	graph, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("user_id", Int.Expr(expr.Int64(69))),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int),
+	).ToGraph()
+	assert.NoError(t, err)
+	checkCorrectNumFeatures(t, graph, map[string]int{
+		"user":        3,
+		"transaction": 4,
+	})
+}
+
+func TestHasOneRelationship(t *testing.T) {
+	_, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Transaction"}.
+			WithPrimary("id", Int).
+			With("user_id", Int).
+			With("user", HasOne("User", expr.ColIn("User", "id").Eq(expr.ColIn("Transaction", "user_id")))),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int),
+	).ToGraph()
+	assert.NoError(t, err)
+}
+
+func TestDuplicatePrimaryKeyError(t *testing.T) {
+	fs := FeatureSet{Name: "User"}.
+		WithPrimary("id", Int).
+		WithPrimary("other_id", Int)
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestDuplicateFeatureNameError(t *testing.T) {
+	fs := FeatureSet{Name: "User"}.
+		WithPrimary("id", Int).
+		With("name", String).
+		With("name", String)
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestTsFieldMustBeDatetimeError(t *testing.T) {
+	fs := FeatureSet{Name: "Event"}.
+		WithPrimary("id", Int).
+		With("ts", Int)
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestPrimaryKeyMustBeScalarError(t *testing.T) {
+	fs := FeatureSet{Name: "User"}.
+		WithPrimary("id", DataFrame("Other"))
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestWindowedMissingDataFrameError(t *testing.T) {
+	fs := FeatureSet{Name: "User"}.
+		WithPrimary("id", Int).
+		With("event_count", Windowed(Int, Minutes(5)).
+			WithExpr(expr.DataFrame("events").Agg("count")))
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestWindowedMustBeScalarError(t *testing.T) {
+	fs := FeatureSet{Name: "User"}.
+		WithPrimary("id", Int).
+		With("events", DataFrame("Event")).
+		With("bad", Windowed(DataFrame("Event"), Minutes(5)).
+			WithExpr(expr.DataFrame("events").Agg("count")))
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestForeignKeyNonExistentError(t *testing.T) {
+	fs := FeatureSet{Name: "Event"}.
+		WithPrimary("id", Int).
+		WithForeignKey("other_id", "DoesNotExist")
+
+	_, err := Definitions{}.WithFeatureSets(fs).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestStreamResolverInvalidSourceTypeError(t *testing.T) {
+	evalRecordFS := FeatureSet{Name: "eval_record"}.
+		WithPrimary("id", String).
+		With("decision", String)
+
+	defs := Definitions{}.
+		WithFeatureSets(evalRecordFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "eval_record_stream",
+				StreamSourceName: "invalid_source",
+				StreamSourceType: "invalid",
+				OutputFeatureSet: "eval_record",
+				OutputFeatures: map[string]expr.Expr{
+					"decision": expr.Col("decision"),
+				},
+				MessageType: map[string]string{
+					"decision": "str",
+				},
+			},
+		)
+
+	_, err := defs.ToGraph()
+	assert.Error(t, err)
+}
+
+func TestStreamResolverMissingFeatureSetError(t *testing.T) {
+	defs := Definitions{}.
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "eval_record_stream",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "nonexistent",
+				OutputFeatures: map[string]expr.Expr{
+					"decision": expr.Col("decision"),
+				},
+				MessageType: map[string]string{
+					"decision": "str",
+				},
+			},
+		)
+
+	_, err := defs.ToGraph()
+	assert.Error(t, err)
+}
+
+func TestStreamResolverMissingOutputFeatureError(t *testing.T) {
+	evalRecordFS := FeatureSet{Name: "eval_record"}.
+		WithPrimary("id", String).
+		With("decision", String)
+
+	defs := Definitions{}.
+		WithFeatureSets(evalRecordFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "eval_record_stream",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "eval_record",
+				OutputFeatures: map[string]expr.Expr{
+					"decision":    expr.Col("decision"),
+					"nonexistent": expr.Col("nonexistent"),
+				},
+				MessageType: map[string]string{
+					"decision":    "str",
+					"nonexistent": "str",
+				},
+			},
+		)
+
+	_, err := defs.ToGraph()
+	assert.Error(t, err)
+}
+
+func TestStreamResolverEmptyNameError(t *testing.T) {
+	evalRecordFS := FeatureSet{Name: "eval_record"}.
+		WithPrimary("id", String).
+		With("decision", String)
+
+	defs := Definitions{}.
+		WithFeatureSets(evalRecordFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "eval_record",
+				OutputFeatures: map[string]expr.Expr{
+					"decision": expr.Col("decision"),
+				},
+				MessageType: map[string]string{
+					"decision": "str",
+				},
+			},
+		)
+
+	_, err := defs.ToGraph()
+	assert.Error(t, err)
+}
+
+func TestStreamResolverDotsInNameError(t *testing.T) {
+	evalRecordFS := FeatureSet{Name: "eval_record"}.
+		WithPrimary("id", String).
+		With("decision", String)
+
+	defs := Definitions{}.
+		WithFeatureSets(evalRecordFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "eval.record.stream",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "eval_record",
+				OutputFeatures: map[string]expr.Expr{
+					"decision": expr.Col("decision"),
+				},
+				MessageType: map[string]string{
+					"decision": "str",
+				},
+			},
+		)
+
+	_, err := defs.ToGraph()
+	assert.Error(t, err)
+}
+
+func TestSingletonFeatureSet(t *testing.T) {
+	graph, err := Definitions{}.WithFeatureSets(
+		FeatureSet{
+			Name:        "Config",
+			IsSingleton: true,
+		}.With("api_key", String),
+	).ToGraph()
+	assert.NoError(t, err)
+
+	configFS := getFeatureSetNamed(graph, "config")
+	assert.NotNil(t, configFS)
+	assert.True(t, configFS.IsSingleton)
+
+	err = checkHasFeatures(configFS, "__chalk_fk_singleton__")
+	assert.Error(t, err, "singleton should not have __chalk_fk_singleton__")
+
+	assert.NoError(t, checkHasFeatures(configFS, "api_key"))
+}
+
+func TestWindowedNonCountWithoutSelectionError(t *testing.T) {
+	_, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Event"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("amount", Float),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("events", DataFrame("Event")).
+			With("total", Windowed(Float, Days(1)).
+				WithExpr(expr.DataFrame("events").Agg("sum"))),
+	).ToGraph()
+	assert.Error(t, err)
+}
+
+func TestApproxTopKMustBeListError(t *testing.T) {
+	_, err := Definitions{}.WithFeatureSets(
+		FeatureSet{Name: "Event"}.
+			WithPrimary("id", Int).
+			WithForeignKey("user_id", "User").
+			With("item", String),
+
+		FeatureSet{Name: "User"}.
+			WithPrimary("id", Int).
+			With("events", DataFrame("Event")).
+			With("top_items", Windowed(String, Days(1)).
+				WithExpr(expr.DataFrame("events").
+					Select(expr.Col("item")).
+					Agg("approx_top_k", expr.Int64(5)))),
+	).ToGraph()
+	assert.Error(t, err)
+}
+
+/*
+from pydantic import BaseModel
+
+from chalk import functions as F
+from chalk import features
+from chalk.features import _
+from chalk.features.resolver import make_stream_resolver
+from chalk.streams import KafkaSource
+
+@features
+class Transaction:
+
+	id: int
+	user_id: str
+	amount: float
+
+class TxnMessage(BaseModel):
+
+	id: int
+	user_id: str
+	amount: float
+
+parse_expression = F.if_then_else(
+
+	F.json_value(_, "$.amount") > 0,
+	_,
+	None,
+
+)
+
+kafka_source = KafkaSource(...)
+
+streaming_resolver = make_stream_resolver(
+
+	name="get_txn_stream",
+	source=kafka_source,
+	message_type=TxnMessage,
+	parse=parse_expression,
+	output_features={
+	    Transaction.id: _.id,
+	    Transaction.user_id: _.user_id,
+	    Transaction.amount: _.amount,
+	},
+
+)
+*/
+func TestStreamResolverValid(t *testing.T) {
+	transactionFS := FeatureSet{Name: "Transaction"}.
+		WithPrimary("id", Int).
+		WithAll(Features{
+			"user_id": String,
+			"amount":  Float,
+		})
+
+	defs := Definitions{}.
+		WithFeatureSets(transactionFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "get_txn_stream",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "transaction",
+				OutputFeatures: map[string]expr.Expr{
+					"id":      expr.Col("id"),
+					"user_id": expr.Col("user_id"),
+					"amount":  expr.Col("amount"),
+				},
+				MessageType: map[string]string{
+					"id":      "int",
+					"user_id": "str",
+					"amount":  "float",
+				},
+				Parse: expr.IfElse(expr.GetJsonValue(expr.Col("_"), expr.String("$.amount")).Gt(expr.Float(0)), expr.Col("_"), expr.Null()),
+			},
+		)
+
+	graph, err := defs.ToGraph()
+	assert.NoError(t, err)
+	assert.Len(t, graph.StreamResolvers, 1)
 }
