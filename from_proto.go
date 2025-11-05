@@ -88,7 +88,7 @@ func serverErrorFromProto(e *commonv1.ChalkError) (*ServerError, error) {
 	}, nil
 }
 
-func serverErrorsFromProto(e []*commonv1.ChalkError) (serverErrorsT, error) {
+func serverErrorsFromProto(e []*commonv1.ChalkError) (ServerErrors, error) {
 	var errs []ServerError
 	for _, err := range e {
 		s, err := serverErrorFromProto(err)

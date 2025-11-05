@@ -17,7 +17,7 @@ type onlineQueryResultFeather struct {
 	HasData    bool
 	ScalarData arrow.Table
 	GroupsData map[Fqn]arrow.Table
-	Errors     serverErrorsT
+	Errors     ServerErrors
 	Meta       *QueryMeta
 }
 

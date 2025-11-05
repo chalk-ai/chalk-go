@@ -711,7 +711,7 @@ type Dataset struct {
 	DatasetName   *string           `json:"dataset_name"`
 	EnvironmentID string            `json:"environment_id"`
 	Revisions     []DatasetRevision `json:"revisions"`
-	Errors        serverErrorsT     `json:"errors"`
+	Errors        ServerErrors      `json:"errors"`
 
 	// client is used internally for the Wait method
 	client Client `json:"-"`
