@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762227144518,
+  "lastUpdate": 1762385757599,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -27678,6 +27678,60 @@ window.BENCHMARK_DATA = {
             "value": 312.8,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2f26e96f803e29fe09a60f91c0e08ef03c134d10",
+          "message": "Merge pull request #516 from chalk-ai/export-server-errors\n\nExport ServerErrors type for better error handling",
+          "timestamp": "2025-11-05T15:34:59-08:00",
+          "tree_id": "76623581f765ffef7607b56b27598db964ae01b3",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/2f26e96f803e29fe09a60f91c0e08ef03c134d10"
+        },
+        "date": 1762385757525,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.236,
+            "unit": "ms/op",
+            "extra": "975 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 115.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 38.07,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 229.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 384.9,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
