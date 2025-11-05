@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-type serverErrorsT []ServerError
+type ServerErrors []ServerError
 
-func (e serverErrorsT) Error() string {
+func (e ServerErrors) Error() string {
 	stringifiedServerErrors := make([]string, 0)
 	for _, err := range e {
 		stringifiedServerErrors = append(stringifiedServerErrors, err.Error())
