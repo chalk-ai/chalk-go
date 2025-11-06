@@ -47,6 +47,9 @@ const (
 	// GraphServiceGetCodegenFeaturesFromGraphProcedure is the fully-qualified name of the
 	// GraphService's GetCodegenFeaturesFromGraph RPC.
 	GraphServiceGetCodegenFeaturesFromGraphProcedure = "/chalk.server.v1.GraphService/GetCodegenFeaturesFromGraph"
+	// GraphServiceApplyGraphUpdatesProcedure is the fully-qualified name of the GraphService's
+	// ApplyGraphUpdates RPC.
+	GraphServiceApplyGraphUpdatesProcedure = "/chalk.server.v1.GraphService/ApplyGraphUpdates"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -59,6 +62,8 @@ type GraphServiceClient interface {
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
 	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
 	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
+	// ApplyGraphUpdates applies a series of mutations to a deployment's graph
+	ApplyGraphUpdates(context.Context, *connect.Request[v1.ApplyGraphUpdatesRequest]) (*connect.Response[v1.ApplyGraphUpdatesResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -106,6 +111,12 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		applyGraphUpdates: connect.NewClient[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse](
+			httpClient,
+			baseURL+GraphServiceApplyGraphUpdatesProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("ApplyGraphUpdates")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -116,6 +127,7 @@ type graphServiceClient struct {
 	getGraph                    *connect.Client[v1.GetGraphRequest, v1.GetGraphResponse]
 	updateGraph                 *connect.Client[v1.UpdateGraphRequest, v1.UpdateGraphResponse]
 	getCodegenFeaturesFromGraph *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
+	applyGraphUpdates           *connect.Client[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -143,6 +155,11 @@ func (c *graphServiceClient) GetCodegenFeaturesFromGraph(ctx context.Context, re
 	return c.getCodegenFeaturesFromGraph.CallUnary(ctx, req)
 }
 
+// ApplyGraphUpdates calls chalk.server.v1.GraphService.ApplyGraphUpdates.
+func (c *graphServiceClient) ApplyGraphUpdates(ctx context.Context, req *connect.Request[v1.ApplyGraphUpdatesRequest]) (*connect.Response[v1.ApplyGraphUpdatesResponse], error) {
+	return c.applyGraphUpdates.CallUnary(ctx, req)
+}
+
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
 type GraphServiceHandler interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -153,6 +170,8 @@ type GraphServiceHandler interface {
 	UpdateGraph(context.Context, *connect.Request[v1.UpdateGraphRequest]) (*connect.Response[v1.UpdateGraphResponse], error)
 	// GetCodegenFeaturesFromGraph returns Chalk features generated from the protograph
 	GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error)
+	// ApplyGraphUpdates applies a series of mutations to a deployment's graph
+	ApplyGraphUpdates(context.Context, *connect.Request[v1.ApplyGraphUpdatesRequest]) (*connect.Response[v1.ApplyGraphUpdatesResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -196,6 +215,12 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceApplyGraphUpdatesHandler := connect.NewUnaryHandler(
+		GraphServiceApplyGraphUpdatesProcedure,
+		svc.ApplyGraphUpdates,
+		connect.WithSchema(graphServiceMethods.ByName("ApplyGraphUpdates")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GraphServiceGetFeatureSQLProcedure:
@@ -208,6 +233,8 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceUpdateGraphHandler.ServeHTTP(w, r)
 		case GraphServiceGetCodegenFeaturesFromGraphProcedure:
 			graphServiceGetCodegenFeaturesFromGraphHandler.ServeHTTP(w, r)
+		case GraphServiceApplyGraphUpdatesProcedure:
+			graphServiceApplyGraphUpdatesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -235,4 +262,8 @@ func (UnimplementedGraphServiceHandler) UpdateGraph(context.Context, *connect.Re
 
 func (UnimplementedGraphServiceHandler) GetCodegenFeaturesFromGraph(context.Context, *connect.Request[v1.GetCodegenFeaturesFromGraphRequest]) (*connect.Response[v1.GetCodegenFeaturesFromGraphResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) ApplyGraphUpdates(context.Context, *connect.Request[v1.ApplyGraphUpdatesRequest]) (*connect.Response[v1.ApplyGraphUpdatesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.ApplyGraphUpdates is not implemented"))
 }
