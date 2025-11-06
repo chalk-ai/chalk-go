@@ -39,6 +39,9 @@ const (
 	// CloudComponentsServiceGetCloudComponentVpcProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetCloudComponentVpc RPC.
 	CloudComponentsServiceGetCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/GetCloudComponentVpc"
+	// CloudComponentsServiceListCloudComponentVpcProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListCloudComponentVpc RPC.
+	CloudComponentsServiceListCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/ListCloudComponentVpc"
 	// CloudComponentsServiceDeleteCloudComponentVpcProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentVpc RPC.
 	CloudComponentsServiceDeleteCloudComponentVpcProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentVpc"
@@ -51,6 +54,9 @@ const (
 	// CloudComponentsServiceGetCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetCloudComponentCluster RPC.
 	CloudComponentsServiceGetCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/GetCloudComponentCluster"
+	// CloudComponentsServiceListCloudComponentClusterProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListCloudComponentCluster RPC.
+	CloudComponentsServiceListCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/ListCloudComponentCluster"
 	// CloudComponentsServiceDeleteCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentCluster RPC.
 	CloudComponentsServiceDeleteCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentCluster"
@@ -60,6 +66,9 @@ const (
 	// CloudComponentsServiceGetCloudComponentStorageProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetCloudComponentStorage RPC.
 	CloudComponentsServiceGetCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/GetCloudComponentStorage"
+	// CloudComponentsServiceListCloudComponentStorageProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListCloudComponentStorage RPC.
+	CloudComponentsServiceListCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/ListCloudComponentStorage"
 	// CloudComponentsServiceDeleteCloudComponentStorageProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentStorage RPC.
 	CloudComponentsServiceDeleteCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentStorage"
@@ -99,13 +108,16 @@ const (
 type CloudComponentsServiceClient interface {
 	CreateCloudComponentVpc(context.Context, *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error)
 	GetCloudComponentVpc(context.Context, *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error)
+	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
+	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
 	DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error)
 	CreateCloudComponentStorage(context.Context, *connect.Request[v1.CreateCloudComponentStorageRequest]) (*connect.Response[v1.CreateCloudComponentStorageResponse], error)
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
+	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
@@ -142,6 +154,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listCloudComponentVpc: connect.NewClient[v1.ListCloudComponentVpcRequest, v1.ListCloudComponentVpcResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListCloudComponentVpcProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentVpc")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteCloudComponentVpc: connect.NewClient[v1.DeleteCloudComponentVpcRequest, v1.DeleteCloudComponentVpcResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteCloudComponentVpcProcedure,
@@ -167,6 +186,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listCloudComponentCluster: connect.NewClient[v1.ListCloudComponentClusterRequest, v1.ListCloudComponentClusterResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListCloudComponentClusterProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentCluster")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteCloudComponentCluster: connect.NewClient[v1.DeleteCloudComponentClusterRequest, v1.DeleteCloudComponentClusterResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteCloudComponentClusterProcedure,
@@ -183,6 +209,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceGetCloudComponentStorageProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetCloudComponentStorage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listCloudComponentStorage: connect.NewClient[v1.ListCloudComponentStorageRequest, v1.ListCloudComponentStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListCloudComponentStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentStorage")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -256,13 +289,16 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 type cloudComponentsServiceClient struct {
 	createCloudComponentVpc                             *connect.Client[v1.CreateCloudComponentVpcRequest, v1.CreateCloudComponentVpcResponse]
 	getCloudComponentVpc                                *connect.Client[v1.GetCloudComponentVpcRequest, v1.GetCloudComponentVpcResponse]
+	listCloudComponentVpc                               *connect.Client[v1.ListCloudComponentVpcRequest, v1.ListCloudComponentVpcResponse]
 	deleteCloudComponentVpc                             *connect.Client[v1.DeleteCloudComponentVpcRequest, v1.DeleteCloudComponentVpcResponse]
 	createCloudComponentCluster                         *connect.Client[v1.CreateCloudComponentClusterRequest, v1.CreateCloudComponentClusterResponse]
 	updateCloudComponentCluster                         *connect.Client[v1.UpdateCloudComponentClusterRequest, v1.UpdateCloudComponentClusterResponse]
 	getCloudComponentCluster                            *connect.Client[v1.GetCloudComponentClusterRequest, v1.GetCloudComponentClusterResponse]
+	listCloudComponentCluster                           *connect.Client[v1.ListCloudComponentClusterRequest, v1.ListCloudComponentClusterResponse]
 	deleteCloudComponentCluster                         *connect.Client[v1.DeleteCloudComponentClusterRequest, v1.DeleteCloudComponentClusterResponse]
 	createCloudComponentStorage                         *connect.Client[v1.CreateCloudComponentStorageRequest, v1.CreateCloudComponentStorageResponse]
 	getCloudComponentStorage                            *connect.Client[v1.GetCloudComponentStorageRequest, v1.GetCloudComponentStorageResponse]
+	listCloudComponentStorage                           *connect.Client[v1.ListCloudComponentStorageRequest, v1.ListCloudComponentStorageResponse]
 	deleteCloudComponentStorage                         *connect.Client[v1.DeleteCloudComponentStorageRequest, v1.DeleteCloudComponentStorageResponse]
 	createBindingClusterGateway                         *connect.Client[v1.CreateBindingClusterGatewayRequest, v1.CreateBindingClusterGatewayResponse]
 	getBindingClusterGateway                            *connect.Client[v1.GetBindingClusterGatewayRequest, v1.GetBindingClusterGatewayResponse]
@@ -283,6 +319,11 @@ func (c *cloudComponentsServiceClient) CreateCloudComponentVpc(ctx context.Conte
 // GetCloudComponentVpc calls chalk.server.v1.CloudComponentsService.GetCloudComponentVpc.
 func (c *cloudComponentsServiceClient) GetCloudComponentVpc(ctx context.Context, req *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error) {
 	return c.getCloudComponentVpc.CallUnary(ctx, req)
+}
+
+// ListCloudComponentVpc calls chalk.server.v1.CloudComponentsService.ListCloudComponentVpc.
+func (c *cloudComponentsServiceClient) ListCloudComponentVpc(ctx context.Context, req *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error) {
+	return c.listCloudComponentVpc.CallUnary(ctx, req)
 }
 
 // DeleteCloudComponentVpc calls chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc.
@@ -307,6 +348,11 @@ func (c *cloudComponentsServiceClient) GetCloudComponentCluster(ctx context.Cont
 	return c.getCloudComponentCluster.CallUnary(ctx, req)
 }
 
+// ListCloudComponentCluster calls chalk.server.v1.CloudComponentsService.ListCloudComponentCluster.
+func (c *cloudComponentsServiceClient) ListCloudComponentCluster(ctx context.Context, req *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error) {
+	return c.listCloudComponentCluster.CallUnary(ctx, req)
+}
+
 // DeleteCloudComponentCluster calls
 // chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster.
 func (c *cloudComponentsServiceClient) DeleteCloudComponentCluster(ctx context.Context, req *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error) {
@@ -322,6 +368,11 @@ func (c *cloudComponentsServiceClient) CreateCloudComponentStorage(ctx context.C
 // GetCloudComponentStorage calls chalk.server.v1.CloudComponentsService.GetCloudComponentStorage.
 func (c *cloudComponentsServiceClient) GetCloudComponentStorage(ctx context.Context, req *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error) {
 	return c.getCloudComponentStorage.CallUnary(ctx, req)
+}
+
+// ListCloudComponentStorage calls chalk.server.v1.CloudComponentsService.ListCloudComponentStorage.
+func (c *cloudComponentsServiceClient) ListCloudComponentStorage(ctx context.Context, req *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error) {
+	return c.listCloudComponentStorage.CallUnary(ctx, req)
 }
 
 // DeleteCloudComponentStorage calls
@@ -388,13 +439,16 @@ func (c *cloudComponentsServiceClient) DeleteBindingClusterTelemetryDeployment(c
 type CloudComponentsServiceHandler interface {
 	CreateCloudComponentVpc(context.Context, *connect.Request[v1.CreateCloudComponentVpcRequest]) (*connect.Response[v1.CreateCloudComponentVpcResponse], error)
 	GetCloudComponentVpc(context.Context, *connect.Request[v1.GetCloudComponentVpcRequest]) (*connect.Response[v1.GetCloudComponentVpcResponse], error)
+	ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error)
 	DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error)
 	CreateCloudComponentCluster(context.Context, *connect.Request[v1.CreateCloudComponentClusterRequest]) (*connect.Response[v1.CreateCloudComponentClusterResponse], error)
 	UpdateCloudComponentCluster(context.Context, *connect.Request[v1.UpdateCloudComponentClusterRequest]) (*connect.Response[v1.UpdateCloudComponentClusterResponse], error)
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
+	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
 	DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error)
 	CreateCloudComponentStorage(context.Context, *connect.Request[v1.CreateCloudComponentStorageRequest]) (*connect.Response[v1.CreateCloudComponentStorageResponse], error)
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
+	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
@@ -427,6 +481,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceListCloudComponentVpcHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListCloudComponentVpcProcedure,
+		svc.ListCloudComponentVpc,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentVpc")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceDeleteCloudComponentVpcHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceDeleteCloudComponentVpcProcedure,
 		svc.DeleteCloudComponentVpc,
@@ -452,6 +513,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceListCloudComponentClusterHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListCloudComponentClusterProcedure,
+		svc.ListCloudComponentCluster,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentCluster")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceDeleteCloudComponentClusterHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceDeleteCloudComponentClusterProcedure,
 		svc.DeleteCloudComponentCluster,
@@ -468,6 +536,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceGetCloudComponentStorageProcedure,
 		svc.GetCloudComponentStorage,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetCloudComponentStorage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListCloudComponentStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListCloudComponentStorageProcedure,
+		svc.ListCloudComponentStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentStorage")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -540,6 +615,8 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceCreateCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentVpcProcedure:
 			cloudComponentsServiceGetCloudComponentVpcHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListCloudComponentVpcProcedure:
+			cloudComponentsServiceListCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentVpcProcedure:
 			cloudComponentsServiceDeleteCloudComponentVpcHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateCloudComponentClusterProcedure:
@@ -548,12 +625,16 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceUpdateCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentClusterProcedure:
 			cloudComponentsServiceGetCloudComponentClusterHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListCloudComponentClusterProcedure:
+			cloudComponentsServiceListCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentClusterProcedure:
 			cloudComponentsServiceDeleteCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateCloudComponentStorageProcedure:
 			cloudComponentsServiceCreateCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentStorageProcedure:
 			cloudComponentsServiceGetCloudComponentStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListCloudComponentStorageProcedure:
+			cloudComponentsServiceListCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentStorageProcedure:
 			cloudComponentsServiceDeleteCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingClusterGatewayProcedure:
@@ -591,6 +672,10 @@ func (UnimplementedCloudComponentsServiceHandler) GetCloudComponentVpc(context.C
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetCloudComponentVpc is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentVpc(context.Context, *connect.Request[v1.ListCloudComponentVpcRequest]) (*connect.Response[v1.ListCloudComponentVpcResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListCloudComponentVpc is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentVpc(context.Context, *connect.Request[v1.DeleteCloudComponentVpcRequest]) (*connect.Response[v1.DeleteCloudComponentVpcResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc is not implemented"))
 }
@@ -607,6 +692,10 @@ func (UnimplementedCloudComponentsServiceHandler) GetCloudComponentCluster(conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetCloudComponentCluster is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListCloudComponentCluster is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster is not implemented"))
 }
@@ -617,6 +706,10 @@ func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentStorage(co
 
 func (UnimplementedCloudComponentsServiceHandler) GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetCloudComponentStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListCloudComponentStorage is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error) {

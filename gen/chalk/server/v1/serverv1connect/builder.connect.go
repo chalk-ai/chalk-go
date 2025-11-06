@@ -158,6 +158,9 @@ const (
 	// BuilderServiceCreateTelemetryDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's CreateTelemetryDeployment RPC.
 	BuilderServiceCreateTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateTelemetryDeployment"
+	// BuilderServiceUpdateTelemetryDeploymentProcedure is the fully-qualified name of the
+	// BuilderService's UpdateTelemetryDeployment RPC.
+	BuilderServiceUpdateTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/UpdateTelemetryDeployment"
 	// BuilderServiceDeleteTelemetryDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's DeleteTelemetryDeployment RPC.
 	BuilderServiceDeleteTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/DeleteTelemetryDeployment"
@@ -240,6 +243,7 @@ type BuilderServiceClient interface {
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
+	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
 	MigrateTelemetryDeployment(context.Context, *connect.Request[v1.MigrateTelemetryDeploymentRequest]) (*connect.Response[v1.MigrateTelemetryDeploymentResponse], error)
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
@@ -508,6 +512,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("CreateTelemetryDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		updateTelemetryDeployment: connect.NewClient[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateTelemetryDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateTelemetryDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 		deleteTelemetryDeployment: connect.NewClient[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceDeleteTelemetryDeploymentProcedure,
@@ -585,6 +595,7 @@ type builderServiceClient struct {
 	createDeployment                   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
 	getTelemetryDeployment             *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
 	createTelemetryDeployment          *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
+	updateTelemetryDeployment          *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
 	deleteTelemetryDeployment          *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
 	migrateTelemetryDeployment         *connect.Client[v1.MigrateTelemetryDeploymentRequest, v1.MigrateTelemetryDeploymentResponse]
 	getEnvironmentKubeClusters         *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
@@ -810,6 +821,11 @@ func (c *builderServiceClient) CreateTelemetryDeployment(ctx context.Context, re
 	return c.createTelemetryDeployment.CallUnary(ctx, req)
 }
 
+// UpdateTelemetryDeployment calls chalk.server.v1.BuilderService.UpdateTelemetryDeployment.
+func (c *builderServiceClient) UpdateTelemetryDeployment(ctx context.Context, req *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error) {
+	return c.updateTelemetryDeployment.CallUnary(ctx, req)
+}
+
 // DeleteTelemetryDeployment calls chalk.server.v1.BuilderService.DeleteTelemetryDeployment.
 func (c *builderServiceClient) DeleteTelemetryDeployment(ctx context.Context, req *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error) {
 	return c.deleteTelemetryDeployment.CallUnary(ctx, req)
@@ -894,6 +910,7 @@ type BuilderServiceHandler interface {
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
+	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
 	MigrateTelemetryDeployment(context.Context, *connect.Request[v1.MigrateTelemetryDeploymentRequest]) (*connect.Response[v1.MigrateTelemetryDeploymentResponse], error)
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
@@ -1158,6 +1175,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("CreateTelemetryDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceUpdateTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateTelemetryDeploymentProcedure,
+		svc.UpdateTelemetryDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateTelemetryDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceDeleteTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceDeleteTelemetryDeploymentProcedure,
 		svc.DeleteTelemetryDeployment,
@@ -1273,6 +1296,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateTelemetryDeploymentProcedure:
 			builderServiceCreateTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateTelemetryDeploymentProcedure:
+			builderServiceUpdateTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteTelemetryDeploymentProcedure:
 			builderServiceDeleteTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceMigrateTelemetryDeploymentProcedure:
@@ -1454,6 +1479,10 @@ func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context
 
 func (UnimplementedBuilderServiceHandler) CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateTelemetryDeployment is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error) {
