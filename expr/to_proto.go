@@ -170,10 +170,8 @@ func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 			expectedNumArgs = 1
 		case "min_by_n":
 			expectedNumArgs = 2
-			endsWithK = true
 		case "max_by_n":
 			expectedNumArgs = 2
-			endsWithK = true
 		}
 		if len(e.Arguments) != expectedNumArgs {
 			return nil, fmt.Errorf("expecting exactly %d arguments to %s, got %d", expectedNumArgs, e.Function, len(e.Arguments))

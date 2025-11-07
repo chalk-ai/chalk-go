@@ -660,7 +660,7 @@ func TestToProto(t *testing.T) {
 		},
 		{
 			name: "dataframe_filter_with_argk",
-			expr: DataFrame("transactions").Select(Col("name")).Agg("max_by_n", Col("timestamp"), Int(10)),
+			expr: DataFrame("transactions").Select(Col("name")).Agg("approx_top_k", Int(10)),
 			expected: &expressionv1.LogicalExprNode{
 				ExprForm: &expressionv1.LogicalExprNode_Call{
 					Call: &expressionv1.ExprCall{
@@ -668,7 +668,7 @@ func TestToProto(t *testing.T) {
 							ExprForm: &expressionv1.LogicalExprNode_GetAttribute{
 								GetAttribute: &expressionv1.ExprGetAttribute{
 									Attribute: &expressionv1.Identifier{
-										Name: "max_by_n",
+										Name: "approx_top_k",
 									},
 
 									Parent: &expressionv1.LogicalExprNode{
@@ -697,13 +697,6 @@ func TestToProto(t *testing.T) {
 							},
 						},
 						Args: []*expressionv1.LogicalExprNode{
-							{
-								ExprForm: &expressionv1.LogicalExprNode_Identifier{
-									Identifier: &expressionv1.Identifier{
-										Name: "timestamp",
-									},
-								},
-							},
 							{
 								ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
 									LiteralValue: &expressionv1.ExprLiteral{
