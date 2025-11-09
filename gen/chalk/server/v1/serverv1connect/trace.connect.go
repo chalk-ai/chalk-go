@@ -37,6 +37,10 @@ const (
 	TraceServiceGetTraceProcedure = "/chalk.server.v1.TraceService/GetTrace"
 	// TraceServiceListTraceProcedure is the fully-qualified name of the TraceService's ListTrace RPC.
 	TraceServiceListTraceProcedure = "/chalk.server.v1.TraceService/ListTrace"
+	// TraceServiceGetSpanProcedure is the fully-qualified name of the TraceService's GetSpan RPC.
+	TraceServiceGetSpanProcedure = "/chalk.server.v1.TraceService/GetSpan"
+	// TraceServiceListSpanProcedure is the fully-qualified name of the TraceService's ListSpan RPC.
+	TraceServiceListSpanProcedure = "/chalk.server.v1.TraceService/ListSpan"
 )
 
 // TraceServiceClient is a client for the chalk.server.v1.TraceService service.
@@ -45,6 +49,10 @@ type TraceServiceClient interface {
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
 	// ListTrace retrieves a list of traces with optional filtering
 	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
+	// GetSpan retrieves a specific span by span ID and trace ID
+	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
+	// ListSpan retrieves a list of spans for a specific trace with optional filtering
+	ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error)
 }
 
 // NewTraceServiceClient constructs a client for the chalk.server.v1.TraceService service. By
@@ -72,6 +80,20 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getSpan: connect.NewClient[v1.GetSpanRequest, v1.GetSpanResponse](
+			httpClient,
+			baseURL+TraceServiceGetSpanProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("GetSpan")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listSpan: connect.NewClient[v1.ListSpanRequest, v1.ListSpanResponse](
+			httpClient,
+			baseURL+TraceServiceListSpanProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("ListSpan")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -79,6 +101,8 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type traceServiceClient struct {
 	getTrace  *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
 	listTrace *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
+	getSpan   *connect.Client[v1.GetSpanRequest, v1.GetSpanResponse]
+	listSpan  *connect.Client[v1.ListSpanRequest, v1.ListSpanResponse]
 }
 
 // GetTrace calls chalk.server.v1.TraceService.GetTrace.
@@ -91,12 +115,26 @@ func (c *traceServiceClient) ListTrace(ctx context.Context, req *connect.Request
 	return c.listTrace.CallUnary(ctx, req)
 }
 
+// GetSpan calls chalk.server.v1.TraceService.GetSpan.
+func (c *traceServiceClient) GetSpan(ctx context.Context, req *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {
+	return c.getSpan.CallUnary(ctx, req)
+}
+
+// ListSpan calls chalk.server.v1.TraceService.ListSpan.
+func (c *traceServiceClient) ListSpan(ctx context.Context, req *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error) {
+	return c.listSpan.CallUnary(ctx, req)
+}
+
 // TraceServiceHandler is an implementation of the chalk.server.v1.TraceService service.
 type TraceServiceHandler interface {
 	// GetTrace retrieves a trace, optionally by operation ID
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
 	// ListTrace retrieves a list of traces with optional filtering
 	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
+	// GetSpan retrieves a specific span by span ID and trace ID
+	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
+	// ListSpan retrieves a list of spans for a specific trace with optional filtering
+	ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error)
 }
 
 // NewTraceServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -120,12 +158,30 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	traceServiceGetSpanHandler := connect.NewUnaryHandler(
+		TraceServiceGetSpanProcedure,
+		svc.GetSpan,
+		connect.WithSchema(traceServiceMethods.ByName("GetSpan")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceListSpanHandler := connect.NewUnaryHandler(
+		TraceServiceListSpanProcedure,
+		svc.ListSpan,
+		connect.WithSchema(traceServiceMethods.ByName("ListSpan")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TraceService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TraceServiceGetTraceProcedure:
 			traceServiceGetTraceHandler.ServeHTTP(w, r)
 		case TraceServiceListTraceProcedure:
 			traceServiceListTraceHandler.ServeHTTP(w, r)
+		case TraceServiceGetSpanProcedure:
+			traceServiceGetSpanHandler.ServeHTTP(w, r)
+		case TraceServiceListSpanProcedure:
+			traceServiceListSpanHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -141,4 +197,12 @@ func (UnimplementedTraceServiceHandler) GetTrace(context.Context, *connect.Reque
 
 func (UnimplementedTraceServiceHandler) ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListTrace is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetSpan is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListSpan is not implemented"))
 }
