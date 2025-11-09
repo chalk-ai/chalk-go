@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762545991710,
+  "lastUpdate": 1762670262236,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -27894,6 +27894,60 @@ window.BENCHMARK_DATA = {
             "value": 320.4,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "eb7c601204868b1bb7d129d7ed7c404294de1ae8",
+          "message": "Merge remote-tracking branch 'origin/main' into ab/CHA-7454-maxbyn-k-fix",
+          "timestamp": "2025-11-08T18:05:00-08:00",
+          "tree_id": "bc7fcb6270aee3dace1810c2f1f883f65771dcee",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/eb7c601204868b1bb7d129d7ed7c404294de1ae8"
+        },
+        "date": 1762670262163,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.594,
+            "unit": "ms/op",
+            "extra": "708 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 172.3,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 44.14,
+            "unit": "ms/op",
+            "extra": "25 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 261.6,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 510.4,
+            "unit": "ms/op",
+            "extra": "3 times\n4 procs"
           }
         ]
       }
