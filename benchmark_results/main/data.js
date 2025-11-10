@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762672794804,
+  "lastUpdate": 1762816294081,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28000,6 +28000,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 291.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "dpercy@chalk.ai",
+            "name": "David Percy",
+            "username": "dpercy"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cad647be8a66301bf636d13e10da92c81ed214ec",
+          "message": "Merge pull request #520 from chalk-ai/dpercy/add-inputs_sql-field-online-query\n\nAdd inputs_sql field to online query",
+          "timestamp": "2025-11-10T18:10:32-05:00",
+          "tree_id": "562c74b2384d2d639f463f7326511f865ab10992",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/cad647be8a66301bf636d13e10da92c81ed214ec"
+        },
+        "date": 1762816294005,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.336,
+            "unit": "ms/op",
+            "extra": "968 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 118.5,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 38.11,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 227.7,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 418.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
