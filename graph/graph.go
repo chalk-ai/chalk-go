@@ -14,6 +14,7 @@ import (
 	graphv2 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v2"
 	"github.com/iancoleman/strcase"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Definitions stores either Feature Set or Stream Resolver definitions
@@ -140,7 +141,11 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 					if !valid {
 						return fmt.Errorf("dataframe %s referenced nonexistant feature set %s", hm.Name, hm.ForeignNamespace)
 					}
-					foreignCol := expr.ColIn(hm.ForeignNamespace, foreignExtras.foreignKeys[namespace])
+					reverseKey, found := foreignExtras.foreignKeys[namespace]
+					if !found {
+						return fmt.Errorf("dataframe %s referenced feature set %s which does not have a has one relation with %s", hm.Name, hm.ForeignNamespace, namespace)
+					}
+					foreignCol := expr.ColIn(hm.ForeignNamespace, reverseKey)
 					primaryCol := expr.ColIn(namespace, extras.primaryName)
 					join, err := toFilterParsedProto(foreignCol.Eq(primaryCol), "")
 					if err != nil {
@@ -168,7 +173,7 @@ func (d Definitions) UpdateGraph(g *graphv1.Graph) error {
 		for featureSetName, foreignKeyName := range extras.foreignKeys {
 			foreignExtras, exists := nameToFeatureSet[featureSetName]
 			if !exists {
-				return fmt.Errorf("invalid foreign key %s", foreignKeyName)
+				return fmt.Errorf("invalid foreign key %s: %s is not a feature set", foreignKeyName, featureSetName)
 			}
 			// only add if the feature doesn't already exist
 			if !contains(foreignKeyName, extras.names) {
@@ -306,22 +311,31 @@ func (fs FeatureSet) WithAll(m Features) FeatureSet {
 	features := make([]*graphv1.FeatureType, len(fs.Features), len(fs.Features)+len(m))
 	copy(features, fs.Features)
 	// needed because windowed features reference has many features
+	// and hasone features may reference computed features
 	for name, ofType := range m {
-		_, check := ofType.(*WindowedFeatureBuilder)
-		if !check {
-			features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
-			if fs.err != nil {
-				return fs
-			}
+		switch ofType.(type) {
+		case *WindowedFeatureBuilder:
+			continue
+		case *HasOneFeatureBuilder:
+			continue
+		}
+
+		features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
+		if fs.err != nil {
+			return fs
 		}
 	}
 	for name, ofType := range m {
-		_, check := ofType.(*WindowedFeatureBuilder)
-		if check {
-			features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
-			if fs.err != nil {
-				return fs
-			}
+		switch ofType.(type) {
+		case *WindowedFeatureBuilder:
+		case *HasOneFeatureBuilder:
+		default:
+			continue
+		}
+
+		features, fs.err = ofType.appendFeatures(features, name, fs.namespace)
+		if fs.err != nil {
+			return fs
 		}
 	}
 	fs.Features = features
@@ -374,10 +388,7 @@ func (fs FeatureSet) WithForeignKey(name, relation string) FeatureSet {
 	if fs.err != nil {
 		return fs
 	}
-	if fs.foreignKeys == nil {
-		fs.foreignKeys = make(map[string]string)
-	}
-	fs.foreignKeys[strcase.ToSnake(relation)] = name
+	fs.err = fs.addForeignKey(name, relation)
 	return fs
 }
 
@@ -467,6 +478,25 @@ func contains[T comparable](k T, hs hset[T]) bool {
 	return ok
 }
 
+func (fs *FeatureSet) addForeignKey(name, relation string) error {
+	if fs.foreignKeys == nil {
+		fs.foreignKeys = make(map[string]string)
+	}
+	relation = strcase.ToSnake(relation)
+
+	otherName, alreadyHasKey := fs.foreignKeys[relation]
+	if alreadyHasKey {
+		if otherName == name {
+			return fmt.Errorf("tried to redefine has one relation %s in %s; either there is a typo or you used WithForeignKey while also defining a HasOne feature", name, fs.Name)
+		} else {
+			return fmt.Errorf("tried to define multiple has one relations between %s and %s (%s and %s)", fs.Name, relation, otherName, name)
+		}
+	}
+
+	fs.foreignKeys[relation] = name
+	return nil
+}
+
 func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, hset[string], error) {
 	// propagate errors (in the future, list all?)
 	if fs.err != nil {
@@ -497,7 +527,37 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, hset[string], error) {
 			if fs.foreignKeys == nil {
 				fs.foreignKeys = make(map[string]string)
 			}
-			fs.foreignKeys[ho.ForeignNamespace] = ho.Name
+
+			if ho.Join == nil {
+				return nil, nil, fmt.Errorf("has one feature %s in %s did not contain join condition", ho.Name, fs.Name)
+			}
+			bin, ok := ho.Join.ExprType.(*expressionv1.LogicalExprNode_BinaryExpr)
+			if !ok || bin.BinaryExpr.Op != "==" {
+				return nil, nil, fmt.Errorf("has one feature %s in %s's join condition was not an equality check", ho.Name, fs.Name)
+			}
+			col1, ok := bin.BinaryExpr.Operands[0].ExprType.(*expressionv1.LogicalExprNode_Column)
+			if !ok {
+				return nil, nil, fmt.Errorf("lhs of has one feature %s in %s's join condition was not a column", ho.Name, fs.Name)
+			}
+			col2, ok := bin.BinaryExpr.Operands[1].ExprType.(*expressionv1.LogicalExprNode_Column)
+			if !ok {
+				return nil, nil, fmt.Errorf("rhs of has one feature %s in %s's join condition was not a column", ho.Name, fs.Name)
+			}
+			rel1 := col1.Column.Relation.Relation
+			rel2 := col2.Column.Relation.Relation
+			if rel1 == ho.ForeignNamespace && rel2 == fs.namespace {
+				err := fs.addForeignKey(col2.Column.Name, ho.ForeignNamespace)
+				if err != nil {
+					return nil, nil, err
+				}
+			} else if rel2 == ho.ForeignNamespace && rel1 == fs.namespace {
+				err := fs.addForeignKey(col1.Column.Name, ho.ForeignNamespace)
+				if err != nil {
+					return nil, nil, err
+				}
+			} else {
+				return nil, nil, fmt.Errorf("columns in join condition of has one feature %s between %s and %s have invalid namespaces %s and %s", ho.Name, fs.namespace, ho.ForeignNamespace, rel1, rel2)
+			}
 		}
 	}
 
@@ -824,4 +884,12 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 		},
 		ParseInfo: parseInfo,
 	}, nil
+}
+
+func StringOptions(in map[string]string) map[string]*structpb.Value {
+	out := map[string]*structpb.Value{}
+	for k, v := range in {
+		out[k] = &structpb.Value{Kind: &structpb.Value_StringValue{StringValue: v}}
+	}
+	return out
 }

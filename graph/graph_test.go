@@ -182,8 +182,8 @@ func TestWindowedAllTime(t *testing.T) {
 			// SimpleEvent feature set
 			FeatureSet{Name: "other_account_id_with_same_stripe_fingerprint_found"}.
 				WithPrimary("account_id", Int).
-				With("other_account_id", String).
-				With("ts", Datetime),
+				With("ts", Datetime).
+				WithForeignKey("other_account_id", "other_account_id_with_same_stripe_fingerprint_found_count"),
 
 			// User feature set with windowed aggregation
 			FeatureSet{Name: "other_account_id_with_same_stripe_fingerprint_found_count"}.
