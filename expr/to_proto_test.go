@@ -749,3 +749,156 @@ func TestToProto(t *testing.T) {
 		})
 	}
 }
+
+func TestListLiteral(t *testing.T) {
+	t.Parallel()
+
+	t.Run("list_of_integers", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list of integers
+		listExpr := List(Int(1), Int(2), Int(3))
+
+		// Convert to proto
+		proto, err := ToProto(listExpr)
+		assert.NoError(t, err)
+		assert.NotNil(t, proto)
+
+		// Verify it's a literal value
+		litForm, ok := proto.GetExprForm().(*expressionv1.LogicalExprNode_LiteralValue)
+		assert.True(t, ok, "Expected literal value")
+		assert.NotNil(t, litForm.LiteralValue)
+		assert.NotNil(t, litForm.LiteralValue.Value)
+
+		// Verify it's a list
+		listValue, ok := litForm.LiteralValue.Value.Value.(*arrowv1.ScalarValue_ListValue)
+		assert.True(t, ok, "Expected list value")
+		assert.NotNil(t, listValue.ListValue)
+		assert.NotEmpty(t, listValue.ListValue.ArrowData, "Expected non-empty arrow data")
+		assert.NotNil(t, listValue.ListValue.Schema, "Expected non-nil schema")
+	})
+
+	t.Run("list_of_strings", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list of strings
+		listExpr := List(String("hello"), String("world"))
+
+		// Convert to proto
+		proto, err := ToProto(listExpr)
+		assert.NoError(t, err)
+		assert.NotNil(t, proto)
+
+		// Verify it's a list value
+		litForm, ok := proto.GetExprForm().(*expressionv1.LogicalExprNode_LiteralValue)
+		assert.True(t, ok, "Expected literal value")
+
+		listValue, ok := litForm.LiteralValue.Value.Value.(*arrowv1.ScalarValue_ListValue)
+		assert.True(t, ok, "Expected list value")
+		assert.NotNil(t, listValue.ListValue)
+		assert.NotEmpty(t, listValue.ListValue.ArrowData)
+	})
+
+	t.Run("list_of_floats", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list of floats
+		listExpr := List(Float(1.5), Float(2.5), Float(3.5))
+
+		// Convert to proto
+		proto, err := ToProto(listExpr)
+		assert.NoError(t, err)
+		assert.NotNil(t, proto)
+
+		// Verify it's a list value
+		litForm, ok := proto.GetExprForm().(*expressionv1.LogicalExprNode_LiteralValue)
+		assert.True(t, ok, "Expected literal value")
+
+		listValue, ok := litForm.LiteralValue.Value.Value.(*arrowv1.ScalarValue_ListValue)
+		assert.True(t, ok, "Expected list value")
+		assert.NotNil(t, listValue.ListValue)
+		assert.NotEmpty(t, listValue.ListValue.ArrowData)
+	})
+
+	t.Run("list_of_booleans", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list of booleans
+		listExpr := List(Bool(true), Bool(false), Bool(true))
+
+		// Convert to proto
+		proto, err := ToProto(listExpr)
+		assert.NoError(t, err)
+		assert.NotNil(t, proto)
+
+		// Verify it's a list value
+		litForm, ok := proto.GetExprForm().(*expressionv1.LogicalExprNode_LiteralValue)
+		assert.True(t, ok, "Expected literal value")
+
+		listValue, ok := litForm.LiteralValue.Value.Value.(*arrowv1.ScalarValue_ListValue)
+		assert.True(t, ok, "Expected list value")
+		assert.NotNil(t, listValue.ListValue)
+		assert.NotEmpty(t, listValue.ListValue.ArrowData)
+	})
+
+	t.Run("list_with_null", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list with null values
+		listExpr := List(Int(1), Null(), Int(3))
+
+		// Convert to proto
+		proto, err := ToProto(listExpr)
+		assert.NoError(t, err)
+		assert.NotNil(t, proto)
+
+		// Verify it's a list value
+		litForm, ok := proto.GetExprForm().(*expressionv1.LogicalExprNode_LiteralValue)
+		assert.True(t, ok, "Expected literal value")
+
+		listValue, ok := litForm.LiteralValue.Value.Value.(*arrowv1.ScalarValue_ListValue)
+		assert.True(t, ok, "Expected list value")
+		assert.NotNil(t, listValue.ListValue)
+		assert.NotEmpty(t, listValue.ListValue.ArrowData)
+	})
+
+	t.Run("empty_list_error", func(t *testing.T) {
+		t.Parallel()
+
+		// Create an empty list
+		listExpr := List()
+
+		// Convert to proto should error
+		_, err := ToProto(listExpr)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "list_literal must have at least one argument")
+	})
+
+	t.Run("list_with_non_literal_error", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list with a non-literal (column reference)
+		listExpr := FunctionCall("list_literal", Int(1), Col("value"))
+
+		// Convert to proto should error
+		_, err := ToProto(listExpr)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "arguments to list_literal must be literals")
+	})
+
+	t.Run("list_with_kwargs_error", func(t *testing.T) {
+		t.Parallel()
+
+		// Create a list with kwargs (which is not allowed)
+		callExpr := &CallExpr{
+			Function: Identifier("list_literal"),
+			Args:     []Expr{Int(1), Int(2)},
+			Kwargs:   map[string]Expr{"foo": Int(3)},
+		}
+
+		// Convert to proto should error
+		_, err := ToProto(callExpr)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "list_literal cannot have kwargs")
+	})
+}

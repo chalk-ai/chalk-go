@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/expr"
 	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
@@ -135,6 +136,34 @@ func List(ofType *ScalarFeatureBuilder) *ScalarFeatureBuilder {
 	return &ScalarFeatureBuilder{
 		proto: scalar,
 		err:   ofType.err,
+	}
+}
+
+// EmptyList creates an empty list expression for the given element type
+func EmptyList(ofType *ScalarFeatureBuilder) expr.Expr {
+	if ofType.err != nil {
+		return nil
+	}
+
+	// Convert proto arrow type (of the element) to arrow.DataType
+	arrowDataType, err := expr.ProtoToArrowDataType(ofType.proto.ArrowType)
+	if err != nil {
+		return nil
+	}
+
+	// Create empty list with the specified element type
+	listValue, err := expr.CreateEmptyList(arrowDataType, memory.DefaultAllocator)
+	if err != nil {
+		return nil
+	}
+
+	// Create the expression
+	return &expr.LiteralExpr{
+		ScalarValue: &arrowv1.ScalarValue{
+			Value: &arrowv1.ScalarValue_ListValue{
+				ListValue: listValue,
+			},
+		},
 	}
 }
 
