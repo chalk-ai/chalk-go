@@ -124,6 +124,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	}
 
 	response := OnlineQueryBulkResponse{allocator: c.allocator}
+	var headers *http.Header
 	err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
@@ -135,6 +136,7 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 			Versioned:             resolved.versioned,
 			Branch:                params.underlying.BranchId,
 			IsEngineRequest:       true,
+			ResponseHeaders:       headers,
 		},
 	)
 
@@ -152,10 +154,11 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 	}
 
 	return OnlineQueryBulkResult{
-		ScalarsTable: singleBulkResult.ScalarData,
-		GroupsTables: singleBulkResult.GroupsData,
-		Meta:         singleBulkResult.Meta,
-		allocator:    c.allocator,
+		ScalarsTable:    singleBulkResult.ScalarData,
+		GroupsTables:    singleBulkResult.GroupsData,
+		Meta:            singleBulkResult.Meta,
+		allocator:       c.allocator,
+		ResponseHeaders: headers,
 	}, nil
 }
 
@@ -212,6 +215,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	}
 
 	var response onlineQueryResponseSerialized
+	var headers *http.Header
 	if err = c.sendRequest(
 		ctx,
 		&sendRequestParams{
@@ -223,6 +227,7 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 			Branch:                params.underlying.BranchId,
 			ResourceGroupOverride: resourceGroupOverride,
 			IsEngineRequest:       true,
+			ResponseHeaders:       headers,
 		},
 	); err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "sending request")
@@ -248,10 +253,11 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	}
 
 	result := OnlineQueryResult{
-		Data:      deserializedData,
-		Meta:      response.Meta,
-		features:  features,
-		allocator: c.allocator,
+		Data:            deserializedData,
+		Meta:            response.Meta,
+		features:        features,
+		allocator:       c.allocator,
+		ResponseHeaders: headers,
 	}
 
 	if resultHolder != nil {
@@ -448,6 +454,7 @@ func (c *clientImpl) sendRequest(ctx context.Context, args *sendRequestParams) e
 		return clientError
 	}
 
+	args.ResponseHeaders = &res.Header
 	out, _ := io.ReadAll(res.Body)
 	castResponse, isBulkResponse := args.Response.(*OnlineQueryBulkResponse)
 	if isBulkResponse {

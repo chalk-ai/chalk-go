@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/chalk-ai/chalk-go/auth"
+	"github.com/samber/lo"
 
 	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow"
@@ -289,8 +290,9 @@ func (r *RowResult) GetFeatureValue(feature any) (any, error) {
 }
 
 type GRPCOnlineQueryBulkResult struct {
-	RawResponse *commonv1.OnlineQueryBulkResponse
-	allocator   memory.Allocator
+	RawResponse     *commonv1.OnlineQueryBulkResponse
+	ResponseHeaders *http.Header
+	allocator       memory.Allocator
 }
 
 type NewGRPCOnlineQueryBulkResultOptions struct {
@@ -411,7 +413,7 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 		return nil, errors.Wrap(err, "executing online query")
 	}
 
-	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg, allocator: c.allocator}
+	result := &GRPCOnlineQueryBulkResult{RawResponse: res.Msg, allocator: c.allocator, ResponseHeaders: lo.ToPtr(res.Header())}
 	if len(res.Msg.GetErrors()) > 0 {
 		convertedErrs, err := serverErrorsFromProto(res.Msg.GetErrors())
 		if err != nil {
