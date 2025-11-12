@@ -532,25 +532,32 @@ func (fs *FeatureSet) ToProto() (*graphv1.FeatureSet, hset[string], error) {
 				return nil, nil, fmt.Errorf("has one feature %s in %s did not contain join condition", ho.Name, fs.Name)
 			}
 			bin, ok := ho.Join.ExprType.(*expressionv1.LogicalExprNode_BinaryExpr)
+			//lint:ignore SA1019 this needs to access the legacy filter proto enums
 			if !ok || bin.BinaryExpr.Op != "==" {
 				return nil, nil, fmt.Errorf("has one feature %s in %s's join condition was not an equality check", ho.Name, fs.Name)
 			}
+			//lint:ignore SA1019 ditto
 			col1, ok := bin.BinaryExpr.Operands[0].ExprType.(*expressionv1.LogicalExprNode_Column)
 			if !ok {
 				return nil, nil, fmt.Errorf("lhs of has one feature %s in %s's join condition was not a column", ho.Name, fs.Name)
 			}
+			//lint:ignore SA1019 ditto
 			col2, ok := bin.BinaryExpr.Operands[1].ExprType.(*expressionv1.LogicalExprNode_Column)
 			if !ok {
 				return nil, nil, fmt.Errorf("rhs of has one feature %s in %s's join condition was not a column", ho.Name, fs.Name)
 			}
+			//lint:ignore SA1019 ditto
 			rel1 := col1.Column.Relation.Relation
+			//lint:ignore SA1019 ditto
 			rel2 := col2.Column.Relation.Relation
 			if rel1 == ho.ForeignNamespace && rel2 == fs.namespace {
+				//lint:ignore SA1019 ditto
 				err := fs.addForeignKey(col2.Column.Name, ho.ForeignNamespace)
 				if err != nil {
 					return nil, nil, err
 				}
 			} else if rel2 == ho.ForeignNamespace && rel1 == fs.namespace {
+				//lint:ignore SA1019 ditto
 				err := fs.addForeignKey(col1.Column.Name, ho.ForeignNamespace)
 				if err != nil {
 					return nil, nil, err
