@@ -1,6 +1,7 @@
 package chalk
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/apache/arrow/go/v16/arrow"
@@ -60,6 +61,7 @@ type sendRequestParams struct {
 	Method                string
 	URL                   string
 	Response              any
+	ResponseHeaders       *http.Header
 	Versioned             bool
 	Branch                *string
 	ResourceGroupOverride *string
