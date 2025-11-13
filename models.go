@@ -3,6 +3,7 @@ package chalk
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"reflect"
 	"time"
 
@@ -23,8 +24,8 @@ import (
 // that you can pass into Client.OnlineQuery.
 type OnlineQueryParams struct {
 	/*************
-	 PUBLIC FIELDS
-	**************/
+	  PUBLIC FIELDS
+	 **************/
 
 	// If true, returns metadata about the query execution in the response.
 	IncludeMeta bool
@@ -82,8 +83,8 @@ type OnlineQueryParams struct {
 	PlannerOptions map[string]any
 
 	/**************
-	 PRIVATE FIELDS
-	***************/
+	  PRIVATE FIELDS
+	 ***************/
 
 	// The features for which there are known values, mapped to those values.
 	// Set by OnlineQueryParams.WithInput.
@@ -169,6 +170,8 @@ type OnlineQueryResult struct {
 	features map[string]FeatureResult
 
 	allocator memory.Allocator
+
+	ResponseHeaders *http.Header
 }
 
 // GetFeature returns a wrapper for the raw, uncasted value of the specified feature.
@@ -357,6 +360,8 @@ type OnlineQueryBulkResult struct {
 	Meta *QueryMeta
 
 	allocator memory.Allocator
+
+	ResponseHeaders *http.Header
 }
 
 // UnmarshalInto unmarshals Arrow tables in OnlineQueryBulkResult into the specified slice of
@@ -462,8 +467,8 @@ type ResourceRequests struct {
 // that you can pass into Client.OfflineQuery.
 type OfflineQueryParams struct {
 	/**************
-	 PUBLIC FIELDS
-	**************/
+	  PUBLIC FIELDS
+	 **************/
 
 	// A unique name that if provided will be used to generate and
 	// save a Dataset constructed from the list of features computed
@@ -595,8 +600,8 @@ type OfflineQueryParams struct {
 	// OverlayGraph specifies additional features and resolvers to be used to plan this specific query.
 	OverlayGraph string
 	/***************
-	 PRIVATE FIELDS
-	***************/
+	  PRIVATE FIELDS
+	 ***************/
 
 	rawInputs          map[any][]TsFeatureValue
 	rawOutputs         []any
