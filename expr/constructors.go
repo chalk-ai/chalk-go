@@ -16,7 +16,9 @@ func Null() Expr {
 	return &LiteralExpr{
 		ScalarValue: &arrowv1.ScalarValue{
 			Value: &arrowv1.ScalarValue_NullValue{
-				NullValue: &arrowv1.ArrowType{},
+				NullValue: &arrowv1.ArrowType{
+					ArrowTypeEnum: &arrowv1.ArrowType_None{},
+				},
 			},
 		},
 	}
@@ -359,6 +361,13 @@ func Date(value time.Time) Expr {
 	days := int64(value.Sub(epoch).Hours() / 24)
 
 	return Date64(days)
+}
+
+// List creates a list literal expression
+// Arguments must all be literals and of the same type
+func List(items ...Expr) Expr {
+	// represent as a function call so we can do input validation
+	return FunctionCall("list_literal", items...)
 }
 
 // Column and identifier constructors

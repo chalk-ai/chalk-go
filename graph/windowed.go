@@ -169,7 +169,7 @@ type parsedAggregation struct {
 	foreignNamespace string
 }
 
-func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*parsedAggregation, error) {
+func extractFromExpr(namespace, fieldName string, features []*graphv1.FeatureType, aggPtr *expr.AggregateExprImpl) (*parsedAggregation, error) {
 	df := aggPtr.DataFrame.(*expr.DataFrameExprImpl)
 	dfName := strcase.ToSnake(df.Name)
 
@@ -183,7 +183,7 @@ func extractFromExpr(namespace string, features []*graphv1.FeatureType, aggPtr *
 		}
 	}
 	if foreignNamespace == "" {
-		return nil, fmt.Errorf("could not find definition of dataframe %s prior to windowed aggregate", dfName)
+		return nil, fmt.Errorf("could not find definition of dataframe %s prior to windowed aggregate %s in %s", dfName, fieldName, namespace)
 	}
 
 	filters := make([]*expressionv1.LogicalExprNode, len(aggPtr.Conditions))
@@ -273,7 +273,7 @@ func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType,
 	if !ok {
 		return nil, fmt.Errorf("windowed feature expression must be dataframe aggregation")
 	}
-	parsedAgg, err := extractFromExpr(namespace, features, aggPtr)
+	parsedAgg, err := extractFromExpr(namespace, fieldName, features, aggPtr)
 	if err != nil {
 		return nil, err
 	}
@@ -287,6 +287,10 @@ func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType,
 		return nil, fmt.Errorf("expected top-level aggregate")
 	}
 	kargProto, hasKarg := call.Kwargs["k"]
+	if aggPtr.Function == "max_by_n" || aggPtr.Function == "min_by_n" {
+		kargProto = call.Args[1]
+		hasKarg = true
+	}
 	karg := m.ApproxTopKArgK
 	if hasKarg {
 		karg = kargProto.GetLiteralValue().Value.GetInt64Value()
@@ -299,11 +303,15 @@ func (w *WindowedFeatureBuilder) appendFeatures(features []*graphv1.FeatureType,
 	}
 	var defaultProto *arrowv1.ScalarValue
 	if w.Default != nil {
-		lit, ok := w.Default.(*expr.LiteralExpr)
-		if !ok {
-			return []*graphv1.FeatureType{}, w.err
+		exproto, err := expr.ToProto(w.Default)
+		if err != nil {
+			return nil, err
 		}
-		defaultProto = lit.ScalarValue
+		lit := exproto.GetLiteralValue()
+		if lit == nil {
+			return nil, fmt.Errorf("expected default value of %s to be literal, got %v", fieldName, exproto)
+		}
+		defaultProto = lit.Value
 	}
 
 	featureForWindow := func(suffixedFieldName string, d time.Duration, dp *durationpb.Duration) *graphv1.FeatureType {
