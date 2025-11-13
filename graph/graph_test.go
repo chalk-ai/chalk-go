@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/chalk-ai/chalk-go/expr"
+	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	graphv1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	"github.com/stretchr/testify/assert"
 )
@@ -552,10 +553,12 @@ class TxnMessage(BaseModel):
 	user_id: str
 	amount: float
 
+message_str = F.bytes_to_string(_, encoding="utf-8")
+
 parse_expression = F.if_then_else(
 
-	F.json_value(_, "$.amount") > 0,
-	_,
+	F.cast(F.json_value(message_str, "$.amount"), pa.float64) > 0,
+	F.json_value(message_str, "$"),
 	None,
 
 )
@@ -584,6 +587,8 @@ func TestStreamResolverValid(t *testing.T) {
 			"amount":  Float,
 		})
 
+	messageStr := expr.BytesToUtf8(expr.Col("_"))
+
 	defs := Definitions{}.
 		WithFeatureSets(transactionFS).
 		WithStreamResolvers(
@@ -602,7 +607,14 @@ func TestStreamResolverValid(t *testing.T) {
 					"user_id": "str",
 					"amount":  "float",
 				},
-				Parse: expr.IfElse(expr.GetJsonValue(expr.Col("_"), expr.String("$.amount")).Gt(expr.Float(0)), expr.Col("_"), expr.Null()),
+				Parse: expr.IfElse(
+					expr.Cast(
+						expr.GetJsonValue(messageStr, "$.amount"),
+						&arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_Float64{}},
+					).Gt(expr.Float(0)),
+					messageStr,
+					expr.Null(),
+				),
 			},
 		)
 
