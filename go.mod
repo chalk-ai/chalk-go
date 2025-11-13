@@ -10,6 +10,7 @@ require (
 	github.com/chalk-ai/chalk-go/gen v0.0.0-00010101000000-000000000000
 	github.com/cockroachdb/errors v1.12.0
 	github.com/iancoleman/strcase v0.3.0
+	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/net v0.44.0
 	golang.org/x/sync v0.17.0
