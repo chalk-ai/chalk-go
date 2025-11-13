@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1762816294081,
+  "lastUpdate": 1763007622910,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28054,6 +28054,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 418.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "julian@chalk.ai",
+            "name": "Julian Early",
+            "username": "hiporox"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "87993f28584e830225b39ba04b9f341ae9b33d22",
+          "message": "Merge pull request #521 from chalk-ai/je/response-headers-on-online-query-client-response\n\nfeat: add response headers to returned objects from chalk clients",
+          "timestamp": "2025-11-12T20:18:53-08:00",
+          "tree_id": "566e317df7b2adff22a788e5cc3da48433155086",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/87993f28584e830225b39ba04b9f341ae9b33d22"
+        },
+        "date": 1763007622831,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.404,
+            "unit": "ms/op",
+            "extra": "908 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 112.6,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.15,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 234.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 383.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
