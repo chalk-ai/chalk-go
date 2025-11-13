@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763007622910,
+  "lastUpdate": 1763030320470,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28108,6 +28108,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 383.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "alexb@chalk.ai",
+            "name": "Alex Bondarenko",
+            "username": "abondrnco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4bd79d8743b7cab322666b2500ca7bc757df9c9d",
+          "message": "list literals, hasone feature validation, etc (#519)\n\n* added list_literal constructor in expr, empty list initializer in graph\n\n* added better handling of HasOne features with HasMany/WithForeignKey\n\n* added casts, additional functions, and fixed incorrect None values",
+          "timestamp": "2025-11-13T02:37:55-08:00",
+          "tree_id": "f08e12e8971051e36974d47a11b8f0ebd95c5b03",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/4bd79d8743b7cab322666b2500ca7bc757df9c9d"
+        },
+        "date": 1763030320388,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.083,
+            "unit": "ms/op",
+            "extra": "1117 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 125.3,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 43.2,
+            "unit": "ms/op",
+            "extra": "25 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 234.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 315.2,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
