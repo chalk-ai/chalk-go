@@ -121,7 +121,8 @@ func (e *IdentifierExpr) Apply(args ...Expr) Expr {
 // LiteralExpr represents a literal value using Arrow scalar values
 type LiteralExpr struct {
 	Expr
-	ScalarValue *arrowv1.ScalarValue
+	ScalarValue         *arrowv1.ScalarValue
+	IsArrowScalarObject bool
 }
 
 func (e *LiteralExpr) exprType() string {

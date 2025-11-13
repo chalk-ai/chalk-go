@@ -16,7 +16,9 @@ func Null() Expr {
 	return &LiteralExpr{
 		ScalarValue: &arrowv1.ScalarValue{
 			Value: &arrowv1.ScalarValue_NullValue{
-				NullValue: &arrowv1.ArrowType{},
+				NullValue: &arrowv1.ArrowType{
+					ArrowTypeEnum: &arrowv1.ArrowType_None{},
+				},
 			},
 		},
 	}

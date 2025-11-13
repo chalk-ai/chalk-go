@@ -49,7 +49,7 @@ func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 			ExprForm: &expressionv1.LogicalExprNode_LiteralValue{
 				LiteralValue: &expressionv1.ExprLiteral{
 					Value:               e.ScalarValue,
-					IsArrowScalarObject: false,
+					IsArrowScalarObject: e.IsArrowScalarObject,
 				},
 			},
 		}, nil

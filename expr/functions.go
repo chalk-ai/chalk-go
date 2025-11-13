@@ -1,5 +1,7 @@
 package expr
 
+import arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+
 // Chalk function constructors for all supported functions
 // These create function call expressions that can be used in the fluent API
 
@@ -20,7 +22,7 @@ func ToHex(data Expr) Expr {
 	return FunctionCall("to_hex", data)
 }
 
-// FromUtf8 converts binary data to UTF-8 string
+// FromUtf8 converts to binary data from UTF-8 string
 func FromUtf8(data Expr) Expr {
 	return FunctionCall("from_utf8", data)
 }
@@ -28,6 +30,11 @@ func FromUtf8(data Expr) Expr {
 // ToUtf8 converts string to UTF-8 binary data
 func ToUtf8(str Expr) Expr {
 	return FunctionCall("to_utf8", str)
+}
+
+// BytesToUtf8 converts from binary data to UTF-8 string (same as chalkpy bytes_to_string(..., encoding='utf-8'))
+func BytesToUtf8(bytes Expr) Expr {
+	return FunctionCall("bytes_to_string_utf8", bytes)
 }
 
 // String manipulation functions
@@ -541,6 +548,18 @@ func FromBase(str, base Expr) Expr {
 	return FunctionCall("from_base", str, base)
 }
 
+// Cast converts a value to a target type
+func Cast(expr Expr, to *arrowv1.ArrowType) Expr {
+	return FunctionCall("cast", expr, &LiteralExpr{
+		ScalarValue: &arrowv1.ScalarValue{
+			Value: &arrowv1.ScalarValue_NullValue{
+				NullValue: to,
+			},
+		},
+		IsArrowScalarObject: true,
+	})
+}
+
 // Control flow functions
 
 // IfElse conditional expression
@@ -559,8 +578,13 @@ func Fail(message Expr) Expr {
 }
 
 // GetJsonValue extracts value from JSON
-func GetJsonValue(json, path Expr) Expr {
-	return FunctionCall("json_extract", json, path)
+func GetJsonValue(json Expr, path string) Expr {
+	return FunctionCall("get_json_value", json, String(path))
+}
+
+// Jsonify turns a value into a JSON string
+func Jsonify(json Expr) Expr {
+	return FunctionCall("jsonify", json)
 }
 
 // Now returns current timestamp (convenience function)
