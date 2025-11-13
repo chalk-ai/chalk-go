@@ -81,7 +81,9 @@ func TestToProto(t *testing.T) {
 					LiteralValue: &expressionv1.ExprLiteral{
 						Value: &arrowv1.ScalarValue{
 							Value: &arrowv1.ScalarValue_NullValue{
-								NullValue: &arrowv1.ArrowType{},
+								NullValue: &arrowv1.ArrowType{
+									ArrowTypeEnum: &arrowv1.ArrowType_None{},
+								},
 							},
 						},
 						IsArrowScalarObject: false,
