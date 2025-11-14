@@ -367,9 +367,9 @@ func TestStreamResolverInvalidSourceTypeError(t *testing.T) {
 				OutputFeatures: map[string]expr.Expr{
 					"decision": expr.Col("decision"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"decision": "str",
-				},
+				}},
 			},
 		)
 
@@ -388,9 +388,9 @@ func TestStreamResolverMissingFeatureSetError(t *testing.T) {
 				OutputFeatures: map[string]expr.Expr{
 					"decision": expr.Col("decision"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"decision": "str",
-				},
+				}},
 			},
 		)
 
@@ -415,10 +415,10 @@ func TestStreamResolverMissingOutputFeatureError(t *testing.T) {
 					"decision":    expr.Col("decision"),
 					"nonexistent": expr.Col("nonexistent"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"decision":    "str",
 					"nonexistent": "str",
-				},
+				}},
 			},
 		)
 
@@ -442,9 +442,9 @@ func TestStreamResolverEmptyNameError(t *testing.T) {
 				OutputFeatures: map[string]expr.Expr{
 					"decision": expr.Col("decision"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"decision": "str",
-				},
+				}},
 			},
 		)
 
@@ -468,9 +468,9 @@ func TestStreamResolverDotsInNameError(t *testing.T) {
 				OutputFeatures: map[string]expr.Expr{
 					"decision": expr.Col("decision"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"decision": "str",
-				},
+				}},
 			},
 		)
 
@@ -602,11 +602,55 @@ func TestStreamResolverValid(t *testing.T) {
 					"user_id": expr.Col("user_id"),
 					"amount":  expr.Col("amount"),
 				},
-				MessageType: map[string]string{
+				MessageType: StreamStructMessage{Fields: map[string]string{
 					"id":      "int",
 					"user_id": "str",
 					"amount":  "float",
+				}},
+				Parse: expr.IfElse(
+					expr.Cast(
+						expr.GetJsonValue(messageStr, "$.amount"),
+						&arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_Float64{}},
+					).Gt(expr.Float(0)),
+					messageStr,
+					expr.Null(),
+				),
+			},
+		)
+
+	graph, err := defs.ToGraph()
+	assert.NoError(t, err)
+	assert.Len(t, graph.StreamResolvers, 1)
+}
+
+func TestStreamResolverParseFnReturnsList(t *testing.T) {
+	transactionFS := FeatureSet{Name: "Transaction"}.
+		WithPrimary("id", Int).
+		WithAll(Features{
+			"user_id": String,
+			"amount":  Float,
+		})
+
+	messageStr := expr.BytesToUtf8(expr.Col("_"))
+
+	defs := Definitions{}.
+		WithFeatureSets(transactionFS).
+		WithStreamResolvers(
+			StreamResolver{
+				Name:             "get_txn_stream",
+				StreamSourceName: "kafka_source",
+				StreamSourceType: "kafka",
+				OutputFeatureSet: "transaction",
+				OutputFeatures: map[string]expr.Expr{
+					"id":      expr.Col("id"),
+					"user_id": expr.Col("user_id"),
+					"amount":  expr.Col("amount"),
 				},
+				MessageType: StreamStructMessage{Fields: map[string]string{
+					"id":      "int",
+					"user_id": "str",
+					"amount":  "float",
+				}},
 				Parse: expr.IfElse(
 					expr.Cast(
 						expr.GetJsonValue(messageStr, "$.amount"),
