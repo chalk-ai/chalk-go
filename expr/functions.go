@@ -1,6 +1,15 @@
 package expr
 
-import arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+import (
+	"fmt"
+
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/apache/arrow/go/v16/arrow/ipc"
+	"github.com/apache/arrow/go/v16/arrow/memory"
+	arrowv1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	"github.com/chalk-ai/chalk-go/internal"
+)
 
 // Chalk function constructors for all supported functions
 // These create function call expressions that can be used in the fluent API
@@ -602,4 +611,81 @@ func TimestampFromString(str Expr) Expr {
 // StringFromTimestamp converts timestamp to ISO8601 string
 func StringFromTimestamp(timestamp Expr) Expr {
 	return ToIso8601(timestamp)
+}
+
+func stringsToArrowArrayBytes(values []string) (*arrowv1.ScalarListValue, error) {
+	var builder array.Builder = array.NewLargeStringBuilder(memory.DefaultAllocator)
+	stringBuilder := builder.(*array.LargeStringBuilder)
+	defer builder.Release()
+	for _, val := range values {
+		stringBuilder.Append(val)
+	}
+
+	// Build the array
+	arr := builder.NewArray()
+	defer arr.Release()
+
+	// Create a schema with a single field
+	schema := arrow.NewSchema([]arrow.Field{
+		{Name: "item", Type: arrow.BinaryTypes.LargeString, Nullable: true},
+	}, nil)
+
+	// Create a record with the array
+	record := array.NewRecord(schema, []arrow.Array{arr}, int64(len(values)))
+	defer record.Release()
+
+	// Serialize to Arrow IPC format
+	bws := &internal.BufferWriteSeeker{}
+	writer, err := ipc.NewFileWriter(bws, ipc.WithSchema(schema), ipc.WithAllocator(memory.DefaultAllocator))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create Arrow IPC writer: %w", err)
+	}
+
+	if err := writer.Write(record); err != nil {
+		return nil, fmt.Errorf("failed to write Arrow record: %w", err)
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close Arrow writer: %w", err)
+	}
+
+	// Convert Arrow schema to protobuf Schema
+	protoSchema, err := arrowSchemaToProto(schema)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert schema to proto: %w", err)
+	}
+
+	return &arrowv1.ScalarListValue{
+		ArrowData: bws.Bytes(),
+		Schema:    protoSchema,
+	}, nil
+}
+
+func StructPack(fields map[string]Expr) Expr {
+	var keys []string
+	var values []Expr
+	for k := range fields {
+		keys = append(keys, k)
+	}
+	keysArr, err := stringsToArrowArrayBytes(keys)
+	if err != nil {
+		panic(err)
+	}
+	values = append(values, &LiteralExpr{
+		ScalarValue: &arrowv1.ScalarValue{
+			Value: &arrowv1.ScalarValue_LargeListValue{
+				LargeListValue: keysArr,
+			},
+		},
+		IsArrowScalarObject: true,
+	})
+	for k := range fields {
+		values = append(values, fields[k])
+	}
+
+	return FunctionCall("struct_pack", values...)
+}
+
+func Rand() Expr {
+	return FunctionCall("rand")
 }

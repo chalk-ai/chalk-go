@@ -767,6 +767,41 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	return nil, fmt.Errorf("invalid expression type for filter (%T): %s", expression, expression.String())
 }
 
+type StreamMessageType interface {
+	isStreamMessage()
+
+	ToArrowType() *arrowv1.ArrowType
+}
+
+type StreamStructMessage struct {
+	Fields map[string]string
+}
+
+func (t StreamStructMessage) ToArrowType() *arrowv1.ArrowType {
+	return arrowStruct(t.Fields)
+}
+
+type StreamListMessage struct {
+	ValueType StreamStructMessage
+}
+
+func (t StreamListMessage) ToArrowType() *arrowv1.ArrowType {
+	return &arrowv1.ArrowType{
+		ArrowTypeEnum: &arrowv1.ArrowType_LargeList{
+			LargeList: &arrowv1.List{
+				FieldType: &arrowv1.Field{
+					Name:      "item",
+					ArrowType: t.ValueType.ToArrowType(),
+					Nullable:  true,
+				},
+			},
+		},
+	}
+}
+
+func (t StreamStructMessage) isStreamMessage() {}
+func (t StreamListMessage) isStreamMessage()   {}
+
 // StreamResolver represents a Native Streaming Resolver
 // see https://docs.chalk.ai/docs/native-streaming
 type StreamResolver struct {
@@ -783,7 +818,7 @@ type StreamResolver struct {
 	OutputFeatures   map[string]expr.Expr
 	// defines the structure of message
 	// should be a mapping from JSON key name to value type ("int" or "float" or "bool" or "str")
-	MessageType map[string]string
+	MessageType StreamMessageType
 	// if provided, only run on this machine type (defaults to all)
 	MachineType string
 	// if provided, only run in these environments (defaults to all)
@@ -807,7 +842,7 @@ func (sr StreamResolver) ToProto() (*graphv1.StreamResolver, error) {
 		return nil, fmt.Errorf("[193] Invalid resolver name format: Stream resolver name '%s' cannot contain dots. Use underscores instead", sr.Name)
 	}
 
-	messageSchema := arrowStruct(sr.MessageType)
+	messageSchema := sr.MessageType.ToArrowType()
 
 	namespace := strcase.ToSnake(sr.OutputFeatureSet)
 	featureExprs := make(map[string]*graphv1.FeatureExpression, len(sr.OutputFeatures))
