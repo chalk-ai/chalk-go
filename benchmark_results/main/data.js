@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763030320470,
+  "lastUpdate": 1763093898475,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28162,6 +28162,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 315.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "raphael.kargon@gmail.com",
+            "name": "Raphael Kargon",
+            "username": "rkargon"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b3054de0479668d54162becf7fa59275b1233d03",
+          "message": "Merge pull request #522 from chalk-ai/rkargon/stream-parse-to-list\n\nSupport message_type=list[T] in stream resolver definition",
+          "timestamp": "2025-11-13T20:17:37-08:00",
+          "tree_id": "523ae40f143e04fa7936739d2edcb9acbf998339",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/b3054de0479668d54162becf7fa59275b1233d03"
+        },
+        "date": 1763093898402,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.175,
+            "unit": "ms/op",
+            "extra": "938 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 111,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 47.66,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 211.2,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 293,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
