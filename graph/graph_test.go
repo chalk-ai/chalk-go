@@ -623,42 +623,70 @@ func TestStreamResolverValid(t *testing.T) {
 	assert.Len(t, graph.StreamResolvers, 1)
 }
 
+//# def _build_parse_fn():
+//#     message_str = F.bytes_to_string(_, encoding="utf-8")
+//#     primary_email_field = F.cast(F.json_value(message_str, "$.primary_email"), pa.large_utf8())
+//#     secondary_email_field = F.cast(F.json_value(message_str, "$.secondary_email"), pa.large_utf8())
+//#     primary_email_struct = F.struct_pack(
+//#         {
+//#             "id": F.cast(F.rand(), pa.large_utf8()),
+//#             "email": primary_email_field,
+//#         }
+//#     )
+//#     secondary_email_struct = F.struct_pack(
+//#         {
+//#             "id": F.cast(F.rand(), pa.large_utf8()),
+//#             "email": secondary_email_field,
+//#         }
+//#     )
+//#     return F.array(primary_email_struct, secondary_email_struct)
+//#
+//#
+//# socure_pii_resolver = make_stream_resolver(
+//#     source=source,
+//#     name="socure_pii_resolver",
+//#     message_type=list[EvalRecordMessage],
+//#     parse=_build_parse_fn(),
+//#     output_features={EvalRecord.id: _.id, EvalRecord.email: _.email},
+//# )
+
 func TestStreamResolverParseFnReturnsList(t *testing.T) {
-	transactionFS := FeatureSet{Name: "Transaction"}.
+	evalRecordFS := FeatureSet{Name: "EvalRecord"}.
 		WithPrimary("id", Int).
 		WithAll(Features{
-			"user_id": String,
-			"amount":  Float,
+			"email": String,
 		})
 
 	messageStr := expr.BytesToUtf8(expr.Col("_"))
+	emailPrimaryField := expr.GetJsonValue(messageStr, "$.primary_email")
+	emailSecondaryField := expr.GetJsonValue(messageStr, "$.secondary_email")
+	emailPrimaryRecord := expr.StructPack(map[string]expr.Expr{
+		"id":    expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}}),
+		"email": emailPrimaryField,
+	})
+	emailSecondaryRecord := expr.StructPack(map[string]expr.Expr{
+		"id":    expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}}),
+		"email": emailSecondaryField,
+	})
+	parseExpr := expr.ArrayConstructor(emailPrimaryRecord, emailSecondaryRecord)
 
 	defs := Definitions{}.
-		WithFeatureSets(transactionFS).
+		WithFeatureSets(evalRecordFS).
 		WithStreamResolvers(
 			StreamResolver{
-				Name:             "get_txn_stream",
+				Name:             "parse_email_records",
 				StreamSourceName: "kafka_source",
 				StreamSourceType: "kafka",
-				OutputFeatureSet: "transaction",
+				OutputFeatureSet: "eval_record",
 				OutputFeatures: map[string]expr.Expr{
-					"id":      expr.Col("id"),
-					"user_id": expr.Col("user_id"),
-					"amount":  expr.Col("amount"),
+					"id":    expr.Col("id"),
+					"email": expr.Col("email"),
 				},
-				MessageType: StreamStructMessage{Fields: map[string]string{
-					"id":      "int",
-					"user_id": "str",
-					"amount":  "float",
-				}},
-				Parse: expr.IfElse(
-					expr.Cast(
-						expr.GetJsonValue(messageStr, "$.amount"),
-						&arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_Float64{}},
-					).Gt(expr.Float(0)),
-					messageStr,
-					expr.Null(),
-				),
+				MessageType: StreamListMessage{ValueType: StreamStructMessage{Fields: map[string]string{
+					"id":    "int",
+					"email": "str",
+				}}},
+				Parse: parseExpr,
 			},
 		)
 
