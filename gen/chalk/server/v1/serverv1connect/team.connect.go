@@ -35,6 +35,9 @@ const (
 const (
 	// TeamServiceGetEnvProcedure is the fully-qualified name of the TeamService's GetEnv RPC.
 	TeamServiceGetEnvProcedure = "/chalk.server.v1.TeamService/GetEnv"
+	// TeamServiceGetEnvIncludingArchivedProcedure is the fully-qualified name of the TeamService's
+	// GetEnvIncludingArchived RPC.
+	TeamServiceGetEnvIncludingArchivedProcedure = "/chalk.server.v1.TeamService/GetEnvIncludingArchived"
 	// TeamServiceGetEnvironmentsProcedure is the fully-qualified name of the TeamService's
 	// GetEnvironments RPC.
 	TeamServiceGetEnvironmentsProcedure = "/chalk.server.v1.TeamService/GetEnvironments"
@@ -109,6 +112,7 @@ const (
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
 type TeamServiceClient interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
+	GetEnvIncludingArchived(context.Context, *connect.Request[v1.GetEnvIncludingArchivedRequest]) (*connect.Response[v1.GetEnvIncludingArchivedResponse], error)
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
@@ -150,6 +154,13 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceGetEnvProcedure,
 			connect.WithSchema(teamServiceMethods.ByName("GetEnv")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getEnvIncludingArchived: connect.NewClient[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse](
+			httpClient,
+			baseURL+TeamServiceGetEnvIncludingArchivedProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("GetEnvIncludingArchived")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -308,6 +319,7 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 // teamServiceClient implements TeamServiceClient.
 type teamServiceClient struct {
 	getEnv                   *connect.Client[v1.GetEnvRequest, v1.GetEnvResponse]
+	getEnvIncludingArchived  *connect.Client[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse]
 	getEnvironments          *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
 	getAgent                 *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
 	getDisplayAgent          *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
@@ -337,6 +349,11 @@ type teamServiceClient struct {
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
 func (c *teamServiceClient) GetEnv(ctx context.Context, req *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error) {
 	return c.getEnv.CallUnary(ctx, req)
+}
+
+// GetEnvIncludingArchived calls chalk.server.v1.TeamService.GetEnvIncludingArchived.
+func (c *teamServiceClient) GetEnvIncludingArchived(ctx context.Context, req *connect.Request[v1.GetEnvIncludingArchivedRequest]) (*connect.Response[v1.GetEnvIncludingArchivedResponse], error) {
+	return c.getEnvIncludingArchived.CallUnary(ctx, req)
 }
 
 // GetEnvironments calls chalk.server.v1.TeamService.GetEnvironments.
@@ -462,6 +479,7 @@ func (c *teamServiceClient) ReactivateUser(ctx context.Context, req *connect.Req
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
+	GetEnvIncludingArchived(context.Context, *connect.Request[v1.GetEnvIncludingArchivedRequest]) (*connect.Response[v1.GetEnvIncludingArchivedResponse], error)
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
@@ -499,6 +517,13 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceGetEnvProcedure,
 		svc.GetEnv,
 		connect.WithSchema(teamServiceMethods.ByName("GetEnv")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceGetEnvIncludingArchivedHandler := connect.NewUnaryHandler(
+		TeamServiceGetEnvIncludingArchivedProcedure,
+		svc.GetEnvIncludingArchived,
+		connect.WithSchema(teamServiceMethods.ByName("GetEnvIncludingArchived")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -655,6 +680,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
 			teamServiceGetEnvHandler.ServeHTTP(w, r)
+		case TeamServiceGetEnvIncludingArchivedProcedure:
+			teamServiceGetEnvIncludingArchivedHandler.ServeHTTP(w, r)
 		case TeamServiceGetEnvironmentsProcedure:
 			teamServiceGetEnvironmentsHandler.ServeHTTP(w, r)
 		case TeamServiceGetAgentProcedure:
@@ -714,6 +741,10 @@ type UnimplementedTeamServiceHandler struct{}
 
 func (UnimplementedTeamServiceHandler) GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetEnv is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) GetEnvIncludingArchived(context.Context, *connect.Request[v1.GetEnvIncludingArchivedRequest]) (*connect.Response[v1.GetEnvIncludingArchivedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetEnvIncludingArchived is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error) {
