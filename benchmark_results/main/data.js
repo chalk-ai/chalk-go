@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763355983121,
+  "lastUpdate": 1763416790468,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28270,6 +28270,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 329.1,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "kelvin@chalk.ai",
+            "name": "kelvin-chalk",
+            "username": "kelvin-chalk"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f5f33e675a5aa9811973b94bc6ac51fc3322d0c4",
+          "message": "update incident protos (#523)",
+          "timestamp": "2025-11-17T21:58:53Z",
+          "tree_id": "0ad53bf929565222fa103d90307f0ed0395d6cf2",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/f5f33e675a5aa9811973b94bc6ac51fc3322d0c4"
+        },
+        "date": 1763416790396,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.23,
+            "unit": "ms/op",
+            "extra": "976 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 123.5,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 43.43,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 228.8,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 322.7,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
