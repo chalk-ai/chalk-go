@@ -26,8 +26,8 @@ type Manager struct {
 type Scope string
 
 const (
-	ScopeTeam Scope = "team"
-	ScopeUser Scope = "enviroment"
+	ScopeTeam        Scope = "team"
+	ScopeEnvironment Scope = "enviroment"
 )
 
 type Inputs struct {
