@@ -2,6 +2,7 @@ package chalk
 
 import (
 	"context"
+	"github.com/chalk-ai/chalk-go/auth"
 	"time"
 
 	"connectrpc.com/connect"
@@ -198,6 +199,10 @@ type GRPCClientConfig struct {
 	// JWT is a valid Chalk JWT that can be used to authenticate requests
 	// uncommon to be used, prefer ClientId and ClientSecret instead.
 	JWT *serverv1.GetTokenResponse
+
+	// Scope specifies whether the token should have a team or environment scope.
+	// If not specified, defaults to environment scope.
+	Scope *auth.Scope
 
 	// InsecureSkipVerify controls whether the client verifies the server's
 	// certificate chain and host name. If true, accepts any certificate

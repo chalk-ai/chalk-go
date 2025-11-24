@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"github.com/samber/lo"
 	"net/http"
 	"strings"
 	"sync"
@@ -22,6 +23,13 @@ type Manager struct {
 	token      *serverv1.GetTokenResponse
 }
 
+type Scope string
+
+const (
+	ScopeTeam Scope = "team"
+	ScopeUser Scope = "enviroment"
+)
+
 type Inputs struct {
 	// Token overrides the default token, if provided. It's unlikely you'll want to provide this.
 	Token *serverv1.GetTokenResponse
@@ -34,6 +42,8 @@ type Inputs struct {
 	Config *config.Manager
 
 	Timeout *time.Duration
+
+	Scope *Scope
 }
 
 func cleanEnvironmentId(
@@ -133,6 +143,11 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "initializing token refresher")
 		}
+	}
+
+	if lo.FromPtr(opts.Scope) == ScopeTeam {
+		//	if it is team scope, trust that they gave us a valid envid. probably terraform
+		return r, nil
 	}
 
 	r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, r.token)
