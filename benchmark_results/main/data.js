@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1763416790468,
+  "lastUpdate": 1764112885155,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28326,6 +28326,60 @@ window.BENCHMARK_DATA = {
             "value": 322.7,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "winwinstonliu@gmail.com",
+            "name": "Winston Liu",
+            "username": "l-winston"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "07867ad89694bcc7b550faa78d8c0d6a9fb68b08",
+          "message": "Merge pull request #526 from chalk-ai/wl/update-builder-protos\n\nupdate builder protos",
+          "timestamp": "2025-11-25T15:20:23-08:00",
+          "tree_id": "b2fe393bdcf41f2c237b3832dddd52903173b548",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/07867ad89694bcc7b550faa78d8c0d6a9fb68b08"
+        },
+        "date": 1764112885136,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.215,
+            "unit": "ms/op",
+            "extra": "962 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 111.5,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.14,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 216.5,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 306,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
