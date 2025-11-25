@@ -72,6 +72,15 @@ const (
 	// MonitoringServiceGetIncidentIoIntegrationProcedure is the fully-qualified name of the
 	// MonitoringService's GetIncidentIoIntegration RPC.
 	MonitoringServiceGetIncidentIoIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetIncidentIoIntegration"
+	// MonitoringServiceListIncidentsProcedure is the fully-qualified name of the MonitoringService's
+	// ListIncidents RPC.
+	MonitoringServiceListIncidentsProcedure = "/chalk.server.v1.MonitoringService/ListIncidents"
+	// MonitoringServiceGetIncidentProcedure is the fully-qualified name of the MonitoringService's
+	// GetIncident RPC.
+	MonitoringServiceGetIncidentProcedure = "/chalk.server.v1.MonitoringService/GetIncident"
+	// MonitoringServiceGetIncidentAlertsChartProcedure is the fully-qualified name of the
+	// MonitoringService's GetIncidentAlertsChart RPC.
+	MonitoringServiceGetIncidentAlertsChartProcedure = "/chalk.server.v1.MonitoringService/GetIncidentAlertsChart"
 )
 
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
@@ -89,6 +98,9 @@ type MonitoringServiceClient interface {
 	UpdateIncidentIoIntegration(context.Context, *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error)
 	GetAllIncidentIoIntegrations(context.Context, *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error)
 	GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error)
+	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
+	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
+	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
 }
 
 // NewMonitoringServiceClient constructs a client for the chalk.server.v1.MonitoringService service.
@@ -187,6 +199,27 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listIncidents: connect.NewClient[v1.ListIncidentsRequest, v1.ListIncidentsResponse](
+			httpClient,
+			baseURL+MonitoringServiceListIncidentsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("ListIncidents")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getIncident: connect.NewClient[v1.GetIncidentRequest, v1.GetIncidentResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetIncidentProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetIncident")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getIncidentAlertsChart: connect.NewClient[v1.GetIncidentAlertsChartRequest, v1.GetIncidentAlertsChartResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetIncidentAlertsChartProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetIncidentAlertsChart")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -205,6 +238,9 @@ type monitoringServiceClient struct {
 	updateIncidentIoIntegration    *connect.Client[v1.UpdateIncidentIoIntegrationRequest, v1.UpdateIncidentIoIntegrationResponse]
 	getAllIncidentIoIntegrations   *connect.Client[v1.GetAllIncidentIoIntegrationsRequest, v1.GetAllIncidentIoIntegrationsResponse]
 	getIncidentIoIntegration       *connect.Client[v1.GetIncidentIoIntegrationRequest, v1.GetIncidentIoIntegrationResponse]
+	listIncidents                  *connect.Client[v1.ListIncidentsRequest, v1.ListIncidentsResponse]
+	getIncident                    *connect.Client[v1.GetIncidentRequest, v1.GetIncidentResponse]
+	getIncidentAlertsChart         *connect.Client[v1.GetIncidentAlertsChartRequest, v1.GetIncidentAlertsChartResponse]
 }
 
 // TestPagerDutyIntegration calls chalk.server.v1.MonitoringService.TestPagerDutyIntegration.
@@ -274,6 +310,21 @@ func (c *monitoringServiceClient) GetIncidentIoIntegration(ctx context.Context, 
 	return c.getIncidentIoIntegration.CallUnary(ctx, req)
 }
 
+// ListIncidents calls chalk.server.v1.MonitoringService.ListIncidents.
+func (c *monitoringServiceClient) ListIncidents(ctx context.Context, req *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error) {
+	return c.listIncidents.CallUnary(ctx, req)
+}
+
+// GetIncident calls chalk.server.v1.MonitoringService.GetIncident.
+func (c *monitoringServiceClient) GetIncident(ctx context.Context, req *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error) {
+	return c.getIncident.CallUnary(ctx, req)
+}
+
+// GetIncidentAlertsChart calls chalk.server.v1.MonitoringService.GetIncidentAlertsChart.
+func (c *monitoringServiceClient) GetIncidentAlertsChart(ctx context.Context, req *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error) {
+	return c.getIncidentAlertsChart.CallUnary(ctx, req)
+}
+
 // MonitoringServiceHandler is an implementation of the chalk.server.v1.MonitoringService service.
 type MonitoringServiceHandler interface {
 	TestPagerDutyIntegration(context.Context, *connect.Request[v1.TestPagerDutyIntegrationRequest]) (*connect.Response[v1.TestPagerDutyIntegrationResponse], error)
@@ -289,6 +340,9 @@ type MonitoringServiceHandler interface {
 	UpdateIncidentIoIntegration(context.Context, *connect.Request[v1.UpdateIncidentIoIntegrationRequest]) (*connect.Response[v1.UpdateIncidentIoIntegrationResponse], error)
 	GetAllIncidentIoIntegrations(context.Context, *connect.Request[v1.GetAllIncidentIoIntegrationsRequest]) (*connect.Response[v1.GetAllIncidentIoIntegrationsResponse], error)
 	GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error)
+	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
+	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
+	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
 }
 
 // NewMonitoringServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -383,6 +437,27 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitoringServiceListIncidentsHandler := connect.NewUnaryHandler(
+		MonitoringServiceListIncidentsProcedure,
+		svc.ListIncidents,
+		connect.WithSchema(monitoringServiceMethods.ByName("ListIncidents")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetIncidentHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetIncidentProcedure,
+		svc.GetIncident,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetIncident")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetIncidentAlertsChartHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetIncidentAlertsChartProcedure,
+		svc.GetIncidentAlertsChart,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetIncidentAlertsChart")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.MonitoringService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case MonitoringServiceTestPagerDutyIntegrationProcedure:
@@ -411,6 +486,12 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 			monitoringServiceGetAllIncidentIoIntegrationsHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetIncidentIoIntegrationProcedure:
 			monitoringServiceGetIncidentIoIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceListIncidentsProcedure:
+			monitoringServiceListIncidentsHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetIncidentProcedure:
+			monitoringServiceGetIncidentHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetIncidentAlertsChartProcedure:
+			monitoringServiceGetIncidentAlertsChartHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -470,4 +551,16 @@ func (UnimplementedMonitoringServiceHandler) GetAllIncidentIoIntegrations(contex
 
 func (UnimplementedMonitoringServiceHandler) GetIncidentIoIntegration(context.Context, *connect.Request[v1.GetIncidentIoIntegrationRequest]) (*connect.Response[v1.GetIncidentIoIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncidentIoIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.ListIncidents is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncident is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncidentAlertsChart is not implemented"))
 }

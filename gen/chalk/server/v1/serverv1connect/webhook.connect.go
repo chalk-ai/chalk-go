@@ -48,6 +48,9 @@ const (
 	// WebhookServiceListWebhooksProcedure is the fully-qualified name of the WebhookService's
 	// ListWebhooks RPC.
 	WebhookServiceListWebhooksProcedure = "/chalk.server.v1.WebhookService/ListWebhooks"
+	// WebhookServiceTestWebhookProcedure is the fully-qualified name of the WebhookService's
+	// TestWebhook RPC.
+	WebhookServiceTestWebhookProcedure = "/chalk.server.v1.WebhookService/TestWebhook"
 )
 
 // WebhookServiceClient is a client for the chalk.server.v1.WebhookService service.
@@ -57,6 +60,7 @@ type WebhookServiceClient interface {
 	DeleteWebhook(context.Context, *connect.Request[v1.DeleteWebhookRequest]) (*connect.Response[v1.DeleteWebhookResponse], error)
 	GetWebhook(context.Context, *connect.Request[v1.GetWebhookRequest]) (*connect.Response[v1.GetWebhookResponse], error)
 	ListWebhooks(context.Context, *connect.Request[v1.ListWebhooksRequest]) (*connect.Response[v1.ListWebhooksResponse], error)
+	TestWebhook(context.Context, *connect.Request[v1.TestWebhookRequest]) (*connect.Response[v1.TestWebhookResponse], error)
 }
 
 // NewWebhookServiceClient constructs a client for the chalk.server.v1.WebhookService service. By
@@ -102,6 +106,12 @@ func NewWebhookServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		testWebhook: connect.NewClient[v1.TestWebhookRequest, v1.TestWebhookResponse](
+			httpClient,
+			baseURL+WebhookServiceTestWebhookProcedure,
+			connect.WithSchema(webhookServiceMethods.ByName("TestWebhook")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -112,6 +122,7 @@ type webhookServiceClient struct {
 	deleteWebhook *connect.Client[v1.DeleteWebhookRequest, v1.DeleteWebhookResponse]
 	getWebhook    *connect.Client[v1.GetWebhookRequest, v1.GetWebhookResponse]
 	listWebhooks  *connect.Client[v1.ListWebhooksRequest, v1.ListWebhooksResponse]
+	testWebhook   *connect.Client[v1.TestWebhookRequest, v1.TestWebhookResponse]
 }
 
 // CreateWebhook calls chalk.server.v1.WebhookService.CreateWebhook.
@@ -139,6 +150,11 @@ func (c *webhookServiceClient) ListWebhooks(ctx context.Context, req *connect.Re
 	return c.listWebhooks.CallUnary(ctx, req)
 }
 
+// TestWebhook calls chalk.server.v1.WebhookService.TestWebhook.
+func (c *webhookServiceClient) TestWebhook(ctx context.Context, req *connect.Request[v1.TestWebhookRequest]) (*connect.Response[v1.TestWebhookResponse], error) {
+	return c.testWebhook.CallUnary(ctx, req)
+}
+
 // WebhookServiceHandler is an implementation of the chalk.server.v1.WebhookService service.
 type WebhookServiceHandler interface {
 	CreateWebhook(context.Context, *connect.Request[v1.CreateWebhookRequest]) (*connect.Response[v1.CreateWebhookResponse], error)
@@ -146,6 +162,7 @@ type WebhookServiceHandler interface {
 	DeleteWebhook(context.Context, *connect.Request[v1.DeleteWebhookRequest]) (*connect.Response[v1.DeleteWebhookResponse], error)
 	GetWebhook(context.Context, *connect.Request[v1.GetWebhookRequest]) (*connect.Response[v1.GetWebhookResponse], error)
 	ListWebhooks(context.Context, *connect.Request[v1.ListWebhooksRequest]) (*connect.Response[v1.ListWebhooksResponse], error)
+	TestWebhook(context.Context, *connect.Request[v1.TestWebhookRequest]) (*connect.Response[v1.TestWebhookResponse], error)
 }
 
 // NewWebhookServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -187,6 +204,12 @@ func NewWebhookServiceHandler(svc WebhookServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	webhookServiceTestWebhookHandler := connect.NewUnaryHandler(
+		WebhookServiceTestWebhookProcedure,
+		svc.TestWebhook,
+		connect.WithSchema(webhookServiceMethods.ByName("TestWebhook")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.WebhookService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case WebhookServiceCreateWebhookProcedure:
@@ -199,6 +222,8 @@ func NewWebhookServiceHandler(svc WebhookServiceHandler, opts ...connect.Handler
 			webhookServiceGetWebhookHandler.ServeHTTP(w, r)
 		case WebhookServiceListWebhooksProcedure:
 			webhookServiceListWebhooksHandler.ServeHTTP(w, r)
+		case WebhookServiceTestWebhookProcedure:
+			webhookServiceTestWebhookHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -226,4 +251,8 @@ func (UnimplementedWebhookServiceHandler) GetWebhook(context.Context, *connect.R
 
 func (UnimplementedWebhookServiceHandler) ListWebhooks(context.Context, *connect.Request[v1.ListWebhooksRequest]) (*connect.Response[v1.ListWebhooksResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WebhookService.ListWebhooks is not implemented"))
+}
+
+func (UnimplementedWebhookServiceHandler) TestWebhook(context.Context, *connect.Request[v1.TestWebhookRequest]) (*connect.Response[v1.TestWebhookResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.WebhookService.TestWebhook is not implemented"))
 }

@@ -60,6 +60,9 @@ const (
 	// CloudComponentsServiceDeleteCloudComponentClusterProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentCluster RPC.
 	CloudComponentsServiceDeleteCloudComponentClusterProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentCluster"
+	// CloudComponentsServiceTestClusterConnectionProcedure is the fully-qualified name of the
+	// CloudComponentsService's TestClusterConnection RPC.
+	CloudComponentsServiceTestClusterConnectionProcedure = "/chalk.server.v1.CloudComponentsService/TestClusterConnection"
 	// CloudComponentsServiceCreateCloudComponentStorageProcedure is the fully-qualified name of the
 	// CloudComponentsService's CreateCloudComponentStorage RPC.
 	CloudComponentsServiceCreateCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/CreateCloudComponentStorage"
@@ -115,6 +118,7 @@ type CloudComponentsServiceClient interface {
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
 	DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error)
+	TestClusterConnection(context.Context, *connect.Request[v1.TestClusterConnectionRequest]) (*connect.Response[v1.TestClusterConnectionResponse], error)
 	CreateCloudComponentStorage(context.Context, *connect.Request[v1.CreateCloudComponentStorageRequest]) (*connect.Response[v1.CreateCloudComponentStorageResponse], error)
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
@@ -197,6 +201,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteCloudComponentClusterProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentCluster")),
+			connect.WithClientOptions(opts...),
+		),
+		testClusterConnection: connect.NewClient[v1.TestClusterConnectionRequest, v1.TestClusterConnectionResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceTestClusterConnectionProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("TestClusterConnection")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createCloudComponentStorage: connect.NewClient[v1.CreateCloudComponentStorageRequest, v1.CreateCloudComponentStorageResponse](
@@ -296,6 +307,7 @@ type cloudComponentsServiceClient struct {
 	getCloudComponentCluster                            *connect.Client[v1.GetCloudComponentClusterRequest, v1.GetCloudComponentClusterResponse]
 	listCloudComponentCluster                           *connect.Client[v1.ListCloudComponentClusterRequest, v1.ListCloudComponentClusterResponse]
 	deleteCloudComponentCluster                         *connect.Client[v1.DeleteCloudComponentClusterRequest, v1.DeleteCloudComponentClusterResponse]
+	testClusterConnection                               *connect.Client[v1.TestClusterConnectionRequest, v1.TestClusterConnectionResponse]
 	createCloudComponentStorage                         *connect.Client[v1.CreateCloudComponentStorageRequest, v1.CreateCloudComponentStorageResponse]
 	getCloudComponentStorage                            *connect.Client[v1.GetCloudComponentStorageRequest, v1.GetCloudComponentStorageResponse]
 	listCloudComponentStorage                           *connect.Client[v1.ListCloudComponentStorageRequest, v1.ListCloudComponentStorageResponse]
@@ -357,6 +369,11 @@ func (c *cloudComponentsServiceClient) ListCloudComponentCluster(ctx context.Con
 // chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster.
 func (c *cloudComponentsServiceClient) DeleteCloudComponentCluster(ctx context.Context, req *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error) {
 	return c.deleteCloudComponentCluster.CallUnary(ctx, req)
+}
+
+// TestClusterConnection calls chalk.server.v1.CloudComponentsService.TestClusterConnection.
+func (c *cloudComponentsServiceClient) TestClusterConnection(ctx context.Context, req *connect.Request[v1.TestClusterConnectionRequest]) (*connect.Response[v1.TestClusterConnectionResponse], error) {
+	return c.testClusterConnection.CallUnary(ctx, req)
 }
 
 // CreateCloudComponentStorage calls
@@ -446,6 +463,7 @@ type CloudComponentsServiceHandler interface {
 	GetCloudComponentCluster(context.Context, *connect.Request[v1.GetCloudComponentClusterRequest]) (*connect.Response[v1.GetCloudComponentClusterResponse], error)
 	ListCloudComponentCluster(context.Context, *connect.Request[v1.ListCloudComponentClusterRequest]) (*connect.Response[v1.ListCloudComponentClusterResponse], error)
 	DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error)
+	TestClusterConnection(context.Context, *connect.Request[v1.TestClusterConnectionRequest]) (*connect.Response[v1.TestClusterConnectionResponse], error)
 	CreateCloudComponentStorage(context.Context, *connect.Request[v1.CreateCloudComponentStorageRequest]) (*connect.Response[v1.CreateCloudComponentStorageResponse], error)
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
@@ -524,6 +542,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceDeleteCloudComponentClusterProcedure,
 		svc.DeleteCloudComponentCluster,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentCluster")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceTestClusterConnectionHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceTestClusterConnectionProcedure,
+		svc.TestClusterConnection,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("TestClusterConnection")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	cloudComponentsServiceCreateCloudComponentStorageHandler := connect.NewUnaryHandler(
@@ -629,6 +654,8 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceListCloudComponentClusterHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentClusterProcedure:
 			cloudComponentsServiceDeleteCloudComponentClusterHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceTestClusterConnectionProcedure:
+			cloudComponentsServiceTestClusterConnectionHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateCloudComponentStorageProcedure:
 			cloudComponentsServiceCreateCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetCloudComponentStorageProcedure:
@@ -698,6 +725,10 @@ func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentCluster(cont
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentCluster(context.Context, *connect.Request[v1.DeleteCloudComponentClusterRequest]) (*connect.Response[v1.DeleteCloudComponentClusterResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) TestClusterConnection(context.Context, *connect.Request[v1.TestClusterConnectionRequest]) (*connect.Response[v1.TestClusterConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.TestClusterConnection is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentStorage(context.Context, *connect.Request[v1.CreateCloudComponentStorageRequest]) (*connect.Response[v1.CreateCloudComponentStorageResponse], error) {
