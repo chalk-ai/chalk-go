@@ -11,6 +11,7 @@ import (
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 )
 
+//lint:ignore U1000 example
 func redeployDeployment() {
 	// Initialize the Chalk client
 	ctx := context.Background()
@@ -41,9 +42,4 @@ func redeployDeployment() {
 	// Access the response data
 	fmt.Printf("Redeploy initiated successfully!\n")
 	fmt.Printf("New Deployment ID: %s\n", result.Msg.DeploymentId)
-
-	// The build_id field is deprecated but may still be returned
-	if result.Msg.BuildId != "" {
-		fmt.Printf("Build ID (deprecated): %s\n", result.Msg.BuildId)
-	}
 }

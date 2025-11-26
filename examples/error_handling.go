@@ -9,6 +9,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 )
 
+//lint:ignore U1000 example
 func errorHandling() {
 	// Initialize the Chalk gRPC client
 	ctx := context.Background()

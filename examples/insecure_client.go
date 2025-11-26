@@ -8,6 +8,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 )
 
+//lint:ignore U1000 example
 func insecureClient() {
 	ctx := context.Background()
 
