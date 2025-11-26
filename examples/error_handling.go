@@ -9,7 +9,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 )
 
-func main() {
+func errorHandling() {
 	// Initialize the Chalk gRPC client
 	ctx := context.Background()
 	chalkClient, err := chalk.NewGRPCClient(ctx)

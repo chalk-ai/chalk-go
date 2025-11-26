@@ -8,7 +8,7 @@ import (
 	"github.com/chalk-ai/chalk-go"
 )
 
-func main() {
+func insecureClient() {
 	ctx := context.Background()
 
 	// Create a Chalk gRPC client with InsecureSkipVerify enabled.

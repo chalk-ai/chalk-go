@@ -4,18 +4,22 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
-	"github.com/chalk-ai/chalk-go"
+	"connectrpc.com/connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 )
 
-func main() {
+func redeployDeployment() {
 	// Initialize the Chalk client
 	ctx := context.Background()
-	client, err := chalk.NewGRPCClient(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create Chalk client: %v", err)
-	}
+	apiServer := "https://api.chalk.ai"
+	httpClient := http.DefaultClient
+	client := serverv1connect.NewBuilderServiceClient(
+		httpClient,
+		apiServer,
+	)
 
 	// Create a redeploy request
 	req := &serverv1.RedeployDeploymentRequest{
@@ -29,17 +33,17 @@ func main() {
 	}
 
 	// Execute the redeploy
-	result, err := client.RedeployDeployment(ctx, req)
+	result, err := client.RedeployDeployment(ctx, connect.NewRequest(req))
 	if err != nil {
 		log.Fatalf("Failed to redeploy deployment: %v", err)
 	}
 
 	// Access the response data
 	fmt.Printf("Redeploy initiated successfully!\n")
-	fmt.Printf("New Deployment ID: %s\n", result.RawResponse.DeploymentId)
+	fmt.Printf("New Deployment ID: %s\n", result.Msg.DeploymentId)
 
 	// The build_id field is deprecated but may still be returned
-	if result.RawResponse.BuildId != "" {
-		fmt.Printf("Build ID (deprecated): %s\n", result.RawResponse.BuildId)
+	if result.Msg.BuildId != "" {
+		fmt.Printf("Build ID (deprecated): %s\n", result.Msg.BuildId)
 	}
 }
