@@ -18,7 +18,8 @@ type User struct {
 	AccountValue *float64
 }
 
-func main() {
+//lint:ignore U1000 example
+func onlineQueryBulk() {
 	// Initialize the Chalk gRPC client
 	// By default, this will use environment variables or ~/.chalk.yml configuration:
 	// - CHALK_CLIENT_ID or config file
