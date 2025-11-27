@@ -34,6 +34,15 @@ type Inputs struct {
 	Config *config.Manager
 
 	Timeout *time.Duration
+
+	// SkipEnvironmentNameMapping controls whether to skip validating and mapping
+	// environment names to IDs. If true, the EnvironmentId will be used verbatim.
+	SkipEnvironmentNameMapping bool
+
+	// SkipEngineMapping controls whether to skip setting the query server based
+	// on the token's engine maps. If true, the query server will not be
+	// automatically resolved from the token.
+	SkipEngineMapping bool
 }
 
 func cleanEnvironmentId(
@@ -135,18 +144,27 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 		}
 	}
 
-	r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, r.token)
-	if err != nil {
-		return nil, errors.Wrap(err, "initializing environment id")
+	if opts.SkipEnvironmentNameMapping {
+		// Use environment ID verbatim without validation or mapping
+		if r.config.EnvironmentId.Value == "" {
+			return nil, errors.New("environment ID is required when SkipEnvironmentNameMapping is enabled")
+		}
+	} else {
+		r.config.EnvironmentId, err = cleanEnvironmentId(r.config.EnvironmentId, r.token)
+		if err != nil {
+			return nil, errors.Wrap(err, "initializing environment id")
+		}
 	}
 
-	envName := r.token.EnvironmentIdToName[r.config.EnvironmentId.Value]
-	if e := r.token.Engines[r.config.EnvironmentId.Value]; r.config.GetJSONQueryServer().Kind == config.DefaultSourceKind && e != "" {
-		r.config.SetJSONQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
-	}
+	if !opts.SkipEngineMapping {
+		envName := r.token.EnvironmentIdToName[r.config.EnvironmentId.Value]
+		if e := r.token.Engines[r.config.EnvironmentId.Value]; r.config.GetJSONQueryServer().Kind == config.DefaultSourceKind && e != "" {
+			r.config.SetJSONQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
+		}
 
-	if e := r.token.GrpcEngines[r.config.EnvironmentId.Value]; r.config.GetGRPCQueryServer().Kind == config.DefaultSourceKind && e != "" {
-		r.config.SetGRPCQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
+		if e := r.token.GrpcEngines[r.config.EnvironmentId.Value]; r.config.GetGRPCQueryServer().Kind == config.DefaultSourceKind && e != "" {
+			r.config.SetGRPCQueryServer(config.NewFromToken(e, fmt.Sprintf("token for environment %q", envName)))
+		}
 	}
 
 	return r, nil
