@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1764208643454,
+  "lastUpdate": 1764282814450,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28648,6 +28648,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 288.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d7be0ed1c9ad6691246ef5aebf1326a294c09185",
+          "message": "Merge pull request #529 from chalk-ai/add-skip-mapping-options\n\nAdd options to skip environment and engine mapping in NewGRPCClient",
+          "timestamp": "2025-11-27T14:32:42-08:00",
+          "tree_id": "7a59f39855b199fc63033fe0daef9735307abe74",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/d7be0ed1c9ad6691246ef5aebf1326a294c09185"
+        },
+        "date": 1764282814374,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.178,
+            "unit": "ms/op",
+            "extra": "1023 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 142.8,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.07,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 209.8,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 322,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
