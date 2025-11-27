@@ -100,6 +100,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 			HttpClient: cfg.HTTPClient,
 			Config:     configManager,
 			Timeout:    timeout,
+			Scope:      cfg.Scope,
 		},
 	)
 	if err != nil {
