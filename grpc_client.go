@@ -204,6 +204,17 @@ type GRPCClientConfig struct {
 	// presented by the server and any host name in that certificate.
 	// This should only be used for testing or in controlled environments.
 	InsecureSkipVerify bool
+
+	// SkipEnvironmentNameMapping controls whether the TokenManager should
+	// skip validating and mapping environment names to IDs. If true, the
+	// EnvironmentId will be used verbatim without validation against the
+	// token's EnvironmentIdToName map.
+	SkipEnvironmentNameMapping bool
+
+	// SkipEngineMapping controls whether the TokenManager should skip
+	// setting the query server based on the token's engine maps. If true,
+	// the query server will not be automatically resolved from the token.
+	SkipEngineMapping bool
 }
 
 // NewGRPCClient creates a GRPCClient with authentication settings configured.

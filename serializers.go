@@ -495,9 +495,9 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		Inputs: &commonv1.OnlineQueryBulkRequest_InputsFeather{
 			InputsFeather: inputsFeather,
 		},
-		Outputs:       outputs,
-		Staleness:     staleness,
-		Now:           now,
+		Outputs:   outputs,
+		Staleness: staleness,
+		Now:       now,
 		Context: &commonv1.OnlineQueryContext{
 			Tags:                 params.Tags,
 			BranchId:             params.BranchId,

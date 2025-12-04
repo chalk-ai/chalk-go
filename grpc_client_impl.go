@@ -96,10 +96,12 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	tokenManager, err := auth.NewManager(
 		ctx,
 		&auth.Inputs{
-			Token:      cfg.JWT,
-			HttpClient: cfg.HTTPClient,
-			Config:     configManager,
-			Timeout:    timeout,
+			Token:                      cfg.JWT,
+			HttpClient:                 cfg.HTTPClient,
+			Config:                     configManager,
+			Timeout:                    timeout,
+			SkipEnvironmentNameMapping: cfg.SkipEnvironmentNameMapping,
+			SkipEngineMapping:          cfg.SkipEngineMapping,
 		},
 	)
 	if err != nil {

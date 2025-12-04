@@ -49,6 +49,9 @@ const (
 	// CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure is the fully-qualified name of the
 	// CloudAccountCredentialsService's DeleteCloudCredentials RPC.
 	CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/DeleteCloudCredentials"
+	// CloudAccountCredentialsServiceTestCloudCredentialsProcedure is the fully-qualified name of the
+	// CloudAccountCredentialsService's TestCloudCredentials RPC.
+	CloudAccountCredentialsServiceTestCloudCredentialsProcedure = "/chalk.server.v1.CloudAccountCredentialsService/TestCloudCredentials"
 )
 
 // CloudAccountCredentialsServiceClient is a client for the
@@ -59,6 +62,7 @@ type CloudAccountCredentialsServiceClient interface {
 	CreateCloudCredentials(context.Context, *connect.Request[v1.CreateCloudCredentialsRequest]) (*connect.Response[v1.CreateCloudCredentialsResponse], error)
 	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
+	TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error)
 }
 
 // NewCloudAccountCredentialsServiceClient constructs a client for the
@@ -105,6 +109,13 @@ func NewCloudAccountCredentialsServiceClient(httpClient connect.HTTPClient, base
 			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("DeleteCloudCredentials")),
 			connect.WithClientOptions(opts...),
 		),
+		testCloudCredentials: connect.NewClient[v1.TestCloudCredentialsRequest, v1.TestCloudCredentialsResponse](
+			httpClient,
+			baseURL+CloudAccountCredentialsServiceTestCloudCredentialsProcedure,
+			connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("TestCloudCredentials")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -115,6 +126,7 @@ type cloudAccountCredentialsServiceClient struct {
 	createCloudCredentials *connect.Client[v1.CreateCloudCredentialsRequest, v1.CreateCloudCredentialsResponse]
 	updateCloudCredentials *connect.Client[v1.UpdateCloudCredentialsRequest, v1.UpdateCloudCredentialsResponse]
 	deleteCloudCredentials *connect.Client[v1.DeleteCloudCredentialsRequest, v1.DeleteCloudCredentialsResponse]
+	testCloudCredentials   *connect.Client[v1.TestCloudCredentialsRequest, v1.TestCloudCredentialsResponse]
 }
 
 // ListCloudCredentials calls chalk.server.v1.CloudAccountCredentialsService.ListCloudCredentials.
@@ -145,6 +157,11 @@ func (c *cloudAccountCredentialsServiceClient) DeleteCloudCredentials(ctx contex
 	return c.deleteCloudCredentials.CallUnary(ctx, req)
 }
 
+// TestCloudCredentials calls chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials.
+func (c *cloudAccountCredentialsServiceClient) TestCloudCredentials(ctx context.Context, req *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error) {
+	return c.testCloudCredentials.CallUnary(ctx, req)
+}
+
 // CloudAccountCredentialsServiceHandler is an implementation of the
 // chalk.server.v1.CloudAccountCredentialsService service.
 type CloudAccountCredentialsServiceHandler interface {
@@ -153,6 +170,7 @@ type CloudAccountCredentialsServiceHandler interface {
 	CreateCloudCredentials(context.Context, *connect.Request[v1.CreateCloudCredentialsRequest]) (*connect.Response[v1.CreateCloudCredentialsResponse], error)
 	UpdateCloudCredentials(context.Context, *connect.Request[v1.UpdateCloudCredentialsRequest]) (*connect.Response[v1.UpdateCloudCredentialsResponse], error)
 	DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error)
+	TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error)
 }
 
 // NewCloudAccountCredentialsServiceHandler builds an HTTP handler from the service implementation.
@@ -194,6 +212,13 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("DeleteCloudCredentials")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudAccountCredentialsServiceTestCloudCredentialsHandler := connect.NewUnaryHandler(
+		CloudAccountCredentialsServiceTestCloudCredentialsProcedure,
+		svc.TestCloudCredentials,
+		connect.WithSchema(cloudAccountCredentialsServiceMethods.ByName("TestCloudCredentials")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.CloudAccountCredentialsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CloudAccountCredentialsServiceListCloudCredentialsProcedure:
@@ -206,6 +231,8 @@ func NewCloudAccountCredentialsServiceHandler(svc CloudAccountCredentialsService
 			cloudAccountCredentialsServiceUpdateCloudCredentialsHandler.ServeHTTP(w, r)
 		case CloudAccountCredentialsServiceDeleteCloudCredentialsProcedure:
 			cloudAccountCredentialsServiceDeleteCloudCredentialsHandler.ServeHTTP(w, r)
+		case CloudAccountCredentialsServiceTestCloudCredentialsProcedure:
+			cloudAccountCredentialsServiceTestCloudCredentialsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -233,4 +260,8 @@ func (UnimplementedCloudAccountCredentialsServiceHandler) UpdateCloudCredentials
 
 func (UnimplementedCloudAccountCredentialsServiceHandler) DeleteCloudCredentials(context.Context, *connect.Request[v1.DeleteCloudCredentialsRequest]) (*connect.Response[v1.DeleteCloudCredentialsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.DeleteCloudCredentials is not implemented"))
+}
+
+func (UnimplementedCloudAccountCredentialsServiceHandler) TestCloudCredentials(context.Context, *connect.Request[v1.TestCloudCredentialsRequest]) (*connect.Response[v1.TestCloudCredentialsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudAccountCredentialsService.TestCloudCredentials is not implemented"))
 }

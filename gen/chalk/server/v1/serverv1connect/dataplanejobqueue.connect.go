@@ -45,6 +45,12 @@ const (
 	// DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's GetJobQueueOperationSummary RPC.
 	DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure = "/chalk.server.v1.DataPlaneJobQueueService/GetJobQueueOperationSummary"
+	// DataPlaneJobQueueServiceListJobQueueAttemptsProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's ListJobQueueAttempts RPC.
+	DataPlaneJobQueueServiceListJobQueueAttemptsProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ListJobQueueAttempts"
+	// DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's ForceCancelJobQueueJob RPC.
+	DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ForceCancelJobQueueJob"
 )
 
 // DataPlaneJobQueueServiceClient is a client for the chalk.server.v1.DataPlaneJobQueueService
@@ -54,6 +60,8 @@ type DataPlaneJobQueueServiceClient interface {
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
 	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
 	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
+	ListJobQueueAttempts(context.Context, *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error)
+	ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceClient constructs a client for the
@@ -95,6 +103,19 @@ func NewDataPlaneJobQueueServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listJobQueueAttempts: connect.NewClient[v1.ListJobQueueAttemptsRequest, v1.ListJobQueueAttemptsResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceListJobQueueAttemptsProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ListJobQueueAttempts")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		forceCancelJobQueueJob: connect.NewClient[v1.ForceCancelJobQueueJobRequest, v1.ForceCancelJobQueueJobResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ForceCancelJobQueueJob")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -104,6 +125,8 @@ type dataPlaneJobQueueServiceClient struct {
 	listDataPlaneJobQueue         *connect.Client[v1.ListDataPlaneJobQueueRequest, v1.ListDataPlaneJobQueueResponse]
 	getJobQueueAuxiliaryResources *connect.Client[v1.GetJobQueueAuxiliaryResourcesRequest, v1.GetJobQueueAuxiliaryResourcesResponse]
 	getJobQueueOperationSummary   *connect.Client[v1.GetJobQueueOperationSummaryRequest, v1.GetJobQueueOperationSummaryResponse]
+	listJobQueueAttempts          *connect.Client[v1.ListJobQueueAttemptsRequest, v1.ListJobQueueAttemptsResponse]
+	forceCancelJobQueueJob        *connect.Client[v1.ForceCancelJobQueueJobRequest, v1.ForceCancelJobQueueJobResponse]
 }
 
 // GetDataPlaneJobQueue calls chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue.
@@ -128,6 +151,16 @@ func (c *dataPlaneJobQueueServiceClient) GetJobQueueOperationSummary(ctx context
 	return c.getJobQueueOperationSummary.CallUnary(ctx, req)
 }
 
+// ListJobQueueAttempts calls chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts.
+func (c *dataPlaneJobQueueServiceClient) ListJobQueueAttempts(ctx context.Context, req *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error) {
+	return c.listJobQueueAttempts.CallUnary(ctx, req)
+}
+
+// ForceCancelJobQueueJob calls chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob.
+func (c *dataPlaneJobQueueServiceClient) ForceCancelJobQueueJob(ctx context.Context, req *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error) {
+	return c.forceCancelJobQueueJob.CallUnary(ctx, req)
+}
+
 // DataPlaneJobQueueServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneJobQueueService service.
 type DataPlaneJobQueueServiceHandler interface {
@@ -135,6 +168,8 @@ type DataPlaneJobQueueServiceHandler interface {
 	ListDataPlaneJobQueue(context.Context, *connect.Request[v1.ListDataPlaneJobQueueRequest]) (*connect.Response[v1.ListDataPlaneJobQueueResponse], error)
 	GetJobQueueAuxiliaryResources(context.Context, *connect.Request[v1.GetJobQueueAuxiliaryResourcesRequest]) (*connect.Response[v1.GetJobQueueAuxiliaryResourcesResponse], error)
 	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
+	ListJobQueueAttempts(context.Context, *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error)
+	ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceHandler builds an HTTP handler from the service implementation. It
@@ -172,6 +207,19 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneJobQueueServiceListJobQueueAttemptsHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceListJobQueueAttemptsProcedure,
+		svc.ListJobQueueAttempts,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ListJobQueueAttempts")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	dataPlaneJobQueueServiceForceCancelJobQueueJobHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure,
+		svc.ForceCancelJobQueueJob,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ForceCancelJobQueueJob")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneJobQueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneJobQueueServiceGetDataPlaneJobQueueProcedure:
@@ -182,6 +230,10 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 			dataPlaneJobQueueServiceGetJobQueueAuxiliaryResourcesHandler.ServeHTTP(w, r)
 		case DataPlaneJobQueueServiceGetJobQueueOperationSummaryProcedure:
 			dataPlaneJobQueueServiceGetJobQueueOperationSummaryHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceListJobQueueAttemptsProcedure:
+			dataPlaneJobQueueServiceListJobQueueAttemptsHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure:
+			dataPlaneJobQueueServiceForceCancelJobQueueJobHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -205,4 +257,12 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueAuxiliaryResource
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) ListJobQueueAttempts(context.Context, *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob is not implemented"))
 }
