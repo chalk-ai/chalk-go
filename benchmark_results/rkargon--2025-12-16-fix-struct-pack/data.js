@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1765319410835,
+  "lastUpdate": 1765926470713,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28920,6 +28920,56 @@ window.BENCHMARK_DATA = {
             "value": 364.4,
             "unit": "ms/op",
             "extra": "3 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "812f623a85f9e02b901e3464659f2adfd75a4fff",
+          "message": "Fix arrow to proto serializtion for StructPack",
+          "timestamp": "2025-12-09T22:29:35Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/533/commits/812f623a85f9e02b901e3464659f2adfd75a4fff"
+        },
+        "date": 1765926470625,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.14,
+            "unit": "ms/op",
+            "extra": "1018 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 136.3,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.51,
+            "unit": "ms/op",
+            "extra": "31 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 227.2,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 381.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
