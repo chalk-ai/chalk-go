@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1765319410835,
+  "lastUpdate": 1765926854441,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28920,6 +28920,60 @@ window.BENCHMARK_DATA = {
             "value": 364.4,
             "unit": "ms/op",
             "extra": "3 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "raphael.kargon@gmail.com",
+            "name": "Raphael Kargon",
+            "username": "rkargon"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eaf349928829f0e5846cd3a25588ed2210d61c0b",
+          "message": "Merge pull request #533 from chalk-ai/rkargon/2025-12-16-fix-struct-pack\n\nFix arrow to proto serializtion for StructPack",
+          "timestamp": "2025-12-16T15:13:38-08:00",
+          "tree_id": "01a035543335de951b14f7e8ee01cb762fc4766a",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/eaf349928829f0e5846cd3a25588ed2210d61c0b"
+        },
+        "date": 1765926854356,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9347,
+            "unit": "ms/op",
+            "extra": "1244 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 110,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 46.59,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 205,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 290,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
