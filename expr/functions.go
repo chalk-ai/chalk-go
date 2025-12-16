@@ -677,7 +677,9 @@ func StructPack(fields map[string]Expr) Expr {
 				LargeListValue: keysArr,
 			},
 		},
-		IsArrowScalarObject: true,
+		// IMPORTANT -- we want this object to be interpreted NOT as an arrow value, but as a list of args that has
+		// been serialized as an arrow scalar
+		IsArrowScalarObject: false,
 	})
 	for k := range fields {
 		values = append(values, fields[k])
