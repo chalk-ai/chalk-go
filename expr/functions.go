@@ -661,17 +661,24 @@ func stringsToArrowArrayBytes(values []string) (*arrowv1.ScalarListValue, error)
 	}, nil
 }
 
-func StructPack(fields map[string]Expr) Expr {
+type StructField struct {
+	Name       string
+	Expression Expr
+}
+
+// StructPack Create a struct value with the given columns.
+func StructPack(fields []StructField) Expr {
 	var keys []string
 	var values []Expr
-	for k := range fields {
-		keys = append(keys, k)
+	for _, kv := range fields {
+		keys = append(keys, kv.Name)
+		values = append(values, kv.Expression)
 	}
 	keysArr, err := stringsToArrowArrayBytes(keys)
 	if err != nil {
 		panic(err)
 	}
-	values = append(values, &LiteralExpr{
+	keys_serialized := LiteralExpr{
 		ScalarValue: &arrowv1.ScalarValue{
 			Value: &arrowv1.ScalarValue_LargeListValue{
 				LargeListValue: keysArr,
@@ -680,12 +687,13 @@ func StructPack(fields map[string]Expr) Expr {
 		// IMPORTANT -- we want this object to be interpreted NOT as an arrow value, but as a list of args that has
 		// been serialized as an arrow scalar
 		IsArrowScalarObject: false,
-	})
-	for k := range fields {
-		values = append(values, fields[k])
 	}
 
-	return FunctionCall("struct_pack", values...)
+	var final_values []Expr
+	final_values = append(final_values, &keys_serialized)
+
+	final_values = append(final_values, values...)
+	return FunctionCall("struct_pack", final_values...)
 }
 
 func Rand() Expr {
