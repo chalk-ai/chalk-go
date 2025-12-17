@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1765926854441,
+  "lastUpdate": 1765939567616,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -28974,6 +28974,60 @@ window.BENCHMARK_DATA = {
             "value": 290,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "sai@chalk.ai",
+            "name": "Sai Atmakuri",
+            "username": "saiguy3"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a47169f23abdfb9e227ae91ecafe5f990b63e08e",
+          "message": "Merge pull request #535 from chalk-ai/sai/2025-12-16-bump-protos\n\nbump protos",
+          "timestamp": "2025-12-16T18:45:27-08:00",
+          "tree_id": "09ef2c9622356eeaf9f04425344d2b46979e2fc4",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/a47169f23abdfb9e227ae91ecafe5f990b63e08e"
+        },
+        "date": 1765939567537,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.118,
+            "unit": "ms/op",
+            "extra": "1098 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 108.8,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 35.61,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 238.1,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 344.9,
+            "unit": "ms/op",
+            "extra": "3 times\n4 procs"
           }
         ]
       }
