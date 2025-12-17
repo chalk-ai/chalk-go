@@ -661,12 +661,12 @@ func TestStreamResolverParseFnReturnsList(t *testing.T) {
 	emailPrimaryField := expr.GetJsonValue(messageStr, "$.primary_email")
 	emailSecondaryField := expr.GetJsonValue(messageStr, "$.secondary_email")
 	emailPrimaryRecord := expr.StructPack([]expr.StructField{
-		{"id", expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
-		{"email", emailPrimaryField},
+		{Name: "id", Expression: expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
+		{Name: "email", Expression: emailPrimaryField},
 	})
 	emailSecondaryRecord := expr.StructPack([]expr.StructField{
-		{"id", expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
-		{"email", emailSecondaryField},
+		{Name: "id", Expression: expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
+		{Name: "email", Expression: emailSecondaryField},
 	})
 	parseExpr := expr.ArrayConstructor(emailPrimaryRecord, emailSecondaryRecord)
 
