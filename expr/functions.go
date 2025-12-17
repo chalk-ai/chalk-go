@@ -692,10 +692,7 @@ func StructPack(fields []StructField) Expr {
 	var final_values []Expr
 	final_values = append(final_values, &keys_serialized)
 
-	for _, v := range values {
-		final_values = append(final_values, v)
-	}
-
+	final_values = append(final_values, values...)
 	return FunctionCall("struct_pack", final_values...)
 }
 
