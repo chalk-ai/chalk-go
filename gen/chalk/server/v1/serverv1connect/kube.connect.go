@@ -45,6 +45,9 @@ const (
 	// KubeServiceGetKubernetesServiceAccountsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesServiceAccounts RPC.
 	KubeServiceGetKubernetesServiceAccountsProcedure = "/chalk.server.v1.KubeService/GetKubernetesServiceAccounts"
+	// KubeServiceGetKubernetesAutoscalersProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesAutoscalers RPC.
+	KubeServiceGetKubernetesAutoscalersProcedure = "/chalk.server.v1.KubeService/GetKubernetesAutoscalers"
 )
 
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
@@ -55,6 +58,7 @@ type KubeServiceClient interface {
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
+	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 }
 
 // NewKubeServiceClient constructs a client for the chalk.server.v1.KubeService service. By default,
@@ -96,6 +100,13 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getKubernetesAutoscalers: connect.NewClient[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesAutoscalersProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesAutoscalers")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -105,6 +116,7 @@ type kubeServiceClient struct {
 	getKubernetesEvents            *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
 	getKubernetesPersistentVolumes *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
 	getKubernetesServiceAccounts   *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
+	getKubernetesAutoscalers       *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
 }
 
 // GetPodStackTraceDump calls chalk.server.v1.KubeService.GetPodStackTraceDump.
@@ -127,6 +139,11 @@ func (c *kubeServiceClient) GetKubernetesServiceAccounts(ctx context.Context, re
 	return c.getKubernetesServiceAccounts.CallUnary(ctx, req)
 }
 
+// GetKubernetesAutoscalers calls chalk.server.v1.KubeService.GetKubernetesAutoscalers.
+func (c *kubeServiceClient) GetKubernetesAutoscalers(ctx context.Context, req *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error) {
+	return c.getKubernetesAutoscalers.CallUnary(ctx, req)
+}
+
 // KubeServiceHandler is an implementation of the chalk.server.v1.KubeService service.
 type KubeServiceHandler interface {
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
@@ -135,6 +152,7 @@ type KubeServiceHandler interface {
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
+	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
 }
 
 // NewKubeServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -172,6 +190,13 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeServiceGetKubernetesAutoscalersHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesAutoscalersProcedure,
+		svc.GetKubernetesAutoscalers,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesAutoscalers")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.KubeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeServiceGetPodStackTraceDumpProcedure:
@@ -182,6 +207,8 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetKubernetesPersistentVolumesHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesServiceAccountsProcedure:
 			kubeServiceGetKubernetesServiceAccountsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesAutoscalersProcedure:
+			kubeServiceGetKubernetesAutoscalersHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -205,4 +232,8 @@ func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumes(context.Co
 
 func (UnimplementedKubeServiceHandler) GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesServiceAccounts is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesAutoscalers is not implemented"))
 }
