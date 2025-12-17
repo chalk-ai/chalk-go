@@ -666,7 +666,7 @@ type StructField struct {
 	Expression Expr
 }
 
-// StructPack Create a struct value with the given columns
+// StructPack Create a struct value with the given columns.
 func StructPack(fields []StructField) Expr {
 	var keys []string
 	var values []Expr

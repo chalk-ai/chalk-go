@@ -97,7 +97,7 @@ func (e *IdentifierExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *IdentifierExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *IdentifierExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *IdentifierExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *IdentifierExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *IdentifierExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *IdentifierExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *IdentifierExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *IdentifierExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -218,7 +218,7 @@ func (e *LiteralExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *LiteralExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *LiteralExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *LiteralExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *LiteralExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *LiteralExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *LiteralExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *LiteralExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *LiteralExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -258,7 +258,7 @@ func (e *GetAttributeExpr) Add(other Expr) Expr { return binaryOp(e, "+", other)
 func (e *GetAttributeExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *GetAttributeExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *GetAttributeExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *GetAttributeExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *GetAttributeExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *GetAttributeExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *GetAttributeExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *GetAttributeExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -315,7 +315,7 @@ func (e *CallExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *CallExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *CallExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *CallExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *CallExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *CallExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *CallExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *CallExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *CallExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -355,7 +355,7 @@ func (e *AliasExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *AliasExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *AliasExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *AliasExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *AliasExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *AliasExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *AliasExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *AliasExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *AliasExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
