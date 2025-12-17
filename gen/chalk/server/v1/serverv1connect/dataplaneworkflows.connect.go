@@ -40,6 +40,9 @@ const (
 	// DataPlaneWorkflowsServiceListDataPlaneWorkflowsProcedure is the fully-qualified name of the
 	// DataPlaneWorkflowsService's ListDataPlaneWorkflows RPC.
 	DataPlaneWorkflowsServiceListDataPlaneWorkflowsProcedure = "/chalk.server.v1.DataPlaneWorkflowsService/ListDataPlaneWorkflows"
+	// DataPlaneWorkflowsServiceGetWorkflowGraphProcedure is the fully-qualified name of the
+	// DataPlaneWorkflowsService's GetWorkflowGraph RPC.
+	DataPlaneWorkflowsServiceGetWorkflowGraphProcedure = "/chalk.server.v1.DataPlaneWorkflowsService/GetWorkflowGraph"
 )
 
 // DataPlaneWorkflowsServiceClient is a client for the chalk.server.v1.DataPlaneWorkflowsService
@@ -47,6 +50,7 @@ const (
 type DataPlaneWorkflowsServiceClient interface {
 	GetDataPlaneWorkflow(context.Context, *connect.Request[v1.GetDataPlaneWorkflowRequest]) (*connect.Response[v1.GetDataPlaneWorkflowResponse], error)
 	ListDataPlaneWorkflows(context.Context, *connect.Request[v1.ListDataPlaneWorkflowsRequest]) (*connect.Response[v1.ListDataPlaneWorkflowsResponse], error)
+	GetWorkflowGraph(context.Context, *connect.Request[v1.GetWorkflowGraphRequest]) (*connect.Response[v1.GetWorkflowGraphResponse], error)
 }
 
 // NewDataPlaneWorkflowsServiceClient constructs a client for the
@@ -74,6 +78,13 @@ func NewDataPlaneWorkflowsServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getWorkflowGraph: connect.NewClient[v1.GetWorkflowGraphRequest, v1.GetWorkflowGraphResponse](
+			httpClient,
+			baseURL+DataPlaneWorkflowsServiceGetWorkflowGraphProcedure,
+			connect.WithSchema(dataPlaneWorkflowsServiceMethods.ByName("GetWorkflowGraph")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -81,6 +92,7 @@ func NewDataPlaneWorkflowsServiceClient(httpClient connect.HTTPClient, baseURL s
 type dataPlaneWorkflowsServiceClient struct {
 	getDataPlaneWorkflow   *connect.Client[v1.GetDataPlaneWorkflowRequest, v1.GetDataPlaneWorkflowResponse]
 	listDataPlaneWorkflows *connect.Client[v1.ListDataPlaneWorkflowsRequest, v1.ListDataPlaneWorkflowsResponse]
+	getWorkflowGraph       *connect.Client[v1.GetWorkflowGraphRequest, v1.GetWorkflowGraphResponse]
 }
 
 // GetDataPlaneWorkflow calls chalk.server.v1.DataPlaneWorkflowsService.GetDataPlaneWorkflow.
@@ -93,11 +105,17 @@ func (c *dataPlaneWorkflowsServiceClient) ListDataPlaneWorkflows(ctx context.Con
 	return c.listDataPlaneWorkflows.CallUnary(ctx, req)
 }
 
+// GetWorkflowGraph calls chalk.server.v1.DataPlaneWorkflowsService.GetWorkflowGraph.
+func (c *dataPlaneWorkflowsServiceClient) GetWorkflowGraph(ctx context.Context, req *connect.Request[v1.GetWorkflowGraphRequest]) (*connect.Response[v1.GetWorkflowGraphResponse], error) {
+	return c.getWorkflowGraph.CallUnary(ctx, req)
+}
+
 // DataPlaneWorkflowsServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneWorkflowsService service.
 type DataPlaneWorkflowsServiceHandler interface {
 	GetDataPlaneWorkflow(context.Context, *connect.Request[v1.GetDataPlaneWorkflowRequest]) (*connect.Response[v1.GetDataPlaneWorkflowResponse], error)
 	ListDataPlaneWorkflows(context.Context, *connect.Request[v1.ListDataPlaneWorkflowsRequest]) (*connect.Response[v1.ListDataPlaneWorkflowsResponse], error)
+	GetWorkflowGraph(context.Context, *connect.Request[v1.GetWorkflowGraphRequest]) (*connect.Response[v1.GetWorkflowGraphResponse], error)
 }
 
 // NewDataPlaneWorkflowsServiceHandler builds an HTTP handler from the service implementation. It
@@ -121,12 +139,21 @@ func NewDataPlaneWorkflowsServiceHandler(svc DataPlaneWorkflowsServiceHandler, o
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneWorkflowsServiceGetWorkflowGraphHandler := connect.NewUnaryHandler(
+		DataPlaneWorkflowsServiceGetWorkflowGraphProcedure,
+		svc.GetWorkflowGraph,
+		connect.WithSchema(dataPlaneWorkflowsServiceMethods.ByName("GetWorkflowGraph")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneWorkflowsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneWorkflowsServiceGetDataPlaneWorkflowProcedure:
 			dataPlaneWorkflowsServiceGetDataPlaneWorkflowHandler.ServeHTTP(w, r)
 		case DataPlaneWorkflowsServiceListDataPlaneWorkflowsProcedure:
 			dataPlaneWorkflowsServiceListDataPlaneWorkflowsHandler.ServeHTTP(w, r)
+		case DataPlaneWorkflowsServiceGetWorkflowGraphProcedure:
+			dataPlaneWorkflowsServiceGetWorkflowGraphHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -142,4 +169,8 @@ func (UnimplementedDataPlaneWorkflowsServiceHandler) GetDataPlaneWorkflow(contex
 
 func (UnimplementedDataPlaneWorkflowsServiceHandler) ListDataPlaneWorkflows(context.Context, *connect.Request[v1.ListDataPlaneWorkflowsRequest]) (*connect.Response[v1.ListDataPlaneWorkflowsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneWorkflowsService.ListDataPlaneWorkflows is not implemented"))
+}
+
+func (UnimplementedDataPlaneWorkflowsServiceHandler) GetWorkflowGraph(context.Context, *connect.Request[v1.GetWorkflowGraphRequest]) (*connect.Response[v1.GetWorkflowGraphResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneWorkflowsService.GetWorkflowGraph is not implemented"))
 }
