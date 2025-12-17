@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1766008554522,
+  "lastUpdate": 1766009118024,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -29128,6 +29128,56 @@ window.BENCHMARK_DATA = {
             "value": 349.2,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "316da7974fced7f7943f492ac913ca020abbc339",
+          "message": "Fix interface for expr.StructPack to respect field ordering.",
+          "timestamp": "2025-12-17T02:45:32Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/536/commits/316da7974fced7f7943f492ac913ca020abbc339"
+        },
+        "date": 1766009117943,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.077,
+            "unit": "ms/op",
+            "extra": "1328 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 133.7,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.3,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 203.1,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 292.1,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
