@@ -727,6 +727,8 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 		switch op {
 		case "=":
 			op = "=="
+		case "==":
+			op = "=="
 		case "AND":
 			op = "and"
 		case "OR":
