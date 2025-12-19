@@ -425,7 +425,7 @@ func (e *ColumnExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *ColumnExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *ColumnExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *ColumnExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *ColumnExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *ColumnExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *ColumnExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *ColumnExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *ColumnExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -514,7 +514,7 @@ func (e *DataFrameExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other
 func (e *DataFrameExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *DataFrameExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *DataFrameExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *DataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *DataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *DataFrameExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *DataFrameExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *DataFrameExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
@@ -592,7 +592,7 @@ func (e *AggregateExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other
 func (e *AggregateExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *AggregateExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *AggregateExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *AggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *AggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *AggregateExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *AggregateExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *AggregateExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }

@@ -67,7 +67,7 @@ func TestFluentAPI(t *testing.T) {
 				Gt(Int(100)).
 				And(Col("user.age").Ge(Int(18))).
 				Or(Col("user.premium").Eq(Bool(true))),
-			"OR(AND(>(user.transactions.amount, 100), >=(user.age, 18)), =(user.premium, true))",
+			"OR(AND(>(user.transactions.amount, 100), >=(user.age, 18)), ==(user.premium, true))",
 		},
 
 		// Column references
@@ -110,7 +110,7 @@ func TestFluentAPI(t *testing.T) {
 		{
 			"logical_and_comparison",
 			Col("age").Gt(Int(18)).And(Col("active").Eq(Bool(true))),
-			"AND(>(age, 18), =(active, true))",
+			"AND(>(age, 18), ==(active, true))",
 		},
 
 		// Function calls
