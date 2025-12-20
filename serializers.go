@@ -66,6 +66,12 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 		convertedInputs[fqn] = convertedValues
 	}
 
+	if len(p.PlannerOptions) > 0 {
+		if err := validatePlannerOptions(p.PlannerOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	result := &internal.OnlineQueryRequestSerialized{
 		Inputs:  convertedInputs,
 		Outputs: outputs,
@@ -494,7 +500,6 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
 	}
 
-	// Validate PlannerOptions before processing
 	if len(params.PlannerOptions) > 0 {
 		if err := validatePlannerOptions(params.PlannerOptions); err != nil {
 			return nil, err
