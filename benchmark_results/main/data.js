@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1766179230579,
+  "lastUpdate": 1766195032178,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -29242,6 +29242,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 329.1,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "alexb@chalk.ai",
+            "name": "Alex Bondarenko",
+            "username": "abondrnco"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dbc2ecdaaa57b987e7fbf69cce84f7101f64b6fa",
+          "message": "codegen expr functions (#537)",
+          "timestamp": "2025-12-19T17:43:11-08:00",
+          "tree_id": "bbfc2fc23539e39f45310fbb54ae314e8c8583c9",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/dbc2ecdaaa57b987e7fbf69cce84f7101f64b6fa"
+        },
+        "date": 1766195032152,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.326,
+            "unit": "ms/op",
+            "extra": "943 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 142.3,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.98,
+            "unit": "ms/op",
+            "extra": "30 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 213,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 303.4,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
           }
