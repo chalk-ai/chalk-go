@@ -329,7 +329,7 @@ func TestFunctionFluentAPI(t *testing.T) {
 
 	// Test that function results can be used in fluent API
 	result := Upper(Col("name")).Eq(String("JOHN")).And(Length(Col("email")).Gt(Int(5)))
-	expected := "AND(==(upper(name), JOHN), >(length(email), 5))"
+	expected := "&(==(upper(name), JOHN), >(length(email), 5))"
 
 	actual := result.String()
 	if actual != expected {

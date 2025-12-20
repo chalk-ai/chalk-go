@@ -587,7 +587,7 @@ func TestStreamResolverValid(t *testing.T) {
 			"amount":  Float,
 		})
 
-	messageStr := expr.BytesToUtf8(expr.Col("_"))
+	messageStr := expr.BytesToStringUtf8(expr.Col("_"))
 
 	defs := Definitions{}.
 		WithFeatureSets(transactionFS).
@@ -657,7 +657,7 @@ func TestStreamResolverParseFnReturnsList(t *testing.T) {
 			"email": String,
 		})
 
-	messageStr := expr.BytesToUtf8(expr.Col("_"))
+	messageStr := expr.BytesToStringUtf8(expr.Col("_"))
 	emailPrimaryField := expr.GetJsonValue(messageStr, "$.primary_email")
 	emailSecondaryField := expr.GetJsonValue(messageStr, "$.secondary_email")
 	emailPrimaryRecord := expr.StructPack([]expr.StructField{

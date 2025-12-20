@@ -103,10 +103,10 @@ func (e *IdentifierExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *IdentifierExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *IdentifierExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *IdentifierExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *IdentifierExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *IdentifierExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *IdentifierExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *IdentifierExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *IdentifierExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *IdentifierExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *IdentifierExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *IdentifierExpr) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *IdentifierExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *IdentifierExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
@@ -224,10 +224,10 @@ func (e *LiteralExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *LiteralExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *LiteralExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *LiteralExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *LiteralExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *LiteralExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *LiteralExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *LiteralExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *LiteralExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *LiteralExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *LiteralExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *LiteralExpr) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *LiteralExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *LiteralExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
@@ -264,10 +264,10 @@ func (e *GetAttributeExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other)
 func (e *GetAttributeExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *GetAttributeExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *GetAttributeExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *GetAttributeExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *GetAttributeExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *GetAttributeExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *GetAttributeExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *GetAttributeExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *GetAttributeExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *GetAttributeExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *GetAttributeExpr) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *GetAttributeExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *GetAttributeExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
@@ -321,10 +321,10 @@ func (e *CallExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *CallExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *CallExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *CallExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *CallExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *CallExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *CallExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *CallExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *CallExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *CallExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *CallExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *CallExpr) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *CallExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *CallExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
@@ -361,10 +361,10 @@ func (e *AliasExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *AliasExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *AliasExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *AliasExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *AliasExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *AliasExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *AliasExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *AliasExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *AliasExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *AliasExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *AliasExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *AliasExpr) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *AliasExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *AliasExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
