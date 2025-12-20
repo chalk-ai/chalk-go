@@ -425,17 +425,17 @@ func (e *ColumnExpr) Add(other Expr) Expr { return binaryOp(e, "+", other) }
 func (e *ColumnExpr) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *ColumnExpr) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *ColumnExpr) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *ColumnExpr) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *ColumnExpr) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *ColumnExpr) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *ColumnExpr) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *ColumnExpr) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *ColumnExpr) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *ColumnExpr) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *ColumnExpr) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *ColumnExpr) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *ColumnExpr) Not() Expr           { return unaryOp("NOT", e) }
-func (e *ColumnExpr) IsNull() Expr        { return unaryOp("IS_NULL", e) }
-func (e *ColumnExpr) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
+func (e *ColumnExpr) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *ColumnExpr) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *ColumnExpr) Not() Expr           { return unaryOp("~", e) }
+func (e *ColumnExpr) IsNull() Expr        { return unaryOp("is_null", e) }
+func (e *ColumnExpr) IsNotNull() Expr     { return unaryOp("is_not_null", e) }
 func (e *ColumnExpr) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
 }
@@ -514,16 +514,16 @@ func (e *DataFrameExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other
 func (e *DataFrameExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *DataFrameExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *DataFrameExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *DataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *DataFrameExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *DataFrameExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *DataFrameExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *DataFrameExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *DataFrameExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *DataFrameExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *DataFrameExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *DataFrameExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *DataFrameExprImpl) Not() Expr           { return unaryOp("NOT", e) }
-func (e *DataFrameExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *DataFrameExprImpl) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *DataFrameExprImpl) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *DataFrameExprImpl) Not() Expr           { return unaryOp("~", e) }
+func (e *DataFrameExprImpl) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *DataFrameExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *DataFrameExprImpl) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
@@ -592,16 +592,16 @@ func (e *AggregateExprImpl) Add(other Expr) Expr { return binaryOp(e, "+", other
 func (e *AggregateExprImpl) Sub(other Expr) Expr { return binaryOp(e, "-", other) }
 func (e *AggregateExprImpl) Mul(other Expr) Expr { return binaryOp(e, "*", other) }
 func (e *AggregateExprImpl) Div(other Expr) Expr { return binaryOp(e, "/", other) }
-func (e *AggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "=", other) }
+func (e *AggregateExprImpl) Eq(other Expr) Expr  { return binaryOp(e, "==", other) }
 func (e *AggregateExprImpl) Ne(other Expr) Expr  { return binaryOp(e, "!=", other) }
 func (e *AggregateExprImpl) Lt(other Expr) Expr  { return binaryOp(e, "<", other) }
 func (e *AggregateExprImpl) Le(other Expr) Expr  { return binaryOp(e, "<=", other) }
 func (e *AggregateExprImpl) Gt(other Expr) Expr  { return binaryOp(e, ">", other) }
 func (e *AggregateExprImpl) Ge(other Expr) Expr  { return binaryOp(e, ">=", other) }
-func (e *AggregateExprImpl) And(other Expr) Expr { return binaryOp(e, "AND", other) }
-func (e *AggregateExprImpl) Or(other Expr) Expr  { return binaryOp(e, "OR", other) }
-func (e *AggregateExprImpl) Not() Expr           { return unaryOp("NOT", e) }
-func (e *AggregateExprImpl) IsNull() Expr        { return unaryOp("IS_NULL", e) }
+func (e *AggregateExprImpl) And(other Expr) Expr { return binaryOp(e, "&", other) }
+func (e *AggregateExprImpl) Or(other Expr) Expr  { return binaryOp(e, "|", other) }
+func (e *AggregateExprImpl) Not() Expr           { return unaryOp("~", e) }
+func (e *AggregateExprImpl) IsNull() Expr        { return unaryOp("is_null", e) }
 func (e *AggregateExprImpl) IsNotNull() Expr     { return unaryOp("IS_NOT_NULL", e) }
 func (e *AggregateExprImpl) Attr(attribute string) Expr {
 	return &GetAttributeExpr{Parent: e, Attribute: attribute}
