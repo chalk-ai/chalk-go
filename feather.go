@@ -62,6 +62,12 @@ func (p OnlineQueryParamsComplete) ToBytes(options ...*SerializationOptions) ([]
 		outputs = []string{}
 	}
 
+	if len(p.underlying.PlannerOptions) > 0 {
+		if err := validatePlannerOptions(p.underlying.PlannerOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	return internal.CreateOnlineQueryBulkBody(
 		resolved.inputs,
 		internal.FeatherRequestHeader{
