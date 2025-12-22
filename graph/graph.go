@@ -725,20 +725,20 @@ func toFilterParsedProto(expression expr.ExprI, foreignNamespace string) (*expre
 	case *expr.CallExpr:
 		op := e.Function.String()
 		switch op {
-		case "=":
-			op = "=="
-		case "AND":
+		case "==":
+		case "&":
 			op = "and"
-		case "OR":
+		case "|":
 			op = "or"
-		case "NOT":
+		case "~":
 			op = "not"
-		// these have the same symbol
 		case "!=":
 		case "<":
 		case "<=":
 		case ">":
 		case ">=":
+		case "is_null":
+		case "is_not_null":
 		// any others are not supported
 		default:
 			return nil, fmt.Errorf("operator %s not allowed in filters", op)

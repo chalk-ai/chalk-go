@@ -16,6 +16,27 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// validatePlannerOptions validates the planner options map
+func validatePlannerOptions(options map[string]any) error {
+	if plannerVersion, exists := options["planner_version"]; exists {
+		// planner_version must be a numeric string
+		versionStr, ok := plannerVersion.(string)
+		if !ok {
+			return fmt.Errorf("planner_version must be a string, got %T", plannerVersion)
+		}
+		// Check if it's a valid number
+		if versionStr != "" {
+			// Try to parse as number by checking if all characters are digits
+			for _, char := range versionStr {
+				if char < '0' || char > '9' {
+					return fmt.Errorf("planner_version must be numeric, got %q", versionStr)
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParamsResolved) (*internal.OnlineQueryRequestSerialized, error) {
 	outputs := resolved.outputs
 	if outputs == nil {
@@ -43,6 +64,12 @@ func serializeOnlineQueryParams(p *OnlineQueryParams, resolved *onlineQueryParam
 			return nil, errors.Wrap(err, "convert structs in input feature values")
 		}
 		convertedInputs[fqn] = convertedValues
+	}
+
+	if len(p.PlannerOptions) > 0 {
+		if err := validatePlannerOptions(p.PlannerOptions); err != nil {
+			return nil, err
+		}
 	}
 
 	result := &internal.OnlineQueryRequestSerialized{
@@ -253,6 +280,9 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 	// Convert PlannerOptions to pointer if not empty
 	var plannerOptionsPtr *map[string]any
 	if len(p.PlannerOptions) > 0 {
+		if err := validatePlannerOptions(p.PlannerOptions); err != nil {
+			return nil, err
+		}
 		plannerOptionsPtr = &p.PlannerOptions
 	}
 
@@ -469,6 +499,13 @@ func convertOnlineQueryParamsToProto(params *OnlineQueryParams, allocator memory
 	if params.StorePlanStages {
 		options["store_plan_stages"] = structpb.NewBoolValue(params.StorePlanStages)
 	}
+
+	if len(params.PlannerOptions) > 0 {
+		if err := validatePlannerOptions(params.PlannerOptions); err != nil {
+			return nil, err
+		}
+	}
+
 	for k, v := range params.PlannerOptions {
 		protoVal, err := structpb.NewValue(v)
 		if err != nil {

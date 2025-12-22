@@ -485,7 +485,7 @@ func TestToProto(t *testing.T) {
 						Func: &expressionv1.LogicalExprNode{
 							ExprForm: &expressionv1.LogicalExprNode_Identifier{
 								Identifier: &expressionv1.Identifier{
-									Name: "AND",
+									Name: "&",
 								},
 							},
 						},
@@ -521,7 +521,7 @@ func TestToProto(t *testing.T) {
 						Func: &expressionv1.LogicalExprNode{
 							ExprForm: &expressionv1.LogicalExprNode_Identifier{
 								Identifier: &expressionv1.Identifier{
-									Name: "IS_NULL",
+									Name: "is_null",
 								},
 							},
 						},
@@ -548,15 +548,31 @@ func TestToProto(t *testing.T) {
 						Func: &expressionv1.LogicalExprNode{
 							ExprForm: &expressionv1.LogicalExprNode_Identifier{
 								Identifier: &expressionv1.Identifier{
-									Name: "IS_NOT_NULL",
+									Name: "~",
 								},
 							},
 						},
 						Args: []*expressionv1.LogicalExprNode{
 							{
-								ExprForm: &expressionv1.LogicalExprNode_Identifier{
-									Identifier: &expressionv1.Identifier{
-										Name: "phone",
+								ExprForm: &expressionv1.LogicalExprNode_Call{
+									Call: &expressionv1.ExprCall{
+										Func: &expressionv1.LogicalExprNode{
+											ExprForm: &expressionv1.LogicalExprNode_Identifier{
+												Identifier: &expressionv1.Identifier{
+													Name: "is_null",
+												},
+											},
+										},
+										Args: []*expressionv1.LogicalExprNode{
+											{
+												ExprForm: &expressionv1.LogicalExprNode_Identifier{
+													Identifier: &expressionv1.Identifier{
+														Name: "phone",
+													},
+												},
+											},
+										},
+										Kwargs: make(map[string]*expressionv1.LogicalExprNode),
 									},
 								},
 							},

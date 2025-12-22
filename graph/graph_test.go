@@ -587,7 +587,7 @@ func TestStreamResolverValid(t *testing.T) {
 			"amount":  Float,
 		})
 
-	messageStr := expr.BytesToUtf8(expr.Col("_"))
+	messageStr := expr.BytesToStringUtf8(expr.Col("_"))
 
 	defs := Definitions{}.
 		WithFeatureSets(transactionFS).
@@ -657,16 +657,16 @@ func TestStreamResolverParseFnReturnsList(t *testing.T) {
 			"email": String,
 		})
 
-	messageStr := expr.BytesToUtf8(expr.Col("_"))
+	messageStr := expr.BytesToStringUtf8(expr.Col("_"))
 	emailPrimaryField := expr.GetJsonValue(messageStr, "$.primary_email")
 	emailSecondaryField := expr.GetJsonValue(messageStr, "$.secondary_email")
-	emailPrimaryRecord := expr.StructPack(map[string]expr.Expr{
-		"id":    expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}}),
-		"email": emailPrimaryField,
+	emailPrimaryRecord := expr.StructPack([]expr.StructField{
+		{Name: "id", Expression: expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
+		{Name: "email", Expression: emailPrimaryField},
 	})
-	emailSecondaryRecord := expr.StructPack(map[string]expr.Expr{
-		"id":    expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}}),
-		"email": emailSecondaryField,
+	emailSecondaryRecord := expr.StructPack([]expr.StructField{
+		{Name: "id", Expression: expr.Cast(expr.Rand(), &arrowv1.ArrowType{ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{}})},
+		{Name: "email", Expression: emailSecondaryField},
 	})
 	parseExpr := expr.ArrayConstructor(emailPrimaryRecord, emailSecondaryRecord)
 
