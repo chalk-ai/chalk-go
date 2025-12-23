@@ -36,11 +36,19 @@ const (
 	// BenchmarkServiceCreateBenchmarkProcedure is the fully-qualified name of the BenchmarkService's
 	// CreateBenchmark RPC.
 	BenchmarkServiceCreateBenchmarkProcedure = "/chalk.server.v1.BenchmarkService/CreateBenchmark"
+	// BenchmarkServiceGetAvailableInputFilesProcedure is the fully-qualified name of the
+	// BenchmarkService's GetAvailableInputFiles RPC.
+	BenchmarkServiceGetAvailableInputFilesProcedure = "/chalk.server.v1.BenchmarkService/GetAvailableInputFiles"
+	// BenchmarkServiceGetInputFileUploadUrlsProcedure is the fully-qualified name of the
+	// BenchmarkService's GetInputFileUploadUrls RPC.
+	BenchmarkServiceGetInputFileUploadUrlsProcedure = "/chalk.server.v1.BenchmarkService/GetInputFileUploadUrls"
 )
 
 // BenchmarkServiceClient is a client for the chalk.server.v1.BenchmarkService service.
 type BenchmarkServiceClient interface {
 	CreateBenchmark(context.Context, *connect.Request[v1.CreateBenchmarkRequest]) (*connect.Response[v1.CreateBenchmarkResponse], error)
+	GetAvailableInputFiles(context.Context, *connect.Request[v1.GetAvailableInputFilesRequest]) (*connect.Response[v1.GetAvailableInputFilesResponse], error)
+	GetInputFileUploadUrls(context.Context, *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error)
 }
 
 // NewBenchmarkServiceClient constructs a client for the chalk.server.v1.BenchmarkService service.
@@ -60,12 +68,26 @@ func NewBenchmarkServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(benchmarkServiceMethods.ByName("CreateBenchmark")),
 			connect.WithClientOptions(opts...),
 		),
+		getAvailableInputFiles: connect.NewClient[v1.GetAvailableInputFilesRequest, v1.GetAvailableInputFilesResponse](
+			httpClient,
+			baseURL+BenchmarkServiceGetAvailableInputFilesProcedure,
+			connect.WithSchema(benchmarkServiceMethods.ByName("GetAvailableInputFiles")),
+			connect.WithClientOptions(opts...),
+		),
+		getInputFileUploadUrls: connect.NewClient[v1.GetInputFileUploadUrlsRequest, v1.GetInputFileUploadUrlsResponse](
+			httpClient,
+			baseURL+BenchmarkServiceGetInputFileUploadUrlsProcedure,
+			connect.WithSchema(benchmarkServiceMethods.ByName("GetInputFileUploadUrls")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // benchmarkServiceClient implements BenchmarkServiceClient.
 type benchmarkServiceClient struct {
-	createBenchmark *connect.Client[v1.CreateBenchmarkRequest, v1.CreateBenchmarkResponse]
+	createBenchmark        *connect.Client[v1.CreateBenchmarkRequest, v1.CreateBenchmarkResponse]
+	getAvailableInputFiles *connect.Client[v1.GetAvailableInputFilesRequest, v1.GetAvailableInputFilesResponse]
+	getInputFileUploadUrls *connect.Client[v1.GetInputFileUploadUrlsRequest, v1.GetInputFileUploadUrlsResponse]
 }
 
 // CreateBenchmark calls chalk.server.v1.BenchmarkService.CreateBenchmark.
@@ -73,9 +95,21 @@ func (c *benchmarkServiceClient) CreateBenchmark(ctx context.Context, req *conne
 	return c.createBenchmark.CallUnary(ctx, req)
 }
 
+// GetAvailableInputFiles calls chalk.server.v1.BenchmarkService.GetAvailableInputFiles.
+func (c *benchmarkServiceClient) GetAvailableInputFiles(ctx context.Context, req *connect.Request[v1.GetAvailableInputFilesRequest]) (*connect.Response[v1.GetAvailableInputFilesResponse], error) {
+	return c.getAvailableInputFiles.CallUnary(ctx, req)
+}
+
+// GetInputFileUploadUrls calls chalk.server.v1.BenchmarkService.GetInputFileUploadUrls.
+func (c *benchmarkServiceClient) GetInputFileUploadUrls(ctx context.Context, req *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error) {
+	return c.getInputFileUploadUrls.CallUnary(ctx, req)
+}
+
 // BenchmarkServiceHandler is an implementation of the chalk.server.v1.BenchmarkService service.
 type BenchmarkServiceHandler interface {
 	CreateBenchmark(context.Context, *connect.Request[v1.CreateBenchmarkRequest]) (*connect.Response[v1.CreateBenchmarkResponse], error)
+	GetAvailableInputFiles(context.Context, *connect.Request[v1.GetAvailableInputFilesRequest]) (*connect.Response[v1.GetAvailableInputFilesResponse], error)
+	GetInputFileUploadUrls(context.Context, *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error)
 }
 
 // NewBenchmarkServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -91,10 +125,26 @@ func NewBenchmarkServiceHandler(svc BenchmarkServiceHandler, opts ...connect.Han
 		connect.WithSchema(benchmarkServiceMethods.ByName("CreateBenchmark")),
 		connect.WithHandlerOptions(opts...),
 	)
+	benchmarkServiceGetAvailableInputFilesHandler := connect.NewUnaryHandler(
+		BenchmarkServiceGetAvailableInputFilesProcedure,
+		svc.GetAvailableInputFiles,
+		connect.WithSchema(benchmarkServiceMethods.ByName("GetAvailableInputFiles")),
+		connect.WithHandlerOptions(opts...),
+	)
+	benchmarkServiceGetInputFileUploadUrlsHandler := connect.NewUnaryHandler(
+		BenchmarkServiceGetInputFileUploadUrlsProcedure,
+		svc.GetInputFileUploadUrls,
+		connect.WithSchema(benchmarkServiceMethods.ByName("GetInputFileUploadUrls")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BenchmarkService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BenchmarkServiceCreateBenchmarkProcedure:
 			benchmarkServiceCreateBenchmarkHandler.ServeHTTP(w, r)
+		case BenchmarkServiceGetAvailableInputFilesProcedure:
+			benchmarkServiceGetAvailableInputFilesHandler.ServeHTTP(w, r)
+		case BenchmarkServiceGetInputFileUploadUrlsProcedure:
+			benchmarkServiceGetInputFileUploadUrlsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -106,4 +156,12 @@ type UnimplementedBenchmarkServiceHandler struct{}
 
 func (UnimplementedBenchmarkServiceHandler) CreateBenchmark(context.Context, *connect.Request[v1.CreateBenchmarkRequest]) (*connect.Response[v1.CreateBenchmarkResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BenchmarkService.CreateBenchmark is not implemented"))
+}
+
+func (UnimplementedBenchmarkServiceHandler) GetAvailableInputFiles(context.Context, *connect.Request[v1.GetAvailableInputFilesRequest]) (*connect.Response[v1.GetAvailableInputFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BenchmarkService.GetAvailableInputFiles is not implemented"))
+}
+
+func (UnimplementedBenchmarkServiceHandler) GetInputFileUploadUrls(context.Context, *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BenchmarkService.GetInputFileUploadUrls is not implemented"))
 }
