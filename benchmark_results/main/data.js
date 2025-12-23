@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1766195032178,
+  "lastUpdate": 1766522365070,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -29298,6 +29298,60 @@ window.BENCHMARK_DATA = {
             "value": 303.4,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "47928984+CollinHowland@users.noreply.github.com",
+            "name": "CollinHowland",
+            "username": "CollinHowland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ad4360e9e7dd84fdc842f28b4f958426ef459c57",
+          "message": "Merge pull request #541 from chalk-ai/bm-input-file\n\nBenchmark Input File",
+          "timestamp": "2025-12-23T12:38:46-08:00",
+          "tree_id": "707465ac6e3d8cf166c63b5dba0bc487ab88038f",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/ad4360e9e7dd84fdc842f28b4f958426ef459c57"
+        },
+        "date": 1766522364988,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.058,
+            "unit": "ms/op",
+            "extra": "1080 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 111.9,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 51.93,
+            "unit": "ms/op",
+            "extra": "28 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 223.5,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 314.6,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
