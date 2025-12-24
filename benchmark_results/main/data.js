@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1766601058270,
+  "lastUpdate": 1766604708536,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -29460,6 +29460,60 @@ window.BENCHMARK_DATA = {
             "value": 351.1,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "47928984+CollinHowland@users.noreply.github.com",
+            "name": "CollinHowland",
+            "username": "CollinHowland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "83f04c28283ff7e12b8d149a353205dba50cd85f",
+          "message": "Merge pull request #544 from chalk-ai/remaining-types\n\nAdding in some missing types",
+          "timestamp": "2025-12-24T11:31:13-08:00",
+          "tree_id": "97fad54f08ed33d0a0c17e1eaf1d4fc434d917d2",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/83f04c28283ff7e12b8d149a353205dba50cd85f"
+        },
+        "date": 1766604708454,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.194,
+            "unit": "ms/op",
+            "extra": "1114 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 116.1,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.62,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 229.5,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 384.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
