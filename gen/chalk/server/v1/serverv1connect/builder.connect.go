@@ -155,6 +155,9 @@ const (
 	// BuilderServiceCreateDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// CreateDeployment RPC.
 	BuilderServiceCreateDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateDeployment"
+	// BuilderServicePrepareDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// PrepareDeployment RPC.
+	BuilderServicePrepareDeploymentProcedure = "/chalk.server.v1.BuilderService/PrepareDeployment"
 	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// GetTelemetryDeployment RPC.
 	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
@@ -245,6 +248,7 @@ type BuilderServiceClient interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -511,6 +515,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		prepareDeployment: connect.NewClient[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServicePrepareDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 		getTelemetryDeployment: connect.NewClient[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceGetTelemetryDeploymentProcedure,
@@ -605,6 +615,7 @@ type builderServiceClient struct {
 	getTagWeights                      *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
 	setTagWeights                      *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
 	createDeployment                   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
+	prepareDeployment                  *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
 	getTelemetryDeployment             *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
 	createTelemetryDeployment          *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
 	updateTelemetryDeployment          *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
@@ -828,6 +839,11 @@ func (c *builderServiceClient) CreateDeployment(ctx context.Context, req *connec
 	return c.createDeployment.CallUnary(ctx, req)
 }
 
+// PrepareDeployment calls chalk.server.v1.BuilderService.PrepareDeployment.
+func (c *builderServiceClient) PrepareDeployment(ctx context.Context, req *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error) {
+	return c.prepareDeployment.CallUnary(ctx, req)
+}
+
 // GetTelemetryDeployment calls chalk.server.v1.BuilderService.GetTelemetryDeployment.
 func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return c.getTelemetryDeployment.CallUnary(ctx, req)
@@ -926,6 +942,7 @@ type BuilderServiceHandler interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -1188,6 +1205,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServicePrepareDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServicePrepareDeploymentProcedure,
+		svc.PrepareDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceGetTelemetryDeploymentProcedure,
 		svc.GetTelemetryDeployment,
@@ -1319,6 +1342,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSetTagWeightsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateDeploymentProcedure:
 			builderServiceCreateDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServicePrepareDeploymentProcedure:
+			builderServicePrepareDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceGetTelemetryDeploymentProcedure:
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateTelemetryDeploymentProcedure:
@@ -1502,6 +1527,10 @@ func (UnimplementedBuilderServiceHandler) SetTagWeights(context.Context, *connec
 
 func (UnimplementedBuilderServiceHandler) CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PrepareDeployment is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
