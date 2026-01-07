@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1767810870460,
+  "lastUpdate": 1767811629177,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -29890,6 +29890,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 320,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "dd533c549822caff3cc98dc5faa2426fe3a3e53a",
+          "message": "Add multi-namespace query examples for Golang SDK\n\nAdd two example files demonstrating how to query Chalk with multiple input namespaces:\n\n- multi_namespace_main.go: Runnable example with main() function\n- multi_namespace_query.go: Reusable function example\n\nBoth examples show:\n- Querying with multiple input namespaces (user.id and author.id)\n- Outputting input features from both namespaces\n- Unmarshaling results into nested structs\n- Accessing Arrow table data directly\n- Retrieving query metadata\n\nIncludes expected output in comments for reference.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-01-07T10:46:29-08:00",
+          "tree_id": "0272d62216f299ac27f0e0772c8ab7373cdd4f93",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/dd533c549822caff3cc98dc5faa2426fe3a3e53a"
+        },
+        "date": 1767811629150,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.24,
+            "unit": "ms/op",
+            "extra": "1012 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 113.6,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 41.25,
+            "unit": "ms/op",
+            "extra": "31 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 237.8,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 300.7,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
