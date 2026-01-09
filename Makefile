@@ -14,6 +14,10 @@ test:  ## Run tests. Needs bash > 4.0, gotestsum, panicparse, and script
 release:  ## Release the go client
 	@bash ./release.sh
 
+staticcheck:  ## Run staticcheck
+	@go install honnef.co/go/tools/cmd/staticcheck@latest
+	@staticcheck ./...
+
 cloc:
 	cloc . --vcs=git --exclude-lang JSON,SVG,.pyi --not-match-f generated.go
 
