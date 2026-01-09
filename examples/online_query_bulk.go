@@ -8,18 +8,18 @@ import (
 	"github.com/chalk-ai/chalk-go"
 )
 
-// User represents a feature namespace for user features
-// In practice, this would be generated using `chalk codegen`
-type User struct {
-	Id           *string
-	Email        *string
-	Name         *string
-	CreditScore  *int64
-	AccountValue *float64
-}
-
 //lint:ignore U1000 example
 func onlineQueryBulk() {
+	// User represents a feature namespace for user features
+	// In practice, this would be generated using `chalk codegen`
+	type User struct {
+		Id           *string
+		Email        *string
+		Name         *string
+		CreditScore  *int64
+		AccountValue *float64
+	}
+
 	// Initialize the Chalk gRPC client
 	// By default, this will use environment variables or ~/.chalk.yml configuration:
 	// - CHALK_CLIENT_ID or config file

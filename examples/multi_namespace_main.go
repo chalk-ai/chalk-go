@@ -32,23 +32,23 @@ import (
 //	Environment ID: <your-environment-id>
 //	Query Timestamp: 2026-01-07 18:38:21.505303883 +0000 UTC
 
-// User represents the user feature namespace
-type User struct {
-	Id *int64
-}
-
-// Author represents the author feature namespace
-type Author struct {
-	Id *string
-}
-
-// MultiNamespaceResult combines features from multiple namespaces
-type MultiNamespaceResult struct {
-	User   User
-	Author Author
-}
-
 func main() {
+	// User represents the user feature namespace
+	type User struct {
+		Id *int64
+	}
+
+	// Author represents the author feature namespace
+	type Author struct {
+		Id *string
+	}
+
+	// MultiNamespaceResult combines features from multiple namespaces
+	type MultiNamespaceResult struct {
+		User   User
+		Author Author
+	}
+
 	// Initialize the Chalk gRPC client
 	// By default, this will use environment variables or ~/.chalk.yml configuration:
 	// - CHALK_CLIENT_ID or config file

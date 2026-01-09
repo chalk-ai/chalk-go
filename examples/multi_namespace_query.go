@@ -32,32 +32,32 @@ import (
 //	Environment ID: <your-environment-id>
 //	Query Timestamp: 2026-01-07 18:38:43.060682528 +0000 UTC
 
-// User represents the user feature namespace
-// In practice, use `chalk codegen` to generate these structs
-type User struct {
-	Id          *int64
-	Email       *string
-	Name        *string
-	CreditScore *int64
-}
-
-// Author represents the author feature namespace
-// In practice, use `chalk codegen` to generate these structs
-type Author struct {
-	Id           *string
-	Name         *string
-	ArticleCount *int64
-	Rating       *float64
-}
-
-// MultiNamespaceResult combines features from multiple namespaces
-type MultiNamespaceResult struct {
-	User   User
-	Author Author
-}
-
 //lint:ignore U1000 example
 func multiNamespaceQuery() {
+	// User represents the user feature namespace
+	// In practice, use `chalk codegen` to generate these structs
+	type User struct {
+		Id          *int64
+		Email       *string
+		Name        *string
+		CreditScore *int64
+	}
+
+	// Author represents the author feature namespace
+	// In practice, use `chalk codegen` to generate these structs
+	type Author struct {
+		Id           *string
+		Name         *string
+		ArticleCount *int64
+		Rating       *float64
+	}
+
+	// MultiNamespaceResult combines features from multiple namespaces
+	type MultiNamespaceResult struct {
+		User   User
+		Author Author
+	}
+
 	// Initialize the Chalk gRPC client
 	// By default, this will use environment variables or ~/.chalk.yml configuration
 	ctx := context.Background()
