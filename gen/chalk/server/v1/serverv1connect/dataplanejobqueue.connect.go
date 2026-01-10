@@ -51,6 +51,9 @@ const (
 	// DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's ForceCancelJobQueueJob RPC.
 	DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ForceCancelJobQueueJob"
+	// DataPlaneJobQueueServiceCancelWorkflowExecutionProcedure is the fully-qualified name of the
+	// DataPlaneJobQueueService's CancelWorkflowExecution RPC.
+	DataPlaneJobQueueServiceCancelWorkflowExecutionProcedure = "/chalk.server.v1.DataPlaneJobQueueService/CancelWorkflowExecution"
 )
 
 // DataPlaneJobQueueServiceClient is a client for the chalk.server.v1.DataPlaneJobQueueService
@@ -62,6 +65,7 @@ type DataPlaneJobQueueServiceClient interface {
 	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
 	ListJobQueueAttempts(context.Context, *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error)
 	ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error)
+	CancelWorkflowExecution(context.Context, *connect.Request[v1.CancelWorkflowExecutionRequest]) (*connect.Response[v1.CancelWorkflowExecutionResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceClient constructs a client for the
@@ -116,6 +120,12 @@ func NewDataPlaneJobQueueServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ForceCancelJobQueueJob")),
 			connect.WithClientOptions(opts...),
 		),
+		cancelWorkflowExecution: connect.NewClient[v1.CancelWorkflowExecutionRequest, v1.CancelWorkflowExecutionResponse](
+			httpClient,
+			baseURL+DataPlaneJobQueueServiceCancelWorkflowExecutionProcedure,
+			connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("CancelWorkflowExecution")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -127,6 +137,7 @@ type dataPlaneJobQueueServiceClient struct {
 	getJobQueueOperationSummary   *connect.Client[v1.GetJobQueueOperationSummaryRequest, v1.GetJobQueueOperationSummaryResponse]
 	listJobQueueAttempts          *connect.Client[v1.ListJobQueueAttemptsRequest, v1.ListJobQueueAttemptsResponse]
 	forceCancelJobQueueJob        *connect.Client[v1.ForceCancelJobQueueJobRequest, v1.ForceCancelJobQueueJobResponse]
+	cancelWorkflowExecution       *connect.Client[v1.CancelWorkflowExecutionRequest, v1.CancelWorkflowExecutionResponse]
 }
 
 // GetDataPlaneJobQueue calls chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue.
@@ -161,6 +172,11 @@ func (c *dataPlaneJobQueueServiceClient) ForceCancelJobQueueJob(ctx context.Cont
 	return c.forceCancelJobQueueJob.CallUnary(ctx, req)
 }
 
+// CancelWorkflowExecution calls chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution.
+func (c *dataPlaneJobQueueServiceClient) CancelWorkflowExecution(ctx context.Context, req *connect.Request[v1.CancelWorkflowExecutionRequest]) (*connect.Response[v1.CancelWorkflowExecutionResponse], error) {
+	return c.cancelWorkflowExecution.CallUnary(ctx, req)
+}
+
 // DataPlaneJobQueueServiceHandler is an implementation of the
 // chalk.server.v1.DataPlaneJobQueueService service.
 type DataPlaneJobQueueServiceHandler interface {
@@ -170,6 +186,7 @@ type DataPlaneJobQueueServiceHandler interface {
 	GetJobQueueOperationSummary(context.Context, *connect.Request[v1.GetJobQueueOperationSummaryRequest]) (*connect.Response[v1.GetJobQueueOperationSummaryResponse], error)
 	ListJobQueueAttempts(context.Context, *connect.Request[v1.ListJobQueueAttemptsRequest]) (*connect.Response[v1.ListJobQueueAttemptsResponse], error)
 	ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error)
+	CancelWorkflowExecution(context.Context, *connect.Request[v1.CancelWorkflowExecutionRequest]) (*connect.Response[v1.CancelWorkflowExecutionResponse], error)
 }
 
 // NewDataPlaneJobQueueServiceHandler builds an HTTP handler from the service implementation. It
@@ -220,6 +237,12 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("ForceCancelJobQueueJob")),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataPlaneJobQueueServiceCancelWorkflowExecutionHandler := connect.NewUnaryHandler(
+		DataPlaneJobQueueServiceCancelWorkflowExecutionProcedure,
+		svc.CancelWorkflowExecution,
+		connect.WithSchema(dataPlaneJobQueueServiceMethods.ByName("CancelWorkflowExecution")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataPlaneJobQueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataPlaneJobQueueServiceGetDataPlaneJobQueueProcedure:
@@ -234,6 +257,8 @@ func NewDataPlaneJobQueueServiceHandler(svc DataPlaneJobQueueServiceHandler, opt
 			dataPlaneJobQueueServiceListJobQueueAttemptsHandler.ServeHTTP(w, r)
 		case DataPlaneJobQueueServiceForceCancelJobQueueJobProcedure:
 			dataPlaneJobQueueServiceForceCancelJobQueueJobHandler.ServeHTTP(w, r)
+		case DataPlaneJobQueueServiceCancelWorkflowExecutionProcedure:
+			dataPlaneJobQueueServiceCancelWorkflowExecutionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -265,4 +290,8 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) ListJobQueueAttempts(context
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) ForceCancelJobQueueJob(context.Context, *connect.Request[v1.ForceCancelJobQueueJobRequest]) (*connect.Response[v1.ForceCancelJobQueueJobResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob is not implemented"))
+}
+
+func (UnimplementedDataPlaneJobQueueServiceHandler) CancelWorkflowExecution(context.Context, *connect.Request[v1.CancelWorkflowExecutionRequest]) (*connect.Response[v1.CancelWorkflowExecutionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution is not implemented"))
 }

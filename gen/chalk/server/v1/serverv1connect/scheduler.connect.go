@@ -39,12 +39,20 @@ const (
 	// SchedulerServiceManualTriggerScheduledQueryProcedure is the fully-qualified name of the
 	// SchedulerService's ManualTriggerScheduledQuery RPC.
 	SchedulerServiceManualTriggerScheduledQueryProcedure = "/chalk.server.v1.SchedulerService/ManualTriggerScheduledQuery"
+	// SchedulerServiceGetScheduledResolverRunProcedure is the fully-qualified name of the
+	// SchedulerService's GetScheduledResolverRun RPC.
+	SchedulerServiceGetScheduledResolverRunProcedure = "/chalk.server.v1.SchedulerService/GetScheduledResolverRun"
+	// SchedulerServiceListScheduledResolverRunsProcedure is the fully-qualified name of the
+	// SchedulerService's ListScheduledResolverRuns RPC.
+	SchedulerServiceListScheduledResolverRunsProcedure = "/chalk.server.v1.SchedulerService/ListScheduledResolverRuns"
 )
 
 // SchedulerServiceClient is a client for the chalk.server.v1.SchedulerService service.
 type SchedulerServiceClient interface {
 	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
+	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
+	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 }
 
 // NewSchedulerServiceClient constructs a client for the chalk.server.v1.SchedulerService service.
@@ -70,6 +78,18 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledQuery")),
 			connect.WithClientOptions(opts...),
 		),
+		getScheduledResolverRun: connect.NewClient[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse](
+			httpClient,
+			baseURL+SchedulerServiceGetScheduledResolverRunProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("GetScheduledResolverRun")),
+			connect.WithClientOptions(opts...),
+		),
+		listScheduledResolverRuns: connect.NewClient[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse](
+			httpClient,
+			baseURL+SchedulerServiceListScheduledResolverRunsProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("ListScheduledResolverRuns")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -77,6 +97,8 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 type schedulerServiceClient struct {
 	manualTriggerCronResolver   *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
 	manualTriggerScheduledQuery *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
+	getScheduledResolverRun     *connect.Client[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse]
+	listScheduledResolverRuns   *connect.Client[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse]
 }
 
 // ManualTriggerCronResolver calls chalk.server.v1.SchedulerService.ManualTriggerCronResolver.
@@ -89,10 +111,22 @@ func (c *schedulerServiceClient) ManualTriggerScheduledQuery(ctx context.Context
 	return c.manualTriggerScheduledQuery.CallUnary(ctx, req)
 }
 
+// GetScheduledResolverRun calls chalk.server.v1.SchedulerService.GetScheduledResolverRun.
+func (c *schedulerServiceClient) GetScheduledResolverRun(ctx context.Context, req *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error) {
+	return c.getScheduledResolverRun.CallUnary(ctx, req)
+}
+
+// ListScheduledResolverRuns calls chalk.server.v1.SchedulerService.ListScheduledResolverRuns.
+func (c *schedulerServiceClient) ListScheduledResolverRuns(ctx context.Context, req *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error) {
+	return c.listScheduledResolverRuns.CallUnary(ctx, req)
+}
+
 // SchedulerServiceHandler is an implementation of the chalk.server.v1.SchedulerService service.
 type SchedulerServiceHandler interface {
 	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
 	ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error)
+	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
+	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 }
 
 // NewSchedulerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -114,12 +148,28 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 		connect.WithSchema(schedulerServiceMethods.ByName("ManualTriggerScheduledQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
+	schedulerServiceGetScheduledResolverRunHandler := connect.NewUnaryHandler(
+		SchedulerServiceGetScheduledResolverRunProcedure,
+		svc.GetScheduledResolverRun,
+		connect.WithSchema(schedulerServiceMethods.ByName("GetScheduledResolverRun")),
+		connect.WithHandlerOptions(opts...),
+	)
+	schedulerServiceListScheduledResolverRunsHandler := connect.NewUnaryHandler(
+		SchedulerServiceListScheduledResolverRunsProcedure,
+		svc.ListScheduledResolverRuns,
+		connect.WithSchema(schedulerServiceMethods.ByName("ListScheduledResolverRuns")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.SchedulerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SchedulerServiceManualTriggerCronResolverProcedure:
 			schedulerServiceManualTriggerCronResolverHandler.ServeHTTP(w, r)
 		case SchedulerServiceManualTriggerScheduledQueryProcedure:
 			schedulerServiceManualTriggerScheduledQueryHandler.ServeHTTP(w, r)
+		case SchedulerServiceGetScheduledResolverRunProcedure:
+			schedulerServiceGetScheduledResolverRunHandler.ServeHTTP(w, r)
+		case SchedulerServiceListScheduledResolverRunsProcedure:
+			schedulerServiceListScheduledResolverRunsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -135,4 +185,12 @@ func (UnimplementedSchedulerServiceHandler) ManualTriggerCronResolver(context.Co
 
 func (UnimplementedSchedulerServiceHandler) ManualTriggerScheduledQuery(context.Context, *connect.Request[v1.ManualTriggerScheduledQueryRequest]) (*connect.Response[v1.ManualTriggerScheduledQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ManualTriggerScheduledQuery is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.GetScheduledResolverRun is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.ListScheduledResolverRuns is not implemented"))
 }

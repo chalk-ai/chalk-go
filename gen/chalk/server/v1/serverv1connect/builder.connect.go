@@ -155,6 +155,9 @@ const (
 	// BuilderServiceCreateDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// CreateDeployment RPC.
 	BuilderServiceCreateDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateDeployment"
+	// BuilderServicePrepareDeploymentProcedure is the fully-qualified name of the BuilderService's
+	// PrepareDeployment RPC.
+	BuilderServicePrepareDeploymentProcedure = "/chalk.server.v1.BuilderService/PrepareDeployment"
 	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// GetTelemetryDeployment RPC.
 	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
@@ -179,6 +182,18 @@ const (
 	// BuilderServiceResumeEnvironmentProcedure is the fully-qualified name of the BuilderService's
 	// ResumeEnvironment RPC.
 	BuilderServiceResumeEnvironmentProcedure = "/chalk.server.v1.BuilderService/ResumeEnvironment"
+	// BuilderServiceSuspendClusterGatewayProcedure is the fully-qualified name of the BuilderService's
+	// SuspendClusterGateway RPC.
+	BuilderServiceSuspendClusterGatewayProcedure = "/chalk.server.v1.BuilderService/SuspendClusterGateway"
+	// BuilderServiceResumeClusterGatewayProcedure is the fully-qualified name of the BuilderService's
+	// ResumeClusterGateway RPC.
+	BuilderServiceResumeClusterGatewayProcedure = "/chalk.server.v1.BuilderService/ResumeClusterGateway"
+	// BuilderServiceSuspendClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's SuspendClusterBackgroundPersistence RPC.
+	BuilderServiceSuspendClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/SuspendClusterBackgroundPersistence"
+	// BuilderServiceResumeClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's ResumeClusterBackgroundPersistence RPC.
+	BuilderServiceResumeClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/ResumeClusterBackgroundPersistence"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -245,6 +260,7 @@ type BuilderServiceClient interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -253,6 +269,10 @@ type BuilderServiceClient interface {
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
 	SuspendEnvironment(context.Context, *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error)
 	ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error)
+	SuspendClusterGateway(context.Context, *connect.Request[v1.SuspendClusterGatewayRequest]) (*connect.Response[v1.SuspendClusterGatewayResponse], error)
+	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
+	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
+	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -511,6 +531,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		prepareDeployment: connect.NewClient[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse](
+			httpClient,
+			baseURL+BuilderServicePrepareDeploymentProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 		getTelemetryDeployment: connect.NewClient[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceGetTelemetryDeploymentProcedure,
@@ -560,59 +586,88 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("ResumeEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
+		suspendClusterGateway: connect.NewClient[v1.SuspendClusterGatewayRequest, v1.SuspendClusterGatewayResponse](
+			httpClient,
+			baseURL+BuilderServiceSuspendClusterGatewayProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("SuspendClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		resumeClusterGateway: connect.NewClient[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse](
+			httpClient,
+			baseURL+BuilderServiceResumeClusterGatewayProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ResumeClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		suspendClusterBackgroundPersistence: connect.NewClient[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceSuspendClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("SuspendClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
+		resumeClusterBackgroundPersistence: connect.NewClient[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceResumeClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
-	getSearchConfig                    *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
-	activateDeployment                 *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
-	indexDeployment                    *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
-	deployKubeComponents               *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
-	rebuildDeployment                  *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
-	redeployDeployment                 *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
-	uploadSource                       *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
-	lintSource                         *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
-	getDeploymentSteps                 *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
-	getDeploymentLogs                  *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
-	getDeploymentDependencies          *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
-	getClusterTimescaleDB              *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
-	getClusterGateway                  *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
-	getClusterGatewayDefault           *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
-	getClusterBackgroundPersistence    *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
-	createClusterTimescaleDB           *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
-	getClusterTimescaleDefault         *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
-	deleteClusterTimescaleDB           *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
-	createEnvironmentCloudResources    *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
-	deleteEnvironmentCloudResources    *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
-	migrateClusterTimescaleDB          *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
-	createClusterGateway               *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
-	createClusterBackgroundPersistence *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
-	updateEnvironmentVariables         *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
-	startBranch                        *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
-	scaleBranch                        *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
-	getBranchProfile                   *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
-	getBranchServerStatus              *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
-	getNodepools                       *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
-	addNodepool                        *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
-	updateNodepool                     *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
-	deleteNodepool                     *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
-	getKarpenterNodepools              *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
-	addKarpenterNodepool               *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
-	updateKarpenterNodepool            *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
-	deleteKarpenterNodepool            *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
-	getKarpenterInstallationMetadata   *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
-	getTagWeights                      *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
-	setTagWeights                      *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
-	createDeployment                   *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
-	getTelemetryDeployment             *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
-	createTelemetryDeployment          *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
-	updateTelemetryDeployment          *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
-	deleteTelemetryDeployment          *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
-	migrateTelemetryDeployment         *connect.Client[v1.MigrateTelemetryDeploymentRequest, v1.MigrateTelemetryDeploymentResponse]
-	getEnvironmentKubeClusters         *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
-	suspendEnvironment                 *connect.Client[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse]
-	resumeEnvironment                  *connect.Client[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse]
+	getSearchConfig                     *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
+	activateDeployment                  *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
+	indexDeployment                     *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
+	deployKubeComponents                *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
+	rebuildDeployment                   *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
+	redeployDeployment                  *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
+	uploadSource                        *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
+	lintSource                          *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
+	getDeploymentSteps                  *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
+	getDeploymentLogs                   *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
+	getDeploymentDependencies           *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
+	getClusterTimescaleDB               *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
+	getClusterGateway                   *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
+	getClusterGatewayDefault            *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
+	getClusterBackgroundPersistence     *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
+	createClusterTimescaleDB            *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
+	getClusterTimescaleDefault          *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
+	deleteClusterTimescaleDB            *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
+	createEnvironmentCloudResources     *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
+	deleteEnvironmentCloudResources     *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
+	migrateClusterTimescaleDB           *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
+	createClusterGateway                *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
+	createClusterBackgroundPersistence  *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
+	updateEnvironmentVariables          *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
+	startBranch                         *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
+	scaleBranch                         *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
+	getBranchProfile                    *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
+	getBranchServerStatus               *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
+	getNodepools                        *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
+	addNodepool                         *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
+	updateNodepool                      *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
+	deleteNodepool                      *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
+	getKarpenterNodepools               *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
+	addKarpenterNodepool                *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
+	updateKarpenterNodepool             *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
+	deleteKarpenterNodepool             *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
+	getKarpenterInstallationMetadata    *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
+	getTagWeights                       *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
+	setTagWeights                       *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
+	createDeployment                    *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
+	prepareDeployment                   *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
+	getTelemetryDeployment              *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
+	createTelemetryDeployment           *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
+	updateTelemetryDeployment           *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
+	deleteTelemetryDeployment           *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
+	migrateTelemetryDeployment          *connect.Client[v1.MigrateTelemetryDeploymentRequest, v1.MigrateTelemetryDeploymentResponse]
+	getEnvironmentKubeClusters          *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
+	suspendEnvironment                  *connect.Client[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse]
+	resumeEnvironment                   *connect.Client[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse]
+	suspendClusterGateway               *connect.Client[v1.SuspendClusterGatewayRequest, v1.SuspendClusterGatewayResponse]
+	resumeClusterGateway                *connect.Client[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse]
+	suspendClusterBackgroundPersistence *connect.Client[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse]
+	resumeClusterBackgroundPersistence  *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -828,6 +883,11 @@ func (c *builderServiceClient) CreateDeployment(ctx context.Context, req *connec
 	return c.createDeployment.CallUnary(ctx, req)
 }
 
+// PrepareDeployment calls chalk.server.v1.BuilderService.PrepareDeployment.
+func (c *builderServiceClient) PrepareDeployment(ctx context.Context, req *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error) {
+	return c.prepareDeployment.CallUnary(ctx, req)
+}
+
 // GetTelemetryDeployment calls chalk.server.v1.BuilderService.GetTelemetryDeployment.
 func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return c.getTelemetryDeployment.CallUnary(ctx, req)
@@ -866,6 +926,28 @@ func (c *builderServiceClient) SuspendEnvironment(ctx context.Context, req *conn
 // ResumeEnvironment calls chalk.server.v1.BuilderService.ResumeEnvironment.
 func (c *builderServiceClient) ResumeEnvironment(ctx context.Context, req *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error) {
 	return c.resumeEnvironment.CallUnary(ctx, req)
+}
+
+// SuspendClusterGateway calls chalk.server.v1.BuilderService.SuspendClusterGateway.
+func (c *builderServiceClient) SuspendClusterGateway(ctx context.Context, req *connect.Request[v1.SuspendClusterGatewayRequest]) (*connect.Response[v1.SuspendClusterGatewayResponse], error) {
+	return c.suspendClusterGateway.CallUnary(ctx, req)
+}
+
+// ResumeClusterGateway calls chalk.server.v1.BuilderService.ResumeClusterGateway.
+func (c *builderServiceClient) ResumeClusterGateway(ctx context.Context, req *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error) {
+	return c.resumeClusterGateway.CallUnary(ctx, req)
+}
+
+// SuspendClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence.
+func (c *builderServiceClient) SuspendClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error) {
+	return c.suspendClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
+// ResumeClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence.
+func (c *builderServiceClient) ResumeClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error) {
+	return c.resumeClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
@@ -926,6 +1008,7 @@ type BuilderServiceHandler interface {
 	GetTagWeights(context.Context, *connect.Request[v1.GetTagWeightsRequest]) (*connect.Response[v1.GetTagWeightsResponse], error)
 	SetTagWeights(context.Context, *connect.Request[v1.SetTagWeightsRequest]) (*connect.Response[v1.SetTagWeightsResponse], error)
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
+	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
@@ -934,6 +1017,10 @@ type BuilderServiceHandler interface {
 	GetEnvironmentKubeClusters(context.Context, *connect.Request[v1.GetEnvironmentKubeClustersRequest]) (*connect.Response[v1.GetEnvironmentKubeClustersResponse], error)
 	SuspendEnvironment(context.Context, *connect.Request[v1.SuspendEnvironmentRequest]) (*connect.Response[v1.SuspendEnvironmentResponse], error)
 	ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error)
+	SuspendClusterGateway(context.Context, *connect.Request[v1.SuspendClusterGatewayRequest]) (*connect.Response[v1.SuspendClusterGatewayResponse], error)
+	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
+	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
+	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -1188,6 +1275,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("CreateDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServicePrepareDeploymentHandler := connect.NewUnaryHandler(
+		BuilderServicePrepareDeploymentProcedure,
+		svc.PrepareDeployment,
+		connect.WithSchema(builderServiceMethods.ByName("PrepareDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceGetTelemetryDeploymentProcedure,
 		svc.GetTelemetryDeployment,
@@ -1235,6 +1328,30 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceResumeEnvironmentProcedure,
 		svc.ResumeEnvironment,
 		connect.WithSchema(builderServiceMethods.ByName("ResumeEnvironment")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceSuspendClusterGatewayHandler := connect.NewUnaryHandler(
+		BuilderServiceSuspendClusterGatewayProcedure,
+		svc.SuspendClusterGateway,
+		connect.WithSchema(builderServiceMethods.ByName("SuspendClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceResumeClusterGatewayHandler := connect.NewUnaryHandler(
+		BuilderServiceResumeClusterGatewayProcedure,
+		svc.ResumeClusterGateway,
+		connect.WithSchema(builderServiceMethods.ByName("ResumeClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceSuspendClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceSuspendClusterBackgroundPersistenceProcedure,
+		svc.SuspendClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceMethods.ByName("SuspendClusterBackgroundPersistence")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceResumeClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceResumeClusterBackgroundPersistenceProcedure,
+		svc.ResumeClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1319,6 +1436,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSetTagWeightsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateDeploymentProcedure:
 			builderServiceCreateDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServicePrepareDeploymentProcedure:
+			builderServicePrepareDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceGetTelemetryDeploymentProcedure:
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateTelemetryDeploymentProcedure:
@@ -1335,6 +1454,14 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSuspendEnvironmentHandler.ServeHTTP(w, r)
 		case BuilderServiceResumeEnvironmentProcedure:
 			builderServiceResumeEnvironmentHandler.ServeHTTP(w, r)
+		case BuilderServiceSuspendClusterGatewayProcedure:
+			builderServiceSuspendClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceResumeClusterGatewayProcedure:
+			builderServiceResumeClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceSuspendClusterBackgroundPersistenceProcedure:
+			builderServiceSuspendClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceResumeClusterBackgroundPersistenceProcedure:
+			builderServiceResumeClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1504,6 +1631,10 @@ func (UnimplementedBuilderServiceHandler) CreateDeployment(context.Context, *con
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateDeployment is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.PrepareDeployment is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTelemetryDeployment is not implemented"))
 }
@@ -1534,6 +1665,22 @@ func (UnimplementedBuilderServiceHandler) SuspendEnvironment(context.Context, *c
 
 func (UnimplementedBuilderServiceHandler) ResumeEnvironment(context.Context, *connect.Request[v1.ResumeEnvironmentRequest]) (*connect.Response[v1.ResumeEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeEnvironment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) SuspendClusterGateway(context.Context, *connect.Request[v1.SuspendClusterGatewayRequest]) (*connect.Response[v1.SuspendClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SuspendClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.SuspendClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.

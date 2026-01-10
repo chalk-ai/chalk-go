@@ -80,6 +80,10 @@ func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 		}, nil
 
 	case *CallExpr:
+		if e.Function.(*IdentifierExpr).Name == "is_not_null" {
+			return ToProto(e.Args[0].IsNull().Not())
+		}
+
 		args, err := toProtos(e.Args...)
 		if err != nil {
 			return nil, err
@@ -94,7 +98,7 @@ func ToProto(expr ExprI) (*expressionv1.LogicalExprNode, error) {
 			kwargs[key] = proto
 		}
 
-		// Special handling for list_literal function
+		// Special handling
 		if id, ok := e.Function.(*IdentifierExpr); ok && id.Name == "list_literal" {
 			if len(kwargs) != 0 {
 				return nil, fmt.Errorf("list_literal cannot have kwargs")
