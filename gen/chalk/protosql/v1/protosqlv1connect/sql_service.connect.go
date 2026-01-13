@@ -38,6 +38,8 @@ const (
 	SqlServiceExecuteSqlQueryProcedure = "/chalk.protosql.v1.SqlService/ExecuteSqlQuery"
 	// SqlServicePlanSqlQueryProcedure is the fully-qualified name of the SqlService's PlanSqlQuery RPC.
 	SqlServicePlanSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PlanSqlQuery"
+	// SqlServicePollSqlQueryProcedure is the fully-qualified name of the SqlService's PollSqlQuery RPC.
+	SqlServicePollSqlQueryProcedure = "/chalk.protosql.v1.SqlService/PollSqlQuery"
 	// SqlServiceGetDbCatalogsProcedure is the fully-qualified name of the SqlService's GetDbCatalogs
 	// RPC.
 	SqlServiceGetDbCatalogsProcedure = "/chalk.protosql.v1.SqlService/GetDbCatalogs"
@@ -51,6 +53,8 @@ const (
 type SqlServiceClient interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	// Poll for the status and results of an asynchronous SQL query
+	PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error)
 	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
 	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
 	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
@@ -79,6 +83,12 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
 			connect.WithClientOptions(opts...),
 		),
+		pollSqlQuery: connect.NewClient[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse](
+			httpClient,
+			baseURL+SqlServicePollSqlQueryProcedure,
+			connect.WithSchema(sqlServiceMethods.ByName("PollSqlQuery")),
+			connect.WithClientOptions(opts...),
+		),
 		getDbCatalogs: connect.NewClient[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse](
 			httpClient,
 			baseURL+SqlServiceGetDbCatalogsProcedure,
@@ -104,6 +114,7 @@ func NewSqlServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 type sqlServiceClient struct {
 	executeSqlQuery *connect.Client[v1.ExecuteSqlQueryRequest, v1.ExecuteSqlQueryResponse]
 	planSqlQuery    *connect.Client[v1.PlanSqlQueryRequest, v1.PlanSqlQueryResponse]
+	pollSqlQuery    *connect.Client[v1.PollSqlQueryRequest, v1.PollSqlQueryResponse]
 	getDbCatalogs   *connect.Client[v1.GetDbCatalogsRequest, v1.GetDbCatalogsResponse]
 	getDbSchemas    *connect.Client[v1.GetDbSchemasRequest, v1.GetDbSchemasResponse]
 	getTables       *connect.Client[v1.GetTablesRequest, v1.GetTablesResponse]
@@ -117,6 +128,11 @@ func (c *sqlServiceClient) ExecuteSqlQuery(ctx context.Context, req *connect.Req
 // PlanSqlQuery calls chalk.protosql.v1.SqlService.PlanSqlQuery.
 func (c *sqlServiceClient) PlanSqlQuery(ctx context.Context, req *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return c.planSqlQuery.CallUnary(ctx, req)
+}
+
+// PollSqlQuery calls chalk.protosql.v1.SqlService.PollSqlQuery.
+func (c *sqlServiceClient) PollSqlQuery(ctx context.Context, req *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error) {
+	return c.pollSqlQuery.CallUnary(ctx, req)
 }
 
 // GetDbCatalogs calls chalk.protosql.v1.SqlService.GetDbCatalogs.
@@ -138,6 +154,8 @@ func (c *sqlServiceClient) GetTables(ctx context.Context, req *connect.Request[v
 type SqlServiceHandler interface {
 	ExecuteSqlQuery(context.Context, *connect.Request[v1.ExecuteSqlQueryRequest]) (*connect.Response[v1.ExecuteSqlQueryResponse], error)
 	PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error)
+	// Poll for the status and results of an asynchronous SQL query
+	PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error)
 	GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error)
 	GetDbSchemas(context.Context, *connect.Request[v1.GetDbSchemasRequest]) (*connect.Response[v1.GetDbSchemasResponse], error)
 	GetTables(context.Context, *connect.Request[v1.GetTablesRequest]) (*connect.Response[v1.GetTablesResponse], error)
@@ -160,6 +178,12 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 		SqlServicePlanSqlQueryProcedure,
 		svc.PlanSqlQuery,
 		connect.WithSchema(sqlServiceMethods.ByName("PlanSqlQuery")),
+		connect.WithHandlerOptions(opts...),
+	)
+	sqlServicePollSqlQueryHandler := connect.NewUnaryHandler(
+		SqlServicePollSqlQueryProcedure,
+		svc.PollSqlQuery,
+		connect.WithSchema(sqlServiceMethods.ByName("PollSqlQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
 	sqlServiceGetDbCatalogsHandler := connect.NewUnaryHandler(
@@ -186,6 +210,8 @@ func NewSqlServiceHandler(svc SqlServiceHandler, opts ...connect.HandlerOption) 
 			sqlServiceExecuteSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServicePlanSqlQueryProcedure:
 			sqlServicePlanSqlQueryHandler.ServeHTTP(w, r)
+		case SqlServicePollSqlQueryProcedure:
+			sqlServicePollSqlQueryHandler.ServeHTTP(w, r)
 		case SqlServiceGetDbCatalogsProcedure:
 			sqlServiceGetDbCatalogsHandler.ServeHTTP(w, r)
 		case SqlServiceGetDbSchemasProcedure:
@@ -207,6 +233,10 @@ func (UnimplementedSqlServiceHandler) ExecuteSqlQuery(context.Context, *connect.
 
 func (UnimplementedSqlServiceHandler) PlanSqlQuery(context.Context, *connect.Request[v1.PlanSqlQueryRequest]) (*connect.Response[v1.PlanSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.PlanSqlQuery is not implemented"))
+}
+
+func (UnimplementedSqlServiceHandler) PollSqlQuery(context.Context, *connect.Request[v1.PollSqlQueryRequest]) (*connect.Response[v1.PollSqlQueryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.protosql.v1.SqlService.PollSqlQuery is not implemented"))
 }
 
 func (UnimplementedSqlServiceHandler) GetDbCatalogs(context.Context, *connect.Request[v1.GetDbCatalogsRequest]) (*connect.Response[v1.GetDbCatalogsResponse], error) {
