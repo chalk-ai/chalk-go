@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768246977389,
+  "lastUpdate": 1768351555665,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30204,6 +30204,56 @@ window.BENCHMARK_DATA = {
             "value": 402.2,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "f50b8e432358ed6b0ab82d1cb27d83eca8f083b9",
+          "message": "benchmark proto generated for p99.9, image override, and container specs",
+          "timestamp": "2026-01-13T08:30:12Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/551/commits/f50b8e432358ed6b0ab82d1cb27d83eca8f083b9"
+        },
+        "date": 1768351555578,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9531,
+            "unit": "ms/op",
+            "extra": "1222 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 109.9,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 35.27,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 212.1,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 303.9,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
