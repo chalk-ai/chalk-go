@@ -57,6 +57,9 @@ const (
 	// DeployServiceTagDeploymentProcedure is the fully-qualified name of the DeployService's
 	// TagDeployment RPC.
 	DeployServiceTagDeploymentProcedure = "/chalk.server.v1.DeployService/TagDeployment"
+	// DeployServiceGetDeploymentSourceProcedure is the fully-qualified name of the DeployService's
+	// GetDeploymentSource RPC.
+	DeployServiceGetDeploymentSourceProcedure = "/chalk.server.v1.DeployService/GetDeploymentSource"
 )
 
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
@@ -69,6 +72,7 @@ type DeployServiceClient interface {
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
+	GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error)
 }
 
 // NewDeployServiceClient constructs a client for the chalk.server.v1.DeployService service. By
@@ -130,6 +134,12 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		getDeploymentSource: connect.NewClient[v1.GetDeploymentSourceRequest, v1.GetDeploymentSourceResponse](
+			httpClient,
+			baseURL+DeployServiceGetDeploymentSourceProcedure,
+			connect.WithSchema(deployServiceMethods.ByName("GetDeploymentSource")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -143,6 +153,7 @@ type deployServiceClient struct {
 	suspendDeployment                *connect.Client[v1.SuspendDeploymentRequest, v1.SuspendDeploymentResponse]
 	scaleDeployment                  *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
 	tagDeployment                    *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
+	getDeploymentSource              *connect.Client[v1.GetDeploymentSourceRequest, v1.GetDeploymentSourceResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
@@ -186,6 +197,11 @@ func (c *deployServiceClient) TagDeployment(ctx context.Context, req *connect.Re
 	return c.tagDeployment.CallUnary(ctx, req)
 }
 
+// GetDeploymentSource calls chalk.server.v1.DeployService.GetDeploymentSource.
+func (c *deployServiceClient) GetDeploymentSource(ctx context.Context, req *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error) {
+	return c.getDeploymentSource.CallUnary(ctx, req)
+}
+
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
@@ -196,6 +212,7 @@ type DeployServiceHandler interface {
 	SuspendDeployment(context.Context, *connect.Request[v1.SuspendDeploymentRequest]) (*connect.Response[v1.SuspendDeploymentResponse], error)
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
+	GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error)
 }
 
 // NewDeployServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -253,6 +270,12 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deployServiceMethods.ByName("TagDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	deployServiceGetDeploymentSourceHandler := connect.NewUnaryHandler(
+		DeployServiceGetDeploymentSourceProcedure,
+		svc.GetDeploymentSource,
+		connect.WithSchema(deployServiceMethods.ByName("GetDeploymentSource")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
@@ -271,6 +294,8 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 			deployServiceScaleDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceTagDeploymentProcedure:
 			deployServiceTagDeploymentHandler.ServeHTTP(w, r)
+		case DeployServiceGetDeploymentSourceProcedure:
+			deployServiceGetDeploymentSourceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -310,4 +335,8 @@ func (UnimplementedDeployServiceHandler) ScaleDeployment(context.Context, *conne
 
 func (UnimplementedDeployServiceHandler) TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.TagDeployment is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetDeploymentSource is not implemented"))
 }
