@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1768526572122,
+  "lastUpdate": 1768617338261,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30268,6 +30268,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 290.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "31899171+bqin01@users.noreply.github.com",
+            "name": "Bill Qin",
+            "username": "bqin01"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6f30d4337ba8b6f565bcfd985db2f0c63927798b",
+          "message": "Merge pull request #556 from chalk-ai/bill/protogen-sql-server-resource-control\n\nsqlservice protogen resource control",
+          "timestamp": "2026-01-16T21:34:10-05:00",
+          "tree_id": "c27bc83c9bf0a81687f4676a149673d7230540ce",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/6f30d4337ba8b6f565bcfd985db2f0c63927798b"
+        },
+        "date": 1768617338187,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.39,
+            "unit": "ms/op",
+            "extra": "872 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 119.7,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.14,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 214.4,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 366.8,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
