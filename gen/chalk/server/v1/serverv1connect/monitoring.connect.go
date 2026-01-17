@@ -81,6 +81,12 @@ const (
 	// MonitoringServiceGetIncidentAlertsChartProcedure is the fully-qualified name of the
 	// MonitoringService's GetIncidentAlertsChart RPC.
 	MonitoringServiceGetIncidentAlertsChartProcedure = "/chalk.server.v1.MonitoringService/GetIncidentAlertsChart"
+	// MonitoringServiceListAlertChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's ListAlertChannels RPC.
+	MonitoringServiceListAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/ListAlertChannels"
+	// MonitoringServiceGetSlackIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's GetSlackIntegration RPC.
+	MonitoringServiceGetSlackIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetSlackIntegration"
 )
 
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
@@ -101,6 +107,8 @@ type MonitoringServiceClient interface {
 	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
 	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
 	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
+	ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error)
+	GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error)
 }
 
 // NewMonitoringServiceClient constructs a client for the chalk.server.v1.MonitoringService service.
@@ -220,6 +228,20 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listAlertChannels: connect.NewClient[v1.ListAlertChannelsRequest, v1.ListAlertChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceListAlertChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("ListAlertChannels")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getSlackIntegration: connect.NewClient[v1.GetSlackIntegrationRequest, v1.GetSlackIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetSlackIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetSlackIntegration")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -241,6 +263,8 @@ type monitoringServiceClient struct {
 	listIncidents                  *connect.Client[v1.ListIncidentsRequest, v1.ListIncidentsResponse]
 	getIncident                    *connect.Client[v1.GetIncidentRequest, v1.GetIncidentResponse]
 	getIncidentAlertsChart         *connect.Client[v1.GetIncidentAlertsChartRequest, v1.GetIncidentAlertsChartResponse]
+	listAlertChannels              *connect.Client[v1.ListAlertChannelsRequest, v1.ListAlertChannelsResponse]
+	getSlackIntegration            *connect.Client[v1.GetSlackIntegrationRequest, v1.GetSlackIntegrationResponse]
 }
 
 // TestPagerDutyIntegration calls chalk.server.v1.MonitoringService.TestPagerDutyIntegration.
@@ -325,6 +349,16 @@ func (c *monitoringServiceClient) GetIncidentAlertsChart(ctx context.Context, re
 	return c.getIncidentAlertsChart.CallUnary(ctx, req)
 }
 
+// ListAlertChannels calls chalk.server.v1.MonitoringService.ListAlertChannels.
+func (c *monitoringServiceClient) ListAlertChannels(ctx context.Context, req *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error) {
+	return c.listAlertChannels.CallUnary(ctx, req)
+}
+
+// GetSlackIntegration calls chalk.server.v1.MonitoringService.GetSlackIntegration.
+func (c *monitoringServiceClient) GetSlackIntegration(ctx context.Context, req *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error) {
+	return c.getSlackIntegration.CallUnary(ctx, req)
+}
+
 // MonitoringServiceHandler is an implementation of the chalk.server.v1.MonitoringService service.
 type MonitoringServiceHandler interface {
 	TestPagerDutyIntegration(context.Context, *connect.Request[v1.TestPagerDutyIntegrationRequest]) (*connect.Response[v1.TestPagerDutyIntegrationResponse], error)
@@ -343,6 +377,8 @@ type MonitoringServiceHandler interface {
 	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
 	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
 	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
+	ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error)
+	GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error)
 }
 
 // NewMonitoringServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -458,6 +494,20 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitoringServiceListAlertChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceListAlertChannelsProcedure,
+		svc.ListAlertChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("ListAlertChannels")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetSlackIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetSlackIntegrationProcedure,
+		svc.GetSlackIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetSlackIntegration")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.MonitoringService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case MonitoringServiceTestPagerDutyIntegrationProcedure:
@@ -492,6 +542,10 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 			monitoringServiceGetIncidentHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetIncidentAlertsChartProcedure:
 			monitoringServiceGetIncidentAlertsChartHandler.ServeHTTP(w, r)
+		case MonitoringServiceListAlertChannelsProcedure:
+			monitoringServiceListAlertChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetSlackIntegrationProcedure:
+			monitoringServiceGetSlackIntegrationHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -563,4 +617,12 @@ func (UnimplementedMonitoringServiceHandler) GetIncident(context.Context, *conne
 
 func (UnimplementedMonitoringServiceHandler) GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncidentAlertsChart is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.ListAlertChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetSlackIntegration is not implemented"))
 }
