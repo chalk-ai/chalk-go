@@ -38,6 +38,9 @@ const (
 	// SimpleStreamingServiceSimpleStreamingUnaryInvokeProcedure is the fully-qualified name of the
 	// SimpleStreamingService's SimpleStreamingUnaryInvoke RPC.
 	SimpleStreamingServiceSimpleStreamingUnaryInvokeProcedure = "/chalk.streaming.v1.SimpleStreamingService/SimpleStreamingUnaryInvoke"
+	// SimpleStreamingServiceTestStreamingResolverProcedure is the fully-qualified name of the
+	// SimpleStreamingService's TestStreamingResolver RPC.
+	SimpleStreamingServiceTestStreamingResolverProcedure = "/chalk.streaming.v1.SimpleStreamingService/TestStreamingResolver"
 )
 
 // SimpleStreamingServiceClient is a client for the chalk.streaming.v1.SimpleStreamingService
@@ -46,6 +49,10 @@ type SimpleStreamingServiceClient interface {
 	// Runs a simple streaming plan with the given request.
 	// This is a simplified version of the streaming invoker service.
 	SimpleStreamingUnaryInvoke(context.Context, *connect.Request[v1.SimpleStreamingUnaryInvokeRequest]) (*connect.Response[v1.SimpleStreamingUnaryInvokeResponse], error)
+	// Test a streaming resolver with provided messages.
+	// Supports testing both deployed resolvers and static/undeployed resolvers.
+	// Returns a signed URL to download the test results.
+	TestStreamingResolver(context.Context, *connect.Request[v1.TestStreamingResolverRequest]) (*connect.Response[v1.TestStreamingResolverResponse], error)
 }
 
 // NewSimpleStreamingServiceClient constructs a client for the
@@ -65,12 +72,19 @@ func NewSimpleStreamingServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(simpleStreamingServiceMethods.ByName("SimpleStreamingUnaryInvoke")),
 			connect.WithClientOptions(opts...),
 		),
+		testStreamingResolver: connect.NewClient[v1.TestStreamingResolverRequest, v1.TestStreamingResolverResponse](
+			httpClient,
+			baseURL+SimpleStreamingServiceTestStreamingResolverProcedure,
+			connect.WithSchema(simpleStreamingServiceMethods.ByName("TestStreamingResolver")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // simpleStreamingServiceClient implements SimpleStreamingServiceClient.
 type simpleStreamingServiceClient struct {
 	simpleStreamingUnaryInvoke *connect.Client[v1.SimpleStreamingUnaryInvokeRequest, v1.SimpleStreamingUnaryInvokeResponse]
+	testStreamingResolver      *connect.Client[v1.TestStreamingResolverRequest, v1.TestStreamingResolverResponse]
 }
 
 // SimpleStreamingUnaryInvoke calls
@@ -79,12 +93,21 @@ func (c *simpleStreamingServiceClient) SimpleStreamingUnaryInvoke(ctx context.Co
 	return c.simpleStreamingUnaryInvoke.CallUnary(ctx, req)
 }
 
+// TestStreamingResolver calls chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver.
+func (c *simpleStreamingServiceClient) TestStreamingResolver(ctx context.Context, req *connect.Request[v1.TestStreamingResolverRequest]) (*connect.Response[v1.TestStreamingResolverResponse], error) {
+	return c.testStreamingResolver.CallUnary(ctx, req)
+}
+
 // SimpleStreamingServiceHandler is an implementation of the
 // chalk.streaming.v1.SimpleStreamingService service.
 type SimpleStreamingServiceHandler interface {
 	// Runs a simple streaming plan with the given request.
 	// This is a simplified version of the streaming invoker service.
 	SimpleStreamingUnaryInvoke(context.Context, *connect.Request[v1.SimpleStreamingUnaryInvokeRequest]) (*connect.Response[v1.SimpleStreamingUnaryInvokeResponse], error)
+	// Test a streaming resolver with provided messages.
+	// Supports testing both deployed resolvers and static/undeployed resolvers.
+	// Returns a signed URL to download the test results.
+	TestStreamingResolver(context.Context, *connect.Request[v1.TestStreamingResolverRequest]) (*connect.Response[v1.TestStreamingResolverResponse], error)
 }
 
 // NewSimpleStreamingServiceHandler builds an HTTP handler from the service implementation. It
@@ -100,10 +123,18 @@ func NewSimpleStreamingServiceHandler(svc SimpleStreamingServiceHandler, opts ..
 		connect.WithSchema(simpleStreamingServiceMethods.ByName("SimpleStreamingUnaryInvoke")),
 		connect.WithHandlerOptions(opts...),
 	)
+	simpleStreamingServiceTestStreamingResolverHandler := connect.NewUnaryHandler(
+		SimpleStreamingServiceTestStreamingResolverProcedure,
+		svc.TestStreamingResolver,
+		connect.WithSchema(simpleStreamingServiceMethods.ByName("TestStreamingResolver")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.streaming.v1.SimpleStreamingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SimpleStreamingServiceSimpleStreamingUnaryInvokeProcedure:
 			simpleStreamingServiceSimpleStreamingUnaryInvokeHandler.ServeHTTP(w, r)
+		case SimpleStreamingServiceTestStreamingResolverProcedure:
+			simpleStreamingServiceTestStreamingResolverHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -115,4 +146,8 @@ type UnimplementedSimpleStreamingServiceHandler struct{}
 
 func (UnimplementedSimpleStreamingServiceHandler) SimpleStreamingUnaryInvoke(context.Context, *connect.Request[v1.SimpleStreamingUnaryInvokeRequest]) (*connect.Response[v1.SimpleStreamingUnaryInvokeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.SimpleStreamingService.SimpleStreamingUnaryInvoke is not implemented"))
+}
+
+func (UnimplementedSimpleStreamingServiceHandler) TestStreamingResolver(context.Context, *connect.Request[v1.TestStreamingResolverRequest]) (*connect.Response[v1.TestStreamingResolverResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver is not implemented"))
 }
