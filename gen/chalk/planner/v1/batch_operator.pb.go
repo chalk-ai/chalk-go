@@ -65,40 +65,42 @@ const (
 	OperatorType_OPERATOR_TYPE_LATERAL_JOIN_RESOLVER                          OperatorType = 31
 	OperatorType_OPERATOR_TYPE_LIFT_RESULT_TO_GROUP                           OperatorType = 32
 	OperatorType_OPERATOR_TYPE_LIGHTNING_REDIS_CACHE_LOOKUP                   OperatorType = 33
-	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR                            OperatorType = 34
-	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER                              OperatorType = 35
-	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN                 OperatorType = 36
-	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR                OperatorType = 37
-	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP                       OperatorType = 38
-	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR                       OperatorType = 39
-	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER                          OperatorType = 40
-	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER                     OperatorType = 41
-	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER                        OperatorType = 42
-	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                           OperatorType = 43
-	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                                OperatorType = 44
-	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR                     OperatorType = 45
-	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS                       OperatorType = 46
-	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                                 OperatorType = 47
-	OperatorType_OPERATOR_TYPE_PROJECT                                        OperatorType = 48
-	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                                  OperatorType = 49
-	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                               OperatorType = 50
-	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT                        OperatorType = 51
-	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA                 OperatorType = 52
-	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR                   OperatorType = 53
-	OperatorType_OPERATOR_TYPE_REPLAY                                         OperatorType = 54
-	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2                 OperatorType = 55
-	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                              OperatorType = 56
-	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR                 OperatorType = 57
-	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR              OperatorType = 58
-	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR                    OperatorType = 59
-	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                                OperatorType = 60
-	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR                   OperatorType = 61
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                                OperatorType = 62
-	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                                  OperatorType = 63
-	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK                   OperatorType = 64
-	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR            OperatorType = 65
-	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                                 OperatorType = 66
-	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                               OperatorType = 67
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
+	OperatorType_OPERATOR_TYPE_MERGE_JOIN_OPERATOR                 OperatorType = 34
+	OperatorType_OPERATOR_TYPE_METRICS_PUBLISHER                   OperatorType = 35
+	OperatorType_OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR            OperatorType = 70
+	OperatorType_OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN      OperatorType = 36
+	OperatorType_OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR     OperatorType = 37
+	OperatorType_OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP            OperatorType = 38
+	OperatorType_OPERATOR_TYPE_NON_BUS_PERSIST_OPERATOR            OperatorType = 39
+	OperatorType_OPERATOR_TYPE_OFFLINE_CACHE_SAMPLER               OperatorType = 40
+	OperatorType_OPERATOR_TYPE_ONE_TO_ONE_SCALAR_RESOLVER          OperatorType = 41
+	OperatorType_OPERATOR_TYPE_ONLINE_STORE_AGG_WRITER             OperatorType = 42
+	OperatorType_OPERATOR_TYPE_ONLINE_VECTOR_SEARCH                OperatorType = 43
+	OperatorType_OPERATOR_TYPE_OPTIMISTIC_LOAD                     OperatorType = 44
+	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR          OperatorType = 45
+	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS            OperatorType = 46
+	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                      OperatorType = 47
+	OperatorType_OPERATOR_TYPE_PROJECT                             OperatorType = 48
+	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                       OperatorType = 49
+	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                    OperatorType = 50
+	OperatorType_OPERATOR_TYPE_PUSH_HAS_MANY_TO_RESULT             OperatorType = 51
+	OperatorType_OPERATOR_TYPE_REMOVE_LARGE_LISTS_FROM_SCHEMA      OperatorType = 52
+	OperatorType_OPERATOR_TYPE_RENAME_INDEX_COLUMN_OPERATOR        OperatorType = 53
+	OperatorType_OPERATOR_TYPE_REPLAY                              OperatorType = 54
+	OperatorType_OPERATOR_TYPE_RESULT_BUS_PERSIST_OPERATOR_V2      OperatorType = 55
+	OperatorType_OPERATOR_TYPE_RUN_IN_BACKGROUND                   OperatorType = 56
+	OperatorType_OPERATOR_TYPE_SQLDATAFRAME_RESOLVER_OPERATOR      OperatorType = 57
+	OperatorType_OPERATOR_TYPE_SQLLATERAL_JOIN_RESOLVER_OPERATOR   OperatorType = 58
+	OperatorType_OPERATOR_TYPE_SQLSCALAR_RESOLVER_OPERATOR         OperatorType = 59
+	OperatorType_OPERATOR_TYPE_STATS_COLLECTOR                     OperatorType = 60
+	OperatorType_OPERATOR_TYPE_STREAMING_AGG_WRITE_OPERATOR        OperatorType = 61
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_FILTER                     OperatorType = 62
+	OperatorType_OPERATOR_TYPE_SUB_PLAN_JOIN                       OperatorType = 63
+	OperatorType_OPERATOR_TYPE_SYMBOLIC_EXPRESSION_FALLBACK        OperatorType = 64
+	OperatorType_OPERATOR_TYPE_UNDERSCORE_SCALAR_RESOLVER_OPERATOR OperatorType = 65
+	OperatorType_OPERATOR_TYPE_UNION_OPERATOR                      OperatorType = 66
+	OperatorType_OPERATOR_TYPE_VALUES_PERSISTER                    OperatorType = 67
 )
 
 // Enum value maps for OperatorType.
@@ -142,6 +144,7 @@ var (
 		33: "OPERATOR_TYPE_LIGHTNING_REDIS_CACHE_LOOKUP",
 		34: "OPERATOR_TYPE_MERGE_JOIN_OPERATOR",
 		35: "OPERATOR_TYPE_METRICS_PUBLISHER",
+		70: "OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR",
 		36: "OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN",
 		37: "OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR",
 		38: "OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP",
@@ -214,6 +217,7 @@ var (
 		"OPERATOR_TYPE_LIGHTNING_REDIS_CACHE_LOOKUP":                   33,
 		"OPERATOR_TYPE_MERGE_JOIN_OPERATOR":                            34,
 		"OPERATOR_TYPE_METRICS_PUBLISHER":                              35,
+		"OPERATOR_TYPE_NARY_MERGE_JOIN_OPERATOR":                       70,
 		"OPERATOR_TYPE_NEAREST_NEIGHBOR_SUB_PLAN_JOIN":                 36,
 		"OPERATOR_TYPE_NEW_DATAFRAME_RESOLVER_OPERATOR":                37,
 		"OPERATOR_TYPE_NEW_OFFLINE_CACHE_LOOKUP":                       38,
@@ -2192,7 +2196,7 @@ var file_chalk_planner_v1_batch_operator_proto_rawDesc = []byte{
 	0x73, 0x61, 0x67, 0x65, 0x5f, 0x64, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
 	0x32, 0x19, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x61, 0x72, 0x72, 0x6f, 0x77, 0x2e, 0x76,
 	0x31, 0x2e, 0x41, 0x72, 0x72, 0x6f, 0x77, 0x54, 0x79, 0x70, 0x65, 0x52, 0x0c, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x44, 0x74, 0x79, 0x70, 0x65, 0x2a, 0xb7, 0x16, 0x0a, 0x0c, 0x4f, 0x70,
+	0x73, 0x61, 0x67, 0x65, 0x44, 0x74, 0x79, 0x70, 0x65, 0x2a, 0xe7, 0x16, 0x0a, 0x0c, 0x4f, 0x70,
 	0x65, 0x72, 0x61, 0x74, 0x6f, 0x72, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1d, 0x0a, 0x19, 0x4f, 0x50,
 	0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x55, 0x4e, 0x53, 0x50,
 	0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x25, 0x0a, 0x21, 0x4f, 0x50, 0x45,
@@ -2283,12 +2287,15 @@ var file_chalk_planner_v1_batch_operator_proto_rawDesc = []byte{
 	0x4f, 0x5f, 0x47, 0x52, 0x4f, 0x55, 0x50, 0x10, 0x20, 0x12, 0x2e, 0x0a, 0x2a, 0x4f, 0x50, 0x45,
 	0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x4c, 0x49, 0x47, 0x48, 0x54,
 	0x4e, 0x49, 0x4e, 0x47, 0x5f, 0x52, 0x45, 0x44, 0x49, 0x53, 0x5f, 0x43, 0x41, 0x43, 0x48, 0x45,
-	0x5f, 0x4c, 0x4f, 0x4f, 0x4b, 0x55, 0x50, 0x10, 0x21, 0x12, 0x25, 0x0a, 0x21, 0x4f, 0x50, 0x45,
+	0x5f, 0x4c, 0x4f, 0x4f, 0x4b, 0x55, 0x50, 0x10, 0x21, 0x12, 0x29, 0x0a, 0x21, 0x4f, 0x50, 0x45,
 	0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x4d, 0x45, 0x52, 0x47, 0x45,
 	0x5f, 0x4a, 0x4f, 0x49, 0x4e, 0x5f, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x10, 0x22,
-	0x12, 0x23, 0x0a, 0x1f, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x54, 0x59, 0x50,
-	0x45, 0x5f, 0x4d, 0x45, 0x54, 0x52, 0x49, 0x43, 0x53, 0x5f, 0x50, 0x55, 0x42, 0x4c, 0x49, 0x53,
-	0x48, 0x45, 0x52, 0x10, 0x23, 0x12, 0x30, 0x0a, 0x2c, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f,
+	0x1a, 0x02, 0x08, 0x01, 0x12, 0x23, 0x0a, 0x1f, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f, 0x52,
+	0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x4d, 0x45, 0x54, 0x52, 0x49, 0x43, 0x53, 0x5f, 0x50, 0x55,
+	0x42, 0x4c, 0x49, 0x53, 0x48, 0x45, 0x52, 0x10, 0x23, 0x12, 0x2a, 0x0a, 0x26, 0x4f, 0x50, 0x45,
+	0x52, 0x41, 0x54, 0x4f, 0x52, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x4e, 0x41, 0x52, 0x59, 0x5f,
+	0x4d, 0x45, 0x52, 0x47, 0x45, 0x5f, 0x4a, 0x4f, 0x49, 0x4e, 0x5f, 0x4f, 0x50, 0x45, 0x52, 0x41,
+	0x54, 0x4f, 0x52, 0x10, 0x46, 0x12, 0x30, 0x0a, 0x2c, 0x4f, 0x50, 0x45, 0x52, 0x41, 0x54, 0x4f,
 	0x52, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x5f, 0x4e, 0x45, 0x41, 0x52, 0x45, 0x53, 0x54, 0x5f, 0x4e,
 	0x45, 0x49, 0x47, 0x48, 0x42, 0x4f, 0x52, 0x5f, 0x53, 0x55, 0x42, 0x5f, 0x50, 0x4c, 0x41, 0x4e,
 	0x5f, 0x4a, 0x4f, 0x49, 0x4e, 0x10, 0x24, 0x12, 0x31, 0x0a, 0x2d, 0x4f, 0x50, 0x45, 0x52, 0x41,
