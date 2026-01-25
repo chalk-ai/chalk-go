@@ -48,6 +48,18 @@ const (
 	// SchedulerServiceCancelScheduledResolverRunProcedure is the fully-qualified name of the
 	// SchedulerService's CancelScheduledResolverRun RPC.
 	SchedulerServiceCancelScheduledResolverRunProcedure = "/chalk.server.v1.SchedulerService/CancelScheduledResolverRun"
+	// SchedulerServiceGetActiveScheduledResolversProcedure is the fully-qualified name of the
+	// SchedulerService's GetActiveScheduledResolvers RPC.
+	SchedulerServiceGetActiveScheduledResolversProcedure = "/chalk.server.v1.SchedulerService/GetActiveScheduledResolvers"
+	// SchedulerServiceGetScheduledResolverControlProcedure is the fully-qualified name of the
+	// SchedulerService's GetScheduledResolverControl RPC.
+	SchedulerServiceGetScheduledResolverControlProcedure = "/chalk.server.v1.SchedulerService/GetScheduledResolverControl"
+	// SchedulerServiceUpdateScheduledResolverControlProcedure is the fully-qualified name of the
+	// SchedulerService's UpdateScheduledResolverControl RPC.
+	SchedulerServiceUpdateScheduledResolverControlProcedure = "/chalk.server.v1.SchedulerService/UpdateScheduledResolverControl"
+	// SchedulerServiceGetLatestHighWaterMarkProcedure is the fully-qualified name of the
+	// SchedulerService's GetLatestHighWaterMark RPC.
+	SchedulerServiceGetLatestHighWaterMarkProcedure = "/chalk.server.v1.SchedulerService/GetLatestHighWaterMark"
 )
 
 // SchedulerServiceClient is a client for the chalk.server.v1.SchedulerService service.
@@ -57,6 +69,10 @@ type SchedulerServiceClient interface {
 	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
 	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 	CancelScheduledResolverRun(context.Context, *connect.Request[v1.CancelScheduledResolverRunRequest]) (*connect.Response[v1.CancelScheduledResolverRunResponse], error)
+	GetActiveScheduledResolvers(context.Context, *connect.Request[v1.GetActiveScheduledResolversRequest]) (*connect.Response[v1.GetActiveScheduledResolversResponse], error)
+	GetScheduledResolverControl(context.Context, *connect.Request[v1.GetScheduledResolverControlRequest]) (*connect.Response[v1.GetScheduledResolverControlResponse], error)
+	UpdateScheduledResolverControl(context.Context, *connect.Request[v1.UpdateScheduledResolverControlRequest]) (*connect.Response[v1.UpdateScheduledResolverControlResponse], error)
+	GetLatestHighWaterMark(context.Context, *connect.Request[v1.GetLatestHighWaterMarkRequest]) (*connect.Response[v1.GetLatestHighWaterMarkResponse], error)
 }
 
 // NewSchedulerServiceClient constructs a client for the chalk.server.v1.SchedulerService service.
@@ -100,16 +116,44 @@ func NewSchedulerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(schedulerServiceMethods.ByName("CancelScheduledResolverRun")),
 			connect.WithClientOptions(opts...),
 		),
+		getActiveScheduledResolvers: connect.NewClient[v1.GetActiveScheduledResolversRequest, v1.GetActiveScheduledResolversResponse](
+			httpClient,
+			baseURL+SchedulerServiceGetActiveScheduledResolversProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("GetActiveScheduledResolvers")),
+			connect.WithClientOptions(opts...),
+		),
+		getScheduledResolverControl: connect.NewClient[v1.GetScheduledResolverControlRequest, v1.GetScheduledResolverControlResponse](
+			httpClient,
+			baseURL+SchedulerServiceGetScheduledResolverControlProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("GetScheduledResolverControl")),
+			connect.WithClientOptions(opts...),
+		),
+		updateScheduledResolverControl: connect.NewClient[v1.UpdateScheduledResolverControlRequest, v1.UpdateScheduledResolverControlResponse](
+			httpClient,
+			baseURL+SchedulerServiceUpdateScheduledResolverControlProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("UpdateScheduledResolverControl")),
+			connect.WithClientOptions(opts...),
+		),
+		getLatestHighWaterMark: connect.NewClient[v1.GetLatestHighWaterMarkRequest, v1.GetLatestHighWaterMarkResponse](
+			httpClient,
+			baseURL+SchedulerServiceGetLatestHighWaterMarkProcedure,
+			connect.WithSchema(schedulerServiceMethods.ByName("GetLatestHighWaterMark")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // schedulerServiceClient implements SchedulerServiceClient.
 type schedulerServiceClient struct {
-	manualTriggerCronResolver   *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
-	manualTriggerScheduledQuery *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
-	getScheduledResolverRun     *connect.Client[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse]
-	listScheduledResolverRuns   *connect.Client[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse]
-	cancelScheduledResolverRun  *connect.Client[v1.CancelScheduledResolverRunRequest, v1.CancelScheduledResolverRunResponse]
+	manualTriggerCronResolver      *connect.Client[v1.ManualTriggerCronResolverRequest, v1.ManualTriggerCronResolverResponse]
+	manualTriggerScheduledQuery    *connect.Client[v1.ManualTriggerScheduledQueryRequest, v1.ManualTriggerScheduledQueryResponse]
+	getScheduledResolverRun        *connect.Client[v1.GetScheduledResolverRunRequest, v1.GetScheduledResolverRunResponse]
+	listScheduledResolverRuns      *connect.Client[v1.ListScheduledResolverRunsRequest, v1.ListScheduledResolverRunsResponse]
+	cancelScheduledResolverRun     *connect.Client[v1.CancelScheduledResolverRunRequest, v1.CancelScheduledResolverRunResponse]
+	getActiveScheduledResolvers    *connect.Client[v1.GetActiveScheduledResolversRequest, v1.GetActiveScheduledResolversResponse]
+	getScheduledResolverControl    *connect.Client[v1.GetScheduledResolverControlRequest, v1.GetScheduledResolverControlResponse]
+	updateScheduledResolverControl *connect.Client[v1.UpdateScheduledResolverControlRequest, v1.UpdateScheduledResolverControlResponse]
+	getLatestHighWaterMark         *connect.Client[v1.GetLatestHighWaterMarkRequest, v1.GetLatestHighWaterMarkResponse]
 }
 
 // ManualTriggerCronResolver calls chalk.server.v1.SchedulerService.ManualTriggerCronResolver.
@@ -137,6 +181,27 @@ func (c *schedulerServiceClient) CancelScheduledResolverRun(ctx context.Context,
 	return c.cancelScheduledResolverRun.CallUnary(ctx, req)
 }
 
+// GetActiveScheduledResolvers calls chalk.server.v1.SchedulerService.GetActiveScheduledResolvers.
+func (c *schedulerServiceClient) GetActiveScheduledResolvers(ctx context.Context, req *connect.Request[v1.GetActiveScheduledResolversRequest]) (*connect.Response[v1.GetActiveScheduledResolversResponse], error) {
+	return c.getActiveScheduledResolvers.CallUnary(ctx, req)
+}
+
+// GetScheduledResolverControl calls chalk.server.v1.SchedulerService.GetScheduledResolverControl.
+func (c *schedulerServiceClient) GetScheduledResolverControl(ctx context.Context, req *connect.Request[v1.GetScheduledResolverControlRequest]) (*connect.Response[v1.GetScheduledResolverControlResponse], error) {
+	return c.getScheduledResolverControl.CallUnary(ctx, req)
+}
+
+// UpdateScheduledResolverControl calls
+// chalk.server.v1.SchedulerService.UpdateScheduledResolverControl.
+func (c *schedulerServiceClient) UpdateScheduledResolverControl(ctx context.Context, req *connect.Request[v1.UpdateScheduledResolverControlRequest]) (*connect.Response[v1.UpdateScheduledResolverControlResponse], error) {
+	return c.updateScheduledResolverControl.CallUnary(ctx, req)
+}
+
+// GetLatestHighWaterMark calls chalk.server.v1.SchedulerService.GetLatestHighWaterMark.
+func (c *schedulerServiceClient) GetLatestHighWaterMark(ctx context.Context, req *connect.Request[v1.GetLatestHighWaterMarkRequest]) (*connect.Response[v1.GetLatestHighWaterMarkResponse], error) {
+	return c.getLatestHighWaterMark.CallUnary(ctx, req)
+}
+
 // SchedulerServiceHandler is an implementation of the chalk.server.v1.SchedulerService service.
 type SchedulerServiceHandler interface {
 	ManualTriggerCronResolver(context.Context, *connect.Request[v1.ManualTriggerCronResolverRequest]) (*connect.Response[v1.ManualTriggerCronResolverResponse], error)
@@ -144,6 +209,10 @@ type SchedulerServiceHandler interface {
 	GetScheduledResolverRun(context.Context, *connect.Request[v1.GetScheduledResolverRunRequest]) (*connect.Response[v1.GetScheduledResolverRunResponse], error)
 	ListScheduledResolverRuns(context.Context, *connect.Request[v1.ListScheduledResolverRunsRequest]) (*connect.Response[v1.ListScheduledResolverRunsResponse], error)
 	CancelScheduledResolverRun(context.Context, *connect.Request[v1.CancelScheduledResolverRunRequest]) (*connect.Response[v1.CancelScheduledResolverRunResponse], error)
+	GetActiveScheduledResolvers(context.Context, *connect.Request[v1.GetActiveScheduledResolversRequest]) (*connect.Response[v1.GetActiveScheduledResolversResponse], error)
+	GetScheduledResolverControl(context.Context, *connect.Request[v1.GetScheduledResolverControlRequest]) (*connect.Response[v1.GetScheduledResolverControlResponse], error)
+	UpdateScheduledResolverControl(context.Context, *connect.Request[v1.UpdateScheduledResolverControlRequest]) (*connect.Response[v1.UpdateScheduledResolverControlResponse], error)
+	GetLatestHighWaterMark(context.Context, *connect.Request[v1.GetLatestHighWaterMarkRequest]) (*connect.Response[v1.GetLatestHighWaterMarkResponse], error)
 }
 
 // NewSchedulerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -183,6 +252,30 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 		connect.WithSchema(schedulerServiceMethods.ByName("CancelScheduledResolverRun")),
 		connect.WithHandlerOptions(opts...),
 	)
+	schedulerServiceGetActiveScheduledResolversHandler := connect.NewUnaryHandler(
+		SchedulerServiceGetActiveScheduledResolversProcedure,
+		svc.GetActiveScheduledResolvers,
+		connect.WithSchema(schedulerServiceMethods.ByName("GetActiveScheduledResolvers")),
+		connect.WithHandlerOptions(opts...),
+	)
+	schedulerServiceGetScheduledResolverControlHandler := connect.NewUnaryHandler(
+		SchedulerServiceGetScheduledResolverControlProcedure,
+		svc.GetScheduledResolverControl,
+		connect.WithSchema(schedulerServiceMethods.ByName("GetScheduledResolverControl")),
+		connect.WithHandlerOptions(opts...),
+	)
+	schedulerServiceUpdateScheduledResolverControlHandler := connect.NewUnaryHandler(
+		SchedulerServiceUpdateScheduledResolverControlProcedure,
+		svc.UpdateScheduledResolverControl,
+		connect.WithSchema(schedulerServiceMethods.ByName("UpdateScheduledResolverControl")),
+		connect.WithHandlerOptions(opts...),
+	)
+	schedulerServiceGetLatestHighWaterMarkHandler := connect.NewUnaryHandler(
+		SchedulerServiceGetLatestHighWaterMarkProcedure,
+		svc.GetLatestHighWaterMark,
+		connect.WithSchema(schedulerServiceMethods.ByName("GetLatestHighWaterMark")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.SchedulerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SchedulerServiceManualTriggerCronResolverProcedure:
@@ -195,6 +288,14 @@ func NewSchedulerServiceHandler(svc SchedulerServiceHandler, opts ...connect.Han
 			schedulerServiceListScheduledResolverRunsHandler.ServeHTTP(w, r)
 		case SchedulerServiceCancelScheduledResolverRunProcedure:
 			schedulerServiceCancelScheduledResolverRunHandler.ServeHTTP(w, r)
+		case SchedulerServiceGetActiveScheduledResolversProcedure:
+			schedulerServiceGetActiveScheduledResolversHandler.ServeHTTP(w, r)
+		case SchedulerServiceGetScheduledResolverControlProcedure:
+			schedulerServiceGetScheduledResolverControlHandler.ServeHTTP(w, r)
+		case SchedulerServiceUpdateScheduledResolverControlProcedure:
+			schedulerServiceUpdateScheduledResolverControlHandler.ServeHTTP(w, r)
+		case SchedulerServiceGetLatestHighWaterMarkProcedure:
+			schedulerServiceGetLatestHighWaterMarkHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -222,4 +323,20 @@ func (UnimplementedSchedulerServiceHandler) ListScheduledResolverRuns(context.Co
 
 func (UnimplementedSchedulerServiceHandler) CancelScheduledResolverRun(context.Context, *connect.Request[v1.CancelScheduledResolverRunRequest]) (*connect.Response[v1.CancelScheduledResolverRunResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.CancelScheduledResolverRun is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) GetActiveScheduledResolvers(context.Context, *connect.Request[v1.GetActiveScheduledResolversRequest]) (*connect.Response[v1.GetActiveScheduledResolversResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.GetActiveScheduledResolvers is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) GetScheduledResolverControl(context.Context, *connect.Request[v1.GetScheduledResolverControlRequest]) (*connect.Response[v1.GetScheduledResolverControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.GetScheduledResolverControl is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) UpdateScheduledResolverControl(context.Context, *connect.Request[v1.UpdateScheduledResolverControlRequest]) (*connect.Response[v1.UpdateScheduledResolverControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.UpdateScheduledResolverControl is not implemented"))
+}
+
+func (UnimplementedSchedulerServiceHandler) GetLatestHighWaterMark(context.Context, *connect.Request[v1.GetLatestHighWaterMarkRequest]) (*connect.Response[v1.GetLatestHighWaterMarkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SchedulerService.GetLatestHighWaterMark is not implemented"))
 }
