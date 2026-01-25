@@ -39,12 +39,28 @@ const (
 	// ScheduledQueryServiceGetScheduledQueryRunsProcedure is the fully-qualified name of the
 	// ScheduledQueryService's GetScheduledQueryRuns RPC.
 	ScheduledQueryServiceGetScheduledQueryRunsProcedure = "/chalk.server.v1.ScheduledQueryService/GetScheduledQueryRuns"
+	// ScheduledQueryServiceGetActiveScheduledQueriesProcedure is the fully-qualified name of the
+	// ScheduledQueryService's GetActiveScheduledQueries RPC.
+	ScheduledQueryServiceGetActiveScheduledQueriesProcedure = "/chalk.server.v1.ScheduledQueryService/GetActiveScheduledQueries"
+	// ScheduledQueryServiceGetScheduledQueryControlProcedure is the fully-qualified name of the
+	// ScheduledQueryService's GetScheduledQueryControl RPC.
+	ScheduledQueryServiceGetScheduledQueryControlProcedure = "/chalk.server.v1.ScheduledQueryService/GetScheduledQueryControl"
+	// ScheduledQueryServiceUpdateScheduledQueryControlProcedure is the fully-qualified name of the
+	// ScheduledQueryService's UpdateScheduledQueryControl RPC.
+	ScheduledQueryServiceUpdateScheduledQueryControlProcedure = "/chalk.server.v1.ScheduledQueryService/UpdateScheduledQueryControl"
+	// ScheduledQueryServiceGetScheduledQueryScheduleProcedure is the fully-qualified name of the
+	// ScheduledQueryService's GetScheduledQuerySchedule RPC.
+	ScheduledQueryServiceGetScheduledQueryScheduleProcedure = "/chalk.server.v1.ScheduledQueryService/GetScheduledQuerySchedule"
 )
 
 // ScheduledQueryServiceClient is a client for the chalk.server.v1.ScheduledQueryService service.
 type ScheduledQueryServiceClient interface {
 	GetScheduledQueryRun(context.Context, *connect.Request[v1.GetScheduledQueryRunRequest]) (*connect.Response[v1.GetScheduledQueryRunResponse], error)
 	GetScheduledQueryRuns(context.Context, *connect.Request[v1.GetScheduledQueryRunsRequest]) (*connect.Response[v1.GetScheduledQueryRunsResponse], error)
+	GetActiveScheduledQueries(context.Context, *connect.Request[v1.GetActiveScheduledQueriesRequest]) (*connect.Response[v1.GetActiveScheduledQueriesResponse], error)
+	GetScheduledQueryControl(context.Context, *connect.Request[v1.GetScheduledQueryControlRequest]) (*connect.Response[v1.GetScheduledQueryControlResponse], error)
+	UpdateScheduledQueryControl(context.Context, *connect.Request[v1.UpdateScheduledQueryControlRequest]) (*connect.Response[v1.UpdateScheduledQueryControlResponse], error)
+	GetScheduledQuerySchedule(context.Context, *connect.Request[v1.GetScheduledQueryScheduleRequest]) (*connect.Response[v1.GetScheduledQueryScheduleResponse], error)
 }
 
 // NewScheduledQueryServiceClient constructs a client for the chalk.server.v1.ScheduledQueryService
@@ -70,13 +86,41 @@ func NewScheduledQueryServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQueryRuns")),
 			connect.WithClientOptions(opts...),
 		),
+		getActiveScheduledQueries: connect.NewClient[v1.GetActiveScheduledQueriesRequest, v1.GetActiveScheduledQueriesResponse](
+			httpClient,
+			baseURL+ScheduledQueryServiceGetActiveScheduledQueriesProcedure,
+			connect.WithSchema(scheduledQueryServiceMethods.ByName("GetActiveScheduledQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		getScheduledQueryControl: connect.NewClient[v1.GetScheduledQueryControlRequest, v1.GetScheduledQueryControlResponse](
+			httpClient,
+			baseURL+ScheduledQueryServiceGetScheduledQueryControlProcedure,
+			connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQueryControl")),
+			connect.WithClientOptions(opts...),
+		),
+		updateScheduledQueryControl: connect.NewClient[v1.UpdateScheduledQueryControlRequest, v1.UpdateScheduledQueryControlResponse](
+			httpClient,
+			baseURL+ScheduledQueryServiceUpdateScheduledQueryControlProcedure,
+			connect.WithSchema(scheduledQueryServiceMethods.ByName("UpdateScheduledQueryControl")),
+			connect.WithClientOptions(opts...),
+		),
+		getScheduledQuerySchedule: connect.NewClient[v1.GetScheduledQueryScheduleRequest, v1.GetScheduledQueryScheduleResponse](
+			httpClient,
+			baseURL+ScheduledQueryServiceGetScheduledQueryScheduleProcedure,
+			connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQuerySchedule")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // scheduledQueryServiceClient implements ScheduledQueryServiceClient.
 type scheduledQueryServiceClient struct {
-	getScheduledQueryRun  *connect.Client[v1.GetScheduledQueryRunRequest, v1.GetScheduledQueryRunResponse]
-	getScheduledQueryRuns *connect.Client[v1.GetScheduledQueryRunsRequest, v1.GetScheduledQueryRunsResponse]
+	getScheduledQueryRun        *connect.Client[v1.GetScheduledQueryRunRequest, v1.GetScheduledQueryRunResponse]
+	getScheduledQueryRuns       *connect.Client[v1.GetScheduledQueryRunsRequest, v1.GetScheduledQueryRunsResponse]
+	getActiveScheduledQueries   *connect.Client[v1.GetActiveScheduledQueriesRequest, v1.GetActiveScheduledQueriesResponse]
+	getScheduledQueryControl    *connect.Client[v1.GetScheduledQueryControlRequest, v1.GetScheduledQueryControlResponse]
+	updateScheduledQueryControl *connect.Client[v1.UpdateScheduledQueryControlRequest, v1.UpdateScheduledQueryControlResponse]
+	getScheduledQuerySchedule   *connect.Client[v1.GetScheduledQueryScheduleRequest, v1.GetScheduledQueryScheduleResponse]
 }
 
 // GetScheduledQueryRun calls chalk.server.v1.ScheduledQueryService.GetScheduledQueryRun.
@@ -89,11 +133,36 @@ func (c *scheduledQueryServiceClient) GetScheduledQueryRuns(ctx context.Context,
 	return c.getScheduledQueryRuns.CallUnary(ctx, req)
 }
 
+// GetActiveScheduledQueries calls chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries.
+func (c *scheduledQueryServiceClient) GetActiveScheduledQueries(ctx context.Context, req *connect.Request[v1.GetActiveScheduledQueriesRequest]) (*connect.Response[v1.GetActiveScheduledQueriesResponse], error) {
+	return c.getActiveScheduledQueries.CallUnary(ctx, req)
+}
+
+// GetScheduledQueryControl calls chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl.
+func (c *scheduledQueryServiceClient) GetScheduledQueryControl(ctx context.Context, req *connect.Request[v1.GetScheduledQueryControlRequest]) (*connect.Response[v1.GetScheduledQueryControlResponse], error) {
+	return c.getScheduledQueryControl.CallUnary(ctx, req)
+}
+
+// UpdateScheduledQueryControl calls
+// chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl.
+func (c *scheduledQueryServiceClient) UpdateScheduledQueryControl(ctx context.Context, req *connect.Request[v1.UpdateScheduledQueryControlRequest]) (*connect.Response[v1.UpdateScheduledQueryControlResponse], error) {
+	return c.updateScheduledQueryControl.CallUnary(ctx, req)
+}
+
+// GetScheduledQuerySchedule calls chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule.
+func (c *scheduledQueryServiceClient) GetScheduledQuerySchedule(ctx context.Context, req *connect.Request[v1.GetScheduledQueryScheduleRequest]) (*connect.Response[v1.GetScheduledQueryScheduleResponse], error) {
+	return c.getScheduledQuerySchedule.CallUnary(ctx, req)
+}
+
 // ScheduledQueryServiceHandler is an implementation of the chalk.server.v1.ScheduledQueryService
 // service.
 type ScheduledQueryServiceHandler interface {
 	GetScheduledQueryRun(context.Context, *connect.Request[v1.GetScheduledQueryRunRequest]) (*connect.Response[v1.GetScheduledQueryRunResponse], error)
 	GetScheduledQueryRuns(context.Context, *connect.Request[v1.GetScheduledQueryRunsRequest]) (*connect.Response[v1.GetScheduledQueryRunsResponse], error)
+	GetActiveScheduledQueries(context.Context, *connect.Request[v1.GetActiveScheduledQueriesRequest]) (*connect.Response[v1.GetActiveScheduledQueriesResponse], error)
+	GetScheduledQueryControl(context.Context, *connect.Request[v1.GetScheduledQueryControlRequest]) (*connect.Response[v1.GetScheduledQueryControlResponse], error)
+	UpdateScheduledQueryControl(context.Context, *connect.Request[v1.UpdateScheduledQueryControlRequest]) (*connect.Response[v1.UpdateScheduledQueryControlResponse], error)
+	GetScheduledQuerySchedule(context.Context, *connect.Request[v1.GetScheduledQueryScheduleRequest]) (*connect.Response[v1.GetScheduledQueryScheduleResponse], error)
 }
 
 // NewScheduledQueryServiceHandler builds an HTTP handler from the service implementation. It
@@ -115,12 +184,44 @@ func NewScheduledQueryServiceHandler(svc ScheduledQueryServiceHandler, opts ...c
 		connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQueryRuns")),
 		connect.WithHandlerOptions(opts...),
 	)
+	scheduledQueryServiceGetActiveScheduledQueriesHandler := connect.NewUnaryHandler(
+		ScheduledQueryServiceGetActiveScheduledQueriesProcedure,
+		svc.GetActiveScheduledQueries,
+		connect.WithSchema(scheduledQueryServiceMethods.ByName("GetActiveScheduledQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	scheduledQueryServiceGetScheduledQueryControlHandler := connect.NewUnaryHandler(
+		ScheduledQueryServiceGetScheduledQueryControlProcedure,
+		svc.GetScheduledQueryControl,
+		connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQueryControl")),
+		connect.WithHandlerOptions(opts...),
+	)
+	scheduledQueryServiceUpdateScheduledQueryControlHandler := connect.NewUnaryHandler(
+		ScheduledQueryServiceUpdateScheduledQueryControlProcedure,
+		svc.UpdateScheduledQueryControl,
+		connect.WithSchema(scheduledQueryServiceMethods.ByName("UpdateScheduledQueryControl")),
+		connect.WithHandlerOptions(opts...),
+	)
+	scheduledQueryServiceGetScheduledQueryScheduleHandler := connect.NewUnaryHandler(
+		ScheduledQueryServiceGetScheduledQueryScheduleProcedure,
+		svc.GetScheduledQuerySchedule,
+		connect.WithSchema(scheduledQueryServiceMethods.ByName("GetScheduledQuerySchedule")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ScheduledQueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ScheduledQueryServiceGetScheduledQueryRunProcedure:
 			scheduledQueryServiceGetScheduledQueryRunHandler.ServeHTTP(w, r)
 		case ScheduledQueryServiceGetScheduledQueryRunsProcedure:
 			scheduledQueryServiceGetScheduledQueryRunsHandler.ServeHTTP(w, r)
+		case ScheduledQueryServiceGetActiveScheduledQueriesProcedure:
+			scheduledQueryServiceGetActiveScheduledQueriesHandler.ServeHTTP(w, r)
+		case ScheduledQueryServiceGetScheduledQueryControlProcedure:
+			scheduledQueryServiceGetScheduledQueryControlHandler.ServeHTTP(w, r)
+		case ScheduledQueryServiceUpdateScheduledQueryControlProcedure:
+			scheduledQueryServiceUpdateScheduledQueryControlHandler.ServeHTTP(w, r)
+		case ScheduledQueryServiceGetScheduledQueryScheduleProcedure:
+			scheduledQueryServiceGetScheduledQueryScheduleHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -136,4 +237,20 @@ func (UnimplementedScheduledQueryServiceHandler) GetScheduledQueryRun(context.Co
 
 func (UnimplementedScheduledQueryServiceHandler) GetScheduledQueryRuns(context.Context, *connect.Request[v1.GetScheduledQueryRunsRequest]) (*connect.Response[v1.GetScheduledQueryRunsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScheduledQueryService.GetScheduledQueryRuns is not implemented"))
+}
+
+func (UnimplementedScheduledQueryServiceHandler) GetActiveScheduledQueries(context.Context, *connect.Request[v1.GetActiveScheduledQueriesRequest]) (*connect.Response[v1.GetActiveScheduledQueriesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScheduledQueryService.GetActiveScheduledQueries is not implemented"))
+}
+
+func (UnimplementedScheduledQueryServiceHandler) GetScheduledQueryControl(context.Context, *connect.Request[v1.GetScheduledQueryControlRequest]) (*connect.Response[v1.GetScheduledQueryControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScheduledQueryService.GetScheduledQueryControl is not implemented"))
+}
+
+func (UnimplementedScheduledQueryServiceHandler) UpdateScheduledQueryControl(context.Context, *connect.Request[v1.UpdateScheduledQueryControlRequest]) (*connect.Response[v1.UpdateScheduledQueryControlResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScheduledQueryService.UpdateScheduledQueryControl is not implemented"))
+}
+
+func (UnimplementedScheduledQueryServiceHandler) GetScheduledQuerySchedule(context.Context, *connect.Request[v1.GetScheduledQueryScheduleRequest]) (*connect.Response[v1.GetScheduledQueryScheduleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScheduledQueryService.GetScheduledQuerySchedule is not implemented"))
 }

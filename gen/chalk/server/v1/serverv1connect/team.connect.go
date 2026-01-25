@@ -110,6 +110,15 @@ const (
 	// TeamServiceReactivateUserProcedure is the fully-qualified name of the TeamService's
 	// ReactivateUser RPC.
 	TeamServiceReactivateUserProcedure = "/chalk.server.v1.TeamService/ReactivateUser"
+	// TeamServiceCreateCustomRoleProcedure is the fully-qualified name of the TeamService's
+	// CreateCustomRole RPC.
+	TeamServiceCreateCustomRoleProcedure = "/chalk.server.v1.TeamService/CreateCustomRole"
+	// TeamServiceDeleteCustomRoleProcedure is the fully-qualified name of the TeamService's
+	// DeleteCustomRole RPC.
+	TeamServiceDeleteCustomRoleProcedure = "/chalk.server.v1.TeamService/DeleteCustomRole"
+	// TeamServiceUpdateCustomRoleProcedure is the fully-qualified name of the TeamService's
+	// UpdateCustomRole RPC.
+	TeamServiceUpdateCustomRoleProcedure = "/chalk.server.v1.TeamService/UpdateCustomRole"
 )
 
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
@@ -141,6 +150,9 @@ type TeamServiceClient interface {
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
+	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
+	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
+	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
 }
 
 // NewTeamServiceClient constructs a client for the chalk.server.v1.TeamService service. By default,
@@ -323,6 +335,24 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("ReactivateUser")),
 			connect.WithClientOptions(opts...),
 		),
+		createCustomRole: connect.NewClient[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse](
+			httpClient,
+			baseURL+TeamServiceCreateCustomRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("CreateCustomRole")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteCustomRole: connect.NewClient[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse](
+			httpClient,
+			baseURL+TeamServiceDeleteCustomRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("DeleteCustomRole")),
+			connect.WithClientOptions(opts...),
+		),
+		updateCustomRole: connect.NewClient[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse](
+			httpClient,
+			baseURL+TeamServiceUpdateCustomRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("UpdateCustomRole")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -355,6 +385,9 @@ type teamServiceClient struct {
 	archiveEnvironment          *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
 	deactivateUser              *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
 	reactivateUser              *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
+	createCustomRole            *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
+	deleteCustomRole            *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
+	updateCustomRole            *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -492,6 +525,21 @@ func (c *teamServiceClient) ReactivateUser(ctx context.Context, req *connect.Req
 	return c.reactivateUser.CallUnary(ctx, req)
 }
 
+// CreateCustomRole calls chalk.server.v1.TeamService.CreateCustomRole.
+func (c *teamServiceClient) CreateCustomRole(ctx context.Context, req *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {
+	return c.createCustomRole.CallUnary(ctx, req)
+}
+
+// DeleteCustomRole calls chalk.server.v1.TeamService.DeleteCustomRole.
+func (c *teamServiceClient) DeleteCustomRole(ctx context.Context, req *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error) {
+	return c.deleteCustomRole.CallUnary(ctx, req)
+}
+
+// UpdateCustomRole calls chalk.server.v1.TeamService.UpdateCustomRole.
+func (c *teamServiceClient) UpdateCustomRole(ctx context.Context, req *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error) {
+	return c.updateCustomRole.CallUnary(ctx, req)
+}
+
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -521,6 +569,9 @@ type TeamServiceHandler interface {
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
+	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
+	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
+	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
 }
 
 // NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -699,6 +750,24 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("ReactivateUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceCreateCustomRoleHandler := connect.NewUnaryHandler(
+		TeamServiceCreateCustomRoleProcedure,
+		svc.CreateCustomRole,
+		connect.WithSchema(teamServiceMethods.ByName("CreateCustomRole")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceDeleteCustomRoleHandler := connect.NewUnaryHandler(
+		TeamServiceDeleteCustomRoleProcedure,
+		svc.DeleteCustomRole,
+		connect.WithSchema(teamServiceMethods.ByName("DeleteCustomRole")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceUpdateCustomRoleHandler := connect.NewUnaryHandler(
+		TeamServiceUpdateCustomRoleProcedure,
+		svc.UpdateCustomRole,
+		connect.WithSchema(teamServiceMethods.ByName("UpdateCustomRole")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
@@ -755,6 +824,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceDeactivateUserHandler.ServeHTTP(w, r)
 		case TeamServiceReactivateUserProcedure:
 			teamServiceReactivateUserHandler.ServeHTTP(w, r)
+		case TeamServiceCreateCustomRoleProcedure:
+			teamServiceCreateCustomRoleHandler.ServeHTTP(w, r)
+		case TeamServiceDeleteCustomRoleProcedure:
+			teamServiceDeleteCustomRoleHandler.ServeHTTP(w, r)
+		case TeamServiceUpdateCustomRoleProcedure:
+			teamServiceUpdateCustomRoleHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -870,4 +945,16 @@ func (UnimplementedTeamServiceHandler) DeactivateUser(context.Context, *connect.
 
 func (UnimplementedTeamServiceHandler) ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ReactivateUser is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateCustomRole is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteCustomRole is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateCustomRole is not implemented"))
 }
