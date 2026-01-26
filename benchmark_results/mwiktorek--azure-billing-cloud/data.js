@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769304690851,
+  "lastUpdate": 1769462082609,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30594,6 +30594,56 @@ window.BENCHMARK_DATA = {
             "value": 305,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "16568c664c674892c56451a18bd919c40b8adead",
+          "message": "Add azure to billing cloud proto enum",
+          "timestamp": "2026-01-25T01:31:06Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/561/commits/16568c664c674892c56451a18bd919c40b8adead"
+        },
+        "date": 1769462082521,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.097,
+            "unit": "ms/op",
+            "extra": "1202 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 116.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.57,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 222.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 307,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
