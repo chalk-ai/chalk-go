@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769304690851,
+  "lastUpdate": 1769465101302,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30594,6 +30594,60 @@ window.BENCHMARK_DATA = {
             "value": 305,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "wiktorekmichael@gmail.com",
+            "name": "Michael Wiktorek",
+            "username": "michaelwiktorek"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "12d3a0710ec8b16c63d2bbc226db8222dd8f4918",
+          "message": "Merge pull request #561 from chalk-ai/mwiktorek/azure-billing-cloud\n\nAdd azure to billing cloud proto enum",
+          "timestamp": "2026-01-26T14:04:24-08:00",
+          "tree_id": "00344c2267b36281a9d7b6ec56c8bfd9b2412609",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/12d3a0710ec8b16c63d2bbc226db8222dd8f4918"
+        },
+        "date": 1769465101217,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.067,
+            "unit": "ms/op",
+            "extra": "1027 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 111.3,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.79,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 217.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 334.3,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
