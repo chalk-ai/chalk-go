@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769465101302,
+  "lastUpdate": 1769555591191,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30648,6 +30648,60 @@ window.BENCHMARK_DATA = {
             "value": 334.3,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "57328350+kathryn1wang@users.noreply.github.com",
+            "name": "Kathryn Wang",
+            "username": "kathryn1wang"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "acfeb2cb412ec57356311ff39fbba0d1a064f66a",
+          "message": "Merge pull request #562 from chalk-ai/kathryn/rename-datasets\n\nRename Datasetss",
+          "timestamp": "2026-01-27T15:12:39-08:00",
+          "tree_id": "e34199ac8b3e308904e4a5d91835cecda096bc39",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/acfeb2cb412ec57356311ff39fbba0d1a064f66a"
+        },
+        "date": 1769555591107,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.301,
+            "unit": "ms/op",
+            "extra": "898 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 115.9,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 39.06,
+            "unit": "ms/op",
+            "extra": "33 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 211.9,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 302.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
