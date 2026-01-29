@@ -56,6 +56,9 @@ const (
 	// OfflineQueryMetadataServiceRetryOfflineQueryShardProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's RetryOfflineQueryShard RPC.
 	OfflineQueryMetadataServiceRetryOfflineQueryShardProcedure = "/chalk.server.v1.OfflineQueryMetadataService/RetryOfflineQueryShard"
+	// OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure is the fully-qualified name of the
+	// OfflineQueryMetadataService's CancelAsyncOfflineQuery RPC.
+	OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/CancelAsyncOfflineQuery"
 )
 
 // OfflineQueryMetadataServiceClient is a client for the chalk.server.v1.OfflineQueryMetadataService
@@ -69,6 +72,7 @@ type OfflineQueryMetadataServiceClient interface {
 	CreateModelTrainingJob(context.Context, *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error)
 	IngestDataset(context.Context, *connect.Request[v1.IngestDatasetRequest]) (*connect.Response[v1.IngestDatasetResponse], error)
 	RetryOfflineQueryShard(context.Context, *connect.Request[v1.RetryOfflineQueryShardRequest]) (*connect.Response[v1.RetryOfflineQueryShardResponse], error)
+	CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceClient constructs a client for the
@@ -128,6 +132,12 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("RetryOfflineQueryShard")),
 			connect.WithClientOptions(opts...),
 		),
+		cancelAsyncOfflineQuery: connect.NewClient[v1.CancelAsyncOfflineQueryRequest, v1.CancelAsyncOfflineQueryResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CancelAsyncOfflineQuery")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -140,6 +150,7 @@ type offlineQueryMetadataServiceClient struct {
 	createModelTrainingJob                    *connect.Client[v1.CreateModelTrainingJobRequest, v1.CreateModelTrainingJobResponse]
 	ingestDataset                             *connect.Client[v1.IngestDatasetRequest, v1.IngestDatasetResponse]
 	retryOfflineQueryShard                    *connect.Client[v1.RetryOfflineQueryShardRequest, v1.RetryOfflineQueryShardResponse]
+	cancelAsyncOfflineQuery                   *connect.Client[v1.CancelAsyncOfflineQueryRequest, v1.CancelAsyncOfflineQueryResponse]
 }
 
 // ListOfflineQueries calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries.
@@ -180,6 +191,12 @@ func (c *offlineQueryMetadataServiceClient) RetryOfflineQueryShard(ctx context.C
 	return c.retryOfflineQueryShard.CallUnary(ctx, req)
 }
 
+// CancelAsyncOfflineQuery calls
+// chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery.
+func (c *offlineQueryMetadataServiceClient) CancelAsyncOfflineQuery(ctx context.Context, req *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error) {
+	return c.cancelAsyncOfflineQuery.CallUnary(ctx, req)
+}
+
 // OfflineQueryMetadataServiceHandler is an implementation of the
 // chalk.server.v1.OfflineQueryMetadataService service.
 type OfflineQueryMetadataServiceHandler interface {
@@ -191,6 +208,7 @@ type OfflineQueryMetadataServiceHandler interface {
 	CreateModelTrainingJob(context.Context, *connect.Request[v1.CreateModelTrainingJobRequest]) (*connect.Response[v1.CreateModelTrainingJobResponse], error)
 	IngestDataset(context.Context, *connect.Request[v1.IngestDatasetRequest]) (*connect.Response[v1.IngestDatasetResponse], error)
 	RetryOfflineQueryShard(context.Context, *connect.Request[v1.RetryOfflineQueryShardRequest]) (*connect.Response[v1.RetryOfflineQueryShardResponse], error)
+	CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -245,6 +263,12 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("RetryOfflineQueryShard")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineQueryMetadataServiceCancelAsyncOfflineQueryHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure,
+		svc.CancelAsyncOfflineQuery,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CancelAsyncOfflineQuery")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineQueryMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineQueryMetadataServiceListOfflineQueriesProcedure:
@@ -261,6 +285,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceIngestDatasetHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceRetryOfflineQueryShardProcedure:
 			offlineQueryMetadataServiceRetryOfflineQueryShardHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure:
+			offlineQueryMetadataServiceCancelAsyncOfflineQueryHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -296,4 +322,8 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) IngestDataset(context.Con
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) RetryOfflineQueryShard(context.Context, *connect.Request[v1.RetryOfflineQueryShardRequest]) (*connect.Response[v1.RetryOfflineQueryShardResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery is not implemented"))
 }
