@@ -119,6 +119,8 @@ const (
 	// TeamServiceUpdateCustomRoleProcedure is the fully-qualified name of the TeamService's
 	// UpdateCustomRole RPC.
 	TeamServiceUpdateCustomRoleProcedure = "/chalk.server.v1.TeamService/UpdateCustomRole"
+	// TeamServiceGetProjectProcedure is the fully-qualified name of the TeamService's GetProject RPC.
+	TeamServiceGetProjectProcedure = "/chalk.server.v1.TeamService/GetProject"
 )
 
 // TeamServiceClient is a client for the chalk.server.v1.TeamService service.
@@ -153,6 +155,7 @@ type TeamServiceClient interface {
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
+	GetProject(context.Context, *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.GetProjectResponse], error)
 }
 
 // NewTeamServiceClient constructs a client for the chalk.server.v1.TeamService service. By default,
@@ -353,6 +356,13 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("UpdateCustomRole")),
 			connect.WithClientOptions(opts...),
 		),
+		getProject: connect.NewClient[v1.GetProjectRequest, v1.GetProjectResponse](
+			httpClient,
+			baseURL+TeamServiceGetProjectProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("GetProject")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -388,6 +398,7 @@ type teamServiceClient struct {
 	createCustomRole            *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
 	deleteCustomRole            *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
 	updateCustomRole            *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
+	getProject                  *connect.Client[v1.GetProjectRequest, v1.GetProjectResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -540,6 +551,11 @@ func (c *teamServiceClient) UpdateCustomRole(ctx context.Context, req *connect.R
 	return c.updateCustomRole.CallUnary(ctx, req)
 }
 
+// GetProject calls chalk.server.v1.TeamService.GetProject.
+func (c *teamServiceClient) GetProject(ctx context.Context, req *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.GetProjectResponse], error) {
+	return c.getProject.CallUnary(ctx, req)
+}
+
 // TeamServiceHandler is an implementation of the chalk.server.v1.TeamService service.
 type TeamServiceHandler interface {
 	GetEnv(context.Context, *connect.Request[v1.GetEnvRequest]) (*connect.Response[v1.GetEnvResponse], error)
@@ -572,6 +588,7 @@ type TeamServiceHandler interface {
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
+	GetProject(context.Context, *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.GetProjectResponse], error)
 }
 
 // NewTeamServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -768,6 +785,13 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("UpdateCustomRole")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceGetProjectHandler := connect.NewUnaryHandler(
+		TeamServiceGetProjectProcedure,
+		svc.GetProject,
+		connect.WithSchema(teamServiceMethods.ByName("GetProject")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.TeamService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case TeamServiceGetEnvProcedure:
@@ -830,6 +854,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceDeleteCustomRoleHandler.ServeHTTP(w, r)
 		case TeamServiceUpdateCustomRoleProcedure:
 			teamServiceUpdateCustomRoleHandler.ServeHTTP(w, r)
+		case TeamServiceGetProjectProcedure:
+			teamServiceGetProjectHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -957,4 +983,8 @@ func (UnimplementedTeamServiceHandler) DeleteCustomRole(context.Context, *connec
 
 func (UnimplementedTeamServiceHandler) UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateCustomRole is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) GetProject(context.Context, *connect.Request[v1.GetProjectRequest]) (*connect.Response[v1.GetProjectResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetProject is not implemented"))
 }
