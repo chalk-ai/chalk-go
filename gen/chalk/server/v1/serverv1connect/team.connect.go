@@ -46,6 +46,9 @@ const (
 	// TeamServiceGetDisplayAgentProcedure is the fully-qualified name of the TeamService's
 	// GetDisplayAgent RPC.
 	TeamServiceGetDisplayAgentProcedure = "/chalk.server.v1.TeamService/GetDisplayAgent"
+	// TeamServiceGetAgentByIdProcedure is the fully-qualified name of the TeamService's GetAgentById
+	// RPC.
+	TeamServiceGetAgentByIdProcedure = "/chalk.server.v1.TeamService/GetAgentById"
 	// TeamServiceGetTeamProcedure is the fully-qualified name of the TeamService's GetTeam RPC.
 	TeamServiceGetTeamProcedure = "/chalk.server.v1.TeamService/GetTeam"
 	// TeamServiceCreateTeamProcedure is the fully-qualified name of the TeamService's CreateTeam RPC.
@@ -130,6 +133,7 @@ type TeamServiceClient interface {
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
+	GetAgentById(context.Context, *connect.Request[v1.GetAgentByIdRequest]) (*connect.Response[v1.GetAgentByIdResponse], error)
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
@@ -201,6 +205,13 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceGetDisplayAgentProcedure,
 			connect.WithSchema(teamServiceMethods.ByName("GetDisplayAgent")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getAgentById: connect.NewClient[v1.GetAgentByIdRequest, v1.GetAgentByIdResponse](
+			httpClient,
+			baseURL+TeamServiceGetAgentByIdProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("GetAgentById")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -373,6 +384,7 @@ type teamServiceClient struct {
 	getEnvironments             *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
 	getAgent                    *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
 	getDisplayAgent             *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
+	getAgentById                *connect.Client[v1.GetAgentByIdRequest, v1.GetAgentByIdResponse]
 	getTeam                     *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
 	createTeam                  *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
 	createProject               *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
@@ -424,6 +436,11 @@ func (c *teamServiceClient) GetAgent(ctx context.Context, req *connect.Request[v
 // GetDisplayAgent calls chalk.server.v1.TeamService.GetDisplayAgent.
 func (c *teamServiceClient) GetDisplayAgent(ctx context.Context, req *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error) {
 	return c.getDisplayAgent.CallUnary(ctx, req)
+}
+
+// GetAgentById calls chalk.server.v1.TeamService.GetAgentById.
+func (c *teamServiceClient) GetAgentById(ctx context.Context, req *connect.Request[v1.GetAgentByIdRequest]) (*connect.Response[v1.GetAgentByIdResponse], error) {
+	return c.getAgentById.CallUnary(ctx, req)
 }
 
 // GetTeam calls chalk.server.v1.TeamService.GetTeam.
@@ -563,6 +580,7 @@ type TeamServiceHandler interface {
 	GetEnvironments(context.Context, *connect.Request[v1.GetEnvironmentsRequest]) (*connect.Response[v1.GetEnvironmentsResponse], error)
 	GetAgent(context.Context, *connect.Request[v1.GetAgentRequest]) (*connect.Response[v1.GetAgentResponse], error)
 	GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error)
+	GetAgentById(context.Context, *connect.Request[v1.GetAgentByIdRequest]) (*connect.Response[v1.GetAgentByIdResponse], error)
 	GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error)
 	CreateTeam(context.Context, *connect.Request[v1.CreateTeamRequest]) (*connect.Response[v1.CreateTeamResponse], error)
 	CreateProject(context.Context, *connect.Request[v1.CreateProjectRequest]) (*connect.Response[v1.CreateProjectResponse], error)
@@ -630,6 +648,13 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceGetDisplayAgentProcedure,
 		svc.GetDisplayAgent,
 		connect.WithSchema(teamServiceMethods.ByName("GetDisplayAgent")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceGetAgentByIdHandler := connect.NewUnaryHandler(
+		TeamServiceGetAgentByIdProcedure,
+		svc.GetAgentById,
+		connect.WithSchema(teamServiceMethods.ByName("GetAgentById")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -804,6 +829,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceGetAgentHandler.ServeHTTP(w, r)
 		case TeamServiceGetDisplayAgentProcedure:
 			teamServiceGetDisplayAgentHandler.ServeHTTP(w, r)
+		case TeamServiceGetAgentByIdProcedure:
+			teamServiceGetAgentByIdHandler.ServeHTTP(w, r)
 		case TeamServiceGetTeamProcedure:
 			teamServiceGetTeamHandler.ServeHTTP(w, r)
 		case TeamServiceCreateTeamProcedure:
@@ -883,6 +910,10 @@ func (UnimplementedTeamServiceHandler) GetAgent(context.Context, *connect.Reques
 
 func (UnimplementedTeamServiceHandler) GetDisplayAgent(context.Context, *connect.Request[v1.GetDisplayAgentRequest]) (*connect.Response[v1.GetDisplayAgentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetDisplayAgent is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) GetAgentById(context.Context, *connect.Request[v1.GetAgentByIdRequest]) (*connect.Response[v1.GetAgentByIdResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetAgentById is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) GetTeam(context.Context, *connect.Request[v1.GetTeamRequest]) (*connect.Response[v1.GetTeamResponse], error) {

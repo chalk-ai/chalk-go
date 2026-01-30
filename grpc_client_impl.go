@@ -43,6 +43,7 @@ type grpcClientImpl struct {
 	deploymentTag       string
 	tokenManager        *auth.Manager
 	metadataInterceptor connect.UnaryInterceptorFunc
+	engineInterceptor   connect.UnaryInterceptorFunc
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -222,6 +223,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		timeout:             timeout,
 		allocator:           cfg.Allocator,
 		metadataInterceptor: authedServerInterceptor,
+		engineInterceptor:   engineInterceptor,
 	}, nil
 }
 
@@ -443,6 +445,10 @@ func (c *grpcClientImpl) GetOnlineQueryBulkRequest(ctx context.Context, args Onl
 
 func (c *grpcClientImpl) GetMetadataServerInterceptor() []connect.ClientOption {
 	return []connect.ClientOption{connect.WithInterceptors(c.metadataInterceptor)}
+}
+
+func (c *grpcClientImpl) GetEngineServerInterceptor() []connect.ClientOption {
+	return []connect.ClientOption{connect.WithInterceptors(c.engineInterceptor)}
 }
 
 func (c *grpcClientImpl) GetConfig() *GRPCClientConfig {

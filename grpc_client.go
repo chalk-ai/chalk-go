@@ -123,6 +123,7 @@ type GRPCClient interface {
 	GetConfig() *GRPCClientConfig
 
 	GetMetadataServerInterceptor() []connect.ClientOption
+	GetEngineServerInterceptor() []connect.ClientOption
 
 	// GetGraph retrieves the graph for a deployment.
 	GetGraph(ctx context.Context, deploymentId string) (*GRPCGetGraphResult, error)
