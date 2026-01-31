@@ -54,6 +54,9 @@ const (
 	// DatasetMetadataServiceArchiveDatasetRevisionProcedure is the fully-qualified name of the
 	// DatasetMetadataService's ArchiveDatasetRevision RPC.
 	DatasetMetadataServiceArchiveDatasetRevisionProcedure = "/chalk.server.v1.DatasetMetadataService/ArchiveDatasetRevision"
+	// DatasetMetadataServiceDeleteDatasetProcedure is the fully-qualified name of the
+	// DatasetMetadataService's DeleteDataset RPC.
+	DatasetMetadataServiceDeleteDatasetProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteDataset"
 )
 
 // DatasetMetadataServiceClient is a client for the chalk.server.v1.DatasetMetadataService service.
@@ -65,6 +68,7 @@ type DatasetMetadataServiceClient interface {
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
+	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
 }
 
 // NewDatasetMetadataServiceClient constructs a client for the
@@ -127,6 +131,13 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		deleteDataset: connect.NewClient[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceDeleteDatasetProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteDataset")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -139,6 +150,7 @@ type datasetMetadataServiceClient struct {
 	getDatasetRevisionDownloadLinks *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
 	renameDataset                   *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
 	archiveDatasetRevision          *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
+	deleteDataset                   *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -177,6 +189,11 @@ func (c *datasetMetadataServiceClient) ArchiveDatasetRevision(ctx context.Contex
 	return c.archiveDatasetRevision.CallUnary(ctx, req)
 }
 
+// DeleteDataset calls chalk.server.v1.DatasetMetadataService.DeleteDataset.
+func (c *datasetMetadataServiceClient) DeleteDataset(ctx context.Context, req *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error) {
+	return c.deleteDataset.CallUnary(ctx, req)
+}
+
 // DatasetMetadataServiceHandler is an implementation of the chalk.server.v1.DatasetMetadataService
 // service.
 type DatasetMetadataServiceHandler interface {
@@ -187,6 +204,7 @@ type DatasetMetadataServiceHandler interface {
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
+	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
 }
 
 // NewDatasetMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -245,6 +263,13 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceDeleteDatasetHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceDeleteDatasetProcedure,
+		svc.DeleteDataset,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteDataset")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DatasetMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasetMetadataServiceListDatasetsProcedure:
@@ -261,6 +286,8 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceRenameDatasetHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceArchiveDatasetRevisionProcedure:
 			datasetMetadataServiceArchiveDatasetRevisionHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceDeleteDatasetProcedure:
+			datasetMetadataServiceDeleteDatasetHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -296,4 +323,8 @@ func (UnimplementedDatasetMetadataServiceHandler) RenameDataset(context.Context,
 
 func (UnimplementedDatasetMetadataServiceHandler) ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.DeleteDataset is not implemented"))
 }
