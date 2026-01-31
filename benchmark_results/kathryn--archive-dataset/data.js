@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1769813982370,
+  "lastUpdate": 1769818173308,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -30864,6 +30864,56 @@ window.BENCHMARK_DATA = {
             "value": 317.9,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "a65e34371c7f966d106b3cab0cf9d14120b003cf",
+          "message": "Completing Dataset Migration to GRPC",
+          "timestamp": "2026-01-30T23:14:39Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/565/commits/a65e34371c7f966d106b3cab0cf9d14120b003cf"
+        },
+        "date": 1769818173221,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9362,
+            "unit": "ms/op",
+            "extra": "1170 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 108.5,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 36.89,
+            "unit": "ms/op",
+            "extra": "32 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 211.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 311.2,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
