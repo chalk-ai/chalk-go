@@ -57,6 +57,12 @@ const (
 	// BillingServiceGetInstanceUsageProcedure is the fully-qualified name of the BillingService's
 	// GetInstanceUsage RPC.
 	BillingServiceGetInstanceUsageProcedure = "/chalk.server.v1.BillingService/GetInstanceUsage"
+	// BillingServiceGetPodTimeRangesProcedure is the fully-qualified name of the BillingService's
+	// GetPodTimeRanges RPC.
+	BillingServiceGetPodTimeRangesProcedure = "/chalk.server.v1.BillingService/GetPodTimeRanges"
+	// BillingServiceGetNodeTimeRangesProcedure is the fully-qualified name of the BillingService's
+	// GetNodeTimeRanges RPC.
+	BillingServiceGetNodeTimeRangesProcedure = "/chalk.server.v1.BillingService/GetNodeTimeRanges"
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -83,6 +89,12 @@ type BillingServiceClient interface {
 	// GetCreditBundles returns the available credit bundles for purchase
 	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 	GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error)
+	// GetPodTimeRanges returns the earliest and latest observed timestamps
+	// for a list of pods from the usage data.
+	GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error)
+	// GetNodeTimeRanges returns the earliest and latest observed timestamps
+	// for a list of nodes from the usage data.
+	GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -152,6 +164,20 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getPodTimeRanges: connect.NewClient[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse](
+			httpClient,
+			baseURL+BillingServiceGetPodTimeRangesProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetPodTimeRanges")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getNodeTimeRanges: connect.NewClient[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse](
+			httpClient,
+			baseURL+BillingServiceGetNodeTimeRangesProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetNodeTimeRanges")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -165,6 +191,8 @@ type billingServiceClient struct {
 	syncUtilization     *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
 	getCreditBundles    *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
 	getInstanceUsage    *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
+	getPodTimeRanges    *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
+	getNodeTimeRanges   *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -207,6 +235,16 @@ func (c *billingServiceClient) GetInstanceUsage(ctx context.Context, req *connec
 	return c.getInstanceUsage.CallUnary(ctx, req)
 }
 
+// GetPodTimeRanges calls chalk.server.v1.BillingService.GetPodTimeRanges.
+func (c *billingServiceClient) GetPodTimeRanges(ctx context.Context, req *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error) {
+	return c.getPodTimeRanges.CallUnary(ctx, req)
+}
+
+// GetNodeTimeRanges calls chalk.server.v1.BillingService.GetNodeTimeRanges.
+func (c *billingServiceClient) GetNodeTimeRanges(ctx context.Context, req *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error) {
+	return c.getNodeTimeRanges.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -231,6 +269,12 @@ type BillingServiceHandler interface {
 	// GetCreditBundles returns the available credit bundles for purchase
 	GetCreditBundles(context.Context, *connect.Request[v1.GetCreditBundlesRequest]) (*connect.Response[v1.GetCreditBundlesResponse], error)
 	GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error)
+	// GetPodTimeRanges returns the earliest and latest observed timestamps
+	// for a list of pods from the usage data.
+	GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error)
+	// GetNodeTimeRanges returns the earliest and latest observed timestamps
+	// for a list of nodes from the usage data.
+	GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -296,6 +340,20 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetPodTimeRangesHandler := connect.NewUnaryHandler(
+		BillingServiceGetPodTimeRangesProcedure,
+		svc.GetPodTimeRanges,
+		connect.WithSchema(billingServiceMethods.ByName("GetPodTimeRanges")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServiceGetNodeTimeRangesHandler := connect.NewUnaryHandler(
+		BillingServiceGetNodeTimeRangesProcedure,
+		svc.GetNodeTimeRanges,
+		connect.WithSchema(billingServiceMethods.ByName("GetNodeTimeRanges")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsUIProcedure:
@@ -314,6 +372,10 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetCreditBundlesHandler.ServeHTTP(w, r)
 		case BillingServiceGetInstanceUsageProcedure:
 			billingServiceGetInstanceUsageHandler.ServeHTTP(w, r)
+		case BillingServiceGetPodTimeRangesProcedure:
+			billingServiceGetPodTimeRangesHandler.ServeHTTP(w, r)
+		case BillingServiceGetNodeTimeRangesProcedure:
+			billingServiceGetNodeTimeRangesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -353,4 +415,12 @@ func (UnimplementedBillingServiceHandler) GetCreditBundles(context.Context, *con
 
 func (UnimplementedBillingServiceHandler) GetInstanceUsage(context.Context, *connect.Request[v1.GetInstanceUsageRequest]) (*connect.Response[v1.GetInstanceUsageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetInstanceUsage is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetPodTimeRanges(context.Context, *connect.Request[v1.GetPodTimeRangesRequest]) (*connect.Response[v1.GetPodTimeRangesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetPodTimeRanges is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodeTimeRanges is not implemented"))
 }
