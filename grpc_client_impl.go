@@ -152,6 +152,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 
 			req.Header().Set("x-chalk-deployment-type", "engine-grpc")
 			req.Header().Set("x-chalk-server", "engine")
+			req.Header().Set("User-Agent", internal.UserAgent())
 			if cfg.DeploymentTag != "" {
 				req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
 			}
@@ -191,6 +192,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 				}
 			}
 			req.Header().Set("x-chalk-server", "go-api")
+			req.Header().Set("User-Agent", internal.UserAgent())
 			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
 				req.Header().Set("x-chalk-env-id", envId)
 			}

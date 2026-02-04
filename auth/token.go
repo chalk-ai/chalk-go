@@ -12,6 +12,7 @@ import (
 	"github.com/chalk-ai/chalk-go/config"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
+	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 )
 
@@ -126,6 +127,7 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 								}
 							}
 							req.Header().Set("x-chalk-server", "go-api")
+							req.Header().Set("User-Agent", internal.UserAgent())
 							return next(c, req)
 						}
 					},
