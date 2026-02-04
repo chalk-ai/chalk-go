@@ -21,12 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// All of the following enums are representations of the metrics1
-// enums. Because protos require that 0 be UNSPECIFIED, all of these enums
-// values are 1 greater than the value they will have in the database
-//
-// Canonical definition of these tags exists in
-// chalk-private/shared/chalkshared/rpc_models/metrics.py
 type Metrics1ProtoRepresentationNamespace int32
 
 const (
