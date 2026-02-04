@@ -84,6 +84,15 @@ const (
 	// CloudComponentsServiceDeleteBindingClusterGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteBindingClusterGateway RPC.
 	CloudComponentsServiceDeleteBindingClusterGatewayProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterGateway"
+	// CloudComponentsServiceCreateBindingPrivateGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's CreateBindingPrivateGateway RPC.
+	CloudComponentsServiceCreateBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingPrivateGateway"
+	// CloudComponentsServiceGetBindingPrivateGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's GetBindingPrivateGateway RPC.
+	CloudComponentsServiceGetBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingPrivateGateway"
+	// CloudComponentsServiceDeleteBindingPrivateGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's DeleteBindingPrivateGateway RPC.
+	CloudComponentsServiceDeleteBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingPrivateGateway"
 	// CloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentProcedure is the
 	// fully-qualified name of the CloudComponentsService's
 	// CreateBindingClusterBackgroundPersistenceDeployment RPC.
@@ -126,6 +135,9 @@ type CloudComponentsServiceClient interface {
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
 	DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error)
+	CreateBindingPrivateGateway(context.Context, *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error)
+	GetBindingPrivateGateway(context.Context, *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error)
+	DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error)
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
@@ -255,6 +267,25 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterGateway")),
 			connect.WithClientOptions(opts...),
 		),
+		createBindingPrivateGateway: connect.NewClient[v1.CreateBindingPrivateGatewayRequest, v1.CreateBindingPrivateGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateBindingPrivateGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingPrivateGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingPrivateGateway: connect.NewClient[v1.GetBindingPrivateGatewayRequest, v1.GetBindingPrivateGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetBindingPrivateGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingPrivateGateway")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingPrivateGateway: connect.NewClient[v1.DeleteBindingPrivateGatewayRequest, v1.DeleteBindingPrivateGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteBindingPrivateGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingPrivateGateway")),
+			connect.WithClientOptions(opts...),
+		),
 		createBindingClusterBackgroundPersistenceDeployment: connect.NewClient[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest, v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentProcedure,
@@ -315,6 +346,9 @@ type cloudComponentsServiceClient struct {
 	createBindingClusterGateway                         *connect.Client[v1.CreateBindingClusterGatewayRequest, v1.CreateBindingClusterGatewayResponse]
 	getBindingClusterGateway                            *connect.Client[v1.GetBindingClusterGatewayRequest, v1.GetBindingClusterGatewayResponse]
 	deleteBindingClusterGateway                         *connect.Client[v1.DeleteBindingClusterGatewayRequest, v1.DeleteBindingClusterGatewayResponse]
+	createBindingPrivateGateway                         *connect.Client[v1.CreateBindingPrivateGatewayRequest, v1.CreateBindingPrivateGatewayResponse]
+	getBindingPrivateGateway                            *connect.Client[v1.GetBindingPrivateGatewayRequest, v1.GetBindingPrivateGatewayResponse]
+	deleteBindingPrivateGateway                         *connect.Client[v1.DeleteBindingPrivateGatewayRequest, v1.DeleteBindingPrivateGatewayResponse]
 	createBindingClusterBackgroundPersistenceDeployment *connect.Client[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest, v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse]
 	getBindingClusterBackgroundPersistenceDeployment    *connect.Client[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest, v1.GetBindingClusterBackgroundPersistenceDeploymentResponse]
 	deleteBindingClusterBackgroundPersistenceDeployment *connect.Client[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest, v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse]
@@ -415,6 +449,23 @@ func (c *cloudComponentsServiceClient) DeleteBindingClusterGateway(ctx context.C
 	return c.deleteBindingClusterGateway.CallUnary(ctx, req)
 }
 
+// CreateBindingPrivateGateway calls
+// chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway.
+func (c *cloudComponentsServiceClient) CreateBindingPrivateGateway(ctx context.Context, req *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error) {
+	return c.createBindingPrivateGateway.CallUnary(ctx, req)
+}
+
+// GetBindingPrivateGateway calls chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway.
+func (c *cloudComponentsServiceClient) GetBindingPrivateGateway(ctx context.Context, req *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error) {
+	return c.getBindingPrivateGateway.CallUnary(ctx, req)
+}
+
+// DeleteBindingPrivateGateway calls
+// chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway.
+func (c *cloudComponentsServiceClient) DeleteBindingPrivateGateway(ctx context.Context, req *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error) {
+	return c.deleteBindingPrivateGateway.CallUnary(ctx, req)
+}
+
 // CreateBindingClusterBackgroundPersistenceDeployment calls
 // chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment.
 func (c *cloudComponentsServiceClient) CreateBindingClusterBackgroundPersistenceDeployment(ctx context.Context, req *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error) {
@@ -471,6 +522,9 @@ type CloudComponentsServiceHandler interface {
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
 	DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error)
+	CreateBindingPrivateGateway(context.Context, *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error)
+	GetBindingPrivateGateway(context.Context, *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error)
+	DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error)
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
@@ -596,6 +650,25 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterGateway")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceCreateBindingPrivateGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateBindingPrivateGatewayProcedure,
+		svc.CreateBindingPrivateGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingPrivateGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetBindingPrivateGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetBindingPrivateGatewayProcedure,
+		svc.GetBindingPrivateGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingPrivateGateway")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteBindingPrivateGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteBindingPrivateGatewayProcedure,
+		svc.DeleteBindingPrivateGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingPrivateGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentProcedure,
 		svc.CreateBindingClusterBackgroundPersistenceDeployment,
@@ -670,6 +743,12 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceGetBindingClusterGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingClusterGatewayProcedure:
 			cloudComponentsServiceDeleteBindingClusterGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateBindingPrivateGatewayProcedure:
+			cloudComponentsServiceCreateBindingPrivateGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetBindingPrivateGatewayProcedure:
+			cloudComponentsServiceGetBindingPrivateGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteBindingPrivateGatewayProcedure:
+			cloudComponentsServiceDeleteBindingPrivateGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentProcedure:
@@ -757,6 +836,18 @@ func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterGateway(conte
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateBindingPrivateGateway(context.Context, *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetBindingPrivateGateway(context.Context, *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error) {

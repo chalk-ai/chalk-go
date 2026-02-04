@@ -59,6 +59,9 @@ const (
 	// OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure is the fully-qualified name of the
 	// OfflineQueryMetadataService's CancelAsyncOfflineQuery RPC.
 	OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/CancelAsyncOfflineQuery"
+	// OfflineQueryMetadataServiceGetBatchReportProcedure is the fully-qualified name of the
+	// OfflineQueryMetadataService's GetBatchReport RPC.
+	OfflineQueryMetadataServiceGetBatchReportProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetBatchReport"
 )
 
 // OfflineQueryMetadataServiceClient is a client for the chalk.server.v1.OfflineQueryMetadataService
@@ -73,6 +76,7 @@ type OfflineQueryMetadataServiceClient interface {
 	IngestDataset(context.Context, *connect.Request[v1.IngestDatasetRequest]) (*connect.Response[v1.IngestDatasetResponse], error)
 	RetryOfflineQueryShard(context.Context, *connect.Request[v1.RetryOfflineQueryShardRequest]) (*connect.Response[v1.RetryOfflineQueryShardResponse], error)
 	CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error)
+	GetBatchReport(context.Context, *connect.Request[v1.GetBatchReportRequest]) (*connect.Response[v1.GetBatchReportResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceClient constructs a client for the
@@ -138,6 +142,13 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CancelAsyncOfflineQuery")),
 			connect.WithClientOptions(opts...),
 		),
+		getBatchReport: connect.NewClient[v1.GetBatchReportRequest, v1.GetBatchReportResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetBatchReportProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetBatchReport")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -151,6 +162,7 @@ type offlineQueryMetadataServiceClient struct {
 	ingestDataset                             *connect.Client[v1.IngestDatasetRequest, v1.IngestDatasetResponse]
 	retryOfflineQueryShard                    *connect.Client[v1.RetryOfflineQueryShardRequest, v1.RetryOfflineQueryShardResponse]
 	cancelAsyncOfflineQuery                   *connect.Client[v1.CancelAsyncOfflineQueryRequest, v1.CancelAsyncOfflineQueryResponse]
+	getBatchReport                            *connect.Client[v1.GetBatchReportRequest, v1.GetBatchReportResponse]
 }
 
 // ListOfflineQueries calls chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries.
@@ -197,6 +209,11 @@ func (c *offlineQueryMetadataServiceClient) CancelAsyncOfflineQuery(ctx context.
 	return c.cancelAsyncOfflineQuery.CallUnary(ctx, req)
 }
 
+// GetBatchReport calls chalk.server.v1.OfflineQueryMetadataService.GetBatchReport.
+func (c *offlineQueryMetadataServiceClient) GetBatchReport(ctx context.Context, req *connect.Request[v1.GetBatchReportRequest]) (*connect.Response[v1.GetBatchReportResponse], error) {
+	return c.getBatchReport.CallUnary(ctx, req)
+}
+
 // OfflineQueryMetadataServiceHandler is an implementation of the
 // chalk.server.v1.OfflineQueryMetadataService service.
 type OfflineQueryMetadataServiceHandler interface {
@@ -209,6 +226,7 @@ type OfflineQueryMetadataServiceHandler interface {
 	IngestDataset(context.Context, *connect.Request[v1.IngestDatasetRequest]) (*connect.Response[v1.IngestDatasetResponse], error)
 	RetryOfflineQueryShard(context.Context, *connect.Request[v1.RetryOfflineQueryShardRequest]) (*connect.Response[v1.RetryOfflineQueryShardResponse], error)
 	CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error)
+	GetBatchReport(context.Context, *connect.Request[v1.GetBatchReportRequest]) (*connect.Response[v1.GetBatchReportResponse], error)
 }
 
 // NewOfflineQueryMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -269,6 +287,13 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("CancelAsyncOfflineQuery")),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineQueryMetadataServiceGetBatchReportHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetBatchReportProcedure,
+		svc.GetBatchReport,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetBatchReport")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineQueryMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineQueryMetadataServiceListOfflineQueriesProcedure:
@@ -287,6 +312,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceRetryOfflineQueryShardHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceCancelAsyncOfflineQueryProcedure:
 			offlineQueryMetadataServiceCancelAsyncOfflineQueryHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetBatchReportProcedure:
+			offlineQueryMetadataServiceGetBatchReportHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -326,4 +353,8 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) RetryOfflineQueryShard(co
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) CancelAsyncOfflineQuery(context.Context, *connect.Request[v1.CancelAsyncOfflineQueryRequest]) (*connect.Response[v1.CancelAsyncOfflineQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetBatchReport(context.Context, *connect.Request[v1.GetBatchReportRequest]) (*connect.Response[v1.GetBatchReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetBatchReport is not implemented"))
 }
