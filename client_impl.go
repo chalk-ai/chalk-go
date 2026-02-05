@@ -512,7 +512,7 @@ func (c *clientImpl) getHeaders(
 
 	headers.Set("Accept", "application/json")
 	headers.Set("Content-Type", "application/json")
-	headers.Set("User-Agent", "chalk-go")
+	headers.Set("User-Agent", internal.UserAgent())
 	headers.Set("X-Chalk-Client-Id", string(c.config.ClientId.Value))
 
 	var branchResolved string
