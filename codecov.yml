@@ -4,7 +4,8 @@ comment:
 
 coverage:
   ignore:
-    - "gen/"
+    - "gen/chalk/"
+    - "gen/gen_bq_schema/"
   status:
     project:
       default:
