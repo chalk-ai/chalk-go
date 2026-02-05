@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770325080657,
+  "lastUpdate": 1770325747065,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -31240,6 +31240,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 293.9,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "zivkennan@gmail.com",
+            "name": "Ziv Kennan",
+            "username": "ziv-kennan"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3bd39cbc5b2dc7188893f665b033b723fbc002ce",
+          "message": "Merge pull request #571 from chalk-ai/zivk/add-proto-fieldbhvr-vldtion\n\nAdd proto field behavior validation utilities for consumption elsewhere",
+          "timestamp": "2026-02-05T13:08:21-08:00",
+          "tree_id": "6067fe567a552c56abf10e1ca4979f70c3882304",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/3bd39cbc5b2dc7188893f665b033b723fbc002ce"
+        },
+        "date": 1770325746971,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9761,
+            "unit": "ms/op",
+            "extra": "1486 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 108.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 44.6,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 222.4,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 323.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
