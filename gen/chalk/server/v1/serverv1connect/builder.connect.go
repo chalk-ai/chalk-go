@@ -83,6 +83,9 @@ const (
 	// BuilderServiceCreateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterTimescaleDB RPC.
 	BuilderServiceCreateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/CreateClusterTimescaleDB"
+	// BuilderServiceUpdateClusterTimescaleDBProcedure is the fully-qualified name of the
+	// BuilderService's UpdateClusterTimescaleDB RPC.
+	BuilderServiceUpdateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/UpdateClusterTimescaleDB"
 	// BuilderServiceGetClusterTimescaleDefaultProcedure is the fully-qualified name of the
 	// BuilderService's GetClusterTimescaleDefault RPC.
 	BuilderServiceGetClusterTimescaleDefaultProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleDefault"
@@ -228,6 +231,7 @@ type BuilderServiceClient interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
+	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
@@ -381,6 +385,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceCreateClusterTimescaleDBProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
+			connect.WithClientOptions(opts...),
+		),
+		updateClusterTimescaleDB: connect.NewClient[v1.UpdateClusterTimescaleDBRequest, v1.UpdateClusterTimescaleDBResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateClusterTimescaleDBProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterTimescaleDefault: connect.NewClient[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse](
@@ -631,6 +641,7 @@ type builderServiceClient struct {
 	getClusterGatewayDefault            *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
 	getClusterBackgroundPersistence     *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
 	createClusterTimescaleDB            *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
+	updateClusterTimescaleDB            *connect.Client[v1.UpdateClusterTimescaleDBRequest, v1.UpdateClusterTimescaleDBResponse]
 	getClusterTimescaleDefault          *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
 	deleteClusterTimescaleDB            *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
 	createEnvironmentCloudResources     *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
@@ -749,6 +760,11 @@ func (c *builderServiceClient) GetClusterBackgroundPersistence(ctx context.Conte
 // CreateClusterTimescaleDB calls chalk.server.v1.BuilderService.CreateClusterTimescaleDB.
 func (c *builderServiceClient) CreateClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
 	return c.createClusterTimescaleDB.CallUnary(ctx, req)
+}
+
+// UpdateClusterTimescaleDB calls chalk.server.v1.BuilderService.UpdateClusterTimescaleDB.
+func (c *builderServiceClient) UpdateClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error) {
+	return c.updateClusterTimescaleDB.CallUnary(ctx, req)
 }
 
 // GetClusterTimescaleDefault calls chalk.server.v1.BuilderService.GetClusterTimescaleDefault.
@@ -976,6 +992,7 @@ type BuilderServiceHandler interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
+	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
 	DeleteClusterTimescaleDB(context.Context, *connect.Request[v1.DeleteClusterTimescaleDBRequest]) (*connect.Response[v1.DeleteClusterTimescaleDBResponse], error)
 	CreateEnvironmentCloudResources(context.Context, *connect.Request[v1.CreateEnvironmentCloudResourcesRequest]) (*connect.Response[v1.CreateEnvironmentCloudResourcesResponse], error)
@@ -1125,6 +1142,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceCreateClusterTimescaleDBProcedure,
 		svc.CreateClusterTimescaleDB,
 		connect.WithSchema(builderServiceMethods.ByName("CreateClusterTimescaleDB")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUpdateClusterTimescaleDBHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateClusterTimescaleDBProcedure,
+		svc.UpdateClusterTimescaleDB,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterTimescaleDefaultHandler := connect.NewUnaryHandler(
@@ -1388,6 +1411,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterTimescaleDBProcedure:
 			builderServiceCreateClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateClusterTimescaleDBProcedure:
+			builderServiceUpdateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterTimescaleDefaultProcedure:
 			builderServiceGetClusterTimescaleDefaultHandler.ServeHTTP(w, r)
 		case BuilderServiceDeleteClusterTimescaleDBProcedure:
@@ -1533,6 +1558,10 @@ func (UnimplementedBuilderServiceHandler) GetClusterBackgroundPersistence(contex
 
 func (UnimplementedBuilderServiceHandler) CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterTimescaleDB is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateClusterTimescaleDB is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error) {
