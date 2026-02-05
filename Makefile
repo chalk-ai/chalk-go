@@ -18,6 +18,7 @@ release:  ## Release the go client
 staticcheck:  ## Run staticcheck
 	@go install honnef.co/go/tools/cmd/staticcheck@latest
 	@staticcheck ./...
+	@cd gen && staticcheck ./...
 
 cloc:
 	cloc . --vcs=git --exclude-lang JSON,SVG,.pyi --not-match-f generated.go

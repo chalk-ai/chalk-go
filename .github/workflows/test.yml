@@ -28,6 +28,16 @@ jobs:
         install-go: false
         version: "latest"
 
+    - name: staticcheck gen module
+      uses: dominikh/staticcheck-action@v1
+      env:
+        GOWORK: off
+      with:
+        install-go: false
+        version: "latest"
+        working-directory: gen
+        cache-key: "gen"
+
     - name: Test
       run: |
         GOWORK=off CGO_ENABLED=0 \
@@ -39,8 +49,19 @@ jobs:
           --format=github-actions -- \
             -shuffle=on -vet=all -coverprofile=coverage.out ./...
 
+    - name: Test gen module
+      working-directory: ./gen
+      run: |
+        GOWORK=off CGO_ENABLED=0 \
+        go run gotest.tools/gotestsum@latest \
+          --hide-summary=skipped \
+          --format-hide-empty-pkg \
+          --junitfile-hide-empty-pkg \
+          --format=github-actions -- \
+            -shuffle=on -vet=all -coverprofile=coverage.out ./...
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.out
+        files: ./coverage.out,./gen/coverage.out
