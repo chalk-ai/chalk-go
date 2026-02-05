@@ -48,6 +48,9 @@ const (
 	// BenchmarkServiceGetResultFileUrlsProcedure is the fully-qualified name of the BenchmarkService's
 	// GetResultFileUrls RPC.
 	BenchmarkServiceGetResultFileUrlsProcedure = "/chalk.server.v1.BenchmarkService/GetResultFileUrls"
+	// BenchmarkServiceKillBenchmarkProcedure is the fully-qualified name of the BenchmarkService's
+	// KillBenchmark RPC.
+	BenchmarkServiceKillBenchmarkProcedure = "/chalk.server.v1.BenchmarkService/KillBenchmark"
 )
 
 // BenchmarkServiceClient is a client for the chalk.server.v1.BenchmarkService service.
@@ -57,6 +60,7 @@ type BenchmarkServiceClient interface {
 	GetInputFileUploadUrls(context.Context, *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error)
 	GetAvailableResultFiles(context.Context, *connect.Request[v1.GetAvailableResultFilesRequest]) (*connect.Response[v1.GetAvailableResultFilesResponse], error)
 	GetResultFileUrls(context.Context, *connect.Request[v1.GetResultFileUrlsRequest]) (*connect.Response[v1.GetResultFileUrlsResponse], error)
+	KillBenchmark(context.Context, *connect.Request[v1.KillBenchmarkRequest]) (*connect.Response[v1.KillBenchmarkResponse], error)
 }
 
 // NewBenchmarkServiceClient constructs a client for the chalk.server.v1.BenchmarkService service.
@@ -100,6 +104,12 @@ func NewBenchmarkServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(benchmarkServiceMethods.ByName("GetResultFileUrls")),
 			connect.WithClientOptions(opts...),
 		),
+		killBenchmark: connect.NewClient[v1.KillBenchmarkRequest, v1.KillBenchmarkResponse](
+			httpClient,
+			baseURL+BenchmarkServiceKillBenchmarkProcedure,
+			connect.WithSchema(benchmarkServiceMethods.ByName("KillBenchmark")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -110,6 +120,7 @@ type benchmarkServiceClient struct {
 	getInputFileUploadUrls  *connect.Client[v1.GetInputFileUploadUrlsRequest, v1.GetInputFileUploadUrlsResponse]
 	getAvailableResultFiles *connect.Client[v1.GetAvailableResultFilesRequest, v1.GetAvailableResultFilesResponse]
 	getResultFileUrls       *connect.Client[v1.GetResultFileUrlsRequest, v1.GetResultFileUrlsResponse]
+	killBenchmark           *connect.Client[v1.KillBenchmarkRequest, v1.KillBenchmarkResponse]
 }
 
 // CreateBenchmark calls chalk.server.v1.BenchmarkService.CreateBenchmark.
@@ -137,6 +148,11 @@ func (c *benchmarkServiceClient) GetResultFileUrls(ctx context.Context, req *con
 	return c.getResultFileUrls.CallUnary(ctx, req)
 }
 
+// KillBenchmark calls chalk.server.v1.BenchmarkService.KillBenchmark.
+func (c *benchmarkServiceClient) KillBenchmark(ctx context.Context, req *connect.Request[v1.KillBenchmarkRequest]) (*connect.Response[v1.KillBenchmarkResponse], error) {
+	return c.killBenchmark.CallUnary(ctx, req)
+}
+
 // BenchmarkServiceHandler is an implementation of the chalk.server.v1.BenchmarkService service.
 type BenchmarkServiceHandler interface {
 	CreateBenchmark(context.Context, *connect.Request[v1.CreateBenchmarkRequest]) (*connect.Response[v1.CreateBenchmarkResponse], error)
@@ -144,6 +160,7 @@ type BenchmarkServiceHandler interface {
 	GetInputFileUploadUrls(context.Context, *connect.Request[v1.GetInputFileUploadUrlsRequest]) (*connect.Response[v1.GetInputFileUploadUrlsResponse], error)
 	GetAvailableResultFiles(context.Context, *connect.Request[v1.GetAvailableResultFilesRequest]) (*connect.Response[v1.GetAvailableResultFilesResponse], error)
 	GetResultFileUrls(context.Context, *connect.Request[v1.GetResultFileUrlsRequest]) (*connect.Response[v1.GetResultFileUrlsResponse], error)
+	KillBenchmark(context.Context, *connect.Request[v1.KillBenchmarkRequest]) (*connect.Response[v1.KillBenchmarkResponse], error)
 }
 
 // NewBenchmarkServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -183,6 +200,12 @@ func NewBenchmarkServiceHandler(svc BenchmarkServiceHandler, opts ...connect.Han
 		connect.WithSchema(benchmarkServiceMethods.ByName("GetResultFileUrls")),
 		connect.WithHandlerOptions(opts...),
 	)
+	benchmarkServiceKillBenchmarkHandler := connect.NewUnaryHandler(
+		BenchmarkServiceKillBenchmarkProcedure,
+		svc.KillBenchmark,
+		connect.WithSchema(benchmarkServiceMethods.ByName("KillBenchmark")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BenchmarkService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BenchmarkServiceCreateBenchmarkProcedure:
@@ -195,6 +218,8 @@ func NewBenchmarkServiceHandler(svc BenchmarkServiceHandler, opts ...connect.Han
 			benchmarkServiceGetAvailableResultFilesHandler.ServeHTTP(w, r)
 		case BenchmarkServiceGetResultFileUrlsProcedure:
 			benchmarkServiceGetResultFileUrlsHandler.ServeHTTP(w, r)
+		case BenchmarkServiceKillBenchmarkProcedure:
+			benchmarkServiceKillBenchmarkHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -222,4 +247,8 @@ func (UnimplementedBenchmarkServiceHandler) GetAvailableResultFiles(context.Cont
 
 func (UnimplementedBenchmarkServiceHandler) GetResultFileUrls(context.Context, *connect.Request[v1.GetResultFileUrlsRequest]) (*connect.Response[v1.GetResultFileUrlsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BenchmarkService.GetResultFileUrls is not implemented"))
+}
+
+func (UnimplementedBenchmarkServiceHandler) KillBenchmark(context.Context, *connect.Request[v1.KillBenchmarkRequest]) (*connect.Response[v1.KillBenchmarkResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BenchmarkService.KillBenchmark is not implemented"))
 }
