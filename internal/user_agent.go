@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	chalkModulePath     = "github.com/chalk-ai/chalk-go"
 	defaultChalkVersion = "dev"
 	userAgentPrefix     = "chalk-go/"
 )
@@ -27,9 +28,31 @@ func chalkVersion() string {
 	if !ok {
 		return defaultChalkVersion
 	}
-	version := info.Main.Version
+
+	if v := moduleVersion(info.Main); v != "" {
+		return v
+	}
+	for _, dep := range info.Deps {
+		if dep == nil {
+			continue
+		}
+		if v := moduleVersion(*dep); v != "" {
+			return v
+		}
+	}
+	return defaultChalkVersion
+}
+
+func moduleVersion(mod debug.Module) string {
+	if mod.Path != chalkModulePath {
+		return ""
+	}
+	version := mod.Version
+	if version == "" && mod.Replace != nil {
+		version = mod.Replace.Version
+	}
 	if version == "" || version == "(devel)" {
-		return defaultChalkVersion
+		return ""
 	}
 	return version
 }
