@@ -5,7 +5,7 @@ go 1.24.6
 require (
 	connectrpc.com/connect v1.19.0
 	github.com/apache/arrow/go/v16 v16.1.0
-	github.com/chalk-ai/chalk-go/gen v1.2.166
+	github.com/chalk-ai/chalk-go/gen v1.2.183
 	github.com/cockroachdb/errors v1.12.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/samber/lo v1.52.0
@@ -42,5 +42,6 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gonum.org/v1/gonum v0.16.0 // indirect
 	google.golang.org/genproto v0.0.0-20251124214823-79d6a2a48846 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20251111163417-95abcf5c77ba // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251111163417-95abcf5c77ba // indirect
 )
