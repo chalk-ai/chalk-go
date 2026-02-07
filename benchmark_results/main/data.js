@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770423940745,
+  "lastUpdate": 1770424652509,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -31402,6 +31402,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 307.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "zivkennan@gmail.com",
+            "name": "Ziv Kennan",
+            "username": "ziv-kennan"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9fd741f14bb2126696b1d68544bcef0d703b8ac2",
+          "message": "add testserver package (#575)",
+          "timestamp": "2026-02-06T16:36:02-08:00",
+          "tree_id": "880785886c6edc6d4cc40d9633aab1c84bfcb5a4",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/9fd741f14bb2126696b1d68544bcef0d703b8ac2"
+        },
+        "date": 1770424652421,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.011,
+            "unit": "ms/op",
+            "extra": "1036 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 118,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 42.79,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 212.6,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 290.7,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
