@@ -1,4 +1,3 @@
-
 [![Go Reference](https://pkg.go.dev/badge/github.com/chalk-ai/chalk-go.svg)](https://pkg.go.dev/github.com/chalk-ai/chalk-go)
 [![Test](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/chalk-ai/chalk-go/actions/workflows/test.yml)
 
@@ -10,14 +9,14 @@ The official [Chalk](https://chalk.ai) client library.
 
 ### Installation
 
-Make sure your project is using Go Modules (it will have a `go.mod` file in its
+Make sure your project is using Go modules (it will have a `go.mod` file in its
 root if it already is):
 
 ``` sh
-go mod init
+go mod init <module-path>
 ```
 
-Then, reference `chalk-go` in a Go program with `import`:
+Then reference `chalk-go` in your Go program:
 
 ``` go
 import (
@@ -28,36 +27,35 @@ import (
 Run any of the normal `go` commands (`build`/`install`/`test`). The Go
 toolchain will resolve and fetch the `chalk-go` module automatically.
 
-Alternatively, you can also explicitly `go get` the package into a project:
+Alternatively, you can explicitly add the dependency:
 
 ```bash
 go get -u github.com/chalk-ai/chalk-go
 ```
 
-You will need to be on Go 1.24.6 or later.
+This library requires Go 1.24.6 or later.
 
 ### Codegen
 
-Chalk generates Go structs from your Python feature definitions,
-which makes it easy to use your features from Go.
+Chalk generates Go structs from your Python feature definitions, which makes it
+easy to use your features from Go.
 
-Run the codegen command inside your chalk project to generate a
+Run the codegen command inside your Chalk project to generate a
 file containing your generated structs, then copy that file into
 your Go project.
 
 ```sh
-chalk codegen go --out=<OUTPUT_FILEPATH> 
+chalk codegen go --out=<OUTPUT_FILEPATH>
 ```
 
-You can read more at https://docs.chalk.ai/cli?command=codegen_go
-
+You can read more in the [CLI docs](https://docs.chalk.ai/cli?command=codegen_go).
 
 ### Connect to Chalk
 
-Create a client using the `NewClient` method.
+Create a client using `NewClient`.
 The returned client gets its configuration from the first available source in this order:
 
-1. From overrides configured by passing in a `*chalk.ClientConfig`
+1. Overrides configured by passing a `*chalk.ClientConfig`:
     ```go
     client, err := chalk.NewClient(
         ctx,
@@ -70,21 +68,21 @@ The returned client gets its configuration from the first available source in th
         },
     )
     ```
-2. From the environment variables:
+2. Environment variables:
     - `CHALK_ACTIVE_ENVIRONMENT`
     - `CHALK_API_SERVER`
     - `CHALK_CLIENT_ID`
     - `CHALK_CLIENT_SECRET`
     ```go
-    client := chalk.NewClient(ctx)
+    client, err := chalk.NewClient(ctx)
     ```
-3. From the file `~/.chalk.yml`, which is created and updated when you run `chalk login`
+3. The file `~/.chalk.yml`, which is created and updated when you run `chalk login`:
     ```go
-    client := chalk.NewClient(ctx)
+    client, err := chalk.NewClient(ctx)
     ```
 
 ### gRPC Client
-To use gRPC as the underlying protocol for communication with Chalk: 
+To use gRPC as the underlying protocol for communication with Chalk:
 ```go
 // Create a client
 client, err := chalk.NewGRPCClient(
@@ -94,7 +92,7 @@ client, err := chalk.NewGRPCClient(
 
 // Online query
 var users []User
-res, err := chalk.OnlineQueryBulk(
+res, err := client.OnlineQueryBulk(
 	ctx,
 	chalk.OnlineQueryParams{}.
 		WithInput(Features.User.Id, []string{"u273489056"}).
@@ -112,24 +110,24 @@ if err != nil {
 if err = res.UnmarshalInto(&users); err != nil {
 	return errors.Wrap(err, "unmarshalling into users")
 }
-fmt.Println("user %s has weighted score %v", users[0].Id, users[0].WeightedScore)
+fmt.Printf("user %s has weighted score %v\n", users[0].Id, users[0].WeightedScore)
 
 
 // Multi-namespace online query
 type underwriting struct {
-	User 
-	Loan  
+	User
+	Loan
 }
 
-res, err := chalk.OnlineQueryBulk(
+res, err := client.OnlineQueryBulk(
     context.Background(),
     chalk.OnlineQueryParams{}.
         WithInput(Features.User.Id, []string{"u273489056"}).
         WithInput(Features.Loan.Id, []string{"l273489056"}).
         WithOutputs(
-            Features.User.Id, 
-            Features.User.WeightedScore, 
-            Features.Loan.Id, 
+            Features.User.Id,
+            Features.User.WeightedScore,
+            Features.Loan.Id,
             Features.Loan.ApprovalStatus,
         ),
 )
@@ -141,13 +139,14 @@ var root []underwriting
 if err = res.UnmarshalInto(&root); err != nil {
 	return errors.Wrap(err, "unmarshalling into underwriting")
 }
-fmt.Println("user %s has weighted score %v", root[0].User.Id, root[0].User.WeightedScore)
-fmt.Println("loan %s has approval status %v", root[0].Loan.Id, root[0].Loan.ApprovalStatus)
+fmt.Printf("user %s has weighted score %v\n", root[0].User.Id, root[0].User.WeightedScore)
+fmt.Printf("loan %s has approval status %v\n", root[0].Loan.Id, root[0].Loan.ApprovalStatus)
 ```
 
 ### Online Query
 
-Query online features using the generated feature structs.  Access the results in the returned object or by passing the address of a variable with the correct type.
+Query online features using the generated feature structs. Access results in the
+returned object or by passing a pointer to a variable with the correct type.
 
 ```go
 user := User{}
@@ -157,7 +156,7 @@ _, err = client.OnlineQuery(
         WithInput(Features.User.Id, "u273489057").
         WithInput(Features.User.Transactions, []Transaction{
             {Id: utils.ToPtr("sd8f76"), Amount: utils.ToPtr(13.23)},
-            {Id: utils.ToPtr("jk546d"), SeriesId: utils.ToPtr(48.95)},
+            {Id: utils.ToPtr("jk546d"), Amount: utils.ToPtr(48.95)},
         }).
         WithOutputs(Features.User.Id, Features.User.LastName),
     &user,
@@ -167,7 +166,7 @@ _, err = client.OnlineQuery(
 ### Named Queries
 
 If your deployment contains [named queries](https://docs.chalk.ai/docs/best-practices#create-named-queries-for-your-commonly-executed-queries),
-you can specify a query name instead of outputs when making a query. 
+you can specify a query name instead of outputs when making a query.
 
 ```go
 user := User{}
@@ -185,12 +184,15 @@ _, err = client.OnlineQuery(
 When executing an offline query, a dataset is returned and can be downloaded as parquet files using the `DownloadData` method.
 
 ```go
-res, _ := client.OfflineQuery(
+res, err := client.OfflineQuery(
     context.Background(),
     chalk.OfflineQueryParams{}.
         WithInput(Features.User.Id, []any{...}).
         WithOutputs(Features.User),
 )
+if err != nil {
+    return err
+}
 
 err = res.Revisions[0].DownloadData(<FILE_DIRECTORY>)
 ```
@@ -201,7 +203,7 @@ Chalk allows you to synchronously persist features directly to your online and o
 
 ```go
 res, err := client.UploadFeatures(
-    context.Background(), 
+    context.Background(),
     chalk.UploadFeaturesParams{
         Inputs: map[any]any{
             Features.User.Id: []string{"user-1", "user-2"},
@@ -251,12 +253,13 @@ res, err := client.UpdateAggregates(
     },
 )
 ```
-Note that if you have an explicit `FeatureTime` feature specified, you could provide that in place of the 
-`__chalk_observed_at__` column.  
+Note that if you have an explicit `FeatureTime` feature specified, you can provide that in place of the
+`__chalk_observed_at__` column.
 
 ### Querying against a branch
 
-To query against a branch, create a `ChalkClient` with a `Branch` specified, and then make queries using that client.
+To query against a branch, create a `Client` with `Branch` specified, then make
+queries using that client.
 ```go
 client, err := chalk.NewClient(
 	context.Background(),
@@ -288,8 +291,8 @@ config := &chalk.ClientConfig{
 client := chalk.Client(config)
 ``` -->
 
-It's possible to use non-Chalk leveled loggers as well. Chalk expects loggers
-to comply to the following interface:
+It's also possible to use non-Chalk leveled loggers. Chalk expects loggers to
+comply with the following interface:
 
 ```go
 type LeveledLogger interface {
@@ -308,7 +311,8 @@ To use other loggers, you may need a shim layer.
 
 ## Querying for expressions
 
-From the GRPC client, you can also query for expressions that are not part of your feature set.
+With the gRPC client, you can also query expressions that are not part of your
+feature set.
 
 ```go
 client, err := chalk.NewGRPCClient(ctx)
@@ -332,16 +336,16 @@ result, err := client.OnlineQueryBulk(
 )
 row, err := result.GetRow(0)
 for feature, value := range row.Features {
-    println("Feature: %s, Value: %+v", feature, value.Value)
+    fmt.Printf("Feature: %s, Value: %+v\n", feature, value.Value)
 }
 ```
 
 This API allows for computing both scalar expressions (like `jaccard_similarity` above)
 as well as aggregations over `DataFrames` (like `user_transaction_count` above).
 
-The script above prints out
+The script above prints:
 
-```azure
+```text
 Feature: user.id, Value: 1
 Feature: name_email_sim, Value: 0.4375
 Feature: user_transaction_count, Value: 0
@@ -352,24 +356,25 @@ name of the expression in the returned result.
 
 ## Contributing
 
-We'd love to accept your patches!  If you submit a pull request, please keep the following guidelines in mind:
+We'd love to accept your patches. If you submit a pull request, please keep the
+following guidelines in mind:
 
 1. Fork the repo, develop and test your code changes.
-2. Ensure your code adheres to the existing style. 
+2. Ensure your code adheres to the existing style.
 3. Ensure that your code has an appropriate set of tests that pass.
 4. Submit a pull request.
 
 
 ### Development
 
-Clone the git repo from github.com/chalk-ai/chalk-go.
+Clone the Git repo from [github.com/chalk-ai/chalk-go](https://github.com/chalk-ai/chalk-go).
 
 1. All patches must be `go fmt` compatible.
 2. All types, structs, and functions should be documented.
 
 ### Testing
 
-To execute the tests: `go test ./...`.  Enure all tests pass
+To execute the tests: `go test ./...`. Ensure all tests pass.
 
 ## License
 
