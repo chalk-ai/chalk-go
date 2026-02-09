@@ -116,3 +116,35 @@ func (h *builderServiceHandler) CreateClusterTimescaleDB(
 
 	return connect.NewResponse(resp.(*serverv1.CreateClusterTimescaleDBResponse)), nil
 }
+
+// DeleteClusterTimescaleDB implements the DeleteClusterTimescaleDB RPC method.
+func (h *builderServiceHandler) DeleteClusterTimescaleDB(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteClusterTimescaleDBRequest],
+) (*connect.Response[serverv1.DeleteClusterTimescaleDBResponse], error) {
+	// Capture request for test assertions
+	h.registry.CaptureRequest("DeleteClusterTimescaleDB", req.Msg)
+
+	// Check for custom behavior
+	if behavior := h.registry.GetBehavior("DeleteClusterTimescaleDB"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteClusterTimescaleDBResponse)), nil
+	}
+
+	// Check for configured error
+	if err := h.registry.GetError("DeleteClusterTimescaleDB"); err != nil {
+		return nil, err
+	}
+
+	// Return configured response
+	resp := h.registry.GetResponse("DeleteClusterTimescaleDB")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("no mock response configured for DeleteClusterTimescaleDB"))
+	}
+
+	return connect.NewResponse(resp.(*serverv1.DeleteClusterTimescaleDBResponse)), nil
+}

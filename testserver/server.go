@@ -18,8 +18,11 @@ type MockServer struct {
 }
 
 // NewMockBuilderServer creates a new in-process HTTP server that implements
-// the BuilderService RPC interface. The server URL can be used to create
-// real RPC clients that will interact with the mock server.
+// the BuilderService and AuthService RPC interfaces. The server URL can be used
+// to create real RPC clients that will interact with the mock server.
+//
+// The auth service returns a default mock token automatically, so tests don't need
+// to configure authentication unless testing auth-specific scenarios.
 //
 // Example:
 //
@@ -34,14 +37,21 @@ type MockServer struct {
 //	resp, err := client.GetClusterTimescaleDB(ctx, connect.NewRequest(...))
 func NewMockBuilderServer(t testing.TB) *MockServer {
 	registry := NewResponseRegistry()
-	handler := newBuilderServiceHandler(registry)
 
-	// Create Connect RPC handler
-	path, rpcHandler := serverv1connect.NewBuilderServiceHandler(handler)
+	// Create handlers
+	builderHandler := newBuilderServiceHandler(registry)
+	authHandler := newAuthServiceHandler(registry)
 
-	// Create HTTP mux and register handler
+	// Create HTTP mux
 	mux := http.NewServeMux()
-	mux.Handle(path, rpcHandler)
+
+	// Register BuilderService handler
+	builderPath, builderRPCHandler := serverv1connect.NewBuilderServiceHandler(builderHandler)
+	mux.Handle(builderPath, builderRPCHandler)
+
+	// Register AuthService handler
+	authPath, authRPCHandler := serverv1connect.NewAuthServiceHandler(authHandler)
+	mux.Handle(authPath, authRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -95,6 +105,24 @@ func (s *MockServer) OnUpdateClusterTimescaleDB() *MethodConfigBuilder[*serverv1
 func (s *MockServer) OnCreateClusterTimescaleDB() *MethodConfigBuilder[*serverv1.CreateClusterTimescaleDBResponse] {
 	return &MethodConfigBuilder[*serverv1.CreateClusterTimescaleDBResponse]{
 		methodName: "CreateClusterTimescaleDB",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteClusterTimescaleDB configures the DeleteClusterTimescaleDB RPC method.
+func (s *MockServer) OnDeleteClusterTimescaleDB() *MethodConfigBuilder[*serverv1.DeleteClusterTimescaleDBResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteClusterTimescaleDBResponse]{
+		methodName: "DeleteClusterTimescaleDB",
+		registry:   s.registry,
+	}
+}
+
+// OnGetToken configures the GetToken RPC method.
+// By default, the mock server returns a valid token automatically.
+// Use this method only if you need to test auth failures or custom token responses.
+func (s *MockServer) OnGetToken() *MethodConfigBuilder[*serverv1.GetTokenResponse] {
+	return &MethodConfigBuilder[*serverv1.GetTokenResponse]{
+		methodName: "GetToken",
 		registry:   s.registry,
 	}
 }
