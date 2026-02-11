@@ -148,3 +148,99 @@ func (h *builderServiceHandler) DeleteClusterTimescaleDB(
 
 	return connect.NewResponse(resp.(*serverv1.DeleteClusterTimescaleDBResponse)), nil
 }
+
+// GetTelemetryDeployment implements the GetTelemetryDeployment RPC method.
+func (h *builderServiceHandler) GetTelemetryDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetTelemetryDeploymentRequest],
+) (*connect.Response[serverv1.GetTelemetryDeploymentResponse], error) {
+	// Capture request for test assertions
+	h.registry.CaptureRequest("GetTelemetryDeployment", req.Msg)
+
+	// Check for custom behavior
+	if behavior := h.registry.GetBehavior("GetTelemetryDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetTelemetryDeploymentResponse)), nil
+	}
+
+	// Check for configured error
+	if err := h.registry.GetError("GetTelemetryDeployment"); err != nil {
+		return nil, err
+	}
+
+	// Return configured response
+	resp := h.registry.GetResponse("GetTelemetryDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("no mock response configured for GetTelemetryDeployment"))
+	}
+
+	return connect.NewResponse(resp.(*serverv1.GetTelemetryDeploymentResponse)), nil
+}
+
+// CreateTelemetryDeployment implements the CreateTelemetryDeployment RPC method.
+func (h *builderServiceHandler) CreateTelemetryDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateTelemetryDeploymentRequest],
+) (*connect.Response[serverv1.CreateTelemetryDeploymentResponse], error) {
+	// Capture request for test assertions
+	h.registry.CaptureRequest("CreateTelemetryDeployment", req.Msg)
+
+	// Check for custom behavior
+	if behavior := h.registry.GetBehavior("CreateTelemetryDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateTelemetryDeploymentResponse)), nil
+	}
+
+	// Check for configured error
+	if err := h.registry.GetError("CreateTelemetryDeployment"); err != nil {
+		return nil, err
+	}
+
+	// Return configured response
+	resp := h.registry.GetResponse("CreateTelemetryDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("no mock response configured for CreateTelemetryDeployment"))
+	}
+
+	return connect.NewResponse(resp.(*serverv1.CreateTelemetryDeploymentResponse)), nil
+}
+
+// UpdateTelemetryDeployment implements the UpdateTelemetryDeployment RPC method.
+func (h *builderServiceHandler) UpdateTelemetryDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.UpdateTelemetryDeploymentRequest],
+) (*connect.Response[serverv1.UpdateTelemetryDeploymentResponse], error) {
+	// Capture request for test assertions
+	h.registry.CaptureRequest("UpdateTelemetryDeployment", req.Msg)
+
+	// Check for custom behavior
+	if behavior := h.registry.GetBehavior("UpdateTelemetryDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.UpdateTelemetryDeploymentResponse)), nil
+	}
+
+	// Check for configured error
+	if err := h.registry.GetError("UpdateTelemetryDeployment"); err != nil {
+		return nil, err
+	}
+
+	// Return configured response
+	resp := h.registry.GetResponse("UpdateTelemetryDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("no mock response configured for UpdateTelemetryDeployment"))
+	}
+
+	return connect.NewResponse(resp.(*serverv1.UpdateTelemetryDeploymentResponse)), nil
+}

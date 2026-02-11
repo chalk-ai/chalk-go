@@ -60,6 +60,9 @@ const (
 	// AuthTestingServiceGetFeatureFlagTestEndpointProcedure is the fully-qualified name of the
 	// AuthTestingService's GetFeatureFlagTestEndpoint RPC.
 	AuthTestingServiceGetFeatureFlagTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetFeatureFlagTestEndpoint"
+	// AuthTestingServiceGetTeamPermissionOnlyTestEndpointProcedure is the fully-qualified name of the
+	// AuthTestingService's GetTeamPermissionOnlyTestEndpoint RPC.
+	AuthTestingServiceGetTeamPermissionOnlyTestEndpointProcedure = "/chalk.server.v1.AuthTestingService/GetTeamPermissionOnlyTestEndpoint"
 )
 
 // AuthTestingServiceClient is a client for the chalk.server.v1.AuthTestingService service.
@@ -73,6 +76,7 @@ type AuthTestingServiceClient interface {
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
 	GetAuthServiceManagerTestEndpoint(context.Context, *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error)
 	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
+	GetTeamPermissionOnlyTestEndpoint(context.Context, *connect.Request[v1.GetTeamPermissionOnlyTestEndpointRequest]) (*connect.Response[v1.GetTeamPermissionOnlyTestEndpointResponse], error)
 }
 
 // NewAuthTestingServiceClient constructs a client for the chalk.server.v1.AuthTestingService
@@ -149,6 +153,13 @@ func NewAuthTestingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getTeamPermissionOnlyTestEndpoint: connect.NewClient[v1.GetTeamPermissionOnlyTestEndpointRequest, v1.GetTeamPermissionOnlyTestEndpointResponse](
+			httpClient,
+			baseURL+AuthTestingServiceGetTeamPermissionOnlyTestEndpointProcedure,
+			connect.WithSchema(authTestingServiceMethods.ByName("GetTeamPermissionOnlyTestEndpoint")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -163,6 +174,7 @@ type authTestingServiceClient struct {
 	getOwnerTestEndpoint              *connect.Client[v1.GetOwnerTestEndpointRequest, v1.GetOwnerTestEndpointResponse]
 	getAuthServiceManagerTestEndpoint *connect.Client[v1.GetAuthServiceManagerTestEndpointRequest, v1.GetAuthServiceManagerTestEndpointResponse]
 	getFeatureFlagTestEndpoint        *connect.Client[v1.GetFeatureFlagTestEndpointRequest, v1.GetFeatureFlagTestEndpointResponse]
+	getTeamPermissionOnlyTestEndpoint *connect.Client[v1.GetTeamPermissionOnlyTestEndpointRequest, v1.GetTeamPermissionOnlyTestEndpointResponse]
 }
 
 // GetUnauthedTestEndpoint calls chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint.
@@ -212,6 +224,12 @@ func (c *authTestingServiceClient) GetFeatureFlagTestEndpoint(ctx context.Contex
 	return c.getFeatureFlagTestEndpoint.CallUnary(ctx, req)
 }
 
+// GetTeamPermissionOnlyTestEndpoint calls
+// chalk.server.v1.AuthTestingService.GetTeamPermissionOnlyTestEndpoint.
+func (c *authTestingServiceClient) GetTeamPermissionOnlyTestEndpoint(ctx context.Context, req *connect.Request[v1.GetTeamPermissionOnlyTestEndpointRequest]) (*connect.Response[v1.GetTeamPermissionOnlyTestEndpointResponse], error) {
+	return c.getTeamPermissionOnlyTestEndpoint.CallUnary(ctx, req)
+}
+
 // AuthTestingServiceHandler is an implementation of the chalk.server.v1.AuthTestingService service.
 type AuthTestingServiceHandler interface {
 	GetUnauthedTestEndpoint(context.Context, *connect.Request[v1.GetUnauthedTestEndpointRequest]) (*connect.Response[v1.GetUnauthedTestEndpointResponse], error)
@@ -223,6 +241,7 @@ type AuthTestingServiceHandler interface {
 	GetOwnerTestEndpoint(context.Context, *connect.Request[v1.GetOwnerTestEndpointRequest]) (*connect.Response[v1.GetOwnerTestEndpointResponse], error)
 	GetAuthServiceManagerTestEndpoint(context.Context, *connect.Request[v1.GetAuthServiceManagerTestEndpointRequest]) (*connect.Response[v1.GetAuthServiceManagerTestEndpointResponse], error)
 	GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error)
+	GetTeamPermissionOnlyTestEndpoint(context.Context, *connect.Request[v1.GetTeamPermissionOnlyTestEndpointRequest]) (*connect.Response[v1.GetTeamPermissionOnlyTestEndpointResponse], error)
 }
 
 // NewAuthTestingServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -295,6 +314,13 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	authTestingServiceGetTeamPermissionOnlyTestEndpointHandler := connect.NewUnaryHandler(
+		AuthTestingServiceGetTeamPermissionOnlyTestEndpointProcedure,
+		svc.GetTeamPermissionOnlyTestEndpoint,
+		connect.WithSchema(authTestingServiceMethods.ByName("GetTeamPermissionOnlyTestEndpoint")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthTestingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthTestingServiceGetUnauthedTestEndpointProcedure:
@@ -315,6 +341,8 @@ func NewAuthTestingServiceHandler(svc AuthTestingServiceHandler, opts ...connect
 			authTestingServiceGetAuthServiceManagerTestEndpointHandler.ServeHTTP(w, r)
 		case AuthTestingServiceGetFeatureFlagTestEndpointProcedure:
 			authTestingServiceGetFeatureFlagTestEndpointHandler.ServeHTTP(w, r)
+		case AuthTestingServiceGetTeamPermissionOnlyTestEndpointProcedure:
+			authTestingServiceGetTeamPermissionOnlyTestEndpointHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -358,4 +386,8 @@ func (UnimplementedAuthTestingServiceHandler) GetAuthServiceManagerTestEndpoint(
 
 func (UnimplementedAuthTestingServiceHandler) GetFeatureFlagTestEndpoint(context.Context, *connect.Request[v1.GetFeatureFlagTestEndpointRequest]) (*connect.Response[v1.GetFeatureFlagTestEndpointResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint is not implemented"))
+}
+
+func (UnimplementedAuthTestingServiceHandler) GetTeamPermissionOnlyTestEndpoint(context.Context, *connect.Request[v1.GetTeamPermissionOnlyTestEndpointRequest]) (*connect.Response[v1.GetTeamPermissionOnlyTestEndpointResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthTestingService.GetTeamPermissionOnlyTestEndpoint is not implemented"))
 }
