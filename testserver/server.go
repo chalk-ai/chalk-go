@@ -41,6 +41,7 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Create handlers
 	builderHandler := newBuilderServiceHandler(registry)
 	authHandler := newAuthServiceHandler(registry)
+	teamHandler := newTeamServiceHandler(registry)
 
 	// Create HTTP mux
 	mux := http.NewServeMux()
@@ -52,6 +53,10 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register AuthService handler
 	authPath, authRPCHandler := serverv1connect.NewAuthServiceHandler(authHandler)
 	mux.Handle(authPath, authRPCHandler)
+
+	// Register TeamService handler
+	teamPath, teamRPCHandler := serverv1connect.NewTeamServiceHandler(teamHandler)
+	mux.Handle(teamPath, teamRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -113,6 +118,39 @@ func (s *MockServer) OnCreateClusterTimescaleDB() *MethodConfigBuilder[*serverv1
 func (s *MockServer) OnDeleteClusterTimescaleDB() *MethodConfigBuilder[*serverv1.DeleteClusterTimescaleDBResponse] {
 	return &MethodConfigBuilder[*serverv1.DeleteClusterTimescaleDBResponse]{
 		methodName: "DeleteClusterTimescaleDB",
+		registry:   s.registry,
+	}
+}
+
+// OnGetTelemetryDeployment configures the GetTelemetryDeployment RPC method.
+func (s *MockServer) OnGetTelemetryDeployment() *MethodConfigBuilder[*serverv1.GetTelemetryDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.GetTelemetryDeploymentResponse]{
+		methodName: "GetTelemetryDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateTelemetryDeployment configures the CreateTelemetryDeployment RPC method.
+func (s *MockServer) OnCreateTelemetryDeployment() *MethodConfigBuilder[*serverv1.CreateTelemetryDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateTelemetryDeploymentResponse]{
+		methodName: "CreateTelemetryDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateTelemetryDeployment configures the UpdateTelemetryDeployment RPC method.
+func (s *MockServer) OnUpdateTelemetryDeployment() *MethodConfigBuilder[*serverv1.UpdateTelemetryDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateTelemetryDeploymentResponse]{
+		methodName: "UpdateTelemetryDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnGetEnv configures the GetEnv RPC method.
+// By default, the mock server returns a valid environment with test-cluster-id.
+func (s *MockServer) OnGetEnv() *MethodConfigBuilder[*serverv1.GetEnvResponse] {
+	return &MethodConfigBuilder[*serverv1.GetEnvResponse]{
+		methodName: "GetEnv",
 		registry:   s.registry,
 	}
 }
