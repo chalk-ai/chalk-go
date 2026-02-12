@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770843919416,
+  "lastUpdate": 1770936833843,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -31564,6 +31564,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 293,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "julian@chalk.ai",
+            "name": "Julian Early",
+            "username": "hiporox"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0517502e09244fcc33401ee6d7c1544e313fc182",
+          "message": "Merge pull request #579 from chalk-ai/je/update-protos-perfetto-service\n\nfeat: update protos for perfetto snapshots",
+          "timestamp": "2026-02-12T14:53:10-08:00",
+          "tree_id": "7cd5cb75e995d2d1cb8310855a6eccd010c57ee4",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/0517502e09244fcc33401ee6d7c1544e313fc182"
+        },
+        "date": 1770936833748,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.117,
+            "unit": "ms/op",
+            "extra": "1221 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 103.9,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.75,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 199.1,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 273.4,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
