@@ -48,6 +48,9 @@ const (
 	// ContainerServiceExecCommandProcedure is the fully-qualified name of the ContainerService's
 	// ExecCommand RPC.
 	ContainerServiceExecCommandProcedure = "/chalk.container.v1.ContainerService/ExecCommand"
+	// ContainerServiceUpdateContainerStatusProcedure is the fully-qualified name of the
+	// ContainerService's UpdateContainerStatus RPC.
+	ContainerServiceUpdateContainerStatusProcedure = "/chalk.container.v1.ContainerService/UpdateContainerStatus"
 )
 
 // ContainerServiceClient is a client for the chalk.container.v1.ContainerService service.
@@ -62,6 +65,8 @@ type ContainerServiceClient interface {
 	ListContainers(context.Context, *connect.Request[v1.ListContainersRequest]) (*connect.Response[v1.ListContainersResponse], error)
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
+	// UpdateContainerStatus updates container status from K8s controller
+	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
 }
 
 // NewContainerServiceClient constructs a client for the chalk.container.v1.ContainerService
@@ -105,16 +110,23 @@ func NewContainerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(containerServiceMethods.ByName("ExecCommand")),
 			connect.WithClientOptions(opts...),
 		),
+		updateContainerStatus: connect.NewClient[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse](
+			httpClient,
+			baseURL+ContainerServiceUpdateContainerStatusProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // containerServiceClient implements ContainerServiceClient.
 type containerServiceClient struct {
-	runContainer   *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
-	stopContainer  *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
-	getContainer   *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
-	listContainers *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
-	execCommand    *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
+	runContainer          *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
+	stopContainer         *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
+	getContainer          *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
+	listContainers        *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
+	execCommand           *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
+	updateContainerStatus *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
 }
 
 // RunContainer calls chalk.container.v1.ContainerService.RunContainer.
@@ -142,6 +154,11 @@ func (c *containerServiceClient) ExecCommand(ctx context.Context, req *connect.R
 	return c.execCommand.CallUnary(ctx, req)
 }
 
+// UpdateContainerStatus calls chalk.container.v1.ContainerService.UpdateContainerStatus.
+func (c *containerServiceClient) UpdateContainerStatus(ctx context.Context, req *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error) {
+	return c.updateContainerStatus.CallUnary(ctx, req)
+}
+
 // ContainerServiceHandler is an implementation of the chalk.container.v1.ContainerService service.
 type ContainerServiceHandler interface {
 	// RunContainer creates and runs a new container as a Kubernetes pod
@@ -154,6 +171,8 @@ type ContainerServiceHandler interface {
 	ListContainers(context.Context, *connect.Request[v1.ListContainersRequest]) (*connect.Response[v1.ListContainersResponse], error)
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
+	// UpdateContainerStatus updates container status from K8s controller
+	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
 }
 
 // NewContainerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -193,6 +212,12 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 		connect.WithSchema(containerServiceMethods.ByName("ExecCommand")),
 		connect.WithHandlerOptions(opts...),
 	)
+	containerServiceUpdateContainerStatusHandler := connect.NewUnaryHandler(
+		ContainerServiceUpdateContainerStatusProcedure,
+		svc.UpdateContainerStatus,
+		connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.container.v1.ContainerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ContainerServiceRunContainerProcedure:
@@ -205,6 +230,8 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 			containerServiceListContainersHandler.ServeHTTP(w, r)
 		case ContainerServiceExecCommandProcedure:
 			containerServiceExecCommandHandler.ServeHTTP(w, r)
+		case ContainerServiceUpdateContainerStatusProcedure:
+			containerServiceUpdateContainerStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -232,4 +259,8 @@ func (UnimplementedContainerServiceHandler) ListContainers(context.Context, *con
 
 func (UnimplementedContainerServiceHandler) ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.ExecCommand is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.UpdateContainerStatus is not implemented"))
 }
