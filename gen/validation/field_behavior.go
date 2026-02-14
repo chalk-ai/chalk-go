@@ -13,8 +13,8 @@ import (
 // immutableFieldsCache stores the cached immutable field names for each message type
 var immutableFieldsCache sync.Map // map[protoreflect.FullName][]string
 
-// GetImmutableFields returns the list of field names that are marked as IMMUTABLE
-// for the given message type. Results are cached for performance.
+// GetImmutableFields returns the list of field paths (including nested paths like "address.street")
+// that are marked as IMMUTABLE for the given message type. Results are cached for performance.
 func GetImmutableFields(msg proto.Message) []string {
 	msgReflect := msg.ProtoReflect()
 	msgType := msgReflect.Descriptor().FullName()
@@ -25,23 +25,43 @@ func GetImmutableFields(msg proto.Message) []string {
 	}
 
 	// Not in cache, compute it
-	immutableFields := computeImmutableFields(msgReflect.Descriptor())
+	visited := make(map[protoreflect.FullName]bool)
+	immutableFields := computeImmutableFields(msgReflect.Descriptor(), "", visited)
 
-	// Store in cache atomically (returns existing value if another goroutine stored first)
+	// Store in cache atomically
 	cached, _ := immutableFieldsCache.LoadOrStore(msgType, immutableFields)
 
 	return cached.([]string)
 }
 
-// computeImmutableFields uses reflection to find all fields marked with IMMUTABLE field_behavior
-func computeImmutableFields(msgDesc protoreflect.MessageDescriptor) []string {
+// computeImmutableFields recursively finds all fields marked with IMMUTABLE field_behavior,
+// including nested fields. The prefix parameter is used to build nested paths like "address.street".
+// The visited map prevents infinite recursion on circular message references.
+func computeImmutableFields(msgDesc protoreflect.MessageDescriptor, prefix string, visited map[protoreflect.FullName]bool) []string {
+	// Prevent infinite recursion on circular references
+	msgType := msgDesc.FullName()
+	if visited[msgType] {
+		return nil
+	}
+	visited[msgType] = true
+	defer delete(visited, msgType)
+
 	var immutableFields []string
 
 	fields := msgDesc.Fields()
 	for i := 0; i < fields.Len(); i++ {
 		field := fields.Get(i)
+		fieldName := string(field.Name())
 
-		// Get the field options
+		// Build the full path for this field
+		var fieldPath string
+		if prefix == "" {
+			fieldPath = fieldName
+		} else {
+			fieldPath = prefix + "." + fieldName
+		}
+
+		// Check if this field is immutable
 		opts := field.Options()
 		if opts == nil {
 			continue
@@ -57,15 +77,99 @@ func computeImmutableFields(msgDesc protoreflect.MessageDescriptor) []string {
 
 		// Check if IMMUTABLE is in the behaviors
 		if slices.Contains(behaviors, annotations.FieldBehavior_IMMUTABLE) {
-			immutableFields = append(immutableFields, string(field.Name()))
+			immutableFields = append(immutableFields, fieldPath)
+		}
+
+		// If this is a message field, recursively check its nested fields
+		if field.Kind() == protoreflect.MessageKind && field.Message() != nil {
+			nestedFields := computeImmutableFields(field.Message(), fieldPath, visited)
+			immutableFields = append(immutableFields, nestedFields...)
 		}
 	}
 
 	return immutableFields
 }
 
+// fieldPathValue represents a value retrieved from a nested field path
+type fieldPathValue struct {
+	value  protoreflect.Value
+	exists bool // false if the path couldn't be fully resolved
+}
+
+// getValueAtPath retrieves the value at the given field path (e.g., "address.street").
+// Returns a fieldPathValue with exists=false if the path cannot be resolved.
+func getValueAtPath(msg protoreflect.Message, path string) fieldPathValue {
+	parts := splitFieldPath(path)
+	if len(parts) == 0 {
+		return fieldPathValue{exists: false}
+	}
+
+	currentMsg := msg
+
+	// Iteratively navigate through the path
+	for i, fieldName := range parts {
+		fieldDesc := currentMsg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
+		if fieldDesc == nil {
+			return fieldPathValue{exists: false}
+		}
+
+		isLastPart := i == len(parts)-1
+
+		if isLastPart {
+			// We've reached the target field
+			return fieldPathValue{
+				value:  currentMsg.Get(fieldDesc),
+				exists: true,
+			}
+		}
+
+		// Not the last part - need to navigate deeper
+		// Can't navigate through non-message fields, repeated fields, or maps
+		if fieldDesc.Kind() != protoreflect.MessageKind ||
+			fieldDesc.Cardinality() == protoreflect.Repeated ||
+			fieldDesc.IsMap() {
+			return fieldPathValue{exists: false}
+		}
+
+		value := currentMsg.Get(fieldDesc)
+		if !value.Message().IsValid() {
+			// Nested message doesn't exist
+			return fieldPathValue{exists: false}
+		}
+
+		currentMsg = value.Message()
+	}
+
+	return fieldPathValue{exists: false}
+}
+
+// splitFieldPath splits a field path by dots (e.g., "address.street" -> ["address", "street"])
+func splitFieldPath(path string) []string {
+	if path == "" {
+		return nil
+	}
+
+	parts := []string{}
+	current := ""
+	for _, ch := range path {
+		if ch == '.' {
+			if current != "" {
+				parts = append(parts, current)
+				current = ""
+			}
+		} else {
+			current += string(ch)
+		}
+	}
+	if current != "" {
+		parts = append(parts, current)
+	}
+	return parts
+}
+
 // ValidateImmutableFields checks that no immutable fields have changed between oldMsg and newMsg.
 // Only fields specified in the fieldMaskPaths are checked.
+// Supports nested field paths (e.g., "address.street").
 // Returns an error if any immutable field was changed.
 func ValidateImmutableFields(
 	oldMsg proto.Message,
@@ -76,46 +180,43 @@ func ValidateImmutableFields(
 		return nil
 	}
 
-	// Get immutable fields for this message type
+	// Get all immutable fields for this message type (cached)
 	immutableFields := GetImmutableFields(newMsg)
 	if len(immutableFields) == 0 {
 		return nil // No immutable fields to check
 	}
 
-	// Create a set of immutable field names for fast lookup
+	// Create a set of immutable field paths for fast lookup
 	immutableSet := make(map[string]bool, len(immutableFields))
 	for _, field := range immutableFields {
 		immutableSet[field] = true
 	}
 
-	// Check each field in the update mask
 	oldReflect := oldMsg.ProtoReflect()
 	newReflect := newMsg.ProtoReflect()
 
 	for _, path := range fieldMaskPaths {
-		// Skip if not an immutable field
+		// Skip if this path is not an immutable field
 		if !immutableSet[path] {
 			continue
 		}
 
-		// Get field descriptors from each message (needed for dynamic messages where descriptors may differ)
-		oldFieldDesc := oldReflect.Descriptor().Fields().ByName(protoreflect.Name(path))
-		newFieldDesc := newReflect.Descriptor().Fields().ByName(protoreflect.Name(path))
-		if oldFieldDesc == nil || newFieldDesc == nil {
-			continue // Field not found (shouldn't happen with valid field mask)
+		// Get values at this path for both messages
+		oldPathValue := getValueAtPath(oldReflect, path)
+		newPathValue := getValueAtPath(newReflect, path)
+
+		// Skip if path doesn't exist in either message
+		if !oldPathValue.exists || !newPathValue.exists {
+			continue
 		}
 
-		// Get old and new values using their respective field descriptors
-		oldValue := oldReflect.Get(oldFieldDesc)
-		newValue := newReflect.Get(newFieldDesc)
-
-		// Check if values are different
-		if !oldValue.Equal(newValue) {
+		// Field is immutable - check if it changed
+		if !oldPathValue.value.Equal(newPathValue.value) {
 			return fmt.Errorf(
 				"field %q is marked as IMMUTABLE and cannot be changed (attempted to change from %v to %v)",
 				path,
-				oldValue.Interface(),
-				newValue.Interface(),
+				oldPathValue.value.Interface(),
+				newPathValue.value.Interface(),
 			)
 		}
 	}
