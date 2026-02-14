@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771028422056,
+  "lastUpdate": 1771029300092,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -31774,6 +31774,56 @@ window.BENCHMARK_DATA = {
             "value": 281.7,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "1fb0eaa17f88186dadd23294da35b17fc39de076",
+          "message": "improve immutable field behavior validation",
+          "timestamp": "2026-02-13T23:06:58Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/581/commits/1fb0eaa17f88186dadd23294da35b17fc39de076"
+        },
+        "date": 1771029299987,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.008,
+            "unit": "ms/op",
+            "extra": "1160 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 92.77,
+            "unit": "ms/op",
+            "extra": "13 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.74,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 190,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 350.1,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
