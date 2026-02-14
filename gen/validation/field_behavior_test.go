@@ -735,6 +735,89 @@ func TestValidateImmutableFieldsChangedFromEmptyValue(t *testing.T) {
 	assert.Contains(t, err.Error(), "IMMUTABLE")
 }
 
+// Helper to create a message where the parent message field is immutable
+func getImmutableParentFieldMessage() (proto.Message, error) {
+	// Create nested message (no immutable fields in it)
+	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:   proto.String("street"),
+			Number: proto.Int32(1),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:   proto.String("city"),
+			Number: proto.Int32(2),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+
+	nestedMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("Address"),
+		Field: nestedFieldDescriptors,
+	}
+
+	// Create parent with the nested message field marked as IMMUTABLE
+	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:     proto.String("address"),
+			Number:   proto.Int32(1),
+			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+			TypeName: proto.String(".test.Address"),
+			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options:  &descriptorpb.FieldOptions{},
+		},
+	}
+
+	// Mark the entire "address" field as immutable
+	addressBehaviors := []annotations.FieldBehavior{annotations.FieldBehavior_IMMUTABLE}
+	proto.SetExtension(parentFieldDescriptors[0].Options, annotations.E_FieldBehavior, addressBehaviors)
+
+	parentMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("Person"),
+		Field: parentFieldDescriptors,
+	}
+
+	fileDesc := &descriptorpb.FileDescriptorProto{
+		Name:        proto.String("test_immutable_parent.proto"),
+		Package:     proto.String("test"),
+		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
+		Dependency:  []string{"google/api/field_behavior.proto"},
+	}
+
+	fd, err := protodesc.NewFile(fileDesc, protoregistry.GlobalFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	return dynamicpb.NewMessage(fd.Messages().Get(1)), nil
+}
+
+func TestValidateImmutableParentFieldWithNestedChange(t *testing.T) {
+	t.Parallel()
+
+	oldMsg, err := getImmutableParentFieldMessage()
+	require.NoError(t, err)
+	setNestedField(oldMsg, "address.street", "123 Main St")
+	setNestedField(oldMsg, "address.city", "Boston")
+
+	newMsg, err := getImmutableParentFieldMessage()
+	require.NoError(t, err)
+	setNestedField(newMsg, "address.street", "456 Oak St") // Changed nested field
+	setNestedField(newMsg, "address.city", "Boston")
+
+	// Trying to update a nested field within an immutable parent
+	fieldMask := []string{"address.street"}
+
+	err = ValidateImmutableFields(oldMsg, newMsg, fieldMask)
+
+	// Should reject: if parent "address" is IMMUTABLE, nested fields cannot change
+	require.Error(t, err, "Should not allow changing nested fields within immutable parent")
+	assert.Contains(t, err.Error(), "address")
+	assert.Contains(t, err.Error(), "IMMUTABLE")
+}
+
 // Helper to create a message with circular/recursive nesting
 func getRecursiveFieldBehaviorTestMessage() (proto.Message, error) {
 	// Create a message that references itself (like a linked list node)

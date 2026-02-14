@@ -63,21 +63,14 @@ func computeImmutableFields(msgDesc protoreflect.MessageDescriptor, prefix strin
 
 		// Check if this field is immutable
 		opts := field.Options()
-		if opts == nil {
-			continue
-		}
+		if opts != nil && proto.HasExtension(opts, annotations.E_FieldBehavior) {
+			// Get the field_behavior values
+			behaviors := proto.GetExtension(opts, annotations.E_FieldBehavior).([]annotations.FieldBehavior)
 
-		// Check if field has field_behavior extension
-		if !proto.HasExtension(opts, annotations.E_FieldBehavior) {
-			continue
-		}
-
-		// Get the field_behavior values
-		behaviors := proto.GetExtension(opts, annotations.E_FieldBehavior).([]annotations.FieldBehavior)
-
-		// Check if IMMUTABLE is in the behaviors
-		if slices.Contains(behaviors, annotations.FieldBehavior_IMMUTABLE) {
-			immutableFields = append(immutableFields, fieldPath)
+			// Check if IMMUTABLE is in the behaviors
+			if slices.Contains(behaviors, annotations.FieldBehavior_IMMUTABLE) {
+				immutableFields = append(immutableFields, fieldPath)
+			}
 		}
 
 		// If this is a message field, recursively check its nested fields
@@ -196,8 +189,31 @@ func ValidateImmutableFields(
 	newReflect := newMsg.ProtoReflect()
 
 	for _, path := range fieldMaskPaths {
-		// Skip if this path is not an immutable field
-		if !immutableSet[path] {
+		// Check if this path or any parent path is immutable
+		// For "address.street", check both "address.street" and "address"
+		immutablePath := ""
+		if immutableSet[path] {
+			immutablePath = path
+		} else {
+			// Check parent paths
+			parts := splitFieldPath(path)
+			for i := len(parts) - 1; i > 0; i-- {
+				parentPath := ""
+				for j := 0; j < i; j++ {
+					if j > 0 {
+						parentPath += "."
+					}
+					parentPath += parts[j]
+				}
+				if immutableSet[parentPath] {
+					immutablePath = parentPath
+					break
+				}
+			}
+		}
+
+		// Skip if this path and no parent paths are immutable
+		if immutablePath == "" {
 			continue
 		}
 
@@ -214,7 +230,7 @@ func ValidateImmutableFields(
 		if !oldPathValue.value.Equal(newPathValue.value) {
 			return fmt.Errorf(
 				"field %q is marked as IMMUTABLE and cannot be changed (attempted to change from %v to %v)",
-				path,
+				immutablePath,
 				oldPathValue.value.Interface(),
 				newPathValue.value.Interface(),
 			)
