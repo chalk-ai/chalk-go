@@ -36,12 +36,20 @@ const (
 	// ClickhouseServiceGetClickhouseUriProcedure is the fully-qualified name of the ClickhouseService's
 	// GetClickhouseUri RPC.
 	ClickhouseServiceGetClickhouseUriProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseUri"
+	// ClickhouseServiceGetClickhouseOtelTtlsProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClickhouseOtelTtls RPC.
+	ClickhouseServiceGetClickhouseOtelTtlsProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseOtelTtls"
+	// ClickhouseServiceSetClickhouseOtelTtlsProcedure is the fully-qualified name of the
+	// ClickhouseService's SetClickhouseOtelTtls RPC.
+	ClickhouseServiceSetClickhouseOtelTtlsProcedure = "/chalk.server.v1.ClickhouseService/SetClickhouseOtelTtls"
 )
 
 // ClickhouseServiceClient is a client for the chalk.server.v1.ClickhouseService service.
 type ClickhouseServiceClient interface {
 	// Get the Clickhouse connection URI for an environment
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
+	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
+	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 }
 
 // NewClickhouseServiceClient constructs a client for the chalk.server.v1.ClickhouseService service.
@@ -62,12 +70,27 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getClickhouseOtelTtls: connect.NewClient[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClickhouseOtelTtlsProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseOtelTtls")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		setClickhouseOtelTtls: connect.NewClient[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse](
+			httpClient,
+			baseURL+ClickhouseServiceSetClickhouseOtelTtlsProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // clickhouseServiceClient implements ClickhouseServiceClient.
 type clickhouseServiceClient struct {
-	getClickhouseUri *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
+	getClickhouseUri      *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
+	getClickhouseOtelTtls *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
+	setClickhouseOtelTtls *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
 }
 
 // GetClickhouseUri calls chalk.server.v1.ClickhouseService.GetClickhouseUri.
@@ -75,10 +98,22 @@ func (c *clickhouseServiceClient) GetClickhouseUri(ctx context.Context, req *con
 	return c.getClickhouseUri.CallUnary(ctx, req)
 }
 
+// GetClickhouseOtelTtls calls chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls.
+func (c *clickhouseServiceClient) GetClickhouseOtelTtls(ctx context.Context, req *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error) {
+	return c.getClickhouseOtelTtls.CallUnary(ctx, req)
+}
+
+// SetClickhouseOtelTtls calls chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls.
+func (c *clickhouseServiceClient) SetClickhouseOtelTtls(ctx context.Context, req *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error) {
+	return c.setClickhouseOtelTtls.CallUnary(ctx, req)
+}
+
 // ClickhouseServiceHandler is an implementation of the chalk.server.v1.ClickhouseService service.
 type ClickhouseServiceHandler interface {
 	// Get the Clickhouse connection URI for an environment
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
+	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
+	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
 }
 
 // NewClickhouseServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -95,10 +130,27 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	clickhouseServiceGetClickhouseOtelTtlsHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClickhouseOtelTtlsProcedure,
+		svc.GetClickhouseOtelTtls,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseOtelTtls")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	clickhouseServiceSetClickhouseOtelTtlsHandler := connect.NewUnaryHandler(
+		ClickhouseServiceSetClickhouseOtelTtlsProcedure,
+		svc.SetClickhouseOtelTtls,
+		connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ClickhouseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClickhouseServiceGetClickhouseUriProcedure:
 			clickhouseServiceGetClickhouseUriHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClickhouseOtelTtlsProcedure:
+			clickhouseServiceGetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
+		case ClickhouseServiceSetClickhouseOtelTtlsProcedure:
+			clickhouseServiceSetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -110,4 +162,12 @@ type UnimplementedClickhouseServiceHandler struct{}
 
 func (UnimplementedClickhouseServiceHandler) GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseUri is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseOtelTtls is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls is not implemented"))
 }
