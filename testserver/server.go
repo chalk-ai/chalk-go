@@ -152,6 +152,14 @@ func (s *MockServer) OnUpdateTelemetryDeployment() *MethodConfigBuilder[*serverv
 	}
 }
 
+// OnDeleteTelemetryDeployment configures the DeleteTelemetryDeployment RPC method.
+func (s *MockServer) OnDeleteTelemetryDeployment() *MethodConfigBuilder[*serverv1.DeleteTelemetryDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteTelemetryDeploymentResponse]{
+		methodName: "DeleteTelemetryDeployment",
+		registry:   s.registry,
+	}
+}
+
 // OnGetEnv configures the GetEnv RPC method.
 // By default, the mock server returns a valid environment with test-cluster-id.
 func (s *MockServer) OnGetEnv() *MethodConfigBuilder[*serverv1.GetEnvResponse] {

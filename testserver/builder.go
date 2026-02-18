@@ -117,7 +117,7 @@ func (h *builderServiceHandler) CreateClusterTimescaleDB(
 	return connect.NewResponse(resp.(*serverv1.CreateClusterTimescaleDBResponse)), nil
 }
 
-// DeleteClusterTimescaleDB implements the DeleteClusterTimescaleDB RPC method.
+// ClusterTimescaleDB implements the DeleteClusterTimescaleDB RPC method.
 func (h *builderServiceHandler) DeleteClusterTimescaleDB(
 	ctx context.Context,
 	req *connect.Request[serverv1.DeleteClusterTimescaleDBRequest],
@@ -211,6 +211,37 @@ func (h *builderServiceHandler) CreateTelemetryDeployment(
 	}
 
 	return connect.NewResponse(resp.(*serverv1.CreateTelemetryDeploymentResponse)), nil
+}
+
+// DeleteTelemetryDeployment implements the DeleteTelemetryDeployment RPC method.
+func (h *builderServiceHandler) DeleteTelemetryDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteTelemetryDeploymentRequest],
+) (*connect.Response[serverv1.DeleteTelemetryDeploymentResponse], error) {
+	// Capture request for test assertions
+	h.registry.CaptureRequest("DeleteTelemetryDeployment", req.Msg)
+
+	// Check for custom behavior
+	if behavior := h.registry.GetBehavior("DeleteTelemetryDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteTelemetryDeploymentResponse)), nil
+	}
+
+	// Check for configured error
+	if err := h.registry.GetError("DeleteTelemetryDeployment"); err != nil {
+		return nil, err
+	}
+
+	// Return configured response
+	resp := h.registry.GetResponse("DeleteTelemetryDeployment")
+	if resp == nil {
+		return connect.NewResponse(&serverv1.DeleteTelemetryDeploymentResponse{}), nil
+	}
+
+	return connect.NewResponse(resp.(*serverv1.DeleteTelemetryDeploymentResponse)), nil
 }
 
 // UpdateTelemetryDeployment implements the UpdateTelemetryDeployment RPC method.
