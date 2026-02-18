@@ -186,7 +186,7 @@ func (c *ErrorCodeCategory) UnmarshalJSON(data []byte) error {
 
 // getRecomputeFeaturesValue returns the appropriate value for recompute_features field
 // based on whether RecomputeFeatures or RecomputeFeaturesList is set
-func getRecomputeFeaturesValue(p *OfflineQueryParams) interface{} {
+func getRecomputeFeaturesValue(p *OfflineQueryParams) any {
 	// If RecomputeFeaturesList is set, use that
 	if len(p.RecomputeFeaturesList) > 0 {
 		return p.RecomputeFeaturesList
@@ -196,7 +196,7 @@ func getRecomputeFeaturesValue(p *OfflineQueryParams) interface{} {
 }
 
 func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryParamsResolved) ([]byte, error) {
-	var queryInput interface{}
+	var queryInput any
 
 	// Check if rawFileInput is provided
 	if p.rawFileInput != nil && *p.rawFileInput != "" {

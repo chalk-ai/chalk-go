@@ -26,14 +26,14 @@ type StdOutLeveledLogger struct {
 }
 
 // Debugf logs a debug message using Printf conventions.
-func (l *StdOutLeveledLogger) Debugf(format string, v ...interface{}) {
+func (l *StdOutLeveledLogger) Debugf(format string, v ...any) {
 	if l.Level >= LevelDebug {
 		fmt.Fprintf(l.stdout(), "[DEBUG] "+format+"\n", v...)
 	}
 }
 
 // Errorf logs a warning message using Printf conventions.
-func (l *StdOutLeveledLogger) Errorf(format string, v ...interface{}) {
+func (l *StdOutLeveledLogger) Errorf(format string, v ...any) {
 	// Infof logs a debug message using Printf conventions.
 	if l.Level >= LevelError {
 		fmt.Fprintf(l.stderr(), "[ERROR] "+format+"\n", v...)
@@ -41,14 +41,14 @@ func (l *StdOutLeveledLogger) Errorf(format string, v ...interface{}) {
 }
 
 // Infof logs an informational message using Printf conventions.
-func (l *StdOutLeveledLogger) Infof(format string, v ...interface{}) {
+func (l *StdOutLeveledLogger) Infof(format string, v ...any) {
 	if l.Level >= LevelInfo {
 		fmt.Fprintf(l.stdout(), "[INFO] "+format+"\n", v...)
 	}
 }
 
 // Warnf logs a warning message using Printf conventions.
-func (l *StdOutLeveledLogger) Warnf(format string, v ...interface{}) {
+func (l *StdOutLeveledLogger) Warnf(format string, v ...any) {
 	if l.Level >= LevelWarn {
 		fmt.Fprintf(l.stderr(), "[WARN] "+format+"\n", v...)
 	}

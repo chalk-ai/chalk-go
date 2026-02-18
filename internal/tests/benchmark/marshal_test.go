@@ -2,12 +2,12 @@ package benchmark
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/stretchr/testify/assert"
 )
 
 func getSingleRowPrimitives(b *testing.B) func() {
@@ -76,13 +76,13 @@ func getAllTypes(b *testing.B, numRows int) func() {
 			colMap[fqn] = append(colMap[fqn].([][]int64), []int64{int64(i)})
 			fqn = fmt.Sprintf("all_types.dataclass_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.LatLng), &fixtures.LatLng{
-				Lat: ptr.New(float64(i)),
-				Lng: ptr.New(float64(i)),
+				Lat: new(float64(i)),
+				Lng: new(float64(i)),
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_list_%d", j)
 			colMap[fqn] = append(colMap[fqn].([][]fixtures.LatLng), []fixtures.LatLng{
-				{Lat: ptr.New(float64(i)), Lng: ptr.New(float64(i))},
-				{Lat: ptr.New(float64(i)), Lng: ptr.New(float64(i))},
+				{Lat: new(float64(i)), Lng: new(float64(i))},
+				{Lat: new(float64(i)), Lng: new(float64(i))},
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_list_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.FavoriteThings), &fixtures.FavoriteThings{
@@ -91,28 +91,28 @@ func getAllTypes(b *testing.B, numRows int) func() {
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_nils_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.Possessions), &fixtures.Possessions{
-				Car:   ptr.New(fmt.Sprintf("car_%d", i)),
-				Yacht: ptr.New(fmt.Sprintf("yacht_%d", i)),
+				Car:   new(fmt.Sprintf("car_%d", i)),
+				Yacht: new(fmt.Sprintf("yacht_%d", i)),
 			})
 			fqn = fmt.Sprintf("all_types.dataclass_with_dataclass_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.Child), &fixtures.Child{
-				Name: ptr.New(fmt.Sprintf("child_%d", i)),
+				Name: new(fmt.Sprintf("child_%d", i)),
 				Mom: &fixtures.Parent{
-					Name: ptr.New(fmt.Sprintf("mom_%d", i)),
+					Name: new(fmt.Sprintf("mom_%d", i)),
 				},
 			})
 			fqn = fmt.Sprintf("all_types.nested_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]*fixtures.LevelOneNest), &fixtures.LevelOneNest{
-				Id: ptr.New(fmt.Sprintf("id_%d", i)),
+				Id: new(fmt.Sprintf("id_%d", i)),
 				Nested: &fixtures.LevelTwoNest{
-					Id: ptr.New(fmt.Sprintf("id_%d", i)),
+					Id: new(fmt.Sprintf("id_%d", i)),
 				},
 			})
 			fqn = fmt.Sprintf("all_types.has_many_%d", j)
 			colMap[fqn] = append(colMap[fqn].([][]customHasMany), []customHasMany{
-				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
-				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
-				{Int: ptr.New(int64(i)), Float: ptr.New(float64(i)), String: ptr.New(fmt.Sprintf("string_%d", i))},
+				{Int: new(int64(i)), Float: new(float64(i)), String: new(fmt.Sprintf("string_%d", i))},
+				{Int: new(int64(i)), Float: new(float64(i)), String: new(fmt.Sprintf("string_%d", i))},
+				{Int: new(int64(i)), Float: new(float64(i)), String: new(fmt.Sprintf("string_%d", i))},
 			})
 		}
 	}

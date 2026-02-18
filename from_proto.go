@@ -5,7 +5,6 @@ import (
 	"time"
 
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 )
 
 func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
@@ -19,7 +18,7 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 
 	var queryTimestamp *time.Time
 	if qs := metaRaw.GetQueryTimestamp(); qs != nil {
-		queryTimestamp = ptr.New(qs.AsTime())
+		queryTimestamp = new(qs.AsTime())
 	}
 
 	return &QueryMeta{

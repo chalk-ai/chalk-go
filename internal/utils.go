@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 )
 
@@ -472,7 +471,7 @@ func getForeignNamespace(typ reflect.Type) *string {
 	if typ.Kind() == reflect.Slice {
 		return getForeignNamespace(typ.Elem())
 	} else if IsFeaturesClass(typ) {
-		return ptr.New(ChalkpySnakeCase(typ.Name()))
+		return new(ChalkpySnakeCase(typ.Name()))
 	} else {
 		return nil
 	}

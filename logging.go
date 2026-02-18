@@ -47,14 +47,14 @@ var DefaultLeveledLogger LeveledLogger = &StdOutLeveledLogger{
 // other logging libraries that you use less standard conventions like Zap.
 type LeveledLogger interface {
 	// Debugf logs a debug message using Printf conventions.
-	Debugf(format string, v ...interface{})
+	Debugf(format string, v ...any)
 
 	// Errorf logs a warning message using Printf conventions.
-	Errorf(format string, v ...interface{})
+	Errorf(format string, v ...any)
 
 	// Infof logs an informational message using Printf conventions.
-	Infof(format string, v ...interface{})
+	Infof(format string, v ...any)
 
 	// Warnf logs a warning message using Printf conventions.
-	Warnf(format string, v ...interface{})
+	Warnf(format string, v ...any)
 }

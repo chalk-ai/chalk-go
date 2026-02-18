@@ -2,11 +2,11 @@ package integration
 
 import (
 	"fmt"
-	chalk "github.com/chalk-ai/chalk-go"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	chalk "github.com/chalk-ai/chalk-go"
+	"github.com/stretchr/testify/assert"
 )
 
 // TestOnlineQueryE2E tests the singular OnlineQuery method
@@ -98,8 +98,8 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 	testFeatures, initErr := GetTestFeatures()
 	assert.NoError(t, initErr)
 	hmInput := []hasManyFeature{
-		{Id: ptr.New("id_a"), Name: ptr.New("name_a"), AllTypesId: ptr.New(int64(1))},
-		{Id: ptr.New("id_b"), Name: ptr.New("name_b"), AllTypesId: ptr.New(int64(1))},
+		{Id: new("id_a"), Name: new("name_a"), AllTypesId: new(int64(1))},
+		{Id: new("id_b"), Name: new("name_b"), AllTypesId: new(int64(1))},
 	}
 
 	for _, useGrpc := range []bool{false, true} {

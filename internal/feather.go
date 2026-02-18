@@ -13,7 +13,6 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/ipc"
 	"github.com/apache/arrow/go/v16/arrow/memory"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 )
 
@@ -500,7 +499,7 @@ func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record,
 	}
 
 	return array.NewRecord(
-		arrow.NewSchema(newFields, ptr.New(record.Schema().Metadata())),
+		arrow.NewSchema(newFields, new(record.Schema().Metadata())),
 		newColumns,
 		record.NumRows(),
 	), nil
