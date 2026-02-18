@@ -137,13 +137,18 @@ func TestHasManyInputsAndOutputs(t *testing.T) {
 				assert.NotNil(t, resultInvestors)
 			}
 
-			assert.Equal(t, len(hmInput), len(*row.HasMany))
-			assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
-			assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
-			assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
-			assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
-			assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
-			assert.Equal(t, int64(1), *(*row.HasMany)[1].AllTypesId)
+			if row.HasMany != nil {
+				assert.Equal(t, len(hmInput), len(*row.HasMany))
+				assert.Equal(t, "id_a", *(*row.HasMany)[0].Id)
+				assert.Equal(t, "id_b", *(*row.HasMany)[1].Id)
+				assert.Equal(t, "name_a", *(*row.HasMany)[0].Name)
+				assert.Equal(t, "name_b", *(*row.HasMany)[1].Name)
+				assert.Equal(t, int64(1), *(*row.HasMany)[0].AllTypesId)
+				assert.Equal(t, int64(1), *(*row.HasMany)[1].AllTypesId)
+			} else {
+				t.Fatal("expected has-many output to be non-nil")
+				return
+			}
 		})
 	}
 }
