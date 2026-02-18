@@ -57,7 +57,7 @@ type ResourceRequestsSerialized struct {
 
 type OfflineQueryRequestSerialized struct {
 	// Core fields
-	Input                      interface{}                 `json:"input"`
+	Input                      any                         `json:"input"`
 	Output                     []string                    `json:"output"`
 	OutputExpressions          []string                    `json:"output_expressions"`
 	RequiredOutput             []string                    `json:"required_output"`
@@ -70,7 +70,7 @@ type OfflineQueryRequestSerialized struct {
 	ObservedAtUpperBound       *string                     `json:"observed_at_upper_bound"`
 	DatasetName                *string                     `json:"dataset_name"`
 	Branch                     *string                     `json:"branch"`
-	RecomputeFeatures          interface{}                 `json:"recompute_features"`
+	RecomputeFeatures          any                         `json:"recompute_features"`
 	SampleFeatures             *[]string                   `json:"sample_features"`
 	StorePlanStages            bool                        `json:"store_plan_stages"`
 	Explain                    bool                        `json:"explain"`

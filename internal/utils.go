@@ -284,8 +284,8 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 	isDataclass := IsTypeDataclass(structType)
 	res := make(map[string]string)
 	namespace := ChalkpySnakeCase(structType.Name())
-	for i := 0; i < structType.NumField(); i++ {
-		pythonName, err := ResolveFeatureName(structType.Field(i))
+	for field := range structType.Fields() {
+		pythonName, err := ResolveFeatureName(field)
 		if err != nil {
 			return nil, errors.New("failed to resolve field name")
 		}
@@ -293,7 +293,7 @@ func getFieldToPythonName(structType reflect.Type) (map[string]string, error) {
 			// Don't prepend namespace if it is a dataclass
 			pythonName = fmt.Sprintf("%s.%s", namespace, pythonName)
 		}
-		res[structType.Field(i).Name] = pythonName
+		res[field.Name] = pythonName
 	}
 	return res, nil
 }
@@ -414,7 +414,7 @@ func PreprocessIfStruct(values any) (any, error) {
 	// }
 	//
 	rValues := reflect.ValueOf(values)
-	if rValues.Kind() == reflect.Ptr {
+	if rValues.Kind() == reflect.Pointer {
 		rValues = rValues.Elem()
 	}
 	if !rValues.IsValid() {
@@ -464,7 +464,7 @@ func PreprocessIfStruct(values any) (any, error) {
 }
 
 func getForeignNamespace(typ reflect.Type) *string {
-	if typ.Kind() == reflect.Ptr {
+	if typ.Kind() == reflect.Pointer {
 		typ = typ.Elem()
 	}
 

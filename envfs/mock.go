@@ -33,7 +33,7 @@ func (m *mockFileInfo) Size() int64        { return m.size }
 func (m *mockFileInfo) Mode() fs.FileMode  { return m.mode }
 func (m *mockFileInfo) ModTime() time.Time { return m.modTime }
 func (m *mockFileInfo) IsDir() bool        { return m.isDir }
-func (m *mockFileInfo) Sys() interface{}   { return nil }
+func (m *mockFileInfo) Sys() any           { return nil }
 
 func (m MapEnvironmentGetter) Getenv(key string) string {
 	return m.Env[key]

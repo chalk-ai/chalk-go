@@ -16,7 +16,7 @@ import (
 
 func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < numRows; i++ {
+	for i := range numRows {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -70,7 +70,7 @@ func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
 		}
 		assert.NoError(b, res.UnmarshalInto(&rootStruct))
 		assertOnce.Do(func() {
-			for i := 0; i < numRows; i++ {
+			for i := range numRows {
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *rootStruct[i].IntFeatures.Int40)
 				assert.Equal(b, float64(1.234), *rootStruct[i].FloatFeatures.Float1)
@@ -279,7 +279,7 @@ func getBenchmarkSingleHasOnes(b *testing.B) func() {
 
 func getBenchmarkBulkSingleNs(b *testing.B) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("string_features.string_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -302,7 +302,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 		assert.NoError(b, res.UnmarshalInto(&stringFeatures))
 
 		assertOnce.Do(func() {
-			for i := 0; i < 100; i++ {
+			for i := range 100 {
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 1), *stringFeatures[i].String1)
 				assert.Equal(b, fmt.Sprintf("string_val_%d_%d", i, 40), *stringFeatures[i].String40)
 			}
@@ -314,7 +314,7 @@ func getBenchmarkBulkSingleNs(b *testing.B) func() {
 
 func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 	bulkData := make(map[string]any)
-	for i := 0; i < numRows; i++ {
+	for i := range numRows {
 		for j := 1; j <= 40; j++ {
 			fqn := fmt.Sprintf("has_one_root.int_features.int_%d", j)
 			if _, ok := bulkData[fqn]; !ok {
@@ -360,7 +360,7 @@ func getBenchmarkBulkHasOnes(b *testing.B, numRows int) func() {
 		roots := []fixtures.HasOneRoot{}
 		assert.NoError(b, res.UnmarshalInto(&roots))
 		assertOnce.Do(func() {
-			for i := 0; i < numRows; i++ {
+			for i := range numRows {
 				assert.Equal(b, int64(122.0), *roots[i].IntFeatures.Int1)
 				assert.Equal(b, int64(122.0), *roots[i].IntFeatures.Int40)
 				assert.Equal(b, float64(1.234), *roots[i].FloatFeatures.Float1)
@@ -401,7 +401,7 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 	bulkData["all_types.dataclass_with_dataclass"] = make([]fixtures.Child, numRows)
 	bulkData["all_types.nested"] = make([]fixtures.LevelOneNest, numRows)
 
-	for i := 0; i < numRows; i++ {
+	for i := range numRows {
 		bulkData["all_types.int"].([]int)[i] = 1
 		bulkData["all_types.float"].([]float64)[i] = 1.234
 		bulkData["all_types.string"].([]string)[i] = "string_val"
