@@ -43,6 +43,8 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	authHandler := newAuthServiceHandler(registry)
 	teamHandler := newTeamServiceHandler(registry)
 
+	integrationsHandler := newIntegrationsServiceHandler(registry)
+
 	// Create HTTP mux
 	mux := http.NewServeMux()
 
@@ -57,6 +59,10 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register TeamService handler
 	teamPath, teamRPCHandler := serverv1connect.NewTeamServiceHandler(teamHandler)
 	mux.Handle(teamPath, teamRPCHandler)
+
+	// Register IntegrationsService handler
+	integrationsPath, integrationsRPCHandler := serverv1connect.NewIntegrationsServiceHandler(integrationsHandler)
+	mux.Handle(integrationsPath, integrationsRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -161,6 +167,46 @@ func (s *MockServer) OnGetEnv() *MethodConfigBuilder[*serverv1.GetEnvResponse] {
 func (s *MockServer) OnGetToken() *MethodConfigBuilder[*serverv1.GetTokenResponse] {
 	return &MethodConfigBuilder[*serverv1.GetTokenResponse]{
 		methodName: "GetToken",
+		registry:   s.registry,
+	}
+}
+
+// OnInsertIntegration configures the InsertIntegration RPC method.
+func (s *MockServer) OnInsertIntegration() *MethodConfigBuilder[*serverv1.InsertIntegrationResponse] {
+	return &MethodConfigBuilder[*serverv1.InsertIntegrationResponse]{
+		methodName: "InsertIntegration",
+		registry:   s.registry,
+	}
+}
+
+// OnGetIntegration configures the GetIntegration RPC method.
+func (s *MockServer) OnGetIntegration() *MethodConfigBuilder[*serverv1.GetIntegrationResponse] {
+	return &MethodConfigBuilder[*serverv1.GetIntegrationResponse]{
+		methodName: "GetIntegration",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateIntegration configures the UpdateIntegration RPC method.
+func (s *MockServer) OnUpdateIntegration() *MethodConfigBuilder[*serverv1.UpdateIntegrationResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateIntegrationResponse]{
+		methodName: "UpdateIntegration",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteIntegration configures the DeleteIntegration RPC method.
+func (s *MockServer) OnDeleteIntegration() *MethodConfigBuilder[*serverv1.DeleteIntegrationResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteIntegrationResponse]{
+		methodName: "DeleteIntegration",
+		registry:   s.registry,
+	}
+}
+
+// OnListIntegrations configures the ListIntegrations RPC method.
+func (s *MockServer) OnListIntegrations() *MethodConfigBuilder[*serverv1.ListIntegrationsResponse] {
+	return &MethodConfigBuilder[*serverv1.ListIntegrationsResponse]{
+		methodName: "ListIntegrations",
 		registry:   s.registry,
 	}
 }
