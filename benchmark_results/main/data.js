@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1771397289526,
+  "lastUpdate": 1771447060974,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -31890,6 +31890,60 @@ window.BENCHMARK_DATA = {
             "value": 305,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "zivkennan@gmail.com",
+            "name": "Ziv Kennan",
+            "username": "ziv-kennan"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "677edc9a19f91531bc6b35e5377b4beb6a61c76e",
+          "message": "better immutable field validation, protos, testserver (#581)",
+          "timestamp": "2026-02-18T12:36:58-08:00",
+          "tree_id": "423f486d1766e95d0dbe84810c12f3256c5d4ebd",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/677edc9a19f91531bc6b35e5377b4beb6a61c76e"
+        },
+        "date": 1771447060882,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9743,
+            "unit": "ms/op",
+            "extra": "1182 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 97.94,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 33.24,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 222.8,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 295,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
