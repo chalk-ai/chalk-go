@@ -58,8 +58,7 @@ func convertNumber[T Numbers](anyNumber any) (T, error) {
 
 func IsTypeDataclass(typ reflect.Type) bool {
 	if typ.Kind() == reflect.Struct {
-		for i := 0; i < typ.NumField(); i++ {
-			fieldMeta := typ.Field(i)
+		for fieldMeta := range typ.Fields() {
 			if fieldMeta.Tag.Get("dataclass_field") == "true" {
 				return true
 			}
@@ -72,7 +71,7 @@ func IsDataclass(field reflect.Value) bool {
 	return IsTypeDataclass(field.Type())
 }
 
-var timeType = reflect.TypeOf(time.Time{})
+var timeType = reflect.TypeFor[time.Time]()
 
 func IsStruct(typ reflect.Type) bool {
 	if typ.Kind() != reflect.Struct {
@@ -117,7 +116,7 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 	case *array.List:
 		o32 := arr.Offsets()
 		o64 := make([]int64, len(o32))
-		for i := 0; i < len(o32); i++ {
+		for i := range o32 {
 			o64[i] = int64(arr.Offsets()[i])
 		}
 		return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
@@ -408,7 +407,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 	if value == nil {
 		return new(reflect.Zero(typ)), nil
 	}
-	if reflect.ValueOf(value).Kind() == reflect.Ptr && typ.Kind() == reflect.Ptr {
+	if reflect.ValueOf(value).Kind() == reflect.Pointer && typ.Kind() == reflect.Pointer {
 		indirectValue, err := GetReflectValue(reflect.ValueOf(value).Elem().Interface(), typ.Elem(), allMemo)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting reflect value for pointed to value")
@@ -552,7 +551,7 @@ func GetReflectValue(value any, typ reflect.Type, allMemo *NamespaceMemosT) (*re
 		newSlice := reflect.MakeSlice(typ, 0, actualSlice.Len())
 		for i := 0; i < actualSlice.Len(); i++ {
 			actualValue := actualSlice.Index(i).Interface()
-			if typ.Elem().Kind() == reflect.Ptr && actualValue != nil {
+			if typ.Elem().Kind() == reflect.Pointer && actualValue != nil {
 				if actualSlice.Index(i).Kind() == reflect.Interface {
 					actualValue = ReflectPtr(actualSlice.Index(i).Elem()).Interface()
 				} else {
@@ -666,7 +665,7 @@ func ConvertIfHasManyMap(value any) (any, error) {
 	numRows := len(values[0])
 
 	newValues := make([]map[string]any, numRows)
-	for rowIdx := 0; rowIdx < numRows; rowIdx++ {
+	for rowIdx := range numRows {
 		newRow := make(map[string]any)
 		for colIdx, colName := range columns {
 			newRow[colName] = values[colIdx][rowIdx]
@@ -790,7 +789,7 @@ func InitRemoteFeatureMap(
 	return nil
 }
 func setFeatureSingle(field reflect.Value, fqn string, value any, allMemo *NamespaceMemosT) error {
-	if field.Type().Kind() == reflect.Ptr {
+	if field.Type().Kind() == reflect.Pointer {
 		if value == nil {
 			return nil
 		}
@@ -898,7 +897,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	}
 
 	slicePtr := reflect.ValueOf(resultHolders)
-	if slicePtr.Kind() != reflect.Ptr {
+	if slicePtr.Kind() != reflect.Pointer {
 		return fmt.Errorf(
 			"result holder should be a pointer to a slice of structs, "+
 				"got '%s' instead",
@@ -1083,7 +1082,7 @@ func UnmarshalTableInto(table arrow.Table, resultHolders any) (returnErr error) 
 	for reader.Next() {
 		record := reader.Record()
 		recordRows := int(record.NumRows())
-		for rowIdx := 0; rowIdx < recordRows; rowIdx++ {
+		for rowIdx := range recordRows {
 			if err := rowOp(structs.Index(rowOffset+rowIdx), record, rowIdx); err != nil {
 				return errors.Wrapf(err, "unmarshalling record batch %d", batchIdx)
 			}

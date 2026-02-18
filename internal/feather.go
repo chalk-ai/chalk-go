@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"reflect"
 	"time"
 
@@ -81,7 +82,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 		visitedNamespaces = map[string]bool{}
 	}
 	kind := value.Kind()
-	if kind == reflect.Ptr {
+	if kind == reflect.Pointer {
 		// e.g. Pointers to an int are stored in an Arrow table the same as an int
 		return convertReflectToArrowType(value.Elem(), visitedNamespaces)
 	}
@@ -143,7 +144,7 @@ func convertReflectToArrowType(value reflect.Type, visitedNamespaces map[string]
 			arrowFields = append(arrowFields, arrow.Field{
 				Name:     resolved,
 				Type:     dtype,
-				Nullable: field.Type.Kind() == reflect.Ptr,
+				Nullable: field.Type.Kind() == reflect.Pointer,
 				Metadata: arrow.MetadataFrom(
 					map[string]string{
 						shouldOmitIfAllNullsKey: fmt.Sprintf("%t", currentShouldFilter),
@@ -186,7 +187,7 @@ func setBuilderValues(builder array.Builder, slice reflect.Value, valid []bool, 
 	elemKind := elemType.Kind()
 	values := slice.Interface()
 	switch elemKind {
-	case reflect.Ptr:
+	case reflect.Pointer:
 		// elemType is `*T`, so we need to get the type `T`
 		nonPtrSliceType := reflect.SliceOf(elemType.Elem())
 		nonPtrSlice := reflect.MakeSlice(nonPtrSliceType, 0, slice.Len())
@@ -470,7 +471,7 @@ func filterRecord(record arrow.Record, shouldFilterColumn []bool) (arrow.Record,
 	if err != nil {
 		return nil, errors.Newf("can only process int32 number of columns, found: %d", record.NumCols())
 	}
-	for i := 0; i < numCols; i++ {
+	for i := range numCols {
 		if shouldFilterColumn[i] {
 			maybeNewArr, didFilterColumn, err := filterArray(record.Column(i))
 			if err != nil {
@@ -960,14 +961,10 @@ func ChalkUnmarshal(body []byte) (map[string]any, error) {
 
 	res := map[string]any{}
 	if jsonBody != nil {
-		for k, v := range jsonBody.(map[string]any) {
-			res[k] = v
-		}
+		maps.Copy(res, jsonBody.(map[string]any))
 	}
 	if pydanticJsonBody != nil {
-		for k, v := range pydanticJsonBody.(map[string]any) {
-			res[k] = v
-		}
+		maps.Copy(res, pydanticJsonBody.(map[string]any))
 	}
 	for k, v := range byteItems {
 		res[k] = v

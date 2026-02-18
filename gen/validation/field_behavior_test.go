@@ -29,8 +29,8 @@ func createTestMessageDescriptor(messageName string, fields []testField) (protor
 	for i, f := range fields {
 		fieldNum := int32(i + 1)
 		fieldDescriptors[i] = &descriptorpb.FieldDescriptorProto{
-			Name:   proto.String(f.name),
-			Number: proto.Int32(fieldNum),
+			Name:   new(f.name),
+			Number: new(fieldNum),
 			Type:   f.fieldType.Enum(),
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		}
@@ -46,13 +46,13 @@ func createTestMessageDescriptor(messageName string, fields []testField) (protor
 	}
 
 	msgDesc := &descriptorpb.DescriptorProto{
-		Name:  proto.String(messageName),
+		Name:  new(messageName),
 		Field: fieldDescriptors,
 	}
 
 	fileDesc := &descriptorpb.FileDescriptorProto{
-		Name:        proto.String(fmt.Sprintf("test_%s.proto", messageName)),
-		Package:     proto.String("test"),
+		Name:        new(fmt.Sprintf("test_%s.proto", messageName)),
+		Package:     new("test"),
 		MessageType: []*descriptorpb.DescriptorProto{msgDesc},
 		Dependency:  []string{"google/api/field_behavior.proto"},
 	}
@@ -90,7 +90,7 @@ func getFieldBehaviorTestMessage2() (proto.Message, error) {
 	return dynamicpb.NewMessage(desc), nil
 }
 
-func setField(msg proto.Message, fieldName string, value interface{}) {
+func setField(msg proto.Message, fieldName string, value any) {
 	m := msg.ProtoReflect()
 	fd := m.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
 	if fd == nil {

@@ -161,8 +161,7 @@ func (d *Downloader) extractFilename(resp *http.Response, url string) string {
 	if contentDisposition != "" {
 		for part := range strings.SplitSeq(contentDisposition, ";") {
 			part = strings.TrimSpace(part)
-			if strings.HasPrefix(part, "filename=") {
-				filename := strings.TrimPrefix(part, "filename=")
+			if filename, ok := strings.CutPrefix(part, "filename="); ok {
 				filename = strings.Trim(filename, `"`)
 				if filename != "" {
 					return filename

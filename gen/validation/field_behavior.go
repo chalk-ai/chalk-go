@@ -2,6 +2,7 @@ package validation
 
 import (
 	"fmt"
+	"slices"
 	"sync"
 
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -55,11 +56,8 @@ func computeImmutableFields(msgDesc protoreflect.MessageDescriptor) []string {
 		behaviors := proto.GetExtension(opts, annotations.E_FieldBehavior).([]annotations.FieldBehavior)
 
 		// Check if IMMUTABLE is in the behaviors
-		for _, behavior := range behaviors {
-			if behavior == annotations.FieldBehavior_IMMUTABLE {
-				immutableFields = append(immutableFields, string(field.Name()))
-				break
-			}
+		if slices.Contains(behaviors, annotations.FieldBehavior_IMMUTABLE) {
+			immutableFields = append(immutableFields, string(field.Name()))
 		}
 	}
 

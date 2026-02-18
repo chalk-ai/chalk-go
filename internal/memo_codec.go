@@ -162,7 +162,7 @@ func generateInitFeatureFunc(fqnParts []string, structType reflect.Type, allMemo
 		structFieldIndices[i] = indices[0]
 
 		firstFieldType := currStructType.Field(indices[0]).Type
-		if firstFieldType.Kind() == reflect.Ptr {
+		if firstFieldType.Kind() == reflect.Pointer {
 			structFieldIsPointer[i] = true
 			firstFieldType = firstFieldType.Elem()
 		}
@@ -209,7 +209,7 @@ func generateSetMapFunc(bucket string) SetMapFunc {
 }
 
 func generateGetSliceFunc(sliceReflectType reflect.Type, elemArrowType arrow.DataType, allMemo *NamespaceMemosT) (func(arr arrow.Array, startIdx int, endIdx int) (reflect.Value, error), error) {
-	isPointer := sliceReflectType.Kind() == reflect.Ptr
+	isPointer := sliceReflectType.Kind() == reflect.Pointer
 
 	var sliceType reflect.Type
 	if isPointer {
@@ -290,7 +290,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			return getSliceFunc(castArr.ListValues(), int(castArr.Offsets()[arrIdx]), int(castArr.Offsets()[arrIdx+1]))
 		}, err
 	case *arrow.StructType:
-		isPointer := fieldType.Kind() == reflect.Ptr
+		isPointer := fieldType.Kind() == reflect.Pointer
 
 		var structType reflect.Type
 		if isPointer {
@@ -308,7 +308,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 		arrowFieldToGetValueFunc := make([]GetValueFunc, numFields)
 		arrowFieldToSetMapFunc := make([]SetMapFunc, numFields)
 		arrowFieldToReflectFieldIndices := make([][]int, numFields)
-		for k := 0; k < numFields; k++ {
+		for k := range numFields {
 			fieldName := castArrType.Field(k).Name
 			reflectFieldIndices, ok := memo.ResolvedFieldNameToIndices[fieldName]
 			if !ok {
@@ -360,7 +360,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 
 		return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 			newStructPtr := reflect.New(structType)
-			for k := 0; k < numFields; k++ {
+			for k := range numFields {
 				getValueFunc := arrowFieldToGetValueFunc[k]
 				if getValueFunc == nil {
 					return reflect.Value{}, errors.Newf(
@@ -406,7 +406,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}
 		}, nil
 	case *arrow.StringType:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.String).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -417,7 +417,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.LargeStringType:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.LargeString).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -428,7 +428,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Uint8Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Uint8).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -439,7 +439,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Uint16Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Uint16).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -450,7 +450,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Uint32Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Uint32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -461,7 +461,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Uint64Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Uint64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -472,7 +472,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Int8Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Int8).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -483,7 +483,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Int16Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Int16).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -494,7 +494,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Int32Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Int32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -505,7 +505,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Int64Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Int64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -516,7 +516,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Float32Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Float32).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -527,7 +527,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Float64Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Float64).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -538,7 +538,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.BooleanType:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				val := arr.(*array.Boolean).Value(arrIdx)
 				return reflect.ValueOf(&val), nil
@@ -550,7 +550,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 		}
 
 	case *arrow.Date32Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				timeVal := arr.(*array.Date32).Value(arrIdx).ToTime()
 				return reflect.ValueOf(&timeVal), nil
@@ -561,7 +561,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.Date64Type:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				timeVal := arr.(*array.Date64).Value(arrIdx).ToTime()
 				return reflect.ValueOf(&timeVal), nil
@@ -572,7 +572,7 @@ func generateGetValueFuncInner(fieldType reflect.Type, arrowType arrow.DataType,
 			}, nil
 		}
 	case *arrow.TimestampType:
-		if fieldType.Kind() == reflect.Ptr {
+		if fieldType.Kind() == reflect.Pointer {
 			return func(arr arrow.Array, arrIdx int) (reflect.Value, error) {
 				timeVal := arr.(*array.Timestamp).Value(arrIdx).ToTime(castArrType.TimeUnit())
 				return reflect.ValueOf(&timeVal), nil

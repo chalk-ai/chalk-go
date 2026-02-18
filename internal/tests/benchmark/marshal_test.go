@@ -13,7 +13,7 @@ import (
 func getSingleRowPrimitives(b *testing.B) func() {
 	colMap := map[string]any{}
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		colMap[fmt.Sprintf("all_types.int_%d", i)] = []int64{int64(i)}
 		colMap[fmt.Sprintf("all_types.float_%d", i)] = []float64{float64(i)}
 		colMap[fmt.Sprintf("all_types.string_%d", i)] = []string{fmt.Sprintf("string_%d", i)}
@@ -38,7 +38,7 @@ func getAllTypes(b *testing.B, numRows int) func() {
 	}
 
 	numCols := 3
-	for j := 0; j < numCols; j++ {
+	for j := range numCols {
 		colMap[fmt.Sprintf("all_types.int_%d", j)] = []int64{}
 		colMap[fmt.Sprintf("all_types.float_%d", j)] = []float64{}
 		colMap[fmt.Sprintf("all_types.string_%d", j)] = []string{}
@@ -56,8 +56,8 @@ func getAllTypes(b *testing.B, numRows int) func() {
 		colMap[fmt.Sprintf("all_types.has_many_%d", j)] = [][]customHasMany{}
 	}
 
-	for i := 0; i < numRows; i++ {
-		for j := 0; j < 3; j++ {
+	for i := range numRows {
+		for j := range 3 {
 			fqn := fmt.Sprintf("all_types.int_%d", j)
 			colMap[fqn] = append(colMap[fqn].([]int64), int64(i))
 			fqn = fmt.Sprintf("all_types.float_%d", j)

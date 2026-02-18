@@ -77,7 +77,7 @@ func populateNamespaceMemoStruct(typ reflect.Type, visited map[reflect.Type]bool
 			}
 		}
 
-		if fm.Type.Kind() == reflect.Ptr && IsStruct(fm.Type.Elem()) && !IsTypeDataclass(fm.Type.Elem()) {
+		if fm.Type.Kind() == reflect.Pointer && IsStruct(fm.Type.Elem()) && !IsTypeDataclass(fm.Type.Elem()) {
 			nsMemo.StructFieldsSet[resolvedName] = true
 		}
 	}
@@ -129,7 +129,7 @@ func PopulateNamespaceMemos(typ reflect.Type, visited map[reflect.Type]bool) err
 	if visited == nil {
 		visited = map[reflect.Type]bool{}
 	}
-	if typ.Kind() == reflect.Ptr || typ.Kind() == reflect.Slice {
+	if typ.Kind() == reflect.Pointer || typ.Kind() == reflect.Slice {
 		return PopulateNamespaceMemos(typ.Elem(), visited)
 	} else if typ.Kind() == reflect.Struct && typ != timeType {
 		if visited[typ] {

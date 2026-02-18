@@ -39,12 +39,10 @@ func benchmarkParallel(b *testing.B, benchmarkFunc func()) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		var wg sync.WaitGroup
-		for j := 0; j < numParallel; j++ {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
+		for range numParallel {
+			wg.Go(func() {
 				benchmarkFunc()
-			}()
+			})
 		}
 		wg.Wait()
 	}

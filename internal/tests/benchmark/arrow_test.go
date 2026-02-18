@@ -13,14 +13,14 @@ func getBenchmarkConvertBytesToTable(b *testing.B) func() {
 	inputs := map[string]any{}
 
 	numCols := 40
-	for j := 0; j < numCols; j++ {
+	for j := range numCols {
 		inputs[fmt.Sprintf("%s%d", prefix, j)] = []int{}
 	}
 
 	numRows := 10_000
 
-	for i := 0; i < numRows; i++ {
-		for j := 0; j < numCols; j++ {
+	for i := range numRows {
+		for j := range numCols {
 			inputs[fmt.Sprintf("%s%d", prefix, j)] = append(inputs[fmt.Sprintf("%s%d", prefix, j)].([]int), i)
 		}
 	}
