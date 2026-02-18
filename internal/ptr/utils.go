@@ -13,10 +13,6 @@ func OrNil[T any](x T) *T {
 	return &x
 }
 
-func New[T any](value T) *T {
-	return &value
-}
-
 func OrZero[T any](t *T) T {
 	if t != nil {
 		return *t

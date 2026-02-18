@@ -3,15 +3,6 @@ package chalk
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/arrow/go/v16/arrow"
-	"github.com/apache/arrow/go/v16/arrow/array"
-	"github.com/apache/arrow/go/v16/arrow/memory"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
-	"github.com/chalk-ai/chalk-go/pkg/errors"
-	assert "github.com/stretchr/testify/require"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,6 +10,15 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
+	"github.com/apache/arrow/go/v16/arrow/memory"
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	"github.com/chalk-ai/chalk-go/pkg/errors"
+	assert "github.com/stretchr/testify/require"
 )
 
 type unmarshalTransaction struct {
@@ -479,7 +479,7 @@ func TestUnmarshalWindowedFeaturesChildrenAllNilBulk(t *testing.T) {
 	}
 
 	rootStructs := make([]Root, 1)
-	assert.NoError(t, internal.PopulateNamespaceMemos(reflect.TypeOf(rootStructs), nil))
+	assert.NoError(t, internal.PopulateNamespaceMemos(reflect.TypeFor[[]Root](), nil))
 	assert.NoError(t, res.UnmarshalInto(&rootStructs))
 
 	assert.Equal(t, 1, len(rootStructs))
@@ -681,11 +681,11 @@ func TestUnmarshalQueryBulkOptionalDataclassNested(t *testing.T) {
 	scalarsMap := map[any]any{
 		fixtureRoot.AllTypes.DataclassWithDataclass: []*fixtures.Child{
 			{
-				Name: ptr.New("Alice"),
+				Name: new("Alice"),
 				Mom: &fixtures.Parent{
-					Name: ptr.New("Alice's Mom"),
+					Name: new("Alice's Mom"),
 					Dad: &fixtures.Grandparent{
-						Name: ptr.New("Alice's Grandpa"),
+						Name: new("Alice's Grandpa"),
 					},
 				},
 			},
@@ -1004,13 +1004,13 @@ func TestUnmarshalBulkQueryDataclassWithNils(t *testing.T) {
 	scalarsMap := map[any]any{
 		fixtureRoot.AllTypes.DataclassWithNils: []fixtures.Possessions{
 			{
-				Car:   ptr.New("Toyota"),
+				Car:   new("Toyota"),
 				Yacht: nil,
-				Plane: ptr.New("Boeing"),
+				Plane: new("Boeing"),
 			},
 			{
-				Car:   ptr.New("Honda"),
-				Yacht: ptr.New("Yamaha"),
+				Car:   new("Honda"),
+				Yacht: new("Yamaha"),
 				Plane: nil,
 			},
 		},
@@ -1378,7 +1378,7 @@ func TestBulkUnmarshalExtraFieldsInHasMany(t *testing.T) {
 					// which defeats the purpose of trying to deserialize into
 					// one existing field in the has-many struct, while deserializing
 					// into a non-existent field in the same has-many struct.
-					Id: ptr.New("nested_id"),
+					Id: new("nested_id"),
 				},
 			},
 		}, // This field exists
@@ -1435,11 +1435,11 @@ func TestWarmUpUnmarshaller(t *testing.T) {
 		LatLng      *unmarshalLatLNG
 	}
 	assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
-	_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalTransaction{}))
+	_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalTransaction]())
 	assert.NoError(t, err)
-	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalUSER{}))
+	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalUSER]())
 	assert.NoError(t, err)
-	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalLatLNG{}))
+	_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalLatLNG]())
 	assert.NoError(t, err)
 }
 
@@ -1449,7 +1449,7 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 	var wg sync.WaitGroup
 	const numConcurrentTests = 100
 	wg.Add(numConcurrentTests)
-	for i := 0; i < numConcurrentTests; i++ {
+	for range numConcurrentTests {
 		go func() {
 			defer wg.Done()
 			var rootFeatures struct {
@@ -1473,31 +1473,31 @@ func TestWarmUpUnmarshallerConcurrent(t *testing.T) {
 			assert.NoError(t, WarmUpUnmarshaller(&rootFeatures))
 
 			// Check in reverse order of fields to more reliably catch race condition
-			_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedTimestampFeatures{}))
+			_, err := internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.WindowedTimestampFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedStringFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.WindowedStringFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedFloatFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.WindowedFloatFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedIntFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.WindowedIntFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.WindowedBoolFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.WindowedBoolFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.TimestampFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.TimestampFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.BoolFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.BoolFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.IntFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.IntFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.FloatFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.FloatFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(fixtures.StringFeatures{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[fixtures.StringFeatures]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalLatLNG{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalLatLNG]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalUSER{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalUSER]())
 			assert.NoError(t, err)
-			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeOf(unmarshalTransaction{}))
+			_, err = internal.NamespaceMemos.LoadOrStore(reflect.TypeFor[unmarshalTransaction]())
 			assert.NoError(t, err)
 		}()
 	}
@@ -1573,17 +1573,15 @@ func TestUnmarshalConcurrently(t *testing.T) {
 	queryRes := OnlineQueryResult{Data: data}
 
 	numBatch := 100
-	for i := 0; i < numBatch; i++ {
+	for i := range numBatch {
 		t.Run(fmt.Sprintf("batch-%d", i), func(t *testing.T) {
 			t.Parallel()
 			var wg sync.WaitGroup
 			batchSize := 1000
-			for i := 0; i < batchSize; i++ {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
+			for range batchSize {
+				wg.Go(func() {
 					queryRes.UnmarshalInto(&fixtures.AllTypes{})
-				}()
+				})
 			}
 			wg.Wait()
 		})
@@ -1601,23 +1599,23 @@ func TestBenchmarkListOfStructsUnmarshal(t *testing.T) {
 	var transactions []unmarshalTransaction
 	numRows := 100_000
 	assert.Greater(t, numRows, internal.TableReaderChunkSize)
-	for i := 0; i < numRows; i++ {
+	for i := range numRows {
 		transactions = append(transactions, unmarshalTransaction{
-			Id:                    ptr.New(fmt.Sprintf("id-%d", i)),
-			AmountP30D:            ptr.New(int64(i)),
-			FeatureWithLongName1:  ptr.New(fmt.Sprintf("feature_with_long_name1-%d", i)),
-			FeatureWithLongName2:  ptr.New(fmt.Sprintf("feature_with_long_name2-%d", i)),
-			FeatureWithLongName3:  ptr.New(fmt.Sprintf("feature_with_long_name3-%d", i)),
-			FeatureWithLongName4:  ptr.New(fmt.Sprintf("feature_with_long_name4-%d", i)),
-			FeatureWithLongName5:  ptr.New(fmt.Sprintf("feature_with_long_name5-%d", i)),
-			FeatureWithLongName6:  ptr.New(fmt.Sprintf("feature_with_long_name6-%d", i)),
-			FeatureWithLongName7:  ptr.New(fmt.Sprintf("feature_with_long_name7-%d", i)),
-			FeatureWithLongName8:  ptr.New(fmt.Sprintf("feature_with_long_name8-%d", i)),
-			FeatureWithLongName9:  ptr.New(fmt.Sprintf("feature_with_long_name9-%d", i)),
-			FeatureWithLongName10: ptr.New(fmt.Sprintf("feature_with_long_name10-%d", i)),
-			FeatureWithLongName11: ptr.New(fmt.Sprintf("feature_with_long_name11-%d", i)),
-			FeatureWithLongName12: ptr.New(fmt.Sprintf("feature_with_long_name12-%d", i)),
-			FeatureWithLongName13: ptr.New(fmt.Sprintf("feature_with_long_name13-%d", i)),
+			Id:                    new(fmt.Sprintf("id-%d", i)),
+			AmountP30D:            new(int64(i)),
+			FeatureWithLongName1:  new(fmt.Sprintf("feature_with_long_name1-%d", i)),
+			FeatureWithLongName2:  new(fmt.Sprintf("feature_with_long_name2-%d", i)),
+			FeatureWithLongName3:  new(fmt.Sprintf("feature_with_long_name3-%d", i)),
+			FeatureWithLongName4:  new(fmt.Sprintf("feature_with_long_name4-%d", i)),
+			FeatureWithLongName5:  new(fmt.Sprintf("feature_with_long_name5-%d", i)),
+			FeatureWithLongName6:  new(fmt.Sprintf("feature_with_long_name6-%d", i)),
+			FeatureWithLongName7:  new(fmt.Sprintf("feature_with_long_name7-%d", i)),
+			FeatureWithLongName8:  new(fmt.Sprintf("feature_with_long_name8-%d", i)),
+			FeatureWithLongName9:  new(fmt.Sprintf("feature_with_long_name9-%d", i)),
+			FeatureWithLongName10: new(fmt.Sprintf("feature_with_long_name10-%d", i)),
+			FeatureWithLongName11: new(fmt.Sprintf("feature_with_long_name11-%d", i)),
+			FeatureWithLongName12: new(fmt.Sprintf("feature_with_long_name12-%d", i)),
+			FeatureWithLongName13: new(fmt.Sprintf("feature_with_long_name13-%d", i)),
 		})
 	}
 
@@ -1716,12 +1714,12 @@ func TestSerdeInfiniteLoopFeatures(t *testing.T) {
 		"inf_loop_user.id": []string{"user-1", "user-2"},
 		"inf_loop_user.account": []infLoopAccount{
 			{
-				Id:   ptr.New("acc-1"),
-				Name: ptr.New("hello"),
+				Id:   new("acc-1"),
+				Name: new("hello"),
 			},
 			{
-				Id:   ptr.New("acc-2"),
-				Name: ptr.New("world"),
+				Id:   new("acc-2"),
+				Name: new("world"),
 			},
 		},
 	}
@@ -1760,9 +1758,9 @@ func TestSerdeInfiniteLoopFeaturesA(t *testing.T) {
 		"inf_loop_a.id": []string{"a-1"},
 		"inf_loop_a.b": []infLoopB{
 			{
-				Id: ptr.New("b-1"),
+				Id: new("b-1"),
 				C: &infLoopC{
-					Id: ptr.New("c-1"),
+					Id: new("c-1"),
 				},
 			},
 		},
@@ -1827,25 +1825,25 @@ func TestSerdeInfiniteLoopFeaturesP(t *testing.T) {
 		"inf_loop_root.id": []string{"root-only"},
 		"inf_loop_root.p": []infLoopP{
 			{
-				Id: ptr.New("p-1"),
+				Id: new("p-1"),
 				Common: &infLoopCommon{
-					Id: ptr.New("common-1"),
+					Id: new("common-1"),
 					R: &infLoopR{
-						Id: ptr.New("r-1"),
+						Id: new("r-1"),
 					},
 					Z: &infLoopZ{
-						Id: ptr.New("z-1"),
+						Id: new("z-1"),
 					},
 				},
 				Q: &infLoopQ{
-					Id: ptr.New("q-1"),
+					Id: new("q-1"),
 					Common: &infLoopCommon{
-						Id: ptr.New("common-2"),
+						Id: new("common-2"),
 						R: &infLoopR{
-							Id: ptr.New("r-2"),
+							Id: new("r-2"),
 						},
 						Z: &infLoopZ{
-							Id: ptr.New("z-2"),
+							Id: new("z-2"),
 						},
 					},
 				},

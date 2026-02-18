@@ -3,14 +3,14 @@ package chalk
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
-	assert "github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
+	assert "github.com/stretchr/testify/require"
 )
 
 func TestOnlineQueryParamsAllTypes(t *testing.T) {
@@ -81,10 +81,10 @@ func TestOnlineQueryParamsOmitNilFields(t *testing.T) {
 	assert.NoError(t, initErr)
 	params := OnlineQueryParams{}.
 		WithInput(fixtureRoot.AllTypes.Nested, fixtures.LevelOneNest{
-			Id: ptr.New("1"),
+			Id: new("1"),
 		}).
 		WithInput(fixtureRoot.AllTypes.Dataclass, fixtures.LatLng{
-			Lat: ptr.New(1.1),
+			Lat: new(1.1),
 		})
 
 	resolved, err := params.underlying.resolveSingle()
@@ -180,9 +180,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.id":   []string{"user_1", "user_2", "user_3"},
 				"user.name": []string{"Alice", "Bob", "Chinedum"},
 				"user.txns": [][]omitTxn{
-					{{Id: ptr.New("txn_1"), Amount: ptr.New(100)}},
+					{{Id: new("txn_1"), Amount: new(100)}},
 					{},
-					{{Id: ptr.New("txn_3")}},
+					{{Id: new("txn_3")}},
 				},
 			},
 		},
@@ -193,8 +193,8 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.id": []string{"user_1"},
 				"user.txns": [][]omitTxn{
 					{
-						{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
-						{Id: ptr.New("txn_2")},
+						{Id: new("txn_1"), Amount: new(100)},
+						{Id: new("txn_2")},
 					},
 				},
 			},
@@ -205,9 +205,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.txn": []omitTxn{
-					{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+					{Id: new("txn_1"), Amount: new(100)},
 					{},
-					{Id: ptr.New("txn_3")},
+					{Id: new("txn_3")},
 				},
 			},
 		},
@@ -217,9 +217,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.txn": []*omitTxn{
-					{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+					{Id: new("txn_1"), Amount: new(100)},
 					nil,
-					{Id: ptr.New("txn_3")},
+					{Id: new("txn_3")},
 				},
 			},
 		},
@@ -230,13 +230,13 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.has_one": []omitHasOneRoot{
 					{
-						Id:  ptr.New("root_1"),
-						Txn: &omitTxn{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+						Id:  new("root_1"),
+						Txn: &omitTxn{Id: new("txn_1"), Amount: new(100)},
 					},
 					{},
 					{
-						Id:  ptr.New("root_3"),
-						Txn: &omitTxn{Id: ptr.New("txn_3")},
+						Id:  new("root_3"),
+						Txn: &omitTxn{Id: new("txn_3")},
 					},
 				},
 			},
@@ -249,15 +249,15 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.has_many": [][]omitHasOneRoot{
 					{
 						{
-							Id:  ptr.New("root_1"),
-							Txn: &omitTxn{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+							Id:  new("root_1"),
+							Txn: &omitTxn{Id: new("txn_1"), Amount: new(100)},
 						},
 					},
 					{},
 					{
 						{
-							Id:  ptr.New("root_3"),
-							Txn: &omitTxn{Id: ptr.New("txn_3")},
+							Id:  new("root_3"),
+							Txn: &omitTxn{Id: new("txn_3")},
 						},
 					},
 				},
@@ -270,16 +270,16 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.has_one": []omitHasManyRoot{
 					{
-						Id: ptr.New("root_1"),
+						Id: new("root_1"),
 						Txns: []*omitTxn{
-							{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+							{Id: new("txn_1"), Amount: new(100)},
 						},
 					},
 					{},
 					{
-						Id: ptr.New("root_3"),
+						Id: new("root_3"),
 						Txns: []*omitTxn{
-							{Id: ptr.New("txn_3")},
+							{Id: new("txn_3")},
 						},
 					},
 				},
@@ -293,18 +293,18 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 				"user.has_many": [][]omitHasManyRoot{
 					{
 						{
-							Id: ptr.New("root_1"),
+							Id: new("root_1"),
 							Txns: []*omitTxn{
-								{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+								{Id: new("txn_1"), Amount: new(100)},
 							},
 						},
 					},
 					{},
 					{
 						{
-							Id: ptr.New("root_3"),
+							Id: new("root_3"),
 							Txns: []*omitTxn{
-								{Id: ptr.New("txn_3")},
+								{Id: new("txn_3")},
 							},
 						},
 					},
@@ -317,9 +317,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.dataclass": []omitDataclass{
-					{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+					{Id: new("txn_1"), Amount: new(100)},
 					{},
-					{Id: ptr.New("txn_3")},
+					{Id: new("txn_3")},
 				},
 			},
 		},
@@ -329,9 +329,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.dataclass": []*omitDataclass{
-					{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+					{Id: new("txn_1"), Amount: new(100)},
 					nil,
-					{Id: ptr.New("txn_3")},
+					{Id: new("txn_3")},
 				},
 			},
 		},
@@ -341,9 +341,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.dataclasses": [][]omitDataclass{
-					{{Id: ptr.New("txn_1"), Amount: ptr.New(100)}},
+					{{Id: new("txn_1"), Amount: new(100)}},
 					{},
-					{{Id: ptr.New("txn_3")}},
+					{{Id: new("txn_3")}},
 				},
 			},
 		},
@@ -353,9 +353,9 @@ func TestBulkInputsOmitNilFields(t *testing.T) {
 			input: map[string]any{
 				"user.id": []string{"user_1", "user_2", "user_3"},
 				"user.dont": []omitDont{
-					{Id: ptr.New("txn_1"), Amount: ptr.New(100)},
+					{Id: new("txn_1"), Amount: new(100)},
 					{},
-					{Id: ptr.New("txn_3")},
+					{Id: new("txn_3")},
 				},
 			},
 		},
@@ -391,18 +391,18 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 	timestamp := time.Date(2021, 1, 2, 3, 4, 45, 123, time.UTC)
 	params := OnlineQueryParams{}.
 		WithInput(fixtureRoot.AllTypes.Nested, fixtures.LevelOneNest{
-			Id: ptr.New("1"),
+			Id: new("1"),
 			Nested: &fixtures.LevelTwoNest{
-				Id: ptr.New("2"),
+				Id: new("2"),
 			},
 		}).
 		WithInput(fixtureRoot.AllTypes.HasMany, []fixtures.HasMany{
 			{
-				Id:        ptr.New("1"),
-				Int:       ptr.New(int64(1)),
-				Float:     ptr.New(float64(1.1)),
-				String:    ptr.New("abc"),
-				Bool:      ptr.New(true),
+				Id:        new("1"),
+				Int:       new(int64(1)),
+				Float:     new(float64(1.1)),
+				String:    new("abc"),
+				Bool:      new(true),
 				Timestamp: &timestamp,
 				IntList:   &[]int64{1, 2, 3},
 				NestedIntPointerList: &[]*[]int64{
@@ -412,9 +412,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					{int64(1), int64(2)},
 				},
 				WindowedInt: map[string]*int64{
-					"1m": ptr.New(int64(1)),
-					"5m": ptr.New(int64(2)),
-					"1h": ptr.New(int64(3)),
+					"1m": new(int64(1)),
+					"5m": new(int64(2)),
+					"1h": new(int64(3)),
 				},
 				WindowedList: map[string]*[]int64{
 					"1m": {1, 2, 3},
@@ -422,13 +422,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"1h": {7, 8, 9},
 				},
 				Dataclass: &fixtures.LatLng{
-					Lat: ptr.New(1.1),
-					Lng: ptr.New(2.2),
+					Lat: new(1.1),
+					Lng: new(2.2),
 				},
 				DataclassList: &[]fixtures.LatLng{
 					{
-						Lat: ptr.New(3.3),
-						Lng: ptr.New(4.4),
+						Lat: new(3.3),
+						Lng: new(4.4),
 					},
 				},
 				DataclassWithList: &fixtures.FavoriteThings{
@@ -436,30 +436,30 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Words:   &[]string{"a", "b", "c"},
 				},
 				DataclassWithNils: &fixtures.Possessions{
-					Car:   ptr.New("car"),
-					Yacht: ptr.New("yacht"),
-					Plane: ptr.New("plane"),
+					Car:   new("car"),
+					Yacht: new("yacht"),
+					Plane: new("plane"),
 				},
 				// CHA-5430
 				//DataclassWithDataclass: &fixtures.Child{
-				//	Name: ptr.New("fixtures.Child"),
+				//	Name: new("fixtures.Child"),
 				//	Mom: &fixtures.Parent{
-				//		Name: ptr.New("mom"),
+				//		Name: new("mom"),
 				//		Mom: &fixtures.Grandparent{
-				//			Name: ptr.New("grandma"),
+				//			Name: new("grandma"),
 				//		},
 				//	},
 				//},
 				DataclassWithOverrides: &fixtures.DclassWithOverrides{
-					CamelName: ptr.New("camel"),
+					CamelName: new("camel"),
 				},
 			},
 			{
-				Id:        ptr.New("2"),
-				Int:       ptr.New(int64(2)),
-				Float:     ptr.New(float64(2.2)),
-				String:    ptr.New("def"),
-				Bool:      ptr.New(false),
+				Id:        new("2"),
+				Int:       new(int64(2)),
+				Float:     new(float64(2.2)),
+				String:    new("def"),
+				Bool:      new(false),
 				Timestamp: &timestamp,
 				IntList:   &[]int64{4, 5, 6},
 				NestedIntPointerList: &[]*[]int64{
@@ -469,9 +469,9 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					{int64(3), int64(4)},
 				},
 				WindowedInt: map[string]*int64{
-					"1m": ptr.New(int64(4)),
-					"5m": ptr.New(int64(5)),
-					"1h": ptr.New(int64(6)),
+					"1m": new(int64(4)),
+					"5m": new(int64(5)),
+					"1h": new(int64(6)),
 				},
 				WindowedList: map[string]*[]int64{
 					"1m": {4, 5, 6},
@@ -479,13 +479,13 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					"1h": {10, 11, 12},
 				},
 				Dataclass: &fixtures.LatLng{
-					Lat: ptr.New(5.5),
-					Lng: ptr.New(6.6),
+					Lat: new(5.5),
+					Lng: new(6.6),
 				},
 				DataclassList: &[]fixtures.LatLng{
 					{
-						Lat: ptr.New(7.7),
-						Lng: ptr.New(8.8),
+						Lat: new(7.7),
+						Lng: new(8.8),
 					},
 				},
 				DataclassWithList: &fixtures.FavoriteThings{
@@ -493,19 +493,19 @@ func TestOnlineQueryInputsAllTypes(t *testing.T) {
 					Words:   &[]string{"d", "e", "f"},
 				},
 				DataclassWithNils: &fixtures.Possessions{
-					Car:   ptr.New("car2"),
-					Yacht: ptr.New("yacht2"),
-					Plane: ptr.New("plane2"),
+					Car:   new("car2"),
+					Yacht: new("yacht2"),
+					Plane: new("plane2"),
 				},
 				// CHA-5430
 				//DataclassWithDataclass: &fixtures.Child{
-				//	Name: ptr.New("child2"),
+				//	Name: new("child2"),
 				//	Mom: &fixtures.Parent{
-				//		Name: ptr.New("mom2"),
+				//		Name: new("mom2"),
 				//	},
 				//},
 				DataclassWithOverrides: &fixtures.DclassWithOverrides{
-					CamelName: ptr.New("camel2"),
+					CamelName: new("camel2"),
 				},
 			},
 		})

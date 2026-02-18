@@ -2,15 +2,14 @@ package chalk
 
 import (
 	"encoding/json"
-	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
-	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -139,21 +138,21 @@ func TestSerializingDataclassNestedInFeaturesClass(t *testing.T) {
 
 	transactions := []SerdeTransaction{
 		{
-			Id:         ptr.New("1"),
-			LocationId: ptr.New(int64(1)),
+			Id:         new("1"),
+			LocationId: new(int64(1)),
 			Details: &SerdeDetails{
-				Name:      ptr.New("name"),
-				OutAmount: ptr.New(2.2),
-				InAmount:  ptr.New(3.3),
+				Name:      new("name"),
+				OutAmount: new(2.2),
+				InAmount:  new(3.3),
 			},
 		},
 		{
-			Id:         ptr.New("2"),
-			LocationId: ptr.New(int64(2)),
+			Id:         new("2"),
+			LocationId: new(int64(2)),
 			Details: &SerdeDetails{
-				Name:      ptr.New("name2"),
-				OutAmount: ptr.New(3.2),
-				InAmount:  ptr.New(4.3),
+				Name:      new("name2"),
+				OutAmount: new(3.2),
+				InAmount:  new(4.3),
 			},
 		},
 	}
@@ -252,20 +251,20 @@ func TestInlineTimestampFormatting(t *testing.T) {
 		// UTC timestamp
 		{
 			name:     "UTC timestamp",
-			time:     timePtr(time.Date(2024, 5, 9, 22, 29, 0, 0, utc)),
-			expected: stringPtr("2024-05-09T22:29:00+00:00"),
+			time:     new(time.Date(2024, 5, 9, 22, 29, 0, 0, utc)),
+			expected: new("2024-05-09T22:29:00+00:00"),
 		},
 		// EST timestamp
 		{
 			name:     "EST timestamp",
-			time:     timePtr(time.Date(2024, 5, 9, 18, 29, 0, 0, est)),
-			expected: stringPtr("2024-05-09T18:29:00-04:00"),
+			time:     new(time.Date(2024, 5, 9, 18, 29, 0, 0, est)),
+			expected: new("2024-05-09T18:29:00-04:00"),
 		},
 		// PST timestamp
 		{
 			name:     "PST timestamp",
-			time:     timePtr(time.Date(2024, 5, 9, 15, 29, 0, 0, pst)),
-			expected: stringPtr("2024-05-09T15:29:00-07:00"),
+			time:     new(time.Date(2024, 5, 9, 15, 29, 0, 0, pst)),
+			expected: new("2024-05-09T15:29:00-07:00"),
 		},
 	}
 
@@ -294,7 +293,7 @@ func TestTimestampSerializationIntegration(t *testing.T) {
 	upperBound := time.Date(2024, 5, 9, 16, 29, 0, 0, time.UTC)
 
 	params := &OfflineQueryParams{
-		CompletionDeadline:   durationPtr(2 * time.Hour),
+		CompletionDeadline:   new(time.Duration(2 * time.Hour)),
 		ObservedAtLowerBound: &lowerBound,
 		ObservedAtUpperBound: &upperBound,
 	}
@@ -322,18 +321,6 @@ func TestTimestampSerializationIntegration(t *testing.T) {
 }
 
 // Helper functions for testing
-func timePtr(t time.Time) *time.Time {
-	return &t
-}
-
-func durationPtr(d time.Duration) *time.Duration {
-	return &d
-}
-
-func stringPtr(s string) *string {
-	return &s
-}
-
 func stringPtrEqual(a, b *string) bool {
 	if a == nil && b == nil {
 		return true
@@ -435,12 +422,12 @@ func TestOfflineQuerySerializationWithFileInput(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Parse the JSON to verify structure
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
 
 	// Verify that input is an OfflineQueryInputUri
-	input, ok := result["input"].(map[string]interface{})
+	input, ok := result["input"].(map[string]any)
 	assert.True(t, ok, "input should be a map")
 	assert.Equal(t, fileUri, input["parquet_uri"])
 	assert.NotContains(t, input, "columns")
@@ -470,12 +457,12 @@ func TestOfflineQuerySerializationWithRegularInput(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Parse the JSON to verify structure
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
 
 	// Verify that input is an OfflineQueryInputSerialized
-	input, ok := result["input"].(map[string]interface{})
+	input, ok := result["input"].(map[string]any)
 	assert.True(t, ok, "input should be a map")
 	assert.Contains(t, input, "columns")
 	assert.Contains(t, input, "values")
@@ -501,7 +488,7 @@ func TestOfflineQuerySerializationWithRecomputeFeatures(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Parse the JSON to verify structure
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
 
@@ -531,12 +518,12 @@ func TestOfflineQuerySerializationWithRecomputeFeaturesList(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Parse the JSON to verify structure
-	var result map[string]interface{}
+	var result map[string]any
 	err = json.Unmarshal(serialized, &result)
 	assert.NoError(t, err)
 
 	// Verify that recompute_features is an array
-	recomputeFeaturesInterface, ok := result["recompute_features"].([]interface{})
+	recomputeFeaturesInterface, ok := result["recompute_features"].([]any)
 	assert.True(t, ok, "recompute_features should be an array")
 
 	// Convert to string array and verify contents

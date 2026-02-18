@@ -2,16 +2,16 @@ package benchmark
 
 import (
 	"fmt"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/apache/arrow/go/v16/arrow"
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/chalk-ai/chalk-go"
 	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/chalk-ai/chalk-go/internal/tests/fixtures"
 	assert "github.com/stretchr/testify/require"
-	"sync"
-	"testing"
-	"time"
 )
 
 func getBenchmarkBulkMultiNsPrimitives(b *testing.B, numRows int) func() {
@@ -414,11 +414,11 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 		bulkData["all_types.windowed_int__300__"].([]int)[i] = 2
 		bulkData["all_types.windowed_int__3600__"].([]int)[i] = 3
 		bulkData["all_types.windowed_list__60__"].([][]int)[i] = []int{4}
-		bulkData["all_types.dataclass"].([]fixtures.LatLng)[i] = fixtures.LatLng{Lat: ptr.New(1.0), Lng: ptr.New(1.0)}
-		bulkData["all_types.dataclass_list"].([][]fixtures.LatLng)[i] = []fixtures.LatLng{fixtures.LatLng{Lat: ptr.New(1.0), Lng: ptr.New(1.0)}}
+		bulkData["all_types.dataclass"].([]fixtures.LatLng)[i] = fixtures.LatLng{Lat: new(1.0), Lng: new(1.0)}
+		bulkData["all_types.dataclass_list"].([][]fixtures.LatLng)[i] = []fixtures.LatLng{fixtures.LatLng{Lat: new(1.0), Lng: new(1.0)}}
 		bulkData["all_types.dataclass_with_list"].([]fixtures.FavoriteThings)[i] = fixtures.FavoriteThings{Numbers: &[]int64{1}}
-		bulkData["all_types.dataclass_with_dataclass"].([]fixtures.Child)[i] = fixtures.Child{Name: ptr.New("child"), Mom: &fixtures.Parent{Name: ptr.New("mom-1")}, Dad: &fixtures.Parent{Name: ptr.New("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.New("dad-1-mom")}}}
-		bulkData["all_types.nested"].([]fixtures.LevelOneNest)[i] = fixtures.LevelOneNest{Id: ptr.New("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.New("level-2-id")}}
+		bulkData["all_types.dataclass_with_dataclass"].([]fixtures.Child)[i] = fixtures.Child{Name: new("child"), Mom: &fixtures.Parent{Name: new("mom-1")}, Dad: &fixtures.Parent{Name: new("dad-1"), Mom: &fixtures.Grandparent{Name: new("dad-1-mom")}}}
+		bulkData["all_types.nested"].([]fixtures.LevelOneNest)[i] = fixtures.LevelOneNest{Id: new("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: new("level-2-id")}}
 	}
 
 	record, err := internal.ColumnMapToRecord(bulkData, fixtures.TestAllocator)
@@ -448,11 +448,11 @@ func getBenchmarkUnmarshalBulkAllTypes(b *testing.B) func() {
 				assert.Equal(b, int64(2), *allTypes[i].WindowedInt["5m"])
 				assert.Equal(b, int64(3), *allTypes[i].WindowedInt["1h"])
 				assert.Equal(b, []int64{4}, *allTypes[i].WindowedList["1m"])
-				assert.Equal(b, fixtures.LatLng{Lat: ptr.New(1.0), Lng: ptr.New(1.0)}, *allTypes[i].Dataclass)
-				assert.Equal(b, []fixtures.LatLng{fixtures.LatLng{Lat: ptr.New(1.0), Lng: ptr.New(1.0)}}, *allTypes[i].DataclassList)
+				assert.Equal(b, fixtures.LatLng{Lat: new(1.0), Lng: new(1.0)}, *allTypes[i].Dataclass)
+				assert.Equal(b, []fixtures.LatLng{fixtures.LatLng{Lat: new(1.0), Lng: new(1.0)}}, *allTypes[i].DataclassList)
 				assert.Equal(b, fixtures.FavoriteThings{Numbers: &[]int64{1}}, *allTypes[i].DataclassWithList)
-				assert.Equal(b, fixtures.Child{Name: ptr.New("child"), Mom: &fixtures.Parent{Name: ptr.New("mom-1")}, Dad: &fixtures.Parent{Name: ptr.New("dad-1"), Mom: &fixtures.Grandparent{Name: ptr.New("dad-1-mom")}}}, *allTypes[i].DataclassWithDataclass)
-				assert.Equal(b, fixtures.LevelOneNest{Id: ptr.New("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: ptr.New("level-2-id")}}, *allTypes[i].Nested)
+				assert.Equal(b, fixtures.Child{Name: new("child"), Mom: &fixtures.Parent{Name: new("mom-1")}, Dad: &fixtures.Parent{Name: new("dad-1"), Mom: &fixtures.Grandparent{Name: new("dad-1-mom")}}}, *allTypes[i].DataclassWithDataclass)
+				assert.Equal(b, fixtures.LevelOneNest{Id: new("level-1-id"), Nested: &fixtures.LevelTwoNest{Id: new("level-2-id")}}, *allTypes[i].Nested)
 			}
 		})
 	}

@@ -130,7 +130,7 @@ func initFeatures(
 			}
 
 			windows := fm.Meta.Tag.Get("windows")
-			for _, tag := range strings.Split(windows, ",") {
+			for tag := range strings.SplitSeq(windows, ",") {
 				seconds, err := internal.ParseBucketDuration(tag)
 				if err != nil {
 					return errors.Wrap(err, "error parsing bucket duration: %s")
@@ -203,7 +203,7 @@ func initFeatures(
  *  }
  */
 func WarmUpUnmarshaller[T any](featureStruct *T) error {
-	elemType := reflect.TypeOf(featureStruct).Elem()
+	elemType := reflect.TypeFor[T]()
 	if elemType.Kind() != reflect.Struct {
 		return fmt.Errorf(
 			"argument must be a pointer to a struct, found a pointer to `%s` instead",
@@ -214,7 +214,7 @@ func WarmUpUnmarshaller[T any](featureStruct *T) error {
 }
 
 func pointerCheck(field reflect.Value) error {
-	if field.Kind() != reflect.Ptr {
+	if field.Kind() != reflect.Pointer {
 		return fmt.Errorf("expected a pointer type but found %s -- make sure the generated feature structs are unchanged, and that every field is of a pointer type except for Windowed feature types", field.Kind())
 	}
 	return nil
