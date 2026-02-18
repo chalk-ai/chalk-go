@@ -59,7 +59,6 @@ func convertNumber[T Numbers](anyNumber any) (T, error) {
 func IsTypeDataclass(typ reflect.Type) bool {
 	if typ.Kind() == reflect.Struct {
 		for fieldMeta := range typ.Fields() {
-			fieldMeta := fieldMeta
 			if fieldMeta.Tag.Get("dataclass_field") == "true" {
 				return true
 			}

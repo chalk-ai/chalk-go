@@ -1,3 +1,3 @@
 module github.com/chalk-ai/chalk-go/downloader
 
-go 1.24.4
+go 1.26.0
