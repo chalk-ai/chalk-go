@@ -6,6 +6,7 @@ import (
 	"time"
 
 	chalk "github.com/chalk-ai/chalk-go"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,11 +40,11 @@ func TestOnlineQuery(t *testing.T) {
 	// Verify results from both implicit and explicit unmarshalling
 	for _, result := range []allTypes{implicitResult, explicitResult} {
 		assert.NotNil(t, result.Id)
-		assert.Equal(t, int64(1), *result.Id)
+		assert.Equal(t, int64(1), lo.FromPtr(result.Id))
 		assert.NotNil(t, result.StrFeat)
-		assert.Equal(t, "1", *result.StrFeat)
+		assert.Equal(t, "1", lo.FromPtr(result.StrFeat))
 		assert.NotNil(t, result.IntFeat)
-		assert.Equal(t, int64(1), *result.IntFeat)
+		assert.Equal(t, int64(1), lo.FromPtr(result.IntFeat))
 	}
 }
 
@@ -77,12 +78,12 @@ func TestOnlineQueryBulk(t *testing.T) {
 				assert.NoError(t, res.UnmarshalInto(&results))
 			}
 			assert.Equal(t, 2, len(results))
-			assert.Equal(t, ids[0], *results[0].Id)
-			assert.Equal(t, "1", *results[0].StrFeat)
-			assert.Equal(t, int64(1), *results[0].IntFeat)
-			assert.Equal(t, ids[1], *results[1].Id)
-			assert.Equal(t, "2", *results[1].StrFeat)
-			assert.Equal(t, int64(2), *results[1].IntFeat)
+			assert.Equal(t, ids[0], lo.FromPtr(results[0].Id))
+			assert.Equal(t, "1", lo.FromPtr(results[0].StrFeat))
+			assert.Equal(t, int64(1), lo.FromPtr(results[0].IntFeat))
+			assert.Equal(t, ids[1], lo.FromPtr(results[1].Id))
+			assert.Equal(t, "2", lo.FromPtr(results[1].StrFeat))
+			assert.Equal(t, int64(2), lo.FromPtr(results[1].IntFeat))
 		})
 	}
 }
