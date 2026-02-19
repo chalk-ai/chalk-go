@@ -77,6 +77,34 @@ func (h *integrationsServiceHandler) GetIntegration(
 	return connect.NewResponse(resp.(*serverv1.GetIntegrationResponse)), nil
 }
 
+// GetIntegrationValue implements the GetIntegrationValue RPC method.
+func (h *integrationsServiceHandler) GetIntegrationValue(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetIntegrationValueRequest],
+) (*connect.Response[serverv1.GetIntegrationValueResponse], error) {
+	h.registry.CaptureRequest("GetIntegrationValue", req.Msg)
+
+	if behavior := h.registry.GetBehavior("GetIntegrationValue"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetIntegrationValueResponse)), nil
+	}
+
+	if err := h.registry.GetError("GetIntegrationValue"); err != nil {
+		return nil, err
+	}
+
+	resp := h.registry.GetResponse("GetIntegrationValue")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound,
+			errors.New("no mock response configured for GetIntegrationValue"))
+	}
+
+	return connect.NewResponse(resp.(*serverv1.GetIntegrationValueResponse)), nil
+}
+
 // UpdateIntegration implements the UpdateIntegration RPC method.
 func (h *integrationsServiceHandler) UpdateIntegration(
 	ctx context.Context,
