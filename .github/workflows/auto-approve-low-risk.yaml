@@ -26,7 +26,8 @@ jobs:
         id: check_allowlist
         run: |
           ALLOWLIST=( 
-            "gen/chalk/"
+            "gen/chalk/",
+            "testserver/"
           )
           CHANGES=$(<files_changed.txt)
           ALL_ALLOWED=true
