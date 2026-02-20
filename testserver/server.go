@@ -195,6 +195,14 @@ func (s *MockServer) OnGetIntegration() *MethodConfigBuilder[*serverv1.GetIntegr
 	}
 }
 
+// OnGetIntegrationValue configures the GetIntegrationValue RPC method.
+func (s *MockServer) OnGetIntegrationValue() *MethodConfigBuilder[*serverv1.GetIntegrationValueResponse] {
+	return &MethodConfigBuilder[*serverv1.GetIntegrationValueResponse]{
+		methodName: "GetIntegrationValue",
+		registry:   s.registry,
+	}
+}
+
 // OnUpdateIntegration configures the UpdateIntegration RPC method.
 func (s *MockServer) OnUpdateIntegration() *MethodConfigBuilder[*serverv1.UpdateIntegrationResponse] {
 	return &MethodConfigBuilder[*serverv1.UpdateIntegrationResponse]{
