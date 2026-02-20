@@ -4,6 +4,7 @@ on:
   pull_request_target:
     paths:
       - 'gen/chalk/**'
+      - 'testserver/**'
 jobs:
   auto-approve:
     runs-on: ubuntu-latest
@@ -25,8 +26,8 @@ jobs:
       - name: Check Changes Against Allowlist
         id: check_allowlist
         run: |
-          ALLOWLIST=( 
-            "gen/chalk/",
+          ALLOWLIST=(
+            "gen/chalk/"
             "testserver/"
           )
           CHANGES=$(<files_changed.txt)
