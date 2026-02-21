@@ -328,6 +328,54 @@ func (s *MockServer) OnDeleteBindingClusterTelemetryDeployment() *MethodConfigBu
 	}
 }
 
+// OnCreateBindingEnvironmentGateway configures the CreateBindingEnvironmentGateway RPC method.
+func (s *MockServer) OnCreateBindingEnvironmentGateway() *MethodConfigBuilder[*serverv1.CreateBindingEnvironmentGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingEnvironmentGatewayResponse]{
+		methodName: "CreateBindingEnvironmentGateway",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingEnvironmentGateway configures the GetBindingEnvironmentGateway RPC method.
+func (s *MockServer) OnGetBindingEnvironmentGateway() *MethodConfigBuilder[*serverv1.GetBindingEnvironmentGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingEnvironmentGatewayResponse]{
+		methodName: "GetBindingEnvironmentGateway",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingEnvironmentGateway configures the DeleteBindingEnvironmentGateway RPC method.
+func (s *MockServer) OnDeleteBindingEnvironmentGateway() *MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentGatewayResponse]{
+		methodName: "DeleteBindingEnvironmentGateway",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateBindingEnvironmentBackgroundPersistenceDeployment configures the CreateBindingEnvironmentBackgroundPersistenceDeployment RPC method.
+func (s *MockServer) OnCreateBindingEnvironmentBackgroundPersistenceDeployment() *MethodConfigBuilder[*serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse]{
+		methodName: "CreateBindingEnvironmentBackgroundPersistenceDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingEnvironmentBackgroundPersistenceDeployment configures the GetBindingEnvironmentBackgroundPersistenceDeployment RPC method.
+func (s *MockServer) OnGetBindingEnvironmentBackgroundPersistenceDeployment() *MethodConfigBuilder[*serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse]{
+		methodName: "GetBindingEnvironmentBackgroundPersistenceDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingEnvironmentBackgroundPersistenceDeployment configures the DeleteBindingEnvironmentBackgroundPersistenceDeployment RPC method.
+func (s *MockServer) OnDeleteBindingEnvironmentBackgroundPersistenceDeployment() *MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse]{
+		methodName: "DeleteBindingEnvironmentBackgroundPersistenceDeployment",
+		registry:   s.registry,
+	}
+}
+
 // GetCapturedRequests returns all requests captured for the given method name.
 // This is useful for test assertions.
 func (s *MockServer) GetCapturedRequests(methodName string) []proto.Message {

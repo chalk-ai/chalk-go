@@ -284,3 +284,135 @@ func (h *cloudComponentsServiceHandler) DeleteBindingClusterTelemetryDeployment(
 	}
 	return connect.NewResponse(resp.(*serverv1.DeleteBindingClusterTelemetryDeploymentResponse)), nil
 }
+
+func (h *cloudComponentsServiceHandler) CreateBindingEnvironmentGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateBindingEnvironmentGatewayRequest],
+) (*connect.Response[serverv1.CreateBindingEnvironmentGatewayResponse], error) {
+	h.registry.CaptureRequest("CreateBindingEnvironmentGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateBindingEnvironmentGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("CreateBindingEnvironmentGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateBindingEnvironmentGateway")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateBindingEnvironmentGateway"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentGatewayResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetBindingEnvironmentGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetBindingEnvironmentGatewayRequest],
+) (*connect.Response[serverv1.GetBindingEnvironmentGatewayResponse], error) {
+	h.registry.CaptureRequest("GetBindingEnvironmentGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("GetBindingEnvironmentGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("GetBindingEnvironmentGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetBindingEnvironmentGateway")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetBindingEnvironmentGateway"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentGatewayResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteBindingEnvironmentGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteBindingEnvironmentGatewayRequest],
+) (*connect.Response[serverv1.DeleteBindingEnvironmentGatewayResponse], error) {
+	h.registry.CaptureRequest("DeleteBindingEnvironmentGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteBindingEnvironmentGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteBindingEnvironmentGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteBindingEnvironmentGateway")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for DeleteBindingEnvironmentGateway"))
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentGatewayResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateBindingEnvironmentBackgroundPersistenceDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest],
+) (*connect.Response[serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
+	h.registry.CaptureRequest("CreateBindingEnvironmentBackgroundPersistenceDeployment", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateBindingEnvironmentBackgroundPersistenceDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+	}
+	if err := h.registry.GetError("CreateBindingEnvironmentBackgroundPersistenceDeployment"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateBindingEnvironmentBackgroundPersistenceDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateBindingEnvironmentBackgroundPersistenceDeployment"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetBindingEnvironmentBackgroundPersistenceDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest],
+) (*connect.Response[serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
+	h.registry.CaptureRequest("GetBindingEnvironmentBackgroundPersistenceDeployment", req.Msg)
+	if behavior := h.registry.GetBehavior("GetBindingEnvironmentBackgroundPersistenceDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+	}
+	if err := h.registry.GetError("GetBindingEnvironmentBackgroundPersistenceDeployment"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetBindingEnvironmentBackgroundPersistenceDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetBindingEnvironmentBackgroundPersistenceDeployment"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteBindingEnvironmentBackgroundPersistenceDeployment(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest],
+) (*connect.Response[serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
+	h.registry.CaptureRequest("DeleteBindingEnvironmentBackgroundPersistenceDeployment", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteBindingEnvironmentBackgroundPersistenceDeployment"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteBindingEnvironmentBackgroundPersistenceDeployment"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteBindingEnvironmentBackgroundPersistenceDeployment")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for DeleteBindingEnvironmentBackgroundPersistenceDeployment"))
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
+}
