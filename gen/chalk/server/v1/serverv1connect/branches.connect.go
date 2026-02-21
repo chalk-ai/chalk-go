@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// BranchServiceGetBranchWithLatestDeploymentProcedure is the fully-qualified name of the
+	// BranchService's GetBranchWithLatestDeployment RPC.
+	BranchServiceGetBranchWithLatestDeploymentProcedure = "/chalk.server.v1.BranchService/GetBranchWithLatestDeployment"
 	// BranchServiceListBranchWithLatestDeploymentsProcedure is the fully-qualified name of the
 	// BranchService's ListBranchWithLatestDeployments RPC.
 	BranchServiceListBranchWithLatestDeploymentsProcedure = "/chalk.server.v1.BranchService/ListBranchWithLatestDeployments"
@@ -40,6 +43,7 @@ const (
 
 // BranchServiceClient is a client for the chalk.server.v1.BranchService service.
 type BranchServiceClient interface {
+	GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error)
 	ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error)
 }
 
@@ -54,6 +58,12 @@ func NewBranchServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 	baseURL = strings.TrimRight(baseURL, "/")
 	branchServiceMethods := v1.File_chalk_server_v1_branches_proto.Services().ByName("BranchService").Methods()
 	return &branchServiceClient{
+		getBranchWithLatestDeployment: connect.NewClient[v1.GetBranchWithLatestDeploymentRequest, v1.GetBranchWithLatestDeploymentResponse](
+			httpClient,
+			baseURL+BranchServiceGetBranchWithLatestDeploymentProcedure,
+			connect.WithSchema(branchServiceMethods.ByName("GetBranchWithLatestDeployment")),
+			connect.WithClientOptions(opts...),
+		),
 		listBranchWithLatestDeployments: connect.NewClient[v1.ListBranchWithLatestDeploymentsRequest, v1.ListBranchWithLatestDeploymentsResponse](
 			httpClient,
 			baseURL+BranchServiceListBranchWithLatestDeploymentsProcedure,
@@ -65,7 +75,13 @@ func NewBranchServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 
 // branchServiceClient implements BranchServiceClient.
 type branchServiceClient struct {
+	getBranchWithLatestDeployment   *connect.Client[v1.GetBranchWithLatestDeploymentRequest, v1.GetBranchWithLatestDeploymentResponse]
 	listBranchWithLatestDeployments *connect.Client[v1.ListBranchWithLatestDeploymentsRequest, v1.ListBranchWithLatestDeploymentsResponse]
+}
+
+// GetBranchWithLatestDeployment calls chalk.server.v1.BranchService.GetBranchWithLatestDeployment.
+func (c *branchServiceClient) GetBranchWithLatestDeployment(ctx context.Context, req *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error) {
+	return c.getBranchWithLatestDeployment.CallUnary(ctx, req)
 }
 
 // ListBranchWithLatestDeployments calls
@@ -76,6 +92,7 @@ func (c *branchServiceClient) ListBranchWithLatestDeployments(ctx context.Contex
 
 // BranchServiceHandler is an implementation of the chalk.server.v1.BranchService service.
 type BranchServiceHandler interface {
+	GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error)
 	ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error)
 }
 
@@ -86,6 +103,12 @@ type BranchServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewBranchServiceHandler(svc BranchServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	branchServiceMethods := v1.File_chalk_server_v1_branches_proto.Services().ByName("BranchService").Methods()
+	branchServiceGetBranchWithLatestDeploymentHandler := connect.NewUnaryHandler(
+		BranchServiceGetBranchWithLatestDeploymentProcedure,
+		svc.GetBranchWithLatestDeployment,
+		connect.WithSchema(branchServiceMethods.ByName("GetBranchWithLatestDeployment")),
+		connect.WithHandlerOptions(opts...),
+	)
 	branchServiceListBranchWithLatestDeploymentsHandler := connect.NewUnaryHandler(
 		BranchServiceListBranchWithLatestDeploymentsProcedure,
 		svc.ListBranchWithLatestDeployments,
@@ -94,6 +117,8 @@ func NewBranchServiceHandler(svc BranchServiceHandler, opts ...connect.HandlerOp
 	)
 	return "/chalk.server.v1.BranchService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case BranchServiceGetBranchWithLatestDeploymentProcedure:
+			branchServiceGetBranchWithLatestDeploymentHandler.ServeHTTP(w, r)
 		case BranchServiceListBranchWithLatestDeploymentsProcedure:
 			branchServiceListBranchWithLatestDeploymentsHandler.ServeHTTP(w, r)
 		default:
@@ -104,6 +129,10 @@ func NewBranchServiceHandler(svc BranchServiceHandler, opts ...connect.HandlerOp
 
 // UnimplementedBranchServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedBranchServiceHandler struct{}
+
+func (UnimplementedBranchServiceHandler) GetBranchWithLatestDeployment(context.Context, *connect.Request[v1.GetBranchWithLatestDeploymentRequest]) (*connect.Response[v1.GetBranchWithLatestDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BranchService.GetBranchWithLatestDeployment is not implemented"))
+}
 
 func (UnimplementedBranchServiceHandler) ListBranchWithLatestDeployments(context.Context, *connect.Request[v1.ListBranchWithLatestDeploymentsRequest]) (*connect.Response[v1.ListBranchWithLatestDeploymentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BranchService.ListBranchWithLatestDeployments is not implemented"))
