@@ -1,9 +1,11 @@
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 h1:PMmTMyvHScV9Mn8wc6ASge9uRcHy0jtqPd+fM35LmsQ=
+buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1/go.mod h1:tvtbpgaVXZX4g6Pn+AnzFycuRK3MOz5HJfEGeEllXYM=
 connectrpc.com/connect v1.19.0 h1:LuqUbq01PqbtL0o7vn0WMRXzR2nNsiINe5zfcJ24pJM=
 connectrpc.com/connect v1.19.0/go.mod h1:tN20fjdGlewnSFeZxLKb0xwIZ6ozc3OQs2hTXy4du9w=
 github.com/apache/arrow/go/v16 v16.1.0 h1:dwgfOya6s03CzH9JrjCBx6bkVb4yPD4ma3haj9p7FXI=
 github.com/apache/arrow/go/v16 v16.1.0/go.mod h1:9wnc9mn6vEDTRIm4+27pEjQpRKuTvBaessPoEXQzxWA=
-github.com/chalk-ai/chalk-go/gen v1.2.183 h1:s6tz3DbROVmluwZmbisldg6nL0LRR73h99HHoCneDUs=
-github.com/chalk-ai/chalk-go/gen v1.2.183/go.mod h1:BTe3iZm8nW+FtlkVk1eVRjkl2oN/r4B/8judkGEqPNs=
+github.com/chalk-ai/chalk-go/gen v1.2.194 h1:4UDyWclJQAZ+mCx5XTPiQatHOtTTHm0jZ73yFFqKk08=
+github.com/chalk-ai/chalk-go/gen v1.2.194/go.mod h1:7PRwtgDX+0SCdFQqTjmPoLnJPhSOB1guweA+ANV01KI=
 github.com/cockroachdb/errors v1.12.0 h1:d7oCs6vuIMUQRVbi6jWWWEJZahLCfJpnJSVobd1/sUo=
 github.com/cockroachdb/errors v1.12.0/go.mod h1:SvzfYNNBshAVbZ8wzNc/UPK3w1vf0dKDUP41ucAIf7g=
 github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 h1:ASDL+UJcILMqgNeV5jiqR4j+sTuvQNHdf2chuKj1M5k=
