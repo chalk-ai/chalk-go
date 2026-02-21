@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	connectrpc.com/connect v1.19.0
 	github.com/apache/arrow/go/v16 v16.1.0
-	github.com/chalk-ai/chalk-go/gen v1.2.183
+	github.com/chalk-ai/chalk-go/gen v1.2.194
 	github.com/cockroachdb/errors v1.12.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/samber/lo v1.52.0
@@ -17,6 +17,7 @@ require (
 )
 
 require (
+	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260209202127-80ab13bee0bf.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20241215232642-bb51bb14a506 // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
