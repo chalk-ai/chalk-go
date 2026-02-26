@@ -52,6 +52,21 @@ const (
 	// OfflineStoreConnectionServiceTestOfflineStoreConnectionProcedure is the fully-qualified name of
 	// the OfflineStoreConnectionService's TestOfflineStoreConnection RPC.
 	OfflineStoreConnectionServiceTestOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/TestOfflineStoreConnection"
+	// OfflineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionProcedure is the
+	// fully-qualified name of the OfflineStoreConnectionService's
+	// CreateBindingEnvironmentOfflineStoreConnection RPC.
+	OfflineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/CreateBindingEnvironmentOfflineStoreConnection"
+	// OfflineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionProcedure is the
+	// fully-qualified name of the OfflineStoreConnectionService's
+	// GetBindingEnvironmentOfflineStoreConnection RPC.
+	OfflineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/GetBindingEnvironmentOfflineStoreConnection"
+	// OfflineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionProcedure is the
+	// fully-qualified name of the OfflineStoreConnectionService's
+	// DeleteBindingEnvironmentOfflineStoreConnection RPC.
+	OfflineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/DeleteBindingEnvironmentOfflineStoreConnection"
+	// OfflineStoreConnectionServiceMigrateOfflineStoreConnectionProcedure is the fully-qualified name
+	// of the OfflineStoreConnectionService's MigrateOfflineStoreConnection RPC.
+	OfflineStoreConnectionServiceMigrateOfflineStoreConnectionProcedure = "/chalk.server.v1.OfflineStoreConnectionService/MigrateOfflineStoreConnection"
 )
 
 // OfflineStoreConnectionServiceClient is a client for the
@@ -63,6 +78,10 @@ type OfflineStoreConnectionServiceClient interface {
 	UpdateOfflineStoreConnection(context.Context, *connect.Request[v1.UpdateOfflineStoreConnectionRequest]) (*connect.Response[v1.UpdateOfflineStoreConnectionResponse], error)
 	DeleteOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteOfflineStoreConnectionResponse], error)
 	TestOfflineStoreConnection(context.Context, *connect.Request[v1.TestOfflineStoreConnectionRequest]) (*connect.Response[v1.TestOfflineStoreConnectionResponse], error)
+	CreateBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateBindingEnvironmentOfflineStoreConnectionResponse], error)
+	GetBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.GetBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.GetBindingEnvironmentOfflineStoreConnectionResponse], error)
+	DeleteBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse], error)
+	MigrateOfflineStoreConnection(context.Context, *connect.Request[v1.MigrateOfflineStoreConnectionRequest]) (*connect.Response[v1.MigrateOfflineStoreConnectionResponse], error)
 }
 
 // NewOfflineStoreConnectionServiceClient constructs a client for the
@@ -116,17 +135,46 @@ func NewOfflineStoreConnectionServiceClient(httpClient connect.HTTPClient, baseU
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		createBindingEnvironmentOfflineStoreConnection: connect.NewClient[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest, v1.CreateBindingEnvironmentOfflineStoreConnectionResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("CreateBindingEnvironmentOfflineStoreConnection")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingEnvironmentOfflineStoreConnection: connect.NewClient[v1.GetBindingEnvironmentOfflineStoreConnectionRequest, v1.GetBindingEnvironmentOfflineStoreConnectionResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetBindingEnvironmentOfflineStoreConnection")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingEnvironmentOfflineStoreConnection: connect.NewClient[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest, v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("DeleteBindingEnvironmentOfflineStoreConnection")),
+			connect.WithClientOptions(opts...),
+		),
+		migrateOfflineStoreConnection: connect.NewClient[v1.MigrateOfflineStoreConnectionRequest, v1.MigrateOfflineStoreConnectionResponse](
+			httpClient,
+			baseURL+OfflineStoreConnectionServiceMigrateOfflineStoreConnectionProcedure,
+			connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("MigrateOfflineStoreConnection")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // offlineStoreConnectionServiceClient implements OfflineStoreConnectionServiceClient.
 type offlineStoreConnectionServiceClient struct {
-	createOfflineStoreConnection *connect.Client[v1.CreateOfflineStoreConnectionRequest, v1.CreateOfflineStoreConnectionResponse]
-	getOfflineStoreConnection    *connect.Client[v1.GetOfflineStoreConnectionRequest, v1.GetOfflineStoreConnectionResponse]
-	listOfflineStoreConnections  *connect.Client[v1.ListOfflineStoreConnectionsRequest, v1.ListOfflineStoreConnectionsResponse]
-	updateOfflineStoreConnection *connect.Client[v1.UpdateOfflineStoreConnectionRequest, v1.UpdateOfflineStoreConnectionResponse]
-	deleteOfflineStoreConnection *connect.Client[v1.DeleteOfflineStoreConnectionRequest, v1.DeleteOfflineStoreConnectionResponse]
-	testOfflineStoreConnection   *connect.Client[v1.TestOfflineStoreConnectionRequest, v1.TestOfflineStoreConnectionResponse]
+	createOfflineStoreConnection                   *connect.Client[v1.CreateOfflineStoreConnectionRequest, v1.CreateOfflineStoreConnectionResponse]
+	getOfflineStoreConnection                      *connect.Client[v1.GetOfflineStoreConnectionRequest, v1.GetOfflineStoreConnectionResponse]
+	listOfflineStoreConnections                    *connect.Client[v1.ListOfflineStoreConnectionsRequest, v1.ListOfflineStoreConnectionsResponse]
+	updateOfflineStoreConnection                   *connect.Client[v1.UpdateOfflineStoreConnectionRequest, v1.UpdateOfflineStoreConnectionResponse]
+	deleteOfflineStoreConnection                   *connect.Client[v1.DeleteOfflineStoreConnectionRequest, v1.DeleteOfflineStoreConnectionResponse]
+	testOfflineStoreConnection                     *connect.Client[v1.TestOfflineStoreConnectionRequest, v1.TestOfflineStoreConnectionResponse]
+	createBindingEnvironmentOfflineStoreConnection *connect.Client[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest, v1.CreateBindingEnvironmentOfflineStoreConnectionResponse]
+	getBindingEnvironmentOfflineStoreConnection    *connect.Client[v1.GetBindingEnvironmentOfflineStoreConnectionRequest, v1.GetBindingEnvironmentOfflineStoreConnectionResponse]
+	deleteBindingEnvironmentOfflineStoreConnection *connect.Client[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest, v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse]
+	migrateOfflineStoreConnection                  *connect.Client[v1.MigrateOfflineStoreConnectionRequest, v1.MigrateOfflineStoreConnectionResponse]
 }
 
 // CreateOfflineStoreConnection calls
@@ -165,6 +213,30 @@ func (c *offlineStoreConnectionServiceClient) TestOfflineStoreConnection(ctx con
 	return c.testOfflineStoreConnection.CallUnary(ctx, req)
 }
 
+// CreateBindingEnvironmentOfflineStoreConnection calls
+// chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection.
+func (c *offlineStoreConnectionServiceClient) CreateBindingEnvironmentOfflineStoreConnection(ctx context.Context, req *connect.Request[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return c.createBindingEnvironmentOfflineStoreConnection.CallUnary(ctx, req)
+}
+
+// GetBindingEnvironmentOfflineStoreConnection calls
+// chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection.
+func (c *offlineStoreConnectionServiceClient) GetBindingEnvironmentOfflineStoreConnection(ctx context.Context, req *connect.Request[v1.GetBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.GetBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return c.getBindingEnvironmentOfflineStoreConnection.CallUnary(ctx, req)
+}
+
+// DeleteBindingEnvironmentOfflineStoreConnection calls
+// chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection.
+func (c *offlineStoreConnectionServiceClient) DeleteBindingEnvironmentOfflineStoreConnection(ctx context.Context, req *connect.Request[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return c.deleteBindingEnvironmentOfflineStoreConnection.CallUnary(ctx, req)
+}
+
+// MigrateOfflineStoreConnection calls
+// chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection.
+func (c *offlineStoreConnectionServiceClient) MigrateOfflineStoreConnection(ctx context.Context, req *connect.Request[v1.MigrateOfflineStoreConnectionRequest]) (*connect.Response[v1.MigrateOfflineStoreConnectionResponse], error) {
+	return c.migrateOfflineStoreConnection.CallUnary(ctx, req)
+}
+
 // OfflineStoreConnectionServiceHandler is an implementation of the
 // chalk.server.v1.OfflineStoreConnectionService service.
 type OfflineStoreConnectionServiceHandler interface {
@@ -174,6 +246,10 @@ type OfflineStoreConnectionServiceHandler interface {
 	UpdateOfflineStoreConnection(context.Context, *connect.Request[v1.UpdateOfflineStoreConnectionRequest]) (*connect.Response[v1.UpdateOfflineStoreConnectionResponse], error)
 	DeleteOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteOfflineStoreConnectionResponse], error)
 	TestOfflineStoreConnection(context.Context, *connect.Request[v1.TestOfflineStoreConnectionRequest]) (*connect.Response[v1.TestOfflineStoreConnectionResponse], error)
+	CreateBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateBindingEnvironmentOfflineStoreConnectionResponse], error)
+	GetBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.GetBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.GetBindingEnvironmentOfflineStoreConnectionResponse], error)
+	DeleteBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse], error)
+	MigrateOfflineStoreConnection(context.Context, *connect.Request[v1.MigrateOfflineStoreConnectionRequest]) (*connect.Response[v1.MigrateOfflineStoreConnectionResponse], error)
 }
 
 // NewOfflineStoreConnectionServiceHandler builds an HTTP handler from the service implementation.
@@ -222,6 +298,31 @@ func NewOfflineStoreConnectionServiceHandler(svc OfflineStoreConnectionServiceHa
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	offlineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionProcedure,
+		svc.CreateBindingEnvironmentOfflineStoreConnection,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("CreateBindingEnvironmentOfflineStoreConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionProcedure,
+		svc.GetBindingEnvironmentOfflineStoreConnection,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("GetBindingEnvironmentOfflineStoreConnection")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionProcedure,
+		svc.DeleteBindingEnvironmentOfflineStoreConnection,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("DeleteBindingEnvironmentOfflineStoreConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineStoreConnectionServiceMigrateOfflineStoreConnectionHandler := connect.NewUnaryHandler(
+		OfflineStoreConnectionServiceMigrateOfflineStoreConnectionProcedure,
+		svc.MigrateOfflineStoreConnection,
+		connect.WithSchema(offlineStoreConnectionServiceMethods.ByName("MigrateOfflineStoreConnection")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OfflineStoreConnectionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OfflineStoreConnectionServiceCreateOfflineStoreConnectionProcedure:
@@ -236,6 +337,14 @@ func NewOfflineStoreConnectionServiceHandler(svc OfflineStoreConnectionServiceHa
 			offlineStoreConnectionServiceDeleteOfflineStoreConnectionHandler.ServeHTTP(w, r)
 		case OfflineStoreConnectionServiceTestOfflineStoreConnectionProcedure:
 			offlineStoreConnectionServiceTestOfflineStoreConnectionHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionProcedure:
+			offlineStoreConnectionServiceCreateBindingEnvironmentOfflineStoreConnectionHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionProcedure:
+			offlineStoreConnectionServiceGetBindingEnvironmentOfflineStoreConnectionHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionProcedure:
+			offlineStoreConnectionServiceDeleteBindingEnvironmentOfflineStoreConnectionHandler.ServeHTTP(w, r)
+		case OfflineStoreConnectionServiceMigrateOfflineStoreConnectionProcedure:
+			offlineStoreConnectionServiceMigrateOfflineStoreConnectionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -267,4 +376,20 @@ func (UnimplementedOfflineStoreConnectionServiceHandler) DeleteOfflineStoreConne
 
 func (UnimplementedOfflineStoreConnectionServiceHandler) TestOfflineStoreConnection(context.Context, *connect.Request[v1.TestOfflineStoreConnectionRequest]) (*connect.Response[v1.TestOfflineStoreConnectionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.TestOfflineStoreConnection is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) CreateBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.CreateBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.CreateBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.CreateBindingEnvironmentOfflineStoreConnection is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) GetBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.GetBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.GetBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.GetBindingEnvironmentOfflineStoreConnection is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) DeleteBindingEnvironmentOfflineStoreConnection(context.Context, *connect.Request[v1.DeleteBindingEnvironmentOfflineStoreConnectionRequest]) (*connect.Response[v1.DeleteBindingEnvironmentOfflineStoreConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.DeleteBindingEnvironmentOfflineStoreConnection is not implemented"))
+}
+
+func (UnimplementedOfflineStoreConnectionServiceHandler) MigrateOfflineStoreConnection(context.Context, *connect.Request[v1.MigrateOfflineStoreConnectionRequest]) (*connect.Response[v1.MigrateOfflineStoreConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineStoreConnectionService.MigrateOfflineStoreConnection is not implemented"))
 }
