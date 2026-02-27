@@ -6,6 +6,7 @@ coverage:
   ignore:
     - "gen/chalk/"
     - "gen/gen_bq_schema/"
+    - "testserver/"
   status:
     project:
       default:
