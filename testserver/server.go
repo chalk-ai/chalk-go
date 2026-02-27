@@ -45,6 +45,7 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 
 	integrationsHandler := newIntegrationsServiceHandler(registry)
 	cloudComponentsHandler := newCloudComponentsServiceHandler(registry)
+	offlineStoreConnectionHandler := newOfflineStoreConnectionServiceHandler(registry)
 
 	// Create HTTP mux
 	mux := http.NewServeMux()
@@ -68,6 +69,10 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register CloudComponentsService handler
 	cloudComponentsPath, cloudComponentsRPCHandler := serverv1connect.NewCloudComponentsServiceHandler(cloudComponentsHandler)
 	mux.Handle(cloudComponentsPath, cloudComponentsRPCHandler)
+
+	// Register OfflineStoreConnectionService handler
+	offlineStoreConnectionPath, offlineStoreConnectionRPCHandler := serverv1connect.NewOfflineStoreConnectionServiceHandler(offlineStoreConnectionHandler)
+	mux.Handle(offlineStoreConnectionPath, offlineStoreConnectionRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -372,6 +377,86 @@ func (s *MockServer) OnGetBindingEnvironmentBackgroundPersistenceDeployment() *M
 func (s *MockServer) OnDeleteBindingEnvironmentBackgroundPersistenceDeployment() *MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse] {
 	return &MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse]{
 		methodName: "DeleteBindingEnvironmentBackgroundPersistenceDeployment",
+		registry:   s.registry,
+	}
+}
+
+// OnListOfflineStoreConnections configures the ListOfflineStoreConnections RPC method.
+func (s *MockServer) OnListOfflineStoreConnections() *MethodConfigBuilder[*serverv1.ListOfflineStoreConnectionsResponse] {
+	return &MethodConfigBuilder[*serverv1.ListOfflineStoreConnectionsResponse]{
+		methodName: "ListOfflineStoreConnections",
+		registry:   s.registry,
+	}
+}
+
+// OnGetOfflineStoreConnection configures the GetOfflineStoreConnection RPC method.
+func (s *MockServer) OnGetOfflineStoreConnection() *MethodConfigBuilder[*serverv1.GetOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.GetOfflineStoreConnectionResponse]{
+		methodName: "GetOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateOfflineStoreConnection configures the CreateOfflineStoreConnection RPC method.
+func (s *MockServer) OnCreateOfflineStoreConnection() *MethodConfigBuilder[*serverv1.CreateOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateOfflineStoreConnectionResponse]{
+		methodName: "CreateOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateOfflineStoreConnection configures the UpdateOfflineStoreConnection RPC method.
+func (s *MockServer) OnUpdateOfflineStoreConnection() *MethodConfigBuilder[*serverv1.UpdateOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.UpdateOfflineStoreConnectionResponse]{
+		methodName: "UpdateOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteOfflineStoreConnection configures the DeleteOfflineStoreConnection RPC method.
+func (s *MockServer) OnDeleteOfflineStoreConnection() *MethodConfigBuilder[*serverv1.DeleteOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteOfflineStoreConnectionResponse]{
+		methodName: "DeleteOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnGetBindingEnvironmentOfflineStoreConnection configures the GetBindingEnvironmentOfflineStoreConnection RPC method.
+func (s *MockServer) OnGetBindingEnvironmentOfflineStoreConnection() *MethodConfigBuilder[*serverv1.GetBindingEnvironmentOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.GetBindingEnvironmentOfflineStoreConnectionResponse]{
+		methodName: "GetBindingEnvironmentOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateBindingEnvironmentOfflineStoreConnection configures the CreateBindingEnvironmentOfflineStoreConnection RPC method.
+func (s *MockServer) OnCreateBindingEnvironmentOfflineStoreConnection() *MethodConfigBuilder[*serverv1.CreateBindingEnvironmentOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateBindingEnvironmentOfflineStoreConnectionResponse]{
+		methodName: "CreateBindingEnvironmentOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteBindingEnvironmentOfflineStoreConnection configures the DeleteBindingEnvironmentOfflineStoreConnection RPC method.
+func (s *MockServer) OnDeleteBindingEnvironmentOfflineStoreConnection() *MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteBindingEnvironmentOfflineStoreConnectionResponse]{
+		methodName: "DeleteBindingEnvironmentOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnMigrateOfflineStoreConnection configures the MigrateOfflineStoreConnection RPC method.
+func (s *MockServer) OnMigrateOfflineStoreConnection() *MethodConfigBuilder[*serverv1.MigrateOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.MigrateOfflineStoreConnectionResponse]{
+		methodName: "MigrateOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnTestOfflineStoreConnection configures the TestOfflineStoreConnection RPC method.
+func (s *MockServer) OnTestOfflineStoreConnection() *MethodConfigBuilder[*serverv1.TestOfflineStoreConnectionResponse] {
+	return &MethodConfigBuilder[*serverv1.TestOfflineStoreConnectionResponse]{
+		methodName: "TestOfflineStoreConnection",
 		registry:   s.registry,
 	}
 }
