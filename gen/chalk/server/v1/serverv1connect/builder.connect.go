@@ -239,6 +239,7 @@ type BuilderServiceClient interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	// Initiates the branch server for the environment if it isn't already running.
 	// If the branch server isn't running, it starts the branch server and returns
@@ -806,6 +807,8 @@ func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Co
 }
 
 // UpdateEnvironmentVariables calls chalk.server.v1.BuilderService.UpdateEnvironmentVariables.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) UpdateEnvironmentVariables(ctx context.Context, req *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error) {
 	return c.updateEnvironmentVariables.CallUnary(ctx, req)
 }
@@ -1000,6 +1003,7 @@ type BuilderServiceHandler interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	// Initiates the branch server for the environment if it isn't already running.
 	// If the branch server isn't running, it starts the branch server and returns

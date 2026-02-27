@@ -101,6 +101,9 @@ const (
 	// TeamServiceGetTeamPermissionsProcedure is the fully-qualified name of the TeamService's
 	// GetTeamPermissions RPC.
 	TeamServiceGetTeamPermissionsProcedure = "/chalk.server.v1.TeamService/GetTeamPermissions"
+	// TeamServiceGetPermissionsForEnvironmentProcedure is the fully-qualified name of the TeamService's
+	// GetPermissionsForEnvironment RPC.
+	TeamServiceGetPermissionsForEnvironmentProcedure = "/chalk.server.v1.TeamService/GetPermissionsForEnvironment"
 	// TeamServiceArchiveEnvironmentProcedure is the fully-qualified name of the TeamService's
 	// ArchiveEnvironment RPC.
 	TeamServiceArchiveEnvironmentProcedure = "/chalk.server.v1.TeamService/ArchiveEnvironment"
@@ -152,6 +155,7 @@ type TeamServiceClient interface {
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
+	GetPermissionsForEnvironment(context.Context, *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
@@ -325,6 +329,13 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 			connect.WithClientOptions(opts...),
 		),
+		getPermissionsForEnvironment: connect.NewClient[v1.GetPermissionsForEnvironmentRequest, v1.GetPermissionsForEnvironmentResponse](
+			httpClient,
+			baseURL+TeamServiceGetPermissionsForEnvironmentProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("GetPermissionsForEnvironment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		archiveEnvironment: connect.NewClient[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse](
 			httpClient,
 			baseURL+TeamServiceArchiveEnvironmentProcedure,
@@ -379,38 +390,39 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // teamServiceClient implements TeamServiceClient.
 type teamServiceClient struct {
-	getEnv                      *connect.Client[v1.GetEnvRequest, v1.GetEnvResponse]
-	getEnvIncludingArchived     *connect.Client[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse]
-	getEnvironments             *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
-	getAgent                    *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
-	getDisplayAgent             *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
-	getTeam                     *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
-	createTeam                  *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
-	createProject               *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
-	updateProject               *connect.Client[v1.UpdateProjectRequest, v1.UpdateProjectResponse]
-	archiveProject              *connect.Client[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse]
-	createEnvironment           *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
-	updateEnvironment           *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
-	createVectorDBConfiguration *connect.Client[v1.CreateVectorDBConfigurationRequest, v1.CreateVectorDBConfigurationResponse]
-	getAvailablePermissions     *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
-	createServiceToken          *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
-	deleteServiceToken          *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
-	listServiceTokens           *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
-	updateServiceToken          *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
-	inviteTeamMember            *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
-	expireTeamInvite            *connect.Client[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse]
-	listTeamInvites             *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
-	upsertFeaturePermissions    *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
-	updateScimGroupSettings     *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
-	getTeamPermissions          *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
-	archiveEnvironment          *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
-	deactivateUser              *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
-	reactivateUser              *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
-	assignTeamRole              *connect.Client[v1.AssignTeamRoleRequest, v1.AssignTeamRoleResponse]
-	createCustomRole            *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
-	deleteCustomRole            *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
-	updateCustomRole            *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
-	getProject                  *connect.Client[v1.GetProjectRequest, v1.GetProjectResponse]
+	getEnv                       *connect.Client[v1.GetEnvRequest, v1.GetEnvResponse]
+	getEnvIncludingArchived      *connect.Client[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse]
+	getEnvironments              *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
+	getAgent                     *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
+	getDisplayAgent              *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
+	getTeam                      *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
+	createTeam                   *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
+	createProject                *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
+	updateProject                *connect.Client[v1.UpdateProjectRequest, v1.UpdateProjectResponse]
+	archiveProject               *connect.Client[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse]
+	createEnvironment            *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
+	updateEnvironment            *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
+	createVectorDBConfiguration  *connect.Client[v1.CreateVectorDBConfigurationRequest, v1.CreateVectorDBConfigurationResponse]
+	getAvailablePermissions      *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
+	createServiceToken           *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
+	deleteServiceToken           *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
+	listServiceTokens            *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
+	updateServiceToken           *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
+	inviteTeamMember             *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
+	expireTeamInvite             *connect.Client[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse]
+	listTeamInvites              *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
+	upsertFeaturePermissions     *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
+	updateScimGroupSettings      *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
+	getTeamPermissions           *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
+	getPermissionsForEnvironment *connect.Client[v1.GetPermissionsForEnvironmentRequest, v1.GetPermissionsForEnvironmentResponse]
+	archiveEnvironment           *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
+	deactivateUser               *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
+	reactivateUser               *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
+	assignTeamRole               *connect.Client[v1.AssignTeamRoleRequest, v1.AssignTeamRoleResponse]
+	createCustomRole             *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
+	deleteCustomRole             *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
+	updateCustomRole             *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
+	getProject                   *connect.Client[v1.GetProjectRequest, v1.GetProjectResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -533,6 +545,11 @@ func (c *teamServiceClient) GetTeamPermissions(ctx context.Context, req *connect
 	return c.getTeamPermissions.CallUnary(ctx, req)
 }
 
+// GetPermissionsForEnvironment calls chalk.server.v1.TeamService.GetPermissionsForEnvironment.
+func (c *teamServiceClient) GetPermissionsForEnvironment(ctx context.Context, req *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error) {
+	return c.getPermissionsForEnvironment.CallUnary(ctx, req)
+}
+
 // ArchiveEnvironment calls chalk.server.v1.TeamService.ArchiveEnvironment.
 func (c *teamServiceClient) ArchiveEnvironment(ctx context.Context, req *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
 	return c.archiveEnvironment.CallUnary(ctx, req)
@@ -599,6 +616,7 @@ type TeamServiceHandler interface {
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
 	UpdateScimGroupSettings(context.Context, *connect.Request[v1.UpdateScimGroupSettingsRequest]) (*connect.Response[v1.UpdateScimGroupSettingsResponse], error)
 	GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error)
+	GetPermissionsForEnvironment(context.Context, *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error)
 	ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error)
 	DeactivateUser(context.Context, *connect.Request[v1.DeactivateUserRequest]) (*connect.Response[v1.DeactivateUserResponse], error)
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
@@ -768,6 +786,13 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("GetTeamPermissions")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceGetPermissionsForEnvironmentHandler := connect.NewUnaryHandler(
+		TeamServiceGetPermissionsForEnvironmentProcedure,
+		svc.GetPermissionsForEnvironment,
+		connect.WithSchema(teamServiceMethods.ByName("GetPermissionsForEnvironment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceArchiveEnvironmentHandler := connect.NewUnaryHandler(
 		TeamServiceArchiveEnvironmentProcedure,
 		svc.ArchiveEnvironment,
@@ -867,6 +892,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceUpdateScimGroupSettingsHandler.ServeHTTP(w, r)
 		case TeamServiceGetTeamPermissionsProcedure:
 			teamServiceGetTeamPermissionsHandler.ServeHTTP(w, r)
+		case TeamServiceGetPermissionsForEnvironmentProcedure:
+			teamServiceGetPermissionsForEnvironmentHandler.ServeHTTP(w, r)
 		case TeamServiceArchiveEnvironmentProcedure:
 			teamServiceArchiveEnvironmentHandler.ServeHTTP(w, r)
 		case TeamServiceDeactivateUserProcedure:
@@ -986,6 +1013,10 @@ func (UnimplementedTeamServiceHandler) UpdateScimGroupSettings(context.Context, 
 
 func (UnimplementedTeamServiceHandler) GetTeamPermissions(context.Context, *connect.Request[v1.GetTeamPermissionsRequest]) (*connect.Response[v1.GetTeamPermissionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetTeamPermissions is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) GetPermissionsForEnvironment(context.Context, *connect.Request[v1.GetPermissionsForEnvironmentRequest]) (*connect.Response[v1.GetPermissionsForEnvironmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.GetPermissionsForEnvironment is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) ArchiveEnvironment(context.Context, *connect.Request[v1.ArchiveEnvironmentRequest]) (*connect.Response[v1.ArchiveEnvironmentResponse], error) {
