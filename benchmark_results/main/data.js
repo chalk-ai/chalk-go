@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772311691856,
+  "lastUpdate": 1772317878942,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32484,6 +32484,60 @@ window.BENCHMARK_DATA = {
             "value": 286.6,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "0b228c2f3893af274e177a23c80cc8e169c075ea",
+          "message": "Update scaling group",
+          "timestamp": "2026-02-28T14:30:34-08:00",
+          "tree_id": "9534f3a01ebe1935fcf6f4c0912e8cf4eb7302df",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/0b228c2f3893af274e177a23c80cc8e169c075ea"
+        },
+        "date": 1772317878848,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.171,
+            "unit": "ms/op",
+            "extra": "1174 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 102.6,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 33.61,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 216,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 313.9,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
