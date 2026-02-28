@@ -12,6 +12,11 @@ test:  ## Run tests. Needs bash > 4.0, gotestsum, panicparse, and script
 	@bash -c "CGO_ENABLED=0 GOTRACEBACK=all script -q /dev/null gotestsum --hide-summary=skipped --format-hide-empty-pkg -- -vet=all -shuffle=on ./... |& panicparse -rel-path"
 	@cd gen && bash -c "CGO_ENABLED=0 GOTRACEBACK=all script -q /dev/null gotestsum --hide-summary=skipped --format-hide-empty-pkg -- -vet=all -shuffle=on ./... |& panicparse -rel-path"
 
+up:  ## Reset generated files and pull latest
+	git clean -fdx gen/chalk/
+	git checkout gen/chalk/
+	git pull
+
 release:  ## Release the go client
 	@bash ./release.sh
 
