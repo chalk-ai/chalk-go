@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772153169930,
+  "lastUpdate": 1772309889462,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32374,6 +32374,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 359.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "260bfa03414a3cb3fcfcf0d24d35ba612215fcd4",
+          "message": "Merge pull request #594 from chalk-ai/andrew/scaling-group-gpu-support\n\nProto codegen: add gpu field to ResourceLimits",
+          "timestamp": "2026-02-28T12:17:33-08:00",
+          "tree_id": "0bed68106b0d5b2c8d2a75367c783c2ecd3cdacb",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/260bfa03414a3cb3fcfcf0d24d35ba612215fcd4"
+        },
+        "date": 1772309889368,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.008,
+            "unit": "ms/op",
+            "extra": "1006 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 100.7,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.01,
+            "unit": "ms/op",
+            "extra": "38 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 245.5,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 294,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
