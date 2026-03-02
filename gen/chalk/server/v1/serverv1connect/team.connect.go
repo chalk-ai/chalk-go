@@ -116,6 +116,12 @@ const (
 	// TeamServiceAssignTeamRoleProcedure is the fully-qualified name of the TeamService's
 	// AssignTeamRole RPC.
 	TeamServiceAssignTeamRoleProcedure = "/chalk.server.v1.TeamService/AssignTeamRole"
+	// TeamServiceAssignEnvironmentRoleProcedure is the fully-qualified name of the TeamService's
+	// AssignEnvironmentRole RPC.
+	TeamServiceAssignEnvironmentRoleProcedure = "/chalk.server.v1.TeamService/AssignEnvironmentRole"
+	// TeamServiceAssignScimGroupEnvironmentRoleProcedure is the fully-qualified name of the
+	// TeamService's AssignScimGroupEnvironmentRole RPC.
+	TeamServiceAssignScimGroupEnvironmentRoleProcedure = "/chalk.server.v1.TeamService/AssignScimGroupEnvironmentRole"
 	// TeamServiceCreateCustomRoleProcedure is the fully-qualified name of the TeamService's
 	// CreateCustomRole RPC.
 	TeamServiceCreateCustomRoleProcedure = "/chalk.server.v1.TeamService/CreateCustomRole"
@@ -161,6 +167,10 @@ type TeamServiceClient interface {
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 	// Assigns a team-scoped role to a user (i.e. role assignment with no environment).
 	AssignTeamRole(context.Context, *connect.Request[v1.AssignTeamRoleRequest]) (*connect.Response[v1.AssignTeamRoleResponse], error)
+	// Assigns an environment-scoped role to a user.
+	AssignEnvironmentRole(context.Context, *connect.Request[v1.AssignEnvironmentRoleRequest]) (*connect.Response[v1.AssignEnvironmentRoleResponse], error)
+	// Assigns an environment-scoped role to a SCIM group.
+	AssignScimGroupEnvironmentRole(context.Context, *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error)
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
@@ -360,6 +370,18 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("AssignTeamRole")),
 			connect.WithClientOptions(opts...),
 		),
+		assignEnvironmentRole: connect.NewClient[v1.AssignEnvironmentRoleRequest, v1.AssignEnvironmentRoleResponse](
+			httpClient,
+			baseURL+TeamServiceAssignEnvironmentRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("AssignEnvironmentRole")),
+			connect.WithClientOptions(opts...),
+		),
+		assignScimGroupEnvironmentRole: connect.NewClient[v1.AssignScimGroupEnvironmentRoleRequest, v1.AssignScimGroupEnvironmentRoleResponse](
+			httpClient,
+			baseURL+TeamServiceAssignScimGroupEnvironmentRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("AssignScimGroupEnvironmentRole")),
+			connect.WithClientOptions(opts...),
+		),
 		createCustomRole: connect.NewClient[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse](
 			httpClient,
 			baseURL+TeamServiceCreateCustomRoleProcedure,
@@ -390,39 +412,41 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // teamServiceClient implements TeamServiceClient.
 type teamServiceClient struct {
-	getEnv                       *connect.Client[v1.GetEnvRequest, v1.GetEnvResponse]
-	getEnvIncludingArchived      *connect.Client[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse]
-	getEnvironments              *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
-	getAgent                     *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
-	getDisplayAgent              *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
-	getTeam                      *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
-	createTeam                   *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
-	createProject                *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
-	updateProject                *connect.Client[v1.UpdateProjectRequest, v1.UpdateProjectResponse]
-	archiveProject               *connect.Client[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse]
-	createEnvironment            *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
-	updateEnvironment            *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
-	createVectorDBConfiguration  *connect.Client[v1.CreateVectorDBConfigurationRequest, v1.CreateVectorDBConfigurationResponse]
-	getAvailablePermissions      *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
-	createServiceToken           *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
-	deleteServiceToken           *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
-	listServiceTokens            *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
-	updateServiceToken           *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
-	inviteTeamMember             *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
-	expireTeamInvite             *connect.Client[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse]
-	listTeamInvites              *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
-	upsertFeaturePermissions     *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
-	updateScimGroupSettings      *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
-	getTeamPermissions           *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
-	getPermissionsForEnvironment *connect.Client[v1.GetPermissionsForEnvironmentRequest, v1.GetPermissionsForEnvironmentResponse]
-	archiveEnvironment           *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
-	deactivateUser               *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
-	reactivateUser               *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
-	assignTeamRole               *connect.Client[v1.AssignTeamRoleRequest, v1.AssignTeamRoleResponse]
-	createCustomRole             *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
-	deleteCustomRole             *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
-	updateCustomRole             *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
-	getProject                   *connect.Client[v1.GetProjectRequest, v1.GetProjectResponse]
+	getEnv                         *connect.Client[v1.GetEnvRequest, v1.GetEnvResponse]
+	getEnvIncludingArchived        *connect.Client[v1.GetEnvIncludingArchivedRequest, v1.GetEnvIncludingArchivedResponse]
+	getEnvironments                *connect.Client[v1.GetEnvironmentsRequest, v1.GetEnvironmentsResponse]
+	getAgent                       *connect.Client[v1.GetAgentRequest, v1.GetAgentResponse]
+	getDisplayAgent                *connect.Client[v1.GetDisplayAgentRequest, v1.GetDisplayAgentResponse]
+	getTeam                        *connect.Client[v1.GetTeamRequest, v1.GetTeamResponse]
+	createTeam                     *connect.Client[v1.CreateTeamRequest, v1.CreateTeamResponse]
+	createProject                  *connect.Client[v1.CreateProjectRequest, v1.CreateProjectResponse]
+	updateProject                  *connect.Client[v1.UpdateProjectRequest, v1.UpdateProjectResponse]
+	archiveProject                 *connect.Client[v1.ArchiveProjectRequest, v1.ArchiveProjectResponse]
+	createEnvironment              *connect.Client[v1.CreateEnvironmentRequest, v1.CreateEnvironmentResponse]
+	updateEnvironment              *connect.Client[v1.UpdateEnvironmentRequest, v1.UpdateEnvironmentResponse]
+	createVectorDBConfiguration    *connect.Client[v1.CreateVectorDBConfigurationRequest, v1.CreateVectorDBConfigurationResponse]
+	getAvailablePermissions        *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
+	createServiceToken             *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
+	deleteServiceToken             *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
+	listServiceTokens              *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
+	updateServiceToken             *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
+	inviteTeamMember               *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
+	expireTeamInvite               *connect.Client[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse]
+	listTeamInvites                *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
+	upsertFeaturePermissions       *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
+	updateScimGroupSettings        *connect.Client[v1.UpdateScimGroupSettingsRequest, v1.UpdateScimGroupSettingsResponse]
+	getTeamPermissions             *connect.Client[v1.GetTeamPermissionsRequest, v1.GetTeamPermissionsResponse]
+	getPermissionsForEnvironment   *connect.Client[v1.GetPermissionsForEnvironmentRequest, v1.GetPermissionsForEnvironmentResponse]
+	archiveEnvironment             *connect.Client[v1.ArchiveEnvironmentRequest, v1.ArchiveEnvironmentResponse]
+	deactivateUser                 *connect.Client[v1.DeactivateUserRequest, v1.DeactivateUserResponse]
+	reactivateUser                 *connect.Client[v1.ReactivateUserRequest, v1.ReactivateUserResponse]
+	assignTeamRole                 *connect.Client[v1.AssignTeamRoleRequest, v1.AssignTeamRoleResponse]
+	assignEnvironmentRole          *connect.Client[v1.AssignEnvironmentRoleRequest, v1.AssignEnvironmentRoleResponse]
+	assignScimGroupEnvironmentRole *connect.Client[v1.AssignScimGroupEnvironmentRoleRequest, v1.AssignScimGroupEnvironmentRoleResponse]
+	createCustomRole               *connect.Client[v1.CreateCustomRoleRequest, v1.CreateCustomRoleResponse]
+	deleteCustomRole               *connect.Client[v1.DeleteCustomRoleRequest, v1.DeleteCustomRoleResponse]
+	updateCustomRole               *connect.Client[v1.UpdateCustomRoleRequest, v1.UpdateCustomRoleResponse]
+	getProject                     *connect.Client[v1.GetProjectRequest, v1.GetProjectResponse]
 }
 
 // GetEnv calls chalk.server.v1.TeamService.GetEnv.
@@ -570,6 +594,16 @@ func (c *teamServiceClient) AssignTeamRole(ctx context.Context, req *connect.Req
 	return c.assignTeamRole.CallUnary(ctx, req)
 }
 
+// AssignEnvironmentRole calls chalk.server.v1.TeamService.AssignEnvironmentRole.
+func (c *teamServiceClient) AssignEnvironmentRole(ctx context.Context, req *connect.Request[v1.AssignEnvironmentRoleRequest]) (*connect.Response[v1.AssignEnvironmentRoleResponse], error) {
+	return c.assignEnvironmentRole.CallUnary(ctx, req)
+}
+
+// AssignScimGroupEnvironmentRole calls chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole.
+func (c *teamServiceClient) AssignScimGroupEnvironmentRole(ctx context.Context, req *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error) {
+	return c.assignScimGroupEnvironmentRole.CallUnary(ctx, req)
+}
+
 // CreateCustomRole calls chalk.server.v1.TeamService.CreateCustomRole.
 func (c *teamServiceClient) CreateCustomRole(ctx context.Context, req *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {
 	return c.createCustomRole.CallUnary(ctx, req)
@@ -622,6 +656,10 @@ type TeamServiceHandler interface {
 	ReactivateUser(context.Context, *connect.Request[v1.ReactivateUserRequest]) (*connect.Response[v1.ReactivateUserResponse], error)
 	// Assigns a team-scoped role to a user (i.e. role assignment with no environment).
 	AssignTeamRole(context.Context, *connect.Request[v1.AssignTeamRoleRequest]) (*connect.Response[v1.AssignTeamRoleResponse], error)
+	// Assigns an environment-scoped role to a user.
+	AssignEnvironmentRole(context.Context, *connect.Request[v1.AssignEnvironmentRoleRequest]) (*connect.Response[v1.AssignEnvironmentRoleResponse], error)
+	// Assigns an environment-scoped role to a SCIM group.
+	AssignScimGroupEnvironmentRole(context.Context, *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error)
 	CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error)
 	DeleteCustomRole(context.Context, *connect.Request[v1.DeleteCustomRoleRequest]) (*connect.Response[v1.DeleteCustomRoleResponse], error)
 	UpdateCustomRole(context.Context, *connect.Request[v1.UpdateCustomRoleRequest]) (*connect.Response[v1.UpdateCustomRoleResponse], error)
@@ -817,6 +855,18 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("AssignTeamRole")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceAssignEnvironmentRoleHandler := connect.NewUnaryHandler(
+		TeamServiceAssignEnvironmentRoleProcedure,
+		svc.AssignEnvironmentRole,
+		connect.WithSchema(teamServiceMethods.ByName("AssignEnvironmentRole")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceAssignScimGroupEnvironmentRoleHandler := connect.NewUnaryHandler(
+		TeamServiceAssignScimGroupEnvironmentRoleProcedure,
+		svc.AssignScimGroupEnvironmentRole,
+		connect.WithSchema(teamServiceMethods.ByName("AssignScimGroupEnvironmentRole")),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceCreateCustomRoleHandler := connect.NewUnaryHandler(
 		TeamServiceCreateCustomRoleProcedure,
 		svc.CreateCustomRole,
@@ -902,6 +952,10 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceReactivateUserHandler.ServeHTTP(w, r)
 		case TeamServiceAssignTeamRoleProcedure:
 			teamServiceAssignTeamRoleHandler.ServeHTTP(w, r)
+		case TeamServiceAssignEnvironmentRoleProcedure:
+			teamServiceAssignEnvironmentRoleHandler.ServeHTTP(w, r)
+		case TeamServiceAssignScimGroupEnvironmentRoleProcedure:
+			teamServiceAssignScimGroupEnvironmentRoleHandler.ServeHTTP(w, r)
 		case TeamServiceCreateCustomRoleProcedure:
 			teamServiceCreateCustomRoleHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteCustomRoleProcedure:
@@ -1033,6 +1087,14 @@ func (UnimplementedTeamServiceHandler) ReactivateUser(context.Context, *connect.
 
 func (UnimplementedTeamServiceHandler) AssignTeamRole(context.Context, *connect.Request[v1.AssignTeamRoleRequest]) (*connect.Response[v1.AssignTeamRoleResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.AssignTeamRole is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) AssignEnvironmentRole(context.Context, *connect.Request[v1.AssignEnvironmentRoleRequest]) (*connect.Response[v1.AssignEnvironmentRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.AssignEnvironmentRole is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) AssignScimGroupEnvironmentRole(context.Context, *connect.Request[v1.AssignScimGroupEnvironmentRoleRequest]) (*connect.Response[v1.AssignScimGroupEnvironmentRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.AssignScimGroupEnvironmentRole is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) CreateCustomRole(context.Context, *connect.Request[v1.CreateCustomRoleRequest]) (*connect.Response[v1.CreateCustomRoleResponse], error) {

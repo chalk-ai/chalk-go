@@ -63,6 +63,9 @@ const (
 	// BillingServiceGetNodeTimeRangesProcedure is the fully-qualified name of the BillingService's
 	// GetNodeTimeRanges RPC.
 	BillingServiceGetNodeTimeRangesProcedure = "/chalk.server.v1.BillingService/GetNodeTimeRanges"
+	// BillingServiceGetNodeDetailProcedure is the fully-qualified name of the BillingService's
+	// GetNodeDetail RPC.
+	BillingServiceGetNodeDetailProcedure = "/chalk.server.v1.BillingService/GetNodeDetail"
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -95,6 +98,9 @@ type BillingServiceClient interface {
 	// GetNodeTimeRanges returns the earliest and latest observed timestamps
 	// for a list of nodes from the usage data.
 	GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error)
+	// GetNodeDetail returns detailed information about a specific node and all
+	// pods that were scheduled on it, from the BigQuery usage data.
+	GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -178,6 +184,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getNodeDetail: connect.NewClient[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse](
+			httpClient,
+			baseURL+BillingServiceGetNodeDetailProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetNodeDetail")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -193,6 +206,7 @@ type billingServiceClient struct {
 	getInstanceUsage    *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
 	getPodTimeRanges    *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
 	getNodeTimeRanges   *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
+	getNodeDetail       *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -245,6 +259,11 @@ func (c *billingServiceClient) GetNodeTimeRanges(ctx context.Context, req *conne
 	return c.getNodeTimeRanges.CallUnary(ctx, req)
 }
 
+// GetNodeDetail calls chalk.server.v1.BillingService.GetNodeDetail.
+func (c *billingServiceClient) GetNodeDetail(ctx context.Context, req *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error) {
+	return c.getNodeDetail.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -275,6 +294,9 @@ type BillingServiceHandler interface {
 	// GetNodeTimeRanges returns the earliest and latest observed timestamps
 	// for a list of nodes from the usage data.
 	GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error)
+	// GetNodeDetail returns detailed information about a specific node and all
+	// pods that were scheduled on it, from the BigQuery usage data.
+	GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -354,6 +376,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetNodeDetailHandler := connect.NewUnaryHandler(
+		BillingServiceGetNodeDetailProcedure,
+		svc.GetNodeDetail,
+		connect.WithSchema(billingServiceMethods.ByName("GetNodeDetail")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsUIProcedure:
@@ -376,6 +405,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetPodTimeRangesHandler.ServeHTTP(w, r)
 		case BillingServiceGetNodeTimeRangesProcedure:
 			billingServiceGetNodeTimeRangesHandler.ServeHTTP(w, r)
+		case BillingServiceGetNodeDetailProcedure:
+			billingServiceGetNodeDetailHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -423,4 +454,8 @@ func (UnimplementedBillingServiceHandler) GetPodTimeRanges(context.Context, *con
 
 func (UnimplementedBillingServiceHandler) GetNodeTimeRanges(context.Context, *connect.Request[v1.GetNodeTimeRangesRequest]) (*connect.Response[v1.GetNodeTimeRangesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodeTimeRanges is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodeDetail is not implemented"))
 }
