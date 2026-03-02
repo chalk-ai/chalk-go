@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772317878942,
+  "lastUpdate": 1772432718360,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32538,6 +32538,60 @@ window.BENCHMARK_DATA = {
             "value": 313.9,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "389387c6fce73d6bb2bbe73fccfb397836daace3",
+          "message": "Update protos: add env_vars, volumes, VolumeMount to container and scaling group specs",
+          "timestamp": "2026-03-01T22:24:33-08:00",
+          "tree_id": "4015d41a6989bec2e76f769e4d1de4099b071a77",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/389387c6fce73d6bb2bbe73fccfb397836daace3"
+        },
+        "date": 1772432718250,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.218,
+            "unit": "ms/op",
+            "extra": "1101 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 113.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 35.31,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 205.1,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 328.9,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
