@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772506836397,
+  "lastUpdate": 1772510733213,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32700,6 +32700,60 @@ window.BENCHMARK_DATA = {
             "value": 292.6,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "aridbennett@gmail.com",
+            "name": "aribennett",
+            "username": "aribennett"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "56bc4951b76ad67e754158f6fcff07b6f8037c2e",
+          "message": "prots (#598)",
+          "timestamp": "2026-03-02T20:04:52-08:00",
+          "tree_id": "2064748fcb2f30ca4dc31fa506a5b86933ec43d2",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/56bc4951b76ad67e754158f6fcff07b6f8037c2e"
+        },
+        "date": 1772510733168,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.979,
+            "unit": "ms/op",
+            "extra": "1059 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 102.4,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.98,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 194.3,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 337.1,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
