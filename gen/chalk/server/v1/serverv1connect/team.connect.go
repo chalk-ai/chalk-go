@@ -86,6 +86,9 @@ const (
 	// TeamServiceInviteTeamMemberProcedure is the fully-qualified name of the TeamService's
 	// InviteTeamMember RPC.
 	TeamServiceInviteTeamMemberProcedure = "/chalk.server.v1.TeamService/InviteTeamMember"
+	// TeamServiceInviteTeamMemberWithTeamRoleProcedure is the fully-qualified name of the TeamService's
+	// InviteTeamMemberWithTeamRole RPC.
+	TeamServiceInviteTeamMemberWithTeamRoleProcedure = "/chalk.server.v1.TeamService/InviteTeamMemberWithTeamRole"
 	// TeamServiceExpireTeamInviteProcedure is the fully-qualified name of the TeamService's
 	// ExpireTeamInvite RPC.
 	TeamServiceExpireTeamInviteProcedure = "/chalk.server.v1.TeamService/ExpireTeamInvite"
@@ -156,6 +159,7 @@ type TeamServiceClient interface {
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
 	InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error)
+	InviteTeamMemberWithTeamRole(context.Context, *connect.Request[v1.InviteTeamMemberWithTeamRoleRequest]) (*connect.Response[v1.InviteTeamMemberWithTeamRoleResponse], error)
 	ExpireTeamInvite(context.Context, *connect.Request[v1.ExpireTeamInviteRequest]) (*connect.Response[v1.ExpireTeamInviteResponse], error)
 	ListTeamInvites(context.Context, *connect.Request[v1.ListTeamInvitesRequest]) (*connect.Response[v1.ListTeamInvitesResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
@@ -309,6 +313,12 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(teamServiceMethods.ByName("InviteTeamMember")),
 			connect.WithClientOptions(opts...),
 		),
+		inviteTeamMemberWithTeamRole: connect.NewClient[v1.InviteTeamMemberWithTeamRoleRequest, v1.InviteTeamMemberWithTeamRoleResponse](
+			httpClient,
+			baseURL+TeamServiceInviteTeamMemberWithTeamRoleProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("InviteTeamMemberWithTeamRole")),
+			connect.WithClientOptions(opts...),
+		),
 		expireTeamInvite: connect.NewClient[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse](
 			httpClient,
 			baseURL+TeamServiceExpireTeamInviteProcedure,
@@ -431,6 +441,7 @@ type teamServiceClient struct {
 	listServiceTokens              *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
 	updateServiceToken             *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
 	inviteTeamMember               *connect.Client[v1.InviteTeamMemberRequest, v1.InviteTeamMemberResponse]
+	inviteTeamMemberWithTeamRole   *connect.Client[v1.InviteTeamMemberWithTeamRoleRequest, v1.InviteTeamMemberWithTeamRoleResponse]
 	expireTeamInvite               *connect.Client[v1.ExpireTeamInviteRequest, v1.ExpireTeamInviteResponse]
 	listTeamInvites                *connect.Client[v1.ListTeamInvitesRequest, v1.ListTeamInvitesResponse]
 	upsertFeaturePermissions       *connect.Client[v1.UpsertFeaturePermissionsRequest, v1.UpsertFeaturePermissionsResponse]
@@ -544,6 +555,11 @@ func (c *teamServiceClient) InviteTeamMember(ctx context.Context, req *connect.R
 	return c.inviteTeamMember.CallUnary(ctx, req)
 }
 
+// InviteTeamMemberWithTeamRole calls chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole.
+func (c *teamServiceClient) InviteTeamMemberWithTeamRole(ctx context.Context, req *connect.Request[v1.InviteTeamMemberWithTeamRoleRequest]) (*connect.Response[v1.InviteTeamMemberWithTeamRoleResponse], error) {
+	return c.inviteTeamMemberWithTeamRole.CallUnary(ctx, req)
+}
+
 // ExpireTeamInvite calls chalk.server.v1.TeamService.ExpireTeamInvite.
 func (c *teamServiceClient) ExpireTeamInvite(ctx context.Context, req *connect.Request[v1.ExpireTeamInviteRequest]) (*connect.Response[v1.ExpireTeamInviteResponse], error) {
 	return c.expireTeamInvite.CallUnary(ctx, req)
@@ -645,6 +661,7 @@ type TeamServiceHandler interface {
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
 	InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error)
+	InviteTeamMemberWithTeamRole(context.Context, *connect.Request[v1.InviteTeamMemberWithTeamRoleRequest]) (*connect.Response[v1.InviteTeamMemberWithTeamRoleResponse], error)
 	ExpireTeamInvite(context.Context, *connect.Request[v1.ExpireTeamInviteRequest]) (*connect.Response[v1.ExpireTeamInviteResponse], error)
 	ListTeamInvites(context.Context, *connect.Request[v1.ListTeamInvitesRequest]) (*connect.Response[v1.ListTeamInvitesResponse], error)
 	UpsertFeaturePermissions(context.Context, *connect.Request[v1.UpsertFeaturePermissionsRequest]) (*connect.Response[v1.UpsertFeaturePermissionsResponse], error)
@@ -794,6 +811,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(teamServiceMethods.ByName("InviteTeamMember")),
 		connect.WithHandlerOptions(opts...),
 	)
+	teamServiceInviteTeamMemberWithTeamRoleHandler := connect.NewUnaryHandler(
+		TeamServiceInviteTeamMemberWithTeamRoleProcedure,
+		svc.InviteTeamMemberWithTeamRole,
+		connect.WithSchema(teamServiceMethods.ByName("InviteTeamMemberWithTeamRole")),
+		connect.WithHandlerOptions(opts...),
+	)
 	teamServiceExpireTeamInviteHandler := connect.NewUnaryHandler(
 		TeamServiceExpireTeamInviteProcedure,
 		svc.ExpireTeamInvite,
@@ -932,6 +955,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceUpdateServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceInviteTeamMemberProcedure:
 			teamServiceInviteTeamMemberHandler.ServeHTTP(w, r)
+		case TeamServiceInviteTeamMemberWithTeamRoleProcedure:
+			teamServiceInviteTeamMemberWithTeamRoleHandler.ServeHTTP(w, r)
 		case TeamServiceExpireTeamInviteProcedure:
 			teamServiceExpireTeamInviteHandler.ServeHTTP(w, r)
 		case TeamServiceListTeamInvitesProcedure:
@@ -1047,6 +1072,10 @@ func (UnimplementedTeamServiceHandler) UpdateServiceToken(context.Context, *conn
 
 func (UnimplementedTeamServiceHandler) InviteTeamMember(context.Context, *connect.Request[v1.InviteTeamMemberRequest]) (*connect.Response[v1.InviteTeamMemberResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.InviteTeamMember is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) InviteTeamMemberWithTeamRole(context.Context, *connect.Request[v1.InviteTeamMemberWithTeamRoleRequest]) (*connect.Response[v1.InviteTeamMemberWithTeamRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.InviteTeamMemberWithTeamRole is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) ExpireTeamInvite(context.Context, *connect.Request[v1.ExpireTeamInviteRequest]) (*connect.Response[v1.ExpireTeamInviteResponse], error) {
