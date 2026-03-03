@@ -45,6 +45,9 @@ const (
 	// StreamingDebugServiceGetDebugMessagesProcedure is the fully-qualified name of the
 	// StreamingDebugService's GetDebugMessages RPC.
 	StreamingDebugServiceGetDebugMessagesProcedure = "/chalk.streaming.v1.StreamingDebugService/GetDebugMessages"
+	// StreamingDebugServiceWatchDebugStreamProcedure is the fully-qualified name of the
+	// StreamingDebugService's WatchDebugStream RPC.
+	StreamingDebugServiceWatchDebugStreamProcedure = "/chalk.streaming.v1.StreamingDebugService/WatchDebugStream"
 )
 
 // StreamingDebugServiceClient is a client for the chalk.streaming.v1.StreamingDebugService service.
@@ -57,6 +60,8 @@ type StreamingDebugServiceClient interface {
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
+	// Watch for new debug files in cloud storage and stream them back
+	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error)
 }
 
 // NewStreamingDebugServiceClient constructs a client for the
@@ -96,6 +101,12 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		watchDebugStream: connect.NewClient[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse](
+			httpClient,
+			baseURL+StreamingDebugServiceWatchDebugStreamProcedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -105,6 +116,7 @@ type streamingDebugServiceClient struct {
 	disableDebugMode   *connect.Client[v1.DisableDebugModeRequest, v1.DisableDebugModeResponse]
 	getDebugModeStatus *connect.Client[v1.GetDebugModeStatusRequest, v1.GetDebugModeStatusResponse]
 	getDebugMessages   *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
+	watchDebugStream   *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
 }
 
 // EnableDebugMode calls chalk.streaming.v1.StreamingDebugService.EnableDebugMode.
@@ -127,6 +139,11 @@ func (c *streamingDebugServiceClient) GetDebugMessages(ctx context.Context, req 
 	return c.getDebugMessages.CallUnary(ctx, req)
 }
 
+// WatchDebugStream calls chalk.streaming.v1.StreamingDebugService.WatchDebugStream.
+func (c *streamingDebugServiceClient) WatchDebugStream(ctx context.Context, req *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error) {
+	return c.watchDebugStream.CallServerStream(ctx, req)
+}
+
 // StreamingDebugServiceHandler is an implementation of the chalk.streaming.v1.StreamingDebugService
 // service.
 type StreamingDebugServiceHandler interface {
@@ -138,6 +155,8 @@ type StreamingDebugServiceHandler interface {
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
+	// Watch for new debug files in cloud storage and stream them back
+	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error
 }
 
 // NewStreamingDebugServiceHandler builds an HTTP handler from the service implementation. It
@@ -173,6 +192,12 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	streamingDebugServiceWatchDebugStreamHandler := connect.NewServerStreamHandler(
+		StreamingDebugServiceWatchDebugStreamProcedure,
+		svc.WatchDebugStream,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.streaming.v1.StreamingDebugService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StreamingDebugServiceEnableDebugModeProcedure:
@@ -183,6 +208,8 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 			streamingDebugServiceGetDebugModeStatusHandler.ServeHTTP(w, r)
 		case StreamingDebugServiceGetDebugMessagesProcedure:
 			streamingDebugServiceGetDebugMessagesHandler.ServeHTTP(w, r)
+		case StreamingDebugServiceWatchDebugStreamProcedure:
+			streamingDebugServiceWatchDebugStreamHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -206,4 +233,8 @@ func (UnimplementedStreamingDebugServiceHandler) GetDebugModeStatus(context.Cont
 
 func (UnimplementedStreamingDebugServiceHandler) GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.GetDebugMessages is not implemented"))
+}
+
+func (UnimplementedStreamingDebugServiceHandler) WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.WatchDebugStream is not implemented"))
 }
