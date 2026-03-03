@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772504567570,
+  "lastUpdate": 1772506836397,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32644,6 +32644,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 310.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "hkitano95@gmail.com",
+            "name": "Hugo Kitano",
+            "username": "hugokitano"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c865a26eb9ecd4c7366cae500381dca33df94dbb",
+          "message": "Merge pull request #597 from chalk-ai/rust-streaming-unidi-file-stream-2\n\nchalk stream tail unidi",
+          "timestamp": "2026-03-02T18:59:52-08:00",
+          "tree_id": "a20cf56b99a40f57eafafe94eaa94bdb1d92b37b",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/c865a26eb9ecd4c7366cae500381dca33df94dbb"
+        },
+        "date": 1772506836299,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.039,
+            "unit": "ms/op",
+            "extra": "994 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 110.7,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 34.03,
+            "unit": "ms/op",
+            "extra": "38 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 200.5,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 292.6,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
