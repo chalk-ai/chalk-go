@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772649521894,
+  "lastUpdate": 1772685023522,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -32808,6 +32808,56 @@ window.BENCHMARK_DATA = {
             "value": 300.6,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "2a4b2cfd42334be7f4a5478f7d8d5fbe88664848",
+          "message": "Add KubeEventsService proto generated code",
+          "timestamp": "2026-03-04T18:38:36Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/601/commits/2a4b2cfd42334be7f4a5478f7d8d5fbe88664848"
+        },
+        "date": 1772685023424,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.178,
+            "unit": "ms/op",
+            "extra": "1014 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 118.1,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 31.96,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 189.4,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 292.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
