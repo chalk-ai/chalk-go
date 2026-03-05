@@ -38,12 +38,6 @@ const (
 	KubeEventsServiceListKubeEventsProcedure = "/chalk.server.v1.KubeEventsService/ListKubeEvents"
 )
 
-// These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
-var (
-	kubeEventsServiceServiceDescriptor              = v1.File_chalk_server_v1_kube_events_proto.Services().ByName("KubeEventsService")
-	kubeEventsServiceListKubeEventsMethodDescriptor = kubeEventsServiceServiceDescriptor.Methods().ByName("ListKubeEvents")
-)
-
 // KubeEventsServiceClient is a client for the chalk.server.v1.KubeEventsService service.
 type KubeEventsServiceClient interface {
 	ListKubeEvents(context.Context, *connect.Request[v1.ListKubeEventsRequest]) (*connect.Response[v1.ListKubeEventsResponse], error)
@@ -58,11 +52,12 @@ type KubeEventsServiceClient interface {
 // http://api.acme.com or https://acme.com/grpc).
 func NewKubeEventsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) KubeEventsServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
+	kubeEventsServiceMethods := v1.File_chalk_server_v1_kube_events_proto.Services().ByName("KubeEventsService").Methods()
 	return &kubeEventsServiceClient{
 		listKubeEvents: connect.NewClient[v1.ListKubeEventsRequest, v1.ListKubeEventsResponse](
 			httpClient,
 			baseURL+KubeEventsServiceListKubeEventsProcedure,
-			connect.WithSchema(kubeEventsServiceListKubeEventsMethodDescriptor),
+			connect.WithSchema(kubeEventsServiceMethods.ByName("ListKubeEvents")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -90,10 +85,11 @@ type KubeEventsServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewKubeEventsServiceHandler(svc KubeEventsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	kubeEventsServiceMethods := v1.File_chalk_server_v1_kube_events_proto.Services().ByName("KubeEventsService").Methods()
 	kubeEventsServiceListKubeEventsHandler := connect.NewUnaryHandler(
 		KubeEventsServiceListKubeEventsProcedure,
 		svc.ListKubeEvents,
-		connect.WithSchema(kubeEventsServiceListKubeEventsMethodDescriptor),
+		connect.WithSchema(kubeEventsServiceMethods.ByName("ListKubeEvents")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
