@@ -39,12 +39,28 @@ const (
 	// FeatureMetadataServiceFeatureMigrateTypeProcedure is the fully-qualified name of the
 	// FeatureMetadataService's FeatureMigrateType RPC.
 	FeatureMetadataServiceFeatureMigrateTypeProcedure = "/chalk.server.v1.FeatureMetadataService/FeatureMigrateType"
+	// FeatureMetadataServiceDeleteFeatureObservationsProcedure is the fully-qualified name of the
+	// FeatureMetadataService's DeleteFeatureObservations RPC.
+	FeatureMetadataServiceDeleteFeatureObservationsProcedure = "/chalk.server.v1.FeatureMetadataService/DeleteFeatureObservations"
+	// FeatureMetadataServiceGetIncrementalProgressProcedure is the fully-qualified name of the
+	// FeatureMetadataService's GetIncrementalProgress RPC.
+	FeatureMetadataServiceGetIncrementalProgressProcedure = "/chalk.server.v1.FeatureMetadataService/GetIncrementalProgress"
+	// FeatureMetadataServiceSetIncrementalProgressProcedure is the fully-qualified name of the
+	// FeatureMetadataService's SetIncrementalProgress RPC.
+	FeatureMetadataServiceSetIncrementalProgressProcedure = "/chalk.server.v1.FeatureMetadataService/SetIncrementalProgress"
+	// FeatureMetadataServiceDeleteIncrementalProgressProcedure is the fully-qualified name of the
+	// FeatureMetadataService's DeleteIncrementalProgress RPC.
+	FeatureMetadataServiceDeleteIncrementalProgressProcedure = "/chalk.server.v1.FeatureMetadataService/DeleteIncrementalProgress"
 )
 
 // FeatureMetadataServiceClient is a client for the chalk.server.v1.FeatureMetadataService service.
 type FeatureMetadataServiceClient interface {
 	DropFeatureVersions(context.Context, *connect.Request[v1.DropFeatureVersionsRequest]) (*connect.Response[v1.DropFeatureVersionsResponse], error)
 	FeatureMigrateType(context.Context, *connect.Request[v1.FeatureMigrateTypeRequest]) (*connect.Response[v1.FeatureMigrateTypeResponse], error)
+	DeleteFeatureObservations(context.Context, *connect.Request[v1.DeleteFeatureObservationsRequest]) (*connect.Response[v1.DeleteFeatureObservationsResponse], error)
+	GetIncrementalProgress(context.Context, *connect.Request[v1.GetIncrementalProgressRequest]) (*connect.Response[v1.GetIncrementalProgressResponse], error)
+	SetIncrementalProgress(context.Context, *connect.Request[v1.SetIncrementalProgressRequest]) (*connect.Response[v1.SetIncrementalProgressResponse], error)
+	DeleteIncrementalProgress(context.Context, *connect.Request[v1.DeleteIncrementalProgressRequest]) (*connect.Response[v1.DeleteIncrementalProgressResponse], error)
 }
 
 // NewFeatureMetadataServiceClient constructs a client for the
@@ -70,13 +86,41 @@ func NewFeatureMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(featureMetadataServiceMethods.ByName("FeatureMigrateType")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteFeatureObservations: connect.NewClient[v1.DeleteFeatureObservationsRequest, v1.DeleteFeatureObservationsResponse](
+			httpClient,
+			baseURL+FeatureMetadataServiceDeleteFeatureObservationsProcedure,
+			connect.WithSchema(featureMetadataServiceMethods.ByName("DeleteFeatureObservations")),
+			connect.WithClientOptions(opts...),
+		),
+		getIncrementalProgress: connect.NewClient[v1.GetIncrementalProgressRequest, v1.GetIncrementalProgressResponse](
+			httpClient,
+			baseURL+FeatureMetadataServiceGetIncrementalProgressProcedure,
+			connect.WithSchema(featureMetadataServiceMethods.ByName("GetIncrementalProgress")),
+			connect.WithClientOptions(opts...),
+		),
+		setIncrementalProgress: connect.NewClient[v1.SetIncrementalProgressRequest, v1.SetIncrementalProgressResponse](
+			httpClient,
+			baseURL+FeatureMetadataServiceSetIncrementalProgressProcedure,
+			connect.WithSchema(featureMetadataServiceMethods.ByName("SetIncrementalProgress")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteIncrementalProgress: connect.NewClient[v1.DeleteIncrementalProgressRequest, v1.DeleteIncrementalProgressResponse](
+			httpClient,
+			baseURL+FeatureMetadataServiceDeleteIncrementalProgressProcedure,
+			connect.WithSchema(featureMetadataServiceMethods.ByName("DeleteIncrementalProgress")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // featureMetadataServiceClient implements FeatureMetadataServiceClient.
 type featureMetadataServiceClient struct {
-	dropFeatureVersions *connect.Client[v1.DropFeatureVersionsRequest, v1.DropFeatureVersionsResponse]
-	featureMigrateType  *connect.Client[v1.FeatureMigrateTypeRequest, v1.FeatureMigrateTypeResponse]
+	dropFeatureVersions       *connect.Client[v1.DropFeatureVersionsRequest, v1.DropFeatureVersionsResponse]
+	featureMigrateType        *connect.Client[v1.FeatureMigrateTypeRequest, v1.FeatureMigrateTypeResponse]
+	deleteFeatureObservations *connect.Client[v1.DeleteFeatureObservationsRequest, v1.DeleteFeatureObservationsResponse]
+	getIncrementalProgress    *connect.Client[v1.GetIncrementalProgressRequest, v1.GetIncrementalProgressResponse]
+	setIncrementalProgress    *connect.Client[v1.SetIncrementalProgressRequest, v1.SetIncrementalProgressResponse]
+	deleteIncrementalProgress *connect.Client[v1.DeleteIncrementalProgressRequest, v1.DeleteIncrementalProgressResponse]
 }
 
 // DropFeatureVersions calls chalk.server.v1.FeatureMetadataService.DropFeatureVersions.
@@ -89,11 +133,35 @@ func (c *featureMetadataServiceClient) FeatureMigrateType(ctx context.Context, r
 	return c.featureMigrateType.CallUnary(ctx, req)
 }
 
+// DeleteFeatureObservations calls chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations.
+func (c *featureMetadataServiceClient) DeleteFeatureObservations(ctx context.Context, req *connect.Request[v1.DeleteFeatureObservationsRequest]) (*connect.Response[v1.DeleteFeatureObservationsResponse], error) {
+	return c.deleteFeatureObservations.CallUnary(ctx, req)
+}
+
+// GetIncrementalProgress calls chalk.server.v1.FeatureMetadataService.GetIncrementalProgress.
+func (c *featureMetadataServiceClient) GetIncrementalProgress(ctx context.Context, req *connect.Request[v1.GetIncrementalProgressRequest]) (*connect.Response[v1.GetIncrementalProgressResponse], error) {
+	return c.getIncrementalProgress.CallUnary(ctx, req)
+}
+
+// SetIncrementalProgress calls chalk.server.v1.FeatureMetadataService.SetIncrementalProgress.
+func (c *featureMetadataServiceClient) SetIncrementalProgress(ctx context.Context, req *connect.Request[v1.SetIncrementalProgressRequest]) (*connect.Response[v1.SetIncrementalProgressResponse], error) {
+	return c.setIncrementalProgress.CallUnary(ctx, req)
+}
+
+// DeleteIncrementalProgress calls chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress.
+func (c *featureMetadataServiceClient) DeleteIncrementalProgress(ctx context.Context, req *connect.Request[v1.DeleteIncrementalProgressRequest]) (*connect.Response[v1.DeleteIncrementalProgressResponse], error) {
+	return c.deleteIncrementalProgress.CallUnary(ctx, req)
+}
+
 // FeatureMetadataServiceHandler is an implementation of the chalk.server.v1.FeatureMetadataService
 // service.
 type FeatureMetadataServiceHandler interface {
 	DropFeatureVersions(context.Context, *connect.Request[v1.DropFeatureVersionsRequest]) (*connect.Response[v1.DropFeatureVersionsResponse], error)
 	FeatureMigrateType(context.Context, *connect.Request[v1.FeatureMigrateTypeRequest]) (*connect.Response[v1.FeatureMigrateTypeResponse], error)
+	DeleteFeatureObservations(context.Context, *connect.Request[v1.DeleteFeatureObservationsRequest]) (*connect.Response[v1.DeleteFeatureObservationsResponse], error)
+	GetIncrementalProgress(context.Context, *connect.Request[v1.GetIncrementalProgressRequest]) (*connect.Response[v1.GetIncrementalProgressResponse], error)
+	SetIncrementalProgress(context.Context, *connect.Request[v1.SetIncrementalProgressRequest]) (*connect.Response[v1.SetIncrementalProgressResponse], error)
+	DeleteIncrementalProgress(context.Context, *connect.Request[v1.DeleteIncrementalProgressRequest]) (*connect.Response[v1.DeleteIncrementalProgressResponse], error)
 }
 
 // NewFeatureMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -115,12 +183,44 @@ func NewFeatureMetadataServiceHandler(svc FeatureMetadataServiceHandler, opts ..
 		connect.WithSchema(featureMetadataServiceMethods.ByName("FeatureMigrateType")),
 		connect.WithHandlerOptions(opts...),
 	)
+	featureMetadataServiceDeleteFeatureObservationsHandler := connect.NewUnaryHandler(
+		FeatureMetadataServiceDeleteFeatureObservationsProcedure,
+		svc.DeleteFeatureObservations,
+		connect.WithSchema(featureMetadataServiceMethods.ByName("DeleteFeatureObservations")),
+		connect.WithHandlerOptions(opts...),
+	)
+	featureMetadataServiceGetIncrementalProgressHandler := connect.NewUnaryHandler(
+		FeatureMetadataServiceGetIncrementalProgressProcedure,
+		svc.GetIncrementalProgress,
+		connect.WithSchema(featureMetadataServiceMethods.ByName("GetIncrementalProgress")),
+		connect.WithHandlerOptions(opts...),
+	)
+	featureMetadataServiceSetIncrementalProgressHandler := connect.NewUnaryHandler(
+		FeatureMetadataServiceSetIncrementalProgressProcedure,
+		svc.SetIncrementalProgress,
+		connect.WithSchema(featureMetadataServiceMethods.ByName("SetIncrementalProgress")),
+		connect.WithHandlerOptions(opts...),
+	)
+	featureMetadataServiceDeleteIncrementalProgressHandler := connect.NewUnaryHandler(
+		FeatureMetadataServiceDeleteIncrementalProgressProcedure,
+		svc.DeleteIncrementalProgress,
+		connect.WithSchema(featureMetadataServiceMethods.ByName("DeleteIncrementalProgress")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.FeatureMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case FeatureMetadataServiceDropFeatureVersionsProcedure:
 			featureMetadataServiceDropFeatureVersionsHandler.ServeHTTP(w, r)
 		case FeatureMetadataServiceFeatureMigrateTypeProcedure:
 			featureMetadataServiceFeatureMigrateTypeHandler.ServeHTTP(w, r)
+		case FeatureMetadataServiceDeleteFeatureObservationsProcedure:
+			featureMetadataServiceDeleteFeatureObservationsHandler.ServeHTTP(w, r)
+		case FeatureMetadataServiceGetIncrementalProgressProcedure:
+			featureMetadataServiceGetIncrementalProgressHandler.ServeHTTP(w, r)
+		case FeatureMetadataServiceSetIncrementalProgressProcedure:
+			featureMetadataServiceSetIncrementalProgressHandler.ServeHTTP(w, r)
+		case FeatureMetadataServiceDeleteIncrementalProgressProcedure:
+			featureMetadataServiceDeleteIncrementalProgressHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -136,4 +236,20 @@ func (UnimplementedFeatureMetadataServiceHandler) DropFeatureVersions(context.Co
 
 func (UnimplementedFeatureMetadataServiceHandler) FeatureMigrateType(context.Context, *connect.Request[v1.FeatureMigrateTypeRequest]) (*connect.Response[v1.FeatureMigrateTypeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureMetadataService.FeatureMigrateType is not implemented"))
+}
+
+func (UnimplementedFeatureMetadataServiceHandler) DeleteFeatureObservations(context.Context, *connect.Request[v1.DeleteFeatureObservationsRequest]) (*connect.Response[v1.DeleteFeatureObservationsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureMetadataService.DeleteFeatureObservations is not implemented"))
+}
+
+func (UnimplementedFeatureMetadataServiceHandler) GetIncrementalProgress(context.Context, *connect.Request[v1.GetIncrementalProgressRequest]) (*connect.Response[v1.GetIncrementalProgressResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureMetadataService.GetIncrementalProgress is not implemented"))
+}
+
+func (UnimplementedFeatureMetadataServiceHandler) SetIncrementalProgress(context.Context, *connect.Request[v1.SetIncrementalProgressRequest]) (*connect.Response[v1.SetIncrementalProgressResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureMetadataService.SetIncrementalProgress is not implemented"))
+}
+
+func (UnimplementedFeatureMetadataServiceHandler) DeleteIncrementalProgress(context.Context, *connect.Request[v1.DeleteIncrementalProgressRequest]) (*connect.Response[v1.DeleteIncrementalProgressResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.FeatureMetadataService.DeleteIncrementalProgress is not implemented"))
 }

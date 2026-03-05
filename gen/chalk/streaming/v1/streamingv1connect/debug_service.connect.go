@@ -48,6 +48,9 @@ const (
 	// StreamingDebugServiceWatchDebugStreamProcedure is the fully-qualified name of the
 	// StreamingDebugService's WatchDebugStream RPC.
 	StreamingDebugServiceWatchDebugStreamProcedure = "/chalk.streaming.v1.StreamingDebugService/WatchDebugStream"
+	// StreamingDebugServicePushTopicProcedure is the fully-qualified name of the
+	// StreamingDebugService's PushTopic RPC.
+	StreamingDebugServicePushTopicProcedure = "/chalk.streaming.v1.StreamingDebugService/PushTopic"
 )
 
 // StreamingDebugServiceClient is a client for the chalk.streaming.v1.StreamingDebugService service.
@@ -62,6 +65,8 @@ type StreamingDebugServiceClient interface {
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error)
+	// Push a message to a streaming topic
+	PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error)
 }
 
 // NewStreamingDebugServiceClient constructs a client for the
@@ -107,6 +112,12 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
 			connect.WithClientOptions(opts...),
 		),
+		pushTopic: connect.NewClient[v1.PushTopicRequest, v1.PushTopicResponse](
+			httpClient,
+			baseURL+StreamingDebugServicePushTopicProcedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("PushTopic")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -117,6 +128,7 @@ type streamingDebugServiceClient struct {
 	getDebugModeStatus *connect.Client[v1.GetDebugModeStatusRequest, v1.GetDebugModeStatusResponse]
 	getDebugMessages   *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
 	watchDebugStream   *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
+	pushTopic          *connect.Client[v1.PushTopicRequest, v1.PushTopicResponse]
 }
 
 // EnableDebugMode calls chalk.streaming.v1.StreamingDebugService.EnableDebugMode.
@@ -144,6 +156,11 @@ func (c *streamingDebugServiceClient) WatchDebugStream(ctx context.Context, req 
 	return c.watchDebugStream.CallServerStream(ctx, req)
 }
 
+// PushTopic calls chalk.streaming.v1.StreamingDebugService.PushTopic.
+func (c *streamingDebugServiceClient) PushTopic(ctx context.Context, req *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error) {
+	return c.pushTopic.CallUnary(ctx, req)
+}
+
 // StreamingDebugServiceHandler is an implementation of the chalk.streaming.v1.StreamingDebugService
 // service.
 type StreamingDebugServiceHandler interface {
@@ -157,6 +174,8 @@ type StreamingDebugServiceHandler interface {
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error
+	// Push a message to a streaming topic
+	PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error)
 }
 
 // NewStreamingDebugServiceHandler builds an HTTP handler from the service implementation. It
@@ -198,6 +217,12 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 		connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
 		connect.WithHandlerOptions(opts...),
 	)
+	streamingDebugServicePushTopicHandler := connect.NewUnaryHandler(
+		StreamingDebugServicePushTopicProcedure,
+		svc.PushTopic,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("PushTopic")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.streaming.v1.StreamingDebugService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StreamingDebugServiceEnableDebugModeProcedure:
@@ -210,6 +235,8 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 			streamingDebugServiceGetDebugMessagesHandler.ServeHTTP(w, r)
 		case StreamingDebugServiceWatchDebugStreamProcedure:
 			streamingDebugServiceWatchDebugStreamHandler.ServeHTTP(w, r)
+		case StreamingDebugServicePushTopicProcedure:
+			streamingDebugServicePushTopicHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -237,4 +264,8 @@ func (UnimplementedStreamingDebugServiceHandler) GetDebugMessages(context.Contex
 
 func (UnimplementedStreamingDebugServiceHandler) WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.WatchDebugStream is not implemented"))
+}
+
+func (UnimplementedStreamingDebugServiceHandler) PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.PushTopic is not implemented"))
 }

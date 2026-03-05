@@ -57,6 +57,21 @@ const (
 	// DatasetMetadataServiceArchiveDatasetRevisionsProcedure is the fully-qualified name of the
 	// DatasetMetadataService's ArchiveDatasetRevisions RPC.
 	DatasetMetadataServiceArchiveDatasetRevisionsProcedure = "/chalk.server.v1.DatasetMetadataService/ArchiveDatasetRevisions"
+	// DatasetMetadataServiceDeleteDatasetProcedure is the fully-qualified name of the
+	// DatasetMetadataService's DeleteDataset RPC.
+	DatasetMetadataServiceDeleteDatasetProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteDataset"
+	// DatasetMetadataServiceGetDatasetRevisionPreviewProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GetDatasetRevisionPreview RPC.
+	DatasetMetadataServiceGetDatasetRevisionPreviewProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevisionPreview"
+	// DatasetMetadataServiceGenerateDatasetStatsProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GenerateDatasetStats RPC.
+	DatasetMetadataServiceGenerateDatasetStatsProcedure = "/chalk.server.v1.DatasetMetadataService/GenerateDatasetStats"
+	// DatasetMetadataServiceGetDatasetEdfsProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GetDatasetEdfs RPC.
+	DatasetMetadataServiceGetDatasetEdfsProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetEdfs"
+	// DatasetMetadataServiceGenerateDatasetEdfsProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GenerateDatasetEdfs RPC.
+	DatasetMetadataServiceGenerateDatasetEdfsProcedure = "/chalk.server.v1.DatasetMetadataService/GenerateDatasetEdfs"
 )
 
 // DatasetMetadataServiceClient is a client for the chalk.server.v1.DatasetMetadataService service.
@@ -70,6 +85,11 @@ type DatasetMetadataServiceClient interface {
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
+	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
+	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
+	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
+	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
 }
 
 // NewDatasetMetadataServiceClient constructs a client for the
@@ -139,6 +159,39 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		deleteDataset: connect.NewClient[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceDeleteDatasetProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteDataset")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		getDatasetRevisionPreview: connect.NewClient[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetDatasetRevisionPreviewProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionPreview")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		generateDatasetStats: connect.NewClient[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGenerateDatasetStatsProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetStats")),
+			connect.WithClientOptions(opts...),
+		),
+		getDatasetEdfs: connect.NewClient[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetDatasetEdfsProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetEdfs")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		generateDatasetEdfs: connect.NewClient[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGenerateDatasetEdfsProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -152,6 +205,11 @@ type datasetMetadataServiceClient struct {
 	renameDataset                   *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
 	archiveDatasetRevision          *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
 	archiveDatasetRevisions         *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
+	deleteDataset                   *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
+	getDatasetRevisionPreview       *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
+	generateDatasetStats            *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
+	getDatasetEdfs                  *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
+	generateDatasetEdfs             *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -197,6 +255,31 @@ func (c *datasetMetadataServiceClient) ArchiveDatasetRevisions(ctx context.Conte
 	return c.archiveDatasetRevisions.CallUnary(ctx, req)
 }
 
+// DeleteDataset calls chalk.server.v1.DatasetMetadataService.DeleteDataset.
+func (c *datasetMetadataServiceClient) DeleteDataset(ctx context.Context, req *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error) {
+	return c.deleteDataset.CallUnary(ctx, req)
+}
+
+// GetDatasetRevisionPreview calls chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview.
+func (c *datasetMetadataServiceClient) GetDatasetRevisionPreview(ctx context.Context, req *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error) {
+	return c.getDatasetRevisionPreview.CallUnary(ctx, req)
+}
+
+// GenerateDatasetStats calls chalk.server.v1.DatasetMetadataService.GenerateDatasetStats.
+func (c *datasetMetadataServiceClient) GenerateDatasetStats(ctx context.Context, req *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error) {
+	return c.generateDatasetStats.CallUnary(ctx, req)
+}
+
+// GetDatasetEdfs calls chalk.server.v1.DatasetMetadataService.GetDatasetEdfs.
+func (c *datasetMetadataServiceClient) GetDatasetEdfs(ctx context.Context, req *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error) {
+	return c.getDatasetEdfs.CallUnary(ctx, req)
+}
+
+// GenerateDatasetEdfs calls chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs.
+func (c *datasetMetadataServiceClient) GenerateDatasetEdfs(ctx context.Context, req *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error) {
+	return c.generateDatasetEdfs.CallUnary(ctx, req)
+}
+
 // DatasetMetadataServiceHandler is an implementation of the chalk.server.v1.DatasetMetadataService
 // service.
 type DatasetMetadataServiceHandler interface {
@@ -209,6 +292,11 @@ type DatasetMetadataServiceHandler interface {
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
+	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
+	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
+	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
+	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
 }
 
 // NewDatasetMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -274,6 +362,39 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceDeleteDatasetHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceDeleteDatasetProcedure,
+		svc.DeleteDataset,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteDataset")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGetDatasetRevisionPreviewHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetDatasetRevisionPreviewProcedure,
+		svc.GetDatasetRevisionPreview,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionPreview")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGenerateDatasetStatsHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGenerateDatasetStatsProcedure,
+		svc.GenerateDatasetStats,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetStats")),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGetDatasetEdfsHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetDatasetEdfsProcedure,
+		svc.GetDatasetEdfs,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetEdfs")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceGenerateDatasetEdfsHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGenerateDatasetEdfsProcedure,
+		svc.GenerateDatasetEdfs,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DatasetMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasetMetadataServiceListDatasetsProcedure:
@@ -292,6 +413,16 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceArchiveDatasetRevisionHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceArchiveDatasetRevisionsProcedure:
 			datasetMetadataServiceArchiveDatasetRevisionsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceDeleteDatasetProcedure:
+			datasetMetadataServiceDeleteDatasetHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetDatasetRevisionPreviewProcedure:
+			datasetMetadataServiceGetDatasetRevisionPreviewHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGenerateDatasetStatsProcedure:
+			datasetMetadataServiceGenerateDatasetStatsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetDatasetEdfsProcedure:
+			datasetMetadataServiceGetDatasetEdfsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGenerateDatasetEdfsProcedure:
+			datasetMetadataServiceGenerateDatasetEdfsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -331,4 +462,24 @@ func (UnimplementedDatasetMetadataServiceHandler) ArchiveDatasetRevision(context
 
 func (UnimplementedDatasetMetadataServiceHandler) ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.DeleteDataset is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GenerateDatasetStats is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetEdfs is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs is not implemented"))
 }

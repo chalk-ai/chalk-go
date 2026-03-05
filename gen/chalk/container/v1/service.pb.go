@@ -32,7 +32,8 @@ type ResourceLimits struct {
 	Cpu *string `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
 	// Memory limit, e.g., "4Gi" or "512Mi"
 	Memory *string `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
-	// GPU request in "type:count" format, e.g., "nvidia-tesla-t4:1"
+	// GPU request: "type:count" (e.g., "nvidia-tesla-t4:1", "h100:2"),
+	// "type" (e.g., "h100", implies count of 1), or "count" (e.g., "1")
 	Gpu *string `protobuf:"bytes,3,opt,name=gpu,proto3,oneof" json:"gpu,omitempty"`
 }
 
