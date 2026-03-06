@@ -3,6 +3,7 @@ package validation
 import (
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -13,151 +14,41 @@ import (
 // immutableFieldsCache stores the cached immutable field names for each message type
 var immutableFieldsCache sync.Map // map[protoreflect.FullName][]string
 
+// outputOnlyFieldsCache stores the cached output-only field names for each message type
+var outputOnlyFieldsCache sync.Map // map[protoreflect.FullName][]string
+
 // GetImmutableFields returns the list of field paths (including nested paths like "address.street")
 // that are marked as IMMUTABLE for the given message type. Results are cached for performance.
 func GetImmutableFields(msg proto.Message) []string {
 	msgReflect := msg.ProtoReflect()
 	msgType := msgReflect.Descriptor().FullName()
 
-	// Check cache first
 	if cached, ok := immutableFieldsCache.Load(msgType); ok {
 		return cached.([]string)
 	}
 
-	// Not in cache, compute it
 	visited := make(map[protoreflect.FullName]bool)
-	immutableFields := computeImmutableFields(msgReflect.Descriptor(), "", visited)
+	immutableFields := computeFieldsByBehavior(msgReflect.Descriptor(), "", visited, annotations.FieldBehavior_IMMUTABLE)
 
-	// Store in cache atomically
 	cached, _ := immutableFieldsCache.LoadOrStore(msgType, immutableFields)
-
 	return cached.([]string)
 }
 
-// computeImmutableFields recursively finds all fields marked with IMMUTABLE field_behavior,
-// including nested fields. The prefix parameter is used to build nested paths like "address.street".
-// The visited map prevents infinite recursion on circular message references.
-func computeImmutableFields(msgDesc protoreflect.MessageDescriptor, prefix string, visited map[protoreflect.FullName]bool) []string {
-	// Prevent infinite recursion on circular references
-	msgType := msgDesc.FullName()
-	if visited[msgType] {
-		return nil
-	}
-	visited[msgType] = true
-	defer delete(visited, msgType)
+// GetOutputOnlyFields returns the list of field paths (including nested paths like "address.street")
+// that are marked as OUTPUT_ONLY for the given message type. Results are cached for performance.
+func GetOutputOnlyFields(msg proto.Message) []string {
+	msgReflect := msg.ProtoReflect()
+	msgType := msgReflect.Descriptor().FullName()
 
-	var immutableFields []string
-
-	fields := msgDesc.Fields()
-	for i := 0; i < fields.Len(); i++ {
-		field := fields.Get(i)
-		fieldName := string(field.Name())
-
-		// Build the full path for this field
-		var fieldPath string
-		if prefix == "" {
-			fieldPath = fieldName
-		} else {
-			fieldPath = prefix + "." + fieldName
-		}
-
-		// Check if this field is immutable
-		opts := field.Options()
-		if opts != nil && proto.HasExtension(opts, annotations.E_FieldBehavior) {
-			// Get the field_behavior values
-			behaviors := proto.GetExtension(opts, annotations.E_FieldBehavior).([]annotations.FieldBehavior)
-
-			// Check if IMMUTABLE is in the behaviors
-			if slices.Contains(behaviors, annotations.FieldBehavior_IMMUTABLE) {
-				immutableFields = append(immutableFields, fieldPath)
-			}
-		}
-
-		// If this is a message field, recursively check its nested fields
-		if field.Kind() == protoreflect.MessageKind && field.Message() != nil {
-			nestedFields := computeImmutableFields(field.Message(), fieldPath, visited)
-			immutableFields = append(immutableFields, nestedFields...)
-		}
+	if cached, ok := outputOnlyFieldsCache.Load(msgType); ok {
+		return cached.([]string)
 	}
 
-	return immutableFields
-}
+	visited := make(map[protoreflect.FullName]bool)
+	outputOnlyFields := computeFieldsByBehavior(msgReflect.Descriptor(), "", visited, annotations.FieldBehavior_OUTPUT_ONLY)
 
-// fieldPathValue represents a value retrieved from a nested field path
-type fieldPathValue struct {
-	value  protoreflect.Value
-	exists bool // false if the path couldn't be fully resolved
-}
-
-// getValueAtPath retrieves the value at the given field path (e.g., "address.street").
-// Returns a fieldPathValue with exists=false if the path cannot be resolved.
-func getValueAtPath(msg protoreflect.Message, path string) fieldPathValue {
-	parts := splitFieldPath(path)
-	if len(parts) == 0 {
-		return fieldPathValue{exists: false}
-	}
-
-	currentMsg := msg
-
-	// Iteratively navigate through the path
-	for i, fieldName := range parts {
-		fieldDesc := currentMsg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
-		if fieldDesc == nil {
-			return fieldPathValue{exists: false}
-		}
-
-		isLastPart := i == len(parts)-1
-
-		if isLastPart {
-			// We've reached the target field
-			return fieldPathValue{
-				value:  currentMsg.Get(fieldDesc),
-				exists: true,
-			}
-		}
-
-		// Not the last part - need to navigate deeper
-		// Can't navigate through non-message fields, repeated fields, or maps
-		if fieldDesc.Kind() != protoreflect.MessageKind ||
-			fieldDesc.Cardinality() == protoreflect.Repeated ||
-			fieldDesc.IsMap() {
-			return fieldPathValue{exists: false}
-		}
-
-		value := currentMsg.Get(fieldDesc)
-		if !value.Message().IsValid() {
-			// Nested message doesn't exist
-			return fieldPathValue{exists: false}
-		}
-
-		currentMsg = value.Message()
-	}
-
-	return fieldPathValue{exists: false}
-}
-
-// splitFieldPath splits a field path by dots (e.g., "address.street" -> ["address", "street"])
-func splitFieldPath(path string) []string {
-	if path == "" {
-		return nil
-	}
-
-	parts := []string{}
-	current := ""
-	for _, ch := range path {
-		if ch == '.' {
-			if current != "" {
-				parts = append(parts, current)
-				current = ""
-			}
-		} else {
-			current += string(ch)
-		}
-	}
-	if current != "" {
-		parts = append(parts, current)
-	}
-	return parts
+	cached, _ := outputOnlyFieldsCache.LoadOrStore(msgType, outputOnlyFields)
+	return cached.([]string)
 }
 
 // ValidateImmutableFields checks that no immutable fields have changed between oldMsg and newMsg.
@@ -198,13 +89,7 @@ func ValidateImmutableFields(
 			// Check parent paths
 			parts := splitFieldPath(path)
 			for i := len(parts) - 1; i > 0; i-- {
-				parentPath := ""
-				for j := 0; j < i; j++ {
-					if j > 0 {
-						parentPath += "."
-					}
-					parentPath += parts[j]
-				}
+				parentPath := strings.Join(parts[:i], ".")
 				if immutableSet[parentPath] {
 					immutablePath = parentPath
 					break
@@ -238,4 +123,179 @@ func ValidateImmutableFields(
 	}
 
 	return nil
+}
+
+// ValidateOutputOnlyFieldsNotSet returns an error if any OUTPUT_ONLY field is set in msg.
+// Used in Create RPCs to reject caller-supplied output-only fields.
+func ValidateOutputOnlyFieldsNotSet(msg proto.Message) error {
+	if msg == nil {
+		return nil
+	}
+	outputOnlyFields := GetOutputOnlyFields(msg)
+	if len(outputOnlyFields) == 0 {
+		return nil
+	}
+
+	msgReflect := msg.ProtoReflect()
+	for _, path := range outputOnlyFields {
+		if isFieldSet(msgReflect, path) {
+			return fmt.Errorf("field %q is OUTPUT_ONLY and must not be set by the caller", path)
+		}
+	}
+	return nil
+}
+
+// ValidateOutputOnlyFieldsNotInMask returns an error if any path in fieldMaskPaths refers to a
+// field marked OUTPUT_ONLY. Used in Update RPCs to reject attempts to update output-only fields.
+func ValidateOutputOnlyFieldsNotInMask(fieldMaskPaths []string, msg proto.Message) error {
+	if msg == nil {
+		return nil
+	}
+	outputOnlyFields := GetOutputOnlyFields(msg)
+	if len(outputOnlyFields) == 0 {
+		return nil
+	}
+
+	outputOnlySet := make(map[string]bool, len(outputOnlyFields))
+	// outputOnlyByAncestor maps each ancestor path of an OUTPUT_ONLY field to that field,
+	// allowing O(1) detection of mask paths that cover an OUTPUT_ONLY descendant.
+	outputOnlyByAncestor := make(map[string]string)
+	for _, f := range outputOnlyFields {
+		outputOnlySet[f] = true
+		parts := splitFieldPath(f)
+		for i := 1; i < len(parts); i++ {
+			outputOnlyByAncestor[strings.Join(parts[:i], ".")] = f
+		}
+	}
+
+	for _, path := range fieldMaskPaths {
+		if outputOnlySet[path] {
+			return fmt.Errorf("field %q is OUTPUT_ONLY and cannot be updated", path)
+		}
+		// Check parent paths (e.g. if "address" is OUTPUT_ONLY, reject "address.street")
+		parts := splitFieldPath(path)
+		for i := len(parts) - 1; i > 0; i-- {
+			parentPath := strings.Join(parts[:i], ".")
+			if outputOnlySet[parentPath] {
+				return fmt.Errorf("field %q is OUTPUT_ONLY and cannot be updated", parentPath)
+			}
+		}
+		// Check child paths (e.g. if "address.street" is OUTPUT_ONLY, reject "address")
+		if f, ok := outputOnlyByAncestor[path]; ok {
+			return fmt.Errorf("field %q is OUTPUT_ONLY and cannot be updated", f)
+		}
+	}
+	return nil
+}
+
+// computeFieldsByBehavior recursively finds all fields marked with the given field_behavior,
+// including nested fields. When a field itself has the behavior, its subtree is not recursed
+// (the top-level path covers it). The visited map prevents infinite recursion.
+func computeFieldsByBehavior(msgDesc protoreflect.MessageDescriptor, prefix string, visited map[protoreflect.FullName]bool, behavior annotations.FieldBehavior) []string {
+	msgType := msgDesc.FullName()
+	if visited[msgType] {
+		return nil
+	}
+	visited[msgType] = true
+	defer delete(visited, msgType)
+
+	var matchedFields []string
+
+	fields := msgDesc.Fields()
+	for i := 0; i < fields.Len(); i++ {
+		field := fields.Get(i)
+		fieldName := string(field.Name())
+
+		var fieldPath string
+		if prefix == "" {
+			fieldPath = fieldName
+		} else {
+			fieldPath = prefix + "." + fieldName
+		}
+
+		opts := field.Options()
+		if opts != nil && proto.HasExtension(opts, annotations.E_FieldBehavior) {
+			behaviors := proto.GetExtension(opts, annotations.E_FieldBehavior).([]annotations.FieldBehavior)
+			if slices.Contains(behaviors, behavior) {
+				matchedFields = append(matchedFields, fieldPath)
+				// Don't recurse — the whole subtree is covered by this path
+				continue
+			}
+		}
+
+		if field.Kind() == protoreflect.MessageKind && field.Message() != nil {
+			nestedFields := computeFieldsByBehavior(field.Message(), fieldPath, visited, behavior)
+			matchedFields = append(matchedFields, nestedFields...)
+		}
+	}
+
+	return matchedFields
+}
+
+// fieldPathValue represents a value retrieved from a nested field path
+type fieldPathValue struct {
+	value  protoreflect.Value
+	exists bool // false if the path couldn't be fully resolved
+}
+
+// navigateToField walks msg following each element of parts, returning the containing
+// message and field descriptor of the final element. Returns (nil, nil) if the path
+// cannot be resolved.
+func navigateToField(msg protoreflect.Message, parts []string) (protoreflect.Message, protoreflect.FieldDescriptor) {
+	currentMsg := msg
+	for i, fieldName := range parts {
+		fieldDesc := currentMsg.Descriptor().Fields().ByName(protoreflect.Name(fieldName))
+		if fieldDesc == nil {
+			return nil, nil
+		}
+		if i == len(parts)-1 {
+			return currentMsg, fieldDesc
+		}
+		if fieldDesc.Kind() != protoreflect.MessageKind ||
+			fieldDesc.Cardinality() == protoreflect.Repeated ||
+			fieldDesc.IsMap() {
+			return nil, nil
+		}
+		nested := currentMsg.Get(fieldDesc)
+		if !nested.Message().IsValid() {
+			return nil, nil
+		}
+		currentMsg = nested.Message()
+	}
+	return nil, nil
+}
+
+// getValueAtPath retrieves the value at the given field path (e.g., "address.street").
+// Returns a fieldPathValue with exists=false if the path cannot be resolved.
+func getValueAtPath(msg protoreflect.Message, path string) fieldPathValue {
+	parts := splitFieldPath(path)
+	if len(parts) == 0 {
+		return fieldPathValue{exists: false}
+	}
+	parent, fieldDesc := navigateToField(msg, parts)
+	if parent == nil {
+		return fieldPathValue{exists: false}
+	}
+	return fieldPathValue{value: parent.Get(fieldDesc), exists: true}
+}
+
+// isFieldSet returns true if the field at the given path is set to a non-default value.
+func isFieldSet(msg protoreflect.Message, path string) bool {
+	parts := splitFieldPath(path)
+	if len(parts) == 0 {
+		return false
+	}
+	parent, fieldDesc := navigateToField(msg, parts)
+	if parent == nil {
+		return false
+	}
+	return parent.Has(fieldDesc)
+}
+
+// splitFieldPath splits a field path by dots (e.g., "address.street" -> ["address", "street"])
+func splitFieldPath(path string) []string {
+	if path == "" {
+		return nil
+	}
+	return strings.Split(path, ".")
 }

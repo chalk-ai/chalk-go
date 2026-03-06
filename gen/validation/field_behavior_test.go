@@ -18,9 +18,10 @@ import (
 // Helper functions to create dynamic test messages for field behavior testing
 
 type testField struct {
-	name      string
-	fieldType descriptorpb.FieldDescriptorProto_Type
-	immutable bool
+	name       string
+	fieldType  descriptorpb.FieldDescriptorProto_Type
+	immutable  bool
+	outputOnly bool
 }
 
 // createTestMessageDescriptor creates a dynamic message descriptor with specified fields and behaviors
@@ -35,12 +36,17 @@ func createTestMessageDescriptor(messageName string, fields []testField) (protor
 			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
 		}
 
+		var behaviors []annotations.FieldBehavior
 		if f.immutable {
+			behaviors = append(behaviors, annotations.FieldBehavior_IMMUTABLE)
+		}
+		if f.outputOnly {
+			behaviors = append(behaviors, annotations.FieldBehavior_OUTPUT_ONLY)
+		}
+		if len(behaviors) > 0 {
 			if fieldDescriptors[i].Options == nil {
 				fieldDescriptors[i].Options = &descriptorpb.FieldOptions{}
 			}
-
-			behaviors := []annotations.FieldBehavior{annotations.FieldBehavior_IMMUTABLE}
 			proto.SetExtension(fieldDescriptors[i].Options, annotations.E_FieldBehavior, behaviors)
 		}
 	}
@@ -104,6 +110,10 @@ func setField(msg proto.Message, fieldName string, value any) {
 		m.Set(fd, protoreflect.ValueOfInt32(v))
 	}
 }
+
+// ---------------------------------------------------------------------------
+// IMMUTABLE tests
+// ---------------------------------------------------------------------------
 
 func TestGetImmutableFields(t *testing.T) {
 	t.Parallel()
@@ -921,4 +931,343 @@ func TestValidateImmutableFieldsWithRecursiveMessageImmutableChanged(t *testing.
 	require.Error(t, err, "Should not allow changing top-level immutable field in recursive structure")
 	assert.Contains(t, err.Error(), "id")
 	assert.Contains(t, err.Error(), "IMMUTABLE")
+}
+
+// ---------------------------------------------------------------------------
+// OUTPUT_ONLY tests
+// ---------------------------------------------------------------------------
+
+// getOutputOnlyTestMessage returns a message with:
+//   - "id"           OUTPUT_ONLY
+//   - "created_at"   OUTPUT_ONLY
+//   - "name"         mutable
+//   - "count"        mutable
+//   - "stats.sub_id" OUTPUT_ONLY (nested)
+//   - "stats.label"  mutable (nested)
+func getOutputOnlyTestMessage() (proto.Message, error) {
+	statsFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:    proto.String("sub_id"),
+			Number:  proto.Int32(1),
+			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options: &descriptorpb.FieldOptions{},
+		},
+		{
+			Name:   proto.String("label"),
+			Number: proto.Int32(2),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+	proto.SetExtension(statsFieldDescriptors[0].Options, annotations.E_FieldBehavior,
+		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
+
+	statsMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("OutputOnlyStats"),
+		Field: statsFieldDescriptors,
+	}
+
+	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:    proto.String("id"),
+			Number:  proto.Int32(1),
+			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options: &descriptorpb.FieldOptions{},
+		},
+		{
+			Name:    proto.String("created_at"),
+			Number:  proto.Int32(2),
+			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options: &descriptorpb.FieldOptions{},
+		},
+		{
+			Name:   proto.String("name"),
+			Number: proto.Int32(3),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:   proto.String("count"),
+			Number: proto.Int32(4),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_INT32.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:     proto.String("stats"),
+			Number:   proto.Int32(5),
+			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+			TypeName: proto.String(".test.OutputOnlyStats"),
+			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+	proto.SetExtension(parentFieldDescriptors[0].Options, annotations.E_FieldBehavior,
+		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
+	proto.SetExtension(parentFieldDescriptors[1].Options, annotations.E_FieldBehavior,
+		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
+
+	parentMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("OutputOnlyTestMessage"),
+		Field: parentFieldDescriptors,
+	}
+
+	fileDesc := &descriptorpb.FileDescriptorProto{
+		Name:        proto.String("test_output_only_message.proto"),
+		Package:     proto.String("test"),
+		MessageType: []*descriptorpb.DescriptorProto{statsMsgDesc, parentMsgDesc},
+		Dependency:  []string{"google/api/field_behavior.proto"},
+	}
+
+	fd, err := protodesc.NewFile(fileDesc, protoregistry.GlobalFiles)
+	if err != nil {
+		return nil, err
+	}
+	return dynamicpb.NewMessage(fd.Messages().Get(1)), nil
+}
+
+// getOutputOnlyParentFieldMessage returns a message where the nested message field "metadata"
+// is itself marked OUTPUT_ONLY (the nested fields have no annotations).
+func getOutputOnlyParentFieldMessage() (proto.Message, error) {
+	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:   proto.String("key"),
+			Number: proto.Int32(1),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:   proto.String("value"),
+			Number: proto.Int32(2),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+
+	nestedMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("Metadata"),
+		Field: nestedFieldDescriptors,
+	}
+
+	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:   proto.String("name"),
+			Number: proto.Int32(1),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:     proto.String("metadata"),
+			Number:   proto.Int32(2),
+			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+			TypeName: proto.String(".test.Metadata"),
+			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options:  &descriptorpb.FieldOptions{},
+		},
+	}
+
+	// Mark the entire "metadata" message field as OUTPUT_ONLY
+	metadataBehaviors := []annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY}
+	proto.SetExtension(parentFieldDescriptors[1].Options, annotations.E_FieldBehavior, metadataBehaviors)
+
+	parentMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("ResourceWithOutputOnlyParent"),
+		Field: parentFieldDescriptors,
+	}
+
+	fileDesc := &descriptorpb.FileDescriptorProto{
+		Name:        proto.String("test_output_only_parent.proto"),
+		Package:     proto.String("test"),
+		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
+		Dependency:  []string{"google/api/field_behavior.proto"},
+	}
+
+	fd, err := protodesc.NewFile(fileDesc, protoregistry.GlobalFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	return dynamicpb.NewMessage(fd.Messages().Get(1)), nil
+}
+
+func TestGetOutputOnlyFields(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+
+	outputOnlyFields := GetOutputOnlyFields(msg)
+
+	assert.ElementsMatch(t, []string{"id", "created_at", "stats.sub_id"}, outputOnlyFields)
+}
+
+func TestValidateOutputOnlyFieldsNotSetNilMessage(t *testing.T) {
+	t.Parallel()
+
+	err := ValidateOutputOnlyFieldsNotSet(nil)
+	assert.NoError(t, err)
+}
+
+func TestValidateOutputOnlyFieldsNotSetUnsetFields(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+	// Only set the mutable fields; leave output-only fields unset
+	setField(msg, "name", "Alice")
+	setField(msg, "count", int32(5))
+
+	err = ValidateOutputOnlyFieldsNotSet(msg)
+	assert.NoError(t, err)
+}
+
+func TestValidateOutputOnlyFieldsNotSetOutputOnlyFieldSet(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+	setField(msg, "id", "user-supplied-id")
+	setField(msg, "name", "Alice")
+
+	err = ValidateOutputOnlyFieldsNotSet(msg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "id")
+	assert.Contains(t, err.Error(), "OUTPUT_ONLY")
+}
+
+func TestValidateOutputOnlyFieldsNotSetNestedOutputOnlyFieldSet(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+
+	// Set stats.sub_id (OUTPUT_ONLY nested field)
+	msgReflect := msg.ProtoReflect()
+	statsFieldDesc := msgReflect.Descriptor().Fields().ByName("stats")
+	statsMsg := dynamicpb.NewMessage(statsFieldDesc.Message())
+	statsMsg.Set(statsMsg.Descriptor().Fields().ByName("sub_id"), protoreflect.ValueOfString("server-generated-id"))
+	msgReflect.Set(statsFieldDesc, protoreflect.ValueOfMessage(statsMsg))
+
+	err = ValidateOutputOnlyFieldsNotSet(msg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "stats.sub_id")
+	assert.Contains(t, err.Error(), "OUTPUT_ONLY")
+}
+
+func TestValidateOutputOnlyFieldsNotInMaskNilMessage(t *testing.T) {
+	t.Parallel()
+
+	err := ValidateOutputOnlyFieldsNotInMask([]string{"id", "name"}, nil)
+	assert.NoError(t, err)
+}
+
+func TestValidateOutputOnlyFieldsNotInMaskMutableFieldsOnly(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+
+	err = ValidateOutputOnlyFieldsNotInMask([]string{"name", "count"}, msg)
+	assert.NoError(t, err)
+}
+
+func TestValidateOutputOnlyFieldsNotInMaskOutputOnlyFieldInMask(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyTestMessage()
+	require.NoError(t, err)
+
+	err = ValidateOutputOnlyFieldsNotInMask([]string{"name", "id"}, msg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "id")
+	assert.Contains(t, err.Error(), "OUTPUT_ONLY")
+}
+
+func TestValidateOutputOnlyFieldsNotInMaskParentOutputOnlyChildInMask(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyParentFieldMessage()
+	require.NoError(t, err)
+
+	// "metadata" is OUTPUT_ONLY; "metadata.key" is a child path that should also be rejected
+	err = ValidateOutputOnlyFieldsNotInMask([]string{"name", "metadata.key"}, msg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "metadata")
+	assert.Contains(t, err.Error(), "OUTPUT_ONLY")
+}
+
+// getOutputOnlyChildFieldMessage returns a message where a nested field "metadata.key"
+// is OUTPUT_ONLY but the parent "metadata" is not annotated.
+func getOutputOnlyChildFieldMessage() (proto.Message, error) {
+	nestedFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:    proto.String("key"),
+			Number:  proto.Int32(1),
+			Type:    descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:   descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+			Options: &descriptorpb.FieldOptions{},
+		},
+		{
+			Name:   proto.String("value"),
+			Number: proto.Int32(2),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+	proto.SetExtension(nestedFieldDescriptors[0].Options, annotations.E_FieldBehavior,
+		[]annotations.FieldBehavior{annotations.FieldBehavior_OUTPUT_ONLY})
+
+	nestedMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("Metadata"),
+		Field: nestedFieldDescriptors,
+	}
+
+	parentFieldDescriptors := []*descriptorpb.FieldDescriptorProto{
+		{
+			Name:   proto.String("name"),
+			Number: proto.Int32(1),
+			Type:   descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum(),
+			Label:  descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+		{
+			Name:     proto.String("metadata"),
+			Number:   proto.Int32(2),
+			Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+			TypeName: proto.String(".test.Metadata"),
+			Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+		},
+	}
+
+	parentMsgDesc := &descriptorpb.DescriptorProto{
+		Name:  proto.String("ResourceWithOutputOnlyChild"),
+		Field: parentFieldDescriptors,
+	}
+
+	fileDesc := &descriptorpb.FileDescriptorProto{
+		Name:        proto.String("test_output_only_child.proto"),
+		Package:     proto.String("test"),
+		MessageType: []*descriptorpb.DescriptorProto{nestedMsgDesc, parentMsgDesc},
+		Dependency:  []string{"google/api/field_behavior.proto"},
+	}
+
+	fd, err := protodesc.NewFile(fileDesc, protoregistry.GlobalFiles)
+	if err != nil {
+		return nil, err
+	}
+	return dynamicpb.NewMessage(fd.Messages().Get(1)), nil
+}
+
+func TestValidateOutputOnlyFieldsNotInMaskChildOutputOnlyParentInMask(t *testing.T) {
+	t.Parallel()
+
+	msg, err := getOutputOnlyChildFieldMessage()
+	require.NoError(t, err)
+
+	// "metadata.key" is OUTPUT_ONLY; mask contains "metadata" (update the whole sub-message),
+	// which would overwrite the OUTPUT_ONLY child — should be rejected.
+	err = ValidateOutputOnlyFieldsNotInMask([]string{"name", "metadata"}, msg)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "metadata.key")
+	assert.Contains(t, err.Error(), "OUTPUT_ONLY")
 }
