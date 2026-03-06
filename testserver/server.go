@@ -46,6 +46,7 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	integrationsHandler := newIntegrationsServiceHandler(registry)
 	cloudComponentsHandler := newCloudComponentsServiceHandler(registry)
 	offlineStoreConnectionHandler := newOfflineStoreConnectionServiceHandler(registry)
+	environmentHandler := newEnvironmentServiceHandler(registry)
 
 	// Create HTTP mux
 	mux := http.NewServeMux()
@@ -73,6 +74,10 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register OfflineStoreConnectionService handler
 	offlineStoreConnectionPath, offlineStoreConnectionRPCHandler := serverv1connect.NewOfflineStoreConnectionServiceHandler(offlineStoreConnectionHandler)
 	mux.Handle(offlineStoreConnectionPath, offlineStoreConnectionRPCHandler)
+
+	// Register EnvironmentService handler
+	environmentPath, environmentRPCHandler := serverv1connect.NewEnvironmentServiceHandler(environmentHandler)
+	mux.Handle(environmentPath, environmentRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -449,6 +454,30 @@ func (s *MockServer) OnDeleteBindingEnvironmentOfflineStoreConnection() *MethodC
 func (s *MockServer) OnMigrateOfflineStoreConnection() *MethodConfigBuilder[*serverv1.MigrateOfflineStoreConnectionResponse] {
 	return &MethodConfigBuilder[*serverv1.MigrateOfflineStoreConnectionResponse]{
 		methodName: "MigrateOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateEnvironmentV2 configures the CreateEnvironmentV2 RPC method.
+func (s *MockServer) OnCreateEnvironmentV2() *MethodConfigBuilder[*serverv1.CreateEnvironmentV2Response] {
+	return &MethodConfigBuilder[*serverv1.CreateEnvironmentV2Response]{
+		methodName: "CreateEnvironmentV2",
+		registry:   s.registry,
+	}
+}
+
+// OnUpdateEnvironmentV2 configures the UpdateEnvironmentV2 RPC method.
+func (s *MockServer) OnUpdateEnvironmentV2() *MethodConfigBuilder[*serverv1.UpdateEnvironmentV2Response] {
+	return &MethodConfigBuilder[*serverv1.UpdateEnvironmentV2Response]{
+		methodName: "UpdateEnvironmentV2",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteEnvironment configures the DeleteEnvironment RPC method.
+func (s *MockServer) OnDeleteEnvironment() *MethodConfigBuilder[*serverv1.DeleteEnvironmentResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteEnvironmentResponse]{
+		methodName: "DeleteEnvironment",
 		registry:   s.registry,
 	}
 }
