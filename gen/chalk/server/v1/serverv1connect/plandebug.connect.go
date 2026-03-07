@@ -42,6 +42,12 @@ const (
 	// PlanDebugServiceGetQueryPlanStageDownloadLinkProcedure is the fully-qualified name of the
 	// PlanDebugService's GetQueryPlanStageDownloadLink RPC.
 	PlanDebugServiceGetQueryPlanStageDownloadLinkProcedure = "/chalk.server.v1.PlanDebugService/GetQueryPlanStageDownloadLink"
+	// PlanDebugServiceGetQueryPlanStageResolverInputScalarLinksProcedure is the fully-qualified name of
+	// the PlanDebugService's GetQueryPlanStageResolverInputScalarLinks RPC.
+	PlanDebugServiceGetQueryPlanStageResolverInputScalarLinksProcedure = "/chalk.server.v1.PlanDebugService/GetQueryPlanStageResolverInputScalarLinks"
+	// PlanDebugServiceGetQueryPlanStageResolverInputDataframeLinksProcedure is the fully-qualified name
+	// of the PlanDebugService's GetQueryPlanStageResolverInputDataframeLinks RPC.
+	PlanDebugServiceGetQueryPlanStageResolverInputDataframeLinksProcedure = "/chalk.server.v1.PlanDebugService/GetQueryPlanStageResolverInputDataframeLinks"
 )
 
 // PlanDebugServiceClient is a client for the chalk.server.v1.PlanDebugService service.
@@ -49,6 +55,8 @@ type PlanDebugServiceClient interface {
 	GetQueryPlanStage(context.Context, *connect.Request[v1.GetQueryPlanStageRequest]) (*connect.Response[v1.GetQueryPlanStageResponse], error)
 	GetQueryPlanStageResolverInputs(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputsRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputsResponse], error)
 	GetQueryPlanStageDownloadLink(context.Context, *connect.Request[v1.GetQueryPlanStageDownloadLinkRequest]) (*connect.Response[v1.GetQueryPlanStageDownloadLinkResponse], error)
+	GetQueryPlanStageResolverInputScalarLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputScalarLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputScalarLinksResponse], error)
+	GetQueryPlanStageResolverInputDataframeLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputDataframeLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputDataframeLinksResponse], error)
 }
 
 // NewPlanDebugServiceClient constructs a client for the chalk.server.v1.PlanDebugService service.
@@ -80,14 +88,28 @@ func NewPlanDebugServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageDownloadLink")),
 			connect.WithClientOptions(opts...),
 		),
+		getQueryPlanStageResolverInputScalarLinks: connect.NewClient[v1.GetQueryPlanStageResolverInputScalarLinksRequest, v1.GetQueryPlanStageResolverInputScalarLinksResponse](
+			httpClient,
+			baseURL+PlanDebugServiceGetQueryPlanStageResolverInputScalarLinksProcedure,
+			connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageResolverInputScalarLinks")),
+			connect.WithClientOptions(opts...),
+		),
+		getQueryPlanStageResolverInputDataframeLinks: connect.NewClient[v1.GetQueryPlanStageResolverInputDataframeLinksRequest, v1.GetQueryPlanStageResolverInputDataframeLinksResponse](
+			httpClient,
+			baseURL+PlanDebugServiceGetQueryPlanStageResolverInputDataframeLinksProcedure,
+			connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageResolverInputDataframeLinks")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // planDebugServiceClient implements PlanDebugServiceClient.
 type planDebugServiceClient struct {
-	getQueryPlanStage               *connect.Client[v1.GetQueryPlanStageRequest, v1.GetQueryPlanStageResponse]
-	getQueryPlanStageResolverInputs *connect.Client[v1.GetQueryPlanStageResolverInputsRequest, v1.GetQueryPlanStageResolverInputsResponse]
-	getQueryPlanStageDownloadLink   *connect.Client[v1.GetQueryPlanStageDownloadLinkRequest, v1.GetQueryPlanStageDownloadLinkResponse]
+	getQueryPlanStage                            *connect.Client[v1.GetQueryPlanStageRequest, v1.GetQueryPlanStageResponse]
+	getQueryPlanStageResolverInputs              *connect.Client[v1.GetQueryPlanStageResolverInputsRequest, v1.GetQueryPlanStageResolverInputsResponse]
+	getQueryPlanStageDownloadLink                *connect.Client[v1.GetQueryPlanStageDownloadLinkRequest, v1.GetQueryPlanStageDownloadLinkResponse]
+	getQueryPlanStageResolverInputScalarLinks    *connect.Client[v1.GetQueryPlanStageResolverInputScalarLinksRequest, v1.GetQueryPlanStageResolverInputScalarLinksResponse]
+	getQueryPlanStageResolverInputDataframeLinks *connect.Client[v1.GetQueryPlanStageResolverInputDataframeLinksRequest, v1.GetQueryPlanStageResolverInputDataframeLinksResponse]
 }
 
 // GetQueryPlanStage calls chalk.server.v1.PlanDebugService.GetQueryPlanStage.
@@ -107,11 +129,25 @@ func (c *planDebugServiceClient) GetQueryPlanStageDownloadLink(ctx context.Conte
 	return c.getQueryPlanStageDownloadLink.CallUnary(ctx, req)
 }
 
+// GetQueryPlanStageResolverInputScalarLinks calls
+// chalk.server.v1.PlanDebugService.GetQueryPlanStageResolverInputScalarLinks.
+func (c *planDebugServiceClient) GetQueryPlanStageResolverInputScalarLinks(ctx context.Context, req *connect.Request[v1.GetQueryPlanStageResolverInputScalarLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputScalarLinksResponse], error) {
+	return c.getQueryPlanStageResolverInputScalarLinks.CallUnary(ctx, req)
+}
+
+// GetQueryPlanStageResolverInputDataframeLinks calls
+// chalk.server.v1.PlanDebugService.GetQueryPlanStageResolverInputDataframeLinks.
+func (c *planDebugServiceClient) GetQueryPlanStageResolverInputDataframeLinks(ctx context.Context, req *connect.Request[v1.GetQueryPlanStageResolverInputDataframeLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputDataframeLinksResponse], error) {
+	return c.getQueryPlanStageResolverInputDataframeLinks.CallUnary(ctx, req)
+}
+
 // PlanDebugServiceHandler is an implementation of the chalk.server.v1.PlanDebugService service.
 type PlanDebugServiceHandler interface {
 	GetQueryPlanStage(context.Context, *connect.Request[v1.GetQueryPlanStageRequest]) (*connect.Response[v1.GetQueryPlanStageResponse], error)
 	GetQueryPlanStageResolverInputs(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputsRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputsResponse], error)
 	GetQueryPlanStageDownloadLink(context.Context, *connect.Request[v1.GetQueryPlanStageDownloadLinkRequest]) (*connect.Response[v1.GetQueryPlanStageDownloadLinkResponse], error)
+	GetQueryPlanStageResolverInputScalarLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputScalarLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputScalarLinksResponse], error)
+	GetQueryPlanStageResolverInputDataframeLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputDataframeLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputDataframeLinksResponse], error)
 }
 
 // NewPlanDebugServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -139,6 +175,18 @@ func NewPlanDebugServiceHandler(svc PlanDebugServiceHandler, opts ...connect.Han
 		connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageDownloadLink")),
 		connect.WithHandlerOptions(opts...),
 	)
+	planDebugServiceGetQueryPlanStageResolverInputScalarLinksHandler := connect.NewUnaryHandler(
+		PlanDebugServiceGetQueryPlanStageResolverInputScalarLinksProcedure,
+		svc.GetQueryPlanStageResolverInputScalarLinks,
+		connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageResolverInputScalarLinks")),
+		connect.WithHandlerOptions(opts...),
+	)
+	planDebugServiceGetQueryPlanStageResolverInputDataframeLinksHandler := connect.NewUnaryHandler(
+		PlanDebugServiceGetQueryPlanStageResolverInputDataframeLinksProcedure,
+		svc.GetQueryPlanStageResolverInputDataframeLinks,
+		connect.WithSchema(planDebugServiceMethods.ByName("GetQueryPlanStageResolverInputDataframeLinks")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.PlanDebugService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case PlanDebugServiceGetQueryPlanStageProcedure:
@@ -147,6 +195,10 @@ func NewPlanDebugServiceHandler(svc PlanDebugServiceHandler, opts ...connect.Han
 			planDebugServiceGetQueryPlanStageResolverInputsHandler.ServeHTTP(w, r)
 		case PlanDebugServiceGetQueryPlanStageDownloadLinkProcedure:
 			planDebugServiceGetQueryPlanStageDownloadLinkHandler.ServeHTTP(w, r)
+		case PlanDebugServiceGetQueryPlanStageResolverInputScalarLinksProcedure:
+			planDebugServiceGetQueryPlanStageResolverInputScalarLinksHandler.ServeHTTP(w, r)
+		case PlanDebugServiceGetQueryPlanStageResolverInputDataframeLinksProcedure:
+			planDebugServiceGetQueryPlanStageResolverInputDataframeLinksHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -166,4 +218,12 @@ func (UnimplementedPlanDebugServiceHandler) GetQueryPlanStageResolverInputs(cont
 
 func (UnimplementedPlanDebugServiceHandler) GetQueryPlanStageDownloadLink(context.Context, *connect.Request[v1.GetQueryPlanStageDownloadLinkRequest]) (*connect.Response[v1.GetQueryPlanStageDownloadLinkResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.PlanDebugService.GetQueryPlanStageDownloadLink is not implemented"))
+}
+
+func (UnimplementedPlanDebugServiceHandler) GetQueryPlanStageResolverInputScalarLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputScalarLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputScalarLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.PlanDebugService.GetQueryPlanStageResolverInputScalarLinks is not implemented"))
+}
+
+func (UnimplementedPlanDebugServiceHandler) GetQueryPlanStageResolverInputDataframeLinks(context.Context, *connect.Request[v1.GetQueryPlanStageResolverInputDataframeLinksRequest]) (*connect.Response[v1.GetQueryPlanStageResolverInputDataframeLinksResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.PlanDebugService.GetQueryPlanStageResolverInputDataframeLinks is not implemented"))
 }

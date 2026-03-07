@@ -81,12 +81,42 @@ const (
 	// MonitoringServiceGetIncidentAlertsChartProcedure is the fully-qualified name of the
 	// MonitoringService's GetIncidentAlertsChart RPC.
 	MonitoringServiceGetIncidentAlertsChartProcedure = "/chalk.server.v1.MonitoringService/GetIncidentAlertsChart"
+	// MonitoringServiceTestNamedAlertChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's TestNamedAlertChannels RPC.
+	MonitoringServiceTestNamedAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/TestNamedAlertChannels"
+	// MonitoringServiceEditNamedAlertChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's EditNamedAlertChannels RPC.
+	MonitoringServiceEditNamedAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/EditNamedAlertChannels"
+	// MonitoringServiceDeleteNamedAlertChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's DeleteNamedAlertChannels RPC.
+	MonitoringServiceDeleteNamedAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/DeleteNamedAlertChannels"
+	// MonitoringServiceSetDefaultAlertChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's SetDefaultAlertChannels RPC.
+	MonitoringServiceSetDefaultAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/SetDefaultAlertChannels"
 	// MonitoringServiceListAlertChannelsProcedure is the fully-qualified name of the
 	// MonitoringService's ListAlertChannels RPC.
 	MonitoringServiceListAlertChannelsProcedure = "/chalk.server.v1.MonitoringService/ListAlertChannels"
+	// MonitoringServiceTestSlackIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's TestSlackIntegration RPC.
+	MonitoringServiceTestSlackIntegrationProcedure = "/chalk.server.v1.MonitoringService/TestSlackIntegration"
 	// MonitoringServiceGetSlackIntegrationProcedure is the fully-qualified name of the
 	// MonitoringService's GetSlackIntegration RPC.
 	MonitoringServiceGetSlackIntegrationProcedure = "/chalk.server.v1.MonitoringService/GetSlackIntegration"
+	// MonitoringServiceUpsertSlackIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's UpsertSlackIntegration RPC.
+	MonitoringServiceUpsertSlackIntegrationProcedure = "/chalk.server.v1.MonitoringService/UpsertSlackIntegration"
+	// MonitoringServiceDeleteSlackIntegrationProcedure is the fully-qualified name of the
+	// MonitoringService's DeleteSlackIntegration RPC.
+	MonitoringServiceDeleteSlackIntegrationProcedure = "/chalk.server.v1.MonitoringService/DeleteSlackIntegration"
+	// MonitoringServiceGetSlackChannelsProcedure is the fully-qualified name of the MonitoringService's
+	// GetSlackChannels RPC.
+	MonitoringServiceGetSlackChannelsProcedure = "/chalk.server.v1.MonitoringService/GetSlackChannels"
+	// MonitoringServiceUpdateSlackChannelsProcedure is the fully-qualified name of the
+	// MonitoringService's UpdateSlackChannels RPC.
+	MonitoringServiceUpdateSlackChannelsProcedure = "/chalk.server.v1.MonitoringService/UpdateSlackChannels"
+	// MonitoringServiceUpsertDefaultSlackChannelProcedure is the fully-qualified name of the
+	// MonitoringService's UpsertDefaultSlackChannel RPC.
+	MonitoringServiceUpsertDefaultSlackChannelProcedure = "/chalk.server.v1.MonitoringService/UpsertDefaultSlackChannel"
 )
 
 // MonitoringServiceClient is a client for the chalk.server.v1.MonitoringService service.
@@ -107,8 +137,18 @@ type MonitoringServiceClient interface {
 	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
 	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
 	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
+	TestNamedAlertChannels(context.Context, *connect.Request[v1.TestNamedAlertChannelsRequest]) (*connect.Response[v1.TestNamedAlertChannelsResponse], error)
+	EditNamedAlertChannels(context.Context, *connect.Request[v1.EditNamedAlertChannelsRequest]) (*connect.Response[v1.EditNamedAlertChannelsResponse], error)
+	DeleteNamedAlertChannels(context.Context, *connect.Request[v1.DeleteNamedAlertChannelsRequest]) (*connect.Response[v1.DeleteNamedAlertChannelsResponse], error)
+	SetDefaultAlertChannels(context.Context, *connect.Request[v1.SetDefaultAlertChannelsRequest]) (*connect.Response[v1.SetDefaultAlertChannelsResponse], error)
 	ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error)
+	TestSlackIntegration(context.Context, *connect.Request[v1.TestSlackIntegrationRequest]) (*connect.Response[v1.TestSlackIntegrationResponse], error)
 	GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error)
+	UpsertSlackIntegration(context.Context, *connect.Request[v1.UpsertSlackIntegrationRequest]) (*connect.Response[v1.UpsertSlackIntegrationResponse], error)
+	DeleteSlackIntegration(context.Context, *connect.Request[v1.DeleteSlackIntegrationRequest]) (*connect.Response[v1.DeleteSlackIntegrationResponse], error)
+	GetSlackChannels(context.Context, *connect.Request[v1.GetSlackChannelsRequest]) (*connect.Response[v1.GetSlackChannelsResponse], error)
+	UpdateSlackChannels(context.Context, *connect.Request[v1.UpdateSlackChannelsRequest]) (*connect.Response[v1.UpdateSlackChannelsResponse], error)
+	UpsertDefaultSlackChannel(context.Context, *connect.Request[v1.UpsertDefaultSlackChannelRequest]) (*connect.Response[v1.UpsertDefaultSlackChannelResponse], error)
 }
 
 // NewMonitoringServiceClient constructs a client for the chalk.server.v1.MonitoringService service.
@@ -228,6 +268,31 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		testNamedAlertChannels: connect.NewClient[v1.TestNamedAlertChannelsRequest, v1.TestNamedAlertChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceTestNamedAlertChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("TestNamedAlertChannels")),
+			connect.WithClientOptions(opts...),
+		),
+		editNamedAlertChannels: connect.NewClient[v1.EditNamedAlertChannelsRequest, v1.EditNamedAlertChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceEditNamedAlertChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("EditNamedAlertChannels")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteNamedAlertChannels: connect.NewClient[v1.DeleteNamedAlertChannelsRequest, v1.DeleteNamedAlertChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceDeleteNamedAlertChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("DeleteNamedAlertChannels")),
+			connect.WithClientOptions(opts...),
+		),
+		setDefaultAlertChannels: connect.NewClient[v1.SetDefaultAlertChannelsRequest, v1.SetDefaultAlertChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceSetDefaultAlertChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("SetDefaultAlertChannels")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listAlertChannels: connect.NewClient[v1.ListAlertChannelsRequest, v1.ListAlertChannelsResponse](
 			httpClient,
 			baseURL+MonitoringServiceListAlertChannelsProcedure,
@@ -235,11 +300,49 @@ func NewMonitoringServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		testSlackIntegration: connect.NewClient[v1.TestSlackIntegrationRequest, v1.TestSlackIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceTestSlackIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("TestSlackIntegration")),
+			connect.WithClientOptions(opts...),
+		),
 		getSlackIntegration: connect.NewClient[v1.GetSlackIntegrationRequest, v1.GetSlackIntegrationResponse](
 			httpClient,
 			baseURL+MonitoringServiceGetSlackIntegrationProcedure,
 			connect.WithSchema(monitoringServiceMethods.ByName("GetSlackIntegration")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		upsertSlackIntegration: connect.NewClient[v1.UpsertSlackIntegrationRequest, v1.UpsertSlackIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceUpsertSlackIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("UpsertSlackIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteSlackIntegration: connect.NewClient[v1.DeleteSlackIntegrationRequest, v1.DeleteSlackIntegrationResponse](
+			httpClient,
+			baseURL+MonitoringServiceDeleteSlackIntegrationProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("DeleteSlackIntegration")),
+			connect.WithClientOptions(opts...),
+		),
+		getSlackChannels: connect.NewClient[v1.GetSlackChannelsRequest, v1.GetSlackChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceGetSlackChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("GetSlackChannels")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		updateSlackChannels: connect.NewClient[v1.UpdateSlackChannelsRequest, v1.UpdateSlackChannelsResponse](
+			httpClient,
+			baseURL+MonitoringServiceUpdateSlackChannelsProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("UpdateSlackChannels")),
+			connect.WithClientOptions(opts...),
+		),
+		upsertDefaultSlackChannel: connect.NewClient[v1.UpsertDefaultSlackChannelRequest, v1.UpsertDefaultSlackChannelResponse](
+			httpClient,
+			baseURL+MonitoringServiceUpsertDefaultSlackChannelProcedure,
+			connect.WithSchema(monitoringServiceMethods.ByName("UpsertDefaultSlackChannel")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -263,8 +366,18 @@ type monitoringServiceClient struct {
 	listIncidents                  *connect.Client[v1.ListIncidentsRequest, v1.ListIncidentsResponse]
 	getIncident                    *connect.Client[v1.GetIncidentRequest, v1.GetIncidentResponse]
 	getIncidentAlertsChart         *connect.Client[v1.GetIncidentAlertsChartRequest, v1.GetIncidentAlertsChartResponse]
+	testNamedAlertChannels         *connect.Client[v1.TestNamedAlertChannelsRequest, v1.TestNamedAlertChannelsResponse]
+	editNamedAlertChannels         *connect.Client[v1.EditNamedAlertChannelsRequest, v1.EditNamedAlertChannelsResponse]
+	deleteNamedAlertChannels       *connect.Client[v1.DeleteNamedAlertChannelsRequest, v1.DeleteNamedAlertChannelsResponse]
+	setDefaultAlertChannels        *connect.Client[v1.SetDefaultAlertChannelsRequest, v1.SetDefaultAlertChannelsResponse]
 	listAlertChannels              *connect.Client[v1.ListAlertChannelsRequest, v1.ListAlertChannelsResponse]
+	testSlackIntegration           *connect.Client[v1.TestSlackIntegrationRequest, v1.TestSlackIntegrationResponse]
 	getSlackIntegration            *connect.Client[v1.GetSlackIntegrationRequest, v1.GetSlackIntegrationResponse]
+	upsertSlackIntegration         *connect.Client[v1.UpsertSlackIntegrationRequest, v1.UpsertSlackIntegrationResponse]
+	deleteSlackIntegration         *connect.Client[v1.DeleteSlackIntegrationRequest, v1.DeleteSlackIntegrationResponse]
+	getSlackChannels               *connect.Client[v1.GetSlackChannelsRequest, v1.GetSlackChannelsResponse]
+	updateSlackChannels            *connect.Client[v1.UpdateSlackChannelsRequest, v1.UpdateSlackChannelsResponse]
+	upsertDefaultSlackChannel      *connect.Client[v1.UpsertDefaultSlackChannelRequest, v1.UpsertDefaultSlackChannelResponse]
 }
 
 // TestPagerDutyIntegration calls chalk.server.v1.MonitoringService.TestPagerDutyIntegration.
@@ -349,14 +462,64 @@ func (c *monitoringServiceClient) GetIncidentAlertsChart(ctx context.Context, re
 	return c.getIncidentAlertsChart.CallUnary(ctx, req)
 }
 
+// TestNamedAlertChannels calls chalk.server.v1.MonitoringService.TestNamedAlertChannels.
+func (c *monitoringServiceClient) TestNamedAlertChannels(ctx context.Context, req *connect.Request[v1.TestNamedAlertChannelsRequest]) (*connect.Response[v1.TestNamedAlertChannelsResponse], error) {
+	return c.testNamedAlertChannels.CallUnary(ctx, req)
+}
+
+// EditNamedAlertChannels calls chalk.server.v1.MonitoringService.EditNamedAlertChannels.
+func (c *monitoringServiceClient) EditNamedAlertChannels(ctx context.Context, req *connect.Request[v1.EditNamedAlertChannelsRequest]) (*connect.Response[v1.EditNamedAlertChannelsResponse], error) {
+	return c.editNamedAlertChannels.CallUnary(ctx, req)
+}
+
+// DeleteNamedAlertChannels calls chalk.server.v1.MonitoringService.DeleteNamedAlertChannels.
+func (c *monitoringServiceClient) DeleteNamedAlertChannels(ctx context.Context, req *connect.Request[v1.DeleteNamedAlertChannelsRequest]) (*connect.Response[v1.DeleteNamedAlertChannelsResponse], error) {
+	return c.deleteNamedAlertChannels.CallUnary(ctx, req)
+}
+
+// SetDefaultAlertChannels calls chalk.server.v1.MonitoringService.SetDefaultAlertChannels.
+func (c *monitoringServiceClient) SetDefaultAlertChannels(ctx context.Context, req *connect.Request[v1.SetDefaultAlertChannelsRequest]) (*connect.Response[v1.SetDefaultAlertChannelsResponse], error) {
+	return c.setDefaultAlertChannels.CallUnary(ctx, req)
+}
+
 // ListAlertChannels calls chalk.server.v1.MonitoringService.ListAlertChannels.
 func (c *monitoringServiceClient) ListAlertChannels(ctx context.Context, req *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error) {
 	return c.listAlertChannels.CallUnary(ctx, req)
 }
 
+// TestSlackIntegration calls chalk.server.v1.MonitoringService.TestSlackIntegration.
+func (c *monitoringServiceClient) TestSlackIntegration(ctx context.Context, req *connect.Request[v1.TestSlackIntegrationRequest]) (*connect.Response[v1.TestSlackIntegrationResponse], error) {
+	return c.testSlackIntegration.CallUnary(ctx, req)
+}
+
 // GetSlackIntegration calls chalk.server.v1.MonitoringService.GetSlackIntegration.
 func (c *monitoringServiceClient) GetSlackIntegration(ctx context.Context, req *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error) {
 	return c.getSlackIntegration.CallUnary(ctx, req)
+}
+
+// UpsertSlackIntegration calls chalk.server.v1.MonitoringService.UpsertSlackIntegration.
+func (c *monitoringServiceClient) UpsertSlackIntegration(ctx context.Context, req *connect.Request[v1.UpsertSlackIntegrationRequest]) (*connect.Response[v1.UpsertSlackIntegrationResponse], error) {
+	return c.upsertSlackIntegration.CallUnary(ctx, req)
+}
+
+// DeleteSlackIntegration calls chalk.server.v1.MonitoringService.DeleteSlackIntegration.
+func (c *monitoringServiceClient) DeleteSlackIntegration(ctx context.Context, req *connect.Request[v1.DeleteSlackIntegrationRequest]) (*connect.Response[v1.DeleteSlackIntegrationResponse], error) {
+	return c.deleteSlackIntegration.CallUnary(ctx, req)
+}
+
+// GetSlackChannels calls chalk.server.v1.MonitoringService.GetSlackChannels.
+func (c *monitoringServiceClient) GetSlackChannels(ctx context.Context, req *connect.Request[v1.GetSlackChannelsRequest]) (*connect.Response[v1.GetSlackChannelsResponse], error) {
+	return c.getSlackChannels.CallUnary(ctx, req)
+}
+
+// UpdateSlackChannels calls chalk.server.v1.MonitoringService.UpdateSlackChannels.
+func (c *monitoringServiceClient) UpdateSlackChannels(ctx context.Context, req *connect.Request[v1.UpdateSlackChannelsRequest]) (*connect.Response[v1.UpdateSlackChannelsResponse], error) {
+	return c.updateSlackChannels.CallUnary(ctx, req)
+}
+
+// UpsertDefaultSlackChannel calls chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel.
+func (c *monitoringServiceClient) UpsertDefaultSlackChannel(ctx context.Context, req *connect.Request[v1.UpsertDefaultSlackChannelRequest]) (*connect.Response[v1.UpsertDefaultSlackChannelResponse], error) {
+	return c.upsertDefaultSlackChannel.CallUnary(ctx, req)
 }
 
 // MonitoringServiceHandler is an implementation of the chalk.server.v1.MonitoringService service.
@@ -377,8 +540,18 @@ type MonitoringServiceHandler interface {
 	ListIncidents(context.Context, *connect.Request[v1.ListIncidentsRequest]) (*connect.Response[v1.ListIncidentsResponse], error)
 	GetIncident(context.Context, *connect.Request[v1.GetIncidentRequest]) (*connect.Response[v1.GetIncidentResponse], error)
 	GetIncidentAlertsChart(context.Context, *connect.Request[v1.GetIncidentAlertsChartRequest]) (*connect.Response[v1.GetIncidentAlertsChartResponse], error)
+	TestNamedAlertChannels(context.Context, *connect.Request[v1.TestNamedAlertChannelsRequest]) (*connect.Response[v1.TestNamedAlertChannelsResponse], error)
+	EditNamedAlertChannels(context.Context, *connect.Request[v1.EditNamedAlertChannelsRequest]) (*connect.Response[v1.EditNamedAlertChannelsResponse], error)
+	DeleteNamedAlertChannels(context.Context, *connect.Request[v1.DeleteNamedAlertChannelsRequest]) (*connect.Response[v1.DeleteNamedAlertChannelsResponse], error)
+	SetDefaultAlertChannels(context.Context, *connect.Request[v1.SetDefaultAlertChannelsRequest]) (*connect.Response[v1.SetDefaultAlertChannelsResponse], error)
 	ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error)
+	TestSlackIntegration(context.Context, *connect.Request[v1.TestSlackIntegrationRequest]) (*connect.Response[v1.TestSlackIntegrationResponse], error)
 	GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error)
+	UpsertSlackIntegration(context.Context, *connect.Request[v1.UpsertSlackIntegrationRequest]) (*connect.Response[v1.UpsertSlackIntegrationResponse], error)
+	DeleteSlackIntegration(context.Context, *connect.Request[v1.DeleteSlackIntegrationRequest]) (*connect.Response[v1.DeleteSlackIntegrationResponse], error)
+	GetSlackChannels(context.Context, *connect.Request[v1.GetSlackChannelsRequest]) (*connect.Response[v1.GetSlackChannelsResponse], error)
+	UpdateSlackChannels(context.Context, *connect.Request[v1.UpdateSlackChannelsRequest]) (*connect.Response[v1.UpdateSlackChannelsResponse], error)
+	UpsertDefaultSlackChannel(context.Context, *connect.Request[v1.UpsertDefaultSlackChannelRequest]) (*connect.Response[v1.UpsertDefaultSlackChannelResponse], error)
 }
 
 // NewMonitoringServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -494,6 +667,31 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitoringServiceTestNamedAlertChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceTestNamedAlertChannelsProcedure,
+		svc.TestNamedAlertChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("TestNamedAlertChannels")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceEditNamedAlertChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceEditNamedAlertChannelsProcedure,
+		svc.EditNamedAlertChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("EditNamedAlertChannels")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceDeleteNamedAlertChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceDeleteNamedAlertChannelsProcedure,
+		svc.DeleteNamedAlertChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("DeleteNamedAlertChannels")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceSetDefaultAlertChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceSetDefaultAlertChannelsProcedure,
+		svc.SetDefaultAlertChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("SetDefaultAlertChannels")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	monitoringServiceListAlertChannelsHandler := connect.NewUnaryHandler(
 		MonitoringServiceListAlertChannelsProcedure,
 		svc.ListAlertChannels,
@@ -501,11 +699,49 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	monitoringServiceTestSlackIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceTestSlackIntegrationProcedure,
+		svc.TestSlackIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("TestSlackIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
 	monitoringServiceGetSlackIntegrationHandler := connect.NewUnaryHandler(
 		MonitoringServiceGetSlackIntegrationProcedure,
 		svc.GetSlackIntegration,
 		connect.WithSchema(monitoringServiceMethods.ByName("GetSlackIntegration")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceUpsertSlackIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceUpsertSlackIntegrationProcedure,
+		svc.UpsertSlackIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("UpsertSlackIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceDeleteSlackIntegrationHandler := connect.NewUnaryHandler(
+		MonitoringServiceDeleteSlackIntegrationProcedure,
+		svc.DeleteSlackIntegration,
+		connect.WithSchema(monitoringServiceMethods.ByName("DeleteSlackIntegration")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceGetSlackChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceGetSlackChannelsProcedure,
+		svc.GetSlackChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("GetSlackChannels")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceUpdateSlackChannelsHandler := connect.NewUnaryHandler(
+		MonitoringServiceUpdateSlackChannelsProcedure,
+		svc.UpdateSlackChannels,
+		connect.WithSchema(monitoringServiceMethods.ByName("UpdateSlackChannels")),
+		connect.WithHandlerOptions(opts...),
+	)
+	monitoringServiceUpsertDefaultSlackChannelHandler := connect.NewUnaryHandler(
+		MonitoringServiceUpsertDefaultSlackChannelProcedure,
+		svc.UpsertDefaultSlackChannel,
+		connect.WithSchema(monitoringServiceMethods.ByName("UpsertDefaultSlackChannel")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/chalk.server.v1.MonitoringService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -542,10 +778,30 @@ func NewMonitoringServiceHandler(svc MonitoringServiceHandler, opts ...connect.H
 			monitoringServiceGetIncidentHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetIncidentAlertsChartProcedure:
 			monitoringServiceGetIncidentAlertsChartHandler.ServeHTTP(w, r)
+		case MonitoringServiceTestNamedAlertChannelsProcedure:
+			monitoringServiceTestNamedAlertChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceEditNamedAlertChannelsProcedure:
+			monitoringServiceEditNamedAlertChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceDeleteNamedAlertChannelsProcedure:
+			monitoringServiceDeleteNamedAlertChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceSetDefaultAlertChannelsProcedure:
+			monitoringServiceSetDefaultAlertChannelsHandler.ServeHTTP(w, r)
 		case MonitoringServiceListAlertChannelsProcedure:
 			monitoringServiceListAlertChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceTestSlackIntegrationProcedure:
+			monitoringServiceTestSlackIntegrationHandler.ServeHTTP(w, r)
 		case MonitoringServiceGetSlackIntegrationProcedure:
 			monitoringServiceGetSlackIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceUpsertSlackIntegrationProcedure:
+			monitoringServiceUpsertSlackIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceDeleteSlackIntegrationProcedure:
+			monitoringServiceDeleteSlackIntegrationHandler.ServeHTTP(w, r)
+		case MonitoringServiceGetSlackChannelsProcedure:
+			monitoringServiceGetSlackChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceUpdateSlackChannelsProcedure:
+			monitoringServiceUpdateSlackChannelsHandler.ServeHTTP(w, r)
+		case MonitoringServiceUpsertDefaultSlackChannelProcedure:
+			monitoringServiceUpsertDefaultSlackChannelHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -619,10 +875,50 @@ func (UnimplementedMonitoringServiceHandler) GetIncidentAlertsChart(context.Cont
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetIncidentAlertsChart is not implemented"))
 }
 
+func (UnimplementedMonitoringServiceHandler) TestNamedAlertChannels(context.Context, *connect.Request[v1.TestNamedAlertChannelsRequest]) (*connect.Response[v1.TestNamedAlertChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.TestNamedAlertChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) EditNamedAlertChannels(context.Context, *connect.Request[v1.EditNamedAlertChannelsRequest]) (*connect.Response[v1.EditNamedAlertChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.EditNamedAlertChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) DeleteNamedAlertChannels(context.Context, *connect.Request[v1.DeleteNamedAlertChannelsRequest]) (*connect.Response[v1.DeleteNamedAlertChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.DeleteNamedAlertChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) SetDefaultAlertChannels(context.Context, *connect.Request[v1.SetDefaultAlertChannelsRequest]) (*connect.Response[v1.SetDefaultAlertChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.SetDefaultAlertChannels is not implemented"))
+}
+
 func (UnimplementedMonitoringServiceHandler) ListAlertChannels(context.Context, *connect.Request[v1.ListAlertChannelsRequest]) (*connect.Response[v1.ListAlertChannelsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.ListAlertChannels is not implemented"))
 }
 
+func (UnimplementedMonitoringServiceHandler) TestSlackIntegration(context.Context, *connect.Request[v1.TestSlackIntegrationRequest]) (*connect.Response[v1.TestSlackIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.TestSlackIntegration is not implemented"))
+}
+
 func (UnimplementedMonitoringServiceHandler) GetSlackIntegration(context.Context, *connect.Request[v1.GetSlackIntegrationRequest]) (*connect.Response[v1.GetSlackIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetSlackIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) UpsertSlackIntegration(context.Context, *connect.Request[v1.UpsertSlackIntegrationRequest]) (*connect.Response[v1.UpsertSlackIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.UpsertSlackIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) DeleteSlackIntegration(context.Context, *connect.Request[v1.DeleteSlackIntegrationRequest]) (*connect.Response[v1.DeleteSlackIntegrationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.DeleteSlackIntegration is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) GetSlackChannels(context.Context, *connect.Request[v1.GetSlackChannelsRequest]) (*connect.Response[v1.GetSlackChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.GetSlackChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) UpdateSlackChannels(context.Context, *connect.Request[v1.UpdateSlackChannelsRequest]) (*connect.Response[v1.UpdateSlackChannelsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.UpdateSlackChannels is not implemented"))
+}
+
+func (UnimplementedMonitoringServiceHandler) UpsertDefaultSlackChannel(context.Context, *connect.Request[v1.UpsertDefaultSlackChannelRequest]) (*connect.Response[v1.UpsertDefaultSlackChannelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.MonitoringService.UpsertDefaultSlackChannel is not implemented"))
 }
