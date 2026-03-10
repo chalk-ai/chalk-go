@@ -124,9 +124,3 @@ type chalkErrorSerialized struct {
 	Feature   string             `json:"feature"`
 	Resolver  string             `json:"resolver"`
 }
-
-func UnmarshalDatasetResponse(data []byte) (Dataset, error) {
-	var d Dataset
-	err := json.Unmarshal(data, &d)
-	return d, err
-}

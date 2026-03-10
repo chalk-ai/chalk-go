@@ -37,7 +37,8 @@ func TestUnmarshalDatasetResponse_WithDeltaTimestamp(t *testing.T) {
 		"errors": []
 	}`)
 
-	dataset, err := UnmarshalDatasetResponse(jsonData)
+	var dataset Dataset
+	err := json.Unmarshal(jsonData, &dataset)
 	assert.NoError(t, err)
 	assert.NotNil(t, dataset.Revisions)
 	assert.Len(t, dataset.Revisions, 1)
@@ -85,7 +86,8 @@ func TestUnmarshalDatasetResponse_WithNonRFC3339Timestamp(t *testing.T) {
 		"errors": []
 	}`)
 
-	dataset, err := UnmarshalDatasetResponse(jsonData)
+	var dataset Dataset
+	err := json.Unmarshal(jsonData, &dataset)
 	assert.NoError(t, err)
 	assert.NotNil(t, dataset.Revisions)
 	assert.Len(t, dataset.Revisions, 1)
