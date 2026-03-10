@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1772848065137,
+  "lastUpdate": 1773102477152,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -33132,6 +33132,60 @@ window.BENCHMARK_DATA = {
             "value": 351.4,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "sai@chalk.ai",
+            "name": "Sai Atmakuri",
+            "username": "saiguy3"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2666d2efff5cccc4d60060e862a503591a47d920",
+          "message": "dataset revisions handle delta timestamps (#606)\n\n* dataset revisions handle delta timestamps\n\n* remove extra",
+          "timestamp": "2026-03-09T17:27:18-07:00",
+          "tree_id": "7200e18cc1749d97d4d0c69b634aee4406844421",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/2666d2efff5cccc4d60060e862a503591a47d920"
+        },
+        "date": 1773102477055,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.034,
+            "unit": "ms/op",
+            "extra": "1192 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 97.78,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 33.47,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 201.9,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 324,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
