@@ -11,7 +11,7 @@ import (
 
 type TimeBound struct {
 	Time  *time.Time
-	Delta *float64
+	Delta *time.Duration
 }
 
 var timeBoundFormats = []string{
@@ -38,7 +38,7 @@ func (t *TimeBound) UnmarshalJSON(data []byte) error {
 		}
 		return &time.ParseError{Value: s, Message: ": unrecognized timestamp format"}
 	}
-	var delta float64
+	var delta time.Duration
 	if err := json.Unmarshal(data, &delta); err != nil {
 		return err
 	}
