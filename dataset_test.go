@@ -117,8 +117,8 @@ func TestUnmarshalDatasetResponse_WithNonRFC3339Timestamp(t *testing.T) {
 }
 
 func TestMarshalDatasetResponse_WithDeltaTimestamp(t *testing.T) {
-	lowerDelta := -2592000.0
-	upperDelta := -86400.0
+	lowerDelta := time.Duration(-30 * 24 * time.Hour)
+	upperDelta := time.Duration(-24 * time.Hour)
 	maxSamples := 1000
 	datasetId := "test-dataset-id"
 	dataset := Dataset{
@@ -151,12 +151,12 @@ func TestMarshalDatasetResponse_WithDeltaTimestamp(t *testing.T) {
 	sf := roundTripped.Revisions[0].Filters.SampleFilters
 	assert.NotNil(t, sf.LowerBound)
 	assert.NotNil(t, sf.LowerBound.Delta)
-	assert.InDelta(t, -2592000, *sf.LowerBound.Delta, 0.01)
+	assert.InDelta(t, time.Duration(-30*24*time.Hour), *sf.LowerBound.Delta, 0.01)
 	assert.Nil(t, sf.LowerBound.Time)
 
 	assert.NotNil(t, sf.UpperBound)
 	assert.NotNil(t, sf.UpperBound.Delta)
-	assert.InDelta(t, -86400, *sf.UpperBound.Delta, 0.01)
+	assert.InDelta(t, time.Duration(-24*time.Hour), *sf.UpperBound.Delta, 0.01)
 	assert.Nil(t, sf.UpperBound.Time)
 }
 
