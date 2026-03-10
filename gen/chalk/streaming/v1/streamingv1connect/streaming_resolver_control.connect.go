@@ -49,6 +49,10 @@ const (
 	// StreamingResolverControlServiceResetStreamProcedure is the fully-qualified name of the
 	// StreamingResolverControlService's ResetStream RPC.
 	StreamingResolverControlServiceResetStreamProcedure = "/chalk.streaming.v1.StreamingResolverControlService/ResetStream"
+	// StreamingResolverControlServiceTestStreamResolverDatasourceConnectionProcedure is the
+	// fully-qualified name of the StreamingResolverControlService's
+	// TestStreamResolverDatasourceConnection RPC.
+	StreamingResolverControlServiceTestStreamResolverDatasourceConnectionProcedure = "/chalk.streaming.v1.StreamingResolverControlService/TestStreamResolverDatasourceConnection"
 )
 
 // StreamingResolverControlServiceClient is a client for the
@@ -64,6 +68,8 @@ type StreamingResolverControlServiceClient interface {
 	SeekOffsetTimestamp(context.Context, *connect.Request[v1.SeekOffsetTimestampRequest]) (*connect.Response[v1.SeekOffsetTimestampResponse], error)
 	// Reset the stream source for a streaming resolver.
 	ResetStream(context.Context, *connect.Request[v1.ResetStreamRequest]) (*connect.Response[v1.ResetStreamResponse], error)
+	// Test the datasource connection for a stream resolver.
+	TestStreamResolverDatasourceConnection(context.Context, *connect.Request[v1.TestStreamResolverDatasourceConnectionRequest]) (*connect.Response[v1.TestStreamResolverDatasourceConnectionResponse], error)
 }
 
 // NewStreamingResolverControlServiceClient constructs a client for the
@@ -109,16 +115,24 @@ func NewStreamingResolverControlServiceClient(httpClient connect.HTTPClient, bas
 			connect.WithSchema(streamingResolverControlServiceMethods.ByName("ResetStream")),
 			connect.WithClientOptions(opts...),
 		),
+		testStreamResolverDatasourceConnection: connect.NewClient[v1.TestStreamResolverDatasourceConnectionRequest, v1.TestStreamResolverDatasourceConnectionResponse](
+			httpClient,
+			baseURL+StreamingResolverControlServiceTestStreamResolverDatasourceConnectionProcedure,
+			connect.WithSchema(streamingResolverControlServiceMethods.ByName("TestStreamResolverDatasourceConnection")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // streamingResolverControlServiceClient implements StreamingResolverControlServiceClient.
 type streamingResolverControlServiceClient struct {
-	getPauseStatus      *connect.Client[v1.GetPauseStatusRequest, v1.GetPauseStatusResponse]
-	setPauseStatus      *connect.Client[v1.SetPauseStatusRequest, v1.SetPauseStatusResponse]
-	seekOffset          *connect.Client[v1.SeekOffsetRequest, v1.SeekOffsetResponse]
-	seekOffsetTimestamp *connect.Client[v1.SeekOffsetTimestampRequest, v1.SeekOffsetTimestampResponse]
-	resetStream         *connect.Client[v1.ResetStreamRequest, v1.ResetStreamResponse]
+	getPauseStatus                         *connect.Client[v1.GetPauseStatusRequest, v1.GetPauseStatusResponse]
+	setPauseStatus                         *connect.Client[v1.SetPauseStatusRequest, v1.SetPauseStatusResponse]
+	seekOffset                             *connect.Client[v1.SeekOffsetRequest, v1.SeekOffsetResponse]
+	seekOffsetTimestamp                    *connect.Client[v1.SeekOffsetTimestampRequest, v1.SeekOffsetTimestampResponse]
+	resetStream                            *connect.Client[v1.ResetStreamRequest, v1.ResetStreamResponse]
+	testStreamResolverDatasourceConnection *connect.Client[v1.TestStreamResolverDatasourceConnectionRequest, v1.TestStreamResolverDatasourceConnectionResponse]
 }
 
 // GetPauseStatus calls chalk.streaming.v1.StreamingResolverControlService.GetPauseStatus.
@@ -146,6 +160,12 @@ func (c *streamingResolverControlServiceClient) ResetStream(ctx context.Context,
 	return c.resetStream.CallUnary(ctx, req)
 }
 
+// TestStreamResolverDatasourceConnection calls
+// chalk.streaming.v1.StreamingResolverControlService.TestStreamResolverDatasourceConnection.
+func (c *streamingResolverControlServiceClient) TestStreamResolverDatasourceConnection(ctx context.Context, req *connect.Request[v1.TestStreamResolverDatasourceConnectionRequest]) (*connect.Response[v1.TestStreamResolverDatasourceConnectionResponse], error) {
+	return c.testStreamResolverDatasourceConnection.CallUnary(ctx, req)
+}
+
 // StreamingResolverControlServiceHandler is an implementation of the
 // chalk.streaming.v1.StreamingResolverControlService service.
 type StreamingResolverControlServiceHandler interface {
@@ -159,6 +179,8 @@ type StreamingResolverControlServiceHandler interface {
 	SeekOffsetTimestamp(context.Context, *connect.Request[v1.SeekOffsetTimestampRequest]) (*connect.Response[v1.SeekOffsetTimestampResponse], error)
 	// Reset the stream source for a streaming resolver.
 	ResetStream(context.Context, *connect.Request[v1.ResetStreamRequest]) (*connect.Response[v1.ResetStreamResponse], error)
+	// Test the datasource connection for a stream resolver.
+	TestStreamResolverDatasourceConnection(context.Context, *connect.Request[v1.TestStreamResolverDatasourceConnectionRequest]) (*connect.Response[v1.TestStreamResolverDatasourceConnectionResponse], error)
 }
 
 // NewStreamingResolverControlServiceHandler builds an HTTP handler from the service implementation.
@@ -199,6 +221,13 @@ func NewStreamingResolverControlServiceHandler(svc StreamingResolverControlServi
 		connect.WithSchema(streamingResolverControlServiceMethods.ByName("ResetStream")),
 		connect.WithHandlerOptions(opts...),
 	)
+	streamingResolverControlServiceTestStreamResolverDatasourceConnectionHandler := connect.NewUnaryHandler(
+		StreamingResolverControlServiceTestStreamResolverDatasourceConnectionProcedure,
+		svc.TestStreamResolverDatasourceConnection,
+		connect.WithSchema(streamingResolverControlServiceMethods.ByName("TestStreamResolverDatasourceConnection")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.streaming.v1.StreamingResolverControlService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StreamingResolverControlServiceGetPauseStatusProcedure:
@@ -211,6 +240,8 @@ func NewStreamingResolverControlServiceHandler(svc StreamingResolverControlServi
 			streamingResolverControlServiceSeekOffsetTimestampHandler.ServeHTTP(w, r)
 		case StreamingResolverControlServiceResetStreamProcedure:
 			streamingResolverControlServiceResetStreamHandler.ServeHTTP(w, r)
+		case StreamingResolverControlServiceTestStreamResolverDatasourceConnectionProcedure:
+			streamingResolverControlServiceTestStreamResolverDatasourceConnectionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -238,4 +269,8 @@ func (UnimplementedStreamingResolverControlServiceHandler) SeekOffsetTimestamp(c
 
 func (UnimplementedStreamingResolverControlServiceHandler) ResetStream(context.Context, *connect.Request[v1.ResetStreamRequest]) (*connect.Response[v1.ResetStreamResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingResolverControlService.ResetStream is not implemented"))
+}
+
+func (UnimplementedStreamingResolverControlServiceHandler) TestStreamResolverDatasourceConnection(context.Context, *connect.Request[v1.TestStreamResolverDatasourceConnectionRequest]) (*connect.Response[v1.TestStreamResolverDatasourceConnectionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingResolverControlService.TestStreamResolverDatasourceConnection is not implemented"))
 }
