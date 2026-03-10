@@ -60,6 +60,9 @@ const (
 	// DeployServiceGetDeploymentSourceProcedure is the fully-qualified name of the DeployService's
 	// GetDeploymentSource RPC.
 	DeployServiceGetDeploymentSourceProcedure = "/chalk.server.v1.DeployService/GetDeploymentSource"
+	// DeployServiceGetResolverHistoryProcedure is the fully-qualified name of the DeployService's
+	// GetResolverHistory RPC.
+	DeployServiceGetResolverHistoryProcedure = "/chalk.server.v1.DeployService/GetResolverHistory"
 )
 
 // DeployServiceClient is a client for the chalk.server.v1.DeployService service.
@@ -73,6 +76,7 @@ type DeployServiceClient interface {
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
 	GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error)
+	GetResolverHistory(context.Context, *connect.Request[v1.GetResolverHistoryRequest]) (*connect.Response[v1.GetResolverHistoryResponse], error)
 }
 
 // NewDeployServiceClient constructs a client for the chalk.server.v1.DeployService service. By
@@ -140,6 +144,12 @@ func NewDeployServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(deployServiceMethods.ByName("GetDeploymentSource")),
 			connect.WithClientOptions(opts...),
 		),
+		getResolverHistory: connect.NewClient[v1.GetResolverHistoryRequest, v1.GetResolverHistoryResponse](
+			httpClient,
+			baseURL+DeployServiceGetResolverHistoryProcedure,
+			connect.WithSchema(deployServiceMethods.ByName("GetResolverHistory")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -154,6 +164,7 @@ type deployServiceClient struct {
 	scaleDeployment                  *connect.Client[v1.ScaleDeploymentRequest, v1.ScaleDeploymentResponse]
 	tagDeployment                    *connect.Client[v1.TagDeploymentRequest, v1.TagDeploymentResponse]
 	getDeploymentSource              *connect.Client[v1.GetDeploymentSourceRequest, v1.GetDeploymentSourceResponse]
+	getResolverHistory               *connect.Client[v1.GetResolverHistoryRequest, v1.GetResolverHistoryResponse]
 }
 
 // DeployBranch calls chalk.server.v1.DeployService.DeployBranch.
@@ -202,6 +213,11 @@ func (c *deployServiceClient) GetDeploymentSource(ctx context.Context, req *conn
 	return c.getDeploymentSource.CallUnary(ctx, req)
 }
 
+// GetResolverHistory calls chalk.server.v1.DeployService.GetResolverHistory.
+func (c *deployServiceClient) GetResolverHistory(ctx context.Context, req *connect.Request[v1.GetResolverHistoryRequest]) (*connect.Response[v1.GetResolverHistoryResponse], error) {
+	return c.getResolverHistory.CallUnary(ctx, req)
+}
+
 // DeployServiceHandler is an implementation of the chalk.server.v1.DeployService service.
 type DeployServiceHandler interface {
 	DeployBranch(context.Context, *connect.Request[v1.DeployBranchRequest]) (*connect.Response[v1.DeployBranchResponse], error)
@@ -213,6 +229,7 @@ type DeployServiceHandler interface {
 	ScaleDeployment(context.Context, *connect.Request[v1.ScaleDeploymentRequest]) (*connect.Response[v1.ScaleDeploymentResponse], error)
 	TagDeployment(context.Context, *connect.Request[v1.TagDeploymentRequest]) (*connect.Response[v1.TagDeploymentResponse], error)
 	GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error)
+	GetResolverHistory(context.Context, *connect.Request[v1.GetResolverHistoryRequest]) (*connect.Response[v1.GetResolverHistoryResponse], error)
 }
 
 // NewDeployServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -276,6 +293,12 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(deployServiceMethods.ByName("GetDeploymentSource")),
 		connect.WithHandlerOptions(opts...),
 	)
+	deployServiceGetResolverHistoryHandler := connect.NewUnaryHandler(
+		DeployServiceGetResolverHistoryProcedure,
+		svc.GetResolverHistory,
+		connect.WithSchema(deployServiceMethods.ByName("GetResolverHistory")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DeployService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DeployServiceDeployBranchProcedure:
@@ -296,6 +319,8 @@ func NewDeployServiceHandler(svc DeployServiceHandler, opts ...connect.HandlerOp
 			deployServiceTagDeploymentHandler.ServeHTTP(w, r)
 		case DeployServiceGetDeploymentSourceProcedure:
 			deployServiceGetDeploymentSourceHandler.ServeHTTP(w, r)
+		case DeployServiceGetResolverHistoryProcedure:
+			deployServiceGetResolverHistoryHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -339,4 +364,8 @@ func (UnimplementedDeployServiceHandler) TagDeployment(context.Context, *connect
 
 func (UnimplementedDeployServiceHandler) GetDeploymentSource(context.Context, *connect.Request[v1.GetDeploymentSourceRequest]) (*connect.Response[v1.GetDeploymentSourceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetDeploymentSource is not implemented"))
+}
+
+func (UnimplementedDeployServiceHandler) GetResolverHistory(context.Context, *connect.Request[v1.GetResolverHistoryRequest]) (*connect.Response[v1.GetResolverHistoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DeployService.GetResolverHistory is not implemented"))
 }

@@ -53,6 +53,12 @@ const (
 	// GraphServiceTestGraphMutationsProcedure is the fully-qualified name of the GraphService's
 	// TestGraphMutations RPC.
 	GraphServiceTestGraphMutationsProcedure = "/chalk.server.v1.GraphService/TestGraphMutations"
+	// GraphServiceGetDataLineageIndexProcedure is the fully-qualified name of the GraphService's
+	// GetDataLineageIndex RPC.
+	GraphServiceGetDataLineageIndexProcedure = "/chalk.server.v1.GraphService/GetDataLineageIndex"
+	// GraphServiceGetOfflineStoreTableProcedure is the fully-qualified name of the GraphService's
+	// GetOfflineStoreTable RPC.
+	GraphServiceGetOfflineStoreTableProcedure = "/chalk.server.v1.GraphService/GetOfflineStoreTable"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -70,6 +76,10 @@ type GraphServiceClient interface {
 	// TestGraphMutations applies a series of mutations to a deployment's graph without persisting state
 	// This allows testing graph updates before actually applying them
 	TestGraphMutations(context.Context, *connect.Request[v1.TestGraphMutationsRequest]) (*connect.Response[v1.TestGraphMutationsResponse], error)
+	// GetDataLineageIndex returns a mapping of resolver names to their data lineage information
+	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
+	// GetOfflineStoreTable returns the offline store table names for a feature
+	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -130,6 +140,20 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getDataLineageIndex: connect.NewClient[v1.GetDataLineageIndexRequest, v1.GetDataLineageIndexResponse](
+			httpClient,
+			baseURL+GraphServiceGetDataLineageIndexProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetDataLineageIndex")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getOfflineStoreTable: connect.NewClient[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse](
+			httpClient,
+			baseURL+GraphServiceGetOfflineStoreTableProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetOfflineStoreTable")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -142,6 +166,8 @@ type graphServiceClient struct {
 	getCodegenFeaturesFromGraph *connect.Client[v1.GetCodegenFeaturesFromGraphRequest, v1.GetCodegenFeaturesFromGraphResponse]
 	applyGraphUpdates           *connect.Client[v1.ApplyGraphUpdatesRequest, v1.ApplyGraphUpdatesResponse]
 	testGraphMutations          *connect.Client[v1.TestGraphMutationsRequest, v1.TestGraphMutationsResponse]
+	getDataLineageIndex         *connect.Client[v1.GetDataLineageIndexRequest, v1.GetDataLineageIndexResponse]
+	getOfflineStoreTable        *connect.Client[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -179,6 +205,16 @@ func (c *graphServiceClient) TestGraphMutations(ctx context.Context, req *connec
 	return c.testGraphMutations.CallUnary(ctx, req)
 }
 
+// GetDataLineageIndex calls chalk.server.v1.GraphService.GetDataLineageIndex.
+func (c *graphServiceClient) GetDataLineageIndex(ctx context.Context, req *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error) {
+	return c.getDataLineageIndex.CallUnary(ctx, req)
+}
+
+// GetOfflineStoreTable calls chalk.server.v1.GraphService.GetOfflineStoreTable.
+func (c *graphServiceClient) GetOfflineStoreTable(ctx context.Context, req *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error) {
+	return c.getOfflineStoreTable.CallUnary(ctx, req)
+}
+
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
 type GraphServiceHandler interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -194,6 +230,10 @@ type GraphServiceHandler interface {
 	// TestGraphMutations applies a series of mutations to a deployment's graph without persisting state
 	// This allows testing graph updates before actually applying them
 	TestGraphMutations(context.Context, *connect.Request[v1.TestGraphMutationsRequest]) (*connect.Response[v1.TestGraphMutationsResponse], error)
+	// GetDataLineageIndex returns a mapping of resolver names to their data lineage information
+	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
+	// GetOfflineStoreTable returns the offline store table names for a feature
+	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -250,6 +290,20 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceGetDataLineageIndexHandler := connect.NewUnaryHandler(
+		GraphServiceGetDataLineageIndexProcedure,
+		svc.GetDataLineageIndex,
+		connect.WithSchema(graphServiceMethods.ByName("GetDataLineageIndex")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	graphServiceGetOfflineStoreTableHandler := connect.NewUnaryHandler(
+		GraphServiceGetOfflineStoreTableProcedure,
+		svc.GetOfflineStoreTable,
+		connect.WithSchema(graphServiceMethods.ByName("GetOfflineStoreTable")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GraphServiceGetFeatureSQLProcedure:
@@ -266,6 +320,10 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceApplyGraphUpdatesHandler.ServeHTTP(w, r)
 		case GraphServiceTestGraphMutationsProcedure:
 			graphServiceTestGraphMutationsHandler.ServeHTTP(w, r)
+		case GraphServiceGetDataLineageIndexProcedure:
+			graphServiceGetDataLineageIndexHandler.ServeHTTP(w, r)
+		case GraphServiceGetOfflineStoreTableProcedure:
+			graphServiceGetOfflineStoreTableHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -301,4 +359,12 @@ func (UnimplementedGraphServiceHandler) ApplyGraphUpdates(context.Context, *conn
 
 func (UnimplementedGraphServiceHandler) TestGraphMutations(context.Context, *connect.Request[v1.TestGraphMutationsRequest]) (*connect.Response[v1.TestGraphMutationsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.TestGraphMutations is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetDataLineageIndex is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetOfflineStoreTable is not implemented"))
 }
