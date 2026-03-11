@@ -111,6 +111,22 @@ func (b *MethodConfigBuilder[T]) WithBehavior(fn BehaviorFunc) {
 	b.registry.SetBehavior(b.methodName, fn)
 }
 
+// OnCreateClusterBackgroundPersistence configures the CreateClusterBackgroundPersistence RPC method.
+func (s *MockServer) OnCreateClusterBackgroundPersistence() *MethodConfigBuilder[*serverv1.CreateClusterBackgroundPersistenceResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateClusterBackgroundPersistenceResponse]{
+		methodName: "CreateClusterBackgroundPersistence",
+		registry:   s.registry,
+	}
+}
+
+// OnGetClusterBackgroundPersistence configures the GetClusterBackgroundPersistence RPC method.
+func (s *MockServer) OnGetClusterBackgroundPersistence() *MethodConfigBuilder[*serverv1.GetClusterBackgroundPersistenceResponse] {
+	return &MethodConfigBuilder[*serverv1.GetClusterBackgroundPersistenceResponse]{
+		methodName: "GetClusterBackgroundPersistence",
+		registry:   s.registry,
+	}
+}
+
 // OnGetClusterTimescaleDB configures the GetClusterTimescaleDB RPC method.
 func (s *MockServer) OnGetClusterTimescaleDB() *MethodConfigBuilder[*serverv1.GetClusterTimescaleDBResponse] {
 	return &MethodConfigBuilder[*serverv1.GetClusterTimescaleDBResponse]{

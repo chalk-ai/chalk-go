@@ -149,6 +149,52 @@ func (h *builderServiceHandler) DeleteClusterTimescaleDB(
 	return connect.NewResponse(resp.(*serverv1.DeleteClusterTimescaleDBResponse)), nil
 }
 
+// CreateClusterBackgroundPersistence implements the CreateClusterBackgroundPersistence RPC method.
+func (h *builderServiceHandler) CreateClusterBackgroundPersistence(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateClusterBackgroundPersistenceRequest],
+) (*connect.Response[serverv1.CreateClusterBackgroundPersistenceResponse], error) {
+	h.registry.CaptureRequest("CreateClusterBackgroundPersistence", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateClusterBackgroundPersistence"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateClusterBackgroundPersistenceResponse)), nil
+	}
+	if err := h.registry.GetError("CreateClusterBackgroundPersistence"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateClusterBackgroundPersistence")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateClusterBackgroundPersistence"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateClusterBackgroundPersistenceResponse)), nil
+}
+
+// GetClusterBackgroundPersistence implements the GetClusterBackgroundPersistence RPC method.
+func (h *builderServiceHandler) GetClusterBackgroundPersistence(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetClusterBackgroundPersistenceRequest],
+) (*connect.Response[serverv1.GetClusterBackgroundPersistenceResponse], error) {
+	h.registry.CaptureRequest("GetClusterBackgroundPersistence", req.Msg)
+	if behavior := h.registry.GetBehavior("GetClusterBackgroundPersistence"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetClusterBackgroundPersistenceResponse)), nil
+	}
+	if err := h.registry.GetError("GetClusterBackgroundPersistence"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetClusterBackgroundPersistence")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetClusterBackgroundPersistence"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetClusterBackgroundPersistenceResponse)), nil
+}
+
 // GetTelemetryDeployment implements the GetTelemetryDeployment RPC method.
 func (h *builderServiceHandler) GetTelemetryDeployment(
 	ctx context.Context,
