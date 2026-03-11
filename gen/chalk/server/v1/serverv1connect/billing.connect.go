@@ -66,6 +66,9 @@ const (
 	// BillingServiceGetNodeDetailProcedure is the fully-qualified name of the BillingService's
 	// GetNodeDetail RPC.
 	BillingServiceGetNodeDetailProcedure = "/chalk.server.v1.BillingService/GetNodeDetail"
+	// BillingServiceGetResourceGroupServiceDetailProcedure is the fully-qualified name of the
+	// BillingService's GetResourceGroupServiceDetail RPC.
+	BillingServiceGetResourceGroupServiceDetailProcedure = "/chalk.server.v1.BillingService/GetResourceGroupServiceDetail"
 )
 
 // BillingServiceClient is a client for the chalk.server.v1.BillingService service.
@@ -101,6 +104,9 @@ type BillingServiceClient interface {
 	// GetNodeDetail returns detailed information about a specific node and all
 	// pods that were scheduled on it, from the BigQuery usage data.
 	GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error)
+	// GetResourceGroupServiceDetail returns all pods for a given service kind
+	// and resource group within a time range, from the BigQuery usage data.
+	GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error)
 }
 
 // NewBillingServiceClient constructs a client for the chalk.server.v1.BillingService service. By
@@ -191,22 +197,30 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getResourceGroupServiceDetail: connect.NewClient[v1.GetResourceGroupServiceDetailRequest, v1.GetResourceGroupServiceDetailResponse](
+			httpClient,
+			baseURL+BillingServiceGetResourceGroupServiceDetailProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetResourceGroupServiceDetail")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // billingServiceClient implements BillingServiceClient.
 type billingServiceClient struct {
-	getNodesAndPodsUI   *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
-	getNodesAndPods     *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
-	getUsageChart       *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
-	getUtilizationRates *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
-	getPodRequestCharts *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
-	syncUtilization     *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
-	getCreditBundles    *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
-	getInstanceUsage    *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
-	getPodTimeRanges    *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
-	getNodeTimeRanges   *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
-	getNodeDetail       *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
+	getNodesAndPodsUI             *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
+	getNodesAndPods               *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
+	getUsageChart                 *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
+	getUtilizationRates           *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
+	getPodRequestCharts           *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
+	syncUtilization               *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
+	getCreditBundles              *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
+	getInstanceUsage              *connect.Client[v1.GetInstanceUsageRequest, v1.GetInstanceUsageResponse]
+	getPodTimeRanges              *connect.Client[v1.GetPodTimeRangesRequest, v1.GetPodTimeRangesResponse]
+	getNodeTimeRanges             *connect.Client[v1.GetNodeTimeRangesRequest, v1.GetNodeTimeRangesResponse]
+	getNodeDetail                 *connect.Client[v1.GetNodeDetailRequest, v1.GetNodeDetailResponse]
+	getResourceGroupServiceDetail *connect.Client[v1.GetResourceGroupServiceDetailRequest, v1.GetResourceGroupServiceDetailResponse]
 }
 
 // GetNodesAndPodsUI calls chalk.server.v1.BillingService.GetNodesAndPodsUI.
@@ -264,6 +278,11 @@ func (c *billingServiceClient) GetNodeDetail(ctx context.Context, req *connect.R
 	return c.getNodeDetail.CallUnary(ctx, req)
 }
 
+// GetResourceGroupServiceDetail calls chalk.server.v1.BillingService.GetResourceGroupServiceDetail.
+func (c *billingServiceClient) GetResourceGroupServiceDetail(ctx context.Context, req *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error) {
+	return c.getResourceGroupServiceDetail.CallUnary(ctx, req)
+}
+
 // BillingServiceHandler is an implementation of the chalk.server.v1.BillingService service.
 type BillingServiceHandler interface {
 	// GetNodesAndPodsUI returns the nodes and pods for the team by default,
@@ -297,6 +316,9 @@ type BillingServiceHandler interface {
 	// GetNodeDetail returns detailed information about a specific node and all
 	// pods that were scheduled on it, from the BigQuery usage data.
 	GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error)
+	// GetResourceGroupServiceDetail returns all pods for a given service kind
+	// and resource group within a time range, from the BigQuery usage data.
+	GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error)
 }
 
 // NewBillingServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -383,6 +405,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	billingServiceGetResourceGroupServiceDetailHandler := connect.NewUnaryHandler(
+		BillingServiceGetResourceGroupServiceDetailProcedure,
+		svc.GetResourceGroupServiceDetail,
+		connect.WithSchema(billingServiceMethods.ByName("GetResourceGroupServiceDetail")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BillingService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BillingServiceGetNodesAndPodsUIProcedure:
@@ -407,6 +436,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetNodeTimeRangesHandler.ServeHTTP(w, r)
 		case BillingServiceGetNodeDetailProcedure:
 			billingServiceGetNodeDetailHandler.ServeHTTP(w, r)
+		case BillingServiceGetResourceGroupServiceDetailProcedure:
+			billingServiceGetResourceGroupServiceDetailHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -458,4 +489,8 @@ func (UnimplementedBillingServiceHandler) GetNodeTimeRanges(context.Context, *co
 
 func (UnimplementedBillingServiceHandler) GetNodeDetail(context.Context, *connect.Request[v1.GetNodeDetailRequest]) (*connect.Response[v1.GetNodeDetailResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodeDetail is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetResourceGroupServiceDetail(context.Context, *connect.Request[v1.GetResourceGroupServiceDetailRequest]) (*connect.Response[v1.GetResourceGroupServiceDetailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetResourceGroupServiceDetail is not implemented"))
 }

@@ -1248,7 +1248,7 @@ type Environment struct {
 	TeamId             string  `protobuf:"bytes,4,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	ActiveDeploymentId *string `protobuf:"bytes,5,opt,name=active_deployment_id,json=activeDeploymentId,proto3,oneof" json:"active_deployment_id,omitempty"`
 	WorkerUrl          *string `protobuf:"bytes,6,opt,name=worker_url,json=workerUrl,proto3,oneof" json:"worker_url,omitempty"`
-	ServiceUrl         *string `protobuf:"bytes,7,opt,name=service_url,json=serviceUrl,proto3,oneof" json:"service_url,omitempty"` // Can be set and updated only for unmanaged environments
+	ServiceUrl         *string `protobuf:"bytes,7,opt,name=service_url,json=serviceUrl,proto3,oneof" json:"service_url,omitempty"`
 	// The base URL to reach the branch server
 	BranchUrl          *string `protobuf:"bytes,8,opt,name=branch_url,json=branchUrl,proto3,oneof" json:"branch_url,omitempty"`
 	OfflineStoreSecret *string `protobuf:"bytes,9,opt,name=offline_store_secret,json=offlineStoreSecret,proto3,oneof" json:"offline_store_secret,omitempty"`
