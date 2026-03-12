@@ -40,7 +40,14 @@ func (t *TimeBound) UnmarshalJSON(data []byte) error {
 	}
 	var delta time.Duration
 	if err := json.Unmarshal(data, &delta); err != nil {
-		return err
+		// try falling back to float64
+		var delta float64
+		if err := json.Unmarshal(data, &delta); err != nil {
+			return err
+		}
+		deltaDuration := time.Duration(delta)
+		t.Delta = &deltaDuration
+		return nil
 	}
 	t.Delta = &delta
 	return nil
