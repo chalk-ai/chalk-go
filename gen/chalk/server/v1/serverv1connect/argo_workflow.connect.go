@@ -36,11 +36,15 @@ const (
 	// ArgoWorkflowServiceListArgoBuildsProcedure is the fully-qualified name of the
 	// ArgoWorkflowService's ListArgoBuilds RPC.
 	ArgoWorkflowServiceListArgoBuildsProcedure = "/chalk.server.v1.ArgoWorkflowService/ListArgoBuilds"
+	// ArgoWorkflowServiceGetArgoBuildProcedure is the fully-qualified name of the ArgoWorkflowService's
+	// GetArgoBuild RPC.
+	ArgoWorkflowServiceGetArgoBuildProcedure = "/chalk.server.v1.ArgoWorkflowService/GetArgoBuild"
 )
 
 // ArgoWorkflowServiceClient is a client for the chalk.server.v1.ArgoWorkflowService service.
 type ArgoWorkflowServiceClient interface {
 	ListArgoBuilds(context.Context, *connect.Request[v1.ListArgoBuildsRequest]) (*connect.Response[v1.ListArgoBuildsResponse], error)
+	GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error)
 }
 
 // NewArgoWorkflowServiceClient constructs a client for the chalk.server.v1.ArgoWorkflowService
@@ -61,12 +65,20 @@ func NewArgoWorkflowServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getArgoBuild: connect.NewClient[v1.GetArgoBuildRequest, v1.GetArgoBuildResponse](
+			httpClient,
+			baseURL+ArgoWorkflowServiceGetArgoBuildProcedure,
+			connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuild")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // argoWorkflowServiceClient implements ArgoWorkflowServiceClient.
 type argoWorkflowServiceClient struct {
 	listArgoBuilds *connect.Client[v1.ListArgoBuildsRequest, v1.ListArgoBuildsResponse]
+	getArgoBuild   *connect.Client[v1.GetArgoBuildRequest, v1.GetArgoBuildResponse]
 }
 
 // ListArgoBuilds calls chalk.server.v1.ArgoWorkflowService.ListArgoBuilds.
@@ -74,10 +86,16 @@ func (c *argoWorkflowServiceClient) ListArgoBuilds(ctx context.Context, req *con
 	return c.listArgoBuilds.CallUnary(ctx, req)
 }
 
+// GetArgoBuild calls chalk.server.v1.ArgoWorkflowService.GetArgoBuild.
+func (c *argoWorkflowServiceClient) GetArgoBuild(ctx context.Context, req *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error) {
+	return c.getArgoBuild.CallUnary(ctx, req)
+}
+
 // ArgoWorkflowServiceHandler is an implementation of the chalk.server.v1.ArgoWorkflowService
 // service.
 type ArgoWorkflowServiceHandler interface {
 	ListArgoBuilds(context.Context, *connect.Request[v1.ListArgoBuildsRequest]) (*connect.Response[v1.ListArgoBuildsResponse], error)
+	GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error)
 }
 
 // NewArgoWorkflowServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -94,10 +112,19 @@ func NewArgoWorkflowServiceHandler(svc ArgoWorkflowServiceHandler, opts ...conne
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	argoWorkflowServiceGetArgoBuildHandler := connect.NewUnaryHandler(
+		ArgoWorkflowServiceGetArgoBuildProcedure,
+		svc.GetArgoBuild,
+		connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuild")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ArgoWorkflowService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ArgoWorkflowServiceListArgoBuildsProcedure:
 			argoWorkflowServiceListArgoBuildsHandler.ServeHTTP(w, r)
+		case ArgoWorkflowServiceGetArgoBuildProcedure:
+			argoWorkflowServiceGetArgoBuildHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +136,8 @@ type UnimplementedArgoWorkflowServiceHandler struct{}
 
 func (UnimplementedArgoWorkflowServiceHandler) ListArgoBuilds(context.Context, *connect.Request[v1.ListArgoBuildsRequest]) (*connect.Response[v1.ListArgoBuildsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ArgoWorkflowService.ListArgoBuilds is not implemented"))
+}
+
+func (UnimplementedArgoWorkflowServiceHandler) GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ArgoWorkflowService.GetArgoBuild is not implemented"))
 }
