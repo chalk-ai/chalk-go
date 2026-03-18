@@ -83,6 +83,9 @@ const (
 	// TeamServiceDeleteServiceTokenTeamScopedProcedure is the fully-qualified name of the TeamService's
 	// DeleteServiceTokenTeamScoped RPC.
 	TeamServiceDeleteServiceTokenTeamScopedProcedure = "/chalk.server.v1.TeamService/DeleteServiceTokenTeamScoped"
+	// TeamServiceListServiceTokensTeamScopedProcedure is the fully-qualified name of the TeamService's
+	// ListServiceTokensTeamScoped RPC.
+	TeamServiceListServiceTokensTeamScopedProcedure = "/chalk.server.v1.TeamService/ListServiceTokensTeamScoped"
 	// TeamServiceDeleteServiceTokenProcedure is the fully-qualified name of the TeamService's
 	// DeleteServiceToken RPC.
 	TeamServiceDeleteServiceTokenProcedure = "/chalk.server.v1.TeamService/DeleteServiceToken"
@@ -167,6 +170,7 @@ type TeamServiceClient interface {
 	CreateServiceTokenTeamScoped(context.Context, *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error)
 	UpdateServiceTokenTeamScoped(context.Context, *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error)
 	DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error)
+	ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
@@ -317,6 +321,12 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceDeleteServiceTokenTeamScopedProcedure,
 			connect.WithSchema(teamServiceMethods.ByName("DeleteServiceTokenTeamScoped")),
+			connect.WithClientOptions(opts...),
+		),
+		listServiceTokensTeamScoped: connect.NewClient[v1.ListServiceTokensTeamScopedRequest, v1.ListServiceTokensTeamScopedResponse](
+			httpClient,
+			baseURL+TeamServiceListServiceTokensTeamScopedProcedure,
+			connect.WithSchema(teamServiceMethods.ByName("ListServiceTokensTeamScoped")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteServiceToken: connect.NewClient[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse](
@@ -470,6 +480,7 @@ type teamServiceClient struct {
 	createServiceTokenTeamScoped   *connect.Client[v1.CreateServiceTokenTeamScopedRequest, v1.CreateServiceTokenTeamScopedResponse]
 	updateServiceTokenTeamScoped   *connect.Client[v1.UpdateServiceTokenTeamScopedRequest, v1.UpdateServiceTokenTeamScopedResponse]
 	deleteServiceTokenTeamScoped   *connect.Client[v1.DeleteServiceTokenTeamScopedRequest, v1.DeleteServiceTokenTeamScopedResponse]
+	listServiceTokensTeamScoped    *connect.Client[v1.ListServiceTokensTeamScopedRequest, v1.ListServiceTokensTeamScopedResponse]
 	deleteServiceToken             *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
 	listServiceTokens              *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
 	updateServiceToken             *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
@@ -581,6 +592,11 @@ func (c *teamServiceClient) UpdateServiceTokenTeamScoped(ctx context.Context, re
 // DeleteServiceTokenTeamScoped calls chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped.
 func (c *teamServiceClient) DeleteServiceTokenTeamScoped(ctx context.Context, req *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error) {
 	return c.deleteServiceTokenTeamScoped.CallUnary(ctx, req)
+}
+
+// ListServiceTokensTeamScoped calls chalk.server.v1.TeamService.ListServiceTokensTeamScoped.
+func (c *teamServiceClient) ListServiceTokensTeamScoped(ctx context.Context, req *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error) {
+	return c.listServiceTokensTeamScoped.CallUnary(ctx, req)
 }
 
 // DeleteServiceToken calls chalk.server.v1.TeamService.DeleteServiceToken.
@@ -708,6 +724,7 @@ type TeamServiceHandler interface {
 	CreateServiceTokenTeamScoped(context.Context, *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error)
 	UpdateServiceTokenTeamScoped(context.Context, *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error)
 	DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error)
+	ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
@@ -854,6 +871,12 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceDeleteServiceTokenTeamScopedProcedure,
 		svc.DeleteServiceTokenTeamScoped,
 		connect.WithSchema(teamServiceMethods.ByName("DeleteServiceTokenTeamScoped")),
+		connect.WithHandlerOptions(opts...),
+	)
+	teamServiceListServiceTokensTeamScopedHandler := connect.NewUnaryHandler(
+		TeamServiceListServiceTokensTeamScopedProcedure,
+		svc.ListServiceTokensTeamScoped,
+		connect.WithSchema(teamServiceMethods.ByName("ListServiceTokensTeamScoped")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceDeleteServiceTokenHandler := connect.NewUnaryHandler(
@@ -1022,6 +1045,8 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceUpdateServiceTokenTeamScopedHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteServiceTokenTeamScopedProcedure:
 			teamServiceDeleteServiceTokenTeamScopedHandler.ServeHTTP(w, r)
+		case TeamServiceListServiceTokensTeamScopedProcedure:
+			teamServiceListServiceTokensTeamScopedHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteServiceTokenProcedure:
 			teamServiceDeleteServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceListServiceTokensProcedure:
@@ -1143,6 +1168,10 @@ func (UnimplementedTeamServiceHandler) UpdateServiceTokenTeamScoped(context.Cont
 
 func (UnimplementedTeamServiceHandler) DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped is not implemented"))
+}
+
+func (UnimplementedTeamServiceHandler) ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ListServiceTokensTeamScoped is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
