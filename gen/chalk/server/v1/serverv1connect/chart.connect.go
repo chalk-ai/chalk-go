@@ -66,6 +66,9 @@ const (
 	// ChartsServiceGetMetricOptionsProcedure is the fully-qualified name of the ChartsService's
 	// GetMetricOptions RPC.
 	ChartsServiceGetMetricOptionsProcedure = "/chalk.server.v1.ChartsService/GetMetricOptions"
+	// ChartsServiceGetFormulaOptionsProcedure is the fully-qualified name of the ChartsService's
+	// GetFormulaOptions RPC.
+	ChartsServiceGetFormulaOptionsProcedure = "/chalk.server.v1.ChartsService/GetFormulaOptions"
 	// ChartsServiceListChartsWithCronAlertsProcedure is the fully-qualified name of the ChartsService's
 	// ListChartsWithCronAlerts RPC.
 	ChartsServiceListChartsWithCronAlertsProcedure = "/chalk.server.v1.ChartsService/ListChartsWithCronAlerts"
@@ -84,6 +87,7 @@ type ChartsServiceClient interface {
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
 	GetQueryMetrics(context.Context, *connect.Request[v1.GetQueryMetricsRequest]) (*connect.Response[v1.GetQueryMetricsResponse], error)
 	GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error)
+	GetFormulaOptions(context.Context, *connect.Request[v1.GetFormulaOptionsRequest]) (*connect.Response[v1.GetFormulaOptionsResponse], error)
 	ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error)
 }
 
@@ -164,6 +168,12 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(chartsServiceMethods.ByName("GetMetricOptions")),
 			connect.WithClientOptions(opts...),
 		),
+		getFormulaOptions: connect.NewClient[v1.GetFormulaOptionsRequest, v1.GetFormulaOptionsResponse](
+			httpClient,
+			baseURL+ChartsServiceGetFormulaOptionsProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetFormulaOptions")),
+			connect.WithClientOptions(opts...),
+		),
 		listChartsWithCronAlerts: connect.NewClient[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse](
 			httpClient,
 			baseURL+ChartsServiceListChartsWithCronAlertsProcedure,
@@ -186,6 +196,7 @@ type chartsServiceClient struct {
 	getResolverMetrics       *connect.Client[v1.GetResolverMetricsRequest, v1.GetResolverMetricsResponse]
 	getQueryMetrics          *connect.Client[v1.GetQueryMetricsRequest, v1.GetQueryMetricsResponse]
 	getMetricOptions         *connect.Client[v1.GetMetricOptionsRequest, v1.GetMetricOptionsResponse]
+	getFormulaOptions        *connect.Client[v1.GetFormulaOptionsRequest, v1.GetFormulaOptionsResponse]
 	listChartsWithCronAlerts *connect.Client[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse]
 }
 
@@ -244,6 +255,11 @@ func (c *chartsServiceClient) GetMetricOptions(ctx context.Context, req *connect
 	return c.getMetricOptions.CallUnary(ctx, req)
 }
 
+// GetFormulaOptions calls chalk.server.v1.ChartsService.GetFormulaOptions.
+func (c *chartsServiceClient) GetFormulaOptions(ctx context.Context, req *connect.Request[v1.GetFormulaOptionsRequest]) (*connect.Response[v1.GetFormulaOptionsResponse], error) {
+	return c.getFormulaOptions.CallUnary(ctx, req)
+}
+
 // ListChartsWithCronAlerts calls chalk.server.v1.ChartsService.ListChartsWithCronAlerts.
 func (c *chartsServiceClient) ListChartsWithCronAlerts(ctx context.Context, req *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error) {
 	return c.listChartsWithCronAlerts.CallUnary(ctx, req)
@@ -262,6 +278,7 @@ type ChartsServiceHandler interface {
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
 	GetQueryMetrics(context.Context, *connect.Request[v1.GetQueryMetricsRequest]) (*connect.Response[v1.GetQueryMetricsResponse], error)
 	GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error)
+	GetFormulaOptions(context.Context, *connect.Request[v1.GetFormulaOptionsRequest]) (*connect.Response[v1.GetFormulaOptionsResponse], error)
 	ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error)
 }
 
@@ -338,6 +355,12 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(chartsServiceMethods.ByName("GetMetricOptions")),
 		connect.WithHandlerOptions(opts...),
 	)
+	chartsServiceGetFormulaOptionsHandler := connect.NewUnaryHandler(
+		ChartsServiceGetFormulaOptionsProcedure,
+		svc.GetFormulaOptions,
+		connect.WithSchema(chartsServiceMethods.ByName("GetFormulaOptions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	chartsServiceListChartsWithCronAlertsHandler := connect.NewUnaryHandler(
 		ChartsServiceListChartsWithCronAlertsProcedure,
 		svc.ListChartsWithCronAlerts,
@@ -368,6 +391,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceGetQueryMetricsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetMetricOptionsProcedure:
 			chartsServiceGetMetricOptionsHandler.ServeHTTP(w, r)
+		case ChartsServiceGetFormulaOptionsProcedure:
+			chartsServiceGetFormulaOptionsHandler.ServeHTTP(w, r)
 		case ChartsServiceListChartsWithCronAlertsProcedure:
 			chartsServiceListChartsWithCronAlertsHandler.ServeHTTP(w, r)
 		default:
@@ -421,6 +446,10 @@ func (UnimplementedChartsServiceHandler) GetQueryMetrics(context.Context, *conne
 
 func (UnimplementedChartsServiceHandler) GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetMetricOptions is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetFormulaOptions(context.Context, *connect.Request[v1.GetFormulaOptionsRequest]) (*connect.Response[v1.GetFormulaOptionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetFormulaOptions is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error) {
