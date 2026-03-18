@@ -66,6 +66,9 @@ const (
 	// ChartsServiceGetMetricOptionsProcedure is the fully-qualified name of the ChartsService's
 	// GetMetricOptions RPC.
 	ChartsServiceGetMetricOptionsProcedure = "/chalk.server.v1.ChartsService/GetMetricOptions"
+	// ChartsServiceListChartsWithCronAlertsProcedure is the fully-qualified name of the ChartsService's
+	// ListChartsWithCronAlerts RPC.
+	ChartsServiceListChartsWithCronAlertsProcedure = "/chalk.server.v1.ChartsService/ListChartsWithCronAlerts"
 )
 
 // ChartsServiceClient is a client for the chalk.server.v1.ChartsService service.
@@ -81,6 +84,7 @@ type ChartsServiceClient interface {
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
 	GetQueryMetrics(context.Context, *connect.Request[v1.GetQueryMetricsRequest]) (*connect.Response[v1.GetQueryMetricsResponse], error)
 	GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error)
+	ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error)
 }
 
 // NewChartsServiceClient constructs a client for the chalk.server.v1.ChartsService service. By
@@ -160,22 +164,29 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(chartsServiceMethods.ByName("GetMetricOptions")),
 			connect.WithClientOptions(opts...),
 		),
+		listChartsWithCronAlerts: connect.NewClient[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse](
+			httpClient,
+			baseURL+ChartsServiceListChartsWithCronAlertsProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("ListChartsWithCronAlerts")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // chartsServiceClient implements ChartsServiceClient.
 type chartsServiceClient struct {
-	listCharts              *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
-	getChartSnapshot        *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
-	getChartSnapshotByQuery *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
-	updateMetricConfig      *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
-	createChart             *connect.Client[v1.CreateChartRequest, v1.CreateChartResponse]
-	deleteChart             *connect.Client[v1.DeleteChartRequest, v1.DeleteChartResponse]
-	getChartOptions         *connect.Client[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse]
-	getFeatureMetrics       *connect.Client[v1.GetFeatureMetricsRequest, v1.GetFeatureMetricsResponse]
-	getResolverMetrics      *connect.Client[v1.GetResolverMetricsRequest, v1.GetResolverMetricsResponse]
-	getQueryMetrics         *connect.Client[v1.GetQueryMetricsRequest, v1.GetQueryMetricsResponse]
-	getMetricOptions        *connect.Client[v1.GetMetricOptionsRequest, v1.GetMetricOptionsResponse]
+	listCharts               *connect.Client[v1.ListChartsRequest, v1.ListChartsResponse]
+	getChartSnapshot         *connect.Client[v1.GetChartSnapshotRequest, v1.GetChartSnapshotResponse]
+	getChartSnapshotByQuery  *connect.Client[v1.GetChartSnapshotByQueryRequest, v1.GetChartSnapshotByQueryResponse]
+	updateMetricConfig       *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
+	createChart              *connect.Client[v1.CreateChartRequest, v1.CreateChartResponse]
+	deleteChart              *connect.Client[v1.DeleteChartRequest, v1.DeleteChartResponse]
+	getChartOptions          *connect.Client[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse]
+	getFeatureMetrics        *connect.Client[v1.GetFeatureMetricsRequest, v1.GetFeatureMetricsResponse]
+	getResolverMetrics       *connect.Client[v1.GetResolverMetricsRequest, v1.GetResolverMetricsResponse]
+	getQueryMetrics          *connect.Client[v1.GetQueryMetricsRequest, v1.GetQueryMetricsResponse]
+	getMetricOptions         *connect.Client[v1.GetMetricOptionsRequest, v1.GetMetricOptionsResponse]
+	listChartsWithCronAlerts *connect.Client[v1.ListChartsWithCronAlertsRequest, v1.ListChartsWithCronAlertsResponse]
 }
 
 // ListCharts calls chalk.server.v1.ChartsService.ListCharts.
@@ -233,6 +244,11 @@ func (c *chartsServiceClient) GetMetricOptions(ctx context.Context, req *connect
 	return c.getMetricOptions.CallUnary(ctx, req)
 }
 
+// ListChartsWithCronAlerts calls chalk.server.v1.ChartsService.ListChartsWithCronAlerts.
+func (c *chartsServiceClient) ListChartsWithCronAlerts(ctx context.Context, req *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error) {
+	return c.listChartsWithCronAlerts.CallUnary(ctx, req)
+}
+
 // ChartsServiceHandler is an implementation of the chalk.server.v1.ChartsService service.
 type ChartsServiceHandler interface {
 	ListCharts(context.Context, *connect.Request[v1.ListChartsRequest]) (*connect.Response[v1.ListChartsResponse], error)
@@ -246,6 +262,7 @@ type ChartsServiceHandler interface {
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
 	GetQueryMetrics(context.Context, *connect.Request[v1.GetQueryMetricsRequest]) (*connect.Response[v1.GetQueryMetricsResponse], error)
 	GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error)
+	ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error)
 }
 
 // NewChartsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -321,6 +338,12 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		connect.WithSchema(chartsServiceMethods.ByName("GetMetricOptions")),
 		connect.WithHandlerOptions(opts...),
 	)
+	chartsServiceListChartsWithCronAlertsHandler := connect.NewUnaryHandler(
+		ChartsServiceListChartsWithCronAlertsProcedure,
+		svc.ListChartsWithCronAlerts,
+		connect.WithSchema(chartsServiceMethods.ByName("ListChartsWithCronAlerts")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ChartsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ChartsServiceListChartsProcedure:
@@ -345,6 +368,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceGetQueryMetricsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetMetricOptionsProcedure:
 			chartsServiceGetMetricOptionsHandler.ServeHTTP(w, r)
+		case ChartsServiceListChartsWithCronAlertsProcedure:
+			chartsServiceListChartsWithCronAlertsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -396,4 +421,8 @@ func (UnimplementedChartsServiceHandler) GetQueryMetrics(context.Context, *conne
 
 func (UnimplementedChartsServiceHandler) GetMetricOptions(context.Context, *connect.Request[v1.GetMetricOptionsRequest]) (*connect.Response[v1.GetMetricOptionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetMetricOptions is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) ListChartsWithCronAlerts(context.Context, *connect.Request[v1.ListChartsWithCronAlertsRequest]) (*connect.Response[v1.ListChartsWithCronAlertsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.ListChartsWithCronAlerts is not implemented"))
 }
