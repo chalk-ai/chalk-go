@@ -47,6 +47,7 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	cloudComponentsHandler := newCloudComponentsServiceHandler(registry)
 	offlineStoreConnectionHandler := newOfflineStoreConnectionServiceHandler(registry)
 	environmentHandler := newEnvironmentServiceHandler(registry)
+	graphHandler := newGraphServiceHandler(registry)
 
 	// Create HTTP mux
 	mux := http.NewServeMux()
@@ -78,6 +79,10 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register EnvironmentService handler
 	environmentPath, environmentRPCHandler := serverv1connect.NewEnvironmentServiceHandler(environmentHandler)
 	mux.Handle(environmentPath, environmentRPCHandler)
+
+	// Register GraphService handler
+	graphPath, graphRPCHandler := serverv1connect.NewGraphServiceHandler(graphHandler)
+	mux.Handle(graphPath, graphRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
@@ -494,6 +499,14 @@ func (s *MockServer) OnUpdateEnvironmentV2() *MethodConfigBuilder[*serverv1.Upda
 func (s *MockServer) OnDeleteEnvironment() *MethodConfigBuilder[*serverv1.DeleteEnvironmentResponse] {
 	return &MethodConfigBuilder[*serverv1.DeleteEnvironmentResponse]{
 		methodName: "DeleteEnvironment",
+		registry:   s.registry,
+	}
+}
+
+// OnGetOfflineStoreTable configures the GetOfflineStoreTable RPC method.
+func (s *MockServer) OnGetOfflineStoreTable() *MethodConfigBuilder[*serverv1.GetOfflineStoreTableResponse] {
+	return &MethodConfigBuilder[*serverv1.GetOfflineStoreTableResponse]{
+		methodName: "GetOfflineStoreTable",
 		registry:   s.registry,
 	}
 }
