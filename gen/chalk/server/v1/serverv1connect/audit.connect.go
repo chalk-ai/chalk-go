@@ -36,11 +36,15 @@ const (
 	// AuditServiceGetAuditLogsProcedure is the fully-qualified name of the AuditService's GetAuditLogs
 	// RPC.
 	AuditServiceGetAuditLogsProcedure = "/chalk.server.v1.AuditService/GetAuditLogs"
+	// AuditServiceGetAuditedEndpointsProcedure is the fully-qualified name of the AuditService's
+	// GetAuditedEndpoints RPC.
+	AuditServiceGetAuditedEndpointsProcedure = "/chalk.server.v1.AuditService/GetAuditedEndpoints"
 )
 
 // AuditServiceClient is a client for the chalk.server.v1.AuditService service.
 type AuditServiceClient interface {
 	GetAuditLogs(context.Context, *connect.Request[v1.GetAuditLogsRequest]) (*connect.Response[v1.GetAuditLogsResponse], error)
+	GetAuditedEndpoints(context.Context, *connect.Request[v1.GetAuditedEndpointsRequest]) (*connect.Response[v1.GetAuditedEndpointsResponse], error)
 }
 
 // NewAuditServiceClient constructs a client for the chalk.server.v1.AuditService service. By
@@ -60,12 +64,19 @@ func NewAuditServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(auditServiceMethods.ByName("GetAuditLogs")),
 			connect.WithClientOptions(opts...),
 		),
+		getAuditedEndpoints: connect.NewClient[v1.GetAuditedEndpointsRequest, v1.GetAuditedEndpointsResponse](
+			httpClient,
+			baseURL+AuditServiceGetAuditedEndpointsProcedure,
+			connect.WithSchema(auditServiceMethods.ByName("GetAuditedEndpoints")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // auditServiceClient implements AuditServiceClient.
 type auditServiceClient struct {
-	getAuditLogs *connect.Client[v1.GetAuditLogsRequest, v1.GetAuditLogsResponse]
+	getAuditLogs        *connect.Client[v1.GetAuditLogsRequest, v1.GetAuditLogsResponse]
+	getAuditedEndpoints *connect.Client[v1.GetAuditedEndpointsRequest, v1.GetAuditedEndpointsResponse]
 }
 
 // GetAuditLogs calls chalk.server.v1.AuditService.GetAuditLogs.
@@ -73,9 +84,15 @@ func (c *auditServiceClient) GetAuditLogs(ctx context.Context, req *connect.Requ
 	return c.getAuditLogs.CallUnary(ctx, req)
 }
 
+// GetAuditedEndpoints calls chalk.server.v1.AuditService.GetAuditedEndpoints.
+func (c *auditServiceClient) GetAuditedEndpoints(ctx context.Context, req *connect.Request[v1.GetAuditedEndpointsRequest]) (*connect.Response[v1.GetAuditedEndpointsResponse], error) {
+	return c.getAuditedEndpoints.CallUnary(ctx, req)
+}
+
 // AuditServiceHandler is an implementation of the chalk.server.v1.AuditService service.
 type AuditServiceHandler interface {
 	GetAuditLogs(context.Context, *connect.Request[v1.GetAuditLogsRequest]) (*connect.Response[v1.GetAuditLogsResponse], error)
+	GetAuditedEndpoints(context.Context, *connect.Request[v1.GetAuditedEndpointsRequest]) (*connect.Response[v1.GetAuditedEndpointsResponse], error)
 }
 
 // NewAuditServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -91,10 +108,18 @@ func NewAuditServiceHandler(svc AuditServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(auditServiceMethods.ByName("GetAuditLogs")),
 		connect.WithHandlerOptions(opts...),
 	)
+	auditServiceGetAuditedEndpointsHandler := connect.NewUnaryHandler(
+		AuditServiceGetAuditedEndpointsProcedure,
+		svc.GetAuditedEndpoints,
+		connect.WithSchema(auditServiceMethods.ByName("GetAuditedEndpoints")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuditService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuditServiceGetAuditLogsProcedure:
 			auditServiceGetAuditLogsHandler.ServeHTTP(w, r)
+		case AuditServiceGetAuditedEndpointsProcedure:
+			auditServiceGetAuditedEndpointsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -106,4 +131,8 @@ type UnimplementedAuditServiceHandler struct{}
 
 func (UnimplementedAuditServiceHandler) GetAuditLogs(context.Context, *connect.Request[v1.GetAuditLogsRequest]) (*connect.Response[v1.GetAuditLogsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuditService.GetAuditLogs is not implemented"))
+}
+
+func (UnimplementedAuditServiceHandler) GetAuditedEndpoints(context.Context, *connect.Request[v1.GetAuditedEndpointsRequest]) (*connect.Response[v1.GetAuditedEndpointsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuditService.GetAuditedEndpoints is not implemented"))
 }
