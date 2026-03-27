@@ -211,6 +211,13 @@ func (m *mockAuthServer) UpsertUserByEmail(
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
+func (m *mockAuthServer) SelfServiceCreateTeam(
+	ctx context.Context,
+	req *connect.Request[serverv1.SelfServiceCreateTeamRequest],
+) (*connect.Response[serverv1.SelfServiceCreateTeamResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
 type MockServerConfig struct {
 	QueryBulkResponse *commonv1.OnlineQueryBulkResponse
 }
