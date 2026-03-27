@@ -42,6 +42,9 @@ const (
 	// KubeEventsServiceGetKubeEventFacetValuesProcedure is the fully-qualified name of the
 	// KubeEventsService's GetKubeEventFacetValues RPC.
 	KubeEventsServiceGetKubeEventFacetValuesProcedure = "/chalk.server.v1.KubeEventsService/GetKubeEventFacetValues"
+	// KubeEventsServiceListKubeEventsAggregatedProcedure is the fully-qualified name of the
+	// KubeEventsService's ListKubeEventsAggregated RPC.
+	KubeEventsServiceListKubeEventsAggregatedProcedure = "/chalk.server.v1.KubeEventsService/ListKubeEventsAggregated"
 )
 
 // KubeEventsServiceClient is a client for the chalk.server.v1.KubeEventsService service.
@@ -49,6 +52,7 @@ type KubeEventsServiceClient interface {
 	ListKubeEvents(context.Context, *connect.Request[v1.ListKubeEventsRequest]) (*connect.Response[v1.ListKubeEventsResponse], error)
 	GetKubeEventFacets(context.Context, *connect.Request[v1.GetKubeEventFacetsRequest]) (*connect.Response[v1.GetKubeEventFacetsResponse], error)
 	GetKubeEventFacetValues(context.Context, *connect.Request[v1.GetKubeEventFacetValuesRequest]) (*connect.Response[v1.GetKubeEventFacetValuesResponse], error)
+	ListKubeEventsAggregated(context.Context, *connect.Request[v1.ListKubeEventsAggregatedRequest]) (*connect.Response[v1.ListKubeEventsAggregatedResponse], error)
 }
 
 // NewKubeEventsServiceClient constructs a client for the chalk.server.v1.KubeEventsService service.
@@ -83,14 +87,22 @@ func NewKubeEventsServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listKubeEventsAggregated: connect.NewClient[v1.ListKubeEventsAggregatedRequest, v1.ListKubeEventsAggregatedResponse](
+			httpClient,
+			baseURL+KubeEventsServiceListKubeEventsAggregatedProcedure,
+			connect.WithSchema(kubeEventsServiceMethods.ByName("ListKubeEventsAggregated")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // kubeEventsServiceClient implements KubeEventsServiceClient.
 type kubeEventsServiceClient struct {
-	listKubeEvents          *connect.Client[v1.ListKubeEventsRequest, v1.ListKubeEventsResponse]
-	getKubeEventFacets      *connect.Client[v1.GetKubeEventFacetsRequest, v1.GetKubeEventFacetsResponse]
-	getKubeEventFacetValues *connect.Client[v1.GetKubeEventFacetValuesRequest, v1.GetKubeEventFacetValuesResponse]
+	listKubeEvents           *connect.Client[v1.ListKubeEventsRequest, v1.ListKubeEventsResponse]
+	getKubeEventFacets       *connect.Client[v1.GetKubeEventFacetsRequest, v1.GetKubeEventFacetsResponse]
+	getKubeEventFacetValues  *connect.Client[v1.GetKubeEventFacetValuesRequest, v1.GetKubeEventFacetValuesResponse]
+	listKubeEventsAggregated *connect.Client[v1.ListKubeEventsAggregatedRequest, v1.ListKubeEventsAggregatedResponse]
 }
 
 // ListKubeEvents calls chalk.server.v1.KubeEventsService.ListKubeEvents.
@@ -108,11 +120,17 @@ func (c *kubeEventsServiceClient) GetKubeEventFacetValues(ctx context.Context, r
 	return c.getKubeEventFacetValues.CallUnary(ctx, req)
 }
 
+// ListKubeEventsAggregated calls chalk.server.v1.KubeEventsService.ListKubeEventsAggregated.
+func (c *kubeEventsServiceClient) ListKubeEventsAggregated(ctx context.Context, req *connect.Request[v1.ListKubeEventsAggregatedRequest]) (*connect.Response[v1.ListKubeEventsAggregatedResponse], error) {
+	return c.listKubeEventsAggregated.CallUnary(ctx, req)
+}
+
 // KubeEventsServiceHandler is an implementation of the chalk.server.v1.KubeEventsService service.
 type KubeEventsServiceHandler interface {
 	ListKubeEvents(context.Context, *connect.Request[v1.ListKubeEventsRequest]) (*connect.Response[v1.ListKubeEventsResponse], error)
 	GetKubeEventFacets(context.Context, *connect.Request[v1.GetKubeEventFacetsRequest]) (*connect.Response[v1.GetKubeEventFacetsResponse], error)
 	GetKubeEventFacetValues(context.Context, *connect.Request[v1.GetKubeEventFacetValuesRequest]) (*connect.Response[v1.GetKubeEventFacetValuesResponse], error)
+	ListKubeEventsAggregated(context.Context, *connect.Request[v1.ListKubeEventsAggregatedRequest]) (*connect.Response[v1.ListKubeEventsAggregatedResponse], error)
 }
 
 // NewKubeEventsServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -143,6 +161,13 @@ func NewKubeEventsServiceHandler(svc KubeEventsServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeEventsServiceListKubeEventsAggregatedHandler := connect.NewUnaryHandler(
+		KubeEventsServiceListKubeEventsAggregatedProcedure,
+		svc.ListKubeEventsAggregated,
+		connect.WithSchema(kubeEventsServiceMethods.ByName("ListKubeEventsAggregated")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.KubeEventsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeEventsServiceListKubeEventsProcedure:
@@ -151,6 +176,8 @@ func NewKubeEventsServiceHandler(svc KubeEventsServiceHandler, opts ...connect.H
 			kubeEventsServiceGetKubeEventFacetsHandler.ServeHTTP(w, r)
 		case KubeEventsServiceGetKubeEventFacetValuesProcedure:
 			kubeEventsServiceGetKubeEventFacetValuesHandler.ServeHTTP(w, r)
+		case KubeEventsServiceListKubeEventsAggregatedProcedure:
+			kubeEventsServiceListKubeEventsAggregatedHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -170,4 +197,8 @@ func (UnimplementedKubeEventsServiceHandler) GetKubeEventFacets(context.Context,
 
 func (UnimplementedKubeEventsServiceHandler) GetKubeEventFacetValues(context.Context, *connect.Request[v1.GetKubeEventFacetValuesRequest]) (*connect.Response[v1.GetKubeEventFacetValuesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeEventsService.GetKubeEventFacetValues is not implemented"))
+}
+
+func (UnimplementedKubeEventsServiceHandler) ListKubeEventsAggregated(context.Context, *connect.Request[v1.ListKubeEventsAggregatedRequest]) (*connect.Response[v1.ListKubeEventsAggregatedResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeEventsService.ListKubeEventsAggregated is not implemented"))
 }

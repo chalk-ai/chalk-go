@@ -27,6 +27,8 @@ const (
 	OutputData_STREAM_UNSPECIFIED OutputData_Stream = 0
 	OutputData_STREAM_STDOUT      OutputData_Stream = 1
 	OutputData_STREAM_STDERR      OutputData_Stream = 2
+	// PTY output (merged stdout/stderr from a PTY session)
+	OutputData_STREAM_PTY_OUTPUT OutputData_Stream = 3
 )
 
 // Enum value maps for OutputData_Stream.
@@ -35,11 +37,13 @@ var (
 		0: "STREAM_UNSPECIFIED",
 		1: "STREAM_STDOUT",
 		2: "STREAM_STDERR",
+		3: "STREAM_PTY_OUTPUT",
 	}
 	OutputData_Stream_value = map[string]int32{
 		"STREAM_UNSPECIFIED": 0,
 		"STREAM_STDOUT":      1,
 		"STREAM_STDERR":      2,
+		"STREAM_PTY_OUTPUT":  3,
 	}
 )
 
@@ -67,12 +71,12 @@ func (x OutputData_Stream) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OutputData_Stream.Descriptor instead.
 func (OutputData_Stream) EnumDescriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{7, 0}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{9, 0}
 }
 
 // ExecRequest is the bidirectional streaming request for executing commands in a sandbox.
 // The first message must be an init message with sandbox_id and command details.
-// Subsequent messages contain stdin data, stdin EOF, or signals.
+// Subsequent messages contain stdin data, stdin EOF, signals, or terminal resizes.
 type ExecRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -84,6 +88,7 @@ type ExecRequest struct {
 	//	*ExecRequest_StdinData
 	//	*ExecRequest_StdinEof
 	//	*ExecRequest_Signal
+	//	*ExecRequest_Resize
 	Message isExecRequest_Message `protobuf_oneof:"message"`
 }
 
@@ -152,6 +157,13 @@ func (x *ExecRequest) GetSignal() *ExecSignal {
 	return nil
 }
 
+func (x *ExecRequest) GetResize() *ExecResize {
+	if x, ok := x.GetMessage().(*ExecRequest_Resize); ok {
+		return x.Resize
+	}
+	return nil
+}
+
 type isExecRequest_Message interface {
 	isExecRequest_Message()
 }
@@ -176,6 +188,11 @@ type ExecRequest_Signal struct {
 	Signal *ExecSignal `protobuf:"bytes,4,opt,name=signal,proto3,oneof"`
 }
 
+type ExecRequest_Resize struct {
+	// Resize the PTY terminal window
+	Resize *ExecResize `protobuf:"bytes,5,opt,name=resize,proto3,oneof"`
+}
+
 func (*ExecRequest_Init) isExecRequest_Message() {}
 
 func (*ExecRequest_StdinData) isExecRequest_Message() {}
@@ -183,6 +200,8 @@ func (*ExecRequest_StdinData) isExecRequest_Message() {}
 func (*ExecRequest_StdinEof) isExecRequest_Message() {}
 
 func (*ExecRequest_Signal) isExecRequest_Message() {}
+
+func (*ExecRequest_Resize) isExecRequest_Message() {}
 
 // Initial configuration for executing a command in a sandbox
 type ExecInit struct {
@@ -202,6 +221,9 @@ type ExecInit struct {
 	Env map[string]string `protobuf:"bytes,5,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Optional timeout in seconds
 	TimeoutSecs *uint64 `protobuf:"varint,6,opt,name=timeout_secs,json=timeoutSecs,proto3,oneof" json:"timeout_secs,omitempty"`
+	// Optional PTY configuration. When set, the process runs in a PTY
+	// and stdout/stderr are merged into a single PTY output stream.
+	PtyInfo *PtyInfo `protobuf:"bytes,7,opt,name=pty_info,json=ptyInfo,proto3,oneof" json:"pty_info,omitempty"`
 }
 
 func (x *ExecInit) Reset() {
@@ -276,6 +298,69 @@ func (x *ExecInit) GetTimeoutSecs() uint64 {
 	return 0
 }
 
+func (x *ExecInit) GetPtyInfo() *PtyInfo {
+	if x != nil {
+		return x.PtyInfo
+	}
+	return nil
+}
+
+// PTY configuration for terminal-mode execution
+type PtyInfo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Terminal columns
+	Cols uint32 `protobuf:"varint,1,opt,name=cols,proto3" json:"cols,omitempty"`
+	// Terminal rows
+	Rows uint32 `protobuf:"varint,2,opt,name=rows,proto3" json:"rows,omitempty"`
+}
+
+func (x *PtyInfo) Reset() {
+	*x = PtyInfo{}
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PtyInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PtyInfo) ProtoMessage() {}
+
+func (x *PtyInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PtyInfo.ProtoReflect.Descriptor instead.
+func (*PtyInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PtyInfo) GetCols() uint32 {
+	if x != nil {
+		return x.Cols
+	}
+	return 0
+}
+
+func (x *PtyInfo) GetRows() uint32 {
+	if x != nil {
+		return x.Rows
+	}
+	return 0
+}
+
 // Stdin data to send to the running process
 type StdinData struct {
 	state         protoimpl.MessageState
@@ -287,7 +372,7 @@ type StdinData struct {
 
 func (x *StdinData) Reset() {
 	*x = StdinData{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[2]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -299,7 +384,7 @@ func (x *StdinData) String() string {
 func (*StdinData) ProtoMessage() {}
 
 func (x *StdinData) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[2]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,7 +397,7 @@ func (x *StdinData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StdinData.ProtoReflect.Descriptor instead.
 func (*StdinData) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *StdinData) GetData() []byte {
@@ -331,7 +416,7 @@ type StdinEof struct {
 
 func (x *StdinEof) Reset() {
 	*x = StdinEof{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -343,7 +428,7 @@ func (x *StdinEof) String() string {
 func (*StdinEof) ProtoMessage() {}
 
 func (x *StdinEof) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -356,7 +441,7 @@ func (x *StdinEof) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StdinEof.ProtoReflect.Descriptor instead.
 func (*StdinEof) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{4}
 }
 
 // Send a signal to the running process
@@ -370,7 +455,7 @@ type ExecSignal struct {
 
 func (x *ExecSignal) Reset() {
 	*x = ExecSignal{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -382,7 +467,7 @@ func (x *ExecSignal) String() string {
 func (*ExecSignal) ProtoMessage() {}
 
 func (x *ExecSignal) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -395,12 +480,66 @@ func (x *ExecSignal) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecSignal.ProtoReflect.Descriptor instead.
 func (*ExecSignal) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ExecSignal) GetSignal() int32 {
 	if x != nil {
 		return x.Signal
+	}
+	return 0
+}
+
+// Resize the PTY terminal window
+type ExecResize struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Cols uint32 `protobuf:"varint,1,opt,name=cols,proto3" json:"cols,omitempty"`
+	Rows uint32 `protobuf:"varint,2,opt,name=rows,proto3" json:"rows,omitempty"`
+}
+
+func (x *ExecResize) Reset() {
+	*x = ExecResize{}
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExecResize) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExecResize) ProtoMessage() {}
+
+func (x *ExecResize) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExecResize.ProtoReflect.Descriptor instead.
+func (*ExecResize) Descriptor() ([]byte, []int) {
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ExecResize) GetCols() uint32 {
+	if x != nil {
+		return x.Cols
+	}
+	return 0
+}
+
+func (x *ExecResize) GetRows() uint32 {
+	if x != nil {
+		return x.Rows
 	}
 	return 0
 }
@@ -422,7 +561,7 @@ type ExecResponse struct {
 
 func (x *ExecResponse) Reset() {
 	*x = ExecResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -434,7 +573,7 @@ func (x *ExecResponse) String() string {
 func (*ExecResponse) ProtoMessage() {}
 
 func (x *ExecResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +586,7 @@ func (x *ExecResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecResponse.ProtoReflect.Descriptor instead.
 func (*ExecResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (m *ExecResponse) GetMessage() isExecResponse_Message {
@@ -528,7 +667,7 @@ type ProcessStarted struct {
 
 func (x *ProcessStarted) Reset() {
 	*x = ProcessStarted{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +679,7 @@ func (x *ProcessStarted) String() string {
 func (*ProcessStarted) ProtoMessage() {}
 
 func (x *ProcessStarted) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -553,7 +692,7 @@ func (x *ProcessStarted) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessStarted.ProtoReflect.Descriptor instead.
 func (*ProcessStarted) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ProcessStarted) GetPid() uint32 {
@@ -575,7 +714,7 @@ type OutputData struct {
 
 func (x *OutputData) Reset() {
 	*x = OutputData{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -587,7 +726,7 @@ func (x *OutputData) String() string {
 func (*OutputData) ProtoMessage() {}
 
 func (x *OutputData) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -600,7 +739,7 @@ func (x *OutputData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OutputData.ProtoReflect.Descriptor instead.
 func (*OutputData) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *OutputData) GetStream() OutputData_Stream {
@@ -629,7 +768,7 @@ type ProcessExited struct {
 
 func (x *ProcessExited) Reset() {
 	*x = ProcessExited{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +780,7 @@ func (x *ProcessExited) String() string {
 func (*ProcessExited) ProtoMessage() {}
 
 func (x *ProcessExited) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +793,7 @@ func (x *ProcessExited) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProcessExited.ProtoReflect.Descriptor instead.
 func (*ProcessExited) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ProcessExited) GetExitCode() int32 {
@@ -683,7 +822,7 @@ type ExecError struct {
 
 func (x *ExecError) Reset() {
 	*x = ExecError{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +834,7 @@ func (x *ExecError) String() string {
 func (*ExecError) ProtoMessage() {}
 
 func (x *ExecError) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +847,7 @@ func (x *ExecError) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecError.ProtoReflect.Descriptor instead.
 func (*ExecError) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ExecError) GetCode() string {
@@ -743,7 +882,7 @@ type CreateSandboxRequest struct {
 
 func (x *CreateSandboxRequest) Reset() {
 	*x = CreateSandboxRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +894,7 @@ func (x *CreateSandboxRequest) String() string {
 func (*CreateSandboxRequest) ProtoMessage() {}
 
 func (x *CreateSandboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -768,7 +907,7 @@ func (x *CreateSandboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSandboxRequest.ProtoReflect.Descriptor instead.
 func (*CreateSandboxRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CreateSandboxRequest) GetImage() string {
@@ -811,7 +950,7 @@ type ResourceLimits struct {
 
 func (x *ResourceLimits) Reset() {
 	*x = ResourceLimits{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -823,7 +962,7 @@ func (x *ResourceLimits) String() string {
 func (*ResourceLimits) ProtoMessage() {}
 
 func (x *ResourceLimits) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -836,7 +975,7 @@ func (x *ResourceLimits) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResourceLimits.ProtoReflect.Descriptor instead.
 func (*ResourceLimits) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ResourceLimits) GetCpu() string {
@@ -864,7 +1003,7 @@ type CreateSandboxResponse struct {
 
 func (x *CreateSandboxResponse) Reset() {
 	*x = CreateSandboxResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -876,7 +1015,7 @@ func (x *CreateSandboxResponse) String() string {
 func (*CreateSandboxResponse) ProtoMessage() {}
 
 func (x *CreateSandboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -889,7 +1028,7 @@ func (x *CreateSandboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSandboxResponse.ProtoReflect.Descriptor instead.
 func (*CreateSandboxResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateSandboxResponse) GetSandbox() *SandboxInfo {
@@ -911,7 +1050,7 @@ type TerminateSandboxRequest struct {
 
 func (x *TerminateSandboxRequest) Reset() {
 	*x = TerminateSandboxRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -923,7 +1062,7 @@ func (x *TerminateSandboxRequest) String() string {
 func (*TerminateSandboxRequest) ProtoMessage() {}
 
 func (x *TerminateSandboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +1075,7 @@ func (x *TerminateSandboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TerminateSandboxRequest.ProtoReflect.Descriptor instead.
 func (*TerminateSandboxRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *TerminateSandboxRequest) GetSandboxId() string {
@@ -962,7 +1101,7 @@ type TerminateSandboxResponse struct {
 
 func (x *TerminateSandboxResponse) Reset() {
 	*x = TerminateSandboxResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -974,7 +1113,7 @@ func (x *TerminateSandboxResponse) String() string {
 func (*TerminateSandboxResponse) ProtoMessage() {}
 
 func (x *TerminateSandboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -987,7 +1126,7 @@ func (x *TerminateSandboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TerminateSandboxResponse.ProtoReflect.Descriptor instead.
 func (*TerminateSandboxResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{16}
 }
 
 // Request to get a sandbox by ID
@@ -1001,7 +1140,7 @@ type GetSandboxRequest struct {
 
 func (x *GetSandboxRequest) Reset() {
 	*x = GetSandboxRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1152,7 @@ func (x *GetSandboxRequest) String() string {
 func (*GetSandboxRequest) ProtoMessage() {}
 
 func (x *GetSandboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1165,7 @@ func (x *GetSandboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSandboxRequest.ProtoReflect.Descriptor instead.
 func (*GetSandboxRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetSandboxRequest) GetSandboxId() string {
@@ -1047,7 +1186,7 @@ type GetSandboxResponse struct {
 
 func (x *GetSandboxResponse) Reset() {
 	*x = GetSandboxResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1059,7 +1198,7 @@ func (x *GetSandboxResponse) String() string {
 func (*GetSandboxResponse) ProtoMessage() {}
 
 func (x *GetSandboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1072,7 +1211,7 @@ func (x *GetSandboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSandboxResponse.ProtoReflect.Descriptor instead.
 func (*GetSandboxResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetSandboxResponse) GetSandbox() *SandboxInfo {
@@ -1091,7 +1230,7 @@ type ListSandboxesRequest struct {
 
 func (x *ListSandboxesRequest) Reset() {
 	*x = ListSandboxesRequest{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +1242,7 @@ func (x *ListSandboxesRequest) String() string {
 func (*ListSandboxesRequest) ProtoMessage() {}
 
 func (x *ListSandboxesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1255,7 @@ func (x *ListSandboxesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxesRequest.ProtoReflect.Descriptor instead.
 func (*ListSandboxesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{19}
 }
 
 // Response containing a list of sandboxes
@@ -1130,7 +1269,7 @@ type ListSandboxesResponse struct {
 
 func (x *ListSandboxesResponse) Reset() {
 	*x = ListSandboxesResponse{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1142,7 +1281,7 @@ func (x *ListSandboxesResponse) String() string {
 func (*ListSandboxesResponse) ProtoMessage() {}
 
 func (x *ListSandboxesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1155,7 +1294,7 @@ func (x *ListSandboxesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSandboxesResponse.ProtoReflect.Descriptor instead.
 func (*ListSandboxesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListSandboxesResponse) GetSandboxes() []*SandboxInfo {
@@ -1179,7 +1318,7 @@ type SandboxInfo struct {
 
 func (x *SandboxInfo) Reset() {
 	*x = SandboxInfo{}
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1191,7 +1330,7 @@ func (x *SandboxInfo) String() string {
 func (*SandboxInfo) ProtoMessage() {}
 
 func (x *SandboxInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_sandbox_v1_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1204,7 +1343,7 @@ func (x *SandboxInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SandboxInfo.ProtoReflect.Descriptor instead.
 func (*SandboxInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_sandbox_v1_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SandboxInfo) GetId() string {
@@ -1243,7 +1382,7 @@ var file_chalk_sandbox_v1_service_proto_rawDesc = []byte{
 	0x12, 0x10, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e,
 	0x76, 0x31, 0x1a, 0x1f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2f, 0x61, 0x75, 0x74, 0x68, 0x2f, 0x76,
 	0x31, 0x2f, 0x70, 0x65, 0x72, 0x6d, 0x69, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x22, 0xfb, 0x01, 0x0a, 0x0b, 0x45, 0x78, 0x65, 0x63, 0x52, 0x65, 0x71, 0x75,
+	0x6f, 0x74, 0x6f, 0x22, 0xb3, 0x02, 0x0a, 0x0b, 0x45, 0x78, 0x65, 0x63, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x12, 0x30, 0x0a, 0x04, 0x69, 0x6e, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x1a, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f,
 	0x78, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x49, 0x6e, 0x69, 0x74, 0x48, 0x00, 0x52,
@@ -1258,63 +1397,79 @@ var file_chalk_sandbox_v1_service_proto_rawDesc = []byte{
 	0x0a, 0x06, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c,
 	0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76,
 	0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x48, 0x00, 0x52, 0x06,
-	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x42, 0x09, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x22, 0xaa, 0x02, 0x0a, 0x08, 0x45, 0x78, 0x65, 0x63, 0x49, 0x6e, 0x69, 0x74, 0x12, 0x1d,
-	0x0a, 0x0a, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x09, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x49, 0x64, 0x12, 0x18, 0x0a,
-	0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
-	0x63, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x61, 0x72, 0x67, 0x73, 0x18,
-	0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x61, 0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x07, 0x77,
-	0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x07,
-	0x77, 0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72, 0x88, 0x01, 0x01, 0x12, 0x35, 0x0a, 0x03, 0x65, 0x6e,
-	0x76, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e,
-	0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x49,
-	0x6e, 0x69, 0x74, 0x2e, 0x45, 0x6e, 0x76, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52, 0x03, 0x65, 0x6e,
-	0x76, 0x12, 0x26, 0x0a, 0x0c, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x5f, 0x73, 0x65, 0x63,
-	0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x48, 0x01, 0x52, 0x0b, 0x74, 0x69, 0x6d, 0x65, 0x6f,
-	0x75, 0x74, 0x53, 0x65, 0x63, 0x73, 0x88, 0x01, 0x01, 0x1a, 0x36, 0x0a, 0x08, 0x45, 0x6e, 0x76,
-	0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38,
-	0x01, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x77, 0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72, 0x42, 0x0f, 0x0a,
-	0x0d, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x5f, 0x73, 0x65, 0x63, 0x73, 0x22, 0x1f,
-	0x0a, 0x09, 0x53, 0x74, 0x64, 0x69, 0x6e, 0x44, 0x61, 0x74, 0x61, 0x12, 0x12, 0x0a, 0x04, 0x64,
-	0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22,
-	0x0a, 0x0a, 0x08, 0x53, 0x74, 0x64, 0x69, 0x6e, 0x45, 0x6f, 0x66, 0x22, 0x24, 0x0a, 0x0a, 0x45,
-	0x78, 0x65, 0x63, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x69, 0x67,
-	0x6e, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x73, 0x69, 0x67, 0x6e, 0x61,
-	0x6c, 0x22, 0xa6, 0x02, 0x0a, 0x0c, 0x45, 0x78, 0x65, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0f, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x73, 0x74,
-	0x61, 0x72, 0x74, 0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x63, 0x68,
-	0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x50,
-	0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x48, 0x00, 0x52,
-	0x0e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x12,
-	0x3f, 0x0a, 0x0b, 0x6f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e,
-	0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61,
-	0x74, 0x61, 0x48, 0x00, 0x52, 0x0a, 0x6f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61, 0x74, 0x61,
-	0x12, 0x48, 0x0a, 0x0e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x65, 0x78, 0x69, 0x74,
-	0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b,
-	0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x63,
-	0x65, 0x73, 0x73, 0x45, 0x78, 0x69, 0x74, 0x65, 0x64, 0x48, 0x00, 0x52, 0x0d, 0x70, 0x72, 0x6f,
-	0x63, 0x65, 0x73, 0x73, 0x45, 0x78, 0x69, 0x74, 0x65, 0x64, 0x12, 0x33, 0x0a, 0x05, 0x65, 0x72,
-	0x72, 0x6f, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x63, 0x68, 0x61, 0x6c,
-	0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x78, 0x65,
-	0x63, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x48, 0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42,
-	0x09, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x22, 0x0a, 0x0e, 0x50, 0x72,
-	0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x12, 0x10, 0x0a, 0x03,
-	0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x03, 0x70, 0x69, 0x64, 0x22, 0xa5,
-	0x01, 0x0a, 0x0a, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61, 0x74, 0x61, 0x12, 0x3b, 0x0a,
-	0x06, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x23, 0x2e,
+	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x12, 0x36, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x69, 0x7a, 0x65,
+	0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73,
+	0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x52, 0x65,
+	0x73, 0x69, 0x7a, 0x65, 0x48, 0x00, 0x52, 0x06, 0x72, 0x65, 0x73, 0x69, 0x7a, 0x65, 0x42, 0x09,
+	0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0xf2, 0x02, 0x0a, 0x08, 0x45, 0x78,
+	0x65, 0x63, 0x49, 0x6e, 0x69, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f,
+	0x78, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x61, 0x6e, 0x64,
+	0x62, 0x6f, 0x78, 0x49, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x12,
+	0x12, 0x0a, 0x04, 0x61, 0x72, 0x67, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x04, 0x61,
+	0x72, 0x67, 0x73, 0x12, 0x1d, 0x0a, 0x07, 0x77, 0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72, 0x18, 0x04,
+	0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x07, 0x77, 0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72, 0x88,
+	0x01, 0x01, 0x12, 0x35, 0x0a, 0x03, 0x65, 0x6e, 0x76, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x23, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e,
+	0x76, 0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x49, 0x6e, 0x69, 0x74, 0x2e, 0x45, 0x6e, 0x76, 0x45,
+	0x6e, 0x74, 0x72, 0x79, 0x52, 0x03, 0x65, 0x6e, 0x76, 0x12, 0x26, 0x0a, 0x0c, 0x74, 0x69, 0x6d,
+	0x65, 0x6f, 0x75, 0x74, 0x5f, 0x73, 0x65, 0x63, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x48,
+	0x01, 0x52, 0x0b, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x53, 0x65, 0x63, 0x73, 0x88, 0x01,
+	0x01, 0x12, 0x39, 0x0a, 0x08, 0x70, 0x74, 0x79, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x18, 0x07, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64,
+	0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x74, 0x79, 0x49, 0x6e, 0x66, 0x6f, 0x48, 0x02,
+	0x52, 0x07, 0x70, 0x74, 0x79, 0x49, 0x6e, 0x66, 0x6f, 0x88, 0x01, 0x01, 0x1a, 0x36, 0x0a, 0x08,
+	0x45, 0x6e, 0x76, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61,
+	0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65,
+	0x3a, 0x02, 0x38, 0x01, 0x42, 0x0a, 0x0a, 0x08, 0x5f, 0x77, 0x6f, 0x72, 0x6b, 0x64, 0x69, 0x72,
+	0x42, 0x0f, 0x0a, 0x0d, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x6f, 0x75, 0x74, 0x5f, 0x73, 0x65, 0x63,
+	0x73, 0x42, 0x0b, 0x0a, 0x09, 0x5f, 0x70, 0x74, 0x79, 0x5f, 0x69, 0x6e, 0x66, 0x6f, 0x22, 0x31,
+	0x0a, 0x07, 0x50, 0x74, 0x79, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x6c,
+	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x63, 0x6f, 0x6c, 0x73, 0x12, 0x12, 0x0a,
+	0x04, 0x72, 0x6f, 0x77, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x72, 0x6f, 0x77,
+	0x73, 0x22, 0x1f, 0x0a, 0x09, 0x53, 0x74, 0x64, 0x69, 0x6e, 0x44, 0x61, 0x74, 0x61, 0x12, 0x12,
+	0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61,
+	0x74, 0x61, 0x22, 0x0a, 0x0a, 0x08, 0x53, 0x74, 0x64, 0x69, 0x6e, 0x45, 0x6f, 0x66, 0x22, 0x24,
+	0x0a, 0x0a, 0x45, 0x78, 0x65, 0x63, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x12, 0x16, 0x0a, 0x06,
+	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x73, 0x69,
+	0x67, 0x6e, 0x61, 0x6c, 0x22, 0x34, 0x0a, 0x0a, 0x45, 0x78, 0x65, 0x63, 0x52, 0x65, 0x73, 0x69,
+	0x7a, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d,
+	0x52, 0x04, 0x63, 0x6f, 0x6c, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x72, 0x6f, 0x77, 0x73, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x72, 0x6f, 0x77, 0x73, 0x22, 0xa6, 0x02, 0x0a, 0x0c, 0x45,
+	0x78, 0x65, 0x63, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x0f, 0x70,
+	0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x5f, 0x73, 0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e,
+	0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53,
+	0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x48, 0x00, 0x52, 0x0e, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73,
+	0x73, 0x53, 0x74, 0x61, 0x72, 0x74, 0x65, 0x64, 0x12, 0x3f, 0x0a, 0x0b, 0x6f, 0x75, 0x74, 0x70,
+	0x75, 0x74, 0x5f, 0x64, 0x61, 0x74, 0x61, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e,
 	0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31,
-	0x2e, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61, 0x74, 0x61, 0x2e, 0x53, 0x74, 0x72, 0x65,
-	0x61, 0x6d, 0x52, 0x06, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61,
-	0x74, 0x61, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x46,
-	0x0a, 0x06, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x12, 0x16, 0x0a, 0x12, 0x53, 0x54, 0x52, 0x45,
-	0x41, 0x4d, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00,
-	0x12, 0x11, 0x0a, 0x0d, 0x53, 0x54, 0x52, 0x45, 0x41, 0x4d, 0x5f, 0x53, 0x54, 0x44, 0x4f, 0x55,
-	0x54, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d, 0x53, 0x54, 0x52, 0x45, 0x41, 0x4d, 0x5f, 0x53, 0x54,
-	0x44, 0x45, 0x52, 0x52, 0x10, 0x02, 0x22, 0x67, 0x0a, 0x0d, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
+	0x2e, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61, 0x74, 0x61, 0x48, 0x00, 0x52, 0x0a, 0x6f,
+	0x75, 0x74, 0x70, 0x75, 0x74, 0x44, 0x61, 0x74, 0x61, 0x12, 0x48, 0x0a, 0x0e, 0x70, 0x72, 0x6f,
+	0x63, 0x65, 0x73, 0x73, 0x5f, 0x65, 0x78, 0x69, 0x74, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x1f, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62, 0x6f,
+	0x78, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x45, 0x78, 0x69, 0x74,
+	0x65, 0x64, 0x48, 0x00, 0x52, 0x0d, 0x70, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x45, 0x78, 0x69,
+	0x74, 0x65, 0x64, 0x12, 0x33, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73, 0x61, 0x6e, 0x64, 0x62,
+	0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x78, 0x65, 0x63, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x48,
+	0x00, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x42, 0x09, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x22, 0x22, 0x0a, 0x0e, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x61, 0x72, 0x74, 0x65, 0x64, 0x12, 0x10, 0x0a, 0x03, 0x70, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x03, 0x70, 0x69, 0x64, 0x22, 0xbc, 0x01, 0x0a, 0x0a, 0x4f, 0x75, 0x74, 0x70,
+	0x75, 0x74, 0x44, 0x61, 0x74, 0x61, 0x12, 0x3b, 0x0a, 0x06, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x23, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x73,
+	0x61, 0x6e, 0x64, 0x62, 0x6f, 0x78, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74,
+	0x44, 0x61, 0x74, 0x61, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x52, 0x06, 0x73, 0x74, 0x72,
+	0x65, 0x61, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0c, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x5d, 0x0a, 0x06, 0x53, 0x74, 0x72, 0x65, 0x61,
+	0x6d, 0x12, 0x16, 0x0a, 0x12, 0x53, 0x54, 0x52, 0x45, 0x41, 0x4d, 0x5f, 0x55, 0x4e, 0x53, 0x50,
+	0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x11, 0x0a, 0x0d, 0x53, 0x54, 0x52,
+	0x45, 0x41, 0x4d, 0x5f, 0x53, 0x54, 0x44, 0x4f, 0x55, 0x54, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d,
+	0x53, 0x54, 0x52, 0x45, 0x41, 0x4d, 0x5f, 0x53, 0x54, 0x44, 0x45, 0x52, 0x52, 0x10, 0x02, 0x12,
+	0x15, 0x0a, 0x11, 0x53, 0x54, 0x52, 0x45, 0x41, 0x4d, 0x5f, 0x50, 0x54, 0x59, 0x5f, 0x4f, 0x55,
+	0x54, 0x50, 0x55, 0x54, 0x10, 0x03, 0x22, 0x67, 0x0a, 0x0d, 0x50, 0x72, 0x6f, 0x63, 0x65, 0x73,
 	0x73, 0x45, 0x78, 0x69, 0x74, 0x65, 0x64, 0x12, 0x20, 0x0a, 0x09, 0x65, 0x78, 0x69, 0x74, 0x5f,
 	0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x48, 0x00, 0x52, 0x08, 0x65, 0x78,
 	0x69, 0x74, 0x43, 0x6f, 0x64, 0x65, 0x88, 0x01, 0x01, 0x12, 0x1b, 0x0a, 0x06, 0x73, 0x69, 0x67,
@@ -1447,63 +1602,67 @@ func file_chalk_sandbox_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_sandbox_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_sandbox_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_chalk_sandbox_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chalk_sandbox_v1_service_proto_goTypes = []any{
 	(OutputData_Stream)(0),           // 0: chalk.sandbox.v1.OutputData.Stream
 	(*ExecRequest)(nil),              // 1: chalk.sandbox.v1.ExecRequest
 	(*ExecInit)(nil),                 // 2: chalk.sandbox.v1.ExecInit
-	(*StdinData)(nil),                // 3: chalk.sandbox.v1.StdinData
-	(*StdinEof)(nil),                 // 4: chalk.sandbox.v1.StdinEof
-	(*ExecSignal)(nil),               // 5: chalk.sandbox.v1.ExecSignal
-	(*ExecResponse)(nil),             // 6: chalk.sandbox.v1.ExecResponse
-	(*ProcessStarted)(nil),           // 7: chalk.sandbox.v1.ProcessStarted
-	(*OutputData)(nil),               // 8: chalk.sandbox.v1.OutputData
-	(*ProcessExited)(nil),            // 9: chalk.sandbox.v1.ProcessExited
-	(*ExecError)(nil),                // 10: chalk.sandbox.v1.ExecError
-	(*CreateSandboxRequest)(nil),     // 11: chalk.sandbox.v1.CreateSandboxRequest
-	(*ResourceLimits)(nil),           // 12: chalk.sandbox.v1.ResourceLimits
-	(*CreateSandboxResponse)(nil),    // 13: chalk.sandbox.v1.CreateSandboxResponse
-	(*TerminateSandboxRequest)(nil),  // 14: chalk.sandbox.v1.TerminateSandboxRequest
-	(*TerminateSandboxResponse)(nil), // 15: chalk.sandbox.v1.TerminateSandboxResponse
-	(*GetSandboxRequest)(nil),        // 16: chalk.sandbox.v1.GetSandboxRequest
-	(*GetSandboxResponse)(nil),       // 17: chalk.sandbox.v1.GetSandboxResponse
-	(*ListSandboxesRequest)(nil),     // 18: chalk.sandbox.v1.ListSandboxesRequest
-	(*ListSandboxesResponse)(nil),    // 19: chalk.sandbox.v1.ListSandboxesResponse
-	(*SandboxInfo)(nil),              // 20: chalk.sandbox.v1.SandboxInfo
-	nil,                              // 21: chalk.sandbox.v1.ExecInit.EnvEntry
-	nil,                              // 22: chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
+	(*PtyInfo)(nil),                  // 3: chalk.sandbox.v1.PtyInfo
+	(*StdinData)(nil),                // 4: chalk.sandbox.v1.StdinData
+	(*StdinEof)(nil),                 // 5: chalk.sandbox.v1.StdinEof
+	(*ExecSignal)(nil),               // 6: chalk.sandbox.v1.ExecSignal
+	(*ExecResize)(nil),               // 7: chalk.sandbox.v1.ExecResize
+	(*ExecResponse)(nil),             // 8: chalk.sandbox.v1.ExecResponse
+	(*ProcessStarted)(nil),           // 9: chalk.sandbox.v1.ProcessStarted
+	(*OutputData)(nil),               // 10: chalk.sandbox.v1.OutputData
+	(*ProcessExited)(nil),            // 11: chalk.sandbox.v1.ProcessExited
+	(*ExecError)(nil),                // 12: chalk.sandbox.v1.ExecError
+	(*CreateSandboxRequest)(nil),     // 13: chalk.sandbox.v1.CreateSandboxRequest
+	(*ResourceLimits)(nil),           // 14: chalk.sandbox.v1.ResourceLimits
+	(*CreateSandboxResponse)(nil),    // 15: chalk.sandbox.v1.CreateSandboxResponse
+	(*TerminateSandboxRequest)(nil),  // 16: chalk.sandbox.v1.TerminateSandboxRequest
+	(*TerminateSandboxResponse)(nil), // 17: chalk.sandbox.v1.TerminateSandboxResponse
+	(*GetSandboxRequest)(nil),        // 18: chalk.sandbox.v1.GetSandboxRequest
+	(*GetSandboxResponse)(nil),       // 19: chalk.sandbox.v1.GetSandboxResponse
+	(*ListSandboxesRequest)(nil),     // 20: chalk.sandbox.v1.ListSandboxesRequest
+	(*ListSandboxesResponse)(nil),    // 21: chalk.sandbox.v1.ListSandboxesResponse
+	(*SandboxInfo)(nil),              // 22: chalk.sandbox.v1.SandboxInfo
+	nil,                              // 23: chalk.sandbox.v1.ExecInit.EnvEntry
+	nil,                              // 24: chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
 }
 var file_chalk_sandbox_v1_service_proto_depIdxs = []int32{
 	2,  // 0: chalk.sandbox.v1.ExecRequest.init:type_name -> chalk.sandbox.v1.ExecInit
-	3,  // 1: chalk.sandbox.v1.ExecRequest.stdin_data:type_name -> chalk.sandbox.v1.StdinData
-	4,  // 2: chalk.sandbox.v1.ExecRequest.stdin_eof:type_name -> chalk.sandbox.v1.StdinEof
-	5,  // 3: chalk.sandbox.v1.ExecRequest.signal:type_name -> chalk.sandbox.v1.ExecSignal
-	21, // 4: chalk.sandbox.v1.ExecInit.env:type_name -> chalk.sandbox.v1.ExecInit.EnvEntry
-	7,  // 5: chalk.sandbox.v1.ExecResponse.process_started:type_name -> chalk.sandbox.v1.ProcessStarted
-	8,  // 6: chalk.sandbox.v1.ExecResponse.output_data:type_name -> chalk.sandbox.v1.OutputData
-	9,  // 7: chalk.sandbox.v1.ExecResponse.process_exited:type_name -> chalk.sandbox.v1.ProcessExited
-	10, // 8: chalk.sandbox.v1.ExecResponse.error:type_name -> chalk.sandbox.v1.ExecError
-	0,  // 9: chalk.sandbox.v1.OutputData.stream:type_name -> chalk.sandbox.v1.OutputData.Stream
-	12, // 10: chalk.sandbox.v1.CreateSandboxRequest.resource_limits:type_name -> chalk.sandbox.v1.ResourceLimits
-	22, // 11: chalk.sandbox.v1.CreateSandboxRequest.env:type_name -> chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
-	20, // 12: chalk.sandbox.v1.CreateSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
-	20, // 13: chalk.sandbox.v1.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
-	20, // 14: chalk.sandbox.v1.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v1.SandboxInfo
-	1,  // 15: chalk.sandbox.v1.SandboxService.Exec:input_type -> chalk.sandbox.v1.ExecRequest
-	11, // 16: chalk.sandbox.v1.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v1.CreateSandboxRequest
-	14, // 17: chalk.sandbox.v1.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v1.TerminateSandboxRequest
-	16, // 18: chalk.sandbox.v1.SandboxService.GetSandbox:input_type -> chalk.sandbox.v1.GetSandboxRequest
-	18, // 19: chalk.sandbox.v1.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v1.ListSandboxesRequest
-	6,  // 20: chalk.sandbox.v1.SandboxService.Exec:output_type -> chalk.sandbox.v1.ExecResponse
-	13, // 21: chalk.sandbox.v1.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v1.CreateSandboxResponse
-	15, // 22: chalk.sandbox.v1.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v1.TerminateSandboxResponse
-	17, // 23: chalk.sandbox.v1.SandboxService.GetSandbox:output_type -> chalk.sandbox.v1.GetSandboxResponse
-	19, // 24: chalk.sandbox.v1.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v1.ListSandboxesResponse
-	20, // [20:25] is the sub-list for method output_type
-	15, // [15:20] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	4,  // 1: chalk.sandbox.v1.ExecRequest.stdin_data:type_name -> chalk.sandbox.v1.StdinData
+	5,  // 2: chalk.sandbox.v1.ExecRequest.stdin_eof:type_name -> chalk.sandbox.v1.StdinEof
+	6,  // 3: chalk.sandbox.v1.ExecRequest.signal:type_name -> chalk.sandbox.v1.ExecSignal
+	7,  // 4: chalk.sandbox.v1.ExecRequest.resize:type_name -> chalk.sandbox.v1.ExecResize
+	23, // 5: chalk.sandbox.v1.ExecInit.env:type_name -> chalk.sandbox.v1.ExecInit.EnvEntry
+	3,  // 6: chalk.sandbox.v1.ExecInit.pty_info:type_name -> chalk.sandbox.v1.PtyInfo
+	9,  // 7: chalk.sandbox.v1.ExecResponse.process_started:type_name -> chalk.sandbox.v1.ProcessStarted
+	10, // 8: chalk.sandbox.v1.ExecResponse.output_data:type_name -> chalk.sandbox.v1.OutputData
+	11, // 9: chalk.sandbox.v1.ExecResponse.process_exited:type_name -> chalk.sandbox.v1.ProcessExited
+	12, // 10: chalk.sandbox.v1.ExecResponse.error:type_name -> chalk.sandbox.v1.ExecError
+	0,  // 11: chalk.sandbox.v1.OutputData.stream:type_name -> chalk.sandbox.v1.OutputData.Stream
+	14, // 12: chalk.sandbox.v1.CreateSandboxRequest.resource_limits:type_name -> chalk.sandbox.v1.ResourceLimits
+	24, // 13: chalk.sandbox.v1.CreateSandboxRequest.env:type_name -> chalk.sandbox.v1.CreateSandboxRequest.EnvEntry
+	22, // 14: chalk.sandbox.v1.CreateSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
+	22, // 15: chalk.sandbox.v1.GetSandboxResponse.sandbox:type_name -> chalk.sandbox.v1.SandboxInfo
+	22, // 16: chalk.sandbox.v1.ListSandboxesResponse.sandboxes:type_name -> chalk.sandbox.v1.SandboxInfo
+	1,  // 17: chalk.sandbox.v1.SandboxService.Exec:input_type -> chalk.sandbox.v1.ExecRequest
+	13, // 18: chalk.sandbox.v1.SandboxService.CreateSandbox:input_type -> chalk.sandbox.v1.CreateSandboxRequest
+	16, // 19: chalk.sandbox.v1.SandboxService.TerminateSandbox:input_type -> chalk.sandbox.v1.TerminateSandboxRequest
+	18, // 20: chalk.sandbox.v1.SandboxService.GetSandbox:input_type -> chalk.sandbox.v1.GetSandboxRequest
+	20, // 21: chalk.sandbox.v1.SandboxService.ListSandboxes:input_type -> chalk.sandbox.v1.ListSandboxesRequest
+	8,  // 22: chalk.sandbox.v1.SandboxService.Exec:output_type -> chalk.sandbox.v1.ExecResponse
+	15, // 23: chalk.sandbox.v1.SandboxService.CreateSandbox:output_type -> chalk.sandbox.v1.CreateSandboxResponse
+	17, // 24: chalk.sandbox.v1.SandboxService.TerminateSandbox:output_type -> chalk.sandbox.v1.TerminateSandboxResponse
+	19, // 25: chalk.sandbox.v1.SandboxService.GetSandbox:output_type -> chalk.sandbox.v1.GetSandboxResponse
+	21, // 26: chalk.sandbox.v1.SandboxService.ListSandboxes:output_type -> chalk.sandbox.v1.ListSandboxesResponse
+	22, // [22:27] is the sub-list for method output_type
+	17, // [17:22] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_sandbox_v1_service_proto_init() }
@@ -1516,26 +1675,27 @@ func file_chalk_sandbox_v1_service_proto_init() {
 		(*ExecRequest_StdinData)(nil),
 		(*ExecRequest_StdinEof)(nil),
 		(*ExecRequest_Signal)(nil),
+		(*ExecRequest_Resize)(nil),
 	}
 	file_chalk_sandbox_v1_service_proto_msgTypes[1].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[5].OneofWrappers = []any{
+	file_chalk_sandbox_v1_service_proto_msgTypes[7].OneofWrappers = []any{
 		(*ExecResponse_ProcessStarted)(nil),
 		(*ExecResponse_OutputData)(nil),
 		(*ExecResponse_ProcessExited)(nil),
 		(*ExecResponse_Error)(nil),
 	}
-	file_chalk_sandbox_v1_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_sandbox_v1_service_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_sandbox_v1_service_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_sandbox_v1_service_proto_msgTypes[21].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_sandbox_v1_service_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   22,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
