@@ -20,82 +20,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type UploadFeaturesOptions struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Whether to update materialized aggregations (streaming aggs). Defaults to false when not set.
-	UpdateMataggs *bool `protobuf:"varint,1,opt,name=update_mataggs,json=updateMataggs,proto3,oneof" json:"update_mataggs,omitempty"`
-	// Whether to write features to the offline store. Defaults to false when not set.
-	WriteOffline *bool `protobuf:"varint,2,opt,name=write_offline,json=writeOffline,proto3,oneof" json:"write_offline,omitempty"`
-	// Whether to write features to the online store. Defaults to true when not set.
-	WriteOnline *bool `protobuf:"varint,3,opt,name=write_online,json=writeOnline,proto3,oneof" json:"write_online,omitempty"`
-}
-
-func (x *UploadFeaturesOptions) Reset() {
-	*x = UploadFeaturesOptions{}
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UploadFeaturesOptions) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UploadFeaturesOptions) ProtoMessage() {}
-
-func (x *UploadFeaturesOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UploadFeaturesOptions.ProtoReflect.Descriptor instead.
-func (*UploadFeaturesOptions) Descriptor() ([]byte, []int) {
-	return file_chalk_common_v1_upload_features_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *UploadFeaturesOptions) GetUpdateMataggs() bool {
-	if x != nil && x.UpdateMataggs != nil {
-		return *x.UpdateMataggs
-	}
-	return false
-}
-
-func (x *UploadFeaturesOptions) GetWriteOffline() bool {
-	if x != nil && x.WriteOffline != nil {
-		return *x.WriteOffline
-	}
-	return false
-}
-
-func (x *UploadFeaturesOptions) GetWriteOnline() bool {
-	if x != nil && x.WriteOnline != nil {
-		return *x.WriteOnline
-	}
-	return false
-}
-
 type UploadFeaturesRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	InputsTable []byte                 `protobuf:"bytes,1,opt,name=inputs_table,json=inputsTable,proto3" json:"inputs_table,omitempty"`
-	Options     *UploadFeaturesOptions `protobuf:"bytes,2,opt,name=options,proto3" json:"options,omitempty"`
+	InputsTable []byte `protobuf:"bytes,1,opt,name=inputs_table,json=inputsTable,proto3" json:"inputs_table,omitempty"`
 }
 
 func (x *UploadFeaturesRequest) Reset() {
 	*x = UploadFeaturesRequest{}
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[1]
+	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -107,7 +42,7 @@ func (x *UploadFeaturesRequest) String() string {
 func (*UploadFeaturesRequest) ProtoMessage() {}
 
 func (x *UploadFeaturesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[1]
+	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -120,19 +55,12 @@ func (x *UploadFeaturesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadFeaturesRequest.ProtoReflect.Descriptor instead.
 func (*UploadFeaturesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_common_v1_upload_features_proto_rawDescGZIP(), []int{1}
+	return file_chalk_common_v1_upload_features_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *UploadFeaturesRequest) GetInputsTable() []byte {
 	if x != nil {
 		return x.InputsTable
-	}
-	return nil
-}
-
-func (x *UploadFeaturesRequest) GetOptions() *UploadFeaturesOptions {
-	if x != nil {
-		return x.Options
 	}
 	return nil
 }
@@ -148,7 +76,7 @@ type UploadFeaturesResponse struct {
 
 func (x *UploadFeaturesResponse) Reset() {
 	*x = UploadFeaturesResponse{}
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[2]
+	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -160,7 +88,7 @@ func (x *UploadFeaturesResponse) String() string {
 func (*UploadFeaturesResponse) ProtoMessage() {}
 
 func (x *UploadFeaturesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[2]
+	mi := &file_chalk_common_v1_upload_features_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -173,7 +101,7 @@ func (x *UploadFeaturesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadFeaturesResponse.ProtoReflect.Descriptor instead.
 func (*UploadFeaturesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_common_v1_upload_features_proto_rawDescGZIP(), []int{2}
+	return file_chalk_common_v1_upload_features_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *UploadFeaturesResponse) GetErrors() []*ChalkError {
@@ -198,28 +126,11 @@ var file_chalk_common_v1_upload_features_proto_rawDesc = []byte{
 	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63,
 	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x1a, 0x21, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2f,
 	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x5f,
-	0x65, 0x72, 0x72, 0x6f, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xcb, 0x01, 0x0a, 0x15,
-	0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x4f, 0x70,
-	0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x2a, 0x0a, 0x0e, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x5f,
-	0x6d, 0x61, 0x74, 0x61, 0x67, 0x67, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x48, 0x00, 0x52,
-	0x0d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x4d, 0x61, 0x74, 0x61, 0x67, 0x67, 0x73, 0x88, 0x01,
-	0x01, 0x12, 0x28, 0x0a, 0x0d, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x6f, 0x66, 0x66, 0x6c, 0x69,
-	0x6e, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x48, 0x01, 0x52, 0x0c, 0x77, 0x72, 0x69, 0x74,
-	0x65, 0x4f, 0x66, 0x66, 0x6c, 0x69, 0x6e, 0x65, 0x88, 0x01, 0x01, 0x12, 0x26, 0x0a, 0x0c, 0x77,
-	0x72, 0x69, 0x74, 0x65, 0x5f, 0x6f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x08, 0x48, 0x02, 0x52, 0x0b, 0x77, 0x72, 0x69, 0x74, 0x65, 0x4f, 0x6e, 0x6c, 0x69, 0x6e, 0x65,
-	0x88, 0x01, 0x01, 0x42, 0x11, 0x0a, 0x0f, 0x5f, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x6d,
-	0x61, 0x74, 0x61, 0x67, 0x67, 0x73, 0x42, 0x10, 0x0a, 0x0e, 0x5f, 0x77, 0x72, 0x69, 0x74, 0x65,
-	0x5f, 0x6f, 0x66, 0x66, 0x6c, 0x69, 0x6e, 0x65, 0x42, 0x0f, 0x0a, 0x0d, 0x5f, 0x77, 0x72, 0x69,
-	0x74, 0x65, 0x5f, 0x6f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x22, 0x7c, 0x0a, 0x15, 0x55, 0x70, 0x6c,
-	0x6f, 0x61, 0x64, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x73, 0x5f, 0x74, 0x61, 0x62,
-	0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0b, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x73,
-	0x54, 0x61, 0x62, 0x6c, 0x65, 0x12, 0x40, 0x0a, 0x07, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63,
-	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x46,
-	0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x4f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x07,
-	0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x70, 0x0a, 0x16, 0x55, 0x70, 0x6c, 0x6f, 0x61,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x3a, 0x0a, 0x15, 0x55,
+	0x70, 0x6c, 0x6f, 0x61, 0x64, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x73, 0x5f, 0x74,
+	0x61, 0x62, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0b, 0x69, 0x6e, 0x70, 0x75,
+	0x74, 0x73, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x70, 0x0a, 0x16, 0x55, 0x70, 0x6c, 0x6f, 0x61,
 	0x64, 0x46, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
 	0x65, 0x12, 0x33, 0x0a, 0x06, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
 	0x0b, 0x32, 0x1b, 0x2e, 0x63, 0x68, 0x61, 0x6c, 0x6b, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
@@ -254,21 +165,19 @@ func file_chalk_common_v1_upload_features_proto_rawDescGZIP() []byte {
 	return file_chalk_common_v1_upload_features_proto_rawDescData
 }
 
-var file_chalk_common_v1_upload_features_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_common_v1_upload_features_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_chalk_common_v1_upload_features_proto_goTypes = []any{
-	(*UploadFeaturesOptions)(nil),  // 0: chalk.common.v1.UploadFeaturesOptions
-	(*UploadFeaturesRequest)(nil),  // 1: chalk.common.v1.UploadFeaturesRequest
-	(*UploadFeaturesResponse)(nil), // 2: chalk.common.v1.UploadFeaturesResponse
-	(*ChalkError)(nil),             // 3: chalk.common.v1.ChalkError
+	(*UploadFeaturesRequest)(nil),  // 0: chalk.common.v1.UploadFeaturesRequest
+	(*UploadFeaturesResponse)(nil), // 1: chalk.common.v1.UploadFeaturesResponse
+	(*ChalkError)(nil),             // 2: chalk.common.v1.ChalkError
 }
 var file_chalk_common_v1_upload_features_proto_depIdxs = []int32{
-	0, // 0: chalk.common.v1.UploadFeaturesRequest.options:type_name -> chalk.common.v1.UploadFeaturesOptions
-	3, // 1: chalk.common.v1.UploadFeaturesResponse.errors:type_name -> chalk.common.v1.ChalkError
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: chalk.common.v1.UploadFeaturesResponse.errors:type_name -> chalk.common.v1.ChalkError
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_chalk_common_v1_upload_features_proto_init() }
@@ -277,14 +186,13 @@ func file_chalk_common_v1_upload_features_proto_init() {
 		return
 	}
 	file_chalk_common_v1_chalk_error_proto_init()
-	file_chalk_common_v1_upload_features_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_chalk_common_v1_upload_features_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

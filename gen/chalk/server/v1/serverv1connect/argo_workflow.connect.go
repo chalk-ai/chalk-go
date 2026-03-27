@@ -39,20 +39,12 @@ const (
 	// ArgoWorkflowServiceGetArgoBuildProcedure is the fully-qualified name of the ArgoWorkflowService's
 	// GetArgoBuild RPC.
 	ArgoWorkflowServiceGetArgoBuildProcedure = "/chalk.server.v1.ArgoWorkflowService/GetArgoBuild"
-	// ArgoWorkflowServiceGetArgoBuildLogsProcedure is the fully-qualified name of the
-	// ArgoWorkflowService's GetArgoBuildLogs RPC.
-	ArgoWorkflowServiceGetArgoBuildLogsProcedure = "/chalk.server.v1.ArgoWorkflowService/GetArgoBuildLogs"
-	// ArgoWorkflowServiceGetArgoBuildKubeEventsProcedure is the fully-qualified name of the
-	// ArgoWorkflowService's GetArgoBuildKubeEvents RPC.
-	ArgoWorkflowServiceGetArgoBuildKubeEventsProcedure = "/chalk.server.v1.ArgoWorkflowService/GetArgoBuildKubeEvents"
 )
 
 // ArgoWorkflowServiceClient is a client for the chalk.server.v1.ArgoWorkflowService service.
 type ArgoWorkflowServiceClient interface {
 	ListArgoBuilds(context.Context, *connect.Request[v1.ListArgoBuildsRequest]) (*connect.Response[v1.ListArgoBuildsResponse], error)
 	GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error)
-	GetArgoBuildLogs(context.Context, *connect.Request[v1.GetArgoBuildLogsRequest]) (*connect.Response[v1.GetArgoBuildLogsResponse], error)
-	GetArgoBuildKubeEvents(context.Context, *connect.Request[v1.GetArgoBuildKubeEventsRequest]) (*connect.Response[v1.GetArgoBuildKubeEventsResponse], error)
 }
 
 // NewArgoWorkflowServiceClient constructs a client for the chalk.server.v1.ArgoWorkflowService
@@ -80,29 +72,13 @@ func NewArgoWorkflowServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		getArgoBuildLogs: connect.NewClient[v1.GetArgoBuildLogsRequest, v1.GetArgoBuildLogsResponse](
-			httpClient,
-			baseURL+ArgoWorkflowServiceGetArgoBuildLogsProcedure,
-			connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuildLogs")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
-		getArgoBuildKubeEvents: connect.NewClient[v1.GetArgoBuildKubeEventsRequest, v1.GetArgoBuildKubeEventsResponse](
-			httpClient,
-			baseURL+ArgoWorkflowServiceGetArgoBuildKubeEventsProcedure,
-			connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuildKubeEvents")),
-			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
 // argoWorkflowServiceClient implements ArgoWorkflowServiceClient.
 type argoWorkflowServiceClient struct {
-	listArgoBuilds         *connect.Client[v1.ListArgoBuildsRequest, v1.ListArgoBuildsResponse]
-	getArgoBuild           *connect.Client[v1.GetArgoBuildRequest, v1.GetArgoBuildResponse]
-	getArgoBuildLogs       *connect.Client[v1.GetArgoBuildLogsRequest, v1.GetArgoBuildLogsResponse]
-	getArgoBuildKubeEvents *connect.Client[v1.GetArgoBuildKubeEventsRequest, v1.GetArgoBuildKubeEventsResponse]
+	listArgoBuilds *connect.Client[v1.ListArgoBuildsRequest, v1.ListArgoBuildsResponse]
+	getArgoBuild   *connect.Client[v1.GetArgoBuildRequest, v1.GetArgoBuildResponse]
 }
 
 // ListArgoBuilds calls chalk.server.v1.ArgoWorkflowService.ListArgoBuilds.
@@ -115,23 +91,11 @@ func (c *argoWorkflowServiceClient) GetArgoBuild(ctx context.Context, req *conne
 	return c.getArgoBuild.CallUnary(ctx, req)
 }
 
-// GetArgoBuildLogs calls chalk.server.v1.ArgoWorkflowService.GetArgoBuildLogs.
-func (c *argoWorkflowServiceClient) GetArgoBuildLogs(ctx context.Context, req *connect.Request[v1.GetArgoBuildLogsRequest]) (*connect.Response[v1.GetArgoBuildLogsResponse], error) {
-	return c.getArgoBuildLogs.CallUnary(ctx, req)
-}
-
-// GetArgoBuildKubeEvents calls chalk.server.v1.ArgoWorkflowService.GetArgoBuildKubeEvents.
-func (c *argoWorkflowServiceClient) GetArgoBuildKubeEvents(ctx context.Context, req *connect.Request[v1.GetArgoBuildKubeEventsRequest]) (*connect.Response[v1.GetArgoBuildKubeEventsResponse], error) {
-	return c.getArgoBuildKubeEvents.CallUnary(ctx, req)
-}
-
 // ArgoWorkflowServiceHandler is an implementation of the chalk.server.v1.ArgoWorkflowService
 // service.
 type ArgoWorkflowServiceHandler interface {
 	ListArgoBuilds(context.Context, *connect.Request[v1.ListArgoBuildsRequest]) (*connect.Response[v1.ListArgoBuildsResponse], error)
 	GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error)
-	GetArgoBuildLogs(context.Context, *connect.Request[v1.GetArgoBuildLogsRequest]) (*connect.Response[v1.GetArgoBuildLogsResponse], error)
-	GetArgoBuildKubeEvents(context.Context, *connect.Request[v1.GetArgoBuildKubeEventsRequest]) (*connect.Response[v1.GetArgoBuildKubeEventsResponse], error)
 }
 
 // NewArgoWorkflowServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -155,30 +119,12 @@ func NewArgoWorkflowServiceHandler(svc ArgoWorkflowServiceHandler, opts ...conne
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	argoWorkflowServiceGetArgoBuildLogsHandler := connect.NewUnaryHandler(
-		ArgoWorkflowServiceGetArgoBuildLogsProcedure,
-		svc.GetArgoBuildLogs,
-		connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuildLogs")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
-	argoWorkflowServiceGetArgoBuildKubeEventsHandler := connect.NewUnaryHandler(
-		ArgoWorkflowServiceGetArgoBuildKubeEventsProcedure,
-		svc.GetArgoBuildKubeEvents,
-		connect.WithSchema(argoWorkflowServiceMethods.ByName("GetArgoBuildKubeEvents")),
-		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.ArgoWorkflowService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ArgoWorkflowServiceListArgoBuildsProcedure:
 			argoWorkflowServiceListArgoBuildsHandler.ServeHTTP(w, r)
 		case ArgoWorkflowServiceGetArgoBuildProcedure:
 			argoWorkflowServiceGetArgoBuildHandler.ServeHTTP(w, r)
-		case ArgoWorkflowServiceGetArgoBuildLogsProcedure:
-			argoWorkflowServiceGetArgoBuildLogsHandler.ServeHTTP(w, r)
-		case ArgoWorkflowServiceGetArgoBuildKubeEventsProcedure:
-			argoWorkflowServiceGetArgoBuildKubeEventsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -194,12 +140,4 @@ func (UnimplementedArgoWorkflowServiceHandler) ListArgoBuilds(context.Context, *
 
 func (UnimplementedArgoWorkflowServiceHandler) GetArgoBuild(context.Context, *connect.Request[v1.GetArgoBuildRequest]) (*connect.Response[v1.GetArgoBuildResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ArgoWorkflowService.GetArgoBuild is not implemented"))
-}
-
-func (UnimplementedArgoWorkflowServiceHandler) GetArgoBuildLogs(context.Context, *connect.Request[v1.GetArgoBuildLogsRequest]) (*connect.Response[v1.GetArgoBuildLogsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ArgoWorkflowService.GetArgoBuildLogs is not implemented"))
-}
-
-func (UnimplementedArgoWorkflowServiceHandler) GetArgoBuildKubeEvents(context.Context, *connect.Request[v1.GetArgoBuildKubeEventsRequest]) (*connect.Response[v1.GetArgoBuildKubeEventsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ArgoWorkflowService.GetArgoBuildKubeEvents is not implemented"))
 }

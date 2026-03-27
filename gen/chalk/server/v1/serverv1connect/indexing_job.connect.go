@@ -36,16 +36,12 @@ const (
 	// IndexingJobServiceGetIndexingJobStatusProcedure is the fully-qualified name of the
 	// IndexingJobService's GetIndexingJobStatus RPC.
 	IndexingJobServiceGetIndexingJobStatusProcedure = "/chalk.server.v1.IndexingJobService/GetIndexingJobStatus"
-	// IndexingJobServiceCancelIndexingJobProcedure is the fully-qualified name of the
-	// IndexingJobService's CancelIndexingJob RPC.
-	IndexingJobServiceCancelIndexingJobProcedure = "/chalk.server.v1.IndexingJobService/CancelIndexingJob"
 )
 
 // IndexingJobServiceClient is a client for the chalk.server.v1.IndexingJobService service.
 type IndexingJobServiceClient interface {
 	// GetIndexingStatus checks if the indexing job has completed successfully for a deployment
 	GetIndexingJobStatus(context.Context, *connect.Request[v1.GetIndexingJobStatusRequest]) (*connect.Response[v1.GetIndexingJobStatusResponse], error)
-	CancelIndexingJob(context.Context, *connect.Request[v1.CancelIndexingJobRequest]) (*connect.Response[v1.CancelIndexingJobResponse], error)
 }
 
 // NewIndexingJobServiceClient constructs a client for the chalk.server.v1.IndexingJobService
@@ -66,19 +62,12 @@ func NewIndexingJobServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
-		cancelIndexingJob: connect.NewClient[v1.CancelIndexingJobRequest, v1.CancelIndexingJobResponse](
-			httpClient,
-			baseURL+IndexingJobServiceCancelIndexingJobProcedure,
-			connect.WithSchema(indexingJobServiceMethods.ByName("CancelIndexingJob")),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
 // indexingJobServiceClient implements IndexingJobServiceClient.
 type indexingJobServiceClient struct {
 	getIndexingJobStatus *connect.Client[v1.GetIndexingJobStatusRequest, v1.GetIndexingJobStatusResponse]
-	cancelIndexingJob    *connect.Client[v1.CancelIndexingJobRequest, v1.CancelIndexingJobResponse]
 }
 
 // GetIndexingJobStatus calls chalk.server.v1.IndexingJobService.GetIndexingJobStatus.
@@ -86,16 +75,10 @@ func (c *indexingJobServiceClient) GetIndexingJobStatus(ctx context.Context, req
 	return c.getIndexingJobStatus.CallUnary(ctx, req)
 }
 
-// CancelIndexingJob calls chalk.server.v1.IndexingJobService.CancelIndexingJob.
-func (c *indexingJobServiceClient) CancelIndexingJob(ctx context.Context, req *connect.Request[v1.CancelIndexingJobRequest]) (*connect.Response[v1.CancelIndexingJobResponse], error) {
-	return c.cancelIndexingJob.CallUnary(ctx, req)
-}
-
 // IndexingJobServiceHandler is an implementation of the chalk.server.v1.IndexingJobService service.
 type IndexingJobServiceHandler interface {
 	// GetIndexingStatus checks if the indexing job has completed successfully for a deployment
 	GetIndexingJobStatus(context.Context, *connect.Request[v1.GetIndexingJobStatusRequest]) (*connect.Response[v1.GetIndexingJobStatusResponse], error)
-	CancelIndexingJob(context.Context, *connect.Request[v1.CancelIndexingJobRequest]) (*connect.Response[v1.CancelIndexingJobResponse], error)
 }
 
 // NewIndexingJobServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -112,18 +95,10 @@ func NewIndexingJobServiceHandler(svc IndexingJobServiceHandler, opts ...connect
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
-	indexingJobServiceCancelIndexingJobHandler := connect.NewUnaryHandler(
-		IndexingJobServiceCancelIndexingJobProcedure,
-		svc.CancelIndexingJob,
-		connect.WithSchema(indexingJobServiceMethods.ByName("CancelIndexingJob")),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.server.v1.IndexingJobService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IndexingJobServiceGetIndexingJobStatusProcedure:
 			indexingJobServiceGetIndexingJobStatusHandler.ServeHTTP(w, r)
-		case IndexingJobServiceCancelIndexingJobProcedure:
-			indexingJobServiceCancelIndexingJobHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -135,8 +110,4 @@ type UnimplementedIndexingJobServiceHandler struct{}
 
 func (UnimplementedIndexingJobServiceHandler) GetIndexingJobStatus(context.Context, *connect.Request[v1.GetIndexingJobStatusRequest]) (*connect.Response[v1.GetIndexingJobStatusResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IndexingJobService.GetIndexingJobStatus is not implemented"))
-}
-
-func (UnimplementedIndexingJobServiceHandler) CancelIndexingJob(context.Context, *connect.Request[v1.CancelIndexingJobRequest]) (*connect.Response[v1.CancelIndexingJobResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IndexingJobService.CancelIndexingJob is not implemented"))
 }

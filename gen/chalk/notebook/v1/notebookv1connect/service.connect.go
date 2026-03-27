@@ -45,27 +45,6 @@ const (
 	// NotebookServiceStopNotebookProcedure is the fully-qualified name of the NotebookService's
 	// StopNotebook RPC.
 	NotebookServiceStopNotebookProcedure = "/chalk.notebook.v1.NotebookService/StopNotebook"
-	// NotebookServiceListCellsProcedure is the fully-qualified name of the NotebookService's ListCells
-	// RPC.
-	NotebookServiceListCellsProcedure = "/chalk.notebook.v1.NotebookService/ListCells"
-	// NotebookServiceExecuteCellProcedure is the fully-qualified name of the NotebookService's
-	// ExecuteCell RPC.
-	NotebookServiceExecuteCellProcedure = "/chalk.notebook.v1.NotebookService/ExecuteCell"
-	// NotebookServiceRerunCellProcedure is the fully-qualified name of the NotebookService's RerunCell
-	// RPC.
-	NotebookServiceRerunCellProcedure = "/chalk.notebook.v1.NotebookService/RerunCell"
-	// NotebookServiceDeleteCellProcedure is the fully-qualified name of the NotebookService's
-	// DeleteCell RPC.
-	NotebookServiceDeleteCellProcedure = "/chalk.notebook.v1.NotebookService/DeleteCell"
-	// NotebookServiceClearCellsProcedure is the fully-qualified name of the NotebookService's
-	// ClearCells RPC.
-	NotebookServiceClearCellsProcedure = "/chalk.notebook.v1.NotebookService/ClearCells"
-	// NotebookServiceInterruptKernelProcedure is the fully-qualified name of the NotebookService's
-	// InterruptKernel RPC.
-	NotebookServiceInterruptKernelProcedure = "/chalk.notebook.v1.NotebookService/InterruptKernel"
-	// NotebookServiceHeartbeatNotebookProcedure is the fully-qualified name of the NotebookService's
-	// HeartbeatNotebook RPC.
-	NotebookServiceHeartbeatNotebookProcedure = "/chalk.notebook.v1.NotebookService/HeartbeatNotebook"
 )
 
 // NotebookServiceClient is a client for the chalk.notebook.v1.NotebookService service.
@@ -74,14 +53,6 @@ type NotebookServiceClient interface {
 	GetNotebook(context.Context, *connect.Request[v1.GetNotebookRequest]) (*connect.Response[v1.GetNotebookResponse], error)
 	ListNotebooks(context.Context, *connect.Request[v1.ListNotebooksRequest]) (*connect.Response[v1.ListNotebooksResponse], error)
 	StopNotebook(context.Context, *connect.Request[v1.StopNotebookRequest]) (*connect.Response[v1.StopNotebookResponse], error)
-	// Cell-level RPCs proxied to the notebook server running in the container.
-	ListCells(context.Context, *connect.Request[v1.ListCellsRequest]) (*connect.Response[v1.ListCellsResponse], error)
-	ExecuteCell(context.Context, *connect.Request[v1.ExecuteCellRequest]) (*connect.Response[v1.ExecuteCellResponse], error)
-	RerunCell(context.Context, *connect.Request[v1.RerunCellRequest]) (*connect.Response[v1.RerunCellResponse], error)
-	DeleteCell(context.Context, *connect.Request[v1.DeleteCellRequest]) (*connect.Response[v1.DeleteCellResponse], error)
-	ClearCells(context.Context, *connect.Request[v1.ClearCellsRequest]) (*connect.Response[v1.ClearCellsResponse], error)
-	InterruptKernel(context.Context, *connect.Request[v1.InterruptKernelRequest]) (*connect.Response[v1.InterruptKernelResponse], error)
-	HeartbeatNotebook(context.Context, *connect.Request[v1.HeartbeatNotebookRequest]) (*connect.Response[v1.HeartbeatNotebookResponse], error)
 }
 
 // NewNotebookServiceClient constructs a client for the chalk.notebook.v1.NotebookService service.
@@ -119,64 +90,15 @@ func NewNotebookServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(notebookServiceMethods.ByName("StopNotebook")),
 			connect.WithClientOptions(opts...),
 		),
-		listCells: connect.NewClient[v1.ListCellsRequest, v1.ListCellsResponse](
-			httpClient,
-			baseURL+NotebookServiceListCellsProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("ListCells")),
-			connect.WithClientOptions(opts...),
-		),
-		executeCell: connect.NewClient[v1.ExecuteCellRequest, v1.ExecuteCellResponse](
-			httpClient,
-			baseURL+NotebookServiceExecuteCellProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("ExecuteCell")),
-			connect.WithClientOptions(opts...),
-		),
-		rerunCell: connect.NewClient[v1.RerunCellRequest, v1.RerunCellResponse](
-			httpClient,
-			baseURL+NotebookServiceRerunCellProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("RerunCell")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteCell: connect.NewClient[v1.DeleteCellRequest, v1.DeleteCellResponse](
-			httpClient,
-			baseURL+NotebookServiceDeleteCellProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("DeleteCell")),
-			connect.WithClientOptions(opts...),
-		),
-		clearCells: connect.NewClient[v1.ClearCellsRequest, v1.ClearCellsResponse](
-			httpClient,
-			baseURL+NotebookServiceClearCellsProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("ClearCells")),
-			connect.WithClientOptions(opts...),
-		),
-		interruptKernel: connect.NewClient[v1.InterruptKernelRequest, v1.InterruptKernelResponse](
-			httpClient,
-			baseURL+NotebookServiceInterruptKernelProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("InterruptKernel")),
-			connect.WithClientOptions(opts...),
-		),
-		heartbeatNotebook: connect.NewClient[v1.HeartbeatNotebookRequest, v1.HeartbeatNotebookResponse](
-			httpClient,
-			baseURL+NotebookServiceHeartbeatNotebookProcedure,
-			connect.WithSchema(notebookServiceMethods.ByName("HeartbeatNotebook")),
-			connect.WithClientOptions(opts...),
-		),
 	}
 }
 
 // notebookServiceClient implements NotebookServiceClient.
 type notebookServiceClient struct {
-	createNotebook    *connect.Client[v1.CreateNotebookRequest, v1.CreateNotebookResponse]
-	getNotebook       *connect.Client[v1.GetNotebookRequest, v1.GetNotebookResponse]
-	listNotebooks     *connect.Client[v1.ListNotebooksRequest, v1.ListNotebooksResponse]
-	stopNotebook      *connect.Client[v1.StopNotebookRequest, v1.StopNotebookResponse]
-	listCells         *connect.Client[v1.ListCellsRequest, v1.ListCellsResponse]
-	executeCell       *connect.Client[v1.ExecuteCellRequest, v1.ExecuteCellResponse]
-	rerunCell         *connect.Client[v1.RerunCellRequest, v1.RerunCellResponse]
-	deleteCell        *connect.Client[v1.DeleteCellRequest, v1.DeleteCellResponse]
-	clearCells        *connect.Client[v1.ClearCellsRequest, v1.ClearCellsResponse]
-	interruptKernel   *connect.Client[v1.InterruptKernelRequest, v1.InterruptKernelResponse]
-	heartbeatNotebook *connect.Client[v1.HeartbeatNotebookRequest, v1.HeartbeatNotebookResponse]
+	createNotebook *connect.Client[v1.CreateNotebookRequest, v1.CreateNotebookResponse]
+	getNotebook    *connect.Client[v1.GetNotebookRequest, v1.GetNotebookResponse]
+	listNotebooks  *connect.Client[v1.ListNotebooksRequest, v1.ListNotebooksResponse]
+	stopNotebook   *connect.Client[v1.StopNotebookRequest, v1.StopNotebookResponse]
 }
 
 // CreateNotebook calls chalk.notebook.v1.NotebookService.CreateNotebook.
@@ -199,55 +121,12 @@ func (c *notebookServiceClient) StopNotebook(ctx context.Context, req *connect.R
 	return c.stopNotebook.CallUnary(ctx, req)
 }
 
-// ListCells calls chalk.notebook.v1.NotebookService.ListCells.
-func (c *notebookServiceClient) ListCells(ctx context.Context, req *connect.Request[v1.ListCellsRequest]) (*connect.Response[v1.ListCellsResponse], error) {
-	return c.listCells.CallUnary(ctx, req)
-}
-
-// ExecuteCell calls chalk.notebook.v1.NotebookService.ExecuteCell.
-func (c *notebookServiceClient) ExecuteCell(ctx context.Context, req *connect.Request[v1.ExecuteCellRequest]) (*connect.Response[v1.ExecuteCellResponse], error) {
-	return c.executeCell.CallUnary(ctx, req)
-}
-
-// RerunCell calls chalk.notebook.v1.NotebookService.RerunCell.
-func (c *notebookServiceClient) RerunCell(ctx context.Context, req *connect.Request[v1.RerunCellRequest]) (*connect.Response[v1.RerunCellResponse], error) {
-	return c.rerunCell.CallUnary(ctx, req)
-}
-
-// DeleteCell calls chalk.notebook.v1.NotebookService.DeleteCell.
-func (c *notebookServiceClient) DeleteCell(ctx context.Context, req *connect.Request[v1.DeleteCellRequest]) (*connect.Response[v1.DeleteCellResponse], error) {
-	return c.deleteCell.CallUnary(ctx, req)
-}
-
-// ClearCells calls chalk.notebook.v1.NotebookService.ClearCells.
-func (c *notebookServiceClient) ClearCells(ctx context.Context, req *connect.Request[v1.ClearCellsRequest]) (*connect.Response[v1.ClearCellsResponse], error) {
-	return c.clearCells.CallUnary(ctx, req)
-}
-
-// InterruptKernel calls chalk.notebook.v1.NotebookService.InterruptKernel.
-func (c *notebookServiceClient) InterruptKernel(ctx context.Context, req *connect.Request[v1.InterruptKernelRequest]) (*connect.Response[v1.InterruptKernelResponse], error) {
-	return c.interruptKernel.CallUnary(ctx, req)
-}
-
-// HeartbeatNotebook calls chalk.notebook.v1.NotebookService.HeartbeatNotebook.
-func (c *notebookServiceClient) HeartbeatNotebook(ctx context.Context, req *connect.Request[v1.HeartbeatNotebookRequest]) (*connect.Response[v1.HeartbeatNotebookResponse], error) {
-	return c.heartbeatNotebook.CallUnary(ctx, req)
-}
-
 // NotebookServiceHandler is an implementation of the chalk.notebook.v1.NotebookService service.
 type NotebookServiceHandler interface {
 	CreateNotebook(context.Context, *connect.Request[v1.CreateNotebookRequest]) (*connect.Response[v1.CreateNotebookResponse], error)
 	GetNotebook(context.Context, *connect.Request[v1.GetNotebookRequest]) (*connect.Response[v1.GetNotebookResponse], error)
 	ListNotebooks(context.Context, *connect.Request[v1.ListNotebooksRequest]) (*connect.Response[v1.ListNotebooksResponse], error)
 	StopNotebook(context.Context, *connect.Request[v1.StopNotebookRequest]) (*connect.Response[v1.StopNotebookResponse], error)
-	// Cell-level RPCs proxied to the notebook server running in the container.
-	ListCells(context.Context, *connect.Request[v1.ListCellsRequest]) (*connect.Response[v1.ListCellsResponse], error)
-	ExecuteCell(context.Context, *connect.Request[v1.ExecuteCellRequest]) (*connect.Response[v1.ExecuteCellResponse], error)
-	RerunCell(context.Context, *connect.Request[v1.RerunCellRequest]) (*connect.Response[v1.RerunCellResponse], error)
-	DeleteCell(context.Context, *connect.Request[v1.DeleteCellRequest]) (*connect.Response[v1.DeleteCellResponse], error)
-	ClearCells(context.Context, *connect.Request[v1.ClearCellsRequest]) (*connect.Response[v1.ClearCellsResponse], error)
-	InterruptKernel(context.Context, *connect.Request[v1.InterruptKernelRequest]) (*connect.Response[v1.InterruptKernelResponse], error)
-	HeartbeatNotebook(context.Context, *connect.Request[v1.HeartbeatNotebookRequest]) (*connect.Response[v1.HeartbeatNotebookResponse], error)
 }
 
 // NewNotebookServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -281,48 +160,6 @@ func NewNotebookServiceHandler(svc NotebookServiceHandler, opts ...connect.Handl
 		connect.WithSchema(notebookServiceMethods.ByName("StopNotebook")),
 		connect.WithHandlerOptions(opts...),
 	)
-	notebookServiceListCellsHandler := connect.NewUnaryHandler(
-		NotebookServiceListCellsProcedure,
-		svc.ListCells,
-		connect.WithSchema(notebookServiceMethods.ByName("ListCells")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceExecuteCellHandler := connect.NewUnaryHandler(
-		NotebookServiceExecuteCellProcedure,
-		svc.ExecuteCell,
-		connect.WithSchema(notebookServiceMethods.ByName("ExecuteCell")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceRerunCellHandler := connect.NewUnaryHandler(
-		NotebookServiceRerunCellProcedure,
-		svc.RerunCell,
-		connect.WithSchema(notebookServiceMethods.ByName("RerunCell")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceDeleteCellHandler := connect.NewUnaryHandler(
-		NotebookServiceDeleteCellProcedure,
-		svc.DeleteCell,
-		connect.WithSchema(notebookServiceMethods.ByName("DeleteCell")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceClearCellsHandler := connect.NewUnaryHandler(
-		NotebookServiceClearCellsProcedure,
-		svc.ClearCells,
-		connect.WithSchema(notebookServiceMethods.ByName("ClearCells")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceInterruptKernelHandler := connect.NewUnaryHandler(
-		NotebookServiceInterruptKernelProcedure,
-		svc.InterruptKernel,
-		connect.WithSchema(notebookServiceMethods.ByName("InterruptKernel")),
-		connect.WithHandlerOptions(opts...),
-	)
-	notebookServiceHeartbeatNotebookHandler := connect.NewUnaryHandler(
-		NotebookServiceHeartbeatNotebookProcedure,
-		svc.HeartbeatNotebook,
-		connect.WithSchema(notebookServiceMethods.ByName("HeartbeatNotebook")),
-		connect.WithHandlerOptions(opts...),
-	)
 	return "/chalk.notebook.v1.NotebookService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case NotebookServiceCreateNotebookProcedure:
@@ -333,20 +170,6 @@ func NewNotebookServiceHandler(svc NotebookServiceHandler, opts ...connect.Handl
 			notebookServiceListNotebooksHandler.ServeHTTP(w, r)
 		case NotebookServiceStopNotebookProcedure:
 			notebookServiceStopNotebookHandler.ServeHTTP(w, r)
-		case NotebookServiceListCellsProcedure:
-			notebookServiceListCellsHandler.ServeHTTP(w, r)
-		case NotebookServiceExecuteCellProcedure:
-			notebookServiceExecuteCellHandler.ServeHTTP(w, r)
-		case NotebookServiceRerunCellProcedure:
-			notebookServiceRerunCellHandler.ServeHTTP(w, r)
-		case NotebookServiceDeleteCellProcedure:
-			notebookServiceDeleteCellHandler.ServeHTTP(w, r)
-		case NotebookServiceClearCellsProcedure:
-			notebookServiceClearCellsHandler.ServeHTTP(w, r)
-		case NotebookServiceInterruptKernelProcedure:
-			notebookServiceInterruptKernelHandler.ServeHTTP(w, r)
-		case NotebookServiceHeartbeatNotebookProcedure:
-			notebookServiceHeartbeatNotebookHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -370,32 +193,4 @@ func (UnimplementedNotebookServiceHandler) ListNotebooks(context.Context, *conne
 
 func (UnimplementedNotebookServiceHandler) StopNotebook(context.Context, *connect.Request[v1.StopNotebookRequest]) (*connect.Response[v1.StopNotebookResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.StopNotebook is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) ListCells(context.Context, *connect.Request[v1.ListCellsRequest]) (*connect.Response[v1.ListCellsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.ListCells is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) ExecuteCell(context.Context, *connect.Request[v1.ExecuteCellRequest]) (*connect.Response[v1.ExecuteCellResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.ExecuteCell is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) RerunCell(context.Context, *connect.Request[v1.RerunCellRequest]) (*connect.Response[v1.RerunCellResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.RerunCell is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) DeleteCell(context.Context, *connect.Request[v1.DeleteCellRequest]) (*connect.Response[v1.DeleteCellResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.DeleteCell is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) ClearCells(context.Context, *connect.Request[v1.ClearCellsRequest]) (*connect.Response[v1.ClearCellsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.ClearCells is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) InterruptKernel(context.Context, *connect.Request[v1.InterruptKernelRequest]) (*connect.Response[v1.InterruptKernelResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.InterruptKernel is not implemented"))
-}
-
-func (UnimplementedNotebookServiceHandler) HeartbeatNotebook(context.Context, *connect.Request[v1.HeartbeatNotebookRequest]) (*connect.Response[v1.HeartbeatNotebookResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.notebook.v1.NotebookService.HeartbeatNotebook is not implemented"))
 }

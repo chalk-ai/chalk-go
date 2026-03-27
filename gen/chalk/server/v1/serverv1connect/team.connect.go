@@ -74,18 +74,6 @@ const (
 	// TeamServiceCreateServiceTokenProcedure is the fully-qualified name of the TeamService's
 	// CreateServiceToken RPC.
 	TeamServiceCreateServiceTokenProcedure = "/chalk.server.v1.TeamService/CreateServiceToken"
-	// TeamServiceCreateServiceTokenTeamScopedProcedure is the fully-qualified name of the TeamService's
-	// CreateServiceTokenTeamScoped RPC.
-	TeamServiceCreateServiceTokenTeamScopedProcedure = "/chalk.server.v1.TeamService/CreateServiceTokenTeamScoped"
-	// TeamServiceUpdateServiceTokenTeamScopedProcedure is the fully-qualified name of the TeamService's
-	// UpdateServiceTokenTeamScoped RPC.
-	TeamServiceUpdateServiceTokenTeamScopedProcedure = "/chalk.server.v1.TeamService/UpdateServiceTokenTeamScoped"
-	// TeamServiceDeleteServiceTokenTeamScopedProcedure is the fully-qualified name of the TeamService's
-	// DeleteServiceTokenTeamScoped RPC.
-	TeamServiceDeleteServiceTokenTeamScopedProcedure = "/chalk.server.v1.TeamService/DeleteServiceTokenTeamScoped"
-	// TeamServiceListServiceTokensTeamScopedProcedure is the fully-qualified name of the TeamService's
-	// ListServiceTokensTeamScoped RPC.
-	TeamServiceListServiceTokensTeamScopedProcedure = "/chalk.server.v1.TeamService/ListServiceTokensTeamScoped"
 	// TeamServiceDeleteServiceTokenProcedure is the fully-qualified name of the TeamService's
 	// DeleteServiceToken RPC.
 	TeamServiceDeleteServiceTokenProcedure = "/chalk.server.v1.TeamService/DeleteServiceToken"
@@ -167,10 +155,6 @@ type TeamServiceClient interface {
 	CreateVectorDBConfiguration(context.Context, *connect.Request[v1.CreateVectorDBConfigurationRequest]) (*connect.Response[v1.CreateVectorDBConfigurationResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
 	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
-	CreateServiceTokenTeamScoped(context.Context, *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error)
-	UpdateServiceTokenTeamScoped(context.Context, *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error)
-	DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error)
-	ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
@@ -303,30 +287,6 @@ func NewTeamServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+TeamServiceCreateServiceTokenProcedure,
 			connect.WithSchema(teamServiceMethods.ByName("CreateServiceToken")),
-			connect.WithClientOptions(opts...),
-		),
-		createServiceTokenTeamScoped: connect.NewClient[v1.CreateServiceTokenTeamScopedRequest, v1.CreateServiceTokenTeamScopedResponse](
-			httpClient,
-			baseURL+TeamServiceCreateServiceTokenTeamScopedProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("CreateServiceTokenTeamScoped")),
-			connect.WithClientOptions(opts...),
-		),
-		updateServiceTokenTeamScoped: connect.NewClient[v1.UpdateServiceTokenTeamScopedRequest, v1.UpdateServiceTokenTeamScopedResponse](
-			httpClient,
-			baseURL+TeamServiceUpdateServiceTokenTeamScopedProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("UpdateServiceTokenTeamScoped")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteServiceTokenTeamScoped: connect.NewClient[v1.DeleteServiceTokenTeamScopedRequest, v1.DeleteServiceTokenTeamScopedResponse](
-			httpClient,
-			baseURL+TeamServiceDeleteServiceTokenTeamScopedProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("DeleteServiceTokenTeamScoped")),
-			connect.WithClientOptions(opts...),
-		),
-		listServiceTokensTeamScoped: connect.NewClient[v1.ListServiceTokensTeamScopedRequest, v1.ListServiceTokensTeamScopedResponse](
-			httpClient,
-			baseURL+TeamServiceListServiceTokensTeamScopedProcedure,
-			connect.WithSchema(teamServiceMethods.ByName("ListServiceTokensTeamScoped")),
 			connect.WithClientOptions(opts...),
 		),
 		deleteServiceToken: connect.NewClient[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse](
@@ -477,10 +437,6 @@ type teamServiceClient struct {
 	createVectorDBConfiguration    *connect.Client[v1.CreateVectorDBConfigurationRequest, v1.CreateVectorDBConfigurationResponse]
 	getAvailablePermissions        *connect.Client[v1.GetAvailablePermissionsRequest, v1.GetAvailablePermissionsResponse]
 	createServiceToken             *connect.Client[v1.CreateServiceTokenRequest, v1.CreateServiceTokenResponse]
-	createServiceTokenTeamScoped   *connect.Client[v1.CreateServiceTokenTeamScopedRequest, v1.CreateServiceTokenTeamScopedResponse]
-	updateServiceTokenTeamScoped   *connect.Client[v1.UpdateServiceTokenTeamScopedRequest, v1.UpdateServiceTokenTeamScopedResponse]
-	deleteServiceTokenTeamScoped   *connect.Client[v1.DeleteServiceTokenTeamScopedRequest, v1.DeleteServiceTokenTeamScopedResponse]
-	listServiceTokensTeamScoped    *connect.Client[v1.ListServiceTokensTeamScopedRequest, v1.ListServiceTokensTeamScopedResponse]
 	deleteServiceToken             *connect.Client[v1.DeleteServiceTokenRequest, v1.DeleteServiceTokenResponse]
 	listServiceTokens              *connect.Client[v1.ListServiceTokensRequest, v1.ListServiceTokensResponse]
 	updateServiceToken             *connect.Client[v1.UpdateServiceTokenRequest, v1.UpdateServiceTokenResponse]
@@ -577,26 +533,6 @@ func (c *teamServiceClient) GetAvailablePermissions(ctx context.Context, req *co
 // CreateServiceToken calls chalk.server.v1.TeamService.CreateServiceToken.
 func (c *teamServiceClient) CreateServiceToken(ctx context.Context, req *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
 	return c.createServiceToken.CallUnary(ctx, req)
-}
-
-// CreateServiceTokenTeamScoped calls chalk.server.v1.TeamService.CreateServiceTokenTeamScoped.
-func (c *teamServiceClient) CreateServiceTokenTeamScoped(ctx context.Context, req *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error) {
-	return c.createServiceTokenTeamScoped.CallUnary(ctx, req)
-}
-
-// UpdateServiceTokenTeamScoped calls chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped.
-func (c *teamServiceClient) UpdateServiceTokenTeamScoped(ctx context.Context, req *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error) {
-	return c.updateServiceTokenTeamScoped.CallUnary(ctx, req)
-}
-
-// DeleteServiceTokenTeamScoped calls chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped.
-func (c *teamServiceClient) DeleteServiceTokenTeamScoped(ctx context.Context, req *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error) {
-	return c.deleteServiceTokenTeamScoped.CallUnary(ctx, req)
-}
-
-// ListServiceTokensTeamScoped calls chalk.server.v1.TeamService.ListServiceTokensTeamScoped.
-func (c *teamServiceClient) ListServiceTokensTeamScoped(ctx context.Context, req *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error) {
-	return c.listServiceTokensTeamScoped.CallUnary(ctx, req)
 }
 
 // DeleteServiceToken calls chalk.server.v1.TeamService.DeleteServiceToken.
@@ -721,10 +657,6 @@ type TeamServiceHandler interface {
 	CreateVectorDBConfiguration(context.Context, *connect.Request[v1.CreateVectorDBConfigurationRequest]) (*connect.Response[v1.CreateVectorDBConfigurationResponse], error)
 	GetAvailablePermissions(context.Context, *connect.Request[v1.GetAvailablePermissionsRequest]) (*connect.Response[v1.GetAvailablePermissionsResponse], error)
 	CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error)
-	CreateServiceTokenTeamScoped(context.Context, *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error)
-	UpdateServiceTokenTeamScoped(context.Context, *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error)
-	DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error)
-	ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error)
 	DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error)
 	ListServiceTokens(context.Context, *connect.Request[v1.ListServiceTokensRequest]) (*connect.Response[v1.ListServiceTokensResponse], error)
 	UpdateServiceToken(context.Context, *connect.Request[v1.UpdateServiceTokenRequest]) (*connect.Response[v1.UpdateServiceTokenResponse], error)
@@ -853,30 +785,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 		TeamServiceCreateServiceTokenProcedure,
 		svc.CreateServiceToken,
 		connect.WithSchema(teamServiceMethods.ByName("CreateServiceToken")),
-		connect.WithHandlerOptions(opts...),
-	)
-	teamServiceCreateServiceTokenTeamScopedHandler := connect.NewUnaryHandler(
-		TeamServiceCreateServiceTokenTeamScopedProcedure,
-		svc.CreateServiceTokenTeamScoped,
-		connect.WithSchema(teamServiceMethods.ByName("CreateServiceTokenTeamScoped")),
-		connect.WithHandlerOptions(opts...),
-	)
-	teamServiceUpdateServiceTokenTeamScopedHandler := connect.NewUnaryHandler(
-		TeamServiceUpdateServiceTokenTeamScopedProcedure,
-		svc.UpdateServiceTokenTeamScoped,
-		connect.WithSchema(teamServiceMethods.ByName("UpdateServiceTokenTeamScoped")),
-		connect.WithHandlerOptions(opts...),
-	)
-	teamServiceDeleteServiceTokenTeamScopedHandler := connect.NewUnaryHandler(
-		TeamServiceDeleteServiceTokenTeamScopedProcedure,
-		svc.DeleteServiceTokenTeamScoped,
-		connect.WithSchema(teamServiceMethods.ByName("DeleteServiceTokenTeamScoped")),
-		connect.WithHandlerOptions(opts...),
-	)
-	teamServiceListServiceTokensTeamScopedHandler := connect.NewUnaryHandler(
-		TeamServiceListServiceTokensTeamScopedProcedure,
-		svc.ListServiceTokensTeamScoped,
-		connect.WithSchema(teamServiceMethods.ByName("ListServiceTokensTeamScoped")),
 		connect.WithHandlerOptions(opts...),
 	)
 	teamServiceDeleteServiceTokenHandler := connect.NewUnaryHandler(
@@ -1039,14 +947,6 @@ func NewTeamServiceHandler(svc TeamServiceHandler, opts ...connect.HandlerOption
 			teamServiceGetAvailablePermissionsHandler.ServeHTTP(w, r)
 		case TeamServiceCreateServiceTokenProcedure:
 			teamServiceCreateServiceTokenHandler.ServeHTTP(w, r)
-		case TeamServiceCreateServiceTokenTeamScopedProcedure:
-			teamServiceCreateServiceTokenTeamScopedHandler.ServeHTTP(w, r)
-		case TeamServiceUpdateServiceTokenTeamScopedProcedure:
-			teamServiceUpdateServiceTokenTeamScopedHandler.ServeHTTP(w, r)
-		case TeamServiceDeleteServiceTokenTeamScopedProcedure:
-			teamServiceDeleteServiceTokenTeamScopedHandler.ServeHTTP(w, r)
-		case TeamServiceListServiceTokensTeamScopedProcedure:
-			teamServiceListServiceTokensTeamScopedHandler.ServeHTTP(w, r)
 		case TeamServiceDeleteServiceTokenProcedure:
 			teamServiceDeleteServiceTokenHandler.ServeHTTP(w, r)
 		case TeamServiceListServiceTokensProcedure:
@@ -1156,22 +1056,6 @@ func (UnimplementedTeamServiceHandler) GetAvailablePermissions(context.Context, 
 
 func (UnimplementedTeamServiceHandler) CreateServiceToken(context.Context, *connect.Request[v1.CreateServiceTokenRequest]) (*connect.Response[v1.CreateServiceTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateServiceToken is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) CreateServiceTokenTeamScoped(context.Context, *connect.Request[v1.CreateServiceTokenTeamScopedRequest]) (*connect.Response[v1.CreateServiceTokenTeamScopedResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.CreateServiceTokenTeamScoped is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) UpdateServiceTokenTeamScoped(context.Context, *connect.Request[v1.UpdateServiceTokenTeamScopedRequest]) (*connect.Response[v1.UpdateServiceTokenTeamScopedResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.UpdateServiceTokenTeamScoped is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) DeleteServiceTokenTeamScoped(context.Context, *connect.Request[v1.DeleteServiceTokenTeamScopedRequest]) (*connect.Response[v1.DeleteServiceTokenTeamScopedResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.DeleteServiceTokenTeamScoped is not implemented"))
-}
-
-func (UnimplementedTeamServiceHandler) ListServiceTokensTeamScoped(context.Context, *connect.Request[v1.ListServiceTokensTeamScopedRequest]) (*connect.Response[v1.ListServiceTokensTeamScopedResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TeamService.ListServiceTokensTeamScoped is not implemented"))
 }
 
 func (UnimplementedTeamServiceHandler) DeleteServiceToken(context.Context, *connect.Request[v1.DeleteServiceTokenRequest]) (*connect.Response[v1.DeleteServiceTokenResponse], error) {
