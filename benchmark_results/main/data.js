@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774586561681,
+  "lastUpdate": 1774649051637,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -33834,6 +33834,60 @@ window.BENCHMARK_DATA = {
             "value": 334.5,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "67421720+jrotter2@users.noreply.github.com",
+            "name": "John Rotter",
+            "username": "jrotter2"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1447583607b2f5c97730eaaa3d6186a82f57a611",
+          "message": "Merge pull request #620 from chalk-ai/jrotter/add-tags-to-agg-backfills\n\nAdd tags to agg backfills",
+          "timestamp": "2026-03-27T15:03:28-07:00",
+          "tree_id": "0f402aaf69858fcbd8e1c177bb024340f6f7ec69",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/1447583607b2f5c97730eaaa3d6186a82f57a611"
+        },
+        "date": 1774649051535,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.077,
+            "unit": "ms/op",
+            "extra": "1215 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 132.5,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 37.4,
+            "unit": "ms/op",
+            "extra": "34 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 232.8,
+            "unit": "ms/op",
+            "extra": "5 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 345.8,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
