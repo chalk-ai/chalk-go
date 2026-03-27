@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774586452809,
+  "lastUpdate": 1774586561681,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -33780,6 +33780,60 @@ window.BENCHMARK_DATA = {
             "value": 416.1,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "andy@andymoreland.com",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "distinct": true,
+          "id": "a3ddd7018b90658e41dcb8c363ff7baa401af619",
+          "message": "Add SelfServiceCreateTeam to mockAuthServer\n\nAdds the missing SelfServiceCreateTeam stub method to mockAuthServer\nto satisfy the AuthServiceHandler interface after the new RPC was\nadded to the AuthService proto.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+          "timestamp": "2026-03-26T21:40:56-07:00",
+          "tree_id": "8166f9d487f7d985203917f3a6a4bd49bcea65a5",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/a3ddd7018b90658e41dcb8c363ff7baa401af619"
+        },
+        "date": 1774586561581,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9788,
+            "unit": "ms/op",
+            "extra": "1162 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 98.93,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.44,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 196.3,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 334.5,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
