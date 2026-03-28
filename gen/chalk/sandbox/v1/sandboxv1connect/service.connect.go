@@ -47,6 +47,9 @@ const (
 	// SandboxServiceListSandboxesProcedure is the fully-qualified name of the SandboxService's
 	// ListSandboxes RPC.
 	SandboxServiceListSandboxesProcedure = "/chalk.sandbox.v1.SandboxService/ListSandboxes"
+	// SandboxServiceBuildCustomImageProcedure is the fully-qualified name of the SandboxService's
+	// BuildCustomImage RPC.
+	SandboxServiceBuildCustomImageProcedure = "/chalk.sandbox.v1.SandboxService/BuildCustomImage"
 )
 
 // SandboxServiceClient is a client for the chalk.sandbox.v1.SandboxService service.
@@ -64,6 +67,8 @@ type SandboxServiceClient interface {
 	GetSandbox(context.Context, *connect.Request[v1.GetSandboxRequest]) (*connect.Response[v1.GetSandboxResponse], error)
 	// ListSandboxes returns all sandboxes for the current environment
 	ListSandboxes(context.Context, *connect.Request[v1.ListSandboxesRequest]) (*connect.Response[v1.ListSandboxesResponse], error)
+	// BuildCustomImage builds a container image from a declarative ImageSpec.
+	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 }
 
 // NewSandboxServiceClient constructs a client for the chalk.sandbox.v1.SandboxService service. By
@@ -107,6 +112,12 @@ func NewSandboxServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(sandboxServiceMethods.ByName("ListSandboxes")),
 			connect.WithClientOptions(opts...),
 		),
+		buildCustomImage: connect.NewClient[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse](
+			httpClient,
+			baseURL+SandboxServiceBuildCustomImageProcedure,
+			connect.WithSchema(sandboxServiceMethods.ByName("BuildCustomImage")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -117,6 +128,7 @@ type sandboxServiceClient struct {
 	terminateSandbox *connect.Client[v1.TerminateSandboxRequest, v1.TerminateSandboxResponse]
 	getSandbox       *connect.Client[v1.GetSandboxRequest, v1.GetSandboxResponse]
 	listSandboxes    *connect.Client[v1.ListSandboxesRequest, v1.ListSandboxesResponse]
+	buildCustomImage *connect.Client[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse]
 }
 
 // Exec calls chalk.sandbox.v1.SandboxService.Exec.
@@ -144,6 +156,11 @@ func (c *sandboxServiceClient) ListSandboxes(ctx context.Context, req *connect.R
 	return c.listSandboxes.CallUnary(ctx, req)
 }
 
+// BuildCustomImage calls chalk.sandbox.v1.SandboxService.BuildCustomImage.
+func (c *sandboxServiceClient) BuildCustomImage(ctx context.Context, req *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error) {
+	return c.buildCustomImage.CallUnary(ctx, req)
+}
+
 // SandboxServiceHandler is an implementation of the chalk.sandbox.v1.SandboxService service.
 type SandboxServiceHandler interface {
 	// Exec establishes a bidirectional streaming session to execute commands in a sandbox.
@@ -159,6 +176,8 @@ type SandboxServiceHandler interface {
 	GetSandbox(context.Context, *connect.Request[v1.GetSandboxRequest]) (*connect.Response[v1.GetSandboxResponse], error)
 	// ListSandboxes returns all sandboxes for the current environment
 	ListSandboxes(context.Context, *connect.Request[v1.ListSandboxesRequest]) (*connect.Response[v1.ListSandboxesResponse], error)
+	// BuildCustomImage builds a container image from a declarative ImageSpec.
+	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 }
 
 // NewSandboxServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -198,6 +217,12 @@ func NewSandboxServiceHandler(svc SandboxServiceHandler, opts ...connect.Handler
 		connect.WithSchema(sandboxServiceMethods.ByName("ListSandboxes")),
 		connect.WithHandlerOptions(opts...),
 	)
+	sandboxServiceBuildCustomImageHandler := connect.NewUnaryHandler(
+		SandboxServiceBuildCustomImageProcedure,
+		svc.BuildCustomImage,
+		connect.WithSchema(sandboxServiceMethods.ByName("BuildCustomImage")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.sandbox.v1.SandboxService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SandboxServiceExecProcedure:
@@ -210,6 +235,8 @@ func NewSandboxServiceHandler(svc SandboxServiceHandler, opts ...connect.Handler
 			sandboxServiceGetSandboxHandler.ServeHTTP(w, r)
 		case SandboxServiceListSandboxesProcedure:
 			sandboxServiceListSandboxesHandler.ServeHTTP(w, r)
+		case SandboxServiceBuildCustomImageProcedure:
+			sandboxServiceBuildCustomImageHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -237,4 +264,8 @@ func (UnimplementedSandboxServiceHandler) GetSandbox(context.Context, *connect.R
 
 func (UnimplementedSandboxServiceHandler) ListSandboxes(context.Context, *connect.Request[v1.ListSandboxesRequest]) (*connect.Response[v1.ListSandboxesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.SandboxService.ListSandboxes is not implemented"))
+}
+
+func (UnimplementedSandboxServiceHandler) BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.SandboxService.BuildCustomImage is not implemented"))
 }
