@@ -1875,11 +1875,14 @@ func (x *ListSandboxesResponse) GetSandboxes() []*SandboxInfo {
 
 // Information about a sandbox
 type SandboxInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Name          *string                `protobuf:"bytes,4,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	State     string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	CreatedAt string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Name      *string                `protobuf:"bytes,4,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	// Build ID for sandboxes created with image_spec (e.g. Argo workflow name).
+	// Present when state is "building" or after the build completes.
+	BuildId       *string `protobuf:"bytes,5,opt,name=build_id,json=buildId,proto3,oneof" json:"build_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1938,6 +1941,13 @@ func (x *SandboxInfo) GetCreatedAt() string {
 func (x *SandboxInfo) GetName() string {
 	if x != nil && x.Name != nil {
 		return *x.Name
+	}
+	return ""
+}
+
+func (x *SandboxInfo) GetBuildId() string {
+	if x != nil && x.BuildId != nil {
+		return *x.BuildId
 	}
 	return ""
 }
@@ -2088,14 +2098,16 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\asandbox\x18\x01 \x01(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\asandbox\"\x16\n" +
 	"\x14ListSandboxesRequest\"T\n" +
 	"\x15ListSandboxesResponse\x12;\n" +
-	"\tsandboxes\x18\x01 \x03(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\tsandboxes\"t\n" +
+	"\tsandboxes\x18\x01 \x03(\v2\x1d.chalk.sandbox.v1.SandboxInfoR\tsandboxes\"\xa1\x01\n" +
 	"\vSandboxInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x03 \x01(\tR\tcreatedAt\x12\x17\n" +
-	"\x04name\x18\x04 \x01(\tH\x00R\x04name\x88\x01\x01B\a\n" +
-	"\x05_name2\xec\x04\n" +
+	"\x04name\x18\x04 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1e\n" +
+	"\bbuild_id\x18\x05 \x01(\tH\x01R\abuildId\x88\x01\x01B\a\n" +
+	"\x05_nameB\v\n" +
+	"\t_build_id2\xec\x04\n" +
 	"\x0eSandboxService\x12N\n" +
 	"\x04Exec\x12\x1d.chalk.sandbox.v1.ExecRequest\x1a\x1e.chalk.sandbox.v1.ExecResponse\"\x03\x80}\f(\x010\x01\x12e\n" +
 	"\rCreateSandbox\x12&.chalk.sandbox.v1.CreateSandboxRequest\x1a'.chalk.sandbox.v1.CreateSandboxResponse\"\x03\x80}\f\x12n\n" +
