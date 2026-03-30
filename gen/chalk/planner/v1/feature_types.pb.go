@@ -1587,11 +1587,13 @@ func (x *UnderscoreLambdaParameter) GetParameterType() *v12.ArrowType {
 
 // 2-5-5
 type UnderscoreItemParsed struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Parent           *UnderscoreParsedId    `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
-	FeatureKey       *UnderscoreParsedId    `protobuf:"bytes,2,opt,name=feature_key,json=featureKey,proto3" json:"feature_key,omitempty"`
-	FeatureKeySource FeatureKeySource       `protobuf:"varint,3,opt,name=feature_key_source,json=featureKeySource,proto3,enum=chalk.planner.v1.FeatureKeySource" json:"feature_key_source,omitempty"`
-	Filters          []*UnderscoreParsedId  `protobuf:"bytes,4,rep,name=filters,proto3" json:"filters,omitempty"`
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Parent *UnderscoreParsedId    `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/feature_types.proto.
+	FeatureKey       *UnderscoreParsedId   `protobuf:"bytes,2,opt,name=feature_key,json=featureKey,proto3" json:"feature_key,omitempty"`
+	FeatureKeys      []*UnderscoreParsedId `protobuf:"bytes,5,rep,name=feature_keys,json=featureKeys,proto3" json:"feature_keys,omitempty"`
+	FeatureKeySource FeatureKeySource      `protobuf:"varint,3,opt,name=feature_key_source,json=featureKeySource,proto3,enum=chalk.planner.v1.FeatureKeySource" json:"feature_key_source,omitempty"`
+	Filters          []*UnderscoreParsedId `protobuf:"bytes,4,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1633,9 +1635,17 @@ func (x *UnderscoreItemParsed) GetParent() *UnderscoreParsedId {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/feature_types.proto.
 func (x *UnderscoreItemParsed) GetFeatureKey() *UnderscoreParsedId {
 	if x != nil {
 		return x.FeatureKey
+	}
+	return nil
+}
+
+func (x *UnderscoreItemParsed) GetFeatureKeys() []*UnderscoreParsedId {
+	if x != nil {
+		return x.FeatureKeys
 	}
 	return nil
 }
@@ -3052,11 +3062,12 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"lambdaBody\"\x84\x01\n" +
 	"\x19UnderscoreLambdaParameter\x12%\n" +
 	"\x0eparameter_name\x18\x01 \x01(\tR\rparameterName\x12@\n" +
-	"\x0eparameter_type\x18\x02 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\rparameterType\"\xad\x02\n" +
+	"\x0eparameter_type\x18\x02 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\rparameterType\"\xfa\x02\n" +
 	"\x14UnderscoreItemParsed\x12<\n" +
-	"\x06parent\x18\x01 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\x06parent\x12E\n" +
-	"\vfeature_key\x18\x02 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\n" +
-	"featureKey\x12P\n" +
+	"\x06parent\x18\x01 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\x06parent\x12I\n" +
+	"\vfeature_key\x18\x02 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdB\x02\x18\x01R\n" +
+	"featureKey\x12G\n" +
+	"\ffeature_keys\x18\x05 \x03(\v2$.chalk.planner.v1.UnderscoreParsedIdR\vfeatureKeys\x12P\n" +
 	"\x12feature_key_source\x18\x03 \x01(\x0e2\".chalk.planner.v1.FeatureKeySourceR\x10featureKeySource\x12>\n" +
 	"\afilters\x18\x04 \x03(\v2$.chalk.planner.v1.UnderscoreParsedIdR\afilters\"\xb0\x04\n" +
 	"\x1dUnderscoreOperationExpression\x12T\n" +
@@ -3306,62 +3317,63 @@ var file_chalk_planner_v1_feature_types_proto_depIdxs = []int32{
 	53,  // 53: chalk.planner.v1.UnderscoreLambdaParameter.parameter_type:type_name -> chalk.arrow.v1.ArrowType
 	14,  // 54: chalk.planner.v1.UnderscoreItemParsed.parent:type_name -> chalk.planner.v1.UnderscoreParsedId
 	14,  // 55: chalk.planner.v1.UnderscoreItemParsed.feature_key:type_name -> chalk.planner.v1.UnderscoreParsedId
-	0,   // 56: chalk.planner.v1.UnderscoreItemParsed.feature_key_source:type_name -> chalk.planner.v1.FeatureKeySource
-	14,  // 57: chalk.planner.v1.UnderscoreItemParsed.filters:type_name -> chalk.planner.v1.UnderscoreParsedId
-	27,  // 58: chalk.planner.v1.UnderscoreOperationExpression.positional_operands:type_name -> chalk.planner.v1.UnderscoreOperand
-	44,  // 59: chalk.planner.v1.UnderscoreOperationExpression.named_operands:type_name -> chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
-	34,  // 60: chalk.planner.v1.UnderscoreOperationExpression.operation:type_name -> chalk.planner.v1.UnderscoreOperationId
-	52,  // 61: chalk.planner.v1.UnderscoreOperationExpression.args:type_name -> chalk.expression.v1.LogicalExprNode
-	52,  // 62: chalk.planner.v1.UnderscoreOperationExpression.kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
-	27,  // 63: chalk.planner.v1.UnderscoreOperands.positional:type_name -> chalk.planner.v1.UnderscoreOperand
-	45,  // 64: chalk.planner.v1.UnderscoreOperands.named:type_name -> chalk.planner.v1.UnderscoreOperands.NamedEntry
-	14,  // 65: chalk.planner.v1.UnderscoreOperand.value:type_name -> chalk.planner.v1.UnderscoreParsedId
-	12,  // 66: chalk.planner.v1.UnderscoreOperand.constant:type_name -> chalk.planner.v1.UnderscoreConstantId
-	56,  // 67: chalk.planner.v1.UnderscoreNever.error:type_name -> chalk.common.v1.ChalkError
-	14,  // 68: chalk.planner.v1.UnderscoreMaterializedAggregation.unmaterialized_underscore:type_name -> chalk.planner.v1.UnderscoreParsedId
-	30,  // 69: chalk.planner.v1.UnderscoreMaterializedAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
-	57,  // 70: chalk.planner.v1.UnderscoreMaterializedAggregation.window_duration:type_name -> google.protobuf.Duration
-	6,   // 71: chalk.planner.v1.UnderscoreMaterializedAggregation.group_by_keys:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 72: chalk.planner.v1.UnderscoreMaterializedAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	58,  // 73: chalk.planner.v1.MaterializationWindowConfigParsed.base:type_name -> chalk.graph.v1.WindowAggregation
-	6,   // 74: chalk.planner.v1.MaterializationWindowConfigParsed.group_by:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 75: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	52,  // 76: chalk.planner.v1.MaterializationWindowConfigParsed.aggregation_kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
-	6,   // 77: chalk.planner.v1.MaterializationWindowConfigParsed.bucket_feature:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	14,  // 78: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
-	6,   // 79: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	30,  // 80: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
-	46,  // 81: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
-	57,  // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
-	57,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
-	34,  // 84: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
-	35,  // 85: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
-	39,  // 86: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
-	36,  // 87: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
-	47,  // 88: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
-	53,  // 89: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	37,  // 90: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
-	38,  // 91: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
-	53,  // 92: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
-	53,  // 93: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
-	48,  // 94: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
-	49,  // 95: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
-	53,  // 96: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	41,  // 97: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
-	40,  // 98: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
-	43,  // 99: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
-	52,  // 100: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	27,  // 101: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	27,  // 102: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	6,   // 103: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	36,  // 104: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
-	53,  // 105: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
-	40,  // 106: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
-	107, // [107:107] is the sub-list for method output_type
-	107, // [107:107] is the sub-list for method input_type
-	107, // [107:107] is the sub-list for extension type_name
-	107, // [107:107] is the sub-list for extension extendee
-	0,   // [0:107] is the sub-list for field type_name
+	14,  // 56: chalk.planner.v1.UnderscoreItemParsed.feature_keys:type_name -> chalk.planner.v1.UnderscoreParsedId
+	0,   // 57: chalk.planner.v1.UnderscoreItemParsed.feature_key_source:type_name -> chalk.planner.v1.FeatureKeySource
+	14,  // 58: chalk.planner.v1.UnderscoreItemParsed.filters:type_name -> chalk.planner.v1.UnderscoreParsedId
+	27,  // 59: chalk.planner.v1.UnderscoreOperationExpression.positional_operands:type_name -> chalk.planner.v1.UnderscoreOperand
+	44,  // 60: chalk.planner.v1.UnderscoreOperationExpression.named_operands:type_name -> chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
+	34,  // 61: chalk.planner.v1.UnderscoreOperationExpression.operation:type_name -> chalk.planner.v1.UnderscoreOperationId
+	52,  // 62: chalk.planner.v1.UnderscoreOperationExpression.args:type_name -> chalk.expression.v1.LogicalExprNode
+	52,  // 63: chalk.planner.v1.UnderscoreOperationExpression.kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 64: chalk.planner.v1.UnderscoreOperands.positional:type_name -> chalk.planner.v1.UnderscoreOperand
+	45,  // 65: chalk.planner.v1.UnderscoreOperands.named:type_name -> chalk.planner.v1.UnderscoreOperands.NamedEntry
+	14,  // 66: chalk.planner.v1.UnderscoreOperand.value:type_name -> chalk.planner.v1.UnderscoreParsedId
+	12,  // 67: chalk.planner.v1.UnderscoreOperand.constant:type_name -> chalk.planner.v1.UnderscoreConstantId
+	56,  // 68: chalk.planner.v1.UnderscoreNever.error:type_name -> chalk.common.v1.ChalkError
+	14,  // 69: chalk.planner.v1.UnderscoreMaterializedAggregation.unmaterialized_underscore:type_name -> chalk.planner.v1.UnderscoreParsedId
+	30,  // 70: chalk.planner.v1.UnderscoreMaterializedAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
+	57,  // 71: chalk.planner.v1.UnderscoreMaterializedAggregation.window_duration:type_name -> google.protobuf.Duration
+	6,   // 72: chalk.planner.v1.UnderscoreMaterializedAggregation.group_by_keys:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 73: chalk.planner.v1.UnderscoreMaterializedAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	58,  // 74: chalk.planner.v1.MaterializationWindowConfigParsed.base:type_name -> chalk.graph.v1.WindowAggregation
+	6,   // 75: chalk.planner.v1.MaterializationWindowConfigParsed.group_by:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 76: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	52,  // 77: chalk.planner.v1.MaterializationWindowConfigParsed.aggregation_kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
+	6,   // 78: chalk.planner.v1.MaterializationWindowConfigParsed.bucket_feature:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	14,  // 79: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
+	6,   // 80: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	30,  // 81: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
+	46,  // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
+	57,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
+	57,  // 84: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
+	34,  // 85: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
+	35,  // 86: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
+	39,  // 87: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
+	36,  // 88: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
+	47,  // 89: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
+	53,  // 90: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	37,  // 91: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
+	38,  // 92: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
+	53,  // 93: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
+	53,  // 94: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
+	48,  // 95: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
+	49,  // 96: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
+	53,  // 97: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	41,  // 98: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
+	40,  // 99: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
+	43,  // 100: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
+	52,  // 101: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 102: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	27,  // 103: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	6,   // 104: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	36,  // 105: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
+	53,  // 106: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
+	40,  // 107: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
+	108, // [108:108] is the sub-list for method output_type
+	108, // [108:108] is the sub-list for method input_type
+	108, // [108:108] is the sub-list for extension type_name
+	108, // [108:108] is the sub-list for extension extendee
+	0,   // [0:108] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_feature_types_proto_init() }
