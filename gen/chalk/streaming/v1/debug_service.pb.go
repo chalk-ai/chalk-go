@@ -30,7 +30,11 @@ type EnableDebugModeRequest struct {
 	// Fully qualified name of the resolver (e.g., "kinesis_payment_memo")
 	ResolverFqn string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
 	// Deployment ID to debug
-	DeploymentId  string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	// Optional per-resolver logger configuration (sample rates).
+	// When provided, stored as JSONB in streaming_debug_mode.logger_config column.
+	// When absent, the existing logger_config in the DB is left unchanged.
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,3,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -77,6 +81,13 @@ func (x *EnableDebugModeRequest) GetDeploymentId() string {
 		return x.DeploymentId
 	}
 	return ""
+}
+
+func (x *EnableDebugModeRequest) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
 }
 
 // Response for enabling debug mode
@@ -282,7 +293,10 @@ type GetDebugModeStatusResponse struct {
 	// Storage bucket where debug files are stored
 	StorageBucket string `protobuf:"bytes,3,opt,name=storage_bucket,json=storageBucket,proto3" json:"storage_bucket,omitempty"`
 	// Deployment ID that is currently being debugged
-	DeploymentId  *string `protobuf:"bytes,4,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	DeploymentId *string `protobuf:"bytes,4,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	// Per-resolver logger configuration (sample rates) if configured.
+	// Absent when no logger_config has been set for this resolver.
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,5,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -343,6 +357,13 @@ func (x *GetDebugModeStatusResponse) GetDeploymentId() string {
 		return *x.DeploymentId
 	}
 	return ""
+}
+
+func (x *GetDebugModeStatusResponse) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
 }
 
 // Request to get recent debug messages for a resolver
@@ -726,14 +747,228 @@ func (x *PushTopicResponse) GetError() *v1.ChalkError {
 	return nil
 }
 
+// Set or update streaming debug configuration for a resolver.
+// To enable: provide logger_config with desired sample rates.
+// To disable: omit logger_config (or set all rates to 0).
+type SetStreamingDebugConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResolverFqn   string                 `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,3,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetStreamingDebugConfigRequest) Reset() {
+	*x = SetStreamingDebugConfigRequest{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetStreamingDebugConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetStreamingDebugConfigRequest) ProtoMessage() {}
+
+func (x *SetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetStreamingDebugConfigRequest.ProtoReflect.Descriptor instead.
+func (*SetStreamingDebugConfigRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SetStreamingDebugConfigRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *SetStreamingDebugConfigRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *SetStreamingDebugConfigRequest) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
+}
+
+type SetStreamingDebugConfigResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,1,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetStreamingDebugConfigResponse) Reset() {
+	*x = SetStreamingDebugConfigResponse{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetStreamingDebugConfigResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetStreamingDebugConfigResponse) ProtoMessage() {}
+
+func (x *SetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetStreamingDebugConfigResponse.ProtoReflect.Descriptor instead.
+func (*SetStreamingDebugConfigResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *SetStreamingDebugConfigResponse) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
+}
+
+// Get current streaming debug configuration for a resolver.
+type GetStreamingDebugConfigRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResolverFqn   string                 `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStreamingDebugConfigRequest) Reset() {
+	*x = GetStreamingDebugConfigRequest{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingDebugConfigRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingDebugConfigRequest) ProtoMessage() {}
+
+func (x *GetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingDebugConfigRequest.ProtoReflect.Descriptor instead.
+func (*GetStreamingDebugConfigRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetStreamingDebugConfigRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+type GetStreamingDebugConfigResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,1,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
+	DeploymentId  *string                `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	StorageUri    string                 `protobuf:"bytes,3,opt,name=storage_uri,json=storageUri,proto3" json:"storage_uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetStreamingDebugConfigResponse) Reset() {
+	*x = GetStreamingDebugConfigResponse{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetStreamingDebugConfigResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetStreamingDebugConfigResponse) ProtoMessage() {}
+
+func (x *GetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetStreamingDebugConfigResponse.ProtoReflect.Descriptor instead.
+func (*GetStreamingDebugConfigResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetStreamingDebugConfigResponse) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
+}
+
+func (x *GetStreamingDebugConfigResponse) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
+}
+
+func (x *GetStreamingDebugConfigResponse) GetStorageUri() string {
+	if x != nil {
+		return x.StorageUri
+	}
+	return ""
+}
+
 var File_chalk_streaming_v1_debug_service_proto protoreflect.FileDescriptor
 
 const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"`\n" +
+	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a1chalk/streaming/v1/simple_streaming_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
 	"\x16EnableDebugModeRequest\x12!\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12#\n" +
-	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"n\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12S\n" +
+	"\rlogger_config\x18\x03 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x00R\floggerConfig\x88\x01\x01B\x10\n" +
+	"\x0e_logger_config\"n\n" +
 	"\x17EnableDebugModeResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x129\n" +
 	"\n" +
@@ -743,15 +978,17 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\x18DisableDebugModeResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\">\n" +
 	"\x19GetDebugModeStatusRequest\x12!\n" +
-	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\"\xe8\x01\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\"\xcf\x02\n" +
 	"\x1aGetDebugModeStatusResponse\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12>\n" +
 	"\n" +
 	"enabled_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tenabledAt\x88\x01\x01\x12%\n" +
 	"\x0estorage_bucket\x18\x03 \x01(\tR\rstorageBucket\x12(\n" +
-	"\rdeployment_id\x18\x04 \x01(\tH\x01R\fdeploymentId\x88\x01\x01B\r\n" +
+	"\rdeployment_id\x18\x04 \x01(\tH\x01R\fdeploymentId\x88\x01\x01\x12S\n" +
+	"\rlogger_config\x18\x05 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x02R\floggerConfig\x88\x01\x01B\r\n" +
 	"\v_enabled_atB\x10\n" +
-	"\x0e_deployment_id\"<\n" +
+	"\x0e_deployment_idB\x10\n" +
+	"\x0e_logger_config\"<\n" +
 	"\x17GetDebugMessagesRequest\x12!\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\"Y\n" +
 	"\x18GetDebugMessagesResponse\x12\x18\n" +
@@ -787,8 +1024,27 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\x05error\x18\x04 \x01(\v2\x1b.chalk.common.v1.ChalkErrorH\x02R\x05error\x88\x01\x01B\b\n" +
 	"\x06_topicB\x0e\n" +
 	"\f_integrationB\b\n" +
-	"\x06_error2\xc5\x05\n" +
-	"\x15StreamingDebugService\x12o\n" +
+	"\x06_error\"\xcf\x01\n" +
+	"\x1eSetStreamingDebugConfigRequest\x12!\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12#\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12S\n" +
+	"\rlogger_config\x18\x03 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x00R\floggerConfig\x88\x01\x01B\x10\n" +
+	"\x0e_logger_config\"\x88\x01\n" +
+	"\x1fSetStreamingDebugConfigResponse\x12S\n" +
+	"\rlogger_config\x18\x01 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x00R\floggerConfig\x88\x01\x01B\x10\n" +
+	"\x0e_logger_config\"C\n" +
+	"\x1eGetStreamingDebugConfigRequest\x12!\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\"\xe5\x01\n" +
+	"\x1fGetStreamingDebugConfigResponse\x12S\n" +
+	"\rlogger_config\x18\x01 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x00R\floggerConfig\x88\x01\x01\x12(\n" +
+	"\rdeployment_id\x18\x02 \x01(\tH\x01R\fdeploymentId\x88\x01\x01\x12\x1f\n" +
+	"\vstorage_uri\x18\x03 \x01(\tR\n" +
+	"storageUriB\x10\n" +
+	"\x0e_logger_configB\x10\n" +
+	"\x0e_deployment_id2\xdc\a\n" +
+	"\x15StreamingDebugService\x12\x87\x01\n" +
+	"\x17SetStreamingDebugConfig\x122.chalk.streaming.v1.SetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.SetStreamingDebugConfigResponse\"\x03\x80}\f\x12\x8a\x01\n" +
+	"\x17GetStreamingDebugConfig\x122.chalk.streaming.v1.GetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.GetStreamingDebugConfigResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
 	"\x0fEnableDebugMode\x12*.chalk.streaming.v1.EnableDebugModeRequest\x1a+.chalk.streaming.v1.EnableDebugModeResponse\"\x03\x80}\f\x12r\n" +
 	"\x10DisableDebugMode\x12+.chalk.streaming.v1.DisableDebugModeRequest\x1a,.chalk.streaming.v1.DisableDebugModeResponse\"\x03\x80}\f\x12{\n" +
 	"\x12GetDebugModeStatus\x12-.chalk.streaming.v1.GetDebugModeStatusRequest\x1a..chalk.streaming.v1.GetDebugModeStatusResponse\"\x06\x80}\v\x90\x02\x01\x12u\n" +
@@ -809,44 +1065,58 @@ func file_chalk_streaming_v1_debug_service_proto_rawDescGZIP() []byte {
 	return file_chalk_streaming_v1_debug_service_proto_rawDescData
 }
 
-var file_chalk_streaming_v1_debug_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_streaming_v1_debug_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_streaming_v1_debug_service_proto_goTypes = []any{
-	(*EnableDebugModeRequest)(nil),     // 0: chalk.streaming.v1.EnableDebugModeRequest
-	(*EnableDebugModeResponse)(nil),    // 1: chalk.streaming.v1.EnableDebugModeResponse
-	(*DisableDebugModeRequest)(nil),    // 2: chalk.streaming.v1.DisableDebugModeRequest
-	(*DisableDebugModeResponse)(nil),   // 3: chalk.streaming.v1.DisableDebugModeResponse
-	(*GetDebugModeStatusRequest)(nil),  // 4: chalk.streaming.v1.GetDebugModeStatusRequest
-	(*GetDebugModeStatusResponse)(nil), // 5: chalk.streaming.v1.GetDebugModeStatusResponse
-	(*GetDebugMessagesRequest)(nil),    // 6: chalk.streaming.v1.GetDebugMessagesRequest
-	(*GetDebugMessagesResponse)(nil),   // 7: chalk.streaming.v1.GetDebugMessagesResponse
-	(*WatchDebugStreamRequest)(nil),    // 8: chalk.streaming.v1.WatchDebugStreamRequest
-	(*WatchDebugStreamResponse)(nil),   // 9: chalk.streaming.v1.WatchDebugStreamResponse
-	(*PushTopicRequest)(nil),           // 10: chalk.streaming.v1.PushTopicRequest
-	(*PushTopicResponse)(nil),          // 11: chalk.streaming.v1.PushTopicResponse
-	(*timestamppb.Timestamp)(nil),      // 12: google.protobuf.Timestamp
-	(*v1.ChalkError)(nil),              // 13: chalk.common.v1.ChalkError
+	(*EnableDebugModeRequest)(nil),          // 0: chalk.streaming.v1.EnableDebugModeRequest
+	(*EnableDebugModeResponse)(nil),         // 1: chalk.streaming.v1.EnableDebugModeResponse
+	(*DisableDebugModeRequest)(nil),         // 2: chalk.streaming.v1.DisableDebugModeRequest
+	(*DisableDebugModeResponse)(nil),        // 3: chalk.streaming.v1.DisableDebugModeResponse
+	(*GetDebugModeStatusRequest)(nil),       // 4: chalk.streaming.v1.GetDebugModeStatusRequest
+	(*GetDebugModeStatusResponse)(nil),      // 5: chalk.streaming.v1.GetDebugModeStatusResponse
+	(*GetDebugMessagesRequest)(nil),         // 6: chalk.streaming.v1.GetDebugMessagesRequest
+	(*GetDebugMessagesResponse)(nil),        // 7: chalk.streaming.v1.GetDebugMessagesResponse
+	(*WatchDebugStreamRequest)(nil),         // 8: chalk.streaming.v1.WatchDebugStreamRequest
+	(*WatchDebugStreamResponse)(nil),        // 9: chalk.streaming.v1.WatchDebugStreamResponse
+	(*PushTopicRequest)(nil),                // 10: chalk.streaming.v1.PushTopicRequest
+	(*PushTopicResponse)(nil),               // 11: chalk.streaming.v1.PushTopicResponse
+	(*SetStreamingDebugConfigRequest)(nil),  // 12: chalk.streaming.v1.SetStreamingDebugConfigRequest
+	(*SetStreamingDebugConfigResponse)(nil), // 13: chalk.streaming.v1.SetStreamingDebugConfigResponse
+	(*GetStreamingDebugConfigRequest)(nil),  // 14: chalk.streaming.v1.GetStreamingDebugConfigRequest
+	(*GetStreamingDebugConfigResponse)(nil), // 15: chalk.streaming.v1.GetStreamingDebugConfigResponse
+	(*StreamingLoggerConfig)(nil),           // 16: chalk.streaming.v1.StreamingLoggerConfig
+	(*timestamppb.Timestamp)(nil),           // 17: google.protobuf.Timestamp
+	(*v1.ChalkError)(nil),                   // 18: chalk.common.v1.ChalkError
 }
 var file_chalk_streaming_v1_debug_service_proto_depIdxs = []int32{
-	12, // 0: chalk.streaming.v1.EnableDebugModeResponse.enabled_at:type_name -> google.protobuf.Timestamp
-	12, // 1: chalk.streaming.v1.GetDebugModeStatusResponse.enabled_at:type_name -> google.protobuf.Timestamp
-	13, // 2: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
-	0,  // 3: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
-	2,  // 4: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
-	4,  // 5: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
-	6,  // 6: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
-	8,  // 7: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
-	10, // 8: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
-	1,  // 9: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
-	3,  // 10: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
-	5,  // 11: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
-	7,  // 12: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
-	9,  // 13: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
-	11, // 14: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
-	9,  // [9:15] is the sub-list for method output_type
-	3,  // [3:9] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	16, // 0: chalk.streaming.v1.EnableDebugModeRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	17, // 1: chalk.streaming.v1.EnableDebugModeResponse.enabled_at:type_name -> google.protobuf.Timestamp
+	17, // 2: chalk.streaming.v1.GetDebugModeStatusResponse.enabled_at:type_name -> google.protobuf.Timestamp
+	16, // 3: chalk.streaming.v1.GetDebugModeStatusResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	18, // 4: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
+	16, // 5: chalk.streaming.v1.SetStreamingDebugConfigRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	16, // 6: chalk.streaming.v1.SetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	16, // 7: chalk.streaming.v1.GetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	12, // 8: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:input_type -> chalk.streaming.v1.SetStreamingDebugConfigRequest
+	14, // 9: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:input_type -> chalk.streaming.v1.GetStreamingDebugConfigRequest
+	0,  // 10: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
+	2,  // 11: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
+	4,  // 12: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
+	6,  // 13: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
+	8,  // 14: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
+	10, // 15: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
+	13, // 16: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:output_type -> chalk.streaming.v1.SetStreamingDebugConfigResponse
+	15, // 17: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:output_type -> chalk.streaming.v1.GetStreamingDebugConfigResponse
+	1,  // 18: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
+	3,  // 19: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
+	5,  // 20: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
+	7,  // 21: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
+	9,  // 22: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
+	11, // 23: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_streaming_v1_debug_service_proto_init() }
@@ -854,18 +1124,23 @@ func file_chalk_streaming_v1_debug_service_proto_init() {
 	if File_chalk_streaming_v1_debug_service_proto != nil {
 		return
 	}
+	file_chalk_streaming_v1_simple_streaming_service_proto_init()
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_streaming_v1_debug_service_proto_rawDesc), len(file_chalk_streaming_v1_debug_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

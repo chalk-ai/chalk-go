@@ -2620,7 +2620,7 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x1eCreateModelVersionFromArtifact\x126.chalk.server.v1.CreateModelVersionFromArtifactRequest\x1a7.chalk.server.v1.CreateModelVersionFromArtifactResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12r\n" +
 	"\x12UpdateModelVersion\x12*.chalk.server.v1.UpdateModelVersionRequest\x1a+.chalk.server.v1.UpdateModelVersionResponse\"\x03\x80}\f\x12\xd5\x01\n" +
-	"\x15DownloadModelArtifact\x12-.chalk.server.v1.DownloadModelArtifactRequest\x1a..chalk.server.v1.DownloadModelArtifactResponse\"]\x80}\f\x92\xd3\x0eS\n" +
+	"\x15DownloadModelArtifact\x12-.chalk.server.v1.DownloadModelArtifactRequest\x1a..chalk.server.v1.DownloadModelArtifactResponse\"]\x80}\v\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x01\x12u\n" +
 	"\x12GetModelReferences\x12*.chalk.server.v1.GetModelReferencesRequest\x1a+.chalk.server.v1.GetModelReferencesResponse\"\x06\x80}\v\x90\x02\x01\x12r\n" +
 	"\x11GetModelReference\x12).chalk.server.v1.GetModelReferenceRequest\x1a*.chalk.server.v1.GetModelReferenceResponse\"\x06\x80}\v\x90\x02\x01\x12\xe1\x01\n" +

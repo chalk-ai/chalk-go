@@ -33,6 +33,12 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// StreamingDebugServiceSetStreamingDebugConfigProcedure is the fully-qualified name of the
+	// StreamingDebugService's SetStreamingDebugConfig RPC.
+	StreamingDebugServiceSetStreamingDebugConfigProcedure = "/chalk.streaming.v1.StreamingDebugService/SetStreamingDebugConfig"
+	// StreamingDebugServiceGetStreamingDebugConfigProcedure is the fully-qualified name of the
+	// StreamingDebugService's GetStreamingDebugConfig RPC.
+	StreamingDebugServiceGetStreamingDebugConfigProcedure = "/chalk.streaming.v1.StreamingDebugService/GetStreamingDebugConfig"
 	// StreamingDebugServiceEnableDebugModeProcedure is the fully-qualified name of the
 	// StreamingDebugService's EnableDebugMode RPC.
 	StreamingDebugServiceEnableDebugModeProcedure = "/chalk.streaming.v1.StreamingDebugService/EnableDebugMode"
@@ -55,11 +61,15 @@ const (
 
 // StreamingDebugServiceClient is a client for the chalk.streaming.v1.StreamingDebugService service.
 type StreamingDebugServiceClient interface {
-	// Enable debug mode for a streaming resolver
+	// Set streaming debug configuration (sample rates) for a resolver
+	SetStreamingDebugConfig(context.Context, *connect.Request[v1.SetStreamingDebugConfigRequest]) (*connect.Response[v1.SetStreamingDebugConfigResponse], error)
+	// Get current streaming debug configuration for a resolver
+	GetStreamingDebugConfig(context.Context, *connect.Request[v1.GetStreamingDebugConfigRequest]) (*connect.Response[v1.GetStreamingDebugConfigResponse], error)
+	// Deprecated: use SetStreamingDebugConfig instead
 	EnableDebugMode(context.Context, *connect.Request[v1.EnableDebugModeRequest]) (*connect.Response[v1.EnableDebugModeResponse], error)
-	// Disable debug mode for a streaming resolver
+	// Deprecated: use SetStreamingDebugConfig with logger_config=null instead
 	DisableDebugMode(context.Context, *connect.Request[v1.DisableDebugModeRequest]) (*connect.Response[v1.DisableDebugModeResponse], error)
-	// Get the current debug mode status for a resolver
+	// Deprecated: use GetStreamingDebugConfig instead
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
@@ -80,6 +90,19 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 	baseURL = strings.TrimRight(baseURL, "/")
 	streamingDebugServiceMethods := v1.File_chalk_streaming_v1_debug_service_proto.Services().ByName("StreamingDebugService").Methods()
 	return &streamingDebugServiceClient{
+		setStreamingDebugConfig: connect.NewClient[v1.SetStreamingDebugConfigRequest, v1.SetStreamingDebugConfigResponse](
+			httpClient,
+			baseURL+StreamingDebugServiceSetStreamingDebugConfigProcedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("SetStreamingDebugConfig")),
+			connect.WithClientOptions(opts...),
+		),
+		getStreamingDebugConfig: connect.NewClient[v1.GetStreamingDebugConfigRequest, v1.GetStreamingDebugConfigResponse](
+			httpClient,
+			baseURL+StreamingDebugServiceGetStreamingDebugConfigProcedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("GetStreamingDebugConfig")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		enableDebugMode: connect.NewClient[v1.EnableDebugModeRequest, v1.EnableDebugModeResponse](
 			httpClient,
 			baseURL+StreamingDebugServiceEnableDebugModeProcedure,
@@ -123,12 +146,24 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 
 // streamingDebugServiceClient implements StreamingDebugServiceClient.
 type streamingDebugServiceClient struct {
-	enableDebugMode    *connect.Client[v1.EnableDebugModeRequest, v1.EnableDebugModeResponse]
-	disableDebugMode   *connect.Client[v1.DisableDebugModeRequest, v1.DisableDebugModeResponse]
-	getDebugModeStatus *connect.Client[v1.GetDebugModeStatusRequest, v1.GetDebugModeStatusResponse]
-	getDebugMessages   *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
-	watchDebugStream   *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
-	pushTopic          *connect.Client[v1.PushTopicRequest, v1.PushTopicResponse]
+	setStreamingDebugConfig *connect.Client[v1.SetStreamingDebugConfigRequest, v1.SetStreamingDebugConfigResponse]
+	getStreamingDebugConfig *connect.Client[v1.GetStreamingDebugConfigRequest, v1.GetStreamingDebugConfigResponse]
+	enableDebugMode         *connect.Client[v1.EnableDebugModeRequest, v1.EnableDebugModeResponse]
+	disableDebugMode        *connect.Client[v1.DisableDebugModeRequest, v1.DisableDebugModeResponse]
+	getDebugModeStatus      *connect.Client[v1.GetDebugModeStatusRequest, v1.GetDebugModeStatusResponse]
+	getDebugMessages        *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
+	watchDebugStream        *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
+	pushTopic               *connect.Client[v1.PushTopicRequest, v1.PushTopicResponse]
+}
+
+// SetStreamingDebugConfig calls chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig.
+func (c *streamingDebugServiceClient) SetStreamingDebugConfig(ctx context.Context, req *connect.Request[v1.SetStreamingDebugConfigRequest]) (*connect.Response[v1.SetStreamingDebugConfigResponse], error) {
+	return c.setStreamingDebugConfig.CallUnary(ctx, req)
+}
+
+// GetStreamingDebugConfig calls chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig.
+func (c *streamingDebugServiceClient) GetStreamingDebugConfig(ctx context.Context, req *connect.Request[v1.GetStreamingDebugConfigRequest]) (*connect.Response[v1.GetStreamingDebugConfigResponse], error) {
+	return c.getStreamingDebugConfig.CallUnary(ctx, req)
 }
 
 // EnableDebugMode calls chalk.streaming.v1.StreamingDebugService.EnableDebugMode.
@@ -164,11 +199,15 @@ func (c *streamingDebugServiceClient) PushTopic(ctx context.Context, req *connec
 // StreamingDebugServiceHandler is an implementation of the chalk.streaming.v1.StreamingDebugService
 // service.
 type StreamingDebugServiceHandler interface {
-	// Enable debug mode for a streaming resolver
+	// Set streaming debug configuration (sample rates) for a resolver
+	SetStreamingDebugConfig(context.Context, *connect.Request[v1.SetStreamingDebugConfigRequest]) (*connect.Response[v1.SetStreamingDebugConfigResponse], error)
+	// Get current streaming debug configuration for a resolver
+	GetStreamingDebugConfig(context.Context, *connect.Request[v1.GetStreamingDebugConfigRequest]) (*connect.Response[v1.GetStreamingDebugConfigResponse], error)
+	// Deprecated: use SetStreamingDebugConfig instead
 	EnableDebugMode(context.Context, *connect.Request[v1.EnableDebugModeRequest]) (*connect.Response[v1.EnableDebugModeResponse], error)
-	// Disable debug mode for a streaming resolver
+	// Deprecated: use SetStreamingDebugConfig with logger_config=null instead
 	DisableDebugMode(context.Context, *connect.Request[v1.DisableDebugModeRequest]) (*connect.Response[v1.DisableDebugModeResponse], error)
-	// Get the current debug mode status for a resolver
+	// Deprecated: use GetStreamingDebugConfig instead
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
@@ -185,6 +224,19 @@ type StreamingDebugServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	streamingDebugServiceMethods := v1.File_chalk_streaming_v1_debug_service_proto.Services().ByName("StreamingDebugService").Methods()
+	streamingDebugServiceSetStreamingDebugConfigHandler := connect.NewUnaryHandler(
+		StreamingDebugServiceSetStreamingDebugConfigProcedure,
+		svc.SetStreamingDebugConfig,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("SetStreamingDebugConfig")),
+		connect.WithHandlerOptions(opts...),
+	)
+	streamingDebugServiceGetStreamingDebugConfigHandler := connect.NewUnaryHandler(
+		StreamingDebugServiceGetStreamingDebugConfigProcedure,
+		svc.GetStreamingDebugConfig,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("GetStreamingDebugConfig")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	streamingDebugServiceEnableDebugModeHandler := connect.NewUnaryHandler(
 		StreamingDebugServiceEnableDebugModeProcedure,
 		svc.EnableDebugMode,
@@ -225,6 +277,10 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 	)
 	return "/chalk.streaming.v1.StreamingDebugService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case StreamingDebugServiceSetStreamingDebugConfigProcedure:
+			streamingDebugServiceSetStreamingDebugConfigHandler.ServeHTTP(w, r)
+		case StreamingDebugServiceGetStreamingDebugConfigProcedure:
+			streamingDebugServiceGetStreamingDebugConfigHandler.ServeHTTP(w, r)
 		case StreamingDebugServiceEnableDebugModeProcedure:
 			streamingDebugServiceEnableDebugModeHandler.ServeHTTP(w, r)
 		case StreamingDebugServiceDisableDebugModeProcedure:
@@ -245,6 +301,14 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 
 // UnimplementedStreamingDebugServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedStreamingDebugServiceHandler struct{}
+
+func (UnimplementedStreamingDebugServiceHandler) SetStreamingDebugConfig(context.Context, *connect.Request[v1.SetStreamingDebugConfigRequest]) (*connect.Response[v1.SetStreamingDebugConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig is not implemented"))
+}
+
+func (UnimplementedStreamingDebugServiceHandler) GetStreamingDebugConfig(context.Context, *connect.Request[v1.GetStreamingDebugConfigRequest]) (*connect.Response[v1.GetStreamingDebugConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig is not implemented"))
+}
 
 func (UnimplementedStreamingDebugServiceHandler) EnableDebugMode(context.Context, *connect.Request[v1.EnableDebugModeRequest]) (*connect.Response[v1.EnableDebugModeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.EnableDebugMode is not implemented"))

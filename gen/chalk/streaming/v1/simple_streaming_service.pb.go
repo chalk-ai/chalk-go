@@ -268,6 +268,76 @@ func (x *StreamingError) GetRowIndex() int64 {
 	return 0
 }
 
+// Per-resolver logger configuration for streaming debug logging.
+// All fields are optional - when absent, the C++ logger falls back to env var defaults.
+// Only sampling rates are per-resolver configurable; infrastructure config (cloud URI,
+// local dirs, flush intervals, buffer size) stays env-var-only.
+type StreamingLoggerConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Overall sample rate for request logging (0.0 to 1.0).
+	// Overrides CHALK_STREAMING_LOG_SAMPLE_PCT env var for this resolver.
+	SamplePct *float64 `protobuf:"fixed64,1,opt,name=sample_pct,json=samplePct,proto3,oneof" json:"sample_pct,omitempty"`
+	// Sample rate specifically for failed messages (0.0 to 1.0).
+	// When absent, falls back to sample_pct.
+	SamplePctFailure *float64 `protobuf:"fixed64,2,opt,name=sample_pct_failure,json=samplePctFailure,proto3,oneof" json:"sample_pct_failure,omitempty"`
+	// Sample rate specifically for skipped messages (0.0 to 1.0).
+	// When absent, falls back to sample_pct.
+	SamplePctSkipped *float64 `protobuf:"fixed64,3,opt,name=sample_pct_skipped,json=samplePctSkipped,proto3,oneof" json:"sample_pct_skipped,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *StreamingLoggerConfig) Reset() {
+	*x = StreamingLoggerConfig{}
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamingLoggerConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamingLoggerConfig) ProtoMessage() {}
+
+func (x *StreamingLoggerConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamingLoggerConfig.ProtoReflect.Descriptor instead.
+func (*StreamingLoggerConfig) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *StreamingLoggerConfig) GetSamplePct() float64 {
+	if x != nil && x.SamplePct != nil {
+		return *x.SamplePct
+	}
+	return 0
+}
+
+func (x *StreamingLoggerConfig) GetSamplePctFailure() float64 {
+	if x != nil && x.SamplePctFailure != nil {
+		return *x.SamplePctFailure
+	}
+	return 0
+}
+
+func (x *StreamingLoggerConfig) GetSamplePctSkipped() float64 {
+	if x != nil && x.SamplePctSkipped != nil {
+		return *x.SamplePctSkipped
+	}
+	return 0
+}
+
 type SimpleStreamingUnaryInvokeRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	StreamingResolverFqn string                 `protobuf:"bytes,1,opt,name=streaming_resolver_fqn,json=streamingResolverFqn,proto3" json:"streaming_resolver_fqn,omitempty"`
@@ -284,14 +354,18 @@ type SimpleStreamingUnaryInvokeRequest struct {
 	// - Additional diagnostic info included in error messages
 	// - All CLOG_ERROR logging that would occur with CHALK_STREAMING_LOG_EXECUTION_ERRORS=true
 	// This flag is OR'd with the environment variable for backward compatibility.
-	Debug         *bool `protobuf:"varint,4,opt,name=debug,proto3,oneof" json:"debug,omitempty"`
+	Debug *bool `protobuf:"varint,4,opt,name=debug,proto3,oneof" json:"debug,omitempty"`
+	// Per-resolver logger configuration overrides from the streaming_debug_mode DB table.
+	// When present, these sample rates override the global env var defaults for this resolver.
+	// When absent, the C++ logger uses its env var configuration.
+	LoggerConfig  *StreamingLoggerConfig `protobuf:"bytes,5,opt,name=logger_config,json=loggerConfig,proto3,oneof" json:"logger_config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SimpleStreamingUnaryInvokeRequest) Reset() {
 	*x = SimpleStreamingUnaryInvokeRequest{}
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[1]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +377,7 @@ func (x *SimpleStreamingUnaryInvokeRequest) String() string {
 func (*SimpleStreamingUnaryInvokeRequest) ProtoMessage() {}
 
 func (x *SimpleStreamingUnaryInvokeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[1]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +390,7 @@ func (x *SimpleStreamingUnaryInvokeRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SimpleStreamingUnaryInvokeRequest.ProtoReflect.Descriptor instead.
 func (*SimpleStreamingUnaryInvokeRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{1}
+	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SimpleStreamingUnaryInvokeRequest) GetStreamingResolverFqn() string {
@@ -347,6 +421,13 @@ func (x *SimpleStreamingUnaryInvokeRequest) GetDebug() bool {
 	return false
 }
 
+func (x *SimpleStreamingUnaryInvokeRequest) GetLoggerConfig() *StreamingLoggerConfig {
+	if x != nil {
+		return x.LoggerConfig
+	}
+	return nil
+}
+
 type SimpleStreamingUnaryInvokeResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	NumRowsSucceed int64                  `protobuf:"varint,1,opt,name=num_rows_succeed,json=numRowsSucceed,proto3" json:"num_rows_succeed,omitempty"` // The number of rows persisted
@@ -375,7 +456,7 @@ type SimpleStreamingUnaryInvokeResponse struct {
 
 func (x *SimpleStreamingUnaryInvokeResponse) Reset() {
 	*x = SimpleStreamingUnaryInvokeResponse{}
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[2]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +468,7 @@ func (x *SimpleStreamingUnaryInvokeResponse) String() string {
 func (*SimpleStreamingUnaryInvokeResponse) ProtoMessage() {}
 
 func (x *SimpleStreamingUnaryInvokeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[2]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +481,7 @@ func (x *SimpleStreamingUnaryInvokeResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use SimpleStreamingUnaryInvokeResponse.ProtoReflect.Descriptor instead.
 func (*SimpleStreamingUnaryInvokeResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{2}
+	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SimpleStreamingUnaryInvokeResponse) GetNumRowsSucceed() int64 {
@@ -476,7 +557,7 @@ type TestStreamingResolverRequest struct {
 
 func (x *TestStreamingResolverRequest) Reset() {
 	*x = TestStreamingResolverRequest{}
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[3]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +569,7 @@ func (x *TestStreamingResolverRequest) String() string {
 func (*TestStreamingResolverRequest) ProtoMessage() {}
 
 func (x *TestStreamingResolverRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[3]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +582,7 @@ func (x *TestStreamingResolverRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestStreamingResolverRequest.ProtoReflect.Descriptor instead.
 func (*TestStreamingResolverRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TestStreamingResolverRequest) GetResolverFqn() string {
@@ -557,7 +638,7 @@ type TestStreamingResolverResponse struct {
 
 func (x *TestStreamingResolverResponse) Reset() {
 	*x = TestStreamingResolverResponse{}
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[4]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -569,7 +650,7 @@ func (x *TestStreamingResolverResponse) String() string {
 func (*TestStreamingResolverResponse) ProtoMessage() {}
 
 func (x *TestStreamingResolverResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[4]
+	mi := &file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -582,7 +663,7 @@ func (x *TestStreamingResolverResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestStreamingResolverResponse.ProtoReflect.Descriptor instead.
 func (*TestStreamingResolverResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *TestStreamingResolverResponse) GetStatus() TestStreamResolverStatus {
@@ -624,15 +705,25 @@ const file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc = "" +
 	"\foperation_id\x18\x03 \x01(\tR\voperationId\x12 \n" +
 	"\trow_index\x18\x04 \x01(\x03H\x00R\browIndex\x88\x01\x01B\f\n" +
 	"\n" +
-	"_row_index\"\xd6\x01\n" +
+	"_row_index\"\xde\x01\n" +
+	"\x15StreamingLoggerConfig\x12\"\n" +
+	"\n" +
+	"sample_pct\x18\x01 \x01(\x01H\x00R\tsamplePct\x88\x01\x01\x121\n" +
+	"\x12sample_pct_failure\x18\x02 \x01(\x01H\x01R\x10samplePctFailure\x88\x01\x01\x121\n" +
+	"\x12sample_pct_skipped\x18\x03 \x01(\x01H\x02R\x10samplePctSkipped\x88\x01\x01B\r\n" +
+	"\v_sample_pctB\x15\n" +
+	"\x13_sample_pct_failureB\x15\n" +
+	"\x13_sample_pct_skipped\"\xbd\x02\n" +
 	"!SimpleStreamingUnaryInvokeRequest\x124\n" +
 	"\x16streaming_resolver_fqn\x18\x01 \x01(\tR\x14streamingResolverFqn\x12\x1d\n" +
 	"\n" +
 	"input_data\x18\x02 \x01(\fR\tinputData\x12&\n" +
 	"\foperation_id\x18\x03 \x01(\tH\x00R\voperationId\x88\x01\x01\x12\x19\n" +
-	"\x05debug\x18\x04 \x01(\bH\x01R\x05debug\x88\x01\x01B\x0f\n" +
+	"\x05debug\x18\x04 \x01(\bH\x01R\x05debug\x88\x01\x01\x12S\n" +
+	"\rlogger_config\x18\x05 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x02R\floggerConfig\x88\x01\x01B\x0f\n" +
 	"\r_operation_idB\b\n" +
-	"\x06_debug\"\xb6\x03\n" +
+	"\x06_debugB\x10\n" +
+	"\x0e_logger_config\"\xb6\x03\n" +
 	"\"SimpleStreamingUnaryInvokeResponse\x12(\n" +
 	"\x10num_rows_succeed\x18\x01 \x01(\x03R\x0enumRowsSucceed\x12&\n" +
 	"\x0fnum_rows_failed\x18\x02 \x01(\x03R\rnumRowsFailed\x12(\n" +
@@ -696,35 +787,37 @@ func file_chalk_streaming_v1_simple_streaming_service_proto_rawDescGZIP() []byte
 }
 
 var file_chalk_streaming_v1_simple_streaming_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_streaming_v1_simple_streaming_service_proto_goTypes = []any{
 	(ExecutionPhase)(0),                        // 0: chalk.streaming.v1.ExecutionPhase
 	(StreamingMessageStatus)(0),                // 1: chalk.streaming.v1.StreamingMessageStatus
 	(TestStreamResolverStatus)(0),              // 2: chalk.streaming.v1.TestStreamResolverStatus
 	(*StreamingError)(nil),                     // 3: chalk.streaming.v1.StreamingError
-	(*SimpleStreamingUnaryInvokeRequest)(nil),  // 4: chalk.streaming.v1.SimpleStreamingUnaryInvokeRequest
-	(*SimpleStreamingUnaryInvokeResponse)(nil), // 5: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse
-	(*TestStreamingResolverRequest)(nil),       // 6: chalk.streaming.v1.TestStreamingResolverRequest
-	(*TestStreamingResolverResponse)(nil),      // 7: chalk.streaming.v1.TestStreamingResolverResponse
-	(*v1.ChalkError)(nil),                      // 8: chalk.common.v1.ChalkError
+	(*StreamingLoggerConfig)(nil),              // 4: chalk.streaming.v1.StreamingLoggerConfig
+	(*SimpleStreamingUnaryInvokeRequest)(nil),  // 5: chalk.streaming.v1.SimpleStreamingUnaryInvokeRequest
+	(*SimpleStreamingUnaryInvokeResponse)(nil), // 6: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse
+	(*TestStreamingResolverRequest)(nil),       // 7: chalk.streaming.v1.TestStreamingResolverRequest
+	(*TestStreamingResolverResponse)(nil),      // 8: chalk.streaming.v1.TestStreamingResolverResponse
+	(*v1.ChalkError)(nil),                      // 9: chalk.common.v1.ChalkError
 }
 var file_chalk_streaming_v1_simple_streaming_service_proto_depIdxs = []int32{
-	8, // 0: chalk.streaming.v1.StreamingError.error:type_name -> chalk.common.v1.ChalkError
-	0, // 1: chalk.streaming.v1.StreamingError.phase:type_name -> chalk.streaming.v1.ExecutionPhase
-	8, // 2: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.error:type_name -> chalk.common.v1.ChalkError
-	3, // 3: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.execution_errors:type_name -> chalk.streaming.v1.StreamingError
-	1, // 4: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.row_statuses:type_name -> chalk.streaming.v1.StreamingMessageStatus
-	2, // 5: chalk.streaming.v1.TestStreamingResolverResponse.status:type_name -> chalk.streaming.v1.TestStreamResolverStatus
-	8, // 6: chalk.streaming.v1.TestStreamingResolverResponse.errors:type_name -> chalk.common.v1.ChalkError
-	4, // 7: chalk.streaming.v1.SimpleStreamingService.SimpleStreamingUnaryInvoke:input_type -> chalk.streaming.v1.SimpleStreamingUnaryInvokeRequest
-	6, // 8: chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver:input_type -> chalk.streaming.v1.TestStreamingResolverRequest
-	5, // 9: chalk.streaming.v1.SimpleStreamingService.SimpleStreamingUnaryInvoke:output_type -> chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse
-	7, // 10: chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver:output_type -> chalk.streaming.v1.TestStreamingResolverResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	9,  // 0: chalk.streaming.v1.StreamingError.error:type_name -> chalk.common.v1.ChalkError
+	0,  // 1: chalk.streaming.v1.StreamingError.phase:type_name -> chalk.streaming.v1.ExecutionPhase
+	4,  // 2: chalk.streaming.v1.SimpleStreamingUnaryInvokeRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	9,  // 3: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.error:type_name -> chalk.common.v1.ChalkError
+	3,  // 4: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.execution_errors:type_name -> chalk.streaming.v1.StreamingError
+	1,  // 5: chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse.row_statuses:type_name -> chalk.streaming.v1.StreamingMessageStatus
+	2,  // 6: chalk.streaming.v1.TestStreamingResolverResponse.status:type_name -> chalk.streaming.v1.TestStreamResolverStatus
+	9,  // 7: chalk.streaming.v1.TestStreamingResolverResponse.errors:type_name -> chalk.common.v1.ChalkError
+	5,  // 8: chalk.streaming.v1.SimpleStreamingService.SimpleStreamingUnaryInvoke:input_type -> chalk.streaming.v1.SimpleStreamingUnaryInvokeRequest
+	7,  // 9: chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver:input_type -> chalk.streaming.v1.TestStreamingResolverRequest
+	6,  // 10: chalk.streaming.v1.SimpleStreamingService.SimpleStreamingUnaryInvoke:output_type -> chalk.streaming.v1.SimpleStreamingUnaryInvokeResponse
+	8,  // 11: chalk.streaming.v1.SimpleStreamingService.TestStreamingResolver:output_type -> chalk.streaming.v1.TestStreamingResolverResponse
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_streaming_v1_simple_streaming_service_proto_init() }
@@ -737,13 +830,14 @@ func file_chalk_streaming_v1_simple_streaming_service_proto_init() {
 	file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_streaming_v1_simple_streaming_service_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc), len(file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
