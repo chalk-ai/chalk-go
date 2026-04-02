@@ -364,6 +364,8 @@ type CreateBenchmarkRequest struct {
 	DataSampleRate      float64                               `protobuf:"fixed64,13,opt,name=data_sample_rate,json=dataSampleRate,proto3" json:"data_sample_rate,omitempty"`
 	QueryHost           *string                               `protobuf:"bytes,14,opt,name=query_host,json=queryHost,proto3,oneof" json:"query_host,omitempty"`
 	Insecure            bool                                  `protobuf:"varint,15,opt,name=insecure,proto3" json:"insecure,omitempty"`
+	Concurrency         *int64                                `protobuf:"varint,16,opt,name=concurrency,proto3,oneof" json:"concurrency,omitempty"`
+	NumConnections      *int64                                `protobuf:"varint,17,opt,name=num_connections,json=numConnections,proto3,oneof" json:"num_connections,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -512,6 +514,20 @@ func (x *CreateBenchmarkRequest) GetInsecure() bool {
 		return x.Insecure
 	}
 	return false
+}
+
+func (x *CreateBenchmarkRequest) GetConcurrency() int64 {
+	if x != nil && x.Concurrency != nil {
+		return *x.Concurrency
+	}
+	return 0
+}
+
+func (x *CreateBenchmarkRequest) GetNumConnections() int64 {
+	if x != nil && x.NumConnections != nil {
+		return *x.NumConnections
+	}
+	return 0
 }
 
 type isCreateBenchmarkRequest_QueryRequest interface {
@@ -1101,7 +1117,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
-	"\x06_limit\"\xdc\x06\n" +
+	"\x06_limit\"\xd5\a\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1121,11 +1137,15 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x10data_sample_rate\x18\r \x01(\x01R\x0edataSampleRate\x12\"\n" +
 	"\n" +
 	"query_host\x18\x0e \x01(\tH\x03R\tqueryHost\x88\x01\x01\x12\x1a\n" +
-	"\binsecure\x18\x0f \x01(\bR\binsecureB\x0f\n" +
+	"\binsecure\x18\x0f \x01(\bR\binsecure\x12%\n" +
+	"\vconcurrency\x18\x10 \x01(\x03H\x04R\vconcurrency\x88\x01\x01\x12,\n" +
+	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01B\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
-	"\v_query_host\"v\n" +
+	"\v_query_hostB\x0e\n" +
+	"\f_concurrencyB\x12\n" +
+	"\x10_num_connections\"v\n" +
 	"\x17CreateBenchmarkResponse\x128\n" +
 	"\x06status\x18\x01 \x01(\x0e2 .chalk.server.v1.BenchmarkStatusR\x06status\x12!\n" +
 	"\fbenchmark_id\x18\x02 \x01(\tR\vbenchmarkId\"\x99\x01\n" +
