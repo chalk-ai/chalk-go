@@ -23,6 +23,8 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// SandboxServiceName is the fully-qualified name of the SandboxService service.
 	SandboxServiceName = "chalk.sandbox.v1.SandboxService"
+	// CustomImageServiceName is the fully-qualified name of the CustomImageService service.
+	CustomImageServiceName = "chalk.sandbox.v1.CustomImageService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -47,6 +49,12 @@ const (
 	// SandboxServiceListSandboxesProcedure is the fully-qualified name of the SandboxService's
 	// ListSandboxes RPC.
 	SandboxServiceListSandboxesProcedure = "/chalk.sandbox.v1.SandboxService/ListSandboxes"
+	// CustomImageServiceBuildCustomImageProcedure is the fully-qualified name of the
+	// CustomImageService's BuildCustomImage RPC.
+	CustomImageServiceBuildCustomImageProcedure = "/chalk.sandbox.v1.CustomImageService/BuildCustomImage"
+	// CustomImageServiceGetCustomImageProcedure is the fully-qualified name of the CustomImageService's
+	// GetCustomImage RPC.
+	CustomImageServiceGetCustomImageProcedure = "/chalk.sandbox.v1.CustomImageService/GetCustomImage"
 )
 
 // SandboxServiceClient is a client for the chalk.sandbox.v1.SandboxService service.
@@ -237,4 +245,105 @@ func (UnimplementedSandboxServiceHandler) GetSandbox(context.Context, *connect.R
 
 func (UnimplementedSandboxServiceHandler) ListSandboxes(context.Context, *connect.Request[v1.ListSandboxesRequest]) (*connect.Response[v1.ListSandboxesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.SandboxService.ListSandboxes is not implemented"))
+}
+
+// CustomImageServiceClient is a client for the chalk.sandbox.v1.CustomImageService service.
+type CustomImageServiceClient interface {
+	// BuildCustomImage builds a container image from a declarative ImageSpec.
+	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
+	// GetCustomImage returns the status of a custom image build by build ID.
+	GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error)
+}
+
+// NewCustomImageServiceClient constructs a client for the chalk.sandbox.v1.CustomImageService
+// service. By default, it uses the Connect protocol with the binary Protobuf Codec, asks for
+// gzipped responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply
+// the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewCustomImageServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CustomImageServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	customImageServiceMethods := v1.File_chalk_sandbox_v1_service_proto.Services().ByName("CustomImageService").Methods()
+	return &customImageServiceClient{
+		buildCustomImage: connect.NewClient[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse](
+			httpClient,
+			baseURL+CustomImageServiceBuildCustomImageProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("BuildCustomImage")),
+			connect.WithClientOptions(opts...),
+		),
+		getCustomImage: connect.NewClient[v1.GetCustomImageRequest, v1.GetCustomImageResponse](
+			httpClient,
+			baseURL+CustomImageServiceGetCustomImageProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("GetCustomImage")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// customImageServiceClient implements CustomImageServiceClient.
+type customImageServiceClient struct {
+	buildCustomImage *connect.Client[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse]
+	getCustomImage   *connect.Client[v1.GetCustomImageRequest, v1.GetCustomImageResponse]
+}
+
+// BuildCustomImage calls chalk.sandbox.v1.CustomImageService.BuildCustomImage.
+func (c *customImageServiceClient) BuildCustomImage(ctx context.Context, req *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error) {
+	return c.buildCustomImage.CallUnary(ctx, req)
+}
+
+// GetCustomImage calls chalk.sandbox.v1.CustomImageService.GetCustomImage.
+func (c *customImageServiceClient) GetCustomImage(ctx context.Context, req *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error) {
+	return c.getCustomImage.CallUnary(ctx, req)
+}
+
+// CustomImageServiceHandler is an implementation of the chalk.sandbox.v1.CustomImageService
+// service.
+type CustomImageServiceHandler interface {
+	// BuildCustomImage builds a container image from a declarative ImageSpec.
+	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
+	// GetCustomImage returns the status of a custom image build by build ID.
+	GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error)
+}
+
+// NewCustomImageServiceHandler builds an HTTP handler from the service implementation. It returns
+// the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	customImageServiceMethods := v1.File_chalk_sandbox_v1_service_proto.Services().ByName("CustomImageService").Methods()
+	customImageServiceBuildCustomImageHandler := connect.NewUnaryHandler(
+		CustomImageServiceBuildCustomImageProcedure,
+		svc.BuildCustomImage,
+		connect.WithSchema(customImageServiceMethods.ByName("BuildCustomImage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	customImageServiceGetCustomImageHandler := connect.NewUnaryHandler(
+		CustomImageServiceGetCustomImageProcedure,
+		svc.GetCustomImage,
+		connect.WithSchema(customImageServiceMethods.ByName("GetCustomImage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.sandbox.v1.CustomImageService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case CustomImageServiceBuildCustomImageProcedure:
+			customImageServiceBuildCustomImageHandler.ServeHTTP(w, r)
+		case CustomImageServiceGetCustomImageProcedure:
+			customImageServiceGetCustomImageHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedCustomImageServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedCustomImageServiceHandler struct{}
+
+func (UnimplementedCustomImageServiceHandler) BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.BuildCustomImage is not implemented"))
+}
+
+func (UnimplementedCustomImageServiceHandler) GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.GetCustomImage is not implemented"))
 }

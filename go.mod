@@ -1,11 +1,11 @@
 module github.com/chalk-ai/chalk-go
 
-go 1.26.0
+go 1.26.1
 
 require (
 	connectrpc.com/connect v1.19.0
 	github.com/apache/arrow/go/v16 v16.1.0
-	github.com/chalk-ai/chalk-go/gen v1.2.210
+	github.com/chalk-ai/chalk-go/gen v1.2.223
 	github.com/cockroachdb/errors v1.12.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/samber/lo v1.52.0
