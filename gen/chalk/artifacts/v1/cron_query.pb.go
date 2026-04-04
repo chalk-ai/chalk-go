@@ -7,6 +7,7 @@
 package artifactsv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -76,26 +77,27 @@ func (x *RecomputeSettings) GetAllFeatures() bool {
 }
 
 type CronQuery struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Name                 string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Cron                 string                 `protobuf:"bytes,2,opt,name=cron,proto3" json:"cron,omitempty"`
-	FileName             string                 `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
-	Output               []string               `protobuf:"bytes,4,rep,name=output,proto3" json:"output,omitempty"`
-	MaxSamples           *int64                 `protobuf:"varint,5,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
-	Recompute            *RecomputeSettings     `protobuf:"bytes,6,opt,name=recompute,proto3" json:"recompute,omitempty"`
-	LowerBound           *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=lower_bound,json=lowerBound,proto3" json:"lower_bound,omitempty"`
-	UpperBound           *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
-	Tags                 []string               `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty"`
-	RequiredResolverTags []string               `protobuf:"bytes,10,rep,name=required_resolver_tags,json=requiredResolverTags,proto3" json:"required_resolver_tags,omitempty"`
-	StoreOnline          bool                   `protobuf:"varint,11,opt,name=store_online,json=storeOnline,proto3" json:"store_online,omitempty"`
-	StoreOffline         bool                   `protobuf:"varint,12,opt,name=store_offline,json=storeOffline,proto3" json:"store_offline,omitempty"`
-	IncrementalSources   []string               `protobuf:"bytes,13,rep,name=incremental_sources,json=incrementalSources,proto3" json:"incremental_sources,omitempty"`
-	ResourceGroup        *string                `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
-	PlannerOptions       map[string]string      `protobuf:"bytes,15,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	CompletionDeadline   *durationpb.Duration   `protobuf:"bytes,16,opt,name=completion_deadline,json=completionDeadline,proto3,oneof" json:"completion_deadline,omitempty"`
-	NumShards            *int32                 `protobuf:"varint,17,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
-	NumWorkers           *int32                 `protobuf:"varint,18,opt,name=num_workers,json=numWorkers,proto3,oneof" json:"num_workers,omitempty"`
-	InputSql             *string                `protobuf:"bytes,19,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
+	state                protoimpl.MessageState   `protogen:"open.v1"`
+	Name                 string                   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Cron                 string                   `protobuf:"bytes,2,opt,name=cron,proto3" json:"cron,omitempty"`
+	FileName             string                   `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	Output               []string                 `protobuf:"bytes,4,rep,name=output,proto3" json:"output,omitempty"`
+	MaxSamples           *int64                   `protobuf:"varint,5,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
+	Recompute            *RecomputeSettings       `protobuf:"bytes,6,opt,name=recompute,proto3" json:"recompute,omitempty"`
+	LowerBound           *timestamppb.Timestamp   `protobuf:"bytes,7,opt,name=lower_bound,json=lowerBound,proto3" json:"lower_bound,omitempty"`
+	UpperBound           *timestamppb.Timestamp   `protobuf:"bytes,8,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	Tags                 []string                 `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty"`
+	RequiredResolverTags []string                 `protobuf:"bytes,10,rep,name=required_resolver_tags,json=requiredResolverTags,proto3" json:"required_resolver_tags,omitempty"`
+	StoreOnline          bool                     `protobuf:"varint,11,opt,name=store_online,json=storeOnline,proto3" json:"store_online,omitempty"`
+	StoreOffline         bool                     `protobuf:"varint,12,opt,name=store_offline,json=storeOffline,proto3" json:"store_offline,omitempty"`
+	IncrementalSources   []string                 `protobuf:"bytes,13,rep,name=incremental_sources,json=incrementalSources,proto3" json:"incremental_sources,omitempty"`
+	ResourceGroup        *string                  `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	PlannerOptions       map[string]string        `protobuf:"bytes,15,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CompletionDeadline   *durationpb.Duration     `protobuf:"bytes,16,opt,name=completion_deadline,json=completionDeadline,proto3,oneof" json:"completion_deadline,omitempty"`
+	NumShards            *int32                   `protobuf:"varint,17,opt,name=num_shards,json=numShards,proto3,oneof" json:"num_shards,omitempty"`
+	NumWorkers           *int32                   `protobuf:"varint,18,opt,name=num_workers,json=numWorkers,proto3,oneof" json:"num_workers,omitempty"`
+	InputSql             *string                  `protobuf:"bytes,19,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
+	UnloadResolvers      []*v1.UnloadResolverSpec `protobuf:"bytes,20,rep,name=unload_resolvers,json=unloadResolvers,proto3" json:"unload_resolvers,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -263,14 +265,21 @@ func (x *CronQuery) GetInputSql() string {
 	return ""
 }
 
+func (x *CronQuery) GetUnloadResolvers() []*v1.UnloadResolverSpec {
+	if x != nil {
+		return x.UnloadResolvers
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_cron_query_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
+	"#chalk/artifacts/v1/cron_query.proto\x12\x12chalk.artifacts.v1\x1a#chalk/common/v1/offline_query.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"Y\n" +
 	"\x11RecomputeSettings\x12!\n" +
 	"\ffeature_fqns\x18\x01 \x03(\tR\vfeatureFqns\x12!\n" +
-	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\x80\b\n" +
+	"\fall_features\x18\x02 \x01(\bR\vallFeatures\"\xd0\b\n" +
 	"\tCronQuery\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04cron\x18\x02 \x01(\tR\x04cron\x12\x1b\n" +
@@ -296,7 +305,8 @@ const file_chalk_artifacts_v1_cron_query_proto_rawDesc = "" +
 	"num_shards\x18\x11 \x01(\x05H\x03R\tnumShards\x88\x01\x01\x12$\n" +
 	"\vnum_workers\x18\x12 \x01(\x05H\x04R\n" +
 	"numWorkers\x88\x01\x01\x12 \n" +
-	"\tinput_sql\x18\x13 \x01(\tH\x05R\binputSql\x88\x01\x01\x1aA\n" +
+	"\tinput_sql\x18\x13 \x01(\tH\x05R\binputSql\x88\x01\x01\x12N\n" +
+	"\x10unload_resolvers\x18\x14 \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x1aA\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
@@ -328,6 +338,7 @@ var file_chalk_artifacts_v1_cron_query_proto_goTypes = []any{
 	nil,                           // 2: chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
 	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+	(*v1.UnloadResolverSpec)(nil), // 5: chalk.common.v1.UnloadResolverSpec
 }
 var file_chalk_artifacts_v1_cron_query_proto_depIdxs = []int32{
 	0, // 0: chalk.artifacts.v1.CronQuery.recompute:type_name -> chalk.artifacts.v1.RecomputeSettings
@@ -335,11 +346,12 @@ var file_chalk_artifacts_v1_cron_query_proto_depIdxs = []int32{
 	3, // 2: chalk.artifacts.v1.CronQuery.upper_bound:type_name -> google.protobuf.Timestamp
 	2, // 3: chalk.artifacts.v1.CronQuery.planner_options:type_name -> chalk.artifacts.v1.CronQuery.PlannerOptionsEntry
 	4, // 4: chalk.artifacts.v1.CronQuery.completion_deadline:type_name -> google.protobuf.Duration
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5, // 5: chalk.artifacts.v1.CronQuery.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_cron_query_proto_init() }

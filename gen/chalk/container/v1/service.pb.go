@@ -188,9 +188,12 @@ type ChalkContainerSpec struct {
 	// Protocol the backend speaks: "http" (default) or "grpc".
 	Protocol *string `protobuf:"bytes,11,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
 	// The routing mode for the container (defaults to PUBLIC)
-	Routing       *string `protobuf:"bytes,12,opt,name=routing,proto3,oneof" json:"routing,omitempty"` // PUBLIC, PRIVATE
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Routing *string `protobuf:"bytes,12,opt,name=routing,proto3,oneof" json:"routing,omitempty"` // PUBLIC, PRIVATE
+	// Authentication mode for the container's HTTP route (defaults to UNAUTHENTICATED)
+	// When set to AUTHENTICATED, creates an Envoy Gateway SecurityPolicy with JWT validation
+	Authentication *string `protobuf:"bytes,13,opt,name=authentication,proto3,oneof" json:"authentication,omitempty"` // UNAUTHENTICATED, AUTHENTICATED
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ChalkContainerSpec) Reset() {
@@ -303,6 +306,13 @@ func (x *ChalkContainerSpec) GetProtocol() string {
 func (x *ChalkContainerSpec) GetRouting() string {
 	if x != nil && x.Routing != nil {
 		return *x.Routing
+	}
+	return ""
+}
+
+func (x *ChalkContainerSpec) GetAuthentication() string {
+	if x != nil && x.Authentication != nil {
+		return *x.Authentication
 	}
 	return ""
 }
@@ -1222,7 +1232,7 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\"\n" +
 	"\n" +
 	"size_limit\x18\x04 \x01(\tH\x00R\tsizeLimit\x88\x01\x01B\r\n" +
-	"\v_size_limit\"\xf0\x05\n" +
+	"\v_size_limit\"\xb0\x06\n" +
 	"\x12ChalkContainerSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12\x1e\n" +
@@ -1239,7 +1249,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\avolumes\x18\n" +
 	" \x03(\v2\x1f.chalk.container.v1.VolumeMountR\avolumes\x12\x1f\n" +
 	"\bprotocol\x18\v \x01(\tH\x04R\bprotocol\x88\x01\x01\x12\x1d\n" +
-	"\arouting\x18\f \x01(\tH\x05R\arouting\x88\x01\x01\x1a7\n" +
+	"\arouting\x18\f \x01(\tH\x05R\arouting\x88\x01\x01\x12+\n" +
+	"\x0eauthentication\x18\r \x01(\tH\x06R\x0eauthentication\x88\x01\x01\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a:\n" +
@@ -1253,7 +1264,8 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\v_enable_sshB\v\n" +
 	"\t_protocolB\n" +
 	"\n" +
-	"\b_routing\"N\n" +
+	"\b_routingB\x11\n" +
+	"\x0f_authentication\"N\n" +
 	"\x10ContainerRequest\x12:\n" +
 	"\x04spec\x18\x01 \x01(\v2&.chalk.container.v1.ChalkContainerSpecR\x04spec\"\x82\x01\n" +
 	"\vHealthCheck\x12\x18\n" +

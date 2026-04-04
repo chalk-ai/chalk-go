@@ -51,6 +51,8 @@ const (
 	// ChartsServiceDeleteChartProcedure is the fully-qualified name of the ChartsService's DeleteChart
 	// RPC.
 	ChartsServiceDeleteChartProcedure = "/chalk.server.v1.ChartsService/DeleteChart"
+	// ChartsServiceGetChartProcedure is the fully-qualified name of the ChartsService's GetChart RPC.
+	ChartsServiceGetChartProcedure = "/chalk.server.v1.ChartsService/GetChart"
 	// ChartsServiceGetChartOptionsProcedure is the fully-qualified name of the ChartsService's
 	// GetChartOptions RPC.
 	ChartsServiceGetChartOptionsProcedure = "/chalk.server.v1.ChartsService/GetChartOptions"
@@ -82,6 +84,7 @@ type ChartsServiceClient interface {
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
+	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
 	GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error)
 	GetFeatureMetrics(context.Context, *connect.Request[v1.GetFeatureMetricsRequest]) (*connect.Response[v1.GetFeatureMetricsResponse], error)
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
@@ -138,6 +141,12 @@ func NewChartsServiceClient(httpClient connect.HTTPClient, baseURL string, opts 
 			connect.WithSchema(chartsServiceMethods.ByName("DeleteChart")),
 			connect.WithClientOptions(opts...),
 		),
+		getChart: connect.NewClient[v1.GetChartRequest, v1.GetChartResponse](
+			httpClient,
+			baseURL+ChartsServiceGetChartProcedure,
+			connect.WithSchema(chartsServiceMethods.ByName("GetChart")),
+			connect.WithClientOptions(opts...),
+		),
 		getChartOptions: connect.NewClient[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse](
 			httpClient,
 			baseURL+ChartsServiceGetChartOptionsProcedure,
@@ -191,6 +200,7 @@ type chartsServiceClient struct {
 	updateMetricConfig       *connect.Client[v1.UpdateMetricConfigRequest, v1.UpdateMetricConfigResponse]
 	createChart              *connect.Client[v1.CreateChartRequest, v1.CreateChartResponse]
 	deleteChart              *connect.Client[v1.DeleteChartRequest, v1.DeleteChartResponse]
+	getChart                 *connect.Client[v1.GetChartRequest, v1.GetChartResponse]
 	getChartOptions          *connect.Client[v1.GetChartOptionsRequest, v1.GetChartOptionsResponse]
 	getFeatureMetrics        *connect.Client[v1.GetFeatureMetricsRequest, v1.GetFeatureMetricsResponse]
 	getResolverMetrics       *connect.Client[v1.GetResolverMetricsRequest, v1.GetResolverMetricsResponse]
@@ -228,6 +238,11 @@ func (c *chartsServiceClient) CreateChart(ctx context.Context, req *connect.Requ
 // DeleteChart calls chalk.server.v1.ChartsService.DeleteChart.
 func (c *chartsServiceClient) DeleteChart(ctx context.Context, req *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error) {
 	return c.deleteChart.CallUnary(ctx, req)
+}
+
+// GetChart calls chalk.server.v1.ChartsService.GetChart.
+func (c *chartsServiceClient) GetChart(ctx context.Context, req *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error) {
+	return c.getChart.CallUnary(ctx, req)
 }
 
 // GetChartOptions calls chalk.server.v1.ChartsService.GetChartOptions.
@@ -273,6 +288,7 @@ type ChartsServiceHandler interface {
 	UpdateMetricConfig(context.Context, *connect.Request[v1.UpdateMetricConfigRequest]) (*connect.Response[v1.UpdateMetricConfigResponse], error)
 	CreateChart(context.Context, *connect.Request[v1.CreateChartRequest]) (*connect.Response[v1.CreateChartResponse], error)
 	DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error)
+	GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error)
 	GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error)
 	GetFeatureMetrics(context.Context, *connect.Request[v1.GetFeatureMetricsRequest]) (*connect.Response[v1.GetFeatureMetricsResponse], error)
 	GetResolverMetrics(context.Context, *connect.Request[v1.GetResolverMetricsRequest]) (*connect.Response[v1.GetResolverMetricsResponse], error)
@@ -323,6 +339,12 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 		ChartsServiceDeleteChartProcedure,
 		svc.DeleteChart,
 		connect.WithSchema(chartsServiceMethods.ByName("DeleteChart")),
+		connect.WithHandlerOptions(opts...),
+	)
+	chartsServiceGetChartHandler := connect.NewUnaryHandler(
+		ChartsServiceGetChartProcedure,
+		svc.GetChart,
+		connect.WithSchema(chartsServiceMethods.ByName("GetChart")),
 		connect.WithHandlerOptions(opts...),
 	)
 	chartsServiceGetChartOptionsHandler := connect.NewUnaryHandler(
@@ -381,6 +403,8 @@ func NewChartsServiceHandler(svc ChartsServiceHandler, opts ...connect.HandlerOp
 			chartsServiceCreateChartHandler.ServeHTTP(w, r)
 		case ChartsServiceDeleteChartProcedure:
 			chartsServiceDeleteChartHandler.ServeHTTP(w, r)
+		case ChartsServiceGetChartProcedure:
+			chartsServiceGetChartHandler.ServeHTTP(w, r)
 		case ChartsServiceGetChartOptionsProcedure:
 			chartsServiceGetChartOptionsHandler.ServeHTTP(w, r)
 		case ChartsServiceGetFeatureMetricsProcedure:
@@ -426,6 +450,10 @@ func (UnimplementedChartsServiceHandler) CreateChart(context.Context, *connect.R
 
 func (UnimplementedChartsServiceHandler) DeleteChart(context.Context, *connect.Request[v1.DeleteChartRequest]) (*connect.Response[v1.DeleteChartResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.DeleteChart is not implemented"))
+}
+
+func (UnimplementedChartsServiceHandler) GetChart(context.Context, *connect.Request[v1.GetChartRequest]) (*connect.Response[v1.GetChartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ChartsService.GetChart is not implemented"))
 }
 
 func (UnimplementedChartsServiceHandler) GetChartOptions(context.Context, *connect.Request[v1.GetChartOptionsRequest]) (*connect.Response[v1.GetChartOptionsResponse], error) {
