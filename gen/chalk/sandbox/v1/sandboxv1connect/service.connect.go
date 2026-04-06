@@ -55,6 +55,12 @@ const (
 	// CustomImageServiceGetCustomImageProcedure is the fully-qualified name of the CustomImageService's
 	// GetCustomImage RPC.
 	CustomImageServiceGetCustomImageProcedure = "/chalk.sandbox.v1.CustomImageService/GetCustomImage"
+	// CustomImageServiceGetOrBuildCustomImageProcedure is the fully-qualified name of the
+	// CustomImageService's GetOrBuildCustomImage RPC.
+	CustomImageServiceGetOrBuildCustomImageProcedure = "/chalk.sandbox.v1.CustomImageService/GetOrBuildCustomImage"
+	// CustomImageServiceStreamCustomImageBuildUpdatesProcedure is the fully-qualified name of the
+	// CustomImageService's StreamCustomImageBuildUpdates RPC.
+	CustomImageServiceStreamCustomImageBuildUpdatesProcedure = "/chalk.sandbox.v1.CustomImageService/StreamCustomImageBuildUpdates"
 )
 
 // SandboxServiceClient is a client for the chalk.sandbox.v1.SandboxService service.
@@ -253,6 +259,12 @@ type CustomImageServiceClient interface {
 	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 	// GetCustomImage returns the status of a custom image build by build ID.
 	GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error)
+	// GetOrBuildCustomImage returns an existing image if one matches the spec's content-addressed
+	// tag, or submits a new build and returns immediately with status "building".
+	GetOrBuildCustomImage(context.Context, *connect.Request[v1.GetOrBuildCustomImageRequest]) (*connect.Response[v1.GetOrBuildCustomImageResponse], error)
+	// StreamCustomImageBuildUpdates streams build status updates for a given build ID
+	// by polling the underlying Argo workflow until it reaches a terminal state.
+	StreamCustomImageBuildUpdates(context.Context, *connect.Request[v1.StreamCustomImageBuildUpdatesRequest]) (*connect.ServerStreamForClient[v1.StreamCustomImageBuildUpdatesResponse], error)
 }
 
 // NewCustomImageServiceClient constructs a client for the chalk.sandbox.v1.CustomImageService
@@ -278,13 +290,27 @@ func NewCustomImageServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(customImageServiceMethods.ByName("GetCustomImage")),
 			connect.WithClientOptions(opts...),
 		),
+		getOrBuildCustomImage: connect.NewClient[v1.GetOrBuildCustomImageRequest, v1.GetOrBuildCustomImageResponse](
+			httpClient,
+			baseURL+CustomImageServiceGetOrBuildCustomImageProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("GetOrBuildCustomImage")),
+			connect.WithClientOptions(opts...),
+		),
+		streamCustomImageBuildUpdates: connect.NewClient[v1.StreamCustomImageBuildUpdatesRequest, v1.StreamCustomImageBuildUpdatesResponse](
+			httpClient,
+			baseURL+CustomImageServiceStreamCustomImageBuildUpdatesProcedure,
+			connect.WithSchema(customImageServiceMethods.ByName("StreamCustomImageBuildUpdates")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // customImageServiceClient implements CustomImageServiceClient.
 type customImageServiceClient struct {
-	buildCustomImage *connect.Client[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse]
-	getCustomImage   *connect.Client[v1.GetCustomImageRequest, v1.GetCustomImageResponse]
+	buildCustomImage              *connect.Client[v1.BuildCustomImageRequest, v1.BuildCustomImageResponse]
+	getCustomImage                *connect.Client[v1.GetCustomImageRequest, v1.GetCustomImageResponse]
+	getOrBuildCustomImage         *connect.Client[v1.GetOrBuildCustomImageRequest, v1.GetOrBuildCustomImageResponse]
+	streamCustomImageBuildUpdates *connect.Client[v1.StreamCustomImageBuildUpdatesRequest, v1.StreamCustomImageBuildUpdatesResponse]
 }
 
 // BuildCustomImage calls chalk.sandbox.v1.CustomImageService.BuildCustomImage.
@@ -297,6 +323,17 @@ func (c *customImageServiceClient) GetCustomImage(ctx context.Context, req *conn
 	return c.getCustomImage.CallUnary(ctx, req)
 }
 
+// GetOrBuildCustomImage calls chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage.
+func (c *customImageServiceClient) GetOrBuildCustomImage(ctx context.Context, req *connect.Request[v1.GetOrBuildCustomImageRequest]) (*connect.Response[v1.GetOrBuildCustomImageResponse], error) {
+	return c.getOrBuildCustomImage.CallUnary(ctx, req)
+}
+
+// StreamCustomImageBuildUpdates calls
+// chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates.
+func (c *customImageServiceClient) StreamCustomImageBuildUpdates(ctx context.Context, req *connect.Request[v1.StreamCustomImageBuildUpdatesRequest]) (*connect.ServerStreamForClient[v1.StreamCustomImageBuildUpdatesResponse], error) {
+	return c.streamCustomImageBuildUpdates.CallServerStream(ctx, req)
+}
+
 // CustomImageServiceHandler is an implementation of the chalk.sandbox.v1.CustomImageService
 // service.
 type CustomImageServiceHandler interface {
@@ -304,6 +341,12 @@ type CustomImageServiceHandler interface {
 	BuildCustomImage(context.Context, *connect.Request[v1.BuildCustomImageRequest]) (*connect.Response[v1.BuildCustomImageResponse], error)
 	// GetCustomImage returns the status of a custom image build by build ID.
 	GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error)
+	// GetOrBuildCustomImage returns an existing image if one matches the spec's content-addressed
+	// tag, or submits a new build and returns immediately with status "building".
+	GetOrBuildCustomImage(context.Context, *connect.Request[v1.GetOrBuildCustomImageRequest]) (*connect.Response[v1.GetOrBuildCustomImageResponse], error)
+	// StreamCustomImageBuildUpdates streams build status updates for a given build ID
+	// by polling the underlying Argo workflow until it reaches a terminal state.
+	StreamCustomImageBuildUpdates(context.Context, *connect.Request[v1.StreamCustomImageBuildUpdatesRequest], *connect.ServerStream[v1.StreamCustomImageBuildUpdatesResponse]) error
 }
 
 // NewCustomImageServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -325,12 +368,28 @@ func NewCustomImageServiceHandler(svc CustomImageServiceHandler, opts ...connect
 		connect.WithSchema(customImageServiceMethods.ByName("GetCustomImage")),
 		connect.WithHandlerOptions(opts...),
 	)
+	customImageServiceGetOrBuildCustomImageHandler := connect.NewUnaryHandler(
+		CustomImageServiceGetOrBuildCustomImageProcedure,
+		svc.GetOrBuildCustomImage,
+		connect.WithSchema(customImageServiceMethods.ByName("GetOrBuildCustomImage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	customImageServiceStreamCustomImageBuildUpdatesHandler := connect.NewServerStreamHandler(
+		CustomImageServiceStreamCustomImageBuildUpdatesProcedure,
+		svc.StreamCustomImageBuildUpdates,
+		connect.WithSchema(customImageServiceMethods.ByName("StreamCustomImageBuildUpdates")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.sandbox.v1.CustomImageService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case CustomImageServiceBuildCustomImageProcedure:
 			customImageServiceBuildCustomImageHandler.ServeHTTP(w, r)
 		case CustomImageServiceGetCustomImageProcedure:
 			customImageServiceGetCustomImageHandler.ServeHTTP(w, r)
+		case CustomImageServiceGetOrBuildCustomImageProcedure:
+			customImageServiceGetOrBuildCustomImageHandler.ServeHTTP(w, r)
+		case CustomImageServiceStreamCustomImageBuildUpdatesProcedure:
+			customImageServiceStreamCustomImageBuildUpdatesHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -346,4 +405,12 @@ func (UnimplementedCustomImageServiceHandler) BuildCustomImage(context.Context, 
 
 func (UnimplementedCustomImageServiceHandler) GetCustomImage(context.Context, *connect.Request[v1.GetCustomImageRequest]) (*connect.Response[v1.GetCustomImageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.GetCustomImage is not implemented"))
+}
+
+func (UnimplementedCustomImageServiceHandler) GetOrBuildCustomImage(context.Context, *connect.Request[v1.GetOrBuildCustomImageRequest]) (*connect.Response[v1.GetOrBuildCustomImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.GetOrBuildCustomImage is not implemented"))
+}
+
+func (UnimplementedCustomImageServiceHandler) StreamCustomImageBuildUpdates(context.Context, *connect.Request[v1.StreamCustomImageBuildUpdatesRequest], *connect.ServerStream[v1.StreamCustomImageBuildUpdatesResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.sandbox.v1.CustomImageService.StreamCustomImageBuildUpdates is not implemented"))
 }

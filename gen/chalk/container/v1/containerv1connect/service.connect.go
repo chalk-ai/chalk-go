@@ -51,6 +51,15 @@ const (
 	// ContainerServiceUpdateContainerStatusProcedure is the fully-qualified name of the
 	// ContainerService's UpdateContainerStatus RPC.
 	ContainerServiceUpdateContainerStatusProcedure = "/chalk.container.v1.ContainerService/UpdateContainerStatus"
+	// ContainerServiceSnapshotContainerProcedure is the fully-qualified name of the ContainerService's
+	// SnapshotContainer RPC.
+	ContainerServiceSnapshotContainerProcedure = "/chalk.container.v1.ContainerService/SnapshotContainer"
+	// ContainerServiceGetContainerSnapshotProcedure is the fully-qualified name of the
+	// ContainerService's GetContainerSnapshot RPC.
+	ContainerServiceGetContainerSnapshotProcedure = "/chalk.container.v1.ContainerService/GetContainerSnapshot"
+	// ContainerServiceListContainerSnapshotsProcedure is the fully-qualified name of the
+	// ContainerService's ListContainerSnapshots RPC.
+	ContainerServiceListContainerSnapshotsProcedure = "/chalk.container.v1.ContainerService/ListContainerSnapshots"
 )
 
 // ContainerServiceClient is a client for the chalk.container.v1.ContainerService service.
@@ -67,6 +76,12 @@ type ContainerServiceClient interface {
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
 	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
+	// SnapshotContainer creates a point-in-time snapshot of a running container
+	SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error)
+	// GetContainerSnapshot retrieves a specific container snapshot
+	GetContainerSnapshot(context.Context, *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error)
+	// ListContainerSnapshots lists container snapshots, optionally filtered by source container
+	ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error)
 }
 
 // NewContainerServiceClient constructs a client for the chalk.container.v1.ContainerService
@@ -116,17 +131,38 @@ func NewContainerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
 			connect.WithClientOptions(opts...),
 		),
+		snapshotContainer: connect.NewClient[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse](
+			httpClient,
+			baseURL+ContainerServiceSnapshotContainerProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("SnapshotContainer")),
+			connect.WithClientOptions(opts...),
+		),
+		getContainerSnapshot: connect.NewClient[v1.GetContainerSnapshotRequest, v1.GetContainerSnapshotResponse](
+			httpClient,
+			baseURL+ContainerServiceGetContainerSnapshotProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("GetContainerSnapshot")),
+			connect.WithClientOptions(opts...),
+		),
+		listContainerSnapshots: connect.NewClient[v1.ListContainerSnapshotsRequest, v1.ListContainerSnapshotsResponse](
+			httpClient,
+			baseURL+ContainerServiceListContainerSnapshotsProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("ListContainerSnapshots")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // containerServiceClient implements ContainerServiceClient.
 type containerServiceClient struct {
-	runContainer          *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
-	stopContainer         *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
-	getContainer          *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
-	listContainers        *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
-	execCommand           *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
-	updateContainerStatus *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
+	runContainer           *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
+	stopContainer          *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
+	getContainer           *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
+	listContainers         *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
+	execCommand            *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
+	updateContainerStatus  *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
+	snapshotContainer      *connect.Client[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse]
+	getContainerSnapshot   *connect.Client[v1.GetContainerSnapshotRequest, v1.GetContainerSnapshotResponse]
+	listContainerSnapshots *connect.Client[v1.ListContainerSnapshotsRequest, v1.ListContainerSnapshotsResponse]
 }
 
 // RunContainer calls chalk.container.v1.ContainerService.RunContainer.
@@ -159,6 +195,21 @@ func (c *containerServiceClient) UpdateContainerStatus(ctx context.Context, req 
 	return c.updateContainerStatus.CallUnary(ctx, req)
 }
 
+// SnapshotContainer calls chalk.container.v1.ContainerService.SnapshotContainer.
+func (c *containerServiceClient) SnapshotContainer(ctx context.Context, req *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error) {
+	return c.snapshotContainer.CallUnary(ctx, req)
+}
+
+// GetContainerSnapshot calls chalk.container.v1.ContainerService.GetContainerSnapshot.
+func (c *containerServiceClient) GetContainerSnapshot(ctx context.Context, req *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error) {
+	return c.getContainerSnapshot.CallUnary(ctx, req)
+}
+
+// ListContainerSnapshots calls chalk.container.v1.ContainerService.ListContainerSnapshots.
+func (c *containerServiceClient) ListContainerSnapshots(ctx context.Context, req *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error) {
+	return c.listContainerSnapshots.CallUnary(ctx, req)
+}
+
 // ContainerServiceHandler is an implementation of the chalk.container.v1.ContainerService service.
 type ContainerServiceHandler interface {
 	// RunContainer creates and runs a new container as a Kubernetes pod
@@ -173,6 +224,12 @@ type ContainerServiceHandler interface {
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
 	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
+	// SnapshotContainer creates a point-in-time snapshot of a running container
+	SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error)
+	// GetContainerSnapshot retrieves a specific container snapshot
+	GetContainerSnapshot(context.Context, *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error)
+	// ListContainerSnapshots lists container snapshots, optionally filtered by source container
+	ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error)
 }
 
 // NewContainerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -218,6 +275,24 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 		connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
 		connect.WithHandlerOptions(opts...),
 	)
+	containerServiceSnapshotContainerHandler := connect.NewUnaryHandler(
+		ContainerServiceSnapshotContainerProcedure,
+		svc.SnapshotContainer,
+		connect.WithSchema(containerServiceMethods.ByName("SnapshotContainer")),
+		connect.WithHandlerOptions(opts...),
+	)
+	containerServiceGetContainerSnapshotHandler := connect.NewUnaryHandler(
+		ContainerServiceGetContainerSnapshotProcedure,
+		svc.GetContainerSnapshot,
+		connect.WithSchema(containerServiceMethods.ByName("GetContainerSnapshot")),
+		connect.WithHandlerOptions(opts...),
+	)
+	containerServiceListContainerSnapshotsHandler := connect.NewUnaryHandler(
+		ContainerServiceListContainerSnapshotsProcedure,
+		svc.ListContainerSnapshots,
+		connect.WithSchema(containerServiceMethods.ByName("ListContainerSnapshots")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.container.v1.ContainerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ContainerServiceRunContainerProcedure:
@@ -232,6 +307,12 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 			containerServiceExecCommandHandler.ServeHTTP(w, r)
 		case ContainerServiceUpdateContainerStatusProcedure:
 			containerServiceUpdateContainerStatusHandler.ServeHTTP(w, r)
+		case ContainerServiceSnapshotContainerProcedure:
+			containerServiceSnapshotContainerHandler.ServeHTTP(w, r)
+		case ContainerServiceGetContainerSnapshotProcedure:
+			containerServiceGetContainerSnapshotHandler.ServeHTTP(w, r)
+		case ContainerServiceListContainerSnapshotsProcedure:
+			containerServiceListContainerSnapshotsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -263,4 +344,16 @@ func (UnimplementedContainerServiceHandler) ExecCommand(context.Context, *connec
 
 func (UnimplementedContainerServiceHandler) UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.UpdateContainerStatus is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.SnapshotContainer is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) GetContainerSnapshot(context.Context, *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.GetContainerSnapshot is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.ListContainerSnapshots is not implemented"))
 }

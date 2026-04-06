@@ -461,11 +461,13 @@ func (*ActivateDeploymentResponse) Descriptor() ([]byte, []int) {
 }
 
 type IndexDeploymentRequest struct {
-	state                            protoimpl.MessageState `protogen:"open.v1"`
-	ExistingDeploymentId             string                 `protobuf:"bytes,1,opt,name=existing_deployment_id,json=existingDeploymentId,proto3" json:"existing_deployment_id,omitempty"`
-	DryRun                           bool                   `protobuf:"varint,2,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
-	ShadowForceVenvRebuild           *bool                  `protobuf:"varint,3,opt,name=shadow_force_venv_rebuild,json=shadowForceVenvRebuild,proto3,oneof" json:"shadow_force_venv_rebuild,omitempty"`
-	ShadowSkipHandleConversionErrors *bool                  `protobuf:"varint,4,opt,name=shadow_skip_handle_conversion_errors,json=shadowSkipHandleConversionErrors,proto3,oneof" json:"shadow_skip_handle_conversion_errors,omitempty"`
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	ExistingDeploymentId string                 `protobuf:"bytes,1,opt,name=existing_deployment_id,json=existingDeploymentId,proto3" json:"existing_deployment_id,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
+	DryRun                           bool  `protobuf:"varint,2,opt,name=dry_run,json=dryRun,proto3" json:"dry_run,omitempty"`
+	ShadowForceVenvRebuild           *bool `protobuf:"varint,3,opt,name=shadow_force_venv_rebuild,json=shadowForceVenvRebuild,proto3,oneof" json:"shadow_force_venv_rebuild,omitempty"`
+	ShadowSkipHandleConversionErrors *bool `protobuf:"varint,4,opt,name=shadow_skip_handle_conversion_errors,json=shadowSkipHandleConversionErrors,proto3,oneof" json:"shadow_skip_handle_conversion_errors,omitempty"`
+	Shadow                           bool  `protobuf:"varint,5,opt,name=shadow,proto3" json:"shadow,omitempty"`
 	unknownFields                    protoimpl.UnknownFields
 	sizeCache                        protoimpl.SizeCache
 }
@@ -507,6 +509,7 @@ func (x *IndexDeploymentRequest) GetExistingDeploymentId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *IndexDeploymentRequest) GetDryRun() bool {
 	if x != nil {
 		return x.DryRun
@@ -524,6 +527,13 @@ func (x *IndexDeploymentRequest) GetShadowForceVenvRebuild() bool {
 func (x *IndexDeploymentRequest) GetShadowSkipHandleConversionErrors() bool {
 	if x != nil && x.ShadowSkipHandleConversionErrors != nil {
 		return *x.ShadowSkipHandleConversionErrors
+	}
+	return false
+}
+
+func (x *IndexDeploymentRequest) GetShadow() bool {
+	if x != nil {
+		return x.Shadow
 	}
 	return false
 }
@@ -10260,12 +10270,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x19ActivateDeploymentRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"\x1c\n" +
-	"\x1aActivateDeploymentResponse\"\xc3\x02\n" +
+	"\x1aActivateDeploymentResponse\"\xdf\x02\n" +
 	"\x16IndexDeploymentRequest\x124\n" +
-	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\x17\n" +
-	"\adry_run\x18\x02 \x01(\bR\x06dryRun\x12>\n" +
+	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\x1b\n" +
+	"\adry_run\x18\x02 \x01(\bB\x02\x18\x01R\x06dryRun\x12>\n" +
 	"\x19shadow_force_venv_rebuild\x18\x03 \x01(\bH\x00R\x16shadowForceVenvRebuild\x88\x01\x01\x12S\n" +
-	"$shadow_skip_handle_conversion_errors\x18\x04 \x01(\bH\x01R shadowSkipHandleConversionErrors\x88\x01\x01B\x1c\n" +
+	"$shadow_skip_handle_conversion_errors\x18\x04 \x01(\bH\x01R shadowSkipHandleConversionErrors\x88\x01\x01\x12\x16\n" +
+	"\x06shadow\x18\x05 \x01(\bR\x06shadowB\x1c\n" +
 	"\x1a_shadow_force_venv_rebuildB'\n" +
 	"%_shadow_skip_handle_conversion_errors\"4\n" +
 	"\x17IndexDeploymentResponse\x12\x19\n" +
