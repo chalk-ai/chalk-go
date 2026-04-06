@@ -3570,8 +3570,7 @@ type EnvoyGatewaySpecs struct {
 	// Optional TLS certificate configuration
 	TlsCertificate     *TLSCertificateConfig `protobuf:"bytes,8,opt,name=tls_certificate,json=tlsCertificate,proto3,oneof" json:"tls_certificate,omitempty"`
 	ServiceAnnotations map[string]string     `protobuf:"bytes,9,rep,name=service_annotations,json=serviceAnnotations,proto3" json:"service_annotations,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
-	LoadBalancerClass *string `protobuf:"bytes,10,opt,name=load_balancer_class,json=loadBalancerClass,proto3,oneof" json:"load_balancer_class,omitempty"` // Handled internally
+	LoadBalancerClass  *string               `protobuf:"bytes,10,opt,name=load_balancer_class,json=loadBalancerClass,proto3,oneof" json:"load_balancer_class,omitempty"`
 	// ID used if gateway is shared between multiple environments in one cluster
 	//
 	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
@@ -3676,7 +3675,6 @@ func (x *EnvoyGatewaySpecs) GetServiceAnnotations() map[string]string {
 	return nil
 }
 
-// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
 func (x *EnvoyGatewaySpecs) GetLoadBalancerClass() string {
 	if x != nil && x.LoadBalancerClass != nil {
 		return *x.LoadBalancerClass
@@ -10566,7 +10564,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0fkube_cluster_id\x18\x05 \x01(\tH\x00R\rkubeClusterId\x88\x01\x01\x12\x13\n" +
 	"\x02id\x18\x06 \x01(\tH\x01R\x02id\x88\x01\x01B\x12\n" +
 	"\x10_kube_cluster_idB\x05\n" +
-	"\x03_id\"\xd9\a\n" +
+	"\x03_id\"\xd5\a\n" +
 	"\x11EnvoyGatewaySpecs\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12!\n" +
 	"\fgateway_name\x18\x02 \x01(\tR\vgatewayName\x12,\n" +
@@ -10576,9 +10574,9 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x1binclude_chalk_node_selector\x18\x06 \x01(\bR\x18includeChalkNodeSelector\x12!\n" +
 	"\fip_allowlist\x18\a \x03(\tR\vipAllowlist\x12S\n" +
 	"\x0ftls_certificate\x18\b \x01(\v2%.chalk.server.v1.TLSCertificateConfigH\x01R\x0etlsCertificate\x88\x01\x01\x12k\n" +
-	"\x13service_annotations\x18\t \x03(\v2:.chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntryR\x12serviceAnnotations\x127\n" +
+	"\x13service_annotations\x18\t \x03(\v2:.chalk.server.v1.EnvoyGatewaySpecs.ServiceAnnotationsEntryR\x12serviceAnnotations\x123\n" +
 	"\x13load_balancer_class\x18\n" +
-	" \x01(\tB\x02\x18\x01H\x02R\x11loadBalancerClass\x88\x01\x01\x125\n" +
+	" \x01(\tH\x02R\x11loadBalancerClass\x88\x01\x01\x125\n" +
 	"\x12cluster_gateway_id\x18\v \x01(\tB\x02\x18\x01H\x03R\x10clusterGatewayId\x88\x01\x01\x12\x1c\n" +
 	"\tsuspended\x18\f \x01(\bR\tsuspended\x12\x1d\n" +
 	"\arouting\x18\r \x01(\tH\x04R\arouting\x88\x01\x01\x12<\n" +
