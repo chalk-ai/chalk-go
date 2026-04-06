@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775514394877,
+  "lastUpdate": 1775517747044,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -34264,6 +34264,60 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkMakeRecordManyRowsAllTypes",
             "value": 312.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "aridbennett@gmail.com",
+            "name": "aribennett",
+            "username": "aribennett"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fab3f576fbac5a14cc33d0d9ab246e6c4aa33103",
+          "message": "more-protos (#627)",
+          "timestamp": "2026-04-06T16:21:45-07:00",
+          "tree_id": "e1a203123f312af6aba1fbb509f24b5d9fa133c0",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/fab3f576fbac5a14cc33d0d9ab246e6c4aa33103"
+        },
+        "date": 1775517746942,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9851,
+            "unit": "ms/op",
+            "extra": "1178 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 101.8,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 46.13,
+            "unit": "ms/op",
+            "extra": "25 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 195.7,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 282.3,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
           }
