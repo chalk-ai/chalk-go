@@ -50,10 +50,12 @@ type KubernetesPodData struct {
 	// // node.UID
 	Uid string `protobuf:"bytes,24,opt,name=uid,proto3" json:"uid,omitempty"`
 	// // node.Name
-	Name          string `protobuf:"bytes,25,opt,name=name,proto3" json:"name,omitempty"`
-	Namespace     string `protobuf:"bytes,26,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Name      string `protobuf:"bytes,25,opt,name=name,proto3" json:"name,omitempty"`
+	Namespace string `protobuf:"bytes,26,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// The controlling owner reference from the pod's ObjectMeta, if one exists.
+	OwnerReference *KubernetesPodData_OwnerReference `protobuf:"bytes,27,opt,name=owner_reference,json=ownerReference,proto3,oneof" json:"owner_reference,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *KubernetesPodData) Reset() {
@@ -203,6 +205,13 @@ func (x *KubernetesPodData) GetNamespace() string {
 		return x.Namespace
 	}
 	return ""
+}
+
+func (x *KubernetesPodData) GetOwnerReference() *KubernetesPodData_OwnerReference {
+	if x != nil {
+		return x.OwnerReference
+	}
+	return nil
 }
 
 // Volume represents a named volume in a pod that may be accessed by any container in the pod.
@@ -2517,11 +2526,103 @@ func (x *KubernetesPodData_PodStatus) GetResize() string {
 	return ""
 }
 
+// OwnerReference contains enough information to identify an owning object.
+type KubernetesPodData_OwnerReference struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// API version of the referent.
+	ApiVersion string `protobuf:"bytes,1,opt,name=api_version,json=apiVersion,proto3" json:"api_version,omitempty"`
+	// Kind of the referent (e.g. "ReplicaSet", "StatefulSet").
+	Kind string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	// Name of the referent.
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// UID of the referent.
+	Uid string `protobuf:"bytes,4,opt,name=uid,proto3" json:"uid,omitempty"`
+	// If true, this reference points to the managing controller.
+	Controller *bool `protobuf:"varint,5,opt,name=controller,proto3,oneof" json:"controller,omitempty"`
+	// If true, AND if the owner has the "foregroundDeletion" finalizer, the
+	// owner cannot be deleted until this reference is removed.
+	BlockOwnerDeletion *bool `protobuf:"varint,6,opt,name=block_owner_deletion,json=blockOwnerDeletion,proto3,oneof" json:"block_owner_deletion,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_OwnerReference) Reset() {
+	*x = KubernetesPodData_OwnerReference{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_OwnerReference) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_OwnerReference) ProtoMessage() {}
+
+func (x *KubernetesPodData_OwnerReference) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_OwnerReference.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_OwnerReference) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 26}
+}
+
+func (x *KubernetesPodData_OwnerReference) GetApiVersion() string {
+	if x != nil {
+		return x.ApiVersion
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_OwnerReference) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_OwnerReference) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_OwnerReference) GetUid() string {
+	if x != nil {
+		return x.Uid
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_OwnerReference) GetController() bool {
+	if x != nil && x.Controller != nil {
+		return *x.Controller
+	}
+	return false
+}
+
+func (x *KubernetesPodData_OwnerReference) GetBlockOwnerDeletion() bool {
+	if x != nil && x.BlockOwnerDeletion != nil {
+		return *x.BlockOwnerDeletion
+	}
+	return false
+}
+
 var File_chalk_kubernetes_v1_pods_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xefA\n" +
+	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xdaD\n" +
 	"\x11KubernetesPodData\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x10\n" +
 	"\x03app\x18\x02 \x01(\tR\x03app\x12\x1c\n" +
@@ -2539,7 +2640,8 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\acluster\x18\x17 \x01(\tR\acluster\x12\x10\n" +
 	"\x03uid\x18\x18 \x01(\tR\x03uid\x12\x12\n" +
 	"\x04name\x18\x19 \x01(\tR\x04name\x12\x1c\n" +
-	"\tnamespace\x18\x1a \x01(\tR\tnamespace\x1a\x1c\n" +
+	"\tnamespace\x18\x1a \x01(\tR\tnamespace\x12c\n" +
+	"\x0fowner_reference\x18\x1b \x01(\v25.chalk.kubernetes.v1.KubernetesPodData.OwnerReferenceH\x00R\x0eownerReference\x88\x01\x01\x1a\x1c\n" +
 	"\x06Volume\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xc1\x01\n" +
 	"\vClaimSource\x123\n" +
@@ -2795,7 +2897,20 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10AnnotationsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xd5\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xef\x01\n" +
+	"\x0eOwnerReference\x12\x1f\n" +
+	"\vapi_version\x18\x01 \x01(\tR\n" +
+	"apiVersion\x12\x12\n" +
+	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x10\n" +
+	"\x03uid\x18\x04 \x01(\tR\x03uid\x12#\n" +
+	"\n" +
+	"controller\x18\x05 \x01(\bH\x00R\n" +
+	"controller\x88\x01\x01\x125\n" +
+	"\x14block_owner_deletion\x18\x06 \x01(\bH\x01R\x12blockOwnerDeletion\x88\x01\x01B\r\n" +
+	"\v_controllerB\x17\n" +
+	"\x15_block_owner_deletionB\x12\n" +
+	"\x10_owner_referenceB\xd5\x01\n" +
 	"\x17com.chalk.kubernetes.v1B\tPodsProtoP\x01ZAgithub.com/chalk-ai/chalk-go/gen/chalk/kubernetes/v1;kubernetesv1\xa2\x02\x03CKX\xaa\x02\x13Chalk.Kubernetes.V1\xca\x02\x13Chalk\\Kubernetes\\V1\xe2\x02\x1fChalk\\Kubernetes\\V1\\GPBMetadata\xea\x02\x15Chalk::Kubernetes::V1b\x06proto3"
 
 var (
@@ -2810,7 +2925,7 @@ func file_chalk_kubernetes_v1_pods_proto_rawDescGZIP() []byte {
 	return file_chalk_kubernetes_v1_pods_proto_rawDescData
 }
 
-var file_chalk_kubernetes_v1_pods_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_chalk_kubernetes_v1_pods_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_chalk_kubernetes_v1_pods_proto_goTypes = []any{
 	(*KubernetesPodData)(nil),                          // 0: chalk.kubernetes.v1.KubernetesPodData
 	(*KubernetesPodData_Volume)(nil),                   // 1: chalk.kubernetes.v1.KubernetesPodData.Volume
@@ -2839,51 +2954,53 @@ var file_chalk_kubernetes_v1_pods_proto_goTypes = []any{
 	(*KubernetesPodData_PodStatus)(nil),                // 24: chalk.kubernetes.v1.KubernetesPodData.PodStatus
 	nil,                                                // 25: chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
 	nil,                                                // 26: chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
-	nil,                                                // 27: chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
-	nil,                                                // 28: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
-	nil,                                                // 29: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
+	(*KubernetesPodData_OwnerReference)(nil),           // 27: chalk.kubernetes.v1.KubernetesPodData.OwnerReference
+	nil,                                                // 28: chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
+	nil,                                                // 29: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
+	nil,                                                // 30: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
 }
 var file_chalk_kubernetes_v1_pods_proto_depIdxs = []int32{
 	24, // 0: chalk.kubernetes.v1.KubernetesPodData.status:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodStatus
 	4,  // 1: chalk.kubernetes.v1.KubernetesPodData.spec:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec
 	25, // 2: chalk.kubernetes.v1.KubernetesPodData.labels:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
 	26, // 3: chalk.kubernetes.v1.KubernetesPodData.annotations:type_name -> chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
-	2,  // 4: chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim.source:type_name -> chalk.kubernetes.v1.KubernetesPodData.ClaimSource
-	1,  // 5: chalk.kubernetes.v1.KubernetesPodData.PodSpec.volumes:type_name -> chalk.kubernetes.v1.KubernetesPodData.Volume
-	17, // 6: chalk.kubernetes.v1.KubernetesPodData.PodSpec.init_containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
-	17, // 7: chalk.kubernetes.v1.KubernetesPodData.PodSpec.containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
-	27, // 8: chalk.kubernetes.v1.KubernetesPodData.PodSpec.node_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
-	3,  // 9: chalk.kubernetes.v1.KubernetesPodData.PodSpec.resource_claims:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim
-	18, // 10: chalk.kubernetes.v1.KubernetesPodData.ContainerState.waiting:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
-	6,  // 11: chalk.kubernetes.v1.KubernetesPodData.ContainerState.running:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
-	7,  // 12: chalk.kubernetes.v1.KubernetesPodData.ContainerState.terminated:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
-	9,  // 13: chalk.kubernetes.v1.KubernetesPodData.EnvVar.value_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
-	10, // 14: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
-	11, // 15: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.resource_field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
-	12, // 16: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.config_map_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
-	13, // 17: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.secret_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
-	20, // 18: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector.divisor:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	15, // 19: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.config_map_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
-	16, // 20: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.secret_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
-	14, // 21: chalk.kubernetes.v1.KubernetesPodData.Container.env_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
-	8,  // 22: chalk.kubernetes.v1.KubernetesPodData.Container.env:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVar
-	21, // 23: chalk.kubernetes.v1.KubernetesPodData.Container.resources:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
-	5,  // 24: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
-	5,  // 25: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.last_state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
-	28, // 26: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.limits:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
-	29, // 27: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.requests:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
-	22, // 28: chalk.kubernetes.v1.KubernetesPodData.PodStatus.conditions:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodCondition
-	23, // 29: chalk.kubernetes.v1.KubernetesPodData.PodStatus.host_ips:type_name -> chalk.kubernetes.v1.KubernetesPodData.HostIP
-	19, // 30: chalk.kubernetes.v1.KubernetesPodData.PodStatus.init_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	19, // 31: chalk.kubernetes.v1.KubernetesPodData.PodStatus.container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	19, // 32: chalk.kubernetes.v1.KubernetesPodData.PodStatus.ephemeral_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	20, // 33: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	20, // 34: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	35, // [35:35] is the sub-list for method output_type
-	35, // [35:35] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	27, // 4: chalk.kubernetes.v1.KubernetesPodData.owner_reference:type_name -> chalk.kubernetes.v1.KubernetesPodData.OwnerReference
+	2,  // 5: chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim.source:type_name -> chalk.kubernetes.v1.KubernetesPodData.ClaimSource
+	1,  // 6: chalk.kubernetes.v1.KubernetesPodData.PodSpec.volumes:type_name -> chalk.kubernetes.v1.KubernetesPodData.Volume
+	17, // 7: chalk.kubernetes.v1.KubernetesPodData.PodSpec.init_containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
+	17, // 8: chalk.kubernetes.v1.KubernetesPodData.PodSpec.containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
+	28, // 9: chalk.kubernetes.v1.KubernetesPodData.PodSpec.node_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
+	3,  // 10: chalk.kubernetes.v1.KubernetesPodData.PodSpec.resource_claims:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim
+	18, // 11: chalk.kubernetes.v1.KubernetesPodData.ContainerState.waiting:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
+	6,  // 12: chalk.kubernetes.v1.KubernetesPodData.ContainerState.running:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
+	7,  // 13: chalk.kubernetes.v1.KubernetesPodData.ContainerState.terminated:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
+	9,  // 14: chalk.kubernetes.v1.KubernetesPodData.EnvVar.value_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
+	10, // 15: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
+	11, // 16: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.resource_field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
+	12, // 17: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.config_map_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
+	13, // 18: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.secret_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
+	20, // 19: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector.divisor:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	15, // 20: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.config_map_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
+	16, // 21: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.secret_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
+	14, // 22: chalk.kubernetes.v1.KubernetesPodData.Container.env_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
+	8,  // 23: chalk.kubernetes.v1.KubernetesPodData.Container.env:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVar
+	21, // 24: chalk.kubernetes.v1.KubernetesPodData.Container.resources:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
+	5,  // 25: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
+	5,  // 26: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.last_state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
+	29, // 27: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.limits:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
+	30, // 28: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.requests:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
+	22, // 29: chalk.kubernetes.v1.KubernetesPodData.PodStatus.conditions:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodCondition
+	23, // 30: chalk.kubernetes.v1.KubernetesPodData.PodStatus.host_ips:type_name -> chalk.kubernetes.v1.KubernetesPodData.HostIP
+	19, // 31: chalk.kubernetes.v1.KubernetesPodData.PodStatus.init_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	19, // 32: chalk.kubernetes.v1.KubernetesPodData.PodStatus.container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	19, // 33: chalk.kubernetes.v1.KubernetesPodData.PodStatus.ephemeral_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	20, // 34: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	20, // 35: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	36, // [36:36] is the sub-list for method output_type
+	36, // [36:36] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_kubernetes_v1_pods_proto_init() }
@@ -2891,6 +3008,7 @@ func file_chalk_kubernetes_v1_pods_proto_init() {
 	if File_chalk_kubernetes_v1_pods_proto != nil {
 		return
 	}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[3].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[4].OneofWrappers = []any{}
@@ -2911,13 +3029,14 @@ func file_chalk_kubernetes_v1_pods_proto_init() {
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[22].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_kubernetes_v1_pods_proto_rawDesc), len(file_chalk_kubernetes_v1_pods_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
