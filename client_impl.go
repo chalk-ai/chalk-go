@@ -16,9 +16,12 @@ import (
 	"strings"
 	"time"
 
+	"connectrpc.com/connect"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
+	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
 	"github.com/cockroachdb/errors"
 )
@@ -585,6 +588,33 @@ func (c *clientImpl) GetOfflineQueryStatus(
 		},
 	)
 	return response, errors.Wrap(err, "getting offline query status")
+}
+
+func (c *clientImpl) CancelOfflineQuery(ctx context.Context, offlineQueryId string) error {
+	apiServerURL := c.config.GetAPIServer().Value
+	offlineQueryClient := serverv1connect.NewOfflineQueryMetadataServiceClient(
+		c.httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(func(next connect.UnaryFunc) connect.UnaryFunc {
+			return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+				req.Header().Set("x-chalk-server", "go-api")
+				req.Header().Set("User-Agent", internal.UserAgent())
+				if envId := c.tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+					req.Header().Set("x-chalk-env-id", envId)
+				}
+				token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+				if err != nil {
+					return nil, errors.Wrap(err, "error refreshing token")
+				}
+				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+				return next(ctx, req)
+			}
+		})),
+	)
+	_, err := offlineQueryClient.CancelAsyncOfflineQuery(ctx, connect.NewRequest(&serverv1.CancelAsyncOfflineQueryRequest{
+		OfflineQueryId: offlineQueryId,
+	}))
+	return errors.Wrap(err, "canceling offline query")
 }
 
 func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset, error) {
