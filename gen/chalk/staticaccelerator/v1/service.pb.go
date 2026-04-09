@@ -7,10 +7,8 @@
 package staticacceleratorv1
 
 import (
-	v12 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
-	v13 "github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1"
-	v11 "github.com/chalk-ai/chalk-go/gen/chalk/planner/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/python/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/lsp/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -113,71 +111,18 @@ func (x *HealthCheckResponse) GetService() string {
 	return ""
 }
 
-type GlobalVariableSymbolicValue struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Variable      *v1.CodeVariable       `protobuf:"bytes,1,opt,name=variable,proto3" json:"variable,omitempty"`
-	SymbolicValue *v11.SymbolicValue     `protobuf:"bytes,2,opt,name=symbolic_value,json=symbolicValue,proto3" json:"symbolic_value,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GlobalVariableSymbolicValue) Reset() {
-	*x = GlobalVariableSymbolicValue{}
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GlobalVariableSymbolicValue) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GlobalVariableSymbolicValue) ProtoMessage() {}
-
-func (x *GlobalVariableSymbolicValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GlobalVariableSymbolicValue.ProtoReflect.Descriptor instead.
-func (*GlobalVariableSymbolicValue) Descriptor() ([]byte, []int) {
-	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GlobalVariableSymbolicValue) GetVariable() *v1.CodeVariable {
-	if x != nil {
-		return x.Variable
-	}
-	return nil
-}
-
-func (x *GlobalVariableSymbolicValue) GetSymbolicValue() *v11.SymbolicValue {
-	if x != nil {
-		return x.SymbolicValue
-	}
-	return nil
-}
-
 type GetStaticConversionDiagnosticsRequest struct {
-	state           protoimpl.MessageState         `protogen:"open.v1"`
-	GlobalVariables []*GlobalVariableSymbolicValue `protobuf:"bytes,1,rep,name=global_variables,json=globalVariables,proto3" json:"global_variables,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
 	// Export already carries chalk.graph.v1.Graph plus the surrounding project metadata.
-	Export             *v12.Export `protobuf:"bytes,2,opt,name=export,proto3" json:"export,omitempty"`
-	RenderFailedProofs bool        `protobuf:"varint,3,opt,name=render_failed_proofs,json=renderFailedProofs,proto3" json:"render_failed_proofs,omitempty"`
+	Export             *v1.Export `protobuf:"bytes,2,opt,name=export,proto3" json:"export,omitempty"`
+	RenderFailedProofs bool       `protobuf:"varint,3,opt,name=render_failed_proofs,json=renderFailedProofs,proto3" json:"render_failed_proofs,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *GetStaticConversionDiagnosticsRequest) Reset() {
 	*x = GetStaticConversionDiagnosticsRequest{}
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -189,7 +134,7 @@ func (x *GetStaticConversionDiagnosticsRequest) String() string {
 func (*GetStaticConversionDiagnosticsRequest) ProtoMessage() {}
 
 func (x *GetStaticConversionDiagnosticsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -202,17 +147,10 @@ func (x *GetStaticConversionDiagnosticsRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use GetStaticConversionDiagnosticsRequest.ProtoReflect.Descriptor instead.
 func (*GetStaticConversionDiagnosticsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{3}
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetStaticConversionDiagnosticsRequest) GetGlobalVariables() []*GlobalVariableSymbolicValue {
-	if x != nil {
-		return x.GlobalVariables
-	}
-	return nil
-}
-
-func (x *GetStaticConversionDiagnosticsRequest) GetExport() *v12.Export {
+func (x *GetStaticConversionDiagnosticsRequest) GetExport() *v1.Export {
 	if x != nil {
 		return x.Export
 	}
@@ -228,14 +166,14 @@ func (x *GetStaticConversionDiagnosticsRequest) GetRenderFailedProofs() bool {
 
 type GetStaticConversionDiagnosticsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Lsp           *v13.LSP               `protobuf:"bytes,1,opt,name=lsp,proto3" json:"lsp,omitempty"`
+	Lsp           *v11.LSP               `protobuf:"bytes,1,opt,name=lsp,proto3" json:"lsp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetStaticConversionDiagnosticsResponse) Reset() {
 	*x = GetStaticConversionDiagnosticsResponse{}
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -247,7 +185,7 @@ func (x *GetStaticConversionDiagnosticsResponse) String() string {
 func (*GetStaticConversionDiagnosticsResponse) ProtoMessage() {}
 
 func (x *GetStaticConversionDiagnosticsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -260,10 +198,10 @@ func (x *GetStaticConversionDiagnosticsResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GetStaticConversionDiagnosticsResponse.ProtoReflect.Descriptor instead.
 func (*GetStaticConversionDiagnosticsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetStaticConversionDiagnosticsResponse) GetLsp() *v13.LSP {
+func (x *GetStaticConversionDiagnosticsResponse) GetLsp() *v11.LSP {
 	if x != nil {
 		return x.Lsp
 	}
@@ -274,18 +212,14 @@ var File_chalk_staticaccelerator_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_staticaccelerator_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/staticaccelerator/v1/service.proto\x12\x1achalk.staticaccelerator.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x16chalk/lsp/v1/lsp.proto\x1a%chalk/planner/v1/symbolic_value.proto\x1a\x1bchalk/python/v1/types.proto\"\x14\n" +
+	"(chalk/staticaccelerator/v1/service.proto\x12\x1achalk.staticaccelerator.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x16chalk/lsp/v1/lsp.proto\"\x14\n" +
 	"\x12HealthCheckRequest\"G\n" +
 	"\x13HealthCheckResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x18\n" +
-	"\aservice\x18\x02 \x01(\tR\aservice\"\xa0\x01\n" +
-	"\x1bGlobalVariableSymbolicValue\x129\n" +
-	"\bvariable\x18\x01 \x01(\v2\x1d.chalk.python.v1.CodeVariableR\bvariable\x12F\n" +
-	"\x0esymbolic_value\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\rsymbolicValue\"\xf1\x01\n" +
-	"%GetStaticConversionDiagnosticsRequest\x12b\n" +
-	"\x10global_variables\x18\x01 \x03(\v27.chalk.staticaccelerator.v1.GlobalVariableSymbolicValueR\x0fglobalVariables\x122\n" +
+	"\aservice\x18\x02 \x01(\tR\aservice\"\xa5\x01\n" +
+	"%GetStaticConversionDiagnosticsRequest\x122\n" +
 	"\x06export\x18\x02 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\x06export\x120\n" +
-	"\x14render_failed_proofs\x18\x03 \x01(\bR\x12renderFailedProofs\"M\n" +
+	"\x14render_failed_proofs\x18\x03 \x01(\bR\x12renderFailedProofsJ\x04\b\x01\x10\x02R\x10global_variables\"M\n" +
 	"&GetStaticConversionDiagnosticsResponse\x12#\n" +
 	"\x03lsp\x18\x01 \x01(\v2\x11.chalk.lsp.v1.LSPR\x03lsp2\xbe\x02\n" +
 	"\x18StaticAcceleratorService\x12s\n" +
@@ -305,33 +239,27 @@ func file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_staticaccelerator_v1_service_proto_rawDescData
 }
 
-var file_chalk_staticaccelerator_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chalk_staticaccelerator_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_chalk_staticaccelerator_v1_service_proto_goTypes = []any{
 	(*HealthCheckRequest)(nil),                     // 0: chalk.staticaccelerator.v1.HealthCheckRequest
 	(*HealthCheckResponse)(nil),                    // 1: chalk.staticaccelerator.v1.HealthCheckResponse
-	(*GlobalVariableSymbolicValue)(nil),            // 2: chalk.staticaccelerator.v1.GlobalVariableSymbolicValue
-	(*GetStaticConversionDiagnosticsRequest)(nil),  // 3: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
-	(*GetStaticConversionDiagnosticsResponse)(nil), // 4: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse
-	(*v1.CodeVariable)(nil),                        // 5: chalk.python.v1.CodeVariable
-	(*v11.SymbolicValue)(nil),                      // 6: chalk.planner.v1.SymbolicValue
-	(*v12.Export)(nil),                             // 7: chalk.artifacts.v1.Export
-	(*v13.LSP)(nil),                                // 8: chalk.lsp.v1.LSP
+	(*GetStaticConversionDiagnosticsRequest)(nil),  // 2: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
+	(*GetStaticConversionDiagnosticsResponse)(nil), // 3: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse
+	(*v1.Export)(nil),                              // 4: chalk.artifacts.v1.Export
+	(*v11.LSP)(nil),                                // 5: chalk.lsp.v1.LSP
 }
 var file_chalk_staticaccelerator_v1_service_proto_depIdxs = []int32{
-	5, // 0: chalk.staticaccelerator.v1.GlobalVariableSymbolicValue.variable:type_name -> chalk.python.v1.CodeVariable
-	6, // 1: chalk.staticaccelerator.v1.GlobalVariableSymbolicValue.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
-	2, // 2: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest.global_variables:type_name -> chalk.staticaccelerator.v1.GlobalVariableSymbolicValue
-	7, // 3: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest.export:type_name -> chalk.artifacts.v1.Export
-	8, // 4: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse.lsp:type_name -> chalk.lsp.v1.LSP
-	0, // 5: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:input_type -> chalk.staticaccelerator.v1.HealthCheckRequest
-	3, // 6: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:input_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
-	1, // 7: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:output_type -> chalk.staticaccelerator.v1.HealthCheckResponse
-	4, // 8: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:output_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // 0: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest.export:type_name -> chalk.artifacts.v1.Export
+	5, // 1: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse.lsp:type_name -> chalk.lsp.v1.LSP
+	0, // 2: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:input_type -> chalk.staticaccelerator.v1.HealthCheckRequest
+	2, // 3: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:input_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
+	1, // 4: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:output_type -> chalk.staticaccelerator.v1.HealthCheckResponse
+	3, // 5: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:output_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chalk_staticaccelerator_v1_service_proto_init() }
@@ -345,7 +273,7 @@ func file_chalk_staticaccelerator_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_staticaccelerator_v1_service_proto_rawDesc), len(file_chalk_staticaccelerator_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

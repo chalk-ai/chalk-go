@@ -45,6 +45,9 @@ const (
 	// DataFrameServiceGetDataFrameRunStatusProcedure is the fully-qualified name of the
 	// DataFrameService's GetDataFrameRunStatus RPC.
 	DataFrameServiceGetDataFrameRunStatusProcedure = "/chalk.server.v1.DataFrameService/GetDataFrameRunStatus"
+	// DataFrameServiceListDataFrameRunsProcedure is the fully-qualified name of the DataFrameService's
+	// ListDataFrameRuns RPC.
+	DataFrameServiceListDataFrameRunsProcedure = "/chalk.server.v1.DataFrameService/ListDataFrameRuns"
 )
 
 // DataFrameServiceClient is a client for the chalk.server.v1.DataFrameService service.
@@ -54,6 +57,8 @@ type DataFrameServiceClient interface {
 	GetDataFramePlanUploadUrl(context.Context, *connect.Request[v1.GetDataFramePlanUploadUrlRequest]) (*connect.Response[v1.GetDataFramePlanUploadUrlResponse], error)
 	// Returns the current status derived from shard statuses. Poll this endpoint to track progress.
 	GetDataFrameRunStatus(context.Context, *connect.Request[v1.GetDataFrameRunStatusRequest]) (*connect.Response[v1.GetDataFrameRunStatusResponse], error)
+	// List dataframe runs with pagination and filtering.
+	ListDataFrameRuns(context.Context, *connect.Request[v1.ListDataFrameRunsRequest]) (*connect.Response[v1.ListDataFrameRunsResponse], error)
 }
 
 // NewDataFrameServiceClient constructs a client for the chalk.server.v1.DataFrameService service.
@@ -93,6 +98,13 @@ func NewDataFrameServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listDataFrameRuns: connect.NewClient[v1.ListDataFrameRunsRequest, v1.ListDataFrameRunsResponse](
+			httpClient,
+			baseURL+DataFrameServiceListDataFrameRunsProcedure,
+			connect.WithSchema(dataFrameServiceMethods.ByName("ListDataFrameRuns")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -102,6 +114,7 @@ type dataFrameServiceClient struct {
 	getDataFrameRun           *connect.Client[v1.GetDataFrameRunRequest, v1.GetDataFrameRunResponse]
 	getDataFramePlanUploadUrl *connect.Client[v1.GetDataFramePlanUploadUrlRequest, v1.GetDataFramePlanUploadUrlResponse]
 	getDataFrameRunStatus     *connect.Client[v1.GetDataFrameRunStatusRequest, v1.GetDataFrameRunStatusResponse]
+	listDataFrameRuns         *connect.Client[v1.ListDataFrameRunsRequest, v1.ListDataFrameRunsResponse]
 }
 
 // ExecuteDataFramePlan calls chalk.server.v1.DataFrameService.ExecuteDataFramePlan.
@@ -124,6 +137,11 @@ func (c *dataFrameServiceClient) GetDataFrameRunStatus(ctx context.Context, req 
 	return c.getDataFrameRunStatus.CallUnary(ctx, req)
 }
 
+// ListDataFrameRuns calls chalk.server.v1.DataFrameService.ListDataFrameRuns.
+func (c *dataFrameServiceClient) ListDataFrameRuns(ctx context.Context, req *connect.Request[v1.ListDataFrameRunsRequest]) (*connect.Response[v1.ListDataFrameRunsResponse], error) {
+	return c.listDataFrameRuns.CallUnary(ctx, req)
+}
+
 // DataFrameServiceHandler is an implementation of the chalk.server.v1.DataFrameService service.
 type DataFrameServiceHandler interface {
 	ExecuteDataFramePlan(context.Context, *connect.Request[v1.ExecuteDataFramePlanRequest]) (*connect.Response[v1.ExecuteDataFramePlanResponse], error)
@@ -131,6 +149,8 @@ type DataFrameServiceHandler interface {
 	GetDataFramePlanUploadUrl(context.Context, *connect.Request[v1.GetDataFramePlanUploadUrlRequest]) (*connect.Response[v1.GetDataFramePlanUploadUrlResponse], error)
 	// Returns the current status derived from shard statuses. Poll this endpoint to track progress.
 	GetDataFrameRunStatus(context.Context, *connect.Request[v1.GetDataFrameRunStatusRequest]) (*connect.Response[v1.GetDataFrameRunStatusResponse], error)
+	// List dataframe runs with pagination and filtering.
+	ListDataFrameRuns(context.Context, *connect.Request[v1.ListDataFrameRunsRequest]) (*connect.Response[v1.ListDataFrameRunsResponse], error)
 }
 
 // NewDataFrameServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -166,6 +186,13 @@ func NewDataFrameServiceHandler(svc DataFrameServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	dataFrameServiceListDataFrameRunsHandler := connect.NewUnaryHandler(
+		DataFrameServiceListDataFrameRunsProcedure,
+		svc.ListDataFrameRuns,
+		connect.WithSchema(dataFrameServiceMethods.ByName("ListDataFrameRuns")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DataFrameService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DataFrameServiceExecuteDataFramePlanProcedure:
@@ -176,6 +203,8 @@ func NewDataFrameServiceHandler(svc DataFrameServiceHandler, opts ...connect.Han
 			dataFrameServiceGetDataFramePlanUploadUrlHandler.ServeHTTP(w, r)
 		case DataFrameServiceGetDataFrameRunStatusProcedure:
 			dataFrameServiceGetDataFrameRunStatusHandler.ServeHTTP(w, r)
+		case DataFrameServiceListDataFrameRunsProcedure:
+			dataFrameServiceListDataFrameRunsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -199,4 +228,8 @@ func (UnimplementedDataFrameServiceHandler) GetDataFramePlanUploadUrl(context.Co
 
 func (UnimplementedDataFrameServiceHandler) GetDataFrameRunStatus(context.Context, *connect.Request[v1.GetDataFrameRunStatusRequest]) (*connect.Response[v1.GetDataFrameRunStatusResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataFrameService.GetDataFrameRunStatus is not implemented"))
+}
+
+func (UnimplementedDataFrameServiceHandler) ListDataFrameRuns(context.Context, *connect.Request[v1.ListDataFrameRunsRequest]) (*connect.Response[v1.ListDataFrameRunsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataFrameService.ListDataFrameRuns is not implemented"))
 }

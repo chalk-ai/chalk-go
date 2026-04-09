@@ -82,6 +82,7 @@ const (
 	OperatorType_OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR          OperatorType = 45
 	OperatorType_OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS            OperatorType = 46
 	OperatorType_OPERATOR_TYPE_PARQUET_WRITER                      OperatorType = 47
+	OperatorType_OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR            OperatorType = 72
 	OperatorType_OPERATOR_TYPE_PROJECT                             OperatorType = 48
 	OperatorType_OPERATOR_TYPE_PROMOTE_SPINE                       OperatorType = 49
 	OperatorType_OPERATOR_TYPE_PUSH_DFTO_RESULT                    OperatorType = 50
@@ -159,6 +160,7 @@ var (
 		45: "OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR",
 		46: "OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS",
 		47: "OPERATOR_TYPE_PARQUET_WRITER",
+		72: "OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR",
 		48: "OPERATOR_TYPE_PROJECT",
 		49: "OPERATOR_TYPE_PROMOTE_SPINE",
 		50: "OPERATOR_TYPE_PUSH_DFTO_RESULT",
@@ -233,6 +235,7 @@ var (
 		"OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR":                     45,
 		"OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS":                       46,
 		"OPERATOR_TYPE_PARQUET_WRITER":                                 47,
+		"OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR":                       72,
 		"OPERATOR_TYPE_PROJECT":                                        48,
 		"OPERATOR_TYPE_PROMOTE_SPINE":                                  49,
 		"OPERATOR_TYPE_PUSH_DFTO_RESULT":                               50,
@@ -532,6 +535,7 @@ type Argument struct {
 	//	*Argument_Duration
 	//	*Argument_OperatorId
 	//	*Argument_FeatureRef
+	//	*Argument_BytesValue
 	//	*Argument_Tuple
 	//	*Argument_Submap
 	//	*Argument_ArrowType
@@ -547,6 +551,7 @@ type Argument struct {
 	//	*Argument_DataFrameTypeIdV2
 	//	*Argument_FeatureRefIdV2
 	//	*Argument_UnderscoreParsed
+	//	*Argument_IpcArrowTable
 	Arg           isArgument_Arg `protobuf_oneof:"arg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -666,6 +671,15 @@ func (x *Argument) GetFeatureRef() *v1.FeatureReference {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_FeatureRef); ok {
 			return x.FeatureRef
+		}
+	}
+	return nil
+}
+
+func (x *Argument) GetBytesValue() []byte {
+	if x != nil {
+		if x, ok := x.Arg.(*Argument_BytesValue); ok {
+			return x.BytesValue
 		}
 	}
 	return nil
@@ -810,6 +824,15 @@ func (x *Argument) GetUnderscoreParsed() *UnderscoreParsedId {
 	return nil
 }
 
+func (x *Argument) GetIpcArrowTable() []byte {
+	if x != nil {
+		if x, ok := x.Arg.(*Argument_IpcArrowTable); ok {
+			return x.IpcArrowTable
+		}
+	}
+	return nil
+}
+
 type isArgument_Arg interface {
 	isArgument_Arg()
 }
@@ -851,6 +874,10 @@ type Argument_OperatorId struct {
 type Argument_FeatureRef struct {
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	FeatureRef *v1.FeatureReference `protobuf:"bytes,9,opt,name=feature_ref,json=featureRef,proto3,oneof"` // Reference features in the batch plan based on their serialization IDs. Meaning to deprecate this
+}
+
+type Argument_BytesValue struct {
+	BytesValue []byte `protobuf:"bytes,10,opt,name=bytes_value,json=bytesValue,proto3,oneof"`
 }
 
 type Argument_Tuple struct {
@@ -919,6 +946,10 @@ type Argument_UnderscoreParsed struct {
 	UnderscoreParsed *UnderscoreParsedId `protobuf:"bytes,28,opt,name=underscore_parsed,json=underscoreParsed,proto3,oneof"`
 }
 
+type Argument_IpcArrowTable struct {
+	IpcArrowTable []byte `protobuf:"bytes,29,opt,name=ipc_arrow_table,json=ipcArrowTable,proto3,oneof"`
+}
+
 func (*Argument_None) isArgument_Arg() {}
 
 func (*Argument_BoolValue) isArgument_Arg() {}
@@ -936,6 +967,8 @@ func (*Argument_Duration) isArgument_Arg() {}
 func (*Argument_OperatorId) isArgument_Arg() {}
 
 func (*Argument_FeatureRef) isArgument_Arg() {}
+
+func (*Argument_BytesValue) isArgument_Arg() {}
 
 func (*Argument_Tuple) isArgument_Arg() {}
 
@@ -966,6 +999,8 @@ func (*Argument_DataFrameTypeIdV2) isArgument_Arg() {}
 func (*Argument_FeatureRefIdV2) isArgument_Arg() {}
 
 func (*Argument_UnderscoreParsed) isArgument_Arg() {}
+
+func (*Argument_IpcArrowTable) isArgument_Arg() {}
 
 type ArgumentMapElement struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1953,7 +1988,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x12filter_expressions\x18\x03 \x03(\v2(.chalk.planner.v1.FilterExpressionParsedR\x11filterExpressions:\x02\x18\x01\",\n" +
 	"\tGraphInfo\x12\x1f\n" +
 	"\voperator_id\x18\x01 \x01(\x04R\n" +
-	"operatorId\"\xf2\f\n" +
+	"operatorId\"\xbf\r\n" +
 	"\bArgument\x12,\n" +
 	"\x04none\x18\x01 \x01(\v2\x16.chalk.planner.v1.VoidH\x00R\x04none\x12\x1f\n" +
 	"\n" +
@@ -1966,7 +2001,10 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\voperator_id\x18\b \x01(\x04H\x00R\n" +
 	"operatorId\x12G\n" +
 	"\vfeature_ref\x18\t \x01(\v2 .chalk.graph.v1.FeatureReferenceB\x02\x18\x01H\x00R\n" +
-	"featureRef\x126\n" +
+	"featureRef\x12!\n" +
+	"\vbytes_value\x18\n" +
+	" \x01(\fH\x00R\n" +
+	"bytesValue\x126\n" +
 	"\x05tuple\x18\x0e \x01(\v2\x1e.chalk.planner.v1.ArgumentListH\x00R\x05tuple\x127\n" +
 	"\x06submap\x18\x0f \x01(\v2\x1d.chalk.planner.v1.ArgumentMapH\x00R\x06submap\x12:\n" +
 	"\n" +
@@ -1983,7 +2021,8 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x0efeature_ref_id\x18\x19 \x01(\v2$.chalk.planner.v1.FeatureReferenceIdB\x02\x18\x01H\x00R\ffeatureRefId\x12W\n" +
 	"\x15data_frame_type_id_v2\x18\x1a \x01(\v2#.chalk.planner.v1.DataFrameTypeIdV2H\x00R\x11dataFrameTypeIdV2\x12S\n" +
 	"\x11feature_ref_id_v2\x18\x1b \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2H\x00R\x0efeatureRefIdV2\x12S\n" +
-	"\x11underscore_parsed\x18\x1c \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdH\x00R\x10underscoreParsedB\x05\n" +
+	"\x11underscore_parsed\x18\x1c \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdH\x00R\x10underscoreParsed\x12(\n" +
+	"\x0fipc_arrow_table\x18\x1d \x01(\fH\x00R\ripcArrowTableB\x05\n" +
 	"\x03arg\"t\n" +
 	"\x12ArgumentMapElement\x12,\n" +
 	"\x03key\x18\x01 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\x03key\x120\n" +
@@ -2056,7 +2095,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\bbehavior\" \n" +
 	"\x1eResolverRootUnderscoreBehavior\"f\n" +
 	"$StreamResolverRootUnderscoreBehavior\x12>\n" +
-	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\x91\x17\n" +
+	"\rmessage_dtype\x18\x01 \x01(\v2\x19.chalk.arrow.v1.ArrowTypeR\fmessageDtype*\xbd\x17\n" +
 	"\fOperatorType\x12\x1d\n" +
 	"\x19OPERATOR_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
 	"!OPERATOR_TYPE_ADD_CHILD_INDEX_COL\x10\x01\x12\x1f\n" +
@@ -2109,7 +2148,8 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x1dOPERATOR_TYPE_OPTIMISTIC_LOAD\x10,\x12,\n" +
 	"(OPERATOR_TYPE_OUTPUT_UNDERSCORE_OPERATOR\x10-\x12*\n" +
 	"&OPERATOR_TYPE_PACK_GROUPS_INTO_STRUCTS\x10.\x12 \n" +
-	"\x1cOPERATOR_TYPE_PARQUET_WRITER\x10/\x12\x19\n" +
+	"\x1cOPERATOR_TYPE_PARQUET_WRITER\x10/\x12*\n" +
+	"&OPERATOR_TYPE_PRELOADED_TABLE_OPERATOR\x10H\x12\x19\n" +
 	"\x15OPERATOR_TYPE_PROJECT\x100\x12\x1f\n" +
 	"\x1bOPERATOR_TYPE_PROMOTE_SPINE\x101\x12\"\n" +
 	"\x1eOPERATOR_TYPE_PUSH_DFTO_RESULT\x102\x12)\n" +
@@ -2277,6 +2317,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 		(*Argument_Duration)(nil),
 		(*Argument_OperatorId)(nil),
 		(*Argument_FeatureRef)(nil),
+		(*Argument_BytesValue)(nil),
 		(*Argument_Tuple)(nil),
 		(*Argument_Submap)(nil),
 		(*Argument_ArrowType)(nil),
@@ -2292,6 +2333,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 		(*Argument_DataFrameTypeIdV2)(nil),
 		(*Argument_FeatureRefIdV2)(nil),
 		(*Argument_UnderscoreParsed)(nil),
+		(*Argument_IpcArrowTable)(nil),
 	}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[15].OneofWrappers = []any{}

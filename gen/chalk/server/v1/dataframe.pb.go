@@ -584,6 +584,8 @@ type DataFrameRun struct {
 	ResourceGroup           *string                `protobuf:"bytes,10,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	MetaData                *structpb.Struct       `protobuf:"bytes,11,opt,name=meta_data,json=metaData,proto3,oneof" json:"meta_data,omitempty"`
 	CompressedPlanUriPrefix *string                `protobuf:"bytes,12,opt,name=compressed_plan_uri_prefix,json=compressedPlanUriPrefix,proto3,oneof" json:"compressed_plan_uri_prefix,omitempty"`
+	CreatedAt               *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3,oneof" json:"created_at,omitempty"`
+	DeploymentId            *string                `protobuf:"bytes,14,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -702,6 +704,188 @@ func (x *DataFrameRun) GetCompressedPlanUriPrefix() string {
 	return ""
 }
 
+func (x *DataFrameRun) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *DataFrameRun) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
+}
+
+type ListDataFrameRunsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	AgentId       *string                `protobuf:"bytes,3,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
+	DeploymentId  *string                `protobuf:"bytes,4,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	Status        *int32                 `protobuf:"varint,5,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	BranchName    *string                `protobuf:"bytes,6,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"`
+	ExternalId    *string                `protobuf:"bytes,7,opt,name=external_id,json=externalId,proto3,oneof" json:"external_id,omitempty"`
+	CorrelationId *string                `protobuf:"bytes,8,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
+	Start         *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=start,proto3,oneof" json:"start,omitempty"`
+	End           *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=end,proto3,oneof" json:"end,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListDataFrameRunsRequest) Reset() {
+	*x = ListDataFrameRunsRequest{}
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDataFrameRunsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDataFrameRunsRequest) ProtoMessage() {}
+
+func (x *ListDataFrameRunsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDataFrameRunsRequest.ProtoReflect.Descriptor instead.
+func (*ListDataFrameRunsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataframe_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListDataFrameRunsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListDataFrameRunsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetAgentId() string {
+	if x != nil && x.AgentId != nil {
+		return *x.AgentId
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetStatus() int32 {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return 0
+}
+
+func (x *ListDataFrameRunsRequest) GetBranchName() string {
+	if x != nil && x.BranchName != nil {
+		return *x.BranchName
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetExternalId() string {
+	if x != nil && x.ExternalId != nil {
+		return *x.ExternalId
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetCorrelationId() string {
+	if x != nil && x.CorrelationId != nil {
+		return *x.CorrelationId
+	}
+	return ""
+}
+
+func (x *ListDataFrameRunsRequest) GetStart() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Start
+	}
+	return nil
+}
+
+func (x *ListDataFrameRunsRequest) GetEnd() *timestamppb.Timestamp {
+	if x != nil {
+		return x.End
+	}
+	return nil
+}
+
+type ListDataFrameRunsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Runs          []*DataFrameRun        `protobuf:"bytes,1,rep,name=runs,proto3" json:"runs,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListDataFrameRunsResponse) Reset() {
+	*x = ListDataFrameRunsResponse{}
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListDataFrameRunsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListDataFrameRunsResponse) ProtoMessage() {}
+
+func (x *ListDataFrameRunsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListDataFrameRunsResponse.ProtoReflect.Descriptor instead.
+func (*ListDataFrameRunsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataframe_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListDataFrameRunsResponse) GetRuns() []*DataFrameRun {
+	if x != nil {
+		return x.Runs
+	}
+	return nil
+}
+
+func (x *ListDataFrameRunsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
 type GetDataFrameRunResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Run           *DataFrameRun          `protobuf:"bytes,1,opt,name=run,proto3" json:"run,omitempty"`
@@ -712,7 +896,7 @@ type GetDataFrameRunResponse struct {
 
 func (x *GetDataFrameRunResponse) Reset() {
 	*x = GetDataFrameRunResponse{}
-	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -724,7 +908,7 @@ func (x *GetDataFrameRunResponse) String() string {
 func (*GetDataFrameRunResponse) ProtoMessage() {}
 
 func (x *GetDataFrameRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_dataframe_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -737,7 +921,7 @@ func (x *GetDataFrameRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDataFrameRunResponse.ProtoReflect.Descriptor instead.
 func (*GetDataFrameRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataframe_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_dataframe_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetDataFrameRunResponse) GetRun() *DataFrameRun {
@@ -796,7 +980,7 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\x1acompressed_plan_uri_prefix\x18\x06 \x01(\tH\x02R\x17compressedPlanUriPrefix\x88\x01\x01B\x0f\n" +
 	"\r_finalized_atB\r\n" +
 	"\v_updated_atB\x1d\n" +
-	"\x1b_compressed_plan_uri_prefix\"\x9a\x06\n" +
+	"\x1b_compressed_plan_uri_prefix\"\xa5\a\n" +
 	"\fDataFrameRun\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12;\n" +
 	"\x06status\x18\x02 \x01(\x0e2#.chalk.server.v1.DataFrameRunStatusR\x06status\x12/\n" +
@@ -813,7 +997,11 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\x0eresource_group\x18\n" +
 	" \x01(\tH\aR\rresourceGroup\x88\x01\x01\x129\n" +
 	"\tmeta_data\x18\v \x01(\v2\x17.google.protobuf.StructH\bR\bmetaData\x88\x01\x01\x12@\n" +
-	"\x1acompressed_plan_uri_prefix\x18\f \x01(\tH\tR\x17compressedPlanUriPrefix\x88\x01\x01B\x14\n" +
+	"\x1acompressed_plan_uri_prefix\x18\f \x01(\tH\tR\x17compressedPlanUriPrefix\x88\x01\x01\x12>\n" +
+	"\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\n" +
+	"R\tcreatedAt\x88\x01\x01\x12(\n" +
+	"\rdeployment_id\x18\x0e \x01(\tH\vR\fdeploymentId\x88\x01\x01B\x14\n" +
 	"\x12_output_uri_prefixB\v\n" +
 	"\t_agent_idB\x0f\n" +
 	"\r_finalized_atB\r\n" +
@@ -824,7 +1012,37 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\x0f_resource_groupB\f\n" +
 	"\n" +
 	"_meta_dataB\x1d\n" +
-	"\x1b_compressed_plan_uri_prefix\"\x7f\n" +
+	"\x1b_compressed_plan_uri_prefixB\r\n" +
+	"\v_created_atB\x10\n" +
+	"\x0e_deployment_id\"\x90\x04\n" +
+	"\x18ListDataFrameRunsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x1e\n" +
+	"\bagent_id\x18\x03 \x01(\tH\x01R\aagentId\x88\x01\x01\x12(\n" +
+	"\rdeployment_id\x18\x04 \x01(\tH\x02R\fdeploymentId\x88\x01\x01\x12\x1b\n" +
+	"\x06status\x18\x05 \x01(\x05H\x03R\x06status\x88\x01\x01\x12$\n" +
+	"\vbranch_name\x18\x06 \x01(\tH\x04R\n" +
+	"branchName\x88\x01\x01\x12$\n" +
+	"\vexternal_id\x18\a \x01(\tH\x05R\n" +
+	"externalId\x88\x01\x01\x12*\n" +
+	"\x0ecorrelation_id\x18\b \x01(\tH\x06R\rcorrelationId\x88\x01\x01\x125\n" +
+	"\x05start\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\aR\x05start\x88\x01\x01\x121\n" +
+	"\x03end\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\bR\x03end\x88\x01\x01B\t\n" +
+	"\a_cursorB\v\n" +
+	"\t_agent_idB\x10\n" +
+	"\x0e_deployment_idB\t\n" +
+	"\a_statusB\x0e\n" +
+	"\f_branch_nameB\x0e\n" +
+	"\f_external_idB\x11\n" +
+	"\x0f_correlation_idB\b\n" +
+	"\x06_startB\x06\n" +
+	"\x04_end\"\x84\x01\n" +
+	"\x19ListDataFrameRunsResponse\x121\n" +
+	"\x04runs\x18\x01 \x03(\v2\x1d.chalk.server.v1.DataFrameRunR\x04runs\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\x7f\n" +
 	"\x17GetDataFrameRunResponse\x12/\n" +
 	"\x03run\x18\x01 \x01(\v2\x1d.chalk.server.v1.DataFrameRunR\x03run\x123\n" +
 	"\x06errors\x18\x02 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors*\xeb\x01\n" +
@@ -834,12 +1052,13 @@ const file_chalk_server_v1_dataframe_proto_rawDesc = "" +
 	"\x1dDATA_FRAME_RUN_STATUS_WORKING\x10\x02\x12#\n" +
 	"\x1fDATA_FRAME_RUN_STATUS_COMPLETED\x10\x03\x12 \n" +
 	"\x1cDATA_FRAME_RUN_STATUS_FAILED\x10\x04\x12\"\n" +
-	"\x1eDATA_FRAME_RUN_STATUS_CANCELED\x10\x052\x84\x04\n" +
+	"\x1eDATA_FRAME_RUN_STATUS_CANCELED\x10\x052\xf8\x04\n" +
 	"\x10DataFrameService\x12x\n" +
 	"\x14ExecuteDataFramePlan\x12,.chalk.server.v1.ExecuteDataFramePlanRequest\x1a-.chalk.server.v1.ExecuteDataFramePlanResponse\"\x03\x80}\x04\x12l\n" +
 	"\x0fGetDataFrameRun\x12'.chalk.server.v1.GetDataFrameRunRequest\x1a(.chalk.server.v1.GetDataFrameRunResponse\"\x06\x80}\x04\x90\x02\x01\x12\x87\x01\n" +
 	"\x19GetDataFramePlanUploadUrl\x121.chalk.server.v1.GetDataFramePlanUploadUrlRequest\x1a2.chalk.server.v1.GetDataFramePlanUploadUrlResponse\"\x03\x80}\x04\x12~\n" +
-	"\x15GetDataFrameRunStatus\x12-.chalk.server.v1.GetDataFrameRunStatusRequest\x1a..chalk.server.v1.GetDataFrameRunStatusResponse\"\x06\x80}\x04\x90\x02\x01B\xbe\x01\n" +
+	"\x15GetDataFrameRunStatus\x12-.chalk.server.v1.GetDataFrameRunStatusRequest\x1a..chalk.server.v1.GetDataFrameRunStatusResponse\"\x06\x80}\x04\x90\x02\x01\x12r\n" +
+	"\x11ListDataFrameRuns\x12).chalk.server.v1.ListDataFrameRunsRequest\x1a*.chalk.server.v1.ListDataFrameRunsResponse\"\x06\x80}\x04\x90\x02\x01B\xbe\x01\n" +
 	"\x13com.chalk.server.v1B\x0eDataframeProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -855,7 +1074,7 @@ func file_chalk_server_v1_dataframe_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_dataframe_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_dataframe_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_server_v1_dataframe_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_server_v1_dataframe_proto_goTypes = []any{
 	(DataFrameRunStatus)(0),                   // 0: chalk.server.v1.DataFrameRunStatus
 	(*ExecuteDataFramePlanRequest)(nil),       // 1: chalk.server.v1.ExecuteDataFramePlanRequest
@@ -867,40 +1086,48 @@ var file_chalk_server_v1_dataframe_proto_goTypes = []any{
 	(*GetDataFrameRunStatusResponse)(nil),     // 7: chalk.server.v1.GetDataFrameRunStatusResponse
 	(*DataFrameRunShard)(nil),                 // 8: chalk.server.v1.DataFrameRunShard
 	(*DataFrameRun)(nil),                      // 9: chalk.server.v1.DataFrameRun
-	(*GetDataFrameRunResponse)(nil),           // 10: chalk.server.v1.GetDataFrameRunResponse
-	(*v1.DataFramePlan)(nil),                  // 11: chalk.dataframe.v1.DataFramePlan
-	(*v11.ChalkError)(nil),                    // 12: chalk.common.v1.ChalkError
-	(*timestamppb.Timestamp)(nil),             // 13: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),                   // 14: google.protobuf.Struct
+	(*ListDataFrameRunsRequest)(nil),          // 10: chalk.server.v1.ListDataFrameRunsRequest
+	(*ListDataFrameRunsResponse)(nil),         // 11: chalk.server.v1.ListDataFrameRunsResponse
+	(*GetDataFrameRunResponse)(nil),           // 12: chalk.server.v1.GetDataFrameRunResponse
+	(*v1.DataFramePlan)(nil),                  // 13: chalk.dataframe.v1.DataFramePlan
+	(*v11.ChalkError)(nil),                    // 14: chalk.common.v1.ChalkError
+	(*timestamppb.Timestamp)(nil),             // 15: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),                   // 16: google.protobuf.Struct
 }
 var file_chalk_server_v1_dataframe_proto_depIdxs = []int32{
-	11, // 0: chalk.server.v1.ExecuteDataFramePlanRequest.plan:type_name -> chalk.dataframe.v1.DataFramePlan
+	13, // 0: chalk.server.v1.ExecuteDataFramePlanRequest.plan:type_name -> chalk.dataframe.v1.DataFramePlan
 	9,  // 1: chalk.server.v1.ExecuteDataFramePlanResponse.run:type_name -> chalk.server.v1.DataFrameRun
-	12, // 2: chalk.server.v1.ExecuteDataFramePlanResponse.errors:type_name -> chalk.common.v1.ChalkError
+	14, // 2: chalk.server.v1.ExecuteDataFramePlanResponse.errors:type_name -> chalk.common.v1.ChalkError
 	0,  // 3: chalk.server.v1.GetDataFrameRunStatusResponse.status:type_name -> chalk.server.v1.DataFrameRunStatus
-	13, // 4: chalk.server.v1.GetDataFrameRunStatusResponse.finalized_at:type_name -> google.protobuf.Timestamp
+	15, // 4: chalk.server.v1.GetDataFrameRunStatusResponse.finalized_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: chalk.server.v1.DataFrameRunShard.status:type_name -> chalk.server.v1.DataFrameRunStatus
-	13, // 6: chalk.server.v1.DataFrameRunShard.finalized_at:type_name -> google.protobuf.Timestamp
-	13, // 7: chalk.server.v1.DataFrameRunShard.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 6: chalk.server.v1.DataFrameRunShard.finalized_at:type_name -> google.protobuf.Timestamp
+	15, // 7: chalk.server.v1.DataFrameRunShard.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 8: chalk.server.v1.DataFrameRun.status:type_name -> chalk.server.v1.DataFrameRunStatus
-	13, // 9: chalk.server.v1.DataFrameRun.finalized_at:type_name -> google.protobuf.Timestamp
-	13, // 10: chalk.server.v1.DataFrameRun.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 11: chalk.server.v1.DataFrameRun.meta_data:type_name -> google.protobuf.Struct
-	9,  // 12: chalk.server.v1.GetDataFrameRunResponse.run:type_name -> chalk.server.v1.DataFrameRun
-	12, // 13: chalk.server.v1.GetDataFrameRunResponse.errors:type_name -> chalk.common.v1.ChalkError
-	1,  // 14: chalk.server.v1.DataFrameService.ExecuteDataFramePlan:input_type -> chalk.server.v1.ExecuteDataFramePlanRequest
-	5,  // 15: chalk.server.v1.DataFrameService.GetDataFrameRun:input_type -> chalk.server.v1.GetDataFrameRunRequest
-	3,  // 16: chalk.server.v1.DataFrameService.GetDataFramePlanUploadUrl:input_type -> chalk.server.v1.GetDataFramePlanUploadUrlRequest
-	6,  // 17: chalk.server.v1.DataFrameService.GetDataFrameRunStatus:input_type -> chalk.server.v1.GetDataFrameRunStatusRequest
-	2,  // 18: chalk.server.v1.DataFrameService.ExecuteDataFramePlan:output_type -> chalk.server.v1.ExecuteDataFramePlanResponse
-	10, // 19: chalk.server.v1.DataFrameService.GetDataFrameRun:output_type -> chalk.server.v1.GetDataFrameRunResponse
-	4,  // 20: chalk.server.v1.DataFrameService.GetDataFramePlanUploadUrl:output_type -> chalk.server.v1.GetDataFramePlanUploadUrlResponse
-	7,  // 21: chalk.server.v1.DataFrameService.GetDataFrameRunStatus:output_type -> chalk.server.v1.GetDataFrameRunStatusResponse
-	18, // [18:22] is the sub-list for method output_type
-	14, // [14:18] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	15, // 9: chalk.server.v1.DataFrameRun.finalized_at:type_name -> google.protobuf.Timestamp
+	15, // 10: chalk.server.v1.DataFrameRun.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 11: chalk.server.v1.DataFrameRun.meta_data:type_name -> google.protobuf.Struct
+	15, // 12: chalk.server.v1.DataFrameRun.created_at:type_name -> google.protobuf.Timestamp
+	15, // 13: chalk.server.v1.ListDataFrameRunsRequest.start:type_name -> google.protobuf.Timestamp
+	15, // 14: chalk.server.v1.ListDataFrameRunsRequest.end:type_name -> google.protobuf.Timestamp
+	9,  // 15: chalk.server.v1.ListDataFrameRunsResponse.runs:type_name -> chalk.server.v1.DataFrameRun
+	9,  // 16: chalk.server.v1.GetDataFrameRunResponse.run:type_name -> chalk.server.v1.DataFrameRun
+	14, // 17: chalk.server.v1.GetDataFrameRunResponse.errors:type_name -> chalk.common.v1.ChalkError
+	1,  // 18: chalk.server.v1.DataFrameService.ExecuteDataFramePlan:input_type -> chalk.server.v1.ExecuteDataFramePlanRequest
+	5,  // 19: chalk.server.v1.DataFrameService.GetDataFrameRun:input_type -> chalk.server.v1.GetDataFrameRunRequest
+	3,  // 20: chalk.server.v1.DataFrameService.GetDataFramePlanUploadUrl:input_type -> chalk.server.v1.GetDataFramePlanUploadUrlRequest
+	6,  // 21: chalk.server.v1.DataFrameService.GetDataFrameRunStatus:input_type -> chalk.server.v1.GetDataFrameRunStatusRequest
+	10, // 22: chalk.server.v1.DataFrameService.ListDataFrameRuns:input_type -> chalk.server.v1.ListDataFrameRunsRequest
+	2,  // 23: chalk.server.v1.DataFrameService.ExecuteDataFramePlan:output_type -> chalk.server.v1.ExecuteDataFramePlanResponse
+	12, // 24: chalk.server.v1.DataFrameService.GetDataFrameRun:output_type -> chalk.server.v1.GetDataFrameRunResponse
+	4,  // 25: chalk.server.v1.DataFrameService.GetDataFramePlanUploadUrl:output_type -> chalk.server.v1.GetDataFramePlanUploadUrlResponse
+	7,  // 26: chalk.server.v1.DataFrameService.GetDataFrameRunStatus:output_type -> chalk.server.v1.GetDataFrameRunStatusResponse
+	11, // 27: chalk.server.v1.DataFrameService.ListDataFrameRuns:output_type -> chalk.server.v1.ListDataFrameRunsResponse
+	23, // [23:28] is the sub-list for method output_type
+	18, // [18:23] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_dataframe_proto_init() }
@@ -915,13 +1142,15 @@ func file_chalk_server_v1_dataframe_proto_init() {
 	file_chalk_server_v1_dataframe_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_dataframe_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_dataframe_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_server_v1_dataframe_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_dataframe_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_dataframe_proto_rawDesc), len(file_chalk_server_v1_dataframe_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
