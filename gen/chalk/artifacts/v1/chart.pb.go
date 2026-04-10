@@ -81,6 +81,13 @@ const (
 	MetricKind_METRIC_KIND_SUBSCRIPTION_NUM_UNACKED_MESSAGES       MetricKind = 53
 	MetricKind_METRIC_KIND_SUBSCRIPTION_OLDEST_UNACKED_MESSAGE_AGE MetricKind = 54
 	MetricKind_METRIC_KIND_TOPIC_OFFSET_LAG                        MetricKind = 55
+	MetricKind_METRIC_KIND_GPU_UTILIZATION                         MetricKind = 56
+	MetricKind_METRIC_KIND_GPU_TENSOR_ACTIVITY                     MetricKind = 57
+	MetricKind_METRIC_KIND_GPU_SM_CLOCK_MHZ                        MetricKind = 58
+	MetricKind_METRIC_KIND_GPU_POWER_WATTS                         MetricKind = 59
+	MetricKind_METRIC_KIND_GPU_TEMPERATURE_CELSIUS                 MetricKind = 60
+	MetricKind_METRIC_KIND_GPU_THROTTLE_REASONS                    MetricKind = 61
+	MetricKind_METRIC_KIND_GPU_FP16_ACTIVITY                       MetricKind = 62
 )
 
 // Enum value maps for MetricKind.
@@ -142,6 +149,13 @@ var (
 		53: "METRIC_KIND_SUBSCRIPTION_NUM_UNACKED_MESSAGES",
 		54: "METRIC_KIND_SUBSCRIPTION_OLDEST_UNACKED_MESSAGE_AGE",
 		55: "METRIC_KIND_TOPIC_OFFSET_LAG",
+		56: "METRIC_KIND_GPU_UTILIZATION",
+		57: "METRIC_KIND_GPU_TENSOR_ACTIVITY",
+		58: "METRIC_KIND_GPU_SM_CLOCK_MHZ",
+		59: "METRIC_KIND_GPU_POWER_WATTS",
+		60: "METRIC_KIND_GPU_TEMPERATURE_CELSIUS",
+		61: "METRIC_KIND_GPU_THROTTLE_REASONS",
+		62: "METRIC_KIND_GPU_FP16_ACTIVITY",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -200,6 +214,13 @@ var (
 		"METRIC_KIND_SUBSCRIPTION_NUM_UNACKED_MESSAGES":       53,
 		"METRIC_KIND_SUBSCRIPTION_OLDEST_UNACKED_MESSAGE_AGE": 54,
 		"METRIC_KIND_TOPIC_OFFSET_LAG":                        55,
+		"METRIC_KIND_GPU_UTILIZATION":                         56,
+		"METRIC_KIND_GPU_TENSOR_ACTIVITY":                     57,
+		"METRIC_KIND_GPU_SM_CLOCK_MHZ":                        58,
+		"METRIC_KIND_GPU_POWER_WATTS":                         59,
+		"METRIC_KIND_GPU_TEMPERATURE_CELSIUS":                 60,
+		"METRIC_KIND_GPU_THROTTLE_REASONS":                    61,
+		"METRIC_KIND_GPU_FP16_ACTIVITY":                       62,
 	}
 )
 
@@ -1413,7 +1434,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
 	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
 	"\n" +
-	"_entity_id*\xe7\x10\n" +
+	"_entity_id*\xe2\x12\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1472,7 +1493,14 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"$METRIC_KIND_TOPIC_MESSAGES_PROCESSED\x104\x121\n" +
 	"-METRIC_KIND_SUBSCRIPTION_NUM_UNACKED_MESSAGES\x105\x127\n" +
 	"3METRIC_KIND_SUBSCRIPTION_OLDEST_UNACKED_MESSAGE_AGE\x106\x12 \n" +
-	"\x1cMETRIC_KIND_TOPIC_OFFSET_LAG\x107*\xa7\x05\n" +
+	"\x1cMETRIC_KIND_TOPIC_OFFSET_LAG\x107\x12\x1f\n" +
+	"\x1bMETRIC_KIND_GPU_UTILIZATION\x108\x12#\n" +
+	"\x1fMETRIC_KIND_GPU_TENSOR_ACTIVITY\x109\x12 \n" +
+	"\x1cMETRIC_KIND_GPU_SM_CLOCK_MHZ\x10:\x12\x1f\n" +
+	"\x1bMETRIC_KIND_GPU_POWER_WATTS\x10;\x12'\n" +
+	"#METRIC_KIND_GPU_TEMPERATURE_CELSIUS\x10<\x12$\n" +
+	" METRIC_KIND_GPU_THROTTLE_REASONS\x10=\x12!\n" +
+	"\x1dMETRIC_KIND_GPU_FP16_ACTIVITY\x10>*\xa7\x05\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +

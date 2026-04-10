@@ -910,6 +910,62 @@ func (x *GetSpanResponse) GetSpan() *ChalkSpan {
 	return nil
 }
 
+// AttributeFilter represents a filter for span attributes
+type AttributeFilter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The attribute key to filter on
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// The attribute value to match (exact match)
+	// If not specified, matches any span that has this attribute key
+	Value         *string `protobuf:"bytes,2,opt,name=value,proto3,oneof" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AttributeFilter) Reset() {
+	*x = AttributeFilter{}
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AttributeFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AttributeFilter) ProtoMessage() {}
+
+func (x *AttributeFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AttributeFilter.ProtoReflect.Descriptor instead.
+func (*AttributeFilter) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AttributeFilter) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *AttributeFilter) GetValue() string {
+	if x != nil && x.Value != nil {
+		return *x.Value
+	}
+	return ""
+}
+
 // ListSpanRequest message
 type ListSpanRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -935,13 +991,16 @@ type ListSpanRequest struct {
 	MinDurationUs *int64 `protobuf:"varint,10,opt,name=min_duration_us,json=minDurationUs,proto3,oneof" json:"min_duration_us,omitempty"`
 	// Filter by maximum duration (inclusive) in microseconds
 	MaxDurationUs *int64 `protobuf:"varint,11,opt,name=max_duration_us,json=maxDurationUs,proto3,oneof" json:"max_duration_us,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Filter by span attributes
+	// Spans must match ALL specified attribute filters
+	AttributeFilters []*AttributeFilter `protobuf:"bytes,12,rep,name=attribute_filters,json=attributeFilters,proto3" json:"attribute_filters,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListSpanRequest) Reset() {
 	*x = ListSpanRequest{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -953,7 +1012,7 @@ func (x *ListSpanRequest) String() string {
 func (*ListSpanRequest) ProtoMessage() {}
 
 func (x *ListSpanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -966,7 +1025,7 @@ func (x *ListSpanRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSpanRequest.ProtoReflect.Descriptor instead.
 func (*ListSpanRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListSpanRequest) GetTraceId() string {
@@ -1046,6 +1105,13 @@ func (x *ListSpanRequest) GetMaxDurationUs() int64 {
 	return 0
 }
 
+func (x *ListSpanRequest) GetAttributeFilters() []*AttributeFilter {
+	if x != nil {
+		return x.AttributeFilters
+	}
+	return nil
+}
+
 // ListSpanResponse message
 type ListSpanResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1059,7 +1125,7 @@ type ListSpanResponse struct {
 
 func (x *ListSpanResponse) Reset() {
 	*x = ListSpanResponse{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1071,7 +1137,7 @@ func (x *ListSpanResponse) String() string {
 func (*ListSpanResponse) ProtoMessage() {}
 
 func (x *ListSpanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1084,7 +1150,7 @@ func (x *ListSpanResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSpanResponse.ProtoReflect.Descriptor instead.
 func (*ListSpanResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListSpanResponse) GetSpans() []*ChalkSpan {
@@ -1112,7 +1178,7 @@ type SpanFacet struct {
 
 func (x *SpanFacet) Reset() {
 	*x = SpanFacet{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1124,7 +1190,7 @@ func (x *SpanFacet) String() string {
 func (*SpanFacet) ProtoMessage() {}
 
 func (x *SpanFacet) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1137,7 +1203,7 @@ func (x *SpanFacet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SpanFacet.ProtoReflect.Descriptor instead.
 func (*SpanFacet) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SpanFacet) GetPath() string {
@@ -1163,7 +1229,7 @@ type GetSpanFacetsRequest struct {
 
 func (x *GetSpanFacetsRequest) Reset() {
 	*x = GetSpanFacetsRequest{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1241,7 @@ func (x *GetSpanFacetsRequest) String() string {
 func (*GetSpanFacetsRequest) ProtoMessage() {}
 
 func (x *GetSpanFacetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1254,7 @@ func (x *GetSpanFacetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetSpanFacetsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{15}
 }
 
 // GetSpanFacetsResponse returns available span facets
@@ -1201,7 +1267,7 @@ type GetSpanFacetsResponse struct {
 
 func (x *GetSpanFacetsResponse) Reset() {
 	*x = GetSpanFacetsResponse{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1213,7 +1279,7 @@ func (x *GetSpanFacetsResponse) String() string {
 func (*GetSpanFacetsResponse) ProtoMessage() {}
 
 func (x *GetSpanFacetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1226,7 +1292,7 @@ func (x *GetSpanFacetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanFacetsResponse.ProtoReflect.Descriptor instead.
 func (*GetSpanFacetsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetSpanFacetsResponse) GetFacets() []*SpanFacet {
@@ -1249,7 +1315,7 @@ type GetSpanFacetValuesRequest struct {
 
 func (x *GetSpanFacetValuesRequest) Reset() {
 	*x = GetSpanFacetValuesRequest{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1261,7 +1327,7 @@ func (x *GetSpanFacetValuesRequest) String() string {
 func (*GetSpanFacetValuesRequest) ProtoMessage() {}
 
 func (x *GetSpanFacetValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1274,7 +1340,7 @@ func (x *GetSpanFacetValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanFacetValuesRequest.ProtoReflect.Descriptor instead.
 func (*GetSpanFacetValuesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetSpanFacetValuesRequest) GetPath() string {
@@ -1316,7 +1382,7 @@ type SpanFacetValue struct {
 
 func (x *SpanFacetValue) Reset() {
 	*x = SpanFacetValue{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1328,7 +1394,7 @@ func (x *SpanFacetValue) String() string {
 func (*SpanFacetValue) ProtoMessage() {}
 
 func (x *SpanFacetValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1341,7 +1407,7 @@ func (x *SpanFacetValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SpanFacetValue.ProtoReflect.Descriptor instead.
 func (*SpanFacetValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SpanFacetValue) GetValue() string {
@@ -1368,7 +1434,7 @@ type GetSpanFacetValuesResponse struct {
 
 func (x *GetSpanFacetValuesResponse) Reset() {
 	*x = GetSpanFacetValuesResponse{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1380,7 +1446,7 @@ func (x *GetSpanFacetValuesResponse) String() string {
 func (*GetSpanFacetValuesResponse) ProtoMessage() {}
 
 func (x *GetSpanFacetValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1393,7 +1459,7 @@ func (x *GetSpanFacetValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanFacetValuesResponse.ProtoReflect.Descriptor instead.
 func (*GetSpanFacetValuesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetSpanFacetValuesResponse) GetValues() []*SpanFacetValue {
@@ -1417,7 +1483,7 @@ type ListSpanAggregatedRequest struct {
 
 func (x *ListSpanAggregatedRequest) Reset() {
 	*x = ListSpanAggregatedRequest{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1429,7 +1495,7 @@ func (x *ListSpanAggregatedRequest) String() string {
 func (*ListSpanAggregatedRequest) ProtoMessage() {}
 
 func (x *ListSpanAggregatedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1442,7 +1508,7 @@ func (x *ListSpanAggregatedRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSpanAggregatedRequest.ProtoReflect.Descriptor instead.
 func (*ListSpanAggregatedRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListSpanAggregatedRequest) GetStartTime() *timestamppb.Timestamp {
@@ -1490,7 +1556,7 @@ type ListSpanAggregatedResponse struct {
 
 func (x *ListSpanAggregatedResponse) Reset() {
 	*x = ListSpanAggregatedResponse{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1502,7 +1568,7 @@ func (x *ListSpanAggregatedResponse) String() string {
 func (*ListSpanAggregatedResponse) ProtoMessage() {}
 
 func (x *ListSpanAggregatedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1515,7 +1581,7 @@ func (x *ListSpanAggregatedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSpanAggregatedResponse.ProtoReflect.Descriptor instead.
 func (*ListSpanAggregatedResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ListSpanAggregatedResponse) GetChart() *v1.DenseTimeSeriesChart {
@@ -1544,7 +1610,7 @@ type SpanSourceAggregate struct {
 
 func (x *SpanSourceAggregate) Reset() {
 	*x = SpanSourceAggregate{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1556,7 +1622,7 @@ func (x *SpanSourceAggregate) String() string {
 func (*SpanSourceAggregate) ProtoMessage() {}
 
 func (x *SpanSourceAggregate) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1569,7 +1635,7 @@ func (x *SpanSourceAggregate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SpanSourceAggregate.ProtoReflect.Descriptor instead.
 func (*SpanSourceAggregate) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SpanSourceAggregate) GetServiceName() string {
@@ -1620,7 +1686,7 @@ type GetSpanSourceAggregatesRequest struct {
 
 func (x *GetSpanSourceAggregatesRequest) Reset() {
 	*x = GetSpanSourceAggregatesRequest{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1632,7 +1698,7 @@ func (x *GetSpanSourceAggregatesRequest) String() string {
 func (*GetSpanSourceAggregatesRequest) ProtoMessage() {}
 
 func (x *GetSpanSourceAggregatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1645,7 +1711,7 @@ func (x *GetSpanSourceAggregatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanSourceAggregatesRequest.ProtoReflect.Descriptor instead.
 func (*GetSpanSourceAggregatesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetSpanSourceAggregatesRequest) GetStartTime() *timestamppb.Timestamp {
@@ -1672,7 +1738,7 @@ type GetSpanSourceAggregatesResponse struct {
 
 func (x *GetSpanSourceAggregatesResponse) Reset() {
 	*x = GetSpanSourceAggregatesResponse{}
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1684,7 +1750,7 @@ func (x *GetSpanSourceAggregatesResponse) String() string {
 func (*GetSpanSourceAggregatesResponse) ProtoMessage() {}
 
 func (x *GetSpanSourceAggregatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_trace_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_trace_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1697,7 +1763,7 @@ func (x *GetSpanSourceAggregatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSpanSourceAggregatesResponse.ProtoReflect.Descriptor instead.
 func (*GetSpanSourceAggregatesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_trace_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetSpanSourceAggregatesResponse) GetAggregates() []*SpanSourceAggregate {
@@ -1802,7 +1868,11 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\aspan_id\x18\x01 \x01(\tR\x06spanId\x12\x19\n" +
 	"\btrace_id\x18\x02 \x01(\tR\atraceId\"A\n" +
 	"\x0fGetSpanResponse\x12.\n" +
-	"\x04span\x18\x01 \x01(\v2\x1a.chalk.server.v1.ChalkSpanR\x04span\"\xbe\x05\n" +
+	"\x04span\x18\x01 \x01(\v2\x1a.chalk.server.v1.ChalkSpanR\x04span\"H\n" +
+	"\x0fAttributeFilter\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x19\n" +
+	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01B\b\n" +
+	"\x06_value\"\x8d\x06\n" +
 	"\x0fListSpanRequest\x12\x1e\n" +
 	"\btrace_id\x18\x01 \x01(\tH\x00R\atraceId\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -1819,7 +1889,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0fmin_duration_us\x18\n" +
 	" \x01(\x03H\tR\rminDurationUs\x88\x01\x01\x12+\n" +
 	"\x0fmax_duration_us\x18\v \x01(\x03H\n" +
-	"R\rmaxDurationUs\x88\x01\x01B\v\n" +
+	"R\rmaxDurationUs\x88\x01\x01\x12M\n" +
+	"\x11attribute_filters\x18\f \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFiltersB\v\n" +
 	"\t_trace_idB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
@@ -1922,7 +1993,7 @@ func file_chalk_server_v1_trace_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_trace_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_trace_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_chalk_server_v1_trace_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_chalk_server_v1_trace_proto_goTypes = []any{
 	(ChalkStatusCode)(0),                    // 0: chalk.server.v1.ChalkStatusCode
 	(ChalkSpanKind)(0),                      // 1: chalk.server.v1.ChalkSpanKind
@@ -1937,85 +2008,87 @@ var file_chalk_server_v1_trace_proto_goTypes = []any{
 	(*ListTraceResponse)(nil),               // 10: chalk.server.v1.ListTraceResponse
 	(*GetSpanRequest)(nil),                  // 11: chalk.server.v1.GetSpanRequest
 	(*GetSpanResponse)(nil),                 // 12: chalk.server.v1.GetSpanResponse
-	(*ListSpanRequest)(nil),                 // 13: chalk.server.v1.ListSpanRequest
-	(*ListSpanResponse)(nil),                // 14: chalk.server.v1.ListSpanResponse
-	(*SpanFacet)(nil),                       // 15: chalk.server.v1.SpanFacet
-	(*GetSpanFacetsRequest)(nil),            // 16: chalk.server.v1.GetSpanFacetsRequest
-	(*GetSpanFacetsResponse)(nil),           // 17: chalk.server.v1.GetSpanFacetsResponse
-	(*GetSpanFacetValuesRequest)(nil),       // 18: chalk.server.v1.GetSpanFacetValuesRequest
-	(*SpanFacetValue)(nil),                  // 19: chalk.server.v1.SpanFacetValue
-	(*GetSpanFacetValuesResponse)(nil),      // 20: chalk.server.v1.GetSpanFacetValuesResponse
-	(*ListSpanAggregatedRequest)(nil),       // 21: chalk.server.v1.ListSpanAggregatedRequest
-	(*ListSpanAggregatedResponse)(nil),      // 22: chalk.server.v1.ListSpanAggregatedResponse
-	(*SpanSourceAggregate)(nil),             // 23: chalk.server.v1.SpanSourceAggregate
-	(*GetSpanSourceAggregatesRequest)(nil),  // 24: chalk.server.v1.GetSpanSourceAggregatesRequest
-	(*GetSpanSourceAggregatesResponse)(nil), // 25: chalk.server.v1.GetSpanSourceAggregatesResponse
-	nil,                                     // 26: chalk.server.v1.ChalkSpan.AttributesEntry
-	nil,                                     // 27: chalk.server.v1.ChalkSpan.ResourceAttributesEntry
-	nil,                                     // 28: chalk.server.v1.ChalkSpanEvent.AttributesEntry
-	nil,                                     // 29: chalk.server.v1.ChalkSpanLink.AttributesEntry
-	nil,                                     // 30: chalk.server.v1.ChalkTrace.ResourceAttributesEntry
-	(*timestamppb.Timestamp)(nil),           // 31: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),             // 32: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),         // 33: chalk.chart.v1.DenseTimeSeriesChart
+	(*AttributeFilter)(nil),                 // 13: chalk.server.v1.AttributeFilter
+	(*ListSpanRequest)(nil),                 // 14: chalk.server.v1.ListSpanRequest
+	(*ListSpanResponse)(nil),                // 15: chalk.server.v1.ListSpanResponse
+	(*SpanFacet)(nil),                       // 16: chalk.server.v1.SpanFacet
+	(*GetSpanFacetsRequest)(nil),            // 17: chalk.server.v1.GetSpanFacetsRequest
+	(*GetSpanFacetsResponse)(nil),           // 18: chalk.server.v1.GetSpanFacetsResponse
+	(*GetSpanFacetValuesRequest)(nil),       // 19: chalk.server.v1.GetSpanFacetValuesRequest
+	(*SpanFacetValue)(nil),                  // 20: chalk.server.v1.SpanFacetValue
+	(*GetSpanFacetValuesResponse)(nil),      // 21: chalk.server.v1.GetSpanFacetValuesResponse
+	(*ListSpanAggregatedRequest)(nil),       // 22: chalk.server.v1.ListSpanAggregatedRequest
+	(*ListSpanAggregatedResponse)(nil),      // 23: chalk.server.v1.ListSpanAggregatedResponse
+	(*SpanSourceAggregate)(nil),             // 24: chalk.server.v1.SpanSourceAggregate
+	(*GetSpanSourceAggregatesRequest)(nil),  // 25: chalk.server.v1.GetSpanSourceAggregatesRequest
+	(*GetSpanSourceAggregatesResponse)(nil), // 26: chalk.server.v1.GetSpanSourceAggregatesResponse
+	nil,                                     // 27: chalk.server.v1.ChalkSpan.AttributesEntry
+	nil,                                     // 28: chalk.server.v1.ChalkSpan.ResourceAttributesEntry
+	nil,                                     // 29: chalk.server.v1.ChalkSpanEvent.AttributesEntry
+	nil,                                     // 30: chalk.server.v1.ChalkSpanLink.AttributesEntry
+	nil,                                     // 31: chalk.server.v1.ChalkTrace.ResourceAttributesEntry
+	(*timestamppb.Timestamp)(nil),           // 32: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),             // 33: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),         // 34: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_trace_proto_depIdxs = []int32{
-	31, // 0: chalk.server.v1.ChalkSpan.start_time:type_name -> google.protobuf.Timestamp
-	31, // 1: chalk.server.v1.ChalkSpan.end_time:type_name -> google.protobuf.Timestamp
-	32, // 2: chalk.server.v1.ChalkSpan.duration:type_name -> google.protobuf.Duration
+	32, // 0: chalk.server.v1.ChalkSpan.start_time:type_name -> google.protobuf.Timestamp
+	32, // 1: chalk.server.v1.ChalkSpan.end_time:type_name -> google.protobuf.Timestamp
+	33, // 2: chalk.server.v1.ChalkSpan.duration:type_name -> google.protobuf.Duration
 	3,  // 3: chalk.server.v1.ChalkSpan.status:type_name -> chalk.server.v1.ChalkSpanStatus
-	26, // 4: chalk.server.v1.ChalkSpan.attributes:type_name -> chalk.server.v1.ChalkSpan.AttributesEntry
+	27, // 4: chalk.server.v1.ChalkSpan.attributes:type_name -> chalk.server.v1.ChalkSpan.AttributesEntry
 	4,  // 5: chalk.server.v1.ChalkSpan.events:type_name -> chalk.server.v1.ChalkSpanEvent
 	5,  // 6: chalk.server.v1.ChalkSpan.links:type_name -> chalk.server.v1.ChalkSpanLink
 	1,  // 7: chalk.server.v1.ChalkSpan.kind:type_name -> chalk.server.v1.ChalkSpanKind
-	27, // 8: chalk.server.v1.ChalkSpan.resource_attributes:type_name -> chalk.server.v1.ChalkSpan.ResourceAttributesEntry
+	28, // 8: chalk.server.v1.ChalkSpan.resource_attributes:type_name -> chalk.server.v1.ChalkSpan.ResourceAttributesEntry
 	0,  // 9: chalk.server.v1.ChalkSpanStatus.code:type_name -> chalk.server.v1.ChalkStatusCode
-	31, // 10: chalk.server.v1.ChalkSpanEvent.timestamp:type_name -> google.protobuf.Timestamp
-	28, // 11: chalk.server.v1.ChalkSpanEvent.attributes:type_name -> chalk.server.v1.ChalkSpanEvent.AttributesEntry
-	29, // 12: chalk.server.v1.ChalkSpanLink.attributes:type_name -> chalk.server.v1.ChalkSpanLink.AttributesEntry
+	32, // 10: chalk.server.v1.ChalkSpanEvent.timestamp:type_name -> google.protobuf.Timestamp
+	29, // 11: chalk.server.v1.ChalkSpanEvent.attributes:type_name -> chalk.server.v1.ChalkSpanEvent.AttributesEntry
+	30, // 12: chalk.server.v1.ChalkSpanLink.attributes:type_name -> chalk.server.v1.ChalkSpanLink.AttributesEntry
 	2,  // 13: chalk.server.v1.ChalkTrace.spans:type_name -> chalk.server.v1.ChalkSpan
-	30, // 14: chalk.server.v1.ChalkTrace.resource_attributes:type_name -> chalk.server.v1.ChalkTrace.ResourceAttributesEntry
+	31, // 14: chalk.server.v1.ChalkTrace.resource_attributes:type_name -> chalk.server.v1.ChalkTrace.ResourceAttributesEntry
 	6,  // 15: chalk.server.v1.GetTraceResponse.trace:type_name -> chalk.server.v1.ChalkTrace
-	31, // 16: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
-	31, // 17: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
+	32, // 16: chalk.server.v1.ListTraceRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 17: chalk.server.v1.ListTraceRequest.end_time:type_name -> google.protobuf.Timestamp
 	6,  // 18: chalk.server.v1.ListTraceResponse.traces:type_name -> chalk.server.v1.ChalkTrace
 	2,  // 19: chalk.server.v1.GetSpanResponse.span:type_name -> chalk.server.v1.ChalkSpan
-	31, // 20: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
-	31, // 21: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
+	32, // 20: chalk.server.v1.ListSpanRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 21: chalk.server.v1.ListSpanRequest.end_time:type_name -> google.protobuf.Timestamp
 	0,  // 22: chalk.server.v1.ListSpanRequest.status_code:type_name -> chalk.server.v1.ChalkStatusCode
-	2,  // 23: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
-	15, // 24: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
-	31, // 25: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	31, // 26: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	19, // 27: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
-	31, // 28: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	31, // 29: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	32, // 30: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	33, // 31: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	31, // 32: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	31, // 33: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	23, // 34: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
-	7,  // 35: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
-	9,  // 36: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
-	11, // 37: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
-	13, // 38: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
-	16, // 39: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
-	18, // 40: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
-	21, // 41: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
-	24, // 42: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
-	8,  // 43: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
-	10, // 44: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
-	12, // 45: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
-	14, // 46: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
-	17, // 47: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
-	20, // 48: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
-	22, // 49: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
-	25, // 50: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
-	43, // [43:51] is the sub-list for method output_type
-	35, // [35:43] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	13, // 23: chalk.server.v1.ListSpanRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	2,  // 24: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
+	16, // 25: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
+	32, // 26: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 27: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	20, // 28: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
+	32, // 29: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 30: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	33, // 31: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	34, // 32: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	32, // 33: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 34: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	24, // 35: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
+	7,  // 36: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
+	9,  // 37: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
+	11, // 38: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
+	14, // 39: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
+	17, // 40: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
+	19, // 41: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
+	22, // 42: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
+	25, // 43: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
+	8,  // 44: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
+	10, // 45: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
+	12, // 46: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
+	15, // 47: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
+	18, // 48: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
+	21, // 49: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
+	23, // 50: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
+	26, // 51: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
+	44, // [44:52] is the sub-list for method output_type
+	36, // [36:44] is the sub-list for method input_type
+	36, // [36:36] is the sub-list for extension type_name
+	36, // [36:36] is the sub-list for extension extendee
+	0,  // [0:36] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_trace_proto_init() }
@@ -2031,16 +2104,17 @@ func file_chalk_server_v1_trace_proto_init() {
 	file_chalk_server_v1_trace_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_trace_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_trace_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_trace_proto_msgTypes[16].OneofWrappers = []any{}
-	file_chalk_server_v1_trace_proto_msgTypes[19].OneofWrappers = []any{}
-	file_chalk_server_v1_trace_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_trace_proto_msgTypes[23].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_trace_proto_rawDesc), len(file_chalk_server_v1_trace_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   29,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

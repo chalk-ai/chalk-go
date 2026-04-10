@@ -547,7 +547,12 @@ func (*MetadataServiceAgent) Descriptor() ([]byte, []int) {
 }
 
 type TenantAgent struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional team scope. When set, GetTeam returns this value.
+	TeamId string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	// Optional permission list. When non-empty, the token is restricted to only
+	// these permissions instead of the default all-bypass behaviour.
+	Permissions   []Permission `protobuf:"varint,2,rep,packed,name=permissions,proto3,enum=chalk.auth.v1.Permission" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -580,6 +585,20 @@ func (x *TenantAgent) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TenantAgent.ProtoReflect.Descriptor instead.
 func (*TenantAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TenantAgent) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+func (x *TenantAgent) GetPermissions() []Permission {
+	if x != nil {
+		return x.Permissions
+	}
+	return nil
 }
 
 type Agent struct {
@@ -753,8 +772,10 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x12\"\n" +
 	"\fimpersonated\x18\x05 \x01(\bR\fimpersonated\"\x16\n" +
-	"\x14MetadataServiceAgent\"\r\n" +
-	"\vTenantAgent\"\xfe\x02\n" +
+	"\x14MetadataServiceAgent\"c\n" +
+	"\vTenantAgent\x12\x17\n" +
+	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12;\n" +
+	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\"\xfe\x02\n" +
 	"\x05Agent\x129\n" +
 	"\n" +
 	"user_agent\x18\x01 \x01(\v2\x18.chalk.auth.v1.UserAgentH\x00R\tuserAgent\x12R\n" +
@@ -813,17 +834,18 @@ var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
 	4,  // 7: chalk.auth.v1.ServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
 	12, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	11, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
-	3,  // 10: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
-	5,  // 11: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	6,  // 12: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
-	8,  // 13: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
-	7,  // 14: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
-	1,  // 15: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	11, // 10: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
+	3,  // 11: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
+	5,  // 12: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	6,  // 13: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
+	8,  // 14: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
+	7,  // 15: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
+	1,  // 16: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_agent_proto_init() }
