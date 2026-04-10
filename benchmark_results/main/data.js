@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775705111589,
+  "lastUpdate": 1775824406728,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -34374,6 +34374,60 @@ window.BENCHMARK_DATA = {
             "value": 346.1,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "kaiyuan.neo@gmail.com",
+            "name": "Kai Yuan Neo",
+            "username": "neokaiyuan"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "c0f1d51a0935236346005f7524cdc307a942c519",
+          "message": "Merge pull request #629 from chalk-ai/kai/cancel-offline-query-sdk\n\nAdd cancel offline query functionality to Go SDK",
+          "timestamp": "2026-04-10T20:32:40+08:00",
+          "tree_id": "e2c4ed784cfcb846fa14ff9dae56e4cb9d2ce549",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/c0f1d51a0935236346005f7524cdc307a942c519"
+        },
+        "date": 1775824406633,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.095,
+            "unit": "ms/op",
+            "extra": "1138 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 108,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 33.47,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 198.3,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 308,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
