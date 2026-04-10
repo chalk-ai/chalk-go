@@ -48,6 +48,24 @@ const (
 	// KubeServiceGetKubernetesAutoscalersProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesAutoscalers RPC.
 	KubeServiceGetKubernetesAutoscalersProcedure = "/chalk.server.v1.KubeService/GetKubernetesAutoscalers"
+	// KubeServiceGetKubernetesDeploymentsProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesDeployments RPC.
+	KubeServiceGetKubernetesDeploymentsProcedure = "/chalk.server.v1.KubeService/GetKubernetesDeployments"
+	// KubeServiceGetKubernetesStatefulSetsProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesStatefulSets RPC.
+	KubeServiceGetKubernetesStatefulSetsProcedure = "/chalk.server.v1.KubeService/GetKubernetesStatefulSets"
+	// KubeServiceGetKubernetesJobsProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesJobs RPC.
+	KubeServiceGetKubernetesJobsProcedure = "/chalk.server.v1.KubeService/GetKubernetesJobs"
+	// KubeServiceGetKubernetesDeploymentWithPodsProcedure is the fully-qualified name of the
+	// KubeService's GetKubernetesDeploymentWithPods RPC.
+	KubeServiceGetKubernetesDeploymentWithPodsProcedure = "/chalk.server.v1.KubeService/GetKubernetesDeploymentWithPods"
+	// KubeServiceGetKubernetesStatefulSetWithPodsProcedure is the fully-qualified name of the
+	// KubeService's GetKubernetesStatefulSetWithPods RPC.
+	KubeServiceGetKubernetesStatefulSetWithPodsProcedure = "/chalk.server.v1.KubeService/GetKubernetesStatefulSetWithPods"
+	// KubeServiceGetKubernetesJobWithPodsProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesJobWithPods RPC.
+	KubeServiceGetKubernetesJobWithPodsProcedure = "/chalk.server.v1.KubeService/GetKubernetesJobWithPods"
 )
 
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
@@ -59,6 +77,14 @@ type KubeServiceClient interface {
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
+	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
+	GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error)
+	GetKubernetesJobs(context.Context, *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error)
+	// GetKubernetesDeploymentWithPods fetches a single deployment by name/namespace/cluster
+	// and its associated pods, resolved via the deployment's matchLabels selector.
+	GetKubernetesDeploymentWithPods(context.Context, *connect.Request[v1.GetKubernetesDeploymentWithPodsRequest]) (*connect.Response[v1.GetKubernetesDeploymentWithPodsResponse], error)
+	GetKubernetesStatefulSetWithPods(context.Context, *connect.Request[v1.GetKubernetesStatefulSetWithPodsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetWithPodsResponse], error)
+	GetKubernetesJobWithPods(context.Context, *connect.Request[v1.GetKubernetesJobWithPodsRequest]) (*connect.Response[v1.GetKubernetesJobWithPodsResponse], error)
 }
 
 // NewKubeServiceClient constructs a client for the chalk.server.v1.KubeService service. By default,
@@ -107,16 +133,64 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getKubernetesDeployments: connect.NewClient[v1.GetKubernetesDeploymentsRequest, v1.GetKubernetesDeploymentsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesDeploymentsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesDeployments")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesStatefulSets: connect.NewClient[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesStatefulSetsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStatefulSets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesJobs: connect.NewClient[v1.GetKubernetesJobsRequest, v1.GetKubernetesJobsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesJobsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesJobs")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesDeploymentWithPods: connect.NewClient[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesDeploymentWithPodsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesDeploymentWithPods")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesStatefulSetWithPods: connect.NewClient[v1.GetKubernetesStatefulSetWithPodsRequest, v1.GetKubernetesStatefulSetWithPodsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesStatefulSetWithPodsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStatefulSetWithPods")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesJobWithPods: connect.NewClient[v1.GetKubernetesJobWithPodsRequest, v1.GetKubernetesJobWithPodsResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesJobWithPodsProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesJobWithPods")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // kubeServiceClient implements KubeServiceClient.
 type kubeServiceClient struct {
-	getPodStackTraceDump           *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
-	getKubernetesEvents            *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
-	getKubernetesPersistentVolumes *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
-	getKubernetesServiceAccounts   *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
-	getKubernetesAutoscalers       *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
+	getPodStackTraceDump             *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
+	getKubernetesEvents              *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
+	getKubernetesPersistentVolumes   *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
+	getKubernetesServiceAccounts     *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
+	getKubernetesAutoscalers         *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
+	getKubernetesDeployments         *connect.Client[v1.GetKubernetesDeploymentsRequest, v1.GetKubernetesDeploymentsResponse]
+	getKubernetesStatefulSets        *connect.Client[v1.GetKubernetesStatefulSetsRequest, v1.GetKubernetesStatefulSetsResponse]
+	getKubernetesJobs                *connect.Client[v1.GetKubernetesJobsRequest, v1.GetKubernetesJobsResponse]
+	getKubernetesDeploymentWithPods  *connect.Client[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse]
+	getKubernetesStatefulSetWithPods *connect.Client[v1.GetKubernetesStatefulSetWithPodsRequest, v1.GetKubernetesStatefulSetWithPodsResponse]
+	getKubernetesJobWithPods         *connect.Client[v1.GetKubernetesJobWithPodsRequest, v1.GetKubernetesJobWithPodsResponse]
 }
 
 // GetPodStackTraceDump calls chalk.server.v1.KubeService.GetPodStackTraceDump.
@@ -144,6 +218,38 @@ func (c *kubeServiceClient) GetKubernetesAutoscalers(ctx context.Context, req *c
 	return c.getKubernetesAutoscalers.CallUnary(ctx, req)
 }
 
+// GetKubernetesDeployments calls chalk.server.v1.KubeService.GetKubernetesDeployments.
+func (c *kubeServiceClient) GetKubernetesDeployments(ctx context.Context, req *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error) {
+	return c.getKubernetesDeployments.CallUnary(ctx, req)
+}
+
+// GetKubernetesStatefulSets calls chalk.server.v1.KubeService.GetKubernetesStatefulSets.
+func (c *kubeServiceClient) GetKubernetesStatefulSets(ctx context.Context, req *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error) {
+	return c.getKubernetesStatefulSets.CallUnary(ctx, req)
+}
+
+// GetKubernetesJobs calls chalk.server.v1.KubeService.GetKubernetesJobs.
+func (c *kubeServiceClient) GetKubernetesJobs(ctx context.Context, req *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error) {
+	return c.getKubernetesJobs.CallUnary(ctx, req)
+}
+
+// GetKubernetesDeploymentWithPods calls
+// chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods.
+func (c *kubeServiceClient) GetKubernetesDeploymentWithPods(ctx context.Context, req *connect.Request[v1.GetKubernetesDeploymentWithPodsRequest]) (*connect.Response[v1.GetKubernetesDeploymentWithPodsResponse], error) {
+	return c.getKubernetesDeploymentWithPods.CallUnary(ctx, req)
+}
+
+// GetKubernetesStatefulSetWithPods calls
+// chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods.
+func (c *kubeServiceClient) GetKubernetesStatefulSetWithPods(ctx context.Context, req *connect.Request[v1.GetKubernetesStatefulSetWithPodsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetWithPodsResponse], error) {
+	return c.getKubernetesStatefulSetWithPods.CallUnary(ctx, req)
+}
+
+// GetKubernetesJobWithPods calls chalk.server.v1.KubeService.GetKubernetesJobWithPods.
+func (c *kubeServiceClient) GetKubernetesJobWithPods(ctx context.Context, req *connect.Request[v1.GetKubernetesJobWithPodsRequest]) (*connect.Response[v1.GetKubernetesJobWithPodsResponse], error) {
+	return c.getKubernetesJobWithPods.CallUnary(ctx, req)
+}
+
 // KubeServiceHandler is an implementation of the chalk.server.v1.KubeService service.
 type KubeServiceHandler interface {
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
@@ -153,6 +259,14 @@ type KubeServiceHandler interface {
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
+	GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error)
+	GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error)
+	GetKubernetesJobs(context.Context, *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error)
+	// GetKubernetesDeploymentWithPods fetches a single deployment by name/namespace/cluster
+	// and its associated pods, resolved via the deployment's matchLabels selector.
+	GetKubernetesDeploymentWithPods(context.Context, *connect.Request[v1.GetKubernetesDeploymentWithPodsRequest]) (*connect.Response[v1.GetKubernetesDeploymentWithPodsResponse], error)
+	GetKubernetesStatefulSetWithPods(context.Context, *connect.Request[v1.GetKubernetesStatefulSetWithPodsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetWithPodsResponse], error)
+	GetKubernetesJobWithPods(context.Context, *connect.Request[v1.GetKubernetesJobWithPodsRequest]) (*connect.Response[v1.GetKubernetesJobWithPodsResponse], error)
 }
 
 // NewKubeServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -197,6 +311,48 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeServiceGetKubernetesDeploymentsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesDeploymentsProcedure,
+		svc.GetKubernetesDeployments,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesDeployments")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesStatefulSetsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesStatefulSetsProcedure,
+		svc.GetKubernetesStatefulSets,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStatefulSets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesJobsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesJobsProcedure,
+		svc.GetKubernetesJobs,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesJobs")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesDeploymentWithPodsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesDeploymentWithPodsProcedure,
+		svc.GetKubernetesDeploymentWithPods,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesDeploymentWithPods")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesStatefulSetWithPodsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesStatefulSetWithPodsProcedure,
+		svc.GetKubernetesStatefulSetWithPods,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesStatefulSetWithPods")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesJobWithPodsHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesJobWithPodsProcedure,
+		svc.GetKubernetesJobWithPods,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesJobWithPods")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.KubeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeServiceGetPodStackTraceDumpProcedure:
@@ -209,6 +365,18 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetKubernetesServiceAccountsHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesAutoscalersProcedure:
 			kubeServiceGetKubernetesAutoscalersHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesDeploymentsProcedure:
+			kubeServiceGetKubernetesDeploymentsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesStatefulSetsProcedure:
+			kubeServiceGetKubernetesStatefulSetsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesJobsProcedure:
+			kubeServiceGetKubernetesJobsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesDeploymentWithPodsProcedure:
+			kubeServiceGetKubernetesDeploymentWithPodsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesStatefulSetWithPodsProcedure:
+			kubeServiceGetKubernetesStatefulSetWithPodsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesJobWithPodsProcedure:
+			kubeServiceGetKubernetesJobWithPodsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -236,4 +404,28 @@ func (UnimplementedKubeServiceHandler) GetKubernetesServiceAccounts(context.Cont
 
 func (UnimplementedKubeServiceHandler) GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesAutoscalers is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesDeployments(context.Context, *connect.Request[v1.GetKubernetesDeploymentsRequest]) (*connect.Response[v1.GetKubernetesDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesDeployments is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesStatefulSets(context.Context, *connect.Request[v1.GetKubernetesStatefulSetsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesStatefulSets is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesJobs(context.Context, *connect.Request[v1.GetKubernetesJobsRequest]) (*connect.Response[v1.GetKubernetesJobsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesJobs is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesDeploymentWithPods(context.Context, *connect.Request[v1.GetKubernetesDeploymentWithPodsRequest]) (*connect.Response[v1.GetKubernetesDeploymentWithPodsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesDeploymentWithPods is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesStatefulSetWithPods(context.Context, *connect.Request[v1.GetKubernetesStatefulSetWithPodsRequest]) (*connect.Response[v1.GetKubernetesStatefulSetWithPodsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesStatefulSetWithPods is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesJobWithPods(context.Context, *connect.Request[v1.GetKubernetesJobWithPodsRequest]) (*connect.Response[v1.GetKubernetesJobWithPodsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesJobWithPods is not implemented"))
 }
