@@ -21,6 +21,9 @@ import (
 const _ = connect.IsAtLeastVersion1_13_0
 
 const (
+	// DataPlaneObjectStorageServiceName is the fully-qualified name of the
+	// DataPlaneObjectStorageService service.
+	DataPlaneObjectStorageServiceName = "chalk.volume.v1.DataPlaneObjectStorageService"
 	// VolumeServiceName is the fully-qualified name of the VolumeService service.
 	VolumeServiceName = "chalk.volume.v1.VolumeService"
 )
@@ -33,6 +36,12 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// DataPlaneObjectStorageServiceGetObjectUploadUriProcedure is the fully-qualified name of the
+	// DataPlaneObjectStorageService's GetObjectUploadUri RPC.
+	DataPlaneObjectStorageServiceGetObjectUploadUriProcedure = "/chalk.volume.v1.DataPlaneObjectStorageService/GetObjectUploadUri"
+	// DataPlaneObjectStorageServiceGetObjectDownloadUriProcedure is the fully-qualified name of the
+	// DataPlaneObjectStorageService's GetObjectDownloadUri RPC.
+	DataPlaneObjectStorageServiceGetObjectDownloadUriProcedure = "/chalk.volume.v1.DataPlaneObjectStorageService/GetObjectDownloadUri"
 	// VolumeServiceCreateVolumeProcedure is the fully-qualified name of the VolumeService's
 	// CreateVolume RPC.
 	VolumeServiceCreateVolumeProcedure = "/chalk.volume.v1.VolumeService/CreateVolume"
@@ -54,6 +63,107 @@ const (
 	// RPC.
 	VolumeServiceRemoveFileProcedure = "/chalk.volume.v1.VolumeService/RemoveFile"
 )
+
+// DataPlaneObjectStorageServiceClient is a client for the
+// chalk.volume.v1.DataPlaneObjectStorageService service.
+type DataPlaneObjectStorageServiceClient interface {
+	GetObjectUploadUri(context.Context, *connect.Request[v1.GetObjectUploadUriRequest]) (*connect.Response[v1.GetObjectUploadUriResponse], error)
+	GetObjectDownloadUri(context.Context, *connect.Request[v1.GetObjectDownloadUriRequest]) (*connect.Response[v1.GetObjectDownloadUriResponse], error)
+}
+
+// NewDataPlaneObjectStorageServiceClient constructs a client for the
+// chalk.volume.v1.DataPlaneObjectStorageService service. By default, it uses the Connect protocol
+// with the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To
+// use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb()
+// options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewDataPlaneObjectStorageServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) DataPlaneObjectStorageServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	dataPlaneObjectStorageServiceMethods := v1.File_chalk_volume_v1_volume_proto.Services().ByName("DataPlaneObjectStorageService").Methods()
+	return &dataPlaneObjectStorageServiceClient{
+		getObjectUploadUri: connect.NewClient[v1.GetObjectUploadUriRequest, v1.GetObjectUploadUriResponse](
+			httpClient,
+			baseURL+DataPlaneObjectStorageServiceGetObjectUploadUriProcedure,
+			connect.WithSchema(dataPlaneObjectStorageServiceMethods.ByName("GetObjectUploadUri")),
+			connect.WithClientOptions(opts...),
+		),
+		getObjectDownloadUri: connect.NewClient[v1.GetObjectDownloadUriRequest, v1.GetObjectDownloadUriResponse](
+			httpClient,
+			baseURL+DataPlaneObjectStorageServiceGetObjectDownloadUriProcedure,
+			connect.WithSchema(dataPlaneObjectStorageServiceMethods.ByName("GetObjectDownloadUri")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// dataPlaneObjectStorageServiceClient implements DataPlaneObjectStorageServiceClient.
+type dataPlaneObjectStorageServiceClient struct {
+	getObjectUploadUri   *connect.Client[v1.GetObjectUploadUriRequest, v1.GetObjectUploadUriResponse]
+	getObjectDownloadUri *connect.Client[v1.GetObjectDownloadUriRequest, v1.GetObjectDownloadUriResponse]
+}
+
+// GetObjectUploadUri calls chalk.volume.v1.DataPlaneObjectStorageService.GetObjectUploadUri.
+func (c *dataPlaneObjectStorageServiceClient) GetObjectUploadUri(ctx context.Context, req *connect.Request[v1.GetObjectUploadUriRequest]) (*connect.Response[v1.GetObjectUploadUriResponse], error) {
+	return c.getObjectUploadUri.CallUnary(ctx, req)
+}
+
+// GetObjectDownloadUri calls chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri.
+func (c *dataPlaneObjectStorageServiceClient) GetObjectDownloadUri(ctx context.Context, req *connect.Request[v1.GetObjectDownloadUriRequest]) (*connect.Response[v1.GetObjectDownloadUriResponse], error) {
+	return c.getObjectDownloadUri.CallUnary(ctx, req)
+}
+
+// DataPlaneObjectStorageServiceHandler is an implementation of the
+// chalk.volume.v1.DataPlaneObjectStorageService service.
+type DataPlaneObjectStorageServiceHandler interface {
+	GetObjectUploadUri(context.Context, *connect.Request[v1.GetObjectUploadUriRequest]) (*connect.Response[v1.GetObjectUploadUriResponse], error)
+	GetObjectDownloadUri(context.Context, *connect.Request[v1.GetObjectDownloadUriRequest]) (*connect.Response[v1.GetObjectDownloadUriResponse], error)
+}
+
+// NewDataPlaneObjectStorageServiceHandler builds an HTTP handler from the service implementation.
+// It returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewDataPlaneObjectStorageServiceHandler(svc DataPlaneObjectStorageServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	dataPlaneObjectStorageServiceMethods := v1.File_chalk_volume_v1_volume_proto.Services().ByName("DataPlaneObjectStorageService").Methods()
+	dataPlaneObjectStorageServiceGetObjectUploadUriHandler := connect.NewUnaryHandler(
+		DataPlaneObjectStorageServiceGetObjectUploadUriProcedure,
+		svc.GetObjectUploadUri,
+		connect.WithSchema(dataPlaneObjectStorageServiceMethods.ByName("GetObjectUploadUri")),
+		connect.WithHandlerOptions(opts...),
+	)
+	dataPlaneObjectStorageServiceGetObjectDownloadUriHandler := connect.NewUnaryHandler(
+		DataPlaneObjectStorageServiceGetObjectDownloadUriProcedure,
+		svc.GetObjectDownloadUri,
+		connect.WithSchema(dataPlaneObjectStorageServiceMethods.ByName("GetObjectDownloadUri")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.volume.v1.DataPlaneObjectStorageService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case DataPlaneObjectStorageServiceGetObjectUploadUriProcedure:
+			dataPlaneObjectStorageServiceGetObjectUploadUriHandler.ServeHTTP(w, r)
+		case DataPlaneObjectStorageServiceGetObjectDownloadUriProcedure:
+			dataPlaneObjectStorageServiceGetObjectDownloadUriHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedDataPlaneObjectStorageServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedDataPlaneObjectStorageServiceHandler struct{}
+
+func (UnimplementedDataPlaneObjectStorageServiceHandler) GetObjectUploadUri(context.Context, *connect.Request[v1.GetObjectUploadUriRequest]) (*connect.Response[v1.GetObjectUploadUriResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v1.DataPlaneObjectStorageService.GetObjectUploadUri is not implemented"))
+}
+
+func (UnimplementedDataPlaneObjectStorageServiceHandler) GetObjectDownloadUri(context.Context, *connect.Request[v1.GetObjectDownloadUriRequest]) (*connect.Response[v1.GetObjectDownloadUriResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri is not implemented"))
+}
 
 // VolumeServiceClient is a client for the chalk.volume.v1.VolumeService service.
 type VolumeServiceClient interface {
