@@ -77,6 +77,13 @@ func (m *mockQueryServer) GetAggregates(
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
+func (m *mockQueryServer) GetPullQueryResult(
+	ctx context.Context,
+	req *connect.Request[enginev1.GetPullQueryResultRequest],
+) (*connect.Response[enginev1.GetPullQueryResultResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
 type mockAuthServer struct{}
 
 func (m *mockAuthServer) GetToken(
