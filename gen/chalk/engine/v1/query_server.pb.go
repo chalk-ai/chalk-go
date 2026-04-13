@@ -24,6 +24,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PullQueryStatus int32
+
+const (
+	PullQueryStatus_PULL_QUERY_STATUS_UNSPECIFIED PullQueryStatus = 0
+	PullQueryStatus_PULL_QUERY_STATUS_PENDING     PullQueryStatus = 1
+	PullQueryStatus_PULL_QUERY_STATUS_COMPLETED   PullQueryStatus = 2
+	PullQueryStatus_PULL_QUERY_STATUS_FAILED      PullQueryStatus = 3
+	PullQueryStatus_PULL_QUERY_STATUS_NOT_FOUND   PullQueryStatus = 4
+)
+
+// Enum value maps for PullQueryStatus.
+var (
+	PullQueryStatus_name = map[int32]string{
+		0: "PULL_QUERY_STATUS_UNSPECIFIED",
+		1: "PULL_QUERY_STATUS_PENDING",
+		2: "PULL_QUERY_STATUS_COMPLETED",
+		3: "PULL_QUERY_STATUS_FAILED",
+		4: "PULL_QUERY_STATUS_NOT_FOUND",
+	}
+	PullQueryStatus_value = map[string]int32{
+		"PULL_QUERY_STATUS_UNSPECIFIED": 0,
+		"PULL_QUERY_STATUS_PENDING":     1,
+		"PULL_QUERY_STATUS_COMPLETED":   2,
+		"PULL_QUERY_STATUS_FAILED":      3,
+		"PULL_QUERY_STATUS_NOT_FOUND":   4,
+	}
+)
+
+func (x PullQueryStatus) Enum() *PullQueryStatus {
+	p := new(PullQueryStatus)
+	*p = x
+	return p
+}
+
+func (x PullQueryStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PullQueryStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_engine_v1_query_server_proto_enumTypes[0].Descriptor()
+}
+
+func (PullQueryStatus) Type() protoreflect.EnumType {
+	return &file_chalk_engine_v1_query_server_proto_enumTypes[0]
+}
+
+func (x PullQueryStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PullQueryStatus.Descriptor instead.
+func (PullQueryStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_query_server_proto_rawDescGZIP(), []int{0}
+}
+
 type PingRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Num           int32                  `protobuf:"varint,1,opt,name=num,proto3" json:"num,omitempty"`
@@ -112,6 +167,110 @@ func (x *PingResponse) GetNum() int32 {
 	return 0
 }
 
+type GetPullQueryResultRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	QueryId       string                 `protobuf:"bytes,1,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPullQueryResultRequest) Reset() {
+	*x = GetPullQueryResultRequest{}
+	mi := &file_chalk_engine_v1_query_server_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPullQueryResultRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPullQueryResultRequest) ProtoMessage() {}
+
+func (x *GetPullQueryResultRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_query_server_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPullQueryResultRequest.ProtoReflect.Descriptor instead.
+func (*GetPullQueryResultRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_query_server_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetPullQueryResultRequest) GetQueryId() string {
+	if x != nil {
+		return x.QueryId
+	}
+	return ""
+}
+
+type GetPullQueryResultResponse struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Status        PullQueryStatus             `protobuf:"varint,1,opt,name=status,proto3,enum=chalk.engine.v1.PullQueryStatus" json:"status,omitempty"`
+	Result        *v1.OnlineQueryBulkResponse `protobuf:"bytes,2,opt,name=result,proto3" json:"result,omitempty"`
+	ErrorMessage  string                      `protobuf:"bytes,3,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPullQueryResultResponse) Reset() {
+	*x = GetPullQueryResultResponse{}
+	mi := &file_chalk_engine_v1_query_server_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPullQueryResultResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPullQueryResultResponse) ProtoMessage() {}
+
+func (x *GetPullQueryResultResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_engine_v1_query_server_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPullQueryResultResponse.ProtoReflect.Descriptor instead.
+func (*GetPullQueryResultResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_engine_v1_query_server_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetPullQueryResultResponse) GetStatus() PullQueryStatus {
+	if x != nil {
+		return x.Status
+	}
+	return PullQueryStatus_PULL_QUERY_STATUS_UNSPECIFIED
+}
+
+func (x *GetPullQueryResultResponse) GetResult() *v1.OnlineQueryBulkResponse {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+func (x *GetPullQueryResultResponse) GetErrorMessage() string {
+	if x != nil {
+		return x.ErrorMessage
+	}
+	return ""
+}
+
 var File_chalk_engine_v1_query_server_proto protoreflect.FileDescriptor
 
 const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
@@ -120,7 +279,19 @@ const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
 	"\vPingRequest\x12\x10\n" +
 	"\x03num\x18\x01 \x01(\x05R\x03num\" \n" +
 	"\fPingResponse\x12\x10\n" +
-	"\x03num\x18\x01 \x01(\x05R\x03num2\xe4\x06\n" +
+	"\x03num\x18\x01 \x01(\x05R\x03num\"6\n" +
+	"\x19GetPullQueryResultRequest\x12\x19\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xbd\x01\n" +
+	"\x1aGetPullQueryResultResponse\x128\n" +
+	"\x06status\x18\x01 \x01(\x0e2 .chalk.engine.v1.PullQueryStatusR\x06status\x12@\n" +
+	"\x06result\x18\x02 \x01(\v2(.chalk.common.v1.OnlineQueryBulkResponseR\x06result\x12#\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage*\xb3\x01\n" +
+	"\x0fPullQueryStatus\x12!\n" +
+	"\x1dPULL_QUERY_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19PULL_QUERY_STATUS_PENDING\x10\x01\x12\x1f\n" +
+	"\x1bPULL_QUERY_STATUS_COMPLETED\x10\x02\x12\x1c\n" +
+	"\x18PULL_QUERY_STATUS_FAILED\x10\x03\x12\x1f\n" +
+	"\x1bPULL_QUERY_STATUS_NOT_FOUND\x10\x042\xdb\a\n" +
 	"\fQueryService\x12K\n" +
 	"\x04Ping\x12\x1c.chalk.engine.v1.PingRequest\x1a\x1d.chalk.engine.v1.PingResponse\"\x06\x80}\x01\x90\x02\x01\x12]\n" +
 	"\vOnlineQuery\x12#.chalk.common.v1.OnlineQueryRequest\x1a$.chalk.common.v1.OnlineQueryResponse\"\x03\x80}\x03\x12i\n" +
@@ -129,7 +300,8 @@ const file_chalk_engine_v1_query_server_proto_rawDesc = "" +
 	"\x12UploadFeaturesBulk\x12*.chalk.common.v1.UploadFeaturesBulkRequest\x1a+.chalk.common.v1.UploadFeaturesBulkResponse\"\x03\x80}\x03\x12f\n" +
 	"\x0eUploadFeatures\x12&.chalk.common.v1.UploadFeaturesRequest\x1a'.chalk.common.v1.UploadFeaturesResponse\"\x03\x80}\x03\x12\x84\x01\n" +
 	"\x15PlanAggregateBackfill\x120.chalk.aggregate.v1.PlanAggregateBackfillRequest\x1a1.chalk.aggregate.v1.PlanAggregateBackfillResponse\"\x06\x80}\f\x90\x02\x01\x12l\n" +
-	"\rGetAggregates\x12(.chalk.aggregate.v1.GetAggregatesRequest\x1a).chalk.aggregate.v1.GetAggregatesResponse\"\x06\x80}\v\x90\x02\x01B\xc0\x01\n" +
+	"\rGetAggregates\x12(.chalk.aggregate.v1.GetAggregatesRequest\x1a).chalk.aggregate.v1.GetAggregatesResponse\"\x06\x80}\v\x90\x02\x01\x12u\n" +
+	"\x12GetPullQueryResult\x12*.chalk.engine.v1.GetPullQueryResultRequest\x1a+.chalk.engine.v1.GetPullQueryResultResponse\"\x06\x80}\x03\x90\x02\x01B\xc0\x01\n" +
 	"\x13com.chalk.engine.v1B\x10QueryServerProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/engine/v1;enginev1\xa2\x02\x03CEX\xaa\x02\x0fChalk.Engine.V1\xca\x02\x0fChalk\\Engine\\V1\xe2\x02\x1bChalk\\Engine\\V1\\GPBMetadata\xea\x02\x11Chalk::Engine::V1b\x06proto3"
 
 var (
@@ -144,47 +316,55 @@ func file_chalk_engine_v1_query_server_proto_rawDescGZIP() []byte {
 	return file_chalk_engine_v1_query_server_proto_rawDescData
 }
 
-var file_chalk_engine_v1_query_server_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_chalk_engine_v1_query_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_engine_v1_query_server_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_chalk_engine_v1_query_server_proto_goTypes = []any{
-	(*PingRequest)(nil),                       // 0: chalk.engine.v1.PingRequest
-	(*PingResponse)(nil),                      // 1: chalk.engine.v1.PingResponse
-	(*v1.OnlineQueryRequest)(nil),             // 2: chalk.common.v1.OnlineQueryRequest
-	(*v1.OnlineQueryBulkRequest)(nil),         // 3: chalk.common.v1.OnlineQueryBulkRequest
-	(*v1.OnlineQueryMultiRequest)(nil),        // 4: chalk.common.v1.OnlineQueryMultiRequest
-	(*v1.UploadFeaturesBulkRequest)(nil),      // 5: chalk.common.v1.UploadFeaturesBulkRequest
-	(*v1.UploadFeaturesRequest)(nil),          // 6: chalk.common.v1.UploadFeaturesRequest
-	(*v11.PlanAggregateBackfillRequest)(nil),  // 7: chalk.aggregate.v1.PlanAggregateBackfillRequest
-	(*v11.GetAggregatesRequest)(nil),          // 8: chalk.aggregate.v1.GetAggregatesRequest
-	(*v1.OnlineQueryResponse)(nil),            // 9: chalk.common.v1.OnlineQueryResponse
-	(*v1.OnlineQueryBulkResponse)(nil),        // 10: chalk.common.v1.OnlineQueryBulkResponse
-	(*v1.OnlineQueryMultiResponse)(nil),       // 11: chalk.common.v1.OnlineQueryMultiResponse
-	(*v1.UploadFeaturesBulkResponse)(nil),     // 12: chalk.common.v1.UploadFeaturesBulkResponse
-	(*v1.UploadFeaturesResponse)(nil),         // 13: chalk.common.v1.UploadFeaturesResponse
-	(*v11.PlanAggregateBackfillResponse)(nil), // 14: chalk.aggregate.v1.PlanAggregateBackfillResponse
-	(*v11.GetAggregatesResponse)(nil),         // 15: chalk.aggregate.v1.GetAggregatesResponse
+	(PullQueryStatus)(0),                      // 0: chalk.engine.v1.PullQueryStatus
+	(*PingRequest)(nil),                       // 1: chalk.engine.v1.PingRequest
+	(*PingResponse)(nil),                      // 2: chalk.engine.v1.PingResponse
+	(*GetPullQueryResultRequest)(nil),         // 3: chalk.engine.v1.GetPullQueryResultRequest
+	(*GetPullQueryResultResponse)(nil),        // 4: chalk.engine.v1.GetPullQueryResultResponse
+	(*v1.OnlineQueryBulkResponse)(nil),        // 5: chalk.common.v1.OnlineQueryBulkResponse
+	(*v1.OnlineQueryRequest)(nil),             // 6: chalk.common.v1.OnlineQueryRequest
+	(*v1.OnlineQueryBulkRequest)(nil),         // 7: chalk.common.v1.OnlineQueryBulkRequest
+	(*v1.OnlineQueryMultiRequest)(nil),        // 8: chalk.common.v1.OnlineQueryMultiRequest
+	(*v1.UploadFeaturesBulkRequest)(nil),      // 9: chalk.common.v1.UploadFeaturesBulkRequest
+	(*v1.UploadFeaturesRequest)(nil),          // 10: chalk.common.v1.UploadFeaturesRequest
+	(*v11.PlanAggregateBackfillRequest)(nil),  // 11: chalk.aggregate.v1.PlanAggregateBackfillRequest
+	(*v11.GetAggregatesRequest)(nil),          // 12: chalk.aggregate.v1.GetAggregatesRequest
+	(*v1.OnlineQueryResponse)(nil),            // 13: chalk.common.v1.OnlineQueryResponse
+	(*v1.OnlineQueryMultiResponse)(nil),       // 14: chalk.common.v1.OnlineQueryMultiResponse
+	(*v1.UploadFeaturesBulkResponse)(nil),     // 15: chalk.common.v1.UploadFeaturesBulkResponse
+	(*v1.UploadFeaturesResponse)(nil),         // 16: chalk.common.v1.UploadFeaturesResponse
+	(*v11.PlanAggregateBackfillResponse)(nil), // 17: chalk.aggregate.v1.PlanAggregateBackfillResponse
+	(*v11.GetAggregatesResponse)(nil),         // 18: chalk.aggregate.v1.GetAggregatesResponse
 }
 var file_chalk_engine_v1_query_server_proto_depIdxs = []int32{
-	0,  // 0: chalk.engine.v1.QueryService.Ping:input_type -> chalk.engine.v1.PingRequest
-	2,  // 1: chalk.engine.v1.QueryService.OnlineQuery:input_type -> chalk.common.v1.OnlineQueryRequest
-	3,  // 2: chalk.engine.v1.QueryService.OnlineQueryBulk:input_type -> chalk.common.v1.OnlineQueryBulkRequest
-	4,  // 3: chalk.engine.v1.QueryService.OnlineQueryMulti:input_type -> chalk.common.v1.OnlineQueryMultiRequest
-	5,  // 4: chalk.engine.v1.QueryService.UploadFeaturesBulk:input_type -> chalk.common.v1.UploadFeaturesBulkRequest
-	6,  // 5: chalk.engine.v1.QueryService.UploadFeatures:input_type -> chalk.common.v1.UploadFeaturesRequest
-	7,  // 6: chalk.engine.v1.QueryService.PlanAggregateBackfill:input_type -> chalk.aggregate.v1.PlanAggregateBackfillRequest
-	8,  // 7: chalk.engine.v1.QueryService.GetAggregates:input_type -> chalk.aggregate.v1.GetAggregatesRequest
-	1,  // 8: chalk.engine.v1.QueryService.Ping:output_type -> chalk.engine.v1.PingResponse
-	9,  // 9: chalk.engine.v1.QueryService.OnlineQuery:output_type -> chalk.common.v1.OnlineQueryResponse
-	10, // 10: chalk.engine.v1.QueryService.OnlineQueryBulk:output_type -> chalk.common.v1.OnlineQueryBulkResponse
-	11, // 11: chalk.engine.v1.QueryService.OnlineQueryMulti:output_type -> chalk.common.v1.OnlineQueryMultiResponse
-	12, // 12: chalk.engine.v1.QueryService.UploadFeaturesBulk:output_type -> chalk.common.v1.UploadFeaturesBulkResponse
-	13, // 13: chalk.engine.v1.QueryService.UploadFeatures:output_type -> chalk.common.v1.UploadFeaturesResponse
-	14, // 14: chalk.engine.v1.QueryService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
-	15, // 15: chalk.engine.v1.QueryService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
-	8,  // [8:16] is the sub-list for method output_type
-	0,  // [0:8] is the sub-list for method input_type
-	0,  // [0:0] is the sub-list for extension type_name
-	0,  // [0:0] is the sub-list for extension extendee
-	0,  // [0:0] is the sub-list for field type_name
+	0,  // 0: chalk.engine.v1.GetPullQueryResultResponse.status:type_name -> chalk.engine.v1.PullQueryStatus
+	5,  // 1: chalk.engine.v1.GetPullQueryResultResponse.result:type_name -> chalk.common.v1.OnlineQueryBulkResponse
+	1,  // 2: chalk.engine.v1.QueryService.Ping:input_type -> chalk.engine.v1.PingRequest
+	6,  // 3: chalk.engine.v1.QueryService.OnlineQuery:input_type -> chalk.common.v1.OnlineQueryRequest
+	7,  // 4: chalk.engine.v1.QueryService.OnlineQueryBulk:input_type -> chalk.common.v1.OnlineQueryBulkRequest
+	8,  // 5: chalk.engine.v1.QueryService.OnlineQueryMulti:input_type -> chalk.common.v1.OnlineQueryMultiRequest
+	9,  // 6: chalk.engine.v1.QueryService.UploadFeaturesBulk:input_type -> chalk.common.v1.UploadFeaturesBulkRequest
+	10, // 7: chalk.engine.v1.QueryService.UploadFeatures:input_type -> chalk.common.v1.UploadFeaturesRequest
+	11, // 8: chalk.engine.v1.QueryService.PlanAggregateBackfill:input_type -> chalk.aggregate.v1.PlanAggregateBackfillRequest
+	12, // 9: chalk.engine.v1.QueryService.GetAggregates:input_type -> chalk.aggregate.v1.GetAggregatesRequest
+	3,  // 10: chalk.engine.v1.QueryService.GetPullQueryResult:input_type -> chalk.engine.v1.GetPullQueryResultRequest
+	2,  // 11: chalk.engine.v1.QueryService.Ping:output_type -> chalk.engine.v1.PingResponse
+	13, // 12: chalk.engine.v1.QueryService.OnlineQuery:output_type -> chalk.common.v1.OnlineQueryResponse
+	5,  // 13: chalk.engine.v1.QueryService.OnlineQueryBulk:output_type -> chalk.common.v1.OnlineQueryBulkResponse
+	14, // 14: chalk.engine.v1.QueryService.OnlineQueryMulti:output_type -> chalk.common.v1.OnlineQueryMultiResponse
+	15, // 15: chalk.engine.v1.QueryService.UploadFeaturesBulk:output_type -> chalk.common.v1.UploadFeaturesBulkResponse
+	16, // 16: chalk.engine.v1.QueryService.UploadFeatures:output_type -> chalk.common.v1.UploadFeaturesResponse
+	17, // 17: chalk.engine.v1.QueryService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
+	18, // 18: chalk.engine.v1.QueryService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
+	4,  // 19: chalk.engine.v1.QueryService.GetPullQueryResult:output_type -> chalk.engine.v1.GetPullQueryResultResponse
+	11, // [11:20] is the sub-list for method output_type
+	2,  // [2:11] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chalk_engine_v1_query_server_proto_init() }
@@ -197,13 +377,14 @@ func file_chalk_engine_v1_query_server_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_engine_v1_query_server_proto_rawDesc), len(file_chalk_engine_v1_query_server_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_engine_v1_query_server_proto_goTypes,
 		DependencyIndexes: file_chalk_engine_v1_query_server_proto_depIdxs,
+		EnumInfos:         file_chalk_engine_v1_query_server_proto_enumTypes,
 		MessageInfos:      file_chalk_engine_v1_query_server_proto_msgTypes,
 	}.Build()
 	File_chalk_engine_v1_query_server_proto = out.File

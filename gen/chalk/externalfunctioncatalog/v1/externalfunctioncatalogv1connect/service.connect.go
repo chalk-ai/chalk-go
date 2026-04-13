@@ -46,6 +46,12 @@ const (
 	// ExternalFunctionCatalogServiceDeleteExternalFunctionVersionProcedure is the fully-qualified name
 	// of the ExternalFunctionCatalogService's DeleteExternalFunctionVersion RPC.
 	ExternalFunctionCatalogServiceDeleteExternalFunctionVersionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/DeleteExternalFunctionVersion"
+	// ExternalFunctionCatalogServiceListExternalFunctionsProcedure is the fully-qualified name of the
+	// ExternalFunctionCatalogService's ListExternalFunctions RPC.
+	ExternalFunctionCatalogServiceListExternalFunctionsProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/ListExternalFunctions"
+	// ExternalFunctionCatalogServiceCallExternalFunctionProcedure is the fully-qualified name of the
+	// ExternalFunctionCatalogService's CallExternalFunction RPC.
+	ExternalFunctionCatalogServiceCallExternalFunctionProcedure = "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/CallExternalFunction"
 )
 
 // ExternalFunctionCatalogServiceClient is a client for the
@@ -55,6 +61,8 @@ type ExternalFunctionCatalogServiceClient interface {
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)
 	DeleteExternalFunctionVersion(context.Context, *connect.Request[v1.DeleteExternalFunctionVersionRequest]) (*connect.Response[v1.DeleteExternalFunctionVersionResponse], error)
+	ListExternalFunctions(context.Context, *connect.Request[v1.ListExternalFunctionsRequest]) (*connect.Response[v1.ListExternalFunctionsResponse], error)
+	CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error)
 }
 
 // NewExternalFunctionCatalogServiceClient constructs a client for the
@@ -95,6 +103,19 @@ func NewExternalFunctionCatalogServiceClient(httpClient connect.HTTPClient, base
 			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("DeleteExternalFunctionVersion")),
 			connect.WithClientOptions(opts...),
 		),
+		listExternalFunctions: connect.NewClient[v1.ListExternalFunctionsRequest, v1.ListExternalFunctionsResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceListExternalFunctionsProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("ListExternalFunctions")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		callExternalFunction: connect.NewClient[v1.CallExternalFunctionRequest, v1.CallExternalFunctionResponse](
+			httpClient,
+			baseURL+ExternalFunctionCatalogServiceCallExternalFunctionProcedure,
+			connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunction")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -104,6 +125,8 @@ type externalFunctionCatalogServiceClient struct {
 	getExternalFunctionVersion    *connect.Client[v1.GetExternalFunctionVersionRequest, v1.GetExternalFunctionVersionResponse]
 	listExternalFunctionVersions  *connect.Client[v1.ListExternalFunctionVersionsRequest, v1.ListExternalFunctionVersionsResponse]
 	deleteExternalFunctionVersion *connect.Client[v1.DeleteExternalFunctionVersionRequest, v1.DeleteExternalFunctionVersionResponse]
+	listExternalFunctions         *connect.Client[v1.ListExternalFunctionsRequest, v1.ListExternalFunctionsResponse]
+	callExternalFunction          *connect.Client[v1.CallExternalFunctionRequest, v1.CallExternalFunctionResponse]
 }
 
 // CreateExternalFunctionVersion calls
@@ -130,6 +153,18 @@ func (c *externalFunctionCatalogServiceClient) DeleteExternalFunctionVersion(ctx
 	return c.deleteExternalFunctionVersion.CallUnary(ctx, req)
 }
 
+// ListExternalFunctions calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions.
+func (c *externalFunctionCatalogServiceClient) ListExternalFunctions(ctx context.Context, req *connect.Request[v1.ListExternalFunctionsRequest]) (*connect.Response[v1.ListExternalFunctionsResponse], error) {
+	return c.listExternalFunctions.CallUnary(ctx, req)
+}
+
+// CallExternalFunction calls
+// chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction.
+func (c *externalFunctionCatalogServiceClient) CallExternalFunction(ctx context.Context, req *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error) {
+	return c.callExternalFunction.CallUnary(ctx, req)
+}
+
 // ExternalFunctionCatalogServiceHandler is an implementation of the
 // chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService service.
 type ExternalFunctionCatalogServiceHandler interface {
@@ -137,6 +172,8 @@ type ExternalFunctionCatalogServiceHandler interface {
 	GetExternalFunctionVersion(context.Context, *connect.Request[v1.GetExternalFunctionVersionRequest]) (*connect.Response[v1.GetExternalFunctionVersionResponse], error)
 	ListExternalFunctionVersions(context.Context, *connect.Request[v1.ListExternalFunctionVersionsRequest]) (*connect.Response[v1.ListExternalFunctionVersionsResponse], error)
 	DeleteExternalFunctionVersion(context.Context, *connect.Request[v1.DeleteExternalFunctionVersionRequest]) (*connect.Response[v1.DeleteExternalFunctionVersionResponse], error)
+	ListExternalFunctions(context.Context, *connect.Request[v1.ListExternalFunctionsRequest]) (*connect.Response[v1.ListExternalFunctionsResponse], error)
+	CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error)
 }
 
 // NewExternalFunctionCatalogServiceHandler builds an HTTP handler from the service implementation.
@@ -172,6 +209,19 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("DeleteExternalFunctionVersion")),
 		connect.WithHandlerOptions(opts...),
 	)
+	externalFunctionCatalogServiceListExternalFunctionsHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceListExternalFunctionsProcedure,
+		svc.ListExternalFunctions,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("ListExternalFunctions")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	externalFunctionCatalogServiceCallExternalFunctionHandler := connect.NewUnaryHandler(
+		ExternalFunctionCatalogServiceCallExternalFunctionProcedure,
+		svc.CallExternalFunction,
+		connect.WithSchema(externalFunctionCatalogServiceMethods.ByName("CallExternalFunction")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ExternalFunctionCatalogServiceCreateExternalFunctionVersionProcedure:
@@ -182,6 +232,10 @@ func NewExternalFunctionCatalogServiceHandler(svc ExternalFunctionCatalogService
 			externalFunctionCatalogServiceListExternalFunctionVersionsHandler.ServeHTTP(w, r)
 		case ExternalFunctionCatalogServiceDeleteExternalFunctionVersionProcedure:
 			externalFunctionCatalogServiceDeleteExternalFunctionVersionHandler.ServeHTTP(w, r)
+		case ExternalFunctionCatalogServiceListExternalFunctionsProcedure:
+			externalFunctionCatalogServiceListExternalFunctionsHandler.ServeHTTP(w, r)
+		case ExternalFunctionCatalogServiceCallExternalFunctionProcedure:
+			externalFunctionCatalogServiceCallExternalFunctionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -205,4 +259,12 @@ func (UnimplementedExternalFunctionCatalogServiceHandler) ListExternalFunctionVe
 
 func (UnimplementedExternalFunctionCatalogServiceHandler) DeleteExternalFunctionVersion(context.Context, *connect.Request[v1.DeleteExternalFunctionVersionRequest]) (*connect.Response[v1.DeleteExternalFunctionVersionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DeleteExternalFunctionVersion is not implemented"))
+}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) ListExternalFunctions(context.Context, *connect.Request[v1.ListExternalFunctionsRequest]) (*connect.Response[v1.ListExternalFunctionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions is not implemented"))
+}
+
+func (UnimplementedExternalFunctionCatalogServiceHandler) CallExternalFunction(context.Context, *connect.Request[v1.CallExternalFunctionRequest]) (*connect.Response[v1.CallExternalFunctionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction is not implemented"))
 }

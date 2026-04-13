@@ -58,6 +58,9 @@ const (
 	// QueryServiceGetAggregatesProcedure is the fully-qualified name of the QueryService's
 	// GetAggregates RPC.
 	QueryServiceGetAggregatesProcedure = "/chalk.engine.v1.QueryService/GetAggregates"
+	// QueryServiceGetPullQueryResultProcedure is the fully-qualified name of the QueryService's
+	// GetPullQueryResult RPC.
+	QueryServiceGetPullQueryResultProcedure = "/chalk.engine.v1.QueryService/GetPullQueryResult"
 )
 
 // QueryServiceClient is a client for the chalk.engine.v1.QueryService service.
@@ -81,6 +84,8 @@ type QueryServiceClient interface {
 	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
+	// Poll for pull query results. Results are stored in Redis keyed by query_id.
+	GetPullQueryResult(context.Context, *connect.Request[v1.GetPullQueryResultRequest]) (*connect.Response[v1.GetPullQueryResultResponse], error)
 }
 
 // NewQueryServiceClient constructs a client for the chalk.engine.v1.QueryService service. By
@@ -145,6 +150,13 @@ func NewQueryServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getPullQueryResult: connect.NewClient[v1.GetPullQueryResultRequest, v1.GetPullQueryResultResponse](
+			httpClient,
+			baseURL+QueryServiceGetPullQueryResultProcedure,
+			connect.WithSchema(queryServiceMethods.ByName("GetPullQueryResult")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -158,6 +170,7 @@ type queryServiceClient struct {
 	uploadFeatures        *connect.Client[v11.UploadFeaturesRequest, v11.UploadFeaturesResponse]
 	planAggregateBackfill *connect.Client[v12.PlanAggregateBackfillRequest, v12.PlanAggregateBackfillResponse]
 	getAggregates         *connect.Client[v12.GetAggregatesRequest, v12.GetAggregatesResponse]
+	getPullQueryResult    *connect.Client[v1.GetPullQueryResultRequest, v1.GetPullQueryResultResponse]
 }
 
 // Ping calls chalk.engine.v1.QueryService.Ping.
@@ -200,6 +213,11 @@ func (c *queryServiceClient) GetAggregates(ctx context.Context, req *connect.Req
 	return c.getAggregates.CallUnary(ctx, req)
 }
 
+// GetPullQueryResult calls chalk.engine.v1.QueryService.GetPullQueryResult.
+func (c *queryServiceClient) GetPullQueryResult(ctx context.Context, req *connect.Request[v1.GetPullQueryResultRequest]) (*connect.Response[v1.GetPullQueryResultResponse], error) {
+	return c.getPullQueryResult.CallUnary(ctx, req)
+}
+
 // QueryServiceHandler is an implementation of the chalk.engine.v1.QueryService service.
 type QueryServiceHandler interface {
 	Ping(context.Context, *connect.Request[v1.PingRequest]) (*connect.Response[v1.PingResponse], error)
@@ -221,6 +239,8 @@ type QueryServiceHandler interface {
 	// and move that request to this service instead.
 	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
 	GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error)
+	// Poll for pull query results. Results are stored in Redis keyed by query_id.
+	GetPullQueryResult(context.Context, *connect.Request[v1.GetPullQueryResultRequest]) (*connect.Response[v1.GetPullQueryResultResponse], error)
 }
 
 // NewQueryServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -281,6 +301,13 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	queryServiceGetPullQueryResultHandler := connect.NewUnaryHandler(
+		QueryServiceGetPullQueryResultProcedure,
+		svc.GetPullQueryResult,
+		connect.WithSchema(queryServiceMethods.ByName("GetPullQueryResult")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.engine.v1.QueryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case QueryServicePingProcedure:
@@ -299,6 +326,8 @@ func NewQueryServiceHandler(svc QueryServiceHandler, opts ...connect.HandlerOpti
 			queryServicePlanAggregateBackfillHandler.ServeHTTP(w, r)
 		case QueryServiceGetAggregatesProcedure:
 			queryServiceGetAggregatesHandler.ServeHTTP(w, r)
+		case QueryServiceGetPullQueryResultProcedure:
+			queryServiceGetPullQueryResultHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -338,4 +367,8 @@ func (UnimplementedQueryServiceHandler) PlanAggregateBackfill(context.Context, *
 
 func (UnimplementedQueryServiceHandler) GetAggregates(context.Context, *connect.Request[v12.GetAggregatesRequest]) (*connect.Response[v12.GetAggregatesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.GetAggregates is not implemented"))
+}
+
+func (UnimplementedQueryServiceHandler) GetPullQueryResult(context.Context, *connect.Request[v1.GetPullQueryResultRequest]) (*connect.Response[v1.GetPullQueryResultResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.engine.v1.QueryService.GetPullQueryResult is not implemented"))
 }
