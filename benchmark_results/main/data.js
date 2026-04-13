@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776105936004,
+  "lastUpdate": 1776106324601,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -34698,6 +34698,60 @@ window.BENCHMARK_DATA = {
             "value": 343.7,
             "unit": "ms/op",
             "extra": "4 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "andy@andymo.org",
+            "name": "Andrew Moreland",
+            "username": "AndyMoreland"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "1aa5c5929842244d4e339b8fc2594341fff50304",
+          "message": "Update generated protos and stub GetPullQueryResult in mock (#632)\n\n* Update generated protos and stub GetPullQueryResult in mock\n\nRegenerate proto code to include GetPullQueryResult on QueryService and\nFunctionQueueMetaService. Add stub implementation of GetPullQueryResult\nto mockQueryServer so the test fixtures compile against the new interface.\n\n* Bump gen dependency to v1.2.236 for GetPullQueryResult types",
+          "timestamp": "2026-04-13T11:50:19-07:00",
+          "tree_id": "21f92070582d8fe06701cdebe3e7655a99c9db76",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/1aa5c5929842244d4e339b8fc2594341fff50304"
+        },
+        "date": 1776106324501,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.054,
+            "unit": "ms/op",
+            "extra": "1078 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114.2,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 42.67,
+            "unit": "ms/op",
+            "extra": "40 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 213.6,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 300.1,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
