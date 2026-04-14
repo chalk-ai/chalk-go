@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776106324601,
+  "lastUpdate": 1776141949251,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -34752,6 +34752,60 @@ window.BENCHMARK_DATA = {
             "value": 300.1,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "sanjayyepuri@users.noreply.github.com",
+            "name": "Sanjay Yepuri",
+            "username": "sanjayyepuri"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "68a2f30382e6d77f01278942104471e7140455f6",
+          "message": "feat: update protos for tiling (#633)",
+          "timestamp": "2026-04-13T21:45:12-07:00",
+          "tree_id": "000765831bde835007649fcc5e47d8527ea5876e",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/68a2f30382e6d77f01278942104471e7140455f6"
+        },
+        "date": 1776141949173,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.8851,
+            "unit": "ms/op",
+            "extra": "1209 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 95.62,
+            "unit": "ms/op",
+            "extra": "12 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 34.78,
+            "unit": "ms/op",
+            "extra": "44 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 219,
+            "unit": "ms/op",
+            "extra": "9 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 266.4,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
           }
         ]
       }
