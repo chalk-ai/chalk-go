@@ -24,37 +24,61 @@ const (
 type OperationKind int32
 
 const (
-	OperationKind_OPERATION_KIND_UNSPECIFIED        OperationKind = 0
-	OperationKind_OPERATION_KIND_ONLINE_QUERY       OperationKind = 1 // also known as inference
-	OperationKind_OPERATION_KIND_MIGRATION          OperationKind = 2
-	OperationKind_OPERATION_KIND_CRON               OperationKind = 3
-	OperationKind_OPERATION_KIND_STREAMING          OperationKind = 4
-	OperationKind_OPERATION_KIND_MIGRATION_SAMPLER  OperationKind = 5
-	OperationKind_OPERATION_KIND_WINDOWED_STREAMING OperationKind = 6
-	OperationKind_OPERATION_KIND_OFFLINE_QUERY      OperationKind = 7
+	OperationKind_OPERATION_KIND_UNSPECIFIED                  OperationKind = 0
+	OperationKind_OPERATION_KIND_ONLINE_QUERY                 OperationKind = 1 // also known as inference
+	OperationKind_OPERATION_KIND_MIGRATION                    OperationKind = 2
+	OperationKind_OPERATION_KIND_CRON                         OperationKind = 3
+	OperationKind_OPERATION_KIND_STREAMING                    OperationKind = 4
+	OperationKind_OPERATION_KIND_MIGRATION_SAMPLER            OperationKind = 5
+	OperationKind_OPERATION_KIND_WINDOWED_STREAMING           OperationKind = 6
+	OperationKind_OPERATION_KIND_OFFLINE_QUERY                OperationKind = 7
+	OperationKind_OPERATION_KIND_DATASET                      OperationKind = 8
+	OperationKind_OPERATION_KIND_SCHEDULED_QUERY              OperationKind = 9
+	OperationKind_OPERATION_KIND_AGGREGATE_BACKFILL           OperationKind = 10
+	OperationKind_OPERATION_KIND_SCHEDULED_AGGREGATE_BACKFILL OperationKind = 11
+	OperationKind_OPERATION_KIND_SCRIPT_TASK                  OperationKind = 12
+	OperationKind_OPERATION_KIND_CHALKSQL                     OperationKind = 13
+	OperationKind_OPERATION_KIND_CHALKDF                      OperationKind = 14
+	OperationKind_OPERATION_KIND_UPLOAD_FEATURES              OperationKind = 15
 )
 
 // Enum value maps for OperationKind.
 var (
 	OperationKind_name = map[int32]string{
-		0: "OPERATION_KIND_UNSPECIFIED",
-		1: "OPERATION_KIND_ONLINE_QUERY",
-		2: "OPERATION_KIND_MIGRATION",
-		3: "OPERATION_KIND_CRON",
-		4: "OPERATION_KIND_STREAMING",
-		5: "OPERATION_KIND_MIGRATION_SAMPLER",
-		6: "OPERATION_KIND_WINDOWED_STREAMING",
-		7: "OPERATION_KIND_OFFLINE_QUERY",
+		0:  "OPERATION_KIND_UNSPECIFIED",
+		1:  "OPERATION_KIND_ONLINE_QUERY",
+		2:  "OPERATION_KIND_MIGRATION",
+		3:  "OPERATION_KIND_CRON",
+		4:  "OPERATION_KIND_STREAMING",
+		5:  "OPERATION_KIND_MIGRATION_SAMPLER",
+		6:  "OPERATION_KIND_WINDOWED_STREAMING",
+		7:  "OPERATION_KIND_OFFLINE_QUERY",
+		8:  "OPERATION_KIND_DATASET",
+		9:  "OPERATION_KIND_SCHEDULED_QUERY",
+		10: "OPERATION_KIND_AGGREGATE_BACKFILL",
+		11: "OPERATION_KIND_SCHEDULED_AGGREGATE_BACKFILL",
+		12: "OPERATION_KIND_SCRIPT_TASK",
+		13: "OPERATION_KIND_CHALKSQL",
+		14: "OPERATION_KIND_CHALKDF",
+		15: "OPERATION_KIND_UPLOAD_FEATURES",
 	}
 	OperationKind_value = map[string]int32{
-		"OPERATION_KIND_UNSPECIFIED":        0,
-		"OPERATION_KIND_ONLINE_QUERY":       1,
-		"OPERATION_KIND_MIGRATION":          2,
-		"OPERATION_KIND_CRON":               3,
-		"OPERATION_KIND_STREAMING":          4,
-		"OPERATION_KIND_MIGRATION_SAMPLER":  5,
-		"OPERATION_KIND_WINDOWED_STREAMING": 6,
-		"OPERATION_KIND_OFFLINE_QUERY":      7,
+		"OPERATION_KIND_UNSPECIFIED":                  0,
+		"OPERATION_KIND_ONLINE_QUERY":                 1,
+		"OPERATION_KIND_MIGRATION":                    2,
+		"OPERATION_KIND_CRON":                         3,
+		"OPERATION_KIND_STREAMING":                    4,
+		"OPERATION_KIND_MIGRATION_SAMPLER":            5,
+		"OPERATION_KIND_WINDOWED_STREAMING":           6,
+		"OPERATION_KIND_OFFLINE_QUERY":                7,
+		"OPERATION_KIND_DATASET":                      8,
+		"OPERATION_KIND_SCHEDULED_QUERY":              9,
+		"OPERATION_KIND_AGGREGATE_BACKFILL":           10,
+		"OPERATION_KIND_SCHEDULED_AGGREGATE_BACKFILL": 11,
+		"OPERATION_KIND_SCRIPT_TASK":                  12,
+		"OPERATION_KIND_CHALKSQL":                     13,
+		"OPERATION_KIND_CHALKDF":                      14,
+		"OPERATION_KIND_UPLOAD_FEATURES":              15,
 	}
 )
 
@@ -89,7 +113,7 @@ var File_chalk_common_v1_operation_kind_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_operation_kind_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/common/v1/operation_kind.proto\x12\x0fchalk.common.v1*\x94\x02\n" +
+	"$chalk/common/v1/operation_kind.proto\x12\x0fchalk.common.v1*\xa9\x04\n" +
 	"\rOperationKind\x12\x1e\n" +
 	"\x1aOPERATION_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bOPERATION_KIND_ONLINE_QUERY\x10\x01\x12\x1c\n" +
@@ -98,7 +122,16 @@ const file_chalk_common_v1_operation_kind_proto_rawDesc = "" +
 	"\x18OPERATION_KIND_STREAMING\x10\x04\x12$\n" +
 	" OPERATION_KIND_MIGRATION_SAMPLER\x10\x05\x12%\n" +
 	"!OPERATION_KIND_WINDOWED_STREAMING\x10\x06\x12 \n" +
-	"\x1cOPERATION_KIND_OFFLINE_QUERY\x10\aB\xc2\x01\n" +
+	"\x1cOPERATION_KIND_OFFLINE_QUERY\x10\a\x12\x1a\n" +
+	"\x16OPERATION_KIND_DATASET\x10\b\x12\"\n" +
+	"\x1eOPERATION_KIND_SCHEDULED_QUERY\x10\t\x12%\n" +
+	"!OPERATION_KIND_AGGREGATE_BACKFILL\x10\n" +
+	"\x12/\n" +
+	"+OPERATION_KIND_SCHEDULED_AGGREGATE_BACKFILL\x10\v\x12\x1e\n" +
+	"\x1aOPERATION_KIND_SCRIPT_TASK\x10\f\x12\x1b\n" +
+	"\x17OPERATION_KIND_CHALKSQL\x10\r\x12\x1a\n" +
+	"\x16OPERATION_KIND_CHALKDF\x10\x0e\x12\"\n" +
+	"\x1eOPERATION_KIND_UPLOAD_FEATURES\x10\x0fB\xc2\x01\n" +
 	"\x13com.chalk.common.v1B\x12OperationKindProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/common/v1;commonv1\xa2\x02\x03CCX\xaa\x02\x0fChalk.Common.V1\xca\x02\x0fChalk\\Common\\V1\xe2\x02\x1bChalk\\Common\\V1\\GPBMetadata\xea\x02\x11Chalk::Common::V1b\x06proto3"
 
 var (

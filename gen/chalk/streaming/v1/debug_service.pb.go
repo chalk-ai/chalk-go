@@ -370,7 +370,14 @@ func (x *GetDebugModeStatusResponse) GetLoggerConfig() *StreamingLoggerConfig {
 type GetDebugMessagesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Resolver FQN
-	ResolverFqn   string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	ResolverFqn string `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	// Optional start of time range (inclusive). Files and rows before this are excluded.
+	StartTimestampInclusive *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_timestamp_inclusive,json=startTimestampInclusive,proto3,oneof" json:"start_timestamp_inclusive,omitempty"`
+	// Optional end of time range (exclusive). Files and rows at or after this are excluded.
+	EndTimestampExclusive *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_timestamp_exclusive,json=endTimestampExclusive,proto3,oneof" json:"end_timestamp_exclusive,omitempty"`
+	// Optional maximum number of rows to return. Capped at an internal limit (10,000).
+	// When absent, the internal limit applies.
+	MaxMessages   *int32 `protobuf:"varint,4,opt,name=max_messages,json=maxMessages,proto3,oneof" json:"max_messages,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -410,6 +417,27 @@ func (x *GetDebugMessagesRequest) GetResolverFqn() string {
 		return x.ResolverFqn
 	}
 	return ""
+}
+
+func (x *GetDebugMessagesRequest) GetStartTimestampInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTimestampInclusive
+	}
+	return nil
+}
+
+func (x *GetDebugMessagesRequest) GetEndTimestampExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTimestampExclusive
+	}
+	return nil
+}
+
+func (x *GetDebugMessagesRequest) GetMaxMessages() int32 {
+	if x != nil && x.MaxMessages != nil {
+		return *x.MaxMessages
+	}
+	return 0
 }
 
 // Response with parquet file contents
@@ -988,9 +1016,15 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\rlogger_config\x18\x05 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x02R\floggerConfig\x88\x01\x01B\r\n" +
 	"\v_enabled_atB\x10\n" +
 	"\x0e_deployment_idB\x10\n" +
-	"\x0e_logger_config\"<\n" +
+	"\x0e_logger_config\"\xe5\x02\n" +
 	"\x17GetDebugMessagesRequest\x12!\n" +
-	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\"Y\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12[\n" +
+	"\x19start_timestamp_inclusive\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x17startTimestampInclusive\x88\x01\x01\x12W\n" +
+	"\x17end_timestamp_exclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x15endTimestampExclusive\x88\x01\x01\x12&\n" +
+	"\fmax_messages\x18\x04 \x01(\x05H\x02R\vmaxMessages\x88\x01\x01B\x1c\n" +
+	"\x1a_start_timestamp_inclusiveB\x1a\n" +
+	"\x18_end_timestamp_exclusiveB\x0f\n" +
+	"\r_max_messages\"Y\n" +
 	"\x18GetDebugMessagesResponse\x12\x18\n" +
 	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
@@ -1092,31 +1126,33 @@ var file_chalk_streaming_v1_debug_service_proto_depIdxs = []int32{
 	17, // 1: chalk.streaming.v1.EnableDebugModeResponse.enabled_at:type_name -> google.protobuf.Timestamp
 	17, // 2: chalk.streaming.v1.GetDebugModeStatusResponse.enabled_at:type_name -> google.protobuf.Timestamp
 	16, // 3: chalk.streaming.v1.GetDebugModeStatusResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	18, // 4: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
-	16, // 5: chalk.streaming.v1.SetStreamingDebugConfigRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	16, // 6: chalk.streaming.v1.SetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	16, // 7: chalk.streaming.v1.GetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	12, // 8: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:input_type -> chalk.streaming.v1.SetStreamingDebugConfigRequest
-	14, // 9: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:input_type -> chalk.streaming.v1.GetStreamingDebugConfigRequest
-	0,  // 10: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
-	2,  // 11: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
-	4,  // 12: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
-	6,  // 13: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
-	8,  // 14: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
-	10, // 15: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
-	13, // 16: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:output_type -> chalk.streaming.v1.SetStreamingDebugConfigResponse
-	15, // 17: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:output_type -> chalk.streaming.v1.GetStreamingDebugConfigResponse
-	1,  // 18: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
-	3,  // 19: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
-	5,  // 20: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
-	7,  // 21: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
-	9,  // 22: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
-	11, // 23: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
-	16, // [16:24] is the sub-list for method output_type
-	8,  // [8:16] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	17, // 4: chalk.streaming.v1.GetDebugMessagesRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	17, // 5: chalk.streaming.v1.GetDebugMessagesRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	18, // 6: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
+	16, // 7: chalk.streaming.v1.SetStreamingDebugConfigRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	16, // 8: chalk.streaming.v1.SetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	16, // 9: chalk.streaming.v1.GetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	12, // 10: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:input_type -> chalk.streaming.v1.SetStreamingDebugConfigRequest
+	14, // 11: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:input_type -> chalk.streaming.v1.GetStreamingDebugConfigRequest
+	0,  // 12: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
+	2,  // 13: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
+	4,  // 14: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
+	6,  // 15: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
+	8,  // 16: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
+	10, // 17: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
+	13, // 18: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:output_type -> chalk.streaming.v1.SetStreamingDebugConfigResponse
+	15, // 19: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:output_type -> chalk.streaming.v1.GetStreamingDebugConfigResponse
+	1,  // 20: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
+	3,  // 21: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
+	5,  // 22: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
+	7,  // 23: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
+	9,  // 24: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
+	11, // 25: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
+	18, // [18:26] is the sub-list for method output_type
+	10, // [10:18] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_chalk_streaming_v1_debug_service_proto_init() }
@@ -1127,6 +1163,7 @@ func file_chalk_streaming_v1_debug_service_proto_init() {
 	file_chalk_streaming_v1_simple_streaming_service_proto_init()
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[5].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[10].OneofWrappers = []any{}

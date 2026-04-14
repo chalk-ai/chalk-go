@@ -22,6 +22,56 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// The kind of workload to restart
+type WorkloadKind int32
+
+const (
+	WorkloadKind_WORKLOAD_KIND_UNSPECIFIED  WorkloadKind = 0
+	WorkloadKind_WORKLOAD_KIND_DEPLOYMENT   WorkloadKind = 1
+	WorkloadKind_WORKLOAD_KIND_STATEFUL_SET WorkloadKind = 2
+)
+
+// Enum value maps for WorkloadKind.
+var (
+	WorkloadKind_name = map[int32]string{
+		0: "WORKLOAD_KIND_UNSPECIFIED",
+		1: "WORKLOAD_KIND_DEPLOYMENT",
+		2: "WORKLOAD_KIND_STATEFUL_SET",
+	}
+	WorkloadKind_value = map[string]int32{
+		"WORKLOAD_KIND_UNSPECIFIED":  0,
+		"WORKLOAD_KIND_DEPLOYMENT":   1,
+		"WORKLOAD_KIND_STATEFUL_SET": 2,
+	}
+)
+
+func (x WorkloadKind) Enum() *WorkloadKind {
+	p := new(WorkloadKind)
+	*p = x
+	return p
+}
+
+func (x WorkloadKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (WorkloadKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_kubeops_v1_service_proto_enumTypes[0].Descriptor()
+}
+
+func (WorkloadKind) Type() protoreflect.EnumType {
+	return &file_chalk_kubeops_v1_service_proto_enumTypes[0]
+}
+
+func (x WorkloadKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use WorkloadKind.Descriptor instead.
+func (WorkloadKind) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{0}
+}
+
 type DrainNodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The Kubernetes cluster name
@@ -299,6 +349,114 @@ func (*DeletePodResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
+type RolloutRestartRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The Kubernetes cluster name
+	ClusterName string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	// The namespace of the workload
+	Namespace string `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// The name of the workload to restart
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	// The kind of workload to restart
+	Kind          WorkloadKind `protobuf:"varint,4,opt,name=kind,proto3,enum=chalk.kubeops.v1.WorkloadKind" json:"kind,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RolloutRestartRequest) Reset() {
+	*x = RolloutRestartRequest{}
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RolloutRestartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RolloutRestartRequest) ProtoMessage() {}
+
+func (x *RolloutRestartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RolloutRestartRequest.ProtoReflect.Descriptor instead.
+func (*RolloutRestartRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RolloutRestartRequest) GetClusterName() string {
+	if x != nil {
+		return x.ClusterName
+	}
+	return ""
+}
+
+func (x *RolloutRestartRequest) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *RolloutRestartRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RolloutRestartRequest) GetKind() WorkloadKind {
+	if x != nil {
+		return x.Kind
+	}
+	return WorkloadKind_WORKLOAD_KIND_UNSPECIFIED
+}
+
+type RolloutRestartResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RolloutRestartResponse) Reset() {
+	*x = RolloutRestartResponse{}
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RolloutRestartResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RolloutRestartResponse) ProtoMessage() {}
+
+func (x *RolloutRestartResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubeops_v1_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RolloutRestartResponse.ProtoReflect.Descriptor instead.
+func (*RolloutRestartResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_kubeops_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
 var File_chalk_kubeops_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
@@ -329,10 +487,21 @@ const file_chalk_kubeops_v1_service_proto_rawDesc = "" +
 	"\x05force\x18\x05 \x01(\bH\x01R\x05force\x88\x01\x01B\x17\n" +
 	"\x15_grace_period_secondsB\b\n" +
 	"\x06_force\"\x13\n" +
-	"\x11DeletePodResponse2\xc6\x01\n" +
+	"\x11DeletePodResponse\"\xa0\x01\n" +
+	"\x15RolloutRestartRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12\x1c\n" +
+	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x122\n" +
+	"\x04kind\x18\x04 \x01(\x0e2\x1e.chalk.kubeops.v1.WorkloadKindR\x04kind\"\x18\n" +
+	"\x16RolloutRestartResponse*k\n" +
+	"\fWorkloadKind\x12\x1d\n" +
+	"\x19WORKLOAD_KIND_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18WORKLOAD_KIND_DEPLOYMENT\x10\x01\x12\x1e\n" +
+	"\x1aWORKLOAD_KIND_STATEFUL_SET\x10\x022\xb0\x02\n" +
 	"\x0eKubeOpsService\x12Y\n" +
 	"\tDrainNode\x12\".chalk.kubeops.v1.DrainNodeRequest\x1a#.chalk.kubeops.v1.DrainNodeResponse\"\x03\x80}\x0e\x12Y\n" +
-	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x0eB\xc3\x01\n" +
+	"\tDeletePod\x12\".chalk.kubeops.v1.DeletePodRequest\x1a#.chalk.kubeops.v1.DeletePodResponse\"\x03\x80}\x0e\x12h\n" +
+	"\x0eRolloutRestart\x12'.chalk.kubeops.v1.RolloutRestartRequest\x1a(.chalk.kubeops.v1.RolloutRestartResponse\"\x03\x80}\x0eB\xc3\x01\n" +
 	"\x14com.chalk.kubeops.v1B\fServiceProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/kubeops/v1;kubeopsv1\xa2\x02\x03CKX\xaa\x02\x10Chalk.Kubeops.V1\xca\x02\x10Chalk\\Kubeops\\V1\xe2\x02\x1cChalk\\Kubeops\\V1\\GPBMetadata\xea\x02\x12Chalk::Kubeops::V1b\x06proto3"
 
 var (
@@ -347,23 +516,30 @@ func file_chalk_kubeops_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_kubeops_v1_service_proto_rawDescData
 }
 
-var file_chalk_kubeops_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_kubeops_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_kubeops_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_kubeops_v1_service_proto_goTypes = []any{
-	(*DrainNodeRequest)(nil),  // 0: chalk.kubeops.v1.DrainNodeRequest
-	(*DrainNodeResponse)(nil), // 1: chalk.kubeops.v1.DrainNodeResponse
-	(*DeletePodRequest)(nil),  // 2: chalk.kubeops.v1.DeletePodRequest
-	(*DeletePodResponse)(nil), // 3: chalk.kubeops.v1.DeletePodResponse
+	(WorkloadKind)(0),              // 0: chalk.kubeops.v1.WorkloadKind
+	(*DrainNodeRequest)(nil),       // 1: chalk.kubeops.v1.DrainNodeRequest
+	(*DrainNodeResponse)(nil),      // 2: chalk.kubeops.v1.DrainNodeResponse
+	(*DeletePodRequest)(nil),       // 3: chalk.kubeops.v1.DeletePodRequest
+	(*DeletePodResponse)(nil),      // 4: chalk.kubeops.v1.DeletePodResponse
+	(*RolloutRestartRequest)(nil),  // 5: chalk.kubeops.v1.RolloutRestartRequest
+	(*RolloutRestartResponse)(nil), // 6: chalk.kubeops.v1.RolloutRestartResponse
 }
 var file_chalk_kubeops_v1_service_proto_depIdxs = []int32{
-	0, // 0: chalk.kubeops.v1.KubeOpsService.DrainNode:input_type -> chalk.kubeops.v1.DrainNodeRequest
-	2, // 1: chalk.kubeops.v1.KubeOpsService.DeletePod:input_type -> chalk.kubeops.v1.DeletePodRequest
-	1, // 2: chalk.kubeops.v1.KubeOpsService.DrainNode:output_type -> chalk.kubeops.v1.DrainNodeResponse
-	3, // 3: chalk.kubeops.v1.KubeOpsService.DeletePod:output_type -> chalk.kubeops.v1.DeletePodResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: chalk.kubeops.v1.RolloutRestartRequest.kind:type_name -> chalk.kubeops.v1.WorkloadKind
+	1, // 1: chalk.kubeops.v1.KubeOpsService.DrainNode:input_type -> chalk.kubeops.v1.DrainNodeRequest
+	3, // 2: chalk.kubeops.v1.KubeOpsService.DeletePod:input_type -> chalk.kubeops.v1.DeletePodRequest
+	5, // 3: chalk.kubeops.v1.KubeOpsService.RolloutRestart:input_type -> chalk.kubeops.v1.RolloutRestartRequest
+	2, // 4: chalk.kubeops.v1.KubeOpsService.DrainNode:output_type -> chalk.kubeops.v1.DrainNodeResponse
+	4, // 5: chalk.kubeops.v1.KubeOpsService.DeletePod:output_type -> chalk.kubeops.v1.DeletePodResponse
+	6, // 6: chalk.kubeops.v1.KubeOpsService.RolloutRestart:output_type -> chalk.kubeops.v1.RolloutRestartResponse
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_chalk_kubeops_v1_service_proto_init() }
@@ -378,13 +554,14 @@ func file_chalk_kubeops_v1_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_kubeops_v1_service_proto_rawDesc), len(file_chalk_kubeops_v1_service_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_kubeops_v1_service_proto_goTypes,
 		DependencyIndexes: file_chalk_kubeops_v1_service_proto_depIdxs,
+		EnumInfos:         file_chalk_kubeops_v1_service_proto_enumTypes,
 		MessageInfos:      file_chalk_kubeops_v1_service_proto_msgTypes,
 	}.Build()
 	File_chalk_kubeops_v1_service_proto = out.File

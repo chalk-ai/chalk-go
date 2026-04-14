@@ -51,6 +51,9 @@ const (
 	// ContainerServiceUpdateContainerStatusProcedure is the fully-qualified name of the
 	// ContainerService's UpdateContainerStatus RPC.
 	ContainerServiceUpdateContainerStatusProcedure = "/chalk.container.v1.ContainerService/UpdateContainerStatus"
+	// ContainerServiceBatchUpdateContainerStatusProcedure is the fully-qualified name of the
+	// ContainerService's BatchUpdateContainerStatus RPC.
+	ContainerServiceBatchUpdateContainerStatusProcedure = "/chalk.container.v1.ContainerService/BatchUpdateContainerStatus"
 	// ContainerServiceSnapshotContainerProcedure is the fully-qualified name of the ContainerService's
 	// SnapshotContainer RPC.
 	ContainerServiceSnapshotContainerProcedure = "/chalk.container.v1.ContainerService/SnapshotContainer"
@@ -60,6 +63,9 @@ const (
 	// ContainerServiceListContainerSnapshotsProcedure is the fully-qualified name of the
 	// ContainerService's ListContainerSnapshots RPC.
 	ContainerServiceListContainerSnapshotsProcedure = "/chalk.container.v1.ContainerService/ListContainerSnapshots"
+	// ContainerServiceCreateContainerDebugTTYProcedure is the fully-qualified name of the
+	// ContainerService's CreateContainerDebugTTY RPC.
+	ContainerServiceCreateContainerDebugTTYProcedure = "/chalk.container.v1.ContainerService/CreateContainerDebugTTY"
 )
 
 // ContainerServiceClient is a client for the chalk.container.v1.ContainerService service.
@@ -75,13 +81,23 @@ type ContainerServiceClient interface {
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
+	// Deprecated: use BatchUpdateContainerStatus
+	//
+	// Deprecated: do not use.
 	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
+	// BatchUpdateContainerStatus updates status for multiple containers from the dataplane controller
+	BatchUpdateContainerStatus(context.Context, *connect.Request[v1.BatchUpdateContainerStatusRequest]) (*connect.Response[v1.BatchUpdateContainerStatusResponse], error)
 	// SnapshotContainer creates a point-in-time snapshot of a running container
 	SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error)
 	// GetContainerSnapshot retrieves a specific container snapshot
 	GetContainerSnapshot(context.Context, *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error)
 	// ListContainerSnapshots lists container snapshots, optionally filtered by source container
 	ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error)
+	// CreateContainerDebugTTY establishes a bidirectional streaming TTY session to a container
+	// The first request must contain init_request with container id or name
+	// Subsequent requests contain input data to send to the TTY stdin
+	// Responses contain output data from the TTY stdout/stderr
+	CreateContainerDebugTTY(context.Context) *connect.BidiStreamForClient[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse]
 }
 
 // NewContainerServiceClient constructs a client for the chalk.container.v1.ContainerService
@@ -131,6 +147,12 @@ func NewContainerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
 			connect.WithClientOptions(opts...),
 		),
+		batchUpdateContainerStatus: connect.NewClient[v1.BatchUpdateContainerStatusRequest, v1.BatchUpdateContainerStatusResponse](
+			httpClient,
+			baseURL+ContainerServiceBatchUpdateContainerStatusProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("BatchUpdateContainerStatus")),
+			connect.WithClientOptions(opts...),
+		),
 		snapshotContainer: connect.NewClient[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse](
 			httpClient,
 			baseURL+ContainerServiceSnapshotContainerProcedure,
@@ -149,20 +171,28 @@ func NewContainerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(containerServiceMethods.ByName("ListContainerSnapshots")),
 			connect.WithClientOptions(opts...),
 		),
+		createContainerDebugTTY: connect.NewClient[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse](
+			httpClient,
+			baseURL+ContainerServiceCreateContainerDebugTTYProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("CreateContainerDebugTTY")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // containerServiceClient implements ContainerServiceClient.
 type containerServiceClient struct {
-	runContainer           *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
-	stopContainer          *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
-	getContainer           *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
-	listContainers         *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
-	execCommand            *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
-	updateContainerStatus  *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
-	snapshotContainer      *connect.Client[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse]
-	getContainerSnapshot   *connect.Client[v1.GetContainerSnapshotRequest, v1.GetContainerSnapshotResponse]
-	listContainerSnapshots *connect.Client[v1.ListContainerSnapshotsRequest, v1.ListContainerSnapshotsResponse]
+	runContainer               *connect.Client[v1.RunContainerRequest, v1.RunContainerResponse]
+	stopContainer              *connect.Client[v1.StopContainerRequest, v1.StopContainerResponse]
+	getContainer               *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
+	listContainers             *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
+	execCommand                *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
+	updateContainerStatus      *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
+	batchUpdateContainerStatus *connect.Client[v1.BatchUpdateContainerStatusRequest, v1.BatchUpdateContainerStatusResponse]
+	snapshotContainer          *connect.Client[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse]
+	getContainerSnapshot       *connect.Client[v1.GetContainerSnapshotRequest, v1.GetContainerSnapshotResponse]
+	listContainerSnapshots     *connect.Client[v1.ListContainerSnapshotsRequest, v1.ListContainerSnapshotsResponse]
+	createContainerDebugTTY    *connect.Client[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse]
 }
 
 // RunContainer calls chalk.container.v1.ContainerService.RunContainer.
@@ -191,8 +221,15 @@ func (c *containerServiceClient) ExecCommand(ctx context.Context, req *connect.R
 }
 
 // UpdateContainerStatus calls chalk.container.v1.ContainerService.UpdateContainerStatus.
+//
+// Deprecated: do not use.
 func (c *containerServiceClient) UpdateContainerStatus(ctx context.Context, req *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error) {
 	return c.updateContainerStatus.CallUnary(ctx, req)
+}
+
+// BatchUpdateContainerStatus calls chalk.container.v1.ContainerService.BatchUpdateContainerStatus.
+func (c *containerServiceClient) BatchUpdateContainerStatus(ctx context.Context, req *connect.Request[v1.BatchUpdateContainerStatusRequest]) (*connect.Response[v1.BatchUpdateContainerStatusResponse], error) {
+	return c.batchUpdateContainerStatus.CallUnary(ctx, req)
 }
 
 // SnapshotContainer calls chalk.container.v1.ContainerService.SnapshotContainer.
@@ -210,6 +247,11 @@ func (c *containerServiceClient) ListContainerSnapshots(ctx context.Context, req
 	return c.listContainerSnapshots.CallUnary(ctx, req)
 }
 
+// CreateContainerDebugTTY calls chalk.container.v1.ContainerService.CreateContainerDebugTTY.
+func (c *containerServiceClient) CreateContainerDebugTTY(ctx context.Context) *connect.BidiStreamForClient[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse] {
+	return c.createContainerDebugTTY.CallBidiStream(ctx)
+}
+
 // ContainerServiceHandler is an implementation of the chalk.container.v1.ContainerService service.
 type ContainerServiceHandler interface {
 	// RunContainer creates and runs a new container as a Kubernetes pod
@@ -223,13 +265,23 @@ type ContainerServiceHandler interface {
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
+	// Deprecated: use BatchUpdateContainerStatus
+	//
+	// Deprecated: do not use.
 	UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error)
+	// BatchUpdateContainerStatus updates status for multiple containers from the dataplane controller
+	BatchUpdateContainerStatus(context.Context, *connect.Request[v1.BatchUpdateContainerStatusRequest]) (*connect.Response[v1.BatchUpdateContainerStatusResponse], error)
 	// SnapshotContainer creates a point-in-time snapshot of a running container
 	SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error)
 	// GetContainerSnapshot retrieves a specific container snapshot
 	GetContainerSnapshot(context.Context, *connect.Request[v1.GetContainerSnapshotRequest]) (*connect.Response[v1.GetContainerSnapshotResponse], error)
 	// ListContainerSnapshots lists container snapshots, optionally filtered by source container
 	ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error)
+	// CreateContainerDebugTTY establishes a bidirectional streaming TTY session to a container
+	// The first request must contain init_request with container id or name
+	// Subsequent requests contain input data to send to the TTY stdin
+	// Responses contain output data from the TTY stdout/stderr
+	CreateContainerDebugTTY(context.Context, *connect.BidiStream[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse]) error
 }
 
 // NewContainerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -275,6 +327,12 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 		connect.WithSchema(containerServiceMethods.ByName("UpdateContainerStatus")),
 		connect.WithHandlerOptions(opts...),
 	)
+	containerServiceBatchUpdateContainerStatusHandler := connect.NewUnaryHandler(
+		ContainerServiceBatchUpdateContainerStatusProcedure,
+		svc.BatchUpdateContainerStatus,
+		connect.WithSchema(containerServiceMethods.ByName("BatchUpdateContainerStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	containerServiceSnapshotContainerHandler := connect.NewUnaryHandler(
 		ContainerServiceSnapshotContainerProcedure,
 		svc.SnapshotContainer,
@@ -293,6 +351,12 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 		connect.WithSchema(containerServiceMethods.ByName("ListContainerSnapshots")),
 		connect.WithHandlerOptions(opts...),
 	)
+	containerServiceCreateContainerDebugTTYHandler := connect.NewBidiStreamHandler(
+		ContainerServiceCreateContainerDebugTTYProcedure,
+		svc.CreateContainerDebugTTY,
+		connect.WithSchema(containerServiceMethods.ByName("CreateContainerDebugTTY")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.container.v1.ContainerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ContainerServiceRunContainerProcedure:
@@ -307,12 +371,16 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 			containerServiceExecCommandHandler.ServeHTTP(w, r)
 		case ContainerServiceUpdateContainerStatusProcedure:
 			containerServiceUpdateContainerStatusHandler.ServeHTTP(w, r)
+		case ContainerServiceBatchUpdateContainerStatusProcedure:
+			containerServiceBatchUpdateContainerStatusHandler.ServeHTTP(w, r)
 		case ContainerServiceSnapshotContainerProcedure:
 			containerServiceSnapshotContainerHandler.ServeHTTP(w, r)
 		case ContainerServiceGetContainerSnapshotProcedure:
 			containerServiceGetContainerSnapshotHandler.ServeHTTP(w, r)
 		case ContainerServiceListContainerSnapshotsProcedure:
 			containerServiceListContainerSnapshotsHandler.ServeHTTP(w, r)
+		case ContainerServiceCreateContainerDebugTTYProcedure:
+			containerServiceCreateContainerDebugTTYHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -346,6 +414,10 @@ func (UnimplementedContainerServiceHandler) UpdateContainerStatus(context.Contex
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.UpdateContainerStatus is not implemented"))
 }
 
+func (UnimplementedContainerServiceHandler) BatchUpdateContainerStatus(context.Context, *connect.Request[v1.BatchUpdateContainerStatusRequest]) (*connect.Response[v1.BatchUpdateContainerStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.BatchUpdateContainerStatus is not implemented"))
+}
+
 func (UnimplementedContainerServiceHandler) SnapshotContainer(context.Context, *connect.Request[v1.SnapshotContainerRequest]) (*connect.Response[v1.SnapshotContainerResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.SnapshotContainer is not implemented"))
 }
@@ -356,4 +428,8 @@ func (UnimplementedContainerServiceHandler) GetContainerSnapshot(context.Context
 
 func (UnimplementedContainerServiceHandler) ListContainerSnapshots(context.Context, *connect.Request[v1.ListContainerSnapshotsRequest]) (*connect.Response[v1.ListContainerSnapshotsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.ListContainerSnapshots is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) CreateContainerDebugTTY(context.Context, *connect.BidiStream[v1.CreateContainerDebugTTYRequest, v1.CreateContainerDebugTTYResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.CreateContainerDebugTTY is not implemented"))
 }

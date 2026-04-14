@@ -23,6 +23,10 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// RemoteCallServiceName is the fully-qualified name of the RemoteCallService service.
 	RemoteCallServiceName = "chalk.runtime.v1.RemoteCallService"
+	// AsyncRemoteCallServiceName is the fully-qualified name of the AsyncRemoteCallService service.
+	AsyncRemoteCallServiceName = "chalk.runtime.v1.AsyncRemoteCallService"
+	// FunctionQueueMetaServiceName is the fully-qualified name of the FunctionQueueMetaService service.
+	FunctionQueueMetaServiceName = "chalk.runtime.v1.FunctionQueueMetaService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -36,6 +40,18 @@ const (
 	// RemoteCallServiceCallFunctionProcedure is the fully-qualified name of the RemoteCallService's
 	// CallFunction RPC.
 	RemoteCallServiceCallFunctionProcedure = "/chalk.runtime.v1.RemoteCallService/CallFunction"
+	// AsyncRemoteCallServiceEnqueueRemoteCallProcedure is the fully-qualified name of the
+	// AsyncRemoteCallService's EnqueueRemoteCall RPC.
+	AsyncRemoteCallServiceEnqueueRemoteCallProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/EnqueueRemoteCall"
+	// AsyncRemoteCallServicePollRemoteCallProcedure is the fully-qualified name of the
+	// AsyncRemoteCallService's PollRemoteCall RPC.
+	AsyncRemoteCallServicePollRemoteCallProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/PollRemoteCall"
+	// FunctionQueueMetaServiceGetRecentCallsProcedure is the fully-qualified name of the
+	// FunctionQueueMetaService's GetRecentCalls RPC.
+	FunctionQueueMetaServiceGetRecentCallsProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetRecentCalls"
+	// FunctionQueueMetaServiceGetCallCountProcedure is the fully-qualified name of the
+	// FunctionQueueMetaService's GetCallCount RPC.
+	FunctionQueueMetaServiceGetCallCountProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetCallCount"
 )
 
 // RemoteCallServiceClient is a client for the chalk.runtime.v1.RemoteCallService service.
@@ -106,4 +122,211 @@ type UnimplementedRemoteCallServiceHandler struct{}
 
 func (UnimplementedRemoteCallServiceHandler) CallFunction(context.Context, *connect.BidiStream[v1.CallFunctionRequest, v1.CallFunctionResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.RemoteCallService.CallFunction is not implemented"))
+}
+
+// AsyncRemoteCallServiceClient is a client for the chalk.runtime.v1.AsyncRemoteCallService service.
+type AsyncRemoteCallServiceClient interface {
+	// Accept a CallFunctionRequest and enqueue it for async execution.
+	EnqueueRemoteCall(context.Context, *connect.Request[v1.EnqueueRemoteCallRequest]) (*connect.Response[v1.EnqueueRemoteCallResponse], error)
+	// Poll for results. The caller passes a cursor to resume from the
+	// last position; the server returns any new result chunks plus an
+	// updated cursor.
+	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+}
+
+// NewAsyncRemoteCallServiceClient constructs a client for the
+// chalk.runtime.v1.AsyncRemoteCallService service. By default, it uses the Connect protocol with
+// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
+// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewAsyncRemoteCallServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AsyncRemoteCallServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	asyncRemoteCallServiceMethods := v1.File_chalk_runtime_v1_remote_python_call_proto.Services().ByName("AsyncRemoteCallService").Methods()
+	return &asyncRemoteCallServiceClient{
+		enqueueRemoteCall: connect.NewClient[v1.EnqueueRemoteCallRequest, v1.EnqueueRemoteCallResponse](
+			httpClient,
+			baseURL+AsyncRemoteCallServiceEnqueueRemoteCallProcedure,
+			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("EnqueueRemoteCall")),
+			connect.WithClientOptions(opts...),
+		),
+		pollRemoteCall: connect.NewClient[v1.PollRemoteCallRequest, v1.PollRemoteCallResponse](
+			httpClient,
+			baseURL+AsyncRemoteCallServicePollRemoteCallProcedure,
+			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// asyncRemoteCallServiceClient implements AsyncRemoteCallServiceClient.
+type asyncRemoteCallServiceClient struct {
+	enqueueRemoteCall *connect.Client[v1.EnqueueRemoteCallRequest, v1.EnqueueRemoteCallResponse]
+	pollRemoteCall    *connect.Client[v1.PollRemoteCallRequest, v1.PollRemoteCallResponse]
+}
+
+// EnqueueRemoteCall calls chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall.
+func (c *asyncRemoteCallServiceClient) EnqueueRemoteCall(ctx context.Context, req *connect.Request[v1.EnqueueRemoteCallRequest]) (*connect.Response[v1.EnqueueRemoteCallResponse], error) {
+	return c.enqueueRemoteCall.CallUnary(ctx, req)
+}
+
+// PollRemoteCall calls chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall.
+func (c *asyncRemoteCallServiceClient) PollRemoteCall(ctx context.Context, req *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error) {
+	return c.pollRemoteCall.CallUnary(ctx, req)
+}
+
+// AsyncRemoteCallServiceHandler is an implementation of the chalk.runtime.v1.AsyncRemoteCallService
+// service.
+type AsyncRemoteCallServiceHandler interface {
+	// Accept a CallFunctionRequest and enqueue it for async execution.
+	EnqueueRemoteCall(context.Context, *connect.Request[v1.EnqueueRemoteCallRequest]) (*connect.Response[v1.EnqueueRemoteCallResponse], error)
+	// Poll for results. The caller passes a cursor to resume from the
+	// last position; the server returns any new result chunks plus an
+	// updated cursor.
+	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+}
+
+// NewAsyncRemoteCallServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewAsyncRemoteCallServiceHandler(svc AsyncRemoteCallServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	asyncRemoteCallServiceMethods := v1.File_chalk_runtime_v1_remote_python_call_proto.Services().ByName("AsyncRemoteCallService").Methods()
+	asyncRemoteCallServiceEnqueueRemoteCallHandler := connect.NewUnaryHandler(
+		AsyncRemoteCallServiceEnqueueRemoteCallProcedure,
+		svc.EnqueueRemoteCall,
+		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("EnqueueRemoteCall")),
+		connect.WithHandlerOptions(opts...),
+	)
+	asyncRemoteCallServicePollRemoteCallHandler := connect.NewUnaryHandler(
+		AsyncRemoteCallServicePollRemoteCallProcedure,
+		svc.PollRemoteCall,
+		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.runtime.v1.AsyncRemoteCallService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case AsyncRemoteCallServiceEnqueueRemoteCallProcedure:
+			asyncRemoteCallServiceEnqueueRemoteCallHandler.ServeHTTP(w, r)
+		case AsyncRemoteCallServicePollRemoteCallProcedure:
+			asyncRemoteCallServicePollRemoteCallHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedAsyncRemoteCallServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedAsyncRemoteCallServiceHandler struct{}
+
+func (UnimplementedAsyncRemoteCallServiceHandler) EnqueueRemoteCall(context.Context, *connect.Request[v1.EnqueueRemoteCallRequest]) (*connect.Response[v1.EnqueueRemoteCallResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall is not implemented"))
+}
+
+func (UnimplementedAsyncRemoteCallServiceHandler) PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall is not implemented"))
+}
+
+// FunctionQueueMetaServiceClient is a client for the chalk.runtime.v1.FunctionQueueMetaService
+// service.
+type FunctionQueueMetaServiceClient interface {
+	// Return the most recent k calls to a function, ordered newest-first.
+	GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error)
+	// Return the number of calls submitted to a function in the past hour.
+	GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error)
+}
+
+// NewFunctionQueueMetaServiceClient constructs a client for the
+// chalk.runtime.v1.FunctionQueueMetaService service. By default, it uses the Connect protocol with
+// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
+// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewFunctionQueueMetaServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) FunctionQueueMetaServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	functionQueueMetaServiceMethods := v1.File_chalk_runtime_v1_remote_python_call_proto.Services().ByName("FunctionQueueMetaService").Methods()
+	return &functionQueueMetaServiceClient{
+		getRecentCalls: connect.NewClient[v1.GetRecentCallsRequest, v1.GetRecentCallsResponse](
+			httpClient,
+			baseURL+FunctionQueueMetaServiceGetRecentCallsProcedure,
+			connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetRecentCalls")),
+			connect.WithClientOptions(opts...),
+		),
+		getCallCount: connect.NewClient[v1.GetCallCountRequest, v1.GetCallCountResponse](
+			httpClient,
+			baseURL+FunctionQueueMetaServiceGetCallCountProcedure,
+			connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetCallCount")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// functionQueueMetaServiceClient implements FunctionQueueMetaServiceClient.
+type functionQueueMetaServiceClient struct {
+	getRecentCalls *connect.Client[v1.GetRecentCallsRequest, v1.GetRecentCallsResponse]
+	getCallCount   *connect.Client[v1.GetCallCountRequest, v1.GetCallCountResponse]
+}
+
+// GetRecentCalls calls chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls.
+func (c *functionQueueMetaServiceClient) GetRecentCalls(ctx context.Context, req *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error) {
+	return c.getRecentCalls.CallUnary(ctx, req)
+}
+
+// GetCallCount calls chalk.runtime.v1.FunctionQueueMetaService.GetCallCount.
+func (c *functionQueueMetaServiceClient) GetCallCount(ctx context.Context, req *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error) {
+	return c.getCallCount.CallUnary(ctx, req)
+}
+
+// FunctionQueueMetaServiceHandler is an implementation of the
+// chalk.runtime.v1.FunctionQueueMetaService service.
+type FunctionQueueMetaServiceHandler interface {
+	// Return the most recent k calls to a function, ordered newest-first.
+	GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error)
+	// Return the number of calls submitted to a function in the past hour.
+	GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error)
+}
+
+// NewFunctionQueueMetaServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewFunctionQueueMetaServiceHandler(svc FunctionQueueMetaServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	functionQueueMetaServiceMethods := v1.File_chalk_runtime_v1_remote_python_call_proto.Services().ByName("FunctionQueueMetaService").Methods()
+	functionQueueMetaServiceGetRecentCallsHandler := connect.NewUnaryHandler(
+		FunctionQueueMetaServiceGetRecentCallsProcedure,
+		svc.GetRecentCalls,
+		connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetRecentCalls")),
+		connect.WithHandlerOptions(opts...),
+	)
+	functionQueueMetaServiceGetCallCountHandler := connect.NewUnaryHandler(
+		FunctionQueueMetaServiceGetCallCountProcedure,
+		svc.GetCallCount,
+		connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetCallCount")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.runtime.v1.FunctionQueueMetaService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case FunctionQueueMetaServiceGetRecentCallsProcedure:
+			functionQueueMetaServiceGetRecentCallsHandler.ServeHTTP(w, r)
+		case FunctionQueueMetaServiceGetCallCountProcedure:
+			functionQueueMetaServiceGetCallCountHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedFunctionQueueMetaServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedFunctionQueueMetaServiceHandler struct{}
+
+func (UnimplementedFunctionQueueMetaServiceHandler) GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls is not implemented"))
+}
+
+func (UnimplementedFunctionQueueMetaServiceHandler) GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FunctionQueueMetaService.GetCallCount is not implemented"))
 }

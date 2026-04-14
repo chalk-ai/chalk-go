@@ -89,11 +89,12 @@ func (ExecutionPhase) EnumDescriptor() ([]byte, []int) {
 type StreamingMessageStatus int32
 
 const (
-	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_UNSPECIFIED   StreamingMessageStatus = 0
-	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_PARSE_FAILED  StreamingMessageStatus = 1 // Parse function produced an error
-	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_PARSE_SKIPPED StreamingMessageStatus = 2 // Parse function skipped this message intentionally
-	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_FAILED        StreamingMessageStatus = 3 // Streaming resolver produced an error or null for a non-nullable feature
-	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_SUCCESS       StreamingMessageStatus = 4 // Stream resolver successfully computed all features for a row and wrote to online store
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_UNSPECIFIED       StreamingMessageStatus = 0
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_PARSE_FAILED      StreamingMessageStatus = 1 // Parse function produced an error
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_PARSE_SKIPPED     StreamingMessageStatus = 2 // Parse function skipped this message intentionally
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_FAILED            StreamingMessageStatus = 3 // Streaming resolver produced an error or null for a non-nullable feature
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_SUCCESS           StreamingMessageStatus = 4 // Stream resolver successfully computed all features for a row and wrote to online store
+	StreamingMessageStatus_STREAMING_MESSAGE_STATUS_DUPLICATE_SKIPPED StreamingMessageStatus = 5 // Message was skipped because of a de-duplication policy (e.g. duplicate pkey within the last hour)
 )
 
 // Enum value maps for StreamingMessageStatus.
@@ -104,13 +105,15 @@ var (
 		2: "STREAMING_MESSAGE_STATUS_PARSE_SKIPPED",
 		3: "STREAMING_MESSAGE_STATUS_FAILED",
 		4: "STREAMING_MESSAGE_STATUS_SUCCESS",
+		5: "STREAMING_MESSAGE_STATUS_DUPLICATE_SKIPPED",
 	}
 	StreamingMessageStatus_value = map[string]int32{
-		"STREAMING_MESSAGE_STATUS_UNSPECIFIED":   0,
-		"STREAMING_MESSAGE_STATUS_PARSE_FAILED":  1,
-		"STREAMING_MESSAGE_STATUS_PARSE_SKIPPED": 2,
-		"STREAMING_MESSAGE_STATUS_FAILED":        3,
-		"STREAMING_MESSAGE_STATUS_SUCCESS":       4,
+		"STREAMING_MESSAGE_STATUS_UNSPECIFIED":       0,
+		"STREAMING_MESSAGE_STATUS_PARSE_FAILED":      1,
+		"STREAMING_MESSAGE_STATUS_PARSE_SKIPPED":     2,
+		"STREAMING_MESSAGE_STATUS_FAILED":            3,
+		"STREAMING_MESSAGE_STATUS_SUCCESS":           4,
+		"STREAMING_MESSAGE_STATUS_DUPLICATE_SKIPPED": 5,
 	}
 )
 
@@ -283,8 +286,12 @@ type StreamingLoggerConfig struct {
 	// Sample rate specifically for skipped messages (0.0 to 1.0).
 	// When absent, falls back to sample_pct.
 	SamplePctSkipped *float64 `protobuf:"fixed64,3,opt,name=sample_pct_skipped,json=samplePctSkipped,proto3,oneof" json:"sample_pct_skipped,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Sample rate for aggregate request logging (0.0 to 1.0).
+	// Controls sampling of materialized aggregation debug logs independently.
+	// When absent, falls back to sample_pct, then to env var default.
+	AggregateSamplePct *float64 `protobuf:"fixed64,4,opt,name=aggregate_sample_pct,json=aggregateSamplePct,proto3,oneof" json:"aggregate_sample_pct,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *StreamingLoggerConfig) Reset() {
@@ -334,6 +341,13 @@ func (x *StreamingLoggerConfig) GetSamplePctFailure() float64 {
 func (x *StreamingLoggerConfig) GetSamplePctSkipped() float64 {
 	if x != nil && x.SamplePctSkipped != nil {
 		return *x.SamplePctSkipped
+	}
+	return 0
+}
+
+func (x *StreamingLoggerConfig) GetAggregateSamplePct() float64 {
+	if x != nil && x.AggregateSamplePct != nil {
+		return *x.AggregateSamplePct
 	}
 	return 0
 }
@@ -705,15 +719,17 @@ const file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc = "" +
 	"\foperation_id\x18\x03 \x01(\tR\voperationId\x12 \n" +
 	"\trow_index\x18\x04 \x01(\x03H\x00R\browIndex\x88\x01\x01B\f\n" +
 	"\n" +
-	"_row_index\"\xde\x01\n" +
+	"_row_index\"\xae\x02\n" +
 	"\x15StreamingLoggerConfig\x12\"\n" +
 	"\n" +
 	"sample_pct\x18\x01 \x01(\x01H\x00R\tsamplePct\x88\x01\x01\x121\n" +
 	"\x12sample_pct_failure\x18\x02 \x01(\x01H\x01R\x10samplePctFailure\x88\x01\x01\x121\n" +
-	"\x12sample_pct_skipped\x18\x03 \x01(\x01H\x02R\x10samplePctSkipped\x88\x01\x01B\r\n" +
+	"\x12sample_pct_skipped\x18\x03 \x01(\x01H\x02R\x10samplePctSkipped\x88\x01\x01\x125\n" +
+	"\x14aggregate_sample_pct\x18\x04 \x01(\x01H\x03R\x12aggregateSamplePct\x88\x01\x01B\r\n" +
 	"\v_sample_pctB\x15\n" +
 	"\x13_sample_pct_failureB\x15\n" +
-	"\x13_sample_pct_skipped\"\xbd\x02\n" +
+	"\x13_sample_pct_skippedB\x17\n" +
+	"\x15_aggregate_sample_pct\"\xbd\x02\n" +
 	"!SimpleStreamingUnaryInvokeRequest\x124\n" +
 	"\x16streaming_resolver_fqn\x18\x01 \x01(\tR\x14streamingResolverFqn\x12\x1d\n" +
 	"\n" +
@@ -758,13 +774,14 @@ const file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc = "" +
 	"\x17EXECUTION_PHASE_MAPPING\x10\x02\x12\x1f\n" +
 	"\x1bEXECUTION_PHASE_PERSISTENCE\x10\x03\x12\x1f\n" +
 	"\x1bEXECUTION_PHASE_AGGREGATION\x10\x04\x12\x18\n" +
-	"\x14EXECUTION_PHASE_SINK\x10\x05*\xe4\x01\n" +
+	"\x14EXECUTION_PHASE_SINK\x10\x05*\x94\x02\n" +
 	"\x16StreamingMessageStatus\x12(\n" +
 	"$STREAMING_MESSAGE_STATUS_UNSPECIFIED\x10\x00\x12)\n" +
 	"%STREAMING_MESSAGE_STATUS_PARSE_FAILED\x10\x01\x12*\n" +
 	"&STREAMING_MESSAGE_STATUS_PARSE_SKIPPED\x10\x02\x12#\n" +
 	"\x1fSTREAMING_MESSAGE_STATUS_FAILED\x10\x03\x12$\n" +
-	" STREAMING_MESSAGE_STATUS_SUCCESS\x10\x04*\x99\x01\n" +
+	" STREAMING_MESSAGE_STATUS_SUCCESS\x10\x04\x12.\n" +
+	"*STREAMING_MESSAGE_STATUS_DUPLICATE_SKIPPED\x10\x05*\x99\x01\n" +
 	"\x18TestStreamResolverStatus\x12+\n" +
 	"'TEST_STREAM_RESOLVER_STATUS_UNSPECIFIED\x10\x00\x12'\n" +
 	"#TEST_STREAM_RESOLVER_STATUS_SUCCESS\x10\x01\x12'\n" +
