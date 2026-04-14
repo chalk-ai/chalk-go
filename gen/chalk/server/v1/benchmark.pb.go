@@ -354,20 +354,22 @@ type CreateBenchmarkRequest struct {
 	//
 	//	*CreateBenchmarkRequest_QueryBulk
 	//	*CreateBenchmarkRequest_SimpleQueryBulk
-	QueryRequest        isCreateBenchmarkRequest_QueryRequest `protobuf_oneof:"query_request"`
-	Percentiles         []int64                               `protobuf:"varint,7,rep,packed,name=percentiles,proto3" json:"percentiles,omitempty"`
-	ImageOverride       *string                               `protobuf:"bytes,8,opt,name=image_override,json=imageOverride,proto3,oneof" json:"image_override,omitempty"`
-	WarmupContainerSpec *ContainerSpec                        `protobuf:"bytes,9,opt,name=warmup_container_spec,json=warmupContainerSpec,proto3" json:"warmup_container_spec,omitempty"`
-	ContainerSpec       *ContainerSpec                        `protobuf:"bytes,10,opt,name=container_spec,json=containerSpec,proto3" json:"container_spec,omitempty"`
-	ResourceGroup       *string                               `protobuf:"bytes,11,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
-	TraceSampleRate     float64                               `protobuf:"fixed64,12,opt,name=trace_sample_rate,json=traceSampleRate,proto3" json:"trace_sample_rate,omitempty"`
-	DataSampleRate      float64                               `protobuf:"fixed64,13,opt,name=data_sample_rate,json=dataSampleRate,proto3" json:"data_sample_rate,omitempty"`
-	QueryHost           *string                               `protobuf:"bytes,14,opt,name=query_host,json=queryHost,proto3,oneof" json:"query_host,omitempty"`
-	Insecure            bool                                  `protobuf:"varint,15,opt,name=insecure,proto3" json:"insecure,omitempty"`
-	Concurrency         *int64                                `protobuf:"varint,16,opt,name=concurrency,proto3,oneof" json:"concurrency,omitempty"`
-	NumConnections      *int64                                `protobuf:"varint,17,opt,name=num_connections,json=numConnections,proto3,oneof" json:"num_connections,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	QueryRequest          isCreateBenchmarkRequest_QueryRequest `protobuf_oneof:"query_request"`
+	Percentiles           []int64                               `protobuf:"varint,7,rep,packed,name=percentiles,proto3" json:"percentiles,omitempty"`
+	ImageOverride         *string                               `protobuf:"bytes,8,opt,name=image_override,json=imageOverride,proto3,oneof" json:"image_override,omitempty"`
+	WarmupContainerSpec   *ContainerSpec                        `protobuf:"bytes,9,opt,name=warmup_container_spec,json=warmupContainerSpec,proto3" json:"warmup_container_spec,omitempty"`
+	ContainerSpec         *ContainerSpec                        `protobuf:"bytes,10,opt,name=container_spec,json=containerSpec,proto3" json:"container_spec,omitempty"`
+	ResourceGroup         *string                               `protobuf:"bytes,11,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	TraceSampleRate       float64                               `protobuf:"fixed64,12,opt,name=trace_sample_rate,json=traceSampleRate,proto3" json:"trace_sample_rate,omitempty"`
+	DataSampleRate        float64                               `protobuf:"fixed64,13,opt,name=data_sample_rate,json=dataSampleRate,proto3" json:"data_sample_rate,omitempty"`
+	QueryHost             *string                               `protobuf:"bytes,14,opt,name=query_host,json=queryHost,proto3,oneof" json:"query_host,omitempty"`
+	Insecure              bool                                  `protobuf:"varint,15,opt,name=insecure,proto3" json:"insecure,omitempty"`
+	Concurrency           *int64                                `protobuf:"varint,16,opt,name=concurrency,proto3,oneof" json:"concurrency,omitempty"`
+	NumConnections        *int64                                `protobuf:"varint,17,opt,name=num_connections,json=numConnections,proto3,oneof" json:"num_connections,omitempty"`
+	InitialWindowSize     *int64                                `protobuf:"varint,18,opt,name=initial_window_size,json=initialWindowSize,proto3,oneof" json:"initial_window_size,omitempty"`
+	InitialConnWindowSize *int64                                `protobuf:"varint,19,opt,name=initial_conn_window_size,json=initialConnWindowSize,proto3,oneof" json:"initial_conn_window_size,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *CreateBenchmarkRequest) Reset() {
@@ -526,6 +528,20 @@ func (x *CreateBenchmarkRequest) GetConcurrency() int64 {
 func (x *CreateBenchmarkRequest) GetNumConnections() int64 {
 	if x != nil && x.NumConnections != nil {
 		return *x.NumConnections
+	}
+	return 0
+}
+
+func (x *CreateBenchmarkRequest) GetInitialWindowSize() int64 {
+	if x != nil && x.InitialWindowSize != nil {
+		return *x.InitialWindowSize
+	}
+	return 0
+}
+
+func (x *CreateBenchmarkRequest) GetInitialConnWindowSize() int64 {
+	if x != nil && x.InitialConnWindowSize != nil {
+		return *x.InitialConnWindowSize
 	}
 	return 0
 }
@@ -1117,7 +1133,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
-	"\x06_limit\"\xd5\a\n" +
+	"\x06_limit\"\xfd\b\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1139,13 +1155,17 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"query_host\x18\x0e \x01(\tH\x03R\tqueryHost\x88\x01\x01\x12\x1a\n" +
 	"\binsecure\x18\x0f \x01(\bR\binsecure\x12%\n" +
 	"\vconcurrency\x18\x10 \x01(\x03H\x04R\vconcurrency\x88\x01\x01\x12,\n" +
-	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01B\x0f\n" +
+	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01\x123\n" +
+	"\x13initial_window_size\x18\x12 \x01(\x03H\x06R\x11initialWindowSize\x88\x01\x01\x12<\n" +
+	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01B\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
 	"\v_query_hostB\x0e\n" +
 	"\f_concurrencyB\x12\n" +
-	"\x10_num_connections\"v\n" +
+	"\x10_num_connectionsB\x16\n" +
+	"\x14_initial_window_sizeB\x1b\n" +
+	"\x19_initial_conn_window_size\"v\n" +
 	"\x17CreateBenchmarkResponse\x128\n" +
 	"\x06status\x18\x01 \x01(\x0e2 .chalk.server.v1.BenchmarkStatusR\x06status\x12!\n" +
 	"\fbenchmark_id\x18\x02 \x01(\tR\vbenchmarkId\"\x99\x01\n" +
