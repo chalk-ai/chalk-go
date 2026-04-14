@@ -88,6 +88,7 @@ const (
 	MetricKind_METRIC_KIND_GPU_TEMPERATURE_CELSIUS                 MetricKind = 60
 	MetricKind_METRIC_KIND_GPU_THROTTLE_REASONS                    MetricKind = 61
 	MetricKind_METRIC_KIND_GPU_FP16_ACTIVITY                       MetricKind = 62
+	MetricKind_METRIC_KIND_GPU_COUNT                               MetricKind = 63
 )
 
 // Enum value maps for MetricKind.
@@ -156,6 +157,7 @@ var (
 		60: "METRIC_KIND_GPU_TEMPERATURE_CELSIUS",
 		61: "METRIC_KIND_GPU_THROTTLE_REASONS",
 		62: "METRIC_KIND_GPU_FP16_ACTIVITY",
+		63: "METRIC_KIND_GPU_COUNT",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -221,6 +223,7 @@ var (
 		"METRIC_KIND_GPU_TEMPERATURE_CELSIUS":                 60,
 		"METRIC_KIND_GPU_THROTTLE_REASONS":                    61,
 		"METRIC_KIND_GPU_FP16_ACTIVITY":                       62,
+		"METRIC_KIND_GPU_COUNT":                               63,
 	}
 )
 
@@ -1434,7 +1437,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
 	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
 	"\n" +
-	"_entity_id*\xe2\x12\n" +
+	"_entity_id*\xfd\x12\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1500,7 +1503,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1bMETRIC_KIND_GPU_POWER_WATTS\x10;\x12'\n" +
 	"#METRIC_KIND_GPU_TEMPERATURE_CELSIUS\x10<\x12$\n" +
 	" METRIC_KIND_GPU_THROTTLE_REASONS\x10=\x12!\n" +
-	"\x1dMETRIC_KIND_GPU_FP16_ACTIVITY\x10>*\xa7\x05\n" +
+	"\x1dMETRIC_KIND_GPU_FP16_ACTIVITY\x10>\x12\x19\n" +
+	"\x15METRIC_KIND_GPU_COUNT\x10?*\xa7\x05\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +

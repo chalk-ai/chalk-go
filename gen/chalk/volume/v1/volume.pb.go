@@ -314,7 +314,11 @@ func (x *GetVolumeResponse) GetVolume() *VolumeInfo {
 }
 
 type ListVolumesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Maximum number of volumes to return. Defaults to 100 if unset or zero.
+	PageSize int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// Pagination token returned from a previous ListVolumes call.
+	PageToken     string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -349,9 +353,26 @@ func (*ListVolumesRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{6}
 }
 
+func (x *ListVolumesRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+func (x *ListVolumesRequest) GetPageToken() string {
+	if x != nil {
+		return x.PageToken
+	}
+	return ""
+}
+
 type ListVolumesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Volumes       []*VolumeInfo          `protobuf:"bytes,1,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Volumes []*VolumeInfo          `protobuf:"bytes,1,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	// Token to pass into the next ListVolumes call to get the next page.
+	// Empty when there are no more results.
+	NextPageToken string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -391,6 +412,13 @@ func (x *ListVolumesResponse) GetVolumes() []*VolumeInfo {
 		return x.Volumes
 	}
 	return nil
+}
+
+func (x *ListVolumesResponse) GetNextPageToken() string {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return ""
 }
 
 type DeleteVolumeRequest struct {
@@ -1288,10 +1316,14 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x10GetVolumeRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"H\n" +
 	"\x11GetVolumeResponse\x123\n" +
-	"\x06volume\x18\x01 \x01(\v2\x1b.chalk.volume.v1.VolumeInfoR\x06volume\"\x14\n" +
-	"\x12ListVolumesRequest\"L\n" +
+	"\x06volume\x18\x01 \x01(\v2\x1b.chalk.volume.v1.VolumeInfoR\x06volume\"P\n" +
+	"\x12ListVolumesRequest\x12\x1b\n" +
+	"\tpage_size\x18\x01 \x01(\x05R\bpageSize\x12\x1d\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tR\tpageToken\"t\n" +
 	"\x13ListVolumesResponse\x125\n" +
-	"\avolumes\x18\x01 \x03(\v2\x1b.chalk.volume.v1.VolumeInfoR\avolumes\")\n" +
+	"\avolumes\x18\x01 \x03(\v2\x1b.chalk.volume.v1.VolumeInfoR\avolumes\x12&\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\")\n" +
 	"\x13DeleteVolumeRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x16\n" +
 	"\x14DeleteVolumeResponse\"K\n" +

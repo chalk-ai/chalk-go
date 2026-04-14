@@ -375,8 +375,11 @@ type GetDebugMessagesRequest struct {
 	StartTimestampInclusive *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_timestamp_inclusive,json=startTimestampInclusive,proto3,oneof" json:"start_timestamp_inclusive,omitempty"`
 	// Optional end of time range (exclusive). Files and rows at or after this are excluded.
 	EndTimestampExclusive *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_timestamp_exclusive,json=endTimestampExclusive,proto3,oneof" json:"end_timestamp_exclusive,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Optional maximum number of rows to return. Capped at an internal limit (10,000).
+	// When absent, the internal limit applies.
+	MaxMessages   *int32 `protobuf:"varint,4,opt,name=max_messages,json=maxMessages,proto3,oneof" json:"max_messages,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetDebugMessagesRequest) Reset() {
@@ -428,6 +431,13 @@ func (x *GetDebugMessagesRequest) GetEndTimestampExclusive() *timestamppb.Timest
 		return x.EndTimestampExclusive
 	}
 	return nil
+}
+
+func (x *GetDebugMessagesRequest) GetMaxMessages() int32 {
+	if x != nil && x.MaxMessages != nil {
+		return *x.MaxMessages
+	}
+	return 0
 }
 
 // Response with parquet file contents
@@ -1006,13 +1016,15 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\rlogger_config\x18\x05 \x01(\v2).chalk.streaming.v1.StreamingLoggerConfigH\x02R\floggerConfig\x88\x01\x01B\r\n" +
 	"\v_enabled_atB\x10\n" +
 	"\x0e_deployment_idB\x10\n" +
-	"\x0e_logger_config\"\xac\x02\n" +
+	"\x0e_logger_config\"\xe5\x02\n" +
 	"\x17GetDebugMessagesRequest\x12!\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12[\n" +
 	"\x19start_timestamp_inclusive\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x17startTimestampInclusive\x88\x01\x01\x12W\n" +
-	"\x17end_timestamp_exclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x15endTimestampExclusive\x88\x01\x01B\x1c\n" +
+	"\x17end_timestamp_exclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x15endTimestampExclusive\x88\x01\x01\x12&\n" +
+	"\fmax_messages\x18\x04 \x01(\x05H\x02R\vmaxMessages\x88\x01\x01B\x1c\n" +
 	"\x1a_start_timestamp_inclusiveB\x1a\n" +
-	"\x18_end_timestamp_exclusive\"Y\n" +
+	"\x18_end_timestamp_exclusiveB\x0f\n" +
+	"\r_max_messages\"Y\n" +
 	"\x18GetDebugMessagesResponse\x12\x18\n" +
 	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
