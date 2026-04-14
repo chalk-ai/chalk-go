@@ -7,9 +7,11 @@
 package runtimev1
 
 import (
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -490,11 +492,294 @@ func (x *PollRemoteCallResponse) GetErrors() []*v1.ChalkError {
 	return nil
 }
 
+// Information about a single function call.
+type FunctionCallInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Server-assigned UUID for this call.
+	CallId string `protobuf:"bytes,1,opt,name=call_id,json=callId,proto3" json:"call_id,omitempty"`
+	// Name of the function that was invoked.
+	FunctionName string `protobuf:"bytes,2,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	// When the call was enqueued.
+	EnqueuedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=enqueued_at,json=enqueuedAt,proto3" json:"enqueued_at,omitempty"`
+	// Current status of the call.
+	Status RemoteCallStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chalk.runtime.v1.RemoteCallStatus" json:"status,omitempty"`
+	// Summary of the result — empty while pending/running; error message
+	// when failed; byte-length of the result when completed.
+	ResultSummary string `protobuf:"bytes,5,opt,name=result_summary,json=resultSummary,proto3" json:"result_summary,omitempty"`
+	// The W3C traceparent header value propagated with this call, if any.
+	TraceId       string `protobuf:"bytes,6,opt,name=trace_id,json=traceId,proto3" json:"trace_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FunctionCallInfo) Reset() {
+	*x = FunctionCallInfo{}
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FunctionCallInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FunctionCallInfo) ProtoMessage() {}
+
+func (x *FunctionCallInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FunctionCallInfo.ProtoReflect.Descriptor instead.
+func (*FunctionCallInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *FunctionCallInfo) GetCallId() string {
+	if x != nil {
+		return x.CallId
+	}
+	return ""
+}
+
+func (x *FunctionCallInfo) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *FunctionCallInfo) GetEnqueuedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EnqueuedAt
+	}
+	return nil
+}
+
+func (x *FunctionCallInfo) GetStatus() RemoteCallStatus {
+	if x != nil {
+		return x.Status
+	}
+	return RemoteCallStatus_REMOTE_CALL_STATUS_UNSPECIFIED
+}
+
+func (x *FunctionCallInfo) GetResultSummary() string {
+	if x != nil {
+		return x.ResultSummary
+	}
+	return ""
+}
+
+func (x *FunctionCallInfo) GetTraceId() string {
+	if x != nil {
+		return x.TraceId
+	}
+	return ""
+}
+
+// Request the most recent calls to a given function.
+type GetRecentCallsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The function name to query.
+	FunctionName string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	// Maximum number of calls to return (most recent first).
+	// Clamped to [1, 1000] server-side; defaults to 10 if zero.
+	Limit         uint32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRecentCallsRequest) Reset() {
+	*x = GetRecentCallsRequest{}
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRecentCallsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRecentCallsRequest) ProtoMessage() {}
+
+func (x *GetRecentCallsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRecentCallsRequest.ProtoReflect.Descriptor instead.
+func (*GetRecentCallsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetRecentCallsRequest) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *GetRecentCallsRequest) GetLimit() uint32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type GetRecentCallsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Calls         []*FunctionCallInfo    `protobuf:"bytes,1,rep,name=calls,proto3" json:"calls,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRecentCallsResponse) Reset() {
+	*x = GetRecentCallsResponse{}
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRecentCallsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRecentCallsResponse) ProtoMessage() {}
+
+func (x *GetRecentCallsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRecentCallsResponse.ProtoReflect.Descriptor instead.
+func (*GetRecentCallsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetRecentCallsResponse) GetCalls() []*FunctionCallInfo {
+	if x != nil {
+		return x.Calls
+	}
+	return nil
+}
+
+// Request the number of calls submitted in the past hour.
+type GetCallCountRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The function name to query.
+	FunctionName  string `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCallCountRequest) Reset() {
+	*x = GetCallCountRequest{}
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCallCountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCallCountRequest) ProtoMessage() {}
+
+func (x *GetCallCountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCallCountRequest.ProtoReflect.Descriptor instead.
+func (*GetCallCountRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetCallCountRequest) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+type GetCallCountResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Number of calls enqueued in the past hour.
+	Count         uint64 `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCallCountResponse) Reset() {
+	*x = GetCallCountResponse{}
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCallCountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCallCountResponse) ProtoMessage() {}
+
+func (x *GetCallCountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_runtime_v1_remote_python_call_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCallCountResponse.ProtoReflect.Descriptor instead.
+func (*GetCallCountResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetCallCountResponse) GetCount() uint64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
 var File_chalk_runtime_v1_remote_python_call_proto protoreflect.FileDescriptor
 
 const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\n" +
-	")chalk/runtime/v1/remote_python_call.proto\x12\x10chalk.runtime.v1\x1a!chalk/common/v1/chalk_error.proto\"P\n" +
+	")chalk/runtime/v1/remote_python_call.proto\x12\x10chalk.runtime.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"P\n" +
 	"\x13CallFunctionRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0efeather_stream\x18\x02 \x01(\fR\rfeatherStream\"=\n" +
@@ -516,7 +801,24 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\x12@\n" +
 	"\aresults\x18\x02 \x03(\v2&.chalk.runtime.v1.CallFunctionResponseR\aresults\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\x123\n" +
-	"\x06errors\x18\x04 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors*\xb7\x01\n" +
+	"\x06errors\x18\x04 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"\x8b\x02\n" +
+	"\x10FunctionCallInfo\x12\x17\n" +
+	"\acall_id\x18\x01 \x01(\tR\x06callId\x12#\n" +
+	"\rfunction_name\x18\x02 \x01(\tR\ffunctionName\x12;\n" +
+	"\venqueued_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"enqueuedAt\x12:\n" +
+	"\x06status\x18\x04 \x01(\x0e2\".chalk.runtime.v1.RemoteCallStatusR\x06status\x12%\n" +
+	"\x0eresult_summary\x18\x05 \x01(\tR\rresultSummary\x12\x19\n" +
+	"\btrace_id\x18\x06 \x01(\tR\atraceId\"R\n" +
+	"\x15GetRecentCallsRequest\x12#\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\rR\x05limit\"R\n" +
+	"\x16GetRecentCallsResponse\x128\n" +
+	"\x05calls\x18\x01 \x03(\v2\".chalk.runtime.v1.FunctionCallInfoR\x05calls\":\n" +
+	"\x13GetCallCountRequest\x12#\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\",\n" +
+	"\x14GetCallCountResponse\x12\x14\n" +
+	"\x05count\x18\x01 \x01(\x04R\x05count*\xb7\x01\n" +
 	"\x10RemoteCallStatus\x12\"\n" +
 	"\x1eREMOTE_CALL_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aREMOTE_CALL_STATUS_PENDING\x10\x01\x12\x1e\n" +
@@ -527,7 +829,10 @@ const file_chalk_runtime_v1_remote_python_call_proto_rawDesc = "" +
 	"\fCallFunction\x12%.chalk.runtime.v1.CallFunctionRequest\x1a&.chalk.runtime.v1.CallFunctionResponse\"\x00(\x010\x012\xef\x01\n" +
 	"\x16AsyncRemoteCallService\x12n\n" +
 	"\x11EnqueueRemoteCall\x12*.chalk.runtime.v1.EnqueueRemoteCallRequest\x1a+.chalk.runtime.v1.EnqueueRemoteCallResponse\"\x00\x12e\n" +
-	"\x0ePollRemoteCall\x12'.chalk.runtime.v1.PollRemoteCallRequest\x1a(.chalk.runtime.v1.PollRemoteCallResponse\"\x00B\xcc\x01\n" +
+	"\x0ePollRemoteCall\x12'.chalk.runtime.v1.PollRemoteCallRequest\x1a(.chalk.runtime.v1.PollRemoteCallResponse\"\x002\xe8\x01\n" +
+	"\x18FunctionQueueMetaService\x12h\n" +
+	"\x0eGetRecentCalls\x12'.chalk.runtime.v1.GetRecentCallsRequest\x1a(.chalk.runtime.v1.GetRecentCallsResponse\"\x03\x80}\x03\x12b\n" +
+	"\fGetCallCount\x12%.chalk.runtime.v1.GetCallCountRequest\x1a&.chalk.runtime.v1.GetCallCountResponse\"\x03\x80}\x03B\xcc\x01\n" +
 	"\x14com.chalk.runtime.v1B\x15RemotePythonCallProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1;runtimev1\xa2\x02\x03CRX\xaa\x02\x10Chalk.Runtime.V1\xca\x02\x10Chalk\\Runtime\\V1\xe2\x02\x1cChalk\\Runtime\\V1\\GPBMetadata\xea\x02\x12Chalk::Runtime::V1b\x06proto3"
 
 var (
@@ -543,7 +848,7 @@ func file_chalk_runtime_v1_remote_python_call_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_runtime_v1_remote_python_call_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_runtime_v1_remote_python_call_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_runtime_v1_remote_python_call_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_runtime_v1_remote_python_call_proto_goTypes = []any{
 	(RemoteCallStatus)(0),             // 0: chalk.runtime.v1.RemoteCallStatus
 	(*CallFunctionRequest)(nil),       // 1: chalk.runtime.v1.CallFunctionRequest
@@ -553,24 +858,37 @@ var file_chalk_runtime_v1_remote_python_call_proto_goTypes = []any{
 	(*EnqueueRemoteCallResponse)(nil), // 5: chalk.runtime.v1.EnqueueRemoteCallResponse
 	(*PollRemoteCallRequest)(nil),     // 6: chalk.runtime.v1.PollRemoteCallRequest
 	(*PollRemoteCallResponse)(nil),    // 7: chalk.runtime.v1.PollRemoteCallResponse
-	(*v1.ChalkError)(nil),             // 8: chalk.common.v1.ChalkError
+	(*FunctionCallInfo)(nil),          // 8: chalk.runtime.v1.FunctionCallInfo
+	(*GetRecentCallsRequest)(nil),     // 9: chalk.runtime.v1.GetRecentCallsRequest
+	(*GetRecentCallsResponse)(nil),    // 10: chalk.runtime.v1.GetRecentCallsResponse
+	(*GetCallCountRequest)(nil),       // 11: chalk.runtime.v1.GetCallCountRequest
+	(*GetCallCountResponse)(nil),      // 12: chalk.runtime.v1.GetCallCountResponse
+	(*v1.ChalkError)(nil),             // 13: chalk.common.v1.ChalkError
+	(*timestamppb.Timestamp)(nil),     // 14: google.protobuf.Timestamp
 }
 var file_chalk_runtime_v1_remote_python_call_proto_depIdxs = []int32{
-	3, // 0: chalk.runtime.v1.EnqueueRemoteCallRequest.args:type_name -> chalk.runtime.v1.RemoteCallArgs
-	0, // 1: chalk.runtime.v1.PollRemoteCallResponse.status:type_name -> chalk.runtime.v1.RemoteCallStatus
-	2, // 2: chalk.runtime.v1.PollRemoteCallResponse.results:type_name -> chalk.runtime.v1.CallFunctionResponse
-	8, // 3: chalk.runtime.v1.PollRemoteCallResponse.errors:type_name -> chalk.common.v1.ChalkError
-	1, // 4: chalk.runtime.v1.RemoteCallService.CallFunction:input_type -> chalk.runtime.v1.CallFunctionRequest
-	4, // 5: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:input_type -> chalk.runtime.v1.EnqueueRemoteCallRequest
-	6, // 6: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:input_type -> chalk.runtime.v1.PollRemoteCallRequest
-	2, // 7: chalk.runtime.v1.RemoteCallService.CallFunction:output_type -> chalk.runtime.v1.CallFunctionResponse
-	5, // 8: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:output_type -> chalk.runtime.v1.EnqueueRemoteCallResponse
-	7, // 9: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:output_type -> chalk.runtime.v1.PollRemoteCallResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3,  // 0: chalk.runtime.v1.EnqueueRemoteCallRequest.args:type_name -> chalk.runtime.v1.RemoteCallArgs
+	0,  // 1: chalk.runtime.v1.PollRemoteCallResponse.status:type_name -> chalk.runtime.v1.RemoteCallStatus
+	2,  // 2: chalk.runtime.v1.PollRemoteCallResponse.results:type_name -> chalk.runtime.v1.CallFunctionResponse
+	13, // 3: chalk.runtime.v1.PollRemoteCallResponse.errors:type_name -> chalk.common.v1.ChalkError
+	14, // 4: chalk.runtime.v1.FunctionCallInfo.enqueued_at:type_name -> google.protobuf.Timestamp
+	0,  // 5: chalk.runtime.v1.FunctionCallInfo.status:type_name -> chalk.runtime.v1.RemoteCallStatus
+	8,  // 6: chalk.runtime.v1.GetRecentCallsResponse.calls:type_name -> chalk.runtime.v1.FunctionCallInfo
+	1,  // 7: chalk.runtime.v1.RemoteCallService.CallFunction:input_type -> chalk.runtime.v1.CallFunctionRequest
+	4,  // 8: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:input_type -> chalk.runtime.v1.EnqueueRemoteCallRequest
+	6,  // 9: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:input_type -> chalk.runtime.v1.PollRemoteCallRequest
+	9,  // 10: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:input_type -> chalk.runtime.v1.GetRecentCallsRequest
+	11, // 11: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:input_type -> chalk.runtime.v1.GetCallCountRequest
+	2,  // 12: chalk.runtime.v1.RemoteCallService.CallFunction:output_type -> chalk.runtime.v1.CallFunctionResponse
+	5,  // 13: chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall:output_type -> chalk.runtime.v1.EnqueueRemoteCallResponse
+	7,  // 14: chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall:output_type -> chalk.runtime.v1.PollRemoteCallResponse
+	10, // 15: chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls:output_type -> chalk.runtime.v1.GetRecentCallsResponse
+	12, // 16: chalk.runtime.v1.FunctionQueueMetaService.GetCallCount:output_type -> chalk.runtime.v1.GetCallCountResponse
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chalk_runtime_v1_remote_python_call_proto_init() }
@@ -588,9 +906,9 @@ func file_chalk_runtime_v1_remote_python_call_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_runtime_v1_remote_python_call_proto_rawDesc), len(file_chalk_runtime_v1_remote_python_call_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   12,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   3,
 		},
 		GoTypes:           file_chalk_runtime_v1_remote_python_call_proto_goTypes,
 		DependencyIndexes: file_chalk_runtime_v1_remote_python_call_proto_depIdxs,
