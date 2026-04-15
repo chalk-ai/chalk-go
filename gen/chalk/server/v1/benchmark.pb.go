@@ -368,6 +368,7 @@ type CreateBenchmarkRequest struct {
 	NumConnections        *int64                                `protobuf:"varint,17,opt,name=num_connections,json=numConnections,proto3,oneof" json:"num_connections,omitempty"`
 	InitialWindowSize     *int64                                `protobuf:"varint,18,opt,name=initial_window_size,json=initialWindowSize,proto3,oneof" json:"initial_window_size,omitempty"`
 	InitialConnWindowSize *int64                                `protobuf:"varint,19,opt,name=initial_conn_window_size,json=initialConnWindowSize,proto3,oneof" json:"initial_conn_window_size,omitempty"`
+	Nodepool              *string                               `protobuf:"bytes,20,opt,name=nodepool,proto3,oneof" json:"nodepool,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -544,6 +545,13 @@ func (x *CreateBenchmarkRequest) GetInitialConnWindowSize() int64 {
 		return *x.InitialConnWindowSize
 	}
 	return 0
+}
+
+func (x *CreateBenchmarkRequest) GetNodepool() string {
+	if x != nil && x.Nodepool != nil {
+		return *x.Nodepool
+	}
+	return ""
 }
 
 type isCreateBenchmarkRequest_QueryRequest interface {
@@ -1133,7 +1141,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
-	"\x06_limit\"\xfd\b\n" +
+	"\x06_limit\"\xab\t\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1157,7 +1165,8 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\vconcurrency\x18\x10 \x01(\x03H\x04R\vconcurrency\x88\x01\x01\x12,\n" +
 	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01\x123\n" +
 	"\x13initial_window_size\x18\x12 \x01(\x03H\x06R\x11initialWindowSize\x88\x01\x01\x12<\n" +
-	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01B\x0f\n" +
+	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01\x12\x1f\n" +
+	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01B\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
@@ -1165,7 +1174,8 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\f_concurrencyB\x12\n" +
 	"\x10_num_connectionsB\x16\n" +
 	"\x14_initial_window_sizeB\x1b\n" +
-	"\x19_initial_conn_window_size\"v\n" +
+	"\x19_initial_conn_window_sizeB\v\n" +
+	"\t_nodepool\"v\n" +
 	"\x17CreateBenchmarkResponse\x128\n" +
 	"\x06status\x18\x01 \x01(\x0e2 .chalk.server.v1.BenchmarkStatusR\x06status\x12!\n" +
 	"\fbenchmark_id\x18\x02 \x01(\tR\vbenchmarkId\"\x99\x01\n" +
