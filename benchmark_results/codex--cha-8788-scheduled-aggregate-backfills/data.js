@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776284661864,
+  "lastUpdate": 1776371196935,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -34914,6 +34914,56 @@ window.BENCHMARK_DATA = {
             "value": 292.5,
             "unit": "ms/op",
             "extra": "6 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "fdbf172979c05cc352182d0dcd5c827b9fcc1b87",
+          "message": "[codex] CHA-8788 enable scheduled aggregate backfills",
+          "timestamp": "2026-04-15T20:23:45Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/636/commits/fdbf172979c05cc352182d0dcd5c827b9fcc1b87"
+        },
+        "date": 1776371196832,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.244,
+            "unit": "ms/op",
+            "extra": "1201 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 114.4,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 34.65,
+            "unit": "ms/op",
+            "extra": "38 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 212.4,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 303.9,
+            "unit": "ms/op",
+            "extra": "4 times\n4 procs"
           }
         ]
       }
