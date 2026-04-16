@@ -1,8 +1,12 @@
 package fixtures
 
 import (
-	"connectrpc.com/connect"
 	"context"
+	"net/http"
+	"net/http/httptest"
+	"time"
+
+	"connectrpc.com/connect"
 	aggregatev1 "github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1"
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	enginev1 "github.com/chalk-ai/chalk-go/gen/chalk/engine/v1"
@@ -12,9 +16,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"golang.org/x/net/http2"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"net/http"
-	"net/http/httptest"
-	"time"
 )
 
 type mockQueryServer struct {
@@ -222,6 +223,13 @@ func (m *mockAuthServer) SelfServiceCreateTeam(
 	ctx context.Context,
 	req *connect.Request[serverv1.SelfServiceCreateTeamRequest],
 ) (*connect.Response[serverv1.SelfServiceCreateTeamResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
+}
+
+func (m *mockAuthServer) GetProjectInfo(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetProjectInfoRequest],
+) (*connect.Response[serverv1.GetProjectInfoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("not implemented"))
 }
 
