@@ -85,6 +85,9 @@ const (
 	// AuthServiceSelfServiceCreateTeamProcedure is the fully-qualified name of the AuthService's
 	// SelfServiceCreateTeam RPC.
 	AuthServiceSelfServiceCreateTeamProcedure = "/chalk.server.v1.AuthService/SelfServiceCreateTeam"
+	// AuthServiceGetProjectInfoProcedure is the fully-qualified name of the AuthService's
+	// GetProjectInfo RPC.
+	AuthServiceGetProjectInfoProcedure = "/chalk.server.v1.AuthService/GetProjectInfo"
 )
 
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
@@ -108,6 +111,8 @@ type AuthServiceClient interface {
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
+	// Only for use with auto-impersonation
+	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the chalk.server.v1.AuthService service. By default,
@@ -235,6 +240,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("SelfServiceCreateTeam")),
 			connect.WithClientOptions(opts...),
 		),
+		getProjectInfo: connect.NewClient[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse](
+			httpClient,
+			baseURL+AuthServiceGetProjectInfoProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetProjectInfo")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -259,6 +270,7 @@ type authServiceClient struct {
 	useVerificationToken    *connect.Client[v1.UseVerificationTokenRequest, v1.UseVerificationTokenResponse]
 	upsertUserByEmail       *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
 	selfServiceCreateTeam   *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
+	getProjectInfo          *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -356,6 +368,11 @@ func (c *authServiceClient) SelfServiceCreateTeam(ctx context.Context, req *conn
 	return c.selfServiceCreateTeam.CallUnary(ctx, req)
 }
 
+// GetProjectInfo calls chalk.server.v1.AuthService.GetProjectInfo.
+func (c *authServiceClient) GetProjectInfo(ctx context.Context, req *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error) {
+	return c.getProjectInfo.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the chalk.server.v1.AuthService service.
 type AuthServiceHandler interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
@@ -377,6 +394,8 @@ type AuthServiceHandler interface {
 	UseVerificationToken(context.Context, *connect.Request[v1.UseVerificationTokenRequest]) (*connect.Response[v1.UseVerificationTokenResponse], error)
 	UpsertUserByEmail(context.Context, *connect.Request[v1.UpsertUserByEmailRequest]) (*connect.Response[v1.UpsertUserByEmailResponse], error)
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
+	// Only for use with auto-impersonation
+	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -500,6 +519,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("SelfServiceCreateTeam")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceGetProjectInfoHandler := connect.NewUnaryHandler(
+		AuthServiceGetProjectInfoProcedure,
+		svc.GetProjectInfo,
+		connect.WithSchema(authServiceMethods.ByName("GetProjectInfo")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceGetTokenProcedure:
@@ -540,6 +565,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceUpsertUserByEmailHandler.ServeHTTP(w, r)
 		case AuthServiceSelfServiceCreateTeamProcedure:
 			authServiceSelfServiceCreateTeamHandler.ServeHTTP(w, r)
+		case AuthServiceGetProjectInfoProcedure:
+			authServiceGetProjectInfoHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -623,4 +650,8 @@ func (UnimplementedAuthServiceHandler) UpsertUserByEmail(context.Context, *conne
 
 func (UnimplementedAuthServiceHandler) SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.SelfServiceCreateTeam is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetProjectInfo is not implemented"))
 }

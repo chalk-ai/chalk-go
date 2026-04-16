@@ -1549,6 +1549,7 @@ func (x *DeleteDatasetResponse) GetDatasetId() string {
 type MaterializedAggregateTileMeta struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
 	Id                      int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId           string                 `protobuf:"bytes,18,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	DeploymentId            string                 `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
 	OperationId             string                 `protobuf:"bytes,3,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
 	AggregateBackfillId     string                 `protobuf:"bytes,4,opt,name=aggregate_backfill_id,json=aggregateBackfillId,proto3" json:"aggregate_backfill_id,omitempty"`
@@ -1565,7 +1566,6 @@ type MaterializedAggregateTileMeta struct {
 	TotalRows               int64                  `protobuf:"varint,15,opt,name=total_rows,json=totalRows,proto3" json:"total_rows,omitempty"`
 	CreatedAt               *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt               *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	EnvironmentId           string                 `protobuf:"bytes,18,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	MaterializationKeyJson  string                 `protobuf:"bytes,19,opt,name=materialization_key_json,json=materializationKeyJson,proto3" json:"materialization_key_json,omitempty"`
 	OutputSchemaBytesBase64 string                 `protobuf:"bytes,20,opt,name=output_schema_bytes_base64,json=outputSchemaBytesBase64,proto3" json:"output_schema_bytes_base64,omitempty"`
 	SourceMetaJson          string                 `protobuf:"bytes,21,opt,name=source_meta_json,json=sourceMetaJson,proto3" json:"source_meta_json,omitempty"`
@@ -1608,6 +1608,13 @@ func (x *MaterializedAggregateTileMeta) GetId() int64 {
 		return x.Id
 	}
 	return 0
+}
+
+func (x *MaterializedAggregateTileMeta) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
 }
 
 func (x *MaterializedAggregateTileMeta) GetDeploymentId() string {
@@ -1722,13 +1729,6 @@ func (x *MaterializedAggregateTileMeta) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *MaterializedAggregateTileMeta) GetEnvironmentId() string {
-	if x != nil {
-		return x.EnvironmentId
-	}
-	return ""
-}
-
 func (x *MaterializedAggregateTileMeta) GetMaterializationKeyJson() string {
 	if x != nil {
 		return x.MaterializationKeyJson
@@ -1753,6 +1753,7 @@ func (x *MaterializedAggregateTileMeta) GetSourceMetaJson() string {
 type MaterializedAggregateTileFileMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,7,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	DeploymentId  string                 `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
 	FileOrdinal   int64                  `protobuf:"varint,3,opt,name=file_ordinal,json=fileOrdinal,proto3" json:"file_ordinal,omitempty"`
 	RowCount      int64                  `protobuf:"varint,4,opt,name=row_count,json=rowCount,proto3" json:"row_count,omitempty"`
@@ -1799,6 +1800,13 @@ func (x *MaterializedAggregateTileFileMeta) GetId() int64 {
 	return 0
 }
 
+func (x *MaterializedAggregateTileFileMeta) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
 func (x *MaterializedAggregateTileFileMeta) GetDeploymentId() string {
 	if x != nil {
 		return x.DeploymentId
@@ -1836,6 +1844,8 @@ func (x *MaterializedAggregateTileFileMeta) GetCreatedAt() *timestamppb.Timestam
 
 type ListMaterializedAggregateTilesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1870,9 +1880,24 @@ func (*ListMaterializedAggregateTilesRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{22}
 }
 
+func (x *ListMaterializedAggregateTilesRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListMaterializedAggregateTilesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
 type ListMaterializedAggregateTilesResponse struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
 	Tiles         []*MaterializedAggregateTileMeta `protobuf:"bytes,1,rep,name=tiles,proto3" json:"tiles,omitempty"`
+	NextCursor    *string                          `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1914,9 +1939,18 @@ func (x *ListMaterializedAggregateTilesResponse) GetTiles() []*MaterializedAggre
 	return nil
 }
 
+func (x *ListMaterializedAggregateTilesResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
 type ListMaterializedAggregateTileFilesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ManifestId    int64                  `protobuf:"varint,1,opt,name=manifest_id,json=manifestId,proto3" json:"manifest_id,omitempty"`
+	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit         *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1958,9 +1992,24 @@ func (x *ListMaterializedAggregateTileFilesRequest) GetManifestId() int64 {
 	return 0
 }
 
+func (x *ListMaterializedAggregateTileFilesRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListMaterializedAggregateTileFilesRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
 type ListMaterializedAggregateTileFilesResponse struct {
 	state         protoimpl.MessageState               `protogen:"open.v1"`
 	Files         []*MaterializedAggregateTileFileMeta `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`
+	NextCursor    *string                              `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2000,6 +2049,13 @@ func (x *ListMaterializedAggregateTileFilesResponse) GetFiles() []*MaterializedA
 		return x.Files
 	}
 	return nil
+}
+
+func (x *ListMaterializedAggregateTileFilesResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
 }
 
 type DeleteMaterializedAggregateTileRequest struct {
@@ -2704,7 +2760,8 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
 	"dataset_id\x18\x01 \x01(\tR\tdatasetId\"\xc6\a\n" +
 	"\x1dMaterializedAggregateTileMeta\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12#\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
+	"\x0eenvironment_id\x18\x12 \x01(\tR\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12!\n" +
 	"\foperation_id\x18\x03 \x01(\tR\voperationId\x122\n" +
 	"\x15aggregate_backfill_id\x18\x04 \x01(\tR\x13aggregateBackfillId\x128\n" +
@@ -2726,27 +2783,41 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12%\n" +
-	"\x0eenvironment_id\x18\x12 \x01(\tR\renvironmentId\x128\n" +
+	"updated_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x128\n" +
 	"\x18materialization_key_json\x18\x13 \x01(\tR\x16materializationKeyJson\x12;\n" +
 	"\x1aoutput_schema_bytes_base64\x18\x14 \x01(\tR\x17outputSchemaBytesBase64\x12(\n" +
-	"\x10source_meta_json\x18\x15 \x01(\tR\x0esourceMetaJson\"\xe5\x01\n" +
+	"\x10source_meta_json\x18\x15 \x01(\tR\x0esourceMetaJson\"\x8c\x02\n" +
 	"!MaterializedAggregateTileFileMeta\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12#\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
+	"\x0eenvironment_id\x18\a \x01(\tR\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12!\n" +
 	"\ffile_ordinal\x18\x03 \x01(\x03R\vfileOrdinal\x12\x1b\n" +
 	"\trow_count\x18\x04 \x01(\x03R\browCount\x12\x10\n" +
 	"\x03uri\x18\x05 \x01(\tR\x03uri\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"'\n" +
-	"%ListMaterializedAggregateTilesRequest\"n\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"t\n" +
+	"%ListMaterializedAggregateTilesRequest\x12\x1b\n" +
+	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\xa4\x01\n" +
 	"&ListMaterializedAggregateTilesResponse\x12D\n" +
-	"\x05tiles\x18\x01 \x03(\v2..chalk.server.v1.MaterializedAggregateTileMetaR\x05tiles\"L\n" +
+	"\x05tiles\x18\x01 \x03(\v2..chalk.server.v1.MaterializedAggregateTileMetaR\x05tiles\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\x99\x01\n" +
 	")ListMaterializedAggregateTileFilesRequest\x12\x1f\n" +
 	"\vmanifest_id\x18\x01 \x01(\x03R\n" +
-	"manifestId\"v\n" +
+	"manifestId\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\xac\x01\n" +
 	"*ListMaterializedAggregateTileFilesResponse\x12H\n" +
-	"\x05files\x18\x01 \x03(\v22.chalk.server.v1.MaterializedAggregateTileFileMetaR\x05files\"8\n" +
+	"\x05files\x18\x01 \x03(\v22.chalk.server.v1.MaterializedAggregateTileFileMetaR\x05files\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"8\n" +
 	"&DeleteMaterializedAggregateTileRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"9\n" +
 	"'DeleteMaterializedAggregateTileResponse\x12\x0e\n" +
@@ -2978,6 +3049,10 @@ func file_chalk_server_v1_datasets_proto_init() {
 	file_chalk_server_v1_datasets_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_datasets_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_datasets_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[25].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
