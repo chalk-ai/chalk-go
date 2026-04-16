@@ -1120,12 +1120,16 @@ func (x *GetJobQueueOperationSummaryRequest) GetOffset() int32 {
 
 type GetJobQueueOperationSummaryResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// let's be explicit about this
+	ManagedByJobQueue bool `protobuf:"varint,2,opt,name=managed_by_job_queue,json=managedByJobQueue,proto3" json:"managed_by_job_queue,omitempty"`
 	// If not present, there is no job queue data
 	// If the query is already in the offline_queries table, it doesn't need to be refetched if the summary is missing.
 	// Barring a bizarre race, a job-queue offline query is recorded in job_queue before offline_queries.
-	Summary       *JobQueueOperationSummary `protobuf:"bytes,1,opt,name=summary,proto3,oneof" json:"summary,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Summary *JobQueueOperationSummary `protobuf:"bytes,1,opt,name=summary,proto3,oneof" json:"summary,omitempty"`
+	// possible even if there is no data
+	ReferencingWorkflowExecutionId *string `protobuf:"bytes,3,opt,name=referencing_workflow_execution_id,json=referencingWorkflowExecutionId,proto3,oneof" json:"referencing_workflow_execution_id,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *GetJobQueueOperationSummaryResponse) Reset() {
@@ -1158,11 +1162,25 @@ func (*GetJobQueueOperationSummaryResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{12}
 }
 
+func (x *GetJobQueueOperationSummaryResponse) GetManagedByJobQueue() bool {
+	if x != nil {
+		return x.ManagedByJobQueue
+	}
+	return false
+}
+
 func (x *GetJobQueueOperationSummaryResponse) GetSummary() *JobQueueOperationSummary {
 	if x != nil {
 		return x.Summary
 	}
 	return nil
+}
+
+func (x *GetJobQueueOperationSummaryResponse) GetReferencingWorkflowExecutionId() string {
+	if x != nil && x.ReferencingWorkflowExecutionId != nil {
+		return *x.ReferencingWorkflowExecutionId
+	}
+	return ""
 }
 
 type JobQueueAttempt struct {
@@ -1758,11 +1776,14 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x05limit\x18\x03 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06offset\x18\x04 \x01(\x05H\x01R\x06offset\x88\x01\x01B\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_offset\"{\n" +
-	"#GetJobQueueOperationSummaryResponse\x12H\n" +
-	"\asummary\x18\x01 \x01(\v2).chalk.server.v1.JobQueueOperationSummaryH\x00R\asummary\x88\x01\x01B\n" +
+	"\a_offset\"\xa2\x02\n" +
+	"#GetJobQueueOperationSummaryResponse\x12/\n" +
+	"\x14managed_by_job_queue\x18\x02 \x01(\bR\x11managedByJobQueue\x12H\n" +
+	"\asummary\x18\x01 \x01(\v2).chalk.server.v1.JobQueueOperationSummaryH\x00R\asummary\x88\x01\x01\x12N\n" +
+	"!referencing_workflow_execution_id\x18\x03 \x01(\tH\x01R\x1ereferencingWorkflowExecutionId\x88\x01\x01B\n" +
 	"\n" +
-	"\b_summary\"\x94\x04\n" +
+	"\b_summaryB$\n" +
+	"\"_referencing_workflow_execution_id\"\x94\x04\n" +
 	"\x0fJobQueueAttempt\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x129\n" +
 	"\n" +

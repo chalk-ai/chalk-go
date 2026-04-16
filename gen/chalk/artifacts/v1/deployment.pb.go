@@ -23,15 +23,16 @@ const (
 )
 
 type DeploymentArtifacts struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Graph         *v1.Graph              `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
-	Crons         []*CronQuery           `protobuf:"bytes,2,rep,name=crons,proto3" json:"crons,omitempty"`
-	Charts        []*Chart               `protobuf:"bytes,3,rep,name=charts,proto3" json:"charts,omitempty"`
-	CdcSources    []*CDCSource           `protobuf:"bytes,4,rep,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
-	Config        *ProjectSettings       `protobuf:"bytes,5,opt,name=config,proto3" json:"config,omitempty"`
-	Chalkpy       *ChalkpyInfo           `protobuf:"bytes,6,opt,name=chalkpy,proto3" json:"chalkpy,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                       protoimpl.MessageState        `protogen:"open.v1"`
+	Graph                       *v1.Graph                     `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
+	Crons                       []*CronQuery                  `protobuf:"bytes,2,rep,name=crons,proto3" json:"crons,omitempty"`
+	Charts                      []*Chart                      `protobuf:"bytes,3,rep,name=charts,proto3" json:"charts,omitempty"`
+	CdcSources                  []*CDCSource                  `protobuf:"bytes,4,rep,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
+	Config                      *ProjectSettings              `protobuf:"bytes,5,opt,name=config,proto3" json:"config,omitempty"`
+	Chalkpy                     *ChalkpyInfo                  `protobuf:"bytes,6,opt,name=chalkpy,proto3" json:"chalkpy,omitempty"`
+	ScheduledAggregateBackfills []*ScheduledAggregateBackfill `protobuf:"bytes,7,rep,name=scheduled_aggregate_backfills,json=scheduledAggregateBackfills,proto3" json:"scheduled_aggregate_backfills,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *DeploymentArtifacts) Reset() {
@@ -106,11 +107,18 @@ func (x *DeploymentArtifacts) GetChalkpy() *ChalkpyInfo {
 	return nil
 }
 
+func (x *DeploymentArtifacts) GetScheduledAggregateBackfills() []*ScheduledAggregateBackfill {
+	if x != nil {
+		return x.ScheduledAggregateBackfills
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_deployment_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_deployment_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/artifacts/v1/deployment.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x1achalk/graph/v1/graph.proto\"\xe2\x02\n" +
+	"#chalk/artifacts/v1/deployment.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a\x1fchalk/artifacts/v1/export.proto\x1a5chalk/artifacts/v1/scheduled_aggregate_backfill.proto\x1a\x1achalk/graph/v1/graph.proto\"\xd6\x03\n" +
 	"\x13DeploymentArtifacts\x12+\n" +
 	"\x05graph\x18\x01 \x01(\v2\x15.chalk.graph.v1.GraphR\x05graph\x123\n" +
 	"\x05crons\x18\x02 \x03(\v2\x1d.chalk.artifacts.v1.CronQueryR\x05crons\x121\n" +
@@ -118,7 +126,8 @@ const file_chalk_artifacts_v1_deployment_proto_rawDesc = "" +
 	"\vcdc_sources\x18\x04 \x03(\v2\x1d.chalk.artifacts.v1.CDCSourceR\n" +
 	"cdcSources\x12;\n" +
 	"\x06config\x18\x05 \x01(\v2#.chalk.artifacts.v1.ProjectSettingsR\x06config\x129\n" +
-	"\achalkpy\x18\x06 \x01(\v2\x1f.chalk.artifacts.v1.ChalkpyInfoR\achalkpyB\xd4\x01\n" +
+	"\achalkpy\x18\x06 \x01(\v2\x1f.chalk.artifacts.v1.ChalkpyInfoR\achalkpy\x12r\n" +
+	"\x1dscheduled_aggregate_backfills\x18\a \x03(\v2..chalk.artifacts.v1.ScheduledAggregateBackfillR\x1bscheduledAggregateBackfillsB\xd4\x01\n" +
 	"\x16com.chalk.artifacts.v1B\x0fDeploymentProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
 var (
@@ -135,13 +144,14 @@ func file_chalk_artifacts_v1_deployment_proto_rawDescGZIP() []byte {
 
 var file_chalk_artifacts_v1_deployment_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_chalk_artifacts_v1_deployment_proto_goTypes = []any{
-	(*DeploymentArtifacts)(nil), // 0: chalk.artifacts.v1.DeploymentArtifacts
-	(*v1.Graph)(nil),            // 1: chalk.graph.v1.Graph
-	(*CronQuery)(nil),           // 2: chalk.artifacts.v1.CronQuery
-	(*Chart)(nil),               // 3: chalk.artifacts.v1.Chart
-	(*CDCSource)(nil),           // 4: chalk.artifacts.v1.CDCSource
-	(*ProjectSettings)(nil),     // 5: chalk.artifacts.v1.ProjectSettings
-	(*ChalkpyInfo)(nil),         // 6: chalk.artifacts.v1.ChalkpyInfo
+	(*DeploymentArtifacts)(nil),        // 0: chalk.artifacts.v1.DeploymentArtifacts
+	(*v1.Graph)(nil),                   // 1: chalk.graph.v1.Graph
+	(*CronQuery)(nil),                  // 2: chalk.artifacts.v1.CronQuery
+	(*Chart)(nil),                      // 3: chalk.artifacts.v1.Chart
+	(*CDCSource)(nil),                  // 4: chalk.artifacts.v1.CDCSource
+	(*ProjectSettings)(nil),            // 5: chalk.artifacts.v1.ProjectSettings
+	(*ChalkpyInfo)(nil),                // 6: chalk.artifacts.v1.ChalkpyInfo
+	(*ScheduledAggregateBackfill)(nil), // 7: chalk.artifacts.v1.ScheduledAggregateBackfill
 }
 var file_chalk_artifacts_v1_deployment_proto_depIdxs = []int32{
 	1, // 0: chalk.artifacts.v1.DeploymentArtifacts.graph:type_name -> chalk.graph.v1.Graph
@@ -150,11 +160,12 @@ var file_chalk_artifacts_v1_deployment_proto_depIdxs = []int32{
 	4, // 3: chalk.artifacts.v1.DeploymentArtifacts.cdc_sources:type_name -> chalk.artifacts.v1.CDCSource
 	5, // 4: chalk.artifacts.v1.DeploymentArtifacts.config:type_name -> chalk.artifacts.v1.ProjectSettings
 	6, // 5: chalk.artifacts.v1.DeploymentArtifacts.chalkpy:type_name -> chalk.artifacts.v1.ChalkpyInfo
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	7, // 6: chalk.artifacts.v1.DeploymentArtifacts.scheduled_aggregate_backfills:type_name -> chalk.artifacts.v1.ScheduledAggregateBackfill
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_deployment_proto_init() }
@@ -166,6 +177,7 @@ func file_chalk_artifacts_v1_deployment_proto_init() {
 	file_chalk_artifacts_v1_chart_proto_init()
 	file_chalk_artifacts_v1_cron_query_proto_init()
 	file_chalk_artifacts_v1_export_proto_init()
+	file_chalk_artifacts_v1_scheduled_aggregate_backfill_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
