@@ -90,6 +90,55 @@ func (AggregateBackfillStatus) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_aggregate_v1_backfill_proto_rawDescGZIP(), []int{0}
 }
 
+type AggregateBackfillTarget int32
+
+const (
+	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED AggregateBackfillTarget = 0
+	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_ONLINE      AggregateBackfillTarget = 1
+	AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_OFFLINE     AggregateBackfillTarget = 2
+)
+
+// Enum value maps for AggregateBackfillTarget.
+var (
+	AggregateBackfillTarget_name = map[int32]string{
+		0: "AGGREGATE_BACKFILL_TARGET_UNSPECIFIED",
+		1: "AGGREGATE_BACKFILL_TARGET_ONLINE",
+		2: "AGGREGATE_BACKFILL_TARGET_OFFLINE",
+	}
+	AggregateBackfillTarget_value = map[string]int32{
+		"AGGREGATE_BACKFILL_TARGET_UNSPECIFIED": 0,
+		"AGGREGATE_BACKFILL_TARGET_ONLINE":      1,
+		"AGGREGATE_BACKFILL_TARGET_OFFLINE":     2,
+	}
+)
+
+func (x AggregateBackfillTarget) Enum() *AggregateBackfillTarget {
+	p := new(AggregateBackfillTarget)
+	*p = x
+	return p
+}
+
+func (x AggregateBackfillTarget) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AggregateBackfillTarget) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_aggregate_v1_backfill_proto_enumTypes[1].Descriptor()
+}
+
+func (AggregateBackfillTarget) Type() protoreflect.EnumType {
+	return &file_chalk_aggregate_v1_backfill_proto_enumTypes[1]
+}
+
+func (x AggregateBackfillTarget) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AggregateBackfillTarget.Descriptor instead.
+func (AggregateBackfillTarget) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_aggregate_v1_backfill_proto_rawDescGZIP(), []int{1}
+}
+
 type AggregateBackfillCostEstimate struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	MaxBuckets          int64                  `protobuf:"varint,1,opt,name=max_buckets,json=maxBuckets,proto3" json:"max_buckets,omitempty"`
@@ -561,17 +610,19 @@ func (x *AggregateBackfillJob) GetQueryTags() []string {
 }
 
 type CronAggregateBackfill struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
-	DeploymentId  string                 `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	Schedule      string                 `protobuf:"bytes,4,opt,name=schedule,proto3" json:"schedule,omitempty"`
-	PlanHash      string                 `protobuf:"bytes,5,opt,name=plan_hash,json=planHash,proto3" json:"plan_hash,omitempty"`
-	Features      []string               `protobuf:"bytes,8,rep,name=features,proto3" json:"features,omitempty"`
-	Resolvers     []string               `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	QueryTags     []string               `protobuf:"bytes,10,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Id            string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId string                  `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	DeploymentId  string                  `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	Schedule      string                  `protobuf:"bytes,4,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	PlanHash      string                  `protobuf:"bytes,5,opt,name=plan_hash,json=planHash,proto3" json:"plan_hash,omitempty"`
+	Features      []string                `protobuf:"bytes,8,rep,name=features,proto3" json:"features,omitempty"`
+	Resolvers     []string                `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
+	CreatedAt     *timestamppb.Timestamp  `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	QueryTags     []string                `protobuf:"bytes,10,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
+	Name          string                  `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"`
+	StorageTarget AggregateBackfillTarget `protobuf:"varint,12,opt,name=storage_target,json=storageTarget,proto3,enum=chalk.aggregate.v1.AggregateBackfillTarget" json:"storage_target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -676,6 +727,20 @@ func (x *CronAggregateBackfill) GetQueryTags() []string {
 	return nil
 }
 
+func (x *CronAggregateBackfill) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CronAggregateBackfill) GetStorageTarget() AggregateBackfillTarget {
+	if x != nil {
+		return x.StorageTarget
+	}
+	return AggregateBackfillTarget_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED
+}
+
 var File_chalk_aggregate_v1_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
@@ -740,7 +805,7 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\x0e_deployment_idB\x1d\n" +
 	"\x1b_cron_aggregate_backfill_idB\f\n" +
 	"\n" +
-	"_plan_hash\"\xfb\x02\n" +
+	"_plan_hash\"\xe3\x03\n" +
 	"\x15CronAggregateBackfill\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
@@ -755,7 +820,9 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
 	"query_tags\x18\n" +
-	" \x03(\tR\tqueryTags*\x86\x03\n" +
+	" \x03(\tR\tqueryTags\x12\x12\n" +
+	"\x04name\x18\v \x01(\tR\x04name\x12R\n" +
+	"\x0estorage_target\x18\f \x01(\x0e2+.chalk.aggregate.v1.AggregateBackfillTargetR\rstorageTarget*\x86\x03\n" +
 	"\x17AggregateBackfillStatus\x12)\n" +
 	"%AGGREGATE_BACKFILL_STATUS_UNSPECIFIED\x10\x00\x12*\n" +
 	"&AGGREGATE_BACKFILL_STATUS_INITIALIZING\x10\x01\x12)\n" +
@@ -765,7 +832,11 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"!AGGREGATE_BACKFILL_STATUS_WORKING\x10\x05\x12'\n" +
 	"#AGGREGATE_BACKFILL_STATUS_COMPLETED\x10\x06\x12$\n" +
 	" AGGREGATE_BACKFILL_STATUS_FAILED\x10\a\x12&\n" +
-	"\"AGGREGATE_BACKFILL_STATUS_CANCELED\x10\bB\xd2\x01\n" +
+	"\"AGGREGATE_BACKFILL_STATUS_CANCELED\x10\b*\x91\x01\n" +
+	"\x17AggregateBackfillTarget\x12)\n" +
+	"%AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12$\n" +
+	" AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12%\n" +
+	"!AGGREGATE_BACKFILL_TARGET_OFFLINE\x10\x02B\xd2\x01\n" +
 	"\x16com.chalk.aggregate.v1B\rBackfillProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1;aggregatev1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Aggregate.V1\xca\x02\x12Chalk\\Aggregate\\V1\xe2\x02\x1eChalk\\Aggregate\\V1\\GPBMetadata\xea\x02\x14Chalk::Aggregate::V1b\x06proto3"
 
 var (
@@ -780,41 +851,43 @@ func file_chalk_aggregate_v1_backfill_proto_rawDescGZIP() []byte {
 	return file_chalk_aggregate_v1_backfill_proto_rawDescData
 }
 
-var file_chalk_aggregate_v1_backfill_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_aggregate_v1_backfill_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_aggregate_v1_backfill_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_aggregate_v1_backfill_proto_goTypes = []any{
 	(AggregateBackfillStatus)(0),              // 0: chalk.aggregate.v1.AggregateBackfillStatus
-	(*AggregateBackfillCostEstimate)(nil),     // 1: chalk.aggregate.v1.AggregateBackfillCostEstimate
-	(*AggregateBackfillUserParams)(nil),       // 2: chalk.aggregate.v1.AggregateBackfillUserParams
-	(*AggregateBackfill)(nil),                 // 3: chalk.aggregate.v1.AggregateBackfill
-	(*AggregateBackfillWithCostEstimate)(nil), // 4: chalk.aggregate.v1.AggregateBackfillWithCostEstimate
-	(*AggregateBackfillJob)(nil),              // 5: chalk.aggregate.v1.AggregateBackfillJob
-	(*CronAggregateBackfill)(nil),             // 6: chalk.aggregate.v1.CronAggregateBackfill
-	(*durationpb.Duration)(nil),               // 7: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),             // 8: google.protobuf.Timestamp
-	(*AggregateTimeSeries)(nil),               // 9: chalk.aggregate.v1.AggregateTimeSeries
+	(AggregateBackfillTarget)(0),              // 1: chalk.aggregate.v1.AggregateBackfillTarget
+	(*AggregateBackfillCostEstimate)(nil),     // 2: chalk.aggregate.v1.AggregateBackfillCostEstimate
+	(*AggregateBackfillUserParams)(nil),       // 3: chalk.aggregate.v1.AggregateBackfillUserParams
+	(*AggregateBackfill)(nil),                 // 4: chalk.aggregate.v1.AggregateBackfill
+	(*AggregateBackfillWithCostEstimate)(nil), // 5: chalk.aggregate.v1.AggregateBackfillWithCostEstimate
+	(*AggregateBackfillJob)(nil),              // 6: chalk.aggregate.v1.AggregateBackfillJob
+	(*CronAggregateBackfill)(nil),             // 7: chalk.aggregate.v1.CronAggregateBackfill
+	(*durationpb.Duration)(nil),               // 8: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),             // 9: google.protobuf.Timestamp
+	(*AggregateTimeSeries)(nil),               // 10: chalk.aggregate.v1.AggregateTimeSeries
 }
 var file_chalk_aggregate_v1_backfill_proto_depIdxs = []int32{
-	7,  // 0: chalk.aggregate.v1.AggregateBackfillCostEstimate.expected_runtime:type_name -> google.protobuf.Duration
-	8,  // 1: chalk.aggregate.v1.AggregateBackfillUserParams.lower_bound:type_name -> google.protobuf.Timestamp
-	8,  // 2: chalk.aggregate.v1.AggregateBackfillUserParams.upper_bound:type_name -> google.protobuf.Timestamp
-	9,  // 3: chalk.aggregate.v1.AggregateBackfill.series:type_name -> chalk.aggregate.v1.AggregateTimeSeries
-	7,  // 4: chalk.aggregate.v1.AggregateBackfill.bucket_duration:type_name -> google.protobuf.Duration
-	7,  // 5: chalk.aggregate.v1.AggregateBackfill.max_retention:type_name -> google.protobuf.Duration
-	8,  // 6: chalk.aggregate.v1.AggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
-	8,  // 7: chalk.aggregate.v1.AggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
-	3,  // 8: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.backfill:type_name -> chalk.aggregate.v1.AggregateBackfill
-	1,  // 9: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.estimate:type_name -> chalk.aggregate.v1.AggregateBackfillCostEstimate
-	8,  // 10: chalk.aggregate.v1.AggregateBackfillJob.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 11: chalk.aggregate.v1.AggregateBackfillJob.updated_at:type_name -> google.protobuf.Timestamp
+	8,  // 0: chalk.aggregate.v1.AggregateBackfillCostEstimate.expected_runtime:type_name -> google.protobuf.Duration
+	9,  // 1: chalk.aggregate.v1.AggregateBackfillUserParams.lower_bound:type_name -> google.protobuf.Timestamp
+	9,  // 2: chalk.aggregate.v1.AggregateBackfillUserParams.upper_bound:type_name -> google.protobuf.Timestamp
+	10, // 3: chalk.aggregate.v1.AggregateBackfill.series:type_name -> chalk.aggregate.v1.AggregateTimeSeries
+	8,  // 4: chalk.aggregate.v1.AggregateBackfill.bucket_duration:type_name -> google.protobuf.Duration
+	8,  // 5: chalk.aggregate.v1.AggregateBackfill.max_retention:type_name -> google.protobuf.Duration
+	9,  // 6: chalk.aggregate.v1.AggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
+	9,  // 7: chalk.aggregate.v1.AggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
+	4,  // 8: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.backfill:type_name -> chalk.aggregate.v1.AggregateBackfill
+	2,  // 9: chalk.aggregate.v1.AggregateBackfillWithCostEstimate.estimate:type_name -> chalk.aggregate.v1.AggregateBackfillCostEstimate
+	9,  // 10: chalk.aggregate.v1.AggregateBackfillJob.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 11: chalk.aggregate.v1.AggregateBackfillJob.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 12: chalk.aggregate.v1.AggregateBackfillJob.status:type_name -> chalk.aggregate.v1.AggregateBackfillStatus
-	8,  // 13: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
-	8,  // 14: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	9,  // 13: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 14: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 15: chalk.aggregate.v1.CronAggregateBackfill.storage_target:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_aggregate_v1_backfill_proto_init() }
@@ -830,7 +903,7 @@ func file_chalk_aggregate_v1_backfill_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_aggregate_v1_backfill_proto_rawDesc), len(file_chalk_aggregate_v1_backfill_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
