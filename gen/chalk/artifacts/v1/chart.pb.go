@@ -89,6 +89,10 @@ const (
 	MetricKind_METRIC_KIND_GPU_THROTTLE_REASONS                    MetricKind = 61
 	MetricKind_METRIC_KIND_GPU_FP16_ACTIVITY                       MetricKind = 62
 	MetricKind_METRIC_KIND_GPU_COUNT                               MetricKind = 63
+	MetricKind_METRIC_KIND_PULL_QUERY_QUEUE_DEPTH                  MetricKind = 64
+	MetricKind_METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE           MetricKind = 65
+	MetricKind_METRIC_KIND_PULL_QUERY_PROCESSED                    MetricKind = 66
+	MetricKind_METRIC_KIND_PULL_QUERY_LATENCY                      MetricKind = 67
 )
 
 // Enum value maps for MetricKind.
@@ -158,6 +162,10 @@ var (
 		61: "METRIC_KIND_GPU_THROTTLE_REASONS",
 		62: "METRIC_KIND_GPU_FP16_ACTIVITY",
 		63: "METRIC_KIND_GPU_COUNT",
+		64: "METRIC_KIND_PULL_QUERY_QUEUE_DEPTH",
+		65: "METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE",
+		66: "METRIC_KIND_PULL_QUERY_PROCESSED",
+		67: "METRIC_KIND_PULL_QUERY_LATENCY",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -224,6 +232,10 @@ var (
 		"METRIC_KIND_GPU_THROTTLE_REASONS":                    61,
 		"METRIC_KIND_GPU_FP16_ACTIVITY":                       62,
 		"METRIC_KIND_GPU_COUNT":                               63,
+		"METRIC_KIND_PULL_QUERY_QUEUE_DEPTH":                  64,
+		"METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE":           65,
+		"METRIC_KIND_PULL_QUERY_PROCESSED":                    66,
+		"METRIC_KIND_PULL_QUERY_LATENCY":                      67,
 	}
 )
 
@@ -1437,7 +1449,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
 	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
 	"\n" +
-	"_entity_id*\xfd\x12\n" +
+	"_entity_id*\x9e\x14\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1504,7 +1516,11 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"#METRIC_KIND_GPU_TEMPERATURE_CELSIUS\x10<\x12$\n" +
 	" METRIC_KIND_GPU_THROTTLE_REASONS\x10=\x12!\n" +
 	"\x1dMETRIC_KIND_GPU_FP16_ACTIVITY\x10>\x12\x19\n" +
-	"\x15METRIC_KIND_GPU_COUNT\x10?*\xa7\x05\n" +
+	"\x15METRIC_KIND_GPU_COUNT\x10?\x12&\n" +
+	"\"METRIC_KIND_PULL_QUERY_QUEUE_DEPTH\x10@\x12-\n" +
+	")METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE\x10A\x12$\n" +
+	" METRIC_KIND_PULL_QUERY_PROCESSED\x10B\x12\"\n" +
+	"\x1eMETRIC_KIND_PULL_QUERY_LATENCY\x10C*\xa7\x05\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +

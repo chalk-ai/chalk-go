@@ -36,6 +36,7 @@ const (
 	Metrics1ProtoRepresentationNamespace_METRICS1_PROTO_REPRESENTATION_NAMESPACE_DATASOURCE             Metrics1ProtoRepresentationNamespace = 8
 	Metrics1ProtoRepresentationNamespace_METRICS1_PROTO_REPRESENTATION_NAMESPACE_RESOLVER_INVOKER       Metrics1ProtoRepresentationNamespace = 9
 	Metrics1ProtoRepresentationNamespace_METRICS1_PROTO_REPRESENTATION_NAMESPACE_NODE                   Metrics1ProtoRepresentationNamespace = 10
+	Metrics1ProtoRepresentationNamespace_METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_QUEUE            Metrics1ProtoRepresentationNamespace = 11
 )
 
 // Enum value maps for Metrics1ProtoRepresentationNamespace.
@@ -52,6 +53,7 @@ var (
 		8:  "METRICS1_PROTO_REPRESENTATION_NAMESPACE_DATASOURCE",
 		9:  "METRICS1_PROTO_REPRESENTATION_NAMESPACE_RESOLVER_INVOKER",
 		10: "METRICS1_PROTO_REPRESENTATION_NAMESPACE_NODE",
+		11: "METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_QUEUE",
 	}
 	Metrics1ProtoRepresentationNamespace_value = map[string]int32{
 		"METRICS1_PROTO_REPRESENTATION_NAMESPACE_UNSPECIFIED":            0,
@@ -65,6 +67,7 @@ var (
 		"METRICS1_PROTO_REPRESENTATION_NAMESPACE_DATASOURCE":             8,
 		"METRICS1_PROTO_REPRESENTATION_NAMESPACE_RESOLVER_INVOKER":       9,
 		"METRICS1_PROTO_REPRESENTATION_NAMESPACE_NODE":                   10,
+		"METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_QUEUE":            11,
 	}
 )
 
@@ -1151,7 +1154,7 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"\n" +
 	"null_count\x18\x04 \x01(\x04R\tnullCount\x12\x12\n" +
 	"\x04mean\x18\x05 \x01(\x01R\x04mean\x12\x1a\n" +
-	"\bvariance\x18\x06 \x01(\x01R\bvariance*\x81\x05\n" +
+	"\bvariance\x18\x06 \x01(\x01R\bvariance*\xba\x05\n" +
 	"$Metrics1ProtoRepresentationNamespace\x127\n" +
 	"3METRICS1_PROTO_REPRESENTATION_NAMESPACE_UNSPECIFIED\x10\x00\x124\n" +
 	"0METRICS1_PROTO_REPRESENTATION_NAMESPACE_RESOLVER\x10\x01\x123\n" +
@@ -1164,7 +1167,8 @@ const file_chalk_metrics_v1_metrics_proto_rawDesc = "" +
 	"2METRICS1_PROTO_REPRESENTATION_NAMESPACE_DATASOURCE\x10\b\x12<\n" +
 	"8METRICS1_PROTO_REPRESENTATION_NAMESPACE_RESOLVER_INVOKER\x10\t\x120\n" +
 	",METRICS1_PROTO_REPRESENTATION_NAMESPACE_NODE\x10\n" +
-	"*\xce\x12\n" +
+	"\x127\n" +
+	"3METRICS1_PROTO_REPRESENTATION_NAMESPACE_QUERY_QUEUE\x10\v*\xce\x12\n" +
 	"\x1fMetrics1ProtoRepresentationName\x122\n" +
 	".METRICS1_PROTO_REPRESENTATION_NAME_UNSPECIFIED\x10\x00\x12.\n" +
 	"*METRICS1_PROTO_REPRESENTATION_NAME_LATENCY\x10\x01\x12.\n" +
