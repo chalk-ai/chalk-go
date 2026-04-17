@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1/scalinggroupv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"google.golang.org/protobuf/proto"
@@ -78,6 +79,11 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	// Register EnvironmentService handler
 	environmentPath, environmentRPCHandler := serverv1connect.NewEnvironmentServiceHandler(environmentHandler)
 	mux.Handle(environmentPath, environmentRPCHandler)
+
+	// Register ScalingGroupManagerService handler
+	scalingGroupHandler := newScalingGroupServiceHandler(registry)
+	scalingGroupPath, scalingGroupRPCHandler := scalinggroupv1connect.NewScalingGroupManagerServiceHandler(scalingGroupHandler)
+	mux.Handle(scalingGroupPath, scalingGroupRPCHandler)
 
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
