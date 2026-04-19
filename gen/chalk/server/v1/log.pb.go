@@ -555,11 +555,15 @@ func (x *SearchLogEntriesResponse) GetLoggingClient() string {
 }
 
 type SearchAccessLogEntriesRequest struct {
-	state         protoimpl.MessageState           `protogen:"open.v1"`
-	Query         *string                          `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	PageToken     *SearchAccessLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
-	StartTime     *timestamppb.Timestamp           `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp           `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	state     protoimpl.MessageState           `protogen:"open.v1"`
+	Query     *string                          `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	PageToken *SearchAccessLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	StartTime *timestamppb.Timestamp           `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp           `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
+	ScalingGroupId *string `protobuf:"bytes,5,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
+	// When set, queries the container_access_logs materialized view filtered by this ID.
+	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -620,6 +624,20 @@ func (x *SearchAccessLogEntriesRequest) GetEndTime() *timestamppb.Timestamp {
 		return x.EndTime
 	}
 	return nil
+}
+
+func (x *SearchAccessLogEntriesRequest) GetScalingGroupId() string {
+	if x != nil && x.ScalingGroupId != nil {
+		return *x.ScalingGroupId
+	}
+	return ""
+}
+
+func (x *SearchAccessLogEntriesRequest) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
 }
 
 type SearchAccessLogEntriesResponse struct {
@@ -1099,11 +1117,15 @@ func (x *GetLogFacetValuesResponse) GetValues() []*LogFacetValue {
 }
 
 type SearchAccessLogEntriesAggregatedRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Query         *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	WindowPeriod  *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Query        *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	StartTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	WindowPeriod *durationpb.Duration   `protobuf:"bytes,4,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
+	ScalingGroupId *string `protobuf:"bytes,5,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
+	// When set, queries the container_access_logs materialized view filtered by this ID.
+	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1164,6 +1186,20 @@ func (x *SearchAccessLogEntriesAggregatedRequest) GetWindowPeriod() *durationpb.
 		return x.WindowPeriod
 	}
 	return nil
+}
+
+func (x *SearchAccessLogEntriesAggregatedRequest) GetScalingGroupId() string {
+	if x != nil && x.ScalingGroupId != nil {
+		return *x.ScalingGroupId
+	}
+	return ""
+}
+
+func (x *SearchAccessLogEntriesAggregatedRequest) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
 }
 
 type SearchAccessLogEntriesAggregatedResponse struct {
@@ -1291,12 +1327,16 @@ func (x *GetAccessLogFacetsResponse) GetFacets() []*LogFacet {
 }
 
 type GetAccessLogFacetValuesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	Limit         *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Query         *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Path      string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	Limit     *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Query     *string                `protobuf:"bytes,5,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
+	ScalingGroupId *string `protobuf:"bytes,6,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
+	// When set, queries the container_access_logs materialized view filtered by this ID.
+	ContainerId   *string `protobuf:"bytes,7,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1362,6 +1402,20 @@ func (x *GetAccessLogFacetValuesRequest) GetLimit() int32 {
 func (x *GetAccessLogFacetValuesRequest) GetQuery() string {
 	if x != nil && x.Query != nil {
 		return *x.Query
+	}
+	return ""
+}
+
+func (x *GetAccessLogFacetValuesRequest) GetScalingGroupId() string {
+	if x != nil && x.ScalingGroupId != nil {
+		return *x.ScalingGroupId
+	}
+	return ""
+}
+
+func (x *GetAccessLogFacetValuesRequest) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
 	}
 	return ""
 }
@@ -1481,16 +1535,20 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"logEntries\x12W\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v2*.chalk.server.v1.SearchLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01\x12%\n" +
 	"\x0elogging_client\x18\x03 \x01(\tR\rloggingClientB\x12\n" +
-	"\x10_next_page_token\"\x9b\x02\n" +
+	"\x10_next_page_token\"\x98\x03\n" +
 	"\x1dSearchAccessLogEntriesRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12T\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x01R\tpageToken\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTimeB\b\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12-\n" +
+	"\x10scaling_group_id\x18\x05 \x01(\tH\x02R\x0escalingGroupId\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x03R\vcontainerId\x88\x01\x01B\b\n" +
 	"\x06_queryB\r\n" +
-	"\v_page_token\"\xe2\x01\n" +
+	"\v_page_tokenB\x13\n" +
+	"\x11_scaling_group_idB\x0f\n" +
+	"\r_container_id\"\xe2\x01\n" +
 	"\x1eSearchAccessLogEntriesResponse\x12M\n" +
 	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
@@ -1527,30 +1585,38 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x14\n" +
 	"\x05count\x18\x02 \x01(\x03R\x05count\"S\n" +
 	"\x19GetLogFacetValuesResponse\x126\n" +
-	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\x80\x02\n" +
+	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values\"\xfd\x02\n" +
 	"'SearchAccessLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12>\n" +
-	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriodB\b\n" +
-	"\x06_query\"f\n" +
+	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12-\n" +
+	"\x10scaling_group_id\x18\x05 \x01(\tH\x01R\x0escalingGroupId\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x02R\vcontainerId\x88\x01\x01B\b\n" +
+	"\x06_queryB\x13\n" +
+	"\x11_scaling_group_idB\x0f\n" +
+	"\r_container_id\"f\n" +
 	"(SearchAccessLogEntriesAggregatedResponse\x12:\n" +
 	"\x05chart\x18\x01 \x01(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x05chart\"\x1b\n" +
 	"\x19GetAccessLogFacetsRequest\"O\n" +
 	"\x1aGetAccessLogFacetsResponse\x121\n" +
-	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x96\x02\n" +
+	"\x06facets\x18\x01 \x03(\v2\x19.chalk.server.v1.LogFacetR\x06facets\"\x93\x03\n" +
 	"\x1eGetAccessLogFacetValuesRequest\x12\x12\n" +
 	"\x04path\x18\x01 \x01(\tR\x04path\x12>\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x19\n" +
-	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01B\r\n" +
+	"\x05query\x18\x05 \x01(\tH\x03R\x05query\x88\x01\x01\x12-\n" +
+	"\x10scaling_group_id\x18\x06 \x01(\tH\x04R\x0escalingGroupId\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\a \x01(\tH\x05R\vcontainerId\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\b\n" +
-	"\x06_query\"Y\n" +
+	"\x06_queryB\x13\n" +
+	"\x11_scaling_group_idB\x0f\n" +
+	"\r_container_id\"Y\n" +
 	"\x1fGetAccessLogFacetValuesResponse\x126\n" +
 	"\x06values\x18\x01 \x03(\v2\x1e.chalk.server.v1.LogFacetValueR\x06values*a\n" +
 	"\fLogFacetType\x12\x1e\n" +

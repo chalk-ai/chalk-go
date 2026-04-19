@@ -46,6 +46,9 @@ const (
 	// ScalingGroupManagerServiceDeleteScalingGroupProcedure is the fully-qualified name of the
 	// ScalingGroupManagerService's DeleteScalingGroup RPC.
 	ScalingGroupManagerServiceDeleteScalingGroupProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/DeleteScalingGroup"
+	// ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure is the fully-qualified name of
+	// the ScalingGroupManagerService's BatchUpdateScalingGroupStatus RPC.
+	ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/BatchUpdateScalingGroupStatus"
 )
 
 // ScalingGroupManagerServiceClient is a client for the
@@ -59,6 +62,8 @@ type ScalingGroupManagerServiceClient interface {
 	ListScalingGroups(context.Context, *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error)
 	// DeleteScalingGroup deletes a scaling group and its Kubernetes resources
 	DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error)
+	// BatchUpdateScalingGroupStatus updates status for multiple scaling groups from the dataplane controller
+	BatchUpdateScalingGroupStatus(context.Context, *connect.Request[v1.BatchUpdateScalingGroupStatusRequest]) (*connect.Response[v1.BatchUpdateScalingGroupStatusResponse], error)
 }
 
 // NewScalingGroupManagerServiceClient constructs a client for the
@@ -97,15 +102,22 @@ func NewScalingGroupManagerServiceClient(httpClient connect.HTTPClient, baseURL 
 			connect.WithSchema(scalingGroupManagerServiceMethods.ByName("DeleteScalingGroup")),
 			connect.WithClientOptions(opts...),
 		),
+		batchUpdateScalingGroupStatus: connect.NewClient[v1.BatchUpdateScalingGroupStatusRequest, v1.BatchUpdateScalingGroupStatusResponse](
+			httpClient,
+			baseURL+ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure,
+			connect.WithSchema(scalingGroupManagerServiceMethods.ByName("BatchUpdateScalingGroupStatus")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // scalingGroupManagerServiceClient implements ScalingGroupManagerServiceClient.
 type scalingGroupManagerServiceClient struct {
-	createScalingGroup *connect.Client[v1.CreateScalingGroupRequest, v1.CreateScalingGroupResponse]
-	getScalingGroup    *connect.Client[v1.GetScalingGroupRequest, v1.GetScalingGroupResponse]
-	listScalingGroups  *connect.Client[v1.ListScalingGroupsRequest, v1.ListScalingGroupsResponse]
-	deleteScalingGroup *connect.Client[v1.DeleteScalingGroupRequest, v1.DeleteScalingGroupResponse]
+	createScalingGroup            *connect.Client[v1.CreateScalingGroupRequest, v1.CreateScalingGroupResponse]
+	getScalingGroup               *connect.Client[v1.GetScalingGroupRequest, v1.GetScalingGroupResponse]
+	listScalingGroups             *connect.Client[v1.ListScalingGroupsRequest, v1.ListScalingGroupsResponse]
+	deleteScalingGroup            *connect.Client[v1.DeleteScalingGroupRequest, v1.DeleteScalingGroupResponse]
+	batchUpdateScalingGroupStatus *connect.Client[v1.BatchUpdateScalingGroupStatusRequest, v1.BatchUpdateScalingGroupStatusResponse]
 }
 
 // CreateScalingGroup calls chalk.scalinggroup.v1.ScalingGroupManagerService.CreateScalingGroup.
@@ -128,6 +140,12 @@ func (c *scalingGroupManagerServiceClient) DeleteScalingGroup(ctx context.Contex
 	return c.deleteScalingGroup.CallUnary(ctx, req)
 }
 
+// BatchUpdateScalingGroupStatus calls
+// chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus.
+func (c *scalingGroupManagerServiceClient) BatchUpdateScalingGroupStatus(ctx context.Context, req *connect.Request[v1.BatchUpdateScalingGroupStatusRequest]) (*connect.Response[v1.BatchUpdateScalingGroupStatusResponse], error) {
+	return c.batchUpdateScalingGroupStatus.CallUnary(ctx, req)
+}
+
 // ScalingGroupManagerServiceHandler is an implementation of the
 // chalk.scalinggroup.v1.ScalingGroupManagerService service.
 type ScalingGroupManagerServiceHandler interface {
@@ -139,6 +157,8 @@ type ScalingGroupManagerServiceHandler interface {
 	ListScalingGroups(context.Context, *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error)
 	// DeleteScalingGroup deletes a scaling group and its Kubernetes resources
 	DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error)
+	// BatchUpdateScalingGroupStatus updates status for multiple scaling groups from the dataplane controller
+	BatchUpdateScalingGroupStatus(context.Context, *connect.Request[v1.BatchUpdateScalingGroupStatusRequest]) (*connect.Response[v1.BatchUpdateScalingGroupStatusResponse], error)
 }
 
 // NewScalingGroupManagerServiceHandler builds an HTTP handler from the service implementation. It
@@ -172,6 +192,12 @@ func NewScalingGroupManagerServiceHandler(svc ScalingGroupManagerServiceHandler,
 		connect.WithSchema(scalingGroupManagerServiceMethods.ByName("DeleteScalingGroup")),
 		connect.WithHandlerOptions(opts...),
 	)
+	scalingGroupManagerServiceBatchUpdateScalingGroupStatusHandler := connect.NewUnaryHandler(
+		ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure,
+		svc.BatchUpdateScalingGroupStatus,
+		connect.WithSchema(scalingGroupManagerServiceMethods.ByName("BatchUpdateScalingGroupStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.scalinggroup.v1.ScalingGroupManagerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ScalingGroupManagerServiceCreateScalingGroupProcedure:
@@ -182,6 +208,8 @@ func NewScalingGroupManagerServiceHandler(svc ScalingGroupManagerServiceHandler,
 			scalingGroupManagerServiceListScalingGroupsHandler.ServeHTTP(w, r)
 		case ScalingGroupManagerServiceDeleteScalingGroupProcedure:
 			scalingGroupManagerServiceDeleteScalingGroupHandler.ServeHTTP(w, r)
+		case ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure:
+			scalingGroupManagerServiceBatchUpdateScalingGroupStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -205,4 +233,8 @@ func (UnimplementedScalingGroupManagerServiceHandler) ListScalingGroups(context.
 
 func (UnimplementedScalingGroupManagerServiceHandler) DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup is not implemented"))
+}
+
+func (UnimplementedScalingGroupManagerServiceHandler) BatchUpdateScalingGroupStatus(context.Context, *connect.Request[v1.BatchUpdateScalingGroupStatusRequest]) (*connect.Response[v1.BatchUpdateScalingGroupStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.scalinggroup.v1.ScalingGroupManagerService.BatchUpdateScalingGroupStatus is not implemented"))
 }

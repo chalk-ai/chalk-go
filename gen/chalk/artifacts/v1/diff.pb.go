@@ -25,22 +25,23 @@ const (
 )
 
 type ExportDiff struct {
-	state                protoimpl.MessageState             `protogen:"open.v1"`
-	FeatureSets          *FeatureSetCollectionDiff          `protobuf:"bytes,1,opt,name=feature_sets,json=featureSets,proto3" json:"feature_sets,omitempty"`
-	Resolvers            *ResolverCollectionDiff            `protobuf:"bytes,2,opt,name=resolvers,proto3" json:"resolvers,omitempty"`
-	StreamResolvers      *StreamResolverCollectionDiff      `protobuf:"bytes,3,opt,name=stream_resolvers,json=streamResolvers,proto3" json:"stream_resolvers,omitempty"`
-	SinkResolvers        *SinkResolverCollectionDiff        `protobuf:"bytes,4,opt,name=sink_resolvers,json=sinkResolvers,proto3" json:"sink_resolvers,omitempty"`
-	NamedQueries         *NamedQueryCollectionDiff          `protobuf:"bytes,5,opt,name=named_queries,json=namedQueries,proto3" json:"named_queries,omitempty"`
-	DatabaseSourcesV2    *DatabaseSourceCollectionDiff      `protobuf:"bytes,6,opt,name=database_sources_v2,json=databaseSourcesV2,proto3" json:"database_sources_v2,omitempty"`
-	StreamSourcesV2      *StreamSourceCollectionDiff        `protobuf:"bytes,7,opt,name=stream_sources_v2,json=streamSourcesV2,proto3" json:"stream_sources_v2,omitempty"`
-	ModelReferences      *ModelReferenceCollectionDiff      `protobuf:"bytes,8,opt,name=model_references,json=modelReferences,proto3" json:"model_references,omitempty"`
-	OnlineStoreConfigs   *OnlineStoreConfigCollectionDiff   `protobuf:"bytes,9,opt,name=online_store_configs,json=onlineStoreConfigs,proto3" json:"online_store_configs,omitempty"`
-	DatabaseSourceGroups *DatabaseSourceGroupCollectionDiff `protobuf:"bytes,10,opt,name=database_source_groups,json=databaseSourceGroups,proto3" json:"database_source_groups,omitempty"`
-	Crons                *CronQueryCollectionDiff           `protobuf:"bytes,11,opt,name=crons,proto3" json:"crons,omitempty"`
-	Charts               *ChartCollectionDiff               `protobuf:"bytes,12,opt,name=charts,proto3" json:"charts,omitempty"`
-	CdcSources           *CDCSourceCollectionDiff           `protobuf:"bytes,13,opt,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState               `protogen:"open.v1"`
+	FeatureSets            *FeatureSetCollectionDiff            `protobuf:"bytes,1,opt,name=feature_sets,json=featureSets,proto3" json:"feature_sets,omitempty"`
+	Resolvers              *ResolverCollectionDiff              `protobuf:"bytes,2,opt,name=resolvers,proto3" json:"resolvers,omitempty"`
+	StreamResolvers        *StreamResolverCollectionDiff        `protobuf:"bytes,3,opt,name=stream_resolvers,json=streamResolvers,proto3" json:"stream_resolvers,omitempty"`
+	SinkResolvers          *SinkResolverCollectionDiff          `protobuf:"bytes,4,opt,name=sink_resolvers,json=sinkResolvers,proto3" json:"sink_resolvers,omitempty"`
+	NamedQueries           *NamedQueryCollectionDiff            `protobuf:"bytes,5,opt,name=named_queries,json=namedQueries,proto3" json:"named_queries,omitempty"`
+	DatabaseSourcesV2      *DatabaseSourceCollectionDiff        `protobuf:"bytes,6,opt,name=database_sources_v2,json=databaseSourcesV2,proto3" json:"database_sources_v2,omitempty"`
+	StreamSourcesV2        *StreamSourceCollectionDiff          `protobuf:"bytes,7,opt,name=stream_sources_v2,json=streamSourcesV2,proto3" json:"stream_sources_v2,omitempty"`
+	ModelReferences        *ModelReferenceCollectionDiff        `protobuf:"bytes,8,opt,name=model_references,json=modelReferences,proto3" json:"model_references,omitempty"`
+	OnlineStoreConfigs     *OnlineStoreConfigCollectionDiff     `protobuf:"bytes,9,opt,name=online_store_configs,json=onlineStoreConfigs,proto3" json:"online_store_configs,omitempty"`
+	DatabaseSourceGroups   *DatabaseSourceGroupCollectionDiff   `protobuf:"bytes,10,opt,name=database_source_groups,json=databaseSourceGroups,proto3" json:"database_source_groups,omitempty"`
+	Crons                  *CronQueryCollectionDiff             `protobuf:"bytes,11,opt,name=crons,proto3" json:"crons,omitempty"`
+	Charts                 *ChartCollectionDiff                 `protobuf:"bytes,12,opt,name=charts,proto3" json:"charts,omitempty"`
+	CdcSources             *CDCSourceCollectionDiff             `protobuf:"bytes,13,opt,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
+	CronAggregateBackfills *CronAggregateBackfillCollectionDiff `protobuf:"bytes,14,opt,name=cron_aggregate_backfills,json=cronAggregateBackfills,proto3" json:"cron_aggregate_backfills,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ExportDiff) Reset() {
@@ -160,6 +161,13 @@ func (x *ExportDiff) GetCharts() *ChartCollectionDiff {
 func (x *ExportDiff) GetCdcSources() *CDCSourceCollectionDiff {
 	if x != nil {
 		return x.CdcSources
+	}
+	return nil
+}
+
+func (x *ExportDiff) GetCronAggregateBackfills() *CronAggregateBackfillCollectionDiff {
+	if x != nil {
+		return x.CronAggregateBackfills
 	}
 	return nil
 }
@@ -1852,11 +1860,131 @@ func (x *CDCSourceModified) GetChangedFields() *fieldmaskpb.FieldMask {
 	return nil
 }
 
+type CronAggregateBackfillCollectionDiff struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	Added         []*CronAggregateBackfill         `protobuf:"bytes,1,rep,name=added,proto3" json:"added,omitempty"`
+	Removed       []*CronAggregateBackfill         `protobuf:"bytes,2,rep,name=removed,proto3" json:"removed,omitempty"`
+	Modified      []*CronAggregateBackfillModified `protobuf:"bytes,3,rep,name=modified,proto3" json:"modified,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CronAggregateBackfillCollectionDiff) Reset() {
+	*x = CronAggregateBackfillCollectionDiff{}
+	mi := &file_chalk_artifacts_v1_diff_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CronAggregateBackfillCollectionDiff) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CronAggregateBackfillCollectionDiff) ProtoMessage() {}
+
+func (x *CronAggregateBackfillCollectionDiff) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_diff_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CronAggregateBackfillCollectionDiff.ProtoReflect.Descriptor instead.
+func (*CronAggregateBackfillCollectionDiff) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_diff_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *CronAggregateBackfillCollectionDiff) GetAdded() []*CronAggregateBackfill {
+	if x != nil {
+		return x.Added
+	}
+	return nil
+}
+
+func (x *CronAggregateBackfillCollectionDiff) GetRemoved() []*CronAggregateBackfill {
+	if x != nil {
+		return x.Removed
+	}
+	return nil
+}
+
+func (x *CronAggregateBackfillCollectionDiff) GetModified() []*CronAggregateBackfillModified {
+	if x != nil {
+		return x.Modified
+	}
+	return nil
+}
+
+type CronAggregateBackfillModified struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Before        *CronAggregateBackfill `protobuf:"bytes,1,opt,name=before,proto3" json:"before,omitempty"`
+	After         *CronAggregateBackfill `protobuf:"bytes,2,opt,name=after,proto3" json:"after,omitempty"`
+	ChangedFields *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=changed_fields,json=changedFields,proto3" json:"changed_fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CronAggregateBackfillModified) Reset() {
+	*x = CronAggregateBackfillModified{}
+	mi := &file_chalk_artifacts_v1_diff_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CronAggregateBackfillModified) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CronAggregateBackfillModified) ProtoMessage() {}
+
+func (x *CronAggregateBackfillModified) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_artifacts_v1_diff_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CronAggregateBackfillModified.ProtoReflect.Descriptor instead.
+func (*CronAggregateBackfillModified) Descriptor() ([]byte, []int) {
+	return file_chalk_artifacts_v1_diff_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *CronAggregateBackfillModified) GetBefore() *CronAggregateBackfill {
+	if x != nil {
+		return x.Before
+	}
+	return nil
+}
+
+func (x *CronAggregateBackfillModified) GetAfter() *CronAggregateBackfill {
+	if x != nil {
+		return x.After
+	}
+	return nil
+}
+
+func (x *CronAggregateBackfillModified) GetChangedFields() *fieldmaskpb.FieldMask {
+	if x != nil {
+		return x.ChangedFields
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_diff_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_diff_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/artifacts/v1/diff.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1cchalk/graph/v2/sources.proto\x1a google/protobuf/field_mask.proto\"\xef\b\n" +
+	"\x1dchalk/artifacts/v1/diff.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a0chalk/artifacts/v1/cron_aggregate_backfill.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1cchalk/graph/v2/sources.proto\x1a google/protobuf/field_mask.proto\"\xe2\t\n" +
 	"\n" +
 	"ExportDiff\x12O\n" +
 	"\ffeature_sets\x18\x01 \x01(\v2,.chalk.artifacts.v1.FeatureSetCollectionDiffR\vfeatureSets\x12H\n" +
@@ -1873,7 +2001,8 @@ const file_chalk_artifacts_v1_diff_proto_rawDesc = "" +
 	"\x05crons\x18\v \x01(\v2+.chalk.artifacts.v1.CronQueryCollectionDiffR\x05crons\x12?\n" +
 	"\x06charts\x18\f \x01(\v2'.chalk.artifacts.v1.ChartCollectionDiffR\x06charts\x12L\n" +
 	"\vcdc_sources\x18\r \x01(\v2+.chalk.artifacts.v1.CDCSourceCollectionDiffR\n" +
-	"cdcSources\"\xc6\x01\n" +
+	"cdcSources\x12q\n" +
+	"\x18cron_aggregate_backfills\x18\x0e \x01(\v27.chalk.artifacts.v1.CronAggregateBackfillCollectionDiffR\x16cronAggregateBackfills\"\xc6\x01\n" +
 	"\x18FeatureSetCollectionDiff\x120\n" +
 	"\x05added\x18\x01 \x03(\v2\x1a.chalk.graph.v1.FeatureSetR\x05added\x124\n" +
 	"\aremoved\x18\x02 \x03(\v2\x1a.chalk.graph.v1.FeatureSetR\aremoved\x12B\n" +
@@ -1986,6 +2115,14 @@ const file_chalk_artifacts_v1_diff_proto_rawDesc = "" +
 	"\x11CDCSourceModified\x125\n" +
 	"\x06before\x18\x01 \x01(\v2\x1d.chalk.artifacts.v1.CDCSourceR\x06before\x123\n" +
 	"\x05after\x18\x02 \x01(\v2\x1d.chalk.artifacts.v1.CDCSourceR\x05after\x12A\n" +
+	"\x0echanged_fields\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\rchangedFields\"\xfa\x01\n" +
+	"#CronAggregateBackfillCollectionDiff\x12?\n" +
+	"\x05added\x18\x01 \x03(\v2).chalk.artifacts.v1.CronAggregateBackfillR\x05added\x12C\n" +
+	"\aremoved\x18\x02 \x03(\v2).chalk.artifacts.v1.CronAggregateBackfillR\aremoved\x12M\n" +
+	"\bmodified\x18\x03 \x03(\v21.chalk.artifacts.v1.CronAggregateBackfillModifiedR\bmodified\"\xe6\x01\n" +
+	"\x1dCronAggregateBackfillModified\x12A\n" +
+	"\x06before\x18\x01 \x01(\v2).chalk.artifacts.v1.CronAggregateBackfillR\x06before\x12?\n" +
+	"\x05after\x18\x02 \x01(\v2).chalk.artifacts.v1.CronAggregateBackfillR\x05after\x12A\n" +
 	"\x0echanged_fields\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\rchangedFieldsB\xce\x01\n" +
 	"\x16com.chalk.artifacts.v1B\tDiffProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/artifacts/v1;artifactsv1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Artifacts.V1\xca\x02\x12Chalk\\Artifacts\\V1\xe2\x02\x1eChalk\\Artifacts\\V1\\GPBMetadata\xea\x02\x14Chalk::Artifacts::V1b\x06proto3"
 
@@ -2001,157 +2138,167 @@ func file_chalk_artifacts_v1_diff_proto_rawDescGZIP() []byte {
 	return file_chalk_artifacts_v1_diff_proto_rawDescData
 }
 
-var file_chalk_artifacts_v1_diff_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_chalk_artifacts_v1_diff_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_chalk_artifacts_v1_diff_proto_goTypes = []any{
-	(*ExportDiff)(nil),                        // 0: chalk.artifacts.v1.ExportDiff
-	(*FeatureSetCollectionDiff)(nil),          // 1: chalk.artifacts.v1.FeatureSetCollectionDiff
-	(*FeatureSetModified)(nil),                // 2: chalk.artifacts.v1.FeatureSetModified
-	(*FeatureTypeCollectionDiff)(nil),         // 3: chalk.artifacts.v1.FeatureTypeCollectionDiff
-	(*FeatureTypeModified)(nil),               // 4: chalk.artifacts.v1.FeatureTypeModified
-	(*ResolverCollectionDiff)(nil),            // 5: chalk.artifacts.v1.ResolverCollectionDiff
-	(*ResolverModified)(nil),                  // 6: chalk.artifacts.v1.ResolverModified
-	(*StreamResolverCollectionDiff)(nil),      // 7: chalk.artifacts.v1.StreamResolverCollectionDiff
-	(*StreamResolverModified)(nil),            // 8: chalk.artifacts.v1.StreamResolverModified
-	(*SinkResolverCollectionDiff)(nil),        // 9: chalk.artifacts.v1.SinkResolverCollectionDiff
-	(*SinkResolverModified)(nil),              // 10: chalk.artifacts.v1.SinkResolverModified
-	(*NamedQueryCollectionDiff)(nil),          // 11: chalk.artifacts.v1.NamedQueryCollectionDiff
-	(*NamedQueryModified)(nil),                // 12: chalk.artifacts.v1.NamedQueryModified
-	(*DatabaseSourceCollectionDiff)(nil),      // 13: chalk.artifacts.v1.DatabaseSourceCollectionDiff
-	(*DatabaseSourceModified)(nil),            // 14: chalk.artifacts.v1.DatabaseSourceModified
-	(*StreamSourceCollectionDiff)(nil),        // 15: chalk.artifacts.v1.StreamSourceCollectionDiff
-	(*StreamSourceModified)(nil),              // 16: chalk.artifacts.v1.StreamSourceModified
-	(*ModelReferenceCollectionDiff)(nil),      // 17: chalk.artifacts.v1.ModelReferenceCollectionDiff
-	(*ModelReferenceModified)(nil),            // 18: chalk.artifacts.v1.ModelReferenceModified
-	(*DatabaseSourceGroupCollectionDiff)(nil), // 19: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff
-	(*DatabaseSourceGroupModified)(nil),       // 20: chalk.artifacts.v1.DatabaseSourceGroupModified
-	(*OnlineStoreConfigCollectionDiff)(nil),   // 21: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff
-	(*OnlineStoreConfigModified)(nil),         // 22: chalk.artifacts.v1.OnlineStoreConfigModified
-	(*CronQueryCollectionDiff)(nil),           // 23: chalk.artifacts.v1.CronQueryCollectionDiff
-	(*CronQueryModified)(nil),                 // 24: chalk.artifacts.v1.CronQueryModified
-	(*ChartCollectionDiff)(nil),               // 25: chalk.artifacts.v1.ChartCollectionDiff
-	(*ChartModified)(nil),                     // 26: chalk.artifacts.v1.ChartModified
-	(*CDCSourceCollectionDiff)(nil),           // 27: chalk.artifacts.v1.CDCSourceCollectionDiff
-	(*CDCSourceModified)(nil),                 // 28: chalk.artifacts.v1.CDCSourceModified
-	(*v1.FeatureSet)(nil),                     // 29: chalk.graph.v1.FeatureSet
-	(*fieldmaskpb.FieldMask)(nil),             // 30: google.protobuf.FieldMask
-	(*v1.FeatureType)(nil),                    // 31: chalk.graph.v1.FeatureType
-	(*v1.Resolver)(nil),                       // 32: chalk.graph.v1.Resolver
-	(*v1.StreamResolver)(nil),                 // 33: chalk.graph.v1.StreamResolver
-	(*v1.SinkResolver)(nil),                   // 34: chalk.graph.v1.SinkResolver
-	(*v1.NamedQuery)(nil),                     // 35: chalk.graph.v1.NamedQuery
-	(*v2.DatabaseSource)(nil),                 // 36: chalk.graph.v2.DatabaseSource
-	(*v2.StreamSource)(nil),                   // 37: chalk.graph.v2.StreamSource
-	(*v1.ModelReference)(nil),                 // 38: chalk.graph.v1.ModelReference
-	(*v2.DatabaseSourceGroup)(nil),            // 39: chalk.graph.v2.DatabaseSourceGroup
-	(*v1.OnlineStoreConfig)(nil),              // 40: chalk.graph.v1.OnlineStoreConfig
-	(*CronQuery)(nil),                         // 41: chalk.artifacts.v1.CronQuery
-	(*Chart)(nil),                             // 42: chalk.artifacts.v1.Chart
-	(*CDCSource)(nil),                         // 43: chalk.artifacts.v1.CDCSource
+	(*ExportDiff)(nil),                          // 0: chalk.artifacts.v1.ExportDiff
+	(*FeatureSetCollectionDiff)(nil),            // 1: chalk.artifacts.v1.FeatureSetCollectionDiff
+	(*FeatureSetModified)(nil),                  // 2: chalk.artifacts.v1.FeatureSetModified
+	(*FeatureTypeCollectionDiff)(nil),           // 3: chalk.artifacts.v1.FeatureTypeCollectionDiff
+	(*FeatureTypeModified)(nil),                 // 4: chalk.artifacts.v1.FeatureTypeModified
+	(*ResolverCollectionDiff)(nil),              // 5: chalk.artifacts.v1.ResolverCollectionDiff
+	(*ResolverModified)(nil),                    // 6: chalk.artifacts.v1.ResolverModified
+	(*StreamResolverCollectionDiff)(nil),        // 7: chalk.artifacts.v1.StreamResolverCollectionDiff
+	(*StreamResolverModified)(nil),              // 8: chalk.artifacts.v1.StreamResolverModified
+	(*SinkResolverCollectionDiff)(nil),          // 9: chalk.artifacts.v1.SinkResolverCollectionDiff
+	(*SinkResolverModified)(nil),                // 10: chalk.artifacts.v1.SinkResolverModified
+	(*NamedQueryCollectionDiff)(nil),            // 11: chalk.artifacts.v1.NamedQueryCollectionDiff
+	(*NamedQueryModified)(nil),                  // 12: chalk.artifacts.v1.NamedQueryModified
+	(*DatabaseSourceCollectionDiff)(nil),        // 13: chalk.artifacts.v1.DatabaseSourceCollectionDiff
+	(*DatabaseSourceModified)(nil),              // 14: chalk.artifacts.v1.DatabaseSourceModified
+	(*StreamSourceCollectionDiff)(nil),          // 15: chalk.artifacts.v1.StreamSourceCollectionDiff
+	(*StreamSourceModified)(nil),                // 16: chalk.artifacts.v1.StreamSourceModified
+	(*ModelReferenceCollectionDiff)(nil),        // 17: chalk.artifacts.v1.ModelReferenceCollectionDiff
+	(*ModelReferenceModified)(nil),              // 18: chalk.artifacts.v1.ModelReferenceModified
+	(*DatabaseSourceGroupCollectionDiff)(nil),   // 19: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff
+	(*DatabaseSourceGroupModified)(nil),         // 20: chalk.artifacts.v1.DatabaseSourceGroupModified
+	(*OnlineStoreConfigCollectionDiff)(nil),     // 21: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff
+	(*OnlineStoreConfigModified)(nil),           // 22: chalk.artifacts.v1.OnlineStoreConfigModified
+	(*CronQueryCollectionDiff)(nil),             // 23: chalk.artifacts.v1.CronQueryCollectionDiff
+	(*CronQueryModified)(nil),                   // 24: chalk.artifacts.v1.CronQueryModified
+	(*ChartCollectionDiff)(nil),                 // 25: chalk.artifacts.v1.ChartCollectionDiff
+	(*ChartModified)(nil),                       // 26: chalk.artifacts.v1.ChartModified
+	(*CDCSourceCollectionDiff)(nil),             // 27: chalk.artifacts.v1.CDCSourceCollectionDiff
+	(*CDCSourceModified)(nil),                   // 28: chalk.artifacts.v1.CDCSourceModified
+	(*CronAggregateBackfillCollectionDiff)(nil), // 29: chalk.artifacts.v1.CronAggregateBackfillCollectionDiff
+	(*CronAggregateBackfillModified)(nil),       // 30: chalk.artifacts.v1.CronAggregateBackfillModified
+	(*v1.FeatureSet)(nil),                       // 31: chalk.graph.v1.FeatureSet
+	(*fieldmaskpb.FieldMask)(nil),               // 32: google.protobuf.FieldMask
+	(*v1.FeatureType)(nil),                      // 33: chalk.graph.v1.FeatureType
+	(*v1.Resolver)(nil),                         // 34: chalk.graph.v1.Resolver
+	(*v1.StreamResolver)(nil),                   // 35: chalk.graph.v1.StreamResolver
+	(*v1.SinkResolver)(nil),                     // 36: chalk.graph.v1.SinkResolver
+	(*v1.NamedQuery)(nil),                       // 37: chalk.graph.v1.NamedQuery
+	(*v2.DatabaseSource)(nil),                   // 38: chalk.graph.v2.DatabaseSource
+	(*v2.StreamSource)(nil),                     // 39: chalk.graph.v2.StreamSource
+	(*v1.ModelReference)(nil),                   // 40: chalk.graph.v1.ModelReference
+	(*v2.DatabaseSourceGroup)(nil),              // 41: chalk.graph.v2.DatabaseSourceGroup
+	(*v1.OnlineStoreConfig)(nil),                // 42: chalk.graph.v1.OnlineStoreConfig
+	(*CronQuery)(nil),                           // 43: chalk.artifacts.v1.CronQuery
+	(*Chart)(nil),                               // 44: chalk.artifacts.v1.Chart
+	(*CDCSource)(nil),                           // 45: chalk.artifacts.v1.CDCSource
+	(*CronAggregateBackfill)(nil),               // 46: chalk.artifacts.v1.CronAggregateBackfill
 }
 var file_chalk_artifacts_v1_diff_proto_depIdxs = []int32{
-	1,  // 0: chalk.artifacts.v1.ExportDiff.feature_sets:type_name -> chalk.artifacts.v1.FeatureSetCollectionDiff
-	5,  // 1: chalk.artifacts.v1.ExportDiff.resolvers:type_name -> chalk.artifacts.v1.ResolverCollectionDiff
-	7,  // 2: chalk.artifacts.v1.ExportDiff.stream_resolvers:type_name -> chalk.artifacts.v1.StreamResolverCollectionDiff
-	9,  // 3: chalk.artifacts.v1.ExportDiff.sink_resolvers:type_name -> chalk.artifacts.v1.SinkResolverCollectionDiff
-	11, // 4: chalk.artifacts.v1.ExportDiff.named_queries:type_name -> chalk.artifacts.v1.NamedQueryCollectionDiff
-	13, // 5: chalk.artifacts.v1.ExportDiff.database_sources_v2:type_name -> chalk.artifacts.v1.DatabaseSourceCollectionDiff
-	15, // 6: chalk.artifacts.v1.ExportDiff.stream_sources_v2:type_name -> chalk.artifacts.v1.StreamSourceCollectionDiff
-	17, // 7: chalk.artifacts.v1.ExportDiff.model_references:type_name -> chalk.artifacts.v1.ModelReferenceCollectionDiff
-	21, // 8: chalk.artifacts.v1.ExportDiff.online_store_configs:type_name -> chalk.artifacts.v1.OnlineStoreConfigCollectionDiff
-	19, // 9: chalk.artifacts.v1.ExportDiff.database_source_groups:type_name -> chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff
-	23, // 10: chalk.artifacts.v1.ExportDiff.crons:type_name -> chalk.artifacts.v1.CronQueryCollectionDiff
-	25, // 11: chalk.artifacts.v1.ExportDiff.charts:type_name -> chalk.artifacts.v1.ChartCollectionDiff
-	27, // 12: chalk.artifacts.v1.ExportDiff.cdc_sources:type_name -> chalk.artifacts.v1.CDCSourceCollectionDiff
-	29, // 13: chalk.artifacts.v1.FeatureSetCollectionDiff.added:type_name -> chalk.graph.v1.FeatureSet
-	29, // 14: chalk.artifacts.v1.FeatureSetCollectionDiff.removed:type_name -> chalk.graph.v1.FeatureSet
-	2,  // 15: chalk.artifacts.v1.FeatureSetCollectionDiff.modified:type_name -> chalk.artifacts.v1.FeatureSetModified
-	29, // 16: chalk.artifacts.v1.FeatureSetModified.before:type_name -> chalk.graph.v1.FeatureSet
-	29, // 17: chalk.artifacts.v1.FeatureSetModified.after:type_name -> chalk.graph.v1.FeatureSet
-	30, // 18: chalk.artifacts.v1.FeatureSetModified.changed_fields:type_name -> google.protobuf.FieldMask
-	3,  // 19: chalk.artifacts.v1.FeatureSetModified.features:type_name -> chalk.artifacts.v1.FeatureTypeCollectionDiff
-	31, // 20: chalk.artifacts.v1.FeatureTypeCollectionDiff.added:type_name -> chalk.graph.v1.FeatureType
-	31, // 21: chalk.artifacts.v1.FeatureTypeCollectionDiff.removed:type_name -> chalk.graph.v1.FeatureType
-	4,  // 22: chalk.artifacts.v1.FeatureTypeCollectionDiff.modified:type_name -> chalk.artifacts.v1.FeatureTypeModified
-	31, // 23: chalk.artifacts.v1.FeatureTypeModified.before:type_name -> chalk.graph.v1.FeatureType
-	31, // 24: chalk.artifacts.v1.FeatureTypeModified.after:type_name -> chalk.graph.v1.FeatureType
-	30, // 25: chalk.artifacts.v1.FeatureTypeModified.changed_fields:type_name -> google.protobuf.FieldMask
-	32, // 26: chalk.artifacts.v1.ResolverCollectionDiff.added:type_name -> chalk.graph.v1.Resolver
-	32, // 27: chalk.artifacts.v1.ResolverCollectionDiff.removed:type_name -> chalk.graph.v1.Resolver
-	6,  // 28: chalk.artifacts.v1.ResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.ResolverModified
-	32, // 29: chalk.artifacts.v1.ResolverModified.before:type_name -> chalk.graph.v1.Resolver
-	32, // 30: chalk.artifacts.v1.ResolverModified.after:type_name -> chalk.graph.v1.Resolver
-	30, // 31: chalk.artifacts.v1.ResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
-	33, // 32: chalk.artifacts.v1.StreamResolverCollectionDiff.added:type_name -> chalk.graph.v1.StreamResolver
-	33, // 33: chalk.artifacts.v1.StreamResolverCollectionDiff.removed:type_name -> chalk.graph.v1.StreamResolver
-	8,  // 34: chalk.artifacts.v1.StreamResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.StreamResolverModified
-	33, // 35: chalk.artifacts.v1.StreamResolverModified.before:type_name -> chalk.graph.v1.StreamResolver
-	33, // 36: chalk.artifacts.v1.StreamResolverModified.after:type_name -> chalk.graph.v1.StreamResolver
-	30, // 37: chalk.artifacts.v1.StreamResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
-	34, // 38: chalk.artifacts.v1.SinkResolverCollectionDiff.added:type_name -> chalk.graph.v1.SinkResolver
-	34, // 39: chalk.artifacts.v1.SinkResolverCollectionDiff.removed:type_name -> chalk.graph.v1.SinkResolver
-	10, // 40: chalk.artifacts.v1.SinkResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.SinkResolverModified
-	34, // 41: chalk.artifacts.v1.SinkResolverModified.before:type_name -> chalk.graph.v1.SinkResolver
-	34, // 42: chalk.artifacts.v1.SinkResolverModified.after:type_name -> chalk.graph.v1.SinkResolver
-	30, // 43: chalk.artifacts.v1.SinkResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
-	35, // 44: chalk.artifacts.v1.NamedQueryCollectionDiff.added:type_name -> chalk.graph.v1.NamedQuery
-	35, // 45: chalk.artifacts.v1.NamedQueryCollectionDiff.removed:type_name -> chalk.graph.v1.NamedQuery
-	12, // 46: chalk.artifacts.v1.NamedQueryCollectionDiff.modified:type_name -> chalk.artifacts.v1.NamedQueryModified
-	35, // 47: chalk.artifacts.v1.NamedQueryModified.before:type_name -> chalk.graph.v1.NamedQuery
-	35, // 48: chalk.artifacts.v1.NamedQueryModified.after:type_name -> chalk.graph.v1.NamedQuery
-	30, // 49: chalk.artifacts.v1.NamedQueryModified.changed_fields:type_name -> google.protobuf.FieldMask
-	36, // 50: chalk.artifacts.v1.DatabaseSourceCollectionDiff.added:type_name -> chalk.graph.v2.DatabaseSource
-	36, // 51: chalk.artifacts.v1.DatabaseSourceCollectionDiff.removed:type_name -> chalk.graph.v2.DatabaseSource
-	14, // 52: chalk.artifacts.v1.DatabaseSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.DatabaseSourceModified
-	36, // 53: chalk.artifacts.v1.DatabaseSourceModified.before:type_name -> chalk.graph.v2.DatabaseSource
-	36, // 54: chalk.artifacts.v1.DatabaseSourceModified.after:type_name -> chalk.graph.v2.DatabaseSource
-	30, // 55: chalk.artifacts.v1.DatabaseSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
-	37, // 56: chalk.artifacts.v1.StreamSourceCollectionDiff.added:type_name -> chalk.graph.v2.StreamSource
-	37, // 57: chalk.artifacts.v1.StreamSourceCollectionDiff.removed:type_name -> chalk.graph.v2.StreamSource
-	16, // 58: chalk.artifacts.v1.StreamSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.StreamSourceModified
-	37, // 59: chalk.artifacts.v1.StreamSourceModified.before:type_name -> chalk.graph.v2.StreamSource
-	37, // 60: chalk.artifacts.v1.StreamSourceModified.after:type_name -> chalk.graph.v2.StreamSource
-	30, // 61: chalk.artifacts.v1.StreamSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
-	38, // 62: chalk.artifacts.v1.ModelReferenceCollectionDiff.added:type_name -> chalk.graph.v1.ModelReference
-	38, // 63: chalk.artifacts.v1.ModelReferenceCollectionDiff.removed:type_name -> chalk.graph.v1.ModelReference
-	18, // 64: chalk.artifacts.v1.ModelReferenceCollectionDiff.modified:type_name -> chalk.artifacts.v1.ModelReferenceModified
-	38, // 65: chalk.artifacts.v1.ModelReferenceModified.before:type_name -> chalk.graph.v1.ModelReference
-	38, // 66: chalk.artifacts.v1.ModelReferenceModified.after:type_name -> chalk.graph.v1.ModelReference
-	30, // 67: chalk.artifacts.v1.ModelReferenceModified.changed_fields:type_name -> google.protobuf.FieldMask
-	39, // 68: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.added:type_name -> chalk.graph.v2.DatabaseSourceGroup
-	39, // 69: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.removed:type_name -> chalk.graph.v2.DatabaseSourceGroup
-	20, // 70: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.modified:type_name -> chalk.artifacts.v1.DatabaseSourceGroupModified
-	39, // 71: chalk.artifacts.v1.DatabaseSourceGroupModified.before:type_name -> chalk.graph.v2.DatabaseSourceGroup
-	39, // 72: chalk.artifacts.v1.DatabaseSourceGroupModified.after:type_name -> chalk.graph.v2.DatabaseSourceGroup
-	30, // 73: chalk.artifacts.v1.DatabaseSourceGroupModified.changed_fields:type_name -> google.protobuf.FieldMask
-	40, // 74: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.added:type_name -> chalk.graph.v1.OnlineStoreConfig
-	40, // 75: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.removed:type_name -> chalk.graph.v1.OnlineStoreConfig
-	22, // 76: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.modified:type_name -> chalk.artifacts.v1.OnlineStoreConfigModified
-	40, // 77: chalk.artifacts.v1.OnlineStoreConfigModified.before:type_name -> chalk.graph.v1.OnlineStoreConfig
-	40, // 78: chalk.artifacts.v1.OnlineStoreConfigModified.after:type_name -> chalk.graph.v1.OnlineStoreConfig
-	30, // 79: chalk.artifacts.v1.OnlineStoreConfigModified.changed_fields:type_name -> google.protobuf.FieldMask
-	41, // 80: chalk.artifacts.v1.CronQueryCollectionDiff.added:type_name -> chalk.artifacts.v1.CronQuery
-	41, // 81: chalk.artifacts.v1.CronQueryCollectionDiff.removed:type_name -> chalk.artifacts.v1.CronQuery
-	24, // 82: chalk.artifacts.v1.CronQueryCollectionDiff.modified:type_name -> chalk.artifacts.v1.CronQueryModified
-	41, // 83: chalk.artifacts.v1.CronQueryModified.before:type_name -> chalk.artifacts.v1.CronQuery
-	41, // 84: chalk.artifacts.v1.CronQueryModified.after:type_name -> chalk.artifacts.v1.CronQuery
-	30, // 85: chalk.artifacts.v1.CronQueryModified.changed_fields:type_name -> google.protobuf.FieldMask
-	42, // 86: chalk.artifacts.v1.ChartCollectionDiff.added:type_name -> chalk.artifacts.v1.Chart
-	42, // 87: chalk.artifacts.v1.ChartCollectionDiff.removed:type_name -> chalk.artifacts.v1.Chart
-	26, // 88: chalk.artifacts.v1.ChartCollectionDiff.modified:type_name -> chalk.artifacts.v1.ChartModified
-	42, // 89: chalk.artifacts.v1.ChartModified.before:type_name -> chalk.artifacts.v1.Chart
-	42, // 90: chalk.artifacts.v1.ChartModified.after:type_name -> chalk.artifacts.v1.Chart
-	30, // 91: chalk.artifacts.v1.ChartModified.changed_fields:type_name -> google.protobuf.FieldMask
-	43, // 92: chalk.artifacts.v1.CDCSourceCollectionDiff.added:type_name -> chalk.artifacts.v1.CDCSource
-	43, // 93: chalk.artifacts.v1.CDCSourceCollectionDiff.removed:type_name -> chalk.artifacts.v1.CDCSource
-	28, // 94: chalk.artifacts.v1.CDCSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.CDCSourceModified
-	43, // 95: chalk.artifacts.v1.CDCSourceModified.before:type_name -> chalk.artifacts.v1.CDCSource
-	43, // 96: chalk.artifacts.v1.CDCSourceModified.after:type_name -> chalk.artifacts.v1.CDCSource
-	30, // 97: chalk.artifacts.v1.CDCSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
-	98, // [98:98] is the sub-list for method output_type
-	98, // [98:98] is the sub-list for method input_type
-	98, // [98:98] is the sub-list for extension type_name
-	98, // [98:98] is the sub-list for extension extendee
-	0,  // [0:98] is the sub-list for field type_name
+	1,   // 0: chalk.artifacts.v1.ExportDiff.feature_sets:type_name -> chalk.artifacts.v1.FeatureSetCollectionDiff
+	5,   // 1: chalk.artifacts.v1.ExportDiff.resolvers:type_name -> chalk.artifacts.v1.ResolverCollectionDiff
+	7,   // 2: chalk.artifacts.v1.ExportDiff.stream_resolvers:type_name -> chalk.artifacts.v1.StreamResolverCollectionDiff
+	9,   // 3: chalk.artifacts.v1.ExportDiff.sink_resolvers:type_name -> chalk.artifacts.v1.SinkResolverCollectionDiff
+	11,  // 4: chalk.artifacts.v1.ExportDiff.named_queries:type_name -> chalk.artifacts.v1.NamedQueryCollectionDiff
+	13,  // 5: chalk.artifacts.v1.ExportDiff.database_sources_v2:type_name -> chalk.artifacts.v1.DatabaseSourceCollectionDiff
+	15,  // 6: chalk.artifacts.v1.ExportDiff.stream_sources_v2:type_name -> chalk.artifacts.v1.StreamSourceCollectionDiff
+	17,  // 7: chalk.artifacts.v1.ExportDiff.model_references:type_name -> chalk.artifacts.v1.ModelReferenceCollectionDiff
+	21,  // 8: chalk.artifacts.v1.ExportDiff.online_store_configs:type_name -> chalk.artifacts.v1.OnlineStoreConfigCollectionDiff
+	19,  // 9: chalk.artifacts.v1.ExportDiff.database_source_groups:type_name -> chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff
+	23,  // 10: chalk.artifacts.v1.ExportDiff.crons:type_name -> chalk.artifacts.v1.CronQueryCollectionDiff
+	25,  // 11: chalk.artifacts.v1.ExportDiff.charts:type_name -> chalk.artifacts.v1.ChartCollectionDiff
+	27,  // 12: chalk.artifacts.v1.ExportDiff.cdc_sources:type_name -> chalk.artifacts.v1.CDCSourceCollectionDiff
+	29,  // 13: chalk.artifacts.v1.ExportDiff.cron_aggregate_backfills:type_name -> chalk.artifacts.v1.CronAggregateBackfillCollectionDiff
+	31,  // 14: chalk.artifacts.v1.FeatureSetCollectionDiff.added:type_name -> chalk.graph.v1.FeatureSet
+	31,  // 15: chalk.artifacts.v1.FeatureSetCollectionDiff.removed:type_name -> chalk.graph.v1.FeatureSet
+	2,   // 16: chalk.artifacts.v1.FeatureSetCollectionDiff.modified:type_name -> chalk.artifacts.v1.FeatureSetModified
+	31,  // 17: chalk.artifacts.v1.FeatureSetModified.before:type_name -> chalk.graph.v1.FeatureSet
+	31,  // 18: chalk.artifacts.v1.FeatureSetModified.after:type_name -> chalk.graph.v1.FeatureSet
+	32,  // 19: chalk.artifacts.v1.FeatureSetModified.changed_fields:type_name -> google.protobuf.FieldMask
+	3,   // 20: chalk.artifacts.v1.FeatureSetModified.features:type_name -> chalk.artifacts.v1.FeatureTypeCollectionDiff
+	33,  // 21: chalk.artifacts.v1.FeatureTypeCollectionDiff.added:type_name -> chalk.graph.v1.FeatureType
+	33,  // 22: chalk.artifacts.v1.FeatureTypeCollectionDiff.removed:type_name -> chalk.graph.v1.FeatureType
+	4,   // 23: chalk.artifacts.v1.FeatureTypeCollectionDiff.modified:type_name -> chalk.artifacts.v1.FeatureTypeModified
+	33,  // 24: chalk.artifacts.v1.FeatureTypeModified.before:type_name -> chalk.graph.v1.FeatureType
+	33,  // 25: chalk.artifacts.v1.FeatureTypeModified.after:type_name -> chalk.graph.v1.FeatureType
+	32,  // 26: chalk.artifacts.v1.FeatureTypeModified.changed_fields:type_name -> google.protobuf.FieldMask
+	34,  // 27: chalk.artifacts.v1.ResolverCollectionDiff.added:type_name -> chalk.graph.v1.Resolver
+	34,  // 28: chalk.artifacts.v1.ResolverCollectionDiff.removed:type_name -> chalk.graph.v1.Resolver
+	6,   // 29: chalk.artifacts.v1.ResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.ResolverModified
+	34,  // 30: chalk.artifacts.v1.ResolverModified.before:type_name -> chalk.graph.v1.Resolver
+	34,  // 31: chalk.artifacts.v1.ResolverModified.after:type_name -> chalk.graph.v1.Resolver
+	32,  // 32: chalk.artifacts.v1.ResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
+	35,  // 33: chalk.artifacts.v1.StreamResolverCollectionDiff.added:type_name -> chalk.graph.v1.StreamResolver
+	35,  // 34: chalk.artifacts.v1.StreamResolverCollectionDiff.removed:type_name -> chalk.graph.v1.StreamResolver
+	8,   // 35: chalk.artifacts.v1.StreamResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.StreamResolverModified
+	35,  // 36: chalk.artifacts.v1.StreamResolverModified.before:type_name -> chalk.graph.v1.StreamResolver
+	35,  // 37: chalk.artifacts.v1.StreamResolverModified.after:type_name -> chalk.graph.v1.StreamResolver
+	32,  // 38: chalk.artifacts.v1.StreamResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
+	36,  // 39: chalk.artifacts.v1.SinkResolverCollectionDiff.added:type_name -> chalk.graph.v1.SinkResolver
+	36,  // 40: chalk.artifacts.v1.SinkResolverCollectionDiff.removed:type_name -> chalk.graph.v1.SinkResolver
+	10,  // 41: chalk.artifacts.v1.SinkResolverCollectionDiff.modified:type_name -> chalk.artifacts.v1.SinkResolverModified
+	36,  // 42: chalk.artifacts.v1.SinkResolverModified.before:type_name -> chalk.graph.v1.SinkResolver
+	36,  // 43: chalk.artifacts.v1.SinkResolverModified.after:type_name -> chalk.graph.v1.SinkResolver
+	32,  // 44: chalk.artifacts.v1.SinkResolverModified.changed_fields:type_name -> google.protobuf.FieldMask
+	37,  // 45: chalk.artifacts.v1.NamedQueryCollectionDiff.added:type_name -> chalk.graph.v1.NamedQuery
+	37,  // 46: chalk.artifacts.v1.NamedQueryCollectionDiff.removed:type_name -> chalk.graph.v1.NamedQuery
+	12,  // 47: chalk.artifacts.v1.NamedQueryCollectionDiff.modified:type_name -> chalk.artifacts.v1.NamedQueryModified
+	37,  // 48: chalk.artifacts.v1.NamedQueryModified.before:type_name -> chalk.graph.v1.NamedQuery
+	37,  // 49: chalk.artifacts.v1.NamedQueryModified.after:type_name -> chalk.graph.v1.NamedQuery
+	32,  // 50: chalk.artifacts.v1.NamedQueryModified.changed_fields:type_name -> google.protobuf.FieldMask
+	38,  // 51: chalk.artifacts.v1.DatabaseSourceCollectionDiff.added:type_name -> chalk.graph.v2.DatabaseSource
+	38,  // 52: chalk.artifacts.v1.DatabaseSourceCollectionDiff.removed:type_name -> chalk.graph.v2.DatabaseSource
+	14,  // 53: chalk.artifacts.v1.DatabaseSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.DatabaseSourceModified
+	38,  // 54: chalk.artifacts.v1.DatabaseSourceModified.before:type_name -> chalk.graph.v2.DatabaseSource
+	38,  // 55: chalk.artifacts.v1.DatabaseSourceModified.after:type_name -> chalk.graph.v2.DatabaseSource
+	32,  // 56: chalk.artifacts.v1.DatabaseSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
+	39,  // 57: chalk.artifacts.v1.StreamSourceCollectionDiff.added:type_name -> chalk.graph.v2.StreamSource
+	39,  // 58: chalk.artifacts.v1.StreamSourceCollectionDiff.removed:type_name -> chalk.graph.v2.StreamSource
+	16,  // 59: chalk.artifacts.v1.StreamSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.StreamSourceModified
+	39,  // 60: chalk.artifacts.v1.StreamSourceModified.before:type_name -> chalk.graph.v2.StreamSource
+	39,  // 61: chalk.artifacts.v1.StreamSourceModified.after:type_name -> chalk.graph.v2.StreamSource
+	32,  // 62: chalk.artifacts.v1.StreamSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
+	40,  // 63: chalk.artifacts.v1.ModelReferenceCollectionDiff.added:type_name -> chalk.graph.v1.ModelReference
+	40,  // 64: chalk.artifacts.v1.ModelReferenceCollectionDiff.removed:type_name -> chalk.graph.v1.ModelReference
+	18,  // 65: chalk.artifacts.v1.ModelReferenceCollectionDiff.modified:type_name -> chalk.artifacts.v1.ModelReferenceModified
+	40,  // 66: chalk.artifacts.v1.ModelReferenceModified.before:type_name -> chalk.graph.v1.ModelReference
+	40,  // 67: chalk.artifacts.v1.ModelReferenceModified.after:type_name -> chalk.graph.v1.ModelReference
+	32,  // 68: chalk.artifacts.v1.ModelReferenceModified.changed_fields:type_name -> google.protobuf.FieldMask
+	41,  // 69: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.added:type_name -> chalk.graph.v2.DatabaseSourceGroup
+	41,  // 70: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.removed:type_name -> chalk.graph.v2.DatabaseSourceGroup
+	20,  // 71: chalk.artifacts.v1.DatabaseSourceGroupCollectionDiff.modified:type_name -> chalk.artifacts.v1.DatabaseSourceGroupModified
+	41,  // 72: chalk.artifacts.v1.DatabaseSourceGroupModified.before:type_name -> chalk.graph.v2.DatabaseSourceGroup
+	41,  // 73: chalk.artifacts.v1.DatabaseSourceGroupModified.after:type_name -> chalk.graph.v2.DatabaseSourceGroup
+	32,  // 74: chalk.artifacts.v1.DatabaseSourceGroupModified.changed_fields:type_name -> google.protobuf.FieldMask
+	42,  // 75: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.added:type_name -> chalk.graph.v1.OnlineStoreConfig
+	42,  // 76: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.removed:type_name -> chalk.graph.v1.OnlineStoreConfig
+	22,  // 77: chalk.artifacts.v1.OnlineStoreConfigCollectionDiff.modified:type_name -> chalk.artifacts.v1.OnlineStoreConfigModified
+	42,  // 78: chalk.artifacts.v1.OnlineStoreConfigModified.before:type_name -> chalk.graph.v1.OnlineStoreConfig
+	42,  // 79: chalk.artifacts.v1.OnlineStoreConfigModified.after:type_name -> chalk.graph.v1.OnlineStoreConfig
+	32,  // 80: chalk.artifacts.v1.OnlineStoreConfigModified.changed_fields:type_name -> google.protobuf.FieldMask
+	43,  // 81: chalk.artifacts.v1.CronQueryCollectionDiff.added:type_name -> chalk.artifacts.v1.CronQuery
+	43,  // 82: chalk.artifacts.v1.CronQueryCollectionDiff.removed:type_name -> chalk.artifacts.v1.CronQuery
+	24,  // 83: chalk.artifacts.v1.CronQueryCollectionDiff.modified:type_name -> chalk.artifacts.v1.CronQueryModified
+	43,  // 84: chalk.artifacts.v1.CronQueryModified.before:type_name -> chalk.artifacts.v1.CronQuery
+	43,  // 85: chalk.artifacts.v1.CronQueryModified.after:type_name -> chalk.artifacts.v1.CronQuery
+	32,  // 86: chalk.artifacts.v1.CronQueryModified.changed_fields:type_name -> google.protobuf.FieldMask
+	44,  // 87: chalk.artifacts.v1.ChartCollectionDiff.added:type_name -> chalk.artifacts.v1.Chart
+	44,  // 88: chalk.artifacts.v1.ChartCollectionDiff.removed:type_name -> chalk.artifacts.v1.Chart
+	26,  // 89: chalk.artifacts.v1.ChartCollectionDiff.modified:type_name -> chalk.artifacts.v1.ChartModified
+	44,  // 90: chalk.artifacts.v1.ChartModified.before:type_name -> chalk.artifacts.v1.Chart
+	44,  // 91: chalk.artifacts.v1.ChartModified.after:type_name -> chalk.artifacts.v1.Chart
+	32,  // 92: chalk.artifacts.v1.ChartModified.changed_fields:type_name -> google.protobuf.FieldMask
+	45,  // 93: chalk.artifacts.v1.CDCSourceCollectionDiff.added:type_name -> chalk.artifacts.v1.CDCSource
+	45,  // 94: chalk.artifacts.v1.CDCSourceCollectionDiff.removed:type_name -> chalk.artifacts.v1.CDCSource
+	28,  // 95: chalk.artifacts.v1.CDCSourceCollectionDiff.modified:type_name -> chalk.artifacts.v1.CDCSourceModified
+	45,  // 96: chalk.artifacts.v1.CDCSourceModified.before:type_name -> chalk.artifacts.v1.CDCSource
+	45,  // 97: chalk.artifacts.v1.CDCSourceModified.after:type_name -> chalk.artifacts.v1.CDCSource
+	32,  // 98: chalk.artifacts.v1.CDCSourceModified.changed_fields:type_name -> google.protobuf.FieldMask
+	46,  // 99: chalk.artifacts.v1.CronAggregateBackfillCollectionDiff.added:type_name -> chalk.artifacts.v1.CronAggregateBackfill
+	46,  // 100: chalk.artifacts.v1.CronAggregateBackfillCollectionDiff.removed:type_name -> chalk.artifacts.v1.CronAggregateBackfill
+	30,  // 101: chalk.artifacts.v1.CronAggregateBackfillCollectionDiff.modified:type_name -> chalk.artifacts.v1.CronAggregateBackfillModified
+	46,  // 102: chalk.artifacts.v1.CronAggregateBackfillModified.before:type_name -> chalk.artifacts.v1.CronAggregateBackfill
+	46,  // 103: chalk.artifacts.v1.CronAggregateBackfillModified.after:type_name -> chalk.artifacts.v1.CronAggregateBackfill
+	32,  // 104: chalk.artifacts.v1.CronAggregateBackfillModified.changed_fields:type_name -> google.protobuf.FieldMask
+	105, // [105:105] is the sub-list for method output_type
+	105, // [105:105] is the sub-list for method input_type
+	105, // [105:105] is the sub-list for extension type_name
+	105, // [105:105] is the sub-list for extension extendee
+	0,   // [0:105] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_diff_proto_init() }
@@ -2161,6 +2308,7 @@ func file_chalk_artifacts_v1_diff_proto_init() {
 	}
 	file_chalk_artifacts_v1_cdc_proto_init()
 	file_chalk_artifacts_v1_chart_proto_init()
+	file_chalk_artifacts_v1_cron_aggregate_backfill_proto_init()
 	file_chalk_artifacts_v1_cron_query_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2168,7 +2316,7 @@ func file_chalk_artifacts_v1_diff_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_artifacts_v1_diff_proto_rawDesc), len(file_chalk_artifacts_v1_diff_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -852,12 +852,17 @@ func (x *ArgoWorkflowStatus) GetResourcesDuration() *ArgoWorkflowResourcesDurati
 }
 
 type ArgoWorkflow struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *ArgoWorkflowMetadata  `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Status        *ArgoWorkflowStatus    `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Spec          *ArgoWorkflowSpec      `protobuf:"bytes,3,opt,name=spec,proto3,oneof" json:"spec,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Metadata *ArgoWorkflowMetadata  `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Status   *ArgoWorkflowStatus    `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Spec     *ArgoWorkflowSpec      `protobuf:"bytes,3,opt,name=spec,proto3,oneof" json:"spec,omitempty"`
+	// image_destinations are the fully-qualified container image references that
+	// this workflow pushes to. For build-and-push workflows, this is extracted
+	// from the kaniko --destination=... arguments on the docker-build template.
+	// Empty for workflows that don't push images.
+	ImageDestinations []string `protobuf:"bytes,4,rep,name=image_destinations,json=imageDestinations,proto3" json:"image_destinations,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ArgoWorkflow) Reset() {
@@ -907,6 +912,13 @@ func (x *ArgoWorkflow) GetStatus() *ArgoWorkflowStatus {
 func (x *ArgoWorkflow) GetSpec() *ArgoWorkflowSpec {
 	if x != nil {
 		return x.Spec
+	}
+	return nil
+}
+
+func (x *ArgoWorkflow) GetImageDestinations() []string {
+	if x != nil {
+		return x.ImageDestinations
 	}
 	return nil
 }
@@ -1014,11 +1026,12 @@ const file_chalk_argo_v1_workflow_proto_rawDesc = "" +
 	"\v_started_atB\x0e\n" +
 	"\f_finished_atB\v\n" +
 	"\t_progressB\x15\n" +
-	"\x13_resources_duration\"\xcd\x01\n" +
+	"\x13_resources_duration\"\xfc\x01\n" +
 	"\fArgoWorkflow\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2#.chalk.argo.v1.ArgoWorkflowMetadataR\bmetadata\x129\n" +
 	"\x06status\x18\x02 \x01(\v2!.chalk.argo.v1.ArgoWorkflowStatusR\x06status\x128\n" +
-	"\x04spec\x18\x03 \x01(\v2\x1f.chalk.argo.v1.ArgoWorkflowSpecH\x00R\x04spec\x88\x01\x01B\a\n" +
+	"\x04spec\x18\x03 \x01(\v2\x1f.chalk.argo.v1.ArgoWorkflowSpecH\x00R\x04spec\x88\x01\x01\x12-\n" +
+	"\x12image_destinations\x18\x04 \x03(\tR\x11imageDestinationsB\a\n" +
 	"\x05_spec*\x9e\x02\n" +
 	"\x11ArgoWorkflowPhase\x12#\n" +
 	"\x1fARGO_WORKFLOW_PHASE_UNSPECIFIED\x10\x00\x12\x1f\n" +

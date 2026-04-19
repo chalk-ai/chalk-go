@@ -147,7 +147,9 @@ func (IndexingJobStatus) EnumDescriptor() ([]byte, []int) {
 type GetIndexingJobStatusRequest struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	DeploymentId string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	// The success file will be in env_{env_id}/dep_{deployment_id}/{directory_prefix}/export.pb
+	// Deprecated: unused by GetIndexingJobStatus. Kept for wire compatibility.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/indexing_job.proto.
 	DirectoryPrefixEnum DirectoryOptions `protobuf:"varint,2,opt,name=directory_prefix_enum,json=directoryPrefixEnum,proto3,enum=chalk.server.v1.DirectoryOptions" json:"directory_prefix_enum,omitempty"`
 	// The exact in-cluster indexing job name to poll.
 	IndexingJobId string `protobuf:"bytes,3,opt,name=indexing_job_id,json=indexingJobId,proto3" json:"indexing_job_id,omitempty"`
@@ -192,6 +194,7 @@ func (x *GetIndexingJobStatusRequest) GetDeploymentId() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/indexing_job.proto.
 func (x *GetIndexingJobStatusRequest) GetDirectoryPrefixEnum() DirectoryOptions {
 	if x != nil {
 		return x.DirectoryPrefixEnum
@@ -207,9 +210,12 @@ func (x *GetIndexingJobStatusRequest) GetIndexingJobId() string {
 }
 
 type GetIndexingJobStatusResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Export        *v1.Export             `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
-	Status        IndexingJobStatus      `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.IndexingJobStatus" json:"status,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: use GetIndexingExport for export.pb contents.
+	//
+	// Deprecated: Marked as deprecated in chalk/server/v1/indexing_job.proto.
+	Export        *v1.Export        `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
+	Status        IndexingJobStatus `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.IndexingJobStatus" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -244,6 +250,7 @@ func (*GetIndexingJobStatusResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{1}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/indexing_job.proto.
 func (x *GetIndexingJobStatusResponse) GetExport() *v1.Export {
 	if x != nil {
 		return x.Export
@@ -258,6 +265,113 @@ func (x *GetIndexingJobStatusResponse) GetStatus() IndexingJobStatus {
 	return IndexingJobStatus_INDEXING_JOB_STATUS_UNSPECIFIED
 }
 
+type GetIndexingExportRequest struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	// The export file will be in env_{env_id}/dep_{deployment_id}/{directory_prefix}/export.pb
+	DirectoryPrefixEnum DirectoryOptions `protobuf:"varint,2,opt,name=directory_prefix_enum,json=directoryPrefixEnum,proto3,enum=chalk.server.v1.DirectoryOptions" json:"directory_prefix_enum,omitempty"`
+	// Optional shadow run prefix. When set, resolves export.pb under
+	// shadow/{shadow_run_id}/env_{env_id}/dep_{deployment_id}/{directory_prefix}/export.pb.
+	ShadowRunId   string `protobuf:"bytes,3,opt,name=shadow_run_id,json=shadowRunId,proto3" json:"shadow_run_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetIndexingExportRequest) Reset() {
+	*x = GetIndexingExportRequest{}
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIndexingExportRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIndexingExportRequest) ProtoMessage() {}
+
+func (x *GetIndexingExportRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIndexingExportRequest.ProtoReflect.Descriptor instead.
+func (*GetIndexingExportRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetIndexingExportRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *GetIndexingExportRequest) GetDirectoryPrefixEnum() DirectoryOptions {
+	if x != nil {
+		return x.DirectoryPrefixEnum
+	}
+	return DirectoryOptions_DIRECTORY_OPTIONS_UNSPECIFIED
+}
+
+func (x *GetIndexingExportRequest) GetShadowRunId() string {
+	if x != nil {
+		return x.ShadowRunId
+	}
+	return ""
+}
+
+type GetIndexingExportResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Export        *v1.Export             `protobuf:"bytes,1,opt,name=export,proto3" json:"export,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetIndexingExportResponse) Reset() {
+	*x = GetIndexingExportResponse{}
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetIndexingExportResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetIndexingExportResponse) ProtoMessage() {}
+
+func (x *GetIndexingExportResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetIndexingExportResponse.ProtoReflect.Descriptor instead.
+func (*GetIndexingExportResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetIndexingExportResponse) GetExport() *v1.Export {
+	if x != nil {
+		return x.Export
+	}
+	return nil
+}
+
 type CancelIndexingJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DeploymentId  string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
@@ -268,7 +382,7 @@ type CancelIndexingJobRequest struct {
 
 func (x *CancelIndexingJobRequest) Reset() {
 	*x = CancelIndexingJobRequest{}
-	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -280,7 +394,7 @@ func (x *CancelIndexingJobRequest) String() string {
 func (*CancelIndexingJobRequest) ProtoMessage() {}
 
 func (x *CancelIndexingJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -293,7 +407,7 @@ func (x *CancelIndexingJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelIndexingJobRequest.ProtoReflect.Descriptor instead.
 func (*CancelIndexingJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CancelIndexingJobRequest) GetDeploymentId() string {
@@ -318,7 +432,7 @@ type CancelIndexingJobResponse struct {
 
 func (x *CancelIndexingJobResponse) Reset() {
 	*x = CancelIndexingJobResponse{}
-	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -330,7 +444,7 @@ func (x *CancelIndexingJobResponse) String() string {
 func (*CancelIndexingJobResponse) ProtoMessage() {}
 
 func (x *CancelIndexingJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_indexing_job_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -343,21 +457,27 @@ func (x *CancelIndexingJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelIndexingJobResponse.ProtoReflect.Descriptor instead.
 func (*CancelIndexingJobResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_indexing_job_proto_rawDescGZIP(), []int{5}
 }
 
 var File_chalk_server_v1_indexing_job_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_indexing_job_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/server/v1/indexing_job.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xc1\x01\n" +
+	"\"chalk/server/v1/indexing_job.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\xc5\x01\n" +
 	"\x1bGetIndexingJobStatusRequest\x12#\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12Y\n" +
+	"\x15directory_prefix_enum\x18\x02 \x01(\x0e2!.chalk.server.v1.DirectoryOptionsB\x02\x18\x01R\x13directoryPrefixEnum\x12&\n" +
+	"\x0findexing_job_id\x18\x03 \x01(\tR\rindexingJobId\"\x92\x01\n" +
+	"\x1cGetIndexingJobStatusResponse\x126\n" +
+	"\x06export\x18\x01 \x01(\v2\x1a.chalk.artifacts.v1.ExportB\x02\x18\x01R\x06export\x12:\n" +
+	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.IndexingJobStatusR\x06status\"\xba\x01\n" +
+	"\x18GetIndexingExportRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12U\n" +
-	"\x15directory_prefix_enum\x18\x02 \x01(\x0e2!.chalk.server.v1.DirectoryOptionsR\x13directoryPrefixEnum\x12&\n" +
-	"\x0findexing_job_id\x18\x03 \x01(\tR\rindexingJobId\"\x8e\x01\n" +
-	"\x1cGetIndexingJobStatusResponse\x122\n" +
-	"\x06export\x18\x01 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\x06export\x12:\n" +
-	"\x06status\x18\x02 \x01(\x0e2\".chalk.server.v1.IndexingJobStatusR\x06status\"Z\n" +
+	"\x15directory_prefix_enum\x18\x02 \x01(\x0e2!.chalk.server.v1.DirectoryOptionsR\x13directoryPrefixEnum\x12\"\n" +
+	"\rshadow_run_id\x18\x03 \x01(\tR\vshadowRunId\"O\n" +
+	"\x19GetIndexingExportResponse\x122\n" +
+	"\x06export\x18\x01 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\x06export\"Z\n" +
 	"\x18CancelIndexingJobRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x12\x19\n" +
 	"\bbuild_id\x18\x02 \x01(\tR\abuildId\"\x1b\n" +
@@ -375,9 +495,10 @@ const file_chalk_server_v1_indexing_job_proto_rawDesc = "" +
 	"\x1bINDEXING_JOB_STATUS_RUNNING\x10\x02\x12!\n" +
 	"\x1dINDEXING_JOB_STATUS_SUCCEEDED\x10\x03\x12\x1e\n" +
 	"\x1aINDEXING_JOB_STATUS_FAILED\x10\x04\x12\x1f\n" +
-	"\x1bINDEXING_JOB_STATUS_UNKNOWN\x10\x052\xb4\x02\n" +
+	"\x1bINDEXING_JOB_STATUS_UNKNOWN\x10\x052\xa8\x03\n" +
 	"\x12IndexingJobService\x12{\n" +
-	"\x14GetIndexingJobStatus\x12,.chalk.server.v1.GetIndexingJobStatusRequest\x1a-.chalk.server.v1.GetIndexingJobStatusResponse\"\x06\x80}\v\x90\x02\x01\x12\xa0\x01\n" +
+	"\x14GetIndexingJobStatus\x12,.chalk.server.v1.GetIndexingJobStatusRequest\x1a-.chalk.server.v1.GetIndexingJobStatusResponse\"\x06\x80}\v\x90\x02\x01\x12r\n" +
+	"\x11GetIndexingExport\x12).chalk.server.v1.GetIndexingExportRequest\x1a*.chalk.server.v1.GetIndexingExportResponse\"\x06\x80}\v\x90\x02\x01\x12\xa0\x01\n" +
 	"\x11CancelIndexingJob\x12).chalk.server.v1.CancelIndexingJobRequest\x1a*.chalk.server.v1.CancelIndexingJobResponse\"4\x80}\x0e\x8a\xd3\x0e-\b\x02\x12)Canceled an indexing job for a deploymentB\xc0\x01\n" +
 	"\x13com.chalk.server.v1B\x10IndexingJobProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -394,29 +515,35 @@ func file_chalk_server_v1_indexing_job_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_indexing_job_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_indexing_job_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_server_v1_indexing_job_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_server_v1_indexing_job_proto_goTypes = []any{
 	(DirectoryOptions)(0),                // 0: chalk.server.v1.DirectoryOptions
 	(IndexingJobStatus)(0),               // 1: chalk.server.v1.IndexingJobStatus
 	(*GetIndexingJobStatusRequest)(nil),  // 2: chalk.server.v1.GetIndexingJobStatusRequest
 	(*GetIndexingJobStatusResponse)(nil), // 3: chalk.server.v1.GetIndexingJobStatusResponse
-	(*CancelIndexingJobRequest)(nil),     // 4: chalk.server.v1.CancelIndexingJobRequest
-	(*CancelIndexingJobResponse)(nil),    // 5: chalk.server.v1.CancelIndexingJobResponse
-	(*v1.Export)(nil),                    // 6: chalk.artifacts.v1.Export
+	(*GetIndexingExportRequest)(nil),     // 4: chalk.server.v1.GetIndexingExportRequest
+	(*GetIndexingExportResponse)(nil),    // 5: chalk.server.v1.GetIndexingExportResponse
+	(*CancelIndexingJobRequest)(nil),     // 6: chalk.server.v1.CancelIndexingJobRequest
+	(*CancelIndexingJobResponse)(nil),    // 7: chalk.server.v1.CancelIndexingJobResponse
+	(*v1.Export)(nil),                    // 8: chalk.artifacts.v1.Export
 }
 var file_chalk_server_v1_indexing_job_proto_depIdxs = []int32{
 	0, // 0: chalk.server.v1.GetIndexingJobStatusRequest.directory_prefix_enum:type_name -> chalk.server.v1.DirectoryOptions
-	6, // 1: chalk.server.v1.GetIndexingJobStatusResponse.export:type_name -> chalk.artifacts.v1.Export
+	8, // 1: chalk.server.v1.GetIndexingJobStatusResponse.export:type_name -> chalk.artifacts.v1.Export
 	1, // 2: chalk.server.v1.GetIndexingJobStatusResponse.status:type_name -> chalk.server.v1.IndexingJobStatus
-	2, // 3: chalk.server.v1.IndexingJobService.GetIndexingJobStatus:input_type -> chalk.server.v1.GetIndexingJobStatusRequest
-	4, // 4: chalk.server.v1.IndexingJobService.CancelIndexingJob:input_type -> chalk.server.v1.CancelIndexingJobRequest
-	3, // 5: chalk.server.v1.IndexingJobService.GetIndexingJobStatus:output_type -> chalk.server.v1.GetIndexingJobStatusResponse
-	5, // 6: chalk.server.v1.IndexingJobService.CancelIndexingJob:output_type -> chalk.server.v1.CancelIndexingJobResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // 3: chalk.server.v1.GetIndexingExportRequest.directory_prefix_enum:type_name -> chalk.server.v1.DirectoryOptions
+	8, // 4: chalk.server.v1.GetIndexingExportResponse.export:type_name -> chalk.artifacts.v1.Export
+	2, // 5: chalk.server.v1.IndexingJobService.GetIndexingJobStatus:input_type -> chalk.server.v1.GetIndexingJobStatusRequest
+	4, // 6: chalk.server.v1.IndexingJobService.GetIndexingExport:input_type -> chalk.server.v1.GetIndexingExportRequest
+	6, // 7: chalk.server.v1.IndexingJobService.CancelIndexingJob:input_type -> chalk.server.v1.CancelIndexingJobRequest
+	3, // 8: chalk.server.v1.IndexingJobService.GetIndexingJobStatus:output_type -> chalk.server.v1.GetIndexingJobStatusResponse
+	5, // 9: chalk.server.v1.IndexingJobService.GetIndexingExport:output_type -> chalk.server.v1.GetIndexingExportResponse
+	7, // 10: chalk.server.v1.IndexingJobService.CancelIndexingJob:output_type -> chalk.server.v1.CancelIndexingJobResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_indexing_job_proto_init() }
@@ -430,7 +557,7 @@ func file_chalk_server_v1_indexing_job_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_indexing_job_proto_rawDesc), len(file_chalk_server_v1_indexing_job_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

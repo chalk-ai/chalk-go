@@ -60,6 +60,15 @@ const (
 	// DatasetMetadataServiceDeleteDatasetProcedure is the fully-qualified name of the
 	// DatasetMetadataService's DeleteDataset RPC.
 	DatasetMetadataServiceDeleteDatasetProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteDataset"
+	// DatasetMetadataServiceListMaterializedAggregateTilesProcedure is the fully-qualified name of the
+	// DatasetMetadataService's ListMaterializedAggregateTiles RPC.
+	DatasetMetadataServiceListMaterializedAggregateTilesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTiles"
+	// DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure is the fully-qualified name of
+	// the DatasetMetadataService's ListMaterializedAggregateTileFiles RPC.
+	DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTileFiles"
+	// DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure is the fully-qualified name of the
+	// DatasetMetadataService's DeleteMaterializedAggregateTile RPC.
+	DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteMaterializedAggregateTile"
 	// DatasetMetadataServiceGetDatasetRevisionPreviewProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GetDatasetRevisionPreview RPC.
 	DatasetMetadataServiceGetDatasetRevisionPreviewProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevisionPreview"
@@ -86,6 +95,9 @@ type DatasetMetadataServiceClient interface {
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
 	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error)
+	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
+	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
@@ -166,6 +178,27 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
+		listMaterializedAggregateTiles: connect.NewClient[v1.ListMaterializedAggregateTilesRequest, v1.ListMaterializedAggregateTilesResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceListMaterializedAggregateTilesProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTiles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listMaterializedAggregateTileFiles: connect.NewClient[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTileFiles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteMaterializedAggregateTile: connect.NewClient[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteMaterializedAggregateTile")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		getDatasetRevisionPreview: connect.NewClient[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse](
 			httpClient,
 			baseURL+DatasetMetadataServiceGetDatasetRevisionPreviewProcedure,
@@ -197,19 +230,22 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 
 // datasetMetadataServiceClient implements DatasetMetadataServiceClient.
 type datasetMetadataServiceClient struct {
-	listDatasets                    *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
-	getDataset                      *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
-	listDatasetRevisions            *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
-	getDatasetRevision              *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
-	getDatasetRevisionDownloadLinks *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
-	renameDataset                   *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
-	archiveDatasetRevision          *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
-	archiveDatasetRevisions         *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
-	deleteDataset                   *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
-	getDatasetRevisionPreview       *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
-	generateDatasetStats            *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
-	getDatasetEdfs                  *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
-	generateDatasetEdfs             *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
+	listDatasets                       *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
+	getDataset                         *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
+	listDatasetRevisions               *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
+	getDatasetRevision                 *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
+	getDatasetRevisionDownloadLinks    *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
+	renameDataset                      *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
+	archiveDatasetRevision             *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
+	archiveDatasetRevisions            *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
+	deleteDataset                      *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
+	listMaterializedAggregateTiles     *connect.Client[v1.ListMaterializedAggregateTilesRequest, v1.ListMaterializedAggregateTilesResponse]
+	listMaterializedAggregateTileFiles *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
+	deleteMaterializedAggregateTile    *connect.Client[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse]
+	getDatasetRevisionPreview          *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
+	generateDatasetStats               *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
+	getDatasetEdfs                     *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
+	generateDatasetEdfs                *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -260,6 +296,24 @@ func (c *datasetMetadataServiceClient) DeleteDataset(ctx context.Context, req *c
 	return c.deleteDataset.CallUnary(ctx, req)
 }
 
+// ListMaterializedAggregateTiles calls
+// chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles.
+func (c *datasetMetadataServiceClient) ListMaterializedAggregateTiles(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error) {
+	return c.listMaterializedAggregateTiles.CallUnary(ctx, req)
+}
+
+// ListMaterializedAggregateTileFiles calls
+// chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles.
+func (c *datasetMetadataServiceClient) ListMaterializedAggregateTileFiles(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error) {
+	return c.listMaterializedAggregateTileFiles.CallUnary(ctx, req)
+}
+
+// DeleteMaterializedAggregateTile calls
+// chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile.
+func (c *datasetMetadataServiceClient) DeleteMaterializedAggregateTile(ctx context.Context, req *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error) {
+	return c.deleteMaterializedAggregateTile.CallUnary(ctx, req)
+}
+
 // GetDatasetRevisionPreview calls chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview.
 func (c *datasetMetadataServiceClient) GetDatasetRevisionPreview(ctx context.Context, req *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error) {
 	return c.getDatasetRevisionPreview.CallUnary(ctx, req)
@@ -293,6 +347,9 @@ type DatasetMetadataServiceHandler interface {
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
 	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error)
+	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
+	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
@@ -369,6 +426,27 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceListMaterializedAggregateTilesHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceListMaterializedAggregateTilesProcedure,
+		svc.ListMaterializedAggregateTiles,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTiles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceListMaterializedAggregateTileFilesHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure,
+		svc.ListMaterializedAggregateTileFiles,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTileFiles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceDeleteMaterializedAggregateTileHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure,
+		svc.DeleteMaterializedAggregateTile,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("DeleteMaterializedAggregateTile")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	datasetMetadataServiceGetDatasetRevisionPreviewHandler := connect.NewUnaryHandler(
 		DatasetMetadataServiceGetDatasetRevisionPreviewProcedure,
 		svc.GetDatasetRevisionPreview,
@@ -415,6 +493,12 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceArchiveDatasetRevisionsHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceDeleteDatasetProcedure:
 			datasetMetadataServiceDeleteDatasetHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceListMaterializedAggregateTilesProcedure:
+			datasetMetadataServiceListMaterializedAggregateTilesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure:
+			datasetMetadataServiceListMaterializedAggregateTileFilesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure:
+			datasetMetadataServiceDeleteMaterializedAggregateTileHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionPreviewProcedure:
 			datasetMetadataServiceGetDatasetRevisionPreviewHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGenerateDatasetStatsProcedure:
@@ -466,6 +550,18 @@ func (UnimplementedDatasetMetadataServiceHandler) ArchiveDatasetRevisions(contex
 
 func (UnimplementedDatasetMetadataServiceHandler) DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.DeleteDataset is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error) {
