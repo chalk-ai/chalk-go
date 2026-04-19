@@ -158,6 +158,8 @@ type ScheduledQueryRun struct {
 	Status              ScheduledQueryRunStatus `protobuf:"varint,13,opt,name=status,proto3,enum=chalk.server.v1.ScheduledQueryRunStatus" json:"status,omitempty"`
 	BlockerOperationId  *string                 `protobuf:"bytes,14,opt,name=blocker_operation_id,json=blockerOperationId,proto3,oneof" json:"blocker_operation_id,omitempty"`
 	WorkflowExecutionId *string                 `protobuf:"bytes,15,opt,name=workflow_execution_id,json=workflowExecutionId,proto3,oneof" json:"workflow_execution_id,omitempty"`
+	OfflineQueryMeta    *OfflineQueryMeta       `protobuf:"bytes,16,opt,name=offline_query_meta,json=offlineQueryMeta,proto3,oneof" json:"offline_query_meta,omitempty"`
+	WorkflowExecution   *WorkflowExecution      `protobuf:"bytes,17,opt,name=workflow_execution,json=workflowExecution,proto3,oneof" json:"workflow_execution,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -295,6 +297,20 @@ func (x *ScheduledQueryRun) GetWorkflowExecutionId() string {
 		return *x.WorkflowExecutionId
 	}
 	return ""
+}
+
+func (x *ScheduledQueryRun) GetOfflineQueryMeta() *OfflineQueryMeta {
+	if x != nil {
+		return x.OfflineQueryMeta
+	}
+	return nil
+}
+
+func (x *ScheduledQueryRun) GetWorkflowExecution() *WorkflowExecution {
+	if x != nil {
+		return x.WorkflowExecution
+	}
+	return nil
 }
 
 type GetScheduledQueryRunRequest struct {
@@ -901,7 +917,7 @@ var File_chalk_server_v1_scheduled_query_run_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_scheduled_query_run_proto_rawDesc = "" +
 	"\n" +
-	")chalk/server/v1/scheduled_query_run.proto\x12\x0fchalk.server.v1\x1a#chalk/common/v1/offline_query.proto\x1a%chalk/server/v1/offline_queries.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa4\x06\n" +
+	")chalk/server/v1/scheduled_query_run.proto\x12\x0fchalk.server.v1\x1a#chalk/common/v1/offline_query.proto\x1a(chalk/server/v1/dataplaneworkflows.proto\x1a%chalk/server/v1/offline_queries.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x80\b\n" +
 	"\x11ScheduledQueryRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12(\n" +
@@ -921,13 +937,17 @@ const file_chalk_server_v1_scheduled_query_run_proto_rawDesc = "" +
 	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12@\n" +
 	"\x06status\x18\r \x01(\x0e2(.chalk.server.v1.ScheduledQueryRunStatusR\x06status\x125\n" +
 	"\x14blocker_operation_id\x18\x0e \x01(\tH\x04R\x12blockerOperationId\x88\x01\x01\x127\n" +
-	"\x15workflow_execution_id\x18\x0f \x01(\tH\x05R\x13workflowExecutionId\x88\x01\x01B\x10\n" +
+	"\x15workflow_execution_id\x18\x0f \x01(\tH\x05R\x13workflowExecutionId\x88\x01\x01\x12T\n" +
+	"\x12offline_query_meta\x18\x10 \x01(\v2!.chalk.server.v1.OfflineQueryMetaH\x06R\x10offlineQueryMeta\x88\x01\x01\x12V\n" +
+	"\x12workflow_execution\x18\x11 \x01(\v2\".chalk.server.v1.WorkflowExecutionH\aR\x11workflowExecution\x88\x01\x01B\x10\n" +
 	"\x0e_deployment_idB\t\n" +
 	"\a_run_idB\x13\n" +
 	"\x11_gcr_execution_idB\x0f\n" +
 	"\r_gcr_job_nameB\x17\n" +
 	"\x15_blocker_operation_idB\x18\n" +
-	"\x16_workflow_execution_id\"\xe1\x01\n" +
+	"\x16_workflow_execution_idB\x15\n" +
+	"\x13_offline_query_metaB\x15\n" +
+	"\x13_workflow_execution\"\xe1\x01\n" +
 	"\x1bGetScheduledQueryRunRequest\x12\x17\n" +
 	"\x06run_id\x18\x01 \x01(\x03H\x00R\x05runId\x12*\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tH\x00R\x0eofflineQueryId\x124\n" +
@@ -1046,34 +1066,37 @@ var file_chalk_server_v1_scheduled_query_run_proto_goTypes = []any{
 	(*ScheduledQuerySchedule)(nil),        // 8: chalk.server.v1.ScheduledQuerySchedule
 	nil,                                   // 9: chalk.server.v1.ScheduledQuerySchedule.PlannerOptionsEntry
 	(*timestamppb.Timestamp)(nil),         // 10: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),         // 11: google.protobuf.FieldMask
-	(*OfflineQueryMeta)(nil),              // 12: chalk.server.v1.OfflineQueryMeta
-	(*v1.UnloadResolverSpec)(nil),         // 13: chalk.common.v1.UnloadResolverSpec
-	(*structpb.Value)(nil),                // 14: google.protobuf.Value
+	(*OfflineQueryMeta)(nil),              // 11: chalk.server.v1.OfflineQueryMeta
+	(*WorkflowExecution)(nil),             // 12: chalk.server.v1.WorkflowExecution
+	(*fieldmaskpb.FieldMask)(nil),         // 13: google.protobuf.FieldMask
+	(*v1.UnloadResolverSpec)(nil),         // 14: chalk.common.v1.UnloadResolverSpec
+	(*structpb.Value)(nil),                // 15: google.protobuf.Value
 }
 var file_chalk_server_v1_scheduled_query_run_proto_depIdxs = []int32{
 	10, // 0: chalk.server.v1.ScheduledQueryRun.created_at:type_name -> google.protobuf.Timestamp
 	10, // 1: chalk.server.v1.ScheduledQueryRun.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.server.v1.ScheduledQueryRun.status:type_name -> chalk.server.v1.ScheduledQueryRunStatus
-	11, // 3: chalk.server.v1.GetScheduledQueryRunRequest.get_mask:type_name -> google.protobuf.FieldMask
-	2,  // 4: chalk.server.v1.GetScheduledQueryRunResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
-	12, // 5: chalk.server.v1.GetScheduledQueryRunResponse.offline_query:type_name -> chalk.server.v1.OfflineQueryMeta
-	2,  // 6: chalk.server.v1.GetScheduledQueryRunsResponse.runs:type_name -> chalk.server.v1.ScheduledQueryRun
-	1,  // 7: chalk.server.v1.ScheduledQueryControl.status:type_name -> chalk.server.v1.CronControlStatus
-	10, // 8: chalk.server.v1.ScheduledQueryControl.created_at:type_name -> google.protobuf.Timestamp
-	10, // 9: chalk.server.v1.ScheduledQueryControl.updated_at:type_name -> google.protobuf.Timestamp
-	10, // 10: chalk.server.v1.ScheduledQuerySchedule.created_at:type_name -> google.protobuf.Timestamp
-	10, // 11: chalk.server.v1.ScheduledQuerySchedule.updated_at:type_name -> google.protobuf.Timestamp
-	10, // 12: chalk.server.v1.ScheduledQuerySchedule.lower_bound:type_name -> google.protobuf.Timestamp
-	10, // 13: chalk.server.v1.ScheduledQuerySchedule.upper_bound:type_name -> google.protobuf.Timestamp
-	9,  // 14: chalk.server.v1.ScheduledQuerySchedule.planner_options:type_name -> chalk.server.v1.ScheduledQuerySchedule.PlannerOptionsEntry
-	13, // 15: chalk.server.v1.ScheduledQuerySchedule.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
-	14, // 16: chalk.server.v1.ScheduledQuerySchedule.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	11, // 3: chalk.server.v1.ScheduledQueryRun.offline_query_meta:type_name -> chalk.server.v1.OfflineQueryMeta
+	12, // 4: chalk.server.v1.ScheduledQueryRun.workflow_execution:type_name -> chalk.server.v1.WorkflowExecution
+	13, // 5: chalk.server.v1.GetScheduledQueryRunRequest.get_mask:type_name -> google.protobuf.FieldMask
+	2,  // 6: chalk.server.v1.GetScheduledQueryRunResponse.scheduled_query_run:type_name -> chalk.server.v1.ScheduledQueryRun
+	11, // 7: chalk.server.v1.GetScheduledQueryRunResponse.offline_query:type_name -> chalk.server.v1.OfflineQueryMeta
+	2,  // 8: chalk.server.v1.GetScheduledQueryRunsResponse.runs:type_name -> chalk.server.v1.ScheduledQueryRun
+	1,  // 9: chalk.server.v1.ScheduledQueryControl.status:type_name -> chalk.server.v1.CronControlStatus
+	10, // 10: chalk.server.v1.ScheduledQueryControl.created_at:type_name -> google.protobuf.Timestamp
+	10, // 11: chalk.server.v1.ScheduledQueryControl.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 12: chalk.server.v1.ScheduledQuerySchedule.created_at:type_name -> google.protobuf.Timestamp
+	10, // 13: chalk.server.v1.ScheduledQuerySchedule.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 14: chalk.server.v1.ScheduledQuerySchedule.lower_bound:type_name -> google.protobuf.Timestamp
+	10, // 15: chalk.server.v1.ScheduledQuerySchedule.upper_bound:type_name -> google.protobuf.Timestamp
+	9,  // 16: chalk.server.v1.ScheduledQuerySchedule.planner_options:type_name -> chalk.server.v1.ScheduledQuerySchedule.PlannerOptionsEntry
+	14, // 17: chalk.server.v1.ScheduledQuerySchedule.unload_resolvers:type_name -> chalk.common.v1.UnloadResolverSpec
+	15, // 18: chalk.server.v1.ScheduledQuerySchedule.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_scheduled_query_run_proto_init() }
@@ -1081,6 +1104,7 @@ func file_chalk_server_v1_scheduled_query_run_proto_init() {
 	if File_chalk_server_v1_scheduled_query_run_proto != nil {
 		return
 	}
+	file_chalk_server_v1_dataplaneworkflows_proto_init()
 	file_chalk_server_v1_offline_queries_proto_init()
 	file_chalk_server_v1_scheduled_query_run_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduled_query_run_proto_msgTypes[1].OneofWrappers = []any{
