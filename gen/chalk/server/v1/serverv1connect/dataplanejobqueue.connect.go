@@ -23,6 +23,9 @@ const _ = connect.IsAtLeastVersion1_13_0
 const (
 	// DataPlaneJobQueueServiceName is the fully-qualified name of the DataPlaneJobQueueService service.
 	DataPlaneJobQueueServiceName = "chalk.server.v1.DataPlaneJobQueueService"
+	// DataPlaneJobEnqueueServiceName is the fully-qualified name of the DataPlaneJobEnqueueService
+	// service.
+	DataPlaneJobEnqueueServiceName = "chalk.server.v1.DataPlaneJobEnqueueService"
 )
 
 // These constants are the fully-qualified names of the RPCs defined in this package. They're
@@ -57,6 +60,9 @@ const (
 	// DataPlaneJobQueueServiceExplainOperationProgressProcedure is the fully-qualified name of the
 	// DataPlaneJobQueueService's ExplainOperationProgress RPC.
 	DataPlaneJobQueueServiceExplainOperationProgressProcedure = "/chalk.server.v1.DataPlaneJobQueueService/ExplainOperationProgress"
+	// DataPlaneJobEnqueueServiceEnqueueJobProcedure is the fully-qualified name of the
+	// DataPlaneJobEnqueueService's EnqueueJob RPC.
+	DataPlaneJobEnqueueServiceEnqueueJobProcedure = "/chalk.server.v1.DataPlaneJobEnqueueService/EnqueueJob"
 )
 
 // DataPlaneJobQueueServiceClient is a client for the chalk.server.v1.DataPlaneJobQueueService
@@ -325,4 +331,76 @@ func (UnimplementedDataPlaneJobQueueServiceHandler) CancelWorkflowExecution(cont
 
 func (UnimplementedDataPlaneJobQueueServiceHandler) ExplainOperationProgress(context.Context, *connect.Request[v1.ExplainOperationProgressRequest]) (*connect.Response[v1.ExplainOperationProgressResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobQueueService.ExplainOperationProgress is not implemented"))
+}
+
+// DataPlaneJobEnqueueServiceClient is a client for the chalk.server.v1.DataPlaneJobEnqueueService
+// service.
+type DataPlaneJobEnqueueServiceClient interface {
+	EnqueueJob(context.Context, *connect.Request[v1.EnqueueJobRequest]) (*connect.Response[v1.EnqueueJobResponse], error)
+}
+
+// NewDataPlaneJobEnqueueServiceClient constructs a client for the
+// chalk.server.v1.DataPlaneJobEnqueueService service. By default, it uses the Connect protocol with
+// the binary Protobuf Codec, asks for gzipped responses, and sends uncompressed requests. To use
+// the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or connect.WithGRPCWeb() options.
+//
+// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
+// http://api.acme.com or https://acme.com/grpc).
+func NewDataPlaneJobEnqueueServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) DataPlaneJobEnqueueServiceClient {
+	baseURL = strings.TrimRight(baseURL, "/")
+	dataPlaneJobEnqueueServiceMethods := v1.File_chalk_server_v1_dataplanejobqueue_proto.Services().ByName("DataPlaneJobEnqueueService").Methods()
+	return &dataPlaneJobEnqueueServiceClient{
+		enqueueJob: connect.NewClient[v1.EnqueueJobRequest, v1.EnqueueJobResponse](
+			httpClient,
+			baseURL+DataPlaneJobEnqueueServiceEnqueueJobProcedure,
+			connect.WithSchema(dataPlaneJobEnqueueServiceMethods.ByName("EnqueueJob")),
+			connect.WithClientOptions(opts...),
+		),
+	}
+}
+
+// dataPlaneJobEnqueueServiceClient implements DataPlaneJobEnqueueServiceClient.
+type dataPlaneJobEnqueueServiceClient struct {
+	enqueueJob *connect.Client[v1.EnqueueJobRequest, v1.EnqueueJobResponse]
+}
+
+// EnqueueJob calls chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob.
+func (c *dataPlaneJobEnqueueServiceClient) EnqueueJob(ctx context.Context, req *connect.Request[v1.EnqueueJobRequest]) (*connect.Response[v1.EnqueueJobResponse], error) {
+	return c.enqueueJob.CallUnary(ctx, req)
+}
+
+// DataPlaneJobEnqueueServiceHandler is an implementation of the
+// chalk.server.v1.DataPlaneJobEnqueueService service.
+type DataPlaneJobEnqueueServiceHandler interface {
+	EnqueueJob(context.Context, *connect.Request[v1.EnqueueJobRequest]) (*connect.Response[v1.EnqueueJobResponse], error)
+}
+
+// NewDataPlaneJobEnqueueServiceHandler builds an HTTP handler from the service implementation. It
+// returns the path on which to mount the handler and the handler itself.
+//
+// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
+// and JSON codecs. They also support gzip compression.
+func NewDataPlaneJobEnqueueServiceHandler(svc DataPlaneJobEnqueueServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
+	dataPlaneJobEnqueueServiceMethods := v1.File_chalk_server_v1_dataplanejobqueue_proto.Services().ByName("DataPlaneJobEnqueueService").Methods()
+	dataPlaneJobEnqueueServiceEnqueueJobHandler := connect.NewUnaryHandler(
+		DataPlaneJobEnqueueServiceEnqueueJobProcedure,
+		svc.EnqueueJob,
+		connect.WithSchema(dataPlaneJobEnqueueServiceMethods.ByName("EnqueueJob")),
+		connect.WithHandlerOptions(opts...),
+	)
+	return "/chalk.server.v1.DataPlaneJobEnqueueService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case DataPlaneJobEnqueueServiceEnqueueJobProcedure:
+			dataPlaneJobEnqueueServiceEnqueueJobHandler.ServeHTTP(w, r)
+		default:
+			http.NotFound(w, r)
+		}
+	})
+}
+
+// UnimplementedDataPlaneJobEnqueueServiceHandler returns CodeUnimplemented from all methods.
+type UnimplementedDataPlaneJobEnqueueServiceHandler struct{}
+
+func (UnimplementedDataPlaneJobEnqueueServiceHandler) EnqueueJob(context.Context, *connect.Request[v1.EnqueueJobRequest]) (*connect.Response[v1.EnqueueJobResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob is not implemented"))
 }

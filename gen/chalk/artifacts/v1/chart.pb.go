@@ -93,6 +93,8 @@ const (
 	MetricKind_METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE           MetricKind = 65
 	MetricKind_METRIC_KIND_PULL_QUERY_PROCESSED                    MetricKind = 66
 	MetricKind_METRIC_KIND_PULL_QUERY_LATENCY                      MetricKind = 67
+	MetricKind_METRIC_KIND_CONTAINER_COUNT                         MetricKind = 68
+	MetricKind_METRIC_KIND_SCALING_GROUP_REPLICA_COUNT             MetricKind = 69
 )
 
 // Enum value maps for MetricKind.
@@ -166,6 +168,8 @@ var (
 		65: "METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE",
 		66: "METRIC_KIND_PULL_QUERY_PROCESSED",
 		67: "METRIC_KIND_PULL_QUERY_LATENCY",
+		68: "METRIC_KIND_CONTAINER_COUNT",
+		69: "METRIC_KIND_SCALING_GROUP_REPLICA_COUNT",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -236,6 +240,8 @@ var (
 		"METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE":           65,
 		"METRIC_KIND_PULL_QUERY_PROCESSED":                    66,
 		"METRIC_KIND_PULL_QUERY_LATENCY":                      67,
+		"METRIC_KIND_CONTAINER_COUNT":                         68,
+		"METRIC_KIND_SCALING_GROUP_REPLICA_COUNT":             69,
 	}
 )
 
@@ -291,6 +297,7 @@ const (
 	FilterKind_FILTER_KIND_TOPIC_NAME          FilterKind = 19
 	FilterKind_FILTER_KIND_SUBSCRIPTION_NAME   FilterKind = 20
 	FilterKind_FILTER_KIND_PARTITION_NAME      FilterKind = 21
+	FilterKind_FILTER_KIND_SCALING_GROUP       FilterKind = 22
 )
 
 // Enum value maps for FilterKind.
@@ -318,6 +325,7 @@ var (
 		19: "FILTER_KIND_TOPIC_NAME",
 		20: "FILTER_KIND_SUBSCRIPTION_NAME",
 		21: "FILTER_KIND_PARTITION_NAME",
+		22: "FILTER_KIND_SCALING_GROUP",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":         0,
@@ -342,6 +350,7 @@ var (
 		"FILTER_KIND_TOPIC_NAME":          19,
 		"FILTER_KIND_SUBSCRIPTION_NAME":   20,
 		"FILTER_KIND_PARTITION_NAME":      21,
+		"FILTER_KIND_SCALING_GROUP":       22,
 	}
 )
 
@@ -1449,7 +1458,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
 	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
 	"\n" +
-	"_entity_id*\x9e\x14\n" +
+	"_entity_id*\xec\x14\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1520,7 +1529,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"METRIC_KIND_PULL_QUERY_QUEUE_DEPTH\x10@\x12-\n" +
 	")METRIC_KIND_PULL_QUERY_OLDEST_UNACKED_AGE\x10A\x12$\n" +
 	" METRIC_KIND_PULL_QUERY_PROCESSED\x10B\x12\"\n" +
-	"\x1eMETRIC_KIND_PULL_QUERY_LATENCY\x10C*\xa7\x05\n" +
+	"\x1eMETRIC_KIND_PULL_QUERY_LATENCY\x10C\x12\x1f\n" +
+	"\x1bMETRIC_KIND_CONTAINER_COUNT\x10D\x12+\n" +
+	"'METRIC_KIND_SCALING_GROUP_REPLICA_COUNT\x10E*\xc6\x05\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -1545,7 +1556,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1fFILTER_KIND_COMPUTATION_CONTEXT\x10\x12\x12\x1a\n" +
 	"\x16FILTER_KIND_TOPIC_NAME\x10\x13\x12!\n" +
 	"\x1dFILTER_KIND_SUBSCRIPTION_NAME\x10\x14\x12\x1e\n" +
-	"\x1aFILTER_KIND_PARTITION_NAME\x10\x15*~\n" +
+	"\x1aFILTER_KIND_PARTITION_NAME\x10\x15\x12\x1d\n" +
+	"\x19FILTER_KIND_SCALING_GROUP\x10\x16*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
