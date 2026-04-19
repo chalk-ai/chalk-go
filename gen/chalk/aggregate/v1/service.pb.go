@@ -673,6 +673,7 @@ type CreateAggregateBackfillJobRequest struct {
 	AggregateBackfillId *string                `protobuf:"bytes,7,opt,name=aggregate_backfill_id,json=aggregateBackfillId,proto3,oneof" json:"aggregate_backfill_id,omitempty"`
 	ResourceGroup       *string                `protobuf:"bytes,8,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	QueryTags           []string               `protobuf:"bytes,9,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
+	StoreOffline        *bool                  `protobuf:"varint,10,opt,name=store_offline,json=storeOffline,proto3,oneof" json:"store_offline,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -768,6 +769,13 @@ func (x *CreateAggregateBackfillJobRequest) GetQueryTags() []string {
 		return x.QueryTags
 	}
 	return nil
+}
+
+func (x *CreateAggregateBackfillJobRequest) GetStoreOffline() bool {
+	if x != nil && x.StoreOffline != nil {
+		return *x.StoreOffline
+	}
+	return false
 }
 
 type CreateAggregateBackfillJobResponse struct {
@@ -871,7 +879,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"latest_job\x18\x02 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\tlatestJob\"\x9b\x01\n" +
 	"'GetActiveCronAggregateBackfillsResponse\x12p\n" +
-	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xac\x04\n" +
+	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xe8\x04\n" +
 	"!CreateAggregateBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
@@ -884,13 +892,16 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x15aggregate_backfill_id\x18\a \x01(\tH\x04R\x13aggregateBackfillId\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\b \x01(\tH\x05R\rresourceGroup\x88\x01\x01\x12\x1d\n" +
 	"\n" +
-	"query_tags\x18\t \x03(\tR\tqueryTagsB\x0e\n" +
+	"query_tags\x18\t \x03(\tR\tqueryTags\x12(\n" +
+	"\rstore_offline\x18\n" +
+	" \x01(\bH\x06R\fstoreOffline\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x11\n" +
 	"\x0f_bucket_featureB\x18\n" +
 	"\x16_aggregate_backfill_idB\x11\n" +
-	"\x0f_resource_group\"\x8c\x01\n" +
+	"\x0f_resource_groupB\x10\n" +
+	"\x0e_store_offline\"\x8c\x01\n" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +

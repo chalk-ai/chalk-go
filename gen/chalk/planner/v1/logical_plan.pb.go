@@ -321,6 +321,8 @@ type LogicalPlanArgument struct {
 	//	*LogicalPlanArgument_ListValue
 	//	*LogicalPlanArgument_UnorderedDictValue
 	//	*LogicalPlanArgument_ExprValue
+	//	*LogicalPlanArgument_BatchUdf
+	//	*LogicalPlanArgument_BatchUdfV2
 	Arg           isLogicalPlanArgument_Arg `protobuf_oneof:"arg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -453,6 +455,25 @@ func (x *LogicalPlanArgument) GetExprValue() *v11.LogicalExprNode {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
+func (x *LogicalPlanArgument) GetBatchUdf() *BatchUDF {
+	if x != nil {
+		if x, ok := x.Arg.(*LogicalPlanArgument_BatchUdf); ok {
+			return x.BatchUdf
+		}
+	}
+	return nil
+}
+
+func (x *LogicalPlanArgument) GetBatchUdfV2() *BatchUDFV2 {
+	if x != nil {
+		if x, ok := x.Arg.(*LogicalPlanArgument_BatchUdfV2); ok {
+			return x.BatchUdfV2
+		}
+	}
+	return nil
+}
+
 type isLogicalPlanArgument_Arg interface {
 	isLogicalPlanArgument_Arg()
 }
@@ -501,6 +522,15 @@ type LogicalPlanArgument_ExprValue struct {
 	ExprValue *v11.LogicalExprNode `protobuf:"bytes,10,opt,name=expr_value,json=exprValue,proto3,oneof"`
 }
 
+type LogicalPlanArgument_BatchUdf struct {
+	// Deprecated: Marked as deprecated in chalk/planner/v1/logical_plan.proto.
+	BatchUdf *BatchUDF `protobuf:"bytes,11,opt,name=batch_udf,json=batchUdf,proto3,oneof"`
+}
+
+type LogicalPlanArgument_BatchUdfV2 struct {
+	BatchUdfV2 *BatchUDFV2 `protobuf:"bytes,12,opt,name=batch_udf_v2,json=batchUdfV2,proto3,oneof"`
+}
+
 func (*LogicalPlanArgument_NullValue) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_StringValue) isLogicalPlanArgument_Arg() {}
@@ -520,6 +550,10 @@ func (*LogicalPlanArgument_ListValue) isLogicalPlanArgument_Arg() {}
 func (*LogicalPlanArgument_UnorderedDictValue) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_ExprValue) isLogicalPlanArgument_Arg() {}
+
+func (*LogicalPlanArgument_BatchUdf) isLogicalPlanArgument_Arg() {}
+
+func (*LogicalPlanArgument_BatchUdfV2) isLogicalPlanArgument_Arg() {}
 
 type LogicalPlanArgumentList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -609,6 +643,141 @@ func (x *LogicalPlanUnorderedDict) GetItems() map[string]*LogicalPlanArgument {
 	return nil
 }
 
+type BatchUDFV2 struct {
+	state         protoimpl.MessageState         `protogen:"open.v1"`
+	BatchUdfType  string                         `protobuf:"bytes,1,opt,name=batch_udf_type,json=batchUdfType,proto3" json:"batch_udf_type,omitempty"`
+	Arguments     map[string]*BatchUDFArgumentV2 `protobuf:"bytes,2,rep,name=arguments,proto3" json:"arguments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchUDFV2) Reset() {
+	*x = BatchUDFV2{}
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchUDFV2) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchUDFV2) ProtoMessage() {}
+
+func (x *BatchUDFV2) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchUDFV2.ProtoReflect.Descriptor instead.
+func (*BatchUDFV2) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_logical_plan_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *BatchUDFV2) GetBatchUdfType() string {
+	if x != nil {
+		return x.BatchUdfType
+	}
+	return ""
+}
+
+func (x *BatchUDFV2) GetArguments() map[string]*BatchUDFArgumentV2 {
+	if x != nil {
+		return x.Arguments
+	}
+	return nil
+}
+
+type BatchUDFArgumentV2 struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Arg:
+	//
+	//	*BatchUDFArgumentV2_LogicalPlanArg
+	//	*BatchUDFArgumentV2_PyObj
+	Arg           isBatchUDFArgumentV2_Arg `protobuf_oneof:"arg"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchUDFArgumentV2) Reset() {
+	*x = BatchUDFArgumentV2{}
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchUDFArgumentV2) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchUDFArgumentV2) ProtoMessage() {}
+
+func (x *BatchUDFArgumentV2) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchUDFArgumentV2.ProtoReflect.Descriptor instead.
+func (*BatchUDFArgumentV2) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_logical_plan_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BatchUDFArgumentV2) GetArg() isBatchUDFArgumentV2_Arg {
+	if x != nil {
+		return x.Arg
+	}
+	return nil
+}
+
+func (x *BatchUDFArgumentV2) GetLogicalPlanArg() *LogicalPlanArgument {
+	if x != nil {
+		if x, ok := x.Arg.(*BatchUDFArgumentV2_LogicalPlanArg); ok {
+			return x.LogicalPlanArg
+		}
+	}
+	return nil
+}
+
+func (x *BatchUDFArgumentV2) GetPyObj() *PyObject {
+	if x != nil {
+		if x, ok := x.Arg.(*BatchUDFArgumentV2_PyObj); ok {
+			return x.PyObj
+		}
+	}
+	return nil
+}
+
+type isBatchUDFArgumentV2_Arg interface {
+	isBatchUDFArgumentV2_Arg()
+}
+
+type BatchUDFArgumentV2_LogicalPlanArg struct {
+	// types shared with LogicalPlanArgument
+	LogicalPlanArg *LogicalPlanArgument `protobuf:"bytes,1,opt,name=logical_plan_arg,json=logicalPlanArg,proto3,oneof"`
+}
+
+type BatchUDFArgumentV2_PyObj struct {
+	PyObj *PyObject `protobuf:"bytes,2,opt,name=py_obj,json=pyObj,proto3,oneof"`
+}
+
+func (*BatchUDFArgumentV2_LogicalPlanArg) isBatchUDFArgumentV2_Arg() {}
+
+func (*BatchUDFArgumentV2_PyObj) isBatchUDFArgumentV2_Arg() {}
+
 type LogicalPlanArgumentNullOpt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -617,7 +786,7 @@ type LogicalPlanArgumentNullOpt struct {
 
 func (x *LogicalPlanArgumentNullOpt) Reset() {
 	*x = LogicalPlanArgumentNullOpt{}
-	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[6]
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -629,7 +798,7 @@ func (x *LogicalPlanArgumentNullOpt) String() string {
 func (*LogicalPlanArgumentNullOpt) ProtoMessage() {}
 
 func (x *LogicalPlanArgumentNullOpt) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[6]
+	mi := &file_chalk_planner_v1_logical_plan_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -642,14 +811,14 @@ func (x *LogicalPlanArgumentNullOpt) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogicalPlanArgumentNullOpt.ProtoReflect.Descriptor instead.
 func (*LogicalPlanArgumentNullOpt) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_logical_plan_proto_rawDescGZIP(), []int{6}
+	return file_chalk_planner_v1_logical_plan_proto_rawDescGZIP(), []int{8}
 }
 
 var File_chalk_planner_v1_logical_plan_proto protoreflect.FileDescriptor
 
 const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/planner/v1/logical_plan.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\"G\n" +
+	"#chalk/planner/v1/logical_plan.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a chalk/planner/v1/batch_udf.proto\"G\n" +
 	"\vLogicalPlan\x128\n" +
 	"\x05nodes\x18\x01 \x03(\v2\".chalk.planner.v1.LogicalTableNodeR\x05nodes\"\x91\x03\n" +
 	"\x10LogicalTableNode\x12A\n" +
@@ -662,7 +831,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
 	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"$\n" +
 	"\x12LogicalTableNodeId\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"\xcc\x04\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"\xcd\x05\n" +
 	"\x13LogicalPlanArgument\x12M\n" +
 	"\n" +
 	"null_value\x18\x01 \x01(\v2,.chalk.planner.v1.LogicalPlanArgumentNullOptH\x00R\tnullValue\x12#\n" +
@@ -680,7 +849,10 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x14unordered_dict_value\x18\b \x01(\v2*.chalk.planner.v1.LogicalPlanUnorderedDictH\x00R\x12unorderedDictValue\x12E\n" +
 	"\n" +
 	"expr_value\x18\n" +
-	" \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\texprValueB\x05\n" +
+	" \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\texprValue\x12=\n" +
+	"\tbatch_udf\x18\v \x01(\v2\x1a.chalk.planner.v1.BatchUDFB\x02\x18\x01H\x00R\bbatchUdf\x12@\n" +
+	"\fbatch_udf_v2\x18\f \x01(\v2\x1c.chalk.planner.v1.BatchUDFV2H\x00R\n" +
+	"batchUdfV2B\x05\n" +
 	"\x03arg\"X\n" +
 	"\x17LogicalPlanArgumentList\x12=\n" +
 	"\x06values\x18\x01 \x03(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x06values\"\xc8\x01\n" +
@@ -689,7 +861,18 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
 	"ItemsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
-	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"\x1c\n" +
+	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"\xe1\x01\n" +
+	"\n" +
+	"BatchUDFV2\x12$\n" +
+	"\x0ebatch_udf_type\x18\x01 \x01(\tR\fbatchUdfType\x12I\n" +
+	"\targuments\x18\x02 \x03(\v2+.chalk.planner.v1.BatchUDFV2.ArgumentsEntryR\targuments\x1ab\n" +
+	"\x0eArgumentsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
+	"\x05value\x18\x02 \x01(\v2$.chalk.planner.v1.BatchUDFArgumentV2R\x05value:\x028\x01\"\xa3\x01\n" +
+	"\x12BatchUDFArgumentV2\x12Q\n" +
+	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentH\x00R\x0elogicalPlanArg\x123\n" +
+	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectH\x00R\x05pyObjB\x05\n" +
+	"\x03arg\"\x1c\n" +
 	"\x1aLogicalPlanArgumentNullOpt*\xdc\b\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
@@ -736,7 +919,7 @@ func file_chalk_planner_v1_logical_plan_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_planner_v1_logical_plan_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_planner_v1_logical_plan_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_chalk_planner_v1_logical_plan_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_chalk_planner_v1_logical_plan_proto_goTypes = []any{
 	(LogicalTableNodeType)(0),          // 0: chalk.planner.v1.LogicalTableNodeType
 	(*LogicalPlan)(nil),                // 1: chalk.planner.v1.LogicalPlan
@@ -745,32 +928,43 @@ var file_chalk_planner_v1_logical_plan_proto_goTypes = []any{
 	(*LogicalPlanArgument)(nil),        // 4: chalk.planner.v1.LogicalPlanArgument
 	(*LogicalPlanArgumentList)(nil),    // 5: chalk.planner.v1.LogicalPlanArgumentList
 	(*LogicalPlanUnorderedDict)(nil),   // 6: chalk.planner.v1.LogicalPlanUnorderedDict
-	(*LogicalPlanArgumentNullOpt)(nil), // 7: chalk.planner.v1.LogicalPlanArgumentNullOpt
-	nil,                                // 8: chalk.planner.v1.LogicalTableNode.ArgumentsEntry
-	nil,                                // 9: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
-	(*v1.Schema)(nil),                  // 10: chalk.arrow.v1.Schema
-	(*v11.LogicalExprNode)(nil),        // 11: chalk.expression.v1.LogicalExprNode
+	(*BatchUDFV2)(nil),                 // 7: chalk.planner.v1.BatchUDFV2
+	(*BatchUDFArgumentV2)(nil),         // 8: chalk.planner.v1.BatchUDFArgumentV2
+	(*LogicalPlanArgumentNullOpt)(nil), // 9: chalk.planner.v1.LogicalPlanArgumentNullOpt
+	nil,                                // 10: chalk.planner.v1.LogicalTableNode.ArgumentsEntry
+	nil,                                // 11: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
+	nil,                                // 12: chalk.planner.v1.BatchUDFV2.ArgumentsEntry
+	(*v1.Schema)(nil),                  // 13: chalk.arrow.v1.Schema
+	(*v11.LogicalExprNode)(nil),        // 14: chalk.expression.v1.LogicalExprNode
+	(*BatchUDF)(nil),                   // 15: chalk.planner.v1.BatchUDF
+	(*PyObject)(nil),                   // 16: chalk.planner.v1.PyObject
 }
 var file_chalk_planner_v1_logical_plan_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.LogicalPlan.nodes:type_name -> chalk.planner.v1.LogicalTableNode
 	0,  // 1: chalk.planner.v1.LogicalTableNode.ltn_type:type_name -> chalk.planner.v1.LogicalTableNodeType
 	3,  // 2: chalk.planner.v1.LogicalTableNode.node_id:type_name -> chalk.planner.v1.LogicalTableNodeId
 	3,  // 3: chalk.planner.v1.LogicalTableNode.child_nodes:type_name -> chalk.planner.v1.LogicalTableNodeId
-	8,  // 4: chalk.planner.v1.LogicalTableNode.arguments:type_name -> chalk.planner.v1.LogicalTableNode.ArgumentsEntry
-	7,  // 5: chalk.planner.v1.LogicalPlanArgument.null_value:type_name -> chalk.planner.v1.LogicalPlanArgumentNullOpt
-	10, // 6: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
+	10, // 4: chalk.planner.v1.LogicalTableNode.arguments:type_name -> chalk.planner.v1.LogicalTableNode.ArgumentsEntry
+	9,  // 5: chalk.planner.v1.LogicalPlanArgument.null_value:type_name -> chalk.planner.v1.LogicalPlanArgumentNullOpt
+	13, // 6: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
 	5,  // 7: chalk.planner.v1.LogicalPlanArgument.list_value:type_name -> chalk.planner.v1.LogicalPlanArgumentList
 	6,  // 8: chalk.planner.v1.LogicalPlanArgument.unordered_dict_value:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict
-	11, // 9: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
-	4,  // 10: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
-	9,  // 11: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
-	4,  // 12: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	4,  // 13: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	14, // 9: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
+	15, // 10: chalk.planner.v1.LogicalPlanArgument.batch_udf:type_name -> chalk.planner.v1.BatchUDF
+	7,  // 11: chalk.planner.v1.LogicalPlanArgument.batch_udf_v2:type_name -> chalk.planner.v1.BatchUDFV2
+	4,  // 12: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
+	11, // 13: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
+	12, // 14: chalk.planner.v1.BatchUDFV2.arguments:type_name -> chalk.planner.v1.BatchUDFV2.ArgumentsEntry
+	4,  // 15: chalk.planner.v1.BatchUDFArgumentV2.logical_plan_arg:type_name -> chalk.planner.v1.LogicalPlanArgument
+	16, // 16: chalk.planner.v1.BatchUDFArgumentV2.py_obj:type_name -> chalk.planner.v1.PyObject
+	4,  // 17: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	4,  // 18: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	8,  // 19: chalk.planner.v1.BatchUDFV2.ArgumentsEntry.value:type_name -> chalk.planner.v1.BatchUDFArgumentV2
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_logical_plan_proto_init() }
@@ -778,6 +972,7 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 	if File_chalk_planner_v1_logical_plan_proto != nil {
 		return
 	}
+	file_chalk_planner_v1_batch_udf_proto_init()
 	file_chalk_planner_v1_logical_plan_proto_msgTypes[3].OneofWrappers = []any{
 		(*LogicalPlanArgument_NullValue)(nil),
 		(*LogicalPlanArgument_StringValue)(nil),
@@ -789,6 +984,12 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 		(*LogicalPlanArgument_ListValue)(nil),
 		(*LogicalPlanArgument_UnorderedDictValue)(nil),
 		(*LogicalPlanArgument_ExprValue)(nil),
+		(*LogicalPlanArgument_BatchUdf)(nil),
+		(*LogicalPlanArgument_BatchUdfV2)(nil),
+	}
+	file_chalk_planner_v1_logical_plan_proto_msgTypes[7].OneofWrappers = []any{
+		(*BatchUDFArgumentV2_LogicalPlanArg)(nil),
+		(*BatchUDFArgumentV2_PyObj)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -796,7 +997,7 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_logical_plan_proto_rawDesc), len(file_chalk_planner_v1_logical_plan_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

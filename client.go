@@ -146,6 +146,11 @@ type Client interface {
 	// See https://docs.chalk.ai/docs/query-basics for more information.
 	GetOfflineQueryStatus(ctx context.Context, args GetOfflineQueryStatusParams) (GetOfflineQueryStatusResult, error)
 
+	// CancelOfflineQuery cancels an in-progress async offline query by its ID.
+	// Returns an error if the query is not found or is not in a cancellable state
+	// (i.e. not WORKING or QUEUED).
+	CancelOfflineQuery(ctx context.Context, offlineQueryId string) error
+
 	// GetDataset retrieves a dataset by its revision ID.
 	// This allows you to access datasets that were created from previous offline queries.
 	//

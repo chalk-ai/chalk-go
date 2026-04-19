@@ -171,8 +171,6 @@ type AdhocQueryItem struct {
 	Status *string `protobuf:"bytes,5,opt,name=status,proto3,oneof" json:"status,omitempty"`
 	// Optional: Environment ID where this query belongs
 	EnvironmentId *string `protobuf:"bytes,6,opt,name=environment_id,json=environmentId,proto3,oneof" json:"environment_id,omitempty"`
-	// Optional: Resource group that this query belongs to
-	ResourceGroup *string `protobuf:"bytes,7,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -249,13 +247,6 @@ func (x *AdhocQueryItem) GetEnvironmentId() string {
 	return ""
 }
 
-func (x *AdhocQueryItem) GetResourceGroup() string {
-	if x != nil && x.ResourceGroup != nil {
-		return *x.ResourceGroup
-	}
-	return ""
-}
-
 var File_chalk_enginestorage_v1_adhoc_query_service_proto protoreflect.FileDescriptor
 
 const file_chalk_enginestorage_v1_adhoc_query_service_proto_rawDesc = "" +
@@ -275,7 +266,7 @@ const file_chalk_enginestorage_v1_adhoc_query_service_proto_rawDesc = "" +
 	"nextCursor\x12$\n" +
 	"\vtotal_count\x18\x03 \x01(\x05H\x00R\n" +
 	"totalCount\x88\x01\x01B\x0e\n" +
-	"\f_total_count\"\x82\x03\n" +
+	"\f_total_count\"\xc3\x02\n" +
 	"\x0eAdhocQueryItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12W\n" +
 	"\x0fplanning_inputs\x18\x02 \x01(\v2..chalk.enginestorage.v1.AllPlanningInputsProtoR\x0eplanningInputs\x12\x1d\n" +
@@ -283,12 +274,10 @@ const file_chalk_enginestorage_v1_adhoc_query_service_proto_rawDesc = "" +
 	"created_at\x18\x03 \x01(\tR\tcreatedAt\x12-\n" +
 	"\x10last_executed_at\x18\x04 \x01(\tH\x00R\x0elastExecutedAt\x88\x01\x01\x12\x1b\n" +
 	"\x06status\x18\x05 \x01(\tH\x01R\x06status\x88\x01\x01\x12*\n" +
-	"\x0eenvironment_id\x18\x06 \x01(\tH\x02R\renvironmentId\x88\x01\x01\x12*\n" +
-	"\x0eresource_group\x18\a \x01(\tH\x03R\rresourceGroup\x88\x01\x01B\x13\n" +
+	"\x0eenvironment_id\x18\x06 \x01(\tH\x02R\renvironmentId\x88\x01\x01B\x13\n" +
 	"\x11_last_executed_atB\t\n" +
 	"\a_statusB\x11\n" +
-	"\x0f_environment_idB\x11\n" +
-	"\x0f_resource_group2\x8f\x01\n" +
+	"\x0f_environment_id2\x8f\x01\n" +
 	"\x11AdhocQueryService\x12z\n" +
 	"\x10ListAdhocQueries\x12/.chalk.enginestorage.v1.ListAdhocQueriesRequest\x1a0.chalk.enginestorage.v1.ListAdhocQueriesResponse\"\x03\x80}\x03B\xf7\x01\n" +
 	"\x1acom.chalk.enginestorage.v1B\x16AdhocQueryServiceProtoP\x01ZGgithub.com/chalk-ai/chalk-go/gen/chalk/enginestorage/v1;enginestoragev1\xa2\x02\x03CEX\xaa\x02\x16Chalk.Enginestorage.V1\xca\x02\x16Chalk\\Enginestorage\\V1\xe2\x02\"Chalk\\Enginestorage\\V1\\GPBMetadata\xea\x02\x18Chalk::Enginestorage::V1b\x06proto3"

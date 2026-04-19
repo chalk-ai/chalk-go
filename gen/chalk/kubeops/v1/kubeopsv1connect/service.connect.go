@@ -39,6 +39,9 @@ const (
 	// KubeOpsServiceDeletePodProcedure is the fully-qualified name of the KubeOpsService's DeletePod
 	// RPC.
 	KubeOpsServiceDeletePodProcedure = "/chalk.kubeops.v1.KubeOpsService/DeletePod"
+	// KubeOpsServiceRolloutRestartProcedure is the fully-qualified name of the KubeOpsService's
+	// RolloutRestart RPC.
+	KubeOpsServiceRolloutRestartProcedure = "/chalk.kubeops.v1.KubeOpsService/RolloutRestart"
 )
 
 // KubeOpsServiceClient is a client for the chalk.kubeops.v1.KubeOpsService service.
@@ -48,6 +51,8 @@ type KubeOpsServiceClient interface {
 	DrainNode(context.Context, *connect.Request[v1.DrainNodeRequest]) (*connect.Response[v1.DrainNodeResponse], error)
 	// DeletePod deletes a specific pod in a namespace
 	DeletePod(context.Context, *connect.Request[v1.DeletePodRequest]) (*connect.Response[v1.DeletePodResponse], error)
+	// RolloutRestart performs a rolling restart of a Deployment or StatefulSet
+	RolloutRestart(context.Context, *connect.Request[v1.RolloutRestartRequest]) (*connect.Response[v1.RolloutRestartResponse], error)
 }
 
 // NewKubeOpsServiceClient constructs a client for the chalk.kubeops.v1.KubeOpsService service. By
@@ -73,13 +78,20 @@ func NewKubeOpsServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(kubeOpsServiceMethods.ByName("DeletePod")),
 			connect.WithClientOptions(opts...),
 		),
+		rolloutRestart: connect.NewClient[v1.RolloutRestartRequest, v1.RolloutRestartResponse](
+			httpClient,
+			baseURL+KubeOpsServiceRolloutRestartProcedure,
+			connect.WithSchema(kubeOpsServiceMethods.ByName("RolloutRestart")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // kubeOpsServiceClient implements KubeOpsServiceClient.
 type kubeOpsServiceClient struct {
-	drainNode *connect.Client[v1.DrainNodeRequest, v1.DrainNodeResponse]
-	deletePod *connect.Client[v1.DeletePodRequest, v1.DeletePodResponse]
+	drainNode      *connect.Client[v1.DrainNodeRequest, v1.DrainNodeResponse]
+	deletePod      *connect.Client[v1.DeletePodRequest, v1.DeletePodResponse]
+	rolloutRestart *connect.Client[v1.RolloutRestartRequest, v1.RolloutRestartResponse]
 }
 
 // DrainNode calls chalk.kubeops.v1.KubeOpsService.DrainNode.
@@ -92,6 +104,11 @@ func (c *kubeOpsServiceClient) DeletePod(ctx context.Context, req *connect.Reque
 	return c.deletePod.CallUnary(ctx, req)
 }
 
+// RolloutRestart calls chalk.kubeops.v1.KubeOpsService.RolloutRestart.
+func (c *kubeOpsServiceClient) RolloutRestart(ctx context.Context, req *connect.Request[v1.RolloutRestartRequest]) (*connect.Response[v1.RolloutRestartResponse], error) {
+	return c.rolloutRestart.CallUnary(ctx, req)
+}
+
 // KubeOpsServiceHandler is an implementation of the chalk.kubeops.v1.KubeOpsService service.
 type KubeOpsServiceHandler interface {
 	// DrainNode drains a Kubernetes node by evicting all pods
@@ -99,6 +116,8 @@ type KubeOpsServiceHandler interface {
 	DrainNode(context.Context, *connect.Request[v1.DrainNodeRequest]) (*connect.Response[v1.DrainNodeResponse], error)
 	// DeletePod deletes a specific pod in a namespace
 	DeletePod(context.Context, *connect.Request[v1.DeletePodRequest]) (*connect.Response[v1.DeletePodResponse], error)
+	// RolloutRestart performs a rolling restart of a Deployment or StatefulSet
+	RolloutRestart(context.Context, *connect.Request[v1.RolloutRestartRequest]) (*connect.Response[v1.RolloutRestartResponse], error)
 }
 
 // NewKubeOpsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -120,12 +139,20 @@ func NewKubeOpsServiceHandler(svc KubeOpsServiceHandler, opts ...connect.Handler
 		connect.WithSchema(kubeOpsServiceMethods.ByName("DeletePod")),
 		connect.WithHandlerOptions(opts...),
 	)
+	kubeOpsServiceRolloutRestartHandler := connect.NewUnaryHandler(
+		KubeOpsServiceRolloutRestartProcedure,
+		svc.RolloutRestart,
+		connect.WithSchema(kubeOpsServiceMethods.ByName("RolloutRestart")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.kubeops.v1.KubeOpsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case KubeOpsServiceDrainNodeProcedure:
 			kubeOpsServiceDrainNodeHandler.ServeHTTP(w, r)
 		case KubeOpsServiceDeletePodProcedure:
 			kubeOpsServiceDeletePodHandler.ServeHTTP(w, r)
+		case KubeOpsServiceRolloutRestartProcedure:
+			kubeOpsServiceRolloutRestartHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -141,4 +168,8 @@ func (UnimplementedKubeOpsServiceHandler) DrainNode(context.Context, *connect.Re
 
 func (UnimplementedKubeOpsServiceHandler) DeletePod(context.Context, *connect.Request[v1.DeletePodRequest]) (*connect.Response[v1.DeletePodResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.kubeops.v1.KubeOpsService.DeletePod is not implemented"))
+}
+
+func (UnimplementedKubeOpsServiceHandler) RolloutRestart(context.Context, *connect.Request[v1.RolloutRestartRequest]) (*connect.Response[v1.RolloutRestartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.kubeops.v1.KubeOpsService.RolloutRestart is not implemented"))
 }
