@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776563594103,
+  "lastUpdate": 1776579324282,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -35664,6 +35664,56 @@ window.BENCHMARK_DATA = {
             "value": 232.5,
             "unit": "ms/op",
             "extra": "8 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "committer": {
+            "name": "chalk-ai",
+            "username": "chalk-ai"
+          },
+          "id": "57c7da213c6e2a82c882d718738dd354b0844e51",
+          "message": "Expose WFE and OQ Metadata to ScheduledQueryRun",
+          "timestamp": "2026-04-19T01:51:43Z",
+          "url": "https://github.com/chalk-ai/chalk-go/pull/641/commits/57c7da213c6e2a82c882d718738dd354b0844e51"
+        },
+        "date": 1776579324174,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 1.01,
+            "unit": "ms/op",
+            "extra": "1135 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 103.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 42.28,
+            "unit": "ms/op",
+            "extra": "37 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 255.2,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 304.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
           }
         ]
       }
