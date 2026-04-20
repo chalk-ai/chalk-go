@@ -136,6 +136,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		}
 	}
 
+	clientBranch := cfg.Branch
 	engineInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
@@ -149,7 +150,14 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 				}
 			}
 
-			req.Header().Set("x-chalk-deployment-type", "engine-grpc")
+			if req.Header().Get("x-chalk-branch-id") == "" && clientBranch != "" {
+				req.Header().Set("x-chalk-branch-id", clientBranch)
+			}
+			if req.Header().Get("x-chalk-branch-id") != "" {
+				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
+			} else {
+				req.Header().Set("x-chalk-deployment-type", "engine-grpc")
+			}
 			req.Header().Set("x-chalk-server", "engine")
 			req.Header().Set("User-Agent", internal.UserAgent())
 			if cfg.DeploymentTag != "" {
@@ -412,6 +420,9 @@ func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryPa
 	req, err := c.GetOnlineQueryBulkRequest(ctx, args)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating online query request")
+	}
+	if args.underlying.BranchId != nil && *args.underlying.BranchId != "" {
+		req.Header().Set("x-chalk-branch-id", *args.underlying.BranchId)
 	}
 	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
 	if err != nil {
