@@ -38,6 +38,7 @@ type grpcClientImpl struct {
 	timeout       *time.Duration
 
 	queryClient         enginev1connect.QueryServiceClient
+	branchQueryClient   enginev1connect.QueryServiceClient
 	graphClient         serverv1connect.GraphServiceClient
 	deploymentTag       string
 	tokenManager        *auth.Manager
@@ -184,8 +185,16 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		connect.WithGRPC(),
 	)
 
-	// Create GraphServiceClient with API server endpoint
 	apiServerURL := configManager.GetAPIServer().Value
+	branchQueryClient := enginev1connect.NewQueryServiceClient(
+		cfg.HTTPClient,
+		apiServerURL,
+		connect.WithInterceptors(cfg.Interceptors...),
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(engineInterceptor)),
+		connect.WithGRPC(),
+	)
+
+	// Create GraphServiceClient with API server endpoint
 	authedServerInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(
 			ctx context.Context,
@@ -227,6 +236,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		config:              configManager,
 		tokenManager:        tokenManager,
 		queryClient:         queryClient,
+		branchQueryClient:   branchQueryClient,
 		graphClient:         graphClient,
 		resourceGroup:       resourceGroup,
 		timeout:             timeout,
@@ -416,15 +426,24 @@ func (r *GRPCOnlineQueryBulkResult) UnmarshalInto(resultHolders any) error {
 	return internal.UnmarshalTableInto(scalars, resultHolders)
 }
 
+func (c *grpcClientImpl) getQueryClient(hasBranch bool) enginev1connect.QueryServiceClient {
+	if hasBranch {
+		return c.branchQueryClient
+	}
+	return c.queryClient
+}
+
 func (c *grpcClientImpl) OnlineQueryBulk(ctx context.Context, args OnlineQueryParamsComplete) (*GRPCOnlineQueryBulkResult, error) {
 	req, err := c.GetOnlineQueryBulkRequest(ctx, args)
 	if err != nil {
 		return nil, errors.Wrap(err, "generating online query request")
 	}
-	if args.underlying.BranchId != nil && *args.underlying.BranchId != "" {
+	perRequestBranch := args.underlying.BranchId != nil && *args.underlying.BranchId != ""
+	if perRequestBranch {
 		req.Header().Set("x-chalk-branch-id", *args.underlying.BranchId)
 	}
-	res, err := c.queryClient.OnlineQueryBulk(ctx, req)
+	hasBranch := perRequestBranch || c.branch != ""
+	res, err := c.getQueryClient(hasBranch).OnlineQueryBulk(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "executing online query")
 	}
@@ -503,7 +522,7 @@ func (c *grpcClientImpl) UpdateAggregates(ctx context.Context, args UpdateAggreg
 		BodyType:      commonv1.FeatherBodyType_FEATHER_BODY_TYPE_TABLE,
 	})
 
-	res, err := c.queryClient.UploadFeaturesBulk(ctx, req)
+	res, err := c.getQueryClient(c.branch != "").UploadFeaturesBulk(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "making update aggregates request")
 	}
@@ -527,7 +546,7 @@ func (c *grpcClientImpl) GetAggregates(ctx context.Context, features []string) (
 	req := connect.NewRequest(&aggregatev1.GetAggregatesRequest{
 		ForFeatures: features,
 	})
-	res, err := c.queryClient.GetAggregates(ctx, req)
+	res, err := c.getQueryClient(c.branch != "").GetAggregates(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "making get aggregates request")
 	}
@@ -551,7 +570,7 @@ func (c *grpcClientImpl) PlanAggregateBackfill(
 	ctx context.Context,
 	req *aggregatev1.PlanAggregateBackfillRequest,
 ) (*GRPCPlanAggregateBackfillResult, error) {
-	res, err := c.queryClient.PlanAggregateBackfill(ctx, connect.NewRequest(req))
+	res, err := c.getQueryClient(c.branch != "").PlanAggregateBackfill(ctx, connect.NewRequest(req))
 	if err != nil {
 		return nil, errors.Wrap(err, "making plan aggregate backfill request")
 	}

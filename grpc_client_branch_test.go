@@ -39,6 +39,12 @@ func (c *capturedHeaders) last() http.Header {
 	return c.headers[len(c.headers)-1]
 }
 
+func (c *capturedHeaders) count() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.headers)
+}
+
 type headerCapturingQueryHandler struct {
 	enginev1connect.UnimplementedQueryServiceHandler
 	captured *capturedHeaders
@@ -95,7 +101,18 @@ type minimalGraphHandler struct {
 	serverv1connect.UnimplementedGraphServiceHandler
 }
 
-func startTestServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
+func startQueryServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
+	t.Helper()
+	mux := http.NewServeMux()
+	queryPath, queryHandler := enginev1connect.NewQueryServiceHandler(&headerCapturingQueryHandler{captured: captured})
+	mux.Handle(queryPath, queryHandler)
+	h2cHandler := h2c.NewHandler(mux, &http2.Server{})
+	server := httptest.NewServer(h2cHandler)
+	t.Cleanup(server.Close)
+	return server
+}
+
+func startAPIServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 	queryPath, queryHandler := enginev1connect.NewQueryServiceHandler(&headerCapturingQueryHandler{captured: captured})
@@ -110,13 +127,13 @@ func startTestServer(t *testing.T, captured *capturedHeaders) *httptest.Server {
 	return server
 }
 
-func newTestGRPCClient(t *testing.T, serverURL string, branch string) GRPCClient {
+func newTestGRPCClient(t *testing.T, apiServerURL string, queryServerURL string, branch string) GRPCClient {
 	t.Helper()
 	client, err := NewGRPCClient(context.Background(), &GRPCClientConfig{
 		ClientId:                   "test-client-id",
 		ClientSecret:               "test-client-secret",
-		ApiServer:                  serverURL,
-		QueryServer:                serverURL,
+		ApiServer:                  apiServerURL,
+		QueryServer:                queryServerURL,
 		EnvironmentId:              "test-env",
 		Branch:                     branch,
 		SkipEnvironmentNameMapping: true,
@@ -131,64 +148,78 @@ func newTestGRPCClient(t *testing.T, serverURL string, branch string) GRPCClient
 	return client
 }
 
-func TestGRPCBranchHeadersFromClientConfig(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "my-branch")
+func TestGRPCBranchQueryRoutesToAPIServer(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "my-branch")
 
 	_, _ = client.OnlineQueryBulk(context.Background(), OnlineQueryParamsComplete{})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
 	assert.Equal(t, "my-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-func TestGRPCNoBranchHeadersWithoutBranch(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "")
+func TestGRPCNoBranchQueryRoutesToEngine(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "")
 
 	_, _ = client.OnlineQueryBulk(context.Background(), OnlineQueryParamsComplete{})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 1, engineCaptured.count())
+	assert.Equal(t, 0, apiCaptured.count())
+	h := engineCaptured.last()
 	assert.Equal(t, "", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "engine-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
+func TestGRPCPerRequestBranchRoutesToAPIServer(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "")
+
+	params := OnlineQueryParamsComplete{}.WithBranchId("request-branch")
+	_, _ = client.OnlineQueryBulk(context.Background(), params)
+
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
+	assert.Equal(t, "request-branch", h.Get("X-Chalk-Branch-Id"))
+	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
+}
+
 func TestGRPCPerRequestBranchOverridesClientBranch(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "client-branch")
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "client-branch")
 
 	params := OnlineQueryParamsComplete{}.WithBranchId("request-branch")
 	_, _ = client.OnlineQueryBulk(context.Background(), params)
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
 	assert.Equal(t, "request-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-func TestGRPCPerRequestBranchWithNoClientBranch(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "")
-
-	params := OnlineQueryParamsComplete{}.WithBranchId("request-branch")
-	_, _ = client.OnlineQueryBulk(context.Background(), params)
-
-	h := captured.last()
-	assert.NotNil(t, h)
-	assert.Equal(t, "request-branch", h.Get("X-Chalk-Branch-Id"))
-	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
-}
-
-func TestGRPCClientBranchAppliesToUpdateAggregates(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "my-branch")
+func TestGRPCBranchUpdateAggregatesRoutesToAPIServer(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "my-branch")
 
 	_, _ = client.UpdateAggregates(context.Background(), UpdateAggregatesParams{
 		Inputs: map[any]any{
@@ -196,69 +227,77 @@ func TestGRPCClientBranchAppliesToUpdateAggregates(t *testing.T) {
 		},
 	})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
 	assert.Equal(t, "my-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-func TestGRPCClientBranchAppliesToGetAggregates(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "my-branch")
+func TestGRPCBranchGetAggregatesRoutesToAPIServer(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "my-branch")
 
 	_, _ = client.GetAggregates(context.Background(), []string{"feat.id"})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
 	assert.Equal(t, "my-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-func TestGRPCClientBranchAppliesToPlanAggregateBackfill(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "my-branch")
+func TestGRPCBranchPlanAggregateBackfillRoutesToAPIServer(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "my-branch")
 
 	_, _ = client.PlanAggregateBackfill(context.Background(), &aggregatev1.PlanAggregateBackfillRequest{})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 1, apiCaptured.count())
+	h := apiCaptured.last()
 	assert.Equal(t, "my-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-func TestGRPCNoBranchOnNonBranchClient(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-	client := newTestGRPCClient(t, server.URL, "")
+func TestGRPCNoBranchAggregatesRouteToEngine(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "")
 
 	_, _ = client.GetAggregates(context.Background(), []string{"feat.id"})
 
-	h := captured.last()
-	assert.NotNil(t, h)
+	assert.Equal(t, 1, engineCaptured.count())
+	assert.Equal(t, 0, apiCaptured.count())
+	h := engineCaptured.last()
 	assert.Equal(t, "", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "engine-grpc", h.Get("X-Chalk-Deployment-Type"))
 }
 
-// Verify that Ping also gets branch headers through the interceptor.
-func TestGRPCPingAlsoGetsBranchHeaders(t *testing.T) {
-	captured := &capturedHeaders{}
-	server := startTestServer(t, captured)
-
-	// Ping isn't on the public GRPCClient interface, so we test via
-	// the interceptor indirectly — OnlineQueryBulk is sufficient to
-	// confirm the interceptor applies to all queryClient methods.
-	// This test validates that a second call still gets branch headers
-	// (i.e., headers aren't consumed/cleared on first use).
-	client := newTestGRPCClient(t, server.URL, "branch-a")
+func TestGRPCBranchHeadersPersistAcrossCalls(t *testing.T) {
+	engineCaptured := &capturedHeaders{}
+	apiCaptured := &capturedHeaders{}
+	engineServer := startQueryServer(t, engineCaptured)
+	apiServer := startAPIServer(t, apiCaptured)
+	client := newTestGRPCClient(t, apiServer.URL, engineServer.URL, "branch-a")
 
 	_, _ = client.OnlineQueryBulk(context.Background(), OnlineQueryParamsComplete{})
-	first := captured.last()
+	first := apiCaptured.last()
 	assert.Equal(t, "branch-a", first.Get("X-Chalk-Branch-Id"))
 
 	_, _ = client.OnlineQueryBulk(context.Background(), OnlineQueryParamsComplete{})
-	second := captured.last()
+	second := apiCaptured.last()
 	assert.Equal(t, "branch-a", second.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", second.Get("X-Chalk-Deployment-Type"))
+
+	assert.Equal(t, 0, engineCaptured.count())
+	assert.Equal(t, 2, apiCaptured.count())
 }
