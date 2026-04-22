@@ -189,9 +189,10 @@ type SnowflakeStorageIntegration struct {
 	//
 	//	*SnowflakeStorageIntegration_S3
 	//	*SnowflakeStorageIntegration_Gcp
-	Config        isSnowflakeStorageIntegration_Config `protobuf_oneof:"config"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Config          isSnowflakeStorageIntegration_Config `protobuf_oneof:"config"`
+	IntegrationName string                               `protobuf:"bytes,3,opt,name=integration_name,json=integrationName,proto3" json:"integration_name,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *SnowflakeStorageIntegration) Reset() {
@@ -231,6 +232,7 @@ func (x *SnowflakeStorageIntegration) GetConfig() isSnowflakeStorageIntegration_
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/offline_store_connection.proto.
 func (x *SnowflakeStorageIntegration) GetS3() *S3StorageIntegrationConfig {
 	if x != nil {
 		if x, ok := x.Config.(*SnowflakeStorageIntegration_S3); ok {
@@ -240,6 +242,7 @@ func (x *SnowflakeStorageIntegration) GetS3() *S3StorageIntegrationConfig {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/offline_store_connection.proto.
 func (x *SnowflakeStorageIntegration) GetGcp() *GcpStorageIntegrationConfig {
 	if x != nil {
 		if x, ok := x.Config.(*SnowflakeStorageIntegration_Gcp); ok {
@@ -249,15 +252,24 @@ func (x *SnowflakeStorageIntegration) GetGcp() *GcpStorageIntegrationConfig {
 	return nil
 }
 
+func (x *SnowflakeStorageIntegration) GetIntegrationName() string {
+	if x != nil {
+		return x.IntegrationName
+	}
+	return ""
+}
+
 type isSnowflakeStorageIntegration_Config interface {
 	isSnowflakeStorageIntegration_Config()
 }
 
 type SnowflakeStorageIntegration_S3 struct {
+	// Deprecated: Marked as deprecated in chalk/server/v1/offline_store_connection.proto.
 	S3 *S3StorageIntegrationConfig `protobuf:"bytes,1,opt,name=s3,proto3,oneof"`
 }
 
 type SnowflakeStorageIntegration_Gcp struct {
+	// Deprecated: Marked as deprecated in chalk/server/v1/offline_store_connection.proto.
 	Gcp *GcpStorageIntegrationConfig `protobuf:"bytes,2,opt,name=gcp,proto3,oneof"`
 }
 
@@ -2059,10 +2071,11 @@ const file_chalk_server_v1_offline_store_connection_proto_rawDesc = "" +
 	"\vbucket_name\x18\x01 \x01(\tR\n" +
 	"bucketName\x12,\n" +
 	"\x0fservice_account\x18\x02 \x01(\tH\x00R\x0eserviceAccount\x88\x01\x01B\x12\n" +
-	"\x10_service_account\"\xa8\x01\n" +
-	"\x1bSnowflakeStorageIntegration\x12=\n" +
-	"\x02s3\x18\x01 \x01(\v2+.chalk.server.v1.S3StorageIntegrationConfigH\x00R\x02s3\x12@\n" +
-	"\x03gcp\x18\x02 \x01(\v2,.chalk.server.v1.GcpStorageIntegrationConfigH\x00R\x03gcpB\b\n" +
+	"\x10_service_account\"\xdb\x01\n" +
+	"\x1bSnowflakeStorageIntegration\x12A\n" +
+	"\x02s3\x18\x01 \x01(\v2+.chalk.server.v1.S3StorageIntegrationConfigB\x02\x18\x01H\x00R\x02s3\x12D\n" +
+	"\x03gcp\x18\x02 \x01(\v2,.chalk.server.v1.GcpStorageIntegrationConfigB\x02\x18\x01H\x00R\x03gcp\x12)\n" +
+	"\x10integration_name\x18\x03 \x01(\tR\x0fintegrationNameB\b\n" +
 	"\x06config\"\xea\x02\n" +
 	"\x19SnowflakeCredentialsInput\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1a\n" +

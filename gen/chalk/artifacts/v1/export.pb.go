@@ -590,17 +590,18 @@ func (x *ValidationLog) GetSeverity() ValidationLogSeverity {
 }
 
 type Export struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Graph            *v1.Graph              `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
-	Crons            []*CronQuery           `protobuf:"bytes,2,rep,name=crons,proto3" json:"crons,omitempty"`
-	Charts           []*Chart               `protobuf:"bytes,3,rep,name=charts,proto3" json:"charts,omitempty"`
-	CdcSources       []*CDCSource           `protobuf:"bytes,4,rep,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
-	Config           *ProjectSettings       `protobuf:"bytes,5,opt,name=config,proto3" json:"config,omitempty"`
-	Chalkpy          *ChalkpyInfo           `protobuf:"bytes,6,opt,name=chalkpy,proto3" json:"chalkpy,omitempty"`
-	Failed           []*FailedImport        `protobuf:"bytes,7,rep,name=failed,proto3" json:"failed,omitempty"`
-	Logs             []*ValidationLog       `protobuf:"bytes,8,rep,name=logs,proto3" json:"logs,omitempty"`
-	Lsp              *v11.LSP               `protobuf:"bytes,9,opt,name=lsp,proto3" json:"lsp,omitempty"`
-	ConversionErrors []*v12.ChalkError      `protobuf:"bytes,10,rep,name=conversion_errors,json=conversionErrors,proto3" json:"conversion_errors,omitempty"`
+	state                  protoimpl.MessageState   `protogen:"open.v1"`
+	Graph                  *v1.Graph                `protobuf:"bytes,1,opt,name=graph,proto3" json:"graph,omitempty"`
+	Crons                  []*CronQuery             `protobuf:"bytes,2,rep,name=crons,proto3" json:"crons,omitempty"`
+	CronAggregateBackfills []*CronAggregateBackfill `protobuf:"bytes,12,rep,name=cron_aggregate_backfills,json=cronAggregateBackfills,proto3" json:"cron_aggregate_backfills,omitempty"`
+	Charts                 []*Chart                 `protobuf:"bytes,3,rep,name=charts,proto3" json:"charts,omitempty"`
+	CdcSources             []*CDCSource             `protobuf:"bytes,4,rep,name=cdc_sources,json=cdcSources,proto3" json:"cdc_sources,omitempty"`
+	Config                 *ProjectSettings         `protobuf:"bytes,5,opt,name=config,proto3" json:"config,omitempty"`
+	Chalkpy                *ChalkpyInfo             `protobuf:"bytes,6,opt,name=chalkpy,proto3" json:"chalkpy,omitempty"`
+	Failed                 []*FailedImport          `protobuf:"bytes,7,rep,name=failed,proto3" json:"failed,omitempty"`
+	Logs                   []*ValidationLog         `protobuf:"bytes,8,rep,name=logs,proto3" json:"logs,omitempty"`
+	Lsp                    *v11.LSP                 `protobuf:"bytes,9,opt,name=lsp,proto3" json:"lsp,omitempty"`
+	ConversionErrors       []*v12.ChalkError        `protobuf:"bytes,10,rep,name=conversion_errors,json=conversionErrors,proto3" json:"conversion_errors,omitempty"`
 	// Populated only when explicitly requested by the exporter.
 	CapturedGlobalVariables *v13.GlobalVariablesInfo `protobuf:"bytes,11,opt,name=captured_global_variables,json=capturedGlobalVariables,proto3" json:"captured_global_variables,omitempty"`
 	unknownFields           protoimpl.UnknownFields
@@ -647,6 +648,13 @@ func (x *Export) GetGraph() *v1.Graph {
 func (x *Export) GetCrons() []*CronQuery {
 	if x != nil {
 		return x.Crons
+	}
+	return nil
+}
+
+func (x *Export) GetCronAggregateBackfills() []*CronAggregateBackfill {
+	if x != nil {
+		return x.CronAggregateBackfills
 	}
 	return nil
 }
@@ -718,7 +726,7 @@ var File_chalk_artifacts_v1_export_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_export_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/artifacts/v1/export.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x16chalk/lsp/v1/lsp.proto\x1a\x1bchalk/python/v1/types.proto\"\xb4\x02\n" +
+	"\x1fchalk/artifacts/v1/export.proto\x12\x12chalk.artifacts.v1\x1a\x1cchalk/artifacts/v1/cdc.proto\x1a\x1echalk/artifacts/v1/chart.proto\x1a0chalk/artifacts/v1/cron_aggregate_backfill.proto\x1a#chalk/artifacts/v1/cron_query.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x16chalk/lsp/v1/lsp.proto\x1a\x1bchalk/python/v1/types.proto\"\xb4\x02\n" +
 	"\x13EnvironmentSettings\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\aruntime\x18\x02 \x01(\tH\x00R\aruntime\x88\x01\x01\x12'\n" +
@@ -760,10 +768,11 @@ const file_chalk_artifacts_v1_export_proto_rawDesc = "" +
 	"\rValidationLog\x12\x16\n" +
 	"\x06header\x18\x01 \x01(\tR\x06header\x12\x1c\n" +
 	"\tsubheader\x18\x02 \x01(\tR\tsubheader\x12E\n" +
-	"\bseverity\x18\x03 \x01(\x0e2).chalk.artifacts.v1.ValidationLogSeverityR\bseverity\"\x97\x05\n" +
+	"\bseverity\x18\x03 \x01(\x0e2).chalk.artifacts.v1.ValidationLogSeverityR\bseverity\"\xfc\x05\n" +
 	"\x06Export\x12+\n" +
 	"\x05graph\x18\x01 \x01(\v2\x15.chalk.graph.v1.GraphR\x05graph\x123\n" +
-	"\x05crons\x18\x02 \x03(\v2\x1d.chalk.artifacts.v1.CronQueryR\x05crons\x121\n" +
+	"\x05crons\x18\x02 \x03(\v2\x1d.chalk.artifacts.v1.CronQueryR\x05crons\x12c\n" +
+	"\x18cron_aggregate_backfills\x18\f \x03(\v2).chalk.artifacts.v1.CronAggregateBackfillR\x16cronAggregateBackfills\x121\n" +
 	"\x06charts\x18\x03 \x03(\v2\x19.chalk.artifacts.v1.ChartR\x06charts\x12>\n" +
 	"\vcdc_sources\x18\x04 \x03(\v2\x1d.chalk.artifacts.v1.CDCSourceR\n" +
 	"cdcSources\x12;\n" +
@@ -810,11 +819,12 @@ var file_chalk_artifacts_v1_export_proto_goTypes = []any{
 	(*Export)(nil),                  // 10: chalk.artifacts.v1.Export
 	(*v1.Graph)(nil),                // 11: chalk.graph.v1.Graph
 	(*CronQuery)(nil),               // 12: chalk.artifacts.v1.CronQuery
-	(*Chart)(nil),                   // 13: chalk.artifacts.v1.Chart
-	(*CDCSource)(nil),               // 14: chalk.artifacts.v1.CDCSource
-	(*v11.LSP)(nil),                 // 15: chalk.lsp.v1.LSP
-	(*v12.ChalkError)(nil),          // 16: chalk.common.v1.ChalkError
-	(*v13.GlobalVariablesInfo)(nil), // 17: chalk.python.v1.GlobalVariablesInfo
+	(*CronAggregateBackfill)(nil),   // 13: chalk.artifacts.v1.CronAggregateBackfill
+	(*Chart)(nil),                   // 14: chalk.artifacts.v1.Chart
+	(*CDCSource)(nil),               // 15: chalk.artifacts.v1.CDCSource
+	(*v11.LSP)(nil),                 // 16: chalk.lsp.v1.LSP
+	(*v12.ChalkError)(nil),          // 17: chalk.common.v1.ChalkError
+	(*v13.GlobalVariablesInfo)(nil), // 18: chalk.python.v1.GlobalVariablesInfo
 }
 var file_chalk_artifacts_v1_export_proto_depIdxs = []int32{
 	1,  // 0: chalk.artifacts.v1.ProjectSettings.environments:type_name -> chalk.artifacts.v1.EnvironmentSettings
@@ -826,20 +836,21 @@ var file_chalk_artifacts_v1_export_proto_depIdxs = []int32{
 	0,  // 6: chalk.artifacts.v1.ValidationLog.severity:type_name -> chalk.artifacts.v1.ValidationLogSeverity
 	11, // 7: chalk.artifacts.v1.Export.graph:type_name -> chalk.graph.v1.Graph
 	12, // 8: chalk.artifacts.v1.Export.crons:type_name -> chalk.artifacts.v1.CronQuery
-	13, // 9: chalk.artifacts.v1.Export.charts:type_name -> chalk.artifacts.v1.Chart
-	14, // 10: chalk.artifacts.v1.Export.cdc_sources:type_name -> chalk.artifacts.v1.CDCSource
-	2,  // 11: chalk.artifacts.v1.Export.config:type_name -> chalk.artifacts.v1.ProjectSettings
-	8,  // 12: chalk.artifacts.v1.Export.chalkpy:type_name -> chalk.artifacts.v1.ChalkpyInfo
-	7,  // 13: chalk.artifacts.v1.Export.failed:type_name -> chalk.artifacts.v1.FailedImport
-	9,  // 14: chalk.artifacts.v1.Export.logs:type_name -> chalk.artifacts.v1.ValidationLog
-	15, // 15: chalk.artifacts.v1.Export.lsp:type_name -> chalk.lsp.v1.LSP
-	16, // 16: chalk.artifacts.v1.Export.conversion_errors:type_name -> chalk.common.v1.ChalkError
-	17, // 17: chalk.artifacts.v1.Export.captured_global_variables:type_name -> chalk.python.v1.GlobalVariablesInfo
-	18, // [18:18] is the sub-list for method output_type
-	18, // [18:18] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	13, // 9: chalk.artifacts.v1.Export.cron_aggregate_backfills:type_name -> chalk.artifacts.v1.CronAggregateBackfill
+	14, // 10: chalk.artifacts.v1.Export.charts:type_name -> chalk.artifacts.v1.Chart
+	15, // 11: chalk.artifacts.v1.Export.cdc_sources:type_name -> chalk.artifacts.v1.CDCSource
+	2,  // 12: chalk.artifacts.v1.Export.config:type_name -> chalk.artifacts.v1.ProjectSettings
+	8,  // 13: chalk.artifacts.v1.Export.chalkpy:type_name -> chalk.artifacts.v1.ChalkpyInfo
+	7,  // 14: chalk.artifacts.v1.Export.failed:type_name -> chalk.artifacts.v1.FailedImport
+	9,  // 15: chalk.artifacts.v1.Export.logs:type_name -> chalk.artifacts.v1.ValidationLog
+	16, // 16: chalk.artifacts.v1.Export.lsp:type_name -> chalk.lsp.v1.LSP
+	17, // 17: chalk.artifacts.v1.Export.conversion_errors:type_name -> chalk.common.v1.ChalkError
+	18, // 18: chalk.artifacts.v1.Export.captured_global_variables:type_name -> chalk.python.v1.GlobalVariablesInfo
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_export_proto_init() }
@@ -849,6 +860,7 @@ func file_chalk_artifacts_v1_export_proto_init() {
 	}
 	file_chalk_artifacts_v1_cdc_proto_init()
 	file_chalk_artifacts_v1_chart_proto_init()
+	file_chalk_artifacts_v1_cron_aggregate_backfill_proto_init()
 	file_chalk_artifacts_v1_cron_query_proto_init()
 	file_chalk_artifacts_v1_export_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_export_proto_msgTypes[7].OneofWrappers = []any{}
