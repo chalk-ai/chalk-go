@@ -430,6 +430,12 @@ func TestOfflineQuerySerializationWithFileInput(t *testing.T) {
 	input, ok := result["input"].(map[string]any)
 	assert.True(t, ok, "input should be a map")
 	assert.Equal(t, fileUri, input["parquet_uri"])
+	// is_iceberg MUST be present (even when false) — the server's
+	// coerceOfflineQueryInput discriminator requires both `parquet_uri` and
+	// `is_iceberg` keys to recognize this variant. Dropping it with omitempty
+	// causes the server to 400 with "Unexpected type for offline query input".
+	assert.Contains(t, input, "is_iceberg")
+	assert.Equal(t, false, input["is_iceberg"])
 	assert.NotContains(t, input, "columns")
 	assert.NotContains(t, input, "values")
 }
