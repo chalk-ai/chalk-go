@@ -39,7 +39,6 @@ type OfflineQueryInputUri struct {
 	EndRow     *int   `json:"end_row,omitempty"`
 	// NOTE: The server discriminates the offline-query
 	// input variant by the presence of both `parquet_uri` AND `is_iceberg` keys
-	// (see go-api-server/shared/rpc_models_query.go::coerceOfflineQueryInput).
 	// With omitempty, IsIceberg=false would drop the key and the server 400s
 	// with "Unexpected type for offline query input: map[string]interface {}".
 	IsIceberg               bool              `json:"is_iceberg"`
