@@ -162,6 +162,11 @@ func TestGRPCBranchQueryRoutesToAPIServer(t *testing.T) {
 	h := apiCaptured.last()
 	assert.Equal(t, "my-branch", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "branch-grpc", h.Get("X-Chalk-Deployment-Type"))
+	// Branch queries route through api.chalk.ai's Envoy, which dispatches
+	// based on x-chalk-server. It must be "go-api" — sending "engine" makes
+	// Envoy try to forward to the engine cluster and the upstream resets,
+	// surfacing as "reset reason: protocol error".
+	assert.Equal(t, "go-api", h.Get("X-Chalk-Server"))
 }
 
 func TestGRPCNoBranchQueryRoutesToEngine(t *testing.T) {
@@ -178,6 +183,8 @@ func TestGRPCNoBranchQueryRoutesToEngine(t *testing.T) {
 	h := engineCaptured.last()
 	assert.Equal(t, "", h.Get("X-Chalk-Branch-Id"))
 	assert.Equal(t, "engine-grpc", h.Get("X-Chalk-Deployment-Type"))
+	// Non-branch queries go directly to the engine.
+	assert.Equal(t, "engine", h.Get("X-Chalk-Server"))
 }
 
 func TestGRPCPerRequestBranchRoutesToAPIServer(t *testing.T) {

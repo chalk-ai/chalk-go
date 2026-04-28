@@ -138,44 +138,59 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 	}
 
 	clientBranch := cfg.Branch
-	engineInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
-		return func(
-			ctx context.Context,
-			req connect.AnyRequest,
-		) (connect.AnyResponse, error) {
-			if timeout != nil {
-				if _, deadlineSet := ctx.Deadline(); !deadlineSet {
-					timeoutCtx, cancel := context.WithTimeout(ctx, *timeout)
-					ctx = timeoutCtx
-					defer cancel()
+	// makeEngineInterceptor builds a connect interceptor for QueryService
+	// requests. The serverHeader value is sent as x-chalk-server, which the
+	// upstream Envoy uses to route the request: "engine" goes to the engine
+	// cluster (used by queryClient, which talks directly to the resolved
+	// query server), while "go-api" goes to the API server's branch
+	// router (used by branchQueryClient, which talks to api.chalk.ai). This
+	// mirrors the Python SDK, where the API_SERVER channel is built with
+	// server="go-api" and the engine channel with server="engine".
+	makeEngineInterceptor := func(serverHeader string) func(connect.UnaryFunc) connect.UnaryFunc {
+		return func(next connect.UnaryFunc) connect.UnaryFunc {
+			return func(
+				ctx context.Context,
+				req connect.AnyRequest,
+			) (connect.AnyResponse, error) {
+				if timeout != nil {
+					if _, deadlineSet := ctx.Deadline(); !deadlineSet {
+						timeoutCtx, cancel := context.WithTimeout(ctx, *timeout)
+						ctx = timeoutCtx
+						defer cancel()
+					}
 				}
-			}
 
-			if req.Header().Get("x-chalk-branch-id") == "" && clientBranch != "" {
-				req.Header().Set("x-chalk-branch-id", clientBranch)
-			}
-			if req.Header().Get("x-chalk-branch-id") != "" {
-				req.Header().Set("x-chalk-deployment-type", "branch-grpc")
-			} else {
-				req.Header().Set("x-chalk-deployment-type", "engine-grpc")
-			}
-			req.Header().Set("x-chalk-server", "engine")
-			req.Header().Set("User-Agent", internal.UserAgent())
-			if cfg.DeploymentTag != "" {
-				req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
-			}
+				if req.Header().Get("x-chalk-branch-id") == "" && clientBranch != "" {
+					req.Header().Set("x-chalk-branch-id", clientBranch)
+				}
+				if req.Header().Get("x-chalk-branch-id") != "" {
+					req.Header().Set("x-chalk-deployment-type", "branch-grpc")
+				} else {
+					req.Header().Set("x-chalk-deployment-type", "engine-grpc")
+				}
+				req.Header().Set("x-chalk-server", serverHeader)
+				req.Header().Set("User-Agent", internal.UserAgent())
+				if cfg.DeploymentTag != "" {
+					req.Header().Set("x-chalk-deployment-tag", cfg.DeploymentTag)
+				}
 
-			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-				req.Header().Set("x-chalk-env-id", envId)
+				if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+					req.Header().Set("x-chalk-env-id", envId)
+				}
+				token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+				if err != nil {
+					return nil, errors.Wrap(err, "error refreshing config")
+				}
+				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+				return next(ctx, req)
 			}
-			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
-			if err != nil {
-				return nil, errors.Wrap(err, "error refreshing config")
-			}
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
-			return next(ctx, req)
 		}
 	}
+
+	// engineInterceptor is retained on the client struct for callers of
+	// GetEngineServerInterceptor (which expect the engine routing).
+	engineInterceptor := makeEngineInterceptor("engine")
+	branchQueryInterceptor := makeEngineInterceptor("go-api")
 
 	queryClient := enginev1connect.NewQueryServiceClient(
 		cfg.HTTPClient,
@@ -190,7 +205,7 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		cfg.HTTPClient,
 		apiServerURL,
 		connect.WithInterceptors(cfg.Interceptors...),
-		connect.WithInterceptors(connect.UnaryInterceptorFunc(engineInterceptor)),
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(branchQueryInterceptor)),
 		connect.WithGRPC(),
 	)
 
