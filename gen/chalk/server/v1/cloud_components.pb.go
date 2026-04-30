@@ -532,8 +532,9 @@ func (*DeleteCloudComponentVpcResponse) Descriptor() ([]byte, []int) {
 }
 
 type ListCloudComponentVpcRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
+	TeamId        string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -568,6 +569,7 @@ func (*ListCloudComponentVpcRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{9}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
 func (x *ListCloudComponentVpcRequest) GetTeamId() string {
 	if x != nil {
 		return x.TeamId
@@ -2945,8 +2947,9 @@ func (x *TestClusterConnectionResponse) GetError() string {
 }
 
 type ListCloudComponentClusterRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
+	TeamId        string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2981,6 +2984,7 @@ func (*ListCloudComponentClusterRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{46}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
 func (x *ListCloudComponentClusterRequest) GetTeamId() string {
 	if x != nil {
 		return x.TeamId
@@ -3289,8 +3293,9 @@ func (*DeleteCloudComponentStorageResponse) Descriptor() ([]byte, []int) {
 }
 
 type ListCloudComponentStorageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TeamId        string                 `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
+	TeamId        string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3325,6 +3330,7 @@ func (*ListCloudComponentStorageRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{54}
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
 func (x *ListCloudComponentStorageRequest) GetTeamId() string {
 	if x != nil {
 		return x.TeamId
@@ -3376,6 +3382,800 @@ func (x *ListCloudComponentStorageResponse) GetStorages() []*CloudComponentStora
 	return nil
 }
 
+type CreateCloudComponentContainerRegistryRequest struct {
+	state             protoimpl.MessageState                  `protogen:"open.v1"`
+	ContainerRegistry *CloudComponentContainerRegistryRequest `protobuf:"bytes,1,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CreateCloudComponentContainerRegistryRequest) Reset() {
+	*x = CreateCloudComponentContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCloudComponentContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCloudComponentContainerRegistryRequest) ProtoMessage() {}
+
+func (x *CreateCloudComponentContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCloudComponentContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*CreateCloudComponentContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{56}
+}
+
+func (x *CreateCloudComponentContainerRegistryRequest) GetContainerRegistry() *CloudComponentContainerRegistryRequest {
+	if x != nil {
+		return x.ContainerRegistry
+	}
+	return nil
+}
+
+type CreateCloudComponentContainerRegistryResponse struct {
+	state             protoimpl.MessageState                   `protogen:"open.v1"`
+	ContainerRegistry *CloudComponentContainerRegistryResponse `protobuf:"bytes,1,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *CreateCloudComponentContainerRegistryResponse) Reset() {
+	*x = CreateCloudComponentContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCloudComponentContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCloudComponentContainerRegistryResponse) ProtoMessage() {}
+
+func (x *CreateCloudComponentContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCloudComponentContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*CreateCloudComponentContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{57}
+}
+
+func (x *CreateCloudComponentContainerRegistryResponse) GetContainerRegistry() *CloudComponentContainerRegistryResponse {
+	if x != nil {
+		return x.ContainerRegistry
+	}
+	return nil
+}
+
+type UpdateCloudComponentContainerRegistryRequest struct {
+	state             protoimpl.MessageState                  `protogen:"open.v1"`
+	Id                string                                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ContainerRegistry *CloudComponentContainerRegistryRequest `protobuf:"bytes,2,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *UpdateCloudComponentContainerRegistryRequest) Reset() {
+	*x = UpdateCloudComponentContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCloudComponentContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCloudComponentContainerRegistryRequest) ProtoMessage() {}
+
+func (x *UpdateCloudComponentContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCloudComponentContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*UpdateCloudComponentContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{58}
+}
+
+func (x *UpdateCloudComponentContainerRegistryRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateCloudComponentContainerRegistryRequest) GetContainerRegistry() *CloudComponentContainerRegistryRequest {
+	if x != nil {
+		return x.ContainerRegistry
+	}
+	return nil
+}
+
+type UpdateCloudComponentContainerRegistryResponse struct {
+	state             protoimpl.MessageState                   `protogen:"open.v1"`
+	ContainerRegistry *CloudComponentContainerRegistryResponse `protobuf:"bytes,1,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *UpdateCloudComponentContainerRegistryResponse) Reset() {
+	*x = UpdateCloudComponentContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCloudComponentContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCloudComponentContainerRegistryResponse) ProtoMessage() {}
+
+func (x *UpdateCloudComponentContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCloudComponentContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*UpdateCloudComponentContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{59}
+}
+
+func (x *UpdateCloudComponentContainerRegistryResponse) GetContainerRegistry() *CloudComponentContainerRegistryResponse {
+	if x != nil {
+		return x.ContainerRegistry
+	}
+	return nil
+}
+
+type GetCloudComponentContainerRegistryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCloudComponentContainerRegistryRequest) Reset() {
+	*x = GetCloudComponentContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCloudComponentContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCloudComponentContainerRegistryRequest) ProtoMessage() {}
+
+func (x *GetCloudComponentContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCloudComponentContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*GetCloudComponentContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{60}
+}
+
+func (x *GetCloudComponentContainerRegistryRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetCloudComponentContainerRegistryResponse struct {
+	state             protoimpl.MessageState                   `protogen:"open.v1"`
+	ContainerRegistry *CloudComponentContainerRegistryResponse `protobuf:"bytes,1,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetCloudComponentContainerRegistryResponse) Reset() {
+	*x = GetCloudComponentContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCloudComponentContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCloudComponentContainerRegistryResponse) ProtoMessage() {}
+
+func (x *GetCloudComponentContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCloudComponentContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*GetCloudComponentContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{61}
+}
+
+func (x *GetCloudComponentContainerRegistryResponse) GetContainerRegistry() *CloudComponentContainerRegistryResponse {
+	if x != nil {
+		return x.ContainerRegistry
+	}
+	return nil
+}
+
+type DeleteCloudComponentContainerRegistryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCloudComponentContainerRegistryRequest) Reset() {
+	*x = DeleteCloudComponentContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCloudComponentContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCloudComponentContainerRegistryRequest) ProtoMessage() {}
+
+func (x *DeleteCloudComponentContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCloudComponentContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*DeleteCloudComponentContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{62}
+}
+
+func (x *DeleteCloudComponentContainerRegistryRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteCloudComponentContainerRegistryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCloudComponentContainerRegistryResponse) Reset() {
+	*x = DeleteCloudComponentContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCloudComponentContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCloudComponentContainerRegistryResponse) ProtoMessage() {}
+
+func (x *DeleteCloudComponentContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCloudComponentContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*DeleteCloudComponentContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{63}
+}
+
+type ListCloudComponentContainerRegistryRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
+	TeamId        string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCloudComponentContainerRegistryRequest) Reset() {
+	*x = ListCloudComponentContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCloudComponentContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCloudComponentContainerRegistryRequest) ProtoMessage() {}
+
+func (x *ListCloudComponentContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCloudComponentContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*ListCloudComponentContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{64}
+}
+
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
+func (x *ListCloudComponentContainerRegistryRequest) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+type ListCloudComponentContainerRegistryResponse struct {
+	state               protoimpl.MessageState                     `protogen:"open.v1"`
+	ContainerRegistries []*CloudComponentContainerRegistryResponse `protobuf:"bytes,1,rep,name=container_registries,json=containerRegistries,proto3" json:"container_registries,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ListCloudComponentContainerRegistryResponse) Reset() {
+	*x = ListCloudComponentContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCloudComponentContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCloudComponentContainerRegistryResponse) ProtoMessage() {}
+
+func (x *ListCloudComponentContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCloudComponentContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*ListCloudComponentContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{65}
+}
+
+func (x *ListCloudComponentContainerRegistryResponse) GetContainerRegistries() []*CloudComponentContainerRegistryResponse {
+	if x != nil {
+		return x.ContainerRegistries
+	}
+	return nil
+}
+
+type CreateBindingClusterContainerRegistryRequest struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId           string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	ContainerRegistryId string                 `protobuf:"bytes,2,opt,name=container_registry_id,json=containerRegistryId,proto3" json:"container_registry_id,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *CreateBindingClusterContainerRegistryRequest) Reset() {
+	*x = CreateBindingClusterContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBindingClusterContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBindingClusterContainerRegistryRequest) ProtoMessage() {}
+
+func (x *CreateBindingClusterContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBindingClusterContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*CreateBindingClusterContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{66}
+}
+
+func (x *CreateBindingClusterContainerRegistryRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *CreateBindingClusterContainerRegistryRequest) GetContainerRegistryId() string {
+	if x != nil {
+		return x.ContainerRegistryId
+	}
+	return ""
+}
+
+type CreateBindingClusterContainerRegistryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateBindingClusterContainerRegistryResponse) Reset() {
+	*x = CreateBindingClusterContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBindingClusterContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBindingClusterContainerRegistryResponse) ProtoMessage() {}
+
+func (x *CreateBindingClusterContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBindingClusterContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*CreateBindingClusterContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{67}
+}
+
+type GetBindingClusterContainerRegistryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBindingClusterContainerRegistryRequest) Reset() {
+	*x = GetBindingClusterContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBindingClusterContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBindingClusterContainerRegistryRequest) ProtoMessage() {}
+
+func (x *GetBindingClusterContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBindingClusterContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*GetBindingClusterContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{68}
+}
+
+func (x *GetBindingClusterContainerRegistryRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type GetBindingClusterContainerRegistryResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId           string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	ContainerRegistryId *string                `protobuf:"bytes,2,opt,name=container_registry_id,json=containerRegistryId,proto3,oneof" json:"container_registry_id,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *GetBindingClusterContainerRegistryResponse) Reset() {
+	*x = GetBindingClusterContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBindingClusterContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBindingClusterContainerRegistryResponse) ProtoMessage() {}
+
+func (x *GetBindingClusterContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBindingClusterContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*GetBindingClusterContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{69}
+}
+
+func (x *GetBindingClusterContainerRegistryResponse) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *GetBindingClusterContainerRegistryResponse) GetContainerRegistryId() string {
+	if x != nil && x.ContainerRegistryId != nil {
+		return *x.ContainerRegistryId
+	}
+	return ""
+}
+
+type ListBindingClusterContainerRegistryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterContainerRegistryRequest) Reset() {
+	*x = ListBindingClusterContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterContainerRegistryRequest) ProtoMessage() {}
+
+func (x *ListBindingClusterContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *ListBindingClusterContainerRegistryRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingClusterContainerRegistryResponse struct {
+	state         protoimpl.MessageState                        `protogen:"open.v1"`
+	Bindings      []*GetBindingClusterContainerRegistryResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterContainerRegistryResponse) Reset() {
+	*x = ListBindingClusterContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterContainerRegistryResponse) ProtoMessage() {}
+
+func (x *ListBindingClusterContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *ListBindingClusterContainerRegistryResponse) GetBindings() []*GetBindingClusterContainerRegistryResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
+type DeleteBindingClusterContainerRegistryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBindingClusterContainerRegistryRequest) Reset() {
+	*x = DeleteBindingClusterContainerRegistryRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBindingClusterContainerRegistryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBindingClusterContainerRegistryRequest) ProtoMessage() {}
+
+func (x *DeleteBindingClusterContainerRegistryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBindingClusterContainerRegistryRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBindingClusterContainerRegistryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *DeleteBindingClusterContainerRegistryRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type DeleteBindingClusterContainerRegistryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBindingClusterContainerRegistryResponse) Reset() {
+	*x = DeleteBindingClusterContainerRegistryResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBindingClusterContainerRegistryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBindingClusterContainerRegistryResponse) ProtoMessage() {}
+
+func (x *DeleteBindingClusterContainerRegistryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBindingClusterContainerRegistryResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBindingClusterContainerRegistryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{73}
+}
+
 // Gateway - Cluster bindings
 type CreateBindingClusterGatewayRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -3387,7 +4187,7 @@ type CreateBindingClusterGatewayRequest struct {
 
 func (x *CreateBindingClusterGatewayRequest) Reset() {
 	*x = CreateBindingClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[56]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3399,7 +4199,7 @@ func (x *CreateBindingClusterGatewayRequest) String() string {
 func (*CreateBindingClusterGatewayRequest) ProtoMessage() {}
 
 func (x *CreateBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[56]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3412,7 +4212,7 @@ func (x *CreateBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CreateBindingClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{56}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *CreateBindingClusterGatewayRequest) GetClusterId() string {
@@ -3437,7 +4237,7 @@ type CreateBindingClusterGatewayResponse struct {
 
 func (x *CreateBindingClusterGatewayResponse) Reset() {
 	*x = CreateBindingClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[57]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3449,7 +4249,7 @@ func (x *CreateBindingClusterGatewayResponse) String() string {
 func (*CreateBindingClusterGatewayResponse) ProtoMessage() {}
 
 func (x *CreateBindingClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[57]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3462,7 +4262,7 @@ func (x *CreateBindingClusterGatewayResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CreateBindingClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{57}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{75}
 }
 
 type DeleteBindingClusterGatewayRequest struct {
@@ -3474,7 +4274,7 @@ type DeleteBindingClusterGatewayRequest struct {
 
 func (x *DeleteBindingClusterGatewayRequest) Reset() {
 	*x = DeleteBindingClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[58]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3486,7 +4286,7 @@ func (x *DeleteBindingClusterGatewayRequest) String() string {
 func (*DeleteBindingClusterGatewayRequest) ProtoMessage() {}
 
 func (x *DeleteBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[58]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3499,7 +4299,7 @@ func (x *DeleteBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DeleteBindingClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{58}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *DeleteBindingClusterGatewayRequest) GetClusterId() string {
@@ -3517,7 +4317,7 @@ type DeleteBindingClusterGatewayResponse struct {
 
 func (x *DeleteBindingClusterGatewayResponse) Reset() {
 	*x = DeleteBindingClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[59]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3529,7 +4329,7 @@ func (x *DeleteBindingClusterGatewayResponse) String() string {
 func (*DeleteBindingClusterGatewayResponse) ProtoMessage() {}
 
 func (x *DeleteBindingClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[59]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3542,7 +4342,7 @@ func (x *DeleteBindingClusterGatewayResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteBindingClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{59}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{77}
 }
 
 type GetBindingClusterGatewayRequest struct {
@@ -3554,7 +4354,7 @@ type GetBindingClusterGatewayRequest struct {
 
 func (x *GetBindingClusterGatewayRequest) Reset() {
 	*x = GetBindingClusterGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[60]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3566,7 +4366,7 @@ func (x *GetBindingClusterGatewayRequest) String() string {
 func (*GetBindingClusterGatewayRequest) ProtoMessage() {}
 
 func (x *GetBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[60]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3579,7 +4379,7 @@ func (x *GetBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBindingClusterGatewayRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{60}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *GetBindingClusterGatewayRequest) GetClusterId() string {
@@ -3599,7 +4399,7 @@ type GetBindingClusterGatewayResponse struct {
 
 func (x *GetBindingClusterGatewayResponse) Reset() {
 	*x = GetBindingClusterGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[61]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3611,7 +4411,7 @@ func (x *GetBindingClusterGatewayResponse) String() string {
 func (*GetBindingClusterGatewayResponse) ProtoMessage() {}
 
 func (x *GetBindingClusterGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[61]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3624,7 +4424,7 @@ func (x *GetBindingClusterGatewayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBindingClusterGatewayResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{61}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *GetBindingClusterGatewayResponse) GetClusterId() string {
@@ -3641,6 +4441,94 @@ func (x *GetBindingClusterGatewayResponse) GetClusterGatewayId() string {
 	return ""
 }
 
+type ListBindingClusterGatewayRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterGatewayRequest) Reset() {
+	*x = ListBindingClusterGatewayRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterGatewayRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterGatewayRequest) ProtoMessage() {}
+
+func (x *ListBindingClusterGatewayRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterGatewayRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterGatewayRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *ListBindingClusterGatewayRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingClusterGatewayResponse struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Bindings      []*GetBindingClusterGatewayResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterGatewayResponse) Reset() {
+	*x = ListBindingClusterGatewayResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[81]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterGatewayResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterGatewayResponse) ProtoMessage() {}
+
+func (x *ListBindingClusterGatewayResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[81]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterGatewayResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterGatewayResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{81}
+}
+
+func (x *ListBindingClusterGatewayResponse) GetBindings() []*GetBindingClusterGatewayResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
 // Private Gateway - Cluster bindings
 type CreateBindingPrivateGatewayRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -3652,7 +4540,7 @@ type CreateBindingPrivateGatewayRequest struct {
 
 func (x *CreateBindingPrivateGatewayRequest) Reset() {
 	*x = CreateBindingPrivateGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[62]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3664,7 +4552,7 @@ func (x *CreateBindingPrivateGatewayRequest) String() string {
 func (*CreateBindingPrivateGatewayRequest) ProtoMessage() {}
 
 func (x *CreateBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[62]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3677,7 +4565,7 @@ func (x *CreateBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CreateBindingPrivateGatewayRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingPrivateGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{62}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *CreateBindingPrivateGatewayRequest) GetClusterId() string {
@@ -3702,7 +4590,7 @@ type CreateBindingPrivateGatewayResponse struct {
 
 func (x *CreateBindingPrivateGatewayResponse) Reset() {
 	*x = CreateBindingPrivateGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[63]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3714,7 +4602,7 @@ func (x *CreateBindingPrivateGatewayResponse) String() string {
 func (*CreateBindingPrivateGatewayResponse) ProtoMessage() {}
 
 func (x *CreateBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[63]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3727,7 +4615,7 @@ func (x *CreateBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use CreateBindingPrivateGatewayResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingPrivateGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{63}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{83}
 }
 
 type DeleteBindingPrivateGatewayRequest struct {
@@ -3739,7 +4627,7 @@ type DeleteBindingPrivateGatewayRequest struct {
 
 func (x *DeleteBindingPrivateGatewayRequest) Reset() {
 	*x = DeleteBindingPrivateGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[64]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3751,7 +4639,7 @@ func (x *DeleteBindingPrivateGatewayRequest) String() string {
 func (*DeleteBindingPrivateGatewayRequest) ProtoMessage() {}
 
 func (x *DeleteBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[64]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3764,7 +4652,7 @@ func (x *DeleteBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use DeleteBindingPrivateGatewayRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingPrivateGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{64}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *DeleteBindingPrivateGatewayRequest) GetClusterId() string {
@@ -3782,7 +4670,7 @@ type DeleteBindingPrivateGatewayResponse struct {
 
 func (x *DeleteBindingPrivateGatewayResponse) Reset() {
 	*x = DeleteBindingPrivateGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[65]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3794,7 +4682,7 @@ func (x *DeleteBindingPrivateGatewayResponse) String() string {
 func (*DeleteBindingPrivateGatewayResponse) ProtoMessage() {}
 
 func (x *DeleteBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[65]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3807,7 +4695,7 @@ func (x *DeleteBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteBindingPrivateGatewayResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingPrivateGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{65}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{85}
 }
 
 type GetBindingPrivateGatewayRequest struct {
@@ -3819,7 +4707,7 @@ type GetBindingPrivateGatewayRequest struct {
 
 func (x *GetBindingPrivateGatewayRequest) Reset() {
 	*x = GetBindingPrivateGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[66]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3831,7 +4719,7 @@ func (x *GetBindingPrivateGatewayRequest) String() string {
 func (*GetBindingPrivateGatewayRequest) ProtoMessage() {}
 
 func (x *GetBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[66]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3844,7 +4732,7 @@ func (x *GetBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBindingPrivateGatewayRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingPrivateGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{66}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *GetBindingPrivateGatewayRequest) GetClusterId() string {
@@ -3864,7 +4752,7 @@ type GetBindingPrivateGatewayResponse struct {
 
 func (x *GetBindingPrivateGatewayResponse) Reset() {
 	*x = GetBindingPrivateGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[67]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3876,7 +4764,7 @@ func (x *GetBindingPrivateGatewayResponse) String() string {
 func (*GetBindingPrivateGatewayResponse) ProtoMessage() {}
 
 func (x *GetBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[67]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3889,7 +4777,7 @@ func (x *GetBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBindingPrivateGatewayResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingPrivateGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{67}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *GetBindingPrivateGatewayResponse) GetClusterId() string {
@@ -3906,6 +4794,94 @@ func (x *GetBindingPrivateGatewayResponse) GetPrivateGatewayId() string {
 	return ""
 }
 
+type ListBindingPrivateGatewayRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingPrivateGatewayRequest) Reset() {
+	*x = ListBindingPrivateGatewayRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[88]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingPrivateGatewayRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingPrivateGatewayRequest) ProtoMessage() {}
+
+func (x *ListBindingPrivateGatewayRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[88]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingPrivateGatewayRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingPrivateGatewayRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{88}
+}
+
+func (x *ListBindingPrivateGatewayRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingPrivateGatewayResponse struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Bindings      []*GetBindingPrivateGatewayResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingPrivateGatewayResponse) Reset() {
+	*x = ListBindingPrivateGatewayResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[89]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingPrivateGatewayResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingPrivateGatewayResponse) ProtoMessage() {}
+
+func (x *ListBindingPrivateGatewayResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[89]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingPrivateGatewayResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingPrivateGatewayResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{89}
+}
+
+func (x *ListBindingPrivateGatewayResponse) GetBindings() []*GetBindingPrivateGatewayResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
 // Background Persistence - Deployment bindings
 type CreateBindingClusterBackgroundPersistenceDeploymentRequest struct {
 	state                             protoimpl.MessageState `protogen:"open.v1"`
@@ -3917,7 +4893,7 @@ type CreateBindingClusterBackgroundPersistenceDeploymentRequest struct {
 
 func (x *CreateBindingClusterBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = CreateBindingClusterBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[68]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3929,7 +4905,7 @@ func (x *CreateBindingClusterBackgroundPersistenceDeploymentRequest) String() st
 func (*CreateBindingClusterBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[68]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3942,7 +4918,7 @@ func (x *CreateBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflec
 
 // Deprecated: Use CreateBindingClusterBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{68}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *CreateBindingClusterBackgroundPersistenceDeploymentRequest) GetClusterId() string {
@@ -3967,7 +4943,7 @@ type CreateBindingClusterBackgroundPersistenceDeploymentResponse struct {
 
 func (x *CreateBindingClusterBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = CreateBindingClusterBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[69]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3979,7 +4955,7 @@ func (x *CreateBindingClusterBackgroundPersistenceDeploymentResponse) String() s
 func (*CreateBindingClusterBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateBindingClusterBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[69]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3992,7 +4968,7 @@ func (x *CreateBindingClusterBackgroundPersistenceDeploymentResponse) ProtoRefle
 
 // Deprecated: Use CreateBindingClusterBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{69}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{91}
 }
 
 type DeleteBindingClusterBackgroundPersistenceDeploymentRequest struct {
@@ -4004,7 +4980,7 @@ type DeleteBindingClusterBackgroundPersistenceDeploymentRequest struct {
 
 func (x *DeleteBindingClusterBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = DeleteBindingClusterBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[70]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4016,7 +4992,7 @@ func (x *DeleteBindingClusterBackgroundPersistenceDeploymentRequest) String() st
 func (*DeleteBindingClusterBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *DeleteBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[70]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4029,7 +5005,7 @@ func (x *DeleteBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflec
 
 // Deprecated: Use DeleteBindingClusterBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{70}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *DeleteBindingClusterBackgroundPersistenceDeploymentRequest) GetClusterId() string {
@@ -4047,7 +5023,7 @@ type DeleteBindingClusterBackgroundPersistenceDeploymentResponse struct {
 
 func (x *DeleteBindingClusterBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = DeleteBindingClusterBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[71]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4059,7 +5035,7 @@ func (x *DeleteBindingClusterBackgroundPersistenceDeploymentResponse) String() s
 func (*DeleteBindingClusterBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *DeleteBindingClusterBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[71]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4072,7 +5048,7 @@ func (x *DeleteBindingClusterBackgroundPersistenceDeploymentResponse) ProtoRefle
 
 // Deprecated: Use DeleteBindingClusterBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{71}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{93}
 }
 
 type GetBindingClusterBackgroundPersistenceDeploymentRequest struct {
@@ -4084,7 +5060,7 @@ type GetBindingClusterBackgroundPersistenceDeploymentRequest struct {
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = GetBindingClusterBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[72]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4096,7 +5072,7 @@ func (x *GetBindingClusterBackgroundPersistenceDeploymentRequest) String() strin
 func (*GetBindingClusterBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[72]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4109,7 +5085,7 @@ func (x *GetBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflect()
 
 // Deprecated: Use GetBindingClusterBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{72}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentRequest) GetClusterId() string {
@@ -4129,7 +5105,7 @@ type GetBindingClusterBackgroundPersistenceDeploymentResponse struct {
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = GetBindingClusterBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[73]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4141,7 +5117,7 @@ func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) String() stri
 func (*GetBindingClusterBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[73]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4154,7 +5130,7 @@ func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) ProtoReflect(
 
 // Deprecated: Use GetBindingClusterBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{73}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) GetClusterId() string {
@@ -4171,6 +5147,94 @@ func (x *GetBindingClusterBackgroundPersistenceDeploymentResponse) GetBackground
 	return ""
 }
 
+type ListBindingClusterBackgroundPersistenceDeploymentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentRequest) Reset() {
+	*x = ListBindingClusterBackgroundPersistenceDeploymentRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[96]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[96]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{96}
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingClusterBackgroundPersistenceDeploymentResponse struct {
+	state         protoimpl.MessageState                                      `protogen:"open.v1"`
+	Bindings      []*GetBindingClusterBackgroundPersistenceDeploymentResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentResponse) Reset() {
+	*x = ListBindingClusterBackgroundPersistenceDeploymentResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[97]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[97]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{97}
+}
+
+func (x *ListBindingClusterBackgroundPersistenceDeploymentResponse) GetBindings() []*GetBindingClusterBackgroundPersistenceDeploymentResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
 // Telemetry Deployment - Cluster bindings
 type CreateBindingClusterTelemetryDeploymentRequest struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
@@ -4182,7 +5246,7 @@ type CreateBindingClusterTelemetryDeploymentRequest struct {
 
 func (x *CreateBindingClusterTelemetryDeploymentRequest) Reset() {
 	*x = CreateBindingClusterTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[74]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4194,7 +5258,7 @@ func (x *CreateBindingClusterTelemetryDeploymentRequest) String() string {
 func (*CreateBindingClusterTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[74]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4207,7 +5271,7 @@ func (x *CreateBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoref
 
 // Deprecated: Use CreateBindingClusterTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{74}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *CreateBindingClusterTelemetryDeploymentRequest) GetClusterId() string {
@@ -4232,7 +5296,7 @@ type CreateBindingClusterTelemetryDeploymentResponse struct {
 
 func (x *CreateBindingClusterTelemetryDeploymentResponse) Reset() {
 	*x = CreateBindingClusterTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[75]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4244,7 +5308,7 @@ func (x *CreateBindingClusterTelemetryDeploymentResponse) String() string {
 func (*CreateBindingClusterTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateBindingClusterTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[75]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4257,7 +5321,7 @@ func (x *CreateBindingClusterTelemetryDeploymentResponse) ProtoReflect() protore
 
 // Deprecated: Use CreateBindingClusterTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingClusterTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{75}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{99}
 }
 
 type DeleteBindingClusterTelemetryDeploymentRequest struct {
@@ -4269,7 +5333,7 @@ type DeleteBindingClusterTelemetryDeploymentRequest struct {
 
 func (x *DeleteBindingClusterTelemetryDeploymentRequest) Reset() {
 	*x = DeleteBindingClusterTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[76]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4281,7 +5345,7 @@ func (x *DeleteBindingClusterTelemetryDeploymentRequest) String() string {
 func (*DeleteBindingClusterTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *DeleteBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[76]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4294,7 +5358,7 @@ func (x *DeleteBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoref
 
 // Deprecated: Use DeleteBindingClusterTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{76}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *DeleteBindingClusterTelemetryDeploymentRequest) GetClusterId() string {
@@ -4312,7 +5376,7 @@ type DeleteBindingClusterTelemetryDeploymentResponse struct {
 
 func (x *DeleteBindingClusterTelemetryDeploymentResponse) Reset() {
 	*x = DeleteBindingClusterTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[77]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4324,7 +5388,7 @@ func (x *DeleteBindingClusterTelemetryDeploymentResponse) String() string {
 func (*DeleteBindingClusterTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *DeleteBindingClusterTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[77]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4337,7 +5401,7 @@ func (x *DeleteBindingClusterTelemetryDeploymentResponse) ProtoReflect() protore
 
 // Deprecated: Use DeleteBindingClusterTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingClusterTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{77}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{101}
 }
 
 type GetBindingClusterTelemetryDeploymentRequest struct {
@@ -4349,7 +5413,7 @@ type GetBindingClusterTelemetryDeploymentRequest struct {
 
 func (x *GetBindingClusterTelemetryDeploymentRequest) Reset() {
 	*x = GetBindingClusterTelemetryDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[78]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4361,7 +5425,7 @@ func (x *GetBindingClusterTelemetryDeploymentRequest) String() string {
 func (*GetBindingClusterTelemetryDeploymentRequest) ProtoMessage() {}
 
 func (x *GetBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[78]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4374,7 +5438,7 @@ func (x *GetBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoreflec
 
 // Deprecated: Use GetBindingClusterTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{78}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *GetBindingClusterTelemetryDeploymentRequest) GetClusterId() string {
@@ -4394,7 +5458,7 @@ type GetBindingClusterTelemetryDeploymentResponse struct {
 
 func (x *GetBindingClusterTelemetryDeploymentResponse) Reset() {
 	*x = GetBindingClusterTelemetryDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[79]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4406,7 +5470,7 @@ func (x *GetBindingClusterTelemetryDeploymentResponse) String() string {
 func (*GetBindingClusterTelemetryDeploymentResponse) ProtoMessage() {}
 
 func (x *GetBindingClusterTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[79]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4419,7 +5483,7 @@ func (x *GetBindingClusterTelemetryDeploymentResponse) ProtoReflect() protorefle
 
 // Deprecated: Use GetBindingClusterTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingClusterTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{79}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{103}
 }
 
 func (x *GetBindingClusterTelemetryDeploymentResponse) GetClusterId() string {
@@ -4436,6 +5500,94 @@ func (x *GetBindingClusterTelemetryDeploymentResponse) GetTelemetryDeploymentId(
 	return ""
 }
 
+type ListBindingClusterTelemetryDeploymentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterTelemetryDeploymentRequest) Reset() {
+	*x = ListBindingClusterTelemetryDeploymentRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[104]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterTelemetryDeploymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterTelemetryDeploymentRequest) ProtoMessage() {}
+
+func (x *ListBindingClusterTelemetryDeploymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[104]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterTelemetryDeploymentRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterTelemetryDeploymentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{104}
+}
+
+func (x *ListBindingClusterTelemetryDeploymentRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingClusterTelemetryDeploymentResponse struct {
+	state         protoimpl.MessageState                          `protogen:"open.v1"`
+	Bindings      []*GetBindingClusterTelemetryDeploymentResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingClusterTelemetryDeploymentResponse) Reset() {
+	*x = ListBindingClusterTelemetryDeploymentResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[105]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingClusterTelemetryDeploymentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingClusterTelemetryDeploymentResponse) ProtoMessage() {}
+
+func (x *ListBindingClusterTelemetryDeploymentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[105]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingClusterTelemetryDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingClusterTelemetryDeploymentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{105}
+}
+
+func (x *ListBindingClusterTelemetryDeploymentResponse) GetBindings() []*GetBindingClusterTelemetryDeploymentResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
 // Gateway - Environment bindings
 type CreateBindingEnvironmentGatewayRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
@@ -4447,7 +5599,7 @@ type CreateBindingEnvironmentGatewayRequest struct {
 
 func (x *CreateBindingEnvironmentGatewayRequest) Reset() {
 	*x = CreateBindingEnvironmentGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[80]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[106]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4459,7 +5611,7 @@ func (x *CreateBindingEnvironmentGatewayRequest) String() string {
 func (*CreateBindingEnvironmentGatewayRequest) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[80]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[106]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4472,7 +5624,7 @@ func (x *CreateBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use CreateBindingEnvironmentGatewayRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{80}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{106}
 }
 
 func (x *CreateBindingEnvironmentGatewayRequest) GetEnvironmentId() string {
@@ -4497,7 +5649,7 @@ type CreateBindingEnvironmentGatewayResponse struct {
 
 func (x *CreateBindingEnvironmentGatewayResponse) Reset() {
 	*x = CreateBindingEnvironmentGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[81]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[107]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4509,7 +5661,7 @@ func (x *CreateBindingEnvironmentGatewayResponse) String() string {
 func (*CreateBindingEnvironmentGatewayResponse) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[81]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[107]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4522,7 +5674,7 @@ func (x *CreateBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use CreateBindingEnvironmentGatewayResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{81}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{107}
 }
 
 type DeleteBindingEnvironmentGatewayRequest struct {
@@ -4534,7 +5686,7 @@ type DeleteBindingEnvironmentGatewayRequest struct {
 
 func (x *DeleteBindingEnvironmentGatewayRequest) Reset() {
 	*x = DeleteBindingEnvironmentGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[82]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[108]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4546,7 +5698,7 @@ func (x *DeleteBindingEnvironmentGatewayRequest) String() string {
 func (*DeleteBindingEnvironmentGatewayRequest) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[82]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[108]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4559,7 +5711,7 @@ func (x *DeleteBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use DeleteBindingEnvironmentGatewayRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{82}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{108}
 }
 
 func (x *DeleteBindingEnvironmentGatewayRequest) GetEnvironmentId() string {
@@ -4577,7 +5729,7 @@ type DeleteBindingEnvironmentGatewayResponse struct {
 
 func (x *DeleteBindingEnvironmentGatewayResponse) Reset() {
 	*x = DeleteBindingEnvironmentGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[83]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[109]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4589,7 +5741,7 @@ func (x *DeleteBindingEnvironmentGatewayResponse) String() string {
 func (*DeleteBindingEnvironmentGatewayResponse) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[83]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[109]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4602,7 +5754,7 @@ func (x *DeleteBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use DeleteBindingEnvironmentGatewayResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{83}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{109}
 }
 
 type GetBindingEnvironmentGatewayRequest struct {
@@ -4614,7 +5766,7 @@ type GetBindingEnvironmentGatewayRequest struct {
 
 func (x *GetBindingEnvironmentGatewayRequest) Reset() {
 	*x = GetBindingEnvironmentGatewayRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[84]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[110]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4626,7 +5778,7 @@ func (x *GetBindingEnvironmentGatewayRequest) String() string {
 func (*GetBindingEnvironmentGatewayRequest) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[84]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[110]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4639,7 +5791,7 @@ func (x *GetBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetBindingEnvironmentGatewayRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentGatewayRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{84}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{110}
 }
 
 func (x *GetBindingEnvironmentGatewayRequest) GetEnvironmentId() string {
@@ -4659,7 +5811,7 @@ type GetBindingEnvironmentGatewayResponse struct {
 
 func (x *GetBindingEnvironmentGatewayResponse) Reset() {
 	*x = GetBindingEnvironmentGatewayResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[85]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[111]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4671,7 +5823,7 @@ func (x *GetBindingEnvironmentGatewayResponse) String() string {
 func (*GetBindingEnvironmentGatewayResponse) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[85]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[111]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4684,7 +5836,7 @@ func (x *GetBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetBindingEnvironmentGatewayResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentGatewayResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{85}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{111}
 }
 
 func (x *GetBindingEnvironmentGatewayResponse) GetEnvironmentId() string {
@@ -4701,6 +5853,94 @@ func (x *GetBindingEnvironmentGatewayResponse) GetClusterGatewayId() string {
 	return ""
 }
 
+type ListBindingEnvironmentGatewayRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingEnvironmentGatewayRequest) Reset() {
+	*x = ListBindingEnvironmentGatewayRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[112]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingEnvironmentGatewayRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingEnvironmentGatewayRequest) ProtoMessage() {}
+
+func (x *ListBindingEnvironmentGatewayRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[112]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingEnvironmentGatewayRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingEnvironmentGatewayRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{112}
+}
+
+func (x *ListBindingEnvironmentGatewayRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingEnvironmentGatewayResponse struct {
+	state         protoimpl.MessageState                  `protogen:"open.v1"`
+	Bindings      []*GetBindingEnvironmentGatewayResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingEnvironmentGatewayResponse) Reset() {
+	*x = ListBindingEnvironmentGatewayResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[113]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingEnvironmentGatewayResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingEnvironmentGatewayResponse) ProtoMessage() {}
+
+func (x *ListBindingEnvironmentGatewayResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[113]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingEnvironmentGatewayResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingEnvironmentGatewayResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{113}
+}
+
+func (x *ListBindingEnvironmentGatewayResponse) GetBindings() []*GetBindingEnvironmentGatewayResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
+}
+
 // Background Persistence - Environment bindings
 type CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
 	state                             protoimpl.MessageState `protogen:"open.v1"`
@@ -4712,7 +5952,7 @@ type CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
 
 func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[86]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[114]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4724,7 +5964,7 @@ func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) String(
 func (*CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[86]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[114]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4737,7 +5977,7 @@ func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoRe
 
 // Deprecated: Use CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{86}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{114}
 }
 
 func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest) GetEnvironmentId() string {
@@ -4762,7 +6002,7 @@ type CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse struct {
 
 func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[87]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[115]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4774,7 +6014,7 @@ func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) String
 func (*CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[87]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[115]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4787,7 +6027,7 @@ func (x *CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoR
 
 // Deprecated: Use CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{87}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{115}
 }
 
 type DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
@@ -4799,7 +6039,7 @@ type DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
 
 func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[88]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[116]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4811,7 +6051,7 @@ func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) String(
 func (*DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[88]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[116]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4824,7 +6064,7 @@ func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoRe
 
 // Deprecated: Use DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{88}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{116}
 }
 
 func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest) GetEnvironmentId() string {
@@ -4842,7 +6082,7 @@ type DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse struct {
 
 func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[89]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[117]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4854,7 +6094,7 @@ func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) String
 func (*DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[89]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[117]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4867,7 +6107,7 @@ func (x *DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoR
 
 // Deprecated: Use DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{89}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{117}
 }
 
 type GetBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
@@ -4879,7 +6119,7 @@ type GetBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) Reset() {
 	*x = GetBindingEnvironmentBackgroundPersistenceDeploymentRequest{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[90]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[118]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4891,7 +6131,7 @@ func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) String() s
 func (*GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[90]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[118]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4904,7 +6144,7 @@ func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoRefle
 
 // Deprecated: Use GetBindingEnvironmentBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{90}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{118}
 }
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentRequest) GetEnvironmentId() string {
@@ -4924,7 +6164,7 @@ type GetBindingEnvironmentBackgroundPersistenceDeploymentResponse struct {
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) Reset() {
 	*x = GetBindingEnvironmentBackgroundPersistenceDeploymentResponse{}
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[91]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[119]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4936,7 +6176,7 @@ func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) String() 
 func (*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[91]
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[119]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4949,7 +6189,7 @@ func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoRefl
 
 // Deprecated: Use GetBindingEnvironmentBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
 func (*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{91}
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{119}
 }
 
 func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) GetEnvironmentId() string {
@@ -4964,6 +6204,94 @@ func (x *GetBindingEnvironmentBackgroundPersistenceDeploymentResponse) GetBackgr
 		return x.BackgroundPersistenceDeploymentId
 	}
 	return ""
+}
+
+type ListBindingEnvironmentBackgroundPersistenceDeploymentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) Reset() {
+	*x = ListBindingEnvironmentBackgroundPersistenceDeploymentRequest{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[120]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoMessage() {}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[120]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingEnvironmentBackgroundPersistenceDeploymentRequest.ProtoReflect.Descriptor instead.
+func (*ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{120}
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+type ListBindingEnvironmentBackgroundPersistenceDeploymentResponse struct {
+	state         protoimpl.MessageState                                          `protogen:"open.v1"`
+	Bindings      []*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse `protobuf:"bytes,1,rep,name=bindings,proto3" json:"bindings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) Reset() {
+	*x = ListBindingEnvironmentBackgroundPersistenceDeploymentResponse{}
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[121]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoMessage() {}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_cloud_components_proto_msgTypes[121]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBindingEnvironmentBackgroundPersistenceDeploymentResponse.ProtoReflect.Descriptor instead.
+func (*ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_cloud_components_proto_rawDescGZIP(), []int{121}
+}
+
+func (x *ListBindingEnvironmentBackgroundPersistenceDeploymentResponse) GetBindings() []*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse {
+	if x != nil {
+		return x.Bindings
+	}
+	return nil
 }
 
 var File_chalk_server_v1_cloud_components_proto protoreflect.FileDescriptor
@@ -5014,9 +6342,9 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x03vpc\x18\x01 \x01(\v2*.chalk.server.v1.CloudComponentVpcResponseR\x03vpc\"0\n" +
 	"\x1eDeleteCloudComponentVpcRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"!\n" +
-	"\x1fDeleteCloudComponentVpcResponse\"7\n" +
-	"\x1cListCloudComponentVpcRequest\x12\x17\n" +
-	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"_\n" +
+	"\x1fDeleteCloudComponentVpcResponse\";\n" +
+	"\x1cListCloudComponentVpcRequest\x12\x1b\n" +
+	"\ateam_id\x18\x01 \x01(\tB\x02\x18\x01R\x06teamId\"_\n" +
 	"\x1dListCloudComponentVpcResponse\x12>\n" +
 	"\x04vpcs\x18\x01 \x03(\v2*.chalk.server.v1.CloudComponentVpcResponseR\x04vpcs\"\x80\x01\n" +
 	"\x0eCloudVpcConfig\x121\n" +
@@ -5221,9 +6549,9 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x1dTestClusterConnectionResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\";\n" +
-	" ListCloudComponentClusterRequest\x12\x17\n" +
-	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"o\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\"?\n" +
+	" ListCloudComponentClusterRequest\x12\x1b\n" +
+	"\ateam_id\x18\x01 \x01(\tB\x02\x18\x01R\x06teamId\"o\n" +
 	"!ListCloudComponentClusterResponse\x12J\n" +
 	"\bclusters\x18\x01 \x03(\v2..chalk.server.v1.CloudComponentClusterResponseR\bclusters\"m\n" +
 	"\"CreateCloudComponentStorageRequest\x12G\n" +
@@ -5236,11 +6564,53 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\astorage\x18\x01 \x01(\v2..chalk.server.v1.CloudComponentStorageResponseR\astorage\"4\n" +
 	"\"DeleteCloudComponentStorageRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"%\n" +
-	"#DeleteCloudComponentStorageResponse\";\n" +
-	" ListCloudComponentStorageRequest\x12\x17\n" +
-	"\ateam_id\x18\x01 \x01(\tR\x06teamId\"o\n" +
+	"#DeleteCloudComponentStorageResponse\"?\n" +
+	" ListCloudComponentStorageRequest\x12\x1b\n" +
+	"\ateam_id\x18\x01 \x01(\tB\x02\x18\x01R\x06teamId\"o\n" +
 	"!ListCloudComponentStorageResponse\x12J\n" +
-	"\bstorages\x18\x01 \x03(\v2..chalk.server.v1.CloudComponentStorageResponseR\bstorages\"q\n" +
+	"\bstorages\x18\x01 \x03(\v2..chalk.server.v1.CloudComponentStorageResponseR\bstorages\"\x96\x01\n" +
+	",CreateCloudComponentContainerRegistryRequest\x12f\n" +
+	"\x12container_registry\x18\x01 \x01(\v27.chalk.server.v1.CloudComponentContainerRegistryRequestR\x11containerRegistry\"\x98\x01\n" +
+	"-CreateCloudComponentContainerRegistryResponse\x12g\n" +
+	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\"\xa6\x01\n" +
+	",UpdateCloudComponentContainerRegistryRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12f\n" +
+	"\x12container_registry\x18\x02 \x01(\v27.chalk.server.v1.CloudComponentContainerRegistryRequestR\x11containerRegistry\"\x98\x01\n" +
+	"-UpdateCloudComponentContainerRegistryResponse\x12g\n" +
+	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\";\n" +
+	")GetCloudComponentContainerRegistryRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x95\x01\n" +
+	"*GetCloudComponentContainerRegistryResponse\x12g\n" +
+	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\">\n" +
+	",DeleteCloudComponentContainerRegistryRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"/\n" +
+	"-DeleteCloudComponentContainerRegistryResponse\"I\n" +
+	"*ListCloudComponentContainerRegistryRequest\x12\x1b\n" +
+	"\ateam_id\x18\x01 \x01(\tB\x02\x18\x01R\x06teamId\"\x9a\x01\n" +
+	"+ListCloudComponentContainerRegistryResponse\x12k\n" +
+	"\x14container_registries\x18\x01 \x03(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x13containerRegistries\"\x81\x01\n" +
+	",CreateBindingClusterContainerRegistryRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\x122\n" +
+	"\x15container_registry_id\x18\x02 \x01(\tR\x13containerRegistryId\"/\n" +
+	"-CreateBindingClusterContainerRegistryResponse\"J\n" +
+	")GetBindingClusterContainerRegistryRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x9e\x01\n" +
+	"*GetBindingClusterContainerRegistryResponse\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\x127\n" +
+	"\x15container_registry_id\x18\x02 \x01(\tH\x00R\x13containerRegistryId\x88\x01\x01B\x18\n" +
+	"\x16_container_registry_id\"K\n" +
+	"*ListBindingClusterContainerRegistryRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x86\x01\n" +
+	"+ListBindingClusterContainerRegistryResponse\x12W\n" +
+	"\bbindings\x18\x01 \x03(\v2;.chalk.server.v1.GetBindingClusterContainerRegistryResponseR\bbindings\"M\n" +
+	",DeleteBindingClusterContainerRegistryRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"/\n" +
+	"-DeleteBindingClusterContainerRegistryResponse\"q\n" +
 	"\"CreateBindingClusterGatewayRequest\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12,\n" +
@@ -5256,7 +6626,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	" GetBindingClusterGatewayResponse\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12,\n" +
-	"\x12cluster_gateway_id\x18\x02 \x01(\tR\x10clusterGatewayId\"q\n" +
+	"\x12cluster_gateway_id\x18\x02 \x01(\tR\x10clusterGatewayId\"A\n" +
+	" ListBindingClusterGatewayRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"r\n" +
+	"!ListBindingClusterGatewayResponse\x12M\n" +
+	"\bbindings\x18\x01 \x03(\v21.chalk.server.v1.GetBindingClusterGatewayResponseR\bbindings\"q\n" +
 	"\"CreateBindingPrivateGatewayRequest\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12,\n" +
@@ -5272,7 +6647,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	" GetBindingPrivateGatewayResponse\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12,\n" +
-	"\x12private_gateway_id\x18\x02 \x01(\tR\x10privateGatewayId\"\xac\x01\n" +
+	"\x12private_gateway_id\x18\x02 \x01(\tR\x10privateGatewayId\"A\n" +
+	" ListBindingPrivateGatewayRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"r\n" +
+	"!ListBindingPrivateGatewayResponse\x12M\n" +
+	"\bbindings\x18\x01 \x03(\v21.chalk.server.v1.GetBindingPrivateGatewayResponseR\bbindings\"\xac\x01\n" +
 	":CreateBindingClusterBackgroundPersistenceDeploymentRequest\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12O\n" +
@@ -5288,7 +6668,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"8GetBindingClusterBackgroundPersistenceDeploymentResponse\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12O\n" +
-	"$background_persistence_deployment_id\x18\x02 \x01(\tR!backgroundPersistenceDeploymentId\"\x87\x01\n" +
+	"$background_persistence_deployment_id\x18\x02 \x01(\tR!backgroundPersistenceDeploymentId\"Y\n" +
+	"8ListBindingClusterBackgroundPersistenceDeploymentRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xa2\x01\n" +
+	"9ListBindingClusterBackgroundPersistenceDeploymentResponse\x12e\n" +
+	"\bbindings\x18\x01 \x03(\v2I.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponseR\bbindings\"\x87\x01\n" +
 	".CreateBindingClusterTelemetryDeploymentRequest\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x126\n" +
@@ -5304,7 +6689,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	",GetBindingClusterTelemetryDeploymentResponse\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x126\n" +
-	"\x17telemetry_deployment_id\x18\x02 \x01(\tR\x15telemetryDeploymentId\"}\n" +
+	"\x17telemetry_deployment_id\x18\x02 \x01(\tR\x15telemetryDeploymentId\"M\n" +
+	",ListBindingClusterTelemetryDeploymentRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\x8a\x01\n" +
+	"-ListBindingClusterTelemetryDeploymentResponse\x12Y\n" +
+	"\bbindings\x18\x01 \x03(\v2=.chalk.server.v1.GetBindingClusterTelemetryDeploymentResponseR\bbindings\"}\n" +
 	"&CreateBindingEnvironmentGatewayRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12,\n" +
 	"\x12cluster_gateway_id\x18\x02 \x01(\tR\x10clusterGatewayId\")\n" +
@@ -5316,7 +6706,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\"{\n" +
 	"$GetBindingEnvironmentGatewayResponse\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12,\n" +
-	"\x12cluster_gateway_id\x18\x02 \x01(\tR\x10clusterGatewayId\"\xb8\x01\n" +
+	"\x12cluster_gateway_id\x18\x02 \x01(\tR\x10clusterGatewayId\"E\n" +
+	"$ListBindingEnvironmentGatewayRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"z\n" +
+	"%ListBindingEnvironmentGatewayResponse\x12Q\n" +
+	"\bbindings\x18\x01 \x03(\v25.chalk.server.v1.GetBindingEnvironmentGatewayResponseR\bbindings\"\xb8\x01\n" +
 	">CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12O\n" +
 	"$background_persistence_deployment_id\x18\x02 \x01(\tR!backgroundPersistenceDeploymentId\"A\n" +
@@ -5328,7 +6723,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\"\xb6\x01\n" +
 	"<GetBindingEnvironmentBackgroundPersistenceDeploymentResponse\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12O\n" +
-	"$background_persistence_deployment_id\x18\x02 \x01(\tR!backgroundPersistenceDeploymentId2\x890\n" +
+	"$background_persistence_deployment_id\x18\x02 \x01(\tR!backgroundPersistenceDeploymentId\"]\n" +
+	"<ListBindingEnvironmentBackgroundPersistenceDeploymentRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\"\xaa\x01\n" +
+	"=ListBindingEnvironmentBackgroundPersistenceDeploymentResponse\x12i\n" +
+	"\bbindings\x18\x01 \x03(\v2M.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponseR\bbindings2\xc1F\n" +
 	"\x16CloudComponentsService\x12\xa4\x01\n" +
 	"\x17CreateCloudComponentVpc\x12/.chalk.server.v1.CreateCloudComponentVpcRequest\x1a0.chalk.server.v1.CreateCloudComponentVpcResponse\"&\x80}\n" +
 	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated cloud component VPC\x12{\n" +
@@ -5344,24 +6744,39 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x1bCreateCloudComponentStorage\x123.chalk.server.v1.CreateCloudComponentStorageRequest\x1a4.chalk.server.v1.CreateCloudComponentStorageResponse\"*\x80}\x1a\x8a\xd3\x0e#\b\x02\x12\x1fCreated cloud component storage\x12\x87\x01\n" +
 	"\x18GetCloudComponentStorage\x120.chalk.server.v1.GetCloudComponentStorageRequest\x1a1.chalk.server.v1.GetCloudComponentStorageResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
 	"\x19ListCloudComponentStorage\x121.chalk.server.v1.ListCloudComponentStorageRequest\x1a2.chalk.server.v1.ListCloudComponentStorageResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb4\x01\n" +
-	"\x1bDeleteCloudComponentStorage\x123.chalk.server.v1.DeleteCloudComponentStorageRequest\x1a4.chalk.server.v1.DeleteCloudComponentStorageResponse\"*\x80}\x1a\x8a\xd3\x0e#\b\x02\x12\x1fDeleted cloud component storage\x12\xc0\x01\n" +
+	"\x1bDeleteCloudComponentStorage\x123.chalk.server.v1.DeleteCloudComponentStorageRequest\x1a4.chalk.server.v1.DeleteCloudComponentStorageResponse\"*\x80}\x1a\x8a\xd3\x0e#\b\x02\x12\x1fDeleted cloud component storage\x12\xdd\x01\n" +
+	"%CreateCloudComponentContainerRegistry\x12=.chalk.server.v1.CreateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.CreateCloudComponentContainerRegistryResponse\"5\x80}\x1a\x8a\xd3\x0e.\b\x02\x12*Created cloud component container registry\x12\xdd\x01\n" +
+	"%UpdateCloudComponentContainerRegistry\x12=.chalk.server.v1.UpdateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.UpdateCloudComponentContainerRegistryResponse\"5\x80}\x1a\x8a\xd3\x0e.\b\x02\x12*Updated cloud component container registry\x12\xa5\x01\n" +
+	"\"GetCloudComponentContainerRegistry\x12:.chalk.server.v1.GetCloudComponentContainerRegistryRequest\x1a;.chalk.server.v1.GetCloudComponentContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa8\x01\n" +
+	"#ListCloudComponentContainerRegistry\x12;.chalk.server.v1.ListCloudComponentContainerRegistryRequest\x1a<.chalk.server.v1.ListCloudComponentContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xdd\x01\n" +
+	"%DeleteCloudComponentContainerRegistry\x12=.chalk.server.v1.DeleteCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.DeleteCloudComponentContainerRegistryResponse\"5\x80}\x1a\x8a\xd3\x0e.\b\x02\x12*Deleted cloud component container registry\x12\xe9\x01\n" +
+	"%CreateBindingClusterContainerRegistry\x12=.chalk.server.v1.CreateBindingClusterContainerRegistryRequest\x1a>.chalk.server.v1.CreateBindingClusterContainerRegistryResponse\"A\x80}\x1a\x8a\xd3\x0e:\b\x02\x126Created binding between cluster and container registry\x12\xa5\x01\n" +
+	"\"GetBindingClusterContainerRegistry\x12:.chalk.server.v1.GetBindingClusterContainerRegistryRequest\x1a;.chalk.server.v1.GetBindingClusterContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa8\x01\n" +
+	"#ListBindingClusterContainerRegistry\x12;.chalk.server.v1.ListBindingClusterContainerRegistryRequest\x1a<.chalk.server.v1.ListBindingClusterContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xe9\x01\n" +
+	"%DeleteBindingClusterContainerRegistry\x12=.chalk.server.v1.DeleteBindingClusterContainerRegistryRequest\x1a>.chalk.server.v1.DeleteBindingClusterContainerRegistryResponse\"A\x80}\x1a\x8a\xd3\x0e:\b\x02\x126Deleted binding between cluster and container registry\x12\xc0\x01\n" +
 	"\x1bCreateBindingClusterGateway\x123.chalk.server.v1.CreateBindingClusterGatewayRequest\x1a4.chalk.server.v1.CreateBindingClusterGatewayResponse\"6\x80}\x1a\x8a\xd3\x0e/\b\x02\x12+Created binding between cluster and gateway\x12\x87\x01\n" +
-	"\x18GetBindingClusterGateway\x120.chalk.server.v1.GetBindingClusterGatewayRequest\x1a1.chalk.server.v1.GetBindingClusterGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc0\x01\n" +
+	"\x18GetBindingClusterGateway\x120.chalk.server.v1.GetBindingClusterGatewayRequest\x1a1.chalk.server.v1.GetBindingClusterGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
+	"\x19ListBindingClusterGateway\x121.chalk.server.v1.ListBindingClusterGatewayRequest\x1a2.chalk.server.v1.ListBindingClusterGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc0\x01\n" +
 	"\x1bDeleteBindingClusterGateway\x123.chalk.server.v1.DeleteBindingClusterGatewayRequest\x1a4.chalk.server.v1.DeleteBindingClusterGatewayResponse\"6\x80}\x1a\x8a\xd3\x0e/\b\x02\x12+Deleted binding between cluster and gateway\x12\xc8\x01\n" +
 	"\x1bCreateBindingPrivateGateway\x123.chalk.server.v1.CreateBindingPrivateGatewayRequest\x1a4.chalk.server.v1.CreateBindingPrivateGatewayResponse\">\x80}\x1a\x8a\xd3\x0e7\b\x02\x123Created binding between cluster and private gateway\x12\x87\x01\n" +
-	"\x18GetBindingPrivateGateway\x120.chalk.server.v1.GetBindingPrivateGatewayRequest\x1a1.chalk.server.v1.GetBindingPrivateGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc8\x01\n" +
+	"\x18GetBindingPrivateGateway\x120.chalk.server.v1.GetBindingPrivateGatewayRequest\x1a1.chalk.server.v1.GetBindingPrivateGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8a\x01\n" +
+	"\x19ListBindingPrivateGateway\x121.chalk.server.v1.ListBindingPrivateGatewayRequest\x1a2.chalk.server.v1.ListBindingPrivateGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc8\x01\n" +
 	"\x1bDeleteBindingPrivateGateway\x123.chalk.server.v1.DeleteBindingPrivateGatewayRequest\x1a4.chalk.server.v1.DeleteBindingPrivateGatewayResponse\">\x80}\x1a\x8a\xd3\x0e7\b\x02\x123Deleted binding between cluster and private gateway\x12\xa2\x02\n" +
 	"3CreateBindingClusterBackgroundPersistenceDeployment\x12K.chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest\x1aL.chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse\"P\x80}\x1a\x8a\xd3\x0eI\b\x02\x12ECreated binding between cluster and background persistence deployment\x12\xcf\x01\n" +
-	"0GetBindingClusterBackgroundPersistenceDeployment\x12H.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest\x1aI.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa2\x02\n" +
+	"0GetBindingClusterBackgroundPersistenceDeployment\x12H.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest\x1aI.chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd2\x01\n" +
+	"1ListBindingClusterBackgroundPersistenceDeployment\x12I.chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentRequest\x1aJ.chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa2\x02\n" +
 	"3DeleteBindingClusterBackgroundPersistenceDeployment\x12K.chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest\x1aL.chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse\"P\x80}\x1a\x8a\xd3\x0eI\b\x02\x12EDeleted binding between cluster and background persistence deployment\x12\xf1\x01\n" +
 	"'CreateBindingClusterTelemetryDeployment\x12?.chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest\x1a@.chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse\"C\x80}\x1a\x8a\xd3\x0e<\b\x02\x128Created binding between cluster and telemetry deployment\x12\xab\x01\n" +
-	"$GetBindingClusterTelemetryDeployment\x12<.chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest\x1a=.chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xf1\x01\n" +
+	"$GetBindingClusterTelemetryDeployment\x12<.chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest\x1a=.chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xae\x01\n" +
+	"%ListBindingClusterTelemetryDeployment\x12=.chalk.server.v1.ListBindingClusterTelemetryDeploymentRequest\x1a>.chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xf1\x01\n" +
 	"'DeleteBindingClusterTelemetryDeployment\x12?.chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest\x1a@.chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse\"C\x80}\x1a\x8a\xd3\x0e<\b\x02\x128Deleted binding between cluster and telemetry deployment\x12\xd0\x01\n" +
 	"\x1fCreateBindingEnvironmentGateway\x127.chalk.server.v1.CreateBindingEnvironmentGatewayRequest\x1a8.chalk.server.v1.CreateBindingEnvironmentGatewayResponse\":\x80}\x1a\x8a\xd3\x0e3\b\x02\x12/Created binding between environment and gateway\x12\x93\x01\n" +
-	"\x1cGetBindingEnvironmentGateway\x124.chalk.server.v1.GetBindingEnvironmentGatewayRequest\x1a5.chalk.server.v1.GetBindingEnvironmentGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd0\x01\n" +
+	"\x1cGetBindingEnvironmentGateway\x124.chalk.server.v1.GetBindingEnvironmentGatewayRequest\x1a5.chalk.server.v1.GetBindingEnvironmentGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\x96\x01\n" +
+	"\x1dListBindingEnvironmentGateway\x125.chalk.server.v1.ListBindingEnvironmentGatewayRequest\x1a6.chalk.server.v1.ListBindingEnvironmentGatewayResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd0\x01\n" +
 	"\x1fDeleteBindingEnvironmentGateway\x127.chalk.server.v1.DeleteBindingEnvironmentGatewayRequest\x1a8.chalk.server.v1.DeleteBindingEnvironmentGatewayResponse\":\x80}\x1a\x8a\xd3\x0e3\b\x02\x12/Deleted binding between environment and gateway\x12\xb2\x02\n" +
 	"7CreateBindingEnvironmentBackgroundPersistenceDeployment\x12O.chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aP.chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse\"T\x80}\x1a\x8a\xd3\x0eM\b\x02\x12ICreated binding between environment and background persistence deployment\x12\xdb\x01\n" +
-	"4GetBindingEnvironmentBackgroundPersistenceDeployment\x12L.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aM.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb2\x02\n" +
+	"4GetBindingEnvironmentBackgroundPersistenceDeployment\x12L.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aM.chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xde\x01\n" +
+	"5ListBindingEnvironmentBackgroundPersistenceDeployment\x12M.chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aN.chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse\"\x06\x80}\x02\x90\x02\x01\x12\xb2\x02\n" +
 	"7DeleteBindingEnvironmentBackgroundPersistenceDeployment\x12O.chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest\x1aP.chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse\"T\x80}\x1a\x8a\xd3\x0eM\b\x02\x12IDeleted binding between environment and background persistence deploymentB\xc4\x01\n" +
 	"\x13com.chalk.server.v1B\x14CloudComponentsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -5377,7 +6792,7 @@ func file_chalk_server_v1_cloud_components_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_cloud_components_proto_rawDescData
 }
 
-var file_chalk_server_v1_cloud_components_proto_msgTypes = make([]protoimpl.MessageInfo, 92)
+var file_chalk_server_v1_cloud_components_proto_msgTypes = make([]protoimpl.MessageInfo, 122)
 var file_chalk_server_v1_cloud_components_proto_goTypes = []any{
 	(*CloudComponentVpc)(nil),                                               // 0: chalk.server.v1.CloudComponentVpc
 	(*CloudComponentVpcResponse)(nil),                                       // 1: chalk.server.v1.CloudComponentVpcResponse
@@ -5435,174 +6850,247 @@ var file_chalk_server_v1_cloud_components_proto_goTypes = []any{
 	(*DeleteCloudComponentStorageResponse)(nil),                             // 53: chalk.server.v1.DeleteCloudComponentStorageResponse
 	(*ListCloudComponentStorageRequest)(nil),                                // 54: chalk.server.v1.ListCloudComponentStorageRequest
 	(*ListCloudComponentStorageResponse)(nil),                               // 55: chalk.server.v1.ListCloudComponentStorageResponse
-	(*CreateBindingClusterGatewayRequest)(nil),                              // 56: chalk.server.v1.CreateBindingClusterGatewayRequest
-	(*CreateBindingClusterGatewayResponse)(nil),                             // 57: chalk.server.v1.CreateBindingClusterGatewayResponse
-	(*DeleteBindingClusterGatewayRequest)(nil),                              // 58: chalk.server.v1.DeleteBindingClusterGatewayRequest
-	(*DeleteBindingClusterGatewayResponse)(nil),                             // 59: chalk.server.v1.DeleteBindingClusterGatewayResponse
-	(*GetBindingClusterGatewayRequest)(nil),                                 // 60: chalk.server.v1.GetBindingClusterGatewayRequest
-	(*GetBindingClusterGatewayResponse)(nil),                                // 61: chalk.server.v1.GetBindingClusterGatewayResponse
-	(*CreateBindingPrivateGatewayRequest)(nil),                              // 62: chalk.server.v1.CreateBindingPrivateGatewayRequest
-	(*CreateBindingPrivateGatewayResponse)(nil),                             // 63: chalk.server.v1.CreateBindingPrivateGatewayResponse
-	(*DeleteBindingPrivateGatewayRequest)(nil),                              // 64: chalk.server.v1.DeleteBindingPrivateGatewayRequest
-	(*DeleteBindingPrivateGatewayResponse)(nil),                             // 65: chalk.server.v1.DeleteBindingPrivateGatewayResponse
-	(*GetBindingPrivateGatewayRequest)(nil),                                 // 66: chalk.server.v1.GetBindingPrivateGatewayRequest
-	(*GetBindingPrivateGatewayResponse)(nil),                                // 67: chalk.server.v1.GetBindingPrivateGatewayResponse
-	(*CreateBindingClusterBackgroundPersistenceDeploymentRequest)(nil),      // 68: chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
-	(*CreateBindingClusterBackgroundPersistenceDeploymentResponse)(nil),     // 69: chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
-	(*DeleteBindingClusterBackgroundPersistenceDeploymentRequest)(nil),      // 70: chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
-	(*DeleteBindingClusterBackgroundPersistenceDeploymentResponse)(nil),     // 71: chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
-	(*GetBindingClusterBackgroundPersistenceDeploymentRequest)(nil),         // 72: chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
-	(*GetBindingClusterBackgroundPersistenceDeploymentResponse)(nil),        // 73: chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
-	(*CreateBindingClusterTelemetryDeploymentRequest)(nil),                  // 74: chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
-	(*CreateBindingClusterTelemetryDeploymentResponse)(nil),                 // 75: chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
-	(*DeleteBindingClusterTelemetryDeploymentRequest)(nil),                  // 76: chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
-	(*DeleteBindingClusterTelemetryDeploymentResponse)(nil),                 // 77: chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
-	(*GetBindingClusterTelemetryDeploymentRequest)(nil),                     // 78: chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
-	(*GetBindingClusterTelemetryDeploymentResponse)(nil),                    // 79: chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
-	(*CreateBindingEnvironmentGatewayRequest)(nil),                          // 80: chalk.server.v1.CreateBindingEnvironmentGatewayRequest
-	(*CreateBindingEnvironmentGatewayResponse)(nil),                         // 81: chalk.server.v1.CreateBindingEnvironmentGatewayResponse
-	(*DeleteBindingEnvironmentGatewayRequest)(nil),                          // 82: chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
-	(*DeleteBindingEnvironmentGatewayResponse)(nil),                         // 83: chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
-	(*GetBindingEnvironmentGatewayRequest)(nil),                             // 84: chalk.server.v1.GetBindingEnvironmentGatewayRequest
-	(*GetBindingEnvironmentGatewayResponse)(nil),                            // 85: chalk.server.v1.GetBindingEnvironmentGatewayResponse
-	(*CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),  // 86: chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	(*CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil), // 87: chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	(*DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),  // 88: chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	(*DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil), // 89: chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	(*GetBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),     // 90: chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	(*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil),    // 91: chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	(*timestamppb.Timestamp)(nil),                                           // 92: google.protobuf.Timestamp
-	(*CloudConfig)(nil),                                                     // 93: chalk.server.v1.CloudConfig
-	(*Team)(nil),                                                            // 94: chalk.server.v1.Team
+	(*CreateCloudComponentContainerRegistryRequest)(nil),                    // 56: chalk.server.v1.CreateCloudComponentContainerRegistryRequest
+	(*CreateCloudComponentContainerRegistryResponse)(nil),                   // 57: chalk.server.v1.CreateCloudComponentContainerRegistryResponse
+	(*UpdateCloudComponentContainerRegistryRequest)(nil),                    // 58: chalk.server.v1.UpdateCloudComponentContainerRegistryRequest
+	(*UpdateCloudComponentContainerRegistryResponse)(nil),                   // 59: chalk.server.v1.UpdateCloudComponentContainerRegistryResponse
+	(*GetCloudComponentContainerRegistryRequest)(nil),                       // 60: chalk.server.v1.GetCloudComponentContainerRegistryRequest
+	(*GetCloudComponentContainerRegistryResponse)(nil),                      // 61: chalk.server.v1.GetCloudComponentContainerRegistryResponse
+	(*DeleteCloudComponentContainerRegistryRequest)(nil),                    // 62: chalk.server.v1.DeleteCloudComponentContainerRegistryRequest
+	(*DeleteCloudComponentContainerRegistryResponse)(nil),                   // 63: chalk.server.v1.DeleteCloudComponentContainerRegistryResponse
+	(*ListCloudComponentContainerRegistryRequest)(nil),                      // 64: chalk.server.v1.ListCloudComponentContainerRegistryRequest
+	(*ListCloudComponentContainerRegistryResponse)(nil),                     // 65: chalk.server.v1.ListCloudComponentContainerRegistryResponse
+	(*CreateBindingClusterContainerRegistryRequest)(nil),                    // 66: chalk.server.v1.CreateBindingClusterContainerRegistryRequest
+	(*CreateBindingClusterContainerRegistryResponse)(nil),                   // 67: chalk.server.v1.CreateBindingClusterContainerRegistryResponse
+	(*GetBindingClusterContainerRegistryRequest)(nil),                       // 68: chalk.server.v1.GetBindingClusterContainerRegistryRequest
+	(*GetBindingClusterContainerRegistryResponse)(nil),                      // 69: chalk.server.v1.GetBindingClusterContainerRegistryResponse
+	(*ListBindingClusterContainerRegistryRequest)(nil),                      // 70: chalk.server.v1.ListBindingClusterContainerRegistryRequest
+	(*ListBindingClusterContainerRegistryResponse)(nil),                     // 71: chalk.server.v1.ListBindingClusterContainerRegistryResponse
+	(*DeleteBindingClusterContainerRegistryRequest)(nil),                    // 72: chalk.server.v1.DeleteBindingClusterContainerRegistryRequest
+	(*DeleteBindingClusterContainerRegistryResponse)(nil),                   // 73: chalk.server.v1.DeleteBindingClusterContainerRegistryResponse
+	(*CreateBindingClusterGatewayRequest)(nil),                              // 74: chalk.server.v1.CreateBindingClusterGatewayRequest
+	(*CreateBindingClusterGatewayResponse)(nil),                             // 75: chalk.server.v1.CreateBindingClusterGatewayResponse
+	(*DeleteBindingClusterGatewayRequest)(nil),                              // 76: chalk.server.v1.DeleteBindingClusterGatewayRequest
+	(*DeleteBindingClusterGatewayResponse)(nil),                             // 77: chalk.server.v1.DeleteBindingClusterGatewayResponse
+	(*GetBindingClusterGatewayRequest)(nil),                                 // 78: chalk.server.v1.GetBindingClusterGatewayRequest
+	(*GetBindingClusterGatewayResponse)(nil),                                // 79: chalk.server.v1.GetBindingClusterGatewayResponse
+	(*ListBindingClusterGatewayRequest)(nil),                                // 80: chalk.server.v1.ListBindingClusterGatewayRequest
+	(*ListBindingClusterGatewayResponse)(nil),                               // 81: chalk.server.v1.ListBindingClusterGatewayResponse
+	(*CreateBindingPrivateGatewayRequest)(nil),                              // 82: chalk.server.v1.CreateBindingPrivateGatewayRequest
+	(*CreateBindingPrivateGatewayResponse)(nil),                             // 83: chalk.server.v1.CreateBindingPrivateGatewayResponse
+	(*DeleteBindingPrivateGatewayRequest)(nil),                              // 84: chalk.server.v1.DeleteBindingPrivateGatewayRequest
+	(*DeleteBindingPrivateGatewayResponse)(nil),                             // 85: chalk.server.v1.DeleteBindingPrivateGatewayResponse
+	(*GetBindingPrivateGatewayRequest)(nil),                                 // 86: chalk.server.v1.GetBindingPrivateGatewayRequest
+	(*GetBindingPrivateGatewayResponse)(nil),                                // 87: chalk.server.v1.GetBindingPrivateGatewayResponse
+	(*ListBindingPrivateGatewayRequest)(nil),                                // 88: chalk.server.v1.ListBindingPrivateGatewayRequest
+	(*ListBindingPrivateGatewayResponse)(nil),                               // 89: chalk.server.v1.ListBindingPrivateGatewayResponse
+	(*CreateBindingClusterBackgroundPersistenceDeploymentRequest)(nil),      // 90: chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
+	(*CreateBindingClusterBackgroundPersistenceDeploymentResponse)(nil),     // 91: chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
+	(*DeleteBindingClusterBackgroundPersistenceDeploymentRequest)(nil),      // 92: chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
+	(*DeleteBindingClusterBackgroundPersistenceDeploymentResponse)(nil),     // 93: chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
+	(*GetBindingClusterBackgroundPersistenceDeploymentRequest)(nil),         // 94: chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
+	(*GetBindingClusterBackgroundPersistenceDeploymentResponse)(nil),        // 95: chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
+	(*ListBindingClusterBackgroundPersistenceDeploymentRequest)(nil),        // 96: chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentRequest
+	(*ListBindingClusterBackgroundPersistenceDeploymentResponse)(nil),       // 97: chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse
+	(*CreateBindingClusterTelemetryDeploymentRequest)(nil),                  // 98: chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
+	(*CreateBindingClusterTelemetryDeploymentResponse)(nil),                 // 99: chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
+	(*DeleteBindingClusterTelemetryDeploymentRequest)(nil),                  // 100: chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
+	(*DeleteBindingClusterTelemetryDeploymentResponse)(nil),                 // 101: chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
+	(*GetBindingClusterTelemetryDeploymentRequest)(nil),                     // 102: chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
+	(*GetBindingClusterTelemetryDeploymentResponse)(nil),                    // 103: chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
+	(*ListBindingClusterTelemetryDeploymentRequest)(nil),                    // 104: chalk.server.v1.ListBindingClusterTelemetryDeploymentRequest
+	(*ListBindingClusterTelemetryDeploymentResponse)(nil),                   // 105: chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse
+	(*CreateBindingEnvironmentGatewayRequest)(nil),                          // 106: chalk.server.v1.CreateBindingEnvironmentGatewayRequest
+	(*CreateBindingEnvironmentGatewayResponse)(nil),                         // 107: chalk.server.v1.CreateBindingEnvironmentGatewayResponse
+	(*DeleteBindingEnvironmentGatewayRequest)(nil),                          // 108: chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
+	(*DeleteBindingEnvironmentGatewayResponse)(nil),                         // 109: chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
+	(*GetBindingEnvironmentGatewayRequest)(nil),                             // 110: chalk.server.v1.GetBindingEnvironmentGatewayRequest
+	(*GetBindingEnvironmentGatewayResponse)(nil),                            // 111: chalk.server.v1.GetBindingEnvironmentGatewayResponse
+	(*ListBindingEnvironmentGatewayRequest)(nil),                            // 112: chalk.server.v1.ListBindingEnvironmentGatewayRequest
+	(*ListBindingEnvironmentGatewayResponse)(nil),                           // 113: chalk.server.v1.ListBindingEnvironmentGatewayResponse
+	(*CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),  // 114: chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	(*CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil), // 115: chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	(*DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),  // 116: chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	(*DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil), // 117: chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	(*GetBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),     // 118: chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	(*GetBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil),    // 119: chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	(*ListBindingEnvironmentBackgroundPersistenceDeploymentRequest)(nil),    // 120: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	(*ListBindingEnvironmentBackgroundPersistenceDeploymentResponse)(nil),   // 121: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	(*timestamppb.Timestamp)(nil),                                           // 122: google.protobuf.Timestamp
+	(*CloudConfig)(nil),                                                     // 123: chalk.server.v1.CloudConfig
+	(*Team)(nil),                                                            // 124: chalk.server.v1.Team
 }
 var file_chalk_server_v1_cloud_components_proto_depIdxs = []int32{
-	11, // 0: chalk.server.v1.CloudComponentVpc.config:type_name -> chalk.server.v1.CloudVpcConfig
-	0,  // 1: chalk.server.v1.CloudComponentVpcResponse.spec:type_name -> chalk.server.v1.CloudComponentVpc
-	92, // 2: chalk.server.v1.CloudComponentVpcResponse.created_at:type_name -> google.protobuf.Timestamp
-	92, // 3: chalk.server.v1.CloudComponentVpcResponse.updated_at:type_name -> google.protobuf.Timestamp
-	92, // 4: chalk.server.v1.CloudComponentVpcResponse.applied_at:type_name -> google.protobuf.Timestamp
-	0,  // 5: chalk.server.v1.CloudComponentVpcRequest.spec:type_name -> chalk.server.v1.CloudComponentVpc
-	2,  // 6: chalk.server.v1.CreateCloudComponentVpcRequest.vpc:type_name -> chalk.server.v1.CloudComponentVpcRequest
-	1,  // 7: chalk.server.v1.CreateCloudComponentVpcResponse.vpc:type_name -> chalk.server.v1.CloudComponentVpcResponse
-	1,  // 8: chalk.server.v1.GetCloudComponentVpcResponse.vpc:type_name -> chalk.server.v1.CloudComponentVpcResponse
-	1,  // 9: chalk.server.v1.ListCloudComponentVpcResponse.vpcs:type_name -> chalk.server.v1.CloudComponentVpcResponse
-	12, // 10: chalk.server.v1.CloudVpcConfig.aws:type_name -> chalk.server.v1.AWSVpcConfig
-	15, // 11: chalk.server.v1.CloudVpcConfig.gcp:type_name -> chalk.server.v1.GCPVpcConfig
-	14, // 12: chalk.server.v1.AWSVpcConfig.subnets:type_name -> chalk.server.v1.AwsSubnetConfig
-	13, // 13: chalk.server.v1.AWSVpcConfig.additional_public_routes:type_name -> chalk.server.v1.AWSVpcRoute
-	13, // 14: chalk.server.v1.AWSVpcConfig.additional_private_routes:type_name -> chalk.server.v1.AWSVpcRoute
-	16, // 15: chalk.server.v1.CloudComponentStorageResponse.spec:type_name -> chalk.server.v1.CloudComponentStorage
-	92, // 16: chalk.server.v1.CloudComponentStorageResponse.created_at:type_name -> google.protobuf.Timestamp
-	92, // 17: chalk.server.v1.CloudComponentStorageResponse.updated_at:type_name -> google.protobuf.Timestamp
-	92, // 18: chalk.server.v1.CloudComponentStorageResponse.applied_at:type_name -> google.protobuf.Timestamp
-	16, // 19: chalk.server.v1.CloudComponentStorageRequest.spec:type_name -> chalk.server.v1.CloudComponentStorage
-	19, // 20: chalk.server.v1.CloudContainerRegistryConfig.gar:type_name -> chalk.server.v1.GarContainerRegistryConfig
-	20, // 21: chalk.server.v1.CloudContainerRegistryConfig.ecr:type_name -> chalk.server.v1.EcrContainerRegistryConfig
-	21, // 22: chalk.server.v1.CloudContainerRegistryConfig.acr:type_name -> chalk.server.v1.AcrContainerRegistryConfig
-	22, // 23: chalk.server.v1.CloudComponentContainerRegistry.config:type_name -> chalk.server.v1.CloudContainerRegistryConfig
-	23, // 24: chalk.server.v1.CloudComponentContainerRegistryResponse.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
-	92, // 25: chalk.server.v1.CloudComponentContainerRegistryResponse.created_at:type_name -> google.protobuf.Timestamp
-	92, // 26: chalk.server.v1.CloudComponentContainerRegistryResponse.updated_at:type_name -> google.protobuf.Timestamp
-	92, // 27: chalk.server.v1.CloudComponentContainerRegistryResponse.applied_at:type_name -> google.protobuf.Timestamp
-	23, // 28: chalk.server.v1.CloudComponentContainerRegistryRequest.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
-	27, // 29: chalk.server.v1.CloudComponentCluster.data_plane_redis:type_name -> chalk.server.v1.DataPlaneRedis
-	32, // 30: chalk.server.v1.DeploymentManifest.cluster_deployment:type_name -> chalk.server.v1.ClusterDeploymentManifest
-	33, // 31: chalk.server.v1.DeploymentManifest.vpc_deployment:type_name -> chalk.server.v1.VpcDeploymentManifest
-	29, // 32: chalk.server.v1.DeploymentManifest.create:type_name -> chalk.server.v1.DeploymentManifestCreate
-	30, // 33: chalk.server.v1.DeploymentManifest.delete:type_name -> chalk.server.v1.DeploymentManifestDelete
-	31, // 34: chalk.server.v1.DeploymentManifest.update:type_name -> chalk.server.v1.DeploymentManifestUpdate
-	26, // 35: chalk.server.v1.ClusterDeploymentManifest.cluster:type_name -> chalk.server.v1.CloudComponentCluster
-	93, // 36: chalk.server.v1.ClusterDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	94, // 37: chalk.server.v1.ClusterDeploymentManifest.team:type_name -> chalk.server.v1.Team
-	0,  // 38: chalk.server.v1.ClusterDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
-	0,  // 39: chalk.server.v1.VpcDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
-	93, // 40: chalk.server.v1.VpcDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
-	94, // 41: chalk.server.v1.VpcDeploymentManifest.team:type_name -> chalk.server.v1.Team
-	26, // 42: chalk.server.v1.CloudComponentClusterResponse.spec:type_name -> chalk.server.v1.CloudComponentCluster
-	92, // 43: chalk.server.v1.CloudComponentClusterResponse.created_at:type_name -> google.protobuf.Timestamp
-	92, // 44: chalk.server.v1.CloudComponentClusterResponse.updated_at:type_name -> google.protobuf.Timestamp
-	92, // 45: chalk.server.v1.CloudComponentClusterResponse.applied_at:type_name -> google.protobuf.Timestamp
-	26, // 46: chalk.server.v1.CloudComponentClusterRequest.spec:type_name -> chalk.server.v1.CloudComponentCluster
-	35, // 47: chalk.server.v1.CreateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	34, // 48: chalk.server.v1.CreateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	35, // 49: chalk.server.v1.UpdateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	34, // 50: chalk.server.v1.UpdateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	34, // 51: chalk.server.v1.GetCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	35, // 52: chalk.server.v1.TestClusterConnectionRequest.config:type_name -> chalk.server.v1.CloudComponentClusterRequest
-	34, // 53: chalk.server.v1.ListCloudComponentClusterResponse.clusters:type_name -> chalk.server.v1.CloudComponentClusterResponse
-	18, // 54: chalk.server.v1.CreateCloudComponentStorageRequest.storage:type_name -> chalk.server.v1.CloudComponentStorageRequest
-	17, // 55: chalk.server.v1.CreateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	17, // 56: chalk.server.v1.GetCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	17, // 57: chalk.server.v1.ListCloudComponentStorageResponse.storages:type_name -> chalk.server.v1.CloudComponentStorageResponse
-	3,  // 58: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:input_type -> chalk.server.v1.CreateCloudComponentVpcRequest
-	5,  // 59: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:input_type -> chalk.server.v1.GetCloudComponentVpcRequest
-	9,  // 60: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:input_type -> chalk.server.v1.ListCloudComponentVpcRequest
-	7,  // 61: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:input_type -> chalk.server.v1.DeleteCloudComponentVpcRequest
-	36, // 62: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:input_type -> chalk.server.v1.CreateCloudComponentClusterRequest
-	38, // 63: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:input_type -> chalk.server.v1.UpdateCloudComponentClusterRequest
-	40, // 64: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:input_type -> chalk.server.v1.GetCloudComponentClusterRequest
-	46, // 65: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:input_type -> chalk.server.v1.ListCloudComponentClusterRequest
-	42, // 66: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:input_type -> chalk.server.v1.DeleteCloudComponentClusterRequest
-	44, // 67: chalk.server.v1.CloudComponentsService.TestClusterConnection:input_type -> chalk.server.v1.TestClusterConnectionRequest
-	48, // 68: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:input_type -> chalk.server.v1.CreateCloudComponentStorageRequest
-	50, // 69: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:input_type -> chalk.server.v1.GetCloudComponentStorageRequest
-	54, // 70: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:input_type -> chalk.server.v1.ListCloudComponentStorageRequest
-	52, // 71: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:input_type -> chalk.server.v1.DeleteCloudComponentStorageRequest
-	56, // 72: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:input_type -> chalk.server.v1.CreateBindingClusterGatewayRequest
-	60, // 73: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:input_type -> chalk.server.v1.GetBindingClusterGatewayRequest
-	58, // 74: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:input_type -> chalk.server.v1.DeleteBindingClusterGatewayRequest
-	62, // 75: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:input_type -> chalk.server.v1.CreateBindingPrivateGatewayRequest
-	66, // 76: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:input_type -> chalk.server.v1.GetBindingPrivateGatewayRequest
-	64, // 77: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:input_type -> chalk.server.v1.DeleteBindingPrivateGatewayRequest
-	68, // 78: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
-	72, // 79: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
-	70, // 80: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
-	74, // 81: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
-	78, // 82: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
-	76, // 83: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
-	80, // 84: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:input_type -> chalk.server.v1.CreateBindingEnvironmentGatewayRequest
-	84, // 85: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:input_type -> chalk.server.v1.GetBindingEnvironmentGatewayRequest
-	82, // 86: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:input_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
-	86, // 87: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	90, // 88: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	88, // 89: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
-	4,  // 90: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:output_type -> chalk.server.v1.CreateCloudComponentVpcResponse
-	6,  // 91: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:output_type -> chalk.server.v1.GetCloudComponentVpcResponse
-	10, // 92: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:output_type -> chalk.server.v1.ListCloudComponentVpcResponse
-	8,  // 93: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:output_type -> chalk.server.v1.DeleteCloudComponentVpcResponse
-	37, // 94: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:output_type -> chalk.server.v1.CreateCloudComponentClusterResponse
-	39, // 95: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:output_type -> chalk.server.v1.UpdateCloudComponentClusterResponse
-	41, // 96: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:output_type -> chalk.server.v1.GetCloudComponentClusterResponse
-	47, // 97: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:output_type -> chalk.server.v1.ListCloudComponentClusterResponse
-	43, // 98: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:output_type -> chalk.server.v1.DeleteCloudComponentClusterResponse
-	45, // 99: chalk.server.v1.CloudComponentsService.TestClusterConnection:output_type -> chalk.server.v1.TestClusterConnectionResponse
-	49, // 100: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:output_type -> chalk.server.v1.CreateCloudComponentStorageResponse
-	51, // 101: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:output_type -> chalk.server.v1.GetCloudComponentStorageResponse
-	55, // 102: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:output_type -> chalk.server.v1.ListCloudComponentStorageResponse
-	53, // 103: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:output_type -> chalk.server.v1.DeleteCloudComponentStorageResponse
-	57, // 104: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:output_type -> chalk.server.v1.CreateBindingClusterGatewayResponse
-	61, // 105: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:output_type -> chalk.server.v1.GetBindingClusterGatewayResponse
-	59, // 106: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:output_type -> chalk.server.v1.DeleteBindingClusterGatewayResponse
-	63, // 107: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:output_type -> chalk.server.v1.CreateBindingPrivateGatewayResponse
-	67, // 108: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:output_type -> chalk.server.v1.GetBindingPrivateGatewayResponse
-	65, // 109: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:output_type -> chalk.server.v1.DeleteBindingPrivateGatewayResponse
-	69, // 110: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
-	73, // 111: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
-	71, // 112: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
-	75, // 113: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
-	79, // 114: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
-	77, // 115: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
-	81, // 116: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:output_type -> chalk.server.v1.CreateBindingEnvironmentGatewayResponse
-	85, // 117: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:output_type -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
-	83, // 118: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:output_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
-	87, // 119: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	91, // 120: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	89, // 121: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
-	90, // [90:122] is the sub-list for method output_type
-	58, // [58:90] is the sub-list for method input_type
-	58, // [58:58] is the sub-list for extension type_name
-	58, // [58:58] is the sub-list for extension extendee
-	0,  // [0:58] is the sub-list for field type_name
+	11,  // 0: chalk.server.v1.CloudComponentVpc.config:type_name -> chalk.server.v1.CloudVpcConfig
+	0,   // 1: chalk.server.v1.CloudComponentVpcResponse.spec:type_name -> chalk.server.v1.CloudComponentVpc
+	122, // 2: chalk.server.v1.CloudComponentVpcResponse.created_at:type_name -> google.protobuf.Timestamp
+	122, // 3: chalk.server.v1.CloudComponentVpcResponse.updated_at:type_name -> google.protobuf.Timestamp
+	122, // 4: chalk.server.v1.CloudComponentVpcResponse.applied_at:type_name -> google.protobuf.Timestamp
+	0,   // 5: chalk.server.v1.CloudComponentVpcRequest.spec:type_name -> chalk.server.v1.CloudComponentVpc
+	2,   // 6: chalk.server.v1.CreateCloudComponentVpcRequest.vpc:type_name -> chalk.server.v1.CloudComponentVpcRequest
+	1,   // 7: chalk.server.v1.CreateCloudComponentVpcResponse.vpc:type_name -> chalk.server.v1.CloudComponentVpcResponse
+	1,   // 8: chalk.server.v1.GetCloudComponentVpcResponse.vpc:type_name -> chalk.server.v1.CloudComponentVpcResponse
+	1,   // 9: chalk.server.v1.ListCloudComponentVpcResponse.vpcs:type_name -> chalk.server.v1.CloudComponentVpcResponse
+	12,  // 10: chalk.server.v1.CloudVpcConfig.aws:type_name -> chalk.server.v1.AWSVpcConfig
+	15,  // 11: chalk.server.v1.CloudVpcConfig.gcp:type_name -> chalk.server.v1.GCPVpcConfig
+	14,  // 12: chalk.server.v1.AWSVpcConfig.subnets:type_name -> chalk.server.v1.AwsSubnetConfig
+	13,  // 13: chalk.server.v1.AWSVpcConfig.additional_public_routes:type_name -> chalk.server.v1.AWSVpcRoute
+	13,  // 14: chalk.server.v1.AWSVpcConfig.additional_private_routes:type_name -> chalk.server.v1.AWSVpcRoute
+	16,  // 15: chalk.server.v1.CloudComponentStorageResponse.spec:type_name -> chalk.server.v1.CloudComponentStorage
+	122, // 16: chalk.server.v1.CloudComponentStorageResponse.created_at:type_name -> google.protobuf.Timestamp
+	122, // 17: chalk.server.v1.CloudComponentStorageResponse.updated_at:type_name -> google.protobuf.Timestamp
+	122, // 18: chalk.server.v1.CloudComponentStorageResponse.applied_at:type_name -> google.protobuf.Timestamp
+	16,  // 19: chalk.server.v1.CloudComponentStorageRequest.spec:type_name -> chalk.server.v1.CloudComponentStorage
+	19,  // 20: chalk.server.v1.CloudContainerRegistryConfig.gar:type_name -> chalk.server.v1.GarContainerRegistryConfig
+	20,  // 21: chalk.server.v1.CloudContainerRegistryConfig.ecr:type_name -> chalk.server.v1.EcrContainerRegistryConfig
+	21,  // 22: chalk.server.v1.CloudContainerRegistryConfig.acr:type_name -> chalk.server.v1.AcrContainerRegistryConfig
+	22,  // 23: chalk.server.v1.CloudComponentContainerRegistry.config:type_name -> chalk.server.v1.CloudContainerRegistryConfig
+	23,  // 24: chalk.server.v1.CloudComponentContainerRegistryResponse.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
+	122, // 25: chalk.server.v1.CloudComponentContainerRegistryResponse.created_at:type_name -> google.protobuf.Timestamp
+	122, // 26: chalk.server.v1.CloudComponentContainerRegistryResponse.updated_at:type_name -> google.protobuf.Timestamp
+	122, // 27: chalk.server.v1.CloudComponentContainerRegistryResponse.applied_at:type_name -> google.protobuf.Timestamp
+	23,  // 28: chalk.server.v1.CloudComponentContainerRegistryRequest.spec:type_name -> chalk.server.v1.CloudComponentContainerRegistry
+	27,  // 29: chalk.server.v1.CloudComponentCluster.data_plane_redis:type_name -> chalk.server.v1.DataPlaneRedis
+	32,  // 30: chalk.server.v1.DeploymentManifest.cluster_deployment:type_name -> chalk.server.v1.ClusterDeploymentManifest
+	33,  // 31: chalk.server.v1.DeploymentManifest.vpc_deployment:type_name -> chalk.server.v1.VpcDeploymentManifest
+	29,  // 32: chalk.server.v1.DeploymentManifest.create:type_name -> chalk.server.v1.DeploymentManifestCreate
+	30,  // 33: chalk.server.v1.DeploymentManifest.delete:type_name -> chalk.server.v1.DeploymentManifestDelete
+	31,  // 34: chalk.server.v1.DeploymentManifest.update:type_name -> chalk.server.v1.DeploymentManifestUpdate
+	26,  // 35: chalk.server.v1.ClusterDeploymentManifest.cluster:type_name -> chalk.server.v1.CloudComponentCluster
+	123, // 36: chalk.server.v1.ClusterDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	124, // 37: chalk.server.v1.ClusterDeploymentManifest.team:type_name -> chalk.server.v1.Team
+	0,   // 38: chalk.server.v1.ClusterDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
+	0,   // 39: chalk.server.v1.VpcDeploymentManifest.vpc:type_name -> chalk.server.v1.CloudComponentVpc
+	123, // 40: chalk.server.v1.VpcDeploymentManifest.cloud_config:type_name -> chalk.server.v1.CloudConfig
+	124, // 41: chalk.server.v1.VpcDeploymentManifest.team:type_name -> chalk.server.v1.Team
+	26,  // 42: chalk.server.v1.CloudComponentClusterResponse.spec:type_name -> chalk.server.v1.CloudComponentCluster
+	122, // 43: chalk.server.v1.CloudComponentClusterResponse.created_at:type_name -> google.protobuf.Timestamp
+	122, // 44: chalk.server.v1.CloudComponentClusterResponse.updated_at:type_name -> google.protobuf.Timestamp
+	122, // 45: chalk.server.v1.CloudComponentClusterResponse.applied_at:type_name -> google.protobuf.Timestamp
+	26,  // 46: chalk.server.v1.CloudComponentClusterRequest.spec:type_name -> chalk.server.v1.CloudComponentCluster
+	35,  // 47: chalk.server.v1.CreateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	34,  // 48: chalk.server.v1.CreateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	35,  // 49: chalk.server.v1.UpdateCloudComponentClusterRequest.cluster:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	34,  // 50: chalk.server.v1.UpdateCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	34,  // 51: chalk.server.v1.GetCloudComponentClusterResponse.cluster:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	35,  // 52: chalk.server.v1.TestClusterConnectionRequest.config:type_name -> chalk.server.v1.CloudComponentClusterRequest
+	34,  // 53: chalk.server.v1.ListCloudComponentClusterResponse.clusters:type_name -> chalk.server.v1.CloudComponentClusterResponse
+	18,  // 54: chalk.server.v1.CreateCloudComponentStorageRequest.storage:type_name -> chalk.server.v1.CloudComponentStorageRequest
+	17,  // 55: chalk.server.v1.CreateCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	17,  // 56: chalk.server.v1.GetCloudComponentStorageResponse.storage:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	17,  // 57: chalk.server.v1.ListCloudComponentStorageResponse.storages:type_name -> chalk.server.v1.CloudComponentStorageResponse
+	25,  // 58: chalk.server.v1.CreateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
+	24,  // 59: chalk.server.v1.CreateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	25,  // 60: chalk.server.v1.UpdateCloudComponentContainerRegistryRequest.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryRequest
+	24,  // 61: chalk.server.v1.UpdateCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	24,  // 62: chalk.server.v1.GetCloudComponentContainerRegistryResponse.container_registry:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	24,  // 63: chalk.server.v1.ListCloudComponentContainerRegistryResponse.container_registries:type_name -> chalk.server.v1.CloudComponentContainerRegistryResponse
+	69,  // 64: chalk.server.v1.ListBindingClusterContainerRegistryResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
+	79,  // 65: chalk.server.v1.ListBindingClusterGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterGatewayResponse
+	87,  // 66: chalk.server.v1.ListBindingPrivateGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingPrivateGatewayResponse
+	95,  // 67: chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
+	103, // 68: chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
+	111, // 69: chalk.server.v1.ListBindingEnvironmentGatewayResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
+	119, // 70: chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse.bindings:type_name -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	3,   // 71: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:input_type -> chalk.server.v1.CreateCloudComponentVpcRequest
+	5,   // 72: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:input_type -> chalk.server.v1.GetCloudComponentVpcRequest
+	9,   // 73: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:input_type -> chalk.server.v1.ListCloudComponentVpcRequest
+	7,   // 74: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:input_type -> chalk.server.v1.DeleteCloudComponentVpcRequest
+	36,  // 75: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:input_type -> chalk.server.v1.CreateCloudComponentClusterRequest
+	38,  // 76: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:input_type -> chalk.server.v1.UpdateCloudComponentClusterRequest
+	40,  // 77: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:input_type -> chalk.server.v1.GetCloudComponentClusterRequest
+	46,  // 78: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:input_type -> chalk.server.v1.ListCloudComponentClusterRequest
+	42,  // 79: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:input_type -> chalk.server.v1.DeleteCloudComponentClusterRequest
+	44,  // 80: chalk.server.v1.CloudComponentsService.TestClusterConnection:input_type -> chalk.server.v1.TestClusterConnectionRequest
+	48,  // 81: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:input_type -> chalk.server.v1.CreateCloudComponentStorageRequest
+	50,  // 82: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:input_type -> chalk.server.v1.GetCloudComponentStorageRequest
+	54,  // 83: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:input_type -> chalk.server.v1.ListCloudComponentStorageRequest
+	52,  // 84: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:input_type -> chalk.server.v1.DeleteCloudComponentStorageRequest
+	56,  // 85: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:input_type -> chalk.server.v1.CreateCloudComponentContainerRegistryRequest
+	58,  // 86: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:input_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryRequest
+	60,  // 87: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:input_type -> chalk.server.v1.GetCloudComponentContainerRegistryRequest
+	64,  // 88: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:input_type -> chalk.server.v1.ListCloudComponentContainerRegistryRequest
+	62,  // 89: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:input_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryRequest
+	66,  // 90: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:input_type -> chalk.server.v1.CreateBindingClusterContainerRegistryRequest
+	68,  // 91: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:input_type -> chalk.server.v1.GetBindingClusterContainerRegistryRequest
+	70,  // 92: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:input_type -> chalk.server.v1.ListBindingClusterContainerRegistryRequest
+	72,  // 93: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:input_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryRequest
+	74,  // 94: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:input_type -> chalk.server.v1.CreateBindingClusterGatewayRequest
+	78,  // 95: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:input_type -> chalk.server.v1.GetBindingClusterGatewayRequest
+	80,  // 96: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:input_type -> chalk.server.v1.ListBindingClusterGatewayRequest
+	76,  // 97: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:input_type -> chalk.server.v1.DeleteBindingClusterGatewayRequest
+	82,  // 98: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:input_type -> chalk.server.v1.CreateBindingPrivateGatewayRequest
+	86,  // 99: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:input_type -> chalk.server.v1.GetBindingPrivateGatewayRequest
+	88,  // 100: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:input_type -> chalk.server.v1.ListBindingPrivateGatewayRequest
+	84,  // 101: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:input_type -> chalk.server.v1.DeleteBindingPrivateGatewayRequest
+	90,  // 102: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest
+	94,  // 103: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentRequest
+	96,  // 104: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentRequest
+	92,  // 105: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest
+	98,  // 106: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentRequest
+	102, // 107: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentRequest
+	104, // 108: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentRequest
+	100, // 109: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:input_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentRequest
+	106, // 110: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:input_type -> chalk.server.v1.CreateBindingEnvironmentGatewayRequest
+	110, // 111: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:input_type -> chalk.server.v1.GetBindingEnvironmentGatewayRequest
+	112, // 112: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:input_type -> chalk.server.v1.ListBindingEnvironmentGatewayRequest
+	108, // 113: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:input_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayRequest
+	114, // 114: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	118, // 115: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	120, // 116: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	116, // 117: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:input_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest
+	4,   // 118: chalk.server.v1.CloudComponentsService.CreateCloudComponentVpc:output_type -> chalk.server.v1.CreateCloudComponentVpcResponse
+	6,   // 119: chalk.server.v1.CloudComponentsService.GetCloudComponentVpc:output_type -> chalk.server.v1.GetCloudComponentVpcResponse
+	10,  // 120: chalk.server.v1.CloudComponentsService.ListCloudComponentVpc:output_type -> chalk.server.v1.ListCloudComponentVpcResponse
+	8,   // 121: chalk.server.v1.CloudComponentsService.DeleteCloudComponentVpc:output_type -> chalk.server.v1.DeleteCloudComponentVpcResponse
+	37,  // 122: chalk.server.v1.CloudComponentsService.CreateCloudComponentCluster:output_type -> chalk.server.v1.CreateCloudComponentClusterResponse
+	39,  // 123: chalk.server.v1.CloudComponentsService.UpdateCloudComponentCluster:output_type -> chalk.server.v1.UpdateCloudComponentClusterResponse
+	41,  // 124: chalk.server.v1.CloudComponentsService.GetCloudComponentCluster:output_type -> chalk.server.v1.GetCloudComponentClusterResponse
+	47,  // 125: chalk.server.v1.CloudComponentsService.ListCloudComponentCluster:output_type -> chalk.server.v1.ListCloudComponentClusterResponse
+	43,  // 126: chalk.server.v1.CloudComponentsService.DeleteCloudComponentCluster:output_type -> chalk.server.v1.DeleteCloudComponentClusterResponse
+	45,  // 127: chalk.server.v1.CloudComponentsService.TestClusterConnection:output_type -> chalk.server.v1.TestClusterConnectionResponse
+	49,  // 128: chalk.server.v1.CloudComponentsService.CreateCloudComponentStorage:output_type -> chalk.server.v1.CreateCloudComponentStorageResponse
+	51,  // 129: chalk.server.v1.CloudComponentsService.GetCloudComponentStorage:output_type -> chalk.server.v1.GetCloudComponentStorageResponse
+	55,  // 130: chalk.server.v1.CloudComponentsService.ListCloudComponentStorage:output_type -> chalk.server.v1.ListCloudComponentStorageResponse
+	53,  // 131: chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage:output_type -> chalk.server.v1.DeleteCloudComponentStorageResponse
+	57,  // 132: chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry:output_type -> chalk.server.v1.CreateCloudComponentContainerRegistryResponse
+	59,  // 133: chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry:output_type -> chalk.server.v1.UpdateCloudComponentContainerRegistryResponse
+	61,  // 134: chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry:output_type -> chalk.server.v1.GetCloudComponentContainerRegistryResponse
+	65,  // 135: chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry:output_type -> chalk.server.v1.ListCloudComponentContainerRegistryResponse
+	63,  // 136: chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry:output_type -> chalk.server.v1.DeleteCloudComponentContainerRegistryResponse
+	67,  // 137: chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry:output_type -> chalk.server.v1.CreateBindingClusterContainerRegistryResponse
+	69,  // 138: chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry:output_type -> chalk.server.v1.GetBindingClusterContainerRegistryResponse
+	71,  // 139: chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry:output_type -> chalk.server.v1.ListBindingClusterContainerRegistryResponse
+	73,  // 140: chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry:output_type -> chalk.server.v1.DeleteBindingClusterContainerRegistryResponse
+	75,  // 141: chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway:output_type -> chalk.server.v1.CreateBindingClusterGatewayResponse
+	79,  // 142: chalk.server.v1.CloudComponentsService.GetBindingClusterGateway:output_type -> chalk.server.v1.GetBindingClusterGatewayResponse
+	81,  // 143: chalk.server.v1.CloudComponentsService.ListBindingClusterGateway:output_type -> chalk.server.v1.ListBindingClusterGatewayResponse
+	77,  // 144: chalk.server.v1.CloudComponentsService.DeleteBindingClusterGateway:output_type -> chalk.server.v1.DeleteBindingClusterGatewayResponse
+	83,  // 145: chalk.server.v1.CloudComponentsService.CreateBindingPrivateGateway:output_type -> chalk.server.v1.CreateBindingPrivateGatewayResponse
+	87,  // 146: chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway:output_type -> chalk.server.v1.GetBindingPrivateGatewayResponse
+	89,  // 147: chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway:output_type -> chalk.server.v1.ListBindingPrivateGatewayResponse
+	85,  // 148: chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway:output_type -> chalk.server.v1.DeleteBindingPrivateGatewayResponse
+	91,  // 149: chalk.server.v1.CloudComponentsService.CreateBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse
+	95,  // 150: chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingClusterBackgroundPersistenceDeploymentResponse
+	97,  // 151: chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingClusterBackgroundPersistenceDeploymentResponse
+	93,  // 152: chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse
+	99,  // 153: chalk.server.v1.CloudComponentsService.CreateBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.CreateBindingClusterTelemetryDeploymentResponse
+	103, // 154: chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.GetBindingClusterTelemetryDeploymentResponse
+	105, // 155: chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.ListBindingClusterTelemetryDeploymentResponse
+	101, // 156: chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment:output_type -> chalk.server.v1.DeleteBindingClusterTelemetryDeploymentResponse
+	107, // 157: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentGateway:output_type -> chalk.server.v1.CreateBindingEnvironmentGatewayResponse
+	111, // 158: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway:output_type -> chalk.server.v1.GetBindingEnvironmentGatewayResponse
+	113, // 159: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway:output_type -> chalk.server.v1.ListBindingEnvironmentGatewayResponse
+	109, // 160: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway:output_type -> chalk.server.v1.DeleteBindingEnvironmentGatewayResponse
+	115, // 161: chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	119, // 162: chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	121, // 163: chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	117, // 164: chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentBackgroundPersistenceDeployment:output_type -> chalk.server.v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse
+	118, // [118:165] is the sub-list for method output_type
+	71,  // [71:118] is the sub-list for method input_type
+	71,  // [71:71] is the sub-list for extension type_name
+	71,  // [71:71] is the sub-list for extension extendee
+	0,   // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_cloud_components_proto_init() }
@@ -5645,13 +7133,14 @@ func file_chalk_server_v1_cloud_components_proto_init() {
 		(*TestClusterConnectionRequest_Id)(nil),
 		(*TestClusterConnectionRequest_Config)(nil),
 	}
+	file_chalk_server_v1_cloud_components_proto_msgTypes[69].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_cloud_components_proto_rawDesc), len(file_chalk_server_v1_cloud_components_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   92,
+			NumMessages:   122,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

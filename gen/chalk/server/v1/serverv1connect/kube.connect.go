@@ -33,6 +33,9 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// KubeServiceGetPodVenvSizeProcedure is the fully-qualified name of the KubeService's
+	// GetPodVenvSize RPC.
+	KubeServiceGetPodVenvSizeProcedure = "/chalk.server.v1.KubeService/GetPodVenvSize"
 	// KubeServiceGetPodStackTraceDumpProcedure is the fully-qualified name of the KubeService's
 	// GetPodStackTraceDump RPC.
 	KubeServiceGetPodStackTraceDumpProcedure = "/chalk.server.v1.KubeService/GetPodStackTraceDump"
@@ -70,6 +73,8 @@ const (
 
 // KubeServiceClient is a client for the chalk.server.v1.KubeService service.
 type KubeServiceClient interface {
+	// GetPodVenvSize runs `du -sh` on the venv site-packages directory inside the pod
+	GetPodVenvSize(context.Context, *connect.Request[v1.GetPodVenvSizeRequest]) (*connect.Response[v1.GetPodVenvSizeResponse], error)
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
@@ -98,6 +103,13 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 	baseURL = strings.TrimRight(baseURL, "/")
 	kubeServiceMethods := v1.File_chalk_server_v1_kube_proto.Services().ByName("KubeService").Methods()
 	return &kubeServiceClient{
+		getPodVenvSize: connect.NewClient[v1.GetPodVenvSizeRequest, v1.GetPodVenvSizeResponse](
+			httpClient,
+			baseURL+KubeServiceGetPodVenvSizeProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetPodVenvSize")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getPodStackTraceDump: connect.NewClient[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse](
 			httpClient,
 			baseURL+KubeServiceGetPodStackTraceDumpProcedure,
@@ -180,6 +192,7 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // kubeServiceClient implements KubeServiceClient.
 type kubeServiceClient struct {
+	getPodVenvSize                   *connect.Client[v1.GetPodVenvSizeRequest, v1.GetPodVenvSizeResponse]
 	getPodStackTraceDump             *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
 	getKubernetesEvents              *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
 	getKubernetesPersistentVolumes   *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
@@ -191,6 +204,11 @@ type kubeServiceClient struct {
 	getKubernetesDeploymentWithPods  *connect.Client[v1.GetKubernetesDeploymentWithPodsRequest, v1.GetKubernetesDeploymentWithPodsResponse]
 	getKubernetesStatefulSetWithPods *connect.Client[v1.GetKubernetesStatefulSetWithPodsRequest, v1.GetKubernetesStatefulSetWithPodsResponse]
 	getKubernetesJobWithPods         *connect.Client[v1.GetKubernetesJobWithPodsRequest, v1.GetKubernetesJobWithPodsResponse]
+}
+
+// GetPodVenvSize calls chalk.server.v1.KubeService.GetPodVenvSize.
+func (c *kubeServiceClient) GetPodVenvSize(ctx context.Context, req *connect.Request[v1.GetPodVenvSizeRequest]) (*connect.Response[v1.GetPodVenvSizeResponse], error) {
+	return c.getPodVenvSize.CallUnary(ctx, req)
 }
 
 // GetPodStackTraceDump calls chalk.server.v1.KubeService.GetPodStackTraceDump.
@@ -252,6 +270,8 @@ func (c *kubeServiceClient) GetKubernetesJobWithPods(ctx context.Context, req *c
 
 // KubeServiceHandler is an implementation of the chalk.server.v1.KubeService service.
 type KubeServiceHandler interface {
+	// GetPodVenvSize runs `du -sh` on the venv site-packages directory inside the pod
+	GetPodVenvSize(context.Context, *connect.Request[v1.GetPodVenvSizeRequest]) (*connect.Response[v1.GetPodVenvSizeResponse], error)
 	// GetPodStackTraceDump gets the stack trace dump from a single process running in a pod
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
@@ -276,6 +296,13 @@ type KubeServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	kubeServiceMethods := v1.File_chalk_server_v1_kube_proto.Services().ByName("KubeService").Methods()
+	kubeServiceGetPodVenvSizeHandler := connect.NewUnaryHandler(
+		KubeServiceGetPodVenvSizeProcedure,
+		svc.GetPodVenvSize,
+		connect.WithSchema(kubeServiceMethods.ByName("GetPodVenvSize")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	kubeServiceGetPodStackTraceDumpHandler := connect.NewUnaryHandler(
 		KubeServiceGetPodStackTraceDumpProcedure,
 		svc.GetPodStackTraceDump,
@@ -355,6 +382,8 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 	)
 	return "/chalk.server.v1.KubeService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case KubeServiceGetPodVenvSizeProcedure:
+			kubeServiceGetPodVenvSizeHandler.ServeHTTP(w, r)
 		case KubeServiceGetPodStackTraceDumpProcedure:
 			kubeServiceGetPodStackTraceDumpHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesEventsProcedure:
@@ -385,6 +414,10 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 
 // UnimplementedKubeServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedKubeServiceHandler struct{}
+
+func (UnimplementedKubeServiceHandler) GetPodVenvSize(context.Context, *connect.Request[v1.GetPodVenvSizeRequest]) (*connect.Response[v1.GetPodVenvSizeResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetPodVenvSize is not implemented"))
+}
 
 func (UnimplementedKubeServiceHandler) GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetPodStackTraceDump is not implemented"))

@@ -1836,20 +1836,23 @@ func (x *RedshiftSource) GetUnloadIamRole() string {
 }
 
 type SnowflakeSource struct {
-	state             protoimpl.MessageState     `protogen:"open.v1"`
-	Name              string                     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Db                string                     `protobuf:"bytes,2,opt,name=db,proto3" json:"db,omitempty"`
-	Schema            string                     `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
-	Role              string                     `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	User              string                     `protobuf:"bytes,5,opt,name=user,proto3" json:"user,omitempty"`
-	Password          string                     `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
-	AccountIdentifier string                     `protobuf:"bytes,7,opt,name=account_identifier,json=accountIdentifier,proto3" json:"account_identifier,omitempty"`
-	Warehouse         string                     `protobuf:"bytes,8,opt,name=warehouse,proto3" json:"warehouse,omitempty"`
-	EngineArgs        map[string]*v1.ScalarValue `protobuf:"bytes,9,rep,name=engine_args,json=engineArgs,proto3" json:"engine_args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	AsyncEngineArgs   map[string]*v1.ScalarValue `protobuf:"bytes,10,rep,name=async_engine_args,json=asyncEngineArgs,proto3" json:"async_engine_args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	PrivateKeyB64     string                     `protobuf:"bytes,11,opt,name=private_key_b64,json=privateKeyB64,proto3" json:"private_key_b64,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state                    protoimpl.MessageState     `protogen:"open.v1"`
+	Name                     string                     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Db                       string                     `protobuf:"bytes,2,opt,name=db,proto3" json:"db,omitempty"`
+	Schema                   string                     `protobuf:"bytes,3,opt,name=schema,proto3" json:"schema,omitempty"`
+	Role                     string                     `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
+	User                     string                     `protobuf:"bytes,5,opt,name=user,proto3" json:"user,omitempty"`
+	Password                 string                     `protobuf:"bytes,6,opt,name=password,proto3" json:"password,omitempty"`
+	AccountIdentifier        string                     `protobuf:"bytes,7,opt,name=account_identifier,json=accountIdentifier,proto3" json:"account_identifier,omitempty"`
+	Warehouse                string                     `protobuf:"bytes,8,opt,name=warehouse,proto3" json:"warehouse,omitempty"`
+	EngineArgs               map[string]*v1.ScalarValue `protobuf:"bytes,9,rep,name=engine_args,json=engineArgs,proto3" json:"engine_args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	AsyncEngineArgs          map[string]*v1.ScalarValue `protobuf:"bytes,10,rep,name=async_engine_args,json=asyncEngineArgs,proto3" json:"async_engine_args,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	PrivateKeyB64            string                     `protobuf:"bytes,11,opt,name=private_key_b64,json=privateKeyB64,proto3" json:"private_key_b64,omitempty"`
+	UnloadStage              string                     `protobuf:"bytes,12,opt,name=unload_stage,json=unloadStage,proto3" json:"unload_stage,omitempty"`
+	UnloadStorageIntegration string                     `protobuf:"bytes,13,opt,name=unload_storage_integration,json=unloadStorageIntegration,proto3" json:"unload_storage_integration,omitempty"`
+	UnloadExternalLocation   string                     `protobuf:"bytes,14,opt,name=unload_external_location,json=unloadExternalLocation,proto3" json:"unload_external_location,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *SnowflakeSource) Reset() {
@@ -1955,6 +1958,27 @@ func (x *SnowflakeSource) GetAsyncEngineArgs() map[string]*v1.ScalarValue {
 func (x *SnowflakeSource) GetPrivateKeyB64() string {
 	if x != nil {
 		return x.PrivateKeyB64
+	}
+	return ""
+}
+
+func (x *SnowflakeSource) GetUnloadStage() string {
+	if x != nil {
+		return x.UnloadStage
+	}
+	return ""
+}
+
+func (x *SnowflakeSource) GetUnloadStorageIntegration() string {
+	if x != nil {
+		return x.UnloadStorageIntegration
+	}
+	return ""
+}
+
+func (x *SnowflakeSource) GetUnloadExternalLocation() string {
+	if x != nil {
+		return x.UnloadExternalLocation
 	}
 	return ""
 }
@@ -2677,7 +2701,7 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +
 	"\x14AsyncEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
-	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\xf7\x04\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\"\x92\x06\n" +
 	"\x0fSnowflakeSource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02db\x18\x02 \x01(\tR\x02db\x12\x16\n" +
@@ -2691,7 +2715,10 @@ const file_chalk_graph_v1_sources_proto_rawDesc = "" +
 	"engineArgs\x12`\n" +
 	"\x11async_engine_args\x18\n" +
 	" \x03(\v24.chalk.graph.v1.SnowflakeSource.AsyncEngineArgsEntryR\x0fasyncEngineArgs\x12&\n" +
-	"\x0fprivate_key_b64\x18\v \x01(\tR\rprivateKeyB64\x1aZ\n" +
+	"\x0fprivate_key_b64\x18\v \x01(\tR\rprivateKeyB64\x12!\n" +
+	"\funload_stage\x18\f \x01(\tR\vunloadStage\x12<\n" +
+	"\x1aunload_storage_integration\x18\r \x01(\tR\x18unloadStorageIntegration\x128\n" +
+	"\x18unload_external_location\x18\x0e \x01(\tR\x16unloadExternalLocation\x1aZ\n" +
 	"\x0fEngineArgsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
 	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01\x1a_\n" +

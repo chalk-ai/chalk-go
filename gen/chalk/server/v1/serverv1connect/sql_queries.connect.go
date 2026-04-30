@@ -39,6 +39,9 @@ const (
 	// SqlQueriesServiceGetSqlQueryProcedure is the fully-qualified name of the SqlQueriesService's
 	// GetSqlQuery RPC.
 	SqlQueriesServiceGetSqlQueryProcedure = "/chalk.server.v1.SqlQueriesService/GetSqlQuery"
+	// SqlQueriesServiceGetSqlQueryPlanProcedure is the fully-qualified name of the SqlQueriesService's
+	// GetSqlQueryPlan RPC.
+	SqlQueriesServiceGetSqlQueryPlanProcedure = "/chalk.server.v1.SqlQueriesService/GetSqlQueryPlan"
 	// SqlQueriesServiceGetSqlQuerySignedUrlsProcedure is the fully-qualified name of the
 	// SqlQueriesService's GetSqlQuerySignedUrls RPC.
 	SqlQueriesServiceGetSqlQuerySignedUrlsProcedure = "/chalk.server.v1.SqlQueriesService/GetSqlQuerySignedUrls"
@@ -50,6 +53,8 @@ type SqlQueriesServiceClient interface {
 	ListSqlQueries(context.Context, *connect.Request[v1.ListSqlQueriesRequest]) (*connect.Response[v1.ListSqlQueriesResponse], error)
 	// Get a specific SQL query by ID
 	GetSqlQuery(context.Context, *connect.Request[v1.GetSqlQueryRequest]) (*connect.Response[v1.GetSqlQueryResponse], error)
+	// Get the persisted SQL query plan artifact for a specific query by ID.
+	GetSqlQueryPlan(context.Context, *connect.Request[v1.GetSqlQueryPlanRequest]) (*connect.Response[v1.GetSqlQueryPlanResponse], error)
 	// Get signed URLs for SQL query results
 	GetSqlQuerySignedUrls(context.Context, *connect.Request[v1.GetSqlQuerySignedUrlsRequest]) (*connect.Response[v1.GetSqlQuerySignedUrlsResponse], error)
 }
@@ -79,6 +84,13 @@ func NewSqlQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getSqlQueryPlan: connect.NewClient[v1.GetSqlQueryPlanRequest, v1.GetSqlQueryPlanResponse](
+			httpClient,
+			baseURL+SqlQueriesServiceGetSqlQueryPlanProcedure,
+			connect.WithSchema(sqlQueriesServiceMethods.ByName("GetSqlQueryPlan")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getSqlQuerySignedUrls: connect.NewClient[v1.GetSqlQuerySignedUrlsRequest, v1.GetSqlQuerySignedUrlsResponse](
 			httpClient,
 			baseURL+SqlQueriesServiceGetSqlQuerySignedUrlsProcedure,
@@ -93,6 +105,7 @@ func NewSqlQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, o
 type sqlQueriesServiceClient struct {
 	listSqlQueries        *connect.Client[v1.ListSqlQueriesRequest, v1.ListSqlQueriesResponse]
 	getSqlQuery           *connect.Client[v1.GetSqlQueryRequest, v1.GetSqlQueryResponse]
+	getSqlQueryPlan       *connect.Client[v1.GetSqlQueryPlanRequest, v1.GetSqlQueryPlanResponse]
 	getSqlQuerySignedUrls *connect.Client[v1.GetSqlQuerySignedUrlsRequest, v1.GetSqlQuerySignedUrlsResponse]
 }
 
@@ -106,6 +119,11 @@ func (c *sqlQueriesServiceClient) GetSqlQuery(ctx context.Context, req *connect.
 	return c.getSqlQuery.CallUnary(ctx, req)
 }
 
+// GetSqlQueryPlan calls chalk.server.v1.SqlQueriesService.GetSqlQueryPlan.
+func (c *sqlQueriesServiceClient) GetSqlQueryPlan(ctx context.Context, req *connect.Request[v1.GetSqlQueryPlanRequest]) (*connect.Response[v1.GetSqlQueryPlanResponse], error) {
+	return c.getSqlQueryPlan.CallUnary(ctx, req)
+}
+
 // GetSqlQuerySignedUrls calls chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls.
 func (c *sqlQueriesServiceClient) GetSqlQuerySignedUrls(ctx context.Context, req *connect.Request[v1.GetSqlQuerySignedUrlsRequest]) (*connect.Response[v1.GetSqlQuerySignedUrlsResponse], error) {
 	return c.getSqlQuerySignedUrls.CallUnary(ctx, req)
@@ -117,6 +135,8 @@ type SqlQueriesServiceHandler interface {
 	ListSqlQueries(context.Context, *connect.Request[v1.ListSqlQueriesRequest]) (*connect.Response[v1.ListSqlQueriesResponse], error)
 	// Get a specific SQL query by ID
 	GetSqlQuery(context.Context, *connect.Request[v1.GetSqlQueryRequest]) (*connect.Response[v1.GetSqlQueryResponse], error)
+	// Get the persisted SQL query plan artifact for a specific query by ID.
+	GetSqlQueryPlan(context.Context, *connect.Request[v1.GetSqlQueryPlanRequest]) (*connect.Response[v1.GetSqlQueryPlanResponse], error)
 	// Get signed URLs for SQL query results
 	GetSqlQuerySignedUrls(context.Context, *connect.Request[v1.GetSqlQuerySignedUrlsRequest]) (*connect.Response[v1.GetSqlQuerySignedUrlsResponse], error)
 }
@@ -142,6 +162,13 @@ func NewSqlQueriesServiceHandler(svc SqlQueriesServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	sqlQueriesServiceGetSqlQueryPlanHandler := connect.NewUnaryHandler(
+		SqlQueriesServiceGetSqlQueryPlanProcedure,
+		svc.GetSqlQueryPlan,
+		connect.WithSchema(sqlQueriesServiceMethods.ByName("GetSqlQueryPlan")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	sqlQueriesServiceGetSqlQuerySignedUrlsHandler := connect.NewUnaryHandler(
 		SqlQueriesServiceGetSqlQuerySignedUrlsProcedure,
 		svc.GetSqlQuerySignedUrls,
@@ -155,6 +182,8 @@ func NewSqlQueriesServiceHandler(svc SqlQueriesServiceHandler, opts ...connect.H
 			sqlQueriesServiceListSqlQueriesHandler.ServeHTTP(w, r)
 		case SqlQueriesServiceGetSqlQueryProcedure:
 			sqlQueriesServiceGetSqlQueryHandler.ServeHTTP(w, r)
+		case SqlQueriesServiceGetSqlQueryPlanProcedure:
+			sqlQueriesServiceGetSqlQueryPlanHandler.ServeHTTP(w, r)
 		case SqlQueriesServiceGetSqlQuerySignedUrlsProcedure:
 			sqlQueriesServiceGetSqlQuerySignedUrlsHandler.ServeHTTP(w, r)
 		default:
@@ -172,6 +201,10 @@ func (UnimplementedSqlQueriesServiceHandler) ListSqlQueries(context.Context, *co
 
 func (UnimplementedSqlQueriesServiceHandler) GetSqlQuery(context.Context, *connect.Request[v1.GetSqlQueryRequest]) (*connect.Response[v1.GetSqlQueryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SqlQueriesService.GetSqlQuery is not implemented"))
+}
+
+func (UnimplementedSqlQueriesServiceHandler) GetSqlQueryPlan(context.Context, *connect.Request[v1.GetSqlQueryPlanRequest]) (*connect.Response[v1.GetSqlQueryPlanResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SqlQueriesService.GetSqlQueryPlan is not implemented"))
 }
 
 func (UnimplementedSqlQueriesServiceHandler) GetSqlQuerySignedUrls(context.Context, *connect.Request[v1.GetSqlQuerySignedUrlsRequest]) (*connect.Response[v1.GetSqlQuerySignedUrlsResponse], error) {

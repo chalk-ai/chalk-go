@@ -9,6 +9,7 @@ package artifactsv1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -80,6 +81,8 @@ type CronAggregateBackfill struct {
 	QueryTags     []string                    `protobuf:"bytes,6,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
 	Target        CronAggregateBackfillTarget `protobuf:"varint,7,opt,name=target,proto3,enum=chalk.artifacts.v1.CronAggregateBackfillTarget" json:"target,omitempty"`
 	ResourceGroup *string                     `protobuf:"bytes,8,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	LowerBound    *timestamppb.Timestamp      `protobuf:"bytes,9,opt,name=lower_bound,json=lowerBound,proto3" json:"lower_bound,omitempty"`
+	UpperBound    *timestamppb.Timestamp      `protobuf:"bytes,10,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -170,11 +173,25 @@ func (x *CronAggregateBackfill) GetResourceGroup() string {
 	return ""
 }
 
+func (x *CronAggregateBackfill) GetLowerBound() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LowerBound
+	}
+	return nil
+}
+
+func (x *CronAggregateBackfill) GetUpperBound() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpperBound
+	}
+	return nil
+}
+
 var File_chalk_artifacts_v1_cron_aggregate_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
-	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\"\xc5\x02\n" +
+	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x03\n" +
 	"\x15CronAggregateBackfill\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1b\n" +
@@ -184,7 +201,12 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
 	"query_tags\x18\x06 \x03(\tR\tqueryTags\x12G\n" +
 	"\x06target\x18\a \x01(\x0e2/.chalk.artifacts.v1.CronAggregateBackfillTargetR\x06target\x12*\n" +
-	"\x0eresource_group\x18\b \x01(\tH\x00R\rresourceGroup\x88\x01\x01B\x11\n" +
+	"\x0eresource_group\x18\b \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12;\n" +
+	"\vlower_bound\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"lowerBound\x12;\n" +
+	"\vupper_bound\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"upperBoundB\x11\n" +
 	"\x0f_resource_group*\xa4\x01\n" +
 	"\x1bCronAggregateBackfillTarget\x12.\n" +
 	"*CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12)\n" +
@@ -209,14 +231,17 @@ var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_msgTypes = make([]prot
 var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_goTypes = []any{
 	(CronAggregateBackfillTarget)(0), // 0: chalk.artifacts.v1.CronAggregateBackfillTarget
 	(*CronAggregateBackfill)(nil),    // 1: chalk.artifacts.v1.CronAggregateBackfill
+	(*timestamppb.Timestamp)(nil),    // 2: google.protobuf.Timestamp
 }
 var file_chalk_artifacts_v1_cron_aggregate_backfill_proto_depIdxs = []int32{
 	0, // 0: chalk.artifacts.v1.CronAggregateBackfill.target:type_name -> chalk.artifacts.v1.CronAggregateBackfillTarget
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: chalk.artifacts.v1.CronAggregateBackfill.lower_bound:type_name -> google.protobuf.Timestamp
+	2, // 2: chalk.artifacts.v1.CronAggregateBackfill.upper_bound:type_name -> google.protobuf.Timestamp
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_chalk_artifacts_v1_cron_aggregate_backfill_proto_init() }

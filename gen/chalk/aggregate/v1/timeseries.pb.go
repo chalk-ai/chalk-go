@@ -100,15 +100,17 @@ func (x *AggregateTimeSeriesRule) GetDatetimeFeature() string {
 }
 
 type AggregateTimeSeries struct {
-	state              protoimpl.MessageState     `protogen:"open.v1"`
-	Namespace          string                     `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
-	AggregateOn        string                     `protobuf:"bytes,2,opt,name=aggregate_on,json=aggregateOn,proto3" json:"aggregate_on,omitempty"`
-	GroupBy            []string                   `protobuf:"bytes,3,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
-	Rules              []*AggregateTimeSeriesRule `protobuf:"bytes,5,rep,name=rules,proto3" json:"rules,omitempty"`
-	FiltersDescription string                     `protobuf:"bytes,6,opt,name=filters_description,json=filtersDescription,proto3" json:"filters_description,omitempty"`
-	BucketFeature      string                     `protobuf:"bytes,7,opt,name=bucket_feature,json=bucketFeature,proto3" json:"bucket_feature,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Namespace string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/aggregate/v1/timeseries.proto.
+	AggregateOn         string                     `protobuf:"bytes,2,opt,name=aggregate_on,json=aggregateOn,proto3" json:"aggregate_on,omitempty"`
+	GroupBy             []string                   `protobuf:"bytes,3,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	Rules               []*AggregateTimeSeriesRule `protobuf:"bytes,5,rep,name=rules,proto3" json:"rules,omitempty"`
+	FiltersDescription  string                     `protobuf:"bytes,6,opt,name=filters_description,json=filtersDescription,proto3" json:"filters_description,omitempty"`
+	BucketFeature       string                     `protobuf:"bytes,7,opt,name=bucket_feature,json=bucketFeature,proto3" json:"bucket_feature,omitempty"`
+	AggregateOnFeatures []string                   `protobuf:"bytes,8,rep,name=aggregate_on_features,json=aggregateOnFeatures,proto3" json:"aggregate_on_features,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AggregateTimeSeries) Reset() {
@@ -148,6 +150,7 @@ func (x *AggregateTimeSeries) GetNamespace() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in chalk/aggregate/v1/timeseries.proto.
 func (x *AggregateTimeSeries) GetAggregateOn() string {
 	if x != nil {
 		return x.AggregateOn
@@ -183,6 +186,13 @@ func (x *AggregateTimeSeries) GetBucketFeature() string {
 	return ""
 }
 
+func (x *AggregateTimeSeries) GetAggregateOnFeatures() []string {
+	if x != nil {
+		return x.AggregateOnFeatures
+	}
+	return nil
+}
+
 var File_chalk_aggregate_v1_timeseries_proto protoreflect.FileDescriptor
 
 const file_chalk_aggregate_v1_timeseries_proto_rawDesc = "" +
@@ -193,14 +203,15 @@ const file_chalk_aggregate_v1_timeseries_proto_rawDesc = "" +
 	"\x0fbucket_duration\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x0ebucketDuration\x12-\n" +
 	"\x12dependent_features\x18\x03 \x03(\tR\x11dependentFeatures\x127\n" +
 	"\tretention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\tretention\x12)\n" +
-	"\x10datetime_feature\x18\x05 \x01(\tR\x0fdatetimeFeature\"\x8c\x02\n" +
+	"\x10datetime_feature\x18\x05 \x01(\tR\x0fdatetimeFeature\"\xc4\x02\n" +
 	"\x13AggregateTimeSeries\x12\x1c\n" +
-	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12!\n" +
-	"\faggregate_on\x18\x02 \x01(\tR\vaggregateOn\x12\x19\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12%\n" +
+	"\faggregate_on\x18\x02 \x01(\tB\x02\x18\x01R\vaggregateOn\x12\x19\n" +
 	"\bgroup_by\x18\x03 \x03(\tR\agroupBy\x12A\n" +
 	"\x05rules\x18\x05 \x03(\v2+.chalk.aggregate.v1.AggregateTimeSeriesRuleR\x05rules\x12/\n" +
 	"\x13filters_description\x18\x06 \x01(\tR\x12filtersDescription\x12%\n" +
-	"\x0ebucket_feature\x18\a \x01(\tR\rbucketFeatureB\xd4\x01\n" +
+	"\x0ebucket_feature\x18\a \x01(\tR\rbucketFeature\x122\n" +
+	"\x15aggregate_on_features\x18\b \x03(\tR\x13aggregateOnFeaturesB\xd4\x01\n" +
 	"\x16com.chalk.aggregate.v1B\x0fTimeseriesProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/aggregate/v1;aggregatev1\xa2\x02\x03CAX\xaa\x02\x12Chalk.Aggregate.V1\xca\x02\x12Chalk\\Aggregate\\V1\xe2\x02\x1eChalk\\Aggregate\\V1\\GPBMetadata\xea\x02\x14Chalk::Aggregate::V1b\x06proto3"
 
 var (

@@ -59,8 +59,10 @@ type SqlQuery struct {
 	QueryPlanJson *string `protobuf:"bytes,16,opt,name=query_plan_json,json=queryPlanJson,proto3,oneof" json:"query_plan_json,omitempty"`
 	// Output URI prefix for the query results
 	OutputUriPrefix *string `protobuf:"bytes,17,opt,name=output_uri_prefix,json=outputUriPrefix,proto3,oneof" json:"output_uri_prefix,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Cloud storage URI for the serialized query plan JSON
+	PlanUri       *string `protobuf:"bytes,18,opt,name=plan_uri,json=planUri,proto3,oneof" json:"plan_uri,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SqlQuery) Reset() {
@@ -208,6 +210,13 @@ func (x *SqlQuery) GetQueryPlanJson() string {
 func (x *SqlQuery) GetOutputUriPrefix() string {
 	if x != nil && x.OutputUriPrefix != nil {
 		return *x.OutputUriPrefix
+	}
+	return ""
+}
+
+func (x *SqlQuery) GetPlanUri() string {
+	if x != nil && x.PlanUri != nil {
+		return *x.PlanUri
 	}
 	return ""
 }
@@ -473,6 +482,114 @@ func (x *GetSqlQueryResponse) GetQuery() *SqlQuery {
 	return nil
 }
 
+type GetSqlQueryPlanRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The ID of the SQL query whose persisted plan should be retrieved.
+	QueryId       string `protobuf:"bytes,1,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSqlQueryPlanRequest) Reset() {
+	*x = GetSqlQueryPlanRequest{}
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSqlQueryPlanRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSqlQueryPlanRequest) ProtoMessage() {}
+
+func (x *GetSqlQueryPlanRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSqlQueryPlanRequest.ProtoReflect.Descriptor instead.
+func (*GetSqlQueryPlanRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetSqlQueryPlanRequest) GetQueryId() string {
+	if x != nil {
+		return x.QueryId
+	}
+	return ""
+}
+
+type GetSqlQueryPlanResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Raw JSON contents of the persisted SQL query plan artifact.
+	QueryPlanJson *string `protobuf:"bytes,1,opt,name=query_plan_json,json=queryPlanJson,proto3,oneof" json:"query_plan_json,omitempty"`
+	// Best-effort extracted logical plan text from the persisted artifact.
+	LogicalPlan *string `protobuf:"bytes,2,opt,name=logical_plan,json=logicalPlan,proto3,oneof" json:"logical_plan,omitempty"`
+	// Best-effort extracted physical plan text from the persisted artifact.
+	PhysicalPlan  *string `protobuf:"bytes,3,opt,name=physical_plan,json=physicalPlan,proto3,oneof" json:"physical_plan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSqlQueryPlanResponse) Reset() {
+	*x = GetSqlQueryPlanResponse{}
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSqlQueryPlanResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSqlQueryPlanResponse) ProtoMessage() {}
+
+func (x *GetSqlQueryPlanResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSqlQueryPlanResponse.ProtoReflect.Descriptor instead.
+func (*GetSqlQueryPlanResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetSqlQueryPlanResponse) GetQueryPlanJson() string {
+	if x != nil && x.QueryPlanJson != nil {
+		return *x.QueryPlanJson
+	}
+	return ""
+}
+
+func (x *GetSqlQueryPlanResponse) GetLogicalPlan() string {
+	if x != nil && x.LogicalPlan != nil {
+		return *x.LogicalPlan
+	}
+	return ""
+}
+
+func (x *GetSqlQueryPlanResponse) GetPhysicalPlan() string {
+	if x != nil && x.PhysicalPlan != nil {
+		return *x.PhysicalPlan
+	}
+	return ""
+}
+
 type GetSqlQuerySignedUrlsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	QueryId       string                 `protobuf:"bytes,1,opt,name=query_id,json=queryId,proto3" json:"query_id,omitempty"`
@@ -482,7 +599,7 @@ type GetSqlQuerySignedUrlsRequest struct {
 
 func (x *GetSqlQuerySignedUrlsRequest) Reset() {
 	*x = GetSqlQuerySignedUrlsRequest{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -494,7 +611,7 @@ func (x *GetSqlQuerySignedUrlsRequest) String() string {
 func (*GetSqlQuerySignedUrlsRequest) ProtoMessage() {}
 
 func (x *GetSqlQuerySignedUrlsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -507,7 +624,7 @@ func (x *GetSqlQuerySignedUrlsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQuerySignedUrlsRequest.ProtoReflect.Descriptor instead.
 func (*GetSqlQuerySignedUrlsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetSqlQuerySignedUrlsRequest) GetQueryId() string {
@@ -527,7 +644,7 @@ type GetSqlQuerySignedUrlsResponse struct {
 
 func (x *GetSqlQuerySignedUrlsResponse) Reset() {
 	*x = GetSqlQuerySignedUrlsResponse{}
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -539,7 +656,7 @@ func (x *GetSqlQuerySignedUrlsResponse) String() string {
 func (*GetSqlQuerySignedUrlsResponse) ProtoMessage() {}
 
 func (x *GetSqlQuerySignedUrlsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sql_queries_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -552,7 +669,7 @@ func (x *GetSqlQuerySignedUrlsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSqlQuerySignedUrlsResponse.ProtoReflect.Descriptor instead.
 func (*GetSqlQuerySignedUrlsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_sql_queries_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSqlQuerySignedUrlsResponse) GetSignedResultUrls() []string {
@@ -566,7 +683,7 @@ var File_chalk_server_v1_sql_queries_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe9\x06\n" +
+	"!chalk/server/v1/sql_queries.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x96\a\n" +
 	"\bSqlQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\bagent_id\x18\x02 \x01(\tH\x00R\aagentId\x88\x01\x01\x12%\n" +
@@ -590,7 +707,8 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x0eresource_group\x18\x0f \x01(\tH\tR\rresourceGroup\x88\x01\x01\x12+\n" +
 	"\x0fquery_plan_json\x18\x10 \x01(\tH\n" +
 	"R\rqueryPlanJson\x88\x01\x01\x12/\n" +
-	"\x11output_uri_prefix\x18\x11 \x01(\tH\vR\x0foutputUriPrefix\x88\x01\x01B\v\n" +
+	"\x11output_uri_prefix\x18\x11 \x01(\tH\vR\x0foutputUriPrefix\x88\x01\x01\x12\x1e\n" +
+	"\bplan_uri\x18\x12 \x01(\tH\fR\aplanUri\x88\x01\x01B\v\n" +
 	"\t_agent_idB\x10\n" +
 	"\x0e_deployment_idB\v\n" +
 	"\t_durationB\x11\n" +
@@ -602,7 +720,8 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x0f_correlation_idB\x11\n" +
 	"\x0f_resource_groupB\x12\n" +
 	"\x10_query_plan_jsonB\x14\n" +
-	"\x12_output_uri_prefix\"\x8d\x04\n" +
+	"\x12_output_uri_prefixB\v\n" +
+	"\t_plan_uri\"\x8d\x04\n" +
 	"\x15ListSqlQueriesRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x1e\n" +
@@ -634,14 +753,24 @@ const file_chalk_server_v1_sql_queries_proto_rawDesc = "" +
 	"\x12GetSqlQueryRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"F\n" +
 	"\x13GetSqlQueryResponse\x12/\n" +
-	"\x05query\x18\x01 \x01(\v2\x19.chalk.server.v1.SqlQueryR\x05query\"9\n" +
+	"\x05query\x18\x01 \x01(\v2\x19.chalk.server.v1.SqlQueryR\x05query\"3\n" +
+	"\x16GetSqlQueryPlanRequest\x12\x19\n" +
+	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"\xcf\x01\n" +
+	"\x17GetSqlQueryPlanResponse\x12+\n" +
+	"\x0fquery_plan_json\x18\x01 \x01(\tH\x00R\rqueryPlanJson\x88\x01\x01\x12&\n" +
+	"\flogical_plan\x18\x02 \x01(\tH\x01R\vlogicalPlan\x88\x01\x01\x12(\n" +
+	"\rphysical_plan\x18\x03 \x01(\tH\x02R\fphysicalPlan\x88\x01\x01B\x12\n" +
+	"\x10_query_plan_jsonB\x0f\n" +
+	"\r_logical_planB\x10\n" +
+	"\x0e_physical_plan\"9\n" +
 	"\x1cGetSqlQuerySignedUrlsRequest\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\"M\n" +
 	"\x1dGetSqlQuerySignedUrlsResponse\x12,\n" +
-	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls2\xe0\x02\n" +
+	"\x12signed_result_urls\x18\x01 \x03(\tR\x10signedResultUrls2\xce\x03\n" +
 	"\x11SqlQueriesService\x12i\n" +
 	"\x0eListSqlQueries\x12&.chalk.server.v1.ListSqlQueriesRequest\x1a'.chalk.server.v1.ListSqlQueriesResponse\"\x06\x80}\x03\x90\x02\x01\x12`\n" +
-	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12~\n" +
+	"\vGetSqlQuery\x12#.chalk.server.v1.GetSqlQueryRequest\x1a$.chalk.server.v1.GetSqlQueryResponse\"\x06\x80}\x03\x90\x02\x01\x12l\n" +
+	"\x0fGetSqlQueryPlan\x12'.chalk.server.v1.GetSqlQueryPlanRequest\x1a(.chalk.server.v1.GetSqlQueryPlanResponse\"\x06\x80}\x03\x90\x02\x01\x12~\n" +
 	"\x15GetSqlQuerySignedUrls\x12-.chalk.server.v1.GetSqlQuerySignedUrlsRequest\x1a..chalk.server.v1.GetSqlQuerySignedUrlsResponse\"\x06\x80}\x03\x90\x02\x01B\xbf\x01\n" +
 	"\x13com.chalk.server.v1B\x0fSqlQueriesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -657,31 +786,35 @@ func file_chalk_server_v1_sql_queries_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_sql_queries_proto_rawDescData
 }
 
-var file_chalk_server_v1_sql_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_server_v1_sql_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_server_v1_sql_queries_proto_goTypes = []any{
 	(*SqlQuery)(nil),                      // 0: chalk.server.v1.SqlQuery
 	(*ListSqlQueriesRequest)(nil),         // 1: chalk.server.v1.ListSqlQueriesRequest
 	(*ListSqlQueriesResponse)(nil),        // 2: chalk.server.v1.ListSqlQueriesResponse
 	(*GetSqlQueryRequest)(nil),            // 3: chalk.server.v1.GetSqlQueryRequest
 	(*GetSqlQueryResponse)(nil),           // 4: chalk.server.v1.GetSqlQueryResponse
-	(*GetSqlQuerySignedUrlsRequest)(nil),  // 5: chalk.server.v1.GetSqlQuerySignedUrlsRequest
-	(*GetSqlQuerySignedUrlsResponse)(nil), // 6: chalk.server.v1.GetSqlQuerySignedUrlsResponse
-	(*timestamppb.Timestamp)(nil),         // 7: google.protobuf.Timestamp
+	(*GetSqlQueryPlanRequest)(nil),        // 5: chalk.server.v1.GetSqlQueryPlanRequest
+	(*GetSqlQueryPlanResponse)(nil),       // 6: chalk.server.v1.GetSqlQueryPlanResponse
+	(*GetSqlQuerySignedUrlsRequest)(nil),  // 7: chalk.server.v1.GetSqlQuerySignedUrlsRequest
+	(*GetSqlQuerySignedUrlsResponse)(nil), // 8: chalk.server.v1.GetSqlQuerySignedUrlsResponse
+	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_sql_queries_proto_depIdxs = []int32{
-	7, // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
-	7, // 1: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	7, // 2: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	9, // 0: chalk.server.v1.SqlQuery.created_at:type_name -> google.protobuf.Timestamp
+	9, // 1: chalk.server.v1.ListSqlQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	9, // 2: chalk.server.v1.ListSqlQueriesRequest.end:type_name -> google.protobuf.Timestamp
 	0, // 3: chalk.server.v1.ListSqlQueriesResponse.queries:type_name -> chalk.server.v1.SqlQuery
 	0, // 4: chalk.server.v1.GetSqlQueryResponse.query:type_name -> chalk.server.v1.SqlQuery
 	1, // 5: chalk.server.v1.SqlQueriesService.ListSqlQueries:input_type -> chalk.server.v1.ListSqlQueriesRequest
 	3, // 6: chalk.server.v1.SqlQueriesService.GetSqlQuery:input_type -> chalk.server.v1.GetSqlQueryRequest
-	5, // 7: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
-	2, // 8: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
-	4, // 9: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
-	6, // 10: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
+	5, // 7: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:input_type -> chalk.server.v1.GetSqlQueryPlanRequest
+	7, // 8: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:input_type -> chalk.server.v1.GetSqlQuerySignedUrlsRequest
+	2, // 9: chalk.server.v1.SqlQueriesService.ListSqlQueries:output_type -> chalk.server.v1.ListSqlQueriesResponse
+	4, // 10: chalk.server.v1.SqlQueriesService.GetSqlQuery:output_type -> chalk.server.v1.GetSqlQueryResponse
+	6, // 11: chalk.server.v1.SqlQueriesService.GetSqlQueryPlan:output_type -> chalk.server.v1.GetSqlQueryPlanResponse
+	8, // 12: chalk.server.v1.SqlQueriesService.GetSqlQuerySignedUrls:output_type -> chalk.server.v1.GetSqlQuerySignedUrlsResponse
+	9, // [9:13] is the sub-list for method output_type
+	5, // [5:9] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
 	5, // [5:5] is the sub-list for extension extendee
 	0, // [0:5] is the sub-list for field type_name
@@ -695,13 +828,14 @@ func file_chalk_server_v1_sql_queries_proto_init() {
 	file_chalk_server_v1_sql_queries_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_sql_queries_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_server_v1_sql_queries_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_sql_queries_proto_rawDesc), len(file_chalk_server_v1_sql_queries_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

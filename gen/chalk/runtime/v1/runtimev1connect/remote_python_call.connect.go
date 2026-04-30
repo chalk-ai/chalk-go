@@ -46,6 +46,9 @@ const (
 	// AsyncRemoteCallServicePollRemoteCallProcedure is the fully-qualified name of the
 	// AsyncRemoteCallService's PollRemoteCall RPC.
 	AsyncRemoteCallServicePollRemoteCallProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/PollRemoteCall"
+	// AsyncRemoteCallServicePurgeQueueProcedure is the fully-qualified name of the
+	// AsyncRemoteCallService's PurgeQueue RPC.
+	AsyncRemoteCallServicePurgeQueueProcedure = "/chalk.runtime.v1.AsyncRemoteCallService/PurgeQueue"
 	// FunctionQueueMetaServiceGetRecentCallsProcedure is the fully-qualified name of the
 	// FunctionQueueMetaService's GetRecentCalls RPC.
 	FunctionQueueMetaServiceGetRecentCallsProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetRecentCalls"
@@ -132,6 +135,8 @@ type AsyncRemoteCallServiceClient interface {
 	// last position; the server returns any new result chunks plus an
 	// updated cursor.
 	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+	// Drop pending items from one or all per-function queues for the tenant.
+	PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error)
 }
 
 // NewAsyncRemoteCallServiceClient constructs a client for the
@@ -157,6 +162,12 @@ func NewAsyncRemoteCallServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
 			connect.WithClientOptions(opts...),
 		),
+		purgeQueue: connect.NewClient[v1.PurgeQueueRequest, v1.PurgeQueueResponse](
+			httpClient,
+			baseURL+AsyncRemoteCallServicePurgeQueueProcedure,
+			connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PurgeQueue")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -164,6 +175,7 @@ func NewAsyncRemoteCallServiceClient(httpClient connect.HTTPClient, baseURL stri
 type asyncRemoteCallServiceClient struct {
 	enqueueRemoteCall *connect.Client[v1.EnqueueRemoteCallRequest, v1.EnqueueRemoteCallResponse]
 	pollRemoteCall    *connect.Client[v1.PollRemoteCallRequest, v1.PollRemoteCallResponse]
+	purgeQueue        *connect.Client[v1.PurgeQueueRequest, v1.PurgeQueueResponse]
 }
 
 // EnqueueRemoteCall calls chalk.runtime.v1.AsyncRemoteCallService.EnqueueRemoteCall.
@@ -176,6 +188,11 @@ func (c *asyncRemoteCallServiceClient) PollRemoteCall(ctx context.Context, req *
 	return c.pollRemoteCall.CallUnary(ctx, req)
 }
 
+// PurgeQueue calls chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue.
+func (c *asyncRemoteCallServiceClient) PurgeQueue(ctx context.Context, req *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error) {
+	return c.purgeQueue.CallUnary(ctx, req)
+}
+
 // AsyncRemoteCallServiceHandler is an implementation of the chalk.runtime.v1.AsyncRemoteCallService
 // service.
 type AsyncRemoteCallServiceHandler interface {
@@ -185,6 +202,8 @@ type AsyncRemoteCallServiceHandler interface {
 	// last position; the server returns any new result chunks plus an
 	// updated cursor.
 	PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error)
+	// Drop pending items from one or all per-function queues for the tenant.
+	PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error)
 }
 
 // NewAsyncRemoteCallServiceHandler builds an HTTP handler from the service implementation. It
@@ -206,12 +225,20 @@ func NewAsyncRemoteCallServiceHandler(svc AsyncRemoteCallServiceHandler, opts ..
 		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PollRemoteCall")),
 		connect.WithHandlerOptions(opts...),
 	)
+	asyncRemoteCallServicePurgeQueueHandler := connect.NewUnaryHandler(
+		AsyncRemoteCallServicePurgeQueueProcedure,
+		svc.PurgeQueue,
+		connect.WithSchema(asyncRemoteCallServiceMethods.ByName("PurgeQueue")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.runtime.v1.AsyncRemoteCallService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AsyncRemoteCallServiceEnqueueRemoteCallProcedure:
 			asyncRemoteCallServiceEnqueueRemoteCallHandler.ServeHTTP(w, r)
 		case AsyncRemoteCallServicePollRemoteCallProcedure:
 			asyncRemoteCallServicePollRemoteCallHandler.ServeHTTP(w, r)
+		case AsyncRemoteCallServicePurgeQueueProcedure:
+			asyncRemoteCallServicePurgeQueueHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -227,6 +254,10 @@ func (UnimplementedAsyncRemoteCallServiceHandler) EnqueueRemoteCall(context.Cont
 
 func (UnimplementedAsyncRemoteCallServiceHandler) PollRemoteCall(context.Context, *connect.Request[v1.PollRemoteCallRequest]) (*connect.Response[v1.PollRemoteCallResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.PollRemoteCall is not implemented"))
+}
+
+func (UnimplementedAsyncRemoteCallServiceHandler) PurgeQueue(context.Context, *connect.Request[v1.PurgeQueueRequest]) (*connect.Response[v1.PurgeQueueResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.AsyncRemoteCallService.PurgeQueue is not implemented"))
 }
 
 // FunctionQueueMetaServiceClient is a client for the chalk.runtime.v1.FunctionQueueMetaService

@@ -133,18 +133,20 @@ func (x *ScalarsForNamespace) GetScalars() map[string]*FeatureInfo {
 // Each one correspodns to a chalk.aggregate.v1.timeseries.AggregateTimeSeriesRule
 // but this message type is a form that exacty lines up with  ChalkAggregation, used by the online stores for persistence
 type AggregationInfo struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Groups           []string               `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
-	Filters          []string               `protobuf:"bytes,2,rep,name=filters,proto3" json:"filters,omitempty"`
-	AggregateOn      string                 `protobuf:"bytes,3,opt,name=aggregate_on,json=aggregateOn,proto3" json:"aggregate_on,omitempty"`
-	BucketDurationMs int64                  `protobuf:"varint,4,opt,name=bucket_duration_ms,json=bucketDurationMs,proto3" json:"bucket_duration_ms,omitempty"`
-	BucketStartMs    int64                  `protobuf:"varint,5,opt,name=bucket_start_ms,json=bucketStartMs,proto3" json:"bucket_start_ms,omitempty"`
-	LookupWindowsMs  []int64                `protobuf:"varint,6,rep,packed,name=lookup_windows_ms,json=lookupWindowsMs,proto3" json:"lookup_windows_ms,omitempty"`
-	AggregationType  string                 `protobuf:"bytes,7,opt,name=aggregation_type,json=aggregationType,proto3" json:"aggregation_type,omitempty"`
-	BucketOn         string                 `protobuf:"bytes,8,opt,name=bucket_on,json=bucketOn,proto3" json:"bucket_on,omitempty"`
-	Options          *structpb.Struct       `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Groups  []string               `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
+	Filters []string               `protobuf:"bytes,2,rep,name=filters,proto3" json:"filters,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/onlinestore/v1/online_store_config.proto.
+	AggregateOn         string           `protobuf:"bytes,3,opt,name=aggregate_on,json=aggregateOn,proto3" json:"aggregate_on,omitempty"`
+	BucketDurationMs    int64            `protobuf:"varint,4,opt,name=bucket_duration_ms,json=bucketDurationMs,proto3" json:"bucket_duration_ms,omitempty"`
+	BucketStartMs       int64            `protobuf:"varint,5,opt,name=bucket_start_ms,json=bucketStartMs,proto3" json:"bucket_start_ms,omitempty"`
+	LookupWindowsMs     []int64          `protobuf:"varint,6,rep,packed,name=lookup_windows_ms,json=lookupWindowsMs,proto3" json:"lookup_windows_ms,omitempty"`
+	AggregationType     string           `protobuf:"bytes,7,opt,name=aggregation_type,json=aggregationType,proto3" json:"aggregation_type,omitempty"`
+	BucketOn            string           `protobuf:"bytes,8,opt,name=bucket_on,json=bucketOn,proto3" json:"bucket_on,omitempty"`
+	Options             *structpb.Struct `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
+	AggregateOnMultiple []string         `protobuf:"bytes,10,rep,name=aggregate_on_multiple,json=aggregateOnMultiple,proto3" json:"aggregate_on_multiple,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *AggregationInfo) Reset() {
@@ -191,6 +193,7 @@ func (x *AggregationInfo) GetFilters() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/onlinestore/v1/online_store_config.proto.
 func (x *AggregationInfo) GetAggregateOn() string {
 	if x != nil {
 		return x.AggregateOn
@@ -236,6 +239,13 @@ func (x *AggregationInfo) GetBucketOn() string {
 func (x *AggregationInfo) GetOptions() *structpb.Struct {
 	if x != nil {
 		return x.Options
+	}
+	return nil
+}
+
+func (x *AggregationInfo) GetAggregateOnMultiple() []string {
+	if x != nil {
+		return x.AggregateOnMultiple
 	}
 	return nil
 }
@@ -326,17 +336,19 @@ const file_chalk_onlinestore_v1_online_store_config_proto_rawDesc = "" +
 	"\ascalars\x18\x01 \x03(\v26.chalk.onlinestore.v1.ScalarsForNamespace.ScalarsEntryR\ascalars\x1a]\n" +
 	"\fScalarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x127\n" +
-	"\x05value\x18\x02 \x01(\v2!.chalk.onlinestore.v1.FeatureInfoR\x05value:\x028\x01\"\xe3\x02\n" +
+	"\x05value\x18\x02 \x01(\v2!.chalk.onlinestore.v1.FeatureInfoR\x05value:\x028\x01\"\x9b\x03\n" +
 	"\x0fAggregationInfo\x12\x16\n" +
 	"\x06groups\x18\x01 \x03(\tR\x06groups\x12\x18\n" +
-	"\afilters\x18\x02 \x03(\tR\afilters\x12!\n" +
-	"\faggregate_on\x18\x03 \x01(\tR\vaggregateOn\x12,\n" +
+	"\afilters\x18\x02 \x03(\tR\afilters\x12%\n" +
+	"\faggregate_on\x18\x03 \x01(\tB\x02\x18\x01R\vaggregateOn\x12,\n" +
 	"\x12bucket_duration_ms\x18\x04 \x01(\x03R\x10bucketDurationMs\x12&\n" +
 	"\x0fbucket_start_ms\x18\x05 \x01(\x03R\rbucketStartMs\x12*\n" +
 	"\x11lookup_windows_ms\x18\x06 \x03(\x03R\x0flookupWindowsMs\x12)\n" +
 	"\x10aggregation_type\x18\a \x01(\tR\x0faggregationType\x12\x1b\n" +
 	"\tbucket_on\x18\b \x01(\tR\bbucketOn\x121\n" +
-	"\aoptions\x18\t \x01(\v2\x17.google.protobuf.StructR\aoptions\"\xbd\x05\n" +
+	"\aoptions\x18\t \x01(\v2\x17.google.protobuf.StructR\aoptions\x122\n" +
+	"\x15aggregate_on_multiple\x18\n" +
+	" \x03(\tR\x13aggregateOnMultiple\"\xbd\x05\n" +
 	"\x0fOnlineStoreInfo\x12V\n" +
 	"\vscalar_info\x18\x01 \x03(\v25.chalk.onlinestore.v1.OnlineStoreInfo.ScalarInfoEntryR\n" +
 	"scalarInfo\x12Z\n" +

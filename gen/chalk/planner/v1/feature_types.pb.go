@@ -2026,12 +2026,14 @@ type MaterializationWindowConfigParsed struct {
 	Base  *v1.WindowAggregation  `protobuf:"bytes,1,opt,name=base,proto3" json:"base,omitempty"`
 	// OVERRIDES
 	// we will NOT fill these subfields in the base field, and use these fields instead
-	GroupBy                 []*FeatureReferenceIdV2 `protobuf:"bytes,2,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	GroupBy []*FeatureReferenceIdV2 `protobuf:"bytes,2,rep,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/feature_types.proto.
 	AggregateOn             *FeatureReferenceIdV2   `protobuf:"bytes,3,opt,name=aggregate_on,json=aggregateOn,proto3" json:"aggregate_on,omitempty"`
 	AggregationKwargKeys    []string                `protobuf:"bytes,4,rep,name=aggregation_kwarg_keys,json=aggregationKwargKeys,proto3" json:"aggregation_kwarg_keys,omitempty"`
 	AggregationKwargValues  []*v11.LogicalExprNode  `protobuf:"bytes,5,rep,name=aggregation_kwarg_values,json=aggregationKwargValues,proto3" json:"aggregation_kwarg_values,omitempty"`
 	BucketFeature           *FeatureReferenceIdV2   `protobuf:"bytes,6,opt,name=bucket_feature,json=bucketFeature,proto3" json:"bucket_feature,omitempty"`
 	ApproximateOfflineQuery bool                    `protobuf:"varint,7,opt,name=approximate_offline_query,json=approximateOfflineQuery,proto3" json:"approximate_offline_query,omitempty"`
+	AggregateOnFeatures     []*FeatureReferenceIdV2 `protobuf:"bytes,8,rep,name=aggregate_on_features,json=aggregateOnFeatures,proto3" json:"aggregate_on_features,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -2080,6 +2082,7 @@ func (x *MaterializationWindowConfigParsed) GetGroupBy() []*FeatureReferenceIdV2
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/feature_types.proto.
 func (x *MaterializationWindowConfigParsed) GetAggregateOn() *FeatureReferenceIdV2 {
 	if x != nil {
 		return x.AggregateOn
@@ -2113,6 +2116,13 @@ func (x *MaterializationWindowConfigParsed) GetApproximateOfflineQuery() bool {
 		return x.ApproximateOfflineQuery
 	}
 	return false
+}
+
+func (x *MaterializationWindowConfigParsed) GetAggregateOnFeatures() []*FeatureReferenceIdV2 {
+	if x != nil {
+		return x.AggregateOnFeatures
+	}
+	return nil
 }
 
 // 2-5-9
@@ -3104,15 +3114,16 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"\x1csource_aggregation_namespace\x18\x04 \x01(\tR\x1asourceAggregationNamespace\x12J\n" +
 	"\rgroup_by_keys\x18\x05 \x03(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\vgroupByKeys\x12A\n" +
 	"\bhas_many\x18\x06 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\ahasManyB\x1c\n" +
-	"\x1a_unmaterialized_underscore\"\x89\x04\n" +
+	"\x1a_unmaterialized_underscore\"\xe9\x04\n" +
 	"!MaterializationWindowConfigParsed\x125\n" +
 	"\x04base\x18\x01 \x01(\v2!.chalk.graph.v1.WindowAggregationR\x04base\x12A\n" +
-	"\bgroup_by\x18\x02 \x03(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\agroupBy\x12I\n" +
-	"\faggregate_on\x18\x03 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\vaggregateOn\x124\n" +
+	"\bgroup_by\x18\x02 \x03(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\agroupBy\x12M\n" +
+	"\faggregate_on\x18\x03 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2B\x02\x18\x01R\vaggregateOn\x124\n" +
 	"\x16aggregation_kwarg_keys\x18\x04 \x03(\tR\x14aggregationKwargKeys\x12^\n" +
 	"\x18aggregation_kwarg_values\x18\x05 \x03(\v2$.chalk.expression.v1.LogicalExprNodeR\x16aggregationKwargValues\x12M\n" +
 	"\x0ebucket_feature\x18\x06 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\rbucketFeature\x12:\n" +
-	"\x19approximate_offline_query\x18\a \x01(\bR\x17approximateOfflineQuery\"\xac\x01\n" +
+	"\x19approximate_offline_query\x18\a \x01(\bR\x17approximateOfflineQuery\x12Z\n" +
+	"\x15aggregate_on_features\x18\b \x03(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\x13aggregateOnFeatures\"\xac\x01\n" +
 	"$UnderscoreMaterializedStateOperation\x12R\n" +
 	"\x12mat_agg_definition\x18\x01 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\x10matAggDefinition\x120\n" +
 	"\x14for_offline_resolver\x18\x02 \x01(\bR\x12forOfflineResolver\"\x96\x05\n" +
@@ -3340,40 +3351,41 @@ var file_chalk_planner_v1_feature_types_proto_depIdxs = []int32{
 	6,   // 76: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	52,  // 77: chalk.planner.v1.MaterializationWindowConfigParsed.aggregation_kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
 	6,   // 78: chalk.planner.v1.MaterializationWindowConfigParsed.bucket_feature:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	14,  // 79: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
-	6,   // 80: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	30,  // 81: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
-	46,  // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
-	57,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
-	57,  // 84: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
-	34,  // 85: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
-	35,  // 86: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
-	39,  // 87: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
-	36,  // 88: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
-	47,  // 89: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
-	53,  // 90: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	37,  // 91: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
-	38,  // 92: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
-	53,  // 93: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
-	53,  // 94: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
-	48,  // 95: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
-	49,  // 96: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
-	53,  // 97: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	41,  // 98: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
-	40,  // 99: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
-	43,  // 100: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
-	52,  // 101: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	27,  // 102: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	27,  // 103: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	6,   // 104: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	36,  // 105: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
-	53,  // 106: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
-	40,  // 107: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
-	108, // [108:108] is the sub-list for method output_type
-	108, // [108:108] is the sub-list for method input_type
-	108, // [108:108] is the sub-list for extension type_name
-	108, // [108:108] is the sub-list for extension extendee
-	0,   // [0:108] is the sub-list for field type_name
+	6,   // 79: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on_features:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	14,  // 80: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
+	6,   // 81: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	30,  // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
+	46,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
+	57,  // 84: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
+	57,  // 85: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
+	34,  // 86: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
+	35,  // 87: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
+	39,  // 88: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
+	36,  // 89: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
+	47,  // 90: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
+	53,  // 91: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	37,  // 92: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
+	38,  // 93: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
+	53,  // 94: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
+	53,  // 95: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
+	48,  // 96: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
+	49,  // 97: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
+	53,  // 98: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	41,  // 99: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
+	40,  // 100: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
+	43,  // 101: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
+	52,  // 102: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 103: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	27,  // 104: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	6,   // 105: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	36,  // 106: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
+	53,  // 107: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
+	40,  // 108: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
+	109, // [109:109] is the sub-list for method output_type
+	109, // [109:109] is the sub-list for method input_type
+	109, // [109:109] is the sub-list for extension type_name
+	109, // [109:109] is the sub-list for extension extendee
+	0,   // [0:109] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_feature_types_proto_init() }

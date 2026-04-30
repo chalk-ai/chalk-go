@@ -75,12 +75,42 @@ const (
 	// CloudComponentsServiceDeleteCloudComponentStorageProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentStorage RPC.
 	CloudComponentsServiceDeleteCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentStorage"
+	// CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure is the fully-qualified name
+	// of the CloudComponentsService's CreateCloudComponentContainerRegistry RPC.
+	CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/CreateCloudComponentContainerRegistry"
+	// CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure is the fully-qualified name
+	// of the CloudComponentsService's UpdateCloudComponentContainerRegistry RPC.
+	CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/UpdateCloudComponentContainerRegistry"
+	// CloudComponentsServiceGetCloudComponentContainerRegistryProcedure is the fully-qualified name of
+	// the CloudComponentsService's GetCloudComponentContainerRegistry RPC.
+	CloudComponentsServiceGetCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/GetCloudComponentContainerRegistry"
+	// CloudComponentsServiceListCloudComponentContainerRegistryProcedure is the fully-qualified name of
+	// the CloudComponentsService's ListCloudComponentContainerRegistry RPC.
+	CloudComponentsServiceListCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/ListCloudComponentContainerRegistry"
+	// CloudComponentsServiceDeleteCloudComponentContainerRegistryProcedure is the fully-qualified name
+	// of the CloudComponentsService's DeleteCloudComponentContainerRegistry RPC.
+	CloudComponentsServiceDeleteCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentContainerRegistry"
+	// CloudComponentsServiceCreateBindingClusterContainerRegistryProcedure is the fully-qualified name
+	// of the CloudComponentsService's CreateBindingClusterContainerRegistry RPC.
+	CloudComponentsServiceCreateBindingClusterContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingClusterContainerRegistry"
+	// CloudComponentsServiceGetBindingClusterContainerRegistryProcedure is the fully-qualified name of
+	// the CloudComponentsService's GetBindingClusterContainerRegistry RPC.
+	CloudComponentsServiceGetBindingClusterContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterContainerRegistry"
+	// CloudComponentsServiceListBindingClusterContainerRegistryProcedure is the fully-qualified name of
+	// the CloudComponentsService's ListBindingClusterContainerRegistry RPC.
+	CloudComponentsServiceListBindingClusterContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingClusterContainerRegistry"
+	// CloudComponentsServiceDeleteBindingClusterContainerRegistryProcedure is the fully-qualified name
+	// of the CloudComponentsService's DeleteBindingClusterContainerRegistry RPC.
+	CloudComponentsServiceDeleteBindingClusterContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterContainerRegistry"
 	// CloudComponentsServiceCreateBindingClusterGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's CreateBindingClusterGateway RPC.
 	CloudComponentsServiceCreateBindingClusterGatewayProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingClusterGateway"
 	// CloudComponentsServiceGetBindingClusterGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetBindingClusterGateway RPC.
 	CloudComponentsServiceGetBindingClusterGatewayProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterGateway"
+	// CloudComponentsServiceListBindingClusterGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListBindingClusterGateway RPC.
+	CloudComponentsServiceListBindingClusterGatewayProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingClusterGateway"
 	// CloudComponentsServiceDeleteBindingClusterGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteBindingClusterGateway RPC.
 	CloudComponentsServiceDeleteBindingClusterGatewayProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterGateway"
@@ -90,6 +120,9 @@ const (
 	// CloudComponentsServiceGetBindingPrivateGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetBindingPrivateGateway RPC.
 	CloudComponentsServiceGetBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingPrivateGateway"
+	// CloudComponentsServiceListBindingPrivateGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListBindingPrivateGateway RPC.
+	CloudComponentsServiceListBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingPrivateGateway"
 	// CloudComponentsServiceDeleteBindingPrivateGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteBindingPrivateGateway RPC.
 	CloudComponentsServiceDeleteBindingPrivateGatewayProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingPrivateGateway"
@@ -101,6 +134,10 @@ const (
 	// fully-qualified name of the CloudComponentsService's
 	// GetBindingClusterBackgroundPersistenceDeployment RPC.
 	CloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterBackgroundPersistenceDeployment"
+	// CloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentProcedure is the
+	// fully-qualified name of the CloudComponentsService's
+	// ListBindingClusterBackgroundPersistenceDeployment RPC.
+	CloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingClusterBackgroundPersistenceDeployment"
 	// CloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentProcedure is the
 	// fully-qualified name of the CloudComponentsService's
 	// DeleteBindingClusterBackgroundPersistenceDeployment RPC.
@@ -111,6 +148,9 @@ const (
 	// CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure is the fully-qualified name
 	// of the CloudComponentsService's GetBindingClusterTelemetryDeployment RPC.
 	CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterTelemetryDeployment"
+	// CloudComponentsServiceListBindingClusterTelemetryDeploymentProcedure is the fully-qualified name
+	// of the CloudComponentsService's ListBindingClusterTelemetryDeployment RPC.
+	CloudComponentsServiceListBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingClusterTelemetryDeployment"
 	// CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure is the fully-qualified
 	// name of the CloudComponentsService's DeleteBindingClusterTelemetryDeployment RPC.
 	CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterTelemetryDeployment"
@@ -120,6 +160,9 @@ const (
 	// CloudComponentsServiceGetBindingEnvironmentGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's GetBindingEnvironmentGateway RPC.
 	CloudComponentsServiceGetBindingEnvironmentGatewayProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingEnvironmentGateway"
+	// CloudComponentsServiceListBindingEnvironmentGatewayProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListBindingEnvironmentGateway RPC.
+	CloudComponentsServiceListBindingEnvironmentGatewayProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingEnvironmentGateway"
 	// CloudComponentsServiceDeleteBindingEnvironmentGatewayProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteBindingEnvironmentGateway RPC.
 	CloudComponentsServiceDeleteBindingEnvironmentGatewayProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingEnvironmentGateway"
@@ -131,6 +174,10 @@ const (
 	// fully-qualified name of the CloudComponentsService's
 	// GetBindingEnvironmentBackgroundPersistenceDeployment RPC.
 	CloudComponentsServiceGetBindingEnvironmentBackgroundPersistenceDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingEnvironmentBackgroundPersistenceDeployment"
+	// CloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentProcedure is the
+	// fully-qualified name of the CloudComponentsService's
+	// ListBindingEnvironmentBackgroundPersistenceDeployment RPC.
+	CloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingEnvironmentBackgroundPersistenceDeployment"
 	// CloudComponentsServiceDeleteBindingEnvironmentBackgroundPersistenceDeploymentProcedure is the
 	// fully-qualified name of the CloudComponentsService's
 	// DeleteBindingEnvironmentBackgroundPersistenceDeployment RPC.
@@ -153,23 +200,38 @@ type CloudComponentsServiceClient interface {
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
+	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
+	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
+	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
+	ListCloudComponentContainerRegistry(context.Context, *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error)
+	DeleteCloudComponentContainerRegistry(context.Context, *connect.Request[v1.DeleteCloudComponentContainerRegistryRequest]) (*connect.Response[v1.DeleteCloudComponentContainerRegistryResponse], error)
+	CreateBindingClusterContainerRegistry(context.Context, *connect.Request[v1.CreateBindingClusterContainerRegistryRequest]) (*connect.Response[v1.CreateBindingClusterContainerRegistryResponse], error)
+	GetBindingClusterContainerRegistry(context.Context, *connect.Request[v1.GetBindingClusterContainerRegistryRequest]) (*connect.Response[v1.GetBindingClusterContainerRegistryResponse], error)
+	ListBindingClusterContainerRegistry(context.Context, *connect.Request[v1.ListBindingClusterContainerRegistryRequest]) (*connect.Response[v1.ListBindingClusterContainerRegistryResponse], error)
+	DeleteBindingClusterContainerRegistry(context.Context, *connect.Request[v1.DeleteBindingClusterContainerRegistryRequest]) (*connect.Response[v1.DeleteBindingClusterContainerRegistryResponse], error)
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
+	ListBindingClusterGateway(context.Context, *connect.Request[v1.ListBindingClusterGatewayRequest]) (*connect.Response[v1.ListBindingClusterGatewayResponse], error)
 	DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error)
 	CreateBindingPrivateGateway(context.Context, *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error)
 	GetBindingPrivateGateway(context.Context, *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error)
+	ListBindingPrivateGateway(context.Context, *connect.Request[v1.ListBindingPrivateGatewayRequest]) (*connect.Response[v1.ListBindingPrivateGatewayResponse], error)
 	DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error)
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
+	ListBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	CreateBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error)
 	GetBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error)
+	ListBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.ListBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.ListBindingClusterTelemetryDeploymentResponse], error)
 	DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error)
 	CreateBindingEnvironmentGateway(context.Context, *connect.Request[v1.CreateBindingEnvironmentGatewayRequest]) (*connect.Response[v1.CreateBindingEnvironmentGatewayResponse], error)
 	GetBindingEnvironmentGateway(context.Context, *connect.Request[v1.GetBindingEnvironmentGatewayRequest]) (*connect.Response[v1.GetBindingEnvironmentGatewayResponse], error)
+	ListBindingEnvironmentGateway(context.Context, *connect.Request[v1.ListBindingEnvironmentGatewayRequest]) (*connect.Response[v1.ListBindingEnvironmentGatewayResponse], error)
 	DeleteBindingEnvironmentGateway(context.Context, *connect.Request[v1.DeleteBindingEnvironmentGatewayRequest]) (*connect.Response[v1.DeleteBindingEnvironmentGatewayResponse], error)
 	CreateBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 	GetBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
+	ListBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 }
 
@@ -275,6 +337,64 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentStorage")),
 			connect.WithClientOptions(opts...),
 		),
+		createCloudComponentContainerRegistry: connect.NewClient[v1.CreateCloudComponentContainerRegistryRequest, v1.CreateCloudComponentContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentContainerRegistry")),
+			connect.WithClientOptions(opts...),
+		),
+		updateCloudComponentContainerRegistry: connect.NewClient[v1.UpdateCloudComponentContainerRegistryRequest, v1.UpdateCloudComponentContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("UpdateCloudComponentContainerRegistry")),
+			connect.WithClientOptions(opts...),
+		),
+		getCloudComponentContainerRegistry: connect.NewClient[v1.GetCloudComponentContainerRegistryRequest, v1.GetCloudComponentContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetCloudComponentContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetCloudComponentContainerRegistry")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listCloudComponentContainerRegistry: connect.NewClient[v1.ListCloudComponentContainerRegistryRequest, v1.ListCloudComponentContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListCloudComponentContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentContainerRegistry")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteCloudComponentContainerRegistry: connect.NewClient[v1.DeleteCloudComponentContainerRegistryRequest, v1.DeleteCloudComponentContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteCloudComponentContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentContainerRegistry")),
+			connect.WithClientOptions(opts...),
+		),
+		createBindingClusterContainerRegistry: connect.NewClient[v1.CreateBindingClusterContainerRegistryRequest, v1.CreateBindingClusterContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateBindingClusterContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterContainerRegistry")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingClusterContainerRegistry: connect.NewClient[v1.GetBindingClusterContainerRegistryRequest, v1.GetBindingClusterContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetBindingClusterContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterContainerRegistry")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingClusterContainerRegistry: connect.NewClient[v1.ListBindingClusterContainerRegistryRequest, v1.ListBindingClusterContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingClusterContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterContainerRegistry")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingClusterContainerRegistry: connect.NewClient[v1.DeleteBindingClusterContainerRegistryRequest, v1.DeleteBindingClusterContainerRegistryResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteBindingClusterContainerRegistryProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterContainerRegistry")),
+			connect.WithClientOptions(opts...),
+		),
 		createBindingClusterGateway: connect.NewClient[v1.CreateBindingClusterGatewayRequest, v1.CreateBindingClusterGatewayResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceCreateBindingClusterGatewayProcedure,
@@ -285,6 +405,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceGetBindingClusterGatewayProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterGateway")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingClusterGateway: connect.NewClient[v1.ListBindingClusterGatewayRequest, v1.ListBindingClusterGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingClusterGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterGateway")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -307,6 +434,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listBindingPrivateGateway: connect.NewClient[v1.ListBindingPrivateGatewayRequest, v1.ListBindingPrivateGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingPrivateGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingPrivateGateway")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteBindingPrivateGateway: connect.NewClient[v1.DeleteBindingPrivateGatewayRequest, v1.DeleteBindingPrivateGatewayResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteBindingPrivateGatewayProcedure,
@@ -323,6 +457,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterBackgroundPersistenceDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingClusterBackgroundPersistenceDeployment: connect.NewClient[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest, v1.ListBindingClusterBackgroundPersistenceDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterBackgroundPersistenceDeployment")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -345,6 +486,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listBindingClusterTelemetryDeployment: connect.NewClient[v1.ListBindingClusterTelemetryDeploymentRequest, v1.ListBindingClusterTelemetryDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingClusterTelemetryDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterTelemetryDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteBindingClusterTelemetryDeployment: connect.NewClient[v1.DeleteBindingClusterTelemetryDeploymentRequest, v1.DeleteBindingClusterTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure,
@@ -364,6 +512,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listBindingEnvironmentGateway: connect.NewClient[v1.ListBindingEnvironmentGatewayRequest, v1.ListBindingEnvironmentGatewayResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingEnvironmentGatewayProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentGateway")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteBindingEnvironmentGateway: connect.NewClient[v1.DeleteBindingEnvironmentGatewayRequest, v1.DeleteBindingEnvironmentGatewayResponse](
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteBindingEnvironmentGatewayProcedure,
@@ -380,6 +535,13 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceGetBindingEnvironmentBackgroundPersistenceDeploymentProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingEnvironmentBackgroundPersistenceDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingEnvironmentBackgroundPersistenceDeployment: connect.NewClient[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest, v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentBackgroundPersistenceDeployment")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -408,23 +570,38 @@ type cloudComponentsServiceClient struct {
 	getCloudComponentStorage                                *connect.Client[v1.GetCloudComponentStorageRequest, v1.GetCloudComponentStorageResponse]
 	listCloudComponentStorage                               *connect.Client[v1.ListCloudComponentStorageRequest, v1.ListCloudComponentStorageResponse]
 	deleteCloudComponentStorage                             *connect.Client[v1.DeleteCloudComponentStorageRequest, v1.DeleteCloudComponentStorageResponse]
+	createCloudComponentContainerRegistry                   *connect.Client[v1.CreateCloudComponentContainerRegistryRequest, v1.CreateCloudComponentContainerRegistryResponse]
+	updateCloudComponentContainerRegistry                   *connect.Client[v1.UpdateCloudComponentContainerRegistryRequest, v1.UpdateCloudComponentContainerRegistryResponse]
+	getCloudComponentContainerRegistry                      *connect.Client[v1.GetCloudComponentContainerRegistryRequest, v1.GetCloudComponentContainerRegistryResponse]
+	listCloudComponentContainerRegistry                     *connect.Client[v1.ListCloudComponentContainerRegistryRequest, v1.ListCloudComponentContainerRegistryResponse]
+	deleteCloudComponentContainerRegistry                   *connect.Client[v1.DeleteCloudComponentContainerRegistryRequest, v1.DeleteCloudComponentContainerRegistryResponse]
+	createBindingClusterContainerRegistry                   *connect.Client[v1.CreateBindingClusterContainerRegistryRequest, v1.CreateBindingClusterContainerRegistryResponse]
+	getBindingClusterContainerRegistry                      *connect.Client[v1.GetBindingClusterContainerRegistryRequest, v1.GetBindingClusterContainerRegistryResponse]
+	listBindingClusterContainerRegistry                     *connect.Client[v1.ListBindingClusterContainerRegistryRequest, v1.ListBindingClusterContainerRegistryResponse]
+	deleteBindingClusterContainerRegistry                   *connect.Client[v1.DeleteBindingClusterContainerRegistryRequest, v1.DeleteBindingClusterContainerRegistryResponse]
 	createBindingClusterGateway                             *connect.Client[v1.CreateBindingClusterGatewayRequest, v1.CreateBindingClusterGatewayResponse]
 	getBindingClusterGateway                                *connect.Client[v1.GetBindingClusterGatewayRequest, v1.GetBindingClusterGatewayResponse]
+	listBindingClusterGateway                               *connect.Client[v1.ListBindingClusterGatewayRequest, v1.ListBindingClusterGatewayResponse]
 	deleteBindingClusterGateway                             *connect.Client[v1.DeleteBindingClusterGatewayRequest, v1.DeleteBindingClusterGatewayResponse]
 	createBindingPrivateGateway                             *connect.Client[v1.CreateBindingPrivateGatewayRequest, v1.CreateBindingPrivateGatewayResponse]
 	getBindingPrivateGateway                                *connect.Client[v1.GetBindingPrivateGatewayRequest, v1.GetBindingPrivateGatewayResponse]
+	listBindingPrivateGateway                               *connect.Client[v1.ListBindingPrivateGatewayRequest, v1.ListBindingPrivateGatewayResponse]
 	deleteBindingPrivateGateway                             *connect.Client[v1.DeleteBindingPrivateGatewayRequest, v1.DeleteBindingPrivateGatewayResponse]
 	createBindingClusterBackgroundPersistenceDeployment     *connect.Client[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest, v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse]
 	getBindingClusterBackgroundPersistenceDeployment        *connect.Client[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest, v1.GetBindingClusterBackgroundPersistenceDeploymentResponse]
+	listBindingClusterBackgroundPersistenceDeployment       *connect.Client[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest, v1.ListBindingClusterBackgroundPersistenceDeploymentResponse]
 	deleteBindingClusterBackgroundPersistenceDeployment     *connect.Client[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest, v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse]
 	createBindingClusterTelemetryDeployment                 *connect.Client[v1.CreateBindingClusterTelemetryDeploymentRequest, v1.CreateBindingClusterTelemetryDeploymentResponse]
 	getBindingClusterTelemetryDeployment                    *connect.Client[v1.GetBindingClusterTelemetryDeploymentRequest, v1.GetBindingClusterTelemetryDeploymentResponse]
+	listBindingClusterTelemetryDeployment                   *connect.Client[v1.ListBindingClusterTelemetryDeploymentRequest, v1.ListBindingClusterTelemetryDeploymentResponse]
 	deleteBindingClusterTelemetryDeployment                 *connect.Client[v1.DeleteBindingClusterTelemetryDeploymentRequest, v1.DeleteBindingClusterTelemetryDeploymentResponse]
 	createBindingEnvironmentGateway                         *connect.Client[v1.CreateBindingEnvironmentGatewayRequest, v1.CreateBindingEnvironmentGatewayResponse]
 	getBindingEnvironmentGateway                            *connect.Client[v1.GetBindingEnvironmentGatewayRequest, v1.GetBindingEnvironmentGatewayResponse]
+	listBindingEnvironmentGateway                           *connect.Client[v1.ListBindingEnvironmentGatewayRequest, v1.ListBindingEnvironmentGatewayResponse]
 	deleteBindingEnvironmentGateway                         *connect.Client[v1.DeleteBindingEnvironmentGatewayRequest, v1.DeleteBindingEnvironmentGatewayResponse]
 	createBindingEnvironmentBackgroundPersistenceDeployment *connect.Client[v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest, v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse]
 	getBindingEnvironmentBackgroundPersistenceDeployment    *connect.Client[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest, v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse]
+	listBindingEnvironmentBackgroundPersistenceDeployment   *connect.Client[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest, v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse]
 	deleteBindingEnvironmentBackgroundPersistenceDeployment *connect.Client[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest, v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse]
 }
 
@@ -503,6 +680,60 @@ func (c *cloudComponentsServiceClient) DeleteCloudComponentStorage(ctx context.C
 	return c.deleteCloudComponentStorage.CallUnary(ctx, req)
 }
 
+// CreateCloudComponentContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry.
+func (c *cloudComponentsServiceClient) CreateCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error) {
+	return c.createCloudComponentContainerRegistry.CallUnary(ctx, req)
+}
+
+// UpdateCloudComponentContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry.
+func (c *cloudComponentsServiceClient) UpdateCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error) {
+	return c.updateCloudComponentContainerRegistry.CallUnary(ctx, req)
+}
+
+// GetCloudComponentContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry.
+func (c *cloudComponentsServiceClient) GetCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error) {
+	return c.getCloudComponentContainerRegistry.CallUnary(ctx, req)
+}
+
+// ListCloudComponentContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry.
+func (c *cloudComponentsServiceClient) ListCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error) {
+	return c.listCloudComponentContainerRegistry.CallUnary(ctx, req)
+}
+
+// DeleteCloudComponentContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry.
+func (c *cloudComponentsServiceClient) DeleteCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.DeleteCloudComponentContainerRegistryRequest]) (*connect.Response[v1.DeleteCloudComponentContainerRegistryResponse], error) {
+	return c.deleteCloudComponentContainerRegistry.CallUnary(ctx, req)
+}
+
+// CreateBindingClusterContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry.
+func (c *cloudComponentsServiceClient) CreateBindingClusterContainerRegistry(ctx context.Context, req *connect.Request[v1.CreateBindingClusterContainerRegistryRequest]) (*connect.Response[v1.CreateBindingClusterContainerRegistryResponse], error) {
+	return c.createBindingClusterContainerRegistry.CallUnary(ctx, req)
+}
+
+// GetBindingClusterContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry.
+func (c *cloudComponentsServiceClient) GetBindingClusterContainerRegistry(ctx context.Context, req *connect.Request[v1.GetBindingClusterContainerRegistryRequest]) (*connect.Response[v1.GetBindingClusterContainerRegistryResponse], error) {
+	return c.getBindingClusterContainerRegistry.CallUnary(ctx, req)
+}
+
+// ListBindingClusterContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry.
+func (c *cloudComponentsServiceClient) ListBindingClusterContainerRegistry(ctx context.Context, req *connect.Request[v1.ListBindingClusterContainerRegistryRequest]) (*connect.Response[v1.ListBindingClusterContainerRegistryResponse], error) {
+	return c.listBindingClusterContainerRegistry.CallUnary(ctx, req)
+}
+
+// DeleteBindingClusterContainerRegistry calls
+// chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry.
+func (c *cloudComponentsServiceClient) DeleteBindingClusterContainerRegistry(ctx context.Context, req *connect.Request[v1.DeleteBindingClusterContainerRegistryRequest]) (*connect.Response[v1.DeleteBindingClusterContainerRegistryResponse], error) {
+	return c.deleteBindingClusterContainerRegistry.CallUnary(ctx, req)
+}
+
 // CreateBindingClusterGateway calls
 // chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway.
 func (c *cloudComponentsServiceClient) CreateBindingClusterGateway(ctx context.Context, req *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error) {
@@ -512,6 +743,11 @@ func (c *cloudComponentsServiceClient) CreateBindingClusterGateway(ctx context.C
 // GetBindingClusterGateway calls chalk.server.v1.CloudComponentsService.GetBindingClusterGateway.
 func (c *cloudComponentsServiceClient) GetBindingClusterGateway(ctx context.Context, req *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error) {
 	return c.getBindingClusterGateway.CallUnary(ctx, req)
+}
+
+// ListBindingClusterGateway calls chalk.server.v1.CloudComponentsService.ListBindingClusterGateway.
+func (c *cloudComponentsServiceClient) ListBindingClusterGateway(ctx context.Context, req *connect.Request[v1.ListBindingClusterGatewayRequest]) (*connect.Response[v1.ListBindingClusterGatewayResponse], error) {
+	return c.listBindingClusterGateway.CallUnary(ctx, req)
 }
 
 // DeleteBindingClusterGateway calls
@@ -529,6 +765,11 @@ func (c *cloudComponentsServiceClient) CreateBindingPrivateGateway(ctx context.C
 // GetBindingPrivateGateway calls chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway.
 func (c *cloudComponentsServiceClient) GetBindingPrivateGateway(ctx context.Context, req *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error) {
 	return c.getBindingPrivateGateway.CallUnary(ctx, req)
+}
+
+// ListBindingPrivateGateway calls chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway.
+func (c *cloudComponentsServiceClient) ListBindingPrivateGateway(ctx context.Context, req *connect.Request[v1.ListBindingPrivateGatewayRequest]) (*connect.Response[v1.ListBindingPrivateGatewayResponse], error) {
+	return c.listBindingPrivateGateway.CallUnary(ctx, req)
 }
 
 // DeleteBindingPrivateGateway calls
@@ -549,6 +790,12 @@ func (c *cloudComponentsServiceClient) GetBindingClusterBackgroundPersistenceDep
 	return c.getBindingClusterBackgroundPersistenceDeployment.CallUnary(ctx, req)
 }
 
+// ListBindingClusterBackgroundPersistenceDeployment calls
+// chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment.
+func (c *cloudComponentsServiceClient) ListBindingClusterBackgroundPersistenceDeployment(ctx context.Context, req *connect.Request[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingClusterBackgroundPersistenceDeploymentResponse], error) {
+	return c.listBindingClusterBackgroundPersistenceDeployment.CallUnary(ctx, req)
+}
+
 // DeleteBindingClusterBackgroundPersistenceDeployment calls
 // chalk.server.v1.CloudComponentsService.DeleteBindingClusterBackgroundPersistenceDeployment.
 func (c *cloudComponentsServiceClient) DeleteBindingClusterBackgroundPersistenceDeployment(ctx context.Context, req *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error) {
@@ -565,6 +812,12 @@ func (c *cloudComponentsServiceClient) CreateBindingClusterTelemetryDeployment(c
 // chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment.
 func (c *cloudComponentsServiceClient) GetBindingClusterTelemetryDeployment(ctx context.Context, req *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error) {
 	return c.getBindingClusterTelemetryDeployment.CallUnary(ctx, req)
+}
+
+// ListBindingClusterTelemetryDeployment calls
+// chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment.
+func (c *cloudComponentsServiceClient) ListBindingClusterTelemetryDeployment(ctx context.Context, req *connect.Request[v1.ListBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.ListBindingClusterTelemetryDeploymentResponse], error) {
+	return c.listBindingClusterTelemetryDeployment.CallUnary(ctx, req)
 }
 
 // DeleteBindingClusterTelemetryDeployment calls
@@ -585,6 +838,12 @@ func (c *cloudComponentsServiceClient) GetBindingEnvironmentGateway(ctx context.
 	return c.getBindingEnvironmentGateway.CallUnary(ctx, req)
 }
 
+// ListBindingEnvironmentGateway calls
+// chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway.
+func (c *cloudComponentsServiceClient) ListBindingEnvironmentGateway(ctx context.Context, req *connect.Request[v1.ListBindingEnvironmentGatewayRequest]) (*connect.Response[v1.ListBindingEnvironmentGatewayResponse], error) {
+	return c.listBindingEnvironmentGateway.CallUnary(ctx, req)
+}
+
 // DeleteBindingEnvironmentGateway calls
 // chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway.
 func (c *cloudComponentsServiceClient) DeleteBindingEnvironmentGateway(ctx context.Context, req *connect.Request[v1.DeleteBindingEnvironmentGatewayRequest]) (*connect.Response[v1.DeleteBindingEnvironmentGatewayResponse], error) {
@@ -601,6 +860,12 @@ func (c *cloudComponentsServiceClient) CreateBindingEnvironmentBackgroundPersist
 // chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment.
 func (c *cloudComponentsServiceClient) GetBindingEnvironmentBackgroundPersistenceDeployment(ctx context.Context, req *connect.Request[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
 	return c.getBindingEnvironmentBackgroundPersistenceDeployment.CallUnary(ctx, req)
+}
+
+// ListBindingEnvironmentBackgroundPersistenceDeployment calls
+// chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment.
+func (c *cloudComponentsServiceClient) ListBindingEnvironmentBackgroundPersistenceDeployment(ctx context.Context, req *connect.Request[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
+	return c.listBindingEnvironmentBackgroundPersistenceDeployment.CallUnary(ctx, req)
 }
 
 // DeleteBindingEnvironmentBackgroundPersistenceDeployment calls
@@ -626,23 +891,38 @@ type CloudComponentsServiceHandler interface {
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
+	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
+	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
+	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
+	ListCloudComponentContainerRegistry(context.Context, *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error)
+	DeleteCloudComponentContainerRegistry(context.Context, *connect.Request[v1.DeleteCloudComponentContainerRegistryRequest]) (*connect.Response[v1.DeleteCloudComponentContainerRegistryResponse], error)
+	CreateBindingClusterContainerRegistry(context.Context, *connect.Request[v1.CreateBindingClusterContainerRegistryRequest]) (*connect.Response[v1.CreateBindingClusterContainerRegistryResponse], error)
+	GetBindingClusterContainerRegistry(context.Context, *connect.Request[v1.GetBindingClusterContainerRegistryRequest]) (*connect.Response[v1.GetBindingClusterContainerRegistryResponse], error)
+	ListBindingClusterContainerRegistry(context.Context, *connect.Request[v1.ListBindingClusterContainerRegistryRequest]) (*connect.Response[v1.ListBindingClusterContainerRegistryResponse], error)
+	DeleteBindingClusterContainerRegistry(context.Context, *connect.Request[v1.DeleteBindingClusterContainerRegistryRequest]) (*connect.Response[v1.DeleteBindingClusterContainerRegistryResponse], error)
 	CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error)
 	GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error)
+	ListBindingClusterGateway(context.Context, *connect.Request[v1.ListBindingClusterGatewayRequest]) (*connect.Response[v1.ListBindingClusterGatewayResponse], error)
 	DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error)
 	CreateBindingPrivateGateway(context.Context, *connect.Request[v1.CreateBindingPrivateGatewayRequest]) (*connect.Response[v1.CreateBindingPrivateGatewayResponse], error)
 	GetBindingPrivateGateway(context.Context, *connect.Request[v1.GetBindingPrivateGatewayRequest]) (*connect.Response[v1.GetBindingPrivateGatewayResponse], error)
+	ListBindingPrivateGateway(context.Context, *connect.Request[v1.ListBindingPrivateGatewayRequest]) (*connect.Response[v1.ListBindingPrivateGatewayResponse], error)
 	DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error)
 	CreateBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error)
+	ListBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error)
 	CreateBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.CreateBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.CreateBindingClusterTelemetryDeploymentResponse], error)
 	GetBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.GetBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.GetBindingClusterTelemetryDeploymentResponse], error)
+	ListBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.ListBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.ListBindingClusterTelemetryDeploymentResponse], error)
 	DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error)
 	CreateBindingEnvironmentGateway(context.Context, *connect.Request[v1.CreateBindingEnvironmentGatewayRequest]) (*connect.Response[v1.CreateBindingEnvironmentGatewayResponse], error)
 	GetBindingEnvironmentGateway(context.Context, *connect.Request[v1.GetBindingEnvironmentGatewayRequest]) (*connect.Response[v1.GetBindingEnvironmentGatewayResponse], error)
+	ListBindingEnvironmentGateway(context.Context, *connect.Request[v1.ListBindingEnvironmentGatewayRequest]) (*connect.Response[v1.ListBindingEnvironmentGatewayResponse], error)
 	DeleteBindingEnvironmentGateway(context.Context, *connect.Request[v1.DeleteBindingEnvironmentGatewayRequest]) (*connect.Response[v1.DeleteBindingEnvironmentGatewayResponse], error)
 	CreateBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.CreateBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 	GetBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
+	ListBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 	DeleteBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse], error)
 }
 
@@ -744,6 +1024,64 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentStorage")),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceCreateCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure,
+		svc.CreateCloudComponentContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateCloudComponentContainerRegistry")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceUpdateCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure,
+		svc.UpdateCloudComponentContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("UpdateCloudComponentContainerRegistry")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetCloudComponentContainerRegistryProcedure,
+		svc.GetCloudComponentContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetCloudComponentContainerRegistry")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListCloudComponentContainerRegistryProcedure,
+		svc.ListCloudComponentContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListCloudComponentContainerRegistry")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteCloudComponentContainerRegistryProcedure,
+		svc.DeleteCloudComponentContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentContainerRegistry")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceCreateBindingClusterContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateBindingClusterContainerRegistryProcedure,
+		svc.CreateBindingClusterContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterContainerRegistry")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetBindingClusterContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetBindingClusterContainerRegistryProcedure,
+		svc.GetBindingClusterContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterContainerRegistry")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingClusterContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingClusterContainerRegistryProcedure,
+		svc.ListBindingClusterContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterContainerRegistry")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteBindingClusterContainerRegistryHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteBindingClusterContainerRegistryProcedure,
+		svc.DeleteBindingClusterContainerRegistry,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterContainerRegistry")),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceCreateBindingClusterGatewayHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceCreateBindingClusterGatewayProcedure,
 		svc.CreateBindingClusterGateway,
@@ -754,6 +1092,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceGetBindingClusterGatewayProcedure,
 		svc.GetBindingClusterGateway,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterGateway")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingClusterGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingClusterGatewayProcedure,
+		svc.ListBindingClusterGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterGateway")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -776,6 +1121,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceListBindingPrivateGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingPrivateGatewayProcedure,
+		svc.ListBindingPrivateGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingPrivateGateway")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceDeleteBindingPrivateGatewayHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceDeleteBindingPrivateGatewayProcedure,
 		svc.DeleteBindingPrivateGateway,
@@ -792,6 +1144,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentProcedure,
 		svc.GetBindingClusterBackgroundPersistenceDeployment,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterBackgroundPersistenceDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentProcedure,
+		svc.ListBindingClusterBackgroundPersistenceDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterBackgroundPersistenceDeployment")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -814,6 +1173,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceListBindingClusterTelemetryDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingClusterTelemetryDeploymentProcedure,
+		svc.ListBindingClusterTelemetryDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterTelemetryDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceDeleteBindingClusterTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure,
 		svc.DeleteBindingClusterTelemetryDeployment,
@@ -833,6 +1199,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	cloudComponentsServiceListBindingEnvironmentGatewayHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingEnvironmentGatewayProcedure,
+		svc.ListBindingEnvironmentGateway,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentGateway")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	cloudComponentsServiceDeleteBindingEnvironmentGatewayHandler := connect.NewUnaryHandler(
 		CloudComponentsServiceDeleteBindingEnvironmentGatewayProcedure,
 		svc.DeleteBindingEnvironmentGateway,
@@ -849,6 +1222,13 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceGetBindingEnvironmentBackgroundPersistenceDeploymentProcedure,
 		svc.GetBindingEnvironmentBackgroundPersistenceDeployment,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingEnvironmentBackgroundPersistenceDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentProcedure,
+		svc.ListBindingEnvironmentBackgroundPersistenceDeployment,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentBackgroundPersistenceDeployment")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -888,40 +1268,70 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceListCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentStorageProcedure:
 			cloudComponentsServiceDeleteCloudComponentStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure:
+			cloudComponentsServiceCreateCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure:
+			cloudComponentsServiceUpdateCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetCloudComponentContainerRegistryProcedure:
+			cloudComponentsServiceGetCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListCloudComponentContainerRegistryProcedure:
+			cloudComponentsServiceListCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteCloudComponentContainerRegistryProcedure:
+			cloudComponentsServiceDeleteCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateBindingClusterContainerRegistryProcedure:
+			cloudComponentsServiceCreateBindingClusterContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetBindingClusterContainerRegistryProcedure:
+			cloudComponentsServiceGetBindingClusterContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingClusterContainerRegistryProcedure:
+			cloudComponentsServiceListBindingClusterContainerRegistryHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteBindingClusterContainerRegistryProcedure:
+			cloudComponentsServiceDeleteBindingClusterContainerRegistryHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingClusterGatewayProcedure:
 			cloudComponentsServiceCreateBindingClusterGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingClusterGatewayProcedure:
 			cloudComponentsServiceGetBindingClusterGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingClusterGatewayProcedure:
+			cloudComponentsServiceListBindingClusterGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingClusterGatewayProcedure:
 			cloudComponentsServiceDeleteBindingClusterGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingPrivateGatewayProcedure:
 			cloudComponentsServiceCreateBindingPrivateGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingPrivateGatewayProcedure:
 			cloudComponentsServiceGetBindingPrivateGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingPrivateGatewayProcedure:
+			cloudComponentsServiceListBindingPrivateGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingPrivateGatewayProcedure:
 			cloudComponentsServiceDeleteBindingPrivateGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceCreateBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceGetBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentProcedure:
+			cloudComponentsServiceListBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceDeleteBindingClusterBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingClusterTelemetryDeploymentProcedure:
 			cloudComponentsServiceCreateBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingClusterTelemetryDeploymentProcedure:
 			cloudComponentsServiceGetBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingClusterTelemetryDeploymentProcedure:
+			cloudComponentsServiceListBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingClusterTelemetryDeploymentProcedure:
 			cloudComponentsServiceDeleteBindingClusterTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingEnvironmentGatewayProcedure:
 			cloudComponentsServiceCreateBindingEnvironmentGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingEnvironmentGatewayProcedure:
 			cloudComponentsServiceGetBindingEnvironmentGatewayHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingEnvironmentGatewayProcedure:
+			cloudComponentsServiceListBindingEnvironmentGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingEnvironmentGatewayProcedure:
 			cloudComponentsServiceDeleteBindingEnvironmentGatewayHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateBindingEnvironmentBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceCreateBindingEnvironmentBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceGetBindingEnvironmentBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceGetBindingEnvironmentBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentProcedure:
+			cloudComponentsServiceListBindingEnvironmentBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteBindingEnvironmentBackgroundPersistenceDeploymentProcedure:
 			cloudComponentsServiceDeleteBindingEnvironmentBackgroundPersistenceDeploymentHandler.ServeHTTP(w, r)
 		default:
@@ -989,12 +1399,52 @@ func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentStorage(co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateCloudComponentContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetCloudComponentContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentContainerRegistry(context.Context, *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListCloudComponentContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentContainerRegistry(context.Context, *connect.Request[v1.DeleteCloudComponentContainerRegistryRequest]) (*connect.Response[v1.DeleteCloudComponentContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterContainerRegistry(context.Context, *connect.Request[v1.CreateBindingClusterContainerRegistryRequest]) (*connect.Response[v1.CreateBindingClusterContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingClusterContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterContainerRegistry(context.Context, *connect.Request[v1.GetBindingClusterContainerRegistryRequest]) (*connect.Response[v1.GetBindingClusterContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingClusterContainerRegistry(context.Context, *connect.Request[v1.ListBindingClusterContainerRegistryRequest]) (*connect.Response[v1.ListBindingClusterContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingClusterContainerRegistry is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterContainerRegistry(context.Context, *connect.Request[v1.DeleteBindingClusterContainerRegistryRequest]) (*connect.Response[v1.DeleteBindingClusterContainerRegistryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterContainerRegistry is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterGateway(context.Context, *connect.Request[v1.CreateBindingClusterGatewayRequest]) (*connect.Response[v1.CreateBindingClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingClusterGateway is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterGateway(context.Context, *connect.Request[v1.GetBindingClusterGatewayRequest]) (*connect.Response[v1.GetBindingClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterGateway is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingClusterGateway(context.Context, *connect.Request[v1.ListBindingClusterGatewayRequest]) (*connect.Response[v1.ListBindingClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingClusterGateway is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterGateway(context.Context, *connect.Request[v1.DeleteBindingClusterGatewayRequest]) (*connect.Response[v1.DeleteBindingClusterGatewayResponse], error) {
@@ -1009,6 +1459,10 @@ func (UnimplementedCloudComponentsServiceHandler) GetBindingPrivateGateway(conte
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingPrivateGateway is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) ListBindingPrivateGateway(context.Context, *connect.Request[v1.ListBindingPrivateGatewayRequest]) (*connect.Response[v1.ListBindingPrivateGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingPrivateGateway is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingPrivateGateway(context.Context, *connect.Request[v1.DeleteBindingPrivateGatewayRequest]) (*connect.Response[v1.DeleteBindingPrivateGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingPrivateGateway is not implemented"))
 }
@@ -1019,6 +1473,10 @@ func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterBackground
 
 func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingClusterBackgroundPersistenceDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterBackgroundPersistenceDeployment is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingClusterBackgroundPersistenceDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingClusterBackgroundPersistenceDeployment is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterBackgroundPersistenceDeploymentResponse], error) {
@@ -1033,6 +1491,10 @@ func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterTelemetryDepl
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterTelemetryDeployment is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) ListBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.ListBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.ListBindingClusterTelemetryDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingClusterTelemetryDeployment is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterTelemetryDeployment(context.Context, *connect.Request[v1.DeleteBindingClusterTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteBindingClusterTelemetryDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterTelemetryDeployment is not implemented"))
 }
@@ -1045,6 +1507,10 @@ func (UnimplementedCloudComponentsServiceHandler) GetBindingEnvironmentGateway(c
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingEnvironmentGateway is not implemented"))
 }
 
+func (UnimplementedCloudComponentsServiceHandler) ListBindingEnvironmentGateway(context.Context, *connect.Request[v1.ListBindingEnvironmentGatewayRequest]) (*connect.Response[v1.ListBindingEnvironmentGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingEnvironmentGateway is not implemented"))
+}
+
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingEnvironmentGateway(context.Context, *connect.Request[v1.DeleteBindingEnvironmentGatewayRequest]) (*connect.Response[v1.DeleteBindingEnvironmentGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentGateway is not implemented"))
 }
@@ -1055,6 +1521,10 @@ func (UnimplementedCloudComponentsServiceHandler) CreateBindingEnvironmentBackgr
 
 func (UnimplementedCloudComponentsServiceHandler) GetBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.GetBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingEnvironmentBackgroundPersistenceDeployment is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.ListBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingEnvironmentBackgroundPersistenceDeployment is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteBindingEnvironmentBackgroundPersistenceDeployment(context.Context, *connect.Request[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentRequest]) (*connect.Response[v1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse], error) {

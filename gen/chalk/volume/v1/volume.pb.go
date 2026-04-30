@@ -598,9 +598,11 @@ func (x *ListFilesResponse) GetFiles() []*FileInfo {
 }
 
 type GetFileRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	VolumeName    string                 `protobuf:"bytes,1,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
-	Path          string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	VolumeName string                 `protobuf:"bytes,1,opt,name=volume_name,json=volumeName,proto3" json:"volume_name,omitempty"`
+	Path       string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	// When true, return a pre-signed URL instead of inline bytes.
+	GetSignedUri  *bool `protobuf:"varint,3,opt,name=get_signed_uri,json=getSignedUri,proto3,oneof" json:"get_signed_uri,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -647,6 +649,13 @@ func (x *GetFileRequest) GetPath() string {
 		return x.Path
 	}
 	return ""
+}
+
+func (x *GetFileRequest) GetGetSignedUri() bool {
+	if x != nil && x.GetSignedUri != nil {
+		return *x.GetSignedUri
+	}
+	return false
 }
 
 type GetFileResponse struct {
@@ -1415,11 +1424,13 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"volumeName\x12\x16\n" +
 	"\x06prefix\x18\x02 \x01(\tR\x06prefix\"D\n" +
 	"\x11ListFilesResponse\x12/\n" +
-	"\x05files\x18\x01 \x03(\v2\x19.chalk.volume.v1.FileInfoR\x05files\"E\n" +
+	"\x05files\x18\x01 \x03(\v2\x19.chalk.volume.v1.FileInfoR\x05files\"\x83\x01\n" +
 	"\x0eGetFileRequest\x12\x1f\n" +
 	"\vvolume_name\x18\x01 \x01(\tR\n" +
 	"volumeName\x12\x12\n" +
-	"\x04path\x18\x02 \x01(\tR\x04path\"d\n" +
+	"\x04path\x18\x02 \x01(\tR\x04path\x12)\n" +
+	"\x0eget_signed_uri\x18\x03 \x01(\bH\x00R\fgetSignedUri\x88\x01\x01B\x11\n" +
+	"\x0f_get_signed_uri\"d\n" +
 	"\x0fGetFileResponse\x12\x14\n" +
 	"\x04data\x18\x01 \x01(\fH\x00R\x04data\x120\n" +
 	"\x13signed_download_uri\x18\x02 \x01(\tH\x00R\x11signedDownloadUriB\t\n" +
@@ -1461,28 +1472,18 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x1cGetObjectDownloadUriResponse\x12.\n" +
 	"\x13signed_download_uri\x18\x01 \x01(\tR\x11signedDownloadUri2\x90\x02\n" +
 	"\x1dDataPlaneObjectStorageService\x12r\n" +
-	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\x03\x80}\n" +
-	"\x12{\n" +
-	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\x06\x80}\n" +
-	"\x90\x02\x012\xf2\x05\n" +
+	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\x03\x80}\f\x12{\n" +
+	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\x06\x80}\v\x90\x02\x012\xf2\x05\n" +
 	"\rVolumeService\x12`\n" +
-	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"\x03\x80}\n" +
-	"\x12Z\n" +
-	"\tGetVolume\x12!.chalk.volume.v1.GetVolumeRequest\x1a\".chalk.volume.v1.GetVolumeResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12`\n" +
-	"\vListVolumes\x12#.chalk.volume.v1.ListVolumesRequest\x1a$.chalk.volume.v1.ListVolumesResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12`\n" +
-	"\fDeleteVolume\x12$.chalk.volume.v1.DeleteVolumeRequest\x1a%.chalk.volume.v1.DeleteVolumeResponse\"\x03\x80}\n" +
-	"\x12Z\n" +
-	"\tListFiles\x12!.chalk.volume.v1.ListFilesRequest\x1a\".chalk.volume.v1.ListFilesResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12T\n" +
-	"\aGetFile\x12\x1f.chalk.volume.v1.GetFileRequest\x1a .chalk.volume.v1.GetFileResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12Q\n" +
-	"\aPutFile\x12\x1f.chalk.volume.v1.PutFileRequest\x1a .chalk.volume.v1.PutFileResponse\"\x03\x80}\n" +
-	"\x12Z\n" +
+	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"\x03\x80}\f\x12Z\n" +
+	"\tGetVolume\x12!.chalk.volume.v1.GetVolumeRequest\x1a\".chalk.volume.v1.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
+	"\vListVolumes\x12#.chalk.volume.v1.ListVolumesRequest\x1a$.chalk.volume.v1.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
+	"\fDeleteVolume\x12$.chalk.volume.v1.DeleteVolumeRequest\x1a%.chalk.volume.v1.DeleteVolumeResponse\"\x03\x80}\x0e\x12Z\n" +
+	"\tListFiles\x12!.chalk.volume.v1.ListFilesRequest\x1a\".chalk.volume.v1.ListFilesResponse\"\x06\x80}\v\x90\x02\x01\x12T\n" +
+	"\aGetFile\x12\x1f.chalk.volume.v1.GetFileRequest\x1a .chalk.volume.v1.GetFileResponse\"\x06\x80}\v\x90\x02\x01\x12Q\n" +
+	"\aPutFile\x12\x1f.chalk.volume.v1.PutFileRequest\x1a .chalk.volume.v1.PutFileResponse\"\x03\x80}\f\x12Z\n" +
 	"\n" +
-	"RemoveFile\x12\".chalk.volume.v1.RemoveFileRequest\x1a#.chalk.volume.v1.RemoveFileResponse\"\x03\x80}\n" +
-	"B\xbb\x01\n" +
+	"RemoveFile\x12\".chalk.volume.v1.RemoveFileRequest\x1a#.chalk.volume.v1.RemoveFileResponse\"\x03\x80}\x0eB\xbb\x01\n" +
 	"\x13com.chalk.volume.v1B\vVolumeProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/volume/v1;volumev1\xa2\x02\x03CVX\xaa\x02\x0fChalk.Volume.V1\xca\x02\x0fChalk\\Volume\\V1\xe2\x02\x1bChalk\\Volume\\V1\\GPBMetadata\xea\x02\x11Chalk::Volume::V1b\x06proto3"
 
 var (
@@ -1568,6 +1569,7 @@ func file_chalk_volume_v1_volume_proto_init() {
 	if File_chalk_volume_v1_volume_proto != nil {
 		return
 	}
+	file_chalk_volume_v1_volume_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_volume_v1_volume_proto_msgTypes[13].OneofWrappers = []any{
 		(*GetFileResponse_Data)(nil),
 		(*GetFileResponse_SignedDownloadUri)(nil),

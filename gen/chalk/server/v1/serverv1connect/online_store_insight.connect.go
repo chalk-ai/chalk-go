@@ -37,12 +37,16 @@ const (
 	// OnlineStoreInsightServiceGetOnlineStoreConfigProcedure is the fully-qualified name of the
 	// OnlineStoreInsightService's GetOnlineStoreConfig RPC.
 	OnlineStoreInsightServiceGetOnlineStoreConfigProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreConfig"
+	// OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetOnlineStoreUsageStats RPC.
+	OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreUsageStats"
 )
 
 // OnlineStoreInsightServiceClient is a client for the chalk.server.v1.OnlineStoreInsightService
 // service.
 type OnlineStoreInsightServiceClient interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
+	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceClient constructs a client for the
@@ -63,12 +67,20 @@ func NewOnlineStoreInsightServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getOnlineStoreUsageStats: connect.NewClient[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreUsageStats")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // onlineStoreInsightServiceClient implements OnlineStoreInsightServiceClient.
 type onlineStoreInsightServiceClient struct {
-	getOnlineStoreConfig *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
+	getOnlineStoreConfig     *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
+	getOnlineStoreUsageStats *connect.Client[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse]
 }
 
 // GetOnlineStoreConfig calls chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig.
@@ -76,10 +88,17 @@ func (c *onlineStoreInsightServiceClient) GetOnlineStoreConfig(ctx context.Conte
 	return c.getOnlineStoreConfig.CallUnary(ctx, req)
 }
 
+// GetOnlineStoreUsageStats calls
+// chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats.
+func (c *onlineStoreInsightServiceClient) GetOnlineStoreUsageStats(ctx context.Context, req *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error) {
+	return c.getOnlineStoreUsageStats.CallUnary(ctx, req)
+}
+
 // OnlineStoreInsightServiceHandler is an implementation of the
 // chalk.server.v1.OnlineStoreInsightService service.
 type OnlineStoreInsightServiceHandler interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
+	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceHandler builds an HTTP handler from the service implementation. It
@@ -96,10 +115,19 @@ func NewOnlineStoreInsightServiceHandler(svc OnlineStoreInsightServiceHandler, o
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	onlineStoreInsightServiceGetOnlineStoreUsageStatsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure,
+		svc.GetOnlineStoreUsageStats,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreUsageStats")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OnlineStoreInsightService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OnlineStoreInsightServiceGetOnlineStoreConfigProcedure:
 			onlineStoreInsightServiceGetOnlineStoreConfigHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure:
+			onlineStoreInsightServiceGetOnlineStoreUsageStatsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -111,4 +139,8 @@ type UnimplementedOnlineStoreInsightServiceHandler struct{}
 
 func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats is not implemented"))
 }

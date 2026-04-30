@@ -98,6 +98,7 @@ const (
 	ModelEncoding_MODEL_ENCODING_PROTOBUF    ModelEncoding = 6 // Protocol Buffers (SavedModel, ONNX)
 	ModelEncoding_MODEL_ENCODING_CBM         ModelEncoding = 7 // CatBoost-specific binary
 	ModelEncoding_MODEL_ENCODING_SAFETENSORS ModelEncoding = 8 // Cross-framework tensor format
+	ModelEncoding_MODEL_ENCODING_BST         ModelEncoding = 9 // XGBoost binary format
 )
 
 // Enum value maps for ModelEncoding.
@@ -112,6 +113,7 @@ var (
 		6: "MODEL_ENCODING_PROTOBUF",
 		7: "MODEL_ENCODING_CBM",
 		8: "MODEL_ENCODING_SAFETENSORS",
+		9: "MODEL_ENCODING_BST",
 	}
 	ModelEncoding_value = map[string]int32{
 		"MODEL_ENCODING_UNSPECIFIED": 0,
@@ -123,6 +125,7 @@ var (
 		"MODEL_ENCODING_PROTOBUF":    6,
 		"MODEL_ENCODING_CBM":         7,
 		"MODEL_ENCODING_SAFETENSORS": 8,
+		"MODEL_ENCODING_BST":         9,
 	}
 )
 
@@ -806,7 +809,7 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\x12MODEL_TYPE_XGBOOST\x10\x04\x12\x17\n" +
 	"\x13MODEL_TYPE_LIGHTGBM\x10\x05\x12\x17\n" +
 	"\x13MODEL_TYPE_CATBOOST\x10\x06\x12\x13\n" +
-	"\x0fMODEL_TYPE_ONNX\x10\a*\x85\x02\n" +
+	"\x0fMODEL_TYPE_ONNX\x10\a*\x9d\x02\n" +
 	"\rModelEncoding\x12\x1e\n" +
 	"\x1aMODEL_ENCODING_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15MODEL_ENCODING_PICKLE\x10\x01\x12\x19\n" +
@@ -816,7 +819,8 @@ const file_chalk_models_v1_model_artifact_proto_rawDesc = "" +
 	"\x13MODEL_ENCODING_HDF5\x10\x05\x12\x1b\n" +
 	"\x17MODEL_ENCODING_PROTOBUF\x10\x06\x12\x16\n" +
 	"\x12MODEL_ENCODING_CBM\x10\a\x12\x1e\n" +
-	"\x1aMODEL_ENCODING_SAFETENSORS\x10\bB\xc2\x01\n" +
+	"\x1aMODEL_ENCODING_SAFETENSORS\x10\b\x12\x16\n" +
+	"\x12MODEL_ENCODING_BST\x10\tB\xc2\x01\n" +
 	"\x13com.chalk.models.v1B\x12ModelArtifactProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/models/v1;modelsv1\xa2\x02\x03CMX\xaa\x02\x0fChalk.Models.V1\xca\x02\x0fChalk\\Models\\V1\xe2\x02\x1bChalk\\Models\\V1\\GPBMetadata\xea\x02\x11Chalk::Models::V1b\x06proto3"
 
 var (

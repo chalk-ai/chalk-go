@@ -672,11 +672,107 @@ func (*DeleteSignOnProviderConfigurationResponse) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{12}
 }
 
+type GetSamlConfigurationByIssuerRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Issuer        string                 `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSamlConfigurationByIssuerRequest) Reset() {
+	*x = GetSamlConfigurationByIssuerRequest{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSamlConfigurationByIssuerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSamlConfigurationByIssuerRequest) ProtoMessage() {}
+
+func (x *GetSamlConfigurationByIssuerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSamlConfigurationByIssuerRequest.ProtoReflect.Descriptor instead.
+func (*GetSamlConfigurationByIssuerRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetSamlConfigurationByIssuerRequest) GetIssuer() string {
+	if x != nil {
+		return x.Issuer
+	}
+	return ""
+}
+
+type GetSamlConfigurationByIssuerResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Configuration *SignOnProviderSamlConfig `protobuf:"bytes,1,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	TeamId        string                    `protobuf:"bytes,2,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSamlConfigurationByIssuerResponse) Reset() {
+	*x = GetSamlConfigurationByIssuerResponse{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSamlConfigurationByIssuerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSamlConfigurationByIssuerResponse) ProtoMessage() {}
+
+func (x *GetSamlConfigurationByIssuerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSamlConfigurationByIssuerResponse.ProtoReflect.Descriptor instead.
+func (*GetSamlConfigurationByIssuerResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetSamlConfigurationByIssuerResponse) GetConfiguration() *SignOnProviderSamlConfig {
+	if x != nil {
+		return x.Configuration
+	}
+	return nil
+}
+
+func (x *GetSamlConfigurationByIssuerResponse) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
 var File_chalk_server_v1_sso_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\n" +
-	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"\x18\n" +
+	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\x18\n" +
 	"\x16CreateScimTokenRequest\"/\n" +
 	"\x17CreateScimTokenResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"\x88\x02\n" +
@@ -713,18 +809,24 @@ const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\rconfiguration\x18\x01 \x01(\v2,.chalk.server.v1.SignOnProviderConfigurationR\rconfiguration\":\n" +
 	"(DeleteSignOnProviderConfigurationRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"+\n" +
-	")DeleteSignOnProviderConfigurationResponse2\x85\x06\n" +
+	")DeleteSignOnProviderConfigurationResponse\"=\n" +
+	"#GetSamlConfigurationByIssuerRequest\x12\x16\n" +
+	"\x06issuer\x18\x01 \x01(\tR\x06issuer\"\x90\x01\n" +
+	"$GetSamlConfigurationByIssuerResponse\x12O\n" +
+	"\rconfiguration\x18\x01 \x01(\v2).chalk.server.v1.SignOnProviderSamlConfigR\rconfiguration\x12\x17\n" +
+	"\ateam_id\x18\x02 \x01(\tR\x06teamId2\xba\b\n" +
 	"\n" +
 	"SsoService\x12l\n" +
 	"\x0fCreateScimToken\x12'.chalk.server.v1.CreateScimTokenRequest\x1a(.chalk.server.v1.CreateScimTokenResponse\"\x06\x80}\a\x90\x02\x02\x12\x9f\x01\n" +
 	" ListSignOnProviderConfigurations\x128.chalk.server.v1.ListSignOnProviderConfigurationsRequest\x1a9.chalk.server.v1.ListSignOnProviderConfigurationsResponse\"\x06\x80}\n" +
-	"\x90\x02\x01\x12\xa2\x01\n" +
-	"!CreateSignOnProviderConfiguration\x129.chalk.server.v1.CreateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.CreateSignOnProviderConfigurationResponse\"\x06\x80}\n" +
-	"\x90\x02\x02\x12\x9f\x01\n" +
-	"!UpdateSignOnProviderConfiguration\x129.chalk.server.v1.UpdateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.UpdateSignOnProviderConfigurationResponse\"\x03\x80}\n" +
-	"\x12\x9f\x01\n" +
-	"!DeleteSignOnProviderConfiguration\x129.chalk.server.v1.DeleteSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.DeleteSignOnProviderConfigurationResponse\"\x03\x80}\n" +
-	"B\xb8\x01\n" +
+	"\x90\x02\x01\x12\xd7\x01\n" +
+	"!CreateSignOnProviderConfiguration\x129.chalk.server.v1.CreateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.CreateSignOnProviderConfigurationResponse\";\x80}\n" +
+	"\x8a\xd3\x0e1\b\x02\x12-Created a SAML sign-on provider configuration\x90\x02\x02\x12\xd4\x01\n" +
+	"!UpdateSignOnProviderConfiguration\x129.chalk.server.v1.UpdateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.UpdateSignOnProviderConfigurationResponse\"8\x80}\n" +
+	"\x8a\xd3\x0e1\b\x02\x12-Updated a SAML sign-on provider configuration\x12\xd4\x01\n" +
+	"!DeleteSignOnProviderConfiguration\x129.chalk.server.v1.DeleteSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.DeleteSignOnProviderConfigurationResponse\"8\x80}\n" +
+	"\x8a\xd3\x0e1\b\x02\x12-Deleted a SAML sign-on provider configuration\x12\x93\x01\n" +
+	"\x1cGetSamlConfigurationByIssuer\x124.chalk.server.v1.GetSamlConfigurationByIssuerRequest\x1a5.chalk.server.v1.GetSamlConfigurationByIssuerResponse\"\x06\x80}\x1d\x90\x02\x01B\xb8\x01\n" +
 	"\x13com.chalk.server.v1B\bSsoProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -739,7 +841,7 @@ func file_chalk_server_v1_sso_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_sso_proto_rawDescData
 }
 
-var file_chalk_server_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_chalk_server_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_sso_proto_goTypes = []any{
 	(*CreateScimTokenRequest)(nil),                    // 0: chalk.server.v1.CreateScimTokenRequest
 	(*CreateScimTokenResponse)(nil),                   // 1: chalk.server.v1.CreateScimTokenResponse
@@ -754,6 +856,8 @@ var file_chalk_server_v1_sso_proto_goTypes = []any{
 	(*UpdateSignOnProviderConfigurationResponse)(nil), // 10: chalk.server.v1.UpdateSignOnProviderConfigurationResponse
 	(*DeleteSignOnProviderConfigurationRequest)(nil),  // 11: chalk.server.v1.DeleteSignOnProviderConfigurationRequest
 	(*DeleteSignOnProviderConfigurationResponse)(nil), // 12: chalk.server.v1.DeleteSignOnProviderConfigurationResponse
+	(*GetSamlConfigurationByIssuerRequest)(nil),       // 13: chalk.server.v1.GetSamlConfigurationByIssuerRequest
+	(*GetSamlConfigurationByIssuerResponse)(nil),      // 14: chalk.server.v1.GetSamlConfigurationByIssuerResponse
 }
 var file_chalk_server_v1_sso_proto_depIdxs = []int32{
 	2,  // 0: chalk.server.v1.SignOnProviderConfiguration.saml_config:type_name -> chalk.server.v1.SignOnProviderSamlConfig
@@ -763,21 +867,24 @@ var file_chalk_server_v1_sso_proto_depIdxs = []int32{
 	4,  // 4: chalk.server.v1.CreateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
 	4,  // 5: chalk.server.v1.UpdateSignOnProviderConfigurationRequest.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
 	4,  // 6: chalk.server.v1.UpdateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	0,  // 7: chalk.server.v1.SsoService.CreateScimToken:input_type -> chalk.server.v1.CreateScimTokenRequest
-	5,  // 8: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:input_type -> chalk.server.v1.ListSignOnProviderConfigurationsRequest
-	7,  // 9: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:input_type -> chalk.server.v1.CreateSignOnProviderConfigurationRequest
-	9,  // 10: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:input_type -> chalk.server.v1.UpdateSignOnProviderConfigurationRequest
-	11, // 11: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:input_type -> chalk.server.v1.DeleteSignOnProviderConfigurationRequest
-	1,  // 12: chalk.server.v1.SsoService.CreateScimToken:output_type -> chalk.server.v1.CreateScimTokenResponse
-	6,  // 13: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:output_type -> chalk.server.v1.ListSignOnProviderConfigurationsResponse
-	8,  // 14: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:output_type -> chalk.server.v1.CreateSignOnProviderConfigurationResponse
-	10, // 15: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:output_type -> chalk.server.v1.UpdateSignOnProviderConfigurationResponse
-	12, // 16: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:output_type -> chalk.server.v1.DeleteSignOnProviderConfigurationResponse
-	12, // [12:17] is the sub-list for method output_type
-	7,  // [7:12] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	2,  // 7: chalk.server.v1.GetSamlConfigurationByIssuerResponse.configuration:type_name -> chalk.server.v1.SignOnProviderSamlConfig
+	0,  // 8: chalk.server.v1.SsoService.CreateScimToken:input_type -> chalk.server.v1.CreateScimTokenRequest
+	5,  // 9: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:input_type -> chalk.server.v1.ListSignOnProviderConfigurationsRequest
+	7,  // 10: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:input_type -> chalk.server.v1.CreateSignOnProviderConfigurationRequest
+	9,  // 11: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:input_type -> chalk.server.v1.UpdateSignOnProviderConfigurationRequest
+	11, // 12: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:input_type -> chalk.server.v1.DeleteSignOnProviderConfigurationRequest
+	13, // 13: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:input_type -> chalk.server.v1.GetSamlConfigurationByIssuerRequest
+	1,  // 14: chalk.server.v1.SsoService.CreateScimToken:output_type -> chalk.server.v1.CreateScimTokenResponse
+	6,  // 15: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:output_type -> chalk.server.v1.ListSignOnProviderConfigurationsResponse
+	8,  // 16: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:output_type -> chalk.server.v1.CreateSignOnProviderConfigurationResponse
+	10, // 17: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:output_type -> chalk.server.v1.UpdateSignOnProviderConfigurationResponse
+	12, // 18: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:output_type -> chalk.server.v1.DeleteSignOnProviderConfigurationResponse
+	14, // 19: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:output_type -> chalk.server.v1.GetSamlConfigurationByIssuerResponse
+	14, // [14:20] is the sub-list for method output_type
+	8,  // [8:14] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_sso_proto_init() }
@@ -796,7 +903,7 @@ func file_chalk_server_v1_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_sso_proto_rawDesc), len(file_chalk_server_v1_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

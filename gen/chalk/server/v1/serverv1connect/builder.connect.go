@@ -74,15 +74,24 @@ const (
 	// BuilderServiceGetClusterTimescaleDBProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterTimescaleDB RPC.
 	BuilderServiceGetClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleDB"
+	// BuilderServiceListClusterTimescaleDBsProcedure is the fully-qualified name of the
+	// BuilderService's ListClusterTimescaleDBs RPC.
+	BuilderServiceListClusterTimescaleDBsProcedure = "/chalk.server.v1.BuilderService/ListClusterTimescaleDBs"
 	// BuilderServiceGetClusterGatewayProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterGateway RPC.
 	BuilderServiceGetClusterGatewayProcedure = "/chalk.server.v1.BuilderService/GetClusterGateway"
+	// BuilderServiceListClusterGatewaysProcedure is the fully-qualified name of the BuilderService's
+	// ListClusterGateways RPC.
+	BuilderServiceListClusterGatewaysProcedure = "/chalk.server.v1.BuilderService/ListClusterGateways"
 	// BuilderServiceGetClusterGatewayDefaultProcedure is the fully-qualified name of the
 	// BuilderService's GetClusterGatewayDefault RPC.
 	BuilderServiceGetClusterGatewayDefaultProcedure = "/chalk.server.v1.BuilderService/GetClusterGatewayDefault"
 	// BuilderServiceGetClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's GetClusterBackgroundPersistence RPC.
 	BuilderServiceGetClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/GetClusterBackgroundPersistence"
+	// BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure is the fully-qualified name of
+	// the BuilderService's ListClusterBackgroundPersistenceDeployments RPC.
+	BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure = "/chalk.server.v1.BuilderService/ListClusterBackgroundPersistenceDeployments"
 	// BuilderServiceCreateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterTimescaleDB RPC.
 	BuilderServiceCreateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/CreateClusterTimescaleDB"
@@ -167,6 +176,9 @@ const (
 	// BuilderServiceGetTelemetryDeploymentProcedure is the fully-qualified name of the BuilderService's
 	// GetTelemetryDeployment RPC.
 	BuilderServiceGetTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/GetTelemetryDeployment"
+	// BuilderServiceListTelemetryDeploymentsProcedure is the fully-qualified name of the
+	// BuilderService's ListTelemetryDeployments RPC.
+	BuilderServiceListTelemetryDeploymentsProcedure = "/chalk.server.v1.BuilderService/ListTelemetryDeployments"
 	// BuilderServiceCreateTelemetryDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's CreateTelemetryDeployment RPC.
 	BuilderServiceCreateTelemetryDeploymentProcedure = "/chalk.server.v1.BuilderService/CreateTelemetryDeployment"
@@ -231,9 +243,12 @@ type BuilderServiceClient interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
+	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error)
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
+	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
@@ -271,6 +286,7 @@ type BuilderServiceClient interface {
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
@@ -374,10 +390,24 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 			connect.WithClientOptions(opts...),
 		),
+		listClusterTimescaleDBs: connect.NewClient[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse](
+			httpClient,
+			baseURL+BuilderServiceListClusterTimescaleDBsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListClusterTimescaleDBs")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getClusterGateway: connect.NewClient[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterGatewayProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		listClusterGateways: connect.NewClient[v1.ListClusterGatewaysRequest, v1.ListClusterGatewaysResponse](
+			httpClient,
+			baseURL+BuilderServiceListClusterGatewaysProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListClusterGateways")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		getClusterGatewayDefault: connect.NewClient[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse](
@@ -390,6 +420,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceGetClusterBackgroundPersistenceProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
+		listClusterBackgroundPersistenceDeployments: connect.NewClient[v1.ListClusterBackgroundPersistenceDeploymentsRequest, v1.ListClusterBackgroundPersistenceDeploymentsResponse](
+			httpClient,
+			baseURL+BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListClusterBackgroundPersistenceDeployments")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
 		createClusterTimescaleDB: connect.NewClient[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse](
@@ -564,6 +601,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
 			connect.WithClientOptions(opts...),
 		),
+		listTelemetryDeployments: connect.NewClient[v1.ListTelemetryDeploymentsRequest, v1.ListTelemetryDeploymentsResponse](
+			httpClient,
+			baseURL+BuilderServiceListTelemetryDeploymentsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListTelemetryDeployments")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		createTelemetryDeployment: connect.NewClient[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse](
 			httpClient,
 			baseURL+BuilderServiceCreateTelemetryDeploymentProcedure,
@@ -636,61 +680,65 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 
 // builderServiceClient implements BuilderServiceClient.
 type builderServiceClient struct {
-	getSearchConfig                     *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
-	activateDeployment                  *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
-	indexDeployment                     *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
-	startShadowBuildFromDeployment      *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
-	deployKubeComponents                *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
-	rebuildDeployment                   *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
-	redeployDeployment                  *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
-	uploadSource                        *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
-	lintSource                          *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
-	getDeploymentSteps                  *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
-	getDeploymentLogs                   *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
-	getDeploymentDependencies           *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
-	getClusterTimescaleDB               *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
-	getClusterGateway                   *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
-	getClusterGatewayDefault            *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
-	getClusterBackgroundPersistence     *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
-	createClusterTimescaleDB            *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
-	updateClusterTimescaleDB            *connect.Client[v1.UpdateClusterTimescaleDBRequest, v1.UpdateClusterTimescaleDBResponse]
-	getClusterTimescaleDefault          *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
-	deleteClusterTimescaleDB            *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
-	createEnvironmentCloudResources     *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
-	deleteEnvironmentCloudResources     *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
-	migrateClusterTimescaleDB           *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
-	createClusterGateway                *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
-	createClusterBackgroundPersistence  *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
-	updateEnvironmentVariables          *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
-	startBranch                         *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
-	scaleBranch                         *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
-	getBranchProfile                    *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
-	getBranchServerStatus               *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
-	getNodepools                        *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
-	addNodepool                         *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
-	updateNodepool                      *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
-	deleteNodepool                      *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
-	getKarpenterNodepools               *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
-	addKarpenterNodepool                *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
-	updateKarpenterNodepool             *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
-	deleteKarpenterNodepool             *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
-	getKarpenterInstallationMetadata    *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
-	getTagWeights                       *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
-	setTagWeights                       *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
-	createDeployment                    *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
-	prepareDeployment                   *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
-	getTelemetryDeployment              *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
-	createTelemetryDeployment           *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
-	updateTelemetryDeployment           *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
-	deleteTelemetryDeployment           *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
-	migrateTelemetryDeployment          *connect.Client[v1.MigrateTelemetryDeploymentRequest, v1.MigrateTelemetryDeploymentResponse]
-	getEnvironmentKubeClusters          *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
-	suspendEnvironment                  *connect.Client[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse]
-	resumeEnvironment                   *connect.Client[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse]
-	suspendClusterGateway               *connect.Client[v1.SuspendClusterGatewayRequest, v1.SuspendClusterGatewayResponse]
-	resumeClusterGateway                *connect.Client[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse]
-	suspendClusterBackgroundPersistence *connect.Client[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse]
-	resumeClusterBackgroundPersistence  *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
+	getSearchConfig                             *connect.Client[v1.GetSearchConfigRequest, v1.GetSearchConfigResponse]
+	activateDeployment                          *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
+	indexDeployment                             *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
+	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
+	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
+	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
+	redeployDeployment                          *connect.Client[v1.RedeployDeploymentRequest, v1.RedeployDeploymentResponse]
+	uploadSource                                *connect.Client[v1.UploadSourceRequest, v1.UploadSourceResponse]
+	lintSource                                  *connect.Client[v1.LintSourceRequest, v1.LintSourceResponse]
+	getDeploymentSteps                          *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
+	getDeploymentLogs                           *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
+	getDeploymentDependencies                   *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
+	getClusterTimescaleDB                       *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
+	listClusterTimescaleDBs                     *connect.Client[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse]
+	getClusterGateway                           *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
+	listClusterGateways                         *connect.Client[v1.ListClusterGatewaysRequest, v1.ListClusterGatewaysResponse]
+	getClusterGatewayDefault                    *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
+	getClusterBackgroundPersistence             *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
+	listClusterBackgroundPersistenceDeployments *connect.Client[v1.ListClusterBackgroundPersistenceDeploymentsRequest, v1.ListClusterBackgroundPersistenceDeploymentsResponse]
+	createClusterTimescaleDB                    *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
+	updateClusterTimescaleDB                    *connect.Client[v1.UpdateClusterTimescaleDBRequest, v1.UpdateClusterTimescaleDBResponse]
+	getClusterTimescaleDefault                  *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
+	deleteClusterTimescaleDB                    *connect.Client[v1.DeleteClusterTimescaleDBRequest, v1.DeleteClusterTimescaleDBResponse]
+	createEnvironmentCloudResources             *connect.Client[v1.CreateEnvironmentCloudResourcesRequest, v1.CreateEnvironmentCloudResourcesResponse]
+	deleteEnvironmentCloudResources             *connect.Client[v1.DeleteEnvironmentCloudResourcesRequest, v1.DeleteEnvironmentCloudResourcesResponse]
+	migrateClusterTimescaleDB                   *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
+	createClusterGateway                        *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
+	createClusterBackgroundPersistence          *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
+	updateEnvironmentVariables                  *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
+	startBranch                                 *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
+	scaleBranch                                 *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
+	getBranchProfile                            *connect.Client[v1.GetBranchProfileRequest, v1.GetBranchProfileResponse]
+	getBranchServerStatus                       *connect.Client[v1.GetBranchServerStatusRequest, v1.GetBranchServerStatusResponse]
+	getNodepools                                *connect.Client[v1.GetNodepoolsRequest, v1.GetNodepoolsResponse]
+	addNodepool                                 *connect.Client[v1.AddNodepoolRequest, v1.AddNodepoolResponse]
+	updateNodepool                              *connect.Client[v1.UpdateNodepoolRequest, v1.UpdateNodepoolResponse]
+	deleteNodepool                              *connect.Client[v1.DeleteNodepoolRequest, v1.DeleteNodepoolResponse]
+	getKarpenterNodepools                       *connect.Client[v1.GetKarpenterNodepoolsRequest, v1.GetKarpenterNodepoolsResponse]
+	addKarpenterNodepool                        *connect.Client[v1.AddKarpenterNodepoolRequest, v1.AddKarpenterNodepoolResponse]
+	updateKarpenterNodepool                     *connect.Client[v1.UpdateKarpenterNodepoolRequest, v1.UpdateKarpenterNodepoolResponse]
+	deleteKarpenterNodepool                     *connect.Client[v1.DeleteKarpenterNodepoolRequest, v1.DeleteKarpenterNodepoolResponse]
+	getKarpenterInstallationMetadata            *connect.Client[v1.GetKarpenterInstallationMetadataRequest, v1.GetKarpenterInstallationMetadataResponse]
+	getTagWeights                               *connect.Client[v1.GetTagWeightsRequest, v1.GetTagWeightsResponse]
+	setTagWeights                               *connect.Client[v1.SetTagWeightsRequest, v1.SetTagWeightsResponse]
+	createDeployment                            *connect.Client[v1.CreateDeploymentRequest, v1.CreateDeploymentResponse]
+	prepareDeployment                           *connect.Client[v1.PrepareDeploymentRequest, v1.PrepareDeploymentResponse]
+	getTelemetryDeployment                      *connect.Client[v1.GetTelemetryDeploymentRequest, v1.GetTelemetryDeploymentResponse]
+	listTelemetryDeployments                    *connect.Client[v1.ListTelemetryDeploymentsRequest, v1.ListTelemetryDeploymentsResponse]
+	createTelemetryDeployment                   *connect.Client[v1.CreateTelemetryDeploymentRequest, v1.CreateTelemetryDeploymentResponse]
+	updateTelemetryDeployment                   *connect.Client[v1.UpdateTelemetryDeploymentRequest, v1.UpdateTelemetryDeploymentResponse]
+	deleteTelemetryDeployment                   *connect.Client[v1.DeleteTelemetryDeploymentRequest, v1.DeleteTelemetryDeploymentResponse]
+	migrateTelemetryDeployment                  *connect.Client[v1.MigrateTelemetryDeploymentRequest, v1.MigrateTelemetryDeploymentResponse]
+	getEnvironmentKubeClusters                  *connect.Client[v1.GetEnvironmentKubeClustersRequest, v1.GetEnvironmentKubeClustersResponse]
+	suspendEnvironment                          *connect.Client[v1.SuspendEnvironmentRequest, v1.SuspendEnvironmentResponse]
+	resumeEnvironment                           *connect.Client[v1.ResumeEnvironmentRequest, v1.ResumeEnvironmentResponse]
+	suspendClusterGateway                       *connect.Client[v1.SuspendClusterGatewayRequest, v1.SuspendClusterGatewayResponse]
+	resumeClusterGateway                        *connect.Client[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse]
+	suspendClusterBackgroundPersistence         *connect.Client[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse]
+	resumeClusterBackgroundPersistence          *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -759,9 +807,19 @@ func (c *builderServiceClient) GetClusterTimescaleDB(ctx context.Context, req *c
 	return c.getClusterTimescaleDB.CallUnary(ctx, req)
 }
 
+// ListClusterTimescaleDBs calls chalk.server.v1.BuilderService.ListClusterTimescaleDBs.
+func (c *builderServiceClient) ListClusterTimescaleDBs(ctx context.Context, req *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error) {
+	return c.listClusterTimescaleDBs.CallUnary(ctx, req)
+}
+
 // GetClusterGateway calls chalk.server.v1.BuilderService.GetClusterGateway.
 func (c *builderServiceClient) GetClusterGateway(ctx context.Context, req *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error) {
 	return c.getClusterGateway.CallUnary(ctx, req)
+}
+
+// ListClusterGateways calls chalk.server.v1.BuilderService.ListClusterGateways.
+func (c *builderServiceClient) ListClusterGateways(ctx context.Context, req *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error) {
+	return c.listClusterGateways.CallUnary(ctx, req)
 }
 
 // GetClusterGatewayDefault calls chalk.server.v1.BuilderService.GetClusterGatewayDefault.
@@ -773,6 +831,12 @@ func (c *builderServiceClient) GetClusterGatewayDefault(ctx context.Context, req
 // chalk.server.v1.BuilderService.GetClusterBackgroundPersistence.
 func (c *builderServiceClient) GetClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error) {
 	return c.getClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
+// ListClusterBackgroundPersistenceDeployments calls
+// chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments.
+func (c *builderServiceClient) ListClusterBackgroundPersistenceDeployments(ctx context.Context, req *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error) {
+	return c.listClusterBackgroundPersistenceDeployments.CallUnary(ctx, req)
 }
 
 // CreateClusterTimescaleDB calls chalk.server.v1.BuilderService.CreateClusterTimescaleDB.
@@ -929,6 +993,11 @@ func (c *builderServiceClient) GetTelemetryDeployment(ctx context.Context, req *
 	return c.getTelemetryDeployment.CallUnary(ctx, req)
 }
 
+// ListTelemetryDeployments calls chalk.server.v1.BuilderService.ListTelemetryDeployments.
+func (c *builderServiceClient) ListTelemetryDeployments(ctx context.Context, req *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error) {
+	return c.listTelemetryDeployments.CallUnary(ctx, req)
+}
+
 // CreateTelemetryDeployment calls chalk.server.v1.BuilderService.CreateTelemetryDeployment.
 func (c *builderServiceClient) CreateTelemetryDeployment(ctx context.Context, req *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error) {
 	return c.createTelemetryDeployment.CallUnary(ctx, req)
@@ -1009,9 +1078,12 @@ type BuilderServiceHandler interface {
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
+	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
+	ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error)
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
+	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
@@ -1049,6 +1121,7 @@ type BuilderServiceHandler interface {
 	CreateDeployment(context.Context, *connect.Request[v1.CreateDeploymentRequest]) (*connect.Response[v1.CreateDeploymentResponse], error)
 	PrepareDeployment(context.Context, *connect.Request[v1.PrepareDeploymentRequest]) (*connect.Response[v1.PrepareDeploymentResponse], error)
 	GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error)
+	ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error)
 	CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error)
 	UpdateTelemetryDeployment(context.Context, *connect.Request[v1.UpdateTelemetryDeploymentRequest]) (*connect.Response[v1.UpdateTelemetryDeploymentResponse], error)
 	DeleteTelemetryDeployment(context.Context, *connect.Request[v1.DeleteTelemetryDeploymentRequest]) (*connect.Response[v1.DeleteTelemetryDeploymentResponse], error)
@@ -1148,10 +1221,24 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("GetClusterTimescaleDB")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceListClusterTimescaleDBsHandler := connect.NewUnaryHandler(
+		BuilderServiceListClusterTimescaleDBsProcedure,
+		svc.ListClusterTimescaleDBs,
+		connect.WithSchema(builderServiceMethods.ByName("ListClusterTimescaleDBs")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetClusterGatewayHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterGatewayProcedure,
 		svc.GetClusterGateway,
 		connect.WithSchema(builderServiceMethods.ByName("GetClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceListClusterGatewaysHandler := connect.NewUnaryHandler(
+		BuilderServiceListClusterGatewaysProcedure,
+		svc.ListClusterGateways,
+		connect.WithSchema(builderServiceMethods.ByName("ListClusterGateways")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceGetClusterGatewayDefaultHandler := connect.NewUnaryHandler(
@@ -1164,6 +1251,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceGetClusterBackgroundPersistenceProcedure,
 		svc.GetClusterBackgroundPersistence,
 		connect.WithSchema(builderServiceMethods.ByName("GetClusterBackgroundPersistence")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceListClusterBackgroundPersistenceDeploymentsHandler := connect.NewUnaryHandler(
+		BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure,
+		svc.ListClusterBackgroundPersistenceDeployments,
+		connect.WithSchema(builderServiceMethods.ByName("ListClusterBackgroundPersistenceDeployments")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceCreateClusterTimescaleDBHandler := connect.NewUnaryHandler(
@@ -1338,6 +1432,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("GetTelemetryDeployment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceListTelemetryDeploymentsHandler := connect.NewUnaryHandler(
+		BuilderServiceListTelemetryDeploymentsProcedure,
+		svc.ListTelemetryDeployments,
+		connect.WithSchema(builderServiceMethods.ByName("ListTelemetryDeployments")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceCreateTelemetryDeploymentHandler := connect.NewUnaryHandler(
 		BuilderServiceCreateTelemetryDeploymentProcedure,
 		svc.CreateTelemetryDeployment,
@@ -1433,12 +1534,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetDeploymentDependenciesHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterTimescaleDBProcedure:
 			builderServiceGetClusterTimescaleDBHandler.ServeHTTP(w, r)
+		case BuilderServiceListClusterTimescaleDBsProcedure:
+			builderServiceListClusterTimescaleDBsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterGatewayProcedure:
 			builderServiceGetClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceListClusterGatewaysProcedure:
+			builderServiceListClusterGatewaysHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterGatewayDefaultProcedure:
 			builderServiceGetClusterGatewayDefaultHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterBackgroundPersistenceProcedure:
 			builderServiceGetClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure:
+			builderServiceListClusterBackgroundPersistenceDeploymentsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterTimescaleDBProcedure:
 			builderServiceCreateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateClusterTimescaleDBProcedure:
@@ -1495,6 +1602,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServicePrepareDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceGetTelemetryDeploymentProcedure:
 			builderServiceGetTelemetryDeploymentHandler.ServeHTTP(w, r)
+		case BuilderServiceListTelemetryDeploymentsProcedure:
+			builderServiceListTelemetryDeploymentsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateTelemetryDeploymentProcedure:
 			builderServiceCreateTelemetryDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateTelemetryDeploymentProcedure:
@@ -1578,8 +1687,16 @@ func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDB(context.Context,
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterTimescaleDB is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListClusterTimescaleDBs is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ListClusterGateways(context.Context, *connect.Request[v1.ListClusterGatewaysRequest]) (*connect.Response[v1.ListClusterGatewaysResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListClusterGateways is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error) {
@@ -1588,6 +1705,10 @@ func (UnimplementedBuilderServiceHandler) GetClusterGatewayDefault(context.Conte
 
 func (UnimplementedBuilderServiceHandler) GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
@@ -1700,6 +1821,10 @@ func (UnimplementedBuilderServiceHandler) PrepareDeployment(context.Context, *co
 
 func (UnimplementedBuilderServiceHandler) GetTelemetryDeployment(context.Context, *connect.Request[v1.GetTelemetryDeploymentRequest]) (*connect.Response[v1.GetTelemetryDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetTelemetryDeployment is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ListTelemetryDeployments(context.Context, *connect.Request[v1.ListTelemetryDeploymentsRequest]) (*connect.Response[v1.ListTelemetryDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListTelemetryDeployments is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) CreateTelemetryDeployment(context.Context, *connect.Request[v1.CreateTelemetryDeploymentRequest]) (*connect.Response[v1.CreateTelemetryDeploymentResponse], error) {

@@ -152,14 +152,17 @@ func (x *AuditLog) GetError() string {
 }
 
 type GetAuditLogsRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	StartTime      *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
-	EndTime        *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
-	EndpointFilter []string               `protobuf:"bytes,3,rep,name=endpoint_filter,json=endpointFilter,proto3" json:"endpoint_filter,omitempty"`
-	Limit          *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Cursor         *string                `protobuf:"bytes,5,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"open.v1"`
+	StartTime                    *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,oneof" json:"start_time,omitempty"`
+	EndTime                      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,oneof" json:"end_time,omitempty"`
+	EndpointFilter               []string               `protobuf:"bytes,3,rep,name=endpoint_filter,json=endpointFilter,proto3" json:"endpoint_filter,omitempty"`
+	Limit                        *int32                 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Cursor                       *string                `protobuf:"bytes,5,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	TimestampLowerBoundInclusive *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=timestamp_lower_bound_inclusive,json=timestampLowerBoundInclusive,proto3,oneof" json:"timestamp_lower_bound_inclusive,omitempty"`
+	TimestampUpperBoundExclusive *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=timestamp_upper_bound_exclusive,json=timestampUpperBoundExclusive,proto3,oneof" json:"timestamp_upper_bound_exclusive,omitempty"`
+	AgentIdFilter                *string                `protobuf:"bytes,8,opt,name=agent_id_filter,json=agentIdFilter,proto3,oneof" json:"agent_id_filter,omitempty"`
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *GetAuditLogsRequest) Reset() {
@@ -223,6 +226,27 @@ func (x *GetAuditLogsRequest) GetLimit() int32 {
 func (x *GetAuditLogsRequest) GetCursor() string {
 	if x != nil && x.Cursor != nil {
 		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *GetAuditLogsRequest) GetTimestampLowerBoundInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TimestampLowerBoundInclusive
+	}
+	return nil
+}
+
+func (x *GetAuditLogsRequest) GetTimestampUpperBoundExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TimestampUpperBoundExclusive
+	}
+	return nil
+}
+
+func (x *GetAuditLogsRequest) GetAgentIdFilter() string {
+	if x != nil && x.AgentIdFilter != nil {
+		return *x.AgentIdFilter
 	}
 	return ""
 }
@@ -537,18 +561,24 @@ const file_chalk_server_v1_audit_proto_rawDesc = "" +
 	"\t_trace_idB\a\n" +
 	"\x05_codeB\x05\n" +
 	"\x03_ipB\b\n" +
-	"\x06_error\"\xa3\x02\n" +
+	"\x06_error\"\xfc\x04\n" +
 	"\x13GetAuditLogsRequest\x12>\n" +
 	"\n" +
 	"start_time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tstartTime\x88\x01\x01\x12:\n" +
 	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\aendTime\x88\x01\x01\x12'\n" +
 	"\x0fendpoint_filter\x18\x03 \x03(\tR\x0eendpointFilter\x12\x19\n" +
 	"\x05limit\x18\x04 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x05 \x01(\tH\x03R\x06cursor\x88\x01\x01B\r\n" +
+	"\x06cursor\x18\x05 \x01(\tH\x03R\x06cursor\x88\x01\x01\x12f\n" +
+	"\x1ftimestamp_lower_bound_inclusive\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x04R\x1ctimestampLowerBoundInclusive\x88\x01\x01\x12f\n" +
+	"\x1ftimestamp_upper_bound_exclusive\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x05R\x1ctimestampUpperBoundExclusive\x88\x01\x01\x12+\n" +
+	"\x0fagent_id_filter\x18\b \x01(\tH\x06R\ragentIdFilter\x88\x01\x01B\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
 	"\x06_limitB\t\n" +
-	"\a_cursor\"{\n" +
+	"\a_cursorB\"\n" +
+	" _timestamp_lower_bound_inclusiveB\"\n" +
+	" _timestamp_upper_bound_exclusiveB\x12\n" +
+	"\x10_agent_id_filter\"{\n" +
 	"\x14GetAuditLogsResponse\x12-\n" +
 	"\x04logs\x18\x01 \x03(\v2\x19.chalk.server.v1.AuditLogR\x04logs\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -611,22 +641,24 @@ var file_chalk_server_v1_audit_proto_depIdxs = []int32{
 	8,  // 4: chalk.server.v1.AuditLog.response:type_name -> chalk.server.v1.AuditLog.ResponseEntry
 	10, // 5: chalk.server.v1.GetAuditLogsRequest.start_time:type_name -> google.protobuf.Timestamp
 	10, // 6: chalk.server.v1.GetAuditLogsRequest.end_time:type_name -> google.protobuf.Timestamp
-	0,  // 7: chalk.server.v1.GetAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
-	12, // 8: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
-	3,  // 9: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	3,  // 10: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
-	4,  // 11: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
-	13, // 12: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
-	13, // 13: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
-	1,  // 14: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
-	5,  // 15: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
-	2,  // 16: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
-	6,  // 17: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
-	16, // [16:18] is the sub-list for method output_type
-	14, // [14:16] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	10, // 7: chalk.server.v1.GetAuditLogsRequest.timestamp_lower_bound_inclusive:type_name -> google.protobuf.Timestamp
+	10, // 8: chalk.server.v1.GetAuditLogsRequest.timestamp_upper_bound_exclusive:type_name -> google.protobuf.Timestamp
+	0,  // 9: chalk.server.v1.GetAuditLogsResponse.logs:type_name -> chalk.server.v1.AuditLog
+	12, // 10: chalk.server.v1.AuditedEndpoint.level:type_name -> chalk.auth.v1.AuditLevel
+	3,  // 11: chalk.server.v1.AuditedEndpoint.request_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	3,  // 12: chalk.server.v1.AuditedEndpoint.response_fields:type_name -> chalk.server.v1.AuditedEndpointField
+	4,  // 13: chalk.server.v1.GetAuditedEndpointsResponse.endpoints:type_name -> chalk.server.v1.AuditedEndpoint
+	13, // 14: chalk.server.v1.AuditLog.RequestEntry.value:type_name -> google.protobuf.Value
+	13, // 15: chalk.server.v1.AuditLog.ResponseEntry.value:type_name -> google.protobuf.Value
+	1,  // 16: chalk.server.v1.AuditService.GetAuditLogs:input_type -> chalk.server.v1.GetAuditLogsRequest
+	5,  // 17: chalk.server.v1.AuditService.GetAuditedEndpoints:input_type -> chalk.server.v1.GetAuditedEndpointsRequest
+	2,  // 18: chalk.server.v1.AuditService.GetAuditLogs:output_type -> chalk.server.v1.GetAuditLogsResponse
+	6,  // 19: chalk.server.v1.AuditService.GetAuditedEndpoints:output_type -> chalk.server.v1.GetAuditedEndpointsResponse
+	18, // [18:20] is the sub-list for method output_type
+	16, // [16:18] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_audit_proto_init() }

@@ -466,6 +466,7 @@ type ListDataPlaneJobQueueRequest struct {
 	Limit         int32                  `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
 	Offset        int32                  `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
 	OperationId   string                 `protobuf:"bytes,7,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	ResourceGroup string                 `protobuf:"bytes,8,opt,name=resource_group,json=resourceGroup,proto3" json:"resource_group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -545,6 +546,13 @@ func (x *ListDataPlaneJobQueueRequest) GetOffset() int32 {
 func (x *ListDataPlaneJobQueueRequest) GetOperationId() string {
 	if x != nil {
 		return x.OperationId
+	}
+	return ""
+}
+
+func (x *ListDataPlaneJobQueueRequest) GetResourceGroup() string {
+	if x != nil {
+		return x.ResourceGroup
 	}
 	return ""
 }
@@ -1986,7 +1994,7 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x1bGetDataPlaneJobQueueRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\"O\n" +
 	"\x1cGetDataPlaneJobQueueResponse\x12/\n" +
-	"\x03job\x18\x01 \x01(\v2\x1d.chalk.server.v1.JobQueueItemR\x03job\"\xa4\x02\n" +
+	"\x03job\x18\x01 \x01(\v2\x1d.chalk.server.v1.JobQueueItemR\x03job\"\xcb\x02\n" +
 	"\x1cListDataPlaneJobQueueRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x124\n" +
@@ -1994,7 +2002,8 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x04kind\x18\x04 \x01(\x0e2\x1d.chalk.server.v1.JobQueueKindR\x04kind\x12\x14\n" +
 	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x06 \x01(\x05R\x06offset\x12!\n" +
-	"\foperation_id\x18\a \x01(\tR\voperationId\"h\n" +
+	"\foperation_id\x18\a \x01(\tR\voperationId\x12%\n" +
+	"\x0eresource_group\x18\b \x01(\tR\rresourceGroup\"h\n" +
 	"\x1dListDataPlaneJobQueueResponse\x121\n" +
 	"\x04jobs\x18\x01 \x03(\v2\x1d.chalk.server.v1.JobQueueItemR\x04jobs\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"t\n" +

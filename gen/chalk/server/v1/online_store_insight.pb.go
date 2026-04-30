@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -381,11 +382,176 @@ func (*GetOnlineStoreConfigResponse_Dynamodb) isGetOnlineStoreConfigResponse_Con
 
 func (*GetOnlineStoreConfigResponse_Elasticache) isGetOnlineStoreConfigResponse_Config() {}
 
+type OnlineStoreUsageStat struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Namespace        string                 `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	Feature          string                 `protobuf:"bytes,2,opt,name=feature,proto3" json:"feature,omitempty"`
+	EntityCount      int64                  `protobuf:"varint,3,opt,name=entity_count,json=entityCount,proto3" json:"entity_count,omitempty"`
+	TotalMemoryBytes int64                  `protobuf:"varint,4,opt,name=total_memory_bytes,json=totalMemoryBytes,proto3" json:"total_memory_bytes,omitempty"`
+	// Total memory bytes from up to 7 recent GC snapshots, sorted oldest to newest.
+	TotalMemoryBytesHistory []int64 `protobuf:"varint,5,rep,packed,name=total_memory_bytes_history,json=totalMemoryBytesHistory,proto3" json:"total_memory_bytes_history,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *OnlineStoreUsageStat) Reset() {
+	*x = OnlineStoreUsageStat{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OnlineStoreUsageStat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OnlineStoreUsageStat) ProtoMessage() {}
+
+func (x *OnlineStoreUsageStat) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OnlineStoreUsageStat.ProtoReflect.Descriptor instead.
+func (*OnlineStoreUsageStat) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *OnlineStoreUsageStat) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
+func (x *OnlineStoreUsageStat) GetFeature() string {
+	if x != nil {
+		return x.Feature
+	}
+	return ""
+}
+
+func (x *OnlineStoreUsageStat) GetEntityCount() int64 {
+	if x != nil {
+		return x.EntityCount
+	}
+	return 0
+}
+
+func (x *OnlineStoreUsageStat) GetTotalMemoryBytes() int64 {
+	if x != nil {
+		return x.TotalMemoryBytes
+	}
+	return 0
+}
+
+func (x *OnlineStoreUsageStat) GetTotalMemoryBytesHistory() []int64 {
+	if x != nil {
+		return x.TotalMemoryBytesHistory
+	}
+	return nil
+}
+
+type GetOnlineStoreUsageStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineStoreUsageStatsRequest) Reset() {
+	*x = GetOnlineStoreUsageStatsRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineStoreUsageStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineStoreUsageStatsRequest) ProtoMessage() {}
+
+func (x *GetOnlineStoreUsageStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineStoreUsageStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetOnlineStoreUsageStatsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{5}
+}
+
+type GetOnlineStoreUsageStatsResponse struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Stats         []*OnlineStoreUsageStat `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
+	CollectedAt   *timestamppb.Timestamp  `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineStoreUsageStatsResponse) Reset() {
+	*x = GetOnlineStoreUsageStatsResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineStoreUsageStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineStoreUsageStatsResponse) ProtoMessage() {}
+
+func (x *GetOnlineStoreUsageStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineStoreUsageStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetOnlineStoreUsageStatsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetOnlineStoreUsageStatsResponse) GetStats() []*OnlineStoreUsageStat {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+func (x *GetOnlineStoreUsageStatsResponse) GetCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CollectedAt
+	}
+	return nil
+}
+
 var File_chalk_server_v1_online_store_insight_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\n" +
-	"*chalk/server/v1/online_store_insight.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\"\xbc\x03\n" +
+	"*chalk/server/v1/online_store_insight.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x03\n" +
 	"\x0eDynamoDBConfig\x12\x1d\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tR\ttableName\x12G\n" +
@@ -410,13 +576,24 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\x1cGetOnlineStoreConfigResponse\x12=\n" +
 	"\bdynamodb\x18\x01 \x01(\v2\x1f.chalk.server.v1.DynamoDBConfigH\x00R\bdynamodb\x12F\n" +
 	"\velasticache\x18\x02 \x01(\v2\".chalk.server.v1.ElasticacheConfigH\x00R\velasticacheB\b\n" +
-	"\x06config*\x91\x01\n" +
+	"\x06config\"\xdc\x01\n" +
+	"\x14OnlineStoreUsageStat\x12\x1c\n" +
+	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12\x18\n" +
+	"\afeature\x18\x02 \x01(\tR\afeature\x12!\n" +
+	"\fentity_count\x18\x03 \x01(\x03R\ventityCount\x12,\n" +
+	"\x12total_memory_bytes\x18\x04 \x01(\x03R\x10totalMemoryBytes\x12;\n" +
+	"\x1atotal_memory_bytes_history\x18\x05 \x03(\x03R\x17totalMemoryBytesHistory\"!\n" +
+	"\x1fGetOnlineStoreUsageStatsRequest\"\x9e\x01\n" +
+	" GetOnlineStoreUsageStatsResponse\x12;\n" +
+	"\x05stats\x18\x01 \x03(\v2%.chalk.server.v1.OnlineStoreUsageStatR\x05stats\x12=\n" +
+	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt*\x91\x01\n" +
 	"\x13DynamoDBBillingMode\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_PROVISIONED\x10\x01\x12*\n" +
-	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x022\x98\x01\n" +
+	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x022\xa2\x02\n" +
 	"\x19OnlineStoreInsightService\x12{\n" +
-	"\x14GetOnlineStoreConfig\x12,.chalk.server.v1.GetOnlineStoreConfigRequest\x1a-.chalk.server.v1.GetOnlineStoreConfigResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
+	"\x14GetOnlineStoreConfig\x12,.chalk.server.v1.GetOnlineStoreConfigRequest\x1a-.chalk.server.v1.GetOnlineStoreConfigResponse\"\x06\x80}\x02\x90\x02\x01\x12\x87\x01\n" +
+	"\x18GetOnlineStoreUsageStats\x120.chalk.server.v1.GetOnlineStoreUsageStatsRequest\x1a1.chalk.server.v1.GetOnlineStoreUsageStatsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17OnlineStoreInsightProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -432,25 +609,33 @@ func file_chalk_server_v1_online_store_insight_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_online_store_insight_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_chalk_server_v1_online_store_insight_proto_goTypes = []any{
-	(DynamoDBBillingMode)(0),             // 0: chalk.server.v1.DynamoDBBillingMode
-	(*DynamoDBConfig)(nil),               // 1: chalk.server.v1.DynamoDBConfig
-	(*ElasticacheConfig)(nil),            // 2: chalk.server.v1.ElasticacheConfig
-	(*GetOnlineStoreConfigRequest)(nil),  // 3: chalk.server.v1.GetOnlineStoreConfigRequest
-	(*GetOnlineStoreConfigResponse)(nil), // 4: chalk.server.v1.GetOnlineStoreConfigResponse
+	(DynamoDBBillingMode)(0),                 // 0: chalk.server.v1.DynamoDBBillingMode
+	(*DynamoDBConfig)(nil),                   // 1: chalk.server.v1.DynamoDBConfig
+	(*ElasticacheConfig)(nil),                // 2: chalk.server.v1.ElasticacheConfig
+	(*GetOnlineStoreConfigRequest)(nil),      // 3: chalk.server.v1.GetOnlineStoreConfigRequest
+	(*GetOnlineStoreConfigResponse)(nil),     // 4: chalk.server.v1.GetOnlineStoreConfigResponse
+	(*OnlineStoreUsageStat)(nil),             // 5: chalk.server.v1.OnlineStoreUsageStat
+	(*GetOnlineStoreUsageStatsRequest)(nil),  // 6: chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	(*GetOnlineStoreUsageStatsResponse)(nil), // 7: chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	(*timestamppb.Timestamp)(nil),            // 8: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_online_store_insight_proto_depIdxs = []int32{
 	0, // 0: chalk.server.v1.DynamoDBConfig.billing_mode:type_name -> chalk.server.v1.DynamoDBBillingMode
 	1, // 1: chalk.server.v1.GetOnlineStoreConfigResponse.dynamodb:type_name -> chalk.server.v1.DynamoDBConfig
 	2, // 2: chalk.server.v1.GetOnlineStoreConfigResponse.elasticache:type_name -> chalk.server.v1.ElasticacheConfig
-	3, // 3: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
-	4, // 4: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	5, // 3: chalk.server.v1.GetOnlineStoreUsageStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreUsageStat
+	8, // 4: chalk.server.v1.GetOnlineStoreUsageStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
+	3, // 5: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
+	6, // 6: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:input_type -> chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	4, // 7: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
+	7, // 8: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:output_type -> chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	7, // [7:9] is the sub-list for method output_type
+	5, // [5:7] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_online_store_insight_proto_init() }
@@ -469,7 +654,7 @@ func file_chalk_server_v1_online_store_insight_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_online_store_insight_proto_rawDesc), len(file_chalk_server_v1_online_store_insight_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1650,7 +1650,7 @@ type MetaQuery struct {
 	QueryResolvers       []string               `protobuf:"bytes,7,rep,name=query_resolvers,json=queryResolvers,proto3" json:"query_resolvers,omitempty"`
 	Owner                *string                `protobuf:"bytes,8,opt,name=owner,proto3,oneof" json:"owner,omitempty"`
 	Tags                 []string               `protobuf:"bytes,9,rep,name=tags,proto3" json:"tags,omitempty"`
-	LastObservedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_observed_at,json=lastObservedAt,proto3" json:"last_observed_at,omitempty"`
+	LastObservedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_observed_at,json=lastObservedAt,proto3,oneof" json:"last_observed_at,omitempty"`
 	CreatedAt            *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	ArchivedAt           *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
 	QueryHash            *string                `protobuf:"bytes,13,opt,name=query_hash,json=queryHash,proto3,oneof" json:"query_hash,omitempty"`
@@ -3766,7 +3766,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"query_runs\x18\x01 \x03(\v2%.chalk.server.v1.MetaQueryRunWithMetaR\tqueryRuns\x12@\n" +
 	"\vnext_cursor\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\x99\x05\n" +
+	"\f_next_cursor\"\xb3\x05\n" +
 	"\tMetaQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\n" +
@@ -3777,18 +3777,19 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x14query_features_count\x18\x06 \x01(\x05R\x12queryFeaturesCount\x12'\n" +
 	"\x0fquery_resolvers\x18\a \x03(\tR\x0equeryResolvers\x12\x19\n" +
 	"\x05owner\x18\b \x01(\tH\x01R\x05owner\x88\x01\x01\x12\x12\n" +
-	"\x04tags\x18\t \x03(\tR\x04tags\x12D\n" +
+	"\x04tags\x18\t \x03(\tR\x04tags\x12I\n" +
 	"\x10last_observed_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\x0elastObservedAt\x129\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x0elastObservedAt\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12@\n" +
-	"\varchived_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
+	"\varchived_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x03R\n" +
 	"archivedAt\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"query_hash\x18\r \x01(\tH\x03R\tqueryHash\x88\x01\x01\x125\n" +
+	"query_hash\x18\r \x01(\tH\x04R\tqueryHash\x88\x01\x01\x125\n" +
 	"\x17input_feature_root_fqns\x18\x0e \x03(\tR\x14inputFeatureRootFqnsB\r\n" +
 	"\v_query_nameB\b\n" +
-	"\x06_ownerB\x0e\n" +
+	"\x06_ownerB\x13\n" +
+	"\x11_last_observed_atB\x0e\n" +
 	"\f_archived_atB\r\n" +
 	"\v_query_hash\"\xe0\x02\n" +
 	"\x16ListMetaQueriesRequest\x12$\n" +
