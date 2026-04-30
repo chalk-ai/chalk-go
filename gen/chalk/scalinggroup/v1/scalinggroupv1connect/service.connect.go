@@ -43,6 +43,12 @@ const (
 	// ScalingGroupManagerServiceListScalingGroupsProcedure is the fully-qualified name of the
 	// ScalingGroupManagerService's ListScalingGroups RPC.
 	ScalingGroupManagerServiceListScalingGroupsProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/ListScalingGroups"
+	// ScalingGroupManagerServiceGetScalingGroupRevisionProcedure is the fully-qualified name of the
+	// ScalingGroupManagerService's GetScalingGroupRevision RPC.
+	ScalingGroupManagerServiceGetScalingGroupRevisionProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/GetScalingGroupRevision"
+	// ScalingGroupManagerServiceListScalingGroupRevisionsProcedure is the fully-qualified name of the
+	// ScalingGroupManagerService's ListScalingGroupRevisions RPC.
+	ScalingGroupManagerServiceListScalingGroupRevisionsProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/ListScalingGroupRevisions"
 	// ScalingGroupManagerServiceDeleteScalingGroupProcedure is the fully-qualified name of the
 	// ScalingGroupManagerService's DeleteScalingGroup RPC.
 	ScalingGroupManagerServiceDeleteScalingGroupProcedure = "/chalk.scalinggroup.v1.ScalingGroupManagerService/DeleteScalingGroup"
@@ -60,6 +66,10 @@ type ScalingGroupManagerServiceClient interface {
 	GetScalingGroup(context.Context, *connect.Request[v1.GetScalingGroupRequest]) (*connect.Response[v1.GetScalingGroupResponse], error)
 	// ListScalingGroups lists all scaling groups in the current environment
 	ListScalingGroups(context.Context, *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error)
+	// GetScalingGroupRevision retrieves a specific scaling group revision
+	GetScalingGroupRevision(context.Context, *connect.Request[v1.GetScalingGroupRevisionRequest]) (*connect.Response[v1.GetScalingGroupRevisionResponse], error)
+	// ListScalingGroupRevisions lists scaling group revisions in the current environment
+	ListScalingGroupRevisions(context.Context, *connect.Request[v1.ListScalingGroupRevisionsRequest]) (*connect.Response[v1.ListScalingGroupRevisionsResponse], error)
 	// DeleteScalingGroup deletes a scaling group and its Kubernetes resources
 	DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error)
 	// BatchUpdateScalingGroupStatus updates status for multiple scaling groups from the dataplane controller
@@ -96,6 +106,18 @@ func NewScalingGroupManagerServiceClient(httpClient connect.HTTPClient, baseURL 
 			connect.WithSchema(scalingGroupManagerServiceMethods.ByName("ListScalingGroups")),
 			connect.WithClientOptions(opts...),
 		),
+		getScalingGroupRevision: connect.NewClient[v1.GetScalingGroupRevisionRequest, v1.GetScalingGroupRevisionResponse](
+			httpClient,
+			baseURL+ScalingGroupManagerServiceGetScalingGroupRevisionProcedure,
+			connect.WithSchema(scalingGroupManagerServiceMethods.ByName("GetScalingGroupRevision")),
+			connect.WithClientOptions(opts...),
+		),
+		listScalingGroupRevisions: connect.NewClient[v1.ListScalingGroupRevisionsRequest, v1.ListScalingGroupRevisionsResponse](
+			httpClient,
+			baseURL+ScalingGroupManagerServiceListScalingGroupRevisionsProcedure,
+			connect.WithSchema(scalingGroupManagerServiceMethods.ByName("ListScalingGroupRevisions")),
+			connect.WithClientOptions(opts...),
+		),
 		deleteScalingGroup: connect.NewClient[v1.DeleteScalingGroupRequest, v1.DeleteScalingGroupResponse](
 			httpClient,
 			baseURL+ScalingGroupManagerServiceDeleteScalingGroupProcedure,
@@ -116,6 +138,8 @@ type scalingGroupManagerServiceClient struct {
 	createScalingGroup            *connect.Client[v1.CreateScalingGroupRequest, v1.CreateScalingGroupResponse]
 	getScalingGroup               *connect.Client[v1.GetScalingGroupRequest, v1.GetScalingGroupResponse]
 	listScalingGroups             *connect.Client[v1.ListScalingGroupsRequest, v1.ListScalingGroupsResponse]
+	getScalingGroupRevision       *connect.Client[v1.GetScalingGroupRevisionRequest, v1.GetScalingGroupRevisionResponse]
+	listScalingGroupRevisions     *connect.Client[v1.ListScalingGroupRevisionsRequest, v1.ListScalingGroupRevisionsResponse]
 	deleteScalingGroup            *connect.Client[v1.DeleteScalingGroupRequest, v1.DeleteScalingGroupResponse]
 	batchUpdateScalingGroupStatus *connect.Client[v1.BatchUpdateScalingGroupStatusRequest, v1.BatchUpdateScalingGroupStatusResponse]
 }
@@ -133,6 +157,18 @@ func (c *scalingGroupManagerServiceClient) GetScalingGroup(ctx context.Context, 
 // ListScalingGroups calls chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups.
 func (c *scalingGroupManagerServiceClient) ListScalingGroups(ctx context.Context, req *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error) {
 	return c.listScalingGroups.CallUnary(ctx, req)
+}
+
+// GetScalingGroupRevision calls
+// chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision.
+func (c *scalingGroupManagerServiceClient) GetScalingGroupRevision(ctx context.Context, req *connect.Request[v1.GetScalingGroupRevisionRequest]) (*connect.Response[v1.GetScalingGroupRevisionResponse], error) {
+	return c.getScalingGroupRevision.CallUnary(ctx, req)
+}
+
+// ListScalingGroupRevisions calls
+// chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions.
+func (c *scalingGroupManagerServiceClient) ListScalingGroupRevisions(ctx context.Context, req *connect.Request[v1.ListScalingGroupRevisionsRequest]) (*connect.Response[v1.ListScalingGroupRevisionsResponse], error) {
+	return c.listScalingGroupRevisions.CallUnary(ctx, req)
 }
 
 // DeleteScalingGroup calls chalk.scalinggroup.v1.ScalingGroupManagerService.DeleteScalingGroup.
@@ -155,6 +191,10 @@ type ScalingGroupManagerServiceHandler interface {
 	GetScalingGroup(context.Context, *connect.Request[v1.GetScalingGroupRequest]) (*connect.Response[v1.GetScalingGroupResponse], error)
 	// ListScalingGroups lists all scaling groups in the current environment
 	ListScalingGroups(context.Context, *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error)
+	// GetScalingGroupRevision retrieves a specific scaling group revision
+	GetScalingGroupRevision(context.Context, *connect.Request[v1.GetScalingGroupRevisionRequest]) (*connect.Response[v1.GetScalingGroupRevisionResponse], error)
+	// ListScalingGroupRevisions lists scaling group revisions in the current environment
+	ListScalingGroupRevisions(context.Context, *connect.Request[v1.ListScalingGroupRevisionsRequest]) (*connect.Response[v1.ListScalingGroupRevisionsResponse], error)
 	// DeleteScalingGroup deletes a scaling group and its Kubernetes resources
 	DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error)
 	// BatchUpdateScalingGroupStatus updates status for multiple scaling groups from the dataplane controller
@@ -186,6 +226,18 @@ func NewScalingGroupManagerServiceHandler(svc ScalingGroupManagerServiceHandler,
 		connect.WithSchema(scalingGroupManagerServiceMethods.ByName("ListScalingGroups")),
 		connect.WithHandlerOptions(opts...),
 	)
+	scalingGroupManagerServiceGetScalingGroupRevisionHandler := connect.NewUnaryHandler(
+		ScalingGroupManagerServiceGetScalingGroupRevisionProcedure,
+		svc.GetScalingGroupRevision,
+		connect.WithSchema(scalingGroupManagerServiceMethods.ByName("GetScalingGroupRevision")),
+		connect.WithHandlerOptions(opts...),
+	)
+	scalingGroupManagerServiceListScalingGroupRevisionsHandler := connect.NewUnaryHandler(
+		ScalingGroupManagerServiceListScalingGroupRevisionsProcedure,
+		svc.ListScalingGroupRevisions,
+		connect.WithSchema(scalingGroupManagerServiceMethods.ByName("ListScalingGroupRevisions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	scalingGroupManagerServiceDeleteScalingGroupHandler := connect.NewUnaryHandler(
 		ScalingGroupManagerServiceDeleteScalingGroupProcedure,
 		svc.DeleteScalingGroup,
@@ -206,6 +258,10 @@ func NewScalingGroupManagerServiceHandler(svc ScalingGroupManagerServiceHandler,
 			scalingGroupManagerServiceGetScalingGroupHandler.ServeHTTP(w, r)
 		case ScalingGroupManagerServiceListScalingGroupsProcedure:
 			scalingGroupManagerServiceListScalingGroupsHandler.ServeHTTP(w, r)
+		case ScalingGroupManagerServiceGetScalingGroupRevisionProcedure:
+			scalingGroupManagerServiceGetScalingGroupRevisionHandler.ServeHTTP(w, r)
+		case ScalingGroupManagerServiceListScalingGroupRevisionsProcedure:
+			scalingGroupManagerServiceListScalingGroupRevisionsHandler.ServeHTTP(w, r)
 		case ScalingGroupManagerServiceDeleteScalingGroupProcedure:
 			scalingGroupManagerServiceDeleteScalingGroupHandler.ServeHTTP(w, r)
 		case ScalingGroupManagerServiceBatchUpdateScalingGroupStatusProcedure:
@@ -229,6 +285,14 @@ func (UnimplementedScalingGroupManagerServiceHandler) GetScalingGroup(context.Co
 
 func (UnimplementedScalingGroupManagerServiceHandler) ListScalingGroups(context.Context, *connect.Request[v1.ListScalingGroupsRequest]) (*connect.Response[v1.ListScalingGroupsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroups is not implemented"))
+}
+
+func (UnimplementedScalingGroupManagerServiceHandler) GetScalingGroupRevision(context.Context, *connect.Request[v1.GetScalingGroupRevisionRequest]) (*connect.Response[v1.GetScalingGroupRevisionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.scalinggroup.v1.ScalingGroupManagerService.GetScalingGroupRevision is not implemented"))
+}
+
+func (UnimplementedScalingGroupManagerServiceHandler) ListScalingGroupRevisions(context.Context, *connect.Request[v1.ListScalingGroupRevisionsRequest]) (*connect.Response[v1.ListScalingGroupRevisionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.scalinggroup.v1.ScalingGroupManagerService.ListScalingGroupRevisions is not implemented"))
 }
 
 func (UnimplementedScalingGroupManagerServiceHandler) DeleteScalingGroup(context.Context, *connect.Request[v1.DeleteScalingGroupRequest]) (*connect.Response[v1.DeleteScalingGroupResponse], error) {

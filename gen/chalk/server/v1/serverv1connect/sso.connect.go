@@ -48,6 +48,9 @@ const (
 	// SsoServiceDeleteSignOnProviderConfigurationProcedure is the fully-qualified name of the
 	// SsoService's DeleteSignOnProviderConfiguration RPC.
 	SsoServiceDeleteSignOnProviderConfigurationProcedure = "/chalk.server.v1.SsoService/DeleteSignOnProviderConfiguration"
+	// SsoServiceGetSamlConfigurationByIssuerProcedure is the fully-qualified name of the SsoService's
+	// GetSamlConfigurationByIssuer RPC.
+	SsoServiceGetSamlConfigurationByIssuerProcedure = "/chalk.server.v1.SsoService/GetSamlConfigurationByIssuer"
 )
 
 // SsoServiceClient is a client for the chalk.server.v1.SsoService service.
@@ -58,6 +61,7 @@ type SsoServiceClient interface {
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
 	DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error)
+	GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error)
 }
 
 // NewSsoServiceClient constructs a client for the chalk.server.v1.SsoService service. By default,
@@ -104,6 +108,13 @@ func NewSsoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(ssoServiceMethods.ByName("DeleteSignOnProviderConfiguration")),
 			connect.WithClientOptions(opts...),
 		),
+		getSamlConfigurationByIssuer: connect.NewClient[v1.GetSamlConfigurationByIssuerRequest, v1.GetSamlConfigurationByIssuerResponse](
+			httpClient,
+			baseURL+SsoServiceGetSamlConfigurationByIssuerProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("GetSamlConfigurationByIssuer")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -114,6 +125,7 @@ type ssoServiceClient struct {
 	createSignOnProviderConfiguration *connect.Client[v1.CreateSignOnProviderConfigurationRequest, v1.CreateSignOnProviderConfigurationResponse]
 	updateSignOnProviderConfiguration *connect.Client[v1.UpdateSignOnProviderConfigurationRequest, v1.UpdateSignOnProviderConfigurationResponse]
 	deleteSignOnProviderConfiguration *connect.Client[v1.DeleteSignOnProviderConfigurationRequest, v1.DeleteSignOnProviderConfigurationResponse]
+	getSamlConfigurationByIssuer      *connect.Client[v1.GetSamlConfigurationByIssuerRequest, v1.GetSamlConfigurationByIssuerResponse]
 }
 
 // CreateScimToken calls chalk.server.v1.SsoService.CreateScimToken.
@@ -145,6 +157,11 @@ func (c *ssoServiceClient) DeleteSignOnProviderConfiguration(ctx context.Context
 	return c.deleteSignOnProviderConfiguration.CallUnary(ctx, req)
 }
 
+// GetSamlConfigurationByIssuer calls chalk.server.v1.SsoService.GetSamlConfigurationByIssuer.
+func (c *ssoServiceClient) GetSamlConfigurationByIssuer(ctx context.Context, req *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error) {
+	return c.getSamlConfigurationByIssuer.CallUnary(ctx, req)
+}
+
 // SsoServiceHandler is an implementation of the chalk.server.v1.SsoService service.
 type SsoServiceHandler interface {
 	// Creates a SCIM JWT token for the authenticated team
@@ -153,6 +170,7 @@ type SsoServiceHandler interface {
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
 	DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error)
+	GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error)
 }
 
 // NewSsoServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -195,6 +213,13 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(ssoServiceMethods.ByName("DeleteSignOnProviderConfiguration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ssoServiceGetSamlConfigurationByIssuerHandler := connect.NewUnaryHandler(
+		SsoServiceGetSamlConfigurationByIssuerProcedure,
+		svc.GetSamlConfigurationByIssuer,
+		connect.WithSchema(ssoServiceMethods.ByName("GetSamlConfigurationByIssuer")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.SsoService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SsoServiceCreateScimTokenProcedure:
@@ -207,6 +232,8 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 			ssoServiceUpdateSignOnProviderConfigurationHandler.ServeHTTP(w, r)
 		case SsoServiceDeleteSignOnProviderConfigurationProcedure:
 			ssoServiceDeleteSignOnProviderConfigurationHandler.ServeHTTP(w, r)
+		case SsoServiceGetSamlConfigurationByIssuerProcedure:
+			ssoServiceGetSamlConfigurationByIssuerHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -234,4 +261,8 @@ func (UnimplementedSsoServiceHandler) UpdateSignOnProviderConfiguration(context.
 
 func (UnimplementedSsoServiceHandler) DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.GetSamlConfigurationByIssuer is not implemented"))
 }

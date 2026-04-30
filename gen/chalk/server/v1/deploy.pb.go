@@ -100,11 +100,12 @@ type DeployBranchResponse struct {
 	state        protoimpl.MessageState `protogen:"open.v1"`
 	DeploymentId string                 `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/deploy.proto.
-	Graph            *v1.Graph         `protobuf:"bytes,2,opt,name=graph,proto3,oneof" json:"graph,omitempty"`
-	DeploymentErrors []*v11.ChalkError `protobuf:"bytes,3,rep,name=deployment_errors,json=deploymentErrors,proto3" json:"deployment_errors,omitempty"`
-	Export           *v12.Export       `protobuf:"bytes,4,opt,name=export,proto3,oneof" json:"export,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	Graph              *v1.Graph         `protobuf:"bytes,2,opt,name=graph,proto3,oneof" json:"graph,omitempty"`
+	DeploymentErrors   []*v11.ChalkError `protobuf:"bytes,3,rep,name=deployment_errors,json=deploymentErrors,proto3" json:"deployment_errors,omitempty"`
+	Export             *v12.Export       `protobuf:"bytes,4,opt,name=export,proto3,oneof" json:"export,omitempty"`
+	DeploymentWarnings []string          `protobuf:"bytes,5,rep,name=deployment_warnings,json=deploymentWarnings,proto3" json:"deployment_warnings,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *DeployBranchResponse) Reset() {
@@ -162,6 +163,13 @@ func (x *DeployBranchResponse) GetDeploymentErrors() []*v11.ChalkError {
 func (x *DeployBranchResponse) GetExport() *v12.Export {
 	if x != nil {
 		return x.Export
+	}
+	return nil
+}
+
+func (x *DeployBranchResponse) GetDeploymentWarnings() []string {
+	if x != nil {
+		return x.DeploymentWarnings
 	}
 	return nil
 }
@@ -996,10 +1004,11 @@ func (x *GetDeploymentSourceRequest) GetDeploymentId() string {
 }
 
 type GetDeploymentSourceResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SignedUrl     string                 `protobuf:"bytes,1,opt,name=signed_url,json=signedUrl,proto3" json:"signed_url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                           protoimpl.MessageState `protogen:"open.v1"`
+	SignedUrl                       string                 `protobuf:"bytes,1,opt,name=signed_url,json=signedUrl,proto3" json:"signed_url,omitempty"`
+	SupplementaryGraphInfoSignedUrl *string                `protobuf:"bytes,2,opt,name=supplementary_graph_info_signed_url,json=supplementaryGraphInfoSignedUrl,proto3,oneof" json:"supplementary_graph_info_signed_url,omitempty"`
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *GetDeploymentSourceResponse) Reset() {
@@ -1035,6 +1044,13 @@ func (*GetDeploymentSourceResponse) Descriptor() ([]byte, []int) {
 func (x *GetDeploymentSourceResponse) GetSignedUrl() string {
 	if x != nil {
 		return x.SignedUrl
+	}
+	return ""
+}
+
+func (x *GetDeploymentSourceResponse) GetSupplementaryGraphInfoSignedUrl() string {
+	if x != nil && x.SupplementaryGraphInfoSignedUrl != nil {
+		return *x.SupplementaryGraphInfoSignedUrl
 	}
 	return ""
 }
@@ -1245,12 +1261,13 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"branchName\x12!\n" +
 	"\freset_branch\x18\x02 \x01(\bR\vresetBranch\x12\x18\n" +
 	"\aarchive\x18\x03 \x01(\fR\aarchive\x12\"\n" +
-	"\ris_hot_deploy\x18\x04 \x01(\bR\visHotDeploy\"\x89\x02\n" +
+	"\ris_hot_deploy\x18\x04 \x01(\bR\visHotDeploy\"\xba\x02\n" +
 	"\x14DeployBranchResponse\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\x124\n" +
 	"\x05graph\x18\x02 \x01(\v2\x15.chalk.graph.v1.GraphB\x02\x18\x01H\x00R\x05graph\x88\x01\x01\x12H\n" +
 	"\x11deployment_errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x10deploymentErrors\x127\n" +
-	"\x06export\x18\x04 \x01(\v2\x1a.chalk.artifacts.v1.ExportH\x01R\x06export\x88\x01\x01B\b\n" +
+	"\x06export\x18\x04 \x01(\v2\x1a.chalk.artifacts.v1.ExportH\x01R\x06export\x88\x01\x01\x12/\n" +
+	"\x13deployment_warnings\x18\x05 \x03(\tR\x12deploymentWarningsB\b\n" +
 	"\x06_graphB\t\n" +
 	"\a_export\"\xe8\x02\n" +
 	"'CreateBranchFromSourceDeploymentRequest\x12\x1f\n" +
@@ -1319,10 +1336,12 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\x1cGetActiveDeploymentsResponse\x12=\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x1b.chalk.server.v1.DeploymentR\vdeployments\"A\n" +
 	"\x1aGetDeploymentSourceRequest\x12#\n" +
-	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"<\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\xb7\x01\n" +
 	"\x1bGetDeploymentSourceResponse\x12\x1d\n" +
 	"\n" +
-	"signed_url\x18\x01 \x01(\tR\tsignedUrl\"\xf1\x01\n" +
+	"signed_url\x18\x01 \x01(\tR\tsignedUrl\x12Q\n" +
+	"#supplementary_graph_info_signed_url\x18\x02 \x01(\tH\x00R\x1fsupplementaryGraphInfoSignedUrl\x88\x01\x01B&\n" +
+	"$_supplementary_graph_info_signed_url\"\xf1\x01\n" +
 	"\x1eResolverDeploymentHistoryEntry\x12\x1f\n" +
 	"\vresolver_id\x18\x01 \x01(\x05R\n" +
 	"resolverId\x12(\n" +
@@ -1471,6 +1490,7 @@ func file_chalk_server_v1_deploy_proto_init() {
 	file_chalk_server_v1_deploy_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_deploy_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[20].OneofWrappers = []any{}
