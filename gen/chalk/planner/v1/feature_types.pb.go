@@ -1170,6 +1170,7 @@ type UnderscoreValueV2 struct {
 	//	*UnderscoreValueV2_MaterializedAggregation
 	//	*UnderscoreValueV2_MaterializedStateOperation
 	//	*UnderscoreValueV2_IncompleteGroupByAggregation
+	//	*UnderscoreValueV2_OuterFeature
 	ValueType     isUnderscoreValueV2_ValueType `protobuf_oneof:"value_type"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1309,6 +1310,15 @@ func (x *UnderscoreValueV2) GetIncompleteGroupByAggregation() *UnderscoreIncompl
 	return nil
 }
 
+func (x *UnderscoreValueV2) GetOuterFeature() *UnderscoreOuterFeature {
+	if x != nil {
+		if x, ok := x.ValueType.(*UnderscoreValueV2_OuterFeature); ok {
+			return x.OuterFeature
+		}
+	}
+	return nil
+}
+
 type isUnderscoreValueV2_ValueType interface {
 	isUnderscoreValueV2_ValueType()
 }
@@ -1353,6 +1363,10 @@ type UnderscoreValueV2_IncompleteGroupByAggregation struct {
 	IncompleteGroupByAggregation *UnderscoreIncompleteGroupByAggregation `protobuf:"bytes,11,opt,name=incomplete_group_by_aggregation,json=incompleteGroupByAggregation,proto3,oneof"`
 }
 
+type UnderscoreValueV2_OuterFeature struct {
+	OuterFeature *UnderscoreOuterFeature `protobuf:"bytes,12,opt,name=outer_feature,json=outerFeature,proto3,oneof"`
+}
+
 func (*UnderscoreValueV2_Feature) isUnderscoreValueV2_ValueType() {}
 
 func (*UnderscoreValueV2_Column) isUnderscoreValueV2_ValueType() {}
@@ -1372,6 +1386,8 @@ func (*UnderscoreValueV2_MaterializedAggregation) isUnderscoreValueV2_ValueType(
 func (*UnderscoreValueV2_MaterializedStateOperation) isUnderscoreValueV2_ValueType() {}
 
 func (*UnderscoreValueV2_IncompleteGroupByAggregation) isUnderscoreValueV2_ValueType() {}
+
+func (*UnderscoreValueV2_OuterFeature) isUnderscoreValueV2_ValueType() {}
 
 // 2-5-1
 type UnderscoreFeature struct {
@@ -2263,6 +2279,67 @@ func (x *UnderscoreIncompleteGroupByAggregation) GetSourceAggregationNamespace()
 	return ""
 }
 
+// 2-5-11
+type UnderscoreOuterFeature struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	OuterDepth          int64                  `protobuf:"varint,1,opt,name=outer_depth,json=outerDepth,proto3" json:"outer_depth,omitempty"`
+	NestedRootNamespace string                 `protobuf:"bytes,2,opt,name=nested_root_namespace,json=nestedRootNamespace,proto3" json:"nested_root_namespace,omitempty"`
+	OuterFeature        *UnderscoreParsedId    `protobuf:"bytes,3,opt,name=outer_feature,json=outerFeature,proto3" json:"outer_feature,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *UnderscoreOuterFeature) Reset() {
+	*x = UnderscoreOuterFeature{}
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UnderscoreOuterFeature) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UnderscoreOuterFeature) ProtoMessage() {}
+
+func (x *UnderscoreOuterFeature) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UnderscoreOuterFeature.ProtoReflect.Descriptor instead.
+func (*UnderscoreOuterFeature) Descriptor() ([]byte, []int) {
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *UnderscoreOuterFeature) GetOuterDepth() int64 {
+	if x != nil {
+		return x.OuterDepth
+	}
+	return 0
+}
+
+func (x *UnderscoreOuterFeature) GetNestedRootNamespace() string {
+	if x != nil {
+		return x.NestedRootNamespace
+	}
+	return ""
+}
+
+func (x *UnderscoreOuterFeature) GetOuterFeature() *UnderscoreParsedId {
+	if x != nil {
+		return x.OuterFeature
+	}
+	return nil
+}
+
 // ### 3. UnderscoreOperation ###
 // stores UnderscoreOperation.codec_info
 type UnderscoreOperation struct {
@@ -2279,7 +2356,7 @@ type UnderscoreOperation struct {
 
 func (x *UnderscoreOperation) Reset() {
 	*x = UnderscoreOperation{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[32]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2291,7 +2368,7 @@ func (x *UnderscoreOperation) String() string {
 func (*UnderscoreOperation) ProtoMessage() {}
 
 func (x *UnderscoreOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[32]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2304,7 +2381,7 @@ func (x *UnderscoreOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnderscoreOperation.ProtoReflect.Descriptor instead.
 func (*UnderscoreOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{32}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *UnderscoreOperation) GetThisId() *UnderscoreOperationId {
@@ -2364,7 +2441,7 @@ type UnderscoreOperationId struct {
 
 func (x *UnderscoreOperationId) Reset() {
 	*x = UnderscoreOperationId{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[33]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2376,7 +2453,7 @@ func (x *UnderscoreOperationId) String() string {
 func (*UnderscoreOperationId) ProtoMessage() {}
 
 func (x *UnderscoreOperationId) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[33]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2389,7 +2466,7 @@ func (x *UnderscoreOperationId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnderscoreOperationId.ProtoReflect.Descriptor instead.
 func (*UnderscoreOperationId) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{33}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *UnderscoreOperationId) GetId() uint64 {
@@ -2415,7 +2492,7 @@ type CppRegUnderscoreOp struct {
 
 func (x *CppRegUnderscoreOp) Reset() {
 	*x = CppRegUnderscoreOp{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[34]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2427,7 +2504,7 @@ func (x *CppRegUnderscoreOp) String() string {
 func (*CppRegUnderscoreOp) ProtoMessage() {}
 
 func (x *CppRegUnderscoreOp) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[34]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2440,7 +2517,7 @@ func (x *CppRegUnderscoreOp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CppRegUnderscoreOp.ProtoReflect.Descriptor instead.
 func (*CppRegUnderscoreOp) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{34}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *CppRegUnderscoreOp) GetFunctionName() string {
@@ -2481,7 +2558,7 @@ type ArgumentType struct {
 
 func (x *ArgumentType) Reset() {
 	*x = ArgumentType{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[35]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2493,7 +2570,7 @@ func (x *ArgumentType) String() string {
 func (*ArgumentType) ProtoMessage() {}
 
 func (x *ArgumentType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[35]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2506,7 +2583,7 @@ func (x *ArgumentType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArgumentType.ProtoReflect.Descriptor instead.
 func (*ArgumentType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{35}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ArgumentType) GetType() isArgumentType_Type {
@@ -2575,7 +2652,7 @@ type CallbackType struct {
 
 func (x *CallbackType) Reset() {
 	*x = CallbackType{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[36]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2587,7 +2664,7 @@ func (x *CallbackType) String() string {
 func (*CallbackType) ProtoMessage() {}
 
 func (x *CallbackType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[36]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2600,7 +2677,7 @@ func (x *CallbackType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallbackType.ProtoReflect.Descriptor instead.
 func (*CallbackType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{36}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *CallbackType) GetInputTypes() []*v12.ArrowType {
@@ -2626,7 +2703,7 @@ type DataFrameParameterType struct {
 
 func (x *DataFrameParameterType) Reset() {
 	*x = DataFrameParameterType{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[37]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2638,7 +2715,7 @@ func (x *DataFrameParameterType) String() string {
 func (*DataFrameParameterType) ProtoMessage() {}
 
 func (x *DataFrameParameterType) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[37]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2651,7 +2728,7 @@ func (x *DataFrameParameterType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFrameParameterType.ProtoReflect.Descriptor instead.
 func (*DataFrameParameterType) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{37}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *DataFrameParameterType) GetColumns() map[string]*v12.ArrowType {
@@ -2673,7 +2750,7 @@ type PythonRegUnderscoreOp struct {
 
 func (x *PythonRegUnderscoreOp) Reset() {
 	*x = PythonRegUnderscoreOp{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[38]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2685,7 +2762,7 @@ func (x *PythonRegUnderscoreOp) String() string {
 func (*PythonRegUnderscoreOp) ProtoMessage() {}
 
 func (x *PythonRegUnderscoreOp) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[38]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2698,7 +2775,7 @@ func (x *PythonRegUnderscoreOp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PythonRegUnderscoreOp.ProtoReflect.Descriptor instead.
 func (*PythonRegUnderscoreOp) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{38}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *PythonRegUnderscoreOp) GetFunctionName() string {
@@ -2731,7 +2808,7 @@ type PythonArgument struct {
 
 func (x *PythonArgument) Reset() {
 	*x = PythonArgument{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[39]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2743,7 +2820,7 @@ func (x *PythonArgument) String() string {
 func (*PythonArgument) ProtoMessage() {}
 
 func (x *PythonArgument) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[39]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2756,7 +2833,7 @@ func (x *PythonArgument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PythonArgument.ProtoReflect.Descriptor instead.
 func (*PythonArgument) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{39}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *PythonArgument) GetType() isPythonArgument_Type {
@@ -2824,7 +2901,7 @@ type PythonArgumentList struct {
 
 func (x *PythonArgumentList) Reset() {
 	*x = PythonArgumentList{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[40]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2836,7 +2913,7 @@ func (x *PythonArgumentList) String() string {
 func (*PythonArgumentList) ProtoMessage() {}
 
 func (x *PythonArgumentList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[40]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2849,7 +2926,7 @@ func (x *PythonArgumentList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PythonArgumentList.ProtoReflect.Descriptor instead.
 func (*PythonArgumentList) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{40}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *PythonArgumentList) GetValues() []*PythonArgument {
@@ -2871,7 +2948,7 @@ type ChalkpyUnderscore struct {
 
 func (x *ChalkpyUnderscore) Reset() {
 	*x = ChalkpyUnderscore{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[41]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2883,7 +2960,7 @@ func (x *ChalkpyUnderscore) String() string {
 func (*ChalkpyUnderscore) ProtoMessage() {}
 
 func (x *ChalkpyUnderscore) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[41]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2896,7 +2973,7 @@ func (x *ChalkpyUnderscore) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkpyUnderscore.ProtoReflect.Descriptor instead.
 func (*ChalkpyUnderscore) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{41}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ChalkpyUnderscore) GetThisId() *ChalkpyUnderscoreId {
@@ -2922,7 +2999,7 @@ type ChalkpyUnderscoreId struct {
 
 func (x *ChalkpyUnderscoreId) Reset() {
 	*x = ChalkpyUnderscoreId{}
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[42]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2934,7 +3011,7 @@ func (x *ChalkpyUnderscoreId) String() string {
 func (*ChalkpyUnderscoreId) ProtoMessage() {}
 
 func (x *ChalkpyUnderscoreId) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[42]
+	mi := &file_chalk_planner_v1_feature_types_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2947,7 +3024,7 @@ func (x *ChalkpyUnderscoreId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChalkpyUnderscoreId.ProtoReflect.Descriptor instead.
 func (*ChalkpyUnderscoreId) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{42}
+	return file_chalk_planner_v1_feature_types_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ChalkpyUnderscoreId) GetId() uint64 {
@@ -3038,7 +3115,7 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"\x12mat_agg_definition\x18\x01 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdB\x02\x18\x01R\x10matAggDefinition\x12K\n" +
 	"\x0ewindow_feature\x18\x02 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\rwindowFeature\x12R\n" +
 	"\x0escalar_feature\x18\x03 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2H\x00R\rscalarFeature\x88\x01\x01B\x11\n" +
-	"\x0f_scalar_feature\"\xc0\a\n" +
+	"\x0f_scalar_feature\"\x91\b\n" +
 	"\x11UnderscoreValueV2\x12#\n" +
 	"\rexpression_id\x18\x01 \x01(\tR\fexpressionId\x12?\n" +
 	"\afeature\x18\x02 \x01(\v2#.chalk.planner.v1.UnderscoreFeatureH\x00R\afeature\x12<\n" +
@@ -3052,7 +3129,8 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"\x18materialized_aggregation\x18\t \x01(\v23.chalk.planner.v1.UnderscoreMaterializedAggregationH\x00R\x17materializedAggregation\x12z\n" +
 	"\x1cmaterialized_state_operation\x18\n" +
 	" \x01(\v26.chalk.planner.v1.UnderscoreMaterializedStateOperationH\x00R\x1amaterializedStateOperation\x12\x81\x01\n" +
-	"\x1fincomplete_group_by_aggregation\x18\v \x01(\v28.chalk.planner.v1.UnderscoreIncompleteGroupByAggregationH\x00R\x1cincompleteGroupByAggregationB\f\n" +
+	"\x1fincomplete_group_by_aggregation\x18\v \x01(\v28.chalk.planner.v1.UnderscoreIncompleteGroupByAggregationH\x00R\x1cincompleteGroupByAggregation\x12O\n" +
+	"\router_feature\x18\f \x01(\v2(.chalk.planner.v1.UnderscoreOuterFeatureH\x00R\fouterFeatureB\f\n" +
 	"\n" +
 	"value_type\"\x97\x01\n" +
 	"\x11UnderscoreFeature\x12F\n" +
@@ -3137,7 +3215,12 @@ const file_chalk_planner_v1_feature_types_proto_rawDesc = "" +
 	"\x12GroupFeaturesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
 	"\x05value\x18\x02 \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2R\x05value:\x028\x01B\x12\n" +
-	"\x10_window_duration\"\xea\x01\n" +
+	"\x10_window_duration\"\xb8\x01\n" +
+	"\x16UnderscoreOuterFeature\x12\x1f\n" +
+	"\vouter_depth\x18\x01 \x01(\x03R\n" +
+	"outerDepth\x122\n" +
+	"\x15nested_root_namespace\x18\x02 \x01(\tR\x13nestedRootNamespace\x12I\n" +
+	"\router_feature\x18\x03 \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdR\fouterFeature\"\xea\x01\n" +
 	"\x13UnderscoreOperation\x12@\n" +
 	"\athis_id\x18\x01 \x01(\v2'.chalk.planner.v1.UnderscoreOperationIdR\x06thisId\x12?\n" +
 	"\acpp_reg\x18\x02 \x01(\v2$.chalk.planner.v1.CppRegUnderscoreOpH\x00R\x06cppReg\x12H\n" +
@@ -3209,7 +3292,7 @@ func file_chalk_planner_v1_feature_types_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_planner_v1_feature_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_planner_v1_feature_types_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_chalk_planner_v1_feature_types_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
 var file_chalk_planner_v1_feature_types_proto_goTypes = []any{
 	(FeatureKeySource)(0),                          // 0: chalk.planner.v1.FeatureKeySource
 	(*FeatureType)(nil),                            // 1: chalk.planner.v1.FeatureType
@@ -3244,32 +3327,33 @@ var file_chalk_planner_v1_feature_types_proto_goTypes = []any{
 	(*MaterializationWindowConfigParsed)(nil),      // 30: chalk.planner.v1.MaterializationWindowConfigParsed
 	(*UnderscoreMaterializedStateOperation)(nil),   // 31: chalk.planner.v1.UnderscoreMaterializedStateOperation
 	(*UnderscoreIncompleteGroupByAggregation)(nil), // 32: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation
-	(*UnderscoreOperation)(nil),                    // 33: chalk.planner.v1.UnderscoreOperation
-	(*UnderscoreOperationId)(nil),                  // 34: chalk.planner.v1.UnderscoreOperationId
-	(*CppRegUnderscoreOp)(nil),                     // 35: chalk.planner.v1.CppRegUnderscoreOp
-	(*ArgumentType)(nil),                           // 36: chalk.planner.v1.ArgumentType
-	(*CallbackType)(nil),                           // 37: chalk.planner.v1.CallbackType
-	(*DataFrameParameterType)(nil),                 // 38: chalk.planner.v1.DataFrameParameterType
-	(*PythonRegUnderscoreOp)(nil),                  // 39: chalk.planner.v1.PythonRegUnderscoreOp
-	(*PythonArgument)(nil),                         // 40: chalk.planner.v1.PythonArgument
-	(*PythonArgumentList)(nil),                     // 41: chalk.planner.v1.PythonArgumentList
-	(*ChalkpyUnderscore)(nil),                      // 42: chalk.planner.v1.ChalkpyUnderscore
-	(*ChalkpyUnderscoreId)(nil),                    // 43: chalk.planner.v1.ChalkpyUnderscoreId
-	nil,                                            // 44: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
-	nil,                                            // 45: chalk.planner.v1.UnderscoreOperands.NamedEntry
-	nil,                                            // 46: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
-	nil,                                            // 47: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
-	nil,                                            // 48: chalk.planner.v1.DataFrameParameterType.ColumnsEntry
-	nil,                                            // 49: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
-	(*v1.FeatureReference)(nil),                    // 50: chalk.graph.v1.FeatureReference
-	(*v1.DataFrameType)(nil),                       // 51: chalk.graph.v1.DataFrameType
-	(*v11.LogicalExprNode)(nil),                    // 52: chalk.expression.v1.LogicalExprNode
-	(*v12.ArrowType)(nil),                          // 53: chalk.arrow.v1.ArrowType
-	(*v12.Schema)(nil),                             // 54: chalk.arrow.v1.Schema
-	(*v12.Field)(nil),                              // 55: chalk.arrow.v1.Field
-	(*v13.ChalkError)(nil),                         // 56: chalk.common.v1.ChalkError
-	(*durationpb.Duration)(nil),                    // 57: google.protobuf.Duration
-	(*v1.WindowAggregation)(nil),                   // 58: chalk.graph.v1.WindowAggregation
+	(*UnderscoreOuterFeature)(nil),                 // 33: chalk.planner.v1.UnderscoreOuterFeature
+	(*UnderscoreOperation)(nil),                    // 34: chalk.planner.v1.UnderscoreOperation
+	(*UnderscoreOperationId)(nil),                  // 35: chalk.planner.v1.UnderscoreOperationId
+	(*CppRegUnderscoreOp)(nil),                     // 36: chalk.planner.v1.CppRegUnderscoreOp
+	(*ArgumentType)(nil),                           // 37: chalk.planner.v1.ArgumentType
+	(*CallbackType)(nil),                           // 38: chalk.planner.v1.CallbackType
+	(*DataFrameParameterType)(nil),                 // 39: chalk.planner.v1.DataFrameParameterType
+	(*PythonRegUnderscoreOp)(nil),                  // 40: chalk.planner.v1.PythonRegUnderscoreOp
+	(*PythonArgument)(nil),                         // 41: chalk.planner.v1.PythonArgument
+	(*PythonArgumentList)(nil),                     // 42: chalk.planner.v1.PythonArgumentList
+	(*ChalkpyUnderscore)(nil),                      // 43: chalk.planner.v1.ChalkpyUnderscore
+	(*ChalkpyUnderscoreId)(nil),                    // 44: chalk.planner.v1.ChalkpyUnderscoreId
+	nil,                                            // 45: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
+	nil,                                            // 46: chalk.planner.v1.UnderscoreOperands.NamedEntry
+	nil,                                            // 47: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
+	nil,                                            // 48: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
+	nil,                                            // 49: chalk.planner.v1.DataFrameParameterType.ColumnsEntry
+	nil,                                            // 50: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
+	(*v1.FeatureReference)(nil),                    // 51: chalk.graph.v1.FeatureReference
+	(*v1.DataFrameType)(nil),                       // 52: chalk.graph.v1.DataFrameType
+	(*v11.LogicalExprNode)(nil),                    // 53: chalk.expression.v1.LogicalExprNode
+	(*v12.ArrowType)(nil),                          // 54: chalk.arrow.v1.ArrowType
+	(*v12.Schema)(nil),                             // 55: chalk.arrow.v1.Schema
+	(*v12.Field)(nil),                              // 56: chalk.arrow.v1.Field
+	(*v13.ChalkError)(nil),                         // 57: chalk.common.v1.ChalkError
+	(*durationpb.Duration)(nil),                    // 58: google.protobuf.Duration
+	(*v1.WindowAggregation)(nil),                   // 59: chalk.graph.v1.WindowAggregation
 }
 var file_chalk_planner_v1_feature_types_proto_depIdxs = []int32{
 	3,   // 0: chalk.planner.v1.AuxiliaryInfo.feature_ref_info:type_name -> chalk.planner.v1.FeatureReferenceInfoV2
@@ -3279,32 +3363,32 @@ var file_chalk_planner_v1_feature_types_proto_depIdxs = []int32{
 	9,   // 4: chalk.planner.v1.FeatureReferenceInfoV2.filter_expressions:type_name -> chalk.planner.v1.FilterExpressionParsedV2
 	11,  // 5: chalk.planner.v1.UnderscoreInfo.constants:type_name -> chalk.planner.v1.UnderscoreConstant
 	13,  // 6: chalk.planner.v1.UnderscoreInfo.parsed:type_name -> chalk.planner.v1.UnderscoreParsed
-	33,  // 7: chalk.planner.v1.UnderscoreInfo.operations:type_name -> chalk.planner.v1.UnderscoreOperation
-	42,  // 8: chalk.planner.v1.UnderscoreInfo.chalkpy_underscore:type_name -> chalk.planner.v1.ChalkpyUnderscore
+	34,  // 7: chalk.planner.v1.UnderscoreInfo.operations:type_name -> chalk.planner.v1.UnderscoreOperation
+	43,  // 8: chalk.planner.v1.UnderscoreInfo.chalkpy_underscore:type_name -> chalk.planner.v1.ChalkpyUnderscore
 	6,   // 9: chalk.planner.v1.FeatureReferenceV2.this_id:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	50,  // 10: chalk.planner.v1.FeatureReferenceV2.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	51,  // 10: chalk.planner.v1.FeatureReferenceV2.feature_ref:type_name -> chalk.graph.v1.FeatureReference
 	6,   // 11: chalk.planner.v1.FeatureReferenceV2.path_ids:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	8,   // 12: chalk.planner.v1.FeatureReferenceV2.df_id:type_name -> chalk.planner.v1.DataFrameTypeIdV2
 	8,   // 13: chalk.planner.v1.DataFrameTypeV2.this_id:type_name -> chalk.planner.v1.DataFrameTypeIdV2
-	51,  // 14: chalk.planner.v1.DataFrameTypeV2.df:type_name -> chalk.graph.v1.DataFrameType
+	52,  // 14: chalk.planner.v1.DataFrameTypeV2.df:type_name -> chalk.graph.v1.DataFrameType
 	10,  // 15: chalk.planner.v1.DataFrameTypeV2.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedIdV2
 	6,   // 16: chalk.planner.v1.DataFrameTypeV2.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	6,   // 17: chalk.planner.v1.DataFrameTypeV2.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	10,  // 18: chalk.planner.v1.FilterExpressionParsedV2.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedIdV2
 	14,  // 19: chalk.planner.v1.FilterExpressionParsedV2.expr:type_name -> chalk.planner.v1.UnderscoreParsedId
 	12,  // 20: chalk.planner.v1.UnderscoreConstant.this_id:type_name -> chalk.planner.v1.UnderscoreConstantId
-	52,  // 21: chalk.planner.v1.UnderscoreConstant.value:type_name -> chalk.expression.v1.LogicalExprNode
-	53,  // 22: chalk.planner.v1.UnderscoreConstant.default_pa_type:type_name -> chalk.arrow.v1.ArrowType
+	53,  // 21: chalk.planner.v1.UnderscoreConstant.value:type_name -> chalk.expression.v1.LogicalExprNode
+	54,  // 22: chalk.planner.v1.UnderscoreConstant.default_pa_type:type_name -> chalk.arrow.v1.ArrowType
 	14,  // 23: chalk.planner.v1.UnderscoreParsed.this_id:type_name -> chalk.planner.v1.UnderscoreParsedId
-	52,  // 24: chalk.planner.v1.UnderscoreParsed.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	43,  // 25: chalk.planner.v1.UnderscoreParsed.original_underscore_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
+	53,  // 24: chalk.planner.v1.UnderscoreParsed.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	44,  // 25: chalk.planner.v1.UnderscoreParsed.original_underscore_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
 	15,  // 26: chalk.planner.v1.UnderscoreParsed.namespace:type_name -> chalk.planner.v1.UnderscoreNamespace
 	16,  // 27: chalk.planner.v1.UnderscoreParsed.table:type_name -> chalk.planner.v1.UnderscoreTable
 	17,  // 28: chalk.planner.v1.UnderscoreParsed.windowed:type_name -> chalk.planner.v1.UnderscoreWindowed
 	18,  // 29: chalk.planner.v1.UnderscoreParsed.materialized_state:type_name -> chalk.planner.v1.UnderscoreMaterializedState
 	19,  // 30: chalk.planner.v1.UnderscoreParsed.value:type_name -> chalk.planner.v1.UnderscoreValueV2
 	6,   // 31: chalk.planner.v1.UnderscoreNamespace.path:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	54,  // 32: chalk.planner.v1.UnderscoreTable.schema:type_name -> chalk.arrow.v1.Schema
+	55,  // 32: chalk.planner.v1.UnderscoreTable.schema:type_name -> chalk.arrow.v1.Schema
 	6,   // 33: chalk.planner.v1.UnderscoreWindowed.path:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	6,   // 34: chalk.planner.v1.UnderscoreWindowed.underlying:type_name -> chalk.planner.v1.FeatureReferenceIdV2
 	14,  // 35: chalk.planner.v1.UnderscoreMaterializedState.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
@@ -3320,72 +3404,74 @@ var file_chalk_planner_v1_feature_types_proto_depIdxs = []int32{
 	29,  // 45: chalk.planner.v1.UnderscoreValueV2.materialized_aggregation:type_name -> chalk.planner.v1.UnderscoreMaterializedAggregation
 	31,  // 46: chalk.planner.v1.UnderscoreValueV2.materialized_state_operation:type_name -> chalk.planner.v1.UnderscoreMaterializedStateOperation
 	32,  // 47: chalk.planner.v1.UnderscoreValueV2.incomplete_group_by_aggregation:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation
-	6,   // 48: chalk.planner.v1.UnderscoreFeature.underlying:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 49: chalk.planner.v1.UnderscoreFeature.path:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	55,  // 50: chalk.planner.v1.UnderscoreColumn.field:type_name -> chalk.arrow.v1.Field
-	23,  // 51: chalk.planner.v1.UnderscoreLambda.parameters:type_name -> chalk.planner.v1.UnderscoreLambdaParameter
-	14,  // 52: chalk.planner.v1.UnderscoreLambda.lambda_body:type_name -> chalk.planner.v1.UnderscoreParsedId
-	53,  // 53: chalk.planner.v1.UnderscoreLambdaParameter.parameter_type:type_name -> chalk.arrow.v1.ArrowType
-	14,  // 54: chalk.planner.v1.UnderscoreItemParsed.parent:type_name -> chalk.planner.v1.UnderscoreParsedId
-	14,  // 55: chalk.planner.v1.UnderscoreItemParsed.feature_key:type_name -> chalk.planner.v1.UnderscoreParsedId
-	14,  // 56: chalk.planner.v1.UnderscoreItemParsed.feature_keys:type_name -> chalk.planner.v1.UnderscoreParsedId
-	0,   // 57: chalk.planner.v1.UnderscoreItemParsed.feature_key_source:type_name -> chalk.planner.v1.FeatureKeySource
-	14,  // 58: chalk.planner.v1.UnderscoreItemParsed.filters:type_name -> chalk.planner.v1.UnderscoreParsedId
-	27,  // 59: chalk.planner.v1.UnderscoreOperationExpression.positional_operands:type_name -> chalk.planner.v1.UnderscoreOperand
-	44,  // 60: chalk.planner.v1.UnderscoreOperationExpression.named_operands:type_name -> chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
-	34,  // 61: chalk.planner.v1.UnderscoreOperationExpression.operation:type_name -> chalk.planner.v1.UnderscoreOperationId
-	52,  // 62: chalk.planner.v1.UnderscoreOperationExpression.args:type_name -> chalk.expression.v1.LogicalExprNode
-	52,  // 63: chalk.planner.v1.UnderscoreOperationExpression.kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
-	27,  // 64: chalk.planner.v1.UnderscoreOperands.positional:type_name -> chalk.planner.v1.UnderscoreOperand
-	45,  // 65: chalk.planner.v1.UnderscoreOperands.named:type_name -> chalk.planner.v1.UnderscoreOperands.NamedEntry
-	14,  // 66: chalk.planner.v1.UnderscoreOperand.value:type_name -> chalk.planner.v1.UnderscoreParsedId
-	12,  // 67: chalk.planner.v1.UnderscoreOperand.constant:type_name -> chalk.planner.v1.UnderscoreConstantId
-	56,  // 68: chalk.planner.v1.UnderscoreNever.error:type_name -> chalk.common.v1.ChalkError
-	14,  // 69: chalk.planner.v1.UnderscoreMaterializedAggregation.unmaterialized_underscore:type_name -> chalk.planner.v1.UnderscoreParsedId
-	30,  // 70: chalk.planner.v1.UnderscoreMaterializedAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
-	57,  // 71: chalk.planner.v1.UnderscoreMaterializedAggregation.window_duration:type_name -> google.protobuf.Duration
-	6,   // 72: chalk.planner.v1.UnderscoreMaterializedAggregation.group_by_keys:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 73: chalk.planner.v1.UnderscoreMaterializedAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	58,  // 74: chalk.planner.v1.MaterializationWindowConfigParsed.base:type_name -> chalk.graph.v1.WindowAggregation
-	6,   // 75: chalk.planner.v1.MaterializationWindowConfigParsed.group_by:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 76: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	52,  // 77: chalk.planner.v1.MaterializationWindowConfigParsed.aggregation_kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
-	6,   // 78: chalk.planner.v1.MaterializationWindowConfigParsed.bucket_feature:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	6,   // 79: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on_features:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	14,  // 80: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
-	6,   // 81: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	30,  // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
-	46,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
-	57,  // 84: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
-	57,  // 85: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
-	34,  // 86: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
-	35,  // 87: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
-	39,  // 88: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
-	36,  // 89: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
-	47,  // 90: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
-	53,  // 91: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	37,  // 92: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
-	38,  // 93: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
-	53,  // 94: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
-	53,  // 95: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
-	48,  // 96: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
-	49,  // 97: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
-	53,  // 98: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	41,  // 99: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
-	40,  // 100: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
-	43,  // 101: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
-	52,  // 102: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	27,  // 103: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	27,  // 104: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
-	6,   // 105: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	36,  // 106: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
-	53,  // 107: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
-	40,  // 108: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
-	109, // [109:109] is the sub-list for method output_type
-	109, // [109:109] is the sub-list for method input_type
-	109, // [109:109] is the sub-list for extension type_name
-	109, // [109:109] is the sub-list for extension extendee
-	0,   // [0:109] is the sub-list for field type_name
+	33,  // 48: chalk.planner.v1.UnderscoreValueV2.outer_feature:type_name -> chalk.planner.v1.UnderscoreOuterFeature
+	6,   // 49: chalk.planner.v1.UnderscoreFeature.underlying:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 50: chalk.planner.v1.UnderscoreFeature.path:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	56,  // 51: chalk.planner.v1.UnderscoreColumn.field:type_name -> chalk.arrow.v1.Field
+	23,  // 52: chalk.planner.v1.UnderscoreLambda.parameters:type_name -> chalk.planner.v1.UnderscoreLambdaParameter
+	14,  // 53: chalk.planner.v1.UnderscoreLambda.lambda_body:type_name -> chalk.planner.v1.UnderscoreParsedId
+	54,  // 54: chalk.planner.v1.UnderscoreLambdaParameter.parameter_type:type_name -> chalk.arrow.v1.ArrowType
+	14,  // 55: chalk.planner.v1.UnderscoreItemParsed.parent:type_name -> chalk.planner.v1.UnderscoreParsedId
+	14,  // 56: chalk.planner.v1.UnderscoreItemParsed.feature_key:type_name -> chalk.planner.v1.UnderscoreParsedId
+	14,  // 57: chalk.planner.v1.UnderscoreItemParsed.feature_keys:type_name -> chalk.planner.v1.UnderscoreParsedId
+	0,   // 58: chalk.planner.v1.UnderscoreItemParsed.feature_key_source:type_name -> chalk.planner.v1.FeatureKeySource
+	14,  // 59: chalk.planner.v1.UnderscoreItemParsed.filters:type_name -> chalk.planner.v1.UnderscoreParsedId
+	27,  // 60: chalk.planner.v1.UnderscoreOperationExpression.positional_operands:type_name -> chalk.planner.v1.UnderscoreOperand
+	45,  // 61: chalk.planner.v1.UnderscoreOperationExpression.named_operands:type_name -> chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry
+	35,  // 62: chalk.planner.v1.UnderscoreOperationExpression.operation:type_name -> chalk.planner.v1.UnderscoreOperationId
+	53,  // 63: chalk.planner.v1.UnderscoreOperationExpression.args:type_name -> chalk.expression.v1.LogicalExprNode
+	53,  // 64: chalk.planner.v1.UnderscoreOperationExpression.kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 65: chalk.planner.v1.UnderscoreOperands.positional:type_name -> chalk.planner.v1.UnderscoreOperand
+	46,  // 66: chalk.planner.v1.UnderscoreOperands.named:type_name -> chalk.planner.v1.UnderscoreOperands.NamedEntry
+	14,  // 67: chalk.planner.v1.UnderscoreOperand.value:type_name -> chalk.planner.v1.UnderscoreParsedId
+	12,  // 68: chalk.planner.v1.UnderscoreOperand.constant:type_name -> chalk.planner.v1.UnderscoreConstantId
+	57,  // 69: chalk.planner.v1.UnderscoreNever.error:type_name -> chalk.common.v1.ChalkError
+	14,  // 70: chalk.planner.v1.UnderscoreMaterializedAggregation.unmaterialized_underscore:type_name -> chalk.planner.v1.UnderscoreParsedId
+	30,  // 71: chalk.planner.v1.UnderscoreMaterializedAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
+	58,  // 72: chalk.planner.v1.UnderscoreMaterializedAggregation.window_duration:type_name -> google.protobuf.Duration
+	6,   // 73: chalk.planner.v1.UnderscoreMaterializedAggregation.group_by_keys:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 74: chalk.planner.v1.UnderscoreMaterializedAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	59,  // 75: chalk.planner.v1.MaterializationWindowConfigParsed.base:type_name -> chalk.graph.v1.WindowAggregation
+	6,   // 76: chalk.planner.v1.MaterializationWindowConfigParsed.group_by:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 77: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	53,  // 78: chalk.planner.v1.MaterializationWindowConfigParsed.aggregation_kwarg_values:type_name -> chalk.expression.v1.LogicalExprNode
+	6,   // 79: chalk.planner.v1.MaterializationWindowConfigParsed.bucket_feature:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	6,   // 80: chalk.planner.v1.MaterializationWindowConfigParsed.aggregate_on_features:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	14,  // 81: chalk.planner.v1.UnderscoreMaterializedStateOperation.mat_agg_definition:type_name -> chalk.planner.v1.UnderscoreParsedId
+	6,   // 82: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.has_many:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	30,  // 83: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.materialization:type_name -> chalk.planner.v1.MaterializationWindowConfigParsed
+	47,  // 84: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.group_features:type_name -> chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry
+	58,  // 85: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.window_duration:type_name -> google.protobuf.Duration
+	58,  // 86: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.allowed_window_values:type_name -> google.protobuf.Duration
+	14,  // 87: chalk.planner.v1.UnderscoreOuterFeature.outer_feature:type_name -> chalk.planner.v1.UnderscoreParsedId
+	35,  // 88: chalk.planner.v1.UnderscoreOperation.this_id:type_name -> chalk.planner.v1.UnderscoreOperationId
+	36,  // 89: chalk.planner.v1.UnderscoreOperation.cpp_reg:type_name -> chalk.planner.v1.CppRegUnderscoreOp
+	40,  // 90: chalk.planner.v1.UnderscoreOperation.python_reg:type_name -> chalk.planner.v1.PythonRegUnderscoreOp
+	37,  // 91: chalk.planner.v1.CppRegUnderscoreOp.positional_input_types:type_name -> chalk.planner.v1.ArgumentType
+	48,  // 92: chalk.planner.v1.CppRegUnderscoreOp.named_input_types:type_name -> chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry
+	54,  // 93: chalk.planner.v1.ArgumentType.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	38,  // 94: chalk.planner.v1.ArgumentType.callback_type:type_name -> chalk.planner.v1.CallbackType
+	39,  // 95: chalk.planner.v1.ArgumentType.df_param_type:type_name -> chalk.planner.v1.DataFrameParameterType
+	54,  // 96: chalk.planner.v1.CallbackType.input_types:type_name -> chalk.arrow.v1.ArrowType
+	54,  // 97: chalk.planner.v1.CallbackType.output_type:type_name -> chalk.arrow.v1.ArrowType
+	49,  // 98: chalk.planner.v1.DataFrameParameterType.columns:type_name -> chalk.planner.v1.DataFrameParameterType.ColumnsEntry
+	50,  // 99: chalk.planner.v1.PythonRegUnderscoreOp.params:type_name -> chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry
+	54,  // 100: chalk.planner.v1.PythonArgument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	42,  // 101: chalk.planner.v1.PythonArgument.tuple:type_name -> chalk.planner.v1.PythonArgumentList
+	41,  // 102: chalk.planner.v1.PythonArgumentList.values:type_name -> chalk.planner.v1.PythonArgument
+	44,  // 103: chalk.planner.v1.ChalkpyUnderscore.this_id:type_name -> chalk.planner.v1.ChalkpyUnderscoreId
+	53,  // 104: chalk.planner.v1.ChalkpyUnderscore.underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	27,  // 105: chalk.planner.v1.UnderscoreOperationExpression.NamedOperandsEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	27,  // 106: chalk.planner.v1.UnderscoreOperands.NamedEntry.value:type_name -> chalk.planner.v1.UnderscoreOperand
+	6,   // 107: chalk.planner.v1.UnderscoreIncompleteGroupByAggregation.GroupFeaturesEntry.value:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	37,  // 108: chalk.planner.v1.CppRegUnderscoreOp.NamedInputTypesEntry.value:type_name -> chalk.planner.v1.ArgumentType
+	54,  // 109: chalk.planner.v1.DataFrameParameterType.ColumnsEntry.value:type_name -> chalk.arrow.v1.ArrowType
+	41,  // 110: chalk.planner.v1.PythonRegUnderscoreOp.ParamsEntry.value:type_name -> chalk.planner.v1.PythonArgument
+	111, // [111:111] is the sub-list for method output_type
+	111, // [111:111] is the sub-list for method input_type
+	111, // [111:111] is the sub-list for extension type_name
+	111, // [111:111] is the sub-list for extension extendee
+	0,   // [0:111] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_feature_types_proto_init() }
@@ -3417,6 +3503,7 @@ func file_chalk_planner_v1_feature_types_proto_init() {
 		(*UnderscoreValueV2_MaterializedAggregation)(nil),
 		(*UnderscoreValueV2_MaterializedStateOperation)(nil),
 		(*UnderscoreValueV2_IncompleteGroupByAggregation)(nil),
+		(*UnderscoreValueV2_OuterFeature)(nil),
 	}
 	file_chalk_planner_v1_feature_types_proto_msgTypes[26].OneofWrappers = []any{
 		(*UnderscoreOperand_Value)(nil),
@@ -3424,16 +3511,16 @@ func file_chalk_planner_v1_feature_types_proto_init() {
 	}
 	file_chalk_planner_v1_feature_types_proto_msgTypes[28].OneofWrappers = []any{}
 	file_chalk_planner_v1_feature_types_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_planner_v1_feature_types_proto_msgTypes[32].OneofWrappers = []any{
+	file_chalk_planner_v1_feature_types_proto_msgTypes[33].OneofWrappers = []any{
 		(*UnderscoreOperation_CppReg)(nil),
 		(*UnderscoreOperation_PythonReg)(nil),
 	}
-	file_chalk_planner_v1_feature_types_proto_msgTypes[35].OneofWrappers = []any{
+	file_chalk_planner_v1_feature_types_proto_msgTypes[36].OneofWrappers = []any{
 		(*ArgumentType_ArrowType)(nil),
 		(*ArgumentType_CallbackType)(nil),
 		(*ArgumentType_DfParamType)(nil),
 	}
-	file_chalk_planner_v1_feature_types_proto_msgTypes[39].OneofWrappers = []any{
+	file_chalk_planner_v1_feature_types_proto_msgTypes[40].OneofWrappers = []any{
 		(*PythonArgument_ArrowType)(nil),
 		(*PythonArgument_StringValue)(nil),
 		(*PythonArgument_Tuple)(nil),
@@ -3444,7 +3531,7 @@ func file_chalk_planner_v1_feature_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_feature_types_proto_rawDesc), len(file_chalk_planner_v1_feature_types_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   49,
+			NumMessages:   50,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

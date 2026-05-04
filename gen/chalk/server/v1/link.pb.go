@@ -10,7 +10,6 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -396,7 +395,7 @@ var File_chalk_server_v1_link_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_link_proto_rawDesc = "" +
 	"\n" +
-	"\x1achalk/server/v1/link.proto\x12\x0fchalk.server.v1\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/descriptor.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x02\n" +
+	"\x1achalk/server/v1/link.proto\x12\x0fchalk.server.v1\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8e\x02\n" +
 	"\tLinkToken\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12)\n" +

@@ -48,6 +48,9 @@ const (
 	// DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GetDatasetRevisionDownloadLinks RPC.
 	DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevisionDownloadLinks"
+	// DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure is the fully-qualified name of
+	// the DatasetMetadataService's StreamDatasetRevisionDownloadLinks RPC.
+	DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/StreamDatasetRevisionDownloadLinks"
 	// DatasetMetadataServiceRenameDatasetProcedure is the fully-qualified name of the
 	// DatasetMetadataService's RenameDataset RPC.
 	DatasetMetadataServiceRenameDatasetProcedure = "/chalk.server.v1.DatasetMetadataService/RenameDataset"
@@ -90,6 +93,14 @@ type DatasetMetadataServiceClient interface {
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
+	// Server-streaming variant of GetDatasetRevisionDownloadLinks. Each emitted
+	// message carries a chunk of download links for the given revision; clients
+	// must concatenate the repeated fields across messages to obtain the full
+	// set. Messages that contain signed URLs also carry the shared expiration
+	// timestamp. Use this RPC when a single response would exceed gRPC
+	// message-size limits or when callers want to begin downloading before all
+	// URLs have been signed.
+	StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest]) (*connect.ServerStreamForClient[v1.StreamDatasetRevisionDownloadLinksResponse], error)
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
@@ -147,6 +158,13 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure,
 			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionDownloadLinks")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		streamDatasetRevisionDownloadLinks: connect.NewClient[v1.StreamDatasetRevisionDownloadLinksRequest, v1.StreamDatasetRevisionDownloadLinksResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("StreamDatasetRevisionDownloadLinks")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -235,6 +253,7 @@ type datasetMetadataServiceClient struct {
 	listDatasetRevisions               *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
 	getDatasetRevision                 *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
 	getDatasetRevisionDownloadLinks    *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
+	streamDatasetRevisionDownloadLinks *connect.Client[v1.StreamDatasetRevisionDownloadLinksRequest, v1.StreamDatasetRevisionDownloadLinksResponse]
 	renameDataset                      *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
 	archiveDatasetRevision             *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
 	archiveDatasetRevisions            *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
@@ -272,6 +291,12 @@ func (c *datasetMetadataServiceClient) GetDatasetRevision(ctx context.Context, r
 // chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks.
 func (c *datasetMetadataServiceClient) GetDatasetRevisionDownloadLinks(ctx context.Context, req *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error) {
 	return c.getDatasetRevisionDownloadLinks.CallUnary(ctx, req)
+}
+
+// StreamDatasetRevisionDownloadLinks calls
+// chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks.
+func (c *datasetMetadataServiceClient) StreamDatasetRevisionDownloadLinks(ctx context.Context, req *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest]) (*connect.ServerStreamForClient[v1.StreamDatasetRevisionDownloadLinksResponse], error) {
+	return c.streamDatasetRevisionDownloadLinks.CallServerStream(ctx, req)
 }
 
 // RenameDataset calls chalk.server.v1.DatasetMetadataService.RenameDataset.
@@ -342,6 +367,14 @@ type DatasetMetadataServiceHandler interface {
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
+	// Server-streaming variant of GetDatasetRevisionDownloadLinks. Each emitted
+	// message carries a chunk of download links for the given revision; clients
+	// must concatenate the repeated fields across messages to obtain the full
+	// set. Messages that contain signed URLs also carry the shared expiration
+	// timestamp. Use this RPC when a single response would exceed gRPC
+	// message-size limits or when callers want to begin downloading before all
+	// URLs have been signed.
+	StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest], *connect.ServerStream[v1.StreamDatasetRevisionDownloadLinksResponse]) error
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
@@ -395,6 +428,13 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure,
 		svc.GetDatasetRevisionDownloadLinks,
 		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetRevisionDownloadLinks")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceStreamDatasetRevisionDownloadLinksHandler := connect.NewServerStreamHandler(
+		DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure,
+		svc.StreamDatasetRevisionDownloadLinks,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("StreamDatasetRevisionDownloadLinks")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -485,6 +525,8 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceGetDatasetRevisionHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure:
 			datasetMetadataServiceGetDatasetRevisionDownloadLinksHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure:
+			datasetMetadataServiceStreamDatasetRevisionDownloadLinksHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceRenameDatasetProcedure:
 			datasetMetadataServiceRenameDatasetHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceArchiveDatasetRevisionProcedure:
@@ -534,6 +576,10 @@ func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevision(context.Con
 
 func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest], *connect.ServerStream[v1.StreamDatasetRevisionDownloadLinksResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error) {

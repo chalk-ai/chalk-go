@@ -546,20 +546,95 @@ func (*MetadataServiceAgent) Descriptor() ([]byte, []int) {
 	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{6}
 }
 
+// ExchangeTokenDetails is present on a TenantAgent when it was authenticated
+// via an exchange token. It carries the exchange-specific constraints needed
+// by the GetInternalWorkingToken handler.
+type ExchangeTokenDetails struct {
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	RequestablePermissions []Permission           `protobuf:"varint,1,rep,packed,name=requestable_permissions,json=requestablePermissions,proto3,enum=chalk.auth.v1.Permission" json:"requestable_permissions,omitempty"`
+	GenerationNumber       int32                  `protobuf:"varint,2,opt,name=generation_number,json=generationNumber,proto3" json:"generation_number,omitempty"`
+	Subject                string                 `protobuf:"bytes,3,opt,name=subject,proto3" json:"subject,omitempty"`
+	EnvironmentId          string                 `protobuf:"bytes,4,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ExchangeTokenDetails) Reset() {
+	*x = ExchangeTokenDetails{}
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExchangeTokenDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExchangeTokenDetails) ProtoMessage() {}
+
+func (x *ExchangeTokenDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExchangeTokenDetails.ProtoReflect.Descriptor instead.
+func (*ExchangeTokenDetails) Descriptor() ([]byte, []int) {
+	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ExchangeTokenDetails) GetRequestablePermissions() []Permission {
+	if x != nil {
+		return x.RequestablePermissions
+	}
+	return nil
+}
+
+func (x *ExchangeTokenDetails) GetGenerationNumber() int32 {
+	if x != nil {
+		return x.GenerationNumber
+	}
+	return 0
+}
+
+func (x *ExchangeTokenDetails) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *ExchangeTokenDetails) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
 type TenantAgent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Optional team scope. When set, GetTeam returns this value.
+	// Optional team scope.
 	TeamId string `protobuf:"bytes,1,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
 	// Optional permission list. When non-empty, the token is restricted to only
-	// these permissions instead of the default all-bypass behaviour.
-	Permissions   []Permission `protobuf:"varint,2,rep,packed,name=permissions,proto3,enum=chalk.auth.v1.Permission" json:"permissions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// these permissions instead of the default allow-all behaviour.
+	Permissions []Permission `protobuf:"varint,2,rep,packed,name=permissions,proto3,enum=chalk.auth.v1.Permission" json:"permissions,omitempty"`
+	// Optional environment scope.
+	EnvironmentId string `protobuf:"bytes,3,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// Present only when the agent authenticated via an exchange token.
+	ExchangeTokenDetails *ExchangeTokenDetails `protobuf:"bytes,4,opt,name=exchange_token_details,json=exchangeTokenDetails,proto3,oneof" json:"exchange_token_details,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *TenantAgent) Reset() {
 	*x = TenantAgent{}
-	mi := &file_chalk_auth_v1_agent_proto_msgTypes[7]
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -571,7 +646,7 @@ func (x *TenantAgent) String() string {
 func (*TenantAgent) ProtoMessage() {}
 
 func (x *TenantAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_auth_v1_agent_proto_msgTypes[7]
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -584,7 +659,7 @@ func (x *TenantAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TenantAgent.ProtoReflect.Descriptor instead.
 func (*TenantAgent) Descriptor() ([]byte, []int) {
-	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{7}
+	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *TenantAgent) GetTeamId() string {
@@ -597,6 +672,20 @@ func (x *TenantAgent) GetTeamId() string {
 func (x *TenantAgent) GetPermissions() []Permission {
 	if x != nil {
 		return x.Permissions
+	}
+	return nil
+}
+
+func (x *TenantAgent) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *TenantAgent) GetExchangeTokenDetails() *ExchangeTokenDetails {
+	if x != nil {
+		return x.ExchangeTokenDetails
 	}
 	return nil
 }
@@ -617,7 +706,7 @@ type Agent struct {
 
 func (x *Agent) Reset() {
 	*x = Agent{}
-	mi := &file_chalk_auth_v1_agent_proto_msgTypes[8]
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -629,7 +718,7 @@ func (x *Agent) String() string {
 func (*Agent) ProtoMessage() {}
 
 func (x *Agent) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_auth_v1_agent_proto_msgTypes[8]
+	mi := &file_chalk_auth_v1_agent_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -642,7 +731,7 @@ func (x *Agent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Agent.ProtoReflect.Descriptor instead.
 func (*Agent) Descriptor() ([]byte, []int) {
-	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{8}
+	return file_chalk_auth_v1_agent_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Agent) GetAgent() isAgent_Agent {
@@ -772,10 +861,18 @@ const file_chalk_auth_v1_agent_proto_rawDesc = "" +
 	"project_id\x18\x03 \x01(\tR\tprojectId\x12%\n" +
 	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\x12\"\n" +
 	"\fimpersonated\x18\x05 \x01(\bR\fimpersonated\"\x16\n" +
-	"\x14MetadataServiceAgent\"c\n" +
+	"\x14MetadataServiceAgent\"\xd8\x01\n" +
+	"\x14ExchangeTokenDetails\x12R\n" +
+	"\x17requestable_permissions\x18\x01 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x16requestablePermissions\x12+\n" +
+	"\x11generation_number\x18\x02 \x01(\x05R\x10generationNumber\x12\x18\n" +
+	"\asubject\x18\x03 \x01(\tR\asubject\x12%\n" +
+	"\x0eenvironment_id\x18\x04 \x01(\tR\renvironmentId\"\x85\x02\n" +
 	"\vTenantAgent\x12\x17\n" +
 	"\ateam_id\x18\x01 \x01(\tR\x06teamId\x12;\n" +
-	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\"\xfe\x02\n" +
+	"\vpermissions\x18\x02 \x03(\x0e2\x19.chalk.auth.v1.PermissionR\vpermissions\x12%\n" +
+	"\x0eenvironment_id\x18\x03 \x01(\tR\renvironmentId\x12^\n" +
+	"\x16exchange_token_details\x18\x04 \x01(\v2#.chalk.auth.v1.ExchangeTokenDetailsH\x00R\x14exchangeTokenDetails\x88\x01\x01B\x19\n" +
+	"\x17_exchange_token_details\"\xfe\x02\n" +
 	"\x05Agent\x129\n" +
 	"\n" +
 	"user_agent\x18\x01 \x01(\v2\x18.chalk.auth.v1.UserAgentH\x00R\tuserAgent\x12R\n" +
@@ -807,7 +904,7 @@ func file_chalk_auth_v1_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_auth_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_auth_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_auth_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	(AgentKind)(0),                 // 0: chalk.auth.v1.AgentKind
 	(*EnvironmentPermissions)(nil), // 1: chalk.auth.v1.EnvironmentPermissions
@@ -817,35 +914,38 @@ var file_chalk_auth_v1_agent_proto_goTypes = []any{
 	(*ServiceTokenAgent)(nil),      // 5: chalk.auth.v1.ServiceTokenAgent
 	(*EngineAgent)(nil),            // 6: chalk.auth.v1.EngineAgent
 	(*MetadataServiceAgent)(nil),   // 7: chalk.auth.v1.MetadataServiceAgent
-	(*TenantAgent)(nil),            // 8: chalk.auth.v1.TenantAgent
-	(*Agent)(nil),                  // 9: chalk.auth.v1.Agent
-	nil,                            // 10: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
-	(Permission)(0),                // 11: chalk.auth.v1.Permission
-	(*FeaturePermissions)(nil),     // 12: chalk.auth.v1.FeaturePermissions
+	(*ExchangeTokenDetails)(nil),   // 8: chalk.auth.v1.ExchangeTokenDetails
+	(*TenantAgent)(nil),            // 9: chalk.auth.v1.TenantAgent
+	(*Agent)(nil),                  // 10: chalk.auth.v1.Agent
+	nil,                            // 11: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
+	(Permission)(0),                // 12: chalk.auth.v1.Permission
+	(*FeaturePermissions)(nil),     // 13: chalk.auth.v1.FeaturePermissions
 }
 var file_chalk_auth_v1_agent_proto_depIdxs = []int32{
-	11, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
-	12, // 1: chalk.auth.v1.EnvironmentPermissions.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	12, // 0: chalk.auth.v1.EnvironmentPermissions.permissions:type_name -> chalk.auth.v1.Permission
+	13, // 1: chalk.auth.v1.EnvironmentPermissions.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
 	4,  // 2: chalk.auth.v1.EnvironmentPermissions.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	11, // 3: chalk.auth.v1.TeamPermissions.permissions:type_name -> chalk.auth.v1.Permission
-	10, // 4: chalk.auth.v1.UserAgent.permissions_by_environment:type_name -> chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
+	12, // 3: chalk.auth.v1.TeamPermissions.permissions:type_name -> chalk.auth.v1.Permission
+	11, // 4: chalk.auth.v1.UserAgent.permissions_by_environment:type_name -> chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry
 	2,  // 5: chalk.auth.v1.UserAgent.team_permissions:type_name -> chalk.auth.v1.TeamPermissions
-	11, // 6: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
+	12, // 6: chalk.auth.v1.ServiceTokenAgent.permissions:type_name -> chalk.auth.v1.Permission
 	4,  // 7: chalk.auth.v1.ServiceTokenAgent.customer_claims:type_name -> chalk.auth.v1.CustomClaim
-	12, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
-	11, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
-	11, // 10: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
-	3,  // 11: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
-	5,  // 12: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
-	6,  // 13: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
-	8,  // 14: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
-	7,  // 15: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
-	1,  // 16: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	13, // 8: chalk.auth.v1.ServiceTokenAgent.feature_permissions:type_name -> chalk.auth.v1.FeaturePermissions
+	12, // 9: chalk.auth.v1.ServiceTokenAgent.team_permissions:type_name -> chalk.auth.v1.Permission
+	12, // 10: chalk.auth.v1.ExchangeTokenDetails.requestable_permissions:type_name -> chalk.auth.v1.Permission
+	12, // 11: chalk.auth.v1.TenantAgent.permissions:type_name -> chalk.auth.v1.Permission
+	8,  // 12: chalk.auth.v1.TenantAgent.exchange_token_details:type_name -> chalk.auth.v1.ExchangeTokenDetails
+	3,  // 13: chalk.auth.v1.Agent.user_agent:type_name -> chalk.auth.v1.UserAgent
+	5,  // 14: chalk.auth.v1.Agent.service_token_agent:type_name -> chalk.auth.v1.ServiceTokenAgent
+	6,  // 15: chalk.auth.v1.Agent.engine_agent:type_name -> chalk.auth.v1.EngineAgent
+	9,  // 16: chalk.auth.v1.Agent.tenant_agent:type_name -> chalk.auth.v1.TenantAgent
+	7,  // 17: chalk.auth.v1.Agent.metadata_service_agent:type_name -> chalk.auth.v1.MetadataServiceAgent
+	1,  // 18: chalk.auth.v1.UserAgent.PermissionsByEnvironmentEntry.value:type_name -> chalk.auth.v1.EnvironmentPermissions
+	19, // [19:19] is the sub-list for method output_type
+	19, // [19:19] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_chalk_auth_v1_agent_proto_init() }
@@ -855,7 +955,8 @@ func file_chalk_auth_v1_agent_proto_init() {
 	}
 	file_chalk_auth_v1_featurepermission_proto_init()
 	file_chalk_auth_v1_permissions_proto_init()
-	file_chalk_auth_v1_agent_proto_msgTypes[8].OneofWrappers = []any{
+	file_chalk_auth_v1_agent_proto_msgTypes[8].OneofWrappers = []any{}
+	file_chalk_auth_v1_agent_proto_msgTypes[9].OneofWrappers = []any{
 		(*Agent_UserAgent)(nil),
 		(*Agent_ServiceTokenAgent)(nil),
 		(*Agent_EngineAgent)(nil),
@@ -868,7 +969,7 @@ func file_chalk_auth_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_auth_v1_agent_proto_rawDesc), len(file_chalk_auth_v1_agent_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -10,7 +10,6 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -295,7 +294,7 @@ var File_chalk_server_v1_support_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_support_proto_rawDesc = "" +
 	"\n" +
-	"\x1dchalk/server/v1/support.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a google/protobuf/descriptor.proto\">\n" +
+	"\x1dchalk/server/v1/support.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\">\n" +
 	"\x18IncidentServiceReference\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\"<\n" +

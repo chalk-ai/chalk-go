@@ -105,6 +105,8 @@ const (
 	MetricKind_METRIC_KIND_FUNCTION_CALL_PROCESSING_LATENCY        MetricKind = 77
 	MetricKind_METRIC_KIND_FUNCTION_CALL_QUEUE_DEPTH               MetricKind = 78
 	MetricKind_METRIC_KIND_FUNCTION_CALL_INFLIGHT                  MetricKind = 79
+	MetricKind_METRIC_KIND_POD_CONTAINER_MEMORY_BYTES              MetricKind = 80
+	MetricKind_METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION           MetricKind = 81
 )
 
 // Enum value maps for MetricKind.
@@ -190,6 +192,8 @@ var (
 		77: "METRIC_KIND_FUNCTION_CALL_PROCESSING_LATENCY",
 		78: "METRIC_KIND_FUNCTION_CALL_QUEUE_DEPTH",
 		79: "METRIC_KIND_FUNCTION_CALL_INFLIGHT",
+		80: "METRIC_KIND_POD_CONTAINER_MEMORY_BYTES",
+		81: "METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -272,6 +276,8 @@ var (
 		"METRIC_KIND_FUNCTION_CALL_PROCESSING_LATENCY":        77,
 		"METRIC_KIND_FUNCTION_CALL_QUEUE_DEPTH":               78,
 		"METRIC_KIND_FUNCTION_CALL_INFLIGHT":                  79,
+		"METRIC_KIND_POD_CONTAINER_MEMORY_BYTES":              80,
+		"METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION":           81,
 	}
 )
 
@@ -1494,7 +1500,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
 	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
 	"\n" +
-	"_entity_id*\xa5\x18\n" +
+	"_entity_id*\x80\x19\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1577,7 +1583,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"METRIC_KIND_FUNCTION_CALL_DEQUEUED\x10L\x120\n" +
 	",METRIC_KIND_FUNCTION_CALL_PROCESSING_LATENCY\x10M\x12)\n" +
 	"%METRIC_KIND_FUNCTION_CALL_QUEUE_DEPTH\x10N\x12&\n" +
-	"\"METRIC_KIND_FUNCTION_CALL_INFLIGHT\x10O*\xe5\x05\n" +
+	"\"METRIC_KIND_FUNCTION_CALL_INFLIGHT\x10O\x12*\n" +
+	"&METRIC_KIND_POD_CONTAINER_MEMORY_BYTES\x10P\x12-\n" +
+	")METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION\x10Q*\xe5\x05\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
