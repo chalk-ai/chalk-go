@@ -88,6 +88,9 @@ const (
 	// AuthServiceGetProjectInfoProcedure is the fully-qualified name of the AuthService's
 	// GetProjectInfo RPC.
 	AuthServiceGetProjectInfoProcedure = "/chalk.server.v1.AuthService/GetProjectInfo"
+	// AuthServiceGetInternalWorkingTokenProcedure is the fully-qualified name of the AuthService's
+	// GetInternalWorkingToken RPC.
+	AuthServiceGetInternalWorkingTokenProcedure = "/chalk.server.v1.AuthService/GetInternalWorkingToken"
 )
 
 // AuthServiceClient is a client for the chalk.server.v1.AuthService service.
@@ -113,6 +116,7 @@ type AuthServiceClient interface {
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
+	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
 }
 
 // NewAuthServiceClient constructs a client for the chalk.server.v1.AuthService service. By default,
@@ -246,6 +250,12 @@ func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(authServiceMethods.ByName("GetProjectInfo")),
 			connect.WithClientOptions(opts...),
 		),
+		getInternalWorkingToken: connect.NewClient[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse](
+			httpClient,
+			baseURL+AuthServiceGetInternalWorkingTokenProcedure,
+			connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -271,6 +281,7 @@ type authServiceClient struct {
 	upsertUserByEmail       *connect.Client[v1.UpsertUserByEmailRequest, v1.UpsertUserByEmailResponse]
 	selfServiceCreateTeam   *connect.Client[v1.SelfServiceCreateTeamRequest, v1.SelfServiceCreateTeamResponse]
 	getProjectInfo          *connect.Client[v1.GetProjectInfoRequest, v1.GetProjectInfoResponse]
+	getInternalWorkingToken *connect.Client[v1.GetInternalWorkingTokenRequest, v1.GetInternalWorkingTokenResponse]
 }
 
 // GetToken calls chalk.server.v1.AuthService.GetToken.
@@ -373,6 +384,11 @@ func (c *authServiceClient) GetProjectInfo(ctx context.Context, req *connect.Req
 	return c.getProjectInfo.CallUnary(ctx, req)
 }
 
+// GetInternalWorkingToken calls chalk.server.v1.AuthService.GetInternalWorkingToken.
+func (c *authServiceClient) GetInternalWorkingToken(ctx context.Context, req *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error) {
+	return c.getInternalWorkingToken.CallUnary(ctx, req)
+}
+
 // AuthServiceHandler is an implementation of the chalk.server.v1.AuthService service.
 type AuthServiceHandler interface {
 	GetToken(context.Context, *connect.Request[v1.GetTokenRequest]) (*connect.Response[v1.GetTokenResponse], error)
@@ -396,6 +412,7 @@ type AuthServiceHandler interface {
 	SelfServiceCreateTeam(context.Context, *connect.Request[v1.SelfServiceCreateTeamRequest]) (*connect.Response[v1.SelfServiceCreateTeamResponse], error)
 	// Only for use with auto-impersonation
 	GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error)
+	GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error)
 }
 
 // NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -525,6 +542,12 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(authServiceMethods.ByName("GetProjectInfo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	authServiceGetInternalWorkingTokenHandler := connect.NewUnaryHandler(
+		AuthServiceGetInternalWorkingTokenProcedure,
+		svc.GetInternalWorkingToken,
+		connect.WithSchema(authServiceMethods.ByName("GetInternalWorkingToken")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case AuthServiceGetTokenProcedure:
@@ -567,6 +590,8 @@ func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption
 			authServiceSelfServiceCreateTeamHandler.ServeHTTP(w, r)
 		case AuthServiceGetProjectInfoProcedure:
 			authServiceGetProjectInfoHandler.ServeHTTP(w, r)
+		case AuthServiceGetInternalWorkingTokenProcedure:
+			authServiceGetInternalWorkingTokenHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -654,4 +679,8 @@ func (UnimplementedAuthServiceHandler) SelfServiceCreateTeam(context.Context, *c
 
 func (UnimplementedAuthServiceHandler) GetProjectInfo(context.Context, *connect.Request[v1.GetProjectInfoRequest]) (*connect.Response[v1.GetProjectInfoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetProjectInfo is not implemented"))
+}
+
+func (UnimplementedAuthServiceHandler) GetInternalWorkingToken(context.Context, *connect.Request[v1.GetInternalWorkingTokenRequest]) (*connect.Response[v1.GetInternalWorkingTokenResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.AuthService.GetInternalWorkingToken is not implemented"))
 }

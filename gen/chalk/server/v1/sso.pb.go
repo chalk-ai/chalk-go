@@ -102,6 +102,418 @@ func (x *CreateScimTokenResponse) GetToken() string {
 	return ""
 }
 
+type SsoEmailDomain struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	TeamId        string                 `protobuf:"bytes,2,opt,name=team_id,json=teamId,proto3" json:"team_id,omitempty"`
+	EmailDomain   string                 `protobuf:"bytes,3,opt,name=email_domain,json=emailDomain,proto3" json:"email_domain,omitempty"`
+	ChalkApproved bool                   `protobuf:"varint,4,opt,name=chalk_approved,json=chalkApproved,proto3" json:"chalk_approved,omitempty"`
+	ProviderIds   []string               `protobuf:"bytes,5,rep,name=provider_ids,json=providerIds,proto3" json:"provider_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SsoEmailDomain) Reset() {
+	*x = SsoEmailDomain{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SsoEmailDomain) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SsoEmailDomain) ProtoMessage() {}
+
+func (x *SsoEmailDomain) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SsoEmailDomain.ProtoReflect.Descriptor instead.
+func (*SsoEmailDomain) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SsoEmailDomain) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *SsoEmailDomain) GetTeamId() string {
+	if x != nil {
+		return x.TeamId
+	}
+	return ""
+}
+
+func (x *SsoEmailDomain) GetEmailDomain() string {
+	if x != nil {
+		return x.EmailDomain
+	}
+	return ""
+}
+
+func (x *SsoEmailDomain) GetChalkApproved() bool {
+	if x != nil {
+		return x.ChalkApproved
+	}
+	return false
+}
+
+func (x *SsoEmailDomain) GetProviderIds() []string {
+	if x != nil {
+		return x.ProviderIds
+	}
+	return nil
+}
+
+type ListSsoEmailDomainsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSsoEmailDomainsRequest) Reset() {
+	*x = ListSsoEmailDomainsRequest{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSsoEmailDomainsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSsoEmailDomainsRequest) ProtoMessage() {}
+
+func (x *ListSsoEmailDomainsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSsoEmailDomainsRequest.ProtoReflect.Descriptor instead.
+func (*ListSsoEmailDomainsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{3}
+}
+
+type ListSsoEmailDomainsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EmailDomains  []*SsoEmailDomain      `protobuf:"bytes,1,rep,name=email_domains,json=emailDomains,proto3" json:"email_domains,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSsoEmailDomainsResponse) Reset() {
+	*x = ListSsoEmailDomainsResponse{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSsoEmailDomainsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSsoEmailDomainsResponse) ProtoMessage() {}
+
+func (x *ListSsoEmailDomainsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSsoEmailDomainsResponse.ProtoReflect.Descriptor instead.
+func (*ListSsoEmailDomainsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListSsoEmailDomainsResponse) GetEmailDomains() []*SsoEmailDomain {
+	if x != nil {
+		return x.EmailDomains
+	}
+	return nil
+}
+
+type CreateSsoEmailDomainRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EmailDomain   *SsoEmailDomain        `protobuf:"bytes,1,opt,name=email_domain,json=emailDomain,proto3" json:"email_domain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateSsoEmailDomainRequest) Reset() {
+	*x = CreateSsoEmailDomainRequest{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSsoEmailDomainRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSsoEmailDomainRequest) ProtoMessage() {}
+
+func (x *CreateSsoEmailDomainRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSsoEmailDomainRequest.ProtoReflect.Descriptor instead.
+func (*CreateSsoEmailDomainRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateSsoEmailDomainRequest) GetEmailDomain() *SsoEmailDomain {
+	if x != nil {
+		return x.EmailDomain
+	}
+	return nil
+}
+
+type CreateSsoEmailDomainResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EmailDomain   *SsoEmailDomain        `protobuf:"bytes,1,opt,name=email_domain,json=emailDomain,proto3" json:"email_domain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateSsoEmailDomainResponse) Reset() {
+	*x = CreateSsoEmailDomainResponse{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateSsoEmailDomainResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateSsoEmailDomainResponse) ProtoMessage() {}
+
+func (x *CreateSsoEmailDomainResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateSsoEmailDomainResponse.ProtoReflect.Descriptor instead.
+func (*CreateSsoEmailDomainResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateSsoEmailDomainResponse) GetEmailDomain() *SsoEmailDomain {
+	if x != nil {
+		return x.EmailDomain
+	}
+	return nil
+}
+
+type UpdateSsoEmailDomainRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EmailDomain   *SsoEmailDomain        `protobuf:"bytes,1,opt,name=email_domain,json=emailDomain,proto3" json:"email_domain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSsoEmailDomainRequest) Reset() {
+	*x = UpdateSsoEmailDomainRequest{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSsoEmailDomainRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSsoEmailDomainRequest) ProtoMessage() {}
+
+func (x *UpdateSsoEmailDomainRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSsoEmailDomainRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSsoEmailDomainRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateSsoEmailDomainRequest) GetEmailDomain() *SsoEmailDomain {
+	if x != nil {
+		return x.EmailDomain
+	}
+	return nil
+}
+
+type UpdateSsoEmailDomainResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EmailDomain   *SsoEmailDomain        `protobuf:"bytes,1,opt,name=email_domain,json=emailDomain,proto3" json:"email_domain,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSsoEmailDomainResponse) Reset() {
+	*x = UpdateSsoEmailDomainResponse{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSsoEmailDomainResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSsoEmailDomainResponse) ProtoMessage() {}
+
+func (x *UpdateSsoEmailDomainResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSsoEmailDomainResponse.ProtoReflect.Descriptor instead.
+func (*UpdateSsoEmailDomainResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateSsoEmailDomainResponse) GetEmailDomain() *SsoEmailDomain {
+	if x != nil {
+		return x.EmailDomain
+	}
+	return nil
+}
+
+type DeleteSsoEmailDomainRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSsoEmailDomainRequest) Reset() {
+	*x = DeleteSsoEmailDomainRequest{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSsoEmailDomainRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSsoEmailDomainRequest) ProtoMessage() {}
+
+func (x *DeleteSsoEmailDomainRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSsoEmailDomainRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSsoEmailDomainRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *DeleteSsoEmailDomainRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteSsoEmailDomainResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSsoEmailDomainResponse) Reset() {
+	*x = DeleteSsoEmailDomainResponse{}
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSsoEmailDomainResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSsoEmailDomainResponse) ProtoMessage() {}
+
+func (x *DeleteSsoEmailDomainResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSsoEmailDomainResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSsoEmailDomainResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{10}
+}
+
 type SignOnProviderSamlConfig struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Issuer             string                 `protobuf:"bytes,1,opt,name=issuer,proto3" json:"issuer,omitempty"`
@@ -115,7 +527,7 @@ type SignOnProviderSamlConfig struct {
 
 func (x *SignOnProviderSamlConfig) Reset() {
 	*x = SignOnProviderSamlConfig{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -127,7 +539,7 @@ func (x *SignOnProviderSamlConfig) String() string {
 func (*SignOnProviderSamlConfig) ProtoMessage() {}
 
 func (x *SignOnProviderSamlConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -140,7 +552,7 @@ func (x *SignOnProviderSamlConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignOnProviderSamlConfig.ProtoReflect.Descriptor instead.
 func (*SignOnProviderSamlConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SignOnProviderSamlConfig) GetIssuer() string {
@@ -188,7 +600,7 @@ type SignOnProviderOidcConfig struct {
 
 func (x *SignOnProviderOidcConfig) Reset() {
 	*x = SignOnProviderOidcConfig{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -200,7 +612,7 @@ func (x *SignOnProviderOidcConfig) String() string {
 func (*SignOnProviderOidcConfig) ProtoMessage() {}
 
 func (x *SignOnProviderOidcConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -213,7 +625,7 @@ func (x *SignOnProviderOidcConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignOnProviderOidcConfig.ProtoReflect.Descriptor instead.
 func (*SignOnProviderOidcConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SignOnProviderOidcConfig) GetClientId() string {
@@ -246,7 +658,7 @@ type SignOnProviderConfiguration struct {
 
 func (x *SignOnProviderConfiguration) Reset() {
 	*x = SignOnProviderConfiguration{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -258,7 +670,7 @@ func (x *SignOnProviderConfiguration) String() string {
 func (*SignOnProviderConfiguration) ProtoMessage() {}
 
 func (x *SignOnProviderConfiguration) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -271,7 +683,7 @@ func (x *SignOnProviderConfiguration) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SignOnProviderConfiguration.ProtoReflect.Descriptor instead.
 func (*SignOnProviderConfiguration) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SignOnProviderConfiguration) GetName() string {
@@ -344,7 +756,7 @@ type ListSignOnProviderConfigurationsRequest struct {
 
 func (x *ListSignOnProviderConfigurationsRequest) Reset() {
 	*x = ListSignOnProviderConfigurationsRequest{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -356,7 +768,7 @@ func (x *ListSignOnProviderConfigurationsRequest) String() string {
 func (*ListSignOnProviderConfigurationsRequest) ProtoMessage() {}
 
 func (x *ListSignOnProviderConfigurationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,7 +781,7 @@ func (x *ListSignOnProviderConfigurationsRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use ListSignOnProviderConfigurationsRequest.ProtoReflect.Descriptor instead.
 func (*ListSignOnProviderConfigurationsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{14}
 }
 
 type ListSignOnProviderConfigurationsResponse struct {
@@ -381,7 +793,7 @@ type ListSignOnProviderConfigurationsResponse struct {
 
 func (x *ListSignOnProviderConfigurationsResponse) Reset() {
 	*x = ListSignOnProviderConfigurationsResponse{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -393,7 +805,7 @@ func (x *ListSignOnProviderConfigurationsResponse) String() string {
 func (*ListSignOnProviderConfigurationsResponse) ProtoMessage() {}
 
 func (x *ListSignOnProviderConfigurationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -406,7 +818,7 @@ func (x *ListSignOnProviderConfigurationsResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use ListSignOnProviderConfigurationsResponse.ProtoReflect.Descriptor instead.
 func (*ListSignOnProviderConfigurationsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListSignOnProviderConfigurationsResponse) GetConfigurations() []*SignOnProviderConfiguration {
@@ -425,7 +837,7 @@ type CreateSignOnProviderConfigurationRequest struct {
 
 func (x *CreateSignOnProviderConfigurationRequest) Reset() {
 	*x = CreateSignOnProviderConfigurationRequest{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -437,7 +849,7 @@ func (x *CreateSignOnProviderConfigurationRequest) String() string {
 func (*CreateSignOnProviderConfigurationRequest) ProtoMessage() {}
 
 func (x *CreateSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -450,7 +862,7 @@ func (x *CreateSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.M
 
 // Deprecated: Use CreateSignOnProviderConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*CreateSignOnProviderConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateSignOnProviderConfigurationRequest) GetConfiguration() *SignOnProviderConfiguration {
@@ -469,7 +881,7 @@ type CreateSignOnProviderConfigurationResponse struct {
 
 func (x *CreateSignOnProviderConfigurationResponse) Reset() {
 	*x = CreateSignOnProviderConfigurationResponse{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -481,7 +893,7 @@ func (x *CreateSignOnProviderConfigurationResponse) String() string {
 func (*CreateSignOnProviderConfigurationResponse) ProtoMessage() {}
 
 func (x *CreateSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -494,7 +906,7 @@ func (x *CreateSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use CreateSignOnProviderConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*CreateSignOnProviderConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateSignOnProviderConfigurationResponse) GetConfiguration() *SignOnProviderConfiguration {
@@ -513,7 +925,7 @@ type UpdateSignOnProviderConfigurationRequest struct {
 
 func (x *UpdateSignOnProviderConfigurationRequest) Reset() {
 	*x = UpdateSignOnProviderConfigurationRequest{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -525,7 +937,7 @@ func (x *UpdateSignOnProviderConfigurationRequest) String() string {
 func (*UpdateSignOnProviderConfigurationRequest) ProtoMessage() {}
 
 func (x *UpdateSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -538,7 +950,7 @@ func (x *UpdateSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.M
 
 // Deprecated: Use UpdateSignOnProviderConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSignOnProviderConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateSignOnProviderConfigurationRequest) GetConfiguration() *SignOnProviderConfiguration {
@@ -557,7 +969,7 @@ type UpdateSignOnProviderConfigurationResponse struct {
 
 func (x *UpdateSignOnProviderConfigurationResponse) Reset() {
 	*x = UpdateSignOnProviderConfigurationResponse{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -569,7 +981,7 @@ func (x *UpdateSignOnProviderConfigurationResponse) String() string {
 func (*UpdateSignOnProviderConfigurationResponse) ProtoMessage() {}
 
 func (x *UpdateSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -582,7 +994,7 @@ func (x *UpdateSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use UpdateSignOnProviderConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSignOnProviderConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateSignOnProviderConfigurationResponse) GetConfiguration() *SignOnProviderConfiguration {
@@ -601,7 +1013,7 @@ type DeleteSignOnProviderConfigurationRequest struct {
 
 func (x *DeleteSignOnProviderConfigurationRequest) Reset() {
 	*x = DeleteSignOnProviderConfigurationRequest{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -613,7 +1025,7 @@ func (x *DeleteSignOnProviderConfigurationRequest) String() string {
 func (*DeleteSignOnProviderConfigurationRequest) ProtoMessage() {}
 
 func (x *DeleteSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -626,7 +1038,7 @@ func (x *DeleteSignOnProviderConfigurationRequest) ProtoReflect() protoreflect.M
 
 // Deprecated: Use DeleteSignOnProviderConfigurationRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSignOnProviderConfigurationRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeleteSignOnProviderConfigurationRequest) GetId() string {
@@ -644,7 +1056,7 @@ type DeleteSignOnProviderConfigurationResponse struct {
 
 func (x *DeleteSignOnProviderConfigurationResponse) Reset() {
 	*x = DeleteSignOnProviderConfigurationResponse{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -656,7 +1068,7 @@ func (x *DeleteSignOnProviderConfigurationResponse) String() string {
 func (*DeleteSignOnProviderConfigurationResponse) ProtoMessage() {}
 
 func (x *DeleteSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -669,7 +1081,7 @@ func (x *DeleteSignOnProviderConfigurationResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use DeleteSignOnProviderConfigurationResponse.ProtoReflect.Descriptor instead.
 func (*DeleteSignOnProviderConfigurationResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{21}
 }
 
 type GetSamlConfigurationByIssuerRequest struct {
@@ -681,7 +1093,7 @@ type GetSamlConfigurationByIssuerRequest struct {
 
 func (x *GetSamlConfigurationByIssuerRequest) Reset() {
 	*x = GetSamlConfigurationByIssuerRequest{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -693,7 +1105,7 @@ func (x *GetSamlConfigurationByIssuerRequest) String() string {
 func (*GetSamlConfigurationByIssuerRequest) ProtoMessage() {}
 
 func (x *GetSamlConfigurationByIssuerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -706,7 +1118,7 @@ func (x *GetSamlConfigurationByIssuerRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetSamlConfigurationByIssuerRequest.ProtoReflect.Descriptor instead.
 func (*GetSamlConfigurationByIssuerRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetSamlConfigurationByIssuerRequest) GetIssuer() string {
@@ -726,7 +1138,7 @@ type GetSamlConfigurationByIssuerResponse struct {
 
 func (x *GetSamlConfigurationByIssuerResponse) Reset() {
 	*x = GetSamlConfigurationByIssuerResponse{}
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -738,7 +1150,7 @@ func (x *GetSamlConfigurationByIssuerResponse) String() string {
 func (*GetSamlConfigurationByIssuerResponse) ProtoMessage() {}
 
 func (x *GetSamlConfigurationByIssuerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_sso_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_sso_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -751,7 +1163,7 @@ func (x *GetSamlConfigurationByIssuerResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetSamlConfigurationByIssuerResponse.ProtoReflect.Descriptor instead.
 func (*GetSamlConfigurationByIssuerResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_sso_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetSamlConfigurationByIssuerResponse) GetConfiguration() *SignOnProviderSamlConfig {
@@ -775,7 +1187,27 @@ const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\x19chalk/server/v1/sso.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\"\x18\n" +
 	"\x16CreateScimTokenRequest\"/\n" +
 	"\x17CreateScimTokenResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\x88\x02\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"\xa6\x01\n" +
+	"\x0eSsoEmailDomain\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
+	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12!\n" +
+	"\femail_domain\x18\x03 \x01(\tR\vemailDomain\x12%\n" +
+	"\x0echalk_approved\x18\x04 \x01(\bR\rchalkApproved\x12!\n" +
+	"\fprovider_ids\x18\x05 \x03(\tR\vproviderIds\"\x1c\n" +
+	"\x1aListSsoEmailDomainsRequest\"c\n" +
+	"\x1bListSsoEmailDomainsResponse\x12D\n" +
+	"\remail_domains\x18\x01 \x03(\v2\x1f.chalk.server.v1.SsoEmailDomainR\femailDomains\"a\n" +
+	"\x1bCreateSsoEmailDomainRequest\x12B\n" +
+	"\femail_domain\x18\x01 \x01(\v2\x1f.chalk.server.v1.SsoEmailDomainR\vemailDomain\"b\n" +
+	"\x1cCreateSsoEmailDomainResponse\x12B\n" +
+	"\femail_domain\x18\x01 \x01(\v2\x1f.chalk.server.v1.SsoEmailDomainR\vemailDomain\"a\n" +
+	"\x1bUpdateSsoEmailDomainRequest\x12B\n" +
+	"\femail_domain\x18\x01 \x01(\v2\x1f.chalk.server.v1.SsoEmailDomainR\vemailDomain\"b\n" +
+	"\x1cUpdateSsoEmailDomainResponse\x12B\n" +
+	"\femail_domain\x18\x01 \x01(\v2\x1f.chalk.server.v1.SsoEmailDomainR\vemailDomain\"-\n" +
+	"\x1bDeleteSsoEmailDomainRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x1e\n" +
+	"\x1cDeleteSsoEmailDomainResponse\"\x88\x02\n" +
 	"\x18SignOnProviderSamlConfig\x12\x16\n" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\x12\"\n" +
 	"\ridp_login_url\x18\x02 \x01(\tR\vidpLoginUrl\x12)\n" +
@@ -814,10 +1246,18 @@ const file_chalk_server_v1_sso_proto_rawDesc = "" +
 	"\x06issuer\x18\x01 \x01(\tR\x06issuer\"\x90\x01\n" +
 	"$GetSamlConfigurationByIssuerResponse\x12O\n" +
 	"\rconfiguration\x18\x01 \x01(\v2).chalk.server.v1.SignOnProviderSamlConfigR\rconfiguration\x12\x17\n" +
-	"\ateam_id\x18\x02 \x01(\tR\x06teamId2\xba\b\n" +
+	"\ateam_id\x18\x02 \x01(\tR\x06teamId2\x91\r\n" +
 	"\n" +
 	"SsoService\x12l\n" +
-	"\x0fCreateScimToken\x12'.chalk.server.v1.CreateScimTokenRequest\x1a(.chalk.server.v1.CreateScimTokenResponse\"\x06\x80}\a\x90\x02\x02\x12\x9f\x01\n" +
+	"\x0fCreateScimToken\x12'.chalk.server.v1.CreateScimTokenRequest\x1a(.chalk.server.v1.CreateScimTokenResponse\"\x06\x80}\a\x90\x02\x02\x12x\n" +
+	"\x13ListSsoEmailDomains\x12+.chalk.server.v1.ListSsoEmailDomainsRequest\x1a,.chalk.server.v1.ListSsoEmailDomainsResponse\"\x06\x80}\n" +
+	"\x90\x02\x01\x12\x9e\x01\n" +
+	"\x14CreateSsoEmailDomain\x12,.chalk.server.v1.CreateSsoEmailDomainRequest\x1a-.chalk.server.v1.CreateSsoEmailDomainResponse\")\x80}\n" +
+	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated an SSO email domain\x90\x02\x02\x12\x9b\x01\n" +
+	"\x14UpdateSsoEmailDomain\x12,.chalk.server.v1.UpdateSsoEmailDomainRequest\x1a-.chalk.server.v1.UpdateSsoEmailDomainResponse\"&\x80}\n" +
+	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bUpdated an SSO email domain\x12\x9b\x01\n" +
+	"\x14DeleteSsoEmailDomain\x12,.chalk.server.v1.DeleteSsoEmailDomainRequest\x1a-.chalk.server.v1.DeleteSsoEmailDomainResponse\"&\x80}\n" +
+	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bDeleted an SSO email domain\x12\x9f\x01\n" +
 	" ListSignOnProviderConfigurations\x128.chalk.server.v1.ListSignOnProviderConfigurationsRequest\x1a9.chalk.server.v1.ListSignOnProviderConfigurationsResponse\"\x06\x80}\n" +
 	"\x90\x02\x01\x12\xd7\x01\n" +
 	"!CreateSignOnProviderConfiguration\x129.chalk.server.v1.CreateSignOnProviderConfigurationRequest\x1a:.chalk.server.v1.CreateSignOnProviderConfigurationResponse\";\x80}\n" +
@@ -841,50 +1281,72 @@ func file_chalk_server_v1_sso_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_sso_proto_rawDescData
 }
 
-var file_chalk_server_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_chalk_server_v1_sso_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chalk_server_v1_sso_proto_goTypes = []any{
 	(*CreateScimTokenRequest)(nil),                    // 0: chalk.server.v1.CreateScimTokenRequest
 	(*CreateScimTokenResponse)(nil),                   // 1: chalk.server.v1.CreateScimTokenResponse
-	(*SignOnProviderSamlConfig)(nil),                  // 2: chalk.server.v1.SignOnProviderSamlConfig
-	(*SignOnProviderOidcConfig)(nil),                  // 3: chalk.server.v1.SignOnProviderOidcConfig
-	(*SignOnProviderConfiguration)(nil),               // 4: chalk.server.v1.SignOnProviderConfiguration
-	(*ListSignOnProviderConfigurationsRequest)(nil),   // 5: chalk.server.v1.ListSignOnProviderConfigurationsRequest
-	(*ListSignOnProviderConfigurationsResponse)(nil),  // 6: chalk.server.v1.ListSignOnProviderConfigurationsResponse
-	(*CreateSignOnProviderConfigurationRequest)(nil),  // 7: chalk.server.v1.CreateSignOnProviderConfigurationRequest
-	(*CreateSignOnProviderConfigurationResponse)(nil), // 8: chalk.server.v1.CreateSignOnProviderConfigurationResponse
-	(*UpdateSignOnProviderConfigurationRequest)(nil),  // 9: chalk.server.v1.UpdateSignOnProviderConfigurationRequest
-	(*UpdateSignOnProviderConfigurationResponse)(nil), // 10: chalk.server.v1.UpdateSignOnProviderConfigurationResponse
-	(*DeleteSignOnProviderConfigurationRequest)(nil),  // 11: chalk.server.v1.DeleteSignOnProviderConfigurationRequest
-	(*DeleteSignOnProviderConfigurationResponse)(nil), // 12: chalk.server.v1.DeleteSignOnProviderConfigurationResponse
-	(*GetSamlConfigurationByIssuerRequest)(nil),       // 13: chalk.server.v1.GetSamlConfigurationByIssuerRequest
-	(*GetSamlConfigurationByIssuerResponse)(nil),      // 14: chalk.server.v1.GetSamlConfigurationByIssuerResponse
+	(*SsoEmailDomain)(nil),                            // 2: chalk.server.v1.SsoEmailDomain
+	(*ListSsoEmailDomainsRequest)(nil),                // 3: chalk.server.v1.ListSsoEmailDomainsRequest
+	(*ListSsoEmailDomainsResponse)(nil),               // 4: chalk.server.v1.ListSsoEmailDomainsResponse
+	(*CreateSsoEmailDomainRequest)(nil),               // 5: chalk.server.v1.CreateSsoEmailDomainRequest
+	(*CreateSsoEmailDomainResponse)(nil),              // 6: chalk.server.v1.CreateSsoEmailDomainResponse
+	(*UpdateSsoEmailDomainRequest)(nil),               // 7: chalk.server.v1.UpdateSsoEmailDomainRequest
+	(*UpdateSsoEmailDomainResponse)(nil),              // 8: chalk.server.v1.UpdateSsoEmailDomainResponse
+	(*DeleteSsoEmailDomainRequest)(nil),               // 9: chalk.server.v1.DeleteSsoEmailDomainRequest
+	(*DeleteSsoEmailDomainResponse)(nil),              // 10: chalk.server.v1.DeleteSsoEmailDomainResponse
+	(*SignOnProviderSamlConfig)(nil),                  // 11: chalk.server.v1.SignOnProviderSamlConfig
+	(*SignOnProviderOidcConfig)(nil),                  // 12: chalk.server.v1.SignOnProviderOidcConfig
+	(*SignOnProviderConfiguration)(nil),               // 13: chalk.server.v1.SignOnProviderConfiguration
+	(*ListSignOnProviderConfigurationsRequest)(nil),   // 14: chalk.server.v1.ListSignOnProviderConfigurationsRequest
+	(*ListSignOnProviderConfigurationsResponse)(nil),  // 15: chalk.server.v1.ListSignOnProviderConfigurationsResponse
+	(*CreateSignOnProviderConfigurationRequest)(nil),  // 16: chalk.server.v1.CreateSignOnProviderConfigurationRequest
+	(*CreateSignOnProviderConfigurationResponse)(nil), // 17: chalk.server.v1.CreateSignOnProviderConfigurationResponse
+	(*UpdateSignOnProviderConfigurationRequest)(nil),  // 18: chalk.server.v1.UpdateSignOnProviderConfigurationRequest
+	(*UpdateSignOnProviderConfigurationResponse)(nil), // 19: chalk.server.v1.UpdateSignOnProviderConfigurationResponse
+	(*DeleteSignOnProviderConfigurationRequest)(nil),  // 20: chalk.server.v1.DeleteSignOnProviderConfigurationRequest
+	(*DeleteSignOnProviderConfigurationResponse)(nil), // 21: chalk.server.v1.DeleteSignOnProviderConfigurationResponse
+	(*GetSamlConfigurationByIssuerRequest)(nil),       // 22: chalk.server.v1.GetSamlConfigurationByIssuerRequest
+	(*GetSamlConfigurationByIssuerResponse)(nil),      // 23: chalk.server.v1.GetSamlConfigurationByIssuerResponse
 }
 var file_chalk_server_v1_sso_proto_depIdxs = []int32{
-	2,  // 0: chalk.server.v1.SignOnProviderConfiguration.saml_config:type_name -> chalk.server.v1.SignOnProviderSamlConfig
-	3,  // 1: chalk.server.v1.SignOnProviderConfiguration.oidc_config:type_name -> chalk.server.v1.SignOnProviderOidcConfig
-	4,  // 2: chalk.server.v1.ListSignOnProviderConfigurationsResponse.configurations:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	4,  // 3: chalk.server.v1.CreateSignOnProviderConfigurationRequest.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	4,  // 4: chalk.server.v1.CreateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	4,  // 5: chalk.server.v1.UpdateSignOnProviderConfigurationRequest.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	4,  // 6: chalk.server.v1.UpdateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
-	2,  // 7: chalk.server.v1.GetSamlConfigurationByIssuerResponse.configuration:type_name -> chalk.server.v1.SignOnProviderSamlConfig
-	0,  // 8: chalk.server.v1.SsoService.CreateScimToken:input_type -> chalk.server.v1.CreateScimTokenRequest
-	5,  // 9: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:input_type -> chalk.server.v1.ListSignOnProviderConfigurationsRequest
-	7,  // 10: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:input_type -> chalk.server.v1.CreateSignOnProviderConfigurationRequest
-	9,  // 11: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:input_type -> chalk.server.v1.UpdateSignOnProviderConfigurationRequest
-	11, // 12: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:input_type -> chalk.server.v1.DeleteSignOnProviderConfigurationRequest
-	13, // 13: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:input_type -> chalk.server.v1.GetSamlConfigurationByIssuerRequest
-	1,  // 14: chalk.server.v1.SsoService.CreateScimToken:output_type -> chalk.server.v1.CreateScimTokenResponse
-	6,  // 15: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:output_type -> chalk.server.v1.ListSignOnProviderConfigurationsResponse
-	8,  // 16: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:output_type -> chalk.server.v1.CreateSignOnProviderConfigurationResponse
-	10, // 17: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:output_type -> chalk.server.v1.UpdateSignOnProviderConfigurationResponse
-	12, // 18: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:output_type -> chalk.server.v1.DeleteSignOnProviderConfigurationResponse
-	14, // 19: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:output_type -> chalk.server.v1.GetSamlConfigurationByIssuerResponse
-	14, // [14:20] is the sub-list for method output_type
-	8,  // [8:14] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	2,  // 0: chalk.server.v1.ListSsoEmailDomainsResponse.email_domains:type_name -> chalk.server.v1.SsoEmailDomain
+	2,  // 1: chalk.server.v1.CreateSsoEmailDomainRequest.email_domain:type_name -> chalk.server.v1.SsoEmailDomain
+	2,  // 2: chalk.server.v1.CreateSsoEmailDomainResponse.email_domain:type_name -> chalk.server.v1.SsoEmailDomain
+	2,  // 3: chalk.server.v1.UpdateSsoEmailDomainRequest.email_domain:type_name -> chalk.server.v1.SsoEmailDomain
+	2,  // 4: chalk.server.v1.UpdateSsoEmailDomainResponse.email_domain:type_name -> chalk.server.v1.SsoEmailDomain
+	11, // 5: chalk.server.v1.SignOnProviderConfiguration.saml_config:type_name -> chalk.server.v1.SignOnProviderSamlConfig
+	12, // 6: chalk.server.v1.SignOnProviderConfiguration.oidc_config:type_name -> chalk.server.v1.SignOnProviderOidcConfig
+	13, // 7: chalk.server.v1.ListSignOnProviderConfigurationsResponse.configurations:type_name -> chalk.server.v1.SignOnProviderConfiguration
+	13, // 8: chalk.server.v1.CreateSignOnProviderConfigurationRequest.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
+	13, // 9: chalk.server.v1.CreateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
+	13, // 10: chalk.server.v1.UpdateSignOnProviderConfigurationRequest.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
+	13, // 11: chalk.server.v1.UpdateSignOnProviderConfigurationResponse.configuration:type_name -> chalk.server.v1.SignOnProviderConfiguration
+	11, // 12: chalk.server.v1.GetSamlConfigurationByIssuerResponse.configuration:type_name -> chalk.server.v1.SignOnProviderSamlConfig
+	0,  // 13: chalk.server.v1.SsoService.CreateScimToken:input_type -> chalk.server.v1.CreateScimTokenRequest
+	3,  // 14: chalk.server.v1.SsoService.ListSsoEmailDomains:input_type -> chalk.server.v1.ListSsoEmailDomainsRequest
+	5,  // 15: chalk.server.v1.SsoService.CreateSsoEmailDomain:input_type -> chalk.server.v1.CreateSsoEmailDomainRequest
+	7,  // 16: chalk.server.v1.SsoService.UpdateSsoEmailDomain:input_type -> chalk.server.v1.UpdateSsoEmailDomainRequest
+	9,  // 17: chalk.server.v1.SsoService.DeleteSsoEmailDomain:input_type -> chalk.server.v1.DeleteSsoEmailDomainRequest
+	14, // 18: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:input_type -> chalk.server.v1.ListSignOnProviderConfigurationsRequest
+	16, // 19: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:input_type -> chalk.server.v1.CreateSignOnProviderConfigurationRequest
+	18, // 20: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:input_type -> chalk.server.v1.UpdateSignOnProviderConfigurationRequest
+	20, // 21: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:input_type -> chalk.server.v1.DeleteSignOnProviderConfigurationRequest
+	22, // 22: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:input_type -> chalk.server.v1.GetSamlConfigurationByIssuerRequest
+	1,  // 23: chalk.server.v1.SsoService.CreateScimToken:output_type -> chalk.server.v1.CreateScimTokenResponse
+	4,  // 24: chalk.server.v1.SsoService.ListSsoEmailDomains:output_type -> chalk.server.v1.ListSsoEmailDomainsResponse
+	6,  // 25: chalk.server.v1.SsoService.CreateSsoEmailDomain:output_type -> chalk.server.v1.CreateSsoEmailDomainResponse
+	8,  // 26: chalk.server.v1.SsoService.UpdateSsoEmailDomain:output_type -> chalk.server.v1.UpdateSsoEmailDomainResponse
+	10, // 27: chalk.server.v1.SsoService.DeleteSsoEmailDomain:output_type -> chalk.server.v1.DeleteSsoEmailDomainResponse
+	15, // 28: chalk.server.v1.SsoService.ListSignOnProviderConfigurations:output_type -> chalk.server.v1.ListSignOnProviderConfigurationsResponse
+	17, // 29: chalk.server.v1.SsoService.CreateSignOnProviderConfiguration:output_type -> chalk.server.v1.CreateSignOnProviderConfigurationResponse
+	19, // 30: chalk.server.v1.SsoService.UpdateSignOnProviderConfiguration:output_type -> chalk.server.v1.UpdateSignOnProviderConfigurationResponse
+	21, // 31: chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration:output_type -> chalk.server.v1.DeleteSignOnProviderConfigurationResponse
+	23, // 32: chalk.server.v1.SsoService.GetSamlConfigurationByIssuer:output_type -> chalk.server.v1.GetSamlConfigurationByIssuerResponse
+	23, // [23:33] is the sub-list for method output_type
+	13, // [13:23] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_sso_proto_init() }
@@ -892,8 +1354,8 @@ func file_chalk_server_v1_sso_proto_init() {
 	if File_chalk_server_v1_sso_proto != nil {
 		return
 	}
-	file_chalk_server_v1_sso_proto_msgTypes[2].OneofWrappers = []any{}
-	file_chalk_server_v1_sso_proto_msgTypes[4].OneofWrappers = []any{
+	file_chalk_server_v1_sso_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_sso_proto_msgTypes[13].OneofWrappers = []any{
 		(*SignOnProviderConfiguration_SamlConfig)(nil),
 		(*SignOnProviderConfiguration_OidcConfig)(nil),
 	}
@@ -903,7 +1365,7 @@ func file_chalk_server_v1_sso_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_sso_proto_rawDesc), len(file_chalk_server_v1_sso_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

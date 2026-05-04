@@ -148,6 +148,8 @@ type WorkflowExecution struct {
 	MetaData             *structpb.Struct        `protobuf:"bytes,10,opt,name=meta_data,json=metaData,proto3,oneof" json:"meta_data,omitempty"`
 	UpdatedAt            *timestamppb.Timestamp  `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	FinalizedAt          *timestamppb.Timestamp  `protobuf:"bytes,12,opt,name=finalized_at,json=finalizedAt,proto3,oneof" json:"finalized_at,omitempty"`
+	Tags                 []string                `protobuf:"bytes,13,rep,name=tags,proto3" json:"tags,omitempty"`
+	RequiredResolverTags []string                `protobuf:"bytes,14,rep,name=required_resolver_tags,json=requiredResolverTags,proto3" json:"required_resolver_tags,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -262,6 +264,20 @@ func (x *WorkflowExecution) GetUpdatedAt() *timestamppb.Timestamp {
 func (x *WorkflowExecution) GetFinalizedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.FinalizedAt
+	}
+	return nil
+}
+
+func (x *WorkflowExecution) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *WorkflowExecution) GetRequiredResolverTags() []string {
+	if x != nil {
+		return x.RequiredResolverTags
 	}
 	return nil
 }
@@ -894,7 +910,7 @@ var File_chalk_server_v1_dataplaneworkflows_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_dataplaneworkflows_proto_rawDesc = "" +
 	"\n" +
-	"(chalk/server/v1/dataplaneworkflows.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a'chalk/server/v1/dataplanejobqueue.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x05\n" +
+	"(chalk/server/v1/dataplaneworkflows.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a'chalk/server/v1/dataplanejobqueue.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8f\x06\n" +
 	"\x11WorkflowExecution\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x129\n" +
 	"\n" +
@@ -911,7 +927,9 @@ const file_chalk_server_v1_dataplaneworkflows_proto_rawDesc = "" +
 	" \x01(\v2\x17.google.protobuf.StructH\x03R\bmetaData\x88\x01\x01\x12>\n" +
 	"\n" +
 	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x04R\tupdatedAt\x88\x01\x01\x12B\n" +
-	"\ffinalized_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x05R\vfinalizedAt\x88\x01\x01B\x0e\n" +
+	"\ffinalized_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x05R\vfinalizedAt\x88\x01\x01\x12\x12\n" +
+	"\x04tags\x18\r \x03(\tR\x04tags\x124\n" +
+	"\x16required_resolver_tags\x18\x0e \x03(\tR\x14requiredResolverTagsB\x0e\n" +
 	"\f_branch_nameB\x19\n" +
 	"\x17_mainline_deployment_idB\v\n" +
 	"\t_agent_idB\f\n" +

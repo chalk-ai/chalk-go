@@ -55,6 +55,7 @@ const (
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER        LogicalTableNodeType = 25
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER LogicalTableNodeType = 26
 	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION         LogicalTableNodeType = 27
+	LogicalTableNodeType_LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER       LogicalTableNodeType = 28
 )
 
 // Enum value maps for LogicalTableNodeType.
@@ -88,6 +89,7 @@ var (
 		25: "LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER",
 		26: "LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER",
 		27: "LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION",
+		28: "LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER",
 	}
 	LogicalTableNodeType_value = map[string]int32{
 		"LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED":            0,
@@ -118,6 +120,7 @@ var (
 		"LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER":        25,
 		"LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER": 26,
 		"LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION":         27,
+		"LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER":       28,
 	}
 )
 
@@ -891,7 +894,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x10logical_plan_arg\x18\x01 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentH\x00R\x0elogicalPlanArg\x123\n" +
 	"\x06py_obj\x18\x02 \x01(\v2\x1a.chalk.planner.v1.PyObjectH\x00R\x05pyObjB\x05\n" +
 	"\x03arg\"\x1c\n" +
-	"\x1aLogicalPlanArgumentNullOpt*\xdc\b\n" +
+	"\x1aLogicalPlanArgumentNullOpt*\x8a\t\n" +
 	"\x14LogicalTableNodeType\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
 	"#LOGICAL_TABLE_NODE_TYPE_NAMED_TABLE\x10\x01\x12&\n" +
@@ -921,7 +924,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"#LOGICAL_TABLE_NODE_TYPE_TABLE_WRITE\x10\x18\x12+\n" +
 	"'LOGICAL_TABLE_NODE_TYPE_TIMELINE_TRACER\x10\x19\x122\n" +
 	".LOGICAL_TABLE_NODE_TYPE_SOURCE_OPERATOR_MARKER\x10\x1a\x12*\n" +
-	"&LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION\x10\x1bB\xc7\x01\n" +
+	"&LOGICAL_TABLE_NODE_TYPE_EMPTY_RELATION\x10\x1b\x12,\n" +
+	"(LOGICAL_TABLE_NODE_TYPE_TOP_N_ROW_NUMBER\x10\x1cB\xc7\x01\n" +
 	"\x14com.chalk.planner.v1B\x10LogicalPlanProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
 
 var (

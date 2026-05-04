@@ -36,6 +36,18 @@ const (
 	// SsoServiceCreateScimTokenProcedure is the fully-qualified name of the SsoService's
 	// CreateScimToken RPC.
 	SsoServiceCreateScimTokenProcedure = "/chalk.server.v1.SsoService/CreateScimToken"
+	// SsoServiceListSsoEmailDomainsProcedure is the fully-qualified name of the SsoService's
+	// ListSsoEmailDomains RPC.
+	SsoServiceListSsoEmailDomainsProcedure = "/chalk.server.v1.SsoService/ListSsoEmailDomains"
+	// SsoServiceCreateSsoEmailDomainProcedure is the fully-qualified name of the SsoService's
+	// CreateSsoEmailDomain RPC.
+	SsoServiceCreateSsoEmailDomainProcedure = "/chalk.server.v1.SsoService/CreateSsoEmailDomain"
+	// SsoServiceUpdateSsoEmailDomainProcedure is the fully-qualified name of the SsoService's
+	// UpdateSsoEmailDomain RPC.
+	SsoServiceUpdateSsoEmailDomainProcedure = "/chalk.server.v1.SsoService/UpdateSsoEmailDomain"
+	// SsoServiceDeleteSsoEmailDomainProcedure is the fully-qualified name of the SsoService's
+	// DeleteSsoEmailDomain RPC.
+	SsoServiceDeleteSsoEmailDomainProcedure = "/chalk.server.v1.SsoService/DeleteSsoEmailDomain"
 	// SsoServiceListSignOnProviderConfigurationsProcedure is the fully-qualified name of the
 	// SsoService's ListSignOnProviderConfigurations RPC.
 	SsoServiceListSignOnProviderConfigurationsProcedure = "/chalk.server.v1.SsoService/ListSignOnProviderConfigurations"
@@ -57,6 +69,10 @@ const (
 type SsoServiceClient interface {
 	// Creates a SCIM JWT token for the authenticated team
 	CreateScimToken(context.Context, *connect.Request[v1.CreateScimTokenRequest]) (*connect.Response[v1.CreateScimTokenResponse], error)
+	ListSsoEmailDomains(context.Context, *connect.Request[v1.ListSsoEmailDomainsRequest]) (*connect.Response[v1.ListSsoEmailDomainsResponse], error)
+	CreateSsoEmailDomain(context.Context, *connect.Request[v1.CreateSsoEmailDomainRequest]) (*connect.Response[v1.CreateSsoEmailDomainResponse], error)
+	UpdateSsoEmailDomain(context.Context, *connect.Request[v1.UpdateSsoEmailDomainRequest]) (*connect.Response[v1.UpdateSsoEmailDomainResponse], error)
+	DeleteSsoEmailDomain(context.Context, *connect.Request[v1.DeleteSsoEmailDomainRequest]) (*connect.Response[v1.DeleteSsoEmailDomainResponse], error)
 	ListSignOnProviderConfigurations(context.Context, *connect.Request[v1.ListSignOnProviderConfigurationsRequest]) (*connect.Response[v1.ListSignOnProviderConfigurationsResponse], error)
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
@@ -80,6 +96,32 @@ func NewSsoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			baseURL+SsoServiceCreateScimTokenProcedure,
 			connect.WithSchema(ssoServiceMethods.ByName("CreateScimToken")),
 			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		listSsoEmailDomains: connect.NewClient[v1.ListSsoEmailDomainsRequest, v1.ListSsoEmailDomainsResponse](
+			httpClient,
+			baseURL+SsoServiceListSsoEmailDomainsProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("ListSsoEmailDomains")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		createSsoEmailDomain: connect.NewClient[v1.CreateSsoEmailDomainRequest, v1.CreateSsoEmailDomainResponse](
+			httpClient,
+			baseURL+SsoServiceCreateSsoEmailDomainProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("CreateSsoEmailDomain")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
+		updateSsoEmailDomain: connect.NewClient[v1.UpdateSsoEmailDomainRequest, v1.UpdateSsoEmailDomainResponse](
+			httpClient,
+			baseURL+SsoServiceUpdateSsoEmailDomainProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("UpdateSsoEmailDomain")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteSsoEmailDomain: connect.NewClient[v1.DeleteSsoEmailDomainRequest, v1.DeleteSsoEmailDomainResponse](
+			httpClient,
+			baseURL+SsoServiceDeleteSsoEmailDomainProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("DeleteSsoEmailDomain")),
 			connect.WithClientOptions(opts...),
 		),
 		listSignOnProviderConfigurations: connect.NewClient[v1.ListSignOnProviderConfigurationsRequest, v1.ListSignOnProviderConfigurationsResponse](
@@ -121,6 +163,10 @@ func NewSsoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 // ssoServiceClient implements SsoServiceClient.
 type ssoServiceClient struct {
 	createScimToken                   *connect.Client[v1.CreateScimTokenRequest, v1.CreateScimTokenResponse]
+	listSsoEmailDomains               *connect.Client[v1.ListSsoEmailDomainsRequest, v1.ListSsoEmailDomainsResponse]
+	createSsoEmailDomain              *connect.Client[v1.CreateSsoEmailDomainRequest, v1.CreateSsoEmailDomainResponse]
+	updateSsoEmailDomain              *connect.Client[v1.UpdateSsoEmailDomainRequest, v1.UpdateSsoEmailDomainResponse]
+	deleteSsoEmailDomain              *connect.Client[v1.DeleteSsoEmailDomainRequest, v1.DeleteSsoEmailDomainResponse]
 	listSignOnProviderConfigurations  *connect.Client[v1.ListSignOnProviderConfigurationsRequest, v1.ListSignOnProviderConfigurationsResponse]
 	createSignOnProviderConfiguration *connect.Client[v1.CreateSignOnProviderConfigurationRequest, v1.CreateSignOnProviderConfigurationResponse]
 	updateSignOnProviderConfiguration *connect.Client[v1.UpdateSignOnProviderConfigurationRequest, v1.UpdateSignOnProviderConfigurationResponse]
@@ -131,6 +177,26 @@ type ssoServiceClient struct {
 // CreateScimToken calls chalk.server.v1.SsoService.CreateScimToken.
 func (c *ssoServiceClient) CreateScimToken(ctx context.Context, req *connect.Request[v1.CreateScimTokenRequest]) (*connect.Response[v1.CreateScimTokenResponse], error) {
 	return c.createScimToken.CallUnary(ctx, req)
+}
+
+// ListSsoEmailDomains calls chalk.server.v1.SsoService.ListSsoEmailDomains.
+func (c *ssoServiceClient) ListSsoEmailDomains(ctx context.Context, req *connect.Request[v1.ListSsoEmailDomainsRequest]) (*connect.Response[v1.ListSsoEmailDomainsResponse], error) {
+	return c.listSsoEmailDomains.CallUnary(ctx, req)
+}
+
+// CreateSsoEmailDomain calls chalk.server.v1.SsoService.CreateSsoEmailDomain.
+func (c *ssoServiceClient) CreateSsoEmailDomain(ctx context.Context, req *connect.Request[v1.CreateSsoEmailDomainRequest]) (*connect.Response[v1.CreateSsoEmailDomainResponse], error) {
+	return c.createSsoEmailDomain.CallUnary(ctx, req)
+}
+
+// UpdateSsoEmailDomain calls chalk.server.v1.SsoService.UpdateSsoEmailDomain.
+func (c *ssoServiceClient) UpdateSsoEmailDomain(ctx context.Context, req *connect.Request[v1.UpdateSsoEmailDomainRequest]) (*connect.Response[v1.UpdateSsoEmailDomainResponse], error) {
+	return c.updateSsoEmailDomain.CallUnary(ctx, req)
+}
+
+// DeleteSsoEmailDomain calls chalk.server.v1.SsoService.DeleteSsoEmailDomain.
+func (c *ssoServiceClient) DeleteSsoEmailDomain(ctx context.Context, req *connect.Request[v1.DeleteSsoEmailDomainRequest]) (*connect.Response[v1.DeleteSsoEmailDomainResponse], error) {
+	return c.deleteSsoEmailDomain.CallUnary(ctx, req)
 }
 
 // ListSignOnProviderConfigurations calls
@@ -166,6 +232,10 @@ func (c *ssoServiceClient) GetSamlConfigurationByIssuer(ctx context.Context, req
 type SsoServiceHandler interface {
 	// Creates a SCIM JWT token for the authenticated team
 	CreateScimToken(context.Context, *connect.Request[v1.CreateScimTokenRequest]) (*connect.Response[v1.CreateScimTokenResponse], error)
+	ListSsoEmailDomains(context.Context, *connect.Request[v1.ListSsoEmailDomainsRequest]) (*connect.Response[v1.ListSsoEmailDomainsResponse], error)
+	CreateSsoEmailDomain(context.Context, *connect.Request[v1.CreateSsoEmailDomainRequest]) (*connect.Response[v1.CreateSsoEmailDomainResponse], error)
+	UpdateSsoEmailDomain(context.Context, *connect.Request[v1.UpdateSsoEmailDomainRequest]) (*connect.Response[v1.UpdateSsoEmailDomainResponse], error)
+	DeleteSsoEmailDomain(context.Context, *connect.Request[v1.DeleteSsoEmailDomainRequest]) (*connect.Response[v1.DeleteSsoEmailDomainResponse], error)
 	ListSignOnProviderConfigurations(context.Context, *connect.Request[v1.ListSignOnProviderConfigurationsRequest]) (*connect.Response[v1.ListSignOnProviderConfigurationsResponse], error)
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
@@ -185,6 +255,32 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 		svc.CreateScimToken,
 		connect.WithSchema(ssoServiceMethods.ByName("CreateScimToken")),
 		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	ssoServiceListSsoEmailDomainsHandler := connect.NewUnaryHandler(
+		SsoServiceListSsoEmailDomainsProcedure,
+		svc.ListSsoEmailDomains,
+		connect.WithSchema(ssoServiceMethods.ByName("ListSsoEmailDomains")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	ssoServiceCreateSsoEmailDomainHandler := connect.NewUnaryHandler(
+		SsoServiceCreateSsoEmailDomainProcedure,
+		svc.CreateSsoEmailDomain,
+		connect.WithSchema(ssoServiceMethods.ByName("CreateSsoEmailDomain")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
+	ssoServiceUpdateSsoEmailDomainHandler := connect.NewUnaryHandler(
+		SsoServiceUpdateSsoEmailDomainProcedure,
+		svc.UpdateSsoEmailDomain,
+		connect.WithSchema(ssoServiceMethods.ByName("UpdateSsoEmailDomain")),
+		connect.WithHandlerOptions(opts...),
+	)
+	ssoServiceDeleteSsoEmailDomainHandler := connect.NewUnaryHandler(
+		SsoServiceDeleteSsoEmailDomainProcedure,
+		svc.DeleteSsoEmailDomain,
+		connect.WithSchema(ssoServiceMethods.ByName("DeleteSsoEmailDomain")),
 		connect.WithHandlerOptions(opts...),
 	)
 	ssoServiceListSignOnProviderConfigurationsHandler := connect.NewUnaryHandler(
@@ -224,6 +320,14 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 		switch r.URL.Path {
 		case SsoServiceCreateScimTokenProcedure:
 			ssoServiceCreateScimTokenHandler.ServeHTTP(w, r)
+		case SsoServiceListSsoEmailDomainsProcedure:
+			ssoServiceListSsoEmailDomainsHandler.ServeHTTP(w, r)
+		case SsoServiceCreateSsoEmailDomainProcedure:
+			ssoServiceCreateSsoEmailDomainHandler.ServeHTTP(w, r)
+		case SsoServiceUpdateSsoEmailDomainProcedure:
+			ssoServiceUpdateSsoEmailDomainHandler.ServeHTTP(w, r)
+		case SsoServiceDeleteSsoEmailDomainProcedure:
+			ssoServiceDeleteSsoEmailDomainHandler.ServeHTTP(w, r)
 		case SsoServiceListSignOnProviderConfigurationsProcedure:
 			ssoServiceListSignOnProviderConfigurationsHandler.ServeHTTP(w, r)
 		case SsoServiceCreateSignOnProviderConfigurationProcedure:
@@ -245,6 +349,22 @@ type UnimplementedSsoServiceHandler struct{}
 
 func (UnimplementedSsoServiceHandler) CreateScimToken(context.Context, *connect.Request[v1.CreateScimTokenRequest]) (*connect.Response[v1.CreateScimTokenResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.CreateScimToken is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) ListSsoEmailDomains(context.Context, *connect.Request[v1.ListSsoEmailDomainsRequest]) (*connect.Response[v1.ListSsoEmailDomainsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.ListSsoEmailDomains is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) CreateSsoEmailDomain(context.Context, *connect.Request[v1.CreateSsoEmailDomainRequest]) (*connect.Response[v1.CreateSsoEmailDomainResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.CreateSsoEmailDomain is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) UpdateSsoEmailDomain(context.Context, *connect.Request[v1.UpdateSsoEmailDomainRequest]) (*connect.Response[v1.UpdateSsoEmailDomainResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.UpdateSsoEmailDomain is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) DeleteSsoEmailDomain(context.Context, *connect.Request[v1.DeleteSsoEmailDomainRequest]) (*connect.Response[v1.DeleteSsoEmailDomainResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.DeleteSsoEmailDomain is not implemented"))
 }
 
 func (UnimplementedSsoServiceHandler) ListSignOnProviderConfigurations(context.Context, *connect.Request[v1.ListSignOnProviderConfigurationsRequest]) (*connect.Response[v1.ListSignOnProviderConfigurationsResponse], error) {
