@@ -488,6 +488,7 @@ type ResourceRequests struct {
 	Memory *string `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
 	// *
 	// Chalk can use this for spilling intermediate state of some large computations, i.e. joins, aggregations, and sorting.
+	//
 	// Default unit is bytes, i.e. 1000000000 is 1 gigabyte of memory.
 	// You can also specify a suffix such as K, M, or G for kilobytes, megabytes, and gigabytes, respectively.
 	// It's also possible to use the power of two equivalents, such as Ki, Mi, and Gi.

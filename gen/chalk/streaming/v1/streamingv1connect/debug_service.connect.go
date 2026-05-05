@@ -51,6 +51,9 @@ const (
 	// StreamingDebugServiceGetDebugMessagesProcedure is the fully-qualified name of the
 	// StreamingDebugService's GetDebugMessages RPC.
 	StreamingDebugServiceGetDebugMessagesProcedure = "/chalk.streaming.v1.StreamingDebugService/GetDebugMessages"
+	// StreamingDebugServiceGetDebugMessagesV2Procedure is the fully-qualified name of the
+	// StreamingDebugService's GetDebugMessagesV2 RPC.
+	StreamingDebugServiceGetDebugMessagesV2Procedure = "/chalk.streaming.v1.StreamingDebugService/GetDebugMessagesV2"
 	// StreamingDebugServiceWatchDebugStreamProcedure is the fully-qualified name of the
 	// StreamingDebugService's WatchDebugStream RPC.
 	StreamingDebugServiceWatchDebugStreamProcedure = "/chalk.streaming.v1.StreamingDebugService/WatchDebugStream"
@@ -73,6 +76,10 @@ type StreamingDebugServiceClient interface {
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
+	// Get recent debug messages as a structured response with per-feature
+	// values, error details, aggregate counts, and the expression each output
+	// feature is bound to in the resolver.
+	GetDebugMessagesV2(context.Context, *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error)
 	// Push a message to a streaming topic
@@ -129,6 +136,13 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getDebugMessagesV2: connect.NewClient[v1.GetDebugMessagesV2Request, v1.GetDebugMessagesV2Response](
+			httpClient,
+			baseURL+StreamingDebugServiceGetDebugMessagesV2Procedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("GetDebugMessagesV2")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		watchDebugStream: connect.NewClient[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse](
 			httpClient,
 			baseURL+StreamingDebugServiceWatchDebugStreamProcedure,
@@ -152,6 +166,7 @@ type streamingDebugServiceClient struct {
 	disableDebugMode        *connect.Client[v1.DisableDebugModeRequest, v1.DisableDebugModeResponse]
 	getDebugModeStatus      *connect.Client[v1.GetDebugModeStatusRequest, v1.GetDebugModeStatusResponse]
 	getDebugMessages        *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
+	getDebugMessagesV2      *connect.Client[v1.GetDebugMessagesV2Request, v1.GetDebugMessagesV2Response]
 	watchDebugStream        *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
 	pushTopic               *connect.Client[v1.PushTopicRequest, v1.PushTopicResponse]
 }
@@ -186,6 +201,11 @@ func (c *streamingDebugServiceClient) GetDebugMessages(ctx context.Context, req 
 	return c.getDebugMessages.CallUnary(ctx, req)
 }
 
+// GetDebugMessagesV2 calls chalk.streaming.v1.StreamingDebugService.GetDebugMessagesV2.
+func (c *streamingDebugServiceClient) GetDebugMessagesV2(ctx context.Context, req *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error) {
+	return c.getDebugMessagesV2.CallUnary(ctx, req)
+}
+
 // WatchDebugStream calls chalk.streaming.v1.StreamingDebugService.WatchDebugStream.
 func (c *streamingDebugServiceClient) WatchDebugStream(ctx context.Context, req *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error) {
 	return c.watchDebugStream.CallServerStream(ctx, req)
@@ -211,6 +231,10 @@ type StreamingDebugServiceHandler interface {
 	GetDebugModeStatus(context.Context, *connect.Request[v1.GetDebugModeStatusRequest]) (*connect.Response[v1.GetDebugModeStatusResponse], error)
 	// Get recent debug messages as parquet
 	GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error)
+	// Get recent debug messages as a structured response with per-feature
+	// values, error details, aggregate counts, and the expression each output
+	// feature is bound to in the resolver.
+	GetDebugMessagesV2(context.Context, *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error
 	// Push a message to a streaming topic
@@ -263,6 +287,13 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	streamingDebugServiceGetDebugMessagesV2Handler := connect.NewUnaryHandler(
+		StreamingDebugServiceGetDebugMessagesV2Procedure,
+		svc.GetDebugMessagesV2,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("GetDebugMessagesV2")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	streamingDebugServiceWatchDebugStreamHandler := connect.NewServerStreamHandler(
 		StreamingDebugServiceWatchDebugStreamProcedure,
 		svc.WatchDebugStream,
@@ -289,6 +320,8 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 			streamingDebugServiceGetDebugModeStatusHandler.ServeHTTP(w, r)
 		case StreamingDebugServiceGetDebugMessagesProcedure:
 			streamingDebugServiceGetDebugMessagesHandler.ServeHTTP(w, r)
+		case StreamingDebugServiceGetDebugMessagesV2Procedure:
+			streamingDebugServiceGetDebugMessagesV2Handler.ServeHTTP(w, r)
 		case StreamingDebugServiceWatchDebugStreamProcedure:
 			streamingDebugServiceWatchDebugStreamHandler.ServeHTTP(w, r)
 		case StreamingDebugServicePushTopicProcedure:
@@ -324,6 +357,10 @@ func (UnimplementedStreamingDebugServiceHandler) GetDebugModeStatus(context.Cont
 
 func (UnimplementedStreamingDebugServiceHandler) GetDebugMessages(context.Context, *connect.Request[v1.GetDebugMessagesRequest]) (*connect.Response[v1.GetDebugMessagesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.GetDebugMessages is not implemented"))
+}
+
+func (UnimplementedStreamingDebugServiceHandler) GetDebugMessagesV2(context.Context, *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.GetDebugMessagesV2 is not implemented"))
 }
 
 func (UnimplementedStreamingDebugServiceHandler) WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error {
