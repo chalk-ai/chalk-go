@@ -60,6 +60,9 @@ const (
 	// SsoServiceDeleteSignOnProviderConfigurationProcedure is the fully-qualified name of the
 	// SsoService's DeleteSignOnProviderConfiguration RPC.
 	SsoServiceDeleteSignOnProviderConfigurationProcedure = "/chalk.server.v1.SsoService/DeleteSignOnProviderConfiguration"
+	// SsoServiceGetSignOnProvidersForEmailProcedure is the fully-qualified name of the SsoService's
+	// GetSignOnProvidersForEmail RPC.
+	SsoServiceGetSignOnProvidersForEmailProcedure = "/chalk.server.v1.SsoService/GetSignOnProvidersForEmail"
 	// SsoServiceGetSamlConfigurationByIssuerProcedure is the fully-qualified name of the SsoService's
 	// GetSamlConfigurationByIssuer RPC.
 	SsoServiceGetSamlConfigurationByIssuerProcedure = "/chalk.server.v1.SsoService/GetSamlConfigurationByIssuer"
@@ -77,6 +80,7 @@ type SsoServiceClient interface {
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
 	DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error)
+	GetSignOnProvidersForEmail(context.Context, *connect.Request[v1.GetSignOnProvidersForEmailRequest]) (*connect.Response[v1.GetSignOnProvidersForEmailResponse], error)
 	GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error)
 }
 
@@ -150,6 +154,13 @@ func NewSsoServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...
 			connect.WithSchema(ssoServiceMethods.ByName("DeleteSignOnProviderConfiguration")),
 			connect.WithClientOptions(opts...),
 		),
+		getSignOnProvidersForEmail: connect.NewClient[v1.GetSignOnProvidersForEmailRequest, v1.GetSignOnProvidersForEmailResponse](
+			httpClient,
+			baseURL+SsoServiceGetSignOnProvidersForEmailProcedure,
+			connect.WithSchema(ssoServiceMethods.ByName("GetSignOnProvidersForEmail")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getSamlConfigurationByIssuer: connect.NewClient[v1.GetSamlConfigurationByIssuerRequest, v1.GetSamlConfigurationByIssuerResponse](
 			httpClient,
 			baseURL+SsoServiceGetSamlConfigurationByIssuerProcedure,
@@ -171,6 +182,7 @@ type ssoServiceClient struct {
 	createSignOnProviderConfiguration *connect.Client[v1.CreateSignOnProviderConfigurationRequest, v1.CreateSignOnProviderConfigurationResponse]
 	updateSignOnProviderConfiguration *connect.Client[v1.UpdateSignOnProviderConfigurationRequest, v1.UpdateSignOnProviderConfigurationResponse]
 	deleteSignOnProviderConfiguration *connect.Client[v1.DeleteSignOnProviderConfigurationRequest, v1.DeleteSignOnProviderConfigurationResponse]
+	getSignOnProvidersForEmail        *connect.Client[v1.GetSignOnProvidersForEmailRequest, v1.GetSignOnProvidersForEmailResponse]
 	getSamlConfigurationByIssuer      *connect.Client[v1.GetSamlConfigurationByIssuerRequest, v1.GetSamlConfigurationByIssuerResponse]
 }
 
@@ -223,6 +235,11 @@ func (c *ssoServiceClient) DeleteSignOnProviderConfiguration(ctx context.Context
 	return c.deleteSignOnProviderConfiguration.CallUnary(ctx, req)
 }
 
+// GetSignOnProvidersForEmail calls chalk.server.v1.SsoService.GetSignOnProvidersForEmail.
+func (c *ssoServiceClient) GetSignOnProvidersForEmail(ctx context.Context, req *connect.Request[v1.GetSignOnProvidersForEmailRequest]) (*connect.Response[v1.GetSignOnProvidersForEmailResponse], error) {
+	return c.getSignOnProvidersForEmail.CallUnary(ctx, req)
+}
+
 // GetSamlConfigurationByIssuer calls chalk.server.v1.SsoService.GetSamlConfigurationByIssuer.
 func (c *ssoServiceClient) GetSamlConfigurationByIssuer(ctx context.Context, req *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error) {
 	return c.getSamlConfigurationByIssuer.CallUnary(ctx, req)
@@ -240,6 +257,7 @@ type SsoServiceHandler interface {
 	CreateSignOnProviderConfiguration(context.Context, *connect.Request[v1.CreateSignOnProviderConfigurationRequest]) (*connect.Response[v1.CreateSignOnProviderConfigurationResponse], error)
 	UpdateSignOnProviderConfiguration(context.Context, *connect.Request[v1.UpdateSignOnProviderConfigurationRequest]) (*connect.Response[v1.UpdateSignOnProviderConfigurationResponse], error)
 	DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error)
+	GetSignOnProvidersForEmail(context.Context, *connect.Request[v1.GetSignOnProvidersForEmailRequest]) (*connect.Response[v1.GetSignOnProvidersForEmailResponse], error)
 	GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error)
 }
 
@@ -309,6 +327,13 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 		connect.WithSchema(ssoServiceMethods.ByName("DeleteSignOnProviderConfiguration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	ssoServiceGetSignOnProvidersForEmailHandler := connect.NewUnaryHandler(
+		SsoServiceGetSignOnProvidersForEmailProcedure,
+		svc.GetSignOnProvidersForEmail,
+		connect.WithSchema(ssoServiceMethods.ByName("GetSignOnProvidersForEmail")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	ssoServiceGetSamlConfigurationByIssuerHandler := connect.NewUnaryHandler(
 		SsoServiceGetSamlConfigurationByIssuerProcedure,
 		svc.GetSamlConfigurationByIssuer,
@@ -336,6 +361,8 @@ func NewSsoServiceHandler(svc SsoServiceHandler, opts ...connect.HandlerOption) 
 			ssoServiceUpdateSignOnProviderConfigurationHandler.ServeHTTP(w, r)
 		case SsoServiceDeleteSignOnProviderConfigurationProcedure:
 			ssoServiceDeleteSignOnProviderConfigurationHandler.ServeHTTP(w, r)
+		case SsoServiceGetSignOnProvidersForEmailProcedure:
+			ssoServiceGetSignOnProvidersForEmailHandler.ServeHTTP(w, r)
 		case SsoServiceGetSamlConfigurationByIssuerProcedure:
 			ssoServiceGetSamlConfigurationByIssuerHandler.ServeHTTP(w, r)
 		default:
@@ -381,6 +408,10 @@ func (UnimplementedSsoServiceHandler) UpdateSignOnProviderConfiguration(context.
 
 func (UnimplementedSsoServiceHandler) DeleteSignOnProviderConfiguration(context.Context, *connect.Request[v1.DeleteSignOnProviderConfigurationRequest]) (*connect.Response[v1.DeleteSignOnProviderConfigurationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.DeleteSignOnProviderConfiguration is not implemented"))
+}
+
+func (UnimplementedSsoServiceHandler) GetSignOnProvidersForEmail(context.Context, *connect.Request[v1.GetSignOnProvidersForEmailRequest]) (*connect.Response[v1.GetSignOnProvidersForEmailResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.SsoService.GetSignOnProvidersForEmail is not implemented"))
 }
 
 func (UnimplementedSsoServiceHandler) GetSamlConfigurationByIssuer(context.Context, *connect.Request[v1.GetSamlConfigurationByIssuerRequest]) (*connect.Response[v1.GetSamlConfigurationByIssuerResponse], error) {
