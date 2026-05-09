@@ -40,6 +40,9 @@ const (
 	// EnvironmentSecretsServiceGetSecretValueProcedure is the fully-qualified name of the
 	// EnvironmentSecretsService's GetSecretValue RPC.
 	EnvironmentSecretsServiceGetSecretValueProcedure = "/chalk.server.v1.EnvironmentSecretsService/GetSecretValue"
+	// EnvironmentSecretsServiceGetAllSecretValuesProcedure is the fully-qualified name of the
+	// EnvironmentSecretsService's GetAllSecretValues RPC.
+	EnvironmentSecretsServiceGetAllSecretValuesProcedure = "/chalk.server.v1.EnvironmentSecretsService/GetAllSecretValues"
 	// EnvironmentSecretsServiceUpsertSecretProcedure is the fully-qualified name of the
 	// EnvironmentSecretsService's UpsertSecret RPC.
 	EnvironmentSecretsServiceUpsertSecretProcedure = "/chalk.server.v1.EnvironmentSecretsService/UpsertSecret"
@@ -53,6 +56,7 @@ const (
 type EnvironmentSecretsServiceClient interface {
 	ListSecrets(context.Context, *connect.Request[v1.ListSecretsRequest]) (*connect.Response[v1.ListSecretsResponse], error)
 	GetSecretValue(context.Context, *connect.Request[v1.GetSecretValueRequest]) (*connect.Response[v1.GetSecretValueResponse], error)
+	GetAllSecretValues(context.Context, *connect.Request[v1.GetAllSecretValuesRequest]) (*connect.Response[v1.GetAllSecretValuesResponse], error)
 	UpsertSecret(context.Context, *connect.Request[v1.UpsertSecretRequest]) (*connect.Response[v1.UpsertSecretResponse], error)
 	DeleteSecret(context.Context, *connect.Request[v1.DeleteSecretRequest]) (*connect.Response[v1.DeleteSecretResponse], error)
 }
@@ -80,6 +84,12 @@ func NewEnvironmentSecretsServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithSchema(environmentSecretsServiceMethods.ByName("GetSecretValue")),
 			connect.WithClientOptions(opts...),
 		),
+		getAllSecretValues: connect.NewClient[v1.GetAllSecretValuesRequest, v1.GetAllSecretValuesResponse](
+			httpClient,
+			baseURL+EnvironmentSecretsServiceGetAllSecretValuesProcedure,
+			connect.WithSchema(environmentSecretsServiceMethods.ByName("GetAllSecretValues")),
+			connect.WithClientOptions(opts...),
+		),
 		upsertSecret: connect.NewClient[v1.UpsertSecretRequest, v1.UpsertSecretResponse](
 			httpClient,
 			baseURL+EnvironmentSecretsServiceUpsertSecretProcedure,
@@ -97,10 +107,11 @@ func NewEnvironmentSecretsServiceClient(httpClient connect.HTTPClient, baseURL s
 
 // environmentSecretsServiceClient implements EnvironmentSecretsServiceClient.
 type environmentSecretsServiceClient struct {
-	listSecrets    *connect.Client[v1.ListSecretsRequest, v1.ListSecretsResponse]
-	getSecretValue *connect.Client[v1.GetSecretValueRequest, v1.GetSecretValueResponse]
-	upsertSecret   *connect.Client[v1.UpsertSecretRequest, v1.UpsertSecretResponse]
-	deleteSecret   *connect.Client[v1.DeleteSecretRequest, v1.DeleteSecretResponse]
+	listSecrets        *connect.Client[v1.ListSecretsRequest, v1.ListSecretsResponse]
+	getSecretValue     *connect.Client[v1.GetSecretValueRequest, v1.GetSecretValueResponse]
+	getAllSecretValues *connect.Client[v1.GetAllSecretValuesRequest, v1.GetAllSecretValuesResponse]
+	upsertSecret       *connect.Client[v1.UpsertSecretRequest, v1.UpsertSecretResponse]
+	deleteSecret       *connect.Client[v1.DeleteSecretRequest, v1.DeleteSecretResponse]
 }
 
 // ListSecrets calls chalk.server.v1.EnvironmentSecretsService.ListSecrets.
@@ -111,6 +122,11 @@ func (c *environmentSecretsServiceClient) ListSecrets(ctx context.Context, req *
 // GetSecretValue calls chalk.server.v1.EnvironmentSecretsService.GetSecretValue.
 func (c *environmentSecretsServiceClient) GetSecretValue(ctx context.Context, req *connect.Request[v1.GetSecretValueRequest]) (*connect.Response[v1.GetSecretValueResponse], error) {
 	return c.getSecretValue.CallUnary(ctx, req)
+}
+
+// GetAllSecretValues calls chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues.
+func (c *environmentSecretsServiceClient) GetAllSecretValues(ctx context.Context, req *connect.Request[v1.GetAllSecretValuesRequest]) (*connect.Response[v1.GetAllSecretValuesResponse], error) {
+	return c.getAllSecretValues.CallUnary(ctx, req)
 }
 
 // UpsertSecret calls chalk.server.v1.EnvironmentSecretsService.UpsertSecret.
@@ -128,6 +144,7 @@ func (c *environmentSecretsServiceClient) DeleteSecret(ctx context.Context, req 
 type EnvironmentSecretsServiceHandler interface {
 	ListSecrets(context.Context, *connect.Request[v1.ListSecretsRequest]) (*connect.Response[v1.ListSecretsResponse], error)
 	GetSecretValue(context.Context, *connect.Request[v1.GetSecretValueRequest]) (*connect.Response[v1.GetSecretValueResponse], error)
+	GetAllSecretValues(context.Context, *connect.Request[v1.GetAllSecretValuesRequest]) (*connect.Response[v1.GetAllSecretValuesResponse], error)
 	UpsertSecret(context.Context, *connect.Request[v1.UpsertSecretRequest]) (*connect.Response[v1.UpsertSecretResponse], error)
 	DeleteSecret(context.Context, *connect.Request[v1.DeleteSecretRequest]) (*connect.Response[v1.DeleteSecretResponse], error)
 }
@@ -151,6 +168,12 @@ func NewEnvironmentSecretsServiceHandler(svc EnvironmentSecretsServiceHandler, o
 		connect.WithSchema(environmentSecretsServiceMethods.ByName("GetSecretValue")),
 		connect.WithHandlerOptions(opts...),
 	)
+	environmentSecretsServiceGetAllSecretValuesHandler := connect.NewUnaryHandler(
+		EnvironmentSecretsServiceGetAllSecretValuesProcedure,
+		svc.GetAllSecretValues,
+		connect.WithSchema(environmentSecretsServiceMethods.ByName("GetAllSecretValues")),
+		connect.WithHandlerOptions(opts...),
+	)
 	environmentSecretsServiceUpsertSecretHandler := connect.NewUnaryHandler(
 		EnvironmentSecretsServiceUpsertSecretProcedure,
 		svc.UpsertSecret,
@@ -169,6 +192,8 @@ func NewEnvironmentSecretsServiceHandler(svc EnvironmentSecretsServiceHandler, o
 			environmentSecretsServiceListSecretsHandler.ServeHTTP(w, r)
 		case EnvironmentSecretsServiceGetSecretValueProcedure:
 			environmentSecretsServiceGetSecretValueHandler.ServeHTTP(w, r)
+		case EnvironmentSecretsServiceGetAllSecretValuesProcedure:
+			environmentSecretsServiceGetAllSecretValuesHandler.ServeHTTP(w, r)
 		case EnvironmentSecretsServiceUpsertSecretProcedure:
 			environmentSecretsServiceUpsertSecretHandler.ServeHTTP(w, r)
 		case EnvironmentSecretsServiceDeleteSecretProcedure:
@@ -188,6 +213,10 @@ func (UnimplementedEnvironmentSecretsServiceHandler) ListSecrets(context.Context
 
 func (UnimplementedEnvironmentSecretsServiceHandler) GetSecretValue(context.Context, *connect.Request[v1.GetSecretValueRequest]) (*connect.Response[v1.GetSecretValueResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentSecretsService.GetSecretValue is not implemented"))
+}
+
+func (UnimplementedEnvironmentSecretsServiceHandler) GetAllSecretValues(context.Context, *connect.Request[v1.GetAllSecretValuesRequest]) (*connect.Response[v1.GetAllSecretValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues is not implemented"))
 }
 
 func (UnimplementedEnvironmentSecretsServiceHandler) UpsertSecret(context.Context, *connect.Request[v1.UpsertSecretRequest]) (*connect.Response[v1.UpsertSecretResponse], error) {

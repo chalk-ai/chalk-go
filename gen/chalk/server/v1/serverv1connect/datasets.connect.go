@@ -84,6 +84,12 @@ const (
 	// DatasetMetadataServiceGenerateDatasetEdfsProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GenerateDatasetEdfs RPC.
 	DatasetMetadataServiceGenerateDatasetEdfsProcedure = "/chalk.server.v1.DatasetMetadataService/GenerateDatasetEdfs"
+	// DatasetMetadataServiceGetDatasetUploadUrisProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GetDatasetUploadUris RPC.
+	DatasetMetadataServiceGetDatasetUploadUrisProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetUploadUris"
+	// DatasetMetadataServiceFinalizeDatasetUploadProcedure is the fully-qualified name of the
+	// DatasetMetadataService's FinalizeDatasetUpload RPC.
+	DatasetMetadataServiceFinalizeDatasetUploadProcedure = "/chalk.server.v1.DatasetMetadataService/FinalizeDatasetUpload"
 )
 
 // DatasetMetadataServiceClient is a client for the chalk.server.v1.DatasetMetadataService service.
@@ -113,6 +119,15 @@ type DatasetMetadataServiceClient interface {
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
 	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
+	// Mint a signed upload URI for a client-side file. Call once per file; the
+	// first call leaves upload_session_id unset and the server returns one.
+	// Subsequent calls should pass the same upload_session_id so the server can
+	// group all objects together under one finalize.
+	GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error)
+	// Finalize an upload session. The server records a new dataset revision
+	// pointing at all objects uploaded under upload_session_id and exposes the
+	// dataset for queries.
+	FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error)
 }
 
 // NewDatasetMetadataServiceClient constructs a client for the
@@ -243,6 +258,19 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
 			connect.WithClientOptions(opts...),
 		),
+		getDatasetUploadUris: connect.NewClient[v1.GetDatasetUploadUrisRequest, v1.GetDatasetUploadUrisResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetDatasetUploadUrisProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetUploadUris")),
+			connect.WithClientOptions(opts...),
+		),
+		finalizeDatasetUpload: connect.NewClient[v1.FinalizeDatasetUploadRequest, v1.FinalizeDatasetUploadResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceFinalizeDatasetUploadProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("FinalizeDatasetUpload")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -265,6 +293,8 @@ type datasetMetadataServiceClient struct {
 	generateDatasetStats               *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
 	getDatasetEdfs                     *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
 	generateDatasetEdfs                *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
+	getDatasetUploadUris               *connect.Client[v1.GetDatasetUploadUrisRequest, v1.GetDatasetUploadUrisResponse]
+	finalizeDatasetUpload              *connect.Client[v1.FinalizeDatasetUploadRequest, v1.FinalizeDatasetUploadResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -359,6 +389,16 @@ func (c *datasetMetadataServiceClient) GenerateDatasetEdfs(ctx context.Context, 
 	return c.generateDatasetEdfs.CallUnary(ctx, req)
 }
 
+// GetDatasetUploadUris calls chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris.
+func (c *datasetMetadataServiceClient) GetDatasetUploadUris(ctx context.Context, req *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error) {
+	return c.getDatasetUploadUris.CallUnary(ctx, req)
+}
+
+// FinalizeDatasetUpload calls chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload.
+func (c *datasetMetadataServiceClient) FinalizeDatasetUpload(ctx context.Context, req *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error) {
+	return c.finalizeDatasetUpload.CallUnary(ctx, req)
+}
+
 // DatasetMetadataServiceHandler is an implementation of the chalk.server.v1.DatasetMetadataService
 // service.
 type DatasetMetadataServiceHandler interface {
@@ -387,6 +427,15 @@ type DatasetMetadataServiceHandler interface {
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
 	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
+	// Mint a signed upload URI for a client-side file. Call once per file; the
+	// first call leaves upload_session_id unset and the server returns one.
+	// Subsequent calls should pass the same upload_session_id so the server can
+	// group all objects together under one finalize.
+	GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error)
+	// Finalize an upload session. The server records a new dataset revision
+	// pointing at all objects uploaded under upload_session_id and exposes the
+	// dataset for queries.
+	FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error)
 }
 
 // NewDatasetMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -513,6 +562,19 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetDatasetUploadUrisHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetDatasetUploadUrisProcedure,
+		svc.GetDatasetUploadUris,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetUploadUris")),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceFinalizeDatasetUploadHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceFinalizeDatasetUploadProcedure,
+		svc.FinalizeDatasetUpload,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("FinalizeDatasetUpload")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DatasetMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasetMetadataServiceListDatasetsProcedure:
@@ -549,6 +611,10 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceGetDatasetEdfsHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGenerateDatasetEdfsProcedure:
 			datasetMetadataServiceGenerateDatasetEdfsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetDatasetUploadUrisProcedure:
+			datasetMetadataServiceGetDatasetUploadUrisHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceFinalizeDatasetUploadProcedure:
+			datasetMetadataServiceFinalizeDatasetUploadHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -624,4 +690,12 @@ func (UnimplementedDatasetMetadataServiceHandler) GetDatasetEdfs(context.Context
 
 func (UnimplementedDatasetMetadataServiceHandler) GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload is not implemented"))
 }

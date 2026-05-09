@@ -36,6 +36,9 @@ const (
 	// LogSearchServiceSearchLogEntriesProcedure is the fully-qualified name of the LogSearchService's
 	// SearchLogEntries RPC.
 	LogSearchServiceSearchLogEntriesProcedure = "/chalk.server.v1.LogSearchService/SearchLogEntries"
+	// LogSearchServiceStreamSearchLogEntriesProcedure is the fully-qualified name of the
+	// LogSearchService's StreamSearchLogEntries RPC.
+	LogSearchServiceStreamSearchLogEntriesProcedure = "/chalk.server.v1.LogSearchService/StreamSearchLogEntries"
 	// LogSearchServiceSearchLogEntriesAggregatedProcedure is the fully-qualified name of the
 	// LogSearchService's SearchLogEntriesAggregated RPC.
 	LogSearchServiceSearchLogEntriesAggregatedProcedure = "/chalk.server.v1.LogSearchService/SearchLogEntriesAggregated"
@@ -48,6 +51,9 @@ const (
 	// LogSearchServiceSearchAccessLogEntriesProcedure is the fully-qualified name of the
 	// LogSearchService's SearchAccessLogEntries RPC.
 	LogSearchServiceSearchAccessLogEntriesProcedure = "/chalk.server.v1.LogSearchService/SearchAccessLogEntries"
+	// LogSearchServiceStreamSearchAccessLogEntriesProcedure is the fully-qualified name of the
+	// LogSearchService's StreamSearchAccessLogEntries RPC.
+	LogSearchServiceStreamSearchAccessLogEntriesProcedure = "/chalk.server.v1.LogSearchService/StreamSearchAccessLogEntries"
 	// LogSearchServiceSearchAccessLogEntriesAggregatedProcedure is the fully-qualified name of the
 	// LogSearchService's SearchAccessLogEntriesAggregated RPC.
 	LogSearchServiceSearchAccessLogEntriesAggregatedProcedure = "/chalk.server.v1.LogSearchService/SearchAccessLogEntriesAggregated"
@@ -62,10 +68,18 @@ const (
 // LogSearchServiceClient is a client for the chalk.server.v1.LogSearchService service.
 type LogSearchServiceClient interface {
 	SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error)
+	// Server-streaming variant of SearchLogEntries. Each streamed
+	// StreamSearchLogEntriesResponse carries a chunk of log_entries; the
+	// final message may also carry next_page_token.
+	StreamSearchLogEntries(context.Context, *connect.Request[v1.StreamSearchLogEntriesRequest]) (*connect.ServerStreamForClient[v1.StreamSearchLogEntriesResponse], error)
 	SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error)
 	GetLogFacets(context.Context, *connect.Request[v1.GetLogFacetsRequest]) (*connect.Response[v1.GetLogFacetsResponse], error)
 	GetLogFacetValues(context.Context, *connect.Request[v1.GetLogFacetValuesRequest]) (*connect.Response[v1.GetLogFacetValuesResponse], error)
 	SearchAccessLogEntries(context.Context, *connect.Request[v1.SearchAccessLogEntriesRequest]) (*connect.Response[v1.SearchAccessLogEntriesResponse], error)
+	// Server-streaming variant of SearchAccessLogEntries. Each streamed
+	// StreamSearchAccessLogEntriesResponse carries a chunk of access_log_entries;
+	// the final message may also carry next_page_token.
+	StreamSearchAccessLogEntries(context.Context, *connect.Request[v1.StreamSearchAccessLogEntriesRequest]) (*connect.ServerStreamForClient[v1.StreamSearchAccessLogEntriesResponse], error)
 	SearchAccessLogEntriesAggregated(context.Context, *connect.Request[v1.SearchAccessLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchAccessLogEntriesAggregatedResponse], error)
 	GetAccessLogFacets(context.Context, *connect.Request[v1.GetAccessLogFacetsRequest]) (*connect.Response[v1.GetAccessLogFacetsResponse], error)
 	GetAccessLogFacetValues(context.Context, *connect.Request[v1.GetAccessLogFacetValuesRequest]) (*connect.Response[v1.GetAccessLogFacetValuesResponse], error)
@@ -86,6 +100,13 @@ func NewLogSearchServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			httpClient,
 			baseURL+LogSearchServiceSearchLogEntriesProcedure,
 			connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		streamSearchLogEntries: connect.NewClient[v1.StreamSearchLogEntriesRequest, v1.StreamSearchLogEntriesResponse](
+			httpClient,
+			baseURL+LogSearchServiceStreamSearchLogEntriesProcedure,
+			connect.WithSchema(logSearchServiceMethods.ByName("StreamSearchLogEntries")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -117,6 +138,13 @@ func NewLogSearchServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		streamSearchAccessLogEntries: connect.NewClient[v1.StreamSearchAccessLogEntriesRequest, v1.StreamSearchAccessLogEntriesResponse](
+			httpClient,
+			baseURL+LogSearchServiceStreamSearchAccessLogEntriesProcedure,
+			connect.WithSchema(logSearchServiceMethods.ByName("StreamSearchAccessLogEntries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		searchAccessLogEntriesAggregated: connect.NewClient[v1.SearchAccessLogEntriesAggregatedRequest, v1.SearchAccessLogEntriesAggregatedResponse](
 			httpClient,
 			baseURL+LogSearchServiceSearchAccessLogEntriesAggregatedProcedure,
@@ -144,10 +172,12 @@ func NewLogSearchServiceClient(httpClient connect.HTTPClient, baseURL string, op
 // logSearchServiceClient implements LogSearchServiceClient.
 type logSearchServiceClient struct {
 	searchLogEntries                 *connect.Client[v1.SearchLogEntriesRequest, v1.SearchLogEntriesResponse]
+	streamSearchLogEntries           *connect.Client[v1.StreamSearchLogEntriesRequest, v1.StreamSearchLogEntriesResponse]
 	searchLogEntriesAggregated       *connect.Client[v1.SearchLogEntriesAggregatedRequest, v1.SearchLogEntriesAggregatedResponse]
 	getLogFacets                     *connect.Client[v1.GetLogFacetsRequest, v1.GetLogFacetsResponse]
 	getLogFacetValues                *connect.Client[v1.GetLogFacetValuesRequest, v1.GetLogFacetValuesResponse]
 	searchAccessLogEntries           *connect.Client[v1.SearchAccessLogEntriesRequest, v1.SearchAccessLogEntriesResponse]
+	streamSearchAccessLogEntries     *connect.Client[v1.StreamSearchAccessLogEntriesRequest, v1.StreamSearchAccessLogEntriesResponse]
 	searchAccessLogEntriesAggregated *connect.Client[v1.SearchAccessLogEntriesAggregatedRequest, v1.SearchAccessLogEntriesAggregatedResponse]
 	getAccessLogFacets               *connect.Client[v1.GetAccessLogFacetsRequest, v1.GetAccessLogFacetsResponse]
 	getAccessLogFacetValues          *connect.Client[v1.GetAccessLogFacetValuesRequest, v1.GetAccessLogFacetValuesResponse]
@@ -156,6 +186,11 @@ type logSearchServiceClient struct {
 // SearchLogEntries calls chalk.server.v1.LogSearchService.SearchLogEntries.
 func (c *logSearchServiceClient) SearchLogEntries(ctx context.Context, req *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error) {
 	return c.searchLogEntries.CallUnary(ctx, req)
+}
+
+// StreamSearchLogEntries calls chalk.server.v1.LogSearchService.StreamSearchLogEntries.
+func (c *logSearchServiceClient) StreamSearchLogEntries(ctx context.Context, req *connect.Request[v1.StreamSearchLogEntriesRequest]) (*connect.ServerStreamForClient[v1.StreamSearchLogEntriesResponse], error) {
+	return c.streamSearchLogEntries.CallServerStream(ctx, req)
 }
 
 // SearchLogEntriesAggregated calls chalk.server.v1.LogSearchService.SearchLogEntriesAggregated.
@@ -178,6 +213,11 @@ func (c *logSearchServiceClient) SearchAccessLogEntries(ctx context.Context, req
 	return c.searchAccessLogEntries.CallUnary(ctx, req)
 }
 
+// StreamSearchAccessLogEntries calls chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries.
+func (c *logSearchServiceClient) StreamSearchAccessLogEntries(ctx context.Context, req *connect.Request[v1.StreamSearchAccessLogEntriesRequest]) (*connect.ServerStreamForClient[v1.StreamSearchAccessLogEntriesResponse], error) {
+	return c.streamSearchAccessLogEntries.CallServerStream(ctx, req)
+}
+
 // SearchAccessLogEntriesAggregated calls
 // chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated.
 func (c *logSearchServiceClient) SearchAccessLogEntriesAggregated(ctx context.Context, req *connect.Request[v1.SearchAccessLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchAccessLogEntriesAggregatedResponse], error) {
@@ -197,10 +237,18 @@ func (c *logSearchServiceClient) GetAccessLogFacetValues(ctx context.Context, re
 // LogSearchServiceHandler is an implementation of the chalk.server.v1.LogSearchService service.
 type LogSearchServiceHandler interface {
 	SearchLogEntries(context.Context, *connect.Request[v1.SearchLogEntriesRequest]) (*connect.Response[v1.SearchLogEntriesResponse], error)
+	// Server-streaming variant of SearchLogEntries. Each streamed
+	// StreamSearchLogEntriesResponse carries a chunk of log_entries; the
+	// final message may also carry next_page_token.
+	StreamSearchLogEntries(context.Context, *connect.Request[v1.StreamSearchLogEntriesRequest], *connect.ServerStream[v1.StreamSearchLogEntriesResponse]) error
 	SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error)
 	GetLogFacets(context.Context, *connect.Request[v1.GetLogFacetsRequest]) (*connect.Response[v1.GetLogFacetsResponse], error)
 	GetLogFacetValues(context.Context, *connect.Request[v1.GetLogFacetValuesRequest]) (*connect.Response[v1.GetLogFacetValuesResponse], error)
 	SearchAccessLogEntries(context.Context, *connect.Request[v1.SearchAccessLogEntriesRequest]) (*connect.Response[v1.SearchAccessLogEntriesResponse], error)
+	// Server-streaming variant of SearchAccessLogEntries. Each streamed
+	// StreamSearchAccessLogEntriesResponse carries a chunk of access_log_entries;
+	// the final message may also carry next_page_token.
+	StreamSearchAccessLogEntries(context.Context, *connect.Request[v1.StreamSearchAccessLogEntriesRequest], *connect.ServerStream[v1.StreamSearchAccessLogEntriesResponse]) error
 	SearchAccessLogEntriesAggregated(context.Context, *connect.Request[v1.SearchAccessLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchAccessLogEntriesAggregatedResponse], error)
 	GetAccessLogFacets(context.Context, *connect.Request[v1.GetAccessLogFacetsRequest]) (*connect.Response[v1.GetAccessLogFacetsResponse], error)
 	GetAccessLogFacetValues(context.Context, *connect.Request[v1.GetAccessLogFacetValuesRequest]) (*connect.Response[v1.GetAccessLogFacetValuesResponse], error)
@@ -217,6 +265,13 @@ func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.Han
 		LogSearchServiceSearchLogEntriesProcedure,
 		svc.SearchLogEntries,
 		connect.WithSchema(logSearchServiceMethods.ByName("SearchLogEntries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	logSearchServiceStreamSearchLogEntriesHandler := connect.NewServerStreamHandler(
+		LogSearchServiceStreamSearchLogEntriesProcedure,
+		svc.StreamSearchLogEntries,
+		connect.WithSchema(logSearchServiceMethods.ByName("StreamSearchLogEntries")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -248,6 +303,13 @@ func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.Han
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	logSearchServiceStreamSearchAccessLogEntriesHandler := connect.NewServerStreamHandler(
+		LogSearchServiceStreamSearchAccessLogEntriesProcedure,
+		svc.StreamSearchAccessLogEntries,
+		connect.WithSchema(logSearchServiceMethods.ByName("StreamSearchAccessLogEntries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	logSearchServiceSearchAccessLogEntriesAggregatedHandler := connect.NewUnaryHandler(
 		LogSearchServiceSearchAccessLogEntriesAggregatedProcedure,
 		svc.SearchAccessLogEntriesAggregated,
@@ -273,6 +335,8 @@ func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.Han
 		switch r.URL.Path {
 		case LogSearchServiceSearchLogEntriesProcedure:
 			logSearchServiceSearchLogEntriesHandler.ServeHTTP(w, r)
+		case LogSearchServiceStreamSearchLogEntriesProcedure:
+			logSearchServiceStreamSearchLogEntriesHandler.ServeHTTP(w, r)
 		case LogSearchServiceSearchLogEntriesAggregatedProcedure:
 			logSearchServiceSearchLogEntriesAggregatedHandler.ServeHTTP(w, r)
 		case LogSearchServiceGetLogFacetsProcedure:
@@ -281,6 +345,8 @@ func NewLogSearchServiceHandler(svc LogSearchServiceHandler, opts ...connect.Han
 			logSearchServiceGetLogFacetValuesHandler.ServeHTTP(w, r)
 		case LogSearchServiceSearchAccessLogEntriesProcedure:
 			logSearchServiceSearchAccessLogEntriesHandler.ServeHTTP(w, r)
+		case LogSearchServiceStreamSearchAccessLogEntriesProcedure:
+			logSearchServiceStreamSearchAccessLogEntriesHandler.ServeHTTP(w, r)
 		case LogSearchServiceSearchAccessLogEntriesAggregatedProcedure:
 			logSearchServiceSearchAccessLogEntriesAggregatedHandler.ServeHTTP(w, r)
 		case LogSearchServiceGetAccessLogFacetsProcedure:
@@ -300,6 +366,10 @@ func (UnimplementedLogSearchServiceHandler) SearchLogEntries(context.Context, *c
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.SearchLogEntries is not implemented"))
 }
 
+func (UnimplementedLogSearchServiceHandler) StreamSearchLogEntries(context.Context, *connect.Request[v1.StreamSearchLogEntriesRequest], *connect.ServerStream[v1.StreamSearchLogEntriesResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.StreamSearchLogEntries is not implemented"))
+}
+
 func (UnimplementedLogSearchServiceHandler) SearchLogEntriesAggregated(context.Context, *connect.Request[v1.SearchLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchLogEntriesAggregatedResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.SearchLogEntriesAggregated is not implemented"))
 }
@@ -314,6 +384,10 @@ func (UnimplementedLogSearchServiceHandler) GetLogFacetValues(context.Context, *
 
 func (UnimplementedLogSearchServiceHandler) SearchAccessLogEntries(context.Context, *connect.Request[v1.SearchAccessLogEntriesRequest]) (*connect.Response[v1.SearchAccessLogEntriesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.SearchAccessLogEntries is not implemented"))
+}
+
+func (UnimplementedLogSearchServiceHandler) StreamSearchAccessLogEntries(context.Context, *connect.Request[v1.StreamSearchAccessLogEntriesRequest], *connect.ServerStream[v1.StreamSearchAccessLogEntriesResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries is not implemented"))
 }
 
 func (UnimplementedLogSearchServiceHandler) SearchAccessLogEntriesAggregated(context.Context, *connect.Request[v1.SearchAccessLogEntriesAggregatedRequest]) (*connect.Response[v1.SearchAccessLogEntriesAggregatedResponse], error) {

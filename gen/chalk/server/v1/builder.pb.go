@@ -900,6 +900,7 @@ type RebuildDeploymentRequest struct {
 	EnableProfiling        bool                    `protobuf:"varint,4,opt,name=enable_profiling,json=enableProfiling,proto3" json:"enable_profiling,omitempty"` // use build_profile instead
 	BuildProfile           *DeploymentBuildProfile `protobuf:"varint,5,opt,name=build_profile,json=buildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"build_profile,omitempty"`
 	ForceRebuildDockerfile bool                    `protobuf:"varint,6,opt,name=force_rebuild_dockerfile,json=forceRebuildDockerfile,proto3" json:"force_rebuild_dockerfile,omitempty"`
+	BranchName             *string                 `protobuf:"bytes,7,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"` // will use latest deployment of this branch
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -975,6 +976,13 @@ func (x *RebuildDeploymentRequest) GetForceRebuildDockerfile() bool {
 		return x.ForceRebuildDockerfile
 	}
 	return false
+}
+
+func (x *RebuildDeploymentRequest) GetBranchName() string {
+	if x != nil && x.BranchName != nil {
+		return *x.BranchName
+	}
+	return ""
 }
 
 type RebuildDeploymentResponse struct {
@@ -11001,16 +11009,19 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"G\n" +
 	"\x1cDeployKubeComponentsResponse\x12'\n" +
-	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\x8f\x03\n" +
+	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\xc5\x03\n" +
 	"\x18RebuildDeploymentRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\"\n" +
 	"\rnew_image_tag\x18\x02 \x01(\tR\vnewImageTag\x123\n" +
 	"\x13base_image_override\x18\x03 \x01(\tH\x00R\x11baseImageOverride\x88\x01\x01\x12-\n" +
 	"\x10enable_profiling\x18\x04 \x01(\bB\x02\x18\x01R\x0fenableProfiling\x12Q\n" +
 	"\rbuild_profile\x18\x05 \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH\x01R\fbuildProfile\x88\x01\x01\x128\n" +
-	"\x18force_rebuild_dockerfile\x18\x06 \x01(\bR\x16forceRebuildDockerfileB\x16\n" +
+	"\x18force_rebuild_dockerfile\x18\x06 \x01(\bR\x16forceRebuildDockerfile\x12$\n" +
+	"\vbranch_name\x18\a \x01(\tH\x02R\n" +
+	"branchName\x88\x01\x01B\x16\n" +
 	"\x14_base_image_overrideB\x10\n" +
-	"\x0e_build_profile\"6\n" +
+	"\x0e_build_profileB\x0e\n" +
+	"\f_branch_name\"6\n" +
 	"\x19RebuildDeploymentResponse\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\xb6\x06\n" +
 	"\x19RedeployDeploymentRequest\x124\n" +

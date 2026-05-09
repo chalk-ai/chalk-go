@@ -736,6 +736,89 @@ func (x *DeleteSecretResponse) GetSecrets() []*Secret {
 	return nil
 }
 
+type GetAllSecretValuesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllSecretValuesRequest) Reset() {
+	*x = GetAllSecretValuesRequest{}
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllSecretValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllSecretValuesRequest) ProtoMessage() {}
+
+func (x *GetAllSecretValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllSecretValuesRequest.ProtoReflect.Descriptor instead.
+func (*GetAllSecretValuesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{12}
+}
+
+type GetAllSecretValuesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secret name -> plaintext value, for every active secret in the
+	// current environment. Used by the engine at startup to populate the
+	// process-global map that backs `F.read_secret(name)`.
+	Values        map[string]string `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllSecretValuesResponse) Reset() {
+	*x = GetAllSecretValuesResponse{}
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllSecretValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllSecretValuesResponse) ProtoMessage() {}
+
+func (x *GetAllSecretValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_environment_secrets_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllSecretValuesResponse.ProtoReflect.Descriptor instead.
+func (*GetAllSecretValuesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_environment_secrets_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetAllSecretValuesResponse) GetValues() map[string]string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 var File_chalk_server_v1_environment_secrets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
@@ -783,14 +866,21 @@ const file_chalk_server_v1_environment_secrets_proto_rawDesc = "" +
 	"\x13DeleteSecretRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"I\n" +
 	"\x14DeleteSecretResponse\x121\n" +
-	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets*d\n" +
+	"\asecrets\x18\x01 \x03(\v2\x17.chalk.server.v1.SecretR\asecrets\"\x1b\n" +
+	"\x19GetAllSecretValuesRequest\"\xa8\x01\n" +
+	"\x1aGetAllSecretValuesResponse\x12O\n" +
+	"\x06values\x18\x01 \x03(\v27.chalk.server.v1.GetAllSecretValuesResponse.ValuesEntryR\x06values\x1a9\n" +
+	"\vValuesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*d\n" +
 	"\fSecretSource\x12\x1d\n" +
 	"\x19SECRET_SOURCE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15SECRET_SOURCE_MANAGED\x10\x01\x12\x1a\n" +
-	"\x16SECRET_SOURCE_EXTERNAL\x10\x022\xa6\x03\n" +
+	"\x16SECRET_SOURCE_EXTERNAL\x10\x022\x9a\x04\n" +
 	"\x19EnvironmentSecretsService\x12]\n" +
 	"\vListSecrets\x12#.chalk.server.v1.ListSecretsRequest\x1a$.chalk.server.v1.ListSecretsResponse\"\x03\x80}\x14\x12f\n" +
-	"\x0eGetSecretValue\x12&.chalk.server.v1.GetSecretValueRequest\x1a'.chalk.server.v1.GetSecretValueResponse\"\x03\x80}\x13\x12`\n" +
+	"\x0eGetSecretValue\x12&.chalk.server.v1.GetSecretValueRequest\x1a'.chalk.server.v1.GetSecretValueResponse\"\x03\x80}\x13\x12r\n" +
+	"\x12GetAllSecretValues\x12*.chalk.server.v1.GetAllSecretValuesRequest\x1a+.chalk.server.v1.GetAllSecretValuesResponse\"\x03\x80}\x13\x12`\n" +
 	"\fUpsertSecret\x12$.chalk.server.v1.UpsertSecretRequest\x1a%.chalk.server.v1.UpsertSecretResponse\"\x03\x80}\x12\x12`\n" +
 	"\fDeleteSecret\x12$.chalk.server.v1.DeleteSecretRequest\x1a%.chalk.server.v1.DeleteSecretResponse\"\x03\x80}\x12B\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17EnvironmentSecretsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
@@ -808,47 +898,53 @@ func file_chalk_server_v1_environment_secrets_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_environment_secrets_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_environment_secrets_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_chalk_server_v1_environment_secrets_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_environment_secrets_proto_goTypes = []any{
-	(SecretSource)(0),              // 0: chalk.server.v1.SecretSource
-	(*Secret)(nil),                 // 1: chalk.server.v1.Secret
-	(*SecretValue)(nil),            // 2: chalk.server.v1.SecretValue
-	(*SecretConfigValue)(nil),      // 3: chalk.server.v1.SecretConfigValue
-	(*SecretWithValue)(nil),        // 4: chalk.server.v1.SecretWithValue
-	(*ListSecretsRequest)(nil),     // 5: chalk.server.v1.ListSecretsRequest
-	(*ListSecretsResponse)(nil),    // 6: chalk.server.v1.ListSecretsResponse
-	(*GetSecretValueRequest)(nil),  // 7: chalk.server.v1.GetSecretValueRequest
-	(*GetSecretValueResponse)(nil), // 8: chalk.server.v1.GetSecretValueResponse
-	(*UpsertSecretRequest)(nil),    // 9: chalk.server.v1.UpsertSecretRequest
-	(*UpsertSecretResponse)(nil),   // 10: chalk.server.v1.UpsertSecretResponse
-	(*DeleteSecretRequest)(nil),    // 11: chalk.server.v1.DeleteSecretRequest
-	(*DeleteSecretResponse)(nil),   // 12: chalk.server.v1.DeleteSecretResponse
-	(*timestamppb.Timestamp)(nil),  // 13: google.protobuf.Timestamp
+	(SecretSource)(0),                  // 0: chalk.server.v1.SecretSource
+	(*Secret)(nil),                     // 1: chalk.server.v1.Secret
+	(*SecretValue)(nil),                // 2: chalk.server.v1.SecretValue
+	(*SecretConfigValue)(nil),          // 3: chalk.server.v1.SecretConfigValue
+	(*SecretWithValue)(nil),            // 4: chalk.server.v1.SecretWithValue
+	(*ListSecretsRequest)(nil),         // 5: chalk.server.v1.ListSecretsRequest
+	(*ListSecretsResponse)(nil),        // 6: chalk.server.v1.ListSecretsResponse
+	(*GetSecretValueRequest)(nil),      // 7: chalk.server.v1.GetSecretValueRequest
+	(*GetSecretValueResponse)(nil),     // 8: chalk.server.v1.GetSecretValueResponse
+	(*UpsertSecretRequest)(nil),        // 9: chalk.server.v1.UpsertSecretRequest
+	(*UpsertSecretResponse)(nil),       // 10: chalk.server.v1.UpsertSecretResponse
+	(*DeleteSecretRequest)(nil),        // 11: chalk.server.v1.DeleteSecretRequest
+	(*DeleteSecretResponse)(nil),       // 12: chalk.server.v1.DeleteSecretResponse
+	(*GetAllSecretValuesRequest)(nil),  // 13: chalk.server.v1.GetAllSecretValuesRequest
+	(*GetAllSecretValuesResponse)(nil), // 14: chalk.server.v1.GetAllSecretValuesResponse
+	nil,                                // 15: chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
+	(*timestamppb.Timestamp)(nil),      // 16: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_environment_secrets_proto_depIdxs = []int32{
-	13, // 0: chalk.server.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 0: chalk.server.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: chalk.server.v1.Secret.source:type_name -> chalk.server.v1.SecretSource
 	0,  // 2: chalk.server.v1.SecretValue.source:type_name -> chalk.server.v1.SecretSource
-	13, // 3: chalk.server.v1.SecretWithValue.updated_at:type_name -> google.protobuf.Timestamp
+	16, // 3: chalk.server.v1.SecretWithValue.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 4: chalk.server.v1.SecretWithValue.source:type_name -> chalk.server.v1.SecretSource
 	1,  // 5: chalk.server.v1.ListSecretsResponse.secrets:type_name -> chalk.server.v1.Secret
 	2,  // 6: chalk.server.v1.GetSecretValueResponse.secret_value:type_name -> chalk.server.v1.SecretValue
 	3,  // 7: chalk.server.v1.UpsertSecretRequest.config:type_name -> chalk.server.v1.SecretConfigValue
 	1,  // 8: chalk.server.v1.UpsertSecretResponse.secrets:type_name -> chalk.server.v1.Secret
 	1,  // 9: chalk.server.v1.DeleteSecretResponse.secrets:type_name -> chalk.server.v1.Secret
-	5,  // 10: chalk.server.v1.EnvironmentSecretsService.ListSecrets:input_type -> chalk.server.v1.ListSecretsRequest
-	7,  // 11: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:input_type -> chalk.server.v1.GetSecretValueRequest
-	9,  // 12: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:input_type -> chalk.server.v1.UpsertSecretRequest
-	11, // 13: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:input_type -> chalk.server.v1.DeleteSecretRequest
-	6,  // 14: chalk.server.v1.EnvironmentSecretsService.ListSecrets:output_type -> chalk.server.v1.ListSecretsResponse
-	8,  // 15: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:output_type -> chalk.server.v1.GetSecretValueResponse
-	10, // 16: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:output_type -> chalk.server.v1.UpsertSecretResponse
-	12, // 17: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:output_type -> chalk.server.v1.DeleteSecretResponse
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	15, // 10: chalk.server.v1.GetAllSecretValuesResponse.values:type_name -> chalk.server.v1.GetAllSecretValuesResponse.ValuesEntry
+	5,  // 11: chalk.server.v1.EnvironmentSecretsService.ListSecrets:input_type -> chalk.server.v1.ListSecretsRequest
+	7,  // 12: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:input_type -> chalk.server.v1.GetSecretValueRequest
+	13, // 13: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:input_type -> chalk.server.v1.GetAllSecretValuesRequest
+	9,  // 14: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:input_type -> chalk.server.v1.UpsertSecretRequest
+	11, // 15: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:input_type -> chalk.server.v1.DeleteSecretRequest
+	6,  // 16: chalk.server.v1.EnvironmentSecretsService.ListSecrets:output_type -> chalk.server.v1.ListSecretsResponse
+	8,  // 17: chalk.server.v1.EnvironmentSecretsService.GetSecretValue:output_type -> chalk.server.v1.GetSecretValueResponse
+	14, // 18: chalk.server.v1.EnvironmentSecretsService.GetAllSecretValues:output_type -> chalk.server.v1.GetAllSecretValuesResponse
+	10, // 19: chalk.server.v1.EnvironmentSecretsService.UpsertSecret:output_type -> chalk.server.v1.UpsertSecretResponse
+	12, // 20: chalk.server.v1.EnvironmentSecretsService.DeleteSecret:output_type -> chalk.server.v1.DeleteSecretResponse
+	16, // [16:21] is the sub-list for method output_type
+	11, // [11:16] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_environment_secrets_proto_init() }
@@ -869,7 +965,7 @@ func file_chalk_server_v1_environment_secrets_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_environment_secrets_proto_rawDesc), len(file_chalk_server_v1_environment_secrets_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
