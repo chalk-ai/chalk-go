@@ -42,6 +42,9 @@ const (
 	// KubeServiceGetKubernetesEventsProcedure is the fully-qualified name of the KubeService's
 	// GetKubernetesEvents RPC.
 	KubeServiceGetKubernetesEventsProcedure = "/chalk.server.v1.KubeService/GetKubernetesEvents"
+	// KubeServiceGetKubernetesNamespacesProcedure is the fully-qualified name of the KubeService's
+	// GetKubernetesNamespaces RPC.
+	KubeServiceGetKubernetesNamespacesProcedure = "/chalk.server.v1.KubeService/GetKubernetesNamespaces"
 	// KubeServiceGetKubernetesPersistentVolumesProcedure is the fully-qualified name of the
 	// KubeService's GetKubernetesPersistentVolumes RPC.
 	KubeServiceGetKubernetesPersistentVolumesProcedure = "/chalk.server.v1.KubeService/GetKubernetesPersistentVolumes"
@@ -79,6 +82,7 @@ type KubeServiceClient interface {
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
+	GetKubernetesNamespaces(context.Context, *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
@@ -121,6 +125,13 @@ func NewKubeServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			httpClient,
 			baseURL+KubeServiceGetKubernetesEventsProcedure,
 			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesEvents")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getKubernetesNamespaces: connect.NewClient[v1.GetKubernetesNamespacesRequest, v1.GetKubernetesNamespacesResponse](
+			httpClient,
+			baseURL+KubeServiceGetKubernetesNamespacesProcedure,
+			connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesNamespaces")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -195,6 +206,7 @@ type kubeServiceClient struct {
 	getPodVenvSize                   *connect.Client[v1.GetPodVenvSizeRequest, v1.GetPodVenvSizeResponse]
 	getPodStackTraceDump             *connect.Client[v1.GetPodStackTraceDumpRequest, v1.GetPodStackTraceDumpResponse]
 	getKubernetesEvents              *connect.Client[v1.GetKubernetesEventsRequest, v1.GetKubernetesEventsResponse]
+	getKubernetesNamespaces          *connect.Client[v1.GetKubernetesNamespacesRequest, v1.GetKubernetesNamespacesResponse]
 	getKubernetesPersistentVolumes   *connect.Client[v1.GetKubernetesPersistentVolumesRequest, v1.GetKubernetesPersistentVolumesResponse]
 	getKubernetesServiceAccounts     *connect.Client[v1.GetKubernetesServiceAccountsRequest, v1.GetKubernetesServiceAccountsResponse]
 	getKubernetesAutoscalers         *connect.Client[v1.GetKubernetesAutoscalersRequest, v1.GetKubernetesAutoscalersResponse]
@@ -219,6 +231,11 @@ func (c *kubeServiceClient) GetPodStackTraceDump(ctx context.Context, req *conne
 // GetKubernetesEvents calls chalk.server.v1.KubeService.GetKubernetesEvents.
 func (c *kubeServiceClient) GetKubernetesEvents(ctx context.Context, req *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error) {
 	return c.getKubernetesEvents.CallUnary(ctx, req)
+}
+
+// GetKubernetesNamespaces calls chalk.server.v1.KubeService.GetKubernetesNamespaces.
+func (c *kubeServiceClient) GetKubernetesNamespaces(ctx context.Context, req *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error) {
+	return c.getKubernetesNamespaces.CallUnary(ctx, req)
 }
 
 // GetKubernetesPersistentVolumes calls chalk.server.v1.KubeService.GetKubernetesPersistentVolumes.
@@ -276,6 +293,7 @@ type KubeServiceHandler interface {
 	// The process can be specified either by name or process ID
 	GetPodStackTraceDump(context.Context, *connect.Request[v1.GetPodStackTraceDumpRequest]) (*connect.Response[v1.GetPodStackTraceDumpResponse], error)
 	GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error)
+	GetKubernetesNamespaces(context.Context, *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error)
 	GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error)
 	GetKubernetesServiceAccounts(context.Context, *connect.Request[v1.GetKubernetesServiceAccountsRequest]) (*connect.Response[v1.GetKubernetesServiceAccountsResponse], error)
 	GetKubernetesAutoscalers(context.Context, *connect.Request[v1.GetKubernetesAutoscalersRequest]) (*connect.Response[v1.GetKubernetesAutoscalersResponse], error)
@@ -314,6 +332,13 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 		KubeServiceGetKubernetesEventsProcedure,
 		svc.GetKubernetesEvents,
 		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesEvents")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	kubeServiceGetKubernetesNamespacesHandler := connect.NewUnaryHandler(
+		KubeServiceGetKubernetesNamespacesProcedure,
+		svc.GetKubernetesNamespaces,
+		connect.WithSchema(kubeServiceMethods.ByName("GetKubernetesNamespaces")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -388,6 +413,8 @@ func NewKubeServiceHandler(svc KubeServiceHandler, opts ...connect.HandlerOption
 			kubeServiceGetPodStackTraceDumpHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesEventsProcedure:
 			kubeServiceGetKubernetesEventsHandler.ServeHTTP(w, r)
+		case KubeServiceGetKubernetesNamespacesProcedure:
+			kubeServiceGetKubernetesNamespacesHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesPersistentVolumesProcedure:
 			kubeServiceGetKubernetesPersistentVolumesHandler.ServeHTTP(w, r)
 		case KubeServiceGetKubernetesServiceAccountsProcedure:
@@ -425,6 +452,10 @@ func (UnimplementedKubeServiceHandler) GetPodStackTraceDump(context.Context, *co
 
 func (UnimplementedKubeServiceHandler) GetKubernetesEvents(context.Context, *connect.Request[v1.GetKubernetesEventsRequest]) (*connect.Response[v1.GetKubernetesEventsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesEvents is not implemented"))
+}
+
+func (UnimplementedKubeServiceHandler) GetKubernetesNamespaces(context.Context, *connect.Request[v1.GetKubernetesNamespacesRequest]) (*connect.Response[v1.GetKubernetesNamespacesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.KubeService.GetKubernetesNamespaces is not implemented"))
 }
 
 func (UnimplementedKubeServiceHandler) GetKubernetesPersistentVolumes(context.Context, *connect.Request[v1.GetKubernetesPersistentVolumesRequest]) (*connect.Response[v1.GetKubernetesPersistentVolumesResponse], error) {

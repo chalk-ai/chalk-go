@@ -9,6 +9,7 @@ package dataframev1
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	v2 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v2"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -39,6 +40,7 @@ type DataFrameOperand struct {
 	//	*DataFrameOperand_ArrowTable
 	//	*DataFrameOperand_UnderscoreExpr
 	//	*DataFrameOperand_LibchalkExpr
+	//	*DataFrameOperand_DataSource
 	Operand       isDataFrameOperand_Operand `protobuf_oneof:"operand"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -180,6 +182,15 @@ func (x *DataFrameOperand) GetLibchalkExpr() *v11.LogicalExprNode {
 	return nil
 }
 
+func (x *DataFrameOperand) GetDataSource() *DataFrameDataSource {
+	if x != nil {
+		if x, ok := x.Operand.(*DataFrameOperand_DataSource); ok {
+			return x.DataSource
+		}
+	}
+	return nil
+}
+
 type isDataFrameOperand_Operand interface {
 	isDataFrameOperand_Operand()
 }
@@ -228,6 +239,10 @@ type DataFrameOperand_LibchalkExpr struct {
 	LibchalkExpr *v11.LogicalExprNode `protobuf:"bytes,11,opt,name=libchalk_expr,json=libchalkExpr,proto3,oneof"`
 }
 
+type DataFrameOperand_DataSource struct {
+	DataSource *DataFrameDataSource `protobuf:"bytes,12,opt,name=data_source,json=dataSource,proto3,oneof"`
+}
+
 func (*DataFrameOperand_ValueString) isDataFrameOperand_Operand() {}
 
 func (*DataFrameOperand_ValueInt) isDataFrameOperand_Operand() {}
@@ -250,6 +265,52 @@ func (*DataFrameOperand_UnderscoreExpr) isDataFrameOperand_Operand() {}
 
 func (*DataFrameOperand_LibchalkExpr) isDataFrameOperand_Operand() {}
 
+func (*DataFrameOperand_DataSource) isDataFrameOperand_Operand() {}
+
+type DataFrameDataSource struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	DatabaseSource *v2.DatabaseSource     `protobuf:"bytes,1,opt,name=database_source,json=databaseSource,proto3" json:"database_source,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DataFrameDataSource) Reset() {
+	*x = DataFrameDataSource{}
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataFrameDataSource) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataFrameDataSource) ProtoMessage() {}
+
+func (x *DataFrameDataSource) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DataFrameDataSource.ProtoReflect.Descriptor instead.
+func (*DataFrameDataSource) Descriptor() ([]byte, []int) {
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *DataFrameDataSource) GetDatabaseSource() *v2.DatabaseSource {
+	if x != nil {
+		return x.DatabaseSource
+	}
+	return nil
+}
+
 type DataFrameIndex struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The index of this dataframe operator within the plan.
@@ -260,7 +321,7 @@ type DataFrameIndex struct {
 
 func (x *DataFrameIndex) Reset() {
 	*x = DataFrameIndex{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[1]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -272,7 +333,7 @@ func (x *DataFrameIndex) String() string {
 func (*DataFrameIndex) ProtoMessage() {}
 
 func (x *DataFrameIndex) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[1]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -285,7 +346,7 @@ func (x *DataFrameIndex) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFrameIndex.ProtoReflect.Descriptor instead.
 func (*DataFrameIndex) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{1}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DataFrameIndex) GetDataframeOpIndex() int32 {
@@ -303,7 +364,7 @@ type PyNone struct {
 
 func (x *PyNone) Reset() {
 	*x = PyNone{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[2]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -315,7 +376,7 @@ func (x *PyNone) String() string {
 func (*PyNone) ProtoMessage() {}
 
 func (x *PyNone) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[2]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -328,7 +389,7 @@ func (x *PyNone) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyNone.ProtoReflect.Descriptor instead.
 func (*PyNone) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{2}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{3}
 }
 
 type PyList struct {
@@ -340,7 +401,7 @@ type PyList struct {
 
 func (x *PyList) Reset() {
 	*x = PyList{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[3]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -352,7 +413,7 @@ func (x *PyList) String() string {
 func (*PyList) ProtoMessage() {}
 
 func (x *PyList) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[3]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -365,7 +426,7 @@ func (x *PyList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyList.ProtoReflect.Descriptor instead.
 func (*PyList) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{3}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *PyList) GetListItems() []*DataFrameOperand {
@@ -385,7 +446,7 @@ type PyDictEntry struct {
 
 func (x *PyDictEntry) Reset() {
 	*x = PyDictEntry{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[4]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -397,7 +458,7 @@ func (x *PyDictEntry) String() string {
 func (*PyDictEntry) ProtoMessage() {}
 
 func (x *PyDictEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[4]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -410,7 +471,7 @@ func (x *PyDictEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyDictEntry.ProtoReflect.Descriptor instead.
 func (*PyDictEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{4}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *PyDictEntry) GetEntryKey() *DataFrameOperand {
@@ -436,7 +497,7 @@ type PyDict struct {
 
 func (x *PyDict) Reset() {
 	*x = PyDict{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[5]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -448,7 +509,7 @@ func (x *PyDict) String() string {
 func (*PyDict) ProtoMessage() {}
 
 func (x *PyDict) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[5]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -461,7 +522,7 @@ func (x *PyDict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PyDict.ProtoReflect.Descriptor instead.
 func (*PyDict) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{5}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PyDict) GetDictEntries() []*PyDictEntry {
@@ -488,7 +549,7 @@ type DataFrameConstructor struct {
 
 func (x *DataFrameConstructor) Reset() {
 	*x = DataFrameConstructor{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[6]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -500,7 +561,7 @@ func (x *DataFrameConstructor) String() string {
 func (*DataFrameConstructor) ProtoMessage() {}
 
 func (x *DataFrameConstructor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[6]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -513,7 +574,7 @@ func (x *DataFrameConstructor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFrameConstructor.ProtoReflect.Descriptor instead.
 func (*DataFrameConstructor) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{6}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DataFrameConstructor) GetSelfOperand() *DataFrameIndex {
@@ -557,7 +618,7 @@ type DataFramePlan struct {
 
 func (x *DataFramePlan) Reset() {
 	*x = DataFramePlan{}
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[7]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -569,7 +630,7 @@ func (x *DataFramePlan) String() string {
 func (*DataFramePlan) ProtoMessage() {}
 
 func (x *DataFramePlan) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[7]
+	mi := &file_chalk_dataframe_v1_dataframe_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -582,7 +643,7 @@ func (x *DataFramePlan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DataFramePlan.ProtoReflect.Descriptor instead.
 func (*DataFramePlan) Descriptor() ([]byte, []int) {
-	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{7}
+	return file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DataFramePlan) GetConstructors() []*DataFrameConstructor {
@@ -596,7 +657,7 @@ var File_chalk_dataframe_v1_dataframe_proto protoreflect.FileDescriptor
 
 const file_chalk_dataframe_v1_dataframe_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/dataframe/v1/dataframe.proto\x12\x12chalk.dataframe.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\"\xb4\x05\n" +
+	"\"chalk/dataframe/v1/dataframe.proto\x12\x12chalk.dataframe.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1cchalk/graph/v2/sources.proto\"\x80\x06\n" +
 	"\x10DataFrameOperand\x12#\n" +
 	"\fvalue_string\x18\x01 \x01(\tH\x00R\vvalueString\x12\x1d\n" +
 	"\tvalue_int\x18\x02 \x01(\x03H\x00R\bvalueInt\x12\x1f\n" +
@@ -614,8 +675,12 @@ const file_chalk_dataframe_v1_dataframe_proto_rawDesc = "" +
 	"arrowTable\x12O\n" +
 	"\x0funderscore_expr\x18\n" +
 	" \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\x0eunderscoreExpr\x12K\n" +
-	"\rlibchalk_expr\x18\v \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\flibchalkExprB\t\n" +
-	"\aoperand\">\n" +
+	"\rlibchalk_expr\x18\v \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\flibchalkExpr\x12J\n" +
+	"\vdata_source\x18\f \x01(\v2'.chalk.dataframe.v1.DataFrameDataSourceH\x00R\n" +
+	"dataSourceB\t\n" +
+	"\aoperand\"^\n" +
+	"\x13DataFrameDataSource\x12G\n" +
+	"\x0fdatabase_source\x18\x01 \x01(\v2\x1e.chalk.graph.v2.DatabaseSourceR\x0edatabaseSource\">\n" +
 	"\x0eDataFrameIndex\x12,\n" +
 	"\x12dataframe_op_index\x18\x01 \x01(\x05R\x10dataframeOpIndex\"\b\n" +
 	"\x06PyNone\"M\n" +
@@ -650,42 +715,46 @@ func file_chalk_dataframe_v1_dataframe_proto_rawDescGZIP() []byte {
 	return file_chalk_dataframe_v1_dataframe_proto_rawDescData
 }
 
-var file_chalk_dataframe_v1_dataframe_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_dataframe_v1_dataframe_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_chalk_dataframe_v1_dataframe_proto_goTypes = []any{
 	(*DataFrameOperand)(nil),     // 0: chalk.dataframe.v1.DataFrameOperand
-	(*DataFrameIndex)(nil),       // 1: chalk.dataframe.v1.DataFrameIndex
-	(*PyNone)(nil),               // 2: chalk.dataframe.v1.PyNone
-	(*PyList)(nil),               // 3: chalk.dataframe.v1.PyList
-	(*PyDictEntry)(nil),          // 4: chalk.dataframe.v1.PyDictEntry
-	(*PyDict)(nil),               // 5: chalk.dataframe.v1.PyDict
-	(*DataFrameConstructor)(nil), // 6: chalk.dataframe.v1.DataFrameConstructor
-	(*DataFramePlan)(nil),        // 7: chalk.dataframe.v1.DataFramePlan
-	(*v1.Schema)(nil),            // 8: chalk.arrow.v1.Schema
-	(*v1.TableParquetBytes)(nil), // 9: chalk.arrow.v1.TableParquetBytes
-	(*v11.LogicalExprNode)(nil),  // 10: chalk.expression.v1.LogicalExprNode
+	(*DataFrameDataSource)(nil),  // 1: chalk.dataframe.v1.DataFrameDataSource
+	(*DataFrameIndex)(nil),       // 2: chalk.dataframe.v1.DataFrameIndex
+	(*PyNone)(nil),               // 3: chalk.dataframe.v1.PyNone
+	(*PyList)(nil),               // 4: chalk.dataframe.v1.PyList
+	(*PyDictEntry)(nil),          // 5: chalk.dataframe.v1.PyDictEntry
+	(*PyDict)(nil),               // 6: chalk.dataframe.v1.PyDict
+	(*DataFrameConstructor)(nil), // 7: chalk.dataframe.v1.DataFrameConstructor
+	(*DataFramePlan)(nil),        // 8: chalk.dataframe.v1.DataFramePlan
+	(*v1.Schema)(nil),            // 9: chalk.arrow.v1.Schema
+	(*v1.TableParquetBytes)(nil), // 10: chalk.arrow.v1.TableParquetBytes
+	(*v11.LogicalExprNode)(nil),  // 11: chalk.expression.v1.LogicalExprNode
+	(*v2.DatabaseSource)(nil),    // 12: chalk.graph.v2.DatabaseSource
 }
 var file_chalk_dataframe_v1_dataframe_proto_depIdxs = []int32{
-	2,  // 0: chalk.dataframe.v1.DataFrameOperand.value_none:type_name -> chalk.dataframe.v1.PyNone
-	3,  // 1: chalk.dataframe.v1.DataFrameOperand.value_list:type_name -> chalk.dataframe.v1.PyList
-	5,  // 2: chalk.dataframe.v1.DataFrameOperand.value_dict:type_name -> chalk.dataframe.v1.PyDict
-	1,  // 3: chalk.dataframe.v1.DataFrameOperand.value_dataframe_index:type_name -> chalk.dataframe.v1.DataFrameIndex
-	8,  // 4: chalk.dataframe.v1.DataFrameOperand.arrow_schema:type_name -> chalk.arrow.v1.Schema
-	9,  // 5: chalk.dataframe.v1.DataFrameOperand.arrow_table:type_name -> chalk.arrow.v1.TableParquetBytes
-	10, // 6: chalk.dataframe.v1.DataFrameOperand.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	10, // 7: chalk.dataframe.v1.DataFrameOperand.libchalk_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	0,  // 8: chalk.dataframe.v1.PyList.list_items:type_name -> chalk.dataframe.v1.DataFrameOperand
-	0,  // 9: chalk.dataframe.v1.PyDictEntry.entry_key:type_name -> chalk.dataframe.v1.DataFrameOperand
-	0,  // 10: chalk.dataframe.v1.PyDictEntry.entry_value:type_name -> chalk.dataframe.v1.DataFrameOperand
-	4,  // 11: chalk.dataframe.v1.PyDict.dict_entries:type_name -> chalk.dataframe.v1.PyDictEntry
-	1,  // 12: chalk.dataframe.v1.DataFrameConstructor.self_operand:type_name -> chalk.dataframe.v1.DataFrameIndex
-	3,  // 13: chalk.dataframe.v1.DataFrameConstructor.args:type_name -> chalk.dataframe.v1.PyList
-	5,  // 14: chalk.dataframe.v1.DataFrameConstructor.kwargs:type_name -> chalk.dataframe.v1.PyDict
-	6,  // 15: chalk.dataframe.v1.DataFramePlan.constructors:type_name -> chalk.dataframe.v1.DataFrameConstructor
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	3,  // 0: chalk.dataframe.v1.DataFrameOperand.value_none:type_name -> chalk.dataframe.v1.PyNone
+	4,  // 1: chalk.dataframe.v1.DataFrameOperand.value_list:type_name -> chalk.dataframe.v1.PyList
+	6,  // 2: chalk.dataframe.v1.DataFrameOperand.value_dict:type_name -> chalk.dataframe.v1.PyDict
+	2,  // 3: chalk.dataframe.v1.DataFrameOperand.value_dataframe_index:type_name -> chalk.dataframe.v1.DataFrameIndex
+	9,  // 4: chalk.dataframe.v1.DataFrameOperand.arrow_schema:type_name -> chalk.arrow.v1.Schema
+	10, // 5: chalk.dataframe.v1.DataFrameOperand.arrow_table:type_name -> chalk.arrow.v1.TableParquetBytes
+	11, // 6: chalk.dataframe.v1.DataFrameOperand.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	11, // 7: chalk.dataframe.v1.DataFrameOperand.libchalk_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	1,  // 8: chalk.dataframe.v1.DataFrameOperand.data_source:type_name -> chalk.dataframe.v1.DataFrameDataSource
+	12, // 9: chalk.dataframe.v1.DataFrameDataSource.database_source:type_name -> chalk.graph.v2.DatabaseSource
+	0,  // 10: chalk.dataframe.v1.PyList.list_items:type_name -> chalk.dataframe.v1.DataFrameOperand
+	0,  // 11: chalk.dataframe.v1.PyDictEntry.entry_key:type_name -> chalk.dataframe.v1.DataFrameOperand
+	0,  // 12: chalk.dataframe.v1.PyDictEntry.entry_value:type_name -> chalk.dataframe.v1.DataFrameOperand
+	5,  // 13: chalk.dataframe.v1.PyDict.dict_entries:type_name -> chalk.dataframe.v1.PyDictEntry
+	2,  // 14: chalk.dataframe.v1.DataFrameConstructor.self_operand:type_name -> chalk.dataframe.v1.DataFrameIndex
+	4,  // 15: chalk.dataframe.v1.DataFrameConstructor.args:type_name -> chalk.dataframe.v1.PyList
+	6,  // 16: chalk.dataframe.v1.DataFrameConstructor.kwargs:type_name -> chalk.dataframe.v1.PyDict
+	7,  // 17: chalk.dataframe.v1.DataFramePlan.constructors:type_name -> chalk.dataframe.v1.DataFrameConstructor
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_chalk_dataframe_v1_dataframe_proto_init() }
@@ -705,15 +774,16 @@ func file_chalk_dataframe_v1_dataframe_proto_init() {
 		(*DataFrameOperand_ArrowTable)(nil),
 		(*DataFrameOperand_UnderscoreExpr)(nil),
 		(*DataFrameOperand_LibchalkExpr)(nil),
+		(*DataFrameOperand_DataSource)(nil),
 	}
-	file_chalk_dataframe_v1_dataframe_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_dataframe_v1_dataframe_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_dataframe_v1_dataframe_proto_rawDesc), len(file_chalk_dataframe_v1_dataframe_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

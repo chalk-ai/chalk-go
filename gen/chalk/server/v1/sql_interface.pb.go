@@ -113,8 +113,11 @@ type CreateSqlWorksheetRequest struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
 	Content       *string                `protobuf:"bytes,3,opt,name=content,proto3,oneof" json:"content,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// file_type is automatically set to FILE_TYPE_SQL_WORKSHEET
+	// owner_id is automatically set to the authenticated user
+	FileVisibility *FileVisibility `protobuf:"varint,4,opt,name=file_visibility,json=fileVisibility,proto3,enum=chalk.server.v1.FileVisibility,oneof" json:"file_visibility,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateSqlWorksheetRequest) Reset() {
@@ -166,6 +169,13 @@ func (x *CreateSqlWorksheetRequest) GetContent() string {
 		return *x.Content
 	}
 	return ""
+}
+
+func (x *CreateSqlWorksheetRequest) GetFileVisibility() FileVisibility {
+	if x != nil && x.FileVisibility != nil {
+		return *x.FileVisibility
+	}
+	return FileVisibility_FILE_VISIBILITY_UNSPECIFIED
 }
 
 type CreateSqlWorksheetResponse struct {
@@ -305,6 +315,7 @@ type UpdateSqlWorksheetRequest struct {
 	FileId          string                 `protobuf:"bytes,1,opt,name=file_id,json=fileId,proto3" json:"file_id,omitempty"`
 	Content         *string                `protobuf:"bytes,2,opt,name=content,proto3,oneof" json:"content,omitempty"`
 	LastOperationId *string                `protobuf:"bytes,3,opt,name=last_operation_id,json=lastOperationId,proto3,oneof" json:"last_operation_id,omitempty"`
+	FileVisibility  *FileVisibility        `protobuf:"varint,4,opt,name=file_visibility,json=fileVisibility,proto3,enum=chalk.server.v1.FileVisibility,oneof" json:"file_visibility,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -358,6 +369,13 @@ func (x *UpdateSqlWorksheetRequest) GetLastOperationId() string {
 		return *x.LastOperationId
 	}
 	return ""
+}
+
+func (x *UpdateSqlWorksheetRequest) GetFileVisibility() FileVisibility {
+	if x != nil && x.FileVisibility != nil {
+		return *x.FileVisibility
+	}
+	return FileVisibility_FILE_VISIBILITY_UNSPECIFIED
 }
 
 type UpdateSqlWorksheetResponse struct {
@@ -491,6 +509,7 @@ type ListSqlWorksheetsRequest struct {
 	Limit           *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	Search          *string                `protobuf:"bytes,4,opt,name=search,proto3,oneof" json:"search,omitempty"`
 	IncludeArchived *bool                  `protobuf:"varint,5,opt,name=include_archived,json=includeArchived,proto3,oneof" json:"include_archived,omitempty"`
+	FileVisibility  *FileVisibility        `protobuf:"varint,6,opt,name=file_visibility,json=fileVisibility,proto3,enum=chalk.server.v1.FileVisibility,oneof" json:"file_visibility,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -558,6 +577,13 @@ func (x *ListSqlWorksheetsRequest) GetIncludeArchived() bool {
 		return *x.IncludeArchived
 	}
 	return false
+}
+
+func (x *ListSqlWorksheetsRequest) GetFileVisibility() FileVisibility {
+	if x != nil && x.FileVisibility != nil {
+		return *x.FileVisibility
+	}
+	return FileVisibility_FILE_VISIBILITY_UNSPECIFIED
 }
 
 type ListSqlWorksheetsResponse struct {
@@ -712,7 +738,7 @@ var File_chalk_server_v1_sql_interface_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_sql_interface_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/server/v1/sql_interface.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1bchalk/server/v1/files.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x02\n" +
+	"#chalk/server/v1/sql_interface.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1bchalk/server/v1/files.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb7\x02\n" +
 	"\fSqlWorksheet\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\x12/\n" +
@@ -723,41 +749,47 @@ const file_chalk_server_v1_sql_interface_proto_rawDesc = "" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12.\n" +
 	"\x04file\x18\x06 \x01(\v2\x15.chalk.server.v1.FileH\x01R\x04file\x88\x01\x01B\x14\n" +
 	"\x12_last_operation_idB\a\n" +
-	"\x05_file\"\x81\x01\n" +
+	"\x05_file\"\xe4\x01\n" +
 	"\x19CreateSqlWorksheetRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1d\n" +
-	"\acontent\x18\x03 \x01(\tH\x00R\acontent\x88\x01\x01B\n" +
+	"\acontent\x18\x03 \x01(\tH\x00R\acontent\x88\x01\x01\x12M\n" +
+	"\x0ffile_visibility\x18\x04 \x01(\x0e2\x1f.chalk.server.v1.FileVisibilityH\x01R\x0efileVisibility\x88\x01\x01B\n" +
 	"\n" +
-	"\b_content\"Y\n" +
+	"\b_contentB\x12\n" +
+	"\x10_file_visibility\"Y\n" +
 	"\x1aCreateSqlWorksheetResponse\x12;\n" +
 	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet\"1\n" +
 	"\x16GetSqlWorksheetRequest\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\"V\n" +
 	"\x17GetSqlWorksheetResponse\x12;\n" +
-	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet\"\xa6\x01\n" +
+	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet\"\x89\x02\n" +
 	"\x19UpdateSqlWorksheetRequest\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x1d\n" +
 	"\acontent\x18\x02 \x01(\tH\x00R\acontent\x88\x01\x01\x12/\n" +
-	"\x11last_operation_id\x18\x03 \x01(\tH\x01R\x0flastOperationId\x88\x01\x01B\n" +
+	"\x11last_operation_id\x18\x03 \x01(\tH\x01R\x0flastOperationId\x88\x01\x01\x12M\n" +
+	"\x0ffile_visibility\x18\x04 \x01(\x0e2\x1f.chalk.server.v1.FileVisibilityH\x02R\x0efileVisibility\x88\x01\x01B\n" +
 	"\n" +
 	"\b_contentB\x14\n" +
-	"\x12_last_operation_id\"Y\n" +
+	"\x12_last_operation_idB\x12\n" +
+	"\x10_file_visibility\"Y\n" +
 	"\x1aUpdateSqlWorksheetResponse\x12;\n" +
 	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet\"4\n" +
 	"\x19DeleteSqlWorksheetRequest\x12\x17\n" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\"\x1c\n" +
-	"\x1aDeleteSqlWorksheetResponse\"\xfb\x01\n" +
+	"\x1aDeleteSqlWorksheetResponse\"\xde\x02\n" +
 	"\x18ListSqlWorksheetsRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x03 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12\x1b\n" +
 	"\x06search\x18\x04 \x01(\tH\x02R\x06search\x88\x01\x01\x12.\n" +
-	"\x10include_archived\x18\x05 \x01(\bH\x03R\x0fincludeArchived\x88\x01\x01B\t\n" +
+	"\x10include_archived\x18\x05 \x01(\bH\x03R\x0fincludeArchived\x88\x01\x01\x12M\n" +
+	"\x0ffile_visibility\x18\x06 \x01(\x0e2\x1f.chalk.server.v1.FileVisibilityH\x04R\x0efileVisibility\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\t\n" +
 	"\a_searchB\x13\n" +
-	"\x11_include_archived\"\x82\x01\n" +
+	"\x11_include_archivedB\x12\n" +
+	"\x10_file_visibility\"\x82\x01\n" +
 	"\x19ListSqlWorksheetsResponse\x12=\n" +
 	"\n" +
 	"worksheets\x18\x01 \x03(\v2\x1d.chalk.server.v1.SqlWorksheetR\n" +
@@ -768,11 +800,11 @@ const file_chalk_server_v1_sql_interface_proto_rawDesc = "" +
 	"\afile_id\x18\x01 \x01(\tR\x06fileId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"Y\n" +
 	"\x1aRenameSqlWorksheetResponse\x12;\n" +
-	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet2\xa3\x06\n" +
+	"\tworksheet\x18\x01 \x01(\v2\x1d.chalk.server.v1.SqlWorksheetR\tworksheet2\xc8\x06\n" +
 	"\x13SqlInterfaceService\x12r\n" +
 	"\x12CreateSqlWorksheet\x12*.chalk.server.v1.CreateSqlWorksheetRequest\x1a+.chalk.server.v1.CreateSqlWorksheetResponse\"\x03\x80}\x04\x12l\n" +
-	"\x0fGetSqlWorksheet\x12'.chalk.server.v1.GetSqlWorksheetRequest\x1a(.chalk.server.v1.GetSqlWorksheetResponse\"\x06\x80}\x04\x90\x02\x01\x12r\n" +
-	"\x12UpdateSqlWorksheet\x12*.chalk.server.v1.UpdateSqlWorksheetRequest\x1a+.chalk.server.v1.UpdateSqlWorksheetResponse\"\x03\x80}\x04\x12r\n" +
+	"\x0fGetSqlWorksheet\x12'.chalk.server.v1.GetSqlWorksheetRequest\x1a(.chalk.server.v1.GetSqlWorksheetResponse\"\x06\x80}\x04\x90\x02\x01\x12\x96\x01\n" +
+	"\x12UpdateSqlWorksheet\x12*.chalk.server.v1.UpdateSqlWorksheetRequest\x1a+.chalk.server.v1.UpdateSqlWorksheetResponse\"'\x80}\x04\x8a\xd3\x0e \b\x02\x12\x1cEdited SQL Worksheet content\x12r\n" +
 	"\x12DeleteSqlWorksheet\x12*.chalk.server.v1.DeleteSqlWorksheetRequest\x1a+.chalk.server.v1.DeleteSqlWorksheetResponse\"\x03\x80}\x04\x12r\n" +
 	"\x11ListSqlWorksheets\x12).chalk.server.v1.ListSqlWorksheetsRequest\x1a*.chalk.server.v1.ListSqlWorksheetsResponse\"\x06\x80}\x04\x90\x02\x01\x12r\n" +
 	"\x12RenameSqlWorksheet\x12*.chalk.server.v1.RenameSqlWorksheetRequest\x1a+.chalk.server.v1.RenameSqlWorksheetResponse\"\x03\x80}\x04\x12Z\n" +
@@ -808,37 +840,41 @@ var file_chalk_server_v1_sql_interface_proto_goTypes = []any{
 	(*RenameSqlWorksheetResponse)(nil), // 12: chalk.server.v1.RenameSqlWorksheetResponse
 	(*timestamppb.Timestamp)(nil),      // 13: google.protobuf.Timestamp
 	(*File)(nil),                       // 14: chalk.server.v1.File
-	(*ListFilesRequest)(nil),           // 15: chalk.server.v1.ListFilesRequest
-	(*ListFilesResponse)(nil),          // 16: chalk.server.v1.ListFilesResponse
+	(FileVisibility)(0),                // 15: chalk.server.v1.FileVisibility
+	(*ListFilesRequest)(nil),           // 16: chalk.server.v1.ListFilesRequest
+	(*ListFilesResponse)(nil),          // 17: chalk.server.v1.ListFilesResponse
 }
 var file_chalk_server_v1_sql_interface_proto_depIdxs = []int32{
 	13, // 0: chalk.server.v1.SqlWorksheet.created_at:type_name -> google.protobuf.Timestamp
 	13, // 1: chalk.server.v1.SqlWorksheet.updated_at:type_name -> google.protobuf.Timestamp
 	14, // 2: chalk.server.v1.SqlWorksheet.file:type_name -> chalk.server.v1.File
-	0,  // 3: chalk.server.v1.CreateSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
-	0,  // 4: chalk.server.v1.GetSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
-	0,  // 5: chalk.server.v1.UpdateSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
-	0,  // 6: chalk.server.v1.ListSqlWorksheetsResponse.worksheets:type_name -> chalk.server.v1.SqlWorksheet
-	0,  // 7: chalk.server.v1.RenameSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
-	1,  // 8: chalk.server.v1.SqlInterfaceService.CreateSqlWorksheet:input_type -> chalk.server.v1.CreateSqlWorksheetRequest
-	3,  // 9: chalk.server.v1.SqlInterfaceService.GetSqlWorksheet:input_type -> chalk.server.v1.GetSqlWorksheetRequest
-	5,  // 10: chalk.server.v1.SqlInterfaceService.UpdateSqlWorksheet:input_type -> chalk.server.v1.UpdateSqlWorksheetRequest
-	7,  // 11: chalk.server.v1.SqlInterfaceService.DeleteSqlWorksheet:input_type -> chalk.server.v1.DeleteSqlWorksheetRequest
-	9,  // 12: chalk.server.v1.SqlInterfaceService.ListSqlWorksheets:input_type -> chalk.server.v1.ListSqlWorksheetsRequest
-	11, // 13: chalk.server.v1.SqlInterfaceService.RenameSqlWorksheet:input_type -> chalk.server.v1.RenameSqlWorksheetRequest
-	15, // 14: chalk.server.v1.SqlInterfaceService.ListFiles:input_type -> chalk.server.v1.ListFilesRequest
-	2,  // 15: chalk.server.v1.SqlInterfaceService.CreateSqlWorksheet:output_type -> chalk.server.v1.CreateSqlWorksheetResponse
-	4,  // 16: chalk.server.v1.SqlInterfaceService.GetSqlWorksheet:output_type -> chalk.server.v1.GetSqlWorksheetResponse
-	6,  // 17: chalk.server.v1.SqlInterfaceService.UpdateSqlWorksheet:output_type -> chalk.server.v1.UpdateSqlWorksheetResponse
-	8,  // 18: chalk.server.v1.SqlInterfaceService.DeleteSqlWorksheet:output_type -> chalk.server.v1.DeleteSqlWorksheetResponse
-	10, // 19: chalk.server.v1.SqlInterfaceService.ListSqlWorksheets:output_type -> chalk.server.v1.ListSqlWorksheetsResponse
-	12, // 20: chalk.server.v1.SqlInterfaceService.RenameSqlWorksheet:output_type -> chalk.server.v1.RenameSqlWorksheetResponse
-	16, // 21: chalk.server.v1.SqlInterfaceService.ListFiles:output_type -> chalk.server.v1.ListFilesResponse
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	15, // 3: chalk.server.v1.CreateSqlWorksheetRequest.file_visibility:type_name -> chalk.server.v1.FileVisibility
+	0,  // 4: chalk.server.v1.CreateSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
+	0,  // 5: chalk.server.v1.GetSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
+	15, // 6: chalk.server.v1.UpdateSqlWorksheetRequest.file_visibility:type_name -> chalk.server.v1.FileVisibility
+	0,  // 7: chalk.server.v1.UpdateSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
+	15, // 8: chalk.server.v1.ListSqlWorksheetsRequest.file_visibility:type_name -> chalk.server.v1.FileVisibility
+	0,  // 9: chalk.server.v1.ListSqlWorksheetsResponse.worksheets:type_name -> chalk.server.v1.SqlWorksheet
+	0,  // 10: chalk.server.v1.RenameSqlWorksheetResponse.worksheet:type_name -> chalk.server.v1.SqlWorksheet
+	1,  // 11: chalk.server.v1.SqlInterfaceService.CreateSqlWorksheet:input_type -> chalk.server.v1.CreateSqlWorksheetRequest
+	3,  // 12: chalk.server.v1.SqlInterfaceService.GetSqlWorksheet:input_type -> chalk.server.v1.GetSqlWorksheetRequest
+	5,  // 13: chalk.server.v1.SqlInterfaceService.UpdateSqlWorksheet:input_type -> chalk.server.v1.UpdateSqlWorksheetRequest
+	7,  // 14: chalk.server.v1.SqlInterfaceService.DeleteSqlWorksheet:input_type -> chalk.server.v1.DeleteSqlWorksheetRequest
+	9,  // 15: chalk.server.v1.SqlInterfaceService.ListSqlWorksheets:input_type -> chalk.server.v1.ListSqlWorksheetsRequest
+	11, // 16: chalk.server.v1.SqlInterfaceService.RenameSqlWorksheet:input_type -> chalk.server.v1.RenameSqlWorksheetRequest
+	16, // 17: chalk.server.v1.SqlInterfaceService.ListFiles:input_type -> chalk.server.v1.ListFilesRequest
+	2,  // 18: chalk.server.v1.SqlInterfaceService.CreateSqlWorksheet:output_type -> chalk.server.v1.CreateSqlWorksheetResponse
+	4,  // 19: chalk.server.v1.SqlInterfaceService.GetSqlWorksheet:output_type -> chalk.server.v1.GetSqlWorksheetResponse
+	6,  // 20: chalk.server.v1.SqlInterfaceService.UpdateSqlWorksheet:output_type -> chalk.server.v1.UpdateSqlWorksheetResponse
+	8,  // 21: chalk.server.v1.SqlInterfaceService.DeleteSqlWorksheet:output_type -> chalk.server.v1.DeleteSqlWorksheetResponse
+	10, // 22: chalk.server.v1.SqlInterfaceService.ListSqlWorksheets:output_type -> chalk.server.v1.ListSqlWorksheetsResponse
+	12, // 23: chalk.server.v1.SqlInterfaceService.RenameSqlWorksheet:output_type -> chalk.server.v1.RenameSqlWorksheetResponse
+	17, // 24: chalk.server.v1.SqlInterfaceService.ListFiles:output_type -> chalk.server.v1.ListFilesResponse
+	18, // [18:25] is the sub-list for method output_type
+	11, // [11:18] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_sql_interface_proto_init() }

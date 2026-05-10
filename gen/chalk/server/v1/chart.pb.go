@@ -774,15 +774,16 @@ func (x *ListChartsWithCronAlertsResponse) GetNextPageToken() string {
 // The same as a artifacts.v1.MetricConfig, but without an id and fully optional
 // note that field mask is also used to fully determine what should be
 type UpdateMetricConfigOperation struct {
-	state          protoimpl.MessageState   `protogen:"open.v1"`
-	Name           *string                  `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	WindowPeriod   *string                  `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3,oneof" json:"window_period,omitempty"`
-	Series         []*v1.MetricConfigSeries `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
-	Formulas       []*v1.MetricFormula      `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
-	Trigger        *v1.AlertTrigger         `protobuf:"bytes,5,opt,name=trigger,proto3,oneof" json:"trigger,omitempty"`
-	GraphGenerated *bool                    `protobuf:"varint,6,opt,name=graph_generated,json=graphGenerated,proto3,oneof" json:"graph_generated,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state               protoimpl.MessageState   `protogen:"open.v1"`
+	Name                *string                  `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	WindowPeriod        *string                  `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3,oneof" json:"window_period,omitempty"`
+	Series              []*v1.MetricConfigSeries `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
+	Formulas            []*v1.MetricFormula      `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
+	Trigger             *v1.AlertTrigger         `protobuf:"bytes,5,opt,name=trigger,proto3,oneof" json:"trigger,omitempty"`
+	GraphGenerated      *bool                    `protobuf:"varint,6,opt,name=graph_generated,json=graphGenerated,proto3,oneof" json:"graph_generated,omitempty"`
+	DisplayWindowPeriod *string                  `protobuf:"bytes,7,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *UpdateMetricConfigOperation) Reset() {
@@ -857,6 +858,13 @@ func (x *UpdateMetricConfigOperation) GetGraphGenerated() bool {
 	return false
 }
 
+func (x *UpdateMetricConfigOperation) GetDisplayWindowPeriod() string {
+	if x != nil && x.DisplayWindowPeriod != nil {
+		return *x.DisplayWindowPeriod
+	}
+	return ""
+}
+
 type CreateChartRequest struct {
 	state        protoimpl.MessageState   `protogen:"open.v1"`
 	Name         string                   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -867,10 +875,11 @@ type CreateChartRequest struct {
 	// non-optional - must be linked
 	LinkEntityKind v1.ChartLinkKind `protobuf:"varint,6,opt,name=link_entity_kind,json=linkEntityKind,proto3,enum=chalk.artifacts.v1.ChartLinkKind" json:"link_entity_kind,omitempty"`
 	// optional since not all linked entities have an id (manual)
-	LinkedEntityId *string `protobuf:"bytes,7,opt,name=linked_entity_id,json=linkedEntityId,proto3,oneof" json:"linked_entity_id,omitempty"`
-	GraphGenerated bool    `protobuf:"varint,8,opt,name=graph_generated,json=graphGenerated,proto3" json:"graph_generated,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	LinkedEntityId      *string `protobuf:"bytes,7,opt,name=linked_entity_id,json=linkedEntityId,proto3,oneof" json:"linked_entity_id,omitempty"`
+	GraphGenerated      bool    `protobuf:"varint,8,opt,name=graph_generated,json=graphGenerated,proto3" json:"graph_generated,omitempty"`
+	DisplayWindowPeriod *string `protobuf:"bytes,9,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *CreateChartRequest) Reset() {
@@ -957,6 +966,13 @@ func (x *CreateChartRequest) GetGraphGenerated() bool {
 		return x.GraphGenerated
 	}
 	return false
+}
+
+func (x *CreateChartRequest) GetDisplayWindowPeriod() string {
+	if x != nil && x.DisplayWindowPeriod != nil {
+		return *x.DisplayWindowPeriod
+	}
+	return ""
 }
 
 type CreateChartResponse struct {
@@ -1202,11 +1218,13 @@ func (x *GetChartSnapshotRequest) GetExcludeIncompleteLastBucket() bool {
 }
 
 type GetChartSnapshotResponse struct {
-	state           protoimpl.MessageState      `protogen:"open.v1"`
-	Charts          []*v11.DenseTimeSeriesChart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
-	XSeries         []*timestamppb.Timestamp    `protobuf:"bytes,2,rep,name=x_series,json=xSeries,proto3" json:"x_series,omitempty"`
-	WindowPeriod    *durationpb.Duration        `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
-	SqlQueryStrings []string                    `protobuf:"bytes,4,rep,name=sql_query_strings,json=sqlQueryStrings,proto3" json:"sql_query_strings,omitempty"`
+	state   protoimpl.MessageState      `protogen:"open.v1"`
+	Charts  []*v11.DenseTimeSeriesChart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
+	XSeries []*timestamppb.Timestamp    `protobuf:"bytes,2,rep,name=x_series,json=xSeries,proto3" json:"x_series,omitempty"`
+	// Bucket size actually used to render this chart, after backend safety clamping.
+	// This is the display resolution; the alert lookback is not returned here.
+	WindowPeriod    *durationpb.Duration `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	SqlQueryStrings []string             `protobuf:"bytes,4,rep,name=sql_query_strings,json=sqlQueryStrings,proto3" json:"sql_query_strings,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1362,12 +1380,14 @@ func (x *GetChartSnapshotByQueryRequest) GetExcludeIncompleteLastBucket() bool {
 }
 
 type GetChartSnapshotByQueryResponse struct {
-	state                protoimpl.MessageState      `protogen:"open.v1"`
-	Charts               []*v11.DenseTimeSeriesChart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
-	XSeries              []*timestamppb.Timestamp    `protobuf:"bytes,2,rep,name=x_series,json=xSeries,proto3" json:"x_series,omitempty"`
-	WindowPeriod         *durationpb.Duration        `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
-	SqlQueryStrings      []string                    `protobuf:"bytes,4,rep,name=sql_query_strings,json=sqlQueryStrings,proto3" json:"sql_query_strings,omitempty"`
-	CompiledMetricConfig *v1.MetricConfig            `protobuf:"bytes,5,opt,name=compiled_metric_config,json=compiledMetricConfig,proto3" json:"compiled_metric_config,omitempty"`
+	state   protoimpl.MessageState      `protogen:"open.v1"`
+	Charts  []*v11.DenseTimeSeriesChart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
+	XSeries []*timestamppb.Timestamp    `protobuf:"bytes,2,rep,name=x_series,json=xSeries,proto3" json:"x_series,omitempty"`
+	// Bucket size actually used to render this chart, after backend safety clamping.
+	// This is the display resolution; the alert lookback is not returned here.
+	WindowPeriod         *durationpb.Duration `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	SqlQueryStrings      []string             `protobuf:"bytes,4,rep,name=sql_query_strings,json=sqlQueryStrings,proto3" json:"sql_query_strings,omitempty"`
+	CompiledMetricConfig *v1.MetricConfig     `protobuf:"bytes,5,opt,name=compiled_metric_config,json=compiledMetricConfig,proto3" json:"compiled_metric_config,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -3086,19 +3106,21 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	" ListChartsWithCronAlertsResponse\x121\n" +
 	"\x06charts\x18\x01 \x03(\v2\x19.chalk.artifacts.v1.ChartR\x06charts\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\x89\x03\n" +
+	"\x10_next_page_token\"\xdc\x03\n" +
 	"\x1bUpdateMetricConfigOperation\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x12(\n" +
 	"\rwindow_period\x18\x02 \x01(\tH\x01R\fwindowPeriod\x88\x01\x01\x12>\n" +
 	"\x06series\x18\x03 \x03(\v2&.chalk.artifacts.v1.MetricConfigSeriesR\x06series\x12=\n" +
 	"\bformulas\x18\x04 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x12?\n" +
 	"\atrigger\x18\x05 \x01(\v2 .chalk.artifacts.v1.AlertTriggerH\x02R\atrigger\x88\x01\x01\x12,\n" +
-	"\x0fgraph_generated\x18\x06 \x01(\bH\x03R\x0egraphGenerated\x88\x01\x01B\a\n" +
+	"\x0fgraph_generated\x18\x06 \x01(\bH\x03R\x0egraphGenerated\x88\x01\x01\x127\n" +
+	"\x15display_window_period\x18\a \x01(\tH\x04R\x13displayWindowPeriod\x88\x01\x01B\a\n" +
 	"\x05_nameB\x10\n" +
 	"\x0e_window_periodB\n" +
 	"\n" +
 	"\b_triggerB\x12\n" +
-	"\x10_graph_generated\"\xc2\x03\n" +
+	"\x10_graph_generatedB\x18\n" +
+	"\x16_display_window_period\"\x95\x04\n" +
 	"\x12CreateChartRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rwindow_period\x18\x02 \x01(\tR\fwindowPeriod\x12>\n" +
@@ -3107,8 +3129,10 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\atrigger\x18\x05 \x01(\v2 .chalk.artifacts.v1.AlertTriggerR\atrigger\x12K\n" +
 	"\x10link_entity_kind\x18\x06 \x01(\x0e2!.chalk.artifacts.v1.ChartLinkKindR\x0elinkEntityKind\x12-\n" +
 	"\x10linked_entity_id\x18\a \x01(\tH\x00R\x0elinkedEntityId\x88\x01\x01\x12'\n" +
-	"\x0fgraph_generated\x18\b \x01(\bR\x0egraphGeneratedB\x13\n" +
-	"\x11_linked_entity_id\"U\n" +
+	"\x0fgraph_generated\x18\b \x01(\bR\x0egraphGenerated\x127\n" +
+	"\x15display_window_period\x18\t \x01(\tH\x01R\x13displayWindowPeriod\x88\x01\x01B\x13\n" +
+	"\x11_linked_entity_idB\x18\n" +
+	"\x16_display_window_period\"U\n" +
 	"\x13CreateChartResponse\x124\n" +
 	"\x05chart\x18\x02 \x01(\v2\x19.chalk.artifacts.v1.ChartH\x00R\x05chart\x88\x01\x01B\b\n" +
 	"\x06_chart\"\xc8\x01\n" +

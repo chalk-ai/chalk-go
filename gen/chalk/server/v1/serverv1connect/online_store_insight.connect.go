@@ -40,6 +40,9 @@ const (
 	// OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure is the fully-qualified name of the
 	// OnlineStoreInsightService's GetOnlineStoreUsageStats RPC.
 	OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreUsageStats"
+	// OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetOnlineStoreCleanupStats RPC.
+	OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreCleanupStats"
 )
 
 // OnlineStoreInsightServiceClient is a client for the chalk.server.v1.OnlineStoreInsightService
@@ -47,6 +50,7 @@ const (
 type OnlineStoreInsightServiceClient interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
 	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
+	GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceClient constructs a client for the
@@ -74,13 +78,21 @@ func NewOnlineStoreInsightServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getOnlineStoreCleanupStats: connect.NewClient[v1.GetOnlineStoreCleanupStatsRequest, v1.GetOnlineStoreCleanupStatsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreCleanupStats")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // onlineStoreInsightServiceClient implements OnlineStoreInsightServiceClient.
 type onlineStoreInsightServiceClient struct {
-	getOnlineStoreConfig     *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
-	getOnlineStoreUsageStats *connect.Client[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse]
+	getOnlineStoreConfig       *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
+	getOnlineStoreUsageStats   *connect.Client[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse]
+	getOnlineStoreCleanupStats *connect.Client[v1.GetOnlineStoreCleanupStatsRequest, v1.GetOnlineStoreCleanupStatsResponse]
 }
 
 // GetOnlineStoreConfig calls chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig.
@@ -94,11 +106,18 @@ func (c *onlineStoreInsightServiceClient) GetOnlineStoreUsageStats(ctx context.C
 	return c.getOnlineStoreUsageStats.CallUnary(ctx, req)
 }
 
+// GetOnlineStoreCleanupStats calls
+// chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats.
+func (c *onlineStoreInsightServiceClient) GetOnlineStoreCleanupStats(ctx context.Context, req *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error) {
+	return c.getOnlineStoreCleanupStats.CallUnary(ctx, req)
+}
+
 // OnlineStoreInsightServiceHandler is an implementation of the
 // chalk.server.v1.OnlineStoreInsightService service.
 type OnlineStoreInsightServiceHandler interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
 	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
+	GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceHandler builds an HTTP handler from the service implementation. It
@@ -122,12 +141,21 @@ func NewOnlineStoreInsightServiceHandler(svc OnlineStoreInsightServiceHandler, o
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	onlineStoreInsightServiceGetOnlineStoreCleanupStatsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure,
+		svc.GetOnlineStoreCleanupStats,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreCleanupStats")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OnlineStoreInsightService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OnlineStoreInsightServiceGetOnlineStoreConfigProcedure:
 			onlineStoreInsightServiceGetOnlineStoreConfigHandler.ServeHTTP(w, r)
 		case OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure:
 			onlineStoreInsightServiceGetOnlineStoreUsageStatsHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure:
+			onlineStoreInsightServiceGetOnlineStoreCleanupStatsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +171,8 @@ func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreConfig(contex
 
 func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats is not implemented"))
 }

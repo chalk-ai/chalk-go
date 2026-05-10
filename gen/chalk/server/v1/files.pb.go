@@ -68,18 +68,68 @@ func (FileType) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_files_proto_rawDescGZIP(), []int{0}
 }
 
+type FileVisibility int32
+
+const (
+	FileVisibility_FILE_VISIBILITY_UNSPECIFIED FileVisibility = 0
+	FileVisibility_FILE_VISIBILITY_PRIVATE     FileVisibility = 1
+	FileVisibility_FILE_VISIBILITY_PUBLIC      FileVisibility = 2
+)
+
+// Enum value maps for FileVisibility.
+var (
+	FileVisibility_name = map[int32]string{
+		0: "FILE_VISIBILITY_UNSPECIFIED",
+		1: "FILE_VISIBILITY_PRIVATE",
+		2: "FILE_VISIBILITY_PUBLIC",
+	}
+	FileVisibility_value = map[string]int32{
+		"FILE_VISIBILITY_UNSPECIFIED": 0,
+		"FILE_VISIBILITY_PRIVATE":     1,
+		"FILE_VISIBILITY_PUBLIC":      2,
+	}
+)
+
+func (x FileVisibility) Enum() *FileVisibility {
+	p := new(FileVisibility)
+	*p = x
+	return p
+}
+
+func (x FileVisibility) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FileVisibility) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_files_proto_enumTypes[1].Descriptor()
+}
+
+func (FileVisibility) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_files_proto_enumTypes[1]
+}
+
+func (x FileVisibility) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FileVisibility.Descriptor instead.
+func (FileVisibility) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_files_proto_rawDescGZIP(), []int{1}
+}
+
 type File struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	FileType      FileType               `protobuf:"varint,3,opt,name=file_type,json=fileType,proto3,enum=chalk.server.v1.FileType" json:"file_type,omitempty"`
-	OwnerId       string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
-	EnvironmentId string                 `protobuf:"bytes,5,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	ArchivedAt    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	FileType       FileType               `protobuf:"varint,3,opt,name=file_type,json=fileType,proto3,enum=chalk.server.v1.FileType" json:"file_type,omitempty"`
+	OwnerId        string                 `protobuf:"bytes,4,opt,name=owner_id,json=ownerId,proto3" json:"owner_id,omitempty"`
+	EnvironmentId  string                 `protobuf:"bytes,5,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	ArchivedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
+	FileVisibility FileVisibility         `protobuf:"varint,9,opt,name=file_visibility,json=fileVisibility,proto3,enum=chalk.server.v1.FileVisibility" json:"file_visibility,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *File) Reset() {
@@ -166,6 +216,13 @@ func (x *File) GetArchivedAt() *timestamppb.Timestamp {
 		return x.ArchivedAt
 	}
 	return nil
+}
+
+func (x *File) GetFileVisibility() FileVisibility {
+	if x != nil {
+		return x.FileVisibility
+	}
+	return FileVisibility_FILE_VISIBILITY_UNSPECIFIED
 }
 
 type CreateFileRequest struct {
@@ -880,7 +937,7 @@ var File_chalk_server_v1_files_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_files_proto_rawDesc = "" +
 	"\n" +
-	"\x1bchalk/server/v1/files.proto\x12\x0fchalk.server.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xec\x02\n" +
+	"\x1bchalk/server/v1/files.proto\x12\x0fchalk.server.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb6\x03\n" +
 	"\x04File\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x126\n" +
@@ -892,7 +949,8 @@ const file_chalk_server_v1_files_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12@\n" +
 	"\varchived_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
-	"archivedAt\x88\x01\x01B\x0e\n" +
+	"archivedAt\x88\x01\x01\x12H\n" +
+	"\x0ffile_visibility\x18\t \x01(\x0e2\x1f.chalk.server.v1.FileVisibilityR\x0efileVisibilityB\x0e\n" +
 	"\f_archived_at\"\x86\x01\n" +
 	"\x11CreateFileRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x126\n" +
@@ -939,7 +997,11 @@ const file_chalk_server_v1_files_proto_rawDesc = "" +
 	"\x04file\x18\x01 \x01(\v2\x15.chalk.server.v1.FileR\x04file*B\n" +
 	"\bFileType\x12\x19\n" +
 	"\x15FILE_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
-	"\x17FILE_TYPE_SQL_WORKSHEET\x10\x01B\xba\x01\n" +
+	"\x17FILE_TYPE_SQL_WORKSHEET\x10\x01*j\n" +
+	"\x0eFileVisibility\x12\x1f\n" +
+	"\x1bFILE_VISIBILITY_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17FILE_VISIBILITY_PRIVATE\x10\x01\x12\x1a\n" +
+	"\x16FILE_VISIBILITY_PUBLIC\x10\x02B\xba\x01\n" +
 	"\x13com.chalk.server.v1B\n" +
 	"FilesProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -955,47 +1017,49 @@ func file_chalk_server_v1_files_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_files_proto_rawDescData
 }
 
-var file_chalk_server_v1_files_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_files_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_chalk_server_v1_files_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_server_v1_files_proto_goTypes = []any{
 	(FileType)(0),                 // 0: chalk.server.v1.FileType
-	(*File)(nil),                  // 1: chalk.server.v1.File
-	(*CreateFileRequest)(nil),     // 2: chalk.server.v1.CreateFileRequest
-	(*CreateFileResponse)(nil),    // 3: chalk.server.v1.CreateFileResponse
-	(*GetFileRequest)(nil),        // 4: chalk.server.v1.GetFileRequest
-	(*GetFileResponse)(nil),       // 5: chalk.server.v1.GetFileResponse
-	(*UpdateFileRequest)(nil),     // 6: chalk.server.v1.UpdateFileRequest
-	(*UpdateFileResponse)(nil),    // 7: chalk.server.v1.UpdateFileResponse
-	(*DeleteFileRequest)(nil),     // 8: chalk.server.v1.DeleteFileRequest
-	(*DeleteFileResponse)(nil),    // 9: chalk.server.v1.DeleteFileResponse
-	(*ListFilesFilter)(nil),       // 10: chalk.server.v1.ListFilesFilter
-	(*ListFilesRequest)(nil),      // 11: chalk.server.v1.ListFilesRequest
-	(*ListFilesResponse)(nil),     // 12: chalk.server.v1.ListFilesResponse
-	(*ArchiveFileRequest)(nil),    // 13: chalk.server.v1.ArchiveFileRequest
-	(*ArchiveFileResponse)(nil),   // 14: chalk.server.v1.ArchiveFileResponse
-	(*UnarchiveFileRequest)(nil),  // 15: chalk.server.v1.UnarchiveFileRequest
-	(*UnarchiveFileResponse)(nil), // 16: chalk.server.v1.UnarchiveFileResponse
-	(*timestamppb.Timestamp)(nil), // 17: google.protobuf.Timestamp
+	(FileVisibility)(0),           // 1: chalk.server.v1.FileVisibility
+	(*File)(nil),                  // 2: chalk.server.v1.File
+	(*CreateFileRequest)(nil),     // 3: chalk.server.v1.CreateFileRequest
+	(*CreateFileResponse)(nil),    // 4: chalk.server.v1.CreateFileResponse
+	(*GetFileRequest)(nil),        // 5: chalk.server.v1.GetFileRequest
+	(*GetFileResponse)(nil),       // 6: chalk.server.v1.GetFileResponse
+	(*UpdateFileRequest)(nil),     // 7: chalk.server.v1.UpdateFileRequest
+	(*UpdateFileResponse)(nil),    // 8: chalk.server.v1.UpdateFileResponse
+	(*DeleteFileRequest)(nil),     // 9: chalk.server.v1.DeleteFileRequest
+	(*DeleteFileResponse)(nil),    // 10: chalk.server.v1.DeleteFileResponse
+	(*ListFilesFilter)(nil),       // 11: chalk.server.v1.ListFilesFilter
+	(*ListFilesRequest)(nil),      // 12: chalk.server.v1.ListFilesRequest
+	(*ListFilesResponse)(nil),     // 13: chalk.server.v1.ListFilesResponse
+	(*ArchiveFileRequest)(nil),    // 14: chalk.server.v1.ArchiveFileRequest
+	(*ArchiveFileResponse)(nil),   // 15: chalk.server.v1.ArchiveFileResponse
+	(*UnarchiveFileRequest)(nil),  // 16: chalk.server.v1.UnarchiveFileRequest
+	(*UnarchiveFileResponse)(nil), // 17: chalk.server.v1.UnarchiveFileResponse
+	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_files_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.File.file_type:type_name -> chalk.server.v1.FileType
-	17, // 1: chalk.server.v1.File.created_at:type_name -> google.protobuf.Timestamp
-	17, // 2: chalk.server.v1.File.updated_at:type_name -> google.protobuf.Timestamp
-	17, // 3: chalk.server.v1.File.archived_at:type_name -> google.protobuf.Timestamp
-	0,  // 4: chalk.server.v1.CreateFileRequest.file_type:type_name -> chalk.server.v1.FileType
-	1,  // 5: chalk.server.v1.CreateFileResponse.file:type_name -> chalk.server.v1.File
-	1,  // 6: chalk.server.v1.GetFileResponse.file:type_name -> chalk.server.v1.File
-	1,  // 7: chalk.server.v1.UpdateFileResponse.file:type_name -> chalk.server.v1.File
-	0,  // 8: chalk.server.v1.ListFilesFilter.file_type:type_name -> chalk.server.v1.FileType
-	10, // 9: chalk.server.v1.ListFilesRequest.filter:type_name -> chalk.server.v1.ListFilesFilter
-	1,  // 10: chalk.server.v1.ListFilesResponse.files:type_name -> chalk.server.v1.File
-	1,  // 11: chalk.server.v1.ArchiveFileResponse.file:type_name -> chalk.server.v1.File
-	1,  // 12: chalk.server.v1.UnarchiveFileResponse.file:type_name -> chalk.server.v1.File
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	18, // 1: chalk.server.v1.File.created_at:type_name -> google.protobuf.Timestamp
+	18, // 2: chalk.server.v1.File.updated_at:type_name -> google.protobuf.Timestamp
+	18, // 3: chalk.server.v1.File.archived_at:type_name -> google.protobuf.Timestamp
+	1,  // 4: chalk.server.v1.File.file_visibility:type_name -> chalk.server.v1.FileVisibility
+	0,  // 5: chalk.server.v1.CreateFileRequest.file_type:type_name -> chalk.server.v1.FileType
+	2,  // 6: chalk.server.v1.CreateFileResponse.file:type_name -> chalk.server.v1.File
+	2,  // 7: chalk.server.v1.GetFileResponse.file:type_name -> chalk.server.v1.File
+	2,  // 8: chalk.server.v1.UpdateFileResponse.file:type_name -> chalk.server.v1.File
+	0,  // 9: chalk.server.v1.ListFilesFilter.file_type:type_name -> chalk.server.v1.FileType
+	11, // 10: chalk.server.v1.ListFilesRequest.filter:type_name -> chalk.server.v1.ListFilesFilter
+	2,  // 11: chalk.server.v1.ListFilesResponse.files:type_name -> chalk.server.v1.File
+	2,  // 12: chalk.server.v1.ArchiveFileResponse.file:type_name -> chalk.server.v1.File
+	2,  // 13: chalk.server.v1.UnarchiveFileResponse.file:type_name -> chalk.server.v1.File
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_files_proto_init() }
@@ -1013,7 +1077,7 @@ func file_chalk_server_v1_files_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_files_proto_rawDesc), len(file_chalk_server_v1_files_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,

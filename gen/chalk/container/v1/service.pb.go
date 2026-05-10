@@ -1506,7 +1506,7 @@ type UpdateContainerStatusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Container UUID (from pod label chalk.ai/container)
 	ContainerId string `protobuf:"bytes,1,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
-	// Pod phase: Pending, Running, Succeeded, Failed, Unknown
+	// Pod phase: Pending, Running, Succeeded, Failed, Unknown, Error.
 	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	// Optional status message with more details
 	StatusMessage *string `protobuf:"bytes,3,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`

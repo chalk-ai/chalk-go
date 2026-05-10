@@ -547,6 +547,196 @@ func (x *GetOnlineStoreUsageStatsResponse) GetCollectedAt() *timestamppb.Timesta
 	return nil
 }
 
+type OnlineStoreCleanupStat struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	KeyType             string                 `protobuf:"bytes,1,opt,name=key_type,json=keyType,proto3" json:"key_type,omitempty"`
+	ActionType          string                 `protobuf:"bytes,2,opt,name=action_type,json=actionType,proto3" json:"action_type,omitempty"`
+	Name                string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	KeysAffected        int64                  `protobuf:"varint,4,opt,name=keys_affected,json=keysAffected,proto3" json:"keys_affected,omitempty"`
+	ItemsRemoved        int64                  `protobuf:"varint,5,opt,name=items_removed,json=itemsRemoved,proto3" json:"items_removed,omitempty"`
+	KeysAffectedHistory []int64                `protobuf:"varint,6,rep,packed,name=keys_affected_history,json=keysAffectedHistory,proto3" json:"keys_affected_history,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *OnlineStoreCleanupStat) Reset() {
+	*x = OnlineStoreCleanupStat{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OnlineStoreCleanupStat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OnlineStoreCleanupStat) ProtoMessage() {}
+
+func (x *OnlineStoreCleanupStat) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OnlineStoreCleanupStat.ProtoReflect.Descriptor instead.
+func (*OnlineStoreCleanupStat) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *OnlineStoreCleanupStat) GetKeyType() string {
+	if x != nil {
+		return x.KeyType
+	}
+	return ""
+}
+
+func (x *OnlineStoreCleanupStat) GetActionType() string {
+	if x != nil {
+		return x.ActionType
+	}
+	return ""
+}
+
+func (x *OnlineStoreCleanupStat) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *OnlineStoreCleanupStat) GetKeysAffected() int64 {
+	if x != nil {
+		return x.KeysAffected
+	}
+	return 0
+}
+
+func (x *OnlineStoreCleanupStat) GetItemsRemoved() int64 {
+	if x != nil {
+		return x.ItemsRemoved
+	}
+	return 0
+}
+
+func (x *OnlineStoreCleanupStat) GetKeysAffectedHistory() []int64 {
+	if x != nil {
+		return x.KeysAffectedHistory
+	}
+	return nil
+}
+
+type GetOnlineStoreCleanupStatsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineStoreCleanupStatsRequest) Reset() {
+	*x = GetOnlineStoreCleanupStatsRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineStoreCleanupStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineStoreCleanupStatsRequest) ProtoMessage() {}
+
+func (x *GetOnlineStoreCleanupStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineStoreCleanupStatsRequest.ProtoReflect.Descriptor instead.
+func (*GetOnlineStoreCleanupStatsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{8}
+}
+
+type GetOnlineStoreCleanupStatsResponse struct {
+	state       protoimpl.MessageState    `protogen:"open.v1"`
+	Stats       []*OnlineStoreCleanupStat `protobuf:"bytes,1,rep,name=stats,proto3" json:"stats,omitempty"`
+	CollectedAt *timestamppb.Timestamp    `protobuf:"bytes,2,opt,name=collected_at,json=collectedAt,proto3" json:"collected_at,omitempty"`
+	// ID of the script task that produced this snapshot, if available.
+	ScriptTaskId *string `protobuf:"bytes,3,opt,name=script_task_id,json=scriptTaskId,proto3,oneof" json:"script_task_id,omitempty"`
+	// Start time of the job queue entry that produced this snapshot, if available.
+	JobStartedAt  *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=job_started_at,json=jobStartedAt,proto3,oneof" json:"job_started_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) Reset() {
+	*x = GetOnlineStoreCleanupStatsResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineStoreCleanupStatsResponse) ProtoMessage() {}
+
+func (x *GetOnlineStoreCleanupStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineStoreCleanupStatsResponse.ProtoReflect.Descriptor instead.
+func (*GetOnlineStoreCleanupStatsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) GetStats() []*OnlineStoreCleanupStat {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) GetCollectedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CollectedAt
+	}
+	return nil
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) GetScriptTaskId() string {
+	if x != nil && x.ScriptTaskId != nil {
+		return *x.ScriptTaskId
+	}
+	return ""
+}
+
+func (x *GetOnlineStoreCleanupStatsResponse) GetJobStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.JobStartedAt
+	}
+	return nil
+}
+
 var File_chalk_server_v1_online_store_insight_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
@@ -586,14 +776,31 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\x1fGetOnlineStoreUsageStatsRequest\"\x9e\x01\n" +
 	" GetOnlineStoreUsageStatsResponse\x12;\n" +
 	"\x05stats\x18\x01 \x03(\v2%.chalk.server.v1.OnlineStoreUsageStatR\x05stats\x12=\n" +
-	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt*\x91\x01\n" +
+	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\"\xe6\x01\n" +
+	"\x16OnlineStoreCleanupStat\x12\x19\n" +
+	"\bkey_type\x18\x01 \x01(\tR\akeyType\x12\x1f\n" +
+	"\vaction_type\x18\x02 \x01(\tR\n" +
+	"actionType\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12#\n" +
+	"\rkeys_affected\x18\x04 \x01(\x03R\fkeysAffected\x12#\n" +
+	"\ritems_removed\x18\x05 \x01(\x03R\fitemsRemoved\x122\n" +
+	"\x15keys_affected_history\x18\x06 \x03(\x03R\x13keysAffectedHistory\"#\n" +
+	"!GetOnlineStoreCleanupStatsRequest\"\xba\x02\n" +
+	"\"GetOnlineStoreCleanupStatsResponse\x12=\n" +
+	"\x05stats\x18\x01 \x03(\v2'.chalk.server.v1.OnlineStoreCleanupStatR\x05stats\x12=\n" +
+	"\fcollected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\vcollectedAt\x12)\n" +
+	"\x0escript_task_id\x18\x03 \x01(\tH\x00R\fscriptTaskId\x88\x01\x01\x12E\n" +
+	"\x0ejob_started_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fjobStartedAt\x88\x01\x01B\x11\n" +
+	"\x0f_script_task_idB\x11\n" +
+	"\x0f_job_started_at*\x91\x01\n" +
 	"\x13DynamoDBBillingMode\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_PROVISIONED\x10\x01\x12*\n" +
-	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x022\xa2\x02\n" +
+	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x022\xb2\x03\n" +
 	"\x19OnlineStoreInsightService\x12{\n" +
 	"\x14GetOnlineStoreConfig\x12,.chalk.server.v1.GetOnlineStoreConfigRequest\x1a-.chalk.server.v1.GetOnlineStoreConfigResponse\"\x06\x80}\x02\x90\x02\x01\x12\x87\x01\n" +
-	"\x18GetOnlineStoreUsageStats\x120.chalk.server.v1.GetOnlineStoreUsageStatsRequest\x1a1.chalk.server.v1.GetOnlineStoreUsageStatsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
+	"\x18GetOnlineStoreUsageStats\x120.chalk.server.v1.GetOnlineStoreUsageStatsRequest\x1a1.chalk.server.v1.GetOnlineStoreUsageStatsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
+	"\x1aGetOnlineStoreCleanupStats\x122.chalk.server.v1.GetOnlineStoreCleanupStatsRequest\x1a3.chalk.server.v1.GetOnlineStoreCleanupStatsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17OnlineStoreInsightProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -609,33 +816,41 @@ func file_chalk_server_v1_online_store_insight_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_online_store_insight_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chalk_server_v1_online_store_insight_proto_goTypes = []any{
-	(DynamoDBBillingMode)(0),                 // 0: chalk.server.v1.DynamoDBBillingMode
-	(*DynamoDBConfig)(nil),                   // 1: chalk.server.v1.DynamoDBConfig
-	(*ElasticacheConfig)(nil),                // 2: chalk.server.v1.ElasticacheConfig
-	(*GetOnlineStoreConfigRequest)(nil),      // 3: chalk.server.v1.GetOnlineStoreConfigRequest
-	(*GetOnlineStoreConfigResponse)(nil),     // 4: chalk.server.v1.GetOnlineStoreConfigResponse
-	(*OnlineStoreUsageStat)(nil),             // 5: chalk.server.v1.OnlineStoreUsageStat
-	(*GetOnlineStoreUsageStatsRequest)(nil),  // 6: chalk.server.v1.GetOnlineStoreUsageStatsRequest
-	(*GetOnlineStoreUsageStatsResponse)(nil), // 7: chalk.server.v1.GetOnlineStoreUsageStatsResponse
-	(*timestamppb.Timestamp)(nil),            // 8: google.protobuf.Timestamp
+	(DynamoDBBillingMode)(0),                   // 0: chalk.server.v1.DynamoDBBillingMode
+	(*DynamoDBConfig)(nil),                     // 1: chalk.server.v1.DynamoDBConfig
+	(*ElasticacheConfig)(nil),                  // 2: chalk.server.v1.ElasticacheConfig
+	(*GetOnlineStoreConfigRequest)(nil),        // 3: chalk.server.v1.GetOnlineStoreConfigRequest
+	(*GetOnlineStoreConfigResponse)(nil),       // 4: chalk.server.v1.GetOnlineStoreConfigResponse
+	(*OnlineStoreUsageStat)(nil),               // 5: chalk.server.v1.OnlineStoreUsageStat
+	(*GetOnlineStoreUsageStatsRequest)(nil),    // 6: chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	(*GetOnlineStoreUsageStatsResponse)(nil),   // 7: chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	(*OnlineStoreCleanupStat)(nil),             // 8: chalk.server.v1.OnlineStoreCleanupStat
+	(*GetOnlineStoreCleanupStatsRequest)(nil),  // 9: chalk.server.v1.GetOnlineStoreCleanupStatsRequest
+	(*GetOnlineStoreCleanupStatsResponse)(nil), // 10: chalk.server.v1.GetOnlineStoreCleanupStatsResponse
+	(*timestamppb.Timestamp)(nil),              // 11: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_online_store_insight_proto_depIdxs = []int32{
-	0, // 0: chalk.server.v1.DynamoDBConfig.billing_mode:type_name -> chalk.server.v1.DynamoDBBillingMode
-	1, // 1: chalk.server.v1.GetOnlineStoreConfigResponse.dynamodb:type_name -> chalk.server.v1.DynamoDBConfig
-	2, // 2: chalk.server.v1.GetOnlineStoreConfigResponse.elasticache:type_name -> chalk.server.v1.ElasticacheConfig
-	5, // 3: chalk.server.v1.GetOnlineStoreUsageStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreUsageStat
-	8, // 4: chalk.server.v1.GetOnlineStoreUsageStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
-	3, // 5: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
-	6, // 6: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:input_type -> chalk.server.v1.GetOnlineStoreUsageStatsRequest
-	4, // 7: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
-	7, // 8: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:output_type -> chalk.server.v1.GetOnlineStoreUsageStatsResponse
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: chalk.server.v1.DynamoDBConfig.billing_mode:type_name -> chalk.server.v1.DynamoDBBillingMode
+	1,  // 1: chalk.server.v1.GetOnlineStoreConfigResponse.dynamodb:type_name -> chalk.server.v1.DynamoDBConfig
+	2,  // 2: chalk.server.v1.GetOnlineStoreConfigResponse.elasticache:type_name -> chalk.server.v1.ElasticacheConfig
+	5,  // 3: chalk.server.v1.GetOnlineStoreUsageStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreUsageStat
+	11, // 4: chalk.server.v1.GetOnlineStoreUsageStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
+	8,  // 5: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreCleanupStat
+	11, // 6: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
+	11, // 7: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.job_started_at:type_name -> google.protobuf.Timestamp
+	3,  // 8: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
+	6,  // 9: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:input_type -> chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	9,  // 10: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:input_type -> chalk.server.v1.GetOnlineStoreCleanupStatsRequest
+	4,  // 11: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
+	7,  // 12: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:output_type -> chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	10, // 13: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:output_type -> chalk.server.v1.GetOnlineStoreCleanupStatsResponse
+	11, // [11:14] is the sub-list for method output_type
+	8,  // [8:11] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_online_store_insight_proto_init() }
@@ -648,13 +863,14 @@ func file_chalk_server_v1_online_store_insight_proto_init() {
 		(*GetOnlineStoreConfigResponse_Dynamodb)(nil),
 		(*GetOnlineStoreConfigResponse_Elasticache)(nil),
 	}
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_online_store_insight_proto_rawDesc), len(file_chalk_server_v1_online_store_insight_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

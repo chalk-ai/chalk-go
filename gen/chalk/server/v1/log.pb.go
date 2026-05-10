@@ -692,6 +692,277 @@ func (x *SearchAccessLogEntriesResponse) GetNextPageToken() *SearchAccessLogEntr
 	return nil
 }
 
+type StreamSearchLogEntriesRequest struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Query         *string                    `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	PageToken     *SearchLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	StartTime     *timestamppb.Timestamp     `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime       *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamSearchLogEntriesRequest) Reset() {
+	*x = StreamSearchLogEntriesRequest{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamSearchLogEntriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamSearchLogEntriesRequest) ProtoMessage() {}
+
+func (x *StreamSearchLogEntriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamSearchLogEntriesRequest.ProtoReflect.Descriptor instead.
+func (*StreamSearchLogEntriesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *StreamSearchLogEntriesRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
+func (x *StreamSearchLogEntriesRequest) GetPageToken() *SearchLogEntriesPageToken {
+	if x != nil {
+		return x.PageToken
+	}
+	return nil
+}
+
+func (x *StreamSearchLogEntriesRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *StreamSearchLogEntriesRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+// Each streamed message carries a chunk of log_entries. The final message
+// in the stream may set next_page_token; logging_client is set on the first
+// streamed message.
+type StreamSearchLogEntriesResponse struct {
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	LogEntries    []*LogEntry                `protobuf:"bytes,1,rep,name=log_entries,json=logEntries,proto3" json:"log_entries,omitempty"`
+	NextPageToken *SearchLogEntriesPageToken `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
+	LoggingClient string                     `protobuf:"bytes,3,opt,name=logging_client,json=loggingClient,proto3" json:"logging_client,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamSearchLogEntriesResponse) Reset() {
+	*x = StreamSearchLogEntriesResponse{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamSearchLogEntriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamSearchLogEntriesResponse) ProtoMessage() {}
+
+func (x *StreamSearchLogEntriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamSearchLogEntriesResponse.ProtoReflect.Descriptor instead.
+func (*StreamSearchLogEntriesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *StreamSearchLogEntriesResponse) GetLogEntries() []*LogEntry {
+	if x != nil {
+		return x.LogEntries
+	}
+	return nil
+}
+
+func (x *StreamSearchLogEntriesResponse) GetNextPageToken() *SearchLogEntriesPageToken {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return nil
+}
+
+func (x *StreamSearchLogEntriesResponse) GetLoggingClient() string {
+	if x != nil {
+		return x.LoggingClient
+	}
+	return ""
+}
+
+type StreamSearchAccessLogEntriesRequest struct {
+	state     protoimpl.MessageState           `protogen:"open.v1"`
+	Query     *string                          `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
+	PageToken *SearchAccessLogEntriesPageToken `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	StartTime *timestamppb.Timestamp           `protobuf:"bytes,3,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp           `protobuf:"bytes,4,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// When set, queries the scaling_group_access_logs materialized view filtered by this ID.
+	ScalingGroupId *string `protobuf:"bytes,5,opt,name=scaling_group_id,json=scalingGroupId,proto3,oneof" json:"scaling_group_id,omitempty"`
+	// When set, queries the container_access_logs materialized view filtered by this ID.
+	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) Reset() {
+	*x = StreamSearchAccessLogEntriesRequest{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamSearchAccessLogEntriesRequest) ProtoMessage() {}
+
+func (x *StreamSearchAccessLogEntriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamSearchAccessLogEntriesRequest.ProtoReflect.Descriptor instead.
+func (*StreamSearchAccessLogEntriesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetQuery() string {
+	if x != nil && x.Query != nil {
+		return *x.Query
+	}
+	return ""
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetPageToken() *SearchAccessLogEntriesPageToken {
+	if x != nil {
+		return x.PageToken
+	}
+	return nil
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTime
+	}
+	return nil
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetEndTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTime
+	}
+	return nil
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetScalingGroupId() string {
+	if x != nil && x.ScalingGroupId != nil {
+		return *x.ScalingGroupId
+	}
+	return ""
+}
+
+func (x *StreamSearchAccessLogEntriesRequest) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
+}
+
+// Each streamed message carries a chunk of access_log_entries. The final
+// message in the stream may set next_page_token.
+type StreamSearchAccessLogEntriesResponse struct {
+	state            protoimpl.MessageState           `protogen:"open.v1"`
+	AccessLogEntries []*AccessLogEntry                `protobuf:"bytes,1,rep,name=access_log_entries,json=accessLogEntries,proto3" json:"access_log_entries,omitempty"`
+	NextPageToken    *SearchAccessLogEntriesPageToken `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *StreamSearchAccessLogEntriesResponse) Reset() {
+	*x = StreamSearchAccessLogEntriesResponse{}
+	mi := &file_chalk_server_v1_log_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamSearchAccessLogEntriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamSearchAccessLogEntriesResponse) ProtoMessage() {}
+
+func (x *StreamSearchAccessLogEntriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_log_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamSearchAccessLogEntriesResponse.ProtoReflect.Descriptor instead.
+func (*StreamSearchAccessLogEntriesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *StreamSearchAccessLogEntriesResponse) GetAccessLogEntries() []*AccessLogEntry {
+	if x != nil {
+		return x.AccessLogEntries
+	}
+	return nil
+}
+
+func (x *StreamSearchAccessLogEntriesResponse) GetNextPageToken() *SearchAccessLogEntriesPageToken {
+	if x != nil {
+		return x.NextPageToken
+	}
+	return nil
+}
+
 type SearchLogEntriesAggregatedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Query         *string                `protobuf:"bytes,1,opt,name=query,proto3,oneof" json:"query,omitempty"`
@@ -704,7 +975,7 @@ type SearchLogEntriesAggregatedRequest struct {
 
 func (x *SearchLogEntriesAggregatedRequest) Reset() {
 	*x = SearchLogEntriesAggregatedRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -716,7 +987,7 @@ func (x *SearchLogEntriesAggregatedRequest) String() string {
 func (*SearchLogEntriesAggregatedRequest) ProtoMessage() {}
 
 func (x *SearchLogEntriesAggregatedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +1000,7 @@ func (x *SearchLogEntriesAggregatedRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SearchLogEntriesAggregatedRequest.ProtoReflect.Descriptor instead.
 func (*SearchLogEntriesAggregatedRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SearchLogEntriesAggregatedRequest) GetQuery() string {
@@ -769,7 +1040,7 @@ type SearchLogEntriesAggregatedResponse struct {
 
 func (x *SearchLogEntriesAggregatedResponse) Reset() {
 	*x = SearchLogEntriesAggregatedResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -781,7 +1052,7 @@ func (x *SearchLogEntriesAggregatedResponse) String() string {
 func (*SearchLogEntriesAggregatedResponse) ProtoMessage() {}
 
 func (x *SearchLogEntriesAggregatedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -794,7 +1065,7 @@ func (x *SearchLogEntriesAggregatedResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use SearchLogEntriesAggregatedResponse.ProtoReflect.Descriptor instead.
 func (*SearchLogEntriesAggregatedResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *SearchLogEntriesAggregatedResponse) GetChart() *v1.DenseTimeSeriesChart {
@@ -812,7 +1083,7 @@ type GetLogFacetsRequest struct {
 
 func (x *GetLogFacetsRequest) Reset() {
 	*x = GetLogFacetsRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -824,7 +1095,7 @@ func (x *GetLogFacetsRequest) String() string {
 func (*GetLogFacetsRequest) ProtoMessage() {}
 
 func (x *GetLogFacetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -837,7 +1108,7 @@ func (x *GetLogFacetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLogFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetLogFacetsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{14}
 }
 
 type LogFacet struct {
@@ -851,7 +1122,7 @@ type LogFacet struct {
 
 func (x *LogFacet) Reset() {
 	*x = LogFacet{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -863,7 +1134,7 @@ func (x *LogFacet) String() string {
 func (*LogFacet) ProtoMessage() {}
 
 func (x *LogFacet) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -876,7 +1147,7 @@ func (x *LogFacet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogFacet.ProtoReflect.Descriptor instead.
 func (*LogFacet) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *LogFacet) GetPath() string {
@@ -909,7 +1180,7 @@ type GetLogFacetsResponse struct {
 
 func (x *GetLogFacetsResponse) Reset() {
 	*x = GetLogFacetsResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -921,7 +1192,7 @@ func (x *GetLogFacetsResponse) String() string {
 func (*GetLogFacetsResponse) ProtoMessage() {}
 
 func (x *GetLogFacetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -934,7 +1205,7 @@ func (x *GetLogFacetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLogFacetsResponse.ProtoReflect.Descriptor instead.
 func (*GetLogFacetsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetLogFacetsResponse) GetFacets() []*LogFacet {
@@ -957,7 +1228,7 @@ type GetLogFacetValuesRequest struct {
 
 func (x *GetLogFacetValuesRequest) Reset() {
 	*x = GetLogFacetValuesRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -969,7 +1240,7 @@ func (x *GetLogFacetValuesRequest) String() string {
 func (*GetLogFacetValuesRequest) ProtoMessage() {}
 
 func (x *GetLogFacetValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -982,7 +1253,7 @@ func (x *GetLogFacetValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLogFacetValuesRequest.ProtoReflect.Descriptor instead.
 func (*GetLogFacetValuesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetLogFacetValuesRequest) GetPath() string {
@@ -1030,7 +1301,7 @@ type LogFacetValue struct {
 
 func (x *LogFacetValue) Reset() {
 	*x = LogFacetValue{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1042,7 +1313,7 @@ func (x *LogFacetValue) String() string {
 func (*LogFacetValue) ProtoMessage() {}
 
 func (x *LogFacetValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1055,7 +1326,7 @@ func (x *LogFacetValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogFacetValue.ProtoReflect.Descriptor instead.
 func (*LogFacetValue) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *LogFacetValue) GetValue() string {
@@ -1081,7 +1352,7 @@ type GetLogFacetValuesResponse struct {
 
 func (x *GetLogFacetValuesResponse) Reset() {
 	*x = GetLogFacetValuesResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1093,7 +1364,7 @@ func (x *GetLogFacetValuesResponse) String() string {
 func (*GetLogFacetValuesResponse) ProtoMessage() {}
 
 func (x *GetLogFacetValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1377,7 @@ func (x *GetLogFacetValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetLogFacetValuesResponse.ProtoReflect.Descriptor instead.
 func (*GetLogFacetValuesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetLogFacetValuesResponse) GetValues() []*LogFacetValue {
@@ -1132,7 +1403,7 @@ type SearchAccessLogEntriesAggregatedRequest struct {
 
 func (x *SearchAccessLogEntriesAggregatedRequest) Reset() {
 	*x = SearchAccessLogEntriesAggregatedRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1144,7 +1415,7 @@ func (x *SearchAccessLogEntriesAggregatedRequest) String() string {
 func (*SearchAccessLogEntriesAggregatedRequest) ProtoMessage() {}
 
 func (x *SearchAccessLogEntriesAggregatedRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1157,7 +1428,7 @@ func (x *SearchAccessLogEntriesAggregatedRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use SearchAccessLogEntriesAggregatedRequest.ProtoReflect.Descriptor instead.
 func (*SearchAccessLogEntriesAggregatedRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SearchAccessLogEntriesAggregatedRequest) GetQuery() string {
@@ -1211,7 +1482,7 @@ type SearchAccessLogEntriesAggregatedResponse struct {
 
 func (x *SearchAccessLogEntriesAggregatedResponse) Reset() {
 	*x = SearchAccessLogEntriesAggregatedResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1223,7 +1494,7 @@ func (x *SearchAccessLogEntriesAggregatedResponse) String() string {
 func (*SearchAccessLogEntriesAggregatedResponse) ProtoMessage() {}
 
 func (x *SearchAccessLogEntriesAggregatedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1236,7 +1507,7 @@ func (x *SearchAccessLogEntriesAggregatedResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use SearchAccessLogEntriesAggregatedResponse.ProtoReflect.Descriptor instead.
 func (*SearchAccessLogEntriesAggregatedResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SearchAccessLogEntriesAggregatedResponse) GetChart() *v1.DenseTimeSeriesChart {
@@ -1254,7 +1525,7 @@ type GetAccessLogFacetsRequest struct {
 
 func (x *GetAccessLogFacetsRequest) Reset() {
 	*x = GetAccessLogFacetsRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1266,7 +1537,7 @@ func (x *GetAccessLogFacetsRequest) String() string {
 func (*GetAccessLogFacetsRequest) ProtoMessage() {}
 
 func (x *GetAccessLogFacetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1279,7 +1550,7 @@ func (x *GetAccessLogFacetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAccessLogFacetsRequest.ProtoReflect.Descriptor instead.
 func (*GetAccessLogFacetsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{22}
 }
 
 type GetAccessLogFacetsResponse struct {
@@ -1291,7 +1562,7 @@ type GetAccessLogFacetsResponse struct {
 
 func (x *GetAccessLogFacetsResponse) Reset() {
 	*x = GetAccessLogFacetsResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1303,7 +1574,7 @@ func (x *GetAccessLogFacetsResponse) String() string {
 func (*GetAccessLogFacetsResponse) ProtoMessage() {}
 
 func (x *GetAccessLogFacetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1316,7 +1587,7 @@ func (x *GetAccessLogFacetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAccessLogFacetsResponse.ProtoReflect.Descriptor instead.
 func (*GetAccessLogFacetsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetAccessLogFacetsResponse) GetFacets() []*LogFacet {
@@ -1343,7 +1614,7 @@ type GetAccessLogFacetValuesRequest struct {
 
 func (x *GetAccessLogFacetValuesRequest) Reset() {
 	*x = GetAccessLogFacetValuesRequest{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1626,7 @@ func (x *GetAccessLogFacetValuesRequest) String() string {
 func (*GetAccessLogFacetValuesRequest) ProtoMessage() {}
 
 func (x *GetAccessLogFacetValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1639,7 @@ func (x *GetAccessLogFacetValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAccessLogFacetValuesRequest.ProtoReflect.Descriptor instead.
 func (*GetAccessLogFacetValuesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetAccessLogFacetValuesRequest) GetPath() string {
@@ -1429,7 +1700,7 @@ type GetAccessLogFacetValuesResponse struct {
 
 func (x *GetAccessLogFacetValuesResponse) Reset() {
 	*x = GetAccessLogFacetValuesResponse{}
-	mi := &file_chalk_server_v1_log_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1441,7 +1712,7 @@ func (x *GetAccessLogFacetValuesResponse) String() string {
 func (*GetAccessLogFacetValuesResponse) ProtoMessage() {}
 
 func (x *GetAccessLogFacetValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_log_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_log_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1454,7 +1725,7 @@ func (x *GetAccessLogFacetValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAccessLogFacetValuesResponse.ProtoReflect.Descriptor instead.
 func (*GetAccessLogFacetValuesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_log_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetAccessLogFacetValuesResponse) GetValues() []*LogFacetValue {
@@ -1552,6 +1823,38 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x1eSearchAccessLogEntriesResponse\x12M\n" +
 	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
+	"\x10_next_page_token\"\x95\x02\n" +
+	"\x1dStreamSearchLogEntriesRequest\x12\x19\n" +
+	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12N\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\v2*.chalk.server.v1.SearchLogEntriesPageTokenH\x01R\tpageToken\x88\x01\x01\x129\n" +
+	"\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTimeB\b\n" +
+	"\x06_queryB\r\n" +
+	"\v_page_token\"\xf0\x01\n" +
+	"\x1eStreamSearchLogEntriesResponse\x12:\n" +
+	"\vlog_entries\x18\x01 \x03(\v2\x19.chalk.server.v1.LogEntryR\n" +
+	"logEntries\x12W\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\v2*.chalk.server.v1.SearchLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01\x12%\n" +
+	"\x0elogging_client\x18\x03 \x01(\tR\rloggingClientB\x12\n" +
+	"\x10_next_page_token\"\x9e\x03\n" +
+	"#StreamSearchAccessLogEntriesRequest\x12\x19\n" +
+	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x12T\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x01R\tpageToken\x88\x01\x01\x129\n" +
+	"\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
+	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12-\n" +
+	"\x10scaling_group_id\x18\x05 \x01(\tH\x02R\x0escalingGroupId\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x03R\vcontainerId\x88\x01\x01B\b\n" +
+	"\x06_queryB\r\n" +
+	"\v_page_tokenB\x13\n" +
+	"\x11_scaling_group_idB\x0f\n" +
+	"\r_container_id\"\xe8\x01\n" +
+	"$StreamSearchAccessLogEntriesResponse\x12M\n" +
+	"\x12access_log_entries\x18\x01 \x03(\v2\x1f.chalk.server.v1.AccessLogEntryR\x10accessLogEntries\x12]\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\v20.chalk.server.v1.SearchAccessLogEntriesPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
 	"\x10_next_page_token\"\xfa\x01\n" +
 	"!SearchLogEntriesAggregatedRequest\x12\x19\n" +
 	"\x05query\x18\x01 \x01(\tH\x00R\x05query\x88\x01\x01\x129\n" +
@@ -1622,13 +1925,16 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\fLogFacetType\x12\x1e\n" +
 	"\x1aLOG_FACET_TYPE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13LOG_FACET_TYPE_LIST\x10\x01\x12\x18\n" +
-	"\x14LOG_FACET_TYPE_RANGE\x10\x022\x90\b\n" +
+	"\x14LOG_FACET_TYPE_RANGE\x10\x022\xae\n" +
+	"\n" +
 	"\x10LogSearchService\x12o\n" +
-	"\x10SearchLogEntries\x12(.chalk.server.v1.SearchLogEntriesRequest\x1a).chalk.server.v1.SearchLogEntriesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x8d\x01\n" +
+	"\x10SearchLogEntries\x12(.chalk.server.v1.SearchLogEntriesRequest\x1a).chalk.server.v1.SearchLogEntriesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x83\x01\n" +
+	"\x16StreamSearchLogEntries\x12..chalk.server.v1.StreamSearchLogEntriesRequest\x1a/.chalk.server.v1.StreamSearchLogEntriesResponse\"\x06\x80}\x06\x90\x02\x010\x01\x12\x8d\x01\n" +
 	"\x1aSearchLogEntriesAggregated\x122.chalk.server.v1.SearchLogEntriesAggregatedRequest\x1a3.chalk.server.v1.SearchLogEntriesAggregatedResponse\"\x06\x80}\x06\x90\x02\x01\x12c\n" +
 	"\fGetLogFacets\x12$.chalk.server.v1.GetLogFacetsRequest\x1a%.chalk.server.v1.GetLogFacetsResponse\"\x06\x80}\x06\x90\x02\x01\x12r\n" +
 	"\x11GetLogFacetValues\x12).chalk.server.v1.GetLogFacetValuesRequest\x1a*.chalk.server.v1.GetLogFacetValuesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x81\x01\n" +
-	"\x16SearchAccessLogEntries\x12..chalk.server.v1.SearchAccessLogEntriesRequest\x1a/.chalk.server.v1.SearchAccessLogEntriesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x9f\x01\n" +
+	"\x16SearchAccessLogEntries\x12..chalk.server.v1.SearchAccessLogEntriesRequest\x1a/.chalk.server.v1.SearchAccessLogEntriesResponse\"\x06\x80}\x06\x90\x02\x01\x12\x95\x01\n" +
+	"\x1cStreamSearchAccessLogEntries\x124.chalk.server.v1.StreamSearchAccessLogEntriesRequest\x1a5.chalk.server.v1.StreamSearchAccessLogEntriesResponse\"\x06\x80}\x06\x90\x02\x010\x01\x12\x9f\x01\n" +
 	" SearchAccessLogEntriesAggregated\x128.chalk.server.v1.SearchAccessLogEntriesAggregatedRequest\x1a9.chalk.server.v1.SearchAccessLogEntriesAggregatedResponse\"\x06\x80}\x06\x90\x02\x01\x12u\n" +
 	"\x12GetAccessLogFacets\x12*.chalk.server.v1.GetAccessLogFacetsRequest\x1a+.chalk.server.v1.GetAccessLogFacetsResponse\"\x06\x80}\x06\x90\x02\x01\x12\x84\x01\n" +
 	"\x17GetAccessLogFacetValues\x12/.chalk.server.v1.GetAccessLogFacetValuesRequest\x1a0.chalk.server.v1.GetAccessLogFacetValuesResponse\"\x06\x80}\x06\x90\x02\x01B\xb8\x01\n" +
@@ -1647,7 +1953,7 @@ func file_chalk_server_v1_log_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_log_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_log_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_chalk_server_v1_log_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_chalk_server_v1_log_proto_goTypes = []any{
 	(LogFacetType)(0),                                // 0: chalk.server.v1.LogFacetType
 	(*LogEntry)(nil),                                 // 1: chalk.server.v1.LogEntry
@@ -1658,80 +1964,98 @@ var file_chalk_server_v1_log_proto_goTypes = []any{
 	(*SearchLogEntriesResponse)(nil),                 // 6: chalk.server.v1.SearchLogEntriesResponse
 	(*SearchAccessLogEntriesRequest)(nil),            // 7: chalk.server.v1.SearchAccessLogEntriesRequest
 	(*SearchAccessLogEntriesResponse)(nil),           // 8: chalk.server.v1.SearchAccessLogEntriesResponse
-	(*SearchLogEntriesAggregatedRequest)(nil),        // 9: chalk.server.v1.SearchLogEntriesAggregatedRequest
-	(*SearchLogEntriesAggregatedResponse)(nil),       // 10: chalk.server.v1.SearchLogEntriesAggregatedResponse
-	(*GetLogFacetsRequest)(nil),                      // 11: chalk.server.v1.GetLogFacetsRequest
-	(*LogFacet)(nil),                                 // 12: chalk.server.v1.LogFacet
-	(*GetLogFacetsResponse)(nil),                     // 13: chalk.server.v1.GetLogFacetsResponse
-	(*GetLogFacetValuesRequest)(nil),                 // 14: chalk.server.v1.GetLogFacetValuesRequest
-	(*LogFacetValue)(nil),                            // 15: chalk.server.v1.LogFacetValue
-	(*GetLogFacetValuesResponse)(nil),                // 16: chalk.server.v1.GetLogFacetValuesResponse
-	(*SearchAccessLogEntriesAggregatedRequest)(nil),  // 17: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
-	(*SearchAccessLogEntriesAggregatedResponse)(nil), // 18: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
-	(*GetAccessLogFacetsRequest)(nil),                // 19: chalk.server.v1.GetAccessLogFacetsRequest
-	(*GetAccessLogFacetsResponse)(nil),               // 20: chalk.server.v1.GetAccessLogFacetsResponse
-	(*GetAccessLogFacetValuesRequest)(nil),           // 21: chalk.server.v1.GetAccessLogFacetValuesRequest
-	(*GetAccessLogFacetValuesResponse)(nil),          // 22: chalk.server.v1.GetAccessLogFacetValuesResponse
-	nil,                                              // 23: chalk.server.v1.LogEntry.LabelsEntry
-	nil,                                              // 24: chalk.server.v1.AccessLogEntry.AttributesEntry
-	(*timestamppb.Timestamp)(nil),                    // 25: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                      // 26: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),                  // 27: chalk.chart.v1.DenseTimeSeriesChart
+	(*StreamSearchLogEntriesRequest)(nil),            // 9: chalk.server.v1.StreamSearchLogEntriesRequest
+	(*StreamSearchLogEntriesResponse)(nil),           // 10: chalk.server.v1.StreamSearchLogEntriesResponse
+	(*StreamSearchAccessLogEntriesRequest)(nil),      // 11: chalk.server.v1.StreamSearchAccessLogEntriesRequest
+	(*StreamSearchAccessLogEntriesResponse)(nil),     // 12: chalk.server.v1.StreamSearchAccessLogEntriesResponse
+	(*SearchLogEntriesAggregatedRequest)(nil),        // 13: chalk.server.v1.SearchLogEntriesAggregatedRequest
+	(*SearchLogEntriesAggregatedResponse)(nil),       // 14: chalk.server.v1.SearchLogEntriesAggregatedResponse
+	(*GetLogFacetsRequest)(nil),                      // 15: chalk.server.v1.GetLogFacetsRequest
+	(*LogFacet)(nil),                                 // 16: chalk.server.v1.LogFacet
+	(*GetLogFacetsResponse)(nil),                     // 17: chalk.server.v1.GetLogFacetsResponse
+	(*GetLogFacetValuesRequest)(nil),                 // 18: chalk.server.v1.GetLogFacetValuesRequest
+	(*LogFacetValue)(nil),                            // 19: chalk.server.v1.LogFacetValue
+	(*GetLogFacetValuesResponse)(nil),                // 20: chalk.server.v1.GetLogFacetValuesResponse
+	(*SearchAccessLogEntriesAggregatedRequest)(nil),  // 21: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
+	(*SearchAccessLogEntriesAggregatedResponse)(nil), // 22: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
+	(*GetAccessLogFacetsRequest)(nil),                // 23: chalk.server.v1.GetAccessLogFacetsRequest
+	(*GetAccessLogFacetsResponse)(nil),               // 24: chalk.server.v1.GetAccessLogFacetsResponse
+	(*GetAccessLogFacetValuesRequest)(nil),           // 25: chalk.server.v1.GetAccessLogFacetValuesRequest
+	(*GetAccessLogFacetValuesResponse)(nil),          // 26: chalk.server.v1.GetAccessLogFacetValuesResponse
+	nil,                                              // 27: chalk.server.v1.LogEntry.LabelsEntry
+	nil,                                              // 28: chalk.server.v1.AccessLogEntry.AttributesEntry
+	(*timestamppb.Timestamp)(nil),                    // 29: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                      // 30: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),                  // 31: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_log_proto_depIdxs = []int32{
-	25, // 0: chalk.server.v1.LogEntry.timestamp:type_name -> google.protobuf.Timestamp
-	23, // 1: chalk.server.v1.LogEntry.labels:type_name -> chalk.server.v1.LogEntry.LabelsEntry
-	25, // 2: chalk.server.v1.AccessLogEntry.timestamp:type_name -> google.protobuf.Timestamp
-	25, // 3: chalk.server.v1.AccessLogEntry.start_time:type_name -> google.protobuf.Timestamp
-	24, // 4: chalk.server.v1.AccessLogEntry.attributes:type_name -> chalk.server.v1.AccessLogEntry.AttributesEntry
+	29, // 0: chalk.server.v1.LogEntry.timestamp:type_name -> google.protobuf.Timestamp
+	27, // 1: chalk.server.v1.LogEntry.labels:type_name -> chalk.server.v1.LogEntry.LabelsEntry
+	29, // 2: chalk.server.v1.AccessLogEntry.timestamp:type_name -> google.protobuf.Timestamp
+	29, // 3: chalk.server.v1.AccessLogEntry.start_time:type_name -> google.protobuf.Timestamp
+	28, // 4: chalk.server.v1.AccessLogEntry.attributes:type_name -> chalk.server.v1.AccessLogEntry.AttributesEntry
 	3,  // 5: chalk.server.v1.SearchLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
-	25, // 6: chalk.server.v1.SearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 7: chalk.server.v1.SearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	29, // 6: chalk.server.v1.SearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 7: chalk.server.v1.SearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	1,  // 8: chalk.server.v1.SearchLogEntriesResponse.log_entries:type_name -> chalk.server.v1.LogEntry
 	3,  // 9: chalk.server.v1.SearchLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
 	4,  // 10: chalk.server.v1.SearchAccessLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
-	25, // 11: chalk.server.v1.SearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 12: chalk.server.v1.SearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	29, // 11: chalk.server.v1.SearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 12: chalk.server.v1.SearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
 	2,  // 13: chalk.server.v1.SearchAccessLogEntriesResponse.access_log_entries:type_name -> chalk.server.v1.AccessLogEntry
 	4,  // 14: chalk.server.v1.SearchAccessLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
-	25, // 15: chalk.server.v1.SearchLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 16: chalk.server.v1.SearchLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	26, // 17: chalk.server.v1.SearchLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	27, // 18: chalk.server.v1.SearchLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	0,  // 19: chalk.server.v1.LogFacet.facet_type:type_name -> chalk.server.v1.LogFacetType
-	12, // 20: chalk.server.v1.GetLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
-	25, // 21: chalk.server.v1.GetLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 22: chalk.server.v1.GetLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	15, // 23: chalk.server.v1.GetLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
-	25, // 24: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 25: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	26, // 26: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	27, // 27: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	12, // 28: chalk.server.v1.GetAccessLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
-	25, // 29: chalk.server.v1.GetAccessLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	25, // 30: chalk.server.v1.GetAccessLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	15, // 31: chalk.server.v1.GetAccessLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
-	5,  // 32: chalk.server.v1.LogSearchService.SearchLogEntries:input_type -> chalk.server.v1.SearchLogEntriesRequest
-	9,  // 33: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:input_type -> chalk.server.v1.SearchLogEntriesAggregatedRequest
-	11, // 34: chalk.server.v1.LogSearchService.GetLogFacets:input_type -> chalk.server.v1.GetLogFacetsRequest
-	14, // 35: chalk.server.v1.LogSearchService.GetLogFacetValues:input_type -> chalk.server.v1.GetLogFacetValuesRequest
-	7,  // 36: chalk.server.v1.LogSearchService.SearchAccessLogEntries:input_type -> chalk.server.v1.SearchAccessLogEntriesRequest
-	17, // 37: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:input_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
-	19, // 38: chalk.server.v1.LogSearchService.GetAccessLogFacets:input_type -> chalk.server.v1.GetAccessLogFacetsRequest
-	21, // 39: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:input_type -> chalk.server.v1.GetAccessLogFacetValuesRequest
-	6,  // 40: chalk.server.v1.LogSearchService.SearchLogEntries:output_type -> chalk.server.v1.SearchLogEntriesResponse
-	10, // 41: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:output_type -> chalk.server.v1.SearchLogEntriesAggregatedResponse
-	13, // 42: chalk.server.v1.LogSearchService.GetLogFacets:output_type -> chalk.server.v1.GetLogFacetsResponse
-	16, // 43: chalk.server.v1.LogSearchService.GetLogFacetValues:output_type -> chalk.server.v1.GetLogFacetValuesResponse
-	8,  // 44: chalk.server.v1.LogSearchService.SearchAccessLogEntries:output_type -> chalk.server.v1.SearchAccessLogEntriesResponse
-	18, // 45: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:output_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
-	20, // 46: chalk.server.v1.LogSearchService.GetAccessLogFacets:output_type -> chalk.server.v1.GetAccessLogFacetsResponse
-	22, // 47: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:output_type -> chalk.server.v1.GetAccessLogFacetValuesResponse
-	40, // [40:48] is the sub-list for method output_type
-	32, // [32:40] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	3,  // 15: chalk.server.v1.StreamSearchLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
+	29, // 16: chalk.server.v1.StreamSearchLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 17: chalk.server.v1.StreamSearchLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	1,  // 18: chalk.server.v1.StreamSearchLogEntriesResponse.log_entries:type_name -> chalk.server.v1.LogEntry
+	3,  // 19: chalk.server.v1.StreamSearchLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchLogEntriesPageToken
+	4,  // 20: chalk.server.v1.StreamSearchAccessLogEntriesRequest.page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
+	29, // 21: chalk.server.v1.StreamSearchAccessLogEntriesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 22: chalk.server.v1.StreamSearchAccessLogEntriesRequest.end_time:type_name -> google.protobuf.Timestamp
+	2,  // 23: chalk.server.v1.StreamSearchAccessLogEntriesResponse.access_log_entries:type_name -> chalk.server.v1.AccessLogEntry
+	4,  // 24: chalk.server.v1.StreamSearchAccessLogEntriesResponse.next_page_token:type_name -> chalk.server.v1.SearchAccessLogEntriesPageToken
+	29, // 25: chalk.server.v1.SearchLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 26: chalk.server.v1.SearchLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	30, // 27: chalk.server.v1.SearchLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	31, // 28: chalk.server.v1.SearchLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	0,  // 29: chalk.server.v1.LogFacet.facet_type:type_name -> chalk.server.v1.LogFacetType
+	16, // 30: chalk.server.v1.GetLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
+	29, // 31: chalk.server.v1.GetLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 32: chalk.server.v1.GetLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	19, // 33: chalk.server.v1.GetLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
+	29, // 34: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 35: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	30, // 36: chalk.server.v1.SearchAccessLogEntriesAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	31, // 37: chalk.server.v1.SearchAccessLogEntriesAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	16, // 38: chalk.server.v1.GetAccessLogFacetsResponse.facets:type_name -> chalk.server.v1.LogFacet
+	29, // 39: chalk.server.v1.GetAccessLogFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	29, // 40: chalk.server.v1.GetAccessLogFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	19, // 41: chalk.server.v1.GetAccessLogFacetValuesResponse.values:type_name -> chalk.server.v1.LogFacetValue
+	5,  // 42: chalk.server.v1.LogSearchService.SearchLogEntries:input_type -> chalk.server.v1.SearchLogEntriesRequest
+	9,  // 43: chalk.server.v1.LogSearchService.StreamSearchLogEntries:input_type -> chalk.server.v1.StreamSearchLogEntriesRequest
+	13, // 44: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:input_type -> chalk.server.v1.SearchLogEntriesAggregatedRequest
+	15, // 45: chalk.server.v1.LogSearchService.GetLogFacets:input_type -> chalk.server.v1.GetLogFacetsRequest
+	18, // 46: chalk.server.v1.LogSearchService.GetLogFacetValues:input_type -> chalk.server.v1.GetLogFacetValuesRequest
+	7,  // 47: chalk.server.v1.LogSearchService.SearchAccessLogEntries:input_type -> chalk.server.v1.SearchAccessLogEntriesRequest
+	11, // 48: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:input_type -> chalk.server.v1.StreamSearchAccessLogEntriesRequest
+	21, // 49: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:input_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedRequest
+	23, // 50: chalk.server.v1.LogSearchService.GetAccessLogFacets:input_type -> chalk.server.v1.GetAccessLogFacetsRequest
+	25, // 51: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:input_type -> chalk.server.v1.GetAccessLogFacetValuesRequest
+	6,  // 52: chalk.server.v1.LogSearchService.SearchLogEntries:output_type -> chalk.server.v1.SearchLogEntriesResponse
+	10, // 53: chalk.server.v1.LogSearchService.StreamSearchLogEntries:output_type -> chalk.server.v1.StreamSearchLogEntriesResponse
+	14, // 54: chalk.server.v1.LogSearchService.SearchLogEntriesAggregated:output_type -> chalk.server.v1.SearchLogEntriesAggregatedResponse
+	17, // 55: chalk.server.v1.LogSearchService.GetLogFacets:output_type -> chalk.server.v1.GetLogFacetsResponse
+	20, // 56: chalk.server.v1.LogSearchService.GetLogFacetValues:output_type -> chalk.server.v1.GetLogFacetValuesResponse
+	8,  // 57: chalk.server.v1.LogSearchService.SearchAccessLogEntries:output_type -> chalk.server.v1.SearchAccessLogEntriesResponse
+	12, // 58: chalk.server.v1.LogSearchService.StreamSearchAccessLogEntries:output_type -> chalk.server.v1.StreamSearchAccessLogEntriesResponse
+	22, // 59: chalk.server.v1.LogSearchService.SearchAccessLogEntriesAggregated:output_type -> chalk.server.v1.SearchAccessLogEntriesAggregatedResponse
+	24, // 60: chalk.server.v1.LogSearchService.GetAccessLogFacets:output_type -> chalk.server.v1.GetAccessLogFacetsResponse
+	26, // 61: chalk.server.v1.LogSearchService.GetAccessLogFacetValues:output_type -> chalk.server.v1.GetAccessLogFacetValuesResponse
+	52, // [52:62] is the sub-list for method output_type
+	42, // [42:52] is the sub-list for method input_type
+	42, // [42:42] is the sub-list for extension type_name
+	42, // [42:42] is the sub-list for extension extendee
+	0,  // [0:42] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_log_proto_init() }
@@ -1746,16 +2070,20 @@ func file_chalk_server_v1_log_proto_init() {
 	file_chalk_server_v1_log_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_server_v1_log_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_server_v1_log_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_log_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_log_proto_msgTypes[24].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_log_proto_rawDesc), len(file_chalk_server_v1_log_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   24,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

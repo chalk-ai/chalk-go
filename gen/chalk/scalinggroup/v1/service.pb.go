@@ -1147,7 +1147,7 @@ type UpdateScalingGroupStatusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Scaling group UUID (from deployment label chalk.ai/scaling-group)
 	ScalingGroupId string `protobuf:"bytes,1,opt,name=scaling_group_id,json=scalingGroupId,proto3" json:"scaling_group_id,omitempty"`
-	// Phase: Pending, Available, Degraded, ScaledToZero, Unknown
+	// Phase: Pending, Available, Degraded, ScaledToZero, Unknown, Error.
 	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	// Optional status message with more details
 	StatusMessage *string `protobuf:"bytes,3,opt,name=status_message,json=statusMessage,proto3,oneof" json:"status_message,omitempty"`

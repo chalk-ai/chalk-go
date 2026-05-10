@@ -335,6 +335,7 @@ const (
 	FilterKind_FILTER_KIND_PARTITION_NAME      FilterKind = 21
 	FilterKind_FILTER_KIND_SCALING_GROUP       FilterKind = 22
 	FilterKind_FILTER_KIND_FUNCTION_NAME       FilterKind = 23
+	FilterKind_FILTER_KIND_SERVICE_KIND        FilterKind = 24
 )
 
 // Enum value maps for FilterKind.
@@ -364,6 +365,7 @@ var (
 		21: "FILTER_KIND_PARTITION_NAME",
 		22: "FILTER_KIND_SCALING_GROUP",
 		23: "FILTER_KIND_FUNCTION_NAME",
+		24: "FILTER_KIND_SERVICE_KIND",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":         0,
@@ -390,6 +392,7 @@ var (
 		"FILTER_KIND_PARTITION_NAME":      21,
 		"FILTER_KIND_SCALING_GROUP":       22,
 		"FILTER_KIND_FUNCTION_NAME":       23,
+		"FILTER_KIND_SERVICE_KIND":        24,
 	}
 )
 
@@ -573,6 +576,7 @@ const (
 	GroupByKind_GROUP_BY_KIND_SUBSCRIPTION_NAME GroupByKind = 16
 	GroupByKind_GROUP_BY_KIND_PARTITION_NAME    GroupByKind = 17
 	GroupByKind_GROUP_BY_KIND_FUNCTION_NAME     GroupByKind = 18
+	GroupByKind_GROUP_BY_KIND_SERVICE_KIND      GroupByKind = 19
 )
 
 // Enum value maps for GroupByKind.
@@ -597,6 +601,7 @@ var (
 		16: "GROUP_BY_KIND_SUBSCRIPTION_NAME",
 		17: "GROUP_BY_KIND_PARTITION_NAME",
 		18: "GROUP_BY_KIND_FUNCTION_NAME",
+		19: "GROUP_BY_KIND_SERVICE_KIND",
 	}
 	GroupByKind_value = map[string]int32{
 		"GROUP_BY_KIND_UNSPECIFIED":       0,
@@ -618,6 +623,7 @@ var (
 		"GROUP_BY_KIND_SUBSCRIPTION_NAME": 16,
 		"GROUP_BY_KIND_PARTITION_NAME":    17,
 		"GROUP_BY_KIND_FUNCTION_NAME":     18,
+		"GROUP_BY_KIND_SERVICE_KIND":      19,
 	}
 )
 
@@ -1270,18 +1276,25 @@ func (x *MetricConfigSeries) GetTimeShift() *durationpb.Duration {
 }
 
 type MetricConfig struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	Name         string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	WindowPeriod string                 `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
-	Series       []*MetricConfigSeries  `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
-	Formulas     []*MetricFormula       `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
-	Trigger      *AlertTrigger          `protobuf:"bytes,5,opt,name=trigger,proto3" json:"trigger,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Lookback window evaluated by the alerting/monitor system. Not used for chart rendering.
+	// Encoded as a chalk duration string (e.g. "5m", "1h").
+	WindowPeriod string                `protobuf:"bytes,2,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
+	Series       []*MetricConfigSeries `protobuf:"bytes,3,rep,name=series,proto3" json:"series,omitempty"`
+	Formulas     []*MetricFormula      `protobuf:"bytes,4,rep,name=formulas,proto3" json:"formulas,omitempty"`
+	Trigger      *AlertTrigger         `protobuf:"bytes,5,opt,name=trigger,proto3" json:"trigger,omitempty"`
 	// If this is generated as part of their code source and not to be edited otherwise
 	GraphGenerated bool `protobuf:"varint,6,opt,name=graph_generated,json=graphGenerated,proto3" json:"graph_generated,omitempty"`
 	// important: different from chart id! standalone, referenced as "metric config id"
-	Id            string `protobuf:"bytes,7,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Id string `protobuf:"bytes,7,opt,name=id,proto3" json:"id,omitempty"`
+	// Bucket size used when rendering this metric as a chart in the UI. When unset, the
+	// frontend selects a sensible default based on the requested time range. Independent
+	// of `window_period`, which is alert-only. Encoded as a chalk duration string (e.g.
+	// "5m", "1h").
+	DisplayWindowPeriod *string `protobuf:"bytes,8,opt,name=display_window_period,json=displayWindowPeriod,proto3,oneof" json:"display_window_period,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *MetricConfig) Reset() {
@@ -1363,6 +1376,13 @@ func (x *MetricConfig) GetId() string {
 	return ""
 }
 
+func (x *MetricConfig) GetDisplayWindowPeriod() string {
+	if x != nil && x.DisplayWindowPeriod != nil {
+		return *x.DisplayWindowPeriod
+	}
+	return ""
+}
+
 type Chart struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1371,8 +1391,12 @@ type Chart struct {
 	EntityId   *string                `protobuf:"bytes,4,opt,name=entity_id,json=entityId,proto3,oneof" json:"entity_id,omitempty"`
 	// If this is generated as part of their code source and not to be edited otherwise
 	GraphGenerated bool `protobuf:"varint,5,opt,name=graph_generated,json=graphGenerated,proto3" json:"graph_generated,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// True if this chart has not yet been persisted to the database.
+	// Virtual charts are computed on the fly by ListCharts when no DB-backed charts exist
+	// for the given entity. Saving a virtual chart creates it (and any siblings) via CreateChart.
+	IsVirtual     bool `protobuf:"varint,6,opt,name=is_virtual,json=isVirtual,proto3" json:"is_virtual,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Chart) Reset() {
@@ -1440,6 +1464,13 @@ func (x *Chart) GetGraphGenerated() bool {
 	return false
 }
 
+func (x *Chart) GetIsVirtual() bool {
+	if x != nil {
+		return x.IsVirtual
+	}
+	return false
+}
+
 var File_chalk_artifacts_v1_chart_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
@@ -1483,7 +1514,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"time_shift\x18\x06 \x01(\v2\x19.google.protobuf.DurationH\x01R\ttimeShift\x88\x01\x01B\a\n" +
 	"\x05_nameB\r\n" +
-	"\v_time_shift\"\xbb\x02\n" +
+	"\v_time_shift\"\x8e\x03\n" +
 	"\fMetricConfig\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rwindow_period\x18\x02 \x01(\tR\fwindowPeriod\x12>\n" +
@@ -1491,14 +1522,18 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\bformulas\x18\x04 \x03(\v2!.chalk.artifacts.v1.MetricFormulaR\bformulas\x12:\n" +
 	"\atrigger\x18\x05 \x01(\v2 .chalk.artifacts.v1.AlertTriggerR\atrigger\x12'\n" +
 	"\x0fgraph_generated\x18\x06 \x01(\bR\x0egraphGenerated\x12\x0e\n" +
-	"\x02id\x18\a \x01(\tR\x02id\"\xee\x01\n" +
+	"\x02id\x18\a \x01(\tR\x02id\x127\n" +
+	"\x15display_window_period\x18\b \x01(\tH\x00R\x13displayWindowPeriod\x88\x01\x01B\x18\n" +
+	"\x16_display_window_period\"\x8d\x02\n" +
 	"\x05Chart\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x128\n" +
 	"\x06config\x18\x02 \x01(\v2 .chalk.artifacts.v1.MetricConfigR\x06config\x12B\n" +
 	"\ventity_kind\x18\x03 \x01(\x0e2!.chalk.artifacts.v1.ChartLinkKindR\n" +
 	"entityKind\x12 \n" +
 	"\tentity_id\x18\x04 \x01(\tH\x00R\bentityId\x88\x01\x01\x12'\n" +
-	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGeneratedB\f\n" +
+	"\x0fgraph_generated\x18\x05 \x01(\bR\x0egraphGenerated\x12\x1d\n" +
+	"\n" +
+	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
 	"_entity_id*\x80\x19\n" +
 	"\n" +
@@ -1585,7 +1620,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"%METRIC_KIND_FUNCTION_CALL_QUEUE_DEPTH\x10N\x12&\n" +
 	"\"METRIC_KIND_FUNCTION_CALL_INFLIGHT\x10O\x12*\n" +
 	"&METRIC_KIND_POD_CONTAINER_MEMORY_BYTES\x10P\x12-\n" +
-	")METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION\x10Q*\xe5\x05\n" +
+	")METRIC_KIND_POD_CONTAINER_CPU_UTILIZATION\x10Q*\x83\x06\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -1612,7 +1647,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x1dFILTER_KIND_SUBSCRIPTION_NAME\x10\x14\x12\x1e\n" +
 	"\x1aFILTER_KIND_PARTITION_NAME\x10\x15\x12\x1d\n" +
 	"\x19FILTER_KIND_SCALING_GROUP\x10\x16\x12\x1d\n" +
-	"\x19FILTER_KIND_FUNCTION_NAME\x10\x17*~\n" +
+	"\x19FILTER_KIND_FUNCTION_NAME\x10\x17\x12\x1c\n" +
+	"\x18FILTER_KIND_SERVICE_KIND\x10\x18*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
@@ -1632,7 +1668,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\"WINDOW_FUNCTION_KIND_PERCENTILE_25\x10\n" +
 	"\x12%\n" +
 	"!WINDOW_FUNCTION_KIND_PERCENTILE_5\x10\v\x12(\n" +
-	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\xed\x04\n" +
+	"$WINDOW_FUNCTION_KIND_ALL_PERCENTILES\x10\f*\x8d\x05\n" +
 	"\vGroupByKind\x12\x1d\n" +
 	"\x19GROUP_BY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cGROUP_BY_KIND_FEATURE_STATUS\x10\x01\x12\x1e\n" +
@@ -1653,7 +1689,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x18GROUP_BY_KIND_TOPIC_NAME\x10\x0f\x12#\n" +
 	"\x1fGROUP_BY_KIND_SUBSCRIPTION_NAME\x10\x10\x12 \n" +
 	"\x1cGROUP_BY_KIND_PARTITION_NAME\x10\x11\x12\x1f\n" +
-	"\x1bGROUP_BY_KIND_FUNCTION_NAME\x10\x12*\x81\x03\n" +
+	"\x1bGROUP_BY_KIND_FUNCTION_NAME\x10\x12\x12\x1e\n" +
+	"\x1aGROUP_BY_KIND_SERVICE_KIND\x10\x13*\x81\x03\n" +
 	"\x11MetricFormulaKind\x12#\n" +
 	"\x1fMETRIC_FORMULA_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17METRIC_FORMULA_KIND_SUM\x10\x01\x12#\n" +
@@ -1757,6 +1794,7 @@ func file_chalk_artifacts_v1_chart_proto_init() {
 	file_chalk_artifacts_v1_chart_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_artifacts_v1_chart_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_artifacts_v1_chart_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

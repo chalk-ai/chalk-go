@@ -5275,6 +5275,7 @@ type SQLResolverSettings struct {
 	FieldsRootFqn         map[string]string      `protobuf:"bytes,3,rep,name=fields_root_fqn,json=fieldsRootFqn,proto3" json:"fields_root_fqn,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	EscapedParamNameToFqn map[string]string      `protobuf:"bytes,4,rep,name=escaped_param_name_to_fqn,json=escapedParamNameToFqn,proto3" json:"escaped_param_name_to_fqn,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	FieldTypes            map[string]string      `protobuf:"bytes,5,rep,name=field_types,json=fieldTypes,proto3" json:"field_types,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UseNativeSql          *bool                  `protobuf:"varint,6,opt,name=use_native_sql,json=useNativeSql,proto3,oneof" json:"use_native_sql,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -5342,6 +5343,13 @@ func (x *SQLResolverSettings) GetFieldTypes() map[string]string {
 		return x.FieldTypes
 	}
 	return nil
+}
+
+func (x *SQLResolverSettings) GetUseNativeSql() bool {
+	if x != nil && x.UseNativeSql != nil {
+		return *x.UseNativeSql
+	}
+	return false
 }
 
 type IncrementalSettings struct {
@@ -5430,6 +5438,7 @@ type SQLResolverCommentDict struct {
 	Fields        map[string]string      `protobuf:"bytes,14,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	UniqueOn      []string               `protobuf:"bytes,15,rep,name=unique_on,json=uniqueOn,proto3" json:"unique_on,omitempty"`
 	PartitionedBy []string               `protobuf:"bytes,16,rep,name=partitioned_by,json=partitionedBy,proto3" json:"partitioned_by,omitempty"`
+	UseNativeSql  *bool                  `protobuf:"varint,17,opt,name=use_native_sql,json=useNativeSql,proto3,oneof" json:"use_native_sql,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5574,6 +5583,13 @@ func (x *SQLResolverCommentDict) GetPartitionedBy() []string {
 		return x.PartitionedBy
 	}
 	return nil
+}
+
+func (x *SQLResolverCommentDict) GetUseNativeSql() bool {
+	if x != nil && x.UseNativeSql != nil {
+		return *x.UseNativeSql
+	}
+	return false
 }
 
 type SQLResolverInfo struct {
@@ -7095,14 +7111,15 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x05_code\"Y\n" +
 	"\tStreamKey\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
-	"\afeature\x18\x02 \x01(\v2 .chalk.graph.v1.FeatureReferenceR\afeature\"\xbf\x05\n" +
+	"\afeature\x18\x02 \x01(\v2 .chalk.graph.v1.FeatureReferenceR\afeature\"\xfd\x05\n" +
 	"\x13SQLResolverSettings\x127\n" +
 	"\tfinalizer\x18\x01 \x01(\x0e2\x19.chalk.graph.v1.FinalizerR\tfinalizer\x12[\n" +
 	"\x14incremental_settings\x18\x02 \x01(\v2#.chalk.graph.v1.IncrementalSettingsH\x00R\x13incrementalSettings\x88\x01\x01\x12^\n" +
 	"\x0ffields_root_fqn\x18\x03 \x03(\v26.chalk.graph.v1.SQLResolverSettings.FieldsRootFqnEntryR\rfieldsRootFqn\x12x\n" +
 	"\x19escaped_param_name_to_fqn\x18\x04 \x03(\v2>.chalk.graph.v1.SQLResolverSettings.EscapedParamNameToFqnEntryR\x15escapedParamNameToFqn\x12T\n" +
 	"\vfield_types\x18\x05 \x03(\v23.chalk.graph.v1.SQLResolverSettings.FieldTypesEntryR\n" +
-	"fieldTypes\x1a@\n" +
+	"fieldTypes\x12)\n" +
+	"\x0euse_native_sql\x18\x06 \x01(\bH\x01R\fuseNativeSql\x88\x01\x01\x1a@\n" +
 	"\x12FieldsRootFqnEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aH\n" +
@@ -7112,14 +7129,15 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x0fFieldTypesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x17\n" +
-	"\x15_incremental_settings\"\xc3\x02\n" +
+	"\x15_incremental_settingsB\x11\n" +
+	"\x0f_use_native_sql\"\xc3\x02\n" +
 	"\x13IncrementalSettings\x123\n" +
 	"\x04mode\x18\x01 \x01(\x0e2\x1f.chalk.graph.v1.IncrementalModeR\x04mode\x12G\n" +
 	"\x0flookback_period\x18\x02 \x01(\v2\x19.google.protobuf.DurationH\x00R\x0elookbackPeriod\x88\x01\x01\x122\n" +
 	"\x12incremental_column\x18\x03 \x01(\tH\x01R\x11incrementalColumn\x88\x01\x01\x12O\n" +
 	"\x0etimestamp_mode\x18\x04 \x01(\x0e2(.chalk.graph.v1.IncrementalTimestampModeR\rtimestampModeB\x12\n" +
 	"\x10_lookback_periodB\x15\n" +
-	"\x13_incremental_column\"\xc8\x06\n" +
+	"\x13_incremental_column\"\x86\a\n" +
 	"\x16SQLResolverCommentDict\x12\x19\n" +
 	"\x05total\x18\x01 \x01(\bH\x00R\x05total\x88\x01\x01\x12\x1b\n" +
 	"\x06source\x18\x02 \x01(\tH\x01R\x06source\x88\x01\x01\x12\x1f\n" +
@@ -7138,7 +7156,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"R\atimeout\x88\x01\x01\x12J\n" +
 	"\x06fields\x18\x0e \x03(\v22.chalk.graph.v1.SQLResolverCommentDict.FieldsEntryR\x06fields\x12\x1b\n" +
 	"\tunique_on\x18\x0f \x03(\tR\buniqueOn\x12%\n" +
-	"\x0epartitioned_by\x18\x10 \x03(\tR\rpartitionedBy\x1a9\n" +
+	"\x0epartitioned_by\x18\x10 \x03(\tR\rpartitionedBy\x12)\n" +
+	"\x0euse_native_sql\x18\x11 \x01(\bH\vR\fuseNativeSql\x88\x01\x01\x1a9\n" +
 	"\vFieldsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
@@ -7154,7 +7173,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x06_ownerB\a\n" +
 	"\x05_typeB\n" +
 	"\n" +
-	"\b_timeout\"\xed\x01\n" +
+	"\b_timeoutB\x11\n" +
+	"\x0f_use_native_sql\"\xed\x01\n" +
 	"\x0fSQLResolverInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1f\n" +
 	"\bfilepath\x18\x02 \x01(\tH\x00R\bfilepath\x88\x01\x01\x12\x1d\n" +

@@ -900,6 +900,7 @@ type RebuildDeploymentRequest struct {
 	EnableProfiling        bool                    `protobuf:"varint,4,opt,name=enable_profiling,json=enableProfiling,proto3" json:"enable_profiling,omitempty"` // use build_profile instead
 	BuildProfile           *DeploymentBuildProfile `protobuf:"varint,5,opt,name=build_profile,json=buildProfile,proto3,enum=chalk.server.v1.DeploymentBuildProfile,oneof" json:"build_profile,omitempty"`
 	ForceRebuildDockerfile bool                    `protobuf:"varint,6,opt,name=force_rebuild_dockerfile,json=forceRebuildDockerfile,proto3" json:"force_rebuild_dockerfile,omitempty"`
+	BranchName             *string                 `protobuf:"bytes,7,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"` // will use latest deployment of this branch
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -975,6 +976,13 @@ func (x *RebuildDeploymentRequest) GetForceRebuildDockerfile() bool {
 		return x.ForceRebuildDockerfile
 	}
 	return false
+}
+
+func (x *RebuildDeploymentRequest) GetBranchName() string {
+	if x != nil && x.BranchName != nil {
+		return *x.BranchName
+	}
+	return ""
 }
 
 type RebuildDeploymentResponse struct {
@@ -1837,11 +1845,17 @@ func (x *DeploymentBuildStep) GetEndTime() *timestamppb.Timestamp {
 }
 
 type GetDeploymentStepsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Steps         []*DeploymentBuildStep `protobuf:"bytes,1,rep,name=steps,proto3" json:"steps,omitempty"`
-	Deployment    *Deployment            `protobuf:"bytes,2,opt,name=deployment,proto3" json:"deployment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Steps      []*DeploymentBuildStep `protobuf:"bytes,1,rep,name=steps,proto3" json:"steps,omitempty"`
+	Deployment *Deployment            `protobuf:"bytes,2,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	// Signed HTTPS URL to a Chrome-trace JSON document that visualizes the
+	// overall workflow timeline plus, when buildkit was used, the per-Dockerfile-RUN
+	// sub-track. Drag-drop into https://ui.perfetto.dev. Empty when the trace
+	// wasn't produced (older builds, kaniko path, or trace upload failed). The
+	// URL is short-lived (typically 24h from build creation).
+	PerfettoTraceUrl string `protobuf:"bytes,3,opt,name=perfetto_trace_url,json=perfettoTraceUrl,proto3" json:"perfetto_trace_url,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GetDeploymentStepsResponse) Reset() {
@@ -1886,6 +1900,13 @@ func (x *GetDeploymentStepsResponse) GetDeployment() *Deployment {
 		return x.Deployment
 	}
 	return nil
+}
+
+func (x *GetDeploymentStepsResponse) GetPerfettoTraceUrl() string {
+	if x != nil {
+		return x.PerfettoTraceUrl
+	}
+	return ""
 }
 
 type GetDeploymentLogsRequest struct {
@@ -11001,16 +11022,19 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12C\n" +
 	"\atargets\x18\x02 \x03(\v2).chalk.server.v1.ActivateDeploymentTargetR\atargets\"G\n" +
 	"\x1cDeployKubeComponentsResponse\x12'\n" +
-	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\x8f\x03\n" +
+	"\x0fnonfatal_errors\x18\x01 \x03(\tR\x0enonfatalErrors\"\xc5\x03\n" +
 	"\x18RebuildDeploymentRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12\"\n" +
 	"\rnew_image_tag\x18\x02 \x01(\tR\vnewImageTag\x123\n" +
 	"\x13base_image_override\x18\x03 \x01(\tH\x00R\x11baseImageOverride\x88\x01\x01\x12-\n" +
 	"\x10enable_profiling\x18\x04 \x01(\bB\x02\x18\x01R\x0fenableProfiling\x12Q\n" +
 	"\rbuild_profile\x18\x05 \x01(\x0e2'.chalk.server.v1.DeploymentBuildProfileH\x01R\fbuildProfile\x88\x01\x01\x128\n" +
-	"\x18force_rebuild_dockerfile\x18\x06 \x01(\bR\x16forceRebuildDockerfileB\x16\n" +
+	"\x18force_rebuild_dockerfile\x18\x06 \x01(\bR\x16forceRebuildDockerfile\x12$\n" +
+	"\vbranch_name\x18\a \x01(\tH\x02R\n" +
+	"branchName\x88\x01\x01B\x16\n" +
 	"\x14_base_image_overrideB\x10\n" +
-	"\x0e_build_profile\"6\n" +
+	"\x0e_build_profileB\x0e\n" +
+	"\f_branch_name\"6\n" +
 	"\x19RebuildDeploymentResponse\x12\x19\n" +
 	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\xb6\x06\n" +
 	"\x19RedeployDeploymentRequest\x124\n" +
@@ -11108,12 +11132,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x06status\x18\x03 \x01(\x0e2&.chalk.server.v1.DeploymentBuildStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\x95\x01\n" +
+	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\xc3\x01\n" +
 	"\x1aGetDeploymentStepsResponse\x12:\n" +
 	"\x05steps\x18\x01 \x03(\v2$.chalk.server.v1.DeploymentBuildStepR\x05steps\x12;\n" +
 	"\n" +
 	"deployment\x18\x02 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +
-	"deployment\"?\n" +
+	"deployment\x12,\n" +
+	"\x12perfetto_trace_url\x18\x03 \x01(\tR\x10perfettoTraceUrl\"?\n" +
 	"\x18GetDeploymentLogsRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"J\n" +
 	"\x19GetDeploymentLogsResponse\x12-\n" +
