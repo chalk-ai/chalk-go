@@ -8,7 +8,6 @@ package serverv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/volume/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -1327,308 +1326,6 @@ func (x *StreamDatasetRevisionDownloadLinksResponse) GetExpiration() *timestampp
 	return nil
 }
 
-// Request a signed upload URI for a single client-side file destined for a
-// dataset upload. Call once per file. The first call should leave
-// upload_session_id unset; the server mints one and returns it. Pass that same
-// upload_session_id back on subsequent calls and on FinalizeDatasetUpload to
-// associate all uploaded objects with the same revision.
-type GetDatasetUploadUrisRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Total size of the file in bytes.
-	ContentSize int64 `protobuf:"varint,1,opt,name=content_size,json=contentSize,proto3" json:"content_size,omitempty"`
-	// Optional content hash for integrity verification (e.g. SHA-256 hex).
-	Hash *string `protobuf:"bytes,2,opt,name=hash,proto3,oneof" json:"hash,omitempty"`
-	// Desired multipart part size in bytes. Server may adjust.
-	PartSize *int64 `protobuf:"varint,3,opt,name=part_size,json=partSize,proto3,oneof" json:"part_size,omitempty"`
-	// If set, attaches this upload to the given session created by a prior call.
-	// If unset, the server mints and returns a new session id.
-	UploadSessionId *string `protobuf:"bytes,4,opt,name=upload_session_id,json=uploadSessionId,proto3,oneof" json:"upload_session_id,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *GetDatasetUploadUrisRequest) Reset() {
-	*x = GetDatasetUploadUrisRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDatasetUploadUrisRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDatasetUploadUrisRequest) ProtoMessage() {}
-
-func (x *GetDatasetUploadUrisRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDatasetUploadUrisRequest.ProtoReflect.Descriptor instead.
-func (*GetDatasetUploadUrisRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *GetDatasetUploadUrisRequest) GetContentSize() int64 {
-	if x != nil {
-		return x.ContentSize
-	}
-	return 0
-}
-
-func (x *GetDatasetUploadUrisRequest) GetHash() string {
-	if x != nil && x.Hash != nil {
-		return *x.Hash
-	}
-	return ""
-}
-
-func (x *GetDatasetUploadUrisRequest) GetPartSize() int64 {
-	if x != nil && x.PartSize != nil {
-		return *x.PartSize
-	}
-	return 0
-}
-
-func (x *GetDatasetUploadUrisRequest) GetUploadSessionId() string {
-	if x != nil && x.UploadSessionId != nil {
-		return *x.UploadSessionId
-	}
-	return ""
-}
-
-type GetDatasetUploadUrisResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Session id grouping uploads together. Pass this on subsequent
-	// GetDatasetUploadUris calls and on FinalizeDatasetUpload.
-	UploadSessionId string `protobuf:"bytes,1,opt,name=upload_session_id,json=uploadSessionId,proto3" json:"upload_session_id,omitempty"`
-	// Identifier the server uses to track this object once upload completes.
-	// The client should not need to send this back; the server already knows it
-	// belongs to upload_session_id.
-	StorageObjectId string `protobuf:"bytes,2,opt,name=storage_object_id,json=storageObjectId,proto3" json:"storage_object_id,omitempty"`
-	// Object-store-specific upload mechanism. The chosen variant depends on the
-	// environment's offline-store backend (S3, GCS, or Azure).
-	//
-	// Types that are valid to be assigned to Upload:
-	//
-	//	*GetDatasetUploadUrisResponse_Multipart
-	//	*GetDatasetUploadUrisResponse_Resumable
-	//	*GetDatasetUploadUrisResponse_AzureBlock
-	Upload        isGetDatasetUploadUrisResponse_Upload `protobuf_oneof:"upload"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDatasetUploadUrisResponse) Reset() {
-	*x = GetDatasetUploadUrisResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDatasetUploadUrisResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDatasetUploadUrisResponse) ProtoMessage() {}
-
-func (x *GetDatasetUploadUrisResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDatasetUploadUrisResponse.ProtoReflect.Descriptor instead.
-func (*GetDatasetUploadUrisResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *GetDatasetUploadUrisResponse) GetUploadSessionId() string {
-	if x != nil {
-		return x.UploadSessionId
-	}
-	return ""
-}
-
-func (x *GetDatasetUploadUrisResponse) GetStorageObjectId() string {
-	if x != nil {
-		return x.StorageObjectId
-	}
-	return ""
-}
-
-func (x *GetDatasetUploadUrisResponse) GetUpload() isGetDatasetUploadUrisResponse_Upload {
-	if x != nil {
-		return x.Upload
-	}
-	return nil
-}
-
-func (x *GetDatasetUploadUrisResponse) GetMultipart() *v1.MultipartUpload {
-	if x != nil {
-		if x, ok := x.Upload.(*GetDatasetUploadUrisResponse_Multipart); ok {
-			return x.Multipart
-		}
-	}
-	return nil
-}
-
-func (x *GetDatasetUploadUrisResponse) GetResumable() *v1.ResumableUpload {
-	if x != nil {
-		if x, ok := x.Upload.(*GetDatasetUploadUrisResponse_Resumable); ok {
-			return x.Resumable
-		}
-	}
-	return nil
-}
-
-func (x *GetDatasetUploadUrisResponse) GetAzureBlock() *v1.AzureBlockUpload {
-	if x != nil {
-		if x, ok := x.Upload.(*GetDatasetUploadUrisResponse_AzureBlock); ok {
-			return x.AzureBlock
-		}
-	}
-	return nil
-}
-
-type isGetDatasetUploadUrisResponse_Upload interface {
-	isGetDatasetUploadUrisResponse_Upload()
-}
-
-type GetDatasetUploadUrisResponse_Multipart struct {
-	Multipart *v1.MultipartUpload `protobuf:"bytes,3,opt,name=multipart,proto3,oneof"`
-}
-
-type GetDatasetUploadUrisResponse_Resumable struct {
-	Resumable *v1.ResumableUpload `protobuf:"bytes,4,opt,name=resumable,proto3,oneof"`
-}
-
-type GetDatasetUploadUrisResponse_AzureBlock struct {
-	AzureBlock *v1.AzureBlockUpload `protobuf:"bytes,5,opt,name=azure_block,json=azureBlock,proto3,oneof"`
-}
-
-func (*GetDatasetUploadUrisResponse_Multipart) isGetDatasetUploadUrisResponse_Upload() {}
-
-func (*GetDatasetUploadUrisResponse_Resumable) isGetDatasetUploadUrisResponse_Upload() {}
-
-func (*GetDatasetUploadUrisResponse_AzureBlock) isGetDatasetUploadUrisResponse_Upload() {}
-
-// Finalize a dataset upload session. The server records a new dataset revision
-// pointing at all storage objects uploaded under upload_session_id, under a
-// dataset named dataset_name. If a dataset with that name already exists, a
-// new revision is appended; otherwise a new dataset is created. After this
-// call returns successfully, the dataset is queryable via the usual dataset
-// APIs.
-type FinalizeDatasetUploadRequest struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	UploadSessionId string                 `protobuf:"bytes,1,opt,name=upload_session_id,json=uploadSessionId,proto3" json:"upload_session_id,omitempty"`
-	DatasetName     string                 `protobuf:"bytes,2,opt,name=dataset_name,json=datasetName,proto3" json:"dataset_name,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *FinalizeDatasetUploadRequest) Reset() {
-	*x = FinalizeDatasetUploadRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FinalizeDatasetUploadRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FinalizeDatasetUploadRequest) ProtoMessage() {}
-
-func (x *FinalizeDatasetUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FinalizeDatasetUploadRequest.ProtoReflect.Descriptor instead.
-func (*FinalizeDatasetUploadRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *FinalizeDatasetUploadRequest) GetUploadSessionId() string {
-	if x != nil {
-		return x.UploadSessionId
-	}
-	return ""
-}
-
-func (x *FinalizeDatasetUploadRequest) GetDatasetName() string {
-	if x != nil {
-		return x.DatasetName
-	}
-	return ""
-}
-
-type FinalizeDatasetUploadResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Dataset       *DatasetMeta           `protobuf:"bytes,1,opt,name=dataset,proto3" json:"dataset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *FinalizeDatasetUploadResponse) Reset() {
-	*x = FinalizeDatasetUploadResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FinalizeDatasetUploadResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FinalizeDatasetUploadResponse) ProtoMessage() {}
-
-func (x *FinalizeDatasetUploadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FinalizeDatasetUploadResponse.ProtoReflect.Descriptor instead.
-func (*FinalizeDatasetUploadResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *FinalizeDatasetUploadResponse) GetDataset() *DatasetMeta {
-	if x != nil {
-		return x.Dataset
-	}
-	return nil
-}
-
 type RenameDatasetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DatasetId     string                 `protobuf:"bytes,1,opt,name=dataset_id,json=datasetId,proto3" json:"dataset_id,omitempty"`
@@ -1639,7 +1336,7 @@ type RenameDatasetRequest struct {
 
 func (x *RenameDatasetRequest) Reset() {
 	*x = RenameDatasetRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1651,7 +1348,7 @@ func (x *RenameDatasetRequest) String() string {
 func (*RenameDatasetRequest) ProtoMessage() {}
 
 func (x *RenameDatasetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1664,7 +1361,7 @@ func (x *RenameDatasetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameDatasetRequest.ProtoReflect.Descriptor instead.
 func (*RenameDatasetRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RenameDatasetRequest) GetDatasetId() string {
@@ -1690,7 +1387,7 @@ type RenameDatasetResponse struct {
 
 func (x *RenameDatasetResponse) Reset() {
 	*x = RenameDatasetResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1702,7 +1399,7 @@ func (x *RenameDatasetResponse) String() string {
 func (*RenameDatasetResponse) ProtoMessage() {}
 
 func (x *RenameDatasetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1715,7 +1412,7 @@ func (x *RenameDatasetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameDatasetResponse.ProtoReflect.Descriptor instead.
 func (*RenameDatasetResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RenameDatasetResponse) GetDataset() *DatasetMeta {
@@ -1734,7 +1431,7 @@ type ArchiveDatasetRevisionRequest struct {
 
 func (x *ArchiveDatasetRevisionRequest) Reset() {
 	*x = ArchiveDatasetRevisionRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1746,7 +1443,7 @@ func (x *ArchiveDatasetRevisionRequest) String() string {
 func (*ArchiveDatasetRevisionRequest) ProtoMessage() {}
 
 func (x *ArchiveDatasetRevisionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1759,7 +1456,7 @@ func (x *ArchiveDatasetRevisionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveDatasetRevisionRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveDatasetRevisionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ArchiveDatasetRevisionRequest) GetRevisionId() string {
@@ -1778,7 +1475,7 @@ type ArchiveDatasetRevisionResponse struct {
 
 func (x *ArchiveDatasetRevisionResponse) Reset() {
 	*x = ArchiveDatasetRevisionResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1790,7 +1487,7 @@ func (x *ArchiveDatasetRevisionResponse) String() string {
 func (*ArchiveDatasetRevisionResponse) ProtoMessage() {}
 
 func (x *ArchiveDatasetRevisionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1803,7 +1500,7 @@ func (x *ArchiveDatasetRevisionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveDatasetRevisionResponse.ProtoReflect.Descriptor instead.
 func (*ArchiveDatasetRevisionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ArchiveDatasetRevisionResponse) GetRevision() *DatasetRevisionMeta {
@@ -1822,7 +1519,7 @@ type ArchiveDatasetRevisionsRequest struct {
 
 func (x *ArchiveDatasetRevisionsRequest) Reset() {
 	*x = ArchiveDatasetRevisionsRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1834,7 +1531,7 @@ func (x *ArchiveDatasetRevisionsRequest) String() string {
 func (*ArchiveDatasetRevisionsRequest) ProtoMessage() {}
 
 func (x *ArchiveDatasetRevisionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1847,7 +1544,7 @@ func (x *ArchiveDatasetRevisionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveDatasetRevisionsRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveDatasetRevisionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ArchiveDatasetRevisionsRequest) GetRevisionIds() []string {
@@ -1866,7 +1563,7 @@ type ArchiveDatasetRevisionsResponse struct {
 
 func (x *ArchiveDatasetRevisionsResponse) Reset() {
 	*x = ArchiveDatasetRevisionsResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1878,7 +1575,7 @@ func (x *ArchiveDatasetRevisionsResponse) String() string {
 func (*ArchiveDatasetRevisionsResponse) ProtoMessage() {}
 
 func (x *ArchiveDatasetRevisionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1891,7 +1588,7 @@ func (x *ArchiveDatasetRevisionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveDatasetRevisionsResponse.ProtoReflect.Descriptor instead.
 func (*ArchiveDatasetRevisionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ArchiveDatasetRevisionsResponse) GetArchivedRevisions() []*DatasetRevisionMeta {
@@ -1910,7 +1607,7 @@ type DeleteDatasetRequest struct {
 
 func (x *DeleteDatasetRequest) Reset() {
 	*x = DeleteDatasetRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1922,7 +1619,7 @@ func (x *DeleteDatasetRequest) String() string {
 func (*DeleteDatasetRequest) ProtoMessage() {}
 
 func (x *DeleteDatasetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1935,7 +1632,7 @@ func (x *DeleteDatasetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDatasetRequest.ProtoReflect.Descriptor instead.
 func (*DeleteDatasetRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *DeleteDatasetRequest) GetDatasetId() string {
@@ -1954,7 +1651,7 @@ type DeleteDatasetResponse struct {
 
 func (x *DeleteDatasetResponse) Reset() {
 	*x = DeleteDatasetResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1966,7 +1663,7 @@ func (x *DeleteDatasetResponse) String() string {
 func (*DeleteDatasetResponse) ProtoMessage() {}
 
 func (x *DeleteDatasetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1979,7 +1676,7 @@ func (x *DeleteDatasetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteDatasetResponse.ProtoReflect.Descriptor instead.
 func (*DeleteDatasetResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *DeleteDatasetResponse) GetDatasetId() string {
@@ -2018,7 +1715,7 @@ type MaterializedAggregateTileMeta struct {
 
 func (x *MaterializedAggregateTileMeta) Reset() {
 	*x = MaterializedAggregateTileMeta{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2030,7 +1727,7 @@ func (x *MaterializedAggregateTileMeta) String() string {
 func (*MaterializedAggregateTileMeta) ProtoMessage() {}
 
 func (x *MaterializedAggregateTileMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2043,7 +1740,7 @@ func (x *MaterializedAggregateTileMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MaterializedAggregateTileMeta.ProtoReflect.Descriptor instead.
 func (*MaterializedAggregateTileMeta) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *MaterializedAggregateTileMeta) GetId() int64 {
@@ -2208,7 +1905,7 @@ type MaterializedAggregateTileFileMeta struct {
 
 func (x *MaterializedAggregateTileFileMeta) Reset() {
 	*x = MaterializedAggregateTileFileMeta{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2220,7 +1917,7 @@ func (x *MaterializedAggregateTileFileMeta) String() string {
 func (*MaterializedAggregateTileFileMeta) ProtoMessage() {}
 
 func (x *MaterializedAggregateTileFileMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2233,7 +1930,7 @@ func (x *MaterializedAggregateTileFileMeta) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use MaterializedAggregateTileFileMeta.ProtoReflect.Descriptor instead.
 func (*MaterializedAggregateTileFileMeta) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *MaterializedAggregateTileFileMeta) GetId() int64 {
@@ -2295,7 +1992,7 @@ type ListMaterializedAggregateTilesRequest struct {
 
 func (x *ListMaterializedAggregateTilesRequest) Reset() {
 	*x = ListMaterializedAggregateTilesRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2307,7 +2004,7 @@ func (x *ListMaterializedAggregateTilesRequest) String() string {
 func (*ListMaterializedAggregateTilesRequest) ProtoMessage() {}
 
 func (x *ListMaterializedAggregateTilesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2320,7 +2017,7 @@ func (x *ListMaterializedAggregateTilesRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListMaterializedAggregateTilesRequest.ProtoReflect.Descriptor instead.
 func (*ListMaterializedAggregateTilesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListMaterializedAggregateTilesRequest) GetCursor() string {
@@ -2347,7 +2044,7 @@ type ListMaterializedAggregateTilesResponse struct {
 
 func (x *ListMaterializedAggregateTilesResponse) Reset() {
 	*x = ListMaterializedAggregateTilesResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2359,7 +2056,7 @@ func (x *ListMaterializedAggregateTilesResponse) String() string {
 func (*ListMaterializedAggregateTilesResponse) ProtoMessage() {}
 
 func (x *ListMaterializedAggregateTilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2372,7 +2069,7 @@ func (x *ListMaterializedAggregateTilesResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use ListMaterializedAggregateTilesResponse.ProtoReflect.Descriptor instead.
 func (*ListMaterializedAggregateTilesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListMaterializedAggregateTilesResponse) GetTiles() []*MaterializedAggregateTileMeta {
@@ -2400,7 +2097,7 @@ type ListMaterializedAggregateTileFilesRequest struct {
 
 func (x *ListMaterializedAggregateTileFilesRequest) Reset() {
 	*x = ListMaterializedAggregateTileFilesRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2412,7 +2109,7 @@ func (x *ListMaterializedAggregateTileFilesRequest) String() string {
 func (*ListMaterializedAggregateTileFilesRequest) ProtoMessage() {}
 
 func (x *ListMaterializedAggregateTileFilesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2425,7 +2122,7 @@ func (x *ListMaterializedAggregateTileFilesRequest) ProtoReflect() protoreflect.
 
 // Deprecated: Use ListMaterializedAggregateTileFilesRequest.ProtoReflect.Descriptor instead.
 func (*ListMaterializedAggregateTileFilesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListMaterializedAggregateTileFilesRequest) GetManifestId() int64 {
@@ -2459,7 +2156,7 @@ type ListMaterializedAggregateTileFilesResponse struct {
 
 func (x *ListMaterializedAggregateTileFilesResponse) Reset() {
 	*x = ListMaterializedAggregateTileFilesResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2471,7 +2168,7 @@ func (x *ListMaterializedAggregateTileFilesResponse) String() string {
 func (*ListMaterializedAggregateTileFilesResponse) ProtoMessage() {}
 
 func (x *ListMaterializedAggregateTileFilesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2484,7 +2181,7 @@ func (x *ListMaterializedAggregateTileFilesResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use ListMaterializedAggregateTileFilesResponse.ProtoReflect.Descriptor instead.
 func (*ListMaterializedAggregateTileFilesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListMaterializedAggregateTileFilesResponse) GetFiles() []*MaterializedAggregateTileFileMeta {
@@ -2510,7 +2207,7 @@ type DeleteMaterializedAggregateTileRequest struct {
 
 func (x *DeleteMaterializedAggregateTileRequest) Reset() {
 	*x = DeleteMaterializedAggregateTileRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2522,7 +2219,7 @@ func (x *DeleteMaterializedAggregateTileRequest) String() string {
 func (*DeleteMaterializedAggregateTileRequest) ProtoMessage() {}
 
 func (x *DeleteMaterializedAggregateTileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2535,7 +2232,7 @@ func (x *DeleteMaterializedAggregateTileRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use DeleteMaterializedAggregateTileRequest.ProtoReflect.Descriptor instead.
 func (*DeleteMaterializedAggregateTileRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *DeleteMaterializedAggregateTileRequest) GetId() int64 {
@@ -2554,7 +2251,7 @@ type DeleteMaterializedAggregateTileResponse struct {
 
 func (x *DeleteMaterializedAggregateTileResponse) Reset() {
 	*x = DeleteMaterializedAggregateTileResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2566,7 +2263,7 @@ func (x *DeleteMaterializedAggregateTileResponse) String() string {
 func (*DeleteMaterializedAggregateTileResponse) ProtoMessage() {}
 
 func (x *DeleteMaterializedAggregateTileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2579,7 +2276,7 @@ func (x *DeleteMaterializedAggregateTileResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use DeleteMaterializedAggregateTileResponse.ProtoReflect.Descriptor instead.
 func (*DeleteMaterializedAggregateTileResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *DeleteMaterializedAggregateTileResponse) GetId() int64 {
@@ -2598,7 +2295,7 @@ type GetDatasetRevisionPreviewRequest struct {
 
 func (x *GetDatasetRevisionPreviewRequest) Reset() {
 	*x = GetDatasetRevisionPreviewRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2610,7 +2307,7 @@ func (x *GetDatasetRevisionPreviewRequest) String() string {
 func (*GetDatasetRevisionPreviewRequest) ProtoMessage() {}
 
 func (x *GetDatasetRevisionPreviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2623,7 +2320,7 @@ func (x *GetDatasetRevisionPreviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDatasetRevisionPreviewRequest.ProtoReflect.Descriptor instead.
 func (*GetDatasetRevisionPreviewRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetDatasetRevisionPreviewRequest) GetRevisionId() string {
@@ -2643,7 +2340,7 @@ type GetDatasetRevisionPreviewResponse struct {
 
 func (x *GetDatasetRevisionPreviewResponse) Reset() {
 	*x = GetDatasetRevisionPreviewResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2655,7 +2352,7 @@ func (x *GetDatasetRevisionPreviewResponse) String() string {
 func (*GetDatasetRevisionPreviewResponse) ProtoMessage() {}
 
 func (x *GetDatasetRevisionPreviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2668,7 +2365,7 @@ func (x *GetDatasetRevisionPreviewResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetDatasetRevisionPreviewResponse.ProtoReflect.Descriptor instead.
 func (*GetDatasetRevisionPreviewResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetDatasetRevisionPreviewResponse) GetOutputPreview() *structpb.Value {
@@ -2694,7 +2391,7 @@ type GenerateDatasetStatsRequest struct {
 
 func (x *GenerateDatasetStatsRequest) Reset() {
 	*x = GenerateDatasetStatsRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2706,7 +2403,7 @@ func (x *GenerateDatasetStatsRequest) String() string {
 func (*GenerateDatasetStatsRequest) ProtoMessage() {}
 
 func (x *GenerateDatasetStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2719,7 +2416,7 @@ func (x *GenerateDatasetStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDatasetStatsRequest.ProtoReflect.Descriptor instead.
 func (*GenerateDatasetStatsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GenerateDatasetStatsRequest) GetRevisionId() string {
@@ -2738,7 +2435,7 @@ type GenerateDatasetStatsResponse struct {
 
 func (x *GenerateDatasetStatsResponse) Reset() {
 	*x = GenerateDatasetStatsResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2750,7 +2447,7 @@ func (x *GenerateDatasetStatsResponse) String() string {
 func (*GenerateDatasetStatsResponse) ProtoMessage() {}
 
 func (x *GenerateDatasetStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2763,7 +2460,7 @@ func (x *GenerateDatasetStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDatasetStatsResponse.ProtoReflect.Descriptor instead.
 func (*GenerateDatasetStatsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *GenerateDatasetStatsResponse) GetSummary() *structpb.Value {
@@ -2789,7 +2486,7 @@ type DatasetEdf struct {
 
 func (x *DatasetEdf) Reset() {
 	*x = DatasetEdf{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2801,7 +2498,7 @@ func (x *DatasetEdf) String() string {
 func (*DatasetEdf) ProtoMessage() {}
 
 func (x *DatasetEdf) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2814,7 +2511,7 @@ func (x *DatasetEdf) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DatasetEdf.ProtoReflect.Descriptor instead.
 func (*DatasetEdf) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DatasetEdf) GetId() string {
@@ -2882,7 +2579,7 @@ type GetDatasetEdfsRequest struct {
 
 func (x *GetDatasetEdfsRequest) Reset() {
 	*x = GetDatasetEdfsRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2894,7 +2591,7 @@ func (x *GetDatasetEdfsRequest) String() string {
 func (*GetDatasetEdfsRequest) ProtoMessage() {}
 
 func (x *GetDatasetEdfsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2907,7 +2604,7 @@ func (x *GetDatasetEdfsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDatasetEdfsRequest.ProtoReflect.Descriptor instead.
 func (*GetDatasetEdfsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetDatasetEdfsRequest) GetRevisionId() string {
@@ -2926,7 +2623,7 @@ type GetDatasetEdfsResponse struct {
 
 func (x *GetDatasetEdfsResponse) Reset() {
 	*x = GetDatasetEdfsResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2938,7 +2635,7 @@ func (x *GetDatasetEdfsResponse) String() string {
 func (*GetDatasetEdfsResponse) ProtoMessage() {}
 
 func (x *GetDatasetEdfsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2951,7 +2648,7 @@ func (x *GetDatasetEdfsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDatasetEdfsResponse.ProtoReflect.Descriptor instead.
 func (*GetDatasetEdfsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetDatasetEdfsResponse) GetEdfs() []*DatasetEdf {
@@ -2970,7 +2667,7 @@ type GenerateDatasetEdfsRequest struct {
 
 func (x *GenerateDatasetEdfsRequest) Reset() {
 	*x = GenerateDatasetEdfsRequest{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2982,7 +2679,7 @@ func (x *GenerateDatasetEdfsRequest) String() string {
 func (*GenerateDatasetEdfsRequest) ProtoMessage() {}
 
 func (x *GenerateDatasetEdfsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2995,7 +2692,7 @@ func (x *GenerateDatasetEdfsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDatasetEdfsRequest.ProtoReflect.Descriptor instead.
 func (*GenerateDatasetEdfsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{41}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GenerateDatasetEdfsRequest) GetRevisionId() string {
@@ -3014,7 +2711,7 @@ type GenerateDatasetEdfsResponse struct {
 
 func (x *GenerateDatasetEdfsResponse) Reset() {
 	*x = GenerateDatasetEdfsResponse{}
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3026,7 +2723,7 @@ func (x *GenerateDatasetEdfsResponse) String() string {
 func (*GenerateDatasetEdfsResponse) ProtoMessage() {}
 
 func (x *GenerateDatasetEdfsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_datasets_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_datasets_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3039,7 +2736,7 @@ func (x *GenerateDatasetEdfsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateDatasetEdfsResponse.ProtoReflect.Descriptor instead.
 func (*GenerateDatasetEdfsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{42}
+	return file_chalk_server_v1_datasets_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GenerateDatasetEdfsResponse) GetFeatures() []string {
@@ -3053,7 +2750,7 @@ var File_chalk_server_v1_datasets_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cchalk/volume/v1/volume.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x90\v\n" +
+	"\x1echalk/server/v1/datasets.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x90\v\n" +
 	"\x13DatasetRevisionMeta\x12\x1d\n" +
 	"\n" +
 	"numeric_id\x18\x01 \x01(\x03R\tnumericId\x12(\n" +
@@ -3199,29 +2896,7 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"expiration\x88\x01\x01B\x13\n" +
 	"\x11_request_body_urlB\b\n" +
 	"\x06_errorB\r\n" +
-	"\v_expiration\"\xd9\x01\n" +
-	"\x1bGetDatasetUploadUrisRequest\x12!\n" +
-	"\fcontent_size\x18\x01 \x01(\x03R\vcontentSize\x12\x17\n" +
-	"\x04hash\x18\x02 \x01(\tH\x00R\x04hash\x88\x01\x01\x12 \n" +
-	"\tpart_size\x18\x03 \x01(\x03H\x01R\bpartSize\x88\x01\x01\x12/\n" +
-	"\x11upload_session_id\x18\x04 \x01(\tH\x02R\x0fuploadSessionId\x88\x01\x01B\a\n" +
-	"\x05_hashB\f\n" +
-	"\n" +
-	"_part_sizeB\x14\n" +
-	"\x12_upload_session_id\"\xca\x02\n" +
-	"\x1cGetDatasetUploadUrisResponse\x12*\n" +
-	"\x11upload_session_id\x18\x01 \x01(\tR\x0fuploadSessionId\x12*\n" +
-	"\x11storage_object_id\x18\x02 \x01(\tR\x0fstorageObjectId\x12@\n" +
-	"\tmultipart\x18\x03 \x01(\v2 .chalk.volume.v1.MultipartUploadH\x00R\tmultipart\x12@\n" +
-	"\tresumable\x18\x04 \x01(\v2 .chalk.volume.v1.ResumableUploadH\x00R\tresumable\x12D\n" +
-	"\vazure_block\x18\x05 \x01(\v2!.chalk.volume.v1.AzureBlockUploadH\x00R\n" +
-	"azureBlockB\b\n" +
-	"\x06upload\"m\n" +
-	"\x1cFinalizeDatasetUploadRequest\x12*\n" +
-	"\x11upload_session_id\x18\x01 \x01(\tR\x0fuploadSessionId\x12!\n" +
-	"\fdataset_name\x18\x02 \x01(\tR\vdatasetName\"W\n" +
-	"\x1dFinalizeDatasetUploadResponse\x126\n" +
-	"\adataset\x18\x01 \x01(\v2\x1c.chalk.server.v1.DatasetMetaR\adataset\"P\n" +
+	"\v_expiration\"P\n" +
 	"\x14RenameDatasetRequest\x12\x1d\n" +
 	"\n" +
 	"dataset_id\x18\x01 \x01(\tR\tdatasetId\x12\x19\n" +
@@ -3367,7 +3042,7 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\tSortOrder\x12\x1a\n" +
 	"\x16SORT_ORDER_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fSORT_ORDER_DESC\x10\x01\x12\x12\n" +
-	"\x0eSORT_ORDER_ASC\x10\x022\xbd\x13\n" +
+	"\x0eSORT_ORDER_ASC\x10\x022\xc3\x11\n" +
 	"\x16DatasetMetadataService\x12c\n" +
 	"\fListDatasets\x12$.chalk.server.v1.ListDatasetsRequest\x1a%.chalk.server.v1.ListDatasetsResponse\"\x06\x80}\x04\x90\x02\x01\x12]\n" +
 	"\n" +
@@ -3386,9 +3061,7 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\x19GetDatasetRevisionPreview\x121.chalk.server.v1.GetDatasetRevisionPreviewRequest\x1a2.chalk.server.v1.GetDatasetRevisionPreviewResponse\"\x06\x80}\x04\x90\x02\x01\x12x\n" +
 	"\x14GenerateDatasetStats\x12,.chalk.server.v1.GenerateDatasetStatsRequest\x1a-.chalk.server.v1.GenerateDatasetStatsResponse\"\x03\x80}\x04\x12i\n" +
 	"\x0eGetDatasetEdfs\x12&.chalk.server.v1.GetDatasetEdfsRequest\x1a'.chalk.server.v1.GetDatasetEdfsResponse\"\x06\x80}\x04\x90\x02\x01\x12u\n" +
-	"\x13GenerateDatasetEdfs\x12+.chalk.server.v1.GenerateDatasetEdfsRequest\x1a,.chalk.server.v1.GenerateDatasetEdfsResponse\"\x03\x80}\x04\x12x\n" +
-	"\x14GetDatasetUploadUris\x12,.chalk.server.v1.GetDatasetUploadUrisRequest\x1a-.chalk.server.v1.GetDatasetUploadUrisResponse\"\x03\x80}\x04\x12~\n" +
-	"\x15FinalizeDatasetUpload\x12-.chalk.server.v1.FinalizeDatasetUploadRequest\x1a..chalk.server.v1.FinalizeDatasetUploadResponse\"\x06\x80}\x04\x90\x02\x02B\xbd\x01\n" +
+	"\x13GenerateDatasetEdfs\x12+.chalk.server.v1.GenerateDatasetEdfsRequest\x1a,.chalk.server.v1.GenerateDatasetEdfsResponse\"\x03\x80}\x04B\xbd\x01\n" +
 	"\x13com.chalk.server.v1B\rDatasetsProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -3404,7 +3077,7 @@ func file_chalk_server_v1_datasets_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_datasets_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_chalk_server_v1_datasets_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
+var file_chalk_server_v1_datasets_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_chalk_server_v1_datasets_proto_goTypes = []any{
 	(DatasetRevisionStatus)(0),                         // 0: chalk.server.v1.DatasetRevisionStatus
 	(DatasetVersion)(0),                                // 1: chalk.server.v1.DatasetVersion
@@ -3425,122 +3098,107 @@ var file_chalk_server_v1_datasets_proto_goTypes = []any{
 	(*GetDatasetRevisionDownloadLinksResponse)(nil),    // 16: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
 	(*StreamDatasetRevisionDownloadLinksRequest)(nil),  // 17: chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
 	(*StreamDatasetRevisionDownloadLinksResponse)(nil), // 18: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
-	(*GetDatasetUploadUrisRequest)(nil),                // 19: chalk.server.v1.GetDatasetUploadUrisRequest
-	(*GetDatasetUploadUrisResponse)(nil),               // 20: chalk.server.v1.GetDatasetUploadUrisResponse
-	(*FinalizeDatasetUploadRequest)(nil),               // 21: chalk.server.v1.FinalizeDatasetUploadRequest
-	(*FinalizeDatasetUploadResponse)(nil),              // 22: chalk.server.v1.FinalizeDatasetUploadResponse
-	(*RenameDatasetRequest)(nil),                       // 23: chalk.server.v1.RenameDatasetRequest
-	(*RenameDatasetResponse)(nil),                      // 24: chalk.server.v1.RenameDatasetResponse
-	(*ArchiveDatasetRevisionRequest)(nil),              // 25: chalk.server.v1.ArchiveDatasetRevisionRequest
-	(*ArchiveDatasetRevisionResponse)(nil),             // 26: chalk.server.v1.ArchiveDatasetRevisionResponse
-	(*ArchiveDatasetRevisionsRequest)(nil),             // 27: chalk.server.v1.ArchiveDatasetRevisionsRequest
-	(*ArchiveDatasetRevisionsResponse)(nil),            // 28: chalk.server.v1.ArchiveDatasetRevisionsResponse
-	(*DeleteDatasetRequest)(nil),                       // 29: chalk.server.v1.DeleteDatasetRequest
-	(*DeleteDatasetResponse)(nil),                      // 30: chalk.server.v1.DeleteDatasetResponse
-	(*MaterializedAggregateTileMeta)(nil),              // 31: chalk.server.v1.MaterializedAggregateTileMeta
-	(*MaterializedAggregateTileFileMeta)(nil),          // 32: chalk.server.v1.MaterializedAggregateTileFileMeta
-	(*ListMaterializedAggregateTilesRequest)(nil),      // 33: chalk.server.v1.ListMaterializedAggregateTilesRequest
-	(*ListMaterializedAggregateTilesResponse)(nil),     // 34: chalk.server.v1.ListMaterializedAggregateTilesResponse
-	(*ListMaterializedAggregateTileFilesRequest)(nil),  // 35: chalk.server.v1.ListMaterializedAggregateTileFilesRequest
-	(*ListMaterializedAggregateTileFilesResponse)(nil), // 36: chalk.server.v1.ListMaterializedAggregateTileFilesResponse
-	(*DeleteMaterializedAggregateTileRequest)(nil),     // 37: chalk.server.v1.DeleteMaterializedAggregateTileRequest
-	(*DeleteMaterializedAggregateTileResponse)(nil),    // 38: chalk.server.v1.DeleteMaterializedAggregateTileResponse
-	(*GetDatasetRevisionPreviewRequest)(nil),           // 39: chalk.server.v1.GetDatasetRevisionPreviewRequest
-	(*GetDatasetRevisionPreviewResponse)(nil),          // 40: chalk.server.v1.GetDatasetRevisionPreviewResponse
-	(*GenerateDatasetStatsRequest)(nil),                // 41: chalk.server.v1.GenerateDatasetStatsRequest
-	(*GenerateDatasetStatsResponse)(nil),               // 42: chalk.server.v1.GenerateDatasetStatsResponse
-	(*DatasetEdf)(nil),                                 // 43: chalk.server.v1.DatasetEdf
-	(*GetDatasetEdfsRequest)(nil),                      // 44: chalk.server.v1.GetDatasetEdfsRequest
-	(*GetDatasetEdfsResponse)(nil),                     // 45: chalk.server.v1.GetDatasetEdfsResponse
-	(*GenerateDatasetEdfsRequest)(nil),                 // 46: chalk.server.v1.GenerateDatasetEdfsRequest
-	(*GenerateDatasetEdfsResponse)(nil),                // 47: chalk.server.v1.GenerateDatasetEdfsResponse
-	(*timestamppb.Timestamp)(nil),                      // 48: google.protobuf.Timestamp
-	(*structpb.Value)(nil),                             // 49: google.protobuf.Value
-	(*v1.MultipartUpload)(nil),                         // 50: chalk.volume.v1.MultipartUpload
-	(*v1.ResumableUpload)(nil),                         // 51: chalk.volume.v1.ResumableUpload
-	(*v1.AzureBlockUpload)(nil),                        // 52: chalk.volume.v1.AzureBlockUpload
+	(*RenameDatasetRequest)(nil),                       // 19: chalk.server.v1.RenameDatasetRequest
+	(*RenameDatasetResponse)(nil),                      // 20: chalk.server.v1.RenameDatasetResponse
+	(*ArchiveDatasetRevisionRequest)(nil),              // 21: chalk.server.v1.ArchiveDatasetRevisionRequest
+	(*ArchiveDatasetRevisionResponse)(nil),             // 22: chalk.server.v1.ArchiveDatasetRevisionResponse
+	(*ArchiveDatasetRevisionsRequest)(nil),             // 23: chalk.server.v1.ArchiveDatasetRevisionsRequest
+	(*ArchiveDatasetRevisionsResponse)(nil),            // 24: chalk.server.v1.ArchiveDatasetRevisionsResponse
+	(*DeleteDatasetRequest)(nil),                       // 25: chalk.server.v1.DeleteDatasetRequest
+	(*DeleteDatasetResponse)(nil),                      // 26: chalk.server.v1.DeleteDatasetResponse
+	(*MaterializedAggregateTileMeta)(nil),              // 27: chalk.server.v1.MaterializedAggregateTileMeta
+	(*MaterializedAggregateTileFileMeta)(nil),          // 28: chalk.server.v1.MaterializedAggregateTileFileMeta
+	(*ListMaterializedAggregateTilesRequest)(nil),      // 29: chalk.server.v1.ListMaterializedAggregateTilesRequest
+	(*ListMaterializedAggregateTilesResponse)(nil),     // 30: chalk.server.v1.ListMaterializedAggregateTilesResponse
+	(*ListMaterializedAggregateTileFilesRequest)(nil),  // 31: chalk.server.v1.ListMaterializedAggregateTileFilesRequest
+	(*ListMaterializedAggregateTileFilesResponse)(nil), // 32: chalk.server.v1.ListMaterializedAggregateTileFilesResponse
+	(*DeleteMaterializedAggregateTileRequest)(nil),     // 33: chalk.server.v1.DeleteMaterializedAggregateTileRequest
+	(*DeleteMaterializedAggregateTileResponse)(nil),    // 34: chalk.server.v1.DeleteMaterializedAggregateTileResponse
+	(*GetDatasetRevisionPreviewRequest)(nil),           // 35: chalk.server.v1.GetDatasetRevisionPreviewRequest
+	(*GetDatasetRevisionPreviewResponse)(nil),          // 36: chalk.server.v1.GetDatasetRevisionPreviewResponse
+	(*GenerateDatasetStatsRequest)(nil),                // 37: chalk.server.v1.GenerateDatasetStatsRequest
+	(*GenerateDatasetStatsResponse)(nil),               // 38: chalk.server.v1.GenerateDatasetStatsResponse
+	(*DatasetEdf)(nil),                                 // 39: chalk.server.v1.DatasetEdf
+	(*GetDatasetEdfsRequest)(nil),                      // 40: chalk.server.v1.GetDatasetEdfsRequest
+	(*GetDatasetEdfsResponse)(nil),                     // 41: chalk.server.v1.GetDatasetEdfsResponse
+	(*GenerateDatasetEdfsRequest)(nil),                 // 42: chalk.server.v1.GenerateDatasetEdfsRequest
+	(*GenerateDatasetEdfsResponse)(nil),                // 43: chalk.server.v1.GenerateDatasetEdfsResponse
+	(*timestamppb.Timestamp)(nil),                      // 44: google.protobuf.Timestamp
+	(*structpb.Value)(nil),                             // 45: google.protobuf.Value
 }
 var file_chalk_server_v1_datasets_proto_depIdxs = []int32{
 	2,  // 0: chalk.server.v1.DatasetRevisionMeta.givens_version:type_name -> chalk.server.v1.OfflineQueryGivensVersion
 	1,  // 1: chalk.server.v1.DatasetRevisionMeta.output_version:type_name -> chalk.server.v1.DatasetVersion
-	48, // 2: chalk.server.v1.DatasetRevisionMeta.completed_at:type_name -> google.protobuf.Timestamp
-	49, // 3: chalk.server.v1.DatasetRevisionMeta.metadata:type_name -> google.protobuf.Value
+	44, // 2: chalk.server.v1.DatasetRevisionMeta.completed_at:type_name -> google.protobuf.Timestamp
+	45, // 3: chalk.server.v1.DatasetRevisionMeta.metadata:type_name -> google.protobuf.Value
 	0,  // 4: chalk.server.v1.DatasetRevisionMeta.status:type_name -> chalk.server.v1.DatasetRevisionStatus
-	48, // 5: chalk.server.v1.DatasetRevisionMeta.created_at:type_name -> google.protobuf.Timestamp
-	48, // 6: chalk.server.v1.DatasetRevisionMeta.archived_at:type_name -> google.protobuf.Timestamp
-	48, // 7: chalk.server.v1.DatasetMeta.created_at:type_name -> google.protobuf.Timestamp
+	44, // 5: chalk.server.v1.DatasetRevisionMeta.created_at:type_name -> google.protobuf.Timestamp
+	44, // 6: chalk.server.v1.DatasetRevisionMeta.archived_at:type_name -> google.protobuf.Timestamp
+	44, // 7: chalk.server.v1.DatasetMeta.created_at:type_name -> google.protobuf.Timestamp
 	5,  // 8: chalk.server.v1.DatasetMeta.most_recent_revision:type_name -> chalk.server.v1.DatasetRevisionMeta
 	3,  // 9: chalk.server.v1.ListDatasetsRequest.sort_column:type_name -> chalk.server.v1.DatasetSortColumn
 	4,  // 10: chalk.server.v1.ListDatasetsRequest.sort_order:type_name -> chalk.server.v1.SortOrder
 	6,  // 11: chalk.server.v1.ListDatasetsResponse.datasets:type_name -> chalk.server.v1.DatasetMeta
 	6,  // 12: chalk.server.v1.GetDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	48, // 13: chalk.server.v1.ListDatasetRevisionsRequest.start_time:type_name -> google.protobuf.Timestamp
-	48, // 14: chalk.server.v1.ListDatasetRevisionsRequest.end_time:type_name -> google.protobuf.Timestamp
+	44, // 13: chalk.server.v1.ListDatasetRevisionsRequest.start_time:type_name -> google.protobuf.Timestamp
+	44, // 14: chalk.server.v1.ListDatasetRevisionsRequest.end_time:type_name -> google.protobuf.Timestamp
 	5,  // 15: chalk.server.v1.ListDatasetRevisionsResponse.revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
 	5,  // 16: chalk.server.v1.GetDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
-	48, // 17: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
-	48, // 18: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
-	50, // 19: chalk.server.v1.GetDatasetUploadUrisResponse.multipart:type_name -> chalk.volume.v1.MultipartUpload
-	51, // 20: chalk.server.v1.GetDatasetUploadUrisResponse.resumable:type_name -> chalk.volume.v1.ResumableUpload
-	52, // 21: chalk.server.v1.GetDatasetUploadUrisResponse.azure_block:type_name -> chalk.volume.v1.AzureBlockUpload
-	6,  // 22: chalk.server.v1.FinalizeDatasetUploadResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	6,  // 23: chalk.server.v1.RenameDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
-	5,  // 24: chalk.server.v1.ArchiveDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
-	5,  // 25: chalk.server.v1.ArchiveDatasetRevisionsResponse.archived_revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
-	48, // 26: chalk.server.v1.MaterializedAggregateTileMeta.coverage_lower_bound:type_name -> google.protobuf.Timestamp
-	48, // 27: chalk.server.v1.MaterializedAggregateTileMeta.coverage_upper_bound:type_name -> google.protobuf.Timestamp
-	48, // 28: chalk.server.v1.MaterializedAggregateTileMeta.created_at:type_name -> google.protobuf.Timestamp
-	48, // 29: chalk.server.v1.MaterializedAggregateTileMeta.updated_at:type_name -> google.protobuf.Timestamp
-	48, // 30: chalk.server.v1.MaterializedAggregateTileFileMeta.created_at:type_name -> google.protobuf.Timestamp
-	31, // 31: chalk.server.v1.ListMaterializedAggregateTilesResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
-	32, // 32: chalk.server.v1.ListMaterializedAggregateTileFilesResponse.files:type_name -> chalk.server.v1.MaterializedAggregateTileFileMeta
-	49, // 33: chalk.server.v1.GetDatasetRevisionPreviewResponse.output_preview:type_name -> google.protobuf.Value
-	49, // 34: chalk.server.v1.GetDatasetRevisionPreviewResponse.summary:type_name -> google.protobuf.Value
-	49, // 35: chalk.server.v1.GenerateDatasetStatsResponse.summary:type_name -> google.protobuf.Value
-	43, // 36: chalk.server.v1.GetDatasetEdfsResponse.edfs:type_name -> chalk.server.v1.DatasetEdf
-	7,  // 37: chalk.server.v1.DatasetMetadataService.ListDatasets:input_type -> chalk.server.v1.ListDatasetsRequest
-	9,  // 38: chalk.server.v1.DatasetMetadataService.GetDataset:input_type -> chalk.server.v1.GetDatasetRequest
-	11, // 39: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:input_type -> chalk.server.v1.ListDatasetRevisionsRequest
-	13, // 40: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:input_type -> chalk.server.v1.GetDatasetRevisionRequest
-	15, // 41: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
-	17, // 42: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
-	23, // 43: chalk.server.v1.DatasetMetadataService.RenameDataset:input_type -> chalk.server.v1.RenameDatasetRequest
-	25, // 44: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:input_type -> chalk.server.v1.ArchiveDatasetRevisionRequest
-	27, // 45: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:input_type -> chalk.server.v1.ArchiveDatasetRevisionsRequest
-	29, // 46: chalk.server.v1.DatasetMetadataService.DeleteDataset:input_type -> chalk.server.v1.DeleteDatasetRequest
-	33, // 47: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:input_type -> chalk.server.v1.ListMaterializedAggregateTilesRequest
-	35, // 48: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:input_type -> chalk.server.v1.ListMaterializedAggregateTileFilesRequest
-	37, // 49: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:input_type -> chalk.server.v1.DeleteMaterializedAggregateTileRequest
-	39, // 50: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:input_type -> chalk.server.v1.GetDatasetRevisionPreviewRequest
-	41, // 51: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:input_type -> chalk.server.v1.GenerateDatasetStatsRequest
-	44, // 52: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:input_type -> chalk.server.v1.GetDatasetEdfsRequest
-	46, // 53: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:input_type -> chalk.server.v1.GenerateDatasetEdfsRequest
-	19, // 54: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:input_type -> chalk.server.v1.GetDatasetUploadUrisRequest
-	21, // 55: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:input_type -> chalk.server.v1.FinalizeDatasetUploadRequest
-	8,  // 56: chalk.server.v1.DatasetMetadataService.ListDatasets:output_type -> chalk.server.v1.ListDatasetsResponse
-	10, // 57: chalk.server.v1.DatasetMetadataService.GetDataset:output_type -> chalk.server.v1.GetDatasetResponse
-	12, // 58: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:output_type -> chalk.server.v1.ListDatasetRevisionsResponse
-	14, // 59: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:output_type -> chalk.server.v1.GetDatasetRevisionResponse
-	16, // 60: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
-	18, // 61: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
-	24, // 62: chalk.server.v1.DatasetMetadataService.RenameDataset:output_type -> chalk.server.v1.RenameDatasetResponse
-	26, // 63: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:output_type -> chalk.server.v1.ArchiveDatasetRevisionResponse
-	28, // 64: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:output_type -> chalk.server.v1.ArchiveDatasetRevisionsResponse
-	30, // 65: chalk.server.v1.DatasetMetadataService.DeleteDataset:output_type -> chalk.server.v1.DeleteDatasetResponse
-	34, // 66: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:output_type -> chalk.server.v1.ListMaterializedAggregateTilesResponse
-	36, // 67: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:output_type -> chalk.server.v1.ListMaterializedAggregateTileFilesResponse
-	38, // 68: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:output_type -> chalk.server.v1.DeleteMaterializedAggregateTileResponse
-	40, // 69: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:output_type -> chalk.server.v1.GetDatasetRevisionPreviewResponse
-	42, // 70: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:output_type -> chalk.server.v1.GenerateDatasetStatsResponse
-	45, // 71: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:output_type -> chalk.server.v1.GetDatasetEdfsResponse
-	47, // 72: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:output_type -> chalk.server.v1.GenerateDatasetEdfsResponse
-	20, // 73: chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris:output_type -> chalk.server.v1.GetDatasetUploadUrisResponse
-	22, // 74: chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload:output_type -> chalk.server.v1.FinalizeDatasetUploadResponse
-	56, // [56:75] is the sub-list for method output_type
-	37, // [37:56] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	44, // 17: chalk.server.v1.GetDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
+	44, // 18: chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse.expiration:type_name -> google.protobuf.Timestamp
+	6,  // 19: chalk.server.v1.RenameDatasetResponse.dataset:type_name -> chalk.server.v1.DatasetMeta
+	5,  // 20: chalk.server.v1.ArchiveDatasetRevisionResponse.revision:type_name -> chalk.server.v1.DatasetRevisionMeta
+	5,  // 21: chalk.server.v1.ArchiveDatasetRevisionsResponse.archived_revisions:type_name -> chalk.server.v1.DatasetRevisionMeta
+	44, // 22: chalk.server.v1.MaterializedAggregateTileMeta.coverage_lower_bound:type_name -> google.protobuf.Timestamp
+	44, // 23: chalk.server.v1.MaterializedAggregateTileMeta.coverage_upper_bound:type_name -> google.protobuf.Timestamp
+	44, // 24: chalk.server.v1.MaterializedAggregateTileMeta.created_at:type_name -> google.protobuf.Timestamp
+	44, // 25: chalk.server.v1.MaterializedAggregateTileMeta.updated_at:type_name -> google.protobuf.Timestamp
+	44, // 26: chalk.server.v1.MaterializedAggregateTileFileMeta.created_at:type_name -> google.protobuf.Timestamp
+	27, // 27: chalk.server.v1.ListMaterializedAggregateTilesResponse.tiles:type_name -> chalk.server.v1.MaterializedAggregateTileMeta
+	28, // 28: chalk.server.v1.ListMaterializedAggregateTileFilesResponse.files:type_name -> chalk.server.v1.MaterializedAggregateTileFileMeta
+	45, // 29: chalk.server.v1.GetDatasetRevisionPreviewResponse.output_preview:type_name -> google.protobuf.Value
+	45, // 30: chalk.server.v1.GetDatasetRevisionPreviewResponse.summary:type_name -> google.protobuf.Value
+	45, // 31: chalk.server.v1.GenerateDatasetStatsResponse.summary:type_name -> google.protobuf.Value
+	39, // 32: chalk.server.v1.GetDatasetEdfsResponse.edfs:type_name -> chalk.server.v1.DatasetEdf
+	7,  // 33: chalk.server.v1.DatasetMetadataService.ListDatasets:input_type -> chalk.server.v1.ListDatasetsRequest
+	9,  // 34: chalk.server.v1.DatasetMetadataService.GetDataset:input_type -> chalk.server.v1.GetDatasetRequest
+	11, // 35: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:input_type -> chalk.server.v1.ListDatasetRevisionsRequest
+	13, // 36: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:input_type -> chalk.server.v1.GetDatasetRevisionRequest
+	15, // 37: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksRequest
+	17, // 38: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:input_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest
+	19, // 39: chalk.server.v1.DatasetMetadataService.RenameDataset:input_type -> chalk.server.v1.RenameDatasetRequest
+	21, // 40: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:input_type -> chalk.server.v1.ArchiveDatasetRevisionRequest
+	23, // 41: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:input_type -> chalk.server.v1.ArchiveDatasetRevisionsRequest
+	25, // 42: chalk.server.v1.DatasetMetadataService.DeleteDataset:input_type -> chalk.server.v1.DeleteDatasetRequest
+	29, // 43: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:input_type -> chalk.server.v1.ListMaterializedAggregateTilesRequest
+	31, // 44: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:input_type -> chalk.server.v1.ListMaterializedAggregateTileFilesRequest
+	33, // 45: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:input_type -> chalk.server.v1.DeleteMaterializedAggregateTileRequest
+	35, // 46: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:input_type -> chalk.server.v1.GetDatasetRevisionPreviewRequest
+	37, // 47: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:input_type -> chalk.server.v1.GenerateDatasetStatsRequest
+	40, // 48: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:input_type -> chalk.server.v1.GetDatasetEdfsRequest
+	42, // 49: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:input_type -> chalk.server.v1.GenerateDatasetEdfsRequest
+	8,  // 50: chalk.server.v1.DatasetMetadataService.ListDatasets:output_type -> chalk.server.v1.ListDatasetsResponse
+	10, // 51: chalk.server.v1.DatasetMetadataService.GetDataset:output_type -> chalk.server.v1.GetDatasetResponse
+	12, // 52: chalk.server.v1.DatasetMetadataService.ListDatasetRevisions:output_type -> chalk.server.v1.ListDatasetRevisionsResponse
+	14, // 53: chalk.server.v1.DatasetMetadataService.GetDatasetRevision:output_type -> chalk.server.v1.GetDatasetRevisionResponse
+	16, // 54: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.GetDatasetRevisionDownloadLinksResponse
+	18, // 55: chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks:output_type -> chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse
+	20, // 56: chalk.server.v1.DatasetMetadataService.RenameDataset:output_type -> chalk.server.v1.RenameDatasetResponse
+	22, // 57: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevision:output_type -> chalk.server.v1.ArchiveDatasetRevisionResponse
+	24, // 58: chalk.server.v1.DatasetMetadataService.ArchiveDatasetRevisions:output_type -> chalk.server.v1.ArchiveDatasetRevisionsResponse
+	26, // 59: chalk.server.v1.DatasetMetadataService.DeleteDataset:output_type -> chalk.server.v1.DeleteDatasetResponse
+	30, // 60: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles:output_type -> chalk.server.v1.ListMaterializedAggregateTilesResponse
+	32, // 61: chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles:output_type -> chalk.server.v1.ListMaterializedAggregateTileFilesResponse
+	34, // 62: chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile:output_type -> chalk.server.v1.DeleteMaterializedAggregateTileResponse
+	36, // 63: chalk.server.v1.DatasetMetadataService.GetDatasetRevisionPreview:output_type -> chalk.server.v1.GetDatasetRevisionPreviewResponse
+	38, // 64: chalk.server.v1.DatasetMetadataService.GenerateDatasetStats:output_type -> chalk.server.v1.GenerateDatasetStatsResponse
+	41, // 65: chalk.server.v1.DatasetMetadataService.GetDatasetEdfs:output_type -> chalk.server.v1.GetDatasetEdfsResponse
+	43, // 66: chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs:output_type -> chalk.server.v1.GenerateDatasetEdfsResponse
+	50, // [50:67] is the sub-list for method output_type
+	33, // [33:50] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_datasets_proto_init() }
@@ -3557,23 +3215,17 @@ func file_chalk_server_v1_datasets_proto_init() {
 	file_chalk_server_v1_datasets_proto_msgTypes[8].OneofWrappers = []any{}
 	file_chalk_server_v1_datasets_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_datasets_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_server_v1_datasets_proto_msgTypes[14].OneofWrappers = []any{}
-	file_chalk_server_v1_datasets_proto_msgTypes[15].OneofWrappers = []any{
-		(*GetDatasetUploadUrisResponse_Multipart)(nil),
-		(*GetDatasetUploadUrisResponse_Resumable)(nil),
-		(*GetDatasetUploadUrisResponse_AzureBlock)(nil),
-	}
-	file_chalk_server_v1_datasets_proto_msgTypes[28].OneofWrappers = []any{}
-	file_chalk_server_v1_datasets_proto_msgTypes[29].OneofWrappers = []any{}
-	file_chalk_server_v1_datasets_proto_msgTypes[30].OneofWrappers = []any{}
-	file_chalk_server_v1_datasets_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[25].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_server_v1_datasets_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_datasets_proto_rawDesc), len(file_chalk_server_v1_datasets_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   43,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

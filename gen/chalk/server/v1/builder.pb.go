@@ -1845,11 +1845,17 @@ func (x *DeploymentBuildStep) GetEndTime() *timestamppb.Timestamp {
 }
 
 type GetDeploymentStepsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Steps         []*DeploymentBuildStep `protobuf:"bytes,1,rep,name=steps,proto3" json:"steps,omitempty"`
-	Deployment    *Deployment            `protobuf:"bytes,2,opt,name=deployment,proto3" json:"deployment,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Steps      []*DeploymentBuildStep `protobuf:"bytes,1,rep,name=steps,proto3" json:"steps,omitempty"`
+	Deployment *Deployment            `protobuf:"bytes,2,opt,name=deployment,proto3" json:"deployment,omitempty"`
+	// Signed HTTPS URL to a Chrome-trace JSON document that visualizes the
+	// overall workflow timeline plus, when buildkit was used, the per-Dockerfile-RUN
+	// sub-track. Drag-drop into https://ui.perfetto.dev. Empty when the trace
+	// wasn't produced (older builds, kaniko path, or trace upload failed). The
+	// URL is short-lived (typically 24h from build creation).
+	PerfettoTraceUrl string `protobuf:"bytes,3,opt,name=perfetto_trace_url,json=perfettoTraceUrl,proto3" json:"perfetto_trace_url,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *GetDeploymentStepsResponse) Reset() {
@@ -1894,6 +1900,13 @@ func (x *GetDeploymentStepsResponse) GetDeployment() *Deployment {
 		return x.Deployment
 	}
 	return nil
+}
+
+func (x *GetDeploymentStepsResponse) GetPerfettoTraceUrl() string {
+	if x != nil {
+		return x.PerfettoTraceUrl
+	}
+	return ""
 }
 
 type GetDeploymentLogsRequest struct {
@@ -11119,12 +11132,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x06status\x18\x03 \x01(\x0e2&.chalk.server.v1.DeploymentBuildStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\x95\x01\n" +
+	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"\xc3\x01\n" +
 	"\x1aGetDeploymentStepsResponse\x12:\n" +
 	"\x05steps\x18\x01 \x03(\v2$.chalk.server.v1.DeploymentBuildStepR\x05steps\x12;\n" +
 	"\n" +
 	"deployment\x18\x02 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +
-	"deployment\"?\n" +
+	"deployment\x12,\n" +
+	"\x12perfetto_trace_url\x18\x03 \x01(\tR\x10perfettoTraceUrl\"?\n" +
 	"\x18GetDeploymentLogsRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"J\n" +
 	"\x19GetDeploymentLogsResponse\x12-\n" +
