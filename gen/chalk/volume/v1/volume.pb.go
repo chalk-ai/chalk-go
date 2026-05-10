@@ -1191,6 +1191,55 @@ func (x *AzureBlockUpload) GetPartSize() int64 {
 	return 0
 }
 
+// Single-shot upload: one signed URL the caller PUTs the entire object to.
+// Used when the server has signed a plain PUT URL (e.g. S3 PutObject, GCS
+// PUT, Azure PutBlob) rather than orchestrating multipart, GCS resumable, or
+// Azure block staging. Subject to the underlying cloud's single-request size
+// limits (S3 PutObject: 5 GiB).
+type DirectUpload struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	SignedUploadUri string                 `protobuf:"bytes,1,opt,name=signed_upload_uri,json=signedUploadUri,proto3" json:"signed_upload_uri,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DirectUpload) Reset() {
+	*x = DirectUpload{}
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DirectUpload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DirectUpload) ProtoMessage() {}
+
+func (x *DirectUpload) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DirectUpload.ProtoReflect.Descriptor instead.
+func (*DirectUpload) Descriptor() ([]byte, []int) {
+	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *DirectUpload) GetSignedUploadUri() string {
+	if x != nil {
+		return x.SignedUploadUri
+	}
+	return ""
+}
+
 type GetObjectUploadUriResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The storage object identifier to reference once upload is complete.
@@ -1207,7 +1256,7 @@ type GetObjectUploadUriResponse struct {
 
 func (x *GetObjectUploadUriResponse) Reset() {
 	*x = GetObjectUploadUriResponse{}
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[22]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1219,7 +1268,7 @@ func (x *GetObjectUploadUriResponse) String() string {
 func (*GetObjectUploadUriResponse) ProtoMessage() {}
 
 func (x *GetObjectUploadUriResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[22]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1232,7 +1281,7 @@ func (x *GetObjectUploadUriResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetObjectUploadUriResponse.ProtoReflect.Descriptor instead.
 func (*GetObjectUploadUriResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{22}
+	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetObjectUploadUriResponse) GetStorageObjectId() string {
@@ -1307,7 +1356,7 @@ type GetObjectDownloadUriRequest struct {
 
 func (x *GetObjectDownloadUriRequest) Reset() {
 	*x = GetObjectDownloadUriRequest{}
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[23]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1319,7 +1368,7 @@ func (x *GetObjectDownloadUriRequest) String() string {
 func (*GetObjectDownloadUriRequest) ProtoMessage() {}
 
 func (x *GetObjectDownloadUriRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[23]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1332,7 +1381,7 @@ func (x *GetObjectDownloadUriRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetObjectDownloadUriRequest.ProtoReflect.Descriptor instead.
 func (*GetObjectDownloadUriRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{23}
+	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetObjectDownloadUriRequest) GetStorageObjectId() string {
@@ -1351,7 +1400,7 @@ type GetObjectDownloadUriResponse struct {
 
 func (x *GetObjectDownloadUriResponse) Reset() {
 	*x = GetObjectDownloadUriResponse{}
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[24]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1363,7 +1412,7 @@ func (x *GetObjectDownloadUriResponse) String() string {
 func (*GetObjectDownloadUriResponse) ProtoMessage() {}
 
 func (x *GetObjectDownloadUriResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_volume_v1_volume_proto_msgTypes[24]
+	mi := &file_chalk_volume_v1_volume_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1376,7 +1425,7 @@ func (x *GetObjectDownloadUriResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetObjectDownloadUriResponse.ProtoReflect.Descriptor instead.
 func (*GetObjectDownloadUriResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{24}
+	return file_chalk_volume_v1_volume_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetObjectDownloadUriResponse) GetSignedDownloadUri() string {
@@ -1459,7 +1508,9 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x10AzureBlockUpload\x12&\n" +
 	"\x0fsigned_blob_uri\x18\x01 \x01(\tR\rsignedBlobUri\x12&\n" +
 	"\x0fblock_id_prefix\x18\x02 \x01(\tR\rblockIdPrefix\x12\x1b\n" +
-	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\"\x9c\x02\n" +
+	"\tpart_size\x18\x03 \x01(\x03R\bpartSize\":\n" +
+	"\fDirectUpload\x12*\n" +
+	"\x11signed_upload_uri\x18\x01 \x01(\tR\x0fsignedUploadUri\"\x9c\x02\n" +
 	"\x1aGetObjectUploadUriResponse\x12*\n" +
 	"\x11storage_object_id\x18\x01 \x01(\tR\x0fstorageObjectId\x12@\n" +
 	"\tmultipart\x18\x02 \x01(\v2 .chalk.volume.v1.MultipartUploadH\x00R\tmultipart\x12@\n" +
@@ -1498,7 +1549,7 @@ func file_chalk_volume_v1_volume_proto_rawDescGZIP() []byte {
 	return file_chalk_volume_v1_volume_proto_rawDescData
 }
 
-var file_chalk_volume_v1_volume_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_chalk_volume_v1_volume_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_chalk_volume_v1_volume_proto_goTypes = []any{
 	(*VolumeInfo)(nil),                   // 0: chalk.volume.v1.VolumeInfo
 	(*FileInfo)(nil),                     // 1: chalk.volume.v1.FileInfo
@@ -1522,14 +1573,15 @@ var file_chalk_volume_v1_volume_proto_goTypes = []any{
 	(*MultipartUpload)(nil),              // 19: chalk.volume.v1.MultipartUpload
 	(*ResumableUpload)(nil),              // 20: chalk.volume.v1.ResumableUpload
 	(*AzureBlockUpload)(nil),             // 21: chalk.volume.v1.AzureBlockUpload
-	(*GetObjectUploadUriResponse)(nil),   // 22: chalk.volume.v1.GetObjectUploadUriResponse
-	(*GetObjectDownloadUriRequest)(nil),  // 23: chalk.volume.v1.GetObjectDownloadUriRequest
-	(*GetObjectDownloadUriResponse)(nil), // 24: chalk.volume.v1.GetObjectDownloadUriResponse
-	(*timestamppb.Timestamp)(nil),        // 25: google.protobuf.Timestamp
+	(*DirectUpload)(nil),                 // 22: chalk.volume.v1.DirectUpload
+	(*GetObjectUploadUriResponse)(nil),   // 23: chalk.volume.v1.GetObjectUploadUriResponse
+	(*GetObjectDownloadUriRequest)(nil),  // 24: chalk.volume.v1.GetObjectDownloadUriRequest
+	(*GetObjectDownloadUriResponse)(nil), // 25: chalk.volume.v1.GetObjectDownloadUriResponse
+	(*timestamppb.Timestamp)(nil),        // 26: google.protobuf.Timestamp
 }
 var file_chalk_volume_v1_volume_proto_depIdxs = []int32{
-	25, // 0: chalk.volume.v1.VolumeInfo.created_at:type_name -> google.protobuf.Timestamp
-	25, // 1: chalk.volume.v1.FileInfo.updated_at:type_name -> google.protobuf.Timestamp
+	26, // 0: chalk.volume.v1.VolumeInfo.created_at:type_name -> google.protobuf.Timestamp
+	26, // 1: chalk.volume.v1.FileInfo.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.volume.v1.CreateVolumeResponse.volume:type_name -> chalk.volume.v1.VolumeInfo
 	0,  // 3: chalk.volume.v1.GetVolumeResponse.volume:type_name -> chalk.volume.v1.VolumeInfo
 	0,  // 4: chalk.volume.v1.ListVolumesResponse.volumes:type_name -> chalk.volume.v1.VolumeInfo
@@ -1538,7 +1590,7 @@ var file_chalk_volume_v1_volume_proto_depIdxs = []int32{
 	20, // 7: chalk.volume.v1.GetObjectUploadUriResponse.resumable:type_name -> chalk.volume.v1.ResumableUpload
 	21, // 8: chalk.volume.v1.GetObjectUploadUriResponse.azure_block:type_name -> chalk.volume.v1.AzureBlockUpload
 	18, // 9: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectUploadUri:input_type -> chalk.volume.v1.GetObjectUploadUriRequest
-	23, // 10: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri:input_type -> chalk.volume.v1.GetObjectDownloadUriRequest
+	24, // 10: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri:input_type -> chalk.volume.v1.GetObjectDownloadUriRequest
 	2,  // 11: chalk.volume.v1.VolumeService.CreateVolume:input_type -> chalk.volume.v1.CreateVolumeRequest
 	4,  // 12: chalk.volume.v1.VolumeService.GetVolume:input_type -> chalk.volume.v1.GetVolumeRequest
 	6,  // 13: chalk.volume.v1.VolumeService.ListVolumes:input_type -> chalk.volume.v1.ListVolumesRequest
@@ -1547,8 +1599,8 @@ var file_chalk_volume_v1_volume_proto_depIdxs = []int32{
 	12, // 16: chalk.volume.v1.VolumeService.GetFile:input_type -> chalk.volume.v1.GetFileRequest
 	14, // 17: chalk.volume.v1.VolumeService.PutFile:input_type -> chalk.volume.v1.PutFileRequest
 	16, // 18: chalk.volume.v1.VolumeService.RemoveFile:input_type -> chalk.volume.v1.RemoveFileRequest
-	22, // 19: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectUploadUri:output_type -> chalk.volume.v1.GetObjectUploadUriResponse
-	24, // 20: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri:output_type -> chalk.volume.v1.GetObjectDownloadUriResponse
+	23, // 19: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectUploadUri:output_type -> chalk.volume.v1.GetObjectUploadUriResponse
+	25, // 20: chalk.volume.v1.DataPlaneObjectStorageService.GetObjectDownloadUri:output_type -> chalk.volume.v1.GetObjectDownloadUriResponse
 	3,  // 21: chalk.volume.v1.VolumeService.CreateVolume:output_type -> chalk.volume.v1.CreateVolumeResponse
 	5,  // 22: chalk.volume.v1.VolumeService.GetVolume:output_type -> chalk.volume.v1.GetVolumeResponse
 	7,  // 23: chalk.volume.v1.VolumeService.ListVolumes:output_type -> chalk.volume.v1.ListVolumesResponse
@@ -1578,7 +1630,7 @@ func file_chalk_volume_v1_volume_proto_init() {
 		(*PutFileRequest_Data)(nil),
 		(*PutFileRequest_StorageObjectId)(nil),
 	}
-	file_chalk_volume_v1_volume_proto_msgTypes[22].OneofWrappers = []any{
+	file_chalk_volume_v1_volume_proto_msgTypes[23].OneofWrappers = []any{
 		(*GetObjectUploadUriResponse_Multipart)(nil),
 		(*GetObjectUploadUriResponse_Resumable)(nil),
 		(*GetObjectUploadUriResponse_AzureBlock)(nil),
@@ -1589,7 +1641,7 @@ func file_chalk_volume_v1_volume_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_volume_v1_volume_proto_rawDesc), len(file_chalk_volume_v1_volume_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
