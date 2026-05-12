@@ -41,6 +41,8 @@ type clientImpl struct {
 
 	logger       LeveledLogger
 	tokenManager *auth.Manager
+
+	grpcClientImpl *grpcClientImpl
 }
 
 type HTTPClient interface {
@@ -644,37 +646,7 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 }
 
 func (c *clientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
-	apiServerURL := c.config.GetAPIServer().Value
-	datasetMetadataClient := serverv1connect.NewDatasetMetadataServiceClient(
-		c.httpClient,
-		apiServerURL,
-		connect.WithInterceptors(connect.UnaryInterceptorFunc(func(next connect.UnaryFunc) connect.UnaryFunc {
-			return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-				req.Header().Set("x-chalk-server", "go-api")
-				req.Header().Set("User-Agent", internal.UserAgent())
-				if envId := c.tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
-					req.Header().Set("x-chalk-env-id", envId)
-				}
-				token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
-				if err != nil {
-					return nil, errors.Wrap(err, "error refreshing token")
-				}
-				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
-				return next(ctx, req)
-			}
-		})),
-	)
-
-	res, err := datasetMetadataClient.ListDatasets(ctx, connect.NewRequest(&serverv1.ListDatasetsRequest{
-		Cursor: &params.Cursor,
-		Limit:  &params.Limit,
-		Search: &params.Search,
-	}))
-	if err != nil {
-		return nil, errors.Wrap(err, "listing datasets")
-	}
-
-	return &GRPCListDatasetsResult{RawResponse: res.Msg}, nil
+	return c.grpcClientImpl.ListDatasets(ctx, params)
 }
 
 func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) {
@@ -731,16 +703,35 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		return nil, errors.Wrap(err, "creating token refresher")
 	}
 
-	return &clientImpl{
+	grpcClient, err := newGrpcClient(ctx, &GRPCClientConfig{
+		ClientId:      cfg.ClientId,
+		ClientSecret:  cfg.ClientSecret,
+		ApiServer:     cfg.ApiServer,
+		EnvironmentId: cfg.EnvironmentId,
+		ConfigDir:     cfg.ConfigDir,
 		Branch:        cfg.Branch,
 		DeploymentTag: cfg.DeploymentTag,
 		QueryServer:   cfg.QueryServer,
-		resourceGroup: resourceGroup,
-		timeout:       timeout,
-		logger:        logger,
-		httpClient:    httpClient,
-		allocator:     allocator,
-		config:        manager,
-		tokenManager:  tokenManager,
+		ResourceGroup: cfg.ResourceGroup,
+		Logger:        cfg.Logger,
+		Timeout:       cfg.Timeout,
+		Allocator:     cfg.Allocator,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "creating grpc client")
+	}
+
+	return &clientImpl{
+		Branch:         cfg.Branch,
+		DeploymentTag:  cfg.DeploymentTag,
+		QueryServer:    cfg.QueryServer,
+		resourceGroup:  resourceGroup,
+		timeout:        timeout,
+		logger:         logger,
+		httpClient:     httpClient,
+		allocator:      allocator,
+		config:         manager,
+		tokenManager:   tokenManager,
+		grpcClientImpl: grpcClient,
 	}, nil
 }
