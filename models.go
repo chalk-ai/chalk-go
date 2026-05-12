@@ -704,6 +704,21 @@ const (
 	QueryStatusSuccessful QueryStatus = 7
 )
 
+// ListDatasetsParams are the parameters for the ListDatasets method.
+type ListDatasetsParams struct {
+	// Opaque pagination token returned in the Cursor field of a previous
+	// ListDatasets response. Pass it back verbatim to fetch the next page.
+	// Leave empty on the first call.
+	Cursor string
+
+	// Maximum number of datasets to return in this page.
+	// Defaults to 100 on the server when not set.
+	Limit int32
+
+	// Case-insensitive substring filter applied to dataset names.
+	Search string
+}
+
 type Dataset struct {
 	// Whether the export job is finished (it runs asynchronously)
 	IsFinished bool `json:"is_finished"`

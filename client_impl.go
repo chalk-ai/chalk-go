@@ -643,6 +643,40 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	return dataset, nil
 }
 
+func (c *clientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
+	apiServerURL := c.config.GetAPIServer().Value
+	datasetMetadataClient := serverv1connect.NewDatasetMetadataServiceClient(
+		c.httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(func(next connect.UnaryFunc) connect.UnaryFunc {
+			return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+				req.Header().Set("x-chalk-server", "go-api")
+				req.Header().Set("User-Agent", internal.UserAgent())
+				if envId := c.tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+					req.Header().Set("x-chalk-env-id", envId)
+				}
+				token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+				if err != nil {
+					return nil, errors.Wrap(err, "error refreshing token")
+				}
+				req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+				return next(ctx, req)
+			}
+		})),
+	)
+
+	res, err := datasetMetadataClient.ListDatasets(ctx, connect.NewRequest(&serverv1.ListDatasetsRequest{
+		Cursor: &params.Cursor,
+		Limit:  &params.Limit,
+		Search: &params.Search,
+	}))
+	if err != nil {
+		return nil, errors.Wrap(err, "listing datasets")
+	}
+
+	return &GRPCListDatasetsResult{RawResponse: res.Msg}, nil
+}
+
 func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) {
 	manager, err := config.NewManager(
 		ctx,
