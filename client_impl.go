@@ -23,6 +23,7 @@ import (
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 )
 
@@ -41,6 +42,8 @@ type clientImpl struct {
 
 	logger       LeveledLogger
 	tokenManager *auth.Manager
+
+	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
 }
 
 type HTTPClient interface {
@@ -643,6 +646,18 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	return dataset, nil
 }
 
+func (c *clientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
+	res, err := c.datasetMetadataClient.ListDatasets(ctx, connect.NewRequest(&serverv1.ListDatasetsRequest{
+		Cursor: ptr.OrNil(params.Cursor),
+		Limit:  ptr.OrNil(params.Limit),
+		Search: ptr.OrNil(params.Search),
+	}))
+	if err != nil {
+		return nil, errors.Wrap(err, "listing datasets")
+	}
+	return &GRPCListDatasetsResult{RawResponse: res.Msg}, nil
+}
+
 func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) {
 	manager, err := config.NewManager(
 		ctx,
@@ -697,16 +712,40 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		return nil, errors.Wrap(err, "creating token refresher")
 	}
 
+	apiServerURL := manager.GetAPIServer().Value
+	authedInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			req.Header().Set("x-chalk-server", "go-api")
+			req.Header().Set("User-Agent", internal.UserAgent())
+			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+				req.Header().Set("x-chalk-env-id", envId)
+			}
+			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			if err != nil {
+				return nil, errors.Wrap(err, "error refreshing token")
+			}
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			return next(ctx, req)
+		}
+	}
+
+	datasetMetadataClient := serverv1connect.NewDatasetMetadataServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
+
 	return &clientImpl{
-		Branch:        cfg.Branch,
-		DeploymentTag: cfg.DeploymentTag,
-		QueryServer:   cfg.QueryServer,
-		resourceGroup: resourceGroup,
-		timeout:       timeout,
-		logger:        logger,
-		httpClient:    httpClient,
-		allocator:     allocator,
-		config:        manager,
-		tokenManager:  tokenManager,
+		Branch:                cfg.Branch,
+		DeploymentTag:         cfg.DeploymentTag,
+		QueryServer:           cfg.QueryServer,
+		resourceGroup:         resourceGroup,
+		timeout:               timeout,
+		logger:                logger,
+		httpClient:            httpClient,
+		allocator:             allocator,
+		config:                manager,
+		tokenManager:          tokenManager,
+		datasetMetadataClient: datasetMetadataClient,
 	}, nil
 }

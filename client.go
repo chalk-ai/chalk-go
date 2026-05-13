@@ -173,6 +173,35 @@ type Client interface {
 	//		}
 	//
 	GetDataset(ctx context.Context, revisionId string) (Dataset, error)
+
+	// ListDatasets returns a page of datasets in the active environment,
+	// ordered by creation time, along with a cursor for fetching the next page.
+	//
+	// Example:
+	//
+	//	// List the most recent datasets
+	//	res, err := client.ListDatasets(ctx, chalk.ListDatasetsParams{})
+	//	if err != nil {
+	//	    return errors.Wrap(err, "listing datasets")
+	//	}
+	//	for _, d := range res.RawResponse.Datasets {
+	//	    fmt.Println(d.DatasetName, d.MostRecentRevision.NumRowsCalculated)
+	//	}
+	//
+	//	// Paginate through all datasets
+	//	cursor := ""
+	//	for {
+	//	    res, err := client.ListDatasets(ctx, chalk.ListDatasetsParams{Cursor: cursor, Limit: 10})
+	//	    if err != nil {
+	//	        return errors.Wrap(err, "listing datasets")
+	//	    }
+	//	    // ... process res.RawResponse.Datasets ...
+	//	    if res.RawResponse.Cursor == "" {
+	//	        break
+	//	    }
+	//	    cursor = res.RawResponse.Cursor
+	//	}
+	ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error)
 }
 
 type ClientConfig struct {

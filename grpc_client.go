@@ -130,6 +130,10 @@ type GRPCClient interface {
 
 	// UpdateGraph updates the graph for a deployment.
 	UpdateGraph(ctx context.Context, req *serverv1.UpdateGraphRequest) (*GRPCUpdateGraphResult, error)
+
+	// ListDatasets returns a page of datasets in the active environment,
+	// ordered by creation time, along with a cursor for fetching the next page.
+	ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error)
 }
 
 type GRPCClientConfig struct {
