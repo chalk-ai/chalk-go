@@ -17,7 +17,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 		t.Fatal("Failed creating a Chalk Client", err)
 	}
 
-	idWithNone := 1
+	idWithNone := 0
 	res := chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.Optionals.Id, idWithNone).
 		WithOutputs(testFeatures.Optionals.Name)
@@ -26,7 +26,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Nil(t, resWithNone.Name)
 
-	idNotNone := 0
+	idNotNone := 1
 	res = chalk.OnlineQueryParams{}.
 		WithInput(testFeatures.Optionals.Id, idNotNone).
 		WithOutputs(testFeatures.Optionals.Name)
@@ -34,7 +34,7 @@ func TestQueryOptionalFeatures(t *testing.T) {
 	_, err = client.OnlineQuery(t.Context(), res, &resNotNone)
 	assert.NoError(t, err)
 	assert.NotNil(t, resNotNone.Name)
-	assert.Equal(t, "name_0", *resNotNone.Name)
+	assert.Equal(t, "name_1", *resNotNone.Name)
 }
 
 // TestBulkQueryOptionalFeatures tests bulk queries with optional features
@@ -69,9 +69,9 @@ func TestBulkQueryOptionalFeatures(t *testing.T) {
 			}
 
 			assert.Equal(t, len(ids), len(results))
-			assert.NotNil(t, results[0].Name)
-			assert.Equal(t, "name_0", *results[0].Name)
-			assert.Nil(t, results[1].Name)
+			assert.Nil(t, results[0].Name)
+			assert.NotNil(t, results[1].Name)
+			assert.Equal(t, "name_1", *results[1].Name)
 		})
 	}
 }

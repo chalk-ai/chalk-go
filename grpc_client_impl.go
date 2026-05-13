@@ -662,9 +662,9 @@ type GRPCListDatasetsResult struct {
 
 func (c *grpcClientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
 	req := connect.NewRequest(&serverv1.ListDatasetsRequest{
-		Cursor: &params.Cursor,
-		Limit:  &params.Limit,
-		Search: &params.Search,
+		Cursor: ptr.OrNil(params.Cursor),
+		Limit:  ptr.OrNil(params.Limit),
+		Search: ptr.OrNil(params.Search),
 	})
 
 	res, err := c.datasetMetadataClient.ListDatasets(ctx, req)
