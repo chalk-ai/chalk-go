@@ -85,6 +85,11 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	scalingGroupPath, scalingGroupRPCHandler := scalinggroupv1connect.NewScalingGroupManagerServiceHandler(scalingGroupHandler)
 	mux.Handle(scalingGroupPath, scalingGroupRPCHandler)
 
+	// Register CloudAccountCredentialsService handler
+	cloudCredsHandler := newCloudAccountCredentialsServiceHandler(registry)
+	cloudCredsPath, cloudCredsRPCHandler := serverv1connect.NewCloudAccountCredentialsServiceHandler(cloudCredsHandler)
+	mux.Handle(cloudCredsPath, cloudCredsRPCHandler)
+
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
 
@@ -524,6 +529,14 @@ func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1
 func (s *MockServer) OnGetCloudComponentVpc() *MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse] {
 	return &MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse]{
 		methodName: "GetCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudCredentials configures the GetCloudCredentials RPC method.
+func (s *MockServer) OnGetCloudCredentials() *MethodConfigBuilder[*serverv1.GetCloudCredentialsResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudCredentialsResponse]{
+		methodName: "GetCloudCredentials",
 		registry:   s.registry,
 	}
 }
