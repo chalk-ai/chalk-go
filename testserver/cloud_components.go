@@ -416,3 +416,25 @@ func (h *cloudComponentsServiceHandler) DeleteBindingEnvironmentBackgroundPersis
 	}
 	return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
 }
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentCluster(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentClusterRequest],
+) (*connect.Response[serverv1.GetCloudComponentClusterResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentCluster", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentCluster"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentCluster"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentCluster")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentCluster"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
+}

@@ -512,6 +512,14 @@ func (s *MockServer) OnTestOfflineStoreConnection() *MethodConfigBuilder[*server
 	}
 }
 
+// OnGetCloudComponentCluster configures the GetCloudComponentCluster RPC method.
+func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse]{
+		methodName: "GetCloudComponentCluster",
+		registry:   s.registry,
+	}
+}
+
 // GetCapturedRequests returns all requests captured for the given method name.
 // This is useful for test assertions.
 func (s *MockServer) GetCapturedRequests(methodName string) []proto.Message {
