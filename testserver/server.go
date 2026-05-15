@@ -541,6 +541,14 @@ func (s *MockServer) OnGetCloudCredentials() *MethodConfigBuilder[*serverv1.GetC
 	}
 }
 
+// OnGetTeam configures the GetTeam RPC method.
+func (s *MockServer) OnGetTeam() *MethodConfigBuilder[*serverv1.GetTeamResponse] {
+	return &MethodConfigBuilder[*serverv1.GetTeamResponse]{
+		methodName: "GetTeam",
+		registry:   s.registry,
+	}
+}
+
 // GetCapturedRequests returns all requests captured for the given method name.
 // This is useful for test assertions.
 func (s *MockServer) GetCapturedRequests(methodName string) []proto.Message {
