@@ -520,6 +520,14 @@ func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1
 	}
 }
 
+// OnGetCloudComponentVpc configures the GetCloudComponentVpc RPC method.
+func (s *MockServer) OnGetCloudComponentVpc() *MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse]{
+		methodName: "GetCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
 // GetCapturedRequests returns all requests captured for the given method name.
 // This is useful for test assertions.
 func (s *MockServer) GetCapturedRequests(methodName string) []proto.Message {

@@ -438,3 +438,25 @@ func (h *cloudComponentsServiceHandler) GetCloudComponentCluster(
 	}
 	return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
 }
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentVpc(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentVpcRequest],
+) (*connect.Response[serverv1.GetCloudComponentVpcResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentVpc", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentVpc"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentVpcResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentVpc"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentVpc")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentVpc"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentVpcResponse)), nil
+}
