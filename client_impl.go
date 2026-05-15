@@ -20,6 +20,8 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
+	"github.com/chalk-ai/chalk-go/gen/chalk/container/v1/containerv1connect"
+	"github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1/sandboxv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
@@ -44,6 +46,8 @@ type clientImpl struct {
 	tokenManager *auth.Manager
 
 	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
+	customImageClient     sandboxv1connect.CustomImageServiceClient
+	containerClient       containerv1connect.ContainerServiceClient
 }
 
 type HTTPClient interface {
@@ -715,6 +719,13 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 	apiServerURL := manager.GetAPIServer().Value
 	authedInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			if timeout != nil {
+				if _, deadlineSet := ctx.Deadline(); !deadlineSet {
+					timeoutCtx, cancel := context.WithTimeout(ctx, *timeout)
+					ctx = timeoutCtx
+					defer cancel()
+				}
+			}
 			req.Header().Set("x-chalk-server", "go-api")
 			req.Header().Set("User-Agent", internal.UserAgent())
 			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
@@ -734,6 +745,16 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		apiServerURL,
 		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
 	)
+	customImageClient := sandboxv1connect.NewCustomImageServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
+	containerClient := containerv1connect.NewContainerServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
 
 	return &clientImpl{
 		Branch:                cfg.Branch,
@@ -747,5 +768,7 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		config:                manager,
 		tokenManager:          tokenManager,
 		datasetMetadataClient: datasetMetadataClient,
+		customImageClient:     customImageClient,
+		containerClient:       containerClient,
 	}, nil
 }
