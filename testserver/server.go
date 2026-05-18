@@ -85,6 +85,11 @@ func NewMockBuilderServer(t testing.TB) *MockServer {
 	scalingGroupPath, scalingGroupRPCHandler := scalinggroupv1connect.NewScalingGroupManagerServiceHandler(scalingGroupHandler)
 	mux.Handle(scalingGroupPath, scalingGroupRPCHandler)
 
+	// Register CloudAccountCredentialsService handler
+	cloudCredsHandler := newCloudAccountCredentialsServiceHandler(registry)
+	cloudCredsPath, cloudCredsRPCHandler := serverv1connect.NewCloudAccountCredentialsServiceHandler(cloudCredsHandler)
+	mux.Handle(cloudCredsPath, cloudCredsRPCHandler)
+
 	// Create httptest server
 	httpServer := httptest.NewServer(mux)
 
@@ -508,6 +513,38 @@ func (s *MockServer) OnDeleteEnvironment() *MethodConfigBuilder[*serverv1.Delete
 func (s *MockServer) OnTestOfflineStoreConnection() *MethodConfigBuilder[*serverv1.TestOfflineStoreConnectionResponse] {
 	return &MethodConfigBuilder[*serverv1.TestOfflineStoreConnectionResponse]{
 		methodName: "TestOfflineStoreConnection",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentCluster configures the GetCloudComponentCluster RPC method.
+func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse]{
+		methodName: "GetCloudComponentCluster",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentVpc configures the GetCloudComponentVpc RPC method.
+func (s *MockServer) OnGetCloudComponentVpc() *MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse]{
+		methodName: "GetCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudCredentials configures the GetCloudCredentials RPC method.
+func (s *MockServer) OnGetCloudCredentials() *MethodConfigBuilder[*serverv1.GetCloudCredentialsResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudCredentialsResponse]{
+		methodName: "GetCloudCredentials",
+		registry:   s.registry,
+	}
+}
+
+// OnGetTeam configures the GetTeam RPC method.
+func (s *MockServer) OnGetTeam() *MethodConfigBuilder[*serverv1.GetTeamResponse] {
+	return &MethodConfigBuilder[*serverv1.GetTeamResponse]{
+		methodName: "GetTeam",
 		registry:   s.registry,
 	}
 }

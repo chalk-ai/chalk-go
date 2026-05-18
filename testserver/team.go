@@ -2,6 +2,7 @@ package testserver
 
 import (
 	"context"
+	"errors"
 
 	"connectrpc.com/connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
@@ -55,4 +56,27 @@ func (h *teamServiceHandler) GetEnv(
 	}
 
 	return connect.NewResponse(resp.(*serverv1.GetEnvResponse)), nil
+}
+
+// GetTeam implements the GetTeam RPC method.
+func (h *teamServiceHandler) GetTeam(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetTeamRequest],
+) (*connect.Response[serverv1.GetTeamResponse], error) {
+	h.registry.CaptureRequest("GetTeam", req.Msg)
+	if behavior := h.registry.GetBehavior("GetTeam"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetTeamResponse)), nil
+	}
+	if err := h.registry.GetError("GetTeam"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetTeam")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetTeam"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetTeamResponse)), nil
 }
