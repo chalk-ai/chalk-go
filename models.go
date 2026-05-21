@@ -82,6 +82,11 @@ type OnlineQueryParams struct {
 	// functionality.
 	PlannerOptions map[string]any
 
+	// TranslateFqns, when true, rewrites windowed feature FQNs in the response from
+	// their internal seconds-based format (e.g. "user.count__86400__") to a
+	// human-readable bracket notation (e.g. "user.count[1d]").
+	TranslateFqns bool
+
 	/**************
 	  PRIVATE FIELDS
 	 ***************/

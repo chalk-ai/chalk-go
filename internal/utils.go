@@ -249,6 +249,30 @@ func allValid(l int) []bool {
 	return valid
 }
 
+var windowedFqnRe = regexp.MustCompile(`^(.+?)__(\d+|all)__(@.+)?$`)
+
+// TranslateWindowedFqn rewrites a windowed FQN from its internal seconds-based
+// format (e.g. "user.count__86400__") to a human-readable bracket notation
+// (e.g. `user.count[1d]`). Non-windowed FQNs are returned unchanged.
+func TranslateWindowedFqn(fqn string) string {
+	m := windowedFqnRe.FindStringSubmatch(fqn)
+	if m == nil {
+		return fqn
+	}
+	stem, bucket, version := m[1], m[2], m[3]
+	var windowStr string
+	if bucket == "all" {
+		windowStr = "all"
+	} else {
+		seconds, err := strconv.Atoi(bucket)
+		if err != nil {
+			return fqn
+		}
+		windowStr = FormatBucketDuration(seconds)
+	}
+	return stem + "[" + windowStr + "]" + version
+}
+
 func GetBucketFromFqn(fqn string) (string, error) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]
