@@ -253,7 +253,7 @@ var windowedFqnRe = regexp.MustCompile(`^(.+?)__(\d+|all)__(@.+)?$`)
 
 // TranslateWindowedFqn rewrites a windowed FQN from its internal seconds-based
 // format (e.g. "user.count__86400__") to a human-readable bracket notation
-// (e.g. `user.count[1d]`). Non-windowed FQNs are returned unchanged.
+// (e.g. "user.count[1d]"). Non-windowed FQNs are returned unchanged.
 func TranslateWindowedFqn(fqn string) string {
 	m := windowedFqnRe.FindStringSubmatch(fqn)
 	if m == nil {
