@@ -17,6 +17,8 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
@@ -163,9 +165,25 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 		return OnlineQueryBulkResult{}, singleBulkResult.Errors
 	}
 
+	scalarsTable := singleBulkResult.ScalarData
+	groupsTables := singleBulkResult.GroupsData
+
+	if request.TranslateFqns {
+		if scalarsTable != nil {
+			scalarsTable = renameArrowTableColumns(scalarsTable, internal.TranslateWindowedFqn)
+		}
+		if groupsTables != nil {
+			translated := make(map[string]arrow.Table, len(groupsTables))
+			for k, t := range groupsTables {
+				translated[internal.TranslateWindowedFqn(k)] = renameArrowTableColumns(t, internal.TranslateWindowedFqn)
+			}
+			groupsTables = translated
+		}
+	}
+
 	return OnlineQueryBulkResult{
-		ScalarsTable:    singleBulkResult.ScalarData,
-		GroupsTables:    singleBulkResult.GroupsData,
+		ScalarsTable:    scalarsTable,
+		GroupsTables:    groupsTables,
 		Meta:            singleBulkResult.Meta,
 		allocator:       c.allocator,
 		ResponseHeaders: headers,
@@ -256,6 +274,12 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
+	}
+
+	if request.TranslateFqns {
+		for i := range deserializedData {
+			deserializedData[i].Field = internal.TranslateWindowedFqn(deserializedData[i].Field)
+		}
 	}
 
 	for _, result := range deserializedData {
@@ -771,4 +795,36 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		customImageClient:     customImageClient,
 		containerClient:       containerClient,
 	}, nil
+}
+
+// renameArrowTableColumns rebuilds an Arrow table with column names transformed by fn.
+// Columns whose names are unchanged by fn are kept as-is.
+func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table {
+	schema := t.Schema()
+	fields := make([]arrow.Field, schema.NumFields())
+	for i, f := range schema.Fields() {
+		f.Name = fn(f.Name)
+		fields[i] = f
+	}
+	meta := schema.Metadata()
+	newSchema := arrow.NewSchema(fields, &meta)
+
+	// Collect chunked columns and build records for NewTableFromRecords.
+	reader := array.NewTableReader(t, t.NumRows())
+	defer reader.Release()
+
+	var records []arrow.Record
+	for reader.Next() {
+		rec := reader.Record()
+		renamed := array.NewRecord(newSchema, rec.Columns(), rec.NumRows())
+		records = append(records, renamed)
+	}
+	if len(records) == 0 {
+		return array.NewTableFromRecords(newSchema, nil)
+	}
+	result := array.NewTableFromRecords(newSchema, records)
+	for _, r := range records {
+		r.Release()
+	}
+	return result
 }

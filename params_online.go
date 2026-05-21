@@ -98,6 +98,17 @@ func (p OnlineQueryParamsComplete) WithTags(tags ...string) OnlineQueryParamsCom
 	return p
 }
 
+// WithTranslateFqns returns a copy of Online Query parameters with TranslateFqns set.
+// When true, windowed feature FQNs in the response are rewritten from their internal
+// seconds-based format (e.g. "user.count__86400__") to a human-readable bracket
+// notation (e.g. "user.count[1d]"). Only applies to the Data field of OnlineQueryResult
+// and the ScalarsTable columns of OnlineQueryBulkResult.
+// For use via method chaining. See OnlineQueryParamsComplete for usage examples.
+func (p OnlineQueryParamsComplete) WithTranslateFqns(translate bool) OnlineQueryParamsComplete {
+	p.underlying.TranslateFqns = translate
+	return p
+}
+
 /*****************************************
  Definitions for OnlineQueryParams
 ******************************************/
