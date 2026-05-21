@@ -44,12 +44,22 @@ func TestTranslateWindowedFqn(t *testing.T) {
 			want:  "user.count[all]@2",
 		},
 		{
+			name:  "1h30m (5400s)",
+			input: "user.count__5400__",
+			want:  "user.count[90m]",
+		},
+		{
+			name:  "multi-segment namespace",
+			input: "user.relationship.agg__86400__",
+			want:  "user.relationship.agg[1d]",
+		},
+		{
 			name:  "non-windowed passthrough",
 			input: "user.age",
 			want:  "user.age",
 		},
 		{
-			name:  "multi-segment namespace",
+			name:  "weeks",
 			input: "ns.sub.feat__604800__",
 			want:  "ns.sub.feat[1w]",
 		},
