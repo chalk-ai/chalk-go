@@ -17,6 +17,7 @@ func TestTranslateFqnsOnlineQueryResult(t *testing.T) {
 		{Field: "user.count__86400__", Value: float64(10)},
 		{Field: "user.count__3600__", Value: float64(5)},
 		{Field: "user.count__all__", Value: float64(100)},
+		{Field: "user.count__all__@2", Value: float64(200)},
 		{Field: "user.id", Value: "u1"},
 		{Field: "user.score__86400__@2", Value: float64(0.9)},
 	}
@@ -32,8 +33,9 @@ func TestTranslateFqnsOnlineQueryResult(t *testing.T) {
 	require.Equal(t, "user.count[1d]", deserialized[0].Field)
 	require.Equal(t, "user.count[1h]", deserialized[1].Field)
 	require.Equal(t, "user.count[all]", deserialized[2].Field)
-	require.Equal(t, "user.id", deserialized[3].Field)
-	require.Equal(t, "user.score[1d]@2", deserialized[4].Field)
+	require.Equal(t, "user.count[all]@2", deserialized[3].Field)
+	require.Equal(t, "user.id", deserialized[4].Field)
+	require.Equal(t, "user.score[1d]@2", deserialized[5].Field)
 }
 
 func TestTranslateFqnsArrowTable(t *testing.T) {

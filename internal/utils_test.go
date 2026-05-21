@@ -39,6 +39,11 @@ func TestTranslateWindowedFqn(t *testing.T) {
 			want:  "user.count[1d]@2",
 		},
 		{
+			name:  "all bucket with version suffix",
+			input: "user.count__all__@2",
+			want:  "user.count[all]@2",
+		},
+		{
 			name:  "non-windowed passthrough",
 			input: "user.age",
 			want:  "user.age",
