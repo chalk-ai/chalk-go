@@ -24,7 +24,10 @@ const (
 )
 
 type GetActiveScheduledQueriesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// If set, list scheduled queries persisted on this deployment instead of the
+	// environment's active deployment. Useful for branch deployments.
+	DeploymentId  *string `protobuf:"bytes,1,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -57,6 +60,13 @@ func (x *GetActiveScheduledQueriesRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetActiveScheduledQueriesRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveScheduledQueriesRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_scheduled_query_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *GetActiveScheduledQueriesRequest) GetDeploymentId() string {
+	if x != nil && x.DeploymentId != nil {
+		return *x.DeploymentId
+	}
+	return ""
 }
 
 type ScheduledQueryRunInfo struct {
@@ -653,8 +663,10 @@ var File_chalk_server_v1_scheduled_query_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_scheduled_query_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/server/v1/scheduled_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\"\"\n" +
-	" GetActiveScheduledQueriesRequest\"\x9f\x02\n" +
+	"%chalk/server/v1/scheduled_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/server/v1/scheduled_query_run.proto\x1a google/protobuf/field_mask.proto\"^\n" +
+	" GetActiveScheduledQueriesRequest\x12(\n" +
+	"\rdeployment_id\x18\x01 \x01(\tH\x00R\fdeploymentId\x88\x01\x01B\x10\n" +
+	"\x0e_deployment_id\"\x9f\x02\n" +
 	"\x15ScheduledQueryRunInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12-\n" +
 	"\x10offline_query_id\x18\x02 \x01(\tH\x00R\x0eofflineQueryId\x88\x01\x01\x127\n" +
@@ -781,6 +793,7 @@ func file_chalk_server_v1_scheduled_query_proto_init() {
 		return
 	}
 	file_chalk_server_v1_scheduled_query_run_proto_init()
+	file_chalk_server_v1_scheduled_query_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduled_query_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduled_query_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduled_query_proto_msgTypes[4].OneofWrappers = []any{

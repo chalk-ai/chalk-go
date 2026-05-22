@@ -417,8 +417,16 @@ type ManualTriggerScheduledQueryRequest struct {
 	CronQueryIdentifier isManualTriggerScheduledQueryRequest_CronQueryIdentifier `protobuf_oneof:"cron_query_identifier"`
 	StorePlanStages     bool                                                     `protobuf:"varint,7,opt,name=store_plan_stages,json=storePlanStages,proto3" json:"store_plan_stages,omitempty"`
 	UnloadResolvers     []*v1.UnloadResolverSpec                                 `protobuf:"bytes,8,rep,name=unload_resolvers,json=unloadResolvers,proto3" json:"unload_resolvers,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Target deployment for the trigger. At most one of branch_id / deployment_id
+	// may be set; if neither is set, the environment's active deployment is used.
+	//
+	// Types that are valid to be assigned to Target:
+	//
+	//	*ManualTriggerScheduledQueryRequest_BranchId
+	//	*ManualTriggerScheduledQueryRequest_DeploymentId
+	Target        isManualTriggerScheduledQueryRequest_Target `protobuf_oneof:"target"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ManualTriggerScheduledQueryRequest) Reset() {
@@ -516,6 +524,31 @@ func (x *ManualTriggerScheduledQueryRequest) GetUnloadResolvers() []*v1.UnloadRe
 	return nil
 }
 
+func (x *ManualTriggerScheduledQueryRequest) GetTarget() isManualTriggerScheduledQueryRequest_Target {
+	if x != nil {
+		return x.Target
+	}
+	return nil
+}
+
+func (x *ManualTriggerScheduledQueryRequest) GetBranchId() string {
+	if x != nil {
+		if x, ok := x.Target.(*ManualTriggerScheduledQueryRequest_BranchId); ok {
+			return x.BranchId
+		}
+	}
+	return ""
+}
+
+func (x *ManualTriggerScheduledQueryRequest) GetDeploymentId() string {
+	if x != nil {
+		if x, ok := x.Target.(*ManualTriggerScheduledQueryRequest_DeploymentId); ok {
+			return x.DeploymentId
+		}
+	}
+	return ""
+}
+
 type isManualTriggerScheduledQueryRequest_CronQueryIdentifier interface {
 	isManualTriggerScheduledQueryRequest_CronQueryIdentifier()
 }
@@ -525,6 +558,26 @@ type ManualTriggerScheduledQueryRequest_CronQueryName struct {
 }
 
 func (*ManualTriggerScheduledQueryRequest_CronQueryName) isManualTriggerScheduledQueryRequest_CronQueryIdentifier() {
+}
+
+type isManualTriggerScheduledQueryRequest_Target interface {
+	isManualTriggerScheduledQueryRequest_Target()
+}
+
+type ManualTriggerScheduledQueryRequest_BranchId struct {
+	// Run against the latest deployment for this branch.
+	BranchId string `protobuf:"bytes,9,opt,name=branch_id,json=branchId,proto3,oneof"`
+}
+
+type ManualTriggerScheduledQueryRequest_DeploymentId struct {
+	// Run against this deployment directly. If it is a branch deployment, the
+	// query will execute against that branch.
+	DeploymentId string `protobuf:"bytes,10,opt,name=deployment_id,json=deploymentId,proto3,oneof"`
+}
+
+func (*ManualTriggerScheduledQueryRequest_BranchId) isManualTriggerScheduledQueryRequest_Target() {}
+
+func (*ManualTriggerScheduledQueryRequest_DeploymentId) isManualTriggerScheduledQueryRequest_Target() {
 }
 
 type ManualTriggerScheduledQueryResponse struct {
@@ -1659,24 +1712,28 @@ const file_chalk_server_v1_scheduler_proto_rawDesc = "" +
 	"\x1a_override_target_image_tag\"\x94\x01\n" +
 	"!ManualTriggerCronResolverResponse\x12L\n" +
 	"\x11cron_resolver_run\x18\x01 \x01(\v2 .chalk.server.v1.CronResolverRunR\x0fcronResolverRun\x12!\n" +
-	"\fprogress_url\x18\x02 \x01(\tR\vprogressUrl\"\xec\x05\n" +
+	"\fprogress_url\x18\x02 \x01(\tR\vprogressUrl\"\xbc\x06\n" +
 	"\"ManualTriggerScheduledQueryRequest\x12\"\n" +
 	"\rcron_query_id\x18\x01 \x01(\x03R\vcronQueryId\x12p\n" +
 	"\x0fplanner_options\x18\x02 \x03(\v2G.chalk.server.v1.ManualTriggerScheduledQueryRequest.PlannerOptionsEntryR\x0eplannerOptions\x123\n" +
 	"\x15incremental_resolvers\x18\x03 \x03(\tR\x14incrementalResolvers\x12$\n" +
-	"\vmax_samples\x18\x04 \x01(\x03H\x01R\n" +
+	"\vmax_samples\x18\x04 \x01(\x03H\x02R\n" +
 	"maxSamples\x88\x01\x01\x12j\n" +
 	"\renv_overrides\x18\x05 \x03(\v2E.chalk.server.v1.ManualTriggerScheduledQueryRequest.EnvOverridesEntryR\fenvOverrides\x12(\n" +
 	"\x0fcron_query_name\x18\x06 \x01(\tH\x00R\rcronQueryName\x12*\n" +
 	"\x11store_plan_stages\x18\a \x01(\bR\x0fstorePlanStages\x12N\n" +
-	"\x10unload_resolvers\x18\b \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x1aY\n" +
+	"\x10unload_resolvers\x18\b \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x12\x1d\n" +
+	"\tbranch_id\x18\t \x01(\tH\x01R\bbranchId\x12%\n" +
+	"\rdeployment_id\x18\n" +
+	" \x01(\tH\x01R\fdeploymentId\x1aY\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
 	"\x11EnvOverridesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x17\n" +
-	"\x15cron_query_identifierB\x0e\n" +
+	"\x15cron_query_identifierB\b\n" +
+	"\x06targetB\x0e\n" +
 	"\f_max_samples\"y\n" +
 	"#ManualTriggerScheduledQueryResponse\x12R\n" +
 	"\x13scheduled_query_run\x18\x01 \x01(\v2\".chalk.server.v1.ScheduledQueryRunR\x11scheduledQueryRun\"0\n" +
@@ -1918,6 +1975,8 @@ func file_chalk_server_v1_scheduler_proto_init() {
 	file_chalk_server_v1_scheduler_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduler_proto_msgTypes[3].OneofWrappers = []any{
 		(*ManualTriggerScheduledQueryRequest_CronQueryName)(nil),
+		(*ManualTriggerScheduledQueryRequest_BranchId)(nil),
+		(*ManualTriggerScheduledQueryRequest_DeploymentId)(nil),
 	}
 	file_chalk_server_v1_scheduler_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_scheduler_proto_msgTypes[8].OneofWrappers = []any{}

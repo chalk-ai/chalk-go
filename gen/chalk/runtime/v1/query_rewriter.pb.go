@@ -61,11 +61,12 @@ func (*IdentityQueryRewriter) Descriptor() ([]byte, []int) {
 }
 
 type GivensQueryRewriter struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Values        *Data                  `protobuf:"bytes,1,opt,name=values,proto3" json:"values,omitempty"`
-	JoinColumns   []string               `protobuf:"bytes,2,rep,name=join_columns,json=joinColumns,proto3" json:"join_columns,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"open.v1"`
+	Values                 *Data                  `protobuf:"bytes,1,opt,name=values,proto3" json:"values,omitempty"`
+	JoinColumns            []string               `protobuf:"bytes,2,rep,name=join_columns,json=joinColumns,proto3" json:"join_columns,omitempty"`
+	UsePostgresArrayParams bool                   `protobuf:"varint,3,opt,name=use_postgres_array_params,json=usePostgresArrayParams,proto3" json:"use_postgres_array_params,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *GivensQueryRewriter) Reset() {
@@ -110,6 +111,13 @@ func (x *GivensQueryRewriter) GetJoinColumns() []string {
 		return x.JoinColumns
 	}
 	return nil
+}
+
+func (x *GivensQueryRewriter) GetUsePostgresArrayParams() bool {
+	if x != nil {
+		return x.UsePostgresArrayParams
+	}
+	return false
 }
 
 type HighWaterMark struct {
@@ -707,10 +715,11 @@ var File_chalk_runtime_v1_query_rewriter_proto protoreflect.FileDescriptor
 const file_chalk_runtime_v1_query_rewriter_proto_rawDesc = "" +
 	"\n" +
 	"%chalk/runtime/v1/query_rewriter.proto\x12\x10chalk.runtime.v1\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1bchalk/runtime/v1/data.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x17\n" +
-	"\x15IdentityQueryRewriter\"h\n" +
+	"\x15IdentityQueryRewriter\"\xa3\x01\n" +
 	"\x13GivensQueryRewriter\x12.\n" +
 	"\x06values\x18\x01 \x01(\v2\x16.chalk.runtime.v1.DataR\x06values\x12!\n" +
-	"\fjoin_columns\x18\x02 \x03(\tR\vjoinColumns\"\xf9\x01\n" +
+	"\fjoin_columns\x18\x02 \x03(\tR\vjoinColumns\x129\n" +
+	"\x19use_postgres_array_params\x18\x03 \x01(\bR\x16usePostgresArrayParams\"\xf9\x01\n" +
 	"\rHighWaterMark\x12U\n" +
 	"\x16max_ingested_timestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x14maxIngestedTimestamp\x88\x01\x01\x12Y\n" +
 	"\x18last_execution_timestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x16lastExecutionTimestamp\x88\x01\x01B\x19\n" +

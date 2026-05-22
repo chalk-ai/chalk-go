@@ -49,6 +49,9 @@ const (
 	// OfflineQueryMetadataServiceGetOfflineQueryInfraSummaryProcedure is the fully-qualified name of
 	// the OfflineQueryMetadataService's GetOfflineQueryInfraSummary RPC.
 	OfflineQueryMetadataServiceGetOfflineQueryInfraSummaryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQueryInfraSummary"
+	// OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure is the fully-qualified name of
+	// the OfflineQueryMetadataService's GetOfflineQueryProfileSummary RPC.
+	OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure = "/chalk.server.v1.OfflineQueryMetadataService/GetOfflineQueryProfileSummary"
 	// OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure is the
 	// fully-qualified name of the OfflineQueryMetadataService's
 	// ListOfflineQueryShardPerformanceSummaries RPC.
@@ -84,6 +87,7 @@ type OfflineQueryMetadataServiceClient interface {
 	ListOfflineQueryShards(context.Context, *connect.Request[v1.ListOfflineQueryShardsRequest]) (*connect.Response[v1.ListOfflineQueryShardsResponse], error)
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
+	GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
 	// Deprecated: do not use.
@@ -139,6 +143,13 @@ func NewOfflineQueryMetadataServiceClient(httpClient connect.HTTPClient, baseURL
 			httpClient,
 			baseURL+OfflineQueryMetadataServiceGetOfflineQueryInfraSummaryProcedure,
 			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryInfraSummary")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getOfflineQueryProfileSummary: connect.NewClient[v1.GetOfflineQueryProfileSummaryRequest, v1.GetOfflineQueryProfileSummaryResponse](
+			httpClient,
+			baseURL+OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure,
+			connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryProfileSummary")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -203,6 +214,7 @@ type offlineQueryMetadataServiceClient struct {
 	listOfflineQueryShards                    *connect.Client[v1.ListOfflineQueryShardsRequest, v1.ListOfflineQueryShardsResponse]
 	getOfflineQueryShardsAggregated           *connect.Client[v1.GetOfflineQueryShardsAggregatedRequest, v1.GetOfflineQueryShardsAggregatedResponse]
 	getOfflineQueryInfraSummary               *connect.Client[v1.GetOfflineQueryInfraSummaryRequest, v1.GetOfflineQueryInfraSummaryResponse]
+	getOfflineQueryProfileSummary             *connect.Client[v1.GetOfflineQueryProfileSummaryRequest, v1.GetOfflineQueryProfileSummaryResponse]
 	listOfflineQueryShardPerformanceSummaries *connect.Client[v1.ListOfflineQueryShardPerformanceSummariesRequest, v1.ListOfflineQueryShardPerformanceSummariesResponse]
 	createOfflineQueryJob                     *connect.Client[v1.CreateOfflineQueryJobRequest, v1.CreateOfflineQueryJobResponse]
 	createModelTrainingJob                    *connect.Client[v1.CreateModelTrainingJobRequest, v1.CreateModelTrainingJobResponse]
@@ -238,6 +250,12 @@ func (c *offlineQueryMetadataServiceClient) GetOfflineQueryShardsAggregated(ctx 
 // chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary.
 func (c *offlineQueryMetadataServiceClient) GetOfflineQueryInfraSummary(ctx context.Context, req *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error) {
 	return c.getOfflineQueryInfraSummary.CallUnary(ctx, req)
+}
+
+// GetOfflineQueryProfileSummary calls
+// chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary.
+func (c *offlineQueryMetadataServiceClient) GetOfflineQueryProfileSummary(ctx context.Context, req *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error) {
+	return c.getOfflineQueryProfileSummary.CallUnary(ctx, req)
 }
 
 // ListOfflineQueryShardPerformanceSummaries calls
@@ -292,6 +310,7 @@ type OfflineQueryMetadataServiceHandler interface {
 	ListOfflineQueryShards(context.Context, *connect.Request[v1.ListOfflineQueryShardsRequest]) (*connect.Response[v1.ListOfflineQueryShardsResponse], error)
 	GetOfflineQueryShardsAggregated(context.Context, *connect.Request[v1.GetOfflineQueryShardsAggregatedRequest]) (*connect.Response[v1.GetOfflineQueryShardsAggregatedResponse], error)
 	GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error)
+	GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error)
 	ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error)
 	CreateOfflineQueryJob(context.Context, *connect.Request[v1.CreateOfflineQueryJobRequest]) (*connect.Response[v1.CreateOfflineQueryJobResponse], error)
 	// Deprecated: do not use.
@@ -342,6 +361,13 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 		OfflineQueryMetadataServiceGetOfflineQueryInfraSummaryProcedure,
 		svc.GetOfflineQueryInfraSummary,
 		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryInfraSummary")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	offlineQueryMetadataServiceGetOfflineQueryProfileSummaryHandler := connect.NewUnaryHandler(
+		OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure,
+		svc.GetOfflineQueryProfileSummary,
+		connect.WithSchema(offlineQueryMetadataServiceMethods.ByName("GetOfflineQueryProfileSummary")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -408,6 +434,8 @@ func NewOfflineQueryMetadataServiceHandler(svc OfflineQueryMetadataServiceHandle
 			offlineQueryMetadataServiceGetOfflineQueryShardsAggregatedHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceGetOfflineQueryInfraSummaryProcedure:
 			offlineQueryMetadataServiceGetOfflineQueryInfraSummaryHandler.ServeHTTP(w, r)
+		case OfflineQueryMetadataServiceGetOfflineQueryProfileSummaryProcedure:
+			offlineQueryMetadataServiceGetOfflineQueryProfileSummaryHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesProcedure:
 			offlineQueryMetadataServiceListOfflineQueryShardPerformanceSummariesHandler.ServeHTTP(w, r)
 		case OfflineQueryMetadataServiceCreateOfflineQueryJobProcedure:
@@ -451,6 +479,10 @@ func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryShardsAggr
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryInfraSummary(context.Context, *connect.Request[v1.GetOfflineQueryInfraSummaryRequest]) (*connect.Response[v1.GetOfflineQueryInfraSummaryResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary is not implemented"))
+}
+
+func (UnimplementedOfflineQueryMetadataServiceHandler) GetOfflineQueryProfileSummary(context.Context, *connect.Request[v1.GetOfflineQueryProfileSummaryRequest]) (*connect.Response[v1.GetOfflineQueryProfileSummaryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary is not implemented"))
 }
 
 func (UnimplementedOfflineQueryMetadataServiceHandler) ListOfflineQueryShardPerformanceSummaries(context.Context, *connect.Request[v1.ListOfflineQueryShardPerformanceSummariesRequest]) (*connect.Response[v1.ListOfflineQueryShardPerformanceSummariesResponse], error) {

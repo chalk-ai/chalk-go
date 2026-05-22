@@ -1007,6 +1007,8 @@ type GetDeploymentSourceResponse struct {
 	state                           protoimpl.MessageState `protogen:"open.v1"`
 	SignedUrl                       string                 `protobuf:"bytes,1,opt,name=signed_url,json=signedUrl,proto3" json:"signed_url,omitempty"`
 	SupplementaryGraphInfoSignedUrl *string                `protobuf:"bytes,2,opt,name=supplementary_graph_info_signed_url,json=supplementaryGraphInfoSignedUrl,proto3,oneof" json:"supplementary_graph_info_signed_url,omitempty"`
+	MountedModelSpecsSignedUrl      *string                `protobuf:"bytes,3,opt,name=mounted_model_specs_signed_url,json=mountedModelSpecsSignedUrl,proto3,oneof" json:"mounted_model_specs_signed_url,omitempty"`
+	ModelEndpointConfigSignedUrl    *string                `protobuf:"bytes,4,opt,name=model_endpoint_config_signed_url,json=modelEndpointConfigSignedUrl,proto3,oneof" json:"model_endpoint_config_signed_url,omitempty"`
 	unknownFields                   protoimpl.UnknownFields
 	sizeCache                       protoimpl.SizeCache
 }
@@ -1051,6 +1053,20 @@ func (x *GetDeploymentSourceResponse) GetSignedUrl() string {
 func (x *GetDeploymentSourceResponse) GetSupplementaryGraphInfoSignedUrl() string {
 	if x != nil && x.SupplementaryGraphInfoSignedUrl != nil {
 		return *x.SupplementaryGraphInfoSignedUrl
+	}
+	return ""
+}
+
+func (x *GetDeploymentSourceResponse) GetMountedModelSpecsSignedUrl() string {
+	if x != nil && x.MountedModelSpecsSignedUrl != nil {
+		return *x.MountedModelSpecsSignedUrl
+	}
+	return ""
+}
+
+func (x *GetDeploymentSourceResponse) GetModelEndpointConfigSignedUrl() string {
+	if x != nil && x.ModelEndpointConfigSignedUrl != nil {
+		return *x.ModelEndpointConfigSignedUrl
 	}
 	return ""
 }
@@ -1336,12 +1352,16 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\x1cGetActiveDeploymentsResponse\x12=\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x1b.chalk.server.v1.DeploymentR\vdeployments\"A\n" +
 	"\x1aGetDeploymentSourceRequest\x12#\n" +
-	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\xb7\x01\n" +
+	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"\x95\x03\n" +
 	"\x1bGetDeploymentSourceResponse\x12\x1d\n" +
 	"\n" +
 	"signed_url\x18\x01 \x01(\tR\tsignedUrl\x12Q\n" +
-	"#supplementary_graph_info_signed_url\x18\x02 \x01(\tH\x00R\x1fsupplementaryGraphInfoSignedUrl\x88\x01\x01B&\n" +
-	"$_supplementary_graph_info_signed_url\"\xf1\x01\n" +
+	"#supplementary_graph_info_signed_url\x18\x02 \x01(\tH\x00R\x1fsupplementaryGraphInfoSignedUrl\x88\x01\x01\x12G\n" +
+	"\x1emounted_model_specs_signed_url\x18\x03 \x01(\tH\x01R\x1amountedModelSpecsSignedUrl\x88\x01\x01\x12K\n" +
+	" model_endpoint_config_signed_url\x18\x04 \x01(\tH\x02R\x1cmodelEndpointConfigSignedUrl\x88\x01\x01B&\n" +
+	"$_supplementary_graph_info_signed_urlB!\n" +
+	"\x1f_mounted_model_specs_signed_urlB#\n" +
+	"!_model_endpoint_config_signed_url\"\xf1\x01\n" +
 	"\x1eResolverDeploymentHistoryEntry\x12\x1f\n" +
 	"\vresolver_id\x18\x01 \x01(\x05R\n" +
 	"resolverId\x12(\n" +

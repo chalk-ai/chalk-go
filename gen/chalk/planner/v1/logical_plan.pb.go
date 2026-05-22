@@ -321,6 +321,7 @@ type LogicalPlanArgument struct {
 	//	*LogicalPlanArgument_Uint64Value
 	//	*LogicalPlanArgument_BoolValue
 	//	*LogicalPlanArgument_BytesValue
+	//	*LogicalPlanArgument_DoubleValue
 	//	*LogicalPlanArgument_DurationValue
 	//	*LogicalPlanArgument_ArrowSchema
 	//	*LogicalPlanArgument_ListValue
@@ -424,6 +425,15 @@ func (x *LogicalPlanArgument) GetBytesValue() []byte {
 	return nil
 }
 
+func (x *LogicalPlanArgument) GetDoubleValue() float64 {
+	if x != nil {
+		if x, ok := x.Arg.(*LogicalPlanArgument_DoubleValue); ok {
+			return x.DoubleValue
+		}
+	}
+	return 0
+}
+
 func (x *LogicalPlanArgument) GetDurationValue() *durationpb.Duration {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_DurationValue); ok {
@@ -517,6 +527,10 @@ type LogicalPlanArgument_BytesValue struct {
 	BytesValue []byte `protobuf:"bytes,9,opt,name=bytes_value,json=bytesValue,proto3,oneof"`
 }
 
+type LogicalPlanArgument_DoubleValue struct {
+	DoubleValue float64 `protobuf:"fixed64,14,opt,name=double_value,json=doubleValue,proto3,oneof"`
+}
+
 type LogicalPlanArgument_DurationValue struct {
 	DurationValue *durationpb.Duration `protobuf:"bytes,13,opt,name=duration_value,json=durationValue,proto3,oneof"`
 }
@@ -560,6 +574,8 @@ func (*LogicalPlanArgument_Uint64Value) isLogicalPlanArgument_Arg() {}
 func (*LogicalPlanArgument_BoolValue) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_BytesValue) isLogicalPlanArgument_Arg() {}
+
+func (*LogicalPlanArgument_DoubleValue) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_DurationValue) isLogicalPlanArgument_Arg() {}
 
@@ -851,7 +867,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
 	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"$\n" +
 	"\x12LogicalTableNodeId\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"\x91\x06\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"\xb6\x06\n" +
 	"\x13LogicalPlanArgument\x12M\n" +
 	"\n" +
 	"null_value\x18\x01 \x01(\v2,.chalk.planner.v1.LogicalPlanArgumentNullOptH\x00R\tnullValue\x12#\n" +
@@ -862,7 +878,8 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
 	"bool_value\x18\x04 \x01(\bH\x00R\tboolValue\x12!\n" +
 	"\vbytes_value\x18\t \x01(\fH\x00R\n" +
-	"bytesValue\x12B\n" +
+	"bytesValue\x12#\n" +
+	"\fdouble_value\x18\x0e \x01(\x01H\x00R\vdoubleValue\x12B\n" +
 	"\x0eduration_value\x18\r \x01(\v2\x19.google.protobuf.DurationH\x00R\rdurationValue\x12;\n" +
 	"\farrow_schema\x18\x05 \x01(\v2\x16.chalk.arrow.v1.SchemaH\x00R\varrowSchema\x12J\n" +
 	"\n" +
@@ -1004,6 +1021,7 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 		(*LogicalPlanArgument_Uint64Value)(nil),
 		(*LogicalPlanArgument_BoolValue)(nil),
 		(*LogicalPlanArgument_BytesValue)(nil),
+		(*LogicalPlanArgument_DoubleValue)(nil),
 		(*LogicalPlanArgument_DurationValue)(nil),
 		(*LogicalPlanArgument_ArrowSchema)(nil),
 		(*LogicalPlanArgument_ListValue)(nil),
