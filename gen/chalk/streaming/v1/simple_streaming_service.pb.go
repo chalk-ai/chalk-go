@@ -290,8 +290,11 @@ type StreamingLoggerConfig struct {
 	// Controls sampling of materialized aggregation debug logs independently.
 	// When absent, falls back to sample_pct, then to env var default.
 	AggregateSamplePct *float64 `protobuf:"fixed64,4,opt,name=aggregate_sample_pct,json=aggregateSamplePct,proto3,oneof" json:"aggregate_sample_pct,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Sample rate specifically for successful messages (no failures, no skips) (0.0 to 1.0).
+	// When absent, falls back to sample_pct.
+	SamplePctSuccess *float64 `protobuf:"fixed64,5,opt,name=sample_pct_success,json=samplePctSuccess,proto3,oneof" json:"sample_pct_success,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *StreamingLoggerConfig) Reset() {
@@ -348,6 +351,13 @@ func (x *StreamingLoggerConfig) GetSamplePctSkipped() float64 {
 func (x *StreamingLoggerConfig) GetAggregateSamplePct() float64 {
 	if x != nil && x.AggregateSamplePct != nil {
 		return *x.AggregateSamplePct
+	}
+	return 0
+}
+
+func (x *StreamingLoggerConfig) GetSamplePctSuccess() float64 {
+	if x != nil && x.SamplePctSuccess != nil {
+		return *x.SamplePctSuccess
 	}
 	return 0
 }
@@ -719,17 +729,19 @@ const file_chalk_streaming_v1_simple_streaming_service_proto_rawDesc = "" +
 	"\foperation_id\x18\x03 \x01(\tR\voperationId\x12 \n" +
 	"\trow_index\x18\x04 \x01(\x03H\x00R\browIndex\x88\x01\x01B\f\n" +
 	"\n" +
-	"_row_index\"\xae\x02\n" +
+	"_row_index\"\xf8\x02\n" +
 	"\x15StreamingLoggerConfig\x12\"\n" +
 	"\n" +
 	"sample_pct\x18\x01 \x01(\x01H\x00R\tsamplePct\x88\x01\x01\x121\n" +
 	"\x12sample_pct_failure\x18\x02 \x01(\x01H\x01R\x10samplePctFailure\x88\x01\x01\x121\n" +
 	"\x12sample_pct_skipped\x18\x03 \x01(\x01H\x02R\x10samplePctSkipped\x88\x01\x01\x125\n" +
-	"\x14aggregate_sample_pct\x18\x04 \x01(\x01H\x03R\x12aggregateSamplePct\x88\x01\x01B\r\n" +
+	"\x14aggregate_sample_pct\x18\x04 \x01(\x01H\x03R\x12aggregateSamplePct\x88\x01\x01\x121\n" +
+	"\x12sample_pct_success\x18\x05 \x01(\x01H\x04R\x10samplePctSuccess\x88\x01\x01B\r\n" +
 	"\v_sample_pctB\x15\n" +
 	"\x13_sample_pct_failureB\x15\n" +
 	"\x13_sample_pct_skippedB\x17\n" +
-	"\x15_aggregate_sample_pct\"\xbd\x02\n" +
+	"\x15_aggregate_sample_pctB\x15\n" +
+	"\x13_sample_pct_success\"\xbd\x02\n" +
 	"!SimpleStreamingUnaryInvokeRequest\x124\n" +
 	"\x16streaming_resolver_fqn\x18\x01 \x01(\tR\x14streamingResolverFqn\x12\x1d\n" +
 	"\n" +

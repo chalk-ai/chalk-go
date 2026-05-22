@@ -350,6 +350,7 @@ type OfflineQueryInputs struct {
 	//	*OfflineQueryInputs_SingleInputs
 	//	*OfflineQueryInputs_ShardedInputs
 	//	*OfflineQueryInputs_ShardedParquetUploadInputs
+	//	*OfflineQueryInputs_SqlInput
 	Impl          isOfflineQueryInputs_Impl `protobuf_oneof:"impl"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -437,6 +438,15 @@ func (x *OfflineQueryInputs) GetShardedParquetUploadInputs() *OfflineQuerySharde
 	return nil
 }
 
+func (x *OfflineQueryInputs) GetSqlInput() string {
+	if x != nil {
+		if x, ok := x.Impl.(*OfflineQueryInputs_SqlInput); ok {
+			return x.SqlInput
+		}
+	}
+	return ""
+}
+
 type isOfflineQueryInputs_Impl interface {
 	isOfflineQueryInputs_Impl()
 }
@@ -463,6 +473,10 @@ type OfflineQueryInputs_ShardedParquetUploadInputs struct {
 	ShardedParquetUploadInputs *OfflineQueryShardedParquetUploadInput `protobuf:"bytes,5,opt,name=sharded_parquet_upload_inputs,json=shardedParquetUploadInputs,proto3,oneof"`
 }
 
+type OfflineQueryInputs_SqlInput struct {
+	SqlInput string `protobuf:"bytes,6,opt,name=sql_input,json=sqlInput,proto3,oneof"`
+}
+
 func (*OfflineQueryInputs_FeatherInputs) isOfflineQueryInputs_Impl() {}
 
 func (*OfflineQueryInputs_NoInputs_) isOfflineQueryInputs_Impl() {}
@@ -472,6 +486,8 @@ func (*OfflineQueryInputs_SingleInputs) isOfflineQueryInputs_Impl() {}
 func (*OfflineQueryInputs_ShardedInputs) isOfflineQueryInputs_Impl() {}
 
 func (*OfflineQueryInputs_ShardedParquetUploadInputs) isOfflineQueryInputs_Impl() {}
+
+func (*OfflineQueryInputs_SqlInput) isOfflineQueryInputs_Impl() {}
 
 type ResourceRequests struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -628,6 +644,7 @@ type OfflineQueryRequest struct {
 	QueryNameVersion *string               `protobuf:"bytes,212,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
 	Resources        *ResourceRequests     `protobuf:"bytes,214,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
 	UnloadResolvers  []*UnloadResolverSpec `protobuf:"bytes,215,rep,name=unload_resolvers,json=unloadResolvers,proto3" json:"unload_resolvers,omitempty"`
+	UseMetaplanner   *bool                 `protobuf:"varint,216,opt,name=use_metaplanner,json=useMetaplanner,proto3,oneof" json:"use_metaplanner,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -887,10 +904,22 @@ func (x *OfflineQueryRequest) GetUnloadResolvers() []*UnloadResolverSpec {
 	return nil
 }
 
+func (x *OfflineQueryRequest) GetUseMetaplanner() bool {
+	if x != nil && x.UseMetaplanner != nil {
+		return *x.UseMetaplanner
+	}
+	return false
+}
+
 type UnloadResolverSpec struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Fqn           string                 `protobuf:"bytes,1,opt,name=fqn,proto3" json:"fqn,omitempty"`
-	PartitionBy   []string               `protobuf:"bytes,2,rep,name=partition_by,json=partitionBy,proto3" json:"partition_by,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// FQN of the resolver to unload.
+	Fqn string `protobuf:"bytes,1,opt,name=fqn,proto3" json:"fqn,omitempty"`
+	// Source of truth: engine/chalkengine/metaplanner/manifest_utils.py:_decode_partition_expr()
+	// tl;dr: each string can be either:
+	// - A base64-encoded serialization of LogicalExprNode, representing the partition expression.
+	// - An FQN string for a single feature, syntactic sugar for `feature == feature`.
+	PartitionBy   []string `protobuf:"bytes,2,rep,name=partition_by,json=partitionBy,proto3" json:"partition_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1351,13 +1380,14 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\x06inputs\x18\x01 \x03(\v2\".chalk.common.v1.OfflineQueryInputR\x06inputs\"_\n" +
 	"%OfflineQueryShardedParquetUploadInput\x12\x1c\n" +
 	"\tfilenames\x18\x01 \x03(\tR\tfilenames\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\x05R\aversion\"\xba\x03\n" +
+	"\aversion\x18\x02 \x01(\x05R\aversion\"\xd9\x03\n" +
 	"\x12OfflineQueryInputs\x12'\n" +
 	"\x0efeather_inputs\x18\x01 \x01(\fH\x00R\rfeatherInputs\x12K\n" +
 	"\tno_inputs\x18\x02 \x01(\v2,.chalk.common.v1.OfflineQueryInputs.NoInputsH\x00R\bnoInputs\x12I\n" +
 	"\rsingle_inputs\x18\x03 \x01(\v2\".chalk.common.v1.OfflineQueryInputH\x00R\fsingleInputs\x12R\n" +
 	"\x0esharded_inputs\x18\x04 \x01(\v2).chalk.common.v1.OfflineQueryInputShardedH\x00R\rshardedInputs\x12{\n" +
-	"\x1dsharded_parquet_upload_inputs\x18\x05 \x01(\v26.chalk.common.v1.OfflineQueryShardedParquetUploadInputH\x00R\x1ashardedParquetUploadInputs\x1a\n" +
+	"\x1dsharded_parquet_upload_inputs\x18\x05 \x01(\v26.chalk.common.v1.OfflineQueryShardedParquetUploadInputH\x00R\x1ashardedParquetUploadInputs\x12\x1d\n" +
+	"\tsql_input\x18\x06 \x01(\tH\x00R\bsqlInput\x1a\n" +
 	"\n" +
 	"\bNoInputsB\x06\n" +
 	"\x04impl\"\xb3\x02\n" +
@@ -1371,7 +1401,7 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\a_memoryB\x18\n" +
 	"\x16_ephemeral_volume_sizeB\x14\n" +
 	"\x12_ephemeral_storageB\x11\n" +
-	"\x0f_resource_group\"\xbc\x12\n" +
+	"\x0f_resource_group\"\xff\x12\n" +
 	"\x13OfflineQueryRequest\x12;\n" +
 	"\x06inputs\x18\x01 \x01(\v2#.chalk.common.v1.OfflineQueryInputsR\x06inputs\x12\x18\n" +
 	"\aoutputs\x18\x02 \x03(\tR\aoutputs\x12)\n" +
@@ -1409,7 +1439,8 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"query_name\x18\xd3\x01 \x01(\tH\x0eR\tqueryName\x88\x01\x01\x122\n" +
 	"\x12query_name_version\x18\xd4\x01 \x01(\tH\x0fR\x10queryNameVersion\x88\x01\x01\x12E\n" +
 	"\tresources\x18\xd6\x01 \x01(\v2!.chalk.common.v1.ResourceRequestsH\x10R\tresources\x88\x01\x01\x12O\n" +
-	"\x10unload_resolvers\x18\xd7\x01 \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x1aY\n" +
+	"\x10unload_resolvers\x18\xd7\x01 \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x12-\n" +
+	"\x0fuse_metaplanner\x18\xd8\x01 \x01(\bH\x11R\x0euseMetaplanner\x88\x01\x01\x1aY\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
@@ -1436,7 +1467,8 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\v_query_nameB\x15\n" +
 	"\x13_query_name_versionB\f\n" +
 	"\n" +
-	"_resources\"I\n" +
+	"_resourcesB\x12\n" +
+	"\x10_use_metaplanner\"I\n" +
 	"\x12UnloadResolverSpec\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x12!\n" +
 	"\fpartition_by\x18\x02 \x03(\tR\vpartitionBy\"\xce\x01\n" +
@@ -1559,6 +1591,7 @@ func file_chalk_common_v1_offline_query_proto_init() {
 		(*OfflineQueryInputs_SingleInputs)(nil),
 		(*OfflineQueryInputs_ShardedInputs)(nil),
 		(*OfflineQueryInputs_ShardedParquetUploadInputs)(nil),
+		(*OfflineQueryInputs_SqlInput)(nil),
 	}
 	file_chalk_common_v1_offline_query_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_common_v1_offline_query_proto_msgTypes[7].OneofWrappers = []any{}

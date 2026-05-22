@@ -45,6 +45,9 @@ const (
 	// EnvironmentServiceSetDefaultEnvironmentProcedure is the fully-qualified name of the
 	// EnvironmentService's SetDefaultEnvironment RPC.
 	EnvironmentServiceSetDefaultEnvironmentProcedure = "/chalk.server.v1.EnvironmentService/SetDefaultEnvironment"
+	// EnvironmentServiceDiscoverEnvironmentBucketsProcedure is the fully-qualified name of the
+	// EnvironmentService's DiscoverEnvironmentBuckets RPC.
+	EnvironmentServiceDiscoverEnvironmentBucketsProcedure = "/chalk.server.v1.EnvironmentService/DiscoverEnvironmentBuckets"
 )
 
 // EnvironmentServiceClient is a client for the chalk.server.v1.EnvironmentService service.
@@ -53,6 +56,7 @@ type EnvironmentServiceClient interface {
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
 	SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error)
+	DiscoverEnvironmentBuckets(context.Context, *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error)
 }
 
 // NewEnvironmentServiceClient constructs a client for the chalk.server.v1.EnvironmentService
@@ -90,15 +94,23 @@ func NewEnvironmentServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(environmentServiceMethods.ByName("SetDefaultEnvironment")),
 			connect.WithClientOptions(opts...),
 		),
+		discoverEnvironmentBuckets: connect.NewClient[v1.DiscoverEnvironmentBucketsRequest, v1.DiscoverEnvironmentBucketsResponse](
+			httpClient,
+			baseURL+EnvironmentServiceDiscoverEnvironmentBucketsProcedure,
+			connect.WithSchema(environmentServiceMethods.ByName("DiscoverEnvironmentBuckets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // environmentServiceClient implements EnvironmentServiceClient.
 type environmentServiceClient struct {
-	createEnvironmentV2   *connect.Client[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response]
-	updateEnvironmentV2   *connect.Client[v1.UpdateEnvironmentV2Request, v1.UpdateEnvironmentV2Response]
-	deleteEnvironment     *connect.Client[v1.DeleteEnvironmentRequest, v1.DeleteEnvironmentResponse]
-	setDefaultEnvironment *connect.Client[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse]
+	createEnvironmentV2        *connect.Client[v1.CreateEnvironmentV2Request, v1.CreateEnvironmentV2Response]
+	updateEnvironmentV2        *connect.Client[v1.UpdateEnvironmentV2Request, v1.UpdateEnvironmentV2Response]
+	deleteEnvironment          *connect.Client[v1.DeleteEnvironmentRequest, v1.DeleteEnvironmentResponse]
+	setDefaultEnvironment      *connect.Client[v1.SetDefaultEnvironmentRequest, v1.SetDefaultEnvironmentResponse]
+	discoverEnvironmentBuckets *connect.Client[v1.DiscoverEnvironmentBucketsRequest, v1.DiscoverEnvironmentBucketsResponse]
 }
 
 // CreateEnvironmentV2 calls chalk.server.v1.EnvironmentService.CreateEnvironmentV2.
@@ -121,12 +133,18 @@ func (c *environmentServiceClient) SetDefaultEnvironment(ctx context.Context, re
 	return c.setDefaultEnvironment.CallUnary(ctx, req)
 }
 
+// DiscoverEnvironmentBuckets calls chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets.
+func (c *environmentServiceClient) DiscoverEnvironmentBuckets(ctx context.Context, req *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error) {
+	return c.discoverEnvironmentBuckets.CallUnary(ctx, req)
+}
+
 // EnvironmentServiceHandler is an implementation of the chalk.server.v1.EnvironmentService service.
 type EnvironmentServiceHandler interface {
 	CreateEnvironmentV2(context.Context, *connect.Request[v1.CreateEnvironmentV2Request]) (*connect.Response[v1.CreateEnvironmentV2Response], error)
 	UpdateEnvironmentV2(context.Context, *connect.Request[v1.UpdateEnvironmentV2Request]) (*connect.Response[v1.UpdateEnvironmentV2Response], error)
 	DeleteEnvironment(context.Context, *connect.Request[v1.DeleteEnvironmentRequest]) (*connect.Response[v1.DeleteEnvironmentResponse], error)
 	SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error)
+	DiscoverEnvironmentBuckets(context.Context, *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error)
 }
 
 // NewEnvironmentServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -160,6 +178,13 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 		connect.WithSchema(environmentServiceMethods.ByName("SetDefaultEnvironment")),
 		connect.WithHandlerOptions(opts...),
 	)
+	environmentServiceDiscoverEnvironmentBucketsHandler := connect.NewUnaryHandler(
+		EnvironmentServiceDiscoverEnvironmentBucketsProcedure,
+		svc.DiscoverEnvironmentBuckets,
+		connect.WithSchema(environmentServiceMethods.ByName("DiscoverEnvironmentBuckets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.EnvironmentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case EnvironmentServiceCreateEnvironmentV2Procedure:
@@ -170,6 +195,8 @@ func NewEnvironmentServiceHandler(svc EnvironmentServiceHandler, opts ...connect
 			environmentServiceDeleteEnvironmentHandler.ServeHTTP(w, r)
 		case EnvironmentServiceSetDefaultEnvironmentProcedure:
 			environmentServiceSetDefaultEnvironmentHandler.ServeHTTP(w, r)
+		case EnvironmentServiceDiscoverEnvironmentBucketsProcedure:
+			environmentServiceDiscoverEnvironmentBucketsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -193,4 +220,8 @@ func (UnimplementedEnvironmentServiceHandler) DeleteEnvironment(context.Context,
 
 func (UnimplementedEnvironmentServiceHandler) SetDefaultEnvironment(context.Context, *connect.Request[v1.SetDefaultEnvironmentRequest]) (*connect.Response[v1.SetDefaultEnvironmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.SetDefaultEnvironment is not implemented"))
+}
+
+func (UnimplementedEnvironmentServiceHandler) DiscoverEnvironmentBuckets(context.Context, *connect.Request[v1.DiscoverEnvironmentBucketsRequest]) (*connect.Response[v1.DiscoverEnvironmentBucketsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.EnvironmentService.DiscoverEnvironmentBuckets is not implemented"))
 }

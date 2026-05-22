@@ -380,6 +380,7 @@ type ListDataPlaneWorkflowsRequest struct {
 	Limit         int32                   `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
 	Offset        int32                   `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
 	IdFilter      *string                 `protobuf:"bytes,7,opt,name=id_filter,json=idFilter,proto3,oneof" json:"id_filter,omitempty"`
+	TagsFilter    []string                `protobuf:"bytes,8,rep,name=tags_filter,json=tagsFilter,proto3" json:"tags_filter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -462,6 +463,13 @@ func (x *ListDataPlaneWorkflowsRequest) GetIdFilter() string {
 		return *x.IdFilter
 	}
 	return ""
+}
+
+func (x *ListDataPlaneWorkflowsRequest) GetTagsFilter() []string {
+	if x != nil {
+		return x.TagsFilter
+	}
+	return nil
 }
 
 type ListDataPlaneWorkflowsResponse struct {
@@ -940,7 +948,7 @@ const file_chalk_server_v1_dataplaneworkflows_proto_rawDesc = "" +
 	"\x1bGetDataPlaneWorkflowRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"^\n" +
 	"\x1cGetDataPlaneWorkflowResponse\x12>\n" +
-	"\bworkflow\x18\x01 \x01(\v2\".chalk.server.v1.WorkflowExecutionR\bworkflow\"\xc2\x02\n" +
+	"\bworkflow\x18\x01 \x01(\v2\".chalk.server.v1.WorkflowExecutionR\bworkflow\"\xe3\x02\n" +
 	"\x1dListDataPlaneWorkflowsRequest\x12)\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tB\x02\x18\x01R\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x121\n" +
@@ -948,7 +956,9 @@ const file_chalk_server_v1_dataplaneworkflows_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\x0e2(.chalk.server.v1.WorkflowExecutionStatusR\x06status\x12\x14\n" +
 	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x06 \x01(\x05R\x06offset\x12 \n" +
-	"\tid_filter\x18\a \x01(\tH\x00R\bidFilter\x88\x01\x01B\f\n" +
+	"\tid_filter\x18\a \x01(\tH\x00R\bidFilter\x88\x01\x01\x12\x1f\n" +
+	"\vtags_filter\x18\b \x03(\tR\n" +
+	"tagsFilterB\f\n" +
 	"\n" +
 	"_id_filter\"x\n" +
 	"\x1eListDataPlaneWorkflowsResponse\x12@\n" +

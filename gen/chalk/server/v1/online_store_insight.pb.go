@@ -73,6 +73,59 @@ func (DynamoDBBillingMode) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{0}
 }
 
+// Time range applied to any CloudWatch-backed metrics RPC on this service.
+type MetricsTimeRange int32
+
+const (
+	MetricsTimeRange_METRICS_TIME_RANGE_UNSPECIFIED MetricsTimeRange = 0
+	MetricsTimeRange_METRICS_TIME_RANGE_1H          MetricsTimeRange = 1
+	MetricsTimeRange_METRICS_TIME_RANGE_24H         MetricsTimeRange = 2
+	MetricsTimeRange_METRICS_TIME_RANGE_7D          MetricsTimeRange = 3
+)
+
+// Enum value maps for MetricsTimeRange.
+var (
+	MetricsTimeRange_name = map[int32]string{
+		0: "METRICS_TIME_RANGE_UNSPECIFIED",
+		1: "METRICS_TIME_RANGE_1H",
+		2: "METRICS_TIME_RANGE_24H",
+		3: "METRICS_TIME_RANGE_7D",
+	}
+	MetricsTimeRange_value = map[string]int32{
+		"METRICS_TIME_RANGE_UNSPECIFIED": 0,
+		"METRICS_TIME_RANGE_1H":          1,
+		"METRICS_TIME_RANGE_24H":         2,
+		"METRICS_TIME_RANGE_7D":          3,
+	}
+)
+
+func (x MetricsTimeRange) Enum() *MetricsTimeRange {
+	p := new(MetricsTimeRange)
+	*p = x
+	return p
+}
+
+func (x MetricsTimeRange) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MetricsTimeRange) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_online_store_insight_proto_enumTypes[1].Descriptor()
+}
+
+func (MetricsTimeRange) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_online_store_insight_proto_enumTypes[1]
+}
+
+func (x MetricsTimeRange) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MetricsTimeRange.Descriptor instead.
+func (MetricsTimeRange) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{1}
+}
+
 // DynamoDB table configuration and metrics
 type DynamoDBConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -89,9 +142,21 @@ type DynamoDBConfig struct {
 	// Table size in bytes
 	TableSizeBytes int64 `protobuf:"varint,6,opt,name=table_size_bytes,json=tableSizeBytes,proto3" json:"table_size_bytes,omitempty"`
 	// AWS region
-	Region        string `protobuf:"bytes,7,opt,name=region,proto3" json:"region,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Region string `protobuf:"bytes,7,opt,name=region,proto3" json:"region,omitempty"`
+	// AWS account ID that owns the table (from the environment's AWS cloud config).
+	AccountId string `protobuf:"bytes,8,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	// Table status (ACTIVE, UPDATING, CREATING, DELETING, ARCHIVING, ARCHIVED,
+	// INACCESSIBLE_ENCRYPTION_CREDENTIALS). DynamoDB has no user-facing
+	// maintenance windows; this surfaces the closest equivalent.
+	TableStatus string `protobuf:"bytes,9,opt,name=table_status,json=tableStatus,proto3" json:"table_status,omitempty"`
+	// True when Point-In-Time Recovery (continuous backup) is enabled.
+	PointInTimeRecoveryEnabled bool `protobuf:"varint,10,opt,name=point_in_time_recovery_enabled,json=pointInTimeRecoveryEnabled,proto3" json:"point_in_time_recovery_enabled,omitempty"`
+	// Earliest restorable time when PITR is enabled.
+	PitrEarliestRestorableAt *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=pitr_earliest_restorable_at,json=pitrEarliestRestorableAt,proto3,oneof" json:"pitr_earliest_restorable_at,omitempty"`
+	// Latest restorable time when PITR is enabled.
+	PitrLatestRestorableAt *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=pitr_latest_restorable_at,json=pitrLatestRestorableAt,proto3,oneof" json:"pitr_latest_restorable_at,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *DynamoDBConfig) Reset() {
@@ -173,28 +238,334 @@ func (x *DynamoDBConfig) GetRegion() string {
 	return ""
 }
 
-// Elasticache configuration (placeholder for future implementation)
-type ElasticacheConfig struct {
+func (x *DynamoDBConfig) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+func (x *DynamoDBConfig) GetTableStatus() string {
+	if x != nil {
+		return x.TableStatus
+	}
+	return ""
+}
+
+func (x *DynamoDBConfig) GetPointInTimeRecoveryEnabled() bool {
+	if x != nil {
+		return x.PointInTimeRecoveryEnabled
+	}
+	return false
+}
+
+func (x *DynamoDBConfig) GetPitrEarliestRestorableAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PitrEarliestRestorableAt
+	}
+	return nil
+}
+
+func (x *DynamoDBConfig) GetPitrLatestRestorableAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PitrLatestRestorableAt
+	}
+	return nil
+}
+
+// One ElastiCache replication group (Valkey/Redis cluster) discovered in the
+// environment's AWS account & region.
+type ElasticacheCluster struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Cluster name/ID
+	// Replication group id (the user-facing cluster name).
 	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
-	// Node type (e.g., cache.t3.micro)
-	NodeType string `protobuf:"bytes,2,opt,name=node_type,json=nodeType,proto3" json:"node_type,omitempty"`
-	// Number of nodes
-	NumNodes int32 `protobuf:"varint,3,opt,name=num_nodes,json=numNodes,proto3" json:"num_nodes,omitempty"`
-	// Engine (redis or memcached)
+	// Cluster description.
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	// Lifecycle status (available, creating, modifying, snapshotting, etc.).
+	Status string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	// Engine ("valkey" or "redis").
 	Engine string `protobuf:"bytes,4,opt,name=engine,proto3" json:"engine,omitempty"`
-	// Engine version
+	// Engine version (e.g. "7.2.4").
 	EngineVersion string `protobuf:"bytes,5,opt,name=engine_version,json=engineVersion,proto3" json:"engine_version,omitempty"`
-	// AWS region
-	Region        string `protobuf:"bytes,6,opt,name=region,proto3" json:"region,omitempty"`
+	// Cache node type (e.g. "cache.r7g.large").
+	NodeType string `protobuf:"bytes,6,opt,name=node_type,json=nodeType,proto3" json:"node_type,omitempty"`
+	// Total number of cache nodes across the cluster (shards * (1 + replicas)).
+	NumNodes int32 `protobuf:"varint,7,opt,name=num_nodes,json=numNodes,proto3" json:"num_nodes,omitempty"`
+	// Number of node groups (shards).
+	NumShards int32 `protobuf:"varint,8,opt,name=num_shards,json=numShards,proto3" json:"num_shards,omitempty"`
+	// Number of replicas per shard (read replicas).
+	ReplicasPerShard int32 `protobuf:"varint,9,opt,name=replicas_per_shard,json=replicasPerShard,proto3" json:"replicas_per_shard,omitempty"`
+	// AWS region.
+	Region string `protobuf:"bytes,10,opt,name=region,proto3" json:"region,omitempty"`
+	// Availability zones that any node in the cluster spans.
+	AvailabilityZones []string `protobuf:"bytes,11,rep,name=availability_zones,json=availabilityZones,proto3" json:"availability_zones,omitempty"`
+	// True when multi-AZ is enabled.
+	MultiAzEnabled bool `protobuf:"varint,12,opt,name=multi_az_enabled,json=multiAzEnabled,proto3" json:"multi_az_enabled,omitempty"`
+	// True when automatic failover is enabled.
+	AutomaticFailoverEnabled bool `protobuf:"varint,13,opt,name=automatic_failover_enabled,json=automaticFailoverEnabled,proto3" json:"automatic_failover_enabled,omitempty"`
+	// True when at-rest encryption is enabled.
+	AtRestEncryptionEnabled bool `protobuf:"varint,14,opt,name=at_rest_encryption_enabled,json=atRestEncryptionEnabled,proto3" json:"at_rest_encryption_enabled,omitempty"`
+	// True when transit encryption is enabled.
+	TransitEncryptionEnabled bool `protobuf:"varint,15,opt,name=transit_encryption_enabled,json=transitEncryptionEnabled,proto3" json:"transit_encryption_enabled,omitempty"`
+	// True when this replication group is cluster-mode-enabled (sharded).
+	ClusterEnabled bool `protobuf:"varint,16,opt,name=cluster_enabled,json=clusterEnabled,proto3" json:"cluster_enabled,omitempty"`
+	// Preferred maintenance window, e.g. "sun:05:00-sun:09:00" (UTC).
+	PreferredMaintenanceWindow string `protobuf:"bytes,17,opt,name=preferred_maintenance_window,json=preferredMaintenanceWindow,proto3" json:"preferred_maintenance_window,omitempty"`
+	// Snapshot (backup) configuration.
+	Snapshot *ElasticacheSnapshotInfo `protobuf:"bytes,18,opt,name=snapshot,proto3,oneof" json:"snapshot,omitempty"`
+	// Pending modifications scheduled to apply on the next maintenance window.
+	PendingModifications []string `protobuf:"bytes,19,rep,name=pending_modifications,json=pendingModifications,proto3" json:"pending_modifications,omitempty"`
+	// SNS topic that receives notification events for this cluster, if any.
+	NotificationTopicArn *string `protobuf:"bytes,20,opt,name=notification_topic_arn,json=notificationTopicArn,proto3,oneof" json:"notification_topic_arn,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *ElasticacheCluster) Reset() {
+	*x = ElasticacheCluster{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ElasticacheCluster) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ElasticacheCluster) ProtoMessage() {}
+
+func (x *ElasticacheCluster) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ElasticacheCluster.ProtoReflect.Descriptor instead.
+func (*ElasticacheCluster) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ElasticacheCluster) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetEngine() string {
+	if x != nil {
+		return x.Engine
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetEngineVersion() string {
+	if x != nil {
+		return x.EngineVersion
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetNodeType() string {
+	if x != nil {
+		return x.NodeType
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetNumNodes() int32 {
+	if x != nil {
+		return x.NumNodes
+	}
+	return 0
+}
+
+func (x *ElasticacheCluster) GetNumShards() int32 {
+	if x != nil {
+		return x.NumShards
+	}
+	return 0
+}
+
+func (x *ElasticacheCluster) GetReplicasPerShard() int32 {
+	if x != nil {
+		return x.ReplicasPerShard
+	}
+	return 0
+}
+
+func (x *ElasticacheCluster) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetAvailabilityZones() []string {
+	if x != nil {
+		return x.AvailabilityZones
+	}
+	return nil
+}
+
+func (x *ElasticacheCluster) GetMultiAzEnabled() bool {
+	if x != nil {
+		return x.MultiAzEnabled
+	}
+	return false
+}
+
+func (x *ElasticacheCluster) GetAutomaticFailoverEnabled() bool {
+	if x != nil {
+		return x.AutomaticFailoverEnabled
+	}
+	return false
+}
+
+func (x *ElasticacheCluster) GetAtRestEncryptionEnabled() bool {
+	if x != nil {
+		return x.AtRestEncryptionEnabled
+	}
+	return false
+}
+
+func (x *ElasticacheCluster) GetTransitEncryptionEnabled() bool {
+	if x != nil {
+		return x.TransitEncryptionEnabled
+	}
+	return false
+}
+
+func (x *ElasticacheCluster) GetClusterEnabled() bool {
+	if x != nil {
+		return x.ClusterEnabled
+	}
+	return false
+}
+
+func (x *ElasticacheCluster) GetPreferredMaintenanceWindow() string {
+	if x != nil {
+		return x.PreferredMaintenanceWindow
+	}
+	return ""
+}
+
+func (x *ElasticacheCluster) GetSnapshot() *ElasticacheSnapshotInfo {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
+}
+
+func (x *ElasticacheCluster) GetPendingModifications() []string {
+	if x != nil {
+		return x.PendingModifications
+	}
+	return nil
+}
+
+func (x *ElasticacheCluster) GetNotificationTopicArn() string {
+	if x != nil && x.NotificationTopicArn != nil {
+		return *x.NotificationTopicArn
+	}
+	return ""
+}
+
+type ElasticacheSnapshotInfo struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Daily UTC window during which automatic snapshots are taken, e.g.
+	// "03:00-05:00". Empty when automatic snapshots are disabled.
+	SnapshotWindow string `protobuf:"bytes,1,opt,name=snapshot_window,json=snapshotWindow,proto3" json:"snapshot_window,omitempty"`
+	// Number of days automatic snapshots are retained. 0 disables snapshots.
+	SnapshotRetentionLimit int32 `protobuf:"varint,2,opt,name=snapshot_retention_limit,json=snapshotRetentionLimit,proto3" json:"snapshot_retention_limit,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ElasticacheSnapshotInfo) Reset() {
+	*x = ElasticacheSnapshotInfo{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ElasticacheSnapshotInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ElasticacheSnapshotInfo) ProtoMessage() {}
+
+func (x *ElasticacheSnapshotInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ElasticacheSnapshotInfo.ProtoReflect.Descriptor instead.
+func (*ElasticacheSnapshotInfo) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ElasticacheSnapshotInfo) GetSnapshotWindow() string {
+	if x != nil {
+		return x.SnapshotWindow
+	}
+	return ""
+}
+
+func (x *ElasticacheSnapshotInfo) GetSnapshotRetentionLimit() int32 {
+	if x != nil {
+		return x.SnapshotRetentionLimit
+	}
+	return 0
+}
+
+// Per-environment ElastiCache summary returned by GetOnlineStoreConfig for
+// REDIS / REDIS_LIGHTNING online stores. This is the specific cluster the
+// env's online store secret resolves to; for the full list of clusters in the
+// AWS account, use ListElasticacheClusters which returns the richer
+// ElasticacheCluster message.
+type ElasticacheConfig struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClusterId     string                 `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	NodeType      string                 `protobuf:"bytes,2,opt,name=node_type,json=nodeType,proto3" json:"node_type,omitempty"`
+	NumNodes      int32                  `protobuf:"varint,3,opt,name=num_nodes,json=numNodes,proto3" json:"num_nodes,omitempty"`
+	Engine        string                 `protobuf:"bytes,4,opt,name=engine,proto3" json:"engine,omitempty"`
+	EngineVersion string                 `protobuf:"bytes,5,opt,name=engine_version,json=engineVersion,proto3" json:"engine_version,omitempty"`
+	Region        string                 `protobuf:"bytes,6,opt,name=region,proto3" json:"region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ElasticacheConfig) Reset() {
 	*x = ElasticacheConfig{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -206,7 +577,7 @@ func (x *ElasticacheConfig) String() string {
 func (*ElasticacheConfig) ProtoMessage() {}
 
 func (x *ElasticacheConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[1]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -219,7 +590,7 @@ func (x *ElasticacheConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ElasticacheConfig.ProtoReflect.Descriptor instead.
 func (*ElasticacheConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{1}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ElasticacheConfig) GetClusterId() string {
@@ -272,7 +643,7 @@ type GetOnlineStoreConfigRequest struct {
 
 func (x *GetOnlineStoreConfigRequest) Reset() {
 	*x = GetOnlineStoreConfigRequest{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -284,7 +655,7 @@ func (x *GetOnlineStoreConfigRequest) String() string {
 func (*GetOnlineStoreConfigRequest) ProtoMessage() {}
 
 func (x *GetOnlineStoreConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +668,7 @@ func (x *GetOnlineStoreConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineStoreConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{4}
 }
 
 type GetOnlineStoreConfigResponse struct {
@@ -313,7 +684,7 @@ type GetOnlineStoreConfigResponse struct {
 
 func (x *GetOnlineStoreConfigResponse) Reset() {
 	*x = GetOnlineStoreConfigResponse{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -325,7 +696,7 @@ func (x *GetOnlineStoreConfigResponse) String() string {
 func (*GetOnlineStoreConfigResponse) ProtoMessage() {}
 
 func (x *GetOnlineStoreConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[3]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -338,7 +709,7 @@ func (x *GetOnlineStoreConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineStoreConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{3}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetOnlineStoreConfigResponse) GetConfig() isGetOnlineStoreConfigResponse_Config {
@@ -396,7 +767,7 @@ type OnlineStoreUsageStat struct {
 
 func (x *OnlineStoreUsageStat) Reset() {
 	*x = OnlineStoreUsageStat{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -408,7 +779,7 @@ func (x *OnlineStoreUsageStat) String() string {
 func (*OnlineStoreUsageStat) ProtoMessage() {}
 
 func (x *OnlineStoreUsageStat) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[4]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -421,7 +792,7 @@ func (x *OnlineStoreUsageStat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineStoreUsageStat.ProtoReflect.Descriptor instead.
 func (*OnlineStoreUsageStat) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{4}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *OnlineStoreUsageStat) GetNamespace() string {
@@ -467,7 +838,7 @@ type GetOnlineStoreUsageStatsRequest struct {
 
 func (x *GetOnlineStoreUsageStatsRequest) Reset() {
 	*x = GetOnlineStoreUsageStatsRequest{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -479,7 +850,7 @@ func (x *GetOnlineStoreUsageStatsRequest) String() string {
 func (*GetOnlineStoreUsageStatsRequest) ProtoMessage() {}
 
 func (x *GetOnlineStoreUsageStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[5]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -492,7 +863,7 @@ func (x *GetOnlineStoreUsageStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineStoreUsageStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreUsageStatsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{5}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{7}
 }
 
 type GetOnlineStoreUsageStatsResponse struct {
@@ -505,7 +876,7 @@ type GetOnlineStoreUsageStatsResponse struct {
 
 func (x *GetOnlineStoreUsageStatsResponse) Reset() {
 	*x = GetOnlineStoreUsageStatsResponse{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -517,7 +888,7 @@ func (x *GetOnlineStoreUsageStatsResponse) String() string {
 func (*GetOnlineStoreUsageStatsResponse) ProtoMessage() {}
 
 func (x *GetOnlineStoreUsageStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[6]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -530,7 +901,7 @@ func (x *GetOnlineStoreUsageStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineStoreUsageStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreUsageStatsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{6}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetOnlineStoreUsageStatsResponse) GetStats() []*OnlineStoreUsageStat {
@@ -561,7 +932,7 @@ type OnlineStoreCleanupStat struct {
 
 func (x *OnlineStoreCleanupStat) Reset() {
 	*x = OnlineStoreCleanupStat{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -573,7 +944,7 @@ func (x *OnlineStoreCleanupStat) String() string {
 func (*OnlineStoreCleanupStat) ProtoMessage() {}
 
 func (x *OnlineStoreCleanupStat) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[7]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -586,7 +957,7 @@ func (x *OnlineStoreCleanupStat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineStoreCleanupStat.ProtoReflect.Descriptor instead.
 func (*OnlineStoreCleanupStat) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{7}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *OnlineStoreCleanupStat) GetKeyType() string {
@@ -639,7 +1010,7 @@ type GetOnlineStoreCleanupStatsRequest struct {
 
 func (x *GetOnlineStoreCleanupStatsRequest) Reset() {
 	*x = GetOnlineStoreCleanupStatsRequest{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +1022,7 @@ func (x *GetOnlineStoreCleanupStatsRequest) String() string {
 func (*GetOnlineStoreCleanupStatsRequest) ProtoMessage() {}
 
 func (x *GetOnlineStoreCleanupStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[8]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +1035,7 @@ func (x *GetOnlineStoreCleanupStatsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetOnlineStoreCleanupStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreCleanupStatsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{8}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{10}
 }
 
 type GetOnlineStoreCleanupStatsResponse struct {
@@ -681,7 +1052,7 @@ type GetOnlineStoreCleanupStatsResponse struct {
 
 func (x *GetOnlineStoreCleanupStatsResponse) Reset() {
 	*x = GetOnlineStoreCleanupStatsResponse{}
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -693,7 +1064,7 @@ func (x *GetOnlineStoreCleanupStatsResponse) String() string {
 func (*GetOnlineStoreCleanupStatsResponse) ProtoMessage() {}
 
 func (x *GetOnlineStoreCleanupStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[9]
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -706,7 +1077,7 @@ func (x *GetOnlineStoreCleanupStatsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetOnlineStoreCleanupStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetOnlineStoreCleanupStatsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{9}
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetOnlineStoreCleanupStatsResponse) GetStats() []*OnlineStoreCleanupStat {
@@ -737,11 +1108,669 @@ func (x *GetOnlineStoreCleanupStatsResponse) GetJobStartedAt() *timestamppb.Time
 	return nil
 }
 
+type GetDynamoDBMetricsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Time range to fetch metrics for. Defaults to 24H if UNSPECIFIED.
+	TimeRange     MetricsTimeRange `protobuf:"varint,1,opt,name=time_range,json=timeRange,proto3,enum=chalk.server.v1.MetricsTimeRange" json:"time_range,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDynamoDBMetricsRequest) Reset() {
+	*x = GetDynamoDBMetricsRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDynamoDBMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDynamoDBMetricsRequest) ProtoMessage() {}
+
+func (x *GetDynamoDBMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDynamoDBMetricsRequest.ProtoReflect.Descriptor instead.
+func (*GetDynamoDBMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetDynamoDBMetricsRequest) GetTimeRange() MetricsTimeRange {
+	if x != nil {
+		return x.TimeRange
+	}
+	return MetricsTimeRange_METRICS_TIME_RANGE_UNSPECIFIED
+}
+
+type GetDynamoDBMetricsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// One chart per CloudWatch metric (read/write usage, throttles, etc.). The
+	// server picks the chart titles/series labels — callers should render each
+	// chart as-is. Empty when CloudWatch credentials are unavailable.
+	Charts        []*Chart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDynamoDBMetricsResponse) Reset() {
+	*x = GetDynamoDBMetricsResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDynamoDBMetricsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDynamoDBMetricsResponse) ProtoMessage() {}
+
+func (x *GetDynamoDBMetricsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDynamoDBMetricsResponse.ProtoReflect.Descriptor instead.
+func (*GetDynamoDBMetricsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetDynamoDBMetricsResponse) GetCharts() []*Chart {
+	if x != nil {
+		return x.Charts
+	}
+	return nil
+}
+
+type ListElasticacheClustersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListElasticacheClustersRequest) Reset() {
+	*x = ListElasticacheClustersRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListElasticacheClustersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListElasticacheClustersRequest) ProtoMessage() {}
+
+func (x *ListElasticacheClustersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListElasticacheClustersRequest.ProtoReflect.Descriptor instead.
+func (*ListElasticacheClustersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{14}
+}
+
+type ListElasticacheClustersResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// All Valkey/Redis ElastiCache replication groups discovered in the
+	// environment's AWS account & region.
+	Clusters []*ElasticacheCluster `protobuf:"bytes,1,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	// AWS region that was queried.
+	Region string `protobuf:"bytes,2,opt,name=region,proto3" json:"region,omitempty"`
+	// AWS account ID that was queried.
+	AccountId     string `protobuf:"bytes,3,opt,name=account_id,json=accountId,proto3" json:"account_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListElasticacheClustersResponse) Reset() {
+	*x = ListElasticacheClustersResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListElasticacheClustersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListElasticacheClustersResponse) ProtoMessage() {}
+
+func (x *ListElasticacheClustersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListElasticacheClustersResponse.ProtoReflect.Descriptor instead.
+func (*ListElasticacheClustersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ListElasticacheClustersResponse) GetClusters() []*ElasticacheCluster {
+	if x != nil {
+		return x.Clusters
+	}
+	return nil
+}
+
+func (x *ListElasticacheClustersResponse) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *ListElasticacheClustersResponse) GetAccountId() string {
+	if x != nil {
+		return x.AccountId
+	}
+	return ""
+}
+
+type GetElasticacheMetricsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Cluster id (replication group id) to fetch metrics for.
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// Time range. Defaults to 24H if UNSPECIFIED.
+	TimeRange     MetricsTimeRange `protobuf:"varint,2,opt,name=time_range,json=timeRange,proto3,enum=chalk.server.v1.MetricsTimeRange" json:"time_range,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetElasticacheMetricsRequest) Reset() {
+	*x = GetElasticacheMetricsRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetElasticacheMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetElasticacheMetricsRequest) ProtoMessage() {}
+
+func (x *GetElasticacheMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetElasticacheMetricsRequest.ProtoReflect.Descriptor instead.
+func (*GetElasticacheMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetElasticacheMetricsRequest) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *GetElasticacheMetricsRequest) GetTimeRange() MetricsTimeRange {
+	if x != nil {
+		return x.TimeRange
+	}
+	return MetricsTimeRange_METRICS_TIME_RANGE_UNSPECIFIED
+}
+
+type GetElasticacheMetricsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// One chart per CloudWatch metric (engine CPU, memory used, connections,
+	// network, cache hits/misses, evictions, replication lag, etc.). Empty when
+	// CloudWatch credentials are unavailable or the cluster has no nodes yet.
+	Charts        []*Chart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetElasticacheMetricsResponse) Reset() {
+	*x = GetElasticacheMetricsResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetElasticacheMetricsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetElasticacheMetricsResponse) ProtoMessage() {}
+
+func (x *GetElasticacheMetricsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetElasticacheMetricsResponse.ProtoReflect.Descriptor instead.
+func (*GetElasticacheMetricsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetElasticacheMetricsResponse) GetCharts() []*Chart {
+	if x != nil {
+		return x.Charts
+	}
+	return nil
+}
+
+// One Memorystore for Valkey cluster discovered in the environment's GCP
+// project. Mirrors ElasticacheCluster where the concepts overlap so the
+// frontend can render both in the same shape.
+type MemorystoreValkeyCluster struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Full resource name, e.g. projects/foo/locations/us-central1/instances/bar.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Short cluster id (the last segment of `name`).
+	ClusterId string `protobuf:"bytes,2,opt,name=cluster_id,json=clusterId,proto3" json:"cluster_id,omitempty"`
+	// GCP location (region or zone).
+	Location string `protobuf:"bytes,3,opt,name=location,proto3" json:"location,omitempty"`
+	// Lifecycle state (e.g. ACTIVE, CREATING, UPDATING, DELETING).
+	State string `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	// Node type / size class (e.g. SHARED_CORE_NANO, STANDARD_SMALL).
+	NodeType string `protobuf:"bytes,5,opt,name=node_type,json=nodeType,proto3" json:"node_type,omitempty"`
+	// Number of shards in the cluster.
+	ShardCount int32 `protobuf:"varint,6,opt,name=shard_count,json=shardCount,proto3" json:"shard_count,omitempty"`
+	// Number of replicas per shard (read replicas).
+	ReplicaCount int32 `protobuf:"varint,7,opt,name=replica_count,json=replicaCount,proto3" json:"replica_count,omitempty"`
+	// Total nodes across all shards.
+	NodeCount int32 `protobuf:"varint,8,opt,name=node_count,json=nodeCount,proto3" json:"node_count,omitempty"`
+	// Engine version (e.g. "VALKEY_7_2").
+	EngineVersion string `protobuf:"bytes,9,opt,name=engine_version,json=engineVersion,proto3" json:"engine_version,omitempty"`
+	// Authorization mode (e.g. AUTH_DISABLED, IAM_AUTH).
+	AuthMode string `protobuf:"bytes,10,opt,name=auth_mode,json=authMode,proto3" json:"auth_mode,omitempty"`
+	// Transit encryption mode (e.g. TRANSIT_ENCRYPTION_DISABLED, SERVER_AUTHENTICATION).
+	TransitEncryptionMode string `protobuf:"bytes,11,opt,name=transit_encryption_mode,json=transitEncryptionMode,proto3" json:"transit_encryption_mode,omitempty"`
+	// True when persistence (backup / RDB or AOF) is enabled.
+	PersistenceEnabled bool `protobuf:"varint,12,opt,name=persistence_enabled,json=persistenceEnabled,proto3" json:"persistence_enabled,omitempty"`
+	// Persistence mode if enabled (e.g. RDB, AOF, DISABLED).
+	PersistenceMode string `protobuf:"bytes,13,opt,name=persistence_mode,json=persistenceMode,proto3" json:"persistence_mode,omitempty"`
+	// Daily UTC window during which Memorystore performs maintenance, e.g.
+	// "SUN 05:00 (UTC)". Empty when no window has been configured.
+	MaintenanceWindow string `protobuf:"bytes,14,opt,name=maintenance_window,json=maintenanceWindow,proto3" json:"maintenance_window,omitempty"`
+	// Pending maintenance window if a scheduled maintenance is upcoming.
+	UpcomingMaintenanceAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=upcoming_maintenance_at,json=upcomingMaintenanceAt,proto3,oneof" json:"upcoming_maintenance_at,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *MemorystoreValkeyCluster) Reset() {
+	*x = MemorystoreValkeyCluster{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemorystoreValkeyCluster) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemorystoreValkeyCluster) ProtoMessage() {}
+
+func (x *MemorystoreValkeyCluster) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemorystoreValkeyCluster.ProtoReflect.Descriptor instead.
+func (*MemorystoreValkeyCluster) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *MemorystoreValkeyCluster) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetClusterId() string {
+	if x != nil {
+		return x.ClusterId
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetLocation() string {
+	if x != nil {
+		return x.Location
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetNodeType() string {
+	if x != nil {
+		return x.NodeType
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetShardCount() int32 {
+	if x != nil {
+		return x.ShardCount
+	}
+	return 0
+}
+
+func (x *MemorystoreValkeyCluster) GetReplicaCount() int32 {
+	if x != nil {
+		return x.ReplicaCount
+	}
+	return 0
+}
+
+func (x *MemorystoreValkeyCluster) GetNodeCount() int32 {
+	if x != nil {
+		return x.NodeCount
+	}
+	return 0
+}
+
+func (x *MemorystoreValkeyCluster) GetEngineVersion() string {
+	if x != nil {
+		return x.EngineVersion
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetAuthMode() string {
+	if x != nil {
+		return x.AuthMode
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetTransitEncryptionMode() string {
+	if x != nil {
+		return x.TransitEncryptionMode
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetPersistenceEnabled() bool {
+	if x != nil {
+		return x.PersistenceEnabled
+	}
+	return false
+}
+
+func (x *MemorystoreValkeyCluster) GetPersistenceMode() string {
+	if x != nil {
+		return x.PersistenceMode
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetMaintenanceWindow() string {
+	if x != nil {
+		return x.MaintenanceWindow
+	}
+	return ""
+}
+
+func (x *MemorystoreValkeyCluster) GetUpcomingMaintenanceAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpcomingMaintenanceAt
+	}
+	return nil
+}
+
+type ListMemorystoreValkeyClustersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMemorystoreValkeyClustersRequest) Reset() {
+	*x = ListMemorystoreValkeyClustersRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMemorystoreValkeyClustersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMemorystoreValkeyClustersRequest) ProtoMessage() {}
+
+func (x *ListMemorystoreValkeyClustersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMemorystoreValkeyClustersRequest.ProtoReflect.Descriptor instead.
+func (*ListMemorystoreValkeyClustersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{19}
+}
+
+type ListMemorystoreValkeyClustersResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// All Memorystore for Valkey clusters discovered across all locations in the
+	// environment's GCP project.
+	Clusters []*MemorystoreValkeyCluster `protobuf:"bytes,1,rep,name=clusters,proto3" json:"clusters,omitempty"`
+	// GCP project that was queried.
+	ProjectId     string `protobuf:"bytes,2,opt,name=project_id,json=projectId,proto3" json:"project_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMemorystoreValkeyClustersResponse) Reset() {
+	*x = ListMemorystoreValkeyClustersResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMemorystoreValkeyClustersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMemorystoreValkeyClustersResponse) ProtoMessage() {}
+
+func (x *ListMemorystoreValkeyClustersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMemorystoreValkeyClustersResponse.ProtoReflect.Descriptor instead.
+func (*ListMemorystoreValkeyClustersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListMemorystoreValkeyClustersResponse) GetClusters() []*MemorystoreValkeyCluster {
+	if x != nil {
+		return x.Clusters
+	}
+	return nil
+}
+
+func (x *ListMemorystoreValkeyClustersResponse) GetProjectId() string {
+	if x != nil {
+		return x.ProjectId
+	}
+	return ""
+}
+
+type GetMemorystoreValkeyMetricsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Full resource name of the cluster to fetch metrics for.
+	ClusterName string `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	// Time range. Defaults to 24H if UNSPECIFIED.
+	TimeRange     MetricsTimeRange `protobuf:"varint,2,opt,name=time_range,json=timeRange,proto3,enum=chalk.server.v1.MetricsTimeRange" json:"time_range,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMemorystoreValkeyMetricsRequest) Reset() {
+	*x = GetMemorystoreValkeyMetricsRequest{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMemorystoreValkeyMetricsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMemorystoreValkeyMetricsRequest) ProtoMessage() {}
+
+func (x *GetMemorystoreValkeyMetricsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMemorystoreValkeyMetricsRequest.ProtoReflect.Descriptor instead.
+func (*GetMemorystoreValkeyMetricsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *GetMemorystoreValkeyMetricsRequest) GetClusterName() string {
+	if x != nil {
+		return x.ClusterName
+	}
+	return ""
+}
+
+func (x *GetMemorystoreValkeyMetricsRequest) GetTimeRange() MetricsTimeRange {
+	if x != nil {
+		return x.TimeRange
+	}
+	return MetricsTimeRange_METRICS_TIME_RANGE_UNSPECIFIED
+}
+
+type GetMemorystoreValkeyMetricsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// One chart per Cloud Monitoring metric (CPU, memory, ops, hit ratio, etc.).
+	Charts        []*Chart `protobuf:"bytes,1,rep,name=charts,proto3" json:"charts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMemorystoreValkeyMetricsResponse) Reset() {
+	*x = GetMemorystoreValkeyMetricsResponse{}
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMemorystoreValkeyMetricsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMemorystoreValkeyMetricsResponse) ProtoMessage() {}
+
+func (x *GetMemorystoreValkeyMetricsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_online_store_insight_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMemorystoreValkeyMetricsResponse.ProtoReflect.Descriptor instead.
+func (*GetMemorystoreValkeyMetricsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_online_store_insight_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *GetMemorystoreValkeyMetricsResponse) GetCharts() []*Chart {
+	if x != nil {
+		return x.Charts
+	}
+	return nil
+}
+
 var File_chalk_server_v1_online_store_insight_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\n" +
-	"*chalk/server/v1/online_store_insight.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x03\n" +
+	"*chalk/server/v1/online_store_insight.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1bchalk/server/v1/chart.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x06\n" +
 	"\x0eDynamoDBConfig\x12\x1d\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tR\ttableName\x12G\n" +
@@ -751,9 +1780,47 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\n" +
 	"item_count\x18\x05 \x01(\x03R\titemCount\x12(\n" +
 	"\x10table_size_bytes\x18\x06 \x01(\x03R\x0etableSizeBytes\x12\x16\n" +
-	"\x06region\x18\a \x01(\tR\x06regionB\"\n" +
+	"\x06region\x18\a \x01(\tR\x06region\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\b \x01(\tR\taccountId\x12!\n" +
+	"\ftable_status\x18\t \x01(\tR\vtableStatus\x12B\n" +
+	"\x1epoint_in_time_recovery_enabled\x18\n" +
+	" \x01(\bR\x1apointInTimeRecoveryEnabled\x12^\n" +
+	"\x1bpitr_earliest_restorable_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampH\x02R\x18pitrEarliestRestorableAt\x88\x01\x01\x12Z\n" +
+	"\x19pitr_latest_restorable_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampH\x03R\x16pitrLatestRestorableAt\x88\x01\x01B\"\n" +
 	" _provisioned_read_capacity_unitsB#\n" +
-	"!_provisioned_write_capacity_units\"\xc3\x01\n" +
+	"!_provisioned_write_capacity_unitsB\x1e\n" +
+	"\x1c_pitr_earliest_restorable_atB\x1c\n" +
+	"\x1a_pitr_latest_restorable_at\"\xab\a\n" +
+	"\x12ElasticacheCluster\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12\x16\n" +
+	"\x06engine\x18\x04 \x01(\tR\x06engine\x12%\n" +
+	"\x0eengine_version\x18\x05 \x01(\tR\rengineVersion\x12\x1b\n" +
+	"\tnode_type\x18\x06 \x01(\tR\bnodeType\x12\x1b\n" +
+	"\tnum_nodes\x18\a \x01(\x05R\bnumNodes\x12\x1d\n" +
+	"\n" +
+	"num_shards\x18\b \x01(\x05R\tnumShards\x12,\n" +
+	"\x12replicas_per_shard\x18\t \x01(\x05R\x10replicasPerShard\x12\x16\n" +
+	"\x06region\x18\n" +
+	" \x01(\tR\x06region\x12-\n" +
+	"\x12availability_zones\x18\v \x03(\tR\x11availabilityZones\x12(\n" +
+	"\x10multi_az_enabled\x18\f \x01(\bR\x0emultiAzEnabled\x12<\n" +
+	"\x1aautomatic_failover_enabled\x18\r \x01(\bR\x18automaticFailoverEnabled\x12;\n" +
+	"\x1aat_rest_encryption_enabled\x18\x0e \x01(\bR\x17atRestEncryptionEnabled\x12<\n" +
+	"\x1atransit_encryption_enabled\x18\x0f \x01(\bR\x18transitEncryptionEnabled\x12'\n" +
+	"\x0fcluster_enabled\x18\x10 \x01(\bR\x0eclusterEnabled\x12@\n" +
+	"\x1cpreferred_maintenance_window\x18\x11 \x01(\tR\x1apreferredMaintenanceWindow\x12I\n" +
+	"\bsnapshot\x18\x12 \x01(\v2(.chalk.server.v1.ElasticacheSnapshotInfoH\x00R\bsnapshot\x88\x01\x01\x123\n" +
+	"\x15pending_modifications\x18\x13 \x03(\tR\x14pendingModifications\x129\n" +
+	"\x16notification_topic_arn\x18\x14 \x01(\tH\x01R\x14notificationTopicArn\x88\x01\x01B\v\n" +
+	"\t_snapshotB\x19\n" +
+	"\x17_notification_topic_arn\"|\n" +
+	"\x17ElasticacheSnapshotInfo\x12'\n" +
+	"\x0fsnapshot_window\x18\x01 \x01(\tR\x0esnapshotWindow\x128\n" +
+	"\x18snapshot_retention_limit\x18\x02 \x01(\x05R\x16snapshotRetentionLimit\"\xc3\x01\n" +
 	"\x11ElasticacheConfig\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12\x1b\n" +
@@ -792,15 +1859,75 @@ const file_chalk_server_v1_online_store_insight_proto_rawDesc = "" +
 	"\x0escript_task_id\x18\x03 \x01(\tH\x00R\fscriptTaskId\x88\x01\x01\x12E\n" +
 	"\x0ejob_started_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\fjobStartedAt\x88\x01\x01B\x11\n" +
 	"\x0f_script_task_idB\x11\n" +
-	"\x0f_job_started_at*\x91\x01\n" +
+	"\x0f_job_started_at\"]\n" +
+	"\x19GetDynamoDBMetricsRequest\x12@\n" +
+	"\n" +
+	"time_range\x18\x01 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\"L\n" +
+	"\x1aGetDynamoDBMetricsResponse\x12.\n" +
+	"\x06charts\x18\x01 \x03(\v2\x16.chalk.server.v1.ChartR\x06charts\" \n" +
+	"\x1eListElasticacheClustersRequest\"\x99\x01\n" +
+	"\x1fListElasticacheClustersResponse\x12?\n" +
+	"\bclusters\x18\x01 \x03(\v2#.chalk.server.v1.ElasticacheClusterR\bclusters\x12\x16\n" +
+	"\x06region\x18\x02 \x01(\tR\x06region\x12\x1d\n" +
+	"\n" +
+	"account_id\x18\x03 \x01(\tR\taccountId\"\x7f\n" +
+	"\x1cGetElasticacheMetricsRequest\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12@\n" +
+	"\n" +
+	"time_range\x18\x02 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\"O\n" +
+	"\x1dGetElasticacheMetricsResponse\x12.\n" +
+	"\x06charts\x18\x01 \x03(\v2\x16.chalk.server.v1.ChartR\x06charts\"\xfd\x04\n" +
+	"\x18MemorystoreValkeyCluster\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"cluster_id\x18\x02 \x01(\tR\tclusterId\x12\x1a\n" +
+	"\blocation\x18\x03 \x01(\tR\blocation\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x1b\n" +
+	"\tnode_type\x18\x05 \x01(\tR\bnodeType\x12\x1f\n" +
+	"\vshard_count\x18\x06 \x01(\x05R\n" +
+	"shardCount\x12#\n" +
+	"\rreplica_count\x18\a \x01(\x05R\freplicaCount\x12\x1d\n" +
+	"\n" +
+	"node_count\x18\b \x01(\x05R\tnodeCount\x12%\n" +
+	"\x0eengine_version\x18\t \x01(\tR\rengineVersion\x12\x1b\n" +
+	"\tauth_mode\x18\n" +
+	" \x01(\tR\bauthMode\x126\n" +
+	"\x17transit_encryption_mode\x18\v \x01(\tR\x15transitEncryptionMode\x12/\n" +
+	"\x13persistence_enabled\x18\f \x01(\bR\x12persistenceEnabled\x12)\n" +
+	"\x10persistence_mode\x18\r \x01(\tR\x0fpersistenceMode\x12-\n" +
+	"\x12maintenance_window\x18\x0e \x01(\tR\x11maintenanceWindow\x12W\n" +
+	"\x17upcoming_maintenance_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x15upcomingMaintenanceAt\x88\x01\x01B\x1a\n" +
+	"\x18_upcoming_maintenance_at\"&\n" +
+	"$ListMemorystoreValkeyClustersRequest\"\x8d\x01\n" +
+	"%ListMemorystoreValkeyClustersResponse\x12E\n" +
+	"\bclusters\x18\x01 \x03(\v2).chalk.server.v1.MemorystoreValkeyClusterR\bclusters\x12\x1d\n" +
+	"\n" +
+	"project_id\x18\x02 \x01(\tR\tprojectId\"\x89\x01\n" +
+	"\"GetMemorystoreValkeyMetricsRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x12@\n" +
+	"\n" +
+	"time_range\x18\x02 \x01(\x0e2!.chalk.server.v1.MetricsTimeRangeR\ttimeRange\"U\n" +
+	"#GetMemorystoreValkeyMetricsResponse\x12.\n" +
+	"\x06charts\x18\x01 \x03(\v2\x16.chalk.server.v1.ChartR\x06charts*\x91\x01\n" +
 	"\x13DynamoDBBillingMode\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"DYNAMO_DB_BILLING_MODE_PROVISIONED\x10\x01\x12*\n" +
-	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x022\xb2\x03\n" +
+	"&DYNAMO_DB_BILLING_MODE_PAY_PER_REQUEST\x10\x02*\x88\x01\n" +
+	"\x10MetricsTimeRange\x12\"\n" +
+	"\x1eMETRICS_TIME_RANGE_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15METRICS_TIME_RANGE_1H\x10\x01\x12\x1a\n" +
+	"\x16METRICS_TIME_RANGE_24H\x10\x02\x12\x19\n" +
+	"\x15METRICS_TIME_RANGE_7D\x10\x032\xdc\b\n" +
 	"\x19OnlineStoreInsightService\x12{\n" +
 	"\x14GetOnlineStoreConfig\x12,.chalk.server.v1.GetOnlineStoreConfigRequest\x1a-.chalk.server.v1.GetOnlineStoreConfigResponse\"\x06\x80}\x02\x90\x02\x01\x12\x87\x01\n" +
 	"\x18GetOnlineStoreUsageStats\x120.chalk.server.v1.GetOnlineStoreUsageStatsRequest\x1a1.chalk.server.v1.GetOnlineStoreUsageStatsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x8d\x01\n" +
-	"\x1aGetOnlineStoreCleanupStats\x122.chalk.server.v1.GetOnlineStoreCleanupStatsRequest\x1a3.chalk.server.v1.GetOnlineStoreCleanupStatsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
+	"\x1aGetOnlineStoreCleanupStats\x122.chalk.server.v1.GetOnlineStoreCleanupStatsRequest\x1a3.chalk.server.v1.GetOnlineStoreCleanupStatsResponse\"\x06\x80}\x02\x90\x02\x01\x12u\n" +
+	"\x12GetDynamoDBMetrics\x12*.chalk.server.v1.GetDynamoDBMetricsRequest\x1a+.chalk.server.v1.GetDynamoDBMetricsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x84\x01\n" +
+	"\x17ListElasticacheClusters\x12/.chalk.server.v1.ListElasticacheClustersRequest\x1a0.chalk.server.v1.ListElasticacheClustersResponse\"\x06\x80}\x02\x90\x02\x01\x12~\n" +
+	"\x15GetElasticacheMetrics\x12-.chalk.server.v1.GetElasticacheMetricsRequest\x1a..chalk.server.v1.GetElasticacheMetricsResponse\"\x06\x80}\x02\x90\x02\x01\x12\x96\x01\n" +
+	"\x1dListMemorystoreValkeyClusters\x125.chalk.server.v1.ListMemorystoreValkeyClustersRequest\x1a6.chalk.server.v1.ListMemorystoreValkeyClustersResponse\"\x06\x80}\x02\x90\x02\x01\x12\x90\x01\n" +
+	"\x1bGetMemorystoreValkeyMetrics\x123.chalk.server.v1.GetMemorystoreValkeyMetricsRequest\x1a4.chalk.server.v1.GetMemorystoreValkeyMetricsResponse\"\x06\x80}\x02\x90\x02\x01B\xc7\x01\n" +
 	"\x13com.chalk.server.v1B\x17OnlineStoreInsightProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -815,42 +1942,79 @@ func file_chalk_server_v1_online_store_insight_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_online_store_insight_proto_rawDescData
 }
 
-var file_chalk_server_v1_online_store_insight_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_chalk_server_v1_online_store_insight_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_server_v1_online_store_insight_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_chalk_server_v1_online_store_insight_proto_goTypes = []any{
-	(DynamoDBBillingMode)(0),                   // 0: chalk.server.v1.DynamoDBBillingMode
-	(*DynamoDBConfig)(nil),                     // 1: chalk.server.v1.DynamoDBConfig
-	(*ElasticacheConfig)(nil),                  // 2: chalk.server.v1.ElasticacheConfig
-	(*GetOnlineStoreConfigRequest)(nil),        // 3: chalk.server.v1.GetOnlineStoreConfigRequest
-	(*GetOnlineStoreConfigResponse)(nil),       // 4: chalk.server.v1.GetOnlineStoreConfigResponse
-	(*OnlineStoreUsageStat)(nil),               // 5: chalk.server.v1.OnlineStoreUsageStat
-	(*GetOnlineStoreUsageStatsRequest)(nil),    // 6: chalk.server.v1.GetOnlineStoreUsageStatsRequest
-	(*GetOnlineStoreUsageStatsResponse)(nil),   // 7: chalk.server.v1.GetOnlineStoreUsageStatsResponse
-	(*OnlineStoreCleanupStat)(nil),             // 8: chalk.server.v1.OnlineStoreCleanupStat
-	(*GetOnlineStoreCleanupStatsRequest)(nil),  // 9: chalk.server.v1.GetOnlineStoreCleanupStatsRequest
-	(*GetOnlineStoreCleanupStatsResponse)(nil), // 10: chalk.server.v1.GetOnlineStoreCleanupStatsResponse
-	(*timestamppb.Timestamp)(nil),              // 11: google.protobuf.Timestamp
+	(DynamoDBBillingMode)(0),                      // 0: chalk.server.v1.DynamoDBBillingMode
+	(MetricsTimeRange)(0),                         // 1: chalk.server.v1.MetricsTimeRange
+	(*DynamoDBConfig)(nil),                        // 2: chalk.server.v1.DynamoDBConfig
+	(*ElasticacheCluster)(nil),                    // 3: chalk.server.v1.ElasticacheCluster
+	(*ElasticacheSnapshotInfo)(nil),               // 4: chalk.server.v1.ElasticacheSnapshotInfo
+	(*ElasticacheConfig)(nil),                     // 5: chalk.server.v1.ElasticacheConfig
+	(*GetOnlineStoreConfigRequest)(nil),           // 6: chalk.server.v1.GetOnlineStoreConfigRequest
+	(*GetOnlineStoreConfigResponse)(nil),          // 7: chalk.server.v1.GetOnlineStoreConfigResponse
+	(*OnlineStoreUsageStat)(nil),                  // 8: chalk.server.v1.OnlineStoreUsageStat
+	(*GetOnlineStoreUsageStatsRequest)(nil),       // 9: chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	(*GetOnlineStoreUsageStatsResponse)(nil),      // 10: chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	(*OnlineStoreCleanupStat)(nil),                // 11: chalk.server.v1.OnlineStoreCleanupStat
+	(*GetOnlineStoreCleanupStatsRequest)(nil),     // 12: chalk.server.v1.GetOnlineStoreCleanupStatsRequest
+	(*GetOnlineStoreCleanupStatsResponse)(nil),    // 13: chalk.server.v1.GetOnlineStoreCleanupStatsResponse
+	(*GetDynamoDBMetricsRequest)(nil),             // 14: chalk.server.v1.GetDynamoDBMetricsRequest
+	(*GetDynamoDBMetricsResponse)(nil),            // 15: chalk.server.v1.GetDynamoDBMetricsResponse
+	(*ListElasticacheClustersRequest)(nil),        // 16: chalk.server.v1.ListElasticacheClustersRequest
+	(*ListElasticacheClustersResponse)(nil),       // 17: chalk.server.v1.ListElasticacheClustersResponse
+	(*GetElasticacheMetricsRequest)(nil),          // 18: chalk.server.v1.GetElasticacheMetricsRequest
+	(*GetElasticacheMetricsResponse)(nil),         // 19: chalk.server.v1.GetElasticacheMetricsResponse
+	(*MemorystoreValkeyCluster)(nil),              // 20: chalk.server.v1.MemorystoreValkeyCluster
+	(*ListMemorystoreValkeyClustersRequest)(nil),  // 21: chalk.server.v1.ListMemorystoreValkeyClustersRequest
+	(*ListMemorystoreValkeyClustersResponse)(nil), // 22: chalk.server.v1.ListMemorystoreValkeyClustersResponse
+	(*GetMemorystoreValkeyMetricsRequest)(nil),    // 23: chalk.server.v1.GetMemorystoreValkeyMetricsRequest
+	(*GetMemorystoreValkeyMetricsResponse)(nil),   // 24: chalk.server.v1.GetMemorystoreValkeyMetricsResponse
+	(*timestamppb.Timestamp)(nil),                 // 25: google.protobuf.Timestamp
+	(*Chart)(nil),                                 // 26: chalk.server.v1.Chart
 }
 var file_chalk_server_v1_online_store_insight_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.DynamoDBConfig.billing_mode:type_name -> chalk.server.v1.DynamoDBBillingMode
-	1,  // 1: chalk.server.v1.GetOnlineStoreConfigResponse.dynamodb:type_name -> chalk.server.v1.DynamoDBConfig
-	2,  // 2: chalk.server.v1.GetOnlineStoreConfigResponse.elasticache:type_name -> chalk.server.v1.ElasticacheConfig
-	5,  // 3: chalk.server.v1.GetOnlineStoreUsageStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreUsageStat
-	11, // 4: chalk.server.v1.GetOnlineStoreUsageStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
-	8,  // 5: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreCleanupStat
-	11, // 6: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
-	11, // 7: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.job_started_at:type_name -> google.protobuf.Timestamp
-	3,  // 8: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
-	6,  // 9: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:input_type -> chalk.server.v1.GetOnlineStoreUsageStatsRequest
-	9,  // 10: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:input_type -> chalk.server.v1.GetOnlineStoreCleanupStatsRequest
-	4,  // 11: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
-	7,  // 12: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:output_type -> chalk.server.v1.GetOnlineStoreUsageStatsResponse
-	10, // 13: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:output_type -> chalk.server.v1.GetOnlineStoreCleanupStatsResponse
-	11, // [11:14] is the sub-list for method output_type
-	8,  // [8:11] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	25, // 1: chalk.server.v1.DynamoDBConfig.pitr_earliest_restorable_at:type_name -> google.protobuf.Timestamp
+	25, // 2: chalk.server.v1.DynamoDBConfig.pitr_latest_restorable_at:type_name -> google.protobuf.Timestamp
+	4,  // 3: chalk.server.v1.ElasticacheCluster.snapshot:type_name -> chalk.server.v1.ElasticacheSnapshotInfo
+	2,  // 4: chalk.server.v1.GetOnlineStoreConfigResponse.dynamodb:type_name -> chalk.server.v1.DynamoDBConfig
+	5,  // 5: chalk.server.v1.GetOnlineStoreConfigResponse.elasticache:type_name -> chalk.server.v1.ElasticacheConfig
+	8,  // 6: chalk.server.v1.GetOnlineStoreUsageStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreUsageStat
+	25, // 7: chalk.server.v1.GetOnlineStoreUsageStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
+	11, // 8: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.stats:type_name -> chalk.server.v1.OnlineStoreCleanupStat
+	25, // 9: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.collected_at:type_name -> google.protobuf.Timestamp
+	25, // 10: chalk.server.v1.GetOnlineStoreCleanupStatsResponse.job_started_at:type_name -> google.protobuf.Timestamp
+	1,  // 11: chalk.server.v1.GetDynamoDBMetricsRequest.time_range:type_name -> chalk.server.v1.MetricsTimeRange
+	26, // 12: chalk.server.v1.GetDynamoDBMetricsResponse.charts:type_name -> chalk.server.v1.Chart
+	3,  // 13: chalk.server.v1.ListElasticacheClustersResponse.clusters:type_name -> chalk.server.v1.ElasticacheCluster
+	1,  // 14: chalk.server.v1.GetElasticacheMetricsRequest.time_range:type_name -> chalk.server.v1.MetricsTimeRange
+	26, // 15: chalk.server.v1.GetElasticacheMetricsResponse.charts:type_name -> chalk.server.v1.Chart
+	25, // 16: chalk.server.v1.MemorystoreValkeyCluster.upcoming_maintenance_at:type_name -> google.protobuf.Timestamp
+	20, // 17: chalk.server.v1.ListMemorystoreValkeyClustersResponse.clusters:type_name -> chalk.server.v1.MemorystoreValkeyCluster
+	1,  // 18: chalk.server.v1.GetMemorystoreValkeyMetricsRequest.time_range:type_name -> chalk.server.v1.MetricsTimeRange
+	26, // 19: chalk.server.v1.GetMemorystoreValkeyMetricsResponse.charts:type_name -> chalk.server.v1.Chart
+	6,  // 20: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:input_type -> chalk.server.v1.GetOnlineStoreConfigRequest
+	9,  // 21: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:input_type -> chalk.server.v1.GetOnlineStoreUsageStatsRequest
+	12, // 22: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:input_type -> chalk.server.v1.GetOnlineStoreCleanupStatsRequest
+	14, // 23: chalk.server.v1.OnlineStoreInsightService.GetDynamoDBMetrics:input_type -> chalk.server.v1.GetDynamoDBMetricsRequest
+	16, // 24: chalk.server.v1.OnlineStoreInsightService.ListElasticacheClusters:input_type -> chalk.server.v1.ListElasticacheClustersRequest
+	18, // 25: chalk.server.v1.OnlineStoreInsightService.GetElasticacheMetrics:input_type -> chalk.server.v1.GetElasticacheMetricsRequest
+	21, // 26: chalk.server.v1.OnlineStoreInsightService.ListMemorystoreValkeyClusters:input_type -> chalk.server.v1.ListMemorystoreValkeyClustersRequest
+	23, // 27: chalk.server.v1.OnlineStoreInsightService.GetMemorystoreValkeyMetrics:input_type -> chalk.server.v1.GetMemorystoreValkeyMetricsRequest
+	7,  // 28: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig:output_type -> chalk.server.v1.GetOnlineStoreConfigResponse
+	10, // 29: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats:output_type -> chalk.server.v1.GetOnlineStoreUsageStatsResponse
+	13, // 30: chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats:output_type -> chalk.server.v1.GetOnlineStoreCleanupStatsResponse
+	15, // 31: chalk.server.v1.OnlineStoreInsightService.GetDynamoDBMetrics:output_type -> chalk.server.v1.GetDynamoDBMetricsResponse
+	17, // 32: chalk.server.v1.OnlineStoreInsightService.ListElasticacheClusters:output_type -> chalk.server.v1.ListElasticacheClustersResponse
+	19, // 33: chalk.server.v1.OnlineStoreInsightService.GetElasticacheMetrics:output_type -> chalk.server.v1.GetElasticacheMetricsResponse
+	22, // 34: chalk.server.v1.OnlineStoreInsightService.ListMemorystoreValkeyClusters:output_type -> chalk.server.v1.ListMemorystoreValkeyClustersResponse
+	24, // 35: chalk.server.v1.OnlineStoreInsightService.GetMemorystoreValkeyMetrics:output_type -> chalk.server.v1.GetMemorystoreValkeyMetricsResponse
+	28, // [28:36] is the sub-list for method output_type
+	20, // [20:28] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_online_store_insight_proto_init() }
@@ -858,19 +2022,22 @@ func file_chalk_server_v1_online_store_insight_proto_init() {
 	if File_chalk_server_v1_online_store_insight_proto != nil {
 		return
 	}
+	file_chalk_server_v1_chart_proto_init()
 	file_chalk_server_v1_online_store_insight_proto_msgTypes[0].OneofWrappers = []any{}
-	file_chalk_server_v1_online_store_insight_proto_msgTypes[3].OneofWrappers = []any{
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[5].OneofWrappers = []any{
 		(*GetOnlineStoreConfigResponse_Dynamodb)(nil),
 		(*GetOnlineStoreConfigResponse_Elasticache)(nil),
 	}
-	file_chalk_server_v1_online_store_insight_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_online_store_insight_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_online_store_insight_proto_rawDesc), len(file_chalk_server_v1_online_store_insight_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   10,
+			NumEnums:      2,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

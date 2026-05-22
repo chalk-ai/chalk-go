@@ -39,6 +39,9 @@ const (
 	// ModelDeploymentServiceListModelScalingGroupsProcedure is the fully-qualified name of the
 	// ModelDeploymentService's ListModelScalingGroups RPC.
 	ModelDeploymentServiceListModelScalingGroupsProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/ListModelScalingGroups"
+	// ModelDeploymentServiceCallModelProcedure is the fully-qualified name of the
+	// ModelDeploymentService's CallModel RPC.
+	ModelDeploymentServiceCallModelProcedure = "/chalk.modeldeployment.v1.ModelDeploymentService/CallModel"
 )
 
 // ModelDeploymentServiceClient is a client for the chalk.modeldeployment.v1.ModelDeploymentService
@@ -48,6 +51,9 @@ type ModelDeploymentServiceClient interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
+	// CallModel synchronously invokes a model deployed to a scaling group, forwarding the request to the
+	// container's RemoteCallService over gRPC.
+	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
 
 // NewModelDeploymentServiceClient constructs a client for the
@@ -74,6 +80,12 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroups")),
 			connect.WithClientOptions(opts...),
 		),
+		callModel: connect.NewClient[v1.CallModelRequest, v1.CallModelResponse](
+			httpClient,
+			baseURL+ModelDeploymentServiceCallModelProcedure,
+			connect.WithSchema(modelDeploymentServiceMethods.ByName("CallModel")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -81,6 +93,7 @@ func NewModelDeploymentServiceClient(httpClient connect.HTTPClient, baseURL stri
 type modelDeploymentServiceClient struct {
 	createModelScalingGroup *connect.Client[v1.CreateModelScalingGroupRequest, v1.CreateModelScalingGroupResponse]
 	listModelScalingGroups  *connect.Client[v1.ListModelScalingGroupsRequest, v1.ListModelScalingGroupsResponse]
+	callModel               *connect.Client[v1.CallModelRequest, v1.CallModelResponse]
 }
 
 // CreateModelScalingGroup calls
@@ -95,6 +108,11 @@ func (c *modelDeploymentServiceClient) ListModelScalingGroups(ctx context.Contex
 	return c.listModelScalingGroups.CallUnary(ctx, req)
 }
 
+// CallModel calls chalk.modeldeployment.v1.ModelDeploymentService.CallModel.
+func (c *modelDeploymentServiceClient) CallModel(ctx context.Context, req *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error) {
+	return c.callModel.CallUnary(ctx, req)
+}
+
 // ModelDeploymentServiceHandler is an implementation of the
 // chalk.modeldeployment.v1.ModelDeploymentService service.
 type ModelDeploymentServiceHandler interface {
@@ -102,6 +120,9 @@ type ModelDeploymentServiceHandler interface {
 	CreateModelScalingGroup(context.Context, *connect.Request[v1.CreateModelScalingGroupRequest]) (*connect.Response[v1.CreateModelScalingGroupResponse], error)
 	// ListModelScalingGroups lists model scaling groups, optionally filtered to a model version
 	ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error)
+	// CallModel synchronously invokes a model deployed to a scaling group, forwarding the request to the
+	// container's RemoteCallService over gRPC.
+	CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error)
 }
 
 // NewModelDeploymentServiceHandler builds an HTTP handler from the service implementation. It
@@ -123,12 +144,20 @@ func NewModelDeploymentServiceHandler(svc ModelDeploymentServiceHandler, opts ..
 		connect.WithSchema(modelDeploymentServiceMethods.ByName("ListModelScalingGroups")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelDeploymentServiceCallModelHandler := connect.NewUnaryHandler(
+		ModelDeploymentServiceCallModelProcedure,
+		svc.CallModel,
+		connect.WithSchema(modelDeploymentServiceMethods.ByName("CallModel")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.modeldeployment.v1.ModelDeploymentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ModelDeploymentServiceCreateModelScalingGroupProcedure:
 			modelDeploymentServiceCreateModelScalingGroupHandler.ServeHTTP(w, r)
 		case ModelDeploymentServiceListModelScalingGroupsProcedure:
 			modelDeploymentServiceListModelScalingGroupsHandler.ServeHTTP(w, r)
+		case ModelDeploymentServiceCallModelProcedure:
+			modelDeploymentServiceCallModelHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -144,4 +173,8 @@ func (UnimplementedModelDeploymentServiceHandler) CreateModelScalingGroup(contex
 
 func (UnimplementedModelDeploymentServiceHandler) ListModelScalingGroups(context.Context, *connect.Request[v1.ListModelScalingGroupsRequest]) (*connect.Response[v1.ListModelScalingGroupsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups is not implemented"))
+}
+
+func (UnimplementedModelDeploymentServiceHandler) CallModel(context.Context, *connect.Request[v1.CallModelRequest]) (*connect.Response[v1.CallModelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.modeldeployment.v1.ModelDeploymentService.CallModel is not implemented"))
 }

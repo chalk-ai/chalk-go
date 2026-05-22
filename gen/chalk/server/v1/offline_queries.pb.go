@@ -1572,6 +1572,286 @@ func (x *GetOfflineQueryInfraSummaryResponse) GetPodNames() []string {
 	return nil
 }
 
+type GetOfflineQueryProfileSummaryRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OfflineQueryId string                 `protobuf:"bytes,1,opt,name=offline_query_id,json=offlineQueryId,proto3" json:"offline_query_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *GetOfflineQueryProfileSummaryRequest) Reset() {
+	*x = GetOfflineQueryProfileSummaryRequest{}
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOfflineQueryProfileSummaryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOfflineQueryProfileSummaryRequest) ProtoMessage() {}
+
+func (x *GetOfflineQueryProfileSummaryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOfflineQueryProfileSummaryRequest.ProtoReflect.Descriptor instead.
+func (*GetOfflineQueryProfileSummaryRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetOfflineQueryProfileSummaryRequest) GetOfflineQueryId() string {
+	if x != nil {
+		return x.OfflineQueryId
+	}
+	return ""
+}
+
+type OfflineQueryProfilePercentileStats struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	P50           float64                `protobuf:"fixed64,1,opt,name=p50,proto3" json:"p50,omitempty"`
+	P75           float64                `protobuf:"fixed64,2,opt,name=p75,proto3" json:"p75,omitempty"`
+	P90           float64                `protobuf:"fixed64,3,opt,name=p90,proto3" json:"p90,omitempty"`
+	P99           float64                `protobuf:"fixed64,4,opt,name=p99,proto3" json:"p99,omitempty"`
+	PMax          float64                `protobuf:"fixed64,5,opt,name=p_max,json=pMax,proto3" json:"p_max,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineQueryProfilePercentileStats) Reset() {
+	*x = OfflineQueryProfilePercentileStats{}
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineQueryProfilePercentileStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineQueryProfilePercentileStats) ProtoMessage() {}
+
+func (x *OfflineQueryProfilePercentileStats) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineQueryProfilePercentileStats.ProtoReflect.Descriptor instead.
+func (*OfflineQueryProfilePercentileStats) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *OfflineQueryProfilePercentileStats) GetP50() float64 {
+	if x != nil {
+		return x.P50
+	}
+	return 0
+}
+
+func (x *OfflineQueryProfilePercentileStats) GetP75() float64 {
+	if x != nil {
+		return x.P75
+	}
+	return 0
+}
+
+func (x *OfflineQueryProfilePercentileStats) GetP90() float64 {
+	if x != nil {
+		return x.P90
+	}
+	return 0
+}
+
+func (x *OfflineQueryProfilePercentileStats) GetP99() float64 {
+	if x != nil {
+		return x.P99
+	}
+	return 0
+}
+
+func (x *OfflineQueryProfilePercentileStats) GetPMax() float64 {
+	if x != nil {
+		return x.PMax
+	}
+	return 0
+}
+
+type OfflineQueryProfileSummaryRow struct {
+	state         protoimpl.MessageState              `protogen:"open.v1"`
+	Source        string                              `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"` // Where we sourced this metric (i.e. metrics1, offline query performance summary JSON, etc)
+	Metric        string                              `protobuf:"bytes,2,opt,name=metric,proto3" json:"metric,omitempty"` // Name of the metric
+	Count         int32                               `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`  // How many samples made up the stats
+	Stats         *OfflineQueryProfilePercentileStats `protobuf:"bytes,4,opt,name=stats,proto3" json:"stats,omitempty"`   // Actual stats
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OfflineQueryProfileSummaryRow) Reset() {
+	*x = OfflineQueryProfileSummaryRow{}
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OfflineQueryProfileSummaryRow) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OfflineQueryProfileSummaryRow) ProtoMessage() {}
+
+func (x *OfflineQueryProfileSummaryRow) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OfflineQueryProfileSummaryRow.ProtoReflect.Descriptor instead.
+func (*OfflineQueryProfileSummaryRow) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *OfflineQueryProfileSummaryRow) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *OfflineQueryProfileSummaryRow) GetMetric() string {
+	if x != nil {
+		return x.Metric
+	}
+	return ""
+}
+
+func (x *OfflineQueryProfileSummaryRow) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *OfflineQueryProfileSummaryRow) GetStats() *OfflineQueryProfilePercentileStats {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+type GetOfflineQueryProfileSummaryResponse struct {
+	state             protoimpl.MessageState           `protogen:"open.v1"`
+	OperationId       string                           `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	Status            OfflineQueryStatus               `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.server.v1.OfflineQueryStatus" json:"status,omitempty"`        // Status of the requested query
+	ShardCount        int32                            `protobuf:"varint,3,opt,name=shard_count,json=shardCount,proto3" json:"shard_count,omitempty"`                      // How many shard the query ran with
+	PerformanceShards int32                            `protobuf:"varint,4,opt,name=performance_shards,json=performanceShards,proto3" json:"performance_shards,omitempty"` // Number of shards that reported a performance summary
+	PodNames          []string                         `protobuf:"bytes,5,rep,name=pod_names,json=podNames,proto3" json:"pod_names,omitempty"`                             // Names of the pods that ran the query
+	Rows              []*OfflineQueryProfileSummaryRow `protobuf:"bytes,6,rep,name=rows,proto3" json:"rows,omitempty"`                                                     // The actual aggregated metric data
+	Warnings          []string                         `protobuf:"bytes,7,rep,name=warnings,proto3" json:"warnings,omitempty"`                                             // Warnings about the data
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) Reset() {
+	*x = GetOfflineQueryProfileSummaryResponse{}
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOfflineQueryProfileSummaryResponse) ProtoMessage() {}
+
+func (x *GetOfflineQueryProfileSummaryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOfflineQueryProfileSummaryResponse.ProtoReflect.Descriptor instead.
+func (*GetOfflineQueryProfileSummaryResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetStatus() OfflineQueryStatus {
+	if x != nil {
+		return x.Status
+	}
+	return OfflineQueryStatus_OFFLINE_QUERY_STATUS_UNSPECIFIED
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetShardCount() int32 {
+	if x != nil {
+		return x.ShardCount
+	}
+	return 0
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetPerformanceShards() int32 {
+	if x != nil {
+		return x.PerformanceShards
+	}
+	return 0
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetPodNames() []string {
+	if x != nil {
+		return x.PodNames
+	}
+	return nil
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetRows() []*OfflineQueryProfileSummaryRow {
+	if x != nil {
+		return x.Rows
+	}
+	return nil
+}
+
+func (x *GetOfflineQueryProfileSummaryResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
+
 type CreateOfflineQueryJobRequest struct {
 	state               protoimpl.MessageState   `protogen:"open.v1"`
 	OfflineQueryRequest *v11.OfflineQueryRequest `protobuf:"bytes,1,opt,name=offline_query_request,json=offlineQueryRequest,proto3" json:"offline_query_request,omitempty"`
@@ -1581,7 +1861,7 @@ type CreateOfflineQueryJobRequest struct {
 
 func (x *CreateOfflineQueryJobRequest) Reset() {
 	*x = CreateOfflineQueryJobRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1593,7 +1873,7 @@ func (x *CreateOfflineQueryJobRequest) String() string {
 func (*CreateOfflineQueryJobRequest) ProtoMessage() {}
 
 func (x *CreateOfflineQueryJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1606,7 +1886,7 @@ func (x *CreateOfflineQueryJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOfflineQueryJobRequest.ProtoReflect.Descriptor instead.
 func (*CreateOfflineQueryJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateOfflineQueryJobRequest) GetOfflineQueryRequest() *v11.OfflineQueryRequest {
@@ -1625,7 +1905,7 @@ type CreateOfflineQueryJobResponse struct {
 
 func (x *CreateOfflineQueryJobResponse) Reset() {
 	*x = CreateOfflineQueryJobResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1637,7 +1917,7 @@ func (x *CreateOfflineQueryJobResponse) String() string {
 func (*CreateOfflineQueryJobResponse) ProtoMessage() {}
 
 func (x *CreateOfflineQueryJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1650,7 +1930,7 @@ func (x *CreateOfflineQueryJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOfflineQueryJobResponse.ProtoReflect.Descriptor instead.
 func (*CreateOfflineQueryJobResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateOfflineQueryJobResponse) GetDatasetResponse() *v11.DatasetResponse {
@@ -1670,7 +1950,7 @@ type CreateModelTrainingJobRequest struct {
 
 func (x *CreateModelTrainingJobRequest) Reset() {
 	*x = CreateModelTrainingJobRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1682,7 +1962,7 @@ func (x *CreateModelTrainingJobRequest) String() string {
 func (*CreateModelTrainingJobRequest) ProtoMessage() {}
 
 func (x *CreateModelTrainingJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1695,7 +1975,7 @@ func (x *CreateModelTrainingJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelTrainingJobRequest.ProtoReflect.Descriptor instead.
 func (*CreateModelTrainingJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CreateModelTrainingJobRequest) GetTrainingJobRequest() *v11.OfflineQueryRequest {
@@ -1714,7 +1994,7 @@ type CreateModelTrainingJobResponse struct {
 
 func (x *CreateModelTrainingJobResponse) Reset() {
 	*x = CreateModelTrainingJobResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1726,7 +2006,7 @@ func (x *CreateModelTrainingJobResponse) String() string {
 func (*CreateModelTrainingJobResponse) ProtoMessage() {}
 
 func (x *CreateModelTrainingJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1739,7 +2019,7 @@ func (x *CreateModelTrainingJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelTrainingJobResponse.ProtoReflect.Descriptor instead.
 func (*CreateModelTrainingJobResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{23}
 }
 
 type IngestDatasetRequest struct {
@@ -1759,7 +2039,7 @@ type IngestDatasetRequest struct {
 
 func (x *IngestDatasetRequest) Reset() {
 	*x = IngestDatasetRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1771,7 +2051,7 @@ func (x *IngestDatasetRequest) String() string {
 func (*IngestDatasetRequest) ProtoMessage() {}
 
 func (x *IngestDatasetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1784,7 +2064,7 @@ func (x *IngestDatasetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestDatasetRequest.ProtoReflect.Descriptor instead.
 func (*IngestDatasetRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *IngestDatasetRequest) GetOutputs() []string {
@@ -1859,7 +2139,7 @@ type IngestDatasetResponse struct {
 
 func (x *IngestDatasetResponse) Reset() {
 	*x = IngestDatasetResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1871,7 +2151,7 @@ func (x *IngestDatasetResponse) String() string {
 func (*IngestDatasetResponse) ProtoMessage() {}
 
 func (x *IngestDatasetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1884,7 +2164,7 @@ func (x *IngestDatasetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IngestDatasetResponse.ProtoReflect.Descriptor instead.
 func (*IngestDatasetResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *IngestDatasetResponse) GetDatasetResponse() *v11.DatasetResponse {
@@ -1904,7 +2184,7 @@ type RetryOfflineQueryShardRequest struct {
 
 func (x *RetryOfflineQueryShardRequest) Reset() {
 	*x = RetryOfflineQueryShardRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1916,7 +2196,7 @@ func (x *RetryOfflineQueryShardRequest) String() string {
 func (*RetryOfflineQueryShardRequest) ProtoMessage() {}
 
 func (x *RetryOfflineQueryShardRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1929,7 +2209,7 @@ func (x *RetryOfflineQueryShardRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryOfflineQueryShardRequest.ProtoReflect.Descriptor instead.
 func (*RetryOfflineQueryShardRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *RetryOfflineQueryShardRequest) GetOfflineQueryId() string {
@@ -1954,7 +2234,7 @@ type RetryOfflineQueryShardResponse struct {
 
 func (x *RetryOfflineQueryShardResponse) Reset() {
 	*x = RetryOfflineQueryShardResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1966,7 +2246,7 @@ func (x *RetryOfflineQueryShardResponse) String() string {
 func (*RetryOfflineQueryShardResponse) ProtoMessage() {}
 
 func (x *RetryOfflineQueryShardResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1979,7 +2259,7 @@ func (x *RetryOfflineQueryShardResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryOfflineQueryShardResponse.ProtoReflect.Descriptor instead.
 func (*RetryOfflineQueryShardResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{27}
 }
 
 type CancelAsyncOfflineQueryRequest struct {
@@ -1991,7 +2271,7 @@ type CancelAsyncOfflineQueryRequest struct {
 
 func (x *CancelAsyncOfflineQueryRequest) Reset() {
 	*x = CancelAsyncOfflineQueryRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2003,7 +2283,7 @@ func (x *CancelAsyncOfflineQueryRequest) String() string {
 func (*CancelAsyncOfflineQueryRequest) ProtoMessage() {}
 
 func (x *CancelAsyncOfflineQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2016,7 +2296,7 @@ func (x *CancelAsyncOfflineQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelAsyncOfflineQueryRequest.ProtoReflect.Descriptor instead.
 func (*CancelAsyncOfflineQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *CancelAsyncOfflineQueryRequest) GetOfflineQueryId() string {
@@ -2034,7 +2314,7 @@ type CancelAsyncOfflineQueryResponse struct {
 
 func (x *CancelAsyncOfflineQueryResponse) Reset() {
 	*x = CancelAsyncOfflineQueryResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2046,7 +2326,7 @@ func (x *CancelAsyncOfflineQueryResponse) String() string {
 func (*CancelAsyncOfflineQueryResponse) ProtoMessage() {}
 
 func (x *CancelAsyncOfflineQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2059,7 +2339,7 @@ func (x *CancelAsyncOfflineQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelAsyncOfflineQueryResponse.ProtoReflect.Descriptor instead.
 func (*CancelAsyncOfflineQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{29}
 }
 
 type BatchProgress struct {
@@ -2076,7 +2356,7 @@ type BatchProgress struct {
 
 func (x *BatchProgress) Reset() {
 	*x = BatchProgress{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2088,7 +2368,7 @@ func (x *BatchProgress) String() string {
 func (*BatchProgress) ProtoMessage() {}
 
 func (x *BatchProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2101,7 +2381,7 @@ func (x *BatchProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchProgress.ProtoReflect.Descriptor instead.
 func (*BatchProgress) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *BatchProgress) GetTotal() string {
@@ -2156,7 +2436,7 @@ type ChunkReport struct {
 
 func (x *ChunkReport) Reset() {
 	*x = ChunkReport{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2168,7 +2448,7 @@ func (x *ChunkReport) String() string {
 func (*ChunkReport) ProtoMessage() {}
 
 func (x *ChunkReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2181,7 +2461,7 @@ func (x *ChunkReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChunkReport.ProtoReflect.Descriptor instead.
 func (*ChunkReport) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ChunkReport) GetProgress() *BatchProgress {
@@ -2213,7 +2493,7 @@ type BatchResolverReport struct {
 
 func (x *BatchResolverReport) Reset() {
 	*x = BatchResolverReport{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2225,7 +2505,7 @@ func (x *BatchResolverReport) String() string {
 func (*BatchResolverReport) ProtoMessage() {}
 
 func (x *BatchResolverReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2238,7 +2518,7 @@ func (x *BatchResolverReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchResolverReport.ProtoReflect.Descriptor instead.
 func (*BatchResolverReport) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *BatchResolverReport) GetResolverFqn() string {
@@ -2312,7 +2592,7 @@ type BatchReport struct {
 
 func (x *BatchReport) Reset() {
 	*x = BatchReport{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2324,7 +2604,7 @@ func (x *BatchReport) String() string {
 func (*BatchReport) ProtoMessage() {}
 
 func (x *BatchReport) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2337,7 +2617,7 @@ func (x *BatchReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchReport.ProtoReflect.Descriptor instead.
 func (*BatchReport) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *BatchReport) GetOperationId() string {
@@ -2447,7 +2727,7 @@ type GetBatchReportRequest struct {
 
 func (x *GetBatchReportRequest) Reset() {
 	*x = GetBatchReportRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2459,7 +2739,7 @@ func (x *GetBatchReportRequest) String() string {
 func (*GetBatchReportRequest) ProtoMessage() {}
 
 func (x *GetBatchReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2472,7 +2752,7 @@ func (x *GetBatchReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBatchReportRequest.ProtoReflect.Descriptor instead.
 func (*GetBatchReportRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *GetBatchReportRequest) GetReportId() string {
@@ -2491,7 +2771,7 @@ type GetBatchReportResponse struct {
 
 func (x *GetBatchReportResponse) Reset() {
 	*x = GetBatchReportResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2503,7 +2783,7 @@ func (x *GetBatchReportResponse) String() string {
 func (*GetBatchReportResponse) ProtoMessage() {}
 
 func (x *GetBatchReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2516,7 +2796,7 @@ func (x *GetBatchReportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBatchReportResponse.ProtoReflect.Descriptor instead.
 func (*GetBatchReportResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetBatchReportResponse) GetBatchReport() *BatchReport {
@@ -2536,7 +2816,7 @@ type ListOfflineQueryNamesRequest struct {
 
 func (x *ListOfflineQueryNamesRequest) Reset() {
 	*x = ListOfflineQueryNamesRequest{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2548,7 +2828,7 @@ func (x *ListOfflineQueryNamesRequest) String() string {
 func (*ListOfflineQueryNamesRequest) ProtoMessage() {}
 
 func (x *ListOfflineQueryNamesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2561,7 +2841,7 @@ func (x *ListOfflineQueryNamesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOfflineQueryNamesRequest.ProtoReflect.Descriptor instead.
 func (*ListOfflineQueryNamesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListOfflineQueryNamesRequest) GetCursor() string {
@@ -2588,7 +2868,7 @@ type ListOfflineQueryNamesResponse struct {
 
 func (x *ListOfflineQueryNamesResponse) Reset() {
 	*x = ListOfflineQueryNamesResponse{}
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2600,7 +2880,7 @@ func (x *ListOfflineQueryNamesResponse) String() string {
 func (*ListOfflineQueryNamesResponse) ProtoMessage() {}
 
 func (x *ListOfflineQueryNamesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_offline_queries_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2613,7 +2893,7 @@ func (x *ListOfflineQueryNamesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOfflineQueryNamesResponse.ProtoReflect.Descriptor instead.
 func (*ListOfflineQueryNamesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_offline_queries_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListOfflineQueryNamesResponse) GetQueryNames() []string {
@@ -2827,7 +3107,29 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\"GetOfflineQueryInfraSummaryRequest\x12(\n" +
 	"\x10offline_query_id\x18\x01 \x01(\tR\x0eofflineQueryId\"B\n" +
 	"#GetOfflineQueryInfraSummaryResponse\x12\x1b\n" +
-	"\tpod_names\x18\x01 \x03(\tR\bpodNames\"x\n" +
+	"\tpod_names\x18\x01 \x03(\tR\bpodNames\"P\n" +
+	"$GetOfflineQueryProfileSummaryRequest\x12(\n" +
+	"\x10offline_query_id\x18\x01 \x01(\tR\x0eofflineQueryId\"\x81\x01\n" +
+	"\"OfflineQueryProfilePercentileStats\x12\x10\n" +
+	"\x03p50\x18\x01 \x01(\x01R\x03p50\x12\x10\n" +
+	"\x03p75\x18\x02 \x01(\x01R\x03p75\x12\x10\n" +
+	"\x03p90\x18\x03 \x01(\x01R\x03p90\x12\x10\n" +
+	"\x03p99\x18\x04 \x01(\x01R\x03p99\x12\x13\n" +
+	"\x05p_max\x18\x05 \x01(\x01R\x04pMax\"\xb0\x01\n" +
+	"\x1dOfflineQueryProfileSummaryRow\x12\x16\n" +
+	"\x06source\x18\x01 \x01(\tR\x06source\x12\x16\n" +
+	"\x06metric\x18\x02 \x01(\tR\x06metric\x12\x14\n" +
+	"\x05count\x18\x03 \x01(\x05R\x05count\x12I\n" +
+	"\x05stats\x18\x04 \x01(\v23.chalk.server.v1.OfflineQueryProfilePercentileStatsR\x05stats\"\xd4\x02\n" +
+	"%GetOfflineQueryProfileSummaryResponse\x12!\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12;\n" +
+	"\x06status\x18\x02 \x01(\x0e2#.chalk.server.v1.OfflineQueryStatusR\x06status\x12\x1f\n" +
+	"\vshard_count\x18\x03 \x01(\x05R\n" +
+	"shardCount\x12-\n" +
+	"\x12performance_shards\x18\x04 \x01(\x05R\x11performanceShards\x12\x1b\n" +
+	"\tpod_names\x18\x05 \x03(\tR\bpodNames\x12B\n" +
+	"\x04rows\x18\x06 \x03(\v2..chalk.server.v1.OfflineQueryProfileSummaryRowR\x04rows\x12\x1a\n" +
+	"\bwarnings\x18\a \x03(\tR\bwarnings\"x\n" +
 	"\x1cCreateOfflineQueryJobRequest\x12X\n" +
 	"\x15offline_query_request\x18\x01 \x01(\v2$.chalk.common.v1.OfflineQueryRequestR\x13offlineQueryRequest\"l\n" +
 	"\x1dCreateOfflineQueryJobResponse\x12K\n" +
@@ -2950,13 +3252,14 @@ const file_chalk_server_v1_offline_queries_proto_rawDesc = "" +
 	"\x1bBATCH_OP_KIND_OFFLINE_QUERY\x10\x01\x12\x1b\n" +
 	"\x17BATCH_OP_KIND_RECOMPUTE\x10\x02\x12\x16\n" +
 	"\x12BATCH_OP_KIND_CRON\x10\x03\x12&\n" +
-	"\"BATCH_OP_KIND_AGGREGATION_BACKFILL\x10\x042\xca\r\n" +
+	"\"BATCH_OP_KIND_AGGREGATION_BACKFILL\x10\x042\xe3\x0e\n" +
 	"\x1bOfflineQueryMetadataService\x12u\n" +
 	"\x12ListOfflineQueries\x12*.chalk.server.v1.ListOfflineQueriesRequest\x1a+.chalk.server.v1.ListOfflineQueriesResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x0fGetOfflineQuery\x12'.chalk.server.v1.GetOfflineQueryRequest\x1a(.chalk.server.v1.GetOfflineQueryResponse\"\x06\x80}\v\x90\x02\x01\x12\x81\x01\n" +
 	"\x16ListOfflineQueryShards\x12..chalk.server.v1.ListOfflineQueryShardsRequest\x1a/.chalk.server.v1.ListOfflineQueryShardsResponse\"\x06\x80}\v\x90\x02\x01\x12\x9c\x01\n" +
 	"\x1fGetOfflineQueryShardsAggregated\x127.chalk.server.v1.GetOfflineQueryShardsAggregatedRequest\x1a8.chalk.server.v1.GetOfflineQueryShardsAggregatedResponse\"\x06\x80}\v\x90\x02\x01\x12\x90\x01\n" +
-	"\x1bGetOfflineQueryInfraSummary\x123.chalk.server.v1.GetOfflineQueryInfraSummaryRequest\x1a4.chalk.server.v1.GetOfflineQueryInfraSummaryResponse\"\x06\x80}\v\x90\x02\x01\x12\xba\x01\n" +
+	"\x1bGetOfflineQueryInfraSummary\x123.chalk.server.v1.GetOfflineQueryInfraSummaryRequest\x1a4.chalk.server.v1.GetOfflineQueryInfraSummaryResponse\"\x06\x80}\v\x90\x02\x01\x12\x96\x01\n" +
+	"\x1dGetOfflineQueryProfileSummary\x125.chalk.server.v1.GetOfflineQueryProfileSummaryRequest\x1a6.chalk.server.v1.GetOfflineQueryProfileSummaryResponse\"\x06\x80}\v\x90\x02\x01\x12\xba\x01\n" +
 	")ListOfflineQueryShardPerformanceSummaries\x12A.chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest\x1aB.chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
 	"\x15CreateOfflineQueryJob\x12-.chalk.server.v1.CreateOfflineQueryJobRequest\x1a..chalk.server.v1.CreateOfflineQueryJobResponse\"\x03\x80}\x04\x12\x81\x01\n" +
 	"\x16CreateModelTrainingJob\x12..chalk.server.v1.CreateModelTrainingJobRequest\x1a/.chalk.server.v1.CreateModelTrainingJobResponse\"\x06\x80}\x04\x88\x02\x01\x12c\n" +
@@ -2980,7 +3283,7 @@ func file_chalk_server_v1_offline_queries_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_offline_queries_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_chalk_server_v1_offline_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
+var file_chalk_server_v1_offline_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_chalk_server_v1_offline_queries_proto_goTypes = []any{
 	(OfflineQueryStatus)(0),                                   // 0: chalk.server.v1.OfflineQueryStatus
 	(OfflineQueryKind)(0),                                     // 1: chalk.server.v1.OfflineQueryKind
@@ -3002,56 +3305,60 @@ var file_chalk_server_v1_offline_queries_proto_goTypes = []any{
 	(*GetOfflineQueryShardsAggregatedResponse)(nil),           // 17: chalk.server.v1.GetOfflineQueryShardsAggregatedResponse
 	(*GetOfflineQueryInfraSummaryRequest)(nil),                // 18: chalk.server.v1.GetOfflineQueryInfraSummaryRequest
 	(*GetOfflineQueryInfraSummaryResponse)(nil),               // 19: chalk.server.v1.GetOfflineQueryInfraSummaryResponse
-	(*CreateOfflineQueryJobRequest)(nil),                      // 20: chalk.server.v1.CreateOfflineQueryJobRequest
-	(*CreateOfflineQueryJobResponse)(nil),                     // 21: chalk.server.v1.CreateOfflineQueryJobResponse
-	(*CreateModelTrainingJobRequest)(nil),                     // 22: chalk.server.v1.CreateModelTrainingJobRequest
-	(*CreateModelTrainingJobResponse)(nil),                    // 23: chalk.server.v1.CreateModelTrainingJobResponse
-	(*IngestDatasetRequest)(nil),                              // 24: chalk.server.v1.IngestDatasetRequest
-	(*IngestDatasetResponse)(nil),                             // 25: chalk.server.v1.IngestDatasetResponse
-	(*RetryOfflineQueryShardRequest)(nil),                     // 26: chalk.server.v1.RetryOfflineQueryShardRequest
-	(*RetryOfflineQueryShardResponse)(nil),                    // 27: chalk.server.v1.RetryOfflineQueryShardResponse
-	(*CancelAsyncOfflineQueryRequest)(nil),                    // 28: chalk.server.v1.CancelAsyncOfflineQueryRequest
-	(*CancelAsyncOfflineQueryResponse)(nil),                   // 29: chalk.server.v1.CancelAsyncOfflineQueryResponse
-	(*BatchProgress)(nil),                                     // 30: chalk.server.v1.BatchProgress
-	(*ChunkReport)(nil),                                       // 31: chalk.server.v1.ChunkReport
-	(*BatchResolverReport)(nil),                               // 32: chalk.server.v1.BatchResolverReport
-	(*BatchReport)(nil),                                       // 33: chalk.server.v1.BatchReport
-	(*GetBatchReportRequest)(nil),                             // 34: chalk.server.v1.GetBatchReportRequest
-	(*GetBatchReportResponse)(nil),                            // 35: chalk.server.v1.GetBatchReportResponse
-	(*ListOfflineQueryNamesRequest)(nil),                      // 36: chalk.server.v1.ListOfflineQueryNamesRequest
-	(*ListOfflineQueryNamesResponse)(nil),                     // 37: chalk.server.v1.ListOfflineQueryNamesResponse
-	nil,                                                       // 38: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
-	(*timestamppb.Timestamp)(nil),                             // 39: google.protobuf.Timestamp
-	(*structpb.Value)(nil),                                    // 40: google.protobuf.Value
-	(*DatasetRevisionMeta)(nil),                               // 41: chalk.server.v1.DatasetRevisionMeta
-	(*v1.PlanAggregateBackfillResponse)(nil),                  // 42: chalk.aggregate.v1.PlanAggregateBackfillResponse
-	(*v11.OfflineQueryRequest)(nil),                           // 43: chalk.common.v1.OfflineQueryRequest
-	(*v11.DatasetResponse)(nil),                               // 44: chalk.common.v1.DatasetResponse
-	(*v11.ChalkError)(nil),                                    // 45: chalk.common.v1.ChalkError
-	(*ListOfflineQueryShardPerformanceSummariesRequest)(nil),  // 46: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
-	(*ListOfflineQueryShardPerformanceSummariesResponse)(nil), // 47: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
+	(*GetOfflineQueryProfileSummaryRequest)(nil),              // 20: chalk.server.v1.GetOfflineQueryProfileSummaryRequest
+	(*OfflineQueryProfilePercentileStats)(nil),                // 21: chalk.server.v1.OfflineQueryProfilePercentileStats
+	(*OfflineQueryProfileSummaryRow)(nil),                     // 22: chalk.server.v1.OfflineQueryProfileSummaryRow
+	(*GetOfflineQueryProfileSummaryResponse)(nil),             // 23: chalk.server.v1.GetOfflineQueryProfileSummaryResponse
+	(*CreateOfflineQueryJobRequest)(nil),                      // 24: chalk.server.v1.CreateOfflineQueryJobRequest
+	(*CreateOfflineQueryJobResponse)(nil),                     // 25: chalk.server.v1.CreateOfflineQueryJobResponse
+	(*CreateModelTrainingJobRequest)(nil),                     // 26: chalk.server.v1.CreateModelTrainingJobRequest
+	(*CreateModelTrainingJobResponse)(nil),                    // 27: chalk.server.v1.CreateModelTrainingJobResponse
+	(*IngestDatasetRequest)(nil),                              // 28: chalk.server.v1.IngestDatasetRequest
+	(*IngestDatasetResponse)(nil),                             // 29: chalk.server.v1.IngestDatasetResponse
+	(*RetryOfflineQueryShardRequest)(nil),                     // 30: chalk.server.v1.RetryOfflineQueryShardRequest
+	(*RetryOfflineQueryShardResponse)(nil),                    // 31: chalk.server.v1.RetryOfflineQueryShardResponse
+	(*CancelAsyncOfflineQueryRequest)(nil),                    // 32: chalk.server.v1.CancelAsyncOfflineQueryRequest
+	(*CancelAsyncOfflineQueryResponse)(nil),                   // 33: chalk.server.v1.CancelAsyncOfflineQueryResponse
+	(*BatchProgress)(nil),                                     // 34: chalk.server.v1.BatchProgress
+	(*ChunkReport)(nil),                                       // 35: chalk.server.v1.ChunkReport
+	(*BatchResolverReport)(nil),                               // 36: chalk.server.v1.BatchResolverReport
+	(*BatchReport)(nil),                                       // 37: chalk.server.v1.BatchReport
+	(*GetBatchReportRequest)(nil),                             // 38: chalk.server.v1.GetBatchReportRequest
+	(*GetBatchReportResponse)(nil),                            // 39: chalk.server.v1.GetBatchReportResponse
+	(*ListOfflineQueryNamesRequest)(nil),                      // 40: chalk.server.v1.ListOfflineQueryNamesRequest
+	(*ListOfflineQueryNamesResponse)(nil),                     // 41: chalk.server.v1.ListOfflineQueryNamesResponse
+	nil,                                                       // 42: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
+	(*timestamppb.Timestamp)(nil),                             // 43: google.protobuf.Timestamp
+	(*structpb.Value)(nil),                                    // 44: google.protobuf.Value
+	(*DatasetRevisionMeta)(nil),                               // 45: chalk.server.v1.DatasetRevisionMeta
+	(*v1.PlanAggregateBackfillResponse)(nil),                  // 46: chalk.aggregate.v1.PlanAggregateBackfillResponse
+	(*v11.OfflineQueryRequest)(nil),                           // 47: chalk.common.v1.OfflineQueryRequest
+	(*v11.DatasetResponse)(nil),                               // 48: chalk.common.v1.DatasetResponse
+	(*v11.ChalkError)(nil),                                    // 49: chalk.common.v1.ChalkError
+	(*ListOfflineQueryShardPerformanceSummariesRequest)(nil),  // 50: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
+	(*ListOfflineQueryShardPerformanceSummariesResponse)(nil), // 51: chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
 }
 var file_chalk_server_v1_offline_queries_proto_depIdxs = []int32{
-	39, // 0: chalk.server.v1.OfflineQueryShardRun.created_at:type_name -> google.protobuf.Timestamp
-	39, // 1: chalk.server.v1.OfflineQueryShardRun.plan_execution_start:type_name -> google.protobuf.Timestamp
-	39, // 2: chalk.server.v1.OfflineQueryShardRun.completed_at:type_name -> google.protobuf.Timestamp
-	39, // 3: chalk.server.v1.OfflineQueryShard.created_at:type_name -> google.protobuf.Timestamp
-	39, // 4: chalk.server.v1.OfflineQueryShard.completed_at:type_name -> google.protobuf.Timestamp
+	43, // 0: chalk.server.v1.OfflineQueryShardRun.created_at:type_name -> google.protobuf.Timestamp
+	43, // 1: chalk.server.v1.OfflineQueryShardRun.plan_execution_start:type_name -> google.protobuf.Timestamp
+	43, // 2: chalk.server.v1.OfflineQueryShardRun.completed_at:type_name -> google.protobuf.Timestamp
+	43, // 3: chalk.server.v1.OfflineQueryShard.created_at:type_name -> google.protobuf.Timestamp
+	43, // 4: chalk.server.v1.OfflineQueryShard.completed_at:type_name -> google.protobuf.Timestamp
 	0,  // 5: chalk.server.v1.OfflineQueryShard.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	39, // 6: chalk.server.v1.OfflineQueryShard.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	43, // 6: chalk.server.v1.OfflineQueryShard.last_heartbeat_at:type_name -> google.protobuf.Timestamp
 	4,  // 7: chalk.server.v1.OfflineQueryShard.runs:type_name -> chalk.server.v1.OfflineQueryShardRun
-	39, // 8: chalk.server.v1.OfflineQueryMeta.created_at:type_name -> google.protobuf.Timestamp
-	40, // 9: chalk.server.v1.OfflineQueryMeta.query_meta:type_name -> google.protobuf.Value
-	39, // 10: chalk.server.v1.OfflineQueryMeta.completed_at:type_name -> google.protobuf.Timestamp
+	43, // 8: chalk.server.v1.OfflineQueryMeta.created_at:type_name -> google.protobuf.Timestamp
+	44, // 9: chalk.server.v1.OfflineQueryMeta.query_meta:type_name -> google.protobuf.Value
+	43, // 10: chalk.server.v1.OfflineQueryMeta.completed_at:type_name -> google.protobuf.Timestamp
 	0,  // 11: chalk.server.v1.OfflineQueryMeta.status:type_name -> chalk.server.v1.OfflineQueryStatus
-	40, // 12: chalk.server.v1.OfflineQueryMeta.filters:type_name -> google.protobuf.Value
-	40, // 13: chalk.server.v1.OfflineQueryMeta.planner_options:type_name -> google.protobuf.Value
-	40, // 14: chalk.server.v1.OfflineQueryMeta.invoker_options:type_name -> google.protobuf.Value
+	44, // 12: chalk.server.v1.OfflineQueryMeta.filters:type_name -> google.protobuf.Value
+	44, // 13: chalk.server.v1.OfflineQueryMeta.planner_options:type_name -> google.protobuf.Value
+	44, // 14: chalk.server.v1.OfflineQueryMeta.invoker_options:type_name -> google.protobuf.Value
 	1,  // 15: chalk.server.v1.OfflineQueryMeta.query_type:type_name -> chalk.server.v1.OfflineQueryKind
-	40, // 16: chalk.server.v1.OfflineQueryMeta.output:type_name -> google.protobuf.Value
-	40, // 17: chalk.server.v1.OfflineQueryMeta.required_output:type_name -> google.protobuf.Value
-	41, // 18: chalk.server.v1.OfflineQueryMeta.dataset_revision:type_name -> chalk.server.v1.DatasetRevisionMeta
-	42, // 19: chalk.server.v1.OfflineQueryMeta.time_series:type_name -> chalk.aggregate.v1.PlanAggregateBackfillResponse
+	44, // 16: chalk.server.v1.OfflineQueryMeta.output:type_name -> google.protobuf.Value
+	44, // 17: chalk.server.v1.OfflineQueryMeta.required_output:type_name -> google.protobuf.Value
+	45, // 18: chalk.server.v1.OfflineQueryMeta.dataset_revision:type_name -> chalk.server.v1.DatasetRevisionMeta
+	46, // 19: chalk.server.v1.OfflineQueryMeta.time_series:type_name -> chalk.aggregate.v1.PlanAggregateBackfillResponse
 	1,  // 20: chalk.server.v1.ListOfflineQueriesRequest.kind_filter:type_name -> chalk.server.v1.OfflineQueryKind
 	0,  // 21: chalk.server.v1.ListOfflineQueriesRequest.status_filter:type_name -> chalk.server.v1.OfflineQueryStatus
 	6,  // 22: chalk.server.v1.ListOfflineQueriesResponse.offline_queries:type_name -> chalk.server.v1.OfflineQueryMeta
@@ -3061,64 +3368,69 @@ var file_chalk_server_v1_offline_queries_proto_depIdxs = []int32{
 	5,  // 26: chalk.server.v1.ListOfflineQueryShardsResponse.offline_query_shards:type_name -> chalk.server.v1.OfflineQueryShard
 	0,  // 27: chalk.server.v1.OfflineQueryShardStatusAggregate.status:type_name -> chalk.server.v1.OfflineQueryStatus
 	15, // 28: chalk.server.v1.GetOfflineQueryShardsAggregatedResponse.aggregates:type_name -> chalk.server.v1.OfflineQueryShardStatusAggregate
-	43, // 29: chalk.server.v1.CreateOfflineQueryJobRequest.offline_query_request:type_name -> chalk.common.v1.OfflineQueryRequest
-	44, // 30: chalk.server.v1.CreateOfflineQueryJobResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
-	43, // 31: chalk.server.v1.CreateModelTrainingJobRequest.training_job_request:type_name -> chalk.common.v1.OfflineQueryRequest
-	38, // 32: chalk.server.v1.IngestDatasetRequest.planner_options:type_name -> chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
-	44, // 33: chalk.server.v1.IngestDatasetResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
-	39, // 34: chalk.server.v1.BatchProgress.start:type_name -> google.protobuf.Timestamp
-	39, // 35: chalk.server.v1.BatchProgress.end:type_name -> google.protobuf.Timestamp
-	30, // 36: chalk.server.v1.ChunkReport.progress:type_name -> chalk.server.v1.BatchProgress
-	39, // 37: chalk.server.v1.ChunkReport.generated_at:type_name -> google.protobuf.Timestamp
-	2,  // 38: chalk.server.v1.BatchResolverReport.status:type_name -> chalk.server.v1.BatchOpStatus
-	31, // 39: chalk.server.v1.BatchResolverReport.chunks:type_name -> chalk.server.v1.ChunkReport
-	30, // 40: chalk.server.v1.BatchResolverReport.progress:type_name -> chalk.server.v1.BatchProgress
-	39, // 41: chalk.server.v1.BatchResolverReport.generated_at:type_name -> google.protobuf.Timestamp
-	45, // 42: chalk.server.v1.BatchResolverReport.error:type_name -> chalk.common.v1.ChalkError
-	45, // 43: chalk.server.v1.BatchResolverReport.all_errors:type_name -> chalk.common.v1.ChalkError
-	3,  // 44: chalk.server.v1.BatchReport.operation_kind:type_name -> chalk.server.v1.BatchOpKind
-	2,  // 45: chalk.server.v1.BatchReport.status:type_name -> chalk.server.v1.BatchOpStatus
-	32, // 46: chalk.server.v1.BatchReport.resolvers:type_name -> chalk.server.v1.BatchResolverReport
-	30, // 47: chalk.server.v1.BatchReport.progress:type_name -> chalk.server.v1.BatchProgress
-	45, // 48: chalk.server.v1.BatchReport.error:type_name -> chalk.common.v1.ChalkError
-	39, // 49: chalk.server.v1.BatchReport.generated_at:type_name -> google.protobuf.Timestamp
-	45, // 50: chalk.server.v1.BatchReport.all_errors:type_name -> chalk.common.v1.ChalkError
-	40, // 51: chalk.server.v1.BatchReport.operation_metadata:type_name -> google.protobuf.Value
-	39, // 52: chalk.server.v1.BatchReport.started_at:type_name -> google.protobuf.Timestamp
-	39, // 53: chalk.server.v1.BatchReport.ended_at:type_name -> google.protobuf.Timestamp
-	33, // 54: chalk.server.v1.GetBatchReportResponse.batch_report:type_name -> chalk.server.v1.BatchReport
-	40, // 55: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
-	7,  // 56: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:input_type -> chalk.server.v1.ListOfflineQueriesRequest
-	9,  // 57: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:input_type -> chalk.server.v1.GetOfflineQueryRequest
-	13, // 58: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:input_type -> chalk.server.v1.ListOfflineQueryShardsRequest
-	16, // 59: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:input_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedRequest
-	18, // 60: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:input_type -> chalk.server.v1.GetOfflineQueryInfraSummaryRequest
-	46, // 61: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:input_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
-	20, // 62: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:input_type -> chalk.server.v1.CreateOfflineQueryJobRequest
-	22, // 63: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:input_type -> chalk.server.v1.CreateModelTrainingJobRequest
-	24, // 64: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:input_type -> chalk.server.v1.IngestDatasetRequest
-	26, // 65: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:input_type -> chalk.server.v1.RetryOfflineQueryShardRequest
-	28, // 66: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:input_type -> chalk.server.v1.CancelAsyncOfflineQueryRequest
-	34, // 67: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:input_type -> chalk.server.v1.GetBatchReportRequest
-	36, // 68: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:input_type -> chalk.server.v1.ListOfflineQueryNamesRequest
-	8,  // 69: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:output_type -> chalk.server.v1.ListOfflineQueriesResponse
-	10, // 70: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:output_type -> chalk.server.v1.GetOfflineQueryResponse
-	14, // 71: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:output_type -> chalk.server.v1.ListOfflineQueryShardsResponse
-	17, // 72: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:output_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedResponse
-	19, // 73: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:output_type -> chalk.server.v1.GetOfflineQueryInfraSummaryResponse
-	47, // 74: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:output_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
-	21, // 75: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:output_type -> chalk.server.v1.CreateOfflineQueryJobResponse
-	23, // 76: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:output_type -> chalk.server.v1.CreateModelTrainingJobResponse
-	25, // 77: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:output_type -> chalk.server.v1.IngestDatasetResponse
-	27, // 78: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:output_type -> chalk.server.v1.RetryOfflineQueryShardResponse
-	29, // 79: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:output_type -> chalk.server.v1.CancelAsyncOfflineQueryResponse
-	35, // 80: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:output_type -> chalk.server.v1.GetBatchReportResponse
-	37, // 81: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:output_type -> chalk.server.v1.ListOfflineQueryNamesResponse
-	69, // [69:82] is the sub-list for method output_type
-	56, // [56:69] is the sub-list for method input_type
-	56, // [56:56] is the sub-list for extension type_name
-	56, // [56:56] is the sub-list for extension extendee
-	0,  // [0:56] is the sub-list for field type_name
+	21, // 29: chalk.server.v1.OfflineQueryProfileSummaryRow.stats:type_name -> chalk.server.v1.OfflineQueryProfilePercentileStats
+	0,  // 30: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.status:type_name -> chalk.server.v1.OfflineQueryStatus
+	22, // 31: chalk.server.v1.GetOfflineQueryProfileSummaryResponse.rows:type_name -> chalk.server.v1.OfflineQueryProfileSummaryRow
+	47, // 32: chalk.server.v1.CreateOfflineQueryJobRequest.offline_query_request:type_name -> chalk.common.v1.OfflineQueryRequest
+	48, // 33: chalk.server.v1.CreateOfflineQueryJobResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
+	47, // 34: chalk.server.v1.CreateModelTrainingJobRequest.training_job_request:type_name -> chalk.common.v1.OfflineQueryRequest
+	42, // 35: chalk.server.v1.IngestDatasetRequest.planner_options:type_name -> chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry
+	48, // 36: chalk.server.v1.IngestDatasetResponse.dataset_response:type_name -> chalk.common.v1.DatasetResponse
+	43, // 37: chalk.server.v1.BatchProgress.start:type_name -> google.protobuf.Timestamp
+	43, // 38: chalk.server.v1.BatchProgress.end:type_name -> google.protobuf.Timestamp
+	34, // 39: chalk.server.v1.ChunkReport.progress:type_name -> chalk.server.v1.BatchProgress
+	43, // 40: chalk.server.v1.ChunkReport.generated_at:type_name -> google.protobuf.Timestamp
+	2,  // 41: chalk.server.v1.BatchResolverReport.status:type_name -> chalk.server.v1.BatchOpStatus
+	35, // 42: chalk.server.v1.BatchResolverReport.chunks:type_name -> chalk.server.v1.ChunkReport
+	34, // 43: chalk.server.v1.BatchResolverReport.progress:type_name -> chalk.server.v1.BatchProgress
+	43, // 44: chalk.server.v1.BatchResolverReport.generated_at:type_name -> google.protobuf.Timestamp
+	49, // 45: chalk.server.v1.BatchResolverReport.error:type_name -> chalk.common.v1.ChalkError
+	49, // 46: chalk.server.v1.BatchResolverReport.all_errors:type_name -> chalk.common.v1.ChalkError
+	3,  // 47: chalk.server.v1.BatchReport.operation_kind:type_name -> chalk.server.v1.BatchOpKind
+	2,  // 48: chalk.server.v1.BatchReport.status:type_name -> chalk.server.v1.BatchOpStatus
+	36, // 49: chalk.server.v1.BatchReport.resolvers:type_name -> chalk.server.v1.BatchResolverReport
+	34, // 50: chalk.server.v1.BatchReport.progress:type_name -> chalk.server.v1.BatchProgress
+	49, // 51: chalk.server.v1.BatchReport.error:type_name -> chalk.common.v1.ChalkError
+	43, // 52: chalk.server.v1.BatchReport.generated_at:type_name -> google.protobuf.Timestamp
+	49, // 53: chalk.server.v1.BatchReport.all_errors:type_name -> chalk.common.v1.ChalkError
+	44, // 54: chalk.server.v1.BatchReport.operation_metadata:type_name -> google.protobuf.Value
+	43, // 55: chalk.server.v1.BatchReport.started_at:type_name -> google.protobuf.Timestamp
+	43, // 56: chalk.server.v1.BatchReport.ended_at:type_name -> google.protobuf.Timestamp
+	37, // 57: chalk.server.v1.GetBatchReportResponse.batch_report:type_name -> chalk.server.v1.BatchReport
+	44, // 58: chalk.server.v1.IngestDatasetRequest.PlannerOptionsEntry.value:type_name -> google.protobuf.Value
+	7,  // 59: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:input_type -> chalk.server.v1.ListOfflineQueriesRequest
+	9,  // 60: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:input_type -> chalk.server.v1.GetOfflineQueryRequest
+	13, // 61: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:input_type -> chalk.server.v1.ListOfflineQueryShardsRequest
+	16, // 62: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:input_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedRequest
+	18, // 63: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:input_type -> chalk.server.v1.GetOfflineQueryInfraSummaryRequest
+	20, // 64: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:input_type -> chalk.server.v1.GetOfflineQueryProfileSummaryRequest
+	50, // 65: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:input_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesRequest
+	24, // 66: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:input_type -> chalk.server.v1.CreateOfflineQueryJobRequest
+	26, // 67: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:input_type -> chalk.server.v1.CreateModelTrainingJobRequest
+	28, // 68: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:input_type -> chalk.server.v1.IngestDatasetRequest
+	30, // 69: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:input_type -> chalk.server.v1.RetryOfflineQueryShardRequest
+	32, // 70: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:input_type -> chalk.server.v1.CancelAsyncOfflineQueryRequest
+	38, // 71: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:input_type -> chalk.server.v1.GetBatchReportRequest
+	40, // 72: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:input_type -> chalk.server.v1.ListOfflineQueryNamesRequest
+	8,  // 73: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueries:output_type -> chalk.server.v1.ListOfflineQueriesResponse
+	10, // 74: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQuery:output_type -> chalk.server.v1.GetOfflineQueryResponse
+	14, // 75: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShards:output_type -> chalk.server.v1.ListOfflineQueryShardsResponse
+	17, // 76: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryShardsAggregated:output_type -> chalk.server.v1.GetOfflineQueryShardsAggregatedResponse
+	19, // 77: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryInfraSummary:output_type -> chalk.server.v1.GetOfflineQueryInfraSummaryResponse
+	23, // 78: chalk.server.v1.OfflineQueryMetadataService.GetOfflineQueryProfileSummary:output_type -> chalk.server.v1.GetOfflineQueryProfileSummaryResponse
+	51, // 79: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryShardPerformanceSummaries:output_type -> chalk.server.v1.ListOfflineQueryShardPerformanceSummariesResponse
+	25, // 80: chalk.server.v1.OfflineQueryMetadataService.CreateOfflineQueryJob:output_type -> chalk.server.v1.CreateOfflineQueryJobResponse
+	27, // 81: chalk.server.v1.OfflineQueryMetadataService.CreateModelTrainingJob:output_type -> chalk.server.v1.CreateModelTrainingJobResponse
+	29, // 82: chalk.server.v1.OfflineQueryMetadataService.IngestDataset:output_type -> chalk.server.v1.IngestDatasetResponse
+	31, // 83: chalk.server.v1.OfflineQueryMetadataService.RetryOfflineQueryShard:output_type -> chalk.server.v1.RetryOfflineQueryShardResponse
+	33, // 84: chalk.server.v1.OfflineQueryMetadataService.CancelAsyncOfflineQuery:output_type -> chalk.server.v1.CancelAsyncOfflineQueryResponse
+	39, // 85: chalk.server.v1.OfflineQueryMetadataService.GetBatchReport:output_type -> chalk.server.v1.GetBatchReportResponse
+	41, // 86: chalk.server.v1.OfflineQueryMetadataService.ListOfflineQueryNames:output_type -> chalk.server.v1.ListOfflineQueryNamesResponse
+	73, // [73:87] is the sub-list for method output_type
+	59, // [59:73] is the sub-list for method input_type
+	59, // [59:59] is the sub-list for extension type_name
+	59, // [59:59] is the sub-list for extension extendee
+	0,  // [0:59] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_offline_queries_proto_init() }
@@ -3136,19 +3448,19 @@ func file_chalk_server_v1_offline_queries_proto_init() {
 	file_chalk_server_v1_offline_queries_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_queries_proto_msgTypes[9].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_queries_proto_msgTypes[10].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_queries_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_queries_proto_msgTypes[26].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_queries_proto_msgTypes[28].OneofWrappers = []any{}
-	file_chalk_server_v1_offline_queries_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_queries_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_queries_proto_msgTypes[30].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_queries_proto_msgTypes[32].OneofWrappers = []any{}
 	file_chalk_server_v1_offline_queries_proto_msgTypes[33].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_queries_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_server_v1_offline_queries_proto_msgTypes[37].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_offline_queries_proto_rawDesc), len(file_chalk_server_v1_offline_queries_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   35,
+			NumMessages:   39,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1463,6 +1463,400 @@ func (x *OperationAndShard) GetShardId() int64 {
 	return 0
 }
 
+// Kubernetes-style resource strings (e.g. "2", "500m", "4Gi") representing the
+// sum of container resource requests for a consumer pod. Mirrors the JSON payload
+// stored in job_queue_consumers.pod_requests.
+type JobQueueConsumerResourceRequests struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Cpu                 *string                `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	Memory              *string                `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	EphemeralStorage    *string                `protobuf:"bytes,3,opt,name=ephemeral_storage,json=ephemeralStorage,proto3,oneof" json:"ephemeral_storage,omitempty"`
+	EphemeralVolumeSize *string                `protobuf:"bytes,4,opt,name=ephemeral_volume_size,json=ephemeralVolumeSize,proto3,oneof" json:"ephemeral_volume_size,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *JobQueueConsumerResourceRequests) Reset() {
+	*x = JobQueueConsumerResourceRequests{}
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JobQueueConsumerResourceRequests) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JobQueueConsumerResourceRequests) ProtoMessage() {}
+
+func (x *JobQueueConsumerResourceRequests) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JobQueueConsumerResourceRequests.ProtoReflect.Descriptor instead.
+func (*JobQueueConsumerResourceRequests) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *JobQueueConsumerResourceRequests) GetCpu() string {
+	if x != nil && x.Cpu != nil {
+		return *x.Cpu
+	}
+	return ""
+}
+
+func (x *JobQueueConsumerResourceRequests) GetMemory() string {
+	if x != nil && x.Memory != nil {
+		return *x.Memory
+	}
+	return ""
+}
+
+func (x *JobQueueConsumerResourceRequests) GetEphemeralStorage() string {
+	if x != nil && x.EphemeralStorage != nil {
+		return *x.EphemeralStorage
+	}
+	return ""
+}
+
+func (x *JobQueueConsumerResourceRequests) GetEphemeralVolumeSize() string {
+	if x != nil && x.EphemeralVolumeSize != nil {
+		return *x.EphemeralVolumeSize
+	}
+	return ""
+}
+
+// Description of the node a consumer pod is scheduled onto. Mirrors the JSON
+// payload stored in job_queue_consumers.node_spec.
+type JobQueueConsumerNodeSpec struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cpu           *string                `protobuf:"bytes,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	Memory        *string                `protobuf:"bytes,2,opt,name=memory,proto3,oneof" json:"memory,omitempty"`
+	InstanceType  *string                `protobuf:"bytes,3,opt,name=instance_type,json=instanceType,proto3,oneof" json:"instance_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *JobQueueConsumerNodeSpec) Reset() {
+	*x = JobQueueConsumerNodeSpec{}
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JobQueueConsumerNodeSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JobQueueConsumerNodeSpec) ProtoMessage() {}
+
+func (x *JobQueueConsumerNodeSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JobQueueConsumerNodeSpec.ProtoReflect.Descriptor instead.
+func (*JobQueueConsumerNodeSpec) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *JobQueueConsumerNodeSpec) GetCpu() string {
+	if x != nil && x.Cpu != nil {
+		return *x.Cpu
+	}
+	return ""
+}
+
+func (x *JobQueueConsumerNodeSpec) GetMemory() string {
+	if x != nil && x.Memory != nil {
+		return *x.Memory
+	}
+	return ""
+}
+
+func (x *JobQueueConsumerNodeSpec) GetInstanceType() string {
+	if x != nil && x.InstanceType != nil {
+		return *x.InstanceType
+	}
+	return ""
+}
+
+// A row in the job_queue_consumers Timescale table. Represents the observed
+// lifetime of a single offline-query-consumer pod scheduled into a resource group.
+type JobQueueConsumer struct {
+	state           protoimpl.MessageState            `protogen:"open.v1"`
+	Id              int64                             `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId   string                            `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	DeploymentId    string                            `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	PodName         string                            `protobuf:"bytes,4,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
+	ResourceGroup   *string                           `protobuf:"bytes,5,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	KubeClusterName *string                           `protobuf:"bytes,6,opt,name=kube_cluster_name,json=kubeClusterName,proto3,oneof" json:"kube_cluster_name,omitempty"`
+	NodeName        *string                           `protobuf:"bytes,7,opt,name=node_name,json=nodeName,proto3,oneof" json:"node_name,omitempty"`
+	InstanceId      *string                           `protobuf:"bytes,8,opt,name=instance_id,json=instanceId,proto3,oneof" json:"instance_id,omitempty"`
+	PodRequests     *JobQueueConsumerResourceRequests `protobuf:"bytes,9,opt,name=pod_requests,json=podRequests,proto3,oneof" json:"pod_requests,omitempty"`
+	NodeSpec        *JobQueueConsumerNodeSpec         `protobuf:"bytes,10,opt,name=node_spec,json=nodeSpec,proto3,oneof" json:"node_spec,omitempty"`
+	InstanceType    *string                           `protobuf:"bytes,11,opt,name=instance_type,json=instanceType,proto3,oneof" json:"instance_type,omitempty"`
+	CreatedAt       *timestamppb.Timestamp            `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	TerminatedAt    *timestamppb.Timestamp            `protobuf:"bytes,13,opt,name=terminated_at,json=terminatedAt,proto3,oneof" json:"terminated_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *JobQueueConsumer) Reset() {
+	*x = JobQueueConsumer{}
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *JobQueueConsumer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*JobQueueConsumer) ProtoMessage() {}
+
+func (x *JobQueueConsumer) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use JobQueueConsumer.ProtoReflect.Descriptor instead.
+func (*JobQueueConsumer) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *JobQueueConsumer) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *JobQueueConsumer) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetPodName() string {
+	if x != nil {
+		return x.PodName
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetKubeClusterName() string {
+	if x != nil && x.KubeClusterName != nil {
+		return *x.KubeClusterName
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetNodeName() string {
+	if x != nil && x.NodeName != nil {
+		return *x.NodeName
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetInstanceId() string {
+	if x != nil && x.InstanceId != nil {
+		return *x.InstanceId
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetPodRequests() *JobQueueConsumerResourceRequests {
+	if x != nil {
+		return x.PodRequests
+	}
+	return nil
+}
+
+func (x *JobQueueConsumer) GetNodeSpec() *JobQueueConsumerNodeSpec {
+	if x != nil {
+		return x.NodeSpec
+	}
+	return nil
+}
+
+func (x *JobQueueConsumer) GetInstanceType() string {
+	if x != nil && x.InstanceType != nil {
+		return *x.InstanceType
+	}
+	return ""
+}
+
+func (x *JobQueueConsumer) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *JobQueueConsumer) GetTerminatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TerminatedAt
+	}
+	return nil
+}
+
+type ListJobQueueConsumersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EnvironmentId string                 `protobuf:"bytes,1,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	// If unset, returns consumers from any resource group. The "default" resource
+	// group can be addressed by any of the strings "", "default", or
+	// "default_resource_group" (and matches consumers whose resource_group column
+	// is NULL).
+	ResourceGroup *string `protobuf:"bytes,2,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	// If false (the default), only currently-active consumers (terminated_at IS NULL)
+	// are returned.
+	IncludeTerminated bool `protobuf:"varint,3,opt,name=include_terminated,json=includeTerminated,proto3" json:"include_terminated,omitempty"`
+	// Max rows to return. Defaults to 200 if unset or 0.
+	Limit         *int32 `protobuf:"varint,4,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListJobQueueConsumersRequest) Reset() {
+	*x = ListJobQueueConsumersRequest{}
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListJobQueueConsumersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListJobQueueConsumersRequest) ProtoMessage() {}
+
+func (x *ListJobQueueConsumersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListJobQueueConsumersRequest.ProtoReflect.Descriptor instead.
+func (*ListJobQueueConsumersRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListJobQueueConsumersRequest) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *ListJobQueueConsumersRequest) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
+}
+
+func (x *ListJobQueueConsumersRequest) GetIncludeTerminated() bool {
+	if x != nil {
+		return x.IncludeTerminated
+	}
+	return false
+}
+
+func (x *ListJobQueueConsumersRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+type ListJobQueueConsumersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Consumers     []*JobQueueConsumer    `protobuf:"bytes,1,rep,name=consumers,proto3" json:"consumers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListJobQueueConsumersResponse) Reset() {
+	*x = ListJobQueueConsumersResponse{}
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListJobQueueConsumersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListJobQueueConsumersResponse) ProtoMessage() {}
+
+func (x *ListJobQueueConsumersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListJobQueueConsumersResponse.ProtoReflect.Descriptor instead.
+func (*ListJobQueueConsumersResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListJobQueueConsumersResponse) GetConsumers() []*JobQueueConsumer {
+	if x != nil {
+		return x.Consumers
+	}
+	return nil
+}
+
 type ForceCancelJobQueueJobRequest struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	EnvironmentId       string                 `protobuf:"bytes,1,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
@@ -1474,7 +1868,7 @@ type ForceCancelJobQueueJobRequest struct {
 
 func (x *ForceCancelJobQueueJobRequest) Reset() {
 	*x = ForceCancelJobQueueJobRequest{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1486,7 +1880,7 @@ func (x *ForceCancelJobQueueJobRequest) String() string {
 func (*ForceCancelJobQueueJobRequest) ProtoMessage() {}
 
 func (x *ForceCancelJobQueueJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1499,7 +1893,7 @@ func (x *ForceCancelJobQueueJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForceCancelJobQueueJobRequest.ProtoReflect.Descriptor instead.
 func (*ForceCancelJobQueueJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ForceCancelJobQueueJobRequest) GetEnvironmentId() string {
@@ -1531,7 +1925,7 @@ type ForceCancelJobQueueJobResponse struct {
 
 func (x *ForceCancelJobQueueJobResponse) Reset() {
 	*x = ForceCancelJobQueueJobResponse{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1543,7 +1937,7 @@ func (x *ForceCancelJobQueueJobResponse) String() string {
 func (*ForceCancelJobQueueJobResponse) ProtoMessage() {}
 
 func (x *ForceCancelJobQueueJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1556,7 +1950,7 @@ func (x *ForceCancelJobQueueJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForceCancelJobQueueJobResponse.ProtoReflect.Descriptor instead.
 func (*ForceCancelJobQueueJobResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{23}
 }
 
 type CancelWorkflowExecutionRequest struct {
@@ -1571,7 +1965,7 @@ type CancelWorkflowExecutionRequest struct {
 
 func (x *CancelWorkflowExecutionRequest) Reset() {
 	*x = CancelWorkflowExecutionRequest{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1583,7 +1977,7 @@ func (x *CancelWorkflowExecutionRequest) String() string {
 func (*CancelWorkflowExecutionRequest) ProtoMessage() {}
 
 func (x *CancelWorkflowExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1596,7 +1990,7 @@ func (x *CancelWorkflowExecutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelWorkflowExecutionRequest.ProtoReflect.Descriptor instead.
 func (*CancelWorkflowExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CancelWorkflowExecutionRequest) GetMethod() isCancelWorkflowExecutionRequest_Method {
@@ -1634,7 +2028,7 @@ type CancelWorkflowExecutionResponse struct {
 
 func (x *CancelWorkflowExecutionResponse) Reset() {
 	*x = CancelWorkflowExecutionResponse{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1646,7 +2040,7 @@ func (x *CancelWorkflowExecutionResponse) String() string {
 func (*CancelWorkflowExecutionResponse) ProtoMessage() {}
 
 func (x *CancelWorkflowExecutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1659,7 +2053,7 @@ func (x *CancelWorkflowExecutionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelWorkflowExecutionResponse.ProtoReflect.Descriptor instead.
 func (*CancelWorkflowExecutionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{25}
 }
 
 // Mirrors the fields of the Go `shared.JobQueueRequest` struct that are serialized into
@@ -1682,7 +2076,7 @@ type JobQueueEnqueueArgs struct {
 
 func (x *JobQueueEnqueueArgs) Reset() {
 	*x = JobQueueEnqueueArgs{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1694,7 +2088,7 @@ func (x *JobQueueEnqueueArgs) String() string {
 func (*JobQueueEnqueueArgs) ProtoMessage() {}
 
 func (x *JobQueueEnqueueArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,7 +2101,7 @@ func (x *JobQueueEnqueueArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobQueueEnqueueArgs.ProtoReflect.Descriptor instead.
 func (*JobQueueEnqueueArgs) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *JobQueueEnqueueArgs) GetEnvPayload() map[string]string {
@@ -1804,7 +2198,7 @@ type EnqueueJobRequest struct {
 
 func (x *EnqueueJobRequest) Reset() {
 	*x = EnqueueJobRequest{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1816,7 +2210,7 @@ func (x *EnqueueJobRequest) String() string {
 func (*EnqueueJobRequest) ProtoMessage() {}
 
 func (x *EnqueueJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1829,7 +2223,7 @@ func (x *EnqueueJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnqueueJobRequest.ProtoReflect.Descriptor instead.
 func (*EnqueueJobRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *EnqueueJobRequest) GetEnvironmentId() string {
@@ -1917,7 +2311,7 @@ type EnqueueJobResponse struct {
 
 func (x *EnqueueJobResponse) Reset() {
 	*x = EnqueueJobResponse{}
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1929,7 +2323,7 @@ func (x *EnqueueJobResponse) String() string {
 func (*EnqueueJobResponse) ProtoMessage() {}
 
 func (x *EnqueueJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1942,7 +2336,7 @@ func (x *EnqueueJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnqueueJobResponse.ProtoReflect.Descriptor instead.
 func (*EnqueueJobResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP(), []int{28}
 }
 
 var File_chalk_server_v1_dataplanejobqueue_proto protoreflect.FileDescriptor
@@ -2107,7 +2501,59 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\battempts\x18\x01 \x03(\v2 .chalk.server.v1.JobQueueAttemptR\battempts\"Q\n" +
 	"\x11OperationAndShard\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12\x19\n" +
-	"\bshard_id\x18\x02 \x01(\x03R\ashardId\"\xff\x01\n" +
+	"\bshard_id\x18\x02 \x01(\x03R\ashardId\"\x84\x02\n" +
+	" JobQueueConsumerResourceRequests\x12\x15\n" +
+	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
+	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x120\n" +
+	"\x11ephemeral_storage\x18\x03 \x01(\tH\x02R\x10ephemeralStorage\x88\x01\x01\x127\n" +
+	"\x15ephemeral_volume_size\x18\x04 \x01(\tH\x03R\x13ephemeralVolumeSize\x88\x01\x01B\x06\n" +
+	"\x04_cpuB\t\n" +
+	"\a_memoryB\x14\n" +
+	"\x12_ephemeral_storageB\x18\n" +
+	"\x16_ephemeral_volume_size\"\x9d\x01\n" +
+	"\x18JobQueueConsumerNodeSpec\x12\x15\n" +
+	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
+	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x12(\n" +
+	"\rinstance_type\x18\x03 \x01(\tH\x02R\finstanceType\x88\x01\x01B\x06\n" +
+	"\x04_cpuB\t\n" +
+	"\a_memoryB\x10\n" +
+	"\x0e_instance_type\"\x8b\x06\n" +
+	"\x10JobQueueConsumer\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12%\n" +
+	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
+	"\rdeployment_id\x18\x03 \x01(\tR\fdeploymentId\x12\x19\n" +
+	"\bpod_name\x18\x04 \x01(\tR\apodName\x12*\n" +
+	"\x0eresource_group\x18\x05 \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12/\n" +
+	"\x11kube_cluster_name\x18\x06 \x01(\tH\x01R\x0fkubeClusterName\x88\x01\x01\x12 \n" +
+	"\tnode_name\x18\a \x01(\tH\x02R\bnodeName\x88\x01\x01\x12$\n" +
+	"\vinstance_id\x18\b \x01(\tH\x03R\n" +
+	"instanceId\x88\x01\x01\x12Y\n" +
+	"\fpod_requests\x18\t \x01(\v21.chalk.server.v1.JobQueueConsumerResourceRequestsH\x04R\vpodRequests\x88\x01\x01\x12K\n" +
+	"\tnode_spec\x18\n" +
+	" \x01(\v2).chalk.server.v1.JobQueueConsumerNodeSpecH\x05R\bnodeSpec\x88\x01\x01\x12(\n" +
+	"\rinstance_type\x18\v \x01(\tH\x06R\finstanceType\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12D\n" +
+	"\rterminated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\aR\fterminatedAt\x88\x01\x01B\x11\n" +
+	"\x0f_resource_groupB\x14\n" +
+	"\x12_kube_cluster_nameB\f\n" +
+	"\n" +
+	"_node_nameB\x0e\n" +
+	"\f_instance_idB\x0f\n" +
+	"\r_pod_requestsB\f\n" +
+	"\n" +
+	"_node_specB\x10\n" +
+	"\x0e_instance_typeB\x10\n" +
+	"\x0e_terminated_at\"\xd8\x01\n" +
+	"\x1cListJobQueueConsumersRequest\x12%\n" +
+	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12*\n" +
+	"\x0eresource_group\x18\x02 \x01(\tH\x00R\rresourceGroup\x88\x01\x01\x12-\n" +
+	"\x12include_terminated\x18\x03 \x01(\bR\x11includeTerminated\x12\x19\n" +
+	"\x05limit\x18\x04 \x01(\x05H\x01R\x05limit\x88\x01\x01B\x11\n" +
+	"\x0f_resource_groupB\b\n" +
+	"\x06_limit\"`\n" +
+	"\x1dListJobQueueConsumersResponse\x12?\n" +
+	"\tconsumers\x18\x01 \x03(\v2!.chalk.server.v1.JobQueueConsumerR\tconsumers\"\xff\x01\n" +
 	"\x1dForceCancelJobQueueJobRequest\x12%\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12*\n" +
 	"\x0fby_job_queue_id\x18\x02 \x01(\x05H\x00R\fbyJobQueueId\x88\x01\x01\x12\\\n" +
@@ -2177,7 +2623,7 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x1eJOB_QUEUE_KIND_SCHEDULED_QUERY\x10\x02\x12\x1e\n" +
 	"\x1aJOB_QUEUE_KIND_SCRIPT_TASK\x10\x03\x12\x1f\n" +
 	"\x1bJOB_QUEUE_KIND_CHALKSQL_RUN\x10\x04\x12 \n" +
-	"\x1cJOB_QUEUE_KIND_DATAFRAME_RUN\x10\x052\xce\b\n" +
+	"\x1cJOB_QUEUE_KIND_DATAFRAME_RUN\x10\x052\xce\t\n" +
 	"\x18DataPlaneJobQueueService\x12{\n" +
 	"\x14GetDataPlaneJobQueue\x12,.chalk.server.v1.GetDataPlaneJobQueueRequest\x1a-.chalk.server.v1.GetDataPlaneJobQueueResponse\"\x06\x80}\x10\x90\x02\x01\x12~\n" +
 	"\x15ListDataPlaneJobQueue\x12-.chalk.server.v1.ListDataPlaneJobQueueRequest\x1a..chalk.server.v1.ListDataPlaneJobQueueResponse\"\x06\x80}\x10\x90\x02\x01\x12\x96\x01\n" +
@@ -2186,7 +2632,8 @@ const file_chalk_server_v1_dataplanejobqueue_proto_rawDesc = "" +
 	"\x14ListJobQueueAttempts\x12,.chalk.server.v1.ListJobQueueAttemptsRequest\x1a-.chalk.server.v1.ListJobQueueAttemptsResponse\"\x06\x80}\x10\x90\x02\x01\x12~\n" +
 	"\x16ForceCancelJobQueueJob\x12..chalk.server.v1.ForceCancelJobQueueJobRequest\x1a/.chalk.server.v1.ForceCancelJobQueueJobResponse\"\x03\x80}\x04\x12\x81\x01\n" +
 	"\x17CancelWorkflowExecution\x12/.chalk.server.v1.CancelWorkflowExecutionRequest\x1a0.chalk.server.v1.CancelWorkflowExecutionResponse\"\x03\x80}\x04\x12\x87\x01\n" +
-	"\x18ExplainOperationProgress\x120.chalk.server.v1.ExplainOperationProgressRequest\x1a1.chalk.server.v1.ExplainOperationProgressResponse\"\x06\x80}\v\x90\x02\x012x\n" +
+	"\x18ExplainOperationProgress\x120.chalk.server.v1.ExplainOperationProgressRequest\x1a1.chalk.server.v1.ExplainOperationProgressResponse\"\x06\x80}\v\x90\x02\x01\x12~\n" +
+	"\x15ListJobQueueConsumers\x12-.chalk.server.v1.ListJobQueueConsumersRequest\x1a..chalk.server.v1.ListJobQueueConsumersResponse\"\x06\x80}\v\x90\x02\x012x\n" +
 	"\x1aDataPlaneJobEnqueueService\x12Z\n" +
 	"\n" +
 	"EnqueueJob\x12\".chalk.server.v1.EnqueueJobRequest\x1a#.chalk.server.v1.EnqueueJobResponse\"\x03\x80}\x04B\xc6\x01\n" +
@@ -2205,7 +2652,7 @@ func file_chalk_server_v1_dataplanejobqueue_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_dataplanejobqueue_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_dataplanejobqueue_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_chalk_server_v1_dataplanejobqueue_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_chalk_server_v1_dataplanejobqueue_proto_goTypes = []any{
 	(JobQueueState)(0),                            // 0: chalk.server.v1.JobQueueState
 	(JobQueueKind)(0),                             // 1: chalk.server.v1.JobQueueKind
@@ -2226,77 +2673,89 @@ var file_chalk_server_v1_dataplanejobqueue_proto_goTypes = []any{
 	(*ListJobQueueAttemptsRequest)(nil),           // 16: chalk.server.v1.ListJobQueueAttemptsRequest
 	(*ListJobQueueAttemptsResponse)(nil),          // 17: chalk.server.v1.ListJobQueueAttemptsResponse
 	(*OperationAndShard)(nil),                     // 18: chalk.server.v1.OperationAndShard
-	(*ForceCancelJobQueueJobRequest)(nil),         // 19: chalk.server.v1.ForceCancelJobQueueJobRequest
-	(*ForceCancelJobQueueJobResponse)(nil),        // 20: chalk.server.v1.ForceCancelJobQueueJobResponse
-	(*CancelWorkflowExecutionRequest)(nil),        // 21: chalk.server.v1.CancelWorkflowExecutionRequest
-	(*CancelWorkflowExecutionResponse)(nil),       // 22: chalk.server.v1.CancelWorkflowExecutionResponse
-	(*JobQueueEnqueueArgs)(nil),                   // 23: chalk.server.v1.JobQueueEnqueueArgs
-	(*EnqueueJobRequest)(nil),                     // 24: chalk.server.v1.EnqueueJobRequest
-	(*EnqueueJobResponse)(nil),                    // 25: chalk.server.v1.EnqueueJobResponse
-	nil,                                           // 26: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry
-	nil,                                           // 27: chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry
-	nil,                                           // 28: chalk.server.v1.JobQueueEnqueueArgs.EnvPayloadEntry
-	(*timestamppb.Timestamp)(nil),                 // 29: google.protobuf.Timestamp
-	(*v1.KubernetesResourceQuotaData)(nil),        // 30: chalk.kubernetes.v1.KubernetesResourceQuotaData
-	(*v1.KubernetesScaledObjectData)(nil),         // 31: chalk.kubernetes.v1.KubernetesScaledObjectData
+	(*JobQueueConsumerResourceRequests)(nil),      // 19: chalk.server.v1.JobQueueConsumerResourceRequests
+	(*JobQueueConsumerNodeSpec)(nil),              // 20: chalk.server.v1.JobQueueConsumerNodeSpec
+	(*JobQueueConsumer)(nil),                      // 21: chalk.server.v1.JobQueueConsumer
+	(*ListJobQueueConsumersRequest)(nil),          // 22: chalk.server.v1.ListJobQueueConsumersRequest
+	(*ListJobQueueConsumersResponse)(nil),         // 23: chalk.server.v1.ListJobQueueConsumersResponse
+	(*ForceCancelJobQueueJobRequest)(nil),         // 24: chalk.server.v1.ForceCancelJobQueueJobRequest
+	(*ForceCancelJobQueueJobResponse)(nil),        // 25: chalk.server.v1.ForceCancelJobQueueJobResponse
+	(*CancelWorkflowExecutionRequest)(nil),        // 26: chalk.server.v1.CancelWorkflowExecutionRequest
+	(*CancelWorkflowExecutionResponse)(nil),       // 27: chalk.server.v1.CancelWorkflowExecutionResponse
+	(*JobQueueEnqueueArgs)(nil),                   // 28: chalk.server.v1.JobQueueEnqueueArgs
+	(*EnqueueJobRequest)(nil),                     // 29: chalk.server.v1.EnqueueJobRequest
+	(*EnqueueJobResponse)(nil),                    // 30: chalk.server.v1.EnqueueJobResponse
+	nil,                                           // 31: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry
+	nil,                                           // 32: chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry
+	nil,                                           // 33: chalk.server.v1.JobQueueEnqueueArgs.EnvPayloadEntry
+	(*timestamppb.Timestamp)(nil),                 // 34: google.protobuf.Timestamp
+	(*v1.KubernetesResourceQuotaData)(nil),        // 35: chalk.kubernetes.v1.KubernetesResourceQuotaData
+	(*v1.KubernetesScaledObjectData)(nil),         // 36: chalk.kubernetes.v1.KubernetesScaledObjectData
 }
 var file_chalk_server_v1_dataplanejobqueue_proto_depIdxs = []int32{
-	29, // 0: chalk.server.v1.JobQueueItem.created_at:type_name -> google.protobuf.Timestamp
+	34, // 0: chalk.server.v1.JobQueueItem.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: chalk.server.v1.JobQueueItem.state:type_name -> chalk.server.v1.JobQueueState
-	29, // 2: chalk.server.v1.JobQueueItem.scheduled_at:type_name -> google.protobuf.Timestamp
+	34, // 2: chalk.server.v1.JobQueueItem.scheduled_at:type_name -> google.protobuf.Timestamp
 	1,  // 3: chalk.server.v1.JobQueueItem.kind:type_name -> chalk.server.v1.JobQueueKind
-	29, // 4: chalk.server.v1.JobQueueItem.finalized_at:type_name -> google.protobuf.Timestamp
-	29, // 5: chalk.server.v1.JobQueueItem.last_attempted_at:type_name -> google.protobuf.Timestamp
-	29, // 6: chalk.server.v1.JobQueueItem.last_heartbeat_at:type_name -> google.protobuf.Timestamp
-	29, // 7: chalk.server.v1.JobQueueItem.cancelation_requested_at:type_name -> google.protobuf.Timestamp
+	34, // 4: chalk.server.v1.JobQueueItem.finalized_at:type_name -> google.protobuf.Timestamp
+	34, // 5: chalk.server.v1.JobQueueItem.last_attempted_at:type_name -> google.protobuf.Timestamp
+	34, // 6: chalk.server.v1.JobQueueItem.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	34, // 7: chalk.server.v1.JobQueueItem.cancelation_requested_at:type_name -> google.protobuf.Timestamp
 	2,  // 8: chalk.server.v1.GetDataPlaneJobQueueResponse.job:type_name -> chalk.server.v1.JobQueueItem
 	0,  // 9: chalk.server.v1.ListDataPlaneJobQueueRequest.state:type_name -> chalk.server.v1.JobQueueState
 	1,  // 10: chalk.server.v1.ListDataPlaneJobQueueRequest.kind:type_name -> chalk.server.v1.JobQueueKind
 	2,  // 11: chalk.server.v1.ListDataPlaneJobQueueResponse.jobs:type_name -> chalk.server.v1.JobQueueItem
-	26, // 12: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.deployment_scaled_objects:type_name -> chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry
-	30, // 13: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.resource_quota:type_name -> chalk.kubernetes.v1.KubernetesResourceQuotaData
-	29, // 14: chalk.server.v1.JobQueueRowSummary.created_at:type_name -> google.protobuf.Timestamp
+	31, // 12: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.deployment_scaled_objects:type_name -> chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry
+	35, // 13: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.resource_quota:type_name -> chalk.kubernetes.v1.KubernetesResourceQuotaData
+	34, // 14: chalk.server.v1.JobQueueRowSummary.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 15: chalk.server.v1.JobQueueRowSummary.state:type_name -> chalk.server.v1.JobQueueState
-	29, // 16: chalk.server.v1.JobQueueRowSummary.finalized_at:type_name -> google.protobuf.Timestamp
-	29, // 17: chalk.server.v1.JobQueueRowSummary.last_attempted_at:type_name -> google.protobuf.Timestamp
-	29, // 18: chalk.server.v1.JobQueueRowSummary.last_heartbeat_at:type_name -> google.protobuf.Timestamp
-	27, // 19: chalk.server.v1.JobQueueOperationSummary.indexed_row_summaries:type_name -> chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry
+	34, // 16: chalk.server.v1.JobQueueRowSummary.finalized_at:type_name -> google.protobuf.Timestamp
+	34, // 17: chalk.server.v1.JobQueueRowSummary.last_attempted_at:type_name -> google.protobuf.Timestamp
+	34, // 18: chalk.server.v1.JobQueueRowSummary.last_heartbeat_at:type_name -> google.protobuf.Timestamp
+	32, // 19: chalk.server.v1.JobQueueOperationSummary.indexed_row_summaries:type_name -> chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry
 	1,  // 20: chalk.server.v1.JobQueueOperationSummary.kind:type_name -> chalk.server.v1.JobQueueKind
 	12, // 21: chalk.server.v1.GetJobQueueOperationSummaryResponse.summary:type_name -> chalk.server.v1.JobQueueOperationSummary
-	29, // 22: chalk.server.v1.JobQueueAttempt.created_at:type_name -> google.protobuf.Timestamp
-	29, // 23: chalk.server.v1.JobQueueAttempt.queued_at:type_name -> google.protobuf.Timestamp
-	29, // 24: chalk.server.v1.JobQueueAttempt.started_at:type_name -> google.protobuf.Timestamp
-	29, // 25: chalk.server.v1.JobQueueAttempt.finished_at:type_name -> google.protobuf.Timestamp
+	34, // 22: chalk.server.v1.JobQueueAttempt.created_at:type_name -> google.protobuf.Timestamp
+	34, // 23: chalk.server.v1.JobQueueAttempt.queued_at:type_name -> google.protobuf.Timestamp
+	34, // 24: chalk.server.v1.JobQueueAttempt.started_at:type_name -> google.protobuf.Timestamp
+	34, // 25: chalk.server.v1.JobQueueAttempt.finished_at:type_name -> google.protobuf.Timestamp
 	15, // 26: chalk.server.v1.ListJobQueueAttemptsResponse.attempts:type_name -> chalk.server.v1.JobQueueAttempt
-	18, // 27: chalk.server.v1.ForceCancelJobQueueJobRequest.by_operation_and_shard:type_name -> chalk.server.v1.OperationAndShard
-	28, // 28: chalk.server.v1.JobQueueEnqueueArgs.env_payload:type_name -> chalk.server.v1.JobQueueEnqueueArgs.EnvPayloadEntry
-	1,  // 29: chalk.server.v1.EnqueueJobRequest.kind:type_name -> chalk.server.v1.JobQueueKind
-	23, // 30: chalk.server.v1.EnqueueJobRequest.args:type_name -> chalk.server.v1.JobQueueEnqueueArgs
-	31, // 31: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesScaledObjectData
-	11, // 32: chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry.value:type_name -> chalk.server.v1.JobQueueRowSummary
-	3,  // 33: chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue:input_type -> chalk.server.v1.GetDataPlaneJobQueueRequest
-	5,  // 34: chalk.server.v1.DataPlaneJobQueueService.ListDataPlaneJobQueue:input_type -> chalk.server.v1.ListDataPlaneJobQueueRequest
-	7,  // 35: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources:input_type -> chalk.server.v1.GetJobQueueAuxiliaryResourcesRequest
-	13, // 36: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary:input_type -> chalk.server.v1.GetJobQueueOperationSummaryRequest
-	16, // 37: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts:input_type -> chalk.server.v1.ListJobQueueAttemptsRequest
-	19, // 38: chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob:input_type -> chalk.server.v1.ForceCancelJobQueueJobRequest
-	21, // 39: chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution:input_type -> chalk.server.v1.CancelWorkflowExecutionRequest
-	9,  // 40: chalk.server.v1.DataPlaneJobQueueService.ExplainOperationProgress:input_type -> chalk.server.v1.ExplainOperationProgressRequest
-	24, // 41: chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob:input_type -> chalk.server.v1.EnqueueJobRequest
-	4,  // 42: chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue:output_type -> chalk.server.v1.GetDataPlaneJobQueueResponse
-	6,  // 43: chalk.server.v1.DataPlaneJobQueueService.ListDataPlaneJobQueue:output_type -> chalk.server.v1.ListDataPlaneJobQueueResponse
-	8,  // 44: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources:output_type -> chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse
-	14, // 45: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary:output_type -> chalk.server.v1.GetJobQueueOperationSummaryResponse
-	17, // 46: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts:output_type -> chalk.server.v1.ListJobQueueAttemptsResponse
-	20, // 47: chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob:output_type -> chalk.server.v1.ForceCancelJobQueueJobResponse
-	22, // 48: chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution:output_type -> chalk.server.v1.CancelWorkflowExecutionResponse
-	10, // 49: chalk.server.v1.DataPlaneJobQueueService.ExplainOperationProgress:output_type -> chalk.server.v1.ExplainOperationProgressResponse
-	25, // 50: chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob:output_type -> chalk.server.v1.EnqueueJobResponse
-	42, // [42:51] is the sub-list for method output_type
-	33, // [33:42] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	19, // 27: chalk.server.v1.JobQueueConsumer.pod_requests:type_name -> chalk.server.v1.JobQueueConsumerResourceRequests
+	20, // 28: chalk.server.v1.JobQueueConsumer.node_spec:type_name -> chalk.server.v1.JobQueueConsumerNodeSpec
+	34, // 29: chalk.server.v1.JobQueueConsumer.created_at:type_name -> google.protobuf.Timestamp
+	34, // 30: chalk.server.v1.JobQueueConsumer.terminated_at:type_name -> google.protobuf.Timestamp
+	21, // 31: chalk.server.v1.ListJobQueueConsumersResponse.consumers:type_name -> chalk.server.v1.JobQueueConsumer
+	18, // 32: chalk.server.v1.ForceCancelJobQueueJobRequest.by_operation_and_shard:type_name -> chalk.server.v1.OperationAndShard
+	33, // 33: chalk.server.v1.JobQueueEnqueueArgs.env_payload:type_name -> chalk.server.v1.JobQueueEnqueueArgs.EnvPayloadEntry
+	1,  // 34: chalk.server.v1.EnqueueJobRequest.kind:type_name -> chalk.server.v1.JobQueueKind
+	28, // 35: chalk.server.v1.EnqueueJobRequest.args:type_name -> chalk.server.v1.JobQueueEnqueueArgs
+	36, // 36: chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse.DeploymentScaledObjectsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesScaledObjectData
+	11, // 37: chalk.server.v1.JobQueueOperationSummary.IndexedRowSummariesEntry.value:type_name -> chalk.server.v1.JobQueueRowSummary
+	3,  // 38: chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue:input_type -> chalk.server.v1.GetDataPlaneJobQueueRequest
+	5,  // 39: chalk.server.v1.DataPlaneJobQueueService.ListDataPlaneJobQueue:input_type -> chalk.server.v1.ListDataPlaneJobQueueRequest
+	7,  // 40: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources:input_type -> chalk.server.v1.GetJobQueueAuxiliaryResourcesRequest
+	13, // 41: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary:input_type -> chalk.server.v1.GetJobQueueOperationSummaryRequest
+	16, // 42: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts:input_type -> chalk.server.v1.ListJobQueueAttemptsRequest
+	24, // 43: chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob:input_type -> chalk.server.v1.ForceCancelJobQueueJobRequest
+	26, // 44: chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution:input_type -> chalk.server.v1.CancelWorkflowExecutionRequest
+	9,  // 45: chalk.server.v1.DataPlaneJobQueueService.ExplainOperationProgress:input_type -> chalk.server.v1.ExplainOperationProgressRequest
+	22, // 46: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueConsumers:input_type -> chalk.server.v1.ListJobQueueConsumersRequest
+	29, // 47: chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob:input_type -> chalk.server.v1.EnqueueJobRequest
+	4,  // 48: chalk.server.v1.DataPlaneJobQueueService.GetDataPlaneJobQueue:output_type -> chalk.server.v1.GetDataPlaneJobQueueResponse
+	6,  // 49: chalk.server.v1.DataPlaneJobQueueService.ListDataPlaneJobQueue:output_type -> chalk.server.v1.ListDataPlaneJobQueueResponse
+	8,  // 50: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueAuxiliaryResources:output_type -> chalk.server.v1.GetJobQueueAuxiliaryResourcesResponse
+	14, // 51: chalk.server.v1.DataPlaneJobQueueService.GetJobQueueOperationSummary:output_type -> chalk.server.v1.GetJobQueueOperationSummaryResponse
+	17, // 52: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueAttempts:output_type -> chalk.server.v1.ListJobQueueAttemptsResponse
+	25, // 53: chalk.server.v1.DataPlaneJobQueueService.ForceCancelJobQueueJob:output_type -> chalk.server.v1.ForceCancelJobQueueJobResponse
+	27, // 54: chalk.server.v1.DataPlaneJobQueueService.CancelWorkflowExecution:output_type -> chalk.server.v1.CancelWorkflowExecutionResponse
+	10, // 55: chalk.server.v1.DataPlaneJobQueueService.ExplainOperationProgress:output_type -> chalk.server.v1.ExplainOperationProgressResponse
+	23, // 56: chalk.server.v1.DataPlaneJobQueueService.ListJobQueueConsumers:output_type -> chalk.server.v1.ListJobQueueConsumersResponse
+	30, // 57: chalk.server.v1.DataPlaneJobEnqueueService.EnqueueJob:output_type -> chalk.server.v1.EnqueueJobResponse
+	48, // [48:58] is the sub-list for method output_type
+	38, // [38:48] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_dataplanejobqueue_proto_init() }
@@ -2313,18 +2772,22 @@ func file_chalk_server_v1_dataplanejobqueue_proto_init() {
 	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19].OneofWrappers = []any{
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[24].OneofWrappers = []any{
 		(*CancelWorkflowExecutionRequest_WorkflowExecutionId)(nil),
 	}
-	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[21].OneofWrappers = []any{}
-	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[26].OneofWrappers = []any{}
+	file_chalk_server_v1_dataplanejobqueue_proto_msgTypes[27].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_dataplanejobqueue_proto_rawDesc), len(file_chalk_server_v1_dataplanejobqueue_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   27,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   2,
 		},
