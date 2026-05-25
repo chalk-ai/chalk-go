@@ -1685,7 +1685,10 @@ type CreateSandboxRequest struct {
 	// Optional name for the sandbox
 	Name *string `protobuf:"bytes,4,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// Optional volumes to mount into the sandbox
-	Volumes       []*VolumeMount `protobuf:"bytes,6,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	Volumes []*VolumeMount `protobuf:"bytes,6,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	// Runtime backend for the sandbox container.
+	// Valid values: "" (server default), "kube", "local", "chalk_node".
+	Runtime       *string `protobuf:"bytes,7,opt,name=runtime,proto3,oneof" json:"runtime,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1771,6 +1774,13 @@ func (x *CreateSandboxRequest) GetVolumes() []*VolumeMount {
 		return x.Volumes
 	}
 	return nil
+}
+
+func (x *CreateSandboxRequest) GetRuntime() string {
+	if x != nil && x.Runtime != nil {
+		return *x.Runtime
+	}
+	return ""
 }
 
 type isCreateSandboxRequest_ImageSource interface {
@@ -2733,7 +2743,7 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\"\n" +
 	"\n" +
 	"size_limit\x18\x04 \x01(\tH\x00R\tsizeLimit\x88\x01\x01B\r\n" +
-	"\v_size_limit\"\xb6\x03\n" +
+	"\v_size_limit\"\xe1\x03\n" +
 	"\x14CreateSandboxRequest\x12\x16\n" +
 	"\x05image\x18\x01 \x01(\tH\x00R\x05image\x12<\n" +
 	"\n" +
@@ -2741,13 +2751,16 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x0fresource_limits\x18\x02 \x01(\v2 .chalk.sandbox.v1.ResourceLimitsH\x01R\x0eresourceLimits\x88\x01\x01\x12A\n" +
 	"\x03env\x18\x03 \x03(\v2/.chalk.sandbox.v1.CreateSandboxRequest.EnvEntryR\x03env\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tH\x02R\x04name\x88\x01\x01\x127\n" +
-	"\avolumes\x18\x06 \x03(\v2\x1d.chalk.sandbox.v1.VolumeMountR\avolumes\x1a6\n" +
+	"\avolumes\x18\x06 \x03(\v2\x1d.chalk.sandbox.v1.VolumeMountR\avolumes\x12\x1d\n" +
+	"\aruntime\x18\a \x01(\tH\x03R\aruntime\x88\x01\x01\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
 	"\fimage_sourceB\x12\n" +
 	"\x10_resource_limitsB\a\n" +
-	"\x05_name\"W\n" +
+	"\x05_nameB\n" +
+	"\n" +
+	"\b_runtime\"W\n" +
 	"\x0eResourceLimits\x12\x15\n" +
 	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
 	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01B\x06\n" +
