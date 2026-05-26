@@ -1688,7 +1688,10 @@ type CreateSandboxRequest struct {
 	Volumes []*VolumeMount `protobuf:"bytes,6,rep,name=volumes,proto3" json:"volumes,omitempty"`
 	// Runtime backend for the sandbox container.
 	// Valid values: "" (server default), "kube", "local", "chalk_node".
-	Runtime       *string `protobuf:"bytes,7,opt,name=runtime,proto3,oneof" json:"runtime,omitempty"`
+	Runtime *string `protobuf:"bytes,7,opt,name=runtime,proto3,oneof" json:"runtime,omitempty"`
+	// Override the container entrypoint command (e.g. ["nginx", "-g", "daemon off;"]).
+	// When empty, the image's built-in entrypoint is used.
+	Entrypoint    []string `protobuf:"bytes,8,rep,name=entrypoint,proto3" json:"entrypoint,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1781,6 +1784,13 @@ func (x *CreateSandboxRequest) GetRuntime() string {
 		return *x.Runtime
 	}
 	return ""
+}
+
+func (x *CreateSandboxRequest) GetEntrypoint() []string {
+	if x != nil {
+		return x.Entrypoint
+	}
+	return nil
 }
 
 type isCreateSandboxRequest_ImageSource interface {
@@ -2743,7 +2753,7 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\"\n" +
 	"\n" +
 	"size_limit\x18\x04 \x01(\tH\x00R\tsizeLimit\x88\x01\x01B\r\n" +
-	"\v_size_limit\"\xe1\x03\n" +
+	"\v_size_limit\"\x81\x04\n" +
 	"\x14CreateSandboxRequest\x12\x16\n" +
 	"\x05image\x18\x01 \x01(\tH\x00R\x05image\x12<\n" +
 	"\n" +
@@ -2752,7 +2762,10 @@ const file_chalk_sandbox_v1_service_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2/.chalk.sandbox.v1.CreateSandboxRequest.EnvEntryR\x03env\x12\x17\n" +
 	"\x04name\x18\x04 \x01(\tH\x02R\x04name\x88\x01\x01\x127\n" +
 	"\avolumes\x18\x06 \x03(\v2\x1d.chalk.sandbox.v1.VolumeMountR\avolumes\x12\x1d\n" +
-	"\aruntime\x18\a \x01(\tH\x03R\aruntime\x88\x01\x01\x1a6\n" +
+	"\aruntime\x18\a \x01(\tH\x03R\aruntime\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"entrypoint\x18\b \x03(\tR\n" +
+	"entrypoint\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0e\n" +
