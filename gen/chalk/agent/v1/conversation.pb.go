@@ -195,6 +195,14 @@ type AgentConversation struct {
 	Metadata      *structpb.Struct       `protobuf:"bytes,5,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// Optional AiProviderConnection id this conversation is pinned to. When set,
+	// the runner builds its OpenAI client from that connection's host + secret
+	// instead of the server-wide OPENAI_API_KEY env var.
+	AiProviderConnectionId string `protobuf:"bytes,8,opt,name=ai_provider_connection_id,json=aiProviderConnectionId,proto3" json:"ai_provider_connection_id,omitempty"`
+	// Optional model id (e.g. "gpt-4o-mini") preferred for this conversation.
+	// RunTurnRequest.model still wins when set; otherwise this overrides the
+	// server-wide AGENT_RUNNER_DEFAULT_MODEL.
+	ModelName     string `protobuf:"bytes,9,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -276,6 +284,20 @@ func (x *AgentConversation) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *AgentConversation) GetAiProviderConnectionId() string {
+	if x != nil {
+		return x.AiProviderConnectionId
+	}
+	return ""
+}
+
+func (x *AgentConversation) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
 }
 
 type AgentMessage struct {
@@ -611,9 +633,14 @@ func (x *AgentToolResult) GetCreatedAt() *timestamppb.Timestamp {
 }
 
 type CreateConversationRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Metadata      *structpb.Struct       `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Title    string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Metadata *structpb.Struct       `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	// Optional: pin this conversation to a specific provider connection. Empty
+	// string means "use the server's default OPENAI_* env-var config".
+	AiProviderConnectionId string `protobuf:"bytes,3,opt,name=ai_provider_connection_id,json=aiProviderConnectionId,proto3" json:"ai_provider_connection_id,omitempty"`
+	// Optional: persisted preferred model for the conversation.
+	ModelName     string `protobuf:"bytes,4,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -660,6 +687,20 @@ func (x *CreateConversationRequest) GetMetadata() *structpb.Struct {
 		return x.Metadata
 	}
 	return nil
+}
+
+func (x *CreateConversationRequest) GetAiProviderConnectionId() string {
+	if x != nil {
+		return x.AiProviderConnectionId
+	}
+	return ""
+}
+
+func (x *CreateConversationRequest) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
 }
 
 type CreateConversationResponse struct {
@@ -1618,7 +1659,7 @@ var File_chalk_agent_v1_conversation_proto protoreflect.FileDescriptor
 
 const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa4\x02\n" +
+	"!chalk/agent/v1/conversation.proto\x12\x0echalk.agent.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfe\x02\n" +
 	"\x11AgentConversation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x17\n" +
@@ -1628,7 +1669,10 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe2\x03\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
+	"\x19ai_provider_connection_id\x18\b \x01(\tR\x16aiProviderConnectionId\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\t \x01(\tR\tmodelName\"\xe2\x03\n" +
 	"\fAgentMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0fconversation_id\x18\x02 \x01(\tR\x0econversationId\x124\n" +
@@ -1667,10 +1711,13 @@ const file_chalk_agent_v1_conversation_proto_rawDesc = "" +
 	"latency_ms\x18\x06 \x01(\x05R\tlatencyMs\x123\n" +
 	"\bmetadata\x18\a \x01(\v2\x17.google.protobuf.StructR\bmetadata\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"f\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xc0\x01\n" +
 	"\x19CreateConversationRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x123\n" +
-	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\"c\n" +
+	"\bmetadata\x18\x02 \x01(\v2\x17.google.protobuf.StructR\bmetadata\x129\n" +
+	"\x19ai_provider_connection_id\x18\x03 \x01(\tR\x16aiProviderConnectionId\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x04 \x01(\tR\tmodelName\"c\n" +
 	"\x1aCreateConversationResponse\x12E\n" +
 	"\fconversation\x18\x01 \x01(\v2!.chalk.agent.v1.AgentConversationR\fconversation\"(\n" +
 	"\x16GetConversationRequest\x12\x0e\n" +

@@ -378,9 +378,11 @@ type ListDataPlaneWorkflowsRequest struct {
 	Kind          WorkflowKind            `protobuf:"varint,3,opt,name=kind,proto3,enum=chalk.server.v1.WorkflowKind" json:"kind,omitempty"`
 	Status        WorkflowExecutionStatus `protobuf:"varint,4,opt,name=status,proto3,enum=chalk.server.v1.WorkflowExecutionStatus" json:"status,omitempty"`
 	Limit         int32                   `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                   `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
-	IdFilter      *string                 `protobuf:"bytes,7,opt,name=id_filter,json=idFilter,proto3,oneof" json:"id_filter,omitempty"`
-	TagsFilter    []string                `protobuf:"bytes,8,rep,name=tags_filter,json=tagsFilter,proto3" json:"tags_filter,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/dataplaneworkflows.proto.
+	Offset        int32    `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
+	Cursor        string   `protobuf:"bytes,9,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	IdFilter      *string  `protobuf:"bytes,7,opt,name=id_filter,json=idFilter,proto3,oneof" json:"id_filter,omitempty"`
+	TagsFilter    []string `protobuf:"bytes,8,rep,name=tags_filter,json=tagsFilter,proto3" json:"tags_filter,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -451,11 +453,19 @@ func (x *ListDataPlaneWorkflowsRequest) GetLimit() int32 {
 	return 0
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/dataplaneworkflows.proto.
 func (x *ListDataPlaneWorkflowsRequest) GetOffset() int32 {
 	if x != nil {
 		return x.Offset
 	}
 	return 0
+}
+
+func (x *ListDataPlaneWorkflowsRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
 }
 
 func (x *ListDataPlaneWorkflowsRequest) GetIdFilter() string {
@@ -476,6 +486,7 @@ type ListDataPlaneWorkflowsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Workflows     []*WorkflowExecution   `protobuf:"bytes,1,rep,name=workflows,proto3" json:"workflows,omitempty"`
 	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Cursor        string                 `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -522,6 +533,13 @@ func (x *ListDataPlaneWorkflowsResponse) GetTotal() int32 {
 		return x.Total
 	}
 	return 0
+}
+
+func (x *ListDataPlaneWorkflowsResponse) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
 }
 
 type GetWorkflowGraphRequest struct {
@@ -948,22 +966,24 @@ const file_chalk_server_v1_dataplaneworkflows_proto_rawDesc = "" +
 	"\x1bGetDataPlaneWorkflowRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"^\n" +
 	"\x1cGetDataPlaneWorkflowResponse\x12>\n" +
-	"\bworkflow\x18\x01 \x01(\v2\".chalk.server.v1.WorkflowExecutionR\bworkflow\"\xe3\x02\n" +
+	"\bworkflow\x18\x01 \x01(\v2\".chalk.server.v1.WorkflowExecutionR\bworkflow\"\xff\x02\n" +
 	"\x1dListDataPlaneWorkflowsRequest\x12)\n" +
 	"\x0eenvironment_id\x18\x01 \x01(\tB\x02\x18\x01R\renvironmentId\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x121\n" +
 	"\x04kind\x18\x03 \x01(\x0e2\x1d.chalk.server.v1.WorkflowKindR\x04kind\x12@\n" +
 	"\x06status\x18\x04 \x01(\x0e2(.chalk.server.v1.WorkflowExecutionStatusR\x06status\x12\x14\n" +
-	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x06 \x01(\x05R\x06offset\x12 \n" +
+	"\x05limit\x18\x05 \x01(\x05R\x05limit\x12\x1a\n" +
+	"\x06offset\x18\x06 \x01(\x05B\x02\x18\x01R\x06offset\x12\x16\n" +
+	"\x06cursor\x18\t \x01(\tR\x06cursor\x12 \n" +
 	"\tid_filter\x18\a \x01(\tH\x00R\bidFilter\x88\x01\x01\x12\x1f\n" +
 	"\vtags_filter\x18\b \x03(\tR\n" +
 	"tagsFilterB\f\n" +
 	"\n" +
-	"_id_filter\"x\n" +
+	"_id_filter\"\x90\x01\n" +
 	"\x1eListDataPlaneWorkflowsResponse\x12@\n" +
 	"\tworkflows\x18\x01 \x03(\v2\".chalk.server.v1.WorkflowExecutionR\tworkflows\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"M\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\x12\x16\n" +
+	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"M\n" +
 	"\x17GetWorkflowGraphRequest\x122\n" +
 	"\x15workflow_execution_id\x18\x01 \x01(\tR\x13workflowExecutionId\"\xae\x02\n" +
 	"\x1eJobQueueRowSummaryForWorkflows\x12\x0e\n" +
