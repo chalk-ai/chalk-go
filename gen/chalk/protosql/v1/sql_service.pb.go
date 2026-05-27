@@ -11,6 +11,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -139,6 +140,7 @@ func (x *SqlQueryInfo) GetFinishedAt() *timestamppb.Timestamp {
 
 type ExecuteSqlSyncQueryRequestOptions struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	ResourceGroup *string                `protobuf:"bytes,1,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -171,6 +173,13 @@ func (x *ExecuteSqlSyncQueryRequestOptions) ProtoReflect() protoreflect.Message 
 // Deprecated: Use ExecuteSqlSyncQueryRequestOptions.ProtoReflect.Descriptor instead.
 func (*ExecuteSqlSyncQueryRequestOptions) Descriptor() ([]byte, []int) {
 	return file_chalk_protosql_v1_sql_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ExecuteSqlSyncQueryRequestOptions) GetResourceGroup() string {
+	if x != nil && x.ResourceGroup != nil {
+		return *x.ResourceGroup
+	}
+	return ""
 }
 
 type ExecuteSqlAsyncQueryRequestOptions struct {
@@ -285,9 +294,11 @@ type ExecuteSqlQueryRequest struct {
 	//
 	//	*ExecuteSqlQueryRequest_SyncOptions
 	//	*ExecuteSqlQueryRequest_AsyncOptions
-	Options       isExecuteSqlQueryRequest_Options `protobuf_oneof:"options"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Options isExecuteSqlQueryRequest_Options `protobuf_oneof:"options"`
+	// Compilation options as key-value pairs. Keys correspond to fields of CompilationOptions.
+	CompilationOptions map[string]*structpb.Value `protobuf:"bytes,12,rep,name=compilation_options,json=compilationOptions,proto3" json:"compilation_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ExecuteSqlQueryRequest) Reset() {
@@ -369,6 +380,13 @@ func (x *ExecuteSqlQueryRequest) GetAsyncOptions() *ExecuteSqlAsyncQueryRequestO
 		if x, ok := x.Options.(*ExecuteSqlQueryRequest_AsyncOptions); ok {
 			return x.AsyncOptions
 		}
+	}
+	return nil
+}
+
+func (x *ExecuteSqlQueryRequest) GetCompilationOptions() map[string]*structpb.Value {
+	if x != nil {
+		return x.CompilationOptions
 	}
 	return nil
 }
@@ -580,10 +598,13 @@ type ExecuteSqlQueryResponse struct {
 	//	*ExecuteSqlQueryResponse_Parquet
 	//	*ExecuteSqlQueryResponse_SyncPayload
 	//	*ExecuteSqlQueryResponse_AsyncPayload
-	Payload       isExecuteSqlQueryResponse_Payload `protobuf_oneof:"payload"`
-	Errors        []*v1.ChalkError                  `protobuf:"bytes,3,rep,name=errors,proto3" json:"errors,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Payload isExecuteSqlQueryResponse_Payload `protobuf_oneof:"payload"`
+	Errors  []*v1.ChalkError                  `protobuf:"bytes,3,rep,name=errors,proto3" json:"errors,omitempty"`
+	// JSON-encoded performance summary, populated for sync queries when
+	// compilation_options includes generate_performance_summary=true.
+	PerformanceSummary *string `protobuf:"bytes,4,opt,name=performance_summary,json=performanceSummary,proto3,oneof" json:"performance_summary,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ExecuteSqlQueryResponse) Reset() {
@@ -662,6 +683,13 @@ func (x *ExecuteSqlQueryResponse) GetErrors() []*v1.ChalkError {
 		return x.Errors
 	}
 	return nil
+}
+
+func (x *ExecuteSqlQueryResponse) GetPerformanceSummary() string {
+	if x != nil && x.PerformanceSummary != nil {
+		return *x.PerformanceSummary
+	}
+	return ""
 }
 
 type isExecuteSqlQueryResponse_Payload interface {
@@ -1360,9 +1388,14 @@ type PollSqlQueryResponse struct {
 	//	*PollSqlQueryResponse_Progress
 	//	*PollSqlQueryResponse_Response
 	//	*PollSqlQueryResponse_Failed
-	Result        isPollSqlQueryResponse_Result `protobuf_oneof:"result"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Result isPollSqlQueryResponse_Result `protobuf_oneof:"result"`
+	// URI of the performance summary file in cloud storage, populated while the
+	// query is running (status=progress) when compilation_options includes
+	// update_performance_summary_interval_seconds. Poll this URI to get live
+	// query progress. Signed by the engine; valid for 15 minutes.
+	PerformanceSummaryUri *string `protobuf:"bytes,13,opt,name=performance_summary_uri,json=performanceSummaryUri,proto3,oneof" json:"performance_summary_uri,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *PollSqlQueryResponse) Reset() {
@@ -1436,6 +1469,13 @@ func (x *PollSqlQueryResponse) GetFailed() *SqlQueryFailedInfo {
 	return nil
 }
 
+func (x *PollSqlQueryResponse) GetPerformanceSummaryUri() string {
+	if x != nil && x.PerformanceSummaryUri != nil {
+		return *x.PerformanceSummaryUri
+	}
+	return ""
+}
+
 type isPollSqlQueryResponse_Result interface {
 	isPollSqlQueryResponse_Result()
 }
@@ -1465,7 +1505,7 @@ var File_chalk_protosql_v1_sql_service_proto protoreflect.FileDescriptor
 
 const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/protosql/v1/sql_service.proto\x12\x11chalk.protosql.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd2\x01\n" +
+	"#chalk/protosql/v1/sql_service.proto\x12\x11chalk.protosql.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd2\x01\n" +
 	"\fSqlQueryInfo\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12>\n" +
 	"\n" +
@@ -1473,14 +1513,16 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\vfinished_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
 	"finishedAt\x88\x01\x01B\r\n" +
 	"\v_created_atB\x0e\n" +
-	"\f_finished_at\"#\n" +
-	"!ExecuteSqlSyncQueryRequestOptions\"\xbb\x01\n" +
+	"\f_finished_at\"b\n" +
+	"!ExecuteSqlSyncQueryRequestOptions\x12*\n" +
+	"\x0eresource_group\x18\x01 \x01(\tH\x00R\rresourceGroup\x88\x01\x01B\x11\n" +
+	"\x0f_resource_group\"\xbb\x01\n" +
 	"\"ExecuteSqlAsyncQueryRequestOptions\x12V\n" +
 	"\x0eexecution_mode\x18\x01 \x01(\x0e2/.chalk.protosql.v1.ExecuteSqlAsyncExecutionModeR\rexecutionMode\x12*\n" +
 	"\x0eresource_group\x18\x02 \x01(\tH\x00R\rresourceGroup\x88\x01\x01B\x11\n" +
 	"\x0f_resource_group\"?\n" +
 	"#ExecuteSqlResultPersistenceSettings\x12\x18\n" +
-	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xe0\x03\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xb3\x05\n" +
 	"\x16ExecuteSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x01R\rcorrelationId\x88\x01\x01\x12i\n" +
@@ -1488,7 +1530,11 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x10max_memory_bytes\x18\x04 \x01(\x03H\x02R\x0emaxMemoryBytes\x88\x01\x01\x12Y\n" +
 	"\fsync_options\x18\n" +
 	" \x01(\v24.chalk.protosql.v1.ExecuteSqlSyncQueryRequestOptionsH\x00R\vsyncOptions\x12\\\n" +
-	"\rasync_options\x18\v \x01(\v25.chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptionsH\x00R\fasyncOptionsB\t\n" +
+	"\rasync_options\x18\v \x01(\v25.chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptionsH\x00R\fasyncOptions\x12r\n" +
+	"\x13compilation_options\x18\f \x03(\v2A.chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntryR\x12compilationOptions\x1a]\n" +
+	"\x17CompilationOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\t\n" +
 	"\aoptionsB\x11\n" +
 	"\x0f_correlation_idB\x13\n" +
 	"\x11_max_memory_bytes\"&\n" +
@@ -1501,15 +1547,17 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\apayload\"\xa0\x01\n" +
 	"#ExecuteSqlAsyncQueryResponsePayload\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12V\n" +
-	"\x0eexecution_mode\x18\x02 \x01(\x0e2/.chalk.protosql.v1.ExecuteSqlAsyncExecutionModeR\rexecutionMode\"\xcb\x02\n" +
+	"\x0eexecution_mode\x18\x02 \x01(\x0e2/.chalk.protosql.v1.ExecuteSqlAsyncExecutionModeR\rexecutionMode\"\x99\x03\n" +
 	"\x17ExecuteSqlQueryResponse\x12\x19\n" +
 	"\bquery_id\x18\x01 \x01(\tR\aqueryId\x12\x1a\n" +
 	"\aparquet\x18\x02 \x01(\fH\x00R\aparquet\x12Z\n" +
 	"\fsync_payload\x18\n" +
 	" \x01(\v25.chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayloadH\x00R\vsyncPayload\x12]\n" +
 	"\rasync_payload\x18\v \x01(\v26.chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayloadH\x00R\fasyncPayload\x123\n" +
-	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errorsB\t\n" +
-	"\apayload\"+\n" +
+	"\x06errors\x18\x03 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\x124\n" +
+	"\x13performance_summary\x18\x04 \x01(\tH\x01R\x12performanceSummary\x88\x01\x01B\t\n" +
+	"\apayloadB\x16\n" +
+	"\x14_performance_summary\"+\n" +
 	"\x13PlanSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\"n\n" +
 	"\x14PlanSqlQueryResponse\x12!\n" +
@@ -1556,14 +1604,16 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x12SqlQueryFailedInfo\x123\n" +
 	"\x06errors\x18\x01 \x03(\v2\x1b.chalk.common.v1.ChalkErrorR\x06errors\"8\n" +
 	"\x13PollSqlQueryRequest\x12!\n" +
-	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\xb2\x02\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\"\x8b\x03\n" +
 	"\x14PollSqlQueryResponse\x123\n" +
 	"\x04info\x18\x01 \x01(\v2\x1f.chalk.protosql.v1.SqlQueryInfoR\x04info\x12E\n" +
 	"\bprogress\x18\n" +
 	" \x01(\v2'.chalk.protosql.v1.SqlQueryProgressInfoH\x00R\bprogress\x12S\n" +
 	"\bresponse\x18\v \x01(\v25.chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayloadH\x00R\bresponse\x12?\n" +
-	"\x06failed\x18\f \x01(\v2%.chalk.protosql.v1.SqlQueryFailedInfoH\x00R\x06failedB\b\n" +
-	"\x06result*\xad\x01\n" +
+	"\x06failed\x18\f \x01(\v2%.chalk.protosql.v1.SqlQueryFailedInfoH\x00R\x06failed\x12;\n" +
+	"\x17performance_summary_uri\x18\r \x01(\tH\x01R\x15performanceSummaryUri\x88\x01\x01B\b\n" +
+	"\x06resultB\x1a\n" +
+	"\x18_performance_summary_uri*\xad\x01\n" +
 	"\x1cExecuteSqlAsyncExecutionMode\x120\n" +
 	",EXECUTE_SQL_ASYNC_EXECUTION_MODE_UNSPECIFIED\x10\x00\x12/\n" +
 	"+EXECUTE_SQL_ASYNC_EXECUTION_MODE_IN_PROCESS\x10\x01\x12*\n" +
@@ -1591,7 +1641,7 @@ func file_chalk_protosql_v1_sql_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_protosql_v1_sql_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_chalk_protosql_v1_sql_service_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	(ExecuteSqlAsyncExecutionMode)(0),           // 0: chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	(*SqlQueryInfo)(nil),                        // 1: chalk.protosql.v1.SqlQueryInfo
@@ -1617,50 +1667,54 @@ var file_chalk_protosql_v1_sql_service_proto_goTypes = []any{
 	(*SqlQueryFailedInfo)(nil),                  // 21: chalk.protosql.v1.SqlQueryFailedInfo
 	(*PollSqlQueryRequest)(nil),                 // 22: chalk.protosql.v1.PollSqlQueryRequest
 	(*PollSqlQueryResponse)(nil),                // 23: chalk.protosql.v1.PollSqlQueryResponse
-	(*timestamppb.Timestamp)(nil),               // 24: google.protobuf.Timestamp
-	(*v1.ChalkError)(nil),                       // 25: chalk.common.v1.ChalkError
+	nil,                                         // 24: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
+	(*timestamppb.Timestamp)(nil),               // 25: google.protobuf.Timestamp
+	(*v1.ChalkError)(nil),                       // 26: chalk.common.v1.ChalkError
+	(*structpb.Value)(nil),                      // 27: google.protobuf.Value
 }
 var file_chalk_protosql_v1_sql_service_proto_depIdxs = []int32{
-	24, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
-	24, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
+	25, // 0: chalk.protosql.v1.SqlQueryInfo.created_at:type_name -> google.protobuf.Timestamp
+	25, // 1: chalk.protosql.v1.SqlQueryInfo.finished_at:type_name -> google.protobuf.Timestamp
 	0,  // 2: chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
 	4,  // 3: chalk.protosql.v1.ExecuteSqlQueryRequest.persistence_settings:type_name -> chalk.protosql.v1.ExecuteSqlResultPersistenceSettings
 	2,  // 4: chalk.protosql.v1.ExecuteSqlQueryRequest.sync_options:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryRequestOptions
 	3,  // 5: chalk.protosql.v1.ExecuteSqlQueryRequest.async_options:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptions
-	6,  // 6: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload.signed_output_uris:type_name -> chalk.protosql.v1.SignedOutputUris
-	0,  // 7: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
-	7,  // 8: chalk.protosql.v1.ExecuteSqlQueryResponse.sync_payload:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
-	8,  // 9: chalk.protosql.v1.ExecuteSqlQueryResponse.async_payload:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
-	25, // 10: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	25, // 11: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
-	25, // 12: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
-	25, // 13: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
-	15, // 14: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
-	25, // 15: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
-	18, // 16: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
-	25, // 17: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
-	25, // 18: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
-	1,  // 19: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
-	20, // 20: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
-	7,  // 21: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
-	21, // 22: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
-	5,  // 23: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
-	10, // 24: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
-	22, // 25: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
-	12, // 26: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
-	14, // 27: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
-	17, // 28: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
-	9,  // 29: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
-	11, // 30: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
-	23, // 31: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
-	13, // 32: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
-	16, // 33: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
-	19, // 34: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
-	29, // [29:35] is the sub-list for method output_type
-	23, // [23:29] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	24, // 6: chalk.protosql.v1.ExecuteSqlQueryRequest.compilation_options:type_name -> chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry
+	6,  // 7: chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload.signed_output_uris:type_name -> chalk.protosql.v1.SignedOutputUris
+	0,  // 8: chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload.execution_mode:type_name -> chalk.protosql.v1.ExecuteSqlAsyncExecutionMode
+	7,  // 9: chalk.protosql.v1.ExecuteSqlQueryResponse.sync_payload:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
+	8,  // 10: chalk.protosql.v1.ExecuteSqlQueryResponse.async_payload:type_name -> chalk.protosql.v1.ExecuteSqlAsyncQueryResponsePayload
+	26, // 11: chalk.protosql.v1.ExecuteSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	26, // 12: chalk.protosql.v1.PlanSqlQueryResponse.errors:type_name -> chalk.common.v1.ChalkError
+	26, // 13: chalk.protosql.v1.GetDbCatalogsResponse.errors:type_name -> chalk.common.v1.ChalkError
+	26, // 14: chalk.protosql.v1.GetDbSchemasRequest.errors:type_name -> chalk.common.v1.ChalkError
+	15, // 15: chalk.protosql.v1.GetDbSchemasResponse.schemas:type_name -> chalk.protosql.v1.DbSchemaInfo
+	26, // 16: chalk.protosql.v1.GetDbSchemasResponse.errors:type_name -> chalk.common.v1.ChalkError
+	18, // 17: chalk.protosql.v1.GetTablesResponse.tables:type_name -> chalk.protosql.v1.TableInfo
+	26, // 18: chalk.protosql.v1.GetTablesResponse.errors:type_name -> chalk.common.v1.ChalkError
+	26, // 19: chalk.protosql.v1.SqlQueryFailedInfo.errors:type_name -> chalk.common.v1.ChalkError
+	1,  // 20: chalk.protosql.v1.PollSqlQueryResponse.info:type_name -> chalk.protosql.v1.SqlQueryInfo
+	20, // 21: chalk.protosql.v1.PollSqlQueryResponse.progress:type_name -> chalk.protosql.v1.SqlQueryProgressInfo
+	7,  // 22: chalk.protosql.v1.PollSqlQueryResponse.response:type_name -> chalk.protosql.v1.ExecuteSqlSyncQueryResponsePayload
+	21, // 23: chalk.protosql.v1.PollSqlQueryResponse.failed:type_name -> chalk.protosql.v1.SqlQueryFailedInfo
+	27, // 24: chalk.protosql.v1.ExecuteSqlQueryRequest.CompilationOptionsEntry.value:type_name -> google.protobuf.Value
+	5,  // 25: chalk.protosql.v1.SqlService.ExecuteSqlQuery:input_type -> chalk.protosql.v1.ExecuteSqlQueryRequest
+	10, // 26: chalk.protosql.v1.SqlService.PlanSqlQuery:input_type -> chalk.protosql.v1.PlanSqlQueryRequest
+	22, // 27: chalk.protosql.v1.SqlService.PollSqlQuery:input_type -> chalk.protosql.v1.PollSqlQueryRequest
+	12, // 28: chalk.protosql.v1.SqlService.GetDbCatalogs:input_type -> chalk.protosql.v1.GetDbCatalogsRequest
+	14, // 29: chalk.protosql.v1.SqlService.GetDbSchemas:input_type -> chalk.protosql.v1.GetDbSchemasRequest
+	17, // 30: chalk.protosql.v1.SqlService.GetTables:input_type -> chalk.protosql.v1.GetTablesRequest
+	9,  // 31: chalk.protosql.v1.SqlService.ExecuteSqlQuery:output_type -> chalk.protosql.v1.ExecuteSqlQueryResponse
+	11, // 32: chalk.protosql.v1.SqlService.PlanSqlQuery:output_type -> chalk.protosql.v1.PlanSqlQueryResponse
+	23, // 33: chalk.protosql.v1.SqlService.PollSqlQuery:output_type -> chalk.protosql.v1.PollSqlQueryResponse
+	13, // 34: chalk.protosql.v1.SqlService.GetDbCatalogs:output_type -> chalk.protosql.v1.GetDbCatalogsResponse
+	16, // 35: chalk.protosql.v1.SqlService.GetDbSchemas:output_type -> chalk.protosql.v1.GetDbSchemasResponse
+	19, // 36: chalk.protosql.v1.SqlService.GetTables:output_type -> chalk.protosql.v1.GetTablesResponse
+	31, // [31:37] is the sub-list for method output_type
+	25, // [25:31] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_chalk_protosql_v1_sql_service_proto_init() }
@@ -1669,6 +1723,7 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 		return
 	}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_protosql_v1_sql_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_protosql_v1_sql_service_proto_msgTypes[4].OneofWrappers = []any{
 		(*ExecuteSqlQueryRequest_SyncOptions)(nil),
@@ -1697,7 +1752,7 @@ func file_chalk_protosql_v1_sql_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_protosql_v1_sql_service_proto_rawDesc), len(file_chalk_protosql_v1_sql_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   23,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

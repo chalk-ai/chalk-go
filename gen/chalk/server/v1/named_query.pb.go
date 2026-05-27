@@ -635,7 +635,11 @@ type ListAllNamedQueriesRequest struct {
 	// Max rows per page. Server default applies when unset or 0.
 	PageSize *int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
 	// b64-encoded ListAllNamedQueriesPageToken from a prior response.
-	PageToken     *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	PageToken *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	// When set, only named queries whose name starts with this prefix
+	// (case-insensitive) are returned. Resets pagination — do not send a
+	// page_token from a different prefix.
+	NamePrefix    *string `protobuf:"bytes,3,opt,name=name_prefix,json=namePrefix,proto3,oneof" json:"name_prefix,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -680,6 +684,13 @@ func (x *ListAllNamedQueriesRequest) GetPageSize() int32 {
 func (x *ListAllNamedQueriesRequest) GetPageToken() string {
 	if x != nil && x.PageToken != nil {
 		return *x.PageToken
+	}
+	return ""
+}
+
+func (x *ListAllNamedQueriesRequest) GetNamePrefix() string {
+	if x != nil && x.NamePrefix != nil {
+		return *x.NamePrefix
 	}
 	return ""
 }
@@ -1013,14 +1024,17 @@ const file_chalk_server_v1_named_query_proto_rawDesc = "" +
 	"unexecuted\x18\x02 \x01(\v21.chalk.server.v1.NamedQueriesUnexecutedZoneCursorH\x00R\n" +
 	"unexecutedB\n" +
 	"\n" +
-	"\bposition\"\x7f\n" +
+	"\bposition\"\xb5\x01\n" +
 	"\x1aListAllNamedQueriesRequest\x12 \n" +
 	"\tpage_size\x18\x01 \x01(\x05H\x00R\bpageSize\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"page_token\x18\x02 \x01(\tH\x01R\tpageToken\x88\x01\x01B\f\n" +
+	"page_token\x18\x02 \x01(\tH\x01R\tpageToken\x88\x01\x01\x12$\n" +
+	"\vname_prefix\x18\x03 \x01(\tH\x02R\n" +
+	"namePrefix\x88\x01\x01B\f\n" +
 	"\n" +
 	"_page_sizeB\r\n" +
-	"\v_page_token\"\xc8\x01\n" +
+	"\v_page_tokenB\x0e\n" +
+	"\f_name_prefix\"\xc8\x01\n" +
 	"\x1bListAllNamedQueriesResponse\x12G\n" +
 	"\rnamed_queries\x18\x01 \x03(\v2\".chalk.server.v1.NamedQuerySummaryR\fnamedQueries\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01\x12\x1f\n" +
