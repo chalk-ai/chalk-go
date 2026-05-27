@@ -995,9 +995,12 @@ type ListSpanRequest struct {
 	// Spans must match ALL specified attribute filters
 	AttributeFilters []*AttributeFilter `protobuf:"bytes,12,rep,name=attribute_filters,json=attributeFilters,proto3" json:"attribute_filters,omitempty"`
 	// Filter by span kind (e.g., SERVER, CLIENT, INTERNAL)
-	SpanKind      *ChalkSpanKind `protobuf:"varint,13,opt,name=span_kind,json=spanKind,proto3,enum=chalk.server.v1.ChalkSpanKind,oneof" json:"span_kind,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	SpanKind *ChalkSpanKind `protobuf:"varint,13,opt,name=span_kind,json=spanKind,proto3,enum=chalk.server.v1.ChalkSpanKind,oneof" json:"span_kind,omitempty"`
+	// Filter by resource attributes
+	// Spans must match ALL specified resource attribute filters
+	ResourceAttributeFilters []*AttributeFilter `protobuf:"bytes,14,rep,name=resource_attribute_filters,json=resourceAttributeFilters,proto3" json:"resource_attribute_filters,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ListSpanRequest) Reset() {
@@ -1119,6 +1122,13 @@ func (x *ListSpanRequest) GetSpanKind() ChalkSpanKind {
 		return *x.SpanKind
 	}
 	return ChalkSpanKind_CHALK_SPAN_KIND_UNSPECIFIED
+}
+
+func (x *ListSpanRequest) GetResourceAttributeFilters() []*AttributeFilter {
+	if x != nil {
+		return x.ResourceAttributeFilters
+	}
+	return nil
 }
 
 // ListSpanResponse message
@@ -1881,7 +1891,7 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0fAttributeFilter\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x00R\x05value\x88\x01\x01B\b\n" +
-	"\x06_value\"\xdd\x06\n" +
+	"\x06_value\"\xbd\a\n" +
 	"\x0fListSpanRequest\x12\x1e\n" +
 	"\btrace_id\x18\x01 \x01(\tH\x00R\atraceId\x88\x01\x01\x12>\n" +
 	"\n" +
@@ -1900,7 +1910,8 @@ const file_chalk_server_v1_trace_proto_rawDesc = "" +
 	"\x0fmax_duration_us\x18\v \x01(\x03H\n" +
 	"R\rmaxDurationUs\x88\x01\x01\x12M\n" +
 	"\x11attribute_filters\x18\f \x03(\v2 .chalk.server.v1.AttributeFilterR\x10attributeFilters\x12@\n" +
-	"\tspan_kind\x18\r \x01(\x0e2\x1e.chalk.server.v1.ChalkSpanKindH\vR\bspanKind\x88\x01\x01B\v\n" +
+	"\tspan_kind\x18\r \x01(\x0e2\x1e.chalk.server.v1.ChalkSpanKindH\vR\bspanKind\x88\x01\x01\x12^\n" +
+	"\x1aresource_attribute_filters\x18\x0e \x03(\v2 .chalk.server.v1.AttributeFilterR\x18resourceAttributeFiltersB\v\n" +
 	"\t_trace_idB\r\n" +
 	"\v_start_timeB\v\n" +
 	"\t_end_timeB\b\n" +
@@ -2069,39 +2080,40 @@ var file_chalk_server_v1_trace_proto_depIdxs = []int32{
 	0,  // 22: chalk.server.v1.ListSpanRequest.status_code:type_name -> chalk.server.v1.ChalkStatusCode
 	13, // 23: chalk.server.v1.ListSpanRequest.attribute_filters:type_name -> chalk.server.v1.AttributeFilter
 	1,  // 24: chalk.server.v1.ListSpanRequest.span_kind:type_name -> chalk.server.v1.ChalkSpanKind
-	2,  // 25: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
-	16, // 26: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
-	32, // 27: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
-	32, // 28: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
-	20, // 29: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
-	32, // 30: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
-	32, // 31: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
-	33, // 32: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
-	34, // 33: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	32, // 34: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
-	32, // 35: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
-	24, // 36: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
-	7,  // 37: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
-	9,  // 38: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
-	11, // 39: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
-	14, // 40: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
-	17, // 41: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
-	19, // 42: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
-	22, // 43: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
-	25, // 44: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
-	8,  // 45: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
-	10, // 46: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
-	12, // 47: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
-	15, // 48: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
-	18, // 49: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
-	21, // 50: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
-	23, // 51: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
-	26, // 52: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
-	45, // [45:53] is the sub-list for method output_type
-	37, // [37:45] is the sub-list for method input_type
-	37, // [37:37] is the sub-list for extension type_name
-	37, // [37:37] is the sub-list for extension extendee
-	0,  // [0:37] is the sub-list for field type_name
+	13, // 25: chalk.server.v1.ListSpanRequest.resource_attribute_filters:type_name -> chalk.server.v1.AttributeFilter
+	2,  // 26: chalk.server.v1.ListSpanResponse.spans:type_name -> chalk.server.v1.ChalkSpan
+	16, // 27: chalk.server.v1.GetSpanFacetsResponse.facets:type_name -> chalk.server.v1.SpanFacet
+	32, // 28: chalk.server.v1.GetSpanFacetValuesRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 29: chalk.server.v1.GetSpanFacetValuesRequest.end_time:type_name -> google.protobuf.Timestamp
+	20, // 30: chalk.server.v1.GetSpanFacetValuesResponse.values:type_name -> chalk.server.v1.SpanFacetValue
+	32, // 31: chalk.server.v1.ListSpanAggregatedRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 32: chalk.server.v1.ListSpanAggregatedRequest.end_time:type_name -> google.protobuf.Timestamp
+	33, // 33: chalk.server.v1.ListSpanAggregatedRequest.window_period:type_name -> google.protobuf.Duration
+	34, // 34: chalk.server.v1.ListSpanAggregatedResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	32, // 35: chalk.server.v1.GetSpanSourceAggregatesRequest.start_time:type_name -> google.protobuf.Timestamp
+	32, // 36: chalk.server.v1.GetSpanSourceAggregatesRequest.end_time:type_name -> google.protobuf.Timestamp
+	24, // 37: chalk.server.v1.GetSpanSourceAggregatesResponse.aggregates:type_name -> chalk.server.v1.SpanSourceAggregate
+	7,  // 38: chalk.server.v1.TraceService.GetTrace:input_type -> chalk.server.v1.GetTraceRequest
+	9,  // 39: chalk.server.v1.TraceService.ListTrace:input_type -> chalk.server.v1.ListTraceRequest
+	11, // 40: chalk.server.v1.TraceService.GetSpan:input_type -> chalk.server.v1.GetSpanRequest
+	14, // 41: chalk.server.v1.TraceService.ListSpan:input_type -> chalk.server.v1.ListSpanRequest
+	17, // 42: chalk.server.v1.TraceService.GetSpanFacets:input_type -> chalk.server.v1.GetSpanFacetsRequest
+	19, // 43: chalk.server.v1.TraceService.GetSpanFacetValues:input_type -> chalk.server.v1.GetSpanFacetValuesRequest
+	22, // 44: chalk.server.v1.TraceService.ListSpanAggregated:input_type -> chalk.server.v1.ListSpanAggregatedRequest
+	25, // 45: chalk.server.v1.TraceService.GetSpanSourceAggregates:input_type -> chalk.server.v1.GetSpanSourceAggregatesRequest
+	8,  // 46: chalk.server.v1.TraceService.GetTrace:output_type -> chalk.server.v1.GetTraceResponse
+	10, // 47: chalk.server.v1.TraceService.ListTrace:output_type -> chalk.server.v1.ListTraceResponse
+	12, // 48: chalk.server.v1.TraceService.GetSpan:output_type -> chalk.server.v1.GetSpanResponse
+	15, // 49: chalk.server.v1.TraceService.ListSpan:output_type -> chalk.server.v1.ListSpanResponse
+	18, // 50: chalk.server.v1.TraceService.GetSpanFacets:output_type -> chalk.server.v1.GetSpanFacetsResponse
+	21, // 51: chalk.server.v1.TraceService.GetSpanFacetValues:output_type -> chalk.server.v1.GetSpanFacetValuesResponse
+	23, // 52: chalk.server.v1.TraceService.ListSpanAggregated:output_type -> chalk.server.v1.ListSpanAggregatedResponse
+	26, // 53: chalk.server.v1.TraceService.GetSpanSourceAggregates:output_type -> chalk.server.v1.GetSpanSourceAggregatesResponse
+	46, // [46:54] is the sub-list for method output_type
+	38, // [38:46] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_trace_proto_init() }
