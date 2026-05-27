@@ -289,9 +289,13 @@ type VolumeInfo struct {
 	CreatedAt  *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	AccessMode VolumeAccessMode       `protobuf:"varint,4,opt,name=access_mode,json=accessMode,proto3,enum=chalk.volume.v2.VolumeAccessMode" json:"access_mode,omitempty"`
 	// Only "main" is supported for now.
-	Ref           string `protobuf:"bytes,5,opt,name=ref,proto3" json:"ref,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Ref string `protobuf:"bytes,5,opt,name=ref,proto3" json:"ref,omitempty"`
+	// Object-store URI where this volume's chunks, packs, and index
+	// records live. Format matches what the fuse-driver and SDK accept
+	// for backend.uri: gs://bucket, s3://bucket, or file:///path.
+	ObjectStoreUri string `protobuf:"bytes,6,opt,name=object_store_uri,json=objectStoreUri,proto3" json:"object_store_uri,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *VolumeInfo) Reset() {
@@ -359,6 +363,13 @@ func (x *VolumeInfo) GetRef() string {
 	return ""
 }
 
+func (x *VolumeInfo) GetObjectStoreUri() string {
+	if x != nil {
+		return x.ObjectStoreUri
+	}
+	return ""
+}
+
 type VolumeRef struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	VolumeId      string                 `protobuf:"bytes,1,opt,name=volume_id,json=volumeId,proto3" json:"volume_id,omitempty"`
@@ -419,7 +430,7 @@ type VersionInfo struct {
 	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// Set when this version is the current target of a ref.
 	Ref           string `protobuf:"bytes,5,opt,name=ref,proto3" json:"ref,omitempty"`
-	IndexId       string `protobuf:"bytes,6,opt,name=index_id,json=indexId,proto3" json:"index_id,omitempty"`
+	PrimaryPackId string `protobuf:"bytes,6,opt,name=primary_pack_id,json=primaryPackId,proto3" json:"primary_pack_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -489,9 +500,9 @@ func (x *VersionInfo) GetRef() string {
 	return ""
 }
 
-func (x *VersionInfo) GetIndexId() string {
+func (x *VersionInfo) GetPrimaryPackId() string {
 	if x != nil {
-		return x.IndexId
+		return x.PrimaryPackId
 	}
 	return ""
 }
@@ -3790,7 +3801,7 @@ var File_chalk_volume_v2_volume_proto protoreflect.FileDescriptor
 
 const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/volume/v2/volume.proto\x12\x0fchalk.volume.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xce\x01\n" +
+	"\x1cchalk/volume/v2/volume.proto\x12\x0fchalk.volume.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x01\n" +
 	"\n" +
 	"VolumeInfo\x12\x1b\n" +
 	"\tvolume_id\x18\x01 \x01(\tR\bvolumeId\x12\x12\n" +
@@ -3799,10 +3810,11 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12B\n" +
 	"\vaccess_mode\x18\x04 \x01(\x0e2!.chalk.volume.v2.VolumeAccessModeR\n" +
 	"accessMode\x12\x10\n" +
-	"\x03ref\x18\x05 \x01(\tR\x03ref\"<\n" +
+	"\x03ref\x18\x05 \x01(\tR\x03ref\x12(\n" +
+	"\x10object_store_uri\x18\x06 \x01(\tR\x0eobjectStoreUri\"<\n" +
 	"\tVolumeRef\x12\x1b\n" +
 	"\tvolume_id\x18\x01 \x01(\tR\bvolumeId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xed\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xfa\x01\n" +
 	"\vVersionInfo\x12\x1d\n" +
 	"\n" +
 	"version_id\x18\x01 \x01(\x04R\tversionId\x12'\n" +
@@ -3810,8 +3822,8 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\tparent_id\x18\x03 \x01(\x04H\x00R\bparentId\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x10\n" +
-	"\x03ref\x18\x05 \x01(\tR\x03ref\x12\x19\n" +
-	"\bindex_id\x18\x06 \x01(\tR\aindexIdB\f\n" +
+	"\x03ref\x18\x05 \x01(\tR\x03ref\x12&\n" +
+	"\x0fprimary_pack_id\x18\x06 \x01(\tR\rprimaryPackIdB\f\n" +
 	"\n" +
 	"_parent_id\"R\n" +
 	"\x0fVersionSelector\x12\x12\n" +

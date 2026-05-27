@@ -63,6 +63,8 @@ const (
 	Permission_PERMISSION_ENVIRONMENT_CREATE               Permission = 32
 	Permission_PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE Permission = 33
 	Permission_PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE  Permission = 34
+	Permission_PERMISSION_BILLING_WRITE                    Permission = 35
+	Permission_PERMISSION_QUERY_OFFLINE_READ               Permission = 36
 )
 
 // Enum value maps for Permission.
@@ -103,6 +105,8 @@ var (
 		32: "PERMISSION_ENVIRONMENT_CREATE",
 		33: "PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE",
 		34: "PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE",
+		35: "PERMISSION_BILLING_WRITE",
+		36: "PERMISSION_QUERY_OFFLINE_READ",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -140,6 +144,8 @@ var (
 		"PERMISSION_ENVIRONMENT_CREATE":               32,
 		"PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE": 33,
 		"PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE":  34,
+		"PERMISSION_BILLING_WRITE":                    35,
+		"PERMISSION_QUERY_OFFLINE_READ":               36,
 	}
 )
 
@@ -225,7 +231,7 @@ var File_chalk_auth_v1_permissions_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xd3\x1d\n" +
+	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xf7\x1f\n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -264,7 +270,9 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x1fPERMISSION_INFRASTRUCTURE_WRITE\x10\x1f\x1aD\xca>*Approve or cancel infrastructure workflows\xd2>\x14infrastructure.write\x12Y\n" +
 	"\x1dPERMISSION_ENVIRONMENT_CREATE\x10 \x1a6\xca>\x1eCreate and manage environments\xd2>\x12environment.create\x12\x9e\x01\n" +
 	"+PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE\x10!\x1am\xca>GUpdate container and scaling group status from the dataplane controller\xd2> internal.dataplane_status_update\x12\x90\x01\n" +
-	"*PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE\x10\"\x1a`\xca>;Use an exchange token to obtain a short-lived working token\xd2>\x1finternal.working_token_exchange\x1a\xbe\x05\xe2\xa1'\xb9\x05\n" +
+	"*PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE\x10\"\x1a`\xca>;Use an exchange token to obtain a short-lived working token\xd2>\x1finternal.working_token_exchange\x12o\n" +
+	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x12\x85\x01\n" +
+	"\x1dPERMISSION_QUERY_OFFLINE_READ\x10$\x1ab\xca>JView offline query metadata, output previews, statistics, and query plans.\xd2>\x12query.offline_read\x1a\xe9\x05\xe2\xa1'\xe4\x05\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -300,7 +308,9 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x18\b\x1f\x12\x14infrastructure.write\n" +
 	"\x16\b \x12\x12environment.create\n" +
 	"$\b!\x12 internal.dataplane_status_update\n" +
-	"#\b\"\x12\x1finternal.working_token_exchange:D\n" +
+	"#\b\"\x12\x1finternal.working_token_exchange\n" +
+	"\x11\b#\x12\rbilling.write\n" +
+	"\x16\b$\x12\x12query.offline_read:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:Z\n" +
 	"\n" +
