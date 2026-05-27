@@ -369,6 +369,8 @@ type CreateBenchmarkRequest struct {
 	InitialWindowSize     *int64                                `protobuf:"varint,18,opt,name=initial_window_size,json=initialWindowSize,proto3,oneof" json:"initial_window_size,omitempty"`
 	InitialConnWindowSize *int64                                `protobuf:"varint,19,opt,name=initial_conn_window_size,json=initialConnWindowSize,proto3,oneof" json:"initial_conn_window_size,omitempty"`
 	Nodepool              *string                               `protobuf:"bytes,20,opt,name=nodepool,proto3,oneof" json:"nodepool,omitempty"`
+	SaveParquet           bool                                  `protobuf:"varint,21,opt,name=save_parquet,json=saveParquet,proto3" json:"save_parquet,omitempty"`
+	SaveJson              bool                                  `protobuf:"varint,22,opt,name=save_json,json=saveJson,proto3" json:"save_json,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -552,6 +554,20 @@ func (x *CreateBenchmarkRequest) GetNodepool() string {
 		return *x.Nodepool
 	}
 	return ""
+}
+
+func (x *CreateBenchmarkRequest) GetSaveParquet() bool {
+	if x != nil {
+		return x.SaveParquet
+	}
+	return false
+}
+
+func (x *CreateBenchmarkRequest) GetSaveJson() bool {
+	if x != nil {
+		return x.SaveJson
+	}
+	return false
 }
 
 type isCreateBenchmarkRequest_QueryRequest interface {
@@ -1141,7 +1157,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
-	"\x06_limit\"\xab\t\n" +
+	"\x06_limit\"\xeb\t\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1166,7 +1182,9 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01\x123\n" +
 	"\x13initial_window_size\x18\x12 \x01(\x03H\x06R\x11initialWindowSize\x88\x01\x01\x12<\n" +
 	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01\x12\x1f\n" +
-	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01B\x0f\n" +
+	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01\x12!\n" +
+	"\fsave_parquet\x18\x15 \x01(\bR\vsaveParquet\x12\x1b\n" +
+	"\tsave_json\x18\x16 \x01(\bR\bsaveJsonB\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
