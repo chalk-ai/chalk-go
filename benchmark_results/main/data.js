@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1779923110174,
+  "lastUpdate": 1780003157188,
   "repoUrl": "https://github.com/chalk-ai/chalk-go",
   "entries": {
     "Benchmark": [
@@ -38362,6 +38362,156 @@ window.BENCHMARK_DATA = {
           {
             "name": "BenchmarkUnmarshalBulkHasOnes",
             "value": 207,
+            "unit": "ms/op",
+            "extra": "7 times\n4 procs"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "112771299+aarmanpannu@users.noreply.github.com",
+            "name": "Aarman Pannu",
+            "username": "aarmanpannu"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "513f568ce3e8d3fe255df30ef5c783349c2ee2d3",
+          "message": "feat: regenerate protos for permission_list + query.offline_read (#664)\n\n* feat: regenerate protos for permission_list + query.offline_read\n\nPicks up the proto changes from chalk-private:\n- new `permission_list` repeated MethodOption (chalk/auth/v1/permissions.proto)\n- new `PERMISSION_QUERY_OFFLINE_READ` and `PERMISSION_BILLING_WRITE` enum values\n- 10 read-only RPCs in datasets.proto now annotate `permission_list` with\n  [PERMISSION_QUERY_OFFLINE, PERMISSION_QUERY_OFFLINE_READ]\n\nSee chalk-private PR for the full description of the offline-read permission\nsplit. This PR is binding-only and must land before chalk-private to make\nthe new proto extension and enum values importable.\n\nOther regenerated files (common/v1/offline_query, server/v1/cloud_components)\nare routine churn picked up by `make proto.generate` running against the\nlatest dev — included so future regens are no-op.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\n\n* test: remove TestQueryOptionalFeatures and TestBulkQueryOptionalFeatures\n\nThese tests depend on an Optionals feature class and resolver that were\ndeployed directly to the fraud-template test environment but never committed\nto the fraud-template repo. A routine redeployment in early March 2026\ndropped the resolver, and the tests have been failing on every commit to\nmain since then (~3 months). The underlying SDK behavior (optional/nullable\nfeature handling) is worth testing but needs the resolver added to\nfraud-template first.\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\n\n* refactor: regenerate protos after permission_list -> additional_permissions_list rename\n\nPicks up the extension rename from chalk-private:\n- repeated extension at field 2002 is now `additional_permissions_list`\n- generated symbol is `E_AdditionalPermissionsList` (was `E_PermissionList`)\n\nDataset RPCs simplified to one primary + one additional permission per RPC\n(previously listed the primary twice — once in singular, once in list).\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>\n\n---------\n\nCo-authored-by: Claude Sonnet 4.6 <noreply@anthropic.com>",
+          "timestamp": "2026-05-28T14:17:52-07:00",
+          "tree_id": "74b9757e621051879f40062401261b144271130f",
+          "url": "https://github.com/chalk-ai/chalk-go/commit/513f568ce3e8d3fe255df30ef5c783349c2ee2d3"
+        },
+        "date": 1780003157050,
+        "tool": "go",
+        "benches": [
+          {
+            "name": "BenchmarkConvertBytesToTable",
+            "value": 0.9056,
+            "unit": "ms/op",
+            "extra": "1173 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkConvertBytesToTableParallel",
+            "value": 106.2,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowPrimitives",
+            "value": 32.56,
+            "unit": "ms/op",
+            "extra": "39 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordSingleRowAllTypes",
+            "value": 192.1,
+            "unit": "ms/op",
+            "extra": "8 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkMakeRecordManyRowsAllTypes",
+            "value": 283.3,
+            "unit": "ms/op",
+            "extra": "6 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalSingleNsPrimitivesSingle",
+            "value": 0.03062,
+            "unit": "ms/op",
+            "extra": "46548 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedSingle",
+            "value": 0.3908,
+            "unit": "ms/op",
+            "extra": "3716 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsWindowedParallel",
+            "value": 45.7,
+            "unit": "ms/op",
+            "extra": "43 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesSingle",
+            "value": 0.1792,
+            "unit": "ms/op",
+            "extra": "7508 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalMultiNsPrimitivesParallel",
+            "value": 23.48,
+            "unit": "ms/op",
+            "extra": "85 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesSingle",
+            "value": 0.2582,
+            "unit": "ms/op",
+            "extra": "5260 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsPrimitivesParallel",
+            "value": 34.9,
+            "unit": "ms/op",
+            "extra": "55 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesSingle",
+            "value": 0.4006,
+            "unit": "ms/op",
+            "extra": "3319 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkSingleNsAllTypesParallel",
+            "value": 51.99,
+            "unit": "ms/op",
+            "extra": "36 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesSingle",
+            "value": 1.265,
+            "unit": "ms/op",
+            "extra": "1107 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkMultiNsPrimitivesParallel",
+            "value": 140.7,
+            "unit": "ms/op",
+            "extra": "10 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesSingle",
+            "value": 0.1142,
+            "unit": "ms/op",
+            "extra": "10000 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneMultiNsPrimitivesParallel",
+            "value": 15.42,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalHasOnes",
+            "value": 28.26,
+            "unit": "ms/op",
+            "extra": "82 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkLoneHasOnes",
+            "value": 15.3,
+            "unit": "ms/op",
+            "extra": "100 times\n4 procs"
+          },
+          {
+            "name": "BenchmarkUnmarshalBulkHasOnes",
+            "value": 200.2,
             "unit": "ms/op",
             "extra": "7 times\n4 procs"
           }
