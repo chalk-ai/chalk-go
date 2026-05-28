@@ -145,6 +145,58 @@ func (BenchmarkDedicatedEngineProtocol) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_server_v1_benchmark_proto_rawDescGZIP(), []int{1}
 }
 
+type BenchmarkResultTargetType int32
+
+const (
+	BenchmarkResultTargetType_BENCHMARK_RESULT_TARGET_TYPE_UNSPECIFIED BenchmarkResultTargetType = 0
+	BenchmarkResultTargetType_BENCHMARK_RESULT_TARGET_TYPE_HTML        BenchmarkResultTargetType = 1
+	BenchmarkResultTargetType_BENCHMARK_RESULT_TARGET_TYPE_PARQUET     BenchmarkResultTargetType = 2
+	BenchmarkResultTargetType_BENCHMARK_RESULT_TARGET_TYPE_JSON        BenchmarkResultTargetType = 3
+)
+
+// Enum value maps for BenchmarkResultTargetType.
+var (
+	BenchmarkResultTargetType_name = map[int32]string{
+		0: "BENCHMARK_RESULT_TARGET_TYPE_UNSPECIFIED",
+		1: "BENCHMARK_RESULT_TARGET_TYPE_HTML",
+		2: "BENCHMARK_RESULT_TARGET_TYPE_PARQUET",
+		3: "BENCHMARK_RESULT_TARGET_TYPE_JSON",
+	}
+	BenchmarkResultTargetType_value = map[string]int32{
+		"BENCHMARK_RESULT_TARGET_TYPE_UNSPECIFIED": 0,
+		"BENCHMARK_RESULT_TARGET_TYPE_HTML":        1,
+		"BENCHMARK_RESULT_TARGET_TYPE_PARQUET":     2,
+		"BENCHMARK_RESULT_TARGET_TYPE_JSON":        3,
+	}
+)
+
+func (x BenchmarkResultTargetType) Enum() *BenchmarkResultTargetType {
+	p := new(BenchmarkResultTargetType)
+	*p = x
+	return p
+}
+
+func (x BenchmarkResultTargetType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BenchmarkResultTargetType) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_benchmark_proto_enumTypes[2].Descriptor()
+}
+
+func (BenchmarkResultTargetType) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_benchmark_proto_enumTypes[2]
+}
+
+func (x BenchmarkResultTargetType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BenchmarkResultTargetType.Descriptor instead.
+func (BenchmarkResultTargetType) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_benchmark_proto_rawDescGZIP(), []int{2}
+}
+
 type InputFeatures struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	InputFeatures []string               `protobuf:"bytes,1,rep,name=input_features,json=inputFeatures,proto3" json:"input_features,omitempty"`
@@ -497,7 +549,7 @@ type CreateBenchmarkRequest struct {
 	InitialConnWindowSize *int64                                `protobuf:"varint,19,opt,name=initial_conn_window_size,json=initialConnWindowSize,proto3,oneof" json:"initial_conn_window_size,omitempty"`
 	Nodepool              *string                               `protobuf:"bytes,20,opt,name=nodepool,proto3,oneof" json:"nodepool,omitempty"`
 	DedicatedEngine       *DedicatedBenchmarkEngine             `protobuf:"bytes,21,opt,name=dedicated_engine,json=dedicatedEngine,proto3,oneof" json:"dedicated_engine,omitempty"`
-	ResultTargets         []string                              `protobuf:"bytes,22,rep,name=result_targets,json=resultTargets,proto3" json:"result_targets,omitempty"`
+	ResultTargets         []BenchmarkResultTargetType           `protobuf:"varint,22,rep,packed,name=result_targets,json=resultTargets,proto3,enum=chalk.server.v1.BenchmarkResultTargetType" json:"result_targets,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -690,7 +742,7 @@ func (x *CreateBenchmarkRequest) GetDedicatedEngine() *DedicatedBenchmarkEngine 
 	return nil
 }
 
-func (x *CreateBenchmarkRequest) GetResultTargets() []string {
+func (x *CreateBenchmarkRequest) GetResultTargets() []BenchmarkResultTargetType {
 	if x != nil {
 		return x.ResultTargets
 	}
@@ -1295,7 +1347,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
 	"\t_protocolB\x10\n" +
 	"\x0e_replica_countB\x11\n" +
-	"\x0f_container_spec\"\xc2\n" +
+	"\x0f_container_spec\"\xee\n" +
 	"\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
@@ -1322,8 +1374,8 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x13initial_window_size\x18\x12 \x01(\x03H\x06R\x11initialWindowSize\x88\x01\x01\x12<\n" +
 	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01\x12\x1f\n" +
 	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01\x12Y\n" +
-	"\x10dedicated_engine\x18\x15 \x01(\v2).chalk.server.v1.DedicatedBenchmarkEngineH\tR\x0fdedicatedEngine\x88\x01\x01\x12%\n" +
-	"\x0eresult_targets\x18\x16 \x03(\tR\rresultTargetsB\x0f\n" +
+	"\x10dedicated_engine\x18\x15 \x01(\v2).chalk.server.v1.DedicatedBenchmarkEngineH\tR\x0fdedicatedEngine\x88\x01\x01\x12Q\n" +
+	"\x0eresult_targets\x18\x16 \x03(\x0e2*.chalk.server.v1.BenchmarkResultTargetTypeR\rresultTargetsB\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
@@ -1378,7 +1430,12 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"/BENCHMARK_DEDICATED_ENGINE_PROTOCOL_UNSPECIFIED\x10\x00\x123\n" +
 	"/BENCHMARK_DEDICATED_ENGINE_PROTOCOL_HTTP_PYTHON\x10\x01\x12,\n" +
 	"(BENCHMARK_DEDICATED_ENGINE_PROTOCOL_GRPC\x10\x02\x120\n" +
-	",BENCHMARK_DEDICATED_ENGINE_PROTOCOL_HTTP_CPP\x10\x032\xd7\x05\n" +
+	",BENCHMARK_DEDICATED_ENGINE_PROTOCOL_HTTP_CPP\x10\x03*\xc1\x01\n" +
+	"\x19BenchmarkResultTargetType\x12,\n" +
+	"(BENCHMARK_RESULT_TARGET_TYPE_UNSPECIFIED\x10\x00\x12%\n" +
+	"!BENCHMARK_RESULT_TARGET_TYPE_HTML\x10\x01\x12(\n" +
+	"$BENCHMARK_RESULT_TARGET_TYPE_PARQUET\x10\x02\x12%\n" +
+	"!BENCHMARK_RESULT_TARGET_TYPE_JSON\x10\x032\xd7\x05\n" +
 	"\x10BenchmarkService\x12i\n" +
 	"\x0fCreateBenchmark\x12'.chalk.server.v1.CreateBenchmarkRequest\x1a(.chalk.server.v1.CreateBenchmarkResponse\"\x03\x80}\x03\x12~\n" +
 	"\x16GetAvailableInputFiles\x12..chalk.server.v1.GetAvailableInputFilesRequest\x1a/.chalk.server.v1.GetAvailableInputFilesResponse\"\x03\x80}\x03\x12~\n" +
@@ -1400,72 +1457,74 @@ func file_chalk_server_v1_benchmark_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_benchmark_proto_rawDescData
 }
 
-var file_chalk_server_v1_benchmark_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_chalk_server_v1_benchmark_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_chalk_server_v1_benchmark_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_server_v1_benchmark_proto_goTypes = []any{
 	(BenchmarkStatus)(0),                    // 0: chalk.server.v1.BenchmarkStatus
 	(BenchmarkDedicatedEngineProtocol)(0),   // 1: chalk.server.v1.BenchmarkDedicatedEngineProtocol
-	(*InputFeatures)(nil),                   // 2: chalk.server.v1.InputFeatures
-	(*NamedQueryRequest)(nil),               // 3: chalk.server.v1.NamedQueryRequest
-	(*SimpleOnlineQueryBulkRequest)(nil),    // 4: chalk.server.v1.SimpleOnlineQueryBulkRequest
-	(*ContainerSpec)(nil),                   // 5: chalk.server.v1.ContainerSpec
-	(*DedicatedBenchmarkEngine)(nil),        // 6: chalk.server.v1.DedicatedBenchmarkEngine
-	(*CreateBenchmarkRequest)(nil),          // 7: chalk.server.v1.CreateBenchmarkRequest
-	(*CreateBenchmarkResponse)(nil),         // 8: chalk.server.v1.CreateBenchmarkResponse
-	(*BenchmarkInputFile)(nil),              // 9: chalk.server.v1.BenchmarkInputFile
-	(*GetAvailableInputFilesRequest)(nil),   // 10: chalk.server.v1.GetAvailableInputFilesRequest
-	(*GetAvailableInputFilesResponse)(nil),  // 11: chalk.server.v1.GetAvailableInputFilesResponse
-	(*GetInputFileUploadUrlsRequest)(nil),   // 12: chalk.server.v1.GetInputFileUploadUrlsRequest
-	(*GetInputFileUploadUrlsResponse)(nil),  // 13: chalk.server.v1.GetInputFileUploadUrlsResponse
-	(*GetAvailableResultFilesRequest)(nil),  // 14: chalk.server.v1.GetAvailableResultFilesRequest
-	(*GetAvailableResultFilesResponse)(nil), // 15: chalk.server.v1.GetAvailableResultFilesResponse
-	(*GetResultFileUrlsRequest)(nil),        // 16: chalk.server.v1.GetResultFileUrlsRequest
-	(*GetResultFileUrlsResponse)(nil),       // 17: chalk.server.v1.GetResultFileUrlsResponse
-	(*KillBenchmarkRequest)(nil),            // 18: chalk.server.v1.KillBenchmarkRequest
-	(*KillBenchmarkResponse)(nil),           // 19: chalk.server.v1.KillBenchmarkResponse
-	nil,                                     // 20: chalk.server.v1.DedicatedBenchmarkEngine.EnvVarsEntry
-	(*KubeResourceConfig)(nil),              // 21: chalk.server.v1.KubeResourceConfig
-	(*durationpb.Duration)(nil),             // 22: google.protobuf.Duration
-	(*v1.OnlineQueryBulkRequest)(nil),       // 23: chalk.common.v1.OnlineQueryBulkRequest
-	(*timestamppb.Timestamp)(nil),           // 24: google.protobuf.Timestamp
+	(BenchmarkResultTargetType)(0),          // 2: chalk.server.v1.BenchmarkResultTargetType
+	(*InputFeatures)(nil),                   // 3: chalk.server.v1.InputFeatures
+	(*NamedQueryRequest)(nil),               // 4: chalk.server.v1.NamedQueryRequest
+	(*SimpleOnlineQueryBulkRequest)(nil),    // 5: chalk.server.v1.SimpleOnlineQueryBulkRequest
+	(*ContainerSpec)(nil),                   // 6: chalk.server.v1.ContainerSpec
+	(*DedicatedBenchmarkEngine)(nil),        // 7: chalk.server.v1.DedicatedBenchmarkEngine
+	(*CreateBenchmarkRequest)(nil),          // 8: chalk.server.v1.CreateBenchmarkRequest
+	(*CreateBenchmarkResponse)(nil),         // 9: chalk.server.v1.CreateBenchmarkResponse
+	(*BenchmarkInputFile)(nil),              // 10: chalk.server.v1.BenchmarkInputFile
+	(*GetAvailableInputFilesRequest)(nil),   // 11: chalk.server.v1.GetAvailableInputFilesRequest
+	(*GetAvailableInputFilesResponse)(nil),  // 12: chalk.server.v1.GetAvailableInputFilesResponse
+	(*GetInputFileUploadUrlsRequest)(nil),   // 13: chalk.server.v1.GetInputFileUploadUrlsRequest
+	(*GetInputFileUploadUrlsResponse)(nil),  // 14: chalk.server.v1.GetInputFileUploadUrlsResponse
+	(*GetAvailableResultFilesRequest)(nil),  // 15: chalk.server.v1.GetAvailableResultFilesRequest
+	(*GetAvailableResultFilesResponse)(nil), // 16: chalk.server.v1.GetAvailableResultFilesResponse
+	(*GetResultFileUrlsRequest)(nil),        // 17: chalk.server.v1.GetResultFileUrlsRequest
+	(*GetResultFileUrlsResponse)(nil),       // 18: chalk.server.v1.GetResultFileUrlsResponse
+	(*KillBenchmarkRequest)(nil),            // 19: chalk.server.v1.KillBenchmarkRequest
+	(*KillBenchmarkResponse)(nil),           // 20: chalk.server.v1.KillBenchmarkResponse
+	nil,                                     // 21: chalk.server.v1.DedicatedBenchmarkEngine.EnvVarsEntry
+	(*KubeResourceConfig)(nil),              // 22: chalk.server.v1.KubeResourceConfig
+	(*durationpb.Duration)(nil),             // 23: google.protobuf.Duration
+	(*v1.OnlineQueryBulkRequest)(nil),       // 24: chalk.common.v1.OnlineQueryBulkRequest
+	(*timestamppb.Timestamp)(nil),           // 25: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_benchmark_proto_depIdxs = []int32{
-	2,  // 0: chalk.server.v1.SimpleOnlineQueryBulkRequest.input_features_list:type_name -> chalk.server.v1.InputFeatures
-	3,  // 1: chalk.server.v1.SimpleOnlineQueryBulkRequest.named_query_request:type_name -> chalk.server.v1.NamedQueryRequest
-	21, // 2: chalk.server.v1.ContainerSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
-	21, // 3: chalk.server.v1.ContainerSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
+	3,  // 0: chalk.server.v1.SimpleOnlineQueryBulkRequest.input_features_list:type_name -> chalk.server.v1.InputFeatures
+	4,  // 1: chalk.server.v1.SimpleOnlineQueryBulkRequest.named_query_request:type_name -> chalk.server.v1.NamedQueryRequest
+	22, // 2: chalk.server.v1.ContainerSpec.request:type_name -> chalk.server.v1.KubeResourceConfig
+	22, // 3: chalk.server.v1.ContainerSpec.limit:type_name -> chalk.server.v1.KubeResourceConfig
 	1,  // 4: chalk.server.v1.DedicatedBenchmarkEngine.protocol:type_name -> chalk.server.v1.BenchmarkDedicatedEngineProtocol
-	20, // 5: chalk.server.v1.DedicatedBenchmarkEngine.env_vars:type_name -> chalk.server.v1.DedicatedBenchmarkEngine.EnvVarsEntry
-	5,  // 6: chalk.server.v1.DedicatedBenchmarkEngine.container_spec:type_name -> chalk.server.v1.ContainerSpec
-	22, // 7: chalk.server.v1.CreateBenchmarkRequest.warmup_duration:type_name -> google.protobuf.Duration
-	22, // 8: chalk.server.v1.CreateBenchmarkRequest.duration:type_name -> google.protobuf.Duration
-	23, // 9: chalk.server.v1.CreateBenchmarkRequest.query_bulk:type_name -> chalk.common.v1.OnlineQueryBulkRequest
-	4,  // 10: chalk.server.v1.CreateBenchmarkRequest.simple_query_bulk:type_name -> chalk.server.v1.SimpleOnlineQueryBulkRequest
-	5,  // 11: chalk.server.v1.CreateBenchmarkRequest.warmup_container_spec:type_name -> chalk.server.v1.ContainerSpec
-	5,  // 12: chalk.server.v1.CreateBenchmarkRequest.container_spec:type_name -> chalk.server.v1.ContainerSpec
-	6,  // 13: chalk.server.v1.CreateBenchmarkRequest.dedicated_engine:type_name -> chalk.server.v1.DedicatedBenchmarkEngine
-	0,  // 14: chalk.server.v1.CreateBenchmarkResponse.status:type_name -> chalk.server.v1.BenchmarkStatus
-	24, // 15: chalk.server.v1.BenchmarkInputFile.updated_at:type_name -> google.protobuf.Timestamp
-	9,  // 16: chalk.server.v1.GetAvailableInputFilesResponse.input_files:type_name -> chalk.server.v1.BenchmarkInputFile
-	9,  // 17: chalk.server.v1.GetInputFileUploadUrlsRequest.input_files:type_name -> chalk.server.v1.BenchmarkInputFile
-	9,  // 18: chalk.server.v1.GetAvailableResultFilesResponse.result_files:type_name -> chalk.server.v1.BenchmarkInputFile
-	7,  // 19: chalk.server.v1.BenchmarkService.CreateBenchmark:input_type -> chalk.server.v1.CreateBenchmarkRequest
-	10, // 20: chalk.server.v1.BenchmarkService.GetAvailableInputFiles:input_type -> chalk.server.v1.GetAvailableInputFilesRequest
-	12, // 21: chalk.server.v1.BenchmarkService.GetInputFileUploadUrls:input_type -> chalk.server.v1.GetInputFileUploadUrlsRequest
-	14, // 22: chalk.server.v1.BenchmarkService.GetAvailableResultFiles:input_type -> chalk.server.v1.GetAvailableResultFilesRequest
-	16, // 23: chalk.server.v1.BenchmarkService.GetResultFileUrls:input_type -> chalk.server.v1.GetResultFileUrlsRequest
-	18, // 24: chalk.server.v1.BenchmarkService.KillBenchmark:input_type -> chalk.server.v1.KillBenchmarkRequest
-	8,  // 25: chalk.server.v1.BenchmarkService.CreateBenchmark:output_type -> chalk.server.v1.CreateBenchmarkResponse
-	11, // 26: chalk.server.v1.BenchmarkService.GetAvailableInputFiles:output_type -> chalk.server.v1.GetAvailableInputFilesResponse
-	13, // 27: chalk.server.v1.BenchmarkService.GetInputFileUploadUrls:output_type -> chalk.server.v1.GetInputFileUploadUrlsResponse
-	15, // 28: chalk.server.v1.BenchmarkService.GetAvailableResultFiles:output_type -> chalk.server.v1.GetAvailableResultFilesResponse
-	17, // 29: chalk.server.v1.BenchmarkService.GetResultFileUrls:output_type -> chalk.server.v1.GetResultFileUrlsResponse
-	19, // 30: chalk.server.v1.BenchmarkService.KillBenchmark:output_type -> chalk.server.v1.KillBenchmarkResponse
-	25, // [25:31] is the sub-list for method output_type
-	19, // [19:25] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	21, // 5: chalk.server.v1.DedicatedBenchmarkEngine.env_vars:type_name -> chalk.server.v1.DedicatedBenchmarkEngine.EnvVarsEntry
+	6,  // 6: chalk.server.v1.DedicatedBenchmarkEngine.container_spec:type_name -> chalk.server.v1.ContainerSpec
+	23, // 7: chalk.server.v1.CreateBenchmarkRequest.warmup_duration:type_name -> google.protobuf.Duration
+	23, // 8: chalk.server.v1.CreateBenchmarkRequest.duration:type_name -> google.protobuf.Duration
+	24, // 9: chalk.server.v1.CreateBenchmarkRequest.query_bulk:type_name -> chalk.common.v1.OnlineQueryBulkRequest
+	5,  // 10: chalk.server.v1.CreateBenchmarkRequest.simple_query_bulk:type_name -> chalk.server.v1.SimpleOnlineQueryBulkRequest
+	6,  // 11: chalk.server.v1.CreateBenchmarkRequest.warmup_container_spec:type_name -> chalk.server.v1.ContainerSpec
+	6,  // 12: chalk.server.v1.CreateBenchmarkRequest.container_spec:type_name -> chalk.server.v1.ContainerSpec
+	7,  // 13: chalk.server.v1.CreateBenchmarkRequest.dedicated_engine:type_name -> chalk.server.v1.DedicatedBenchmarkEngine
+	2,  // 14: chalk.server.v1.CreateBenchmarkRequest.result_targets:type_name -> chalk.server.v1.BenchmarkResultTargetType
+	0,  // 15: chalk.server.v1.CreateBenchmarkResponse.status:type_name -> chalk.server.v1.BenchmarkStatus
+	25, // 16: chalk.server.v1.BenchmarkInputFile.updated_at:type_name -> google.protobuf.Timestamp
+	10, // 17: chalk.server.v1.GetAvailableInputFilesResponse.input_files:type_name -> chalk.server.v1.BenchmarkInputFile
+	10, // 18: chalk.server.v1.GetInputFileUploadUrlsRequest.input_files:type_name -> chalk.server.v1.BenchmarkInputFile
+	10, // 19: chalk.server.v1.GetAvailableResultFilesResponse.result_files:type_name -> chalk.server.v1.BenchmarkInputFile
+	8,  // 20: chalk.server.v1.BenchmarkService.CreateBenchmark:input_type -> chalk.server.v1.CreateBenchmarkRequest
+	11, // 21: chalk.server.v1.BenchmarkService.GetAvailableInputFiles:input_type -> chalk.server.v1.GetAvailableInputFilesRequest
+	13, // 22: chalk.server.v1.BenchmarkService.GetInputFileUploadUrls:input_type -> chalk.server.v1.GetInputFileUploadUrlsRequest
+	15, // 23: chalk.server.v1.BenchmarkService.GetAvailableResultFiles:input_type -> chalk.server.v1.GetAvailableResultFilesRequest
+	17, // 24: chalk.server.v1.BenchmarkService.GetResultFileUrls:input_type -> chalk.server.v1.GetResultFileUrlsRequest
+	19, // 25: chalk.server.v1.BenchmarkService.KillBenchmark:input_type -> chalk.server.v1.KillBenchmarkRequest
+	9,  // 26: chalk.server.v1.BenchmarkService.CreateBenchmark:output_type -> chalk.server.v1.CreateBenchmarkResponse
+	12, // 27: chalk.server.v1.BenchmarkService.GetAvailableInputFiles:output_type -> chalk.server.v1.GetAvailableInputFilesResponse
+	14, // 28: chalk.server.v1.BenchmarkService.GetInputFileUploadUrls:output_type -> chalk.server.v1.GetInputFileUploadUrlsResponse
+	16, // 29: chalk.server.v1.BenchmarkService.GetAvailableResultFiles:output_type -> chalk.server.v1.GetAvailableResultFilesResponse
+	18, // 30: chalk.server.v1.BenchmarkService.GetResultFileUrls:output_type -> chalk.server.v1.GetResultFileUrlsResponse
+	20, // 31: chalk.server.v1.BenchmarkService.KillBenchmark:output_type -> chalk.server.v1.KillBenchmarkResponse
+	26, // [26:32] is the sub-list for method output_type
+	20, // [20:26] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_benchmark_proto_init() }
@@ -1491,7 +1550,7 @@ func file_chalk_server_v1_benchmark_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_benchmark_proto_rawDesc), len(file_chalk_server_v1_benchmark_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      3,
 			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
