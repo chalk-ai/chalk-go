@@ -40,6 +40,24 @@ const (
 	// OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure is the fully-qualified name of the
 	// OnlineStoreInsightService's GetOnlineStoreUsageStats RPC.
 	OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreUsageStats"
+	// OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetOnlineStoreCleanupStats RPC.
+	OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetOnlineStoreCleanupStats"
+	// OnlineStoreInsightServiceGetDynamoDBMetricsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetDynamoDBMetrics RPC.
+	OnlineStoreInsightServiceGetDynamoDBMetricsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetDynamoDBMetrics"
+	// OnlineStoreInsightServiceListElasticacheClustersProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's ListElasticacheClusters RPC.
+	OnlineStoreInsightServiceListElasticacheClustersProcedure = "/chalk.server.v1.OnlineStoreInsightService/ListElasticacheClusters"
+	// OnlineStoreInsightServiceGetElasticacheMetricsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetElasticacheMetrics RPC.
+	OnlineStoreInsightServiceGetElasticacheMetricsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetElasticacheMetrics"
+	// OnlineStoreInsightServiceListMemorystoreValkeyClustersProcedure is the fully-qualified name of
+	// the OnlineStoreInsightService's ListMemorystoreValkeyClusters RPC.
+	OnlineStoreInsightServiceListMemorystoreValkeyClustersProcedure = "/chalk.server.v1.OnlineStoreInsightService/ListMemorystoreValkeyClusters"
+	// OnlineStoreInsightServiceGetMemorystoreValkeyMetricsProcedure is the fully-qualified name of the
+	// OnlineStoreInsightService's GetMemorystoreValkeyMetrics RPC.
+	OnlineStoreInsightServiceGetMemorystoreValkeyMetricsProcedure = "/chalk.server.v1.OnlineStoreInsightService/GetMemorystoreValkeyMetrics"
 )
 
 // OnlineStoreInsightServiceClient is a client for the chalk.server.v1.OnlineStoreInsightService
@@ -47,6 +65,12 @@ const (
 type OnlineStoreInsightServiceClient interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
 	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
+	GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error)
+	GetDynamoDBMetrics(context.Context, *connect.Request[v1.GetDynamoDBMetricsRequest]) (*connect.Response[v1.GetDynamoDBMetricsResponse], error)
+	ListElasticacheClusters(context.Context, *connect.Request[v1.ListElasticacheClustersRequest]) (*connect.Response[v1.ListElasticacheClustersResponse], error)
+	GetElasticacheMetrics(context.Context, *connect.Request[v1.GetElasticacheMetricsRequest]) (*connect.Response[v1.GetElasticacheMetricsResponse], error)
+	ListMemorystoreValkeyClusters(context.Context, *connect.Request[v1.ListMemorystoreValkeyClustersRequest]) (*connect.Response[v1.ListMemorystoreValkeyClustersResponse], error)
+	GetMemorystoreValkeyMetrics(context.Context, *connect.Request[v1.GetMemorystoreValkeyMetricsRequest]) (*connect.Response[v1.GetMemorystoreValkeyMetricsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceClient constructs a client for the
@@ -74,13 +98,61 @@ func NewOnlineStoreInsightServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getOnlineStoreCleanupStats: connect.NewClient[v1.GetOnlineStoreCleanupStatsRequest, v1.GetOnlineStoreCleanupStatsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreCleanupStats")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getDynamoDBMetrics: connect.NewClient[v1.GetDynamoDBMetricsRequest, v1.GetDynamoDBMetricsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetDynamoDBMetricsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetDynamoDBMetrics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listElasticacheClusters: connect.NewClient[v1.ListElasticacheClustersRequest, v1.ListElasticacheClustersResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceListElasticacheClustersProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("ListElasticacheClusters")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getElasticacheMetrics: connect.NewClient[v1.GetElasticacheMetricsRequest, v1.GetElasticacheMetricsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetElasticacheMetricsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetElasticacheMetrics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listMemorystoreValkeyClusters: connect.NewClient[v1.ListMemorystoreValkeyClustersRequest, v1.ListMemorystoreValkeyClustersResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceListMemorystoreValkeyClustersProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("ListMemorystoreValkeyClusters")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getMemorystoreValkeyMetrics: connect.NewClient[v1.GetMemorystoreValkeyMetricsRequest, v1.GetMemorystoreValkeyMetricsResponse](
+			httpClient,
+			baseURL+OnlineStoreInsightServiceGetMemorystoreValkeyMetricsProcedure,
+			connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetMemorystoreValkeyMetrics")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // onlineStoreInsightServiceClient implements OnlineStoreInsightServiceClient.
 type onlineStoreInsightServiceClient struct {
-	getOnlineStoreConfig     *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
-	getOnlineStoreUsageStats *connect.Client[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse]
+	getOnlineStoreConfig          *connect.Client[v1.GetOnlineStoreConfigRequest, v1.GetOnlineStoreConfigResponse]
+	getOnlineStoreUsageStats      *connect.Client[v1.GetOnlineStoreUsageStatsRequest, v1.GetOnlineStoreUsageStatsResponse]
+	getOnlineStoreCleanupStats    *connect.Client[v1.GetOnlineStoreCleanupStatsRequest, v1.GetOnlineStoreCleanupStatsResponse]
+	getDynamoDBMetrics            *connect.Client[v1.GetDynamoDBMetricsRequest, v1.GetDynamoDBMetricsResponse]
+	listElasticacheClusters       *connect.Client[v1.ListElasticacheClustersRequest, v1.ListElasticacheClustersResponse]
+	getElasticacheMetrics         *connect.Client[v1.GetElasticacheMetricsRequest, v1.GetElasticacheMetricsResponse]
+	listMemorystoreValkeyClusters *connect.Client[v1.ListMemorystoreValkeyClustersRequest, v1.ListMemorystoreValkeyClustersResponse]
+	getMemorystoreValkeyMetrics   *connect.Client[v1.GetMemorystoreValkeyMetricsRequest, v1.GetMemorystoreValkeyMetricsResponse]
 }
 
 // GetOnlineStoreConfig calls chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreConfig.
@@ -94,11 +166,50 @@ func (c *onlineStoreInsightServiceClient) GetOnlineStoreUsageStats(ctx context.C
 	return c.getOnlineStoreUsageStats.CallUnary(ctx, req)
 }
 
+// GetOnlineStoreCleanupStats calls
+// chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats.
+func (c *onlineStoreInsightServiceClient) GetOnlineStoreCleanupStats(ctx context.Context, req *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error) {
+	return c.getOnlineStoreCleanupStats.CallUnary(ctx, req)
+}
+
+// GetDynamoDBMetrics calls chalk.server.v1.OnlineStoreInsightService.GetDynamoDBMetrics.
+func (c *onlineStoreInsightServiceClient) GetDynamoDBMetrics(ctx context.Context, req *connect.Request[v1.GetDynamoDBMetricsRequest]) (*connect.Response[v1.GetDynamoDBMetricsResponse], error) {
+	return c.getDynamoDBMetrics.CallUnary(ctx, req)
+}
+
+// ListElasticacheClusters calls chalk.server.v1.OnlineStoreInsightService.ListElasticacheClusters.
+func (c *onlineStoreInsightServiceClient) ListElasticacheClusters(ctx context.Context, req *connect.Request[v1.ListElasticacheClustersRequest]) (*connect.Response[v1.ListElasticacheClustersResponse], error) {
+	return c.listElasticacheClusters.CallUnary(ctx, req)
+}
+
+// GetElasticacheMetrics calls chalk.server.v1.OnlineStoreInsightService.GetElasticacheMetrics.
+func (c *onlineStoreInsightServiceClient) GetElasticacheMetrics(ctx context.Context, req *connect.Request[v1.GetElasticacheMetricsRequest]) (*connect.Response[v1.GetElasticacheMetricsResponse], error) {
+	return c.getElasticacheMetrics.CallUnary(ctx, req)
+}
+
+// ListMemorystoreValkeyClusters calls
+// chalk.server.v1.OnlineStoreInsightService.ListMemorystoreValkeyClusters.
+func (c *onlineStoreInsightServiceClient) ListMemorystoreValkeyClusters(ctx context.Context, req *connect.Request[v1.ListMemorystoreValkeyClustersRequest]) (*connect.Response[v1.ListMemorystoreValkeyClustersResponse], error) {
+	return c.listMemorystoreValkeyClusters.CallUnary(ctx, req)
+}
+
+// GetMemorystoreValkeyMetrics calls
+// chalk.server.v1.OnlineStoreInsightService.GetMemorystoreValkeyMetrics.
+func (c *onlineStoreInsightServiceClient) GetMemorystoreValkeyMetrics(ctx context.Context, req *connect.Request[v1.GetMemorystoreValkeyMetricsRequest]) (*connect.Response[v1.GetMemorystoreValkeyMetricsResponse], error) {
+	return c.getMemorystoreValkeyMetrics.CallUnary(ctx, req)
+}
+
 // OnlineStoreInsightServiceHandler is an implementation of the
 // chalk.server.v1.OnlineStoreInsightService service.
 type OnlineStoreInsightServiceHandler interface {
 	GetOnlineStoreConfig(context.Context, *connect.Request[v1.GetOnlineStoreConfigRequest]) (*connect.Response[v1.GetOnlineStoreConfigResponse], error)
 	GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error)
+	GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error)
+	GetDynamoDBMetrics(context.Context, *connect.Request[v1.GetDynamoDBMetricsRequest]) (*connect.Response[v1.GetDynamoDBMetricsResponse], error)
+	ListElasticacheClusters(context.Context, *connect.Request[v1.ListElasticacheClustersRequest]) (*connect.Response[v1.ListElasticacheClustersResponse], error)
+	GetElasticacheMetrics(context.Context, *connect.Request[v1.GetElasticacheMetricsRequest]) (*connect.Response[v1.GetElasticacheMetricsResponse], error)
+	ListMemorystoreValkeyClusters(context.Context, *connect.Request[v1.ListMemorystoreValkeyClustersRequest]) (*connect.Response[v1.ListMemorystoreValkeyClustersResponse], error)
+	GetMemorystoreValkeyMetrics(context.Context, *connect.Request[v1.GetMemorystoreValkeyMetricsRequest]) (*connect.Response[v1.GetMemorystoreValkeyMetricsResponse], error)
 }
 
 // NewOnlineStoreInsightServiceHandler builds an HTTP handler from the service implementation. It
@@ -122,12 +233,66 @@ func NewOnlineStoreInsightServiceHandler(svc OnlineStoreInsightServiceHandler, o
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	onlineStoreInsightServiceGetOnlineStoreCleanupStatsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure,
+		svc.GetOnlineStoreCleanupStats,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetOnlineStoreCleanupStats")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	onlineStoreInsightServiceGetDynamoDBMetricsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetDynamoDBMetricsProcedure,
+		svc.GetDynamoDBMetrics,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetDynamoDBMetrics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	onlineStoreInsightServiceListElasticacheClustersHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceListElasticacheClustersProcedure,
+		svc.ListElasticacheClusters,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("ListElasticacheClusters")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	onlineStoreInsightServiceGetElasticacheMetricsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetElasticacheMetricsProcedure,
+		svc.GetElasticacheMetrics,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetElasticacheMetrics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	onlineStoreInsightServiceListMemorystoreValkeyClustersHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceListMemorystoreValkeyClustersProcedure,
+		svc.ListMemorystoreValkeyClusters,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("ListMemorystoreValkeyClusters")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	onlineStoreInsightServiceGetMemorystoreValkeyMetricsHandler := connect.NewUnaryHandler(
+		OnlineStoreInsightServiceGetMemorystoreValkeyMetricsProcedure,
+		svc.GetMemorystoreValkeyMetrics,
+		connect.WithSchema(onlineStoreInsightServiceMethods.ByName("GetMemorystoreValkeyMetrics")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.OnlineStoreInsightService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case OnlineStoreInsightServiceGetOnlineStoreConfigProcedure:
 			onlineStoreInsightServiceGetOnlineStoreConfigHandler.ServeHTTP(w, r)
 		case OnlineStoreInsightServiceGetOnlineStoreUsageStatsProcedure:
 			onlineStoreInsightServiceGetOnlineStoreUsageStatsHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetOnlineStoreCleanupStatsProcedure:
+			onlineStoreInsightServiceGetOnlineStoreCleanupStatsHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetDynamoDBMetricsProcedure:
+			onlineStoreInsightServiceGetDynamoDBMetricsHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceListElasticacheClustersProcedure:
+			onlineStoreInsightServiceListElasticacheClustersHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetElasticacheMetricsProcedure:
+			onlineStoreInsightServiceGetElasticacheMetricsHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceListMemorystoreValkeyClustersProcedure:
+			onlineStoreInsightServiceListMemorystoreValkeyClustersHandler.ServeHTTP(w, r)
+		case OnlineStoreInsightServiceGetMemorystoreValkeyMetricsProcedure:
+			onlineStoreInsightServiceGetMemorystoreValkeyMetricsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -143,4 +308,28 @@ func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreConfig(contex
 
 func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreUsageStats(context.Context, *connect.Request[v1.GetOnlineStoreUsageStatsRequest]) (*connect.Response[v1.GetOnlineStoreUsageStatsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreUsageStats is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetOnlineStoreCleanupStats(context.Context, *connect.Request[v1.GetOnlineStoreCleanupStatsRequest]) (*connect.Response[v1.GetOnlineStoreCleanupStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetOnlineStoreCleanupStats is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetDynamoDBMetrics(context.Context, *connect.Request[v1.GetDynamoDBMetricsRequest]) (*connect.Response[v1.GetDynamoDBMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetDynamoDBMetrics is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) ListElasticacheClusters(context.Context, *connect.Request[v1.ListElasticacheClustersRequest]) (*connect.Response[v1.ListElasticacheClustersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.ListElasticacheClusters is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetElasticacheMetrics(context.Context, *connect.Request[v1.GetElasticacheMetricsRequest]) (*connect.Response[v1.GetElasticacheMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetElasticacheMetrics is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) ListMemorystoreValkeyClusters(context.Context, *connect.Request[v1.ListMemorystoreValkeyClustersRequest]) (*connect.Response[v1.ListMemorystoreValkeyClustersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.ListMemorystoreValkeyClusters is not implemented"))
+}
+
+func (UnimplementedOnlineStoreInsightServiceHandler) GetMemorystoreValkeyMetrics(context.Context, *connect.Request[v1.GetMemorystoreValkeyMetricsRequest]) (*connect.Response[v1.GetMemorystoreValkeyMetricsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.OnlineStoreInsightService.GetMemorystoreValkeyMetrics is not implemented"))
 }

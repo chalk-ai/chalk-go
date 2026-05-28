@@ -383,6 +383,42 @@ func (*GetTeamPermissionOnlyTestEndpointRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{9}
 }
 
+type GetTeamViewerPermissionOnlyTestEndpointRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointRequest) Reset() {
+	*x = GetTeamViewerPermissionOnlyTestEndpointRequest{}
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamViewerPermissionOnlyTestEndpointRequest) ProtoMessage() {}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamViewerPermissionOnlyTestEndpointRequest.ProtoReflect.Descriptor instead.
+func (*GetTeamViewerPermissionOnlyTestEndpointRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{10}
+}
+
 type GetUnauthedTestEndpointResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -391,7 +427,7 @@ type GetUnauthedTestEndpointResponse struct {
 
 func (x *GetUnauthedTestEndpointResponse) Reset() {
 	*x = GetUnauthedTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -403,7 +439,7 @@ func (x *GetUnauthedTestEndpointResponse) String() string {
 func (*GetUnauthedTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetUnauthedTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[10]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -416,7 +452,7 @@ func (x *GetUnauthedTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUnauthedTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetUnauthedTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{10}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{11}
 }
 
 type GetAuthedTestEndpointResponse struct {
@@ -427,7 +463,7 @@ type GetAuthedTestEndpointResponse struct {
 
 func (x *GetAuthedTestEndpointResponse) Reset() {
 	*x = GetAuthedTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -439,7 +475,7 @@ func (x *GetAuthedTestEndpointResponse) String() string {
 func (*GetAuthedTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetAuthedTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[11]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -452,7 +488,7 @@ func (x *GetAuthedTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthedTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetAuthedTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{11}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{12}
 }
 
 type GetViewerTestEndpointResponse struct {
@@ -463,7 +499,7 @@ type GetViewerTestEndpointResponse struct {
 
 func (x *GetViewerTestEndpointResponse) Reset() {
 	*x = GetViewerTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +511,7 @@ func (x *GetViewerTestEndpointResponse) String() string {
 func (*GetViewerTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetViewerTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -488,7 +524,7 @@ func (x *GetViewerTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetViewerTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetViewerTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{13}
 }
 
 type GetDataScientistTestEndpointResponse struct {
@@ -499,7 +535,7 @@ type GetDataScientistTestEndpointResponse struct {
 
 func (x *GetDataScientistTestEndpointResponse) Reset() {
 	*x = GetDataScientistTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -511,7 +547,7 @@ func (x *GetDataScientistTestEndpointResponse) String() string {
 func (*GetDataScientistTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetDataScientistTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -524,7 +560,7 @@ func (x *GetDataScientistTestEndpointResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetDataScientistTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetDataScientistTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{14}
 }
 
 type GetDeveloperTestEndpointResponse struct {
@@ -535,7 +571,7 @@ type GetDeveloperTestEndpointResponse struct {
 
 func (x *GetDeveloperTestEndpointResponse) Reset() {
 	*x = GetDeveloperTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +583,7 @@ func (x *GetDeveloperTestEndpointResponse) String() string {
 func (*GetDeveloperTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetDeveloperTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +596,7 @@ func (x *GetDeveloperTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDeveloperTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetDeveloperTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{15}
 }
 
 type GetAdminTestEndpointResponse struct {
@@ -571,7 +607,7 @@ type GetAdminTestEndpointResponse struct {
 
 func (x *GetAdminTestEndpointResponse) Reset() {
 	*x = GetAdminTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -583,7 +619,7 @@ func (x *GetAdminTestEndpointResponse) String() string {
 func (*GetAdminTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetAdminTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,7 +632,7 @@ func (x *GetAdminTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdminTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetAdminTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{16}
 }
 
 type GetOwnerTestEndpointResponse struct {
@@ -607,7 +643,7 @@ type GetOwnerTestEndpointResponse struct {
 
 func (x *GetOwnerTestEndpointResponse) Reset() {
 	*x = GetOwnerTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -619,7 +655,7 @@ func (x *GetOwnerTestEndpointResponse) String() string {
 func (*GetOwnerTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetOwnerTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -632,7 +668,7 @@ func (x *GetOwnerTestEndpointResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOwnerTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetOwnerTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{17}
 }
 
 type GetAuthServiceManagerTestEndpointResponse struct {
@@ -643,7 +679,7 @@ type GetAuthServiceManagerTestEndpointResponse struct {
 
 func (x *GetAuthServiceManagerTestEndpointResponse) Reset() {
 	*x = GetAuthServiceManagerTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -655,7 +691,7 @@ func (x *GetAuthServiceManagerTestEndpointResponse) String() string {
 func (*GetAuthServiceManagerTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetAuthServiceManagerTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -668,7 +704,7 @@ func (x *GetAuthServiceManagerTestEndpointResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use GetAuthServiceManagerTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetAuthServiceManagerTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{18}
 }
 
 type GetFeatureFlagTestEndpointResponse struct {
@@ -680,7 +716,7 @@ type GetFeatureFlagTestEndpointResponse struct {
 
 func (x *GetFeatureFlagTestEndpointResponse) Reset() {
 	*x = GetFeatureFlagTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -692,7 +728,7 @@ func (x *GetFeatureFlagTestEndpointResponse) String() string {
 func (*GetFeatureFlagTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetFeatureFlagTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -705,7 +741,7 @@ func (x *GetFeatureFlagTestEndpointResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetFeatureFlagTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetFeatureFlagTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetFeatureFlagTestEndpointResponse) GetMessage() string {
@@ -723,7 +759,7 @@ type GetTeamPermissionOnlyTestEndpointResponse struct {
 
 func (x *GetTeamPermissionOnlyTestEndpointResponse) Reset() {
 	*x = GetTeamPermissionOnlyTestEndpointResponse{}
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -735,7 +771,7 @@ func (x *GetTeamPermissionOnlyTestEndpointResponse) String() string {
 func (*GetTeamPermissionOnlyTestEndpointResponse) ProtoMessage() {}
 
 func (x *GetTeamPermissionOnlyTestEndpointResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -748,7 +784,43 @@ func (x *GetTeamPermissionOnlyTestEndpointResponse) ProtoReflect() protoreflect.
 
 // Deprecated: Use GetTeamPermissionOnlyTestEndpointResponse.ProtoReflect.Descriptor instead.
 func (*GetTeamPermissionOnlyTestEndpointResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{20}
+}
+
+type GetTeamViewerPermissionOnlyTestEndpointResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointResponse) Reset() {
+	*x = GetTeamViewerPermissionOnlyTestEndpointResponse{}
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTeamViewerPermissionOnlyTestEndpointResponse) ProtoMessage() {}
+
+func (x *GetTeamViewerPermissionOnlyTestEndpointResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_authtesting_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTeamViewerPermissionOnlyTestEndpointResponse.ProtoReflect.Descriptor instead.
+func (*GetTeamViewerPermissionOnlyTestEndpointResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_authtesting_proto_rawDescGZIP(), []int{21}
 }
 
 var File_chalk_server_v1_authtesting_proto protoreflect.FileDescriptor
@@ -765,7 +837,8 @@ const file_chalk_server_v1_authtesting_proto_rawDesc = "" +
 	"\x1bGetOwnerTestEndpointRequest\"*\n" +
 	"(GetAuthServiceManagerTestEndpointRequest\"#\n" +
 	"!GetFeatureFlagTestEndpointRequest\"*\n" +
-	"(GetTeamPermissionOnlyTestEndpointRequest\"!\n" +
+	"(GetTeamPermissionOnlyTestEndpointRequest\"0\n" +
+	".GetTeamViewerPermissionOnlyTestEndpointRequest\"!\n" +
 	"\x1fGetUnauthedTestEndpointResponse\"\x1f\n" +
 	"\x1dGetAuthedTestEndpointResponse\"\x1f\n" +
 	"\x1dGetViewerTestEndpointResponse\"&\n" +
@@ -776,7 +849,8 @@ const file_chalk_server_v1_authtesting_proto_rawDesc = "" +
 	")GetAuthServiceManagerTestEndpointResponse\">\n" +
 	"\"GetFeatureFlagTestEndpointResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"+\n" +
-	")GetTeamPermissionOnlyTestEndpointResponse2\xd0\v\n" +
+	")GetTeamPermissionOnlyTestEndpointResponse\"1\n" +
+	"/GetTeamViewerPermissionOnlyTestEndpointResponse2\x87\r\n" +
 	"\x12AuthTestingService\x12\x84\x01\n" +
 	"\x17GetUnauthedTestEndpoint\x12/.chalk.server.v1.GetUnauthedTestEndpointRequest\x1a0.chalk.server.v1.GetUnauthedTestEndpointResponse\"\x06\x80}\x01\x90\x02\x01\x12~\n" +
 	"\x15GetAuthedTestEndpoint\x12-.chalk.server.v1.GetAuthedTestEndpointRequest\x1a..chalk.server.v1.GetAuthedTestEndpointResponse\"\x06\x80}\x02\x90\x02\x01\x12~\n" +
@@ -790,7 +864,8 @@ const file_chalk_server_v1_authtesting_proto_rawDesc = "" +
 	"\x1aGetFeatureFlagTestEndpoint\x122.chalk.server.v1.GetFeatureFlagTestEndpointRequest\x1a3.chalk.server.v1.GetFeatureFlagTestEndpointResponse\"G\x80}\x02\x92\xd3\x0e=\n" +
 	"\ftest_feature\x12-Test endpoint to verify feature flag checking\x90\x02\x01\x12\xa2\x01\n" +
 	"!GetTeamPermissionOnlyTestEndpoint\x129.chalk.server.v1.GetTeamPermissionOnlyTestEndpointRequest\x1a:.chalk.server.v1.GetTeamPermissionOnlyTestEndpointResponse\"\x06\x88}\n" +
-	"\x90\x02\x01B\xc0\x01\n" +
+	"\x90\x02\x01\x12\xb4\x01\n" +
+	"'GetTeamViewerPermissionOnlyTestEndpoint\x12?.chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointRequest\x1a@.chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointResponse\"\x06\x88}\t\x90\x02\x01B\xc0\x01\n" +
 	"\x13com.chalk.server.v1B\x10AuthtestingProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -805,28 +880,30 @@ func file_chalk_server_v1_authtesting_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_authtesting_proto_rawDescData
 }
 
-var file_chalk_server_v1_authtesting_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_chalk_server_v1_authtesting_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_chalk_server_v1_authtesting_proto_goTypes = []any{
-	(*GetUnauthedTestEndpointRequest)(nil),            // 0: chalk.server.v1.GetUnauthedTestEndpointRequest
-	(*GetAuthedTestEndpointRequest)(nil),              // 1: chalk.server.v1.GetAuthedTestEndpointRequest
-	(*GetViewerTestEndpointRequest)(nil),              // 2: chalk.server.v1.GetViewerTestEndpointRequest
-	(*GetDataScientistTestEndpointRequest)(nil),       // 3: chalk.server.v1.GetDataScientistTestEndpointRequest
-	(*GetDeveloperTestEndpointRequest)(nil),           // 4: chalk.server.v1.GetDeveloperTestEndpointRequest
-	(*GetAdminTestEndpointRequest)(nil),               // 5: chalk.server.v1.GetAdminTestEndpointRequest
-	(*GetOwnerTestEndpointRequest)(nil),               // 6: chalk.server.v1.GetOwnerTestEndpointRequest
-	(*GetAuthServiceManagerTestEndpointRequest)(nil),  // 7: chalk.server.v1.GetAuthServiceManagerTestEndpointRequest
-	(*GetFeatureFlagTestEndpointRequest)(nil),         // 8: chalk.server.v1.GetFeatureFlagTestEndpointRequest
-	(*GetTeamPermissionOnlyTestEndpointRequest)(nil),  // 9: chalk.server.v1.GetTeamPermissionOnlyTestEndpointRequest
-	(*GetUnauthedTestEndpointResponse)(nil),           // 10: chalk.server.v1.GetUnauthedTestEndpointResponse
-	(*GetAuthedTestEndpointResponse)(nil),             // 11: chalk.server.v1.GetAuthedTestEndpointResponse
-	(*GetViewerTestEndpointResponse)(nil),             // 12: chalk.server.v1.GetViewerTestEndpointResponse
-	(*GetDataScientistTestEndpointResponse)(nil),      // 13: chalk.server.v1.GetDataScientistTestEndpointResponse
-	(*GetDeveloperTestEndpointResponse)(nil),          // 14: chalk.server.v1.GetDeveloperTestEndpointResponse
-	(*GetAdminTestEndpointResponse)(nil),              // 15: chalk.server.v1.GetAdminTestEndpointResponse
-	(*GetOwnerTestEndpointResponse)(nil),              // 16: chalk.server.v1.GetOwnerTestEndpointResponse
-	(*GetAuthServiceManagerTestEndpointResponse)(nil), // 17: chalk.server.v1.GetAuthServiceManagerTestEndpointResponse
-	(*GetFeatureFlagTestEndpointResponse)(nil),        // 18: chalk.server.v1.GetFeatureFlagTestEndpointResponse
-	(*GetTeamPermissionOnlyTestEndpointResponse)(nil), // 19: chalk.server.v1.GetTeamPermissionOnlyTestEndpointResponse
+	(*GetUnauthedTestEndpointRequest)(nil),                  // 0: chalk.server.v1.GetUnauthedTestEndpointRequest
+	(*GetAuthedTestEndpointRequest)(nil),                    // 1: chalk.server.v1.GetAuthedTestEndpointRequest
+	(*GetViewerTestEndpointRequest)(nil),                    // 2: chalk.server.v1.GetViewerTestEndpointRequest
+	(*GetDataScientistTestEndpointRequest)(nil),             // 3: chalk.server.v1.GetDataScientistTestEndpointRequest
+	(*GetDeveloperTestEndpointRequest)(nil),                 // 4: chalk.server.v1.GetDeveloperTestEndpointRequest
+	(*GetAdminTestEndpointRequest)(nil),                     // 5: chalk.server.v1.GetAdminTestEndpointRequest
+	(*GetOwnerTestEndpointRequest)(nil),                     // 6: chalk.server.v1.GetOwnerTestEndpointRequest
+	(*GetAuthServiceManagerTestEndpointRequest)(nil),        // 7: chalk.server.v1.GetAuthServiceManagerTestEndpointRequest
+	(*GetFeatureFlagTestEndpointRequest)(nil),               // 8: chalk.server.v1.GetFeatureFlagTestEndpointRequest
+	(*GetTeamPermissionOnlyTestEndpointRequest)(nil),        // 9: chalk.server.v1.GetTeamPermissionOnlyTestEndpointRequest
+	(*GetTeamViewerPermissionOnlyTestEndpointRequest)(nil),  // 10: chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointRequest
+	(*GetUnauthedTestEndpointResponse)(nil),                 // 11: chalk.server.v1.GetUnauthedTestEndpointResponse
+	(*GetAuthedTestEndpointResponse)(nil),                   // 12: chalk.server.v1.GetAuthedTestEndpointResponse
+	(*GetViewerTestEndpointResponse)(nil),                   // 13: chalk.server.v1.GetViewerTestEndpointResponse
+	(*GetDataScientistTestEndpointResponse)(nil),            // 14: chalk.server.v1.GetDataScientistTestEndpointResponse
+	(*GetDeveloperTestEndpointResponse)(nil),                // 15: chalk.server.v1.GetDeveloperTestEndpointResponse
+	(*GetAdminTestEndpointResponse)(nil),                    // 16: chalk.server.v1.GetAdminTestEndpointResponse
+	(*GetOwnerTestEndpointResponse)(nil),                    // 17: chalk.server.v1.GetOwnerTestEndpointResponse
+	(*GetAuthServiceManagerTestEndpointResponse)(nil),       // 18: chalk.server.v1.GetAuthServiceManagerTestEndpointResponse
+	(*GetFeatureFlagTestEndpointResponse)(nil),              // 19: chalk.server.v1.GetFeatureFlagTestEndpointResponse
+	(*GetTeamPermissionOnlyTestEndpointResponse)(nil),       // 20: chalk.server.v1.GetTeamPermissionOnlyTestEndpointResponse
+	(*GetTeamViewerPermissionOnlyTestEndpointResponse)(nil), // 21: chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointResponse
 }
 var file_chalk_server_v1_authtesting_proto_depIdxs = []int32{
 	0,  // 0: chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint:input_type -> chalk.server.v1.GetUnauthedTestEndpointRequest
@@ -839,18 +916,20 @@ var file_chalk_server_v1_authtesting_proto_depIdxs = []int32{
 	7,  // 7: chalk.server.v1.AuthTestingService.GetAuthServiceManagerTestEndpoint:input_type -> chalk.server.v1.GetAuthServiceManagerTestEndpointRequest
 	8,  // 8: chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint:input_type -> chalk.server.v1.GetFeatureFlagTestEndpointRequest
 	9,  // 9: chalk.server.v1.AuthTestingService.GetTeamPermissionOnlyTestEndpoint:input_type -> chalk.server.v1.GetTeamPermissionOnlyTestEndpointRequest
-	10, // 10: chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint:output_type -> chalk.server.v1.GetUnauthedTestEndpointResponse
-	11, // 11: chalk.server.v1.AuthTestingService.GetAuthedTestEndpoint:output_type -> chalk.server.v1.GetAuthedTestEndpointResponse
-	12, // 12: chalk.server.v1.AuthTestingService.GetViewerTestEndpoint:output_type -> chalk.server.v1.GetViewerTestEndpointResponse
-	13, // 13: chalk.server.v1.AuthTestingService.GetDataScientistTestEndpoint:output_type -> chalk.server.v1.GetDataScientistTestEndpointResponse
-	14, // 14: chalk.server.v1.AuthTestingService.GetDeveloperTestEndpoint:output_type -> chalk.server.v1.GetDeveloperTestEndpointResponse
-	15, // 15: chalk.server.v1.AuthTestingService.GetAdminTestEndpoint:output_type -> chalk.server.v1.GetAdminTestEndpointResponse
-	16, // 16: chalk.server.v1.AuthTestingService.GetOwnerTestEndpoint:output_type -> chalk.server.v1.GetOwnerTestEndpointResponse
-	17, // 17: chalk.server.v1.AuthTestingService.GetAuthServiceManagerTestEndpoint:output_type -> chalk.server.v1.GetAuthServiceManagerTestEndpointResponse
-	18, // 18: chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint:output_type -> chalk.server.v1.GetFeatureFlagTestEndpointResponse
-	19, // 19: chalk.server.v1.AuthTestingService.GetTeamPermissionOnlyTestEndpoint:output_type -> chalk.server.v1.GetTeamPermissionOnlyTestEndpointResponse
-	10, // [10:20] is the sub-list for method output_type
-	0,  // [0:10] is the sub-list for method input_type
+	10, // 10: chalk.server.v1.AuthTestingService.GetTeamViewerPermissionOnlyTestEndpoint:input_type -> chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointRequest
+	11, // 11: chalk.server.v1.AuthTestingService.GetUnauthedTestEndpoint:output_type -> chalk.server.v1.GetUnauthedTestEndpointResponse
+	12, // 12: chalk.server.v1.AuthTestingService.GetAuthedTestEndpoint:output_type -> chalk.server.v1.GetAuthedTestEndpointResponse
+	13, // 13: chalk.server.v1.AuthTestingService.GetViewerTestEndpoint:output_type -> chalk.server.v1.GetViewerTestEndpointResponse
+	14, // 14: chalk.server.v1.AuthTestingService.GetDataScientistTestEndpoint:output_type -> chalk.server.v1.GetDataScientistTestEndpointResponse
+	15, // 15: chalk.server.v1.AuthTestingService.GetDeveloperTestEndpoint:output_type -> chalk.server.v1.GetDeveloperTestEndpointResponse
+	16, // 16: chalk.server.v1.AuthTestingService.GetAdminTestEndpoint:output_type -> chalk.server.v1.GetAdminTestEndpointResponse
+	17, // 17: chalk.server.v1.AuthTestingService.GetOwnerTestEndpoint:output_type -> chalk.server.v1.GetOwnerTestEndpointResponse
+	18, // 18: chalk.server.v1.AuthTestingService.GetAuthServiceManagerTestEndpoint:output_type -> chalk.server.v1.GetAuthServiceManagerTestEndpointResponse
+	19, // 19: chalk.server.v1.AuthTestingService.GetFeatureFlagTestEndpoint:output_type -> chalk.server.v1.GetFeatureFlagTestEndpointResponse
+	20, // 20: chalk.server.v1.AuthTestingService.GetTeamPermissionOnlyTestEndpoint:output_type -> chalk.server.v1.GetTeamPermissionOnlyTestEndpointResponse
+	21, // 21: chalk.server.v1.AuthTestingService.GetTeamViewerPermissionOnlyTestEndpoint:output_type -> chalk.server.v1.GetTeamViewerPermissionOnlyTestEndpointResponse
+	11, // [11:22] is the sub-list for method output_type
+	0,  // [0:11] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -867,7 +946,7 @@ func file_chalk_server_v1_authtesting_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_authtesting_proto_rawDesc), len(file_chalk_server_v1_authtesting_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

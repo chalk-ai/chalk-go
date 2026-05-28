@@ -48,6 +48,9 @@ const (
 	// DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GetDatasetRevisionDownloadLinks RPC.
 	DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetRevisionDownloadLinks"
+	// DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure is the fully-qualified name of
+	// the DatasetMetadataService's StreamDatasetRevisionDownloadLinks RPC.
+	DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure = "/chalk.server.v1.DatasetMetadataService/StreamDatasetRevisionDownloadLinks"
 	// DatasetMetadataServiceRenameDatasetProcedure is the fully-qualified name of the
 	// DatasetMetadataService's RenameDataset RPC.
 	DatasetMetadataServiceRenameDatasetProcedure = "/chalk.server.v1.DatasetMetadataService/RenameDataset"
@@ -63,6 +66,12 @@ const (
 	// DatasetMetadataServiceListMaterializedAggregateTilesProcedure is the fully-qualified name of the
 	// DatasetMetadataService's ListMaterializedAggregateTiles RPC.
 	DatasetMetadataServiceListMaterializedAggregateTilesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTiles"
+	// DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure is the fully-qualified name
+	// of the DatasetMetadataService's ListMaterializedAggregateTileTimelines RPC.
+	DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTileTimelines"
+	// DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure is the fully-qualified
+	// name of the DatasetMetadataService's ListMaterializedAggregateTilesForTimeline RPC.
+	DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTilesForTimeline"
 	// DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure is the fully-qualified name of
 	// the DatasetMetadataService's ListMaterializedAggregateTileFiles RPC.
 	DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTileFiles"
@@ -81,6 +90,12 @@ const (
 	// DatasetMetadataServiceGenerateDatasetEdfsProcedure is the fully-qualified name of the
 	// DatasetMetadataService's GenerateDatasetEdfs RPC.
 	DatasetMetadataServiceGenerateDatasetEdfsProcedure = "/chalk.server.v1.DatasetMetadataService/GenerateDatasetEdfs"
+	// DatasetMetadataServiceGetDatasetUploadUrisProcedure is the fully-qualified name of the
+	// DatasetMetadataService's GetDatasetUploadUris RPC.
+	DatasetMetadataServiceGetDatasetUploadUrisProcedure = "/chalk.server.v1.DatasetMetadataService/GetDatasetUploadUris"
+	// DatasetMetadataServiceFinalizeDatasetUploadProcedure is the fully-qualified name of the
+	// DatasetMetadataService's FinalizeDatasetUpload RPC.
+	DatasetMetadataServiceFinalizeDatasetUploadProcedure = "/chalk.server.v1.DatasetMetadataService/FinalizeDatasetUpload"
 )
 
 // DatasetMetadataServiceClient is a client for the chalk.server.v1.DatasetMetadataService service.
@@ -90,18 +105,44 @@ type DatasetMetadataServiceClient interface {
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
+	// Server-streaming variant of GetDatasetRevisionDownloadLinks. Each emitted
+	// message carries a chunk of download links for the given revision; clients
+	// must concatenate the repeated fields across messages to obtain the full
+	// set. Messages that contain signed URLs also carry the shared expiration
+	// timestamp. Use this RPC when a single response would exceed gRPC
+	// message-size limits or when callers want to begin downloading before all
+	// URLs have been signed.
+	StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest]) (*connect.ServerStreamForClient[v1.StreamDatasetRevisionDownloadLinksResponse], error)
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
 	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	// Deprecated: do not use.
 	ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error)
+	// Timeline skeletons for the TilesTimeline view; manifests are fetched
+	// separately via ListMaterializedAggregateTilesForTimeline.
+	ListMaterializedAggregateTileTimelines(context.Context, *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error)
+	// Full tile manifests for one timeline (one materialization_key_hash).
+	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
 	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
+	// Mint a signed upload URI for a client-side file. Call once per file; the
+	// first call leaves upload_session_id unset and the server returns one.
+	// Subsequent calls should pass the same upload_session_id so the server can
+	// group all objects together under one finalize.
+	GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error)
+	// Finalize an upload session. The server records a new dataset revision
+	// pointing at all objects uploaded under upload_session_id and exposes the
+	// dataset for queries. Each upload_session_id may be finalized at most once;
+	// see FinalizeDatasetUploadRequest for the conflict contract. Not marked
+	// IDEMPOTENT because automatic retries could race against finalize completion
+	// and surface confusing ALREADY_EXISTS errors to callers.
+	FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error)
 }
 
 // NewDatasetMetadataServiceClient constructs a client for the
@@ -150,6 +191,13 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		streamDatasetRevisionDownloadLinks: connect.NewClient[v1.StreamDatasetRevisionDownloadLinksRequest, v1.StreamDatasetRevisionDownloadLinksResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("StreamDatasetRevisionDownloadLinks")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		renameDataset: connect.NewClient[v1.RenameDatasetRequest, v1.RenameDatasetResponse](
 			httpClient,
 			baseURL+DatasetMetadataServiceRenameDatasetProcedure,
@@ -182,6 +230,20 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+DatasetMetadataServiceListMaterializedAggregateTilesProcedure,
 			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTiles")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listMaterializedAggregateTileTimelines: connect.NewClient[v1.ListMaterializedAggregateTileTimelinesRequest, v1.ListMaterializedAggregateTileTimelinesResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTileTimelines")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listMaterializedAggregateTilesForTimeline: connect.NewClient[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTilesForTimeline")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -225,27 +287,44 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
 			connect.WithClientOptions(opts...),
 		),
+		getDatasetUploadUris: connect.NewClient[v1.GetDatasetUploadUrisRequest, v1.GetDatasetUploadUrisResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetDatasetUploadUrisProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetUploadUris")),
+			connect.WithClientOptions(opts...),
+		),
+		finalizeDatasetUpload: connect.NewClient[v1.FinalizeDatasetUploadRequest, v1.FinalizeDatasetUploadResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceFinalizeDatasetUploadProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("FinalizeDatasetUpload")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // datasetMetadataServiceClient implements DatasetMetadataServiceClient.
 type datasetMetadataServiceClient struct {
-	listDatasets                       *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
-	getDataset                         *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
-	listDatasetRevisions               *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
-	getDatasetRevision                 *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
-	getDatasetRevisionDownloadLinks    *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
-	renameDataset                      *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
-	archiveDatasetRevision             *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
-	archiveDatasetRevisions            *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
-	deleteDataset                      *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
-	listMaterializedAggregateTiles     *connect.Client[v1.ListMaterializedAggregateTilesRequest, v1.ListMaterializedAggregateTilesResponse]
-	listMaterializedAggregateTileFiles *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
-	deleteMaterializedAggregateTile    *connect.Client[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse]
-	getDatasetRevisionPreview          *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
-	generateDatasetStats               *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
-	getDatasetEdfs                     *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
-	generateDatasetEdfs                *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
+	listDatasets                              *connect.Client[v1.ListDatasetsRequest, v1.ListDatasetsResponse]
+	getDataset                                *connect.Client[v1.GetDatasetRequest, v1.GetDatasetResponse]
+	listDatasetRevisions                      *connect.Client[v1.ListDatasetRevisionsRequest, v1.ListDatasetRevisionsResponse]
+	getDatasetRevision                        *connect.Client[v1.GetDatasetRevisionRequest, v1.GetDatasetRevisionResponse]
+	getDatasetRevisionDownloadLinks           *connect.Client[v1.GetDatasetRevisionDownloadLinksRequest, v1.GetDatasetRevisionDownloadLinksResponse]
+	streamDatasetRevisionDownloadLinks        *connect.Client[v1.StreamDatasetRevisionDownloadLinksRequest, v1.StreamDatasetRevisionDownloadLinksResponse]
+	renameDataset                             *connect.Client[v1.RenameDatasetRequest, v1.RenameDatasetResponse]
+	archiveDatasetRevision                    *connect.Client[v1.ArchiveDatasetRevisionRequest, v1.ArchiveDatasetRevisionResponse]
+	archiveDatasetRevisions                   *connect.Client[v1.ArchiveDatasetRevisionsRequest, v1.ArchiveDatasetRevisionsResponse]
+	deleteDataset                             *connect.Client[v1.DeleteDatasetRequest, v1.DeleteDatasetResponse]
+	listMaterializedAggregateTiles            *connect.Client[v1.ListMaterializedAggregateTilesRequest, v1.ListMaterializedAggregateTilesResponse]
+	listMaterializedAggregateTileTimelines    *connect.Client[v1.ListMaterializedAggregateTileTimelinesRequest, v1.ListMaterializedAggregateTileTimelinesResponse]
+	listMaterializedAggregateTilesForTimeline *connect.Client[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse]
+	listMaterializedAggregateTileFiles        *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
+	deleteMaterializedAggregateTile           *connect.Client[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse]
+	getDatasetRevisionPreview                 *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
+	generateDatasetStats                      *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
+	getDatasetEdfs                            *connect.Client[v1.GetDatasetEdfsRequest, v1.GetDatasetEdfsResponse]
+	generateDatasetEdfs                       *connect.Client[v1.GenerateDatasetEdfsRequest, v1.GenerateDatasetEdfsResponse]
+	getDatasetUploadUris                      *connect.Client[v1.GetDatasetUploadUrisRequest, v1.GetDatasetUploadUrisResponse]
+	finalizeDatasetUpload                     *connect.Client[v1.FinalizeDatasetUploadRequest, v1.FinalizeDatasetUploadResponse]
 }
 
 // ListDatasets calls chalk.server.v1.DatasetMetadataService.ListDatasets.
@@ -274,6 +353,12 @@ func (c *datasetMetadataServiceClient) GetDatasetRevisionDownloadLinks(ctx conte
 	return c.getDatasetRevisionDownloadLinks.CallUnary(ctx, req)
 }
 
+// StreamDatasetRevisionDownloadLinks calls
+// chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks.
+func (c *datasetMetadataServiceClient) StreamDatasetRevisionDownloadLinks(ctx context.Context, req *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest]) (*connect.ServerStreamForClient[v1.StreamDatasetRevisionDownloadLinksResponse], error) {
+	return c.streamDatasetRevisionDownloadLinks.CallServerStream(ctx, req)
+}
+
 // RenameDataset calls chalk.server.v1.DatasetMetadataService.RenameDataset.
 func (c *datasetMetadataServiceClient) RenameDataset(ctx context.Context, req *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error) {
 	return c.renameDataset.CallUnary(ctx, req)
@@ -298,8 +383,22 @@ func (c *datasetMetadataServiceClient) DeleteDataset(ctx context.Context, req *c
 
 // ListMaterializedAggregateTiles calls
 // chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles.
+//
+// Deprecated: do not use.
 func (c *datasetMetadataServiceClient) ListMaterializedAggregateTiles(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error) {
 	return c.listMaterializedAggregateTiles.CallUnary(ctx, req)
+}
+
+// ListMaterializedAggregateTileTimelines calls
+// chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines.
+func (c *datasetMetadataServiceClient) ListMaterializedAggregateTileTimelines(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error) {
+	return c.listMaterializedAggregateTileTimelines.CallUnary(ctx, req)
+}
+
+// ListMaterializedAggregateTilesForTimeline calls
+// chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline.
+func (c *datasetMetadataServiceClient) ListMaterializedAggregateTilesForTimeline(ctx context.Context, req *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {
+	return c.listMaterializedAggregateTilesForTimeline.CallUnary(ctx, req)
 }
 
 // ListMaterializedAggregateTileFiles calls
@@ -334,6 +433,16 @@ func (c *datasetMetadataServiceClient) GenerateDatasetEdfs(ctx context.Context, 
 	return c.generateDatasetEdfs.CallUnary(ctx, req)
 }
 
+// GetDatasetUploadUris calls chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris.
+func (c *datasetMetadataServiceClient) GetDatasetUploadUris(ctx context.Context, req *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error) {
+	return c.getDatasetUploadUris.CallUnary(ctx, req)
+}
+
+// FinalizeDatasetUpload calls chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload.
+func (c *datasetMetadataServiceClient) FinalizeDatasetUpload(ctx context.Context, req *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error) {
+	return c.finalizeDatasetUpload.CallUnary(ctx, req)
+}
+
 // DatasetMetadataServiceHandler is an implementation of the chalk.server.v1.DatasetMetadataService
 // service.
 type DatasetMetadataServiceHandler interface {
@@ -342,18 +451,44 @@ type DatasetMetadataServiceHandler interface {
 	ListDatasetRevisions(context.Context, *connect.Request[v1.ListDatasetRevisionsRequest]) (*connect.Response[v1.ListDatasetRevisionsResponse], error)
 	GetDatasetRevision(context.Context, *connect.Request[v1.GetDatasetRevisionRequest]) (*connect.Response[v1.GetDatasetRevisionResponse], error)
 	GetDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.GetDatasetRevisionDownloadLinksRequest]) (*connect.Response[v1.GetDatasetRevisionDownloadLinksResponse], error)
+	// Server-streaming variant of GetDatasetRevisionDownloadLinks. Each emitted
+	// message carries a chunk of download links for the given revision; clients
+	// must concatenate the repeated fields across messages to obtain the full
+	// set. Messages that contain signed URLs also carry the shared expiration
+	// timestamp. Use this RPC when a single response would exceed gRPC
+	// message-size limits or when callers want to begin downloading before all
+	// URLs have been signed.
+	StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest], *connect.ServerStream[v1.StreamDatasetRevisionDownloadLinksResponse]) error
 	RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error)
 	// Deprecated: do not use.
 	ArchiveDatasetRevision(context.Context, *connect.Request[v1.ArchiveDatasetRevisionRequest]) (*connect.Response[v1.ArchiveDatasetRevisionResponse], error)
 	ArchiveDatasetRevisions(context.Context, *connect.Request[v1.ArchiveDatasetRevisionsRequest]) (*connect.Response[v1.ArchiveDatasetRevisionsResponse], error)
 	DeleteDataset(context.Context, *connect.Request[v1.DeleteDatasetRequest]) (*connect.Response[v1.DeleteDatasetResponse], error)
+	// Deprecated: do not use.
 	ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error)
+	// Timeline skeletons for the TilesTimeline view; manifests are fetched
+	// separately via ListMaterializedAggregateTilesForTimeline.
+	ListMaterializedAggregateTileTimelines(context.Context, *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error)
+	// Full tile manifests for one timeline (one materialization_key_hash).
+	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
 	GetDatasetEdfs(context.Context, *connect.Request[v1.GetDatasetEdfsRequest]) (*connect.Response[v1.GetDatasetEdfsResponse], error)
 	GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error)
+	// Mint a signed upload URI for a client-side file. Call once per file; the
+	// first call leaves upload_session_id unset and the server returns one.
+	// Subsequent calls should pass the same upload_session_id so the server can
+	// group all objects together under one finalize.
+	GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error)
+	// Finalize an upload session. The server records a new dataset revision
+	// pointing at all objects uploaded under upload_session_id and exposes the
+	// dataset for queries. Each upload_session_id may be finalized at most once;
+	// see FinalizeDatasetUploadRequest for the conflict contract. Not marked
+	// IDEMPOTENT because automatic retries could race against finalize completion
+	// and surface confusing ALREADY_EXISTS errors to callers.
+	FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error)
 }
 
 // NewDatasetMetadataServiceHandler builds an HTTP handler from the service implementation. It
@@ -398,6 +533,13 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceStreamDatasetRevisionDownloadLinksHandler := connect.NewServerStreamHandler(
+		DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure,
+		svc.StreamDatasetRevisionDownloadLinks,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("StreamDatasetRevisionDownloadLinks")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	datasetMetadataServiceRenameDatasetHandler := connect.NewUnaryHandler(
 		DatasetMetadataServiceRenameDatasetProcedure,
 		svc.RenameDataset,
@@ -430,6 +572,20 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		DatasetMetadataServiceListMaterializedAggregateTilesProcedure,
 		svc.ListMaterializedAggregateTiles,
 		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTiles")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceListMaterializedAggregateTileTimelinesHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure,
+		svc.ListMaterializedAggregateTileTimelines,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTileTimelines")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure,
+		svc.ListMaterializedAggregateTilesForTimeline,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("ListMaterializedAggregateTilesForTimeline")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -473,6 +629,18 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithSchema(datasetMetadataServiceMethods.ByName("GenerateDatasetEdfs")),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetDatasetUploadUrisHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetDatasetUploadUrisProcedure,
+		svc.GetDatasetUploadUris,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetDatasetUploadUris")),
+		connect.WithHandlerOptions(opts...),
+	)
+	datasetMetadataServiceFinalizeDatasetUploadHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceFinalizeDatasetUploadProcedure,
+		svc.FinalizeDatasetUpload,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("FinalizeDatasetUpload")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.DatasetMetadataService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case DatasetMetadataServiceListDatasetsProcedure:
@@ -485,6 +653,8 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceGetDatasetRevisionHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionDownloadLinksProcedure:
 			datasetMetadataServiceGetDatasetRevisionDownloadLinksHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceStreamDatasetRevisionDownloadLinksProcedure:
+			datasetMetadataServiceStreamDatasetRevisionDownloadLinksHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceRenameDatasetProcedure:
 			datasetMetadataServiceRenameDatasetHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceArchiveDatasetRevisionProcedure:
@@ -495,6 +665,10 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceDeleteDatasetHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTilesProcedure:
 			datasetMetadataServiceListMaterializedAggregateTilesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceListMaterializedAggregateTileTimelinesProcedure:
+			datasetMetadataServiceListMaterializedAggregateTileTimelinesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceListMaterializedAggregateTilesForTimelineProcedure:
+			datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure:
 			datasetMetadataServiceListMaterializedAggregateTileFilesHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure:
@@ -507,6 +681,10 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceGetDatasetEdfsHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGenerateDatasetEdfsProcedure:
 			datasetMetadataServiceGenerateDatasetEdfsHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetDatasetUploadUrisProcedure:
+			datasetMetadataServiceGetDatasetUploadUrisHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceFinalizeDatasetUploadProcedure:
+			datasetMetadataServiceFinalizeDatasetUploadHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -536,6 +714,10 @@ func (UnimplementedDatasetMetadataServiceHandler) GetDatasetRevisionDownloadLink
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetRevisionDownloadLinks is not implemented"))
 }
 
+func (UnimplementedDatasetMetadataServiceHandler) StreamDatasetRevisionDownloadLinks(context.Context, *connect.Request[v1.StreamDatasetRevisionDownloadLinksRequest], *connect.ServerStream[v1.StreamDatasetRevisionDownloadLinksResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.StreamDatasetRevisionDownloadLinks is not implemented"))
+}
+
 func (UnimplementedDatasetMetadataServiceHandler) RenameDataset(context.Context, *connect.Request[v1.RenameDatasetRequest]) (*connect.Response[v1.RenameDatasetResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.RenameDataset is not implemented"))
 }
@@ -554,6 +736,14 @@ func (UnimplementedDatasetMetadataServiceHandler) DeleteDataset(context.Context,
 
 func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTiles is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileTimelines(context.Context, *connect.Request[v1.ListMaterializedAggregateTileTimelinesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileTimelinesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileTimelines is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTilesForTimeline is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error) {
@@ -578,4 +768,12 @@ func (UnimplementedDatasetMetadataServiceHandler) GetDatasetEdfs(context.Context
 
 func (UnimplementedDatasetMetadataServiceHandler) GenerateDatasetEdfs(context.Context, *connect.Request[v1.GenerateDatasetEdfsRequest]) (*connect.Response[v1.GenerateDatasetEdfsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GenerateDatasetEdfs is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetDatasetUploadUris(context.Context, *connect.Request[v1.GetDatasetUploadUrisRequest]) (*connect.Response[v1.GetDatasetUploadUrisResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetDatasetUploadUris is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) FinalizeDatasetUpload(context.Context, *connect.Request[v1.FinalizeDatasetUploadRequest]) (*connect.Response[v1.FinalizeDatasetUploadResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.FinalizeDatasetUpload is not implemented"))
 }

@@ -674,6 +674,9 @@ type CreateAggregateBackfillJobRequest struct {
 	ResourceGroup       *string                `protobuf:"bytes,8,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	QueryTags           []string               `protobuf:"bytes,9,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
 	StoreOffline        *bool                  `protobuf:"varint,10,opt,name=store_offline,json=storeOffline,proto3,oneof" json:"store_offline,omitempty"`
+	UseMetaplanner      *bool                  `protobuf:"varint,11,opt,name=use_metaplanner,json=useMetaplanner,proto3,oneof" json:"use_metaplanner,omitempty"`
+	AllowEmptyTiles     *bool                  `protobuf:"varint,12,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
+	StoreOnline         *bool                  `protobuf:"varint,13,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -774,6 +777,27 @@ func (x *CreateAggregateBackfillJobRequest) GetQueryTags() []string {
 func (x *CreateAggregateBackfillJobRequest) GetStoreOffline() bool {
 	if x != nil && x.StoreOffline != nil {
 		return *x.StoreOffline
+	}
+	return false
+}
+
+func (x *CreateAggregateBackfillJobRequest) GetUseMetaplanner() bool {
+	if x != nil && x.UseMetaplanner != nil {
+		return *x.UseMetaplanner
+	}
+	return false
+}
+
+func (x *CreateAggregateBackfillJobRequest) GetAllowEmptyTiles() bool {
+	if x != nil && x.AllowEmptyTiles != nil {
+		return *x.AllowEmptyTiles
+	}
+	return false
+}
+
+func (x *CreateAggregateBackfillJobRequest) GetStoreOnline() bool {
+	if x != nil && x.StoreOnline != nil {
+		return *x.StoreOnline
 	}
 	return false
 }
@@ -879,7 +903,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"latest_job\x18\x02 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\tlatestJob\"\x9b\x01\n" +
 	"'GetActiveCronAggregateBackfillsResponse\x12p\n" +
-	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xe8\x04\n" +
+	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xaa\x06\n" +
 	"!CreateAggregateBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
@@ -894,14 +918,20 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"query_tags\x18\t \x03(\tR\tqueryTags\x12(\n" +
 	"\rstore_offline\x18\n" +
-	" \x01(\bH\x06R\fstoreOffline\x88\x01\x01B\x0e\n" +
+	" \x01(\bH\x06R\fstoreOffline\x88\x01\x01\x12,\n" +
+	"\x0fuse_metaplanner\x18\v \x01(\bH\aR\x0euseMetaplanner\x88\x01\x01\x12/\n" +
+	"\x11allow_empty_tiles\x18\f \x01(\bH\bR\x0fallowEmptyTiles\x88\x01\x01\x12&\n" +
+	"\fstore_online\x18\r \x01(\bH\tR\vstoreOnline\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x11\n" +
 	"\x0f_bucket_featureB\x18\n" +
 	"\x16_aggregate_backfill_idB\x11\n" +
 	"\x0f_resource_groupB\x10\n" +
-	"\x0e_store_offline\"\x8c\x01\n" +
+	"\x0e_store_offlineB\x12\n" +
+	"\x10_use_metaplannerB\x14\n" +
+	"\x12_allow_empty_tilesB\x0f\n" +
+	"\r_store_online\"\x8c\x01\n" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +

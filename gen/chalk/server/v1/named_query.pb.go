@@ -11,6 +11,7 @@ import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -287,11 +288,701 @@ func (x *GetAllNamedQueriesActiveDeploymentResponse) GetNamedQueries() []*v1.Nam
 	return nil
 }
 
+// Aggregated summary for a single named query, unioning code-defined
+// NamedQuery declarations in the active deployment with runtime-observed
+// meta_queries rows that share the same query_name. Used to render the
+// unified named-queries index list.
+type NamedQuerySummary struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The shared query name. Always non-empty.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// True when at least one NamedQuery exists for this name in the active
+	// deployment graph.
+	IsCodeDefined bool `protobuf:"varint,2,opt,name=is_code_defined,json=isCodeDefined,proto3" json:"is_code_defined,omitempty"`
+	// Count of distinct (query_name_version) slots known for this name.
+	// Includes versions declared in code that have never been executed, and
+	// distinct query_name_version strings observed on meta_queries rows. Two
+	// versions that match between code and runtime are counted once.
+	VersionCount int32 `protobuf:"varint,3,opt,name=version_count,json=versionCount,proto3" json:"version_count,omitempty"`
+	// Count of distinct meta_queries rows recorded for this name across all
+	// versions. Zero for code-defined names that have never run.
+	MetaQueryCount int32 `protobuf:"varint,4,opt,name=meta_query_count,json=metaQueryCount,proto3" json:"meta_query_count,omitempty"`
+	// Aggregate input feature count. When code-defined, taken from the latest
+	// code-defined version. Otherwise taken from the most recently observed
+	// meta_query for this name.
+	InputCount int32 `protobuf:"varint,5,opt,name=input_count,json=inputCount,proto3" json:"input_count,omitempty"`
+	// Aggregate output feature count. Sourced like input_count.
+	OutputCount int32 `protobuf:"varint,6,opt,name=output_count,json=outputCount,proto3" json:"output_count,omitempty"`
+	// Union of tags drawn from code-defined declarations and runtime
+	// meta_queries. Code-defined values take precedence on conflict.
+	Tags []string `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty"`
+	// Owner email. Code-defined declaration wins when both sources have one.
+	Owner *string `protobuf:"bytes,8,opt,name=owner,proto3,oneof" json:"owner,omitempty"`
+	// Earliest known timestamp for this name. The earliest meta_queries
+	// created_at when present, otherwise the deployment-derived created_at of
+	// the oldest code-defined NamedQuery record.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Greatest meta_queries.last_observed_at across all versions of this name.
+	// Unset for code-defined names that have never run.
+	LastExecutedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=last_executed_at,json=lastExecutedAt,proto3,oneof" json:"last_executed_at,omitempty"`
+	// Version slot to deep-link to: the version whose most recent "event"
+	// (code declaration createdAt or runtime last_observed_at) is the latest.
+	LatestVersion string `protobuf:"bytes,11,opt,name=latest_version,json=latestVersion,proto3" json:"latest_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NamedQuerySummary) Reset() {
+	*x = NamedQuerySummary{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NamedQuerySummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NamedQuerySummary) ProtoMessage() {}
+
+func (x *NamedQuerySummary) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NamedQuerySummary.ProtoReflect.Descriptor instead.
+func (*NamedQuerySummary) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *NamedQuerySummary) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *NamedQuerySummary) GetIsCodeDefined() bool {
+	if x != nil {
+		return x.IsCodeDefined
+	}
+	return false
+}
+
+func (x *NamedQuerySummary) GetVersionCount() int32 {
+	if x != nil {
+		return x.VersionCount
+	}
+	return 0
+}
+
+func (x *NamedQuerySummary) GetMetaQueryCount() int32 {
+	if x != nil {
+		return x.MetaQueryCount
+	}
+	return 0
+}
+
+func (x *NamedQuerySummary) GetInputCount() int32 {
+	if x != nil {
+		return x.InputCount
+	}
+	return 0
+}
+
+func (x *NamedQuerySummary) GetOutputCount() int32 {
+	if x != nil {
+		return x.OutputCount
+	}
+	return 0
+}
+
+func (x *NamedQuerySummary) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *NamedQuerySummary) GetOwner() string {
+	if x != nil && x.Owner != nil {
+		return *x.Owner
+	}
+	return ""
+}
+
+func (x *NamedQuerySummary) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *NamedQuerySummary) GetLastExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastExecutedAt
+	}
+	return nil
+}
+
+func (x *NamedQuerySummary) GetLatestVersion() string {
+	if x != nil {
+		return x.LatestVersion
+	}
+	return ""
+}
+
+// Cursor in the "has been executed" zone — names with at least one
+// meta_queries row, sorted by (last_executed_at DESC, name ASC).
+type NamedQueriesExecutedZoneCursor struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	LastExecutedAt *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=last_executed_at,json=lastExecutedAt,proto3" json:"last_executed_at,omitempty"`
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NamedQueriesExecutedZoneCursor) Reset() {
+	*x = NamedQueriesExecutedZoneCursor{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NamedQueriesExecutedZoneCursor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NamedQueriesExecutedZoneCursor) ProtoMessage() {}
+
+func (x *NamedQueriesExecutedZoneCursor) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NamedQueriesExecutedZoneCursor.ProtoReflect.Descriptor instead.
+func (*NamedQueriesExecutedZoneCursor) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *NamedQueriesExecutedZoneCursor) GetLastExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastExecutedAt
+	}
+	return nil
+}
+
+func (x *NamedQueriesExecutedZoneCursor) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// Cursor in the "never executed" zone — code-defined names with no
+// meta_queries rows, sorted alphabetically by name.
+type NamedQueriesUnexecutedZoneCursor struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NamedQueriesUnexecutedZoneCursor) Reset() {
+	*x = NamedQueriesUnexecutedZoneCursor{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NamedQueriesUnexecutedZoneCursor) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NamedQueriesUnexecutedZoneCursor) ProtoMessage() {}
+
+func (x *NamedQueriesUnexecutedZoneCursor) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NamedQueriesUnexecutedZoneCursor.ProtoReflect.Descriptor instead.
+func (*NamedQueriesUnexecutedZoneCursor) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *NamedQueriesUnexecutedZoneCursor) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// Cursor for ListAllNamedQueries. The result has two ordered zones:
+//  1. Executed zone: names observed at runtime, sorted by
+//     (last_executed_at DESC, name ASC).
+//  2. Unexecuted zone: code-defined names with no runtime data, sorted
+//     alphabetically. Begins once the executed zone is exhausted.
+//
+// The cursor's oneof selects which zone the prior page ended in. An absent
+// page_token on the request means "start at the beginning of the executed
+// zone."
+type ListAllNamedQueriesPageToken struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Position:
+	//
+	//	*ListAllNamedQueriesPageToken_Executed
+	//	*ListAllNamedQueriesPageToken_Unexecuted
+	Position      isListAllNamedQueriesPageToken_Position `protobuf_oneof:"position"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllNamedQueriesPageToken) Reset() {
+	*x = ListAllNamedQueriesPageToken{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllNamedQueriesPageToken) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllNamedQueriesPageToken) ProtoMessage() {}
+
+func (x *ListAllNamedQueriesPageToken) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllNamedQueriesPageToken.ProtoReflect.Descriptor instead.
+func (*ListAllNamedQueriesPageToken) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListAllNamedQueriesPageToken) GetPosition() isListAllNamedQueriesPageToken_Position {
+	if x != nil {
+		return x.Position
+	}
+	return nil
+}
+
+func (x *ListAllNamedQueriesPageToken) GetExecuted() *NamedQueriesExecutedZoneCursor {
+	if x != nil {
+		if x, ok := x.Position.(*ListAllNamedQueriesPageToken_Executed); ok {
+			return x.Executed
+		}
+	}
+	return nil
+}
+
+func (x *ListAllNamedQueriesPageToken) GetUnexecuted() *NamedQueriesUnexecutedZoneCursor {
+	if x != nil {
+		if x, ok := x.Position.(*ListAllNamedQueriesPageToken_Unexecuted); ok {
+			return x.Unexecuted
+		}
+	}
+	return nil
+}
+
+type isListAllNamedQueriesPageToken_Position interface {
+	isListAllNamedQueriesPageToken_Position()
+}
+
+type ListAllNamedQueriesPageToken_Executed struct {
+	Executed *NamedQueriesExecutedZoneCursor `protobuf:"bytes,1,opt,name=executed,proto3,oneof"`
+}
+
+type ListAllNamedQueriesPageToken_Unexecuted struct {
+	Unexecuted *NamedQueriesUnexecutedZoneCursor `protobuf:"bytes,2,opt,name=unexecuted,proto3,oneof"`
+}
+
+func (*ListAllNamedQueriesPageToken_Executed) isListAllNamedQueriesPageToken_Position() {}
+
+func (*ListAllNamedQueriesPageToken_Unexecuted) isListAllNamedQueriesPageToken_Position() {}
+
+type ListAllNamedQueriesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Max rows per page. Server default applies when unset or 0.
+	PageSize *int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	// b64-encoded ListAllNamedQueriesPageToken from a prior response.
+	PageToken *string `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	// When set, only named queries whose name starts with this prefix
+	// (case-insensitive) are returned. Resets pagination — do not send a
+	// page_token from a different prefix.
+	NamePrefix    *string `protobuf:"bytes,3,opt,name=name_prefix,json=namePrefix,proto3,oneof" json:"name_prefix,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllNamedQueriesRequest) Reset() {
+	*x = ListAllNamedQueriesRequest{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllNamedQueriesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllNamedQueriesRequest) ProtoMessage() {}
+
+func (x *ListAllNamedQueriesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllNamedQueriesRequest.ProtoReflect.Descriptor instead.
+func (*ListAllNamedQueriesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListAllNamedQueriesRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListAllNamedQueriesRequest) GetPageToken() string {
+	if x != nil && x.PageToken != nil {
+		return *x.PageToken
+	}
+	return ""
+}
+
+func (x *ListAllNamedQueriesRequest) GetNamePrefix() string {
+	if x != nil && x.NamePrefix != nil {
+		return *x.NamePrefix
+	}
+	return ""
+}
+
+type ListAllNamedQueriesResponse struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	NamedQueries []*NamedQuerySummary   `protobuf:"bytes,1,rep,name=named_queries,json=namedQueries,proto3" json:"named_queries,omitempty"`
+	// Unset when this is the final page.
+	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
+	// Total distinct query names across both zones for the environment.
+	TotalCount    int32 `protobuf:"varint,3,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAllNamedQueriesResponse) Reset() {
+	*x = ListAllNamedQueriesResponse{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAllNamedQueriesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAllNamedQueriesResponse) ProtoMessage() {}
+
+func (x *ListAllNamedQueriesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAllNamedQueriesResponse.ProtoReflect.Descriptor instead.
+func (*ListAllNamedQueriesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListAllNamedQueriesResponse) GetNamedQueries() []*NamedQuerySummary {
+	if x != nil {
+		return x.NamedQueries
+	}
+	return nil
+}
+
+func (x *ListAllNamedQueriesResponse) GetNextPageToken() string {
+	if x != nil && x.NextPageToken != nil {
+		return *x.NextPageToken
+	}
+	return ""
+}
+
+func (x *ListAllNamedQueriesResponse) GetTotalCount() int32 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+// Per-version row used by the named-queries detail page to render the
+// versions table on the code-defined branch. One entry exists for every
+// distinct (query_name, query_name_version) slot known to either source —
+// versions declared in code that have never executed appear here too,
+// with meta_query_count=0 and last_executed_at unset.
+type NamedQueryVersionSummary struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The version string for this slot. Empty string is the unversioned
+	// slot — versions declared in code with no version, and runtime queries
+	// that ran without a query_name_version, both collapse here.
+	QueryVersion string `protobuf:"bytes,1,opt,name=query_version,json=queryVersion,proto3" json:"query_version,omitempty"`
+	// True when a NamedQuery row exists for this (name, version) in any
+	// deployment for this environment (not limited to the active deployment).
+	IsCodeDefined bool `protobuf:"varint,2,opt,name=is_code_defined,json=isCodeDefined,proto3" json:"is_code_defined,omitempty"`
+	// Distinct meta_queries rows recorded for this (name, version).
+	MetaQueryCount int32 `protobuf:"varint,3,opt,name=meta_query_count,json=metaQueryCount,proto3" json:"meta_query_count,omitempty"`
+	// Greatest meta_queries.last_observed_at across this (name, version).
+	// Unset for code-defined versions that have never run.
+	LastExecutedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=last_executed_at,json=lastExecutedAt,proto3,oneof" json:"last_executed_at,omitempty"`
+	// Earliest meta_queries.created_at for this (name, version).
+	// Unset for code-defined versions that have never run.
+	FirstExecutedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=first_executed_at,json=firstExecutedAt,proto3,oneof" json:"first_executed_at,omitempty"`
+	// Earliest NamedQuery."createdAt" for this (name, version) across all
+	// deployments. Unset for runtime-only versions with no code declaration.
+	FirstDeployed *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=first_deployed,json=firstDeployed,proto3,oneof" json:"first_deployed,omitempty"`
+	// Latest NamedQuery."createdAt" for this (name, version) across all
+	// deployments. Unset for runtime-only versions with no code declaration.
+	LastDeployed *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=last_deployed,json=lastDeployed,proto3,oneof" json:"last_deployed,omitempty"`
+	// Deployment ID corresponding to first_deployed.
+	FirstDeploymentId *string `protobuf:"bytes,8,opt,name=first_deployment_id,json=firstDeploymentId,proto3,oneof" json:"first_deployment_id,omitempty"`
+	// Deployment ID corresponding to last_deployed.
+	LastDeploymentId *string `protobuf:"bytes,9,opt,name=last_deployment_id,json=lastDeploymentId,proto3,oneof" json:"last_deployment_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *NamedQueryVersionSummary) Reset() {
+	*x = NamedQueryVersionSummary{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NamedQueryVersionSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NamedQueryVersionSummary) ProtoMessage() {}
+
+func (x *NamedQueryVersionSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NamedQueryVersionSummary.ProtoReflect.Descriptor instead.
+func (*NamedQueryVersionSummary) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *NamedQueryVersionSummary) GetQueryVersion() string {
+	if x != nil {
+		return x.QueryVersion
+	}
+	return ""
+}
+
+func (x *NamedQueryVersionSummary) GetIsCodeDefined() bool {
+	if x != nil {
+		return x.IsCodeDefined
+	}
+	return false
+}
+
+func (x *NamedQueryVersionSummary) GetMetaQueryCount() int32 {
+	if x != nil {
+		return x.MetaQueryCount
+	}
+	return 0
+}
+
+func (x *NamedQueryVersionSummary) GetLastExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastExecutedAt
+	}
+	return nil
+}
+
+func (x *NamedQueryVersionSummary) GetFirstExecutedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FirstExecutedAt
+	}
+	return nil
+}
+
+func (x *NamedQueryVersionSummary) GetFirstDeployed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FirstDeployed
+	}
+	return nil
+}
+
+func (x *NamedQueryVersionSummary) GetLastDeployed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastDeployed
+	}
+	return nil
+}
+
+func (x *NamedQueryVersionSummary) GetFirstDeploymentId() string {
+	if x != nil && x.FirstDeploymentId != nil {
+		return *x.FirstDeploymentId
+	}
+	return ""
+}
+
+func (x *NamedQueryVersionSummary) GetLastDeploymentId() string {
+	if x != nil && x.LastDeploymentId != nil {
+		return *x.LastDeploymentId
+	}
+	return ""
+}
+
+type ListNamedQueryVersionsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The named query name to list versions for. Required.
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNamedQueryVersionsRequest) Reset() {
+	*x = ListNamedQueryVersionsRequest{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNamedQueryVersionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNamedQueryVersionsRequest) ProtoMessage() {}
+
+func (x *ListNamedQueryVersionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNamedQueryVersionsRequest.ProtoReflect.Descriptor instead.
+func (*ListNamedQueryVersionsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ListNamedQueryVersionsRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type ListNamedQueryVersionsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Sorted by last_executed_at descending with NULL last (so never-run
+	// code-defined versions fall to the bottom), breaking ties by
+	// query_version ascending.
+	Versions      []*NamedQueryVersionSummary `protobuf:"bytes,1,rep,name=versions,proto3" json:"versions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNamedQueryVersionsResponse) Reset() {
+	*x = ListNamedQueryVersionsResponse{}
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNamedQueryVersionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNamedQueryVersionsResponse) ProtoMessage() {}
+
+func (x *ListNamedQueryVersionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_named_query_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNamedQueryVersionsResponse.ProtoReflect.Descriptor instead.
+func (*ListNamedQueryVersionsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_named_query_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListNamedQueryVersionsResponse) GetVersions() []*NamedQueryVersionSummary {
+	if x != nil {
+		return x.Versions
+	}
+	return nil
+}
+
 var File_chalk_server_v1_named_query_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_named_query_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/named_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/graph/v1/graph.proto\"@\n" +
+	"!chalk/server/v1/named_query.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/graph/v1/graph.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"@\n" +
 	"\x19GetAllNamedQueriesRequest\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\tR\fdeploymentId\"l\n" +
 	"\x1aGetNamedQueryByNameRequest\x12\x12\n" +
@@ -304,11 +995,78 @@ const file_chalk_server_v1_named_query_proto_rawDesc = "" +
 	"\rnamed_queries\x18\x01 \x03(\v2\x1a.chalk.graph.v1.NamedQueryR\fnamedQueries\"+\n" +
 	")GetAllNamedQueriesActiveDeploymentRequest\"m\n" +
 	"*GetAllNamedQueriesActiveDeploymentResponse\x12?\n" +
-	"\rnamed_queries\x18\x01 \x03(\v2\x1a.chalk.graph.v1.NamedQueryR\fnamedQueries2\xac\x03\n" +
+	"\rnamed_queries\x18\x01 \x03(\v2\x1a.chalk.graph.v1.NamedQueryR\fnamedQueries\"\xdd\x03\n" +
+	"\x11NamedQuerySummary\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12&\n" +
+	"\x0fis_code_defined\x18\x02 \x01(\bR\risCodeDefined\x12#\n" +
+	"\rversion_count\x18\x03 \x01(\x05R\fversionCount\x12(\n" +
+	"\x10meta_query_count\x18\x04 \x01(\x05R\x0emetaQueryCount\x12\x1f\n" +
+	"\vinput_count\x18\x05 \x01(\x05R\n" +
+	"inputCount\x12!\n" +
+	"\foutput_count\x18\x06 \x01(\x05R\voutputCount\x12\x12\n" +
+	"\x04tags\x18\a \x03(\tR\x04tags\x12\x19\n" +
+	"\x05owner\x18\b \x01(\tH\x00R\x05owner\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12I\n" +
+	"\x10last_executed_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x0elastExecutedAt\x88\x01\x01\x12%\n" +
+	"\x0elatest_version\x18\v \x01(\tR\rlatestVersionB\b\n" +
+	"\x06_ownerB\x13\n" +
+	"\x11_last_executed_at\"z\n" +
+	"\x1eNamedQueriesExecutedZoneCursor\x12D\n" +
+	"\x10last_executed_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastExecutedAt\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"6\n" +
+	" NamedQueriesUnexecutedZoneCursor\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\xce\x01\n" +
+	"\x1cListAllNamedQueriesPageToken\x12M\n" +
+	"\bexecuted\x18\x01 \x01(\v2/.chalk.server.v1.NamedQueriesExecutedZoneCursorH\x00R\bexecuted\x12S\n" +
+	"\n" +
+	"unexecuted\x18\x02 \x01(\v21.chalk.server.v1.NamedQueriesUnexecutedZoneCursorH\x00R\n" +
+	"unexecutedB\n" +
+	"\n" +
+	"\bposition\"\xb5\x01\n" +
+	"\x1aListAllNamedQueriesRequest\x12 \n" +
+	"\tpage_size\x18\x01 \x01(\x05H\x00R\bpageSize\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"page_token\x18\x02 \x01(\tH\x01R\tpageToken\x88\x01\x01\x12$\n" +
+	"\vname_prefix\x18\x03 \x01(\tH\x02R\n" +
+	"namePrefix\x88\x01\x01B\f\n" +
+	"\n" +
+	"_page_sizeB\r\n" +
+	"\v_page_tokenB\x0e\n" +
+	"\f_name_prefix\"\xc8\x01\n" +
+	"\x1bListAllNamedQueriesResponse\x12G\n" +
+	"\rnamed_queries\x18\x01 \x03(\v2\".chalk.server.v1.NamedQuerySummaryR\fnamedQueries\x12+\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01\x12\x1f\n" +
+	"\vtotal_count\x18\x03 \x01(\x05R\n" +
+	"totalCountB\x12\n" +
+	"\x10_next_page_token\"\x9e\x05\n" +
+	"\x18NamedQueryVersionSummary\x12#\n" +
+	"\rquery_version\x18\x01 \x01(\tR\fqueryVersion\x12&\n" +
+	"\x0fis_code_defined\x18\x02 \x01(\bR\risCodeDefined\x12(\n" +
+	"\x10meta_query_count\x18\x03 \x01(\x05R\x0emetaQueryCount\x12I\n" +
+	"\x10last_executed_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0elastExecutedAt\x88\x01\x01\x12K\n" +
+	"\x11first_executed_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x0ffirstExecutedAt\x88\x01\x01\x12F\n" +
+	"\x0efirst_deployed\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\rfirstDeployed\x88\x01\x01\x12D\n" +
+	"\rlast_deployed\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x03R\flastDeployed\x88\x01\x01\x123\n" +
+	"\x13first_deployment_id\x18\b \x01(\tH\x04R\x11firstDeploymentId\x88\x01\x01\x121\n" +
+	"\x12last_deployment_id\x18\t \x01(\tH\x05R\x10lastDeploymentId\x88\x01\x01B\x13\n" +
+	"\x11_last_executed_atB\x14\n" +
+	"\x12_first_executed_atB\x11\n" +
+	"\x0f_first_deployedB\x10\n" +
+	"\x0e_last_deployedB\x16\n" +
+	"\x14_first_deployment_idB\x15\n" +
+	"\x13_last_deployment_id\"3\n" +
+	"\x1dListNamedQueryVersionsRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"g\n" +
+	"\x1eListNamedQueryVersionsResponse\x12E\n" +
+	"\bversions\x18\x01 \x03(\v2).chalk.server.v1.NamedQueryVersionSummaryR\bversions2\xaa\x05\n" +
 	"\x11NamedQueryService\x12u\n" +
 	"\x12GetAllNamedQueries\x12*.chalk.server.v1.GetAllNamedQueriesRequest\x1a+.chalk.server.v1.GetAllNamedQueriesResponse\"\x06\x80}\v\x90\x02\x01\x12\xa5\x01\n" +
 	"\"GetAllNamedQueriesActiveDeployment\x12:.chalk.server.v1.GetAllNamedQueriesActiveDeploymentRequest\x1a;.chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
-	"\x13GetNamedQueryByName\x12+.chalk.server.v1.GetNamedQueryByNameRequest\x1a,.chalk.server.v1.GetNamedQueryByNameResponse\"\x06\x80}\v\x90\x02\x01B\xbf\x01\n" +
+	"\x13GetNamedQueryByName\x12+.chalk.server.v1.GetNamedQueryByNameRequest\x1a,.chalk.server.v1.GetNamedQueryByNameResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
+	"\x13ListAllNamedQueries\x12+.chalk.server.v1.ListAllNamedQueriesRequest\x1a,.chalk.server.v1.ListAllNamedQueriesResponse\"\x06\x80}\v\x90\x02\x01\x12\x81\x01\n" +
+	"\x16ListNamedQueryVersions\x12..chalk.server.v1.ListNamedQueryVersionsRequest\x1a/.chalk.server.v1.ListNamedQueryVersionsResponse\"\x06\x80}\v\x90\x02\x01B\xbf\x01\n" +
 	"\x13com.chalk.server.v1B\x0fNamedQueryProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -323,7 +1081,7 @@ func file_chalk_server_v1_named_query_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_named_query_proto_rawDescData
 }
 
-var file_chalk_server_v1_named_query_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_chalk_server_v1_named_query_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_chalk_server_v1_named_query_proto_goTypes = []any{
 	(*GetAllNamedQueriesRequest)(nil),                  // 0: chalk.server.v1.GetAllNamedQueriesRequest
 	(*GetNamedQueryByNameRequest)(nil),                 // 1: chalk.server.v1.GetNamedQueryByNameRequest
@@ -331,23 +1089,48 @@ var file_chalk_server_v1_named_query_proto_goTypes = []any{
 	(*GetAllNamedQueriesResponse)(nil),                 // 3: chalk.server.v1.GetAllNamedQueriesResponse
 	(*GetAllNamedQueriesActiveDeploymentRequest)(nil),  // 4: chalk.server.v1.GetAllNamedQueriesActiveDeploymentRequest
 	(*GetAllNamedQueriesActiveDeploymentResponse)(nil), // 5: chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse
-	(*v1.NamedQuery)(nil),                              // 6: chalk.graph.v1.NamedQuery
+	(*NamedQuerySummary)(nil),                          // 6: chalk.server.v1.NamedQuerySummary
+	(*NamedQueriesExecutedZoneCursor)(nil),             // 7: chalk.server.v1.NamedQueriesExecutedZoneCursor
+	(*NamedQueriesUnexecutedZoneCursor)(nil),           // 8: chalk.server.v1.NamedQueriesUnexecutedZoneCursor
+	(*ListAllNamedQueriesPageToken)(nil),               // 9: chalk.server.v1.ListAllNamedQueriesPageToken
+	(*ListAllNamedQueriesRequest)(nil),                 // 10: chalk.server.v1.ListAllNamedQueriesRequest
+	(*ListAllNamedQueriesResponse)(nil),                // 11: chalk.server.v1.ListAllNamedQueriesResponse
+	(*NamedQueryVersionSummary)(nil),                   // 12: chalk.server.v1.NamedQueryVersionSummary
+	(*ListNamedQueryVersionsRequest)(nil),              // 13: chalk.server.v1.ListNamedQueryVersionsRequest
+	(*ListNamedQueryVersionsResponse)(nil),             // 14: chalk.server.v1.ListNamedQueryVersionsResponse
+	(*v1.NamedQuery)(nil),                              // 15: chalk.graph.v1.NamedQuery
+	(*timestamppb.Timestamp)(nil),                      // 16: google.protobuf.Timestamp
 }
 var file_chalk_server_v1_named_query_proto_depIdxs = []int32{
-	6, // 0: chalk.server.v1.GetNamedQueryByNameResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
-	6, // 1: chalk.server.v1.GetAllNamedQueriesResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
-	6, // 2: chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
-	0, // 3: chalk.server.v1.NamedQueryService.GetAllNamedQueries:input_type -> chalk.server.v1.GetAllNamedQueriesRequest
-	4, // 4: chalk.server.v1.NamedQueryService.GetAllNamedQueriesActiveDeployment:input_type -> chalk.server.v1.GetAllNamedQueriesActiveDeploymentRequest
-	1, // 5: chalk.server.v1.NamedQueryService.GetNamedQueryByName:input_type -> chalk.server.v1.GetNamedQueryByNameRequest
-	3, // 6: chalk.server.v1.NamedQueryService.GetAllNamedQueries:output_type -> chalk.server.v1.GetAllNamedQueriesResponse
-	5, // 7: chalk.server.v1.NamedQueryService.GetAllNamedQueriesActiveDeployment:output_type -> chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse
-	2, // 8: chalk.server.v1.NamedQueryService.GetNamedQueryByName:output_type -> chalk.server.v1.GetNamedQueryByNameResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	15, // 0: chalk.server.v1.GetNamedQueryByNameResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
+	15, // 1: chalk.server.v1.GetAllNamedQueriesResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
+	15, // 2: chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse.named_queries:type_name -> chalk.graph.v1.NamedQuery
+	16, // 3: chalk.server.v1.NamedQuerySummary.created_at:type_name -> google.protobuf.Timestamp
+	16, // 4: chalk.server.v1.NamedQuerySummary.last_executed_at:type_name -> google.protobuf.Timestamp
+	16, // 5: chalk.server.v1.NamedQueriesExecutedZoneCursor.last_executed_at:type_name -> google.protobuf.Timestamp
+	7,  // 6: chalk.server.v1.ListAllNamedQueriesPageToken.executed:type_name -> chalk.server.v1.NamedQueriesExecutedZoneCursor
+	8,  // 7: chalk.server.v1.ListAllNamedQueriesPageToken.unexecuted:type_name -> chalk.server.v1.NamedQueriesUnexecutedZoneCursor
+	6,  // 8: chalk.server.v1.ListAllNamedQueriesResponse.named_queries:type_name -> chalk.server.v1.NamedQuerySummary
+	16, // 9: chalk.server.v1.NamedQueryVersionSummary.last_executed_at:type_name -> google.protobuf.Timestamp
+	16, // 10: chalk.server.v1.NamedQueryVersionSummary.first_executed_at:type_name -> google.protobuf.Timestamp
+	16, // 11: chalk.server.v1.NamedQueryVersionSummary.first_deployed:type_name -> google.protobuf.Timestamp
+	16, // 12: chalk.server.v1.NamedQueryVersionSummary.last_deployed:type_name -> google.protobuf.Timestamp
+	12, // 13: chalk.server.v1.ListNamedQueryVersionsResponse.versions:type_name -> chalk.server.v1.NamedQueryVersionSummary
+	0,  // 14: chalk.server.v1.NamedQueryService.GetAllNamedQueries:input_type -> chalk.server.v1.GetAllNamedQueriesRequest
+	4,  // 15: chalk.server.v1.NamedQueryService.GetAllNamedQueriesActiveDeployment:input_type -> chalk.server.v1.GetAllNamedQueriesActiveDeploymentRequest
+	1,  // 16: chalk.server.v1.NamedQueryService.GetNamedQueryByName:input_type -> chalk.server.v1.GetNamedQueryByNameRequest
+	10, // 17: chalk.server.v1.NamedQueryService.ListAllNamedQueries:input_type -> chalk.server.v1.ListAllNamedQueriesRequest
+	13, // 18: chalk.server.v1.NamedQueryService.ListNamedQueryVersions:input_type -> chalk.server.v1.ListNamedQueryVersionsRequest
+	3,  // 19: chalk.server.v1.NamedQueryService.GetAllNamedQueries:output_type -> chalk.server.v1.GetAllNamedQueriesResponse
+	5,  // 20: chalk.server.v1.NamedQueryService.GetAllNamedQueriesActiveDeployment:output_type -> chalk.server.v1.GetAllNamedQueriesActiveDeploymentResponse
+	2,  // 21: chalk.server.v1.NamedQueryService.GetNamedQueryByName:output_type -> chalk.server.v1.GetNamedQueryByNameResponse
+	11, // 22: chalk.server.v1.NamedQueryService.ListAllNamedQueries:output_type -> chalk.server.v1.ListAllNamedQueriesResponse
+	14, // 23: chalk.server.v1.NamedQueryService.ListNamedQueryVersions:output_type -> chalk.server.v1.ListNamedQueryVersionsResponse
+	19, // [19:24] is the sub-list for method output_type
+	14, // [14:19] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_named_query_proto_init() }
@@ -356,13 +1139,21 @@ func file_chalk_server_v1_named_query_proto_init() {
 		return
 	}
 	file_chalk_server_v1_named_query_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_server_v1_named_query_proto_msgTypes[6].OneofWrappers = []any{}
+	file_chalk_server_v1_named_query_proto_msgTypes[9].OneofWrappers = []any{
+		(*ListAllNamedQueriesPageToken_Executed)(nil),
+		(*ListAllNamedQueriesPageToken_Unexecuted)(nil),
+	}
+	file_chalk_server_v1_named_query_proto_msgTypes[10].OneofWrappers = []any{}
+	file_chalk_server_v1_named_query_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_server_v1_named_query_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_named_query_proto_rawDesc), len(file_chalk_server_v1_named_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -173,6 +173,61 @@ type Client interface {
 	//		}
 	//
 	GetDataset(ctx context.Context, revisionId string) (Dataset, error)
+
+	// ListDatasets returns a page of datasets in the active environment,
+	// ordered by creation time, along with a cursor for fetching the next page.
+	//
+	// Example:
+	//
+	//	// List the most recent datasets
+	//	res, err := client.ListDatasets(ctx, chalk.ListDatasetsParams{})
+	//	if err != nil {
+	//	    return errors.Wrap(err, "listing datasets")
+	//	}
+	//	for _, d := range res.RawResponse.Datasets {
+	//	    fmt.Println(d.DatasetName, d.MostRecentRevision.NumRowsCalculated)
+	//	}
+	//
+	//	// Paginate through all datasets
+	//	cursor := ""
+	//	for {
+	//	    res, err := client.ListDatasets(ctx, chalk.ListDatasetsParams{Cursor: cursor, Limit: 10})
+	//	    if err != nil {
+	//	        return errors.Wrap(err, "listing datasets")
+	//	    }
+	//	    // ... process res.RawResponse.Datasets ...
+	//	    if res.RawResponse.Cursor == "" {
+	//	        break
+	//	    }
+	//	    cursor = res.RawResponse.Cursor
+	//	}
+	ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error)
+
+	// SubmitImageBuild submits a declarative image build and returns the
+	// initial build status. Use BuildImage when you want to wait for the final
+	// image URI.
+	SubmitImageBuild(ctx context.Context, image Image, opts ...BuildImageOption) (ImageBuild, error)
+
+	// BuildImage builds a declarative image and waits until the image is ready
+	// or the context/options deadline is reached.
+	BuildImage(ctx context.Context, image Image, opts ...BuildImageOption) (ImageBuild, error)
+
+	// GetImageBuild retrieves the current status for an image build.
+	GetImageBuild(ctx context.Context, buildID string) (ImageBuild, error)
+
+	// RunContainer starts a managed container. If the container was created with
+	// NewContainer and a declarative Image, the image is built before the
+	// container request is submitted.
+	RunContainer(ctx context.Context, container Container, opts ...RunContainerOption) (ContainerInfo, error)
+
+	// GetContainer retrieves a container by ID or name.
+	GetContainer(ctx context.Context, ref ContainerRef) (ContainerInfo, error)
+
+	// ListContainers lists containers in the active environment.
+	ListContainers(ctx context.Context) ([]ContainerInfo, error)
+
+	// StopContainer stops a running container by ID or name.
+	StopContainer(ctx context.Context, ref ContainerRef, opts ...StopContainerOption) (ContainerInfo, error)
 }
 
 type ClientConfig struct {

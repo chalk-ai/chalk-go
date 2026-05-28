@@ -45,6 +45,9 @@ const (
 	// BillingServiceGetUtilizationRatesProcedure is the fully-qualified name of the BillingService's
 	// GetUtilizationRates RPC.
 	BillingServiceGetUtilizationRatesProcedure = "/chalk.server.v1.BillingService/GetUtilizationRates"
+	// BillingServiceGetAvailableInstanceTypesProcedure is the fully-qualified name of the
+	// BillingService's GetAvailableInstanceTypes RPC.
+	BillingServiceGetAvailableInstanceTypesProcedure = "/chalk.server.v1.BillingService/GetAvailableInstanceTypes"
 	// BillingServiceGetPodRequestChartsProcedure is the fully-qualified name of the BillingService's
 	// GetPodRequestCharts RPC.
 	BillingServiceGetPodRequestChartsProcedure = "/chalk.server.v1.BillingService/GetPodRequestCharts"
@@ -90,6 +93,8 @@ type BillingServiceClient interface {
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
+	// GetAvailableInstanceTypes returns instance type metadata without pricing.
+	GetAvailableInstanceTypes(context.Context, *connect.Request[v1.GetAvailableInstanceTypesRequest]) (*connect.Response[v1.GetAvailableInstanceTypesResponse], error)
 	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 	SyncUtilization(context.Context, *connect.Request[v1.SyncUtilizationRequest]) (*connect.Response[v1.SyncUtilizationResponse], error)
 	// GetCreditBundles returns the available credit bundles for purchase
@@ -145,6 +150,13 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BillingServiceGetUtilizationRatesProcedure,
 			connect.WithSchema(billingServiceMethods.ByName("GetUtilizationRates")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getAvailableInstanceTypes: connect.NewClient[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse](
+			httpClient,
+			baseURL+BillingServiceGetAvailableInstanceTypesProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("GetAvailableInstanceTypes")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -213,6 +225,7 @@ type billingServiceClient struct {
 	getNodesAndPods               *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
 	getUsageChart                 *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates           *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
+	getAvailableInstanceTypes     *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
 	getPodRequestCharts           *connect.Client[v1.GetPodRequestChartsRequest, v1.GetPodRequestChartsResponse]
 	syncUtilization               *connect.Client[v1.SyncUtilizationRequest, v1.SyncUtilizationResponse]
 	getCreditBundles              *connect.Client[v1.GetCreditBundlesRequest, v1.GetCreditBundlesResponse]
@@ -241,6 +254,11 @@ func (c *billingServiceClient) GetUsageChart(ctx context.Context, req *connect.R
 // GetUtilizationRates calls chalk.server.v1.BillingService.GetUtilizationRates.
 func (c *billingServiceClient) GetUtilizationRates(ctx context.Context, req *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error) {
 	return c.getUtilizationRates.CallUnary(ctx, req)
+}
+
+// GetAvailableInstanceTypes calls chalk.server.v1.BillingService.GetAvailableInstanceTypes.
+func (c *billingServiceClient) GetAvailableInstanceTypes(ctx context.Context, req *connect.Request[v1.GetAvailableInstanceTypesRequest]) (*connect.Response[v1.GetAvailableInstanceTypesResponse], error) {
+	return c.getAvailableInstanceTypes.CallUnary(ctx, req)
 }
 
 // GetPodRequestCharts calls chalk.server.v1.BillingService.GetPodRequestCharts.
@@ -302,6 +320,8 @@ type BillingServiceHandler interface {
 	// GetUtilizationRates returns the current utilization rates for all
 	// instance types.
 	GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error)
+	// GetAvailableInstanceTypes returns instance type metadata without pricing.
+	GetAvailableInstanceTypes(context.Context, *connect.Request[v1.GetAvailableInstanceTypesRequest]) (*connect.Response[v1.GetAvailableInstanceTypesResponse], error)
 	GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error)
 	SyncUtilization(context.Context, *connect.Request[v1.SyncUtilizationRequest]) (*connect.Response[v1.SyncUtilizationResponse], error)
 	// GetCreditBundles returns the available credit bundles for purchase
@@ -353,6 +373,13 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		BillingServiceGetUtilizationRatesProcedure,
 		svc.GetUtilizationRates,
 		connect.WithSchema(billingServiceMethods.ByName("GetUtilizationRates")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServiceGetAvailableInstanceTypesHandler := connect.NewUnaryHandler(
+		BillingServiceGetAvailableInstanceTypesProcedure,
+		svc.GetAvailableInstanceTypes,
+		connect.WithSchema(billingServiceMethods.ByName("GetAvailableInstanceTypes")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -422,6 +449,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
 			billingServiceGetUtilizationRatesHandler.ServeHTTP(w, r)
+		case BillingServiceGetAvailableInstanceTypesProcedure:
+			billingServiceGetAvailableInstanceTypesHandler.ServeHTTP(w, r)
 		case BillingServiceGetPodRequestChartsProcedure:
 			billingServiceGetPodRequestChartsHandler.ServeHTTP(w, r)
 		case BillingServiceSyncUtilizationProcedure:
@@ -461,6 +490,10 @@ func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connec
 
 func (UnimplementedBillingServiceHandler) GetUtilizationRates(context.Context, *connect.Request[v1.GetUtilizationRatesRequest]) (*connect.Response[v1.GetUtilizationRatesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetUtilizationRates is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) GetAvailableInstanceTypes(context.Context, *connect.Request[v1.GetAvailableInstanceTypesRequest]) (*connect.Response[v1.GetAvailableInstanceTypesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetAvailableInstanceTypes is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetPodRequestCharts(context.Context, *connect.Request[v1.GetPodRequestChartsRequest]) (*connect.Response[v1.GetPodRequestChartsResponse], error) {

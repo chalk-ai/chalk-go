@@ -7,8 +7,9 @@
 package streamingv1
 
 import (
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -495,6 +496,546 @@ func (x *GetDebugMessagesResponse) GetError() string {
 	return ""
 }
 
+// Same shape as GetDebugMessagesRequest. Kept as a distinct message so v1 and
+// v2 can evolve independently.
+type GetDebugMessagesV2Request struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	ResolverFqn             string                 `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	StartTimestampInclusive *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_timestamp_inclusive,json=startTimestampInclusive,proto3,oneof" json:"start_timestamp_inclusive,omitempty"`
+	EndTimestampExclusive   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_timestamp_exclusive,json=endTimestampExclusive,proto3,oneof" json:"end_timestamp_exclusive,omitempty"`
+	MaxMessages             *int32                 `protobuf:"varint,4,opt,name=max_messages,json=maxMessages,proto3,oneof" json:"max_messages,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetDebugMessagesV2Request) Reset() {
+	*x = GetDebugMessagesV2Request{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDebugMessagesV2Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDebugMessagesV2Request) ProtoMessage() {}
+
+func (x *GetDebugMessagesV2Request) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDebugMessagesV2Request.ProtoReflect.Descriptor instead.
+func (*GetDebugMessagesV2Request) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetDebugMessagesV2Request) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *GetDebugMessagesV2Request) GetStartTimestampInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTimestampInclusive
+	}
+	return nil
+}
+
+func (x *GetDebugMessagesV2Request) GetEndTimestampExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTimestampExclusive
+	}
+	return nil
+}
+
+func (x *GetDebugMessagesV2Request) GetMaxMessages() int32 {
+	if x != nil && x.MaxMessages != nil {
+		return *x.MaxMessages
+	}
+	return 0
+}
+
+// Structured debug response. One entry per stream message ingested in the
+// requested window, plus aggregate counts and a description of how each
+// output feature is computed by the resolver.
+type GetDebugMessagesV2Response struct {
+	state    protoimpl.MessageState   `protogen:"open.v1"`
+	Messages []*StreamingDebugMessage `protobuf:"bytes,1,rep,name=messages,proto3" json:"messages,omitempty"`
+	// STREAMING_MESSAGE_STATUS_SUCCESS rows in `messages`.
+	SuccessCount int64 `protobuf:"varint,2,opt,name=success_count,json=successCount,proto3" json:"success_count,omitempty"`
+	// STREAMING_MESSAGE_STATUS_FAILED rows in `messages`. Note: PARSE_FAILED is
+	// counted under skipped_count, not here — a parse error is treated as an
+	// unprocessable input, not a system fault.
+	FailedCount int64 `protobuf:"varint,3,opt,name=failed_count,json=failedCount,proto3" json:"failed_count,omitempty"`
+	// PARSE_FAILED + PARSE_SKIPPED + DUPLICATE_SKIPPED rows in `messages`.
+	SkippedCount int64 `protobuf:"varint,4,opt,name=skipped_count,json=skippedCount,proto3" json:"skipped_count,omitempty"`
+	// How each output feature is computed by this resolver. Constant across
+	// every returned message, so we surface it once at the top level. Keys are
+	// feature FQNs and match the keys of StreamingDebugMessage.features.
+	FeatureExpressions map[string]*StreamingFeatureExpression `protobuf:"bytes,5,rep,name=feature_expressions,json=featureExpressions,proto3" json:"feature_expressions,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *GetDebugMessagesV2Response) Reset() {
+	*x = GetDebugMessagesV2Response{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDebugMessagesV2Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDebugMessagesV2Response) ProtoMessage() {}
+
+func (x *GetDebugMessagesV2Response) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDebugMessagesV2Response.ProtoReflect.Descriptor instead.
+func (*GetDebugMessagesV2Response) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetDebugMessagesV2Response) GetMessages() []*StreamingDebugMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *GetDebugMessagesV2Response) GetSuccessCount() int64 {
+	if x != nil {
+		return x.SuccessCount
+	}
+	return 0
+}
+
+func (x *GetDebugMessagesV2Response) GetFailedCount() int64 {
+	if x != nil {
+		return x.FailedCount
+	}
+	return 0
+}
+
+func (x *GetDebugMessagesV2Response) GetSkippedCount() int64 {
+	if x != nil {
+		return x.SkippedCount
+	}
+	return 0
+}
+
+func (x *GetDebugMessagesV2Response) GetFeatureExpressions() map[string]*StreamingFeatureExpression {
+	if x != nil {
+		return x.FeatureExpressions
+	}
+	return nil
+}
+
+type GetAggregateMessagesRequest struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	ResolverFqn             string                 `protobuf:"bytes,1,opt,name=resolver_fqn,json=resolverFqn,proto3" json:"resolver_fqn,omitempty"`
+	StartTimestampInclusive *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_timestamp_inclusive,json=startTimestampInclusive,proto3,oneof" json:"start_timestamp_inclusive,omitempty"`
+	EndTimestampExclusive   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_timestamp_exclusive,json=endTimestampExclusive,proto3,oneof" json:"end_timestamp_exclusive,omitempty"`
+	MaxMessages             *int32                 `protobuf:"varint,4,opt,name=max_messages,json=maxMessages,proto3,oneof" json:"max_messages,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *GetAggregateMessagesRequest) Reset() {
+	*x = GetAggregateMessagesRequest{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAggregateMessagesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAggregateMessagesRequest) ProtoMessage() {}
+
+func (x *GetAggregateMessagesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAggregateMessagesRequest.ProtoReflect.Descriptor instead.
+func (*GetAggregateMessagesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetAggregateMessagesRequest) GetResolverFqn() string {
+	if x != nil {
+		return x.ResolverFqn
+	}
+	return ""
+}
+
+func (x *GetAggregateMessagesRequest) GetStartTimestampInclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartTimestampInclusive
+	}
+	return nil
+}
+
+func (x *GetAggregateMessagesRequest) GetEndTimestampExclusive() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndTimestampExclusive
+	}
+	return nil
+}
+
+func (x *GetAggregateMessagesRequest) GetMaxMessages() int32 {
+	if x != nil && x.MaxMessages != nil {
+		return *x.MaxMessages
+	}
+	return 0
+}
+
+type GetAggregateMessagesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Concatenated aggregate output parquet bytes (base64-encoded in transport).
+	Parquet       []byte  `protobuf:"bytes,1,opt,name=parquet,proto3" json:"parquet,omitempty"`
+	Error         *string `protobuf:"bytes,2,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAggregateMessagesResponse) Reset() {
+	*x = GetAggregateMessagesResponse{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAggregateMessagesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAggregateMessagesResponse) ProtoMessage() {}
+
+func (x *GetAggregateMessagesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAggregateMessagesResponse.ProtoReflect.Descriptor instead.
+func (*GetAggregateMessagesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetAggregateMessagesResponse) GetParquet() []byte {
+	if x != nil {
+		return x.Parquet
+	}
+	return nil
+}
+
+func (x *GetAggregateMessagesResponse) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+type StreamingDebugMessage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Stream-assigned message ID.
+	MessageId string `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	// Raw message payload bytes.
+	MessageData []byte `protobuf:"bytes,2,opt,name=message_data,json=messageData,proto3" json:"message_data,omitempty"`
+	// Optional message key (e.g., Kafka key).
+	MessageKey *string `protobuf:"bytes,3,opt,name=message_key,json=messageKey,proto3,oneof" json:"message_key,omitempty"`
+	// Stream-level headers (e.g., Kafka headers). Empty when the source has no
+	// headers or when libchalk's writer didn't produce the optional column.
+	// libchalk emits these as Arrow map<large_utf8, large_binary>.
+	MessageHeaders map[string][]byte `protobuf:"bytes,4,rep,name=message_headers,json=messageHeaders,proto3" json:"message_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// When the upstream stream produced the message.
+	PublishTimestamp *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=publish_timestamp,json=publishTimestamp,proto3" json:"publish_timestamp,omitempty"`
+	// When this debug row was created (used for filtering by time range).
+	IngestTimestamp *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=ingest_timestamp,json=ingestTimestamp,proto3" json:"ingest_timestamp,omitempty"`
+	Status          StreamingMessageStatus `protobuf:"varint,7,opt,name=status,proto3,enum=chalk.streaming.v1.StreamingMessageStatus" json:"status,omitempty"`
+	// Resolver outputs for this message. Keys are feature FQNs.
+	// Populated only when status == STREAMING_MESSAGE_STATUS_SUCCESS;
+	// empty otherwise.
+	Features map[string]*v1.ScalarValue `protobuf:"bytes,8,rep,name=features,proto3" json:"features,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Populated only when status is not STREAMING_MESSAGE_STATUS_SUCCESS.
+	Error         *StreamingDebugMessageError `protobuf:"bytes,9,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamingDebugMessage) Reset() {
+	*x = StreamingDebugMessage{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamingDebugMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamingDebugMessage) ProtoMessage() {}
+
+func (x *StreamingDebugMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamingDebugMessage.ProtoReflect.Descriptor instead.
+func (*StreamingDebugMessage) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *StreamingDebugMessage) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessage) GetMessageData() []byte {
+	if x != nil {
+		return x.MessageData
+	}
+	return nil
+}
+
+func (x *StreamingDebugMessage) GetMessageKey() string {
+	if x != nil && x.MessageKey != nil {
+		return *x.MessageKey
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessage) GetMessageHeaders() map[string][]byte {
+	if x != nil {
+		return x.MessageHeaders
+	}
+	return nil
+}
+
+func (x *StreamingDebugMessage) GetPublishTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PublishTimestamp
+	}
+	return nil
+}
+
+func (x *StreamingDebugMessage) GetIngestTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.IngestTimestamp
+	}
+	return nil
+}
+
+func (x *StreamingDebugMessage) GetStatus() StreamingMessageStatus {
+	if x != nil {
+		return x.Status
+	}
+	return StreamingMessageStatus_STREAMING_MESSAGE_STATUS_UNSPECIFIED
+}
+
+func (x *StreamingDebugMessage) GetFeatures() map[string]*v1.ScalarValue {
+	if x != nil {
+		return x.Features
+	}
+	return nil
+}
+
+func (x *StreamingDebugMessage) GetError() *StreamingDebugMessageError {
+	if x != nil {
+		return x.Error
+	}
+	return nil
+}
+
+type StreamingDebugMessageError struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Phase               ExecutionPhase         `protobuf:"varint,1,opt,name=phase,proto3,enum=chalk.streaming.v1.ExecutionPhase" json:"phase,omitempty"`
+	Message             string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Code                string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
+	ExceptionKind       *string                `protobuf:"bytes,4,opt,name=exception_kind,json=exceptionKind,proto3,oneof" json:"exception_kind,omitempty"`
+	ExceptionStacktrace *string                `protobuf:"bytes,5,opt,name=exception_stacktrace,json=exceptionStacktrace,proto3,oneof" json:"exception_stacktrace,omitempty"`
+	// Feature FQN if the error is feature-specific.
+	Feature       *string `protobuf:"bytes,6,opt,name=feature,proto3,oneof" json:"feature,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamingDebugMessageError) Reset() {
+	*x = StreamingDebugMessageError{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamingDebugMessageError) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamingDebugMessageError) ProtoMessage() {}
+
+func (x *StreamingDebugMessageError) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamingDebugMessageError.ProtoReflect.Descriptor instead.
+func (*StreamingDebugMessageError) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *StreamingDebugMessageError) GetPhase() ExecutionPhase {
+	if x != nil {
+		return x.Phase
+	}
+	return ExecutionPhase_EXECUTION_PHASE_UNSPECIFIED
+}
+
+func (x *StreamingDebugMessageError) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessageError) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessageError) GetExceptionKind() string {
+	if x != nil && x.ExceptionKind != nil {
+		return *x.ExceptionKind
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessageError) GetExceptionStacktrace() string {
+	if x != nil && x.ExceptionStacktrace != nil {
+		return *x.ExceptionStacktrace
+	}
+	return ""
+}
+
+func (x *StreamingDebugMessageError) GetFeature() string {
+	if x != nil && x.Feature != nil {
+		return *x.Feature
+	}
+	return ""
+}
+
+type StreamingFeatureExpression struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Pretty-printed expression as the user wrote it in `output_features={...}`,
+	// e.g. "json_value(_.payload, '$.contents.merchant.state')". Always set.
+	Expression string `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
+	// Set only when `expression` is a trivial top-level
+	// F.json_value(_.payload, "$path") extraction. Lets the UI render the path
+	// inline next to the value without re-parsing the expression.
+	JsonPath      *string `protobuf:"bytes,2,opt,name=json_path,json=jsonPath,proto3,oneof" json:"json_path,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StreamingFeatureExpression) Reset() {
+	*x = StreamingFeatureExpression{}
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StreamingFeatureExpression) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamingFeatureExpression) ProtoMessage() {}
+
+func (x *StreamingFeatureExpression) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamingFeatureExpression.ProtoReflect.Descriptor instead.
+func (*StreamingFeatureExpression) Descriptor() ([]byte, []int) {
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *StreamingFeatureExpression) GetExpression() string {
+	if x != nil {
+		return x.Expression
+	}
+	return ""
+}
+
+func (x *StreamingFeatureExpression) GetJsonPath() string {
+	if x != nil && x.JsonPath != nil {
+		return *x.JsonPath
+	}
+	return ""
+}
+
 // Request to watch for new debug files from a streaming resolver in cloud storage
 type WatchDebugStreamRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -510,7 +1051,7 @@ type WatchDebugStreamRequest struct {
 
 func (x *WatchDebugStreamRequest) Reset() {
 	*x = WatchDebugStreamRequest{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[8]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +1063,7 @@ func (x *WatchDebugStreamRequest) String() string {
 func (*WatchDebugStreamRequest) ProtoMessage() {}
 
 func (x *WatchDebugStreamRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[8]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -535,7 +1076,7 @@ func (x *WatchDebugStreamRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchDebugStreamRequest.ProtoReflect.Descriptor instead.
 func (*WatchDebugStreamRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *WatchDebugStreamRequest) GetBaseUri() string {
@@ -574,7 +1115,7 @@ type WatchDebugStreamResponse struct {
 
 func (x *WatchDebugStreamResponse) Reset() {
 	*x = WatchDebugStreamResponse{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[9]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -586,7 +1127,7 @@ func (x *WatchDebugStreamResponse) String() string {
 func (*WatchDebugStreamResponse) ProtoMessage() {}
 
 func (x *WatchDebugStreamResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[9]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -599,7 +1140,7 @@ func (x *WatchDebugStreamResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchDebugStreamResponse.ProtoReflect.Descriptor instead.
 func (*WatchDebugStreamResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *WatchDebugStreamResponse) GetFilePath() string {
@@ -637,7 +1178,7 @@ type PushTopicRequest struct {
 
 func (x *PushTopicRequest) Reset() {
 	*x = PushTopicRequest{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[10]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -649,7 +1190,7 @@ func (x *PushTopicRequest) String() string {
 func (*PushTopicRequest) ProtoMessage() {}
 
 func (x *PushTopicRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[10]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -662,7 +1203,7 @@ func (x *PushTopicRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushTopicRequest.ProtoReflect.Descriptor instead.
 func (*PushTopicRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *PushTopicRequest) GetTopic() string {
@@ -712,14 +1253,14 @@ type PushTopicResponse struct {
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	Topic         *string                `protobuf:"bytes,2,opt,name=topic,proto3,oneof" json:"topic,omitempty"`
 	Integration   *string                `protobuf:"bytes,3,opt,name=integration,proto3,oneof" json:"integration,omitempty"`
-	Error         *v1.ChalkError         `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error         *v11.ChalkError        `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PushTopicResponse) Reset() {
 	*x = PushTopicResponse{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[11]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +1272,7 @@ func (x *PushTopicResponse) String() string {
 func (*PushTopicResponse) ProtoMessage() {}
 
 func (x *PushTopicResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[11]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +1285,7 @@ func (x *PushTopicResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushTopicResponse.ProtoReflect.Descriptor instead.
 func (*PushTopicResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *PushTopicResponse) GetStatus() string {
@@ -768,7 +1309,7 @@ func (x *PushTopicResponse) GetIntegration() string {
 	return ""
 }
 
-func (x *PushTopicResponse) GetError() *v1.ChalkError {
+func (x *PushTopicResponse) GetError() *v11.ChalkError {
 	if x != nil {
 		return x.Error
 	}
@@ -789,7 +1330,7 @@ type SetStreamingDebugConfigRequest struct {
 
 func (x *SetStreamingDebugConfigRequest) Reset() {
 	*x = SetStreamingDebugConfigRequest{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -801,7 +1342,7 @@ func (x *SetStreamingDebugConfigRequest) String() string {
 func (*SetStreamingDebugConfigRequest) ProtoMessage() {}
 
 func (x *SetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[12]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -814,7 +1355,7 @@ func (x *SetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStreamingDebugConfigRequest.ProtoReflect.Descriptor instead.
 func (*SetStreamingDebugConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SetStreamingDebugConfigRequest) GetResolverFqn() string {
@@ -847,7 +1388,7 @@ type SetStreamingDebugConfigResponse struct {
 
 func (x *SetStreamingDebugConfigResponse) Reset() {
 	*x = SetStreamingDebugConfigResponse{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -859,7 +1400,7 @@ func (x *SetStreamingDebugConfigResponse) String() string {
 func (*SetStreamingDebugConfigResponse) ProtoMessage() {}
 
 func (x *SetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[13]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -872,7 +1413,7 @@ func (x *SetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStreamingDebugConfigResponse.ProtoReflect.Descriptor instead.
 func (*SetStreamingDebugConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SetStreamingDebugConfigResponse) GetLoggerConfig() *StreamingLoggerConfig {
@@ -892,7 +1433,7 @@ type GetStreamingDebugConfigRequest struct {
 
 func (x *GetStreamingDebugConfigRequest) Reset() {
 	*x = GetStreamingDebugConfigRequest{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +1445,7 @@ func (x *GetStreamingDebugConfigRequest) String() string {
 func (*GetStreamingDebugConfigRequest) ProtoMessage() {}
 
 func (x *GetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[14]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +1458,7 @@ func (x *GetStreamingDebugConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStreamingDebugConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetStreamingDebugConfigRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetStreamingDebugConfigRequest) GetResolverFqn() string {
@@ -938,7 +1479,7 @@ type GetStreamingDebugConfigResponse struct {
 
 func (x *GetStreamingDebugConfigResponse) Reset() {
 	*x = GetStreamingDebugConfigResponse{}
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -950,7 +1491,7 @@ func (x *GetStreamingDebugConfigResponse) String() string {
 func (*GetStreamingDebugConfigResponse) ProtoMessage() {}
 
 func (x *GetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[15]
+	mi := &file_chalk_streaming_v1_debug_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -963,7 +1504,7 @@ func (x *GetStreamingDebugConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetStreamingDebugConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetStreamingDebugConfigResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_streaming_v1_debug_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetStreamingDebugConfigResponse) GetLoggerConfig() *StreamingLoggerConfig {
@@ -991,7 +1532,7 @@ var File_chalk_streaming_v1_debug_service_proto protoreflect.FileDescriptor
 
 const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a1chalk/streaming/v1/simple_streaming_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
+	"&chalk/streaming/v1/debug_service.proto\x12\x12chalk.streaming.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a1chalk/streaming/v1/simple_streaming_service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc7\x01\n" +
 	"\x16EnableDebugModeRequest\x12!\n" +
 	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12#\n" +
 	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12S\n" +
@@ -1028,7 +1569,74 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\x18GetDebugMessagesResponse\x12\x18\n" +
 	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
-	"\x06_error\"\xaa\x01\n" +
+	"\x06_error\"\xe7\x02\n" +
+	"\x19GetDebugMessagesV2Request\x12!\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12[\n" +
+	"\x19start_timestamp_inclusive\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x17startTimestampInclusive\x88\x01\x01\x12W\n" +
+	"\x17end_timestamp_exclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x15endTimestampExclusive\x88\x01\x01\x12&\n" +
+	"\fmax_messages\x18\x04 \x01(\x05H\x02R\vmaxMessages\x88\x01\x01B\x1c\n" +
+	"\x1a_start_timestamp_inclusiveB\x1a\n" +
+	"\x18_end_timestamp_exclusiveB\x0f\n" +
+	"\r_max_messages\"\xc0\x03\n" +
+	"\x1aGetDebugMessagesV2Response\x12E\n" +
+	"\bmessages\x18\x01 \x03(\v2).chalk.streaming.v1.StreamingDebugMessageR\bmessages\x12#\n" +
+	"\rsuccess_count\x18\x02 \x01(\x03R\fsuccessCount\x12!\n" +
+	"\ffailed_count\x18\x03 \x01(\x03R\vfailedCount\x12#\n" +
+	"\rskipped_count\x18\x04 \x01(\x03R\fskippedCount\x12w\n" +
+	"\x13feature_expressions\x18\x05 \x03(\v2F.chalk.streaming.v1.GetDebugMessagesV2Response.FeatureExpressionsEntryR\x12featureExpressions\x1au\n" +
+	"\x17FeatureExpressionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12D\n" +
+	"\x05value\x18\x02 \x01(\v2..chalk.streaming.v1.StreamingFeatureExpressionR\x05value:\x028\x01\"\xe9\x02\n" +
+	"\x1bGetAggregateMessagesRequest\x12!\n" +
+	"\fresolver_fqn\x18\x01 \x01(\tR\vresolverFqn\x12[\n" +
+	"\x19start_timestamp_inclusive\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x17startTimestampInclusive\x88\x01\x01\x12W\n" +
+	"\x17end_timestamp_exclusive\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\x15endTimestampExclusive\x88\x01\x01\x12&\n" +
+	"\fmax_messages\x18\x04 \x01(\x05H\x02R\vmaxMessages\x88\x01\x01B\x1c\n" +
+	"\x1a_start_timestamp_inclusiveB\x1a\n" +
+	"\x18_end_timestamp_exclusiveB\x0f\n" +
+	"\r_max_messages\"]\n" +
+	"\x1cGetAggregateMessagesResponse\x12\x18\n" +
+	"\aparquet\x18\x01 \x01(\fR\aparquet\x12\x19\n" +
+	"\x05error\x18\x02 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"\x92\x06\n" +
+	"\x15StreamingDebugMessage\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x12!\n" +
+	"\fmessage_data\x18\x02 \x01(\fR\vmessageData\x12$\n" +
+	"\vmessage_key\x18\x03 \x01(\tH\x00R\n" +
+	"messageKey\x88\x01\x01\x12f\n" +
+	"\x0fmessage_headers\x18\x04 \x03(\v2=.chalk.streaming.v1.StreamingDebugMessage.MessageHeadersEntryR\x0emessageHeaders\x12G\n" +
+	"\x11publish_timestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x10publishTimestamp\x12E\n" +
+	"\x10ingest_timestamp\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x0fingestTimestamp\x12B\n" +
+	"\x06status\x18\a \x01(\x0e2*.chalk.streaming.v1.StreamingMessageStatusR\x06status\x12S\n" +
+	"\bfeatures\x18\b \x03(\v27.chalk.streaming.v1.StreamingDebugMessage.FeaturesEntryR\bfeatures\x12I\n" +
+	"\x05error\x18\t \x01(\v2..chalk.streaming.v1.StreamingDebugMessageErrorH\x01R\x05error\x88\x01\x01\x1aA\n" +
+	"\x13MessageHeadersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\x1aX\n" +
+	"\rFeaturesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x121\n" +
+	"\x05value\x18\x02 \x01(\v2\x1b.chalk.arrow.v1.ScalarValueR\x05value:\x028\x01B\x0e\n" +
+	"\f_message_keyB\b\n" +
+	"\x06_error\"\xbf\x02\n" +
+	"\x1aStreamingDebugMessageError\x128\n" +
+	"\x05phase\x18\x01 \x01(\x0e2\".chalk.streaming.v1.ExecutionPhaseR\x05phase\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x12\n" +
+	"\x04code\x18\x03 \x01(\tR\x04code\x12*\n" +
+	"\x0eexception_kind\x18\x04 \x01(\tH\x00R\rexceptionKind\x88\x01\x01\x126\n" +
+	"\x14exception_stacktrace\x18\x05 \x01(\tH\x01R\x13exceptionStacktrace\x88\x01\x01\x12\x1d\n" +
+	"\afeature\x18\x06 \x01(\tH\x02R\afeature\x88\x01\x01B\x11\n" +
+	"\x0f_exception_kindB\x17\n" +
+	"\x15_exception_stacktraceB\n" +
+	"\n" +
+	"\b_feature\"l\n" +
+	"\x1aStreamingFeatureExpression\x12\x1e\n" +
+	"\n" +
+	"expression\x18\x01 \x01(\tR\n" +
+	"expression\x12 \n" +
+	"\tjson_path\x18\x02 \x01(\tH\x00R\bjsonPath\x88\x01\x01B\f\n" +
+	"\n" +
+	"_json_path\"\xaa\x01\n" +
 	"\x17WatchDebugStreamRequest\x12\x19\n" +
 	"\bbase_uri\x18\x01 \x01(\tR\abaseUri\x12!\n" +
 	"\fresolver_fqn\x18\x02 \x01(\tR\vresolverFqn\x127\n" +
@@ -1075,15 +1683,17 @@ const file_chalk_streaming_v1_debug_service_proto_rawDesc = "" +
 	"\vstorage_uri\x18\x03 \x01(\tR\n" +
 	"storageUriB\x10\n" +
 	"\x0e_logger_configB\x10\n" +
-	"\x0e_deployment_id2\xdc\a\n" +
+	"\x0e_deployment_id2\xdd\t\n" +
 	"\x15StreamingDebugService\x12\x87\x01\n" +
 	"\x17SetStreamingDebugConfig\x122.chalk.streaming.v1.SetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.SetStreamingDebugConfigResponse\"\x03\x80}\f\x12\x8a\x01\n" +
 	"\x17GetStreamingDebugConfig\x122.chalk.streaming.v1.GetStreamingDebugConfigRequest\x1a3.chalk.streaming.v1.GetStreamingDebugConfigResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
 	"\x0fEnableDebugMode\x12*.chalk.streaming.v1.EnableDebugModeRequest\x1a+.chalk.streaming.v1.EnableDebugModeResponse\"\x03\x80}\f\x12r\n" +
 	"\x10DisableDebugMode\x12+.chalk.streaming.v1.DisableDebugModeRequest\x1a,.chalk.streaming.v1.DisableDebugModeResponse\"\x03\x80}\f\x12{\n" +
 	"\x12GetDebugModeStatus\x12-.chalk.streaming.v1.GetDebugModeStatusRequest\x1a..chalk.streaming.v1.GetDebugModeStatusResponse\"\x06\x80}\v\x90\x02\x01\x12u\n" +
-	"\x10GetDebugMessages\x12+.chalk.streaming.v1.GetDebugMessagesRequest\x1a,.chalk.streaming.v1.GetDebugMessagesResponse\"\x06\x80}\v\x90\x02\x01\x12t\n" +
-	"\x10WatchDebugStream\x12+.chalk.streaming.v1.WatchDebugStreamRequest\x1a,.chalk.streaming.v1.WatchDebugStreamResponse\"\x03\x80}\v0\x01\x12]\n" +
+	"\x10GetDebugMessages\x12+.chalk.streaming.v1.GetDebugMessagesRequest\x1a,.chalk.streaming.v1.GetDebugMessagesResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
+	"\x12GetDebugMessagesV2\x12-.chalk.streaming.v1.GetDebugMessagesV2Request\x1a..chalk.streaming.v1.GetDebugMessagesV2Response\"\x06\x80}\v\x90\x02\x01\x12t\n" +
+	"\x10WatchDebugStream\x12+.chalk.streaming.v1.WatchDebugStreamRequest\x1a,.chalk.streaming.v1.WatchDebugStreamResponse\"\x03\x80}\v0\x01\x12\x81\x01\n" +
+	"\x14GetAggregateMessages\x12/.chalk.streaming.v1.GetAggregateMessagesRequest\x1a0.chalk.streaming.v1.GetAggregateMessagesResponse\"\x06\x80}\v\x90\x02\x01\x12]\n" +
 	"\tPushTopic\x12$.chalk.streaming.v1.PushTopicRequest\x1a%.chalk.streaming.v1.PushTopicResponse\"\x03\x80}\x03B\xd6\x01\n" +
 	"\x16com.chalk.streaming.v1B\x11DebugServiceProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/streaming/v1;streamingv1\xa2\x02\x03CSX\xaa\x02\x12Chalk.Streaming.V1\xca\x02\x12Chalk\\Streaming\\V1\xe2\x02\x1eChalk\\Streaming\\V1\\GPBMetadata\xea\x02\x14Chalk::Streaming::V1b\x06proto3"
 
@@ -1099,7 +1709,7 @@ func file_chalk_streaming_v1_debug_service_proto_rawDescGZIP() []byte {
 	return file_chalk_streaming_v1_debug_service_proto_rawDescData
 }
 
-var file_chalk_streaming_v1_debug_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_chalk_streaming_v1_debug_service_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_chalk_streaming_v1_debug_service_proto_goTypes = []any{
 	(*EnableDebugModeRequest)(nil),          // 0: chalk.streaming.v1.EnableDebugModeRequest
 	(*EnableDebugModeResponse)(nil),         // 1: chalk.streaming.v1.EnableDebugModeResponse
@@ -1109,50 +1719,82 @@ var file_chalk_streaming_v1_debug_service_proto_goTypes = []any{
 	(*GetDebugModeStatusResponse)(nil),      // 5: chalk.streaming.v1.GetDebugModeStatusResponse
 	(*GetDebugMessagesRequest)(nil),         // 6: chalk.streaming.v1.GetDebugMessagesRequest
 	(*GetDebugMessagesResponse)(nil),        // 7: chalk.streaming.v1.GetDebugMessagesResponse
-	(*WatchDebugStreamRequest)(nil),         // 8: chalk.streaming.v1.WatchDebugStreamRequest
-	(*WatchDebugStreamResponse)(nil),        // 9: chalk.streaming.v1.WatchDebugStreamResponse
-	(*PushTopicRequest)(nil),                // 10: chalk.streaming.v1.PushTopicRequest
-	(*PushTopicResponse)(nil),               // 11: chalk.streaming.v1.PushTopicResponse
-	(*SetStreamingDebugConfigRequest)(nil),  // 12: chalk.streaming.v1.SetStreamingDebugConfigRequest
-	(*SetStreamingDebugConfigResponse)(nil), // 13: chalk.streaming.v1.SetStreamingDebugConfigResponse
-	(*GetStreamingDebugConfigRequest)(nil),  // 14: chalk.streaming.v1.GetStreamingDebugConfigRequest
-	(*GetStreamingDebugConfigResponse)(nil), // 15: chalk.streaming.v1.GetStreamingDebugConfigResponse
-	(*StreamingLoggerConfig)(nil),           // 16: chalk.streaming.v1.StreamingLoggerConfig
-	(*timestamppb.Timestamp)(nil),           // 17: google.protobuf.Timestamp
-	(*v1.ChalkError)(nil),                   // 18: chalk.common.v1.ChalkError
+	(*GetDebugMessagesV2Request)(nil),       // 8: chalk.streaming.v1.GetDebugMessagesV2Request
+	(*GetDebugMessagesV2Response)(nil),      // 9: chalk.streaming.v1.GetDebugMessagesV2Response
+	(*GetAggregateMessagesRequest)(nil),     // 10: chalk.streaming.v1.GetAggregateMessagesRequest
+	(*GetAggregateMessagesResponse)(nil),    // 11: chalk.streaming.v1.GetAggregateMessagesResponse
+	(*StreamingDebugMessage)(nil),           // 12: chalk.streaming.v1.StreamingDebugMessage
+	(*StreamingDebugMessageError)(nil),      // 13: chalk.streaming.v1.StreamingDebugMessageError
+	(*StreamingFeatureExpression)(nil),      // 14: chalk.streaming.v1.StreamingFeatureExpression
+	(*WatchDebugStreamRequest)(nil),         // 15: chalk.streaming.v1.WatchDebugStreamRequest
+	(*WatchDebugStreamResponse)(nil),        // 16: chalk.streaming.v1.WatchDebugStreamResponse
+	(*PushTopicRequest)(nil),                // 17: chalk.streaming.v1.PushTopicRequest
+	(*PushTopicResponse)(nil),               // 18: chalk.streaming.v1.PushTopicResponse
+	(*SetStreamingDebugConfigRequest)(nil),  // 19: chalk.streaming.v1.SetStreamingDebugConfigRequest
+	(*SetStreamingDebugConfigResponse)(nil), // 20: chalk.streaming.v1.SetStreamingDebugConfigResponse
+	(*GetStreamingDebugConfigRequest)(nil),  // 21: chalk.streaming.v1.GetStreamingDebugConfigRequest
+	(*GetStreamingDebugConfigResponse)(nil), // 22: chalk.streaming.v1.GetStreamingDebugConfigResponse
+	nil,                                     // 23: chalk.streaming.v1.GetDebugMessagesV2Response.FeatureExpressionsEntry
+	nil,                                     // 24: chalk.streaming.v1.StreamingDebugMessage.MessageHeadersEntry
+	nil,                                     // 25: chalk.streaming.v1.StreamingDebugMessage.FeaturesEntry
+	(*StreamingLoggerConfig)(nil),           // 26: chalk.streaming.v1.StreamingLoggerConfig
+	(*timestamppb.Timestamp)(nil),           // 27: google.protobuf.Timestamp
+	(StreamingMessageStatus)(0),             // 28: chalk.streaming.v1.StreamingMessageStatus
+	(ExecutionPhase)(0),                     // 29: chalk.streaming.v1.ExecutionPhase
+	(*v11.ChalkError)(nil),                  // 30: chalk.common.v1.ChalkError
+	(*v1.ScalarValue)(nil),                  // 31: chalk.arrow.v1.ScalarValue
 }
 var file_chalk_streaming_v1_debug_service_proto_depIdxs = []int32{
-	16, // 0: chalk.streaming.v1.EnableDebugModeRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	17, // 1: chalk.streaming.v1.EnableDebugModeResponse.enabled_at:type_name -> google.protobuf.Timestamp
-	17, // 2: chalk.streaming.v1.GetDebugModeStatusResponse.enabled_at:type_name -> google.protobuf.Timestamp
-	16, // 3: chalk.streaming.v1.GetDebugModeStatusResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	17, // 4: chalk.streaming.v1.GetDebugMessagesRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
-	17, // 5: chalk.streaming.v1.GetDebugMessagesRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
-	18, // 6: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
-	16, // 7: chalk.streaming.v1.SetStreamingDebugConfigRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	16, // 8: chalk.streaming.v1.SetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	16, // 9: chalk.streaming.v1.GetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
-	12, // 10: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:input_type -> chalk.streaming.v1.SetStreamingDebugConfigRequest
-	14, // 11: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:input_type -> chalk.streaming.v1.GetStreamingDebugConfigRequest
-	0,  // 12: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
-	2,  // 13: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
-	4,  // 14: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
-	6,  // 15: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
-	8,  // 16: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
-	10, // 17: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
-	13, // 18: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:output_type -> chalk.streaming.v1.SetStreamingDebugConfigResponse
-	15, // 19: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:output_type -> chalk.streaming.v1.GetStreamingDebugConfigResponse
-	1,  // 20: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
-	3,  // 21: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
-	5,  // 22: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
-	7,  // 23: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
-	9,  // 24: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
-	11, // 25: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
-	18, // [18:26] is the sub-list for method output_type
-	10, // [10:18] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	26, // 0: chalk.streaming.v1.EnableDebugModeRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	27, // 1: chalk.streaming.v1.EnableDebugModeResponse.enabled_at:type_name -> google.protobuf.Timestamp
+	27, // 2: chalk.streaming.v1.GetDebugModeStatusResponse.enabled_at:type_name -> google.protobuf.Timestamp
+	26, // 3: chalk.streaming.v1.GetDebugModeStatusResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	27, // 4: chalk.streaming.v1.GetDebugMessagesRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	27, // 5: chalk.streaming.v1.GetDebugMessagesRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	27, // 6: chalk.streaming.v1.GetDebugMessagesV2Request.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	27, // 7: chalk.streaming.v1.GetDebugMessagesV2Request.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	12, // 8: chalk.streaming.v1.GetDebugMessagesV2Response.messages:type_name -> chalk.streaming.v1.StreamingDebugMessage
+	23, // 9: chalk.streaming.v1.GetDebugMessagesV2Response.feature_expressions:type_name -> chalk.streaming.v1.GetDebugMessagesV2Response.FeatureExpressionsEntry
+	27, // 10: chalk.streaming.v1.GetAggregateMessagesRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	27, // 11: chalk.streaming.v1.GetAggregateMessagesRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	24, // 12: chalk.streaming.v1.StreamingDebugMessage.message_headers:type_name -> chalk.streaming.v1.StreamingDebugMessage.MessageHeadersEntry
+	27, // 13: chalk.streaming.v1.StreamingDebugMessage.publish_timestamp:type_name -> google.protobuf.Timestamp
+	27, // 14: chalk.streaming.v1.StreamingDebugMessage.ingest_timestamp:type_name -> google.protobuf.Timestamp
+	28, // 15: chalk.streaming.v1.StreamingDebugMessage.status:type_name -> chalk.streaming.v1.StreamingMessageStatus
+	25, // 16: chalk.streaming.v1.StreamingDebugMessage.features:type_name -> chalk.streaming.v1.StreamingDebugMessage.FeaturesEntry
+	13, // 17: chalk.streaming.v1.StreamingDebugMessage.error:type_name -> chalk.streaming.v1.StreamingDebugMessageError
+	29, // 18: chalk.streaming.v1.StreamingDebugMessageError.phase:type_name -> chalk.streaming.v1.ExecutionPhase
+	30, // 19: chalk.streaming.v1.PushTopicResponse.error:type_name -> chalk.common.v1.ChalkError
+	26, // 20: chalk.streaming.v1.SetStreamingDebugConfigRequest.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	26, // 21: chalk.streaming.v1.SetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	26, // 22: chalk.streaming.v1.GetStreamingDebugConfigResponse.logger_config:type_name -> chalk.streaming.v1.StreamingLoggerConfig
+	14, // 23: chalk.streaming.v1.GetDebugMessagesV2Response.FeatureExpressionsEntry.value:type_name -> chalk.streaming.v1.StreamingFeatureExpression
+	31, // 24: chalk.streaming.v1.StreamingDebugMessage.FeaturesEntry.value:type_name -> chalk.arrow.v1.ScalarValue
+	19, // 25: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:input_type -> chalk.streaming.v1.SetStreamingDebugConfigRequest
+	21, // 26: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:input_type -> chalk.streaming.v1.GetStreamingDebugConfigRequest
+	0,  // 27: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:input_type -> chalk.streaming.v1.EnableDebugModeRequest
+	2,  // 28: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:input_type -> chalk.streaming.v1.DisableDebugModeRequest
+	4,  // 29: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:input_type -> chalk.streaming.v1.GetDebugModeStatusRequest
+	6,  // 30: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:input_type -> chalk.streaming.v1.GetDebugMessagesRequest
+	8,  // 31: chalk.streaming.v1.StreamingDebugService.GetDebugMessagesV2:input_type -> chalk.streaming.v1.GetDebugMessagesV2Request
+	15, // 32: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:input_type -> chalk.streaming.v1.WatchDebugStreamRequest
+	10, // 33: chalk.streaming.v1.StreamingDebugService.GetAggregateMessages:input_type -> chalk.streaming.v1.GetAggregateMessagesRequest
+	17, // 34: chalk.streaming.v1.StreamingDebugService.PushTopic:input_type -> chalk.streaming.v1.PushTopicRequest
+	20, // 35: chalk.streaming.v1.StreamingDebugService.SetStreamingDebugConfig:output_type -> chalk.streaming.v1.SetStreamingDebugConfigResponse
+	22, // 36: chalk.streaming.v1.StreamingDebugService.GetStreamingDebugConfig:output_type -> chalk.streaming.v1.GetStreamingDebugConfigResponse
+	1,  // 37: chalk.streaming.v1.StreamingDebugService.EnableDebugMode:output_type -> chalk.streaming.v1.EnableDebugModeResponse
+	3,  // 38: chalk.streaming.v1.StreamingDebugService.DisableDebugMode:output_type -> chalk.streaming.v1.DisableDebugModeResponse
+	5,  // 39: chalk.streaming.v1.StreamingDebugService.GetDebugModeStatus:output_type -> chalk.streaming.v1.GetDebugModeStatusResponse
+	7,  // 40: chalk.streaming.v1.StreamingDebugService.GetDebugMessages:output_type -> chalk.streaming.v1.GetDebugMessagesResponse
+	9,  // 41: chalk.streaming.v1.StreamingDebugService.GetDebugMessagesV2:output_type -> chalk.streaming.v1.GetDebugMessagesV2Response
+	16, // 42: chalk.streaming.v1.StreamingDebugService.WatchDebugStream:output_type -> chalk.streaming.v1.WatchDebugStreamResponse
+	11, // 43: chalk.streaming.v1.StreamingDebugService.GetAggregateMessages:output_type -> chalk.streaming.v1.GetAggregateMessagesResponse
+	18, // 44: chalk.streaming.v1.StreamingDebugService.PushTopic:output_type -> chalk.streaming.v1.PushTopicResponse
+	35, // [35:45] is the sub-list for method output_type
+	25, // [25:35] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_chalk_streaming_v1_debug_service_proto_init() }
@@ -1170,14 +1812,20 @@ func file_chalk_streaming_v1_debug_service_proto_init() {
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_streaming_v1_debug_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_streaming_v1_debug_service_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_streaming_v1_debug_service_proto_rawDesc), len(file_chalk_streaming_v1_debug_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

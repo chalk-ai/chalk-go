@@ -37,13 +37,14 @@ type grpcClientImpl struct {
 	httpClient    connect.HTTPClient
 	timeout       *time.Duration
 
-	queryClient         enginev1connect.QueryServiceClient
-	branchQueryClient   enginev1connect.QueryServiceClient
-	graphClient         serverv1connect.GraphServiceClient
-	deploymentTag       string
-	tokenManager        *auth.Manager
-	metadataInterceptor connect.UnaryInterceptorFunc
-	engineInterceptor   connect.UnaryInterceptorFunc
+	queryClient           enginev1connect.QueryServiceClient
+	branchQueryClient     enginev1connect.QueryServiceClient
+	graphClient           serverv1connect.GraphServiceClient
+	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
+	deploymentTag         string
+	tokenManager          *auth.Manager
+	metadataInterceptor   connect.UnaryInterceptorFunc
+	engineInterceptor     connect.UnaryInterceptorFunc
 }
 
 func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClientImpl, error) {
@@ -243,21 +244,29 @@ func newGrpcClient(ctx context.Context, configs ...*GRPCClientConfig) (*grpcClie
 		connect.WithInterceptors(cfg.Interceptors...),
 	)
 
+	datasetMetadataClient := serverv1connect.NewDatasetMetadataServiceClient(
+		cfg.HTTPClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedServerInterceptor)),
+		connect.WithInterceptors(cfg.Interceptors...),
+	)
+
 	return &grpcClientImpl{
-		deploymentTag:       cfg.DeploymentTag,
-		branch:              cfg.Branch,
-		httpClient:          cfg.HTTPClient,
-		logger:              cfg.Logger,
-		config:              configManager,
-		tokenManager:        tokenManager,
-		queryClient:         queryClient,
-		branchQueryClient:   branchQueryClient,
-		graphClient:         graphClient,
-		resourceGroup:       resourceGroup,
-		timeout:             timeout,
-		allocator:           cfg.Allocator,
-		metadataInterceptor: authedServerInterceptor,
-		engineInterceptor:   engineInterceptor,
+		deploymentTag:         cfg.DeploymentTag,
+		branch:                cfg.Branch,
+		httpClient:            cfg.HTTPClient,
+		logger:                cfg.Logger,
+		config:                configManager,
+		tokenManager:          tokenManager,
+		queryClient:           queryClient,
+		branchQueryClient:     branchQueryClient,
+		graphClient:           graphClient,
+		datasetMetadataClient: datasetMetadataClient,
+		resourceGroup:         resourceGroup,
+		timeout:               timeout,
+		allocator:             cfg.Allocator,
+		metadataInterceptor:   authedServerInterceptor,
+		engineInterceptor:     engineInterceptor,
 	}, nil
 }
 
@@ -645,4 +654,23 @@ func (c *grpcClientImpl) UpdateGraph(ctx context.Context, req *serverv1.UpdateGr
 	}
 
 	return &GRPCUpdateGraphResult{RawResponse: res.Msg}, nil
+}
+
+type GRPCListDatasetsResult struct {
+	RawResponse *serverv1.ListDatasetsResponse
+}
+
+func (c *grpcClientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
+	req := connect.NewRequest(&serverv1.ListDatasetsRequest{
+		Cursor: ptr.OrNil(params.Cursor),
+		Limit:  ptr.OrNil(params.Limit),
+		Search: ptr.OrNil(params.Search),
+	})
+
+	res, err := c.datasetMetadataClient.ListDatasets(ctx, req)
+	if err != nil {
+		return nil, errors.Wrap(err, "listing datasets")
+	}
+
+	return &GRPCListDatasetsResult{RawResponse: res.Msg}, nil
 }

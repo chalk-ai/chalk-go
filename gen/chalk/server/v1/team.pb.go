@@ -12,7 +12,6 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -5346,7 +5345,7 @@ var File_chalk_server_v1_team_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_team_proto_rawDesc = "" +
 	"\n" +
-	"\x1achalk/server/v1/team.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a\x19chalk/auth/v1/agent.proto\x1a\x19chalk/auth/v1/audit.proto\x1a chalk/auth/v1/displayagent.proto\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/server/v1/environment.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/descriptor.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x0f\n" +
+	"\x1achalk/server/v1/team.proto\x12\x0fchalk.server.v1\x1a\x1bbuf/validate/validate.proto\x1a\x19chalk/auth/v1/agent.proto\x1a\x19chalk/auth/v1/audit.proto\x1a chalk/auth/v1/displayagent.proto\x1a%chalk/auth/v1/featurepermission.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/server/v1/environment.proto\x1a!chalk/utils/v1/field_change.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x0f\n" +
 	"\rGetEnvRequest\"P\n" +
 	"\x0eGetEnvResponse\x12>\n" +
 	"\venvironment\x18\x01 \x01(\v2\x1c.chalk.server.v1.EnvironmentR\venvironment\" \n" +

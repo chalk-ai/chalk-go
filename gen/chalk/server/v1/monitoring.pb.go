@@ -11,7 +11,6 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/utils/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/descriptorpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -2078,6 +2077,7 @@ type AlertChannel struct {
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	Default       *bool                  `protobuf:"varint,7,opt,name=default,proto3,oneof" json:"default,omitempty"`
+	Subscriptions []string               `protobuf:"bytes,8,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2159,6 +2159,13 @@ func (x *AlertChannel) GetDefault() bool {
 		return *x.Default
 	}
 	return false
+}
+
+func (x *AlertChannel) GetSubscriptions() []string {
+	if x != nil {
+		return x.Subscriptions
+	}
+	return nil
 }
 
 type ListAlertChannelsRequest struct {
@@ -2307,6 +2314,7 @@ type AddAlertChannelEntry struct {
 	EntityId      string                 `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	ChannelName   string                 `protobuf:"bytes,3,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Default       *bool                  `protobuf:"varint,4,opt,name=default,proto3,oneof" json:"default,omitempty"`
+	Subscriptions []string               `protobuf:"bytes,5,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2369,6 +2377,13 @@ func (x *AddAlertChannelEntry) GetDefault() bool {
 	return false
 }
 
+func (x *AddAlertChannelEntry) GetSubscriptions() []string {
+	if x != nil {
+		return x.Subscriptions
+	}
+	return nil
+}
+
 type EditAlertChannelEntry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -2376,6 +2391,7 @@ type EditAlertChannelEntry struct {
 	EntityId      string                 `protobuf:"bytes,3,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	ChannelName   string                 `protobuf:"bytes,4,opt,name=channel_name,json=channelName,proto3" json:"channel_name,omitempty"`
 	Default       *bool                  `protobuf:"varint,5,opt,name=default,proto3,oneof" json:"default,omitempty"`
+	Subscriptions []string               `protobuf:"bytes,6,rep,name=subscriptions,proto3" json:"subscriptions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2443,6 +2459,13 @@ func (x *EditAlertChannelEntry) GetDefault() bool {
 		return *x.Default
 	}
 	return false
+}
+
+func (x *EditAlertChannelEntry) GetSubscriptions() []string {
+	if x != nil {
+		return x.Subscriptions
+	}
+	return nil
 }
 
 type EditNamedAlertChannelsResponse struct {
@@ -3393,7 +3416,7 @@ var File_chalk_server_v1_monitoring_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\n" +
-	" chalk/server/v1/monitoring.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/incident.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a google/protobuf/descriptor.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf9\x03\n" +
+	" chalk/server/v1/monitoring.proto\x12\x0fchalk.server.v1\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1echalk/server/v1/incident.proto\x1a\x1echalk/utils/v1/sensitive.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf9\x03\n" +
 	"\x17PagerDutyEventV2Payload\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12=\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\ttimestamp\x88\x01\x01\x12>\n" +
@@ -3557,7 +3580,7 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\vintegration\x18\x01 \x01(\v2&.chalk.server.v1.IncidentIoIntegrationR\vintegration\"%\n" +
 	"#GetAllIncidentIoIntegrationsRequest\"r\n" +
 	"$GetAllIncidentIoIntegrationsResponse\x12J\n" +
-	"\fintegrations\x18\x01 \x03(\v2&.chalk.server.v1.IncidentIoIntegrationR\fintegrations\"\xc8\x02\n" +
+	"\fintegrations\x18\x01 \x03(\v2&.chalk.server.v1.IncidentIoIntegrationR\fintegrations\"\xee\x02\n" +
 	"\fAlertChannel\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12B\n" +
@@ -3568,7 +3591,8 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
 	"\n" +
 	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tupdatedAt\x88\x01\x01\x12\x1d\n" +
-	"\adefault\x18\a \x01(\bH\x01R\adefault\x88\x01\x01B\r\n" +
+	"\adefault\x18\a \x01(\bH\x01R\adefault\x88\x01\x01\x12$\n" +
+	"\rsubscriptions\x18\b \x03(\tR\rsubscriptionsB\r\n" +
 	"\v_updated_atB\n" +
 	"\n" +
 	"\b_default\"\x1a\n" +
@@ -3579,22 +3603,24 @@ const file_chalk_server_v1_monitoring_proto_rawDesc = "" +
 	"\foriginal_ids\x18\x01 \x03(\tR\voriginalIds\x12;\n" +
 	"\x05added\x18\x02 \x03(\v2%.chalk.server.v1.AddAlertChannelEntryR\x05added\x12G\n" +
 	"\vafter_edits\x18\x03 \x03(\v2&.chalk.server.v1.EditAlertChannelEntryR\n" +
-	"afterEdits\"\xc5\x01\n" +
+	"afterEdits\"\xeb\x01\n" +
 	"\x14AddAlertChannelEntry\x12B\n" +
 	"\ventity_kind\x18\x01 \x01(\x0e2!.chalk.server.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12!\n" +
 	"\fchannel_name\x18\x03 \x01(\tR\vchannelName\x12\x1d\n" +
-	"\adefault\x18\x04 \x01(\bH\x00R\adefault\x88\x01\x01B\n" +
+	"\adefault\x18\x04 \x01(\bH\x00R\adefault\x88\x01\x01\x12$\n" +
+	"\rsubscriptions\x18\x05 \x03(\tR\rsubscriptionsB\n" +
 	"\n" +
-	"\b_default\"\xd6\x01\n" +
+	"\b_default\"\xfc\x01\n" +
 	"\x15EditAlertChannelEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12B\n" +
 	"\ventity_kind\x18\x02 \x01(\x0e2!.chalk.server.v1.AlertChannelKindR\n" +
 	"entityKind\x12\x1b\n" +
 	"\tentity_id\x18\x03 \x01(\tR\bentityId\x12!\n" +
 	"\fchannel_name\x18\x04 \x01(\tR\vchannelName\x12\x1d\n" +
-	"\adefault\x18\x05 \x01(\bH\x00R\adefault\x88\x01\x01B\n" +
+	"\adefault\x18\x05 \x01(\bH\x00R\adefault\x88\x01\x01\x12$\n" +
+	"\rsubscriptions\x18\x06 \x03(\tR\rsubscriptionsB\n" +
 	"\n" +
 	"\b_default\"^\n" +
 	"\x1eEditNamedAlertChannelsResponse\x12\x1b\n" +

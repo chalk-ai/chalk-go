@@ -75,6 +75,12 @@ const (
 	// ModelRegistryServiceGetModelArtifactUploadUrlsProcedure is the fully-qualified name of the
 	// ModelRegistryService's GetModelArtifactUploadUrls RPC.
 	ModelRegistryServiceGetModelArtifactUploadUrlsProcedure = "/chalk.server.v1.ModelRegistryService/GetModelArtifactUploadUrls"
+	// ModelRegistryServiceListModelArtifactsProcedure is the fully-qualified name of the
+	// ModelRegistryService's ListModelArtifacts RPC.
+	ModelRegistryServiceListModelArtifactsProcedure = "/chalk.server.v1.ModelRegistryService/ListModelArtifacts"
+	// ModelRegistryServiceGetModelArtifactProcedure is the fully-qualified name of the
+	// ModelRegistryService's GetModelArtifact RPC.
+	ModelRegistryServiceGetModelArtifactProcedure = "/chalk.server.v1.ModelRegistryService/GetModelArtifact"
 )
 
 // ModelRegistryServiceClient is a client for the chalk.server.v1.ModelRegistryService service.
@@ -93,6 +99,8 @@ type ModelRegistryServiceClient interface {
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
 	GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error)
+	ListModelArtifacts(context.Context, *connect.Request[v1.ListModelArtifactsRequest]) (*connect.Response[v1.ListModelArtifactsResponse], error)
+	GetModelArtifact(context.Context, *connect.Request[v1.GetModelArtifactRequest]) (*connect.Response[v1.GetModelArtifactResponse], error)
 }
 
 // NewModelRegistryServiceClient constructs a client for the chalk.server.v1.ModelRegistryService
@@ -197,6 +205,20 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifactUploadUrls")),
 			connect.WithClientOptions(opts...),
 		),
+		listModelArtifacts: connect.NewClient[v1.ListModelArtifactsRequest, v1.ListModelArtifactsResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceListModelArtifactsProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("ListModelArtifacts")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getModelArtifact: connect.NewClient[v1.GetModelArtifactRequest, v1.GetModelArtifactResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceGetModelArtifactProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifact")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -216,6 +238,8 @@ type modelRegistryServiceClient struct {
 	getModelReferences             *connect.Client[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse]
 	getModelReference              *connect.Client[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse]
 	getModelArtifactUploadUrls     *connect.Client[v1.GetModelArtifactUploadUrlsRequest, v1.GetModelArtifactUploadUrlsResponse]
+	listModelArtifacts             *connect.Client[v1.ListModelArtifactsRequest, v1.ListModelArtifactsResponse]
+	getModelArtifact               *connect.Client[v1.GetModelArtifactRequest, v1.GetModelArtifactResponse]
 }
 
 // ListModels calls chalk.server.v1.ModelRegistryService.ListModels.
@@ -289,6 +313,16 @@ func (c *modelRegistryServiceClient) GetModelArtifactUploadUrls(ctx context.Cont
 	return c.getModelArtifactUploadUrls.CallUnary(ctx, req)
 }
 
+// ListModelArtifacts calls chalk.server.v1.ModelRegistryService.ListModelArtifacts.
+func (c *modelRegistryServiceClient) ListModelArtifacts(ctx context.Context, req *connect.Request[v1.ListModelArtifactsRequest]) (*connect.Response[v1.ListModelArtifactsResponse], error) {
+	return c.listModelArtifacts.CallUnary(ctx, req)
+}
+
+// GetModelArtifact calls chalk.server.v1.ModelRegistryService.GetModelArtifact.
+func (c *modelRegistryServiceClient) GetModelArtifact(ctx context.Context, req *connect.Request[v1.GetModelArtifactRequest]) (*connect.Response[v1.GetModelArtifactResponse], error) {
+	return c.getModelArtifact.CallUnary(ctx, req)
+}
+
 // ModelRegistryServiceHandler is an implementation of the chalk.server.v1.ModelRegistryService
 // service.
 type ModelRegistryServiceHandler interface {
@@ -306,6 +340,8 @@ type ModelRegistryServiceHandler interface {
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
 	GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error)
+	ListModelArtifacts(context.Context, *connect.Request[v1.ListModelArtifactsRequest]) (*connect.Response[v1.ListModelArtifactsResponse], error)
+	GetModelArtifact(context.Context, *connect.Request[v1.GetModelArtifactRequest]) (*connect.Response[v1.GetModelArtifactResponse], error)
 }
 
 // NewModelRegistryServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -406,6 +442,20 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 		connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifactUploadUrls")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelRegistryServiceListModelArtifactsHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceListModelArtifactsProcedure,
+		svc.ListModelArtifacts,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("ListModelArtifacts")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRegistryServiceGetModelArtifactHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceGetModelArtifactProcedure,
+		svc.GetModelArtifact,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("GetModelArtifact")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ModelRegistryService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ModelRegistryServiceListModelsProcedure:
@@ -436,6 +486,10 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 			modelRegistryServiceGetModelReferenceHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceGetModelArtifactUploadUrlsProcedure:
 			modelRegistryServiceGetModelArtifactUploadUrlsHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceListModelArtifactsProcedure:
+			modelRegistryServiceListModelArtifactsHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceGetModelArtifactProcedure:
+			modelRegistryServiceGetModelArtifactHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -499,4 +553,12 @@ func (UnimplementedModelRegistryServiceHandler) GetModelReference(context.Contex
 
 func (UnimplementedModelRegistryServiceHandler) GetModelArtifactUploadUrls(context.Context, *connect.Request[v1.GetModelArtifactUploadUrlsRequest]) (*connect.Response[v1.GetModelArtifactUploadUrlsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) ListModelArtifacts(context.Context, *connect.Request[v1.ListModelArtifactsRequest]) (*connect.Response[v1.ListModelArtifactsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.ListModelArtifacts is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) GetModelArtifact(context.Context, *connect.Request[v1.GetModelArtifactRequest]) (*connect.Response[v1.GetModelArtifactResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.GetModelArtifact is not implemented"))
 }

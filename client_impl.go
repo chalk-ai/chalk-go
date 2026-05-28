@@ -17,12 +17,17 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
+	"github.com/apache/arrow/go/v16/arrow"
+	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/chalk-ai/chalk-go/auth"
 	"github.com/chalk-ai/chalk-go/config"
+	"github.com/chalk-ai/chalk-go/gen/chalk/container/v1/containerv1connect"
+	"github.com/chalk-ai/chalk-go/gen/chalk/sandbox/v1/sandboxv1connect"
 	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/gen/chalk/server/v1/serverv1connect"
 	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/chalk-ai/chalk-go/internal/ptr"
 	"github.com/cockroachdb/errors"
 )
 
@@ -41,6 +46,10 @@ type clientImpl struct {
 
 	logger       LeveledLogger
 	tokenManager *auth.Manager
+
+	datasetMetadataClient serverv1connect.DatasetMetadataServiceClient
+	customImageClient     sandboxv1connect.CustomImageServiceClient
+	containerClient       containerv1connect.ContainerServiceClient
 }
 
 type HTTPClient interface {
@@ -156,9 +165,25 @@ func (c *clientImpl) OnlineQueryBulk(ctx context.Context, params OnlineQueryPara
 		return OnlineQueryBulkResult{}, singleBulkResult.Errors
 	}
 
+	scalarsTable := singleBulkResult.ScalarData
+	groupsTables := singleBulkResult.GroupsData
+
+	if request.TranslateFqns {
+		if scalarsTable != nil {
+			scalarsTable = renameArrowTableColumns(scalarsTable, internal.TranslateWindowedFqn)
+		}
+		if groupsTables != nil {
+			translated := make(map[string]arrow.Table, len(groupsTables))
+			for k, t := range groupsTables {
+				translated[internal.TranslateWindowedFqn(k)] = renameArrowTableColumns(t, internal.TranslateWindowedFqn)
+			}
+			groupsTables = translated
+		}
+	}
+
 	return OnlineQueryBulkResult{
-		ScalarsTable:    singleBulkResult.ScalarData,
-		GroupsTables:    singleBulkResult.GroupsData,
+		ScalarsTable:    scalarsTable,
+		GroupsTables:    groupsTables,
 		Meta:            singleBulkResult.Meta,
 		allocator:       c.allocator,
 		ResponseHeaders: headers,
@@ -249,6 +274,12 @@ func (c *clientImpl) OnlineQuery(ctx context.Context, params OnlineQueryParamsCo
 	deserializedData, err := deserializeFeatureResults(response.Data)
 	if err != nil {
 		return OnlineQueryResult{}, errors.Wrap(err, "deserializing feature results")
+	}
+
+	if request.TranslateFqns {
+		for i := range deserializedData {
+			deserializedData[i].Field = internal.TranslateWindowedFqn(deserializedData[i].Field)
+		}
 	}
 
 	for _, result := range deserializedData {
@@ -643,6 +674,18 @@ func (c *clientImpl) GetDataset(ctx context.Context, revisionId string) (Dataset
 	return dataset, nil
 }
 
+func (c *clientImpl) ListDatasets(ctx context.Context, params ListDatasetsParams) (*GRPCListDatasetsResult, error) {
+	res, err := c.datasetMetadataClient.ListDatasets(ctx, connect.NewRequest(&serverv1.ListDatasetsRequest{
+		Cursor: ptr.OrNil(params.Cursor),
+		Limit:  ptr.OrNil(params.Limit),
+		Search: ptr.OrNil(params.Search),
+	}))
+	if err != nil {
+		return nil, errors.Wrap(err, "listing datasets")
+	}
+	return &GRPCListDatasetsResult{RawResponse: res.Msg}, nil
+}
+
 func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) {
 	manager, err := config.NewManager(
 		ctx,
@@ -697,16 +740,91 @@ func newClientImpl(ctx context.Context, cfg *ClientConfig) (*clientImpl, error) 
 		return nil, errors.Wrap(err, "creating token refresher")
 	}
 
+	apiServerURL := manager.GetAPIServer().Value
+	authedInterceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			if timeout != nil {
+				if _, deadlineSet := ctx.Deadline(); !deadlineSet {
+					timeoutCtx, cancel := context.WithTimeout(ctx, *timeout)
+					ctx = timeoutCtx
+					defer cancel()
+				}
+			}
+			req.Header().Set("x-chalk-server", "go-api")
+			req.Header().Set("User-Agent", internal.UserAgent())
+			if envId := tokenManager.GetConfig().EnvironmentId.Value; envId != "" {
+				req.Header().Set("x-chalk-env-id", envId)
+			}
+			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+			if err != nil {
+				return nil, errors.Wrap(err, "error refreshing token")
+			}
+			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+			return next(ctx, req)
+		}
+	}
+
+	datasetMetadataClient := serverv1connect.NewDatasetMetadataServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
+	customImageClient := sandboxv1connect.NewCustomImageServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
+	containerClient := containerv1connect.NewContainerServiceClient(
+		httpClient,
+		apiServerURL,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(authedInterceptor)),
+	)
+
 	return &clientImpl{
-		Branch:        cfg.Branch,
-		DeploymentTag: cfg.DeploymentTag,
-		QueryServer:   cfg.QueryServer,
-		resourceGroup: resourceGroup,
-		timeout:       timeout,
-		logger:        logger,
-		httpClient:    httpClient,
-		allocator:     allocator,
-		config:        manager,
-		tokenManager:  tokenManager,
+		Branch:                cfg.Branch,
+		DeploymentTag:         cfg.DeploymentTag,
+		QueryServer:           cfg.QueryServer,
+		resourceGroup:         resourceGroup,
+		timeout:               timeout,
+		logger:                logger,
+		httpClient:            httpClient,
+		allocator:             allocator,
+		config:                manager,
+		tokenManager:          tokenManager,
+		datasetMetadataClient: datasetMetadataClient,
+		customImageClient:     customImageClient,
+		containerClient:       containerClient,
 	}, nil
+}
+
+// renameArrowTableColumns rebuilds an Arrow table with column names transformed by fn.
+// Columns whose names are unchanged by fn are kept as-is.
+func renameArrowTableColumns(t arrow.Table, fn func(string) string) arrow.Table {
+	schema := t.Schema()
+	fields := make([]arrow.Field, schema.NumFields())
+	for i, f := range schema.Fields() {
+		f.Name = fn(f.Name)
+		fields[i] = f
+	}
+	meta := schema.Metadata()
+	newSchema := arrow.NewSchema(fields, &meta)
+
+	// Collect chunked columns and build records for NewTableFromRecords.
+	reader := array.NewTableReader(t, t.NumRows())
+	defer reader.Release()
+
+	var records []arrow.Record
+	for reader.Next() {
+		rec := reader.Record()
+		renamed := array.NewRecord(newSchema, rec.Columns(), rec.NumRows())
+		records = append(records, renamed)
+	}
+	if len(records) == 0 {
+		return array.NewTableFromRecords(newSchema, nil)
+	}
+	result := array.NewTableFromRecords(newSchema, records)
+	for _, r := range records {
+		r.Release()
+	}
+	return result
 }

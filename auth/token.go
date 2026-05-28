@@ -140,6 +140,14 @@ func NewManager(ctx context.Context, opts *Inputs) (*Manager, error) {
 
 	var err error
 	if r.token == nil {
+		// If neither a pre-issued JWT nor client credentials were provided,
+		// short-circuit with a clearer error than letting GetToken fail with
+		// "Client ID and secret are invalid" against the api-server.
+		if r.config.ClientId.Value == "" && r.config.ClientSecret.Value == "" {
+			return nil, errors.New(
+				"no JWT and no ClientId/ClientSecret provided; pass a pre-issued JWT (e.g. --access-token) or set client credentials",
+			)
+		}
 		r.token, err = r.GetJWT(ctx, time.Now())
 		if err != nil {
 			return nil, errors.Wrap(err, "initializing token refresher")

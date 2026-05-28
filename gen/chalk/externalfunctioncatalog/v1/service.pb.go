@@ -13,6 +13,7 @@ import (
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -122,6 +123,122 @@ func (x SerializationFormat) Number() protoreflect.EnumNumber {
 // Deprecated: Use SerializationFormat.Descriptor instead.
 func (SerializationFormat) EnumDescriptor() ([]byte, []int) {
 	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{1}
+}
+
+type TracingMode int32
+
+const (
+	TracingMode_TRACING_MODE_UNSPECIFIED                 TracingMode = 0
+	TracingMode_TRACING_MODE_PARENT_BASED_ALWAYS_OFF     TracingMode = 1
+	TracingMode_TRACING_MODE_PARENT_BASED_TRACE_ID_RATIO TracingMode = 2
+	TracingMode_TRACING_MODE_ALWAYS_OFF                  TracingMode = 3
+)
+
+// Enum value maps for TracingMode.
+var (
+	TracingMode_name = map[int32]string{
+		0: "TRACING_MODE_UNSPECIFIED",
+		1: "TRACING_MODE_PARENT_BASED_ALWAYS_OFF",
+		2: "TRACING_MODE_PARENT_BASED_TRACE_ID_RATIO",
+		3: "TRACING_MODE_ALWAYS_OFF",
+	}
+	TracingMode_value = map[string]int32{
+		"TRACING_MODE_UNSPECIFIED":                 0,
+		"TRACING_MODE_PARENT_BASED_ALWAYS_OFF":     1,
+		"TRACING_MODE_PARENT_BASED_TRACE_ID_RATIO": 2,
+		"TRACING_MODE_ALWAYS_OFF":                  3,
+	}
+)
+
+func (x TracingMode) Enum() *TracingMode {
+	p := new(TracingMode)
+	*p = x
+	return p
+}
+
+func (x TracingMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TracingMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes[2].Descriptor()
+}
+
+func (TracingMode) Type() protoreflect.EnumType {
+	return &file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes[2]
+}
+
+func (x TracingMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TracingMode.Descriptor instead.
+func (TracingMode) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{2}
+}
+
+type ExternalFunctionScheduledRunStatus int32
+
+const (
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_UNSPECIFIED ExternalFunctionScheduledRunStatus = 0
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_SCHEDULED   ExternalFunctionScheduledRunStatus = 1
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_RUNNING     ExternalFunctionScheduledRunStatus = 2
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_COMPLETED   ExternalFunctionScheduledRunStatus = 3
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_FAILED      ExternalFunctionScheduledRunStatus = 4
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_CANCELED    ExternalFunctionScheduledRunStatus = 5
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_NOT_READY   ExternalFunctionScheduledRunStatus = 6
+	ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING     ExternalFunctionScheduledRunStatus = 7
+)
+
+// Enum value maps for ExternalFunctionScheduledRunStatus.
+var (
+	ExternalFunctionScheduledRunStatus_name = map[int32]string{
+		0: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_UNSPECIFIED",
+		1: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_SCHEDULED",
+		2: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_RUNNING",
+		3: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_COMPLETED",
+		4: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_FAILED",
+		5: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_CANCELED",
+		6: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_NOT_READY",
+		7: "EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING",
+	}
+	ExternalFunctionScheduledRunStatus_value = map[string]int32{
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_UNSPECIFIED": 0,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_SCHEDULED":   1,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_RUNNING":     2,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_COMPLETED":   3,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_FAILED":      4,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_CANCELED":    5,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_NOT_READY":   6,
+		"EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING":     7,
+	}
+)
+
+func (x ExternalFunctionScheduledRunStatus) Enum() *ExternalFunctionScheduledRunStatus {
+	p := new(ExternalFunctionScheduledRunStatus)
+	*p = x
+	return p
+}
+
+func (x ExternalFunctionScheduledRunStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ExternalFunctionScheduledRunStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes[3].Descriptor()
+}
+
+func (ExternalFunctionScheduledRunStatus) Type() protoreflect.EnumType {
+	return &file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes[3]
+}
+
+func (x ExternalFunctionScheduledRunStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ExternalFunctionScheduledRunStatus.Descriptor instead.
+func (ExternalFunctionScheduledRunStatus) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{3}
 }
 
 // Retry policy for handler invocations. Enforced by the dispatcher (chalkdf
@@ -381,6 +498,58 @@ func (x *QueuePolicy) GetKey() string {
 	return ""
 }
 
+type TracingPolicy struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mode          TracingMode            `protobuf:"varint,1,opt,name=mode,proto3,enum=chalk.externalfunctioncatalog.v1.TracingMode" json:"mode,omitempty"`
+	SampleRate    *float64               `protobuf:"fixed64,2,opt,name=sample_rate,json=sampleRate,proto3,oneof" json:"sample_rate,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TracingPolicy) Reset() {
+	*x = TracingPolicy{}
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TracingPolicy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TracingPolicy) ProtoMessage() {}
+
+func (x *TracingPolicy) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TracingPolicy.ProtoReflect.Descriptor instead.
+func (*TracingPolicy) Descriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TracingPolicy) GetMode() TracingMode {
+	if x != nil {
+		return x.Mode
+	}
+	return TracingMode_TRACING_MODE_UNSPECIFIED
+}
+
+func (x *TracingPolicy) GetSampleRate() float64 {
+	if x != nil && x.SampleRate != nil {
+		return *x.SampleRate
+	}
+	return 0
+}
+
 // Function-level configuration applied at invocation time. Batching params
 // are consumed by the handler runtime; policy params (retry / rate_limit /
 // concurrency) are consumed by the dispatcher.
@@ -399,13 +568,15 @@ type FunctionConfig struct {
 	RateLimit       *RateLimitPolicy   `protobuf:"bytes,6,opt,name=rate_limit,json=rateLimit,proto3,oneof" json:"rate_limit,omitempty"`
 	Concurrency     *ConcurrencyPolicy `protobuf:"bytes,7,opt,name=concurrency,proto3,oneof" json:"concurrency,omitempty"`
 	Queue           *QueuePolicy       `protobuf:"bytes,8,opt,name=queue,proto3,oneof" json:"queue,omitempty"`
+	Schedule        *string            `protobuf:"bytes,9,opt,name=schedule,proto3,oneof" json:"schedule,omitempty"`
+	Tracing         *TracingPolicy     `protobuf:"bytes,10,opt,name=tracing,proto3,oneof" json:"tracing,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *FunctionConfig) Reset() {
 	*x = FunctionConfig{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -417,7 +588,7 @@ func (x *FunctionConfig) String() string {
 func (*FunctionConfig) ProtoMessage() {}
 
 func (x *FunctionConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[4]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,7 +601,7 @@ func (x *FunctionConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FunctionConfig.ProtoReflect.Descriptor instead.
 func (*FunctionConfig) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{4}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *FunctionConfig) GetSerializationFormat() SerializationFormat {
@@ -489,6 +660,20 @@ func (x *FunctionConfig) GetQueue() *QueuePolicy {
 	return nil
 }
 
+func (x *FunctionConfig) GetSchedule() string {
+	if x != nil && x.Schedule != nil {
+		return *x.Schedule
+	}
+	return ""
+}
+
+func (x *FunctionConfig) GetTracing() *TracingPolicy {
+	if x != nil {
+		return x.Tracing
+	}
+	return nil
+}
+
 type ExternalFunctionVersion struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Id                     string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -506,7 +691,7 @@ type ExternalFunctionVersion struct {
 
 func (x *ExternalFunctionVersion) Reset() {
 	*x = ExternalFunctionVersion{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -518,7 +703,7 @@ func (x *ExternalFunctionVersion) String() string {
 func (*ExternalFunctionVersion) ProtoMessage() {}
 
 func (x *ExternalFunctionVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[5]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -531,7 +716,7 @@ func (x *ExternalFunctionVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalFunctionVersion.ProtoReflect.Descriptor instead.
 func (*ExternalFunctionVersion) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{5}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExternalFunctionVersion) GetId() string {
@@ -610,7 +795,7 @@ type CreateExternalFunctionVersionRequest struct {
 
 func (x *CreateExternalFunctionVersionRequest) Reset() {
 	*x = CreateExternalFunctionVersionRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -622,7 +807,7 @@ func (x *CreateExternalFunctionVersionRequest) String() string {
 func (*CreateExternalFunctionVersionRequest) ProtoMessage() {}
 
 func (x *CreateExternalFunctionVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[6]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -635,7 +820,7 @@ func (x *CreateExternalFunctionVersionRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use CreateExternalFunctionVersionRequest.ProtoReflect.Descriptor instead.
 func (*CreateExternalFunctionVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{6}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateExternalFunctionVersionRequest) GetFunctionName() string {
@@ -683,7 +868,7 @@ type CreateExternalFunctionVersionResponse struct {
 
 func (x *CreateExternalFunctionVersionResponse) Reset() {
 	*x = CreateExternalFunctionVersionResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -695,7 +880,7 @@ func (x *CreateExternalFunctionVersionResponse) String() string {
 func (*CreateExternalFunctionVersionResponse) ProtoMessage() {}
 
 func (x *CreateExternalFunctionVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[7]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -708,7 +893,7 @@ func (x *CreateExternalFunctionVersionResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use CreateExternalFunctionVersionResponse.ProtoReflect.Descriptor instead.
 func (*CreateExternalFunctionVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{7}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CreateExternalFunctionVersionResponse) GetExternalFunctionVersion() *ExternalFunctionVersion {
@@ -735,7 +920,7 @@ type ExternalFunctionVersionKey struct {
 
 func (x *ExternalFunctionVersionKey) Reset() {
 	*x = ExternalFunctionVersionKey{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +932,7 @@ func (x *ExternalFunctionVersionKey) String() string {
 func (*ExternalFunctionVersionKey) ProtoMessage() {}
 
 func (x *ExternalFunctionVersionKey) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[8]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +945,7 @@ func (x *ExternalFunctionVersionKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalFunctionVersionKey.ProtoReflect.Descriptor instead.
 func (*ExternalFunctionVersionKey) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{8}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ExternalFunctionVersionKey) GetFunctionName() string {
@@ -783,15 +968,16 @@ type GetExternalFunctionVersionRequest struct {
 	//
 	//	*GetExternalFunctionVersionRequest_Id
 	//	*GetExternalFunctionVersionRequest_Key
-	Identifier          isGetExternalFunctionVersionRequest_Identifier `protobuf_oneof:"identifier"`
-	IncludeScalingGroup *bool                                          `protobuf:"varint,3,opt,name=include_scaling_group,json=includeScalingGroup,proto3,oneof" json:"include_scaling_group,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	Identifier            isGetExternalFunctionVersionRequest_Identifier `protobuf_oneof:"identifier"`
+	IncludeScalingGroup   *bool                                          `protobuf:"varint,3,opt,name=include_scaling_group,json=includeScalingGroup,proto3,oneof" json:"include_scaling_group,omitempty"`
+	IncludeActiveSchedule *bool                                          `protobuf:"varint,4,opt,name=include_active_schedule,json=includeActiveSchedule,proto3,oneof" json:"include_active_schedule,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *GetExternalFunctionVersionRequest) Reset() {
 	*x = GetExternalFunctionVersionRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -803,7 +989,7 @@ func (x *GetExternalFunctionVersionRequest) String() string {
 func (*GetExternalFunctionVersionRequest) ProtoMessage() {}
 
 func (x *GetExternalFunctionVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -816,7 +1002,7 @@ func (x *GetExternalFunctionVersionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetExternalFunctionVersionRequest.ProtoReflect.Descriptor instead.
 func (*GetExternalFunctionVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{9}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetExternalFunctionVersionRequest) GetIdentifier() isGetExternalFunctionVersionRequest_Identifier {
@@ -851,6 +1037,13 @@ func (x *GetExternalFunctionVersionRequest) GetIncludeScalingGroup() bool {
 	return false
 }
 
+func (x *GetExternalFunctionVersionRequest) GetIncludeActiveSchedule() bool {
+	if x != nil && x.IncludeActiveSchedule != nil {
+		return *x.IncludeActiveSchedule
+	}
+	return false
+}
+
 type isGetExternalFunctionVersionRequest_Identifier interface {
 	isGetExternalFunctionVersionRequest_Identifier()
 }
@@ -871,13 +1064,14 @@ type GetExternalFunctionVersionResponse struct {
 	state                   protoimpl.MessageState    `protogen:"open.v1"`
 	ExternalFunctionVersion *ExternalFunctionVersion  `protobuf:"bytes,1,opt,name=external_function_version,json=externalFunctionVersion,proto3" json:"external_function_version,omitempty"`
 	ScalingGroup            *v11.ScalingGroupResponse `protobuf:"bytes,2,opt,name=scaling_group,json=scalingGroup,proto3,oneof" json:"scaling_group,omitempty"`
+	ActiveSchedule          *ActiveSchedule           `protobuf:"bytes,3,opt,name=active_schedule,json=activeSchedule,proto3,oneof" json:"active_schedule,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
 
 func (x *GetExternalFunctionVersionResponse) Reset() {
 	*x = GetExternalFunctionVersionResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -889,7 +1083,7 @@ func (x *GetExternalFunctionVersionResponse) String() string {
 func (*GetExternalFunctionVersionResponse) ProtoMessage() {}
 
 func (x *GetExternalFunctionVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -902,7 +1096,7 @@ func (x *GetExternalFunctionVersionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetExternalFunctionVersionResponse.ProtoReflect.Descriptor instead.
 func (*GetExternalFunctionVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{10}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetExternalFunctionVersionResponse) GetExternalFunctionVersion() *ExternalFunctionVersion {
@@ -919,6 +1113,57 @@ func (x *GetExternalFunctionVersionResponse) GetScalingGroup() *v11.ScalingGroup
 	return nil
 }
 
+func (x *GetExternalFunctionVersionResponse) GetActiveSchedule() *ActiveSchedule {
+	if x != nil {
+		return x.ActiveSchedule
+	}
+	return nil
+}
+
+type ActiveSchedule struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cron          string                 `protobuf:"bytes,1,opt,name=cron,proto3" json:"cron,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ActiveSchedule) Reset() {
+	*x = ActiveSchedule{}
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ActiveSchedule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ActiveSchedule) ProtoMessage() {}
+
+func (x *ActiveSchedule) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ActiveSchedule.ProtoReflect.Descriptor instead.
+func (*ActiveSchedule) Descriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ActiveSchedule) GetCron() string {
+	if x != nil {
+		return x.Cron
+	}
+	return ""
+}
+
 type ListExternalFunctionVersionsRequest struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Cursor              *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
@@ -931,7 +1176,7 @@ type ListExternalFunctionVersionsRequest struct {
 
 func (x *ListExternalFunctionVersionsRequest) Reset() {
 	*x = ListExternalFunctionVersionsRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -943,7 +1188,7 @@ func (x *ListExternalFunctionVersionsRequest) String() string {
 func (*ListExternalFunctionVersionsRequest) ProtoMessage() {}
 
 func (x *ListExternalFunctionVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[11]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -956,7 +1201,7 @@ func (x *ListExternalFunctionVersionsRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use ListExternalFunctionVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListExternalFunctionVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{11}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListExternalFunctionVersionsRequest) GetCursor() string {
@@ -997,7 +1242,7 @@ type ListExternalFunctionVersionsEntry struct {
 
 func (x *ListExternalFunctionVersionsEntry) Reset() {
 	*x = ListExternalFunctionVersionsEntry{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1009,7 +1254,7 @@ func (x *ListExternalFunctionVersionsEntry) String() string {
 func (*ListExternalFunctionVersionsEntry) ProtoMessage() {}
 
 func (x *ListExternalFunctionVersionsEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[12]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1022,7 +1267,7 @@ func (x *ListExternalFunctionVersionsEntry) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListExternalFunctionVersionsEntry.ProtoReflect.Descriptor instead.
 func (*ListExternalFunctionVersionsEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{12}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListExternalFunctionVersionsEntry) GetExternalFunctionVersion() *ExternalFunctionVersion {
@@ -1049,7 +1294,7 @@ type ListExternalFunctionVersionsResponse struct {
 
 func (x *ListExternalFunctionVersionsResponse) Reset() {
 	*x = ListExternalFunctionVersionsResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1061,7 +1306,7 @@ func (x *ListExternalFunctionVersionsResponse) String() string {
 func (*ListExternalFunctionVersionsResponse) ProtoMessage() {}
 
 func (x *ListExternalFunctionVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[13]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1074,7 +1319,7 @@ func (x *ListExternalFunctionVersionsResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ListExternalFunctionVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListExternalFunctionVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{13}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListExternalFunctionVersionsResponse) GetEntries() []*ListExternalFunctionVersionsEntry {
@@ -1104,7 +1349,7 @@ type DeleteExternalFunctionVersionRequest struct {
 
 func (x *DeleteExternalFunctionVersionRequest) Reset() {
 	*x = DeleteExternalFunctionVersionRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1116,7 +1361,7 @@ func (x *DeleteExternalFunctionVersionRequest) String() string {
 func (*DeleteExternalFunctionVersionRequest) ProtoMessage() {}
 
 func (x *DeleteExternalFunctionVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1129,7 +1374,7 @@ func (x *DeleteExternalFunctionVersionRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeleteExternalFunctionVersionRequest.ProtoReflect.Descriptor instead.
 func (*DeleteExternalFunctionVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{14}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DeleteExternalFunctionVersionRequest) GetIdentifier() isDeleteExternalFunctionVersionRequest_Identifier {
@@ -1182,7 +1427,7 @@ type DeleteExternalFunctionVersionResponse struct {
 
 func (x *DeleteExternalFunctionVersionResponse) Reset() {
 	*x = DeleteExternalFunctionVersionResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1194,7 +1439,7 @@ func (x *DeleteExternalFunctionVersionResponse) String() string {
 func (*DeleteExternalFunctionVersionResponse) ProtoMessage() {}
 
 func (x *DeleteExternalFunctionVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[15]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1207,7 +1452,7 @@ func (x *DeleteExternalFunctionVersionResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use DeleteExternalFunctionVersionResponse.ProtoReflect.Descriptor instead.
 func (*DeleteExternalFunctionVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{15}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{17}
 }
 
 type ExternalFunctionSummary struct {
@@ -1218,13 +1463,14 @@ type ExternalFunctionSummary struct {
 	LatestUpdatedAt        *timestamppb.Timestamp    `protobuf:"bytes,4,opt,name=latest_updated_at,json=latestUpdatedAt,proto3" json:"latest_updated_at,omitempty"`
 	Config                 *FunctionConfig           `protobuf:"bytes,5,opt,name=config,proto3,oneof" json:"config,omitempty"`
 	ScalingGroup           *v11.ScalingGroupResponse `protobuf:"bytes,6,opt,name=scaling_group,json=scalingGroup,proto3,oneof" json:"scaling_group,omitempty"`
+	ActiveSchedule         *ActiveSchedule           `protobuf:"bytes,7,opt,name=active_schedule,json=activeSchedule,proto3,oneof" json:"active_schedule,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ExternalFunctionSummary) Reset() {
 	*x = ExternalFunctionSummary{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1236,7 +1482,7 @@ func (x *ExternalFunctionSummary) String() string {
 func (*ExternalFunctionSummary) ProtoMessage() {}
 
 func (x *ExternalFunctionSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1249,7 +1495,7 @@ func (x *ExternalFunctionSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalFunctionSummary.ProtoReflect.Descriptor instead.
 func (*ExternalFunctionSummary) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{16}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ExternalFunctionSummary) GetName() string {
@@ -1294,18 +1540,26 @@ func (x *ExternalFunctionSummary) GetScalingGroup() *v11.ScalingGroupResponse {
 	return nil
 }
 
+func (x *ExternalFunctionSummary) GetActiveSchedule() *ActiveSchedule {
+	if x != nil {
+		return x.ActiveSchedule
+	}
+	return nil
+}
+
 type ListExternalFunctionsRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Cursor              *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit               *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	IncludeScalingGroup *bool                  `protobuf:"varint,3,opt,name=include_scaling_group,json=includeScalingGroup,proto3,oneof" json:"include_scaling_group,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Cursor                *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit                 *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeScalingGroup   *bool                  `protobuf:"varint,3,opt,name=include_scaling_group,json=includeScalingGroup,proto3,oneof" json:"include_scaling_group,omitempty"`
+	IncludeActiveSchedule *bool                  `protobuf:"varint,4,opt,name=include_active_schedule,json=includeActiveSchedule,proto3,oneof" json:"include_active_schedule,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *ListExternalFunctionsRequest) Reset() {
 	*x = ListExternalFunctionsRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1317,7 +1571,7 @@ func (x *ListExternalFunctionsRequest) String() string {
 func (*ListExternalFunctionsRequest) ProtoMessage() {}
 
 func (x *ListExternalFunctionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[17]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1330,7 +1584,7 @@ func (x *ListExternalFunctionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExternalFunctionsRequest.ProtoReflect.Descriptor instead.
 func (*ListExternalFunctionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{17}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListExternalFunctionsRequest) GetCursor() string {
@@ -1354,6 +1608,13 @@ func (x *ListExternalFunctionsRequest) GetIncludeScalingGroup() bool {
 	return false
 }
 
+func (x *ListExternalFunctionsRequest) GetIncludeActiveSchedule() bool {
+	if x != nil && x.IncludeActiveSchedule != nil {
+		return *x.IncludeActiveSchedule
+	}
+	return false
+}
+
 type ListExternalFunctionsResponse struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Functions     []*ExternalFunctionSummary `protobuf:"bytes,1,rep,name=functions,proto3" json:"functions,omitempty"`
@@ -1364,7 +1625,7 @@ type ListExternalFunctionsResponse struct {
 
 func (x *ListExternalFunctionsResponse) Reset() {
 	*x = ListExternalFunctionsResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1376,7 +1637,7 @@ func (x *ListExternalFunctionsResponse) String() string {
 func (*ListExternalFunctionsResponse) ProtoMessage() {}
 
 func (x *ListExternalFunctionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[18]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1389,7 +1650,7 @@ func (x *ListExternalFunctionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListExternalFunctionsResponse.ProtoReflect.Descriptor instead.
 func (*ListExternalFunctionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{18}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListExternalFunctionsResponse) GetFunctions() []*ExternalFunctionSummary {
@@ -1400,6 +1661,187 @@ func (x *ListExternalFunctionsResponse) GetFunctions() []*ExternalFunctionSummar
 }
 
 func (x *ListExternalFunctionsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+type ListExternalFunctionScheduledRunsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FunctionName  string                 `protobuf:"bytes,1,opt,name=function_name,json=functionName,proto3" json:"function_name,omitempty"`
+	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit         *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListExternalFunctionScheduledRunsRequest) Reset() {
+	*x = ListExternalFunctionScheduledRunsRequest{}
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListExternalFunctionScheduledRunsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListExternalFunctionScheduledRunsRequest) ProtoMessage() {}
+
+func (x *ListExternalFunctionScheduledRunsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListExternalFunctionScheduledRunsRequest.ProtoReflect.Descriptor instead.
+func (*ListExternalFunctionScheduledRunsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListExternalFunctionScheduledRunsRequest) GetFunctionName() string {
+	if x != nil {
+		return x.FunctionName
+	}
+	return ""
+}
+
+func (x *ListExternalFunctionScheduledRunsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListExternalFunctionScheduledRunsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
+type ExternalFunctionScheduledRun struct {
+	state     protoimpl.MessageState             `protogen:"open.v1"`
+	Id        int32                              `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status    ExternalFunctionScheduledRunStatus `protobuf:"varint,2,opt,name=status,proto3,enum=chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRunStatus" json:"status,omitempty"`
+	CreatedAt *timestamppb.Timestamp             `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Freeform per-run details whose shape is intentionally not committed to.
+	Metadata      map[string]*structpb.Value `protobuf:"bytes,4,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExternalFunctionScheduledRun) Reset() {
+	*x = ExternalFunctionScheduledRun{}
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExternalFunctionScheduledRun) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExternalFunctionScheduledRun) ProtoMessage() {}
+
+func (x *ExternalFunctionScheduledRun) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExternalFunctionScheduledRun.ProtoReflect.Descriptor instead.
+func (*ExternalFunctionScheduledRun) Descriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ExternalFunctionScheduledRun) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ExternalFunctionScheduledRun) GetStatus() ExternalFunctionScheduledRunStatus {
+	if x != nil {
+		return x.Status
+	}
+	return ExternalFunctionScheduledRunStatus_EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_UNSPECIFIED
+}
+
+func (x *ExternalFunctionScheduledRun) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *ExternalFunctionScheduledRun) GetMetadata() map[string]*structpb.Value {
+	if x != nil {
+		return x.Metadata
+	}
+	return nil
+}
+
+type ListExternalFunctionScheduledRunsResponse struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Runs          []*ExternalFunctionScheduledRun `protobuf:"bytes,1,rep,name=runs,proto3" json:"runs,omitempty"`
+	NextCursor    *string                         `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListExternalFunctionScheduledRunsResponse) Reset() {
+	*x = ListExternalFunctionScheduledRunsResponse{}
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListExternalFunctionScheduledRunsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListExternalFunctionScheduledRunsResponse) ProtoMessage() {}
+
+func (x *ListExternalFunctionScheduledRunsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListExternalFunctionScheduledRunsResponse.ProtoReflect.Descriptor instead.
+func (*ListExternalFunctionScheduledRunsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ListExternalFunctionScheduledRunsResponse) GetRuns() []*ExternalFunctionScheduledRun {
+	if x != nil {
+		return x.Runs
+	}
+	return nil
+}
+
+func (x *ListExternalFunctionScheduledRunsResponse) GetNextCursor() string {
 	if x != nil && x.NextCursor != nil {
 		return *x.NextCursor
 	}
@@ -1419,7 +1861,7 @@ type CallExternalFunctionRequest struct {
 
 func (x *CallExternalFunctionRequest) Reset() {
 	*x = CallExternalFunctionRequest{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1431,7 +1873,7 @@ func (x *CallExternalFunctionRequest) String() string {
 func (*CallExternalFunctionRequest) ProtoMessage() {}
 
 func (x *CallExternalFunctionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1444,7 +1886,7 @@ func (x *CallExternalFunctionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallExternalFunctionRequest.ProtoReflect.Descriptor instead.
 func (*CallExternalFunctionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{19}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CallExternalFunctionRequest) GetFunction() *ExternalFunctionVersionKey {
@@ -1492,7 +1934,7 @@ type CallExternalFunctionResponse struct {
 
 func (x *CallExternalFunctionResponse) Reset() {
 	*x = CallExternalFunctionResponse{}
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1504,7 +1946,7 @@ func (x *CallExternalFunctionResponse) String() string {
 func (*CallExternalFunctionResponse) ProtoMessage() {}
 
 func (x *CallExternalFunctionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20]
+	mi := &file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1517,7 +1959,7 @@ func (x *CallExternalFunctionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CallExternalFunctionResponse.ProtoReflect.Descriptor instead.
 func (*CallExternalFunctionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{20}
+	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CallExternalFunctionResponse) GetBody() isCallExternalFunctionResponse_Body {
@@ -1550,7 +1992,7 @@ var File_chalk_externalfunctioncatalog_v1_service_proto protoreflect.FileDescrip
 
 const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\n" +
-	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
+	".chalk/externalfunctioncatalog/v1/service.proto\x12 chalk.externalfunctioncatalog.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa0\x02\n" +
 	"\vRetryPolicy\x12\x1f\n" +
 	"\vmax_retries\x18\x01 \x01(\x05R\n" +
 	"maxRetries\x121\n" +
@@ -1574,7 +2016,12 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\vQueuePolicy\x12\x1b\n" +
 	"\tmax_items\x18\x01 \x01(\x05R\bmaxItems\x12\x15\n" +
 	"\x03key\x18\x02 \x01(\tH\x00R\x03key\x88\x01\x01B\x06\n" +
-	"\x04_key\"\xcf\x06\n" +
+	"\x04_key\"\x88\x01\n" +
+	"\rTracingPolicy\x12A\n" +
+	"\x04mode\x18\x01 \x01(\x0e2-.chalk.externalfunctioncatalog.v1.TracingModeR\x04mode\x12$\n" +
+	"\vsample_rate\x18\x02 \x01(\x01H\x00R\n" +
+	"sampleRate\x88\x01\x01B\x0e\n" +
+	"\f_sample_rate\"\xd9\a\n" +
 	"\x0eFunctionConfig\x12m\n" +
 	"\x14serialization_format\x18\x01 \x01(\x0e25.chalk.externalfunctioncatalog.v1.SerializationFormatH\x00R\x13serializationFormat\x88\x01\x01\x12W\n" +
 	"\aoptions\x18\x02 \x03(\v2=.chalk.externalfunctioncatalog.v1.FunctionConfig.OptionsEntryR\aoptions\x123\n" +
@@ -1584,7 +2031,10 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"rate_limit\x18\x06 \x01(\v21.chalk.externalfunctioncatalog.v1.RateLimitPolicyH\x04R\trateLimit\x88\x01\x01\x12Z\n" +
 	"\vconcurrency\x18\a \x01(\v23.chalk.externalfunctioncatalog.v1.ConcurrencyPolicyH\x05R\vconcurrency\x88\x01\x01\x12H\n" +
-	"\x05queue\x18\b \x01(\v2-.chalk.externalfunctioncatalog.v1.QueuePolicyH\x06R\x05queue\x88\x01\x01\x1a:\n" +
+	"\x05queue\x18\b \x01(\v2-.chalk.externalfunctioncatalog.v1.QueuePolicyH\x06R\x05queue\x88\x01\x01\x12\x1f\n" +
+	"\bschedule\x18\t \x01(\tH\aR\bschedule\x88\x01\x01\x12N\n" +
+	"\atracing\x18\n" +
+	" \x01(\v2/.chalk.externalfunctioncatalog.v1.TracingPolicyH\bR\atracing\x88\x01\x01\x1a:\n" +
 	"\fOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x17\n" +
@@ -1594,7 +2044,10 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\r_retry_policyB\r\n" +
 	"\v_rate_limitB\x0e\n" +
 	"\f_concurrencyB\b\n" +
-	"\x06_queue\"\xf4\x03\n" +
+	"\x06_queueB\v\n" +
+	"\t_scheduleB\n" +
+	"\n" +
+	"\b_tracing\"\xf4\x03\n" +
 	"\x17ExternalFunctionVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12#\n" +
 	"\rfunction_name\x18\x02 \x01(\tR\ffunctionName\x12\x18\n" +
@@ -1621,18 +2074,24 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x1d\n" +
 	"\aversion\x18\x02 \x01(\x05H\x00R\aversion\x88\x01\x01B\n" +
 	"\n" +
-	"\b_version\"\xe8\x01\n" +
+	"\b_version\"\xc1\x02\n" +
 	"!GetExternalFunctionVersionRequest\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x12P\n" +
 	"\x03key\x18\x02 \x01(\v2<.chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKeyH\x00R\x03key\x127\n" +
-	"\x15include_scaling_group\x18\x03 \x01(\bH\x01R\x13includeScalingGroup\x88\x01\x01B\f\n" +
+	"\x15include_scaling_group\x18\x03 \x01(\bH\x01R\x13includeScalingGroup\x88\x01\x01\x12;\n" +
+	"\x17include_active_schedule\x18\x04 \x01(\bH\x02R\x15includeActiveSchedule\x88\x01\x01B\f\n" +
 	"\n" +
 	"identifierB\x18\n" +
-	"\x16_include_scaling_group\"\x84\x02\n" +
+	"\x16_include_scaling_groupB\x1a\n" +
+	"\x18_include_active_schedule\"\xf8\x02\n" +
 	"\"GetExternalFunctionVersionResponse\x12u\n" +
 	"\x19external_function_version\x18\x01 \x01(\v29.chalk.externalfunctioncatalog.v1.ExternalFunctionVersionR\x17externalFunctionVersion\x12U\n" +
-	"\rscaling_group\x18\x02 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseH\x00R\fscalingGroup\x88\x01\x01B\x10\n" +
-	"\x0e_scaling_group\"\x81\x02\n" +
+	"\rscaling_group\x18\x02 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseH\x00R\fscalingGroup\x88\x01\x01\x12^\n" +
+	"\x0factive_schedule\x18\x03 \x01(\v20.chalk.externalfunctioncatalog.v1.ActiveScheduleH\x01R\x0eactiveSchedule\x88\x01\x01B\x10\n" +
+	"\x0e_scaling_groupB\x12\n" +
+	"\x10_active_schedule\"$\n" +
+	"\x0eActiveSchedule\x12\x12\n" +
+	"\x04cron\x18\x01 \x01(\tR\x04cron\"\x81\x02\n" +
 	"#ListExternalFunctionVersionsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x127\n" +
@@ -1656,25 +2115,49 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\v2<.chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKeyH\x00R\x03keyB\f\n" +
 	"\n" +
 	"identifier\"'\n" +
-	"%DeleteExternalFunctionVersionResponse\"\x9a\x03\n" +
+	"%DeleteExternalFunctionVersionResponse\"\x8e\x04\n" +
 	"\x17ExternalFunctionSummary\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\x0elatest_version\x18\x02 \x01(\x05R\rlatestVersion\x129\n" +
 	"\x19latest_scaling_group_name\x18\x03 \x01(\tR\x16latestScalingGroupName\x12F\n" +
 	"\x11latest_updated_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x0flatestUpdatedAt\x12M\n" +
 	"\x06config\x18\x05 \x01(\v20.chalk.externalfunctioncatalog.v1.FunctionConfigH\x00R\x06config\x88\x01\x01\x12U\n" +
-	"\rscaling_group\x18\x06 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseH\x01R\fscalingGroup\x88\x01\x01B\t\n" +
+	"\rscaling_group\x18\x06 \x01(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseH\x01R\fscalingGroup\x88\x01\x01\x12^\n" +
+	"\x0factive_schedule\x18\a \x01(\v20.chalk.externalfunctioncatalog.v1.ActiveScheduleH\x02R\x0eactiveSchedule\x88\x01\x01B\t\n" +
 	"\a_configB\x10\n" +
-	"\x0e_scaling_group\"\xbe\x01\n" +
+	"\x0e_scaling_groupB\x12\n" +
+	"\x10_active_schedule\"\x97\x02\n" +
 	"\x1cListExternalFunctionsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x127\n" +
-	"\x15include_scaling_group\x18\x03 \x01(\bH\x02R\x13includeScalingGroup\x88\x01\x01B\t\n" +
+	"\x15include_scaling_group\x18\x03 \x01(\bH\x02R\x13includeScalingGroup\x88\x01\x01\x12;\n" +
+	"\x17include_active_schedule\x18\x04 \x01(\bH\x03R\x15includeActiveSchedule\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x18\n" +
-	"\x16_include_scaling_group\"\xae\x01\n" +
+	"\x16_include_scaling_groupB\x1a\n" +
+	"\x18_include_active_schedule\"\xae\x01\n" +
 	"\x1dListExternalFunctionsResponse\x12W\n" +
 	"\tfunctions\x18\x01 \x03(\v29.chalk.externalfunctioncatalog.v1.ExternalFunctionSummaryR\tfunctions\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\x9c\x01\n" +
+	"(ListExternalFunctionScheduledRunsRequest\x12#\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\x86\x03\n" +
+	"\x1cExternalFunctionScheduledRun\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\\\n" +
+	"\x06status\x18\x02 \x01(\x0e2D.chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRunStatusR\x06status\x129\n" +
+	"\n" +
+	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12h\n" +
+	"\bmetadata\x18\x04 \x03(\v2L.chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.MetadataEntryR\bmetadata\x1aS\n" +
+	"\rMetadataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xb5\x01\n" +
+	")ListExternalFunctionScheduledRunsResponse\x12R\n" +
+	"\x04runs\x18\x01 \x03(\v2>.chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRunR\x04runs\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
 	"\f_next_cursor\"\xd8\x01\n" +
@@ -1692,13 +2175,29 @@ const file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc = "" +
 	"\x13RATE_LIMIT_PER_HOUR\x10\x03*]\n" +
 	"\x13SerializationFormat\x12$\n" +
 	" SERIALIZATION_FORMAT_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cSERIALIZATION_FORMAT_PYARROW\x10\x012\xba\b\n" +
+	"\x1cSERIALIZATION_FORMAT_PYARROW\x10\x01*\xa0\x01\n" +
+	"\vTracingMode\x12\x1c\n" +
+	"\x18TRACING_MODE_UNSPECIFIED\x10\x00\x12(\n" +
+	"$TRACING_MODE_PARENT_BASED_ALWAYS_OFF\x10\x01\x12,\n" +
+	"(TRACING_MODE_PARENT_BASED_TRACE_ID_RATIO\x10\x02\x12\x1b\n" +
+	"\x17TRACING_MODE_ALWAYS_OFF\x10\x03*\xce\x03\n" +
+	"\"ExternalFunctionScheduledRunStatus\x126\n" +
+	"2EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_UNSPECIFIED\x10\x00\x124\n" +
+	"0EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_SCHEDULED\x10\x01\x122\n" +
+	".EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_RUNNING\x10\x02\x124\n" +
+	"0EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_COMPLETED\x10\x03\x121\n" +
+	"-EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_FAILED\x10\x04\x123\n" +
+	"/EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_CANCELED\x10\x05\x124\n" +
+	"0EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_NOT_READY\x10\x06\x122\n" +
+	".EXTERNAL_FUNCTION_SCHEDULED_RUN_STATUS_WAITING\x10\a2\x81\n" +
+	"\n" +
 	"\x1eExternalFunctionCatalogService\x12\xb5\x01\n" +
 	"\x1dCreateExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse\"\x03\x80}\f\x12\xaf\x01\n" +
 	"\x1aGetExternalFunctionVersion\x12C.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest\x1aD.chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse\"\x06\x80}\v\x90\x02\x01\x12\xb5\x01\n" +
 	"\x1cListExternalFunctionVersions\x12E.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest\x1aF.chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse\"\x06\x80}\v\x90\x02\x01\x12\xb5\x01\n" +
 	"\x1dDeleteExternalFunctionVersion\x12F.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest\x1aG.chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse\"\x03\x80}\x0e\x12\xa0\x01\n" +
-	"\x15ListExternalFunctions\x12>.chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest\x1a?.chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse\"\x06\x80}\v\x90\x02\x01\x12\x9a\x01\n" +
+	"\x15ListExternalFunctions\x12>.chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest\x1a?.chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse\"\x06\x80}\v\x90\x02\x01\x12\xc4\x01\n" +
+	"!ListExternalFunctionScheduledRuns\x12J.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsRequest\x1aK.chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse\"\x06\x80}\v\x90\x02\x01\x12\x9a\x01\n" +
 	"\x14CallExternalFunction\x12=.chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest\x1a>.chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse\"\x03\x80}\x0eB\xb3\x02\n" +
 	"$com.chalk.externalfunctioncatalog.v1B\fServiceProtoP\x01Z[github.com/chalk-ai/chalk-go/gen/chalk/externalfunctioncatalog/v1;externalfunctioncatalogv1\xa2\x02\x03CEX\xaa\x02 Chalk.Externalfunctioncatalog.V1\xca\x02 Chalk\\Externalfunctioncatalog\\V1\xe2\x02,Chalk\\Externalfunctioncatalog\\V1\\GPBMetadata\xea\x02\"Chalk::Externalfunctioncatalog::V1b\x06proto3"
 
@@ -1714,89 +2213,109 @@ func file_chalk_externalfunctioncatalog_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_externalfunctioncatalog_v1_service_proto_rawDescData
 }
 
-var file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_chalk_externalfunctioncatalog_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_chalk_externalfunctioncatalog_v1_service_proto_goTypes = []any{
-	(RateLimitPer)(0),                             // 0: chalk.externalfunctioncatalog.v1.RateLimitPer
-	(SerializationFormat)(0),                      // 1: chalk.externalfunctioncatalog.v1.SerializationFormat
-	(*RetryPolicy)(nil),                           // 2: chalk.externalfunctioncatalog.v1.RetryPolicy
-	(*RateLimitPolicy)(nil),                       // 3: chalk.externalfunctioncatalog.v1.RateLimitPolicy
-	(*ConcurrencyPolicy)(nil),                     // 4: chalk.externalfunctioncatalog.v1.ConcurrencyPolicy
-	(*QueuePolicy)(nil),                           // 5: chalk.externalfunctioncatalog.v1.QueuePolicy
-	(*FunctionConfig)(nil),                        // 6: chalk.externalfunctioncatalog.v1.FunctionConfig
-	(*ExternalFunctionVersion)(nil),               // 7: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
-	(*CreateExternalFunctionVersionRequest)(nil),  // 8: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest
-	(*CreateExternalFunctionVersionResponse)(nil), // 9: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse
-	(*ExternalFunctionVersionKey)(nil),            // 10: chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
-	(*GetExternalFunctionVersionRequest)(nil),     // 11: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest
-	(*GetExternalFunctionVersionResponse)(nil),    // 12: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse
-	(*ListExternalFunctionVersionsRequest)(nil),   // 13: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest
-	(*ListExternalFunctionVersionsEntry)(nil),     // 14: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry
-	(*ListExternalFunctionVersionsResponse)(nil),  // 15: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse
-	(*DeleteExternalFunctionVersionRequest)(nil),  // 16: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest
-	(*DeleteExternalFunctionVersionResponse)(nil), // 17: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse
-	(*ExternalFunctionSummary)(nil),               // 18: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary
-	(*ListExternalFunctionsRequest)(nil),          // 19: chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest
-	(*ListExternalFunctionsResponse)(nil),         // 20: chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse
-	(*CallExternalFunctionRequest)(nil),           // 21: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest
-	(*CallExternalFunctionResponse)(nil),          // 22: chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse
-	nil,                                           // 23: chalk.externalfunctioncatalog.v1.FunctionConfig.OptionsEntry
-	(*v1.Schema)(nil),                             // 24: chalk.arrow.v1.Schema
-	(*timestamppb.Timestamp)(nil),                 // 25: google.protobuf.Timestamp
-	(*v11.ScalingGroupSpec)(nil),                  // 26: chalk.scalinggroup.v1.ScalingGroupSpec
-	(*v11.ScalingGroupResponse)(nil),              // 27: chalk.scalinggroup.v1.ScalingGroupResponse
-	(*v12.CallFunctionRequest)(nil),               // 28: chalk.runtime.v1.CallFunctionRequest
-	(*v12.CallFunctionResponse)(nil),              // 29: chalk.runtime.v1.CallFunctionResponse
+	(RateLimitPer)(0),                                 // 0: chalk.externalfunctioncatalog.v1.RateLimitPer
+	(SerializationFormat)(0),                          // 1: chalk.externalfunctioncatalog.v1.SerializationFormat
+	(TracingMode)(0),                                  // 2: chalk.externalfunctioncatalog.v1.TracingMode
+	(ExternalFunctionScheduledRunStatus)(0),           // 3: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRunStatus
+	(*RetryPolicy)(nil),                               // 4: chalk.externalfunctioncatalog.v1.RetryPolicy
+	(*RateLimitPolicy)(nil),                           // 5: chalk.externalfunctioncatalog.v1.RateLimitPolicy
+	(*ConcurrencyPolicy)(nil),                         // 6: chalk.externalfunctioncatalog.v1.ConcurrencyPolicy
+	(*QueuePolicy)(nil),                               // 7: chalk.externalfunctioncatalog.v1.QueuePolicy
+	(*TracingPolicy)(nil),                             // 8: chalk.externalfunctioncatalog.v1.TracingPolicy
+	(*FunctionConfig)(nil),                            // 9: chalk.externalfunctioncatalog.v1.FunctionConfig
+	(*ExternalFunctionVersion)(nil),                   // 10: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
+	(*CreateExternalFunctionVersionRequest)(nil),      // 11: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest
+	(*CreateExternalFunctionVersionResponse)(nil),     // 12: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse
+	(*ExternalFunctionVersionKey)(nil),                // 13: chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
+	(*GetExternalFunctionVersionRequest)(nil),         // 14: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest
+	(*GetExternalFunctionVersionResponse)(nil),        // 15: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse
+	(*ActiveSchedule)(nil),                            // 16: chalk.externalfunctioncatalog.v1.ActiveSchedule
+	(*ListExternalFunctionVersionsRequest)(nil),       // 17: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest
+	(*ListExternalFunctionVersionsEntry)(nil),         // 18: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry
+	(*ListExternalFunctionVersionsResponse)(nil),      // 19: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse
+	(*DeleteExternalFunctionVersionRequest)(nil),      // 20: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest
+	(*DeleteExternalFunctionVersionResponse)(nil),     // 21: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse
+	(*ExternalFunctionSummary)(nil),                   // 22: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary
+	(*ListExternalFunctionsRequest)(nil),              // 23: chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest
+	(*ListExternalFunctionsResponse)(nil),             // 24: chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse
+	(*ListExternalFunctionScheduledRunsRequest)(nil),  // 25: chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsRequest
+	(*ExternalFunctionScheduledRun)(nil),              // 26: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun
+	(*ListExternalFunctionScheduledRunsResponse)(nil), // 27: chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse
+	(*CallExternalFunctionRequest)(nil),               // 28: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest
+	(*CallExternalFunctionResponse)(nil),              // 29: chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse
+	nil,                                               // 30: chalk.externalfunctioncatalog.v1.FunctionConfig.OptionsEntry
+	nil,                                               // 31: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.MetadataEntry
+	(*v1.Schema)(nil),                                 // 32: chalk.arrow.v1.Schema
+	(*timestamppb.Timestamp)(nil),                     // 33: google.protobuf.Timestamp
+	(*v11.ScalingGroupSpec)(nil),                      // 34: chalk.scalinggroup.v1.ScalingGroupSpec
+	(*v11.ScalingGroupResponse)(nil),                  // 35: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*v12.CallFunctionRequest)(nil),                   // 36: chalk.runtime.v1.CallFunctionRequest
+	(*v12.CallFunctionResponse)(nil),                  // 37: chalk.runtime.v1.CallFunctionResponse
+	(*structpb.Value)(nil),                            // 38: google.protobuf.Value
 }
 var file_chalk_externalfunctioncatalog_v1_service_proto_depIdxs = []int32{
 	0,  // 0: chalk.externalfunctioncatalog.v1.RateLimitPolicy.per:type_name -> chalk.externalfunctioncatalog.v1.RateLimitPer
-	1,  // 1: chalk.externalfunctioncatalog.v1.FunctionConfig.serialization_format:type_name -> chalk.externalfunctioncatalog.v1.SerializationFormat
-	23, // 2: chalk.externalfunctioncatalog.v1.FunctionConfig.options:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig.OptionsEntry
-	2,  // 3: chalk.externalfunctioncatalog.v1.FunctionConfig.retry_policy:type_name -> chalk.externalfunctioncatalog.v1.RetryPolicy
-	3,  // 4: chalk.externalfunctioncatalog.v1.FunctionConfig.rate_limit:type_name -> chalk.externalfunctioncatalog.v1.RateLimitPolicy
-	4,  // 5: chalk.externalfunctioncatalog.v1.FunctionConfig.concurrency:type_name -> chalk.externalfunctioncatalog.v1.ConcurrencyPolicy
-	5,  // 6: chalk.externalfunctioncatalog.v1.FunctionConfig.queue:type_name -> chalk.externalfunctioncatalog.v1.QueuePolicy
-	24, // 7: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.input_arrow_schema:type_name -> chalk.arrow.v1.Schema
-	24, // 8: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.output_arrow_schema:type_name -> chalk.arrow.v1.Schema
-	25, // 9: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 10: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
-	24, // 11: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.input_arrow_schema:type_name -> chalk.arrow.v1.Schema
-	24, // 12: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.output_arrow_schema:type_name -> chalk.arrow.v1.Schema
-	26, // 13: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
-	6,  // 14: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
-	7,  // 15: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
-	27, // 16: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	10, // 17: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest.key:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
-	7,  // 18: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
-	27, // 19: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	7,  // 20: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
-	27, // 21: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	14, // 22: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse.entries:type_name -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry
-	10, // 23: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest.key:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
-	25, // 24: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.latest_updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 25: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
-	27, // 26: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	18, // 27: chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse.functions:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionSummary
-	10, // 28: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest.function:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
-	28, // 29: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
-	29, // 30: chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
-	8,  // 31: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest
-	11, // 32: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest
-	13, // 33: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionVersions:input_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest
-	16, // 34: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DeleteExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest
-	19, // 35: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions:input_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest
-	21, // 36: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction:input_type -> chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest
-	9,  // 37: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse
-	12, // 38: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse
-	15, // 39: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionVersions:output_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse
-	17, // 40: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DeleteExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse
-	20, // 41: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions:output_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse
-	22, // 42: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction:output_type -> chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse
-	37, // [37:43] is the sub-list for method output_type
-	31, // [31:37] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	2,  // 1: chalk.externalfunctioncatalog.v1.TracingPolicy.mode:type_name -> chalk.externalfunctioncatalog.v1.TracingMode
+	1,  // 2: chalk.externalfunctioncatalog.v1.FunctionConfig.serialization_format:type_name -> chalk.externalfunctioncatalog.v1.SerializationFormat
+	30, // 3: chalk.externalfunctioncatalog.v1.FunctionConfig.options:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig.OptionsEntry
+	4,  // 4: chalk.externalfunctioncatalog.v1.FunctionConfig.retry_policy:type_name -> chalk.externalfunctioncatalog.v1.RetryPolicy
+	5,  // 5: chalk.externalfunctioncatalog.v1.FunctionConfig.rate_limit:type_name -> chalk.externalfunctioncatalog.v1.RateLimitPolicy
+	6,  // 6: chalk.externalfunctioncatalog.v1.FunctionConfig.concurrency:type_name -> chalk.externalfunctioncatalog.v1.ConcurrencyPolicy
+	7,  // 7: chalk.externalfunctioncatalog.v1.FunctionConfig.queue:type_name -> chalk.externalfunctioncatalog.v1.QueuePolicy
+	8,  // 8: chalk.externalfunctioncatalog.v1.FunctionConfig.tracing:type_name -> chalk.externalfunctioncatalog.v1.TracingPolicy
+	32, // 9: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.input_arrow_schema:type_name -> chalk.arrow.v1.Schema
+	32, // 10: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.output_arrow_schema:type_name -> chalk.arrow.v1.Schema
+	33, // 11: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 12: chalk.externalfunctioncatalog.v1.ExternalFunctionVersion.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
+	32, // 13: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.input_arrow_schema:type_name -> chalk.arrow.v1.Schema
+	32, // 14: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.output_arrow_schema:type_name -> chalk.arrow.v1.Schema
+	34, // 15: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.spec:type_name -> chalk.scalinggroup.v1.ScalingGroupSpec
+	9,  // 16: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
+	10, // 17: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
+	35, // 18: chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	13, // 19: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest.key:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
+	10, // 20: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
+	35, // 21: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	16, // 22: chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse.active_schedule:type_name -> chalk.externalfunctioncatalog.v1.ActiveSchedule
+	10, // 23: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry.external_function_version:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersion
+	35, // 24: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	18, // 25: chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse.entries:type_name -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsEntry
+	13, // 26: chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest.key:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
+	33, // 27: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.latest_updated_at:type_name -> google.protobuf.Timestamp
+	9,  // 28: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.config:type_name -> chalk.externalfunctioncatalog.v1.FunctionConfig
+	35, // 29: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	16, // 30: chalk.externalfunctioncatalog.v1.ExternalFunctionSummary.active_schedule:type_name -> chalk.externalfunctioncatalog.v1.ActiveSchedule
+	22, // 31: chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse.functions:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionSummary
+	3,  // 32: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.status:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRunStatus
+	33, // 33: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.created_at:type_name -> google.protobuf.Timestamp
+	31, // 34: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.metadata:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.MetadataEntry
+	26, // 35: chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse.runs:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun
+	13, // 36: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest.function:type_name -> chalk.externalfunctioncatalog.v1.ExternalFunctionVersionKey
+	36, // 37: chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
+	37, // 38: chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
+	38, // 39: chalk.externalfunctioncatalog.v1.ExternalFunctionScheduledRun.MetadataEntry.value:type_name -> google.protobuf.Value
+	11, // 40: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionRequest
+	14, // 41: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionRequest
+	17, // 42: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionVersions:input_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsRequest
+	20, // 43: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DeleteExternalFunctionVersion:input_type -> chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionRequest
+	23, // 44: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions:input_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionsRequest
+	25, // 45: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionScheduledRuns:input_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsRequest
+	28, // 46: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction:input_type -> chalk.externalfunctioncatalog.v1.CallExternalFunctionRequest
+	12, // 47: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CreateExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.CreateExternalFunctionVersionResponse
+	15, // 48: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.GetExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.GetExternalFunctionVersionResponse
+	19, // 49: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionVersions:output_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionVersionsResponse
+	21, // 50: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.DeleteExternalFunctionVersion:output_type -> chalk.externalfunctioncatalog.v1.DeleteExternalFunctionVersionResponse
+	24, // 51: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctions:output_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionsResponse
+	27, // 52: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.ListExternalFunctionScheduledRuns:output_type -> chalk.externalfunctioncatalog.v1.ListExternalFunctionScheduledRunsResponse
+	29, // 53: chalk.externalfunctioncatalog.v1.ExternalFunctionCatalogService.CallExternalFunction:output_type -> chalk.externalfunctioncatalog.v1.CallExternalFunctionResponse
+	47, // [47:54] is the sub-list for method output_type
+	40, // [40:47] is the sub-list for method input_type
+	40, // [40:40] is the sub-list for extension type_name
+	40, // [40:40] is the sub-list for extension extendee
+	0,  // [0:40] is the sub-list for field type_name
 }
 
 func init() { file_chalk_externalfunctioncatalog_v1_service_proto_init() }
@@ -1811,26 +2330,29 @@ func file_chalk_externalfunctioncatalog_v1_service_proto_init() {
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[5].OneofWrappers = []any{}
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[6].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9].OneofWrappers = []any{
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[7].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10].OneofWrappers = []any{
 		(*GetExternalFunctionVersionRequest_Id)(nil),
 		(*GetExternalFunctionVersionRequest_Key)(nil),
 	}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14].OneofWrappers = []any{
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[14].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16].OneofWrappers = []any{
 		(*DeleteExternalFunctionVersionRequest_Id)(nil),
 		(*DeleteExternalFunctionVersionRequest_Key)(nil),
 	}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[16].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[18].OneofWrappers = []any{}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19].OneofWrappers = []any{
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[19].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[21].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[23].OneofWrappers = []any{}
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[24].OneofWrappers = []any{
 		(*CallExternalFunctionRequest_RemoteCallRequest)(nil),
 	}
-	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[20].OneofWrappers = []any{
+	file_chalk_externalfunctioncatalog_v1_service_proto_msgTypes[25].OneofWrappers = []any{
 		(*CallExternalFunctionResponse_RemoteCallResponse)(nil),
 	}
 	type x struct{}
@@ -1838,8 +2360,8 @@ func file_chalk_externalfunctioncatalog_v1_service_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc), len(file_chalk_externalfunctioncatalog_v1_service_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   22,
+			NumEnums:      4,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

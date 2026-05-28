@@ -470,22 +470,23 @@ func (x *AggregateBackfillWithCostEstimate) GetEstimate() *AggregateBackfillCost
 }
 
 type AggregateBackfillJob struct {
-	state                   protoimpl.MessageState  `protogen:"open.v1"`
-	Id                      string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EnvironmentId           string                  `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
-	Resolver                *string                 `protobuf:"bytes,3,opt,name=resolver,proto3,oneof" json:"resolver,omitempty"`
-	Features                []string                `protobuf:"bytes,4,rep,name=features,proto3" json:"features,omitempty"`
-	AgentId                 *string                 `protobuf:"bytes,5,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
-	DeploymentId            *string                 `protobuf:"bytes,6,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
-	CreatedAt               *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt               *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	Resolvers               []string                `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
-	CronAggregateBackfillId *string                 `protobuf:"bytes,10,opt,name=cron_aggregate_backfill_id,json=cronAggregateBackfillId,proto3,oneof" json:"cron_aggregate_backfill_id,omitempty"`
-	PlanHash                *string                 `protobuf:"bytes,11,opt,name=plan_hash,json=planHash,proto3,oneof" json:"plan_hash,omitempty"`
-	Status                  AggregateBackfillStatus `protobuf:"varint,12,opt,name=status,proto3,enum=chalk.aggregate.v1.AggregateBackfillStatus" json:"status,omitempty"`
-	QueryTags               []string                `protobuf:"bytes,13,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                     protoimpl.MessageState  `protogen:"open.v1"`
+	Id                        string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId             string                  `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	Resolver                  *string                 `protobuf:"bytes,3,opt,name=resolver,proto3,oneof" json:"resolver,omitempty"`
+	Features                  []string                `protobuf:"bytes,4,rep,name=features,proto3" json:"features,omitempty"`
+	AgentId                   *string                 `protobuf:"bytes,5,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
+	DeploymentId              *string                 `protobuf:"bytes,6,opt,name=deployment_id,json=deploymentId,proto3,oneof" json:"deployment_id,omitempty"`
+	CreatedAt                 *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt                 *timestamppb.Timestamp  `protobuf:"bytes,8,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Resolvers                 []string                `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
+	CronAggregateBackfillId   *string                 `protobuf:"bytes,10,opt,name=cron_aggregate_backfill_id,json=cronAggregateBackfillId,proto3,oneof" json:"cron_aggregate_backfill_id,omitempty"`
+	PlanHash                  *string                 `protobuf:"bytes,11,opt,name=plan_hash,json=planHash,proto3,oneof" json:"plan_hash,omitempty"`
+	Status                    AggregateBackfillStatus `protobuf:"varint,12,opt,name=status,proto3,enum=chalk.aggregate.v1.AggregateBackfillStatus" json:"status,omitempty"`
+	QueryTags                 []string                `protobuf:"bytes,13,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
+	CronAggregateBackfillName *string                 `protobuf:"bytes,14,opt,name=cron_aggregate_backfill_name,json=cronAggregateBackfillName,proto3,oneof" json:"cron_aggregate_backfill_name,omitempty"`
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *AggregateBackfillJob) Reset() {
@@ -609,22 +610,31 @@ func (x *AggregateBackfillJob) GetQueryTags() []string {
 	return nil
 }
 
+func (x *AggregateBackfillJob) GetCronAggregateBackfillName() string {
+	if x != nil && x.CronAggregateBackfillName != nil {
+		return *x.CronAggregateBackfillName
+	}
+	return ""
+}
+
 type CronAggregateBackfill struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Id            string                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	EnvironmentId string                  `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
-	DeploymentId  string                  `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	Name          string                  `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"`
-	Schedule      string                  `protobuf:"bytes,4,opt,name=schedule,proto3" json:"schedule,omitempty"`
-	Filename      *string                 `protobuf:"bytes,12,opt,name=filename,proto3,oneof" json:"filename,omitempty"`
-	PlanHash      string                  `protobuf:"bytes,5,opt,name=plan_hash,json=planHash,proto3" json:"plan_hash,omitempty"`
-	Features      []string                `protobuf:"bytes,8,rep,name=features,proto3" json:"features,omitempty"`
-	Resolvers     []string                `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
-	QueryTags     []string                `protobuf:"bytes,10,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
-	Target        AggregateBackfillTarget `protobuf:"varint,13,opt,name=target,proto3,enum=chalk.aggregate.v1.AggregateBackfillTarget" json:"target,omitempty"`
-	ResourceGroup *string                 `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
-	CreatedAt     *timestamppb.Timestamp  `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp  `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	EnvironmentId string                 `protobuf:"bytes,2,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,3,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	Name          string                 `protobuf:"bytes,11,opt,name=name,proto3" json:"name,omitempty"`
+	Schedule      string                 `protobuf:"bytes,4,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	Filename      *string                `protobuf:"bytes,12,opt,name=filename,proto3,oneof" json:"filename,omitempty"`
+	PlanHash      string                 `protobuf:"bytes,5,opt,name=plan_hash,json=planHash,proto3" json:"plan_hash,omitempty"`
+	Features      []string               `protobuf:"bytes,8,rep,name=features,proto3" json:"features,omitempty"`
+	Resolvers     []string               `protobuf:"bytes,9,rep,name=resolvers,proto3" json:"resolvers,omitempty"`
+	QueryTags     []string               `protobuf:"bytes,10,rep,name=query_tags,json=queryTags,proto3" json:"query_tags,omitempty"`
+	// TODO: deprecate
+	Target        AggregateBackfillTarget   `protobuf:"varint,13,opt,name=target,proto3,enum=chalk.aggregate.v1.AggregateBackfillTarget" json:"target,omitempty"`
+	ResourceGroup *string                   `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	Targets       []AggregateBackfillTarget `protobuf:"varint,15,rep,packed,name=targets,proto3,enum=chalk.aggregate.v1.AggregateBackfillTarget" json:"targets,omitempty"`
+	CreatedAt     *timestamppb.Timestamp    `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp    `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -743,6 +753,13 @@ func (x *CronAggregateBackfill) GetResourceGroup() string {
 	return ""
 }
 
+func (x *CronAggregateBackfill) GetTargets() []AggregateBackfillTarget {
+	if x != nil {
+		return x.Targets
+	}
+	return nil
+}
+
 func (x *CronAggregateBackfill) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -797,7 +814,7 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"upperBound\"\xb5\x01\n" +
 	"!AggregateBackfillWithCostEstimate\x12A\n" +
 	"\bbackfill\x18\x01 \x01(\v2%.chalk.aggregate.v1.AggregateBackfillR\bbackfill\x12M\n" +
-	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateR\bestimate\"\x89\x05\n" +
+	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateR\bestimate\"\xf0\x05\n" +
 	"\x14AggregateBackfillJob\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12\x1f\n" +
@@ -815,13 +832,15 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\tplan_hash\x18\v \x01(\tH\x04R\bplanHash\x88\x01\x01\x12C\n" +
 	"\x06status\x18\f \x01(\x0e2+.chalk.aggregate.v1.AggregateBackfillStatusR\x06status\x12\x1d\n" +
 	"\n" +
-	"query_tags\x18\r \x03(\tR\tqueryTagsB\v\n" +
+	"query_tags\x18\r \x03(\tR\tqueryTags\x12D\n" +
+	"\x1ccron_aggregate_backfill_name\x18\x0e \x01(\tH\x05R\x19cronAggregateBackfillName\x88\x01\x01B\v\n" +
 	"\t_resolverB\v\n" +
 	"\t_agent_idB\x10\n" +
 	"\x0e_deployment_idB\x1d\n" +
 	"\x1b_cron_aggregate_backfill_idB\f\n" +
 	"\n" +
-	"_plan_hash\"\xc1\x04\n" +
+	"_plan_hashB\x1f\n" +
+	"\x1d_cron_aggregate_backfill_name\"\x88\x05\n" +
 	"\x15CronAggregateBackfill\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
 	"\x0eenvironment_id\x18\x02 \x01(\tR\renvironmentId\x12#\n" +
@@ -836,7 +855,8 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"query_tags\x18\n" +
 	" \x03(\tR\tqueryTags\x12C\n" +
 	"\x06target\x18\r \x01(\x0e2+.chalk.aggregate.v1.AggregateBackfillTargetR\x06target\x12*\n" +
-	"\x0eresource_group\x18\x0e \x01(\tH\x01R\rresourceGroup\x88\x01\x01\x129\n" +
+	"\x0eresource_group\x18\x0e \x01(\tH\x01R\rresourceGroup\x88\x01\x01\x12E\n" +
+	"\atargets\x18\x0f \x03(\x0e2+.chalk.aggregate.v1.AggregateBackfillTargetR\atargets\x129\n" +
 	"\n" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
@@ -901,13 +921,14 @@ var file_chalk_aggregate_v1_backfill_proto_depIdxs = []int32{
 	9,  // 11: chalk.aggregate.v1.AggregateBackfillJob.updated_at:type_name -> google.protobuf.Timestamp
 	0,  // 12: chalk.aggregate.v1.AggregateBackfillJob.status:type_name -> chalk.aggregate.v1.AggregateBackfillStatus
 	1,  // 13: chalk.aggregate.v1.CronAggregateBackfill.target:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
-	9,  // 14: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
-	9,  // 15: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	1,  // 14: chalk.aggregate.v1.CronAggregateBackfill.targets:type_name -> chalk.aggregate.v1.AggregateBackfillTarget
+	9,  // 15: chalk.aggregate.v1.CronAggregateBackfill.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 16: chalk.aggregate.v1.CronAggregateBackfill.updated_at:type_name -> google.protobuf.Timestamp
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_chalk_aggregate_v1_backfill_proto_init() }

@@ -51,6 +51,9 @@ const (
 	// ScriptTaskServiceRerunScriptTaskProcedure is the fully-qualified name of the ScriptTaskService's
 	// RerunScriptTask RPC.
 	ScriptTaskServiceRerunScriptTaskProcedure = "/chalk.server.v1.ScriptTaskService/RerunScriptTask"
+	// ScriptTaskServiceGetMetaplanTaskInfoProcedure is the fully-qualified name of the
+	// ScriptTaskService's GetMetaplanTaskInfo RPC.
+	ScriptTaskServiceGetMetaplanTaskInfoProcedure = "/chalk.server.v1.ScriptTaskService/GetMetaplanTaskInfo"
 )
 
 // ScriptTaskServiceClient is a client for the chalk.server.v1.ScriptTaskService service.
@@ -61,6 +64,7 @@ type ScriptTaskServiceClient interface {
 	GetScriptTaskSource(context.Context, *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error)
 	CancelScriptTask(context.Context, *connect.Request[v1.CancelScriptTaskRequest]) (*connect.Response[v1.CancelScriptTaskResponse], error)
 	RerunScriptTask(context.Context, *connect.Request[v1.RerunScriptTaskRequest]) (*connect.Response[v1.RerunScriptTaskResponse], error)
+	GetMetaplanTaskInfo(context.Context, *connect.Request[v1.GetMetaplanTaskInfoRequest]) (*connect.Response[v1.GetMetaplanTaskInfoResponse], error)
 }
 
 // NewScriptTaskServiceClient constructs a client for the chalk.server.v1.ScriptTaskService service.
@@ -114,6 +118,13 @@ func NewScriptTaskServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(scriptTaskServiceMethods.ByName("RerunScriptTask")),
 			connect.WithClientOptions(opts...),
 		),
+		getMetaplanTaskInfo: connect.NewClient[v1.GetMetaplanTaskInfoRequest, v1.GetMetaplanTaskInfoResponse](
+			httpClient,
+			baseURL+ScriptTaskServiceGetMetaplanTaskInfoProcedure,
+			connect.WithSchema(scriptTaskServiceMethods.ByName("GetMetaplanTaskInfo")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -125,6 +136,7 @@ type scriptTaskServiceClient struct {
 	getScriptTaskSource *connect.Client[v1.GetScriptTaskSourceRequest, v1.GetScriptTaskSourceResponse]
 	cancelScriptTask    *connect.Client[v1.CancelScriptTaskRequest, v1.CancelScriptTaskResponse]
 	rerunScriptTask     *connect.Client[v1.RerunScriptTaskRequest, v1.RerunScriptTaskResponse]
+	getMetaplanTaskInfo *connect.Client[v1.GetMetaplanTaskInfoRequest, v1.GetMetaplanTaskInfoResponse]
 }
 
 // CreateScriptTask calls chalk.server.v1.ScriptTaskService.CreateScriptTask.
@@ -157,6 +169,11 @@ func (c *scriptTaskServiceClient) RerunScriptTask(ctx context.Context, req *conn
 	return c.rerunScriptTask.CallUnary(ctx, req)
 }
 
+// GetMetaplanTaskInfo calls chalk.server.v1.ScriptTaskService.GetMetaplanTaskInfo.
+func (c *scriptTaskServiceClient) GetMetaplanTaskInfo(ctx context.Context, req *connect.Request[v1.GetMetaplanTaskInfoRequest]) (*connect.Response[v1.GetMetaplanTaskInfoResponse], error) {
+	return c.getMetaplanTaskInfo.CallUnary(ctx, req)
+}
+
 // ScriptTaskServiceHandler is an implementation of the chalk.server.v1.ScriptTaskService service.
 type ScriptTaskServiceHandler interface {
 	CreateScriptTask(context.Context, *connect.Request[v1.CreateScriptTaskRequest]) (*connect.Response[v1.CreateScriptTaskResponse], error)
@@ -165,6 +182,7 @@ type ScriptTaskServiceHandler interface {
 	GetScriptTaskSource(context.Context, *connect.Request[v1.GetScriptTaskSourceRequest]) (*connect.Response[v1.GetScriptTaskSourceResponse], error)
 	CancelScriptTask(context.Context, *connect.Request[v1.CancelScriptTaskRequest]) (*connect.Response[v1.CancelScriptTaskResponse], error)
 	RerunScriptTask(context.Context, *connect.Request[v1.RerunScriptTaskRequest]) (*connect.Response[v1.RerunScriptTaskResponse], error)
+	GetMetaplanTaskInfo(context.Context, *connect.Request[v1.GetMetaplanTaskInfoRequest]) (*connect.Response[v1.GetMetaplanTaskInfoResponse], error)
 }
 
 // NewScriptTaskServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -214,6 +232,13 @@ func NewScriptTaskServiceHandler(svc ScriptTaskServiceHandler, opts ...connect.H
 		connect.WithSchema(scriptTaskServiceMethods.ByName("RerunScriptTask")),
 		connect.WithHandlerOptions(opts...),
 	)
+	scriptTaskServiceGetMetaplanTaskInfoHandler := connect.NewUnaryHandler(
+		ScriptTaskServiceGetMetaplanTaskInfoProcedure,
+		svc.GetMetaplanTaskInfo,
+		connect.WithSchema(scriptTaskServiceMethods.ByName("GetMetaplanTaskInfo")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ScriptTaskService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ScriptTaskServiceCreateScriptTaskProcedure:
@@ -228,6 +253,8 @@ func NewScriptTaskServiceHandler(svc ScriptTaskServiceHandler, opts ...connect.H
 			scriptTaskServiceCancelScriptTaskHandler.ServeHTTP(w, r)
 		case ScriptTaskServiceRerunScriptTaskProcedure:
 			scriptTaskServiceRerunScriptTaskHandler.ServeHTTP(w, r)
+		case ScriptTaskServiceGetMetaplanTaskInfoProcedure:
+			scriptTaskServiceGetMetaplanTaskInfoHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -259,4 +286,8 @@ func (UnimplementedScriptTaskServiceHandler) CancelScriptTask(context.Context, *
 
 func (UnimplementedScriptTaskServiceHandler) RerunScriptTask(context.Context, *connect.Request[v1.RerunScriptTaskRequest]) (*connect.Response[v1.RerunScriptTaskResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScriptTaskService.RerunScriptTask is not implemented"))
+}
+
+func (UnimplementedScriptTaskServiceHandler) GetMetaplanTaskInfo(context.Context, *connect.Request[v1.GetMetaplanTaskInfoRequest]) (*connect.Response[v1.GetMetaplanTaskInfoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ScriptTaskService.GetMetaplanTaskInfo is not implemented"))
 }

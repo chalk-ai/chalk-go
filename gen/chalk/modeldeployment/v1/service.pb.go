@@ -10,6 +10,7 @@ import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/container/v1"
 	v11 "github.com/chalk-ai/chalk-go/gen/chalk/models/v1"
+	v13 "github.com/chalk-ai/chalk-go/gen/chalk/runtime/v1"
 	v12 "github.com/chalk-ai/chalk-go/gen/chalk/scalinggroup/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -386,11 +387,151 @@ func (x *ListModelScalingGroupsResponse) GetScalingGroups() []*v12.ScalingGroupR
 	return nil
 }
 
+type CallModelRequest struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	ModelVersion *ModelVersionSelector  `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	// Types that are valid to be assigned to Body:
+	//
+	//	*CallModelRequest_RemoteCallRequest
+	Body          isCallModelRequest_Body `protobuf_oneof:"body"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CallModelRequest) Reset() {
+	*x = CallModelRequest{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CallModelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallModelRequest) ProtoMessage() {}
+
+func (x *CallModelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallModelRequest.ProtoReflect.Descriptor instead.
+func (*CallModelRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CallModelRequest) GetModelVersion() *ModelVersionSelector {
+	if x != nil {
+		return x.ModelVersion
+	}
+	return nil
+}
+
+func (x *CallModelRequest) GetBody() isCallModelRequest_Body {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *CallModelRequest) GetRemoteCallRequest() *v13.CallFunctionRequest {
+	if x != nil {
+		if x, ok := x.Body.(*CallModelRequest_RemoteCallRequest); ok {
+			return x.RemoteCallRequest
+		}
+	}
+	return nil
+}
+
+type isCallModelRequest_Body interface {
+	isCallModelRequest_Body()
+}
+
+type CallModelRequest_RemoteCallRequest struct {
+	RemoteCallRequest *v13.CallFunctionRequest `protobuf:"bytes,2,opt,name=remote_call_request,json=remoteCallRequest,proto3,oneof"`
+}
+
+func (*CallModelRequest_RemoteCallRequest) isCallModelRequest_Body() {}
+
+type CallModelResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Body:
+	//
+	//	*CallModelResponse_RemoteCallResponse
+	Body          isCallModelResponse_Body `protobuf_oneof:"body"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CallModelResponse) Reset() {
+	*x = CallModelResponse{}
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CallModelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallModelResponse) ProtoMessage() {}
+
+func (x *CallModelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_modeldeployment_v1_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallModelResponse.ProtoReflect.Descriptor instead.
+func (*CallModelResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_modeldeployment_v1_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CallModelResponse) GetBody() isCallModelResponse_Body {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *CallModelResponse) GetRemoteCallResponse() *v13.CallFunctionResponse {
+	if x != nil {
+		if x, ok := x.Body.(*CallModelResponse_RemoteCallResponse); ok {
+			return x.RemoteCallResponse
+		}
+	}
+	return nil
+}
+
+type isCallModelResponse_Body interface {
+	isCallModelResponse_Body()
+}
+
+type CallModelResponse_RemoteCallResponse struct {
+	RemoteCallResponse *v13.CallFunctionResponse `protobuf:"bytes,1,opt,name=remote_call_response,json=remoteCallResponse,proto3,oneof"`
+}
+
+func (*CallModelResponse_RemoteCallResponse) isCallModelResponse_Body() {}
+
 var File_chalk_modeldeployment_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a#chalk/scalinggroup/v1/service.proto\"\xa6\x04\n" +
+	"&chalk/modeldeployment/v1/service.proto\x12\x18chalk.modeldeployment.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a chalk/container/v1/service.proto\x1a#chalk/models/v1/model_version.proto\x1a)chalk/runtime/v1/remote_python_call.proto\x1a#chalk/scalinggroup/v1/service.proto\"\xa6\x04\n" +
 	"\x12ModelContainerSpec\x12J\n" +
 	"\x04tags\x18\x01 \x03(\v26.chalk.modeldeployment.v1.ModelContainerSpec.TagsEntryR\x04tags\x12E\n" +
 	"\tresources\x18\x02 \x01(\v2\".chalk.container.v1.ResourceLimitsH\x00R\tresources\x88\x01\x01\x12T\n" +
@@ -433,10 +574,18 @@ const file_chalk_modeldeployment_v1_service_proto_rawDesc = "" +
 	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorH\x00R\fmodelVersion\x88\x01\x01B\x10\n" +
 	"\x0e_model_version\"t\n" +
 	"\x1eListModelScalingGroupsResponse\x12R\n" +
-	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups2\xc1\x02\n" +
+	"\x0escaling_groups\x18\x01 \x03(\v2+.chalk.scalinggroup.v1.ScalingGroupResponseR\rscalingGroups\"\xc8\x01\n" +
+	"\x10CallModelRequest\x12S\n" +
+	"\rmodel_version\x18\x01 \x01(\v2..chalk.modeldeployment.v1.ModelVersionSelectorR\fmodelVersion\x12W\n" +
+	"\x13remote_call_request\x18\x02 \x01(\v2%.chalk.runtime.v1.CallFunctionRequestH\x00R\x11remoteCallRequestB\x06\n" +
+	"\x04body\"w\n" +
+	"\x11CallModelResponse\x12Z\n" +
+	"\x14remote_call_response\x18\x01 \x01(\v2&.chalk.runtime.v1.CallFunctionResponseH\x00R\x12remoteCallResponseB\x06\n" +
+	"\x04body2\xac\x03\n" +
 	"\x16ModelDeploymentService\x12\x93\x01\n" +
 	"\x17CreateModelScalingGroup\x128.chalk.modeldeployment.v1.CreateModelScalingGroupRequest\x1a9.chalk.modeldeployment.v1.CreateModelScalingGroupResponse\"\x03\x80}\f\x12\x90\x01\n" +
-	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\x03\x80}\vB\xfb\x01\n" +
+	"\x16ListModelScalingGroups\x127.chalk.modeldeployment.v1.ListModelScalingGroupsRequest\x1a8.chalk.modeldeployment.v1.ListModelScalingGroupsResponse\"\x03\x80}\v\x12i\n" +
+	"\tCallModel\x12*.chalk.modeldeployment.v1.CallModelRequest\x1a+.chalk.modeldeployment.v1.CallModelResponse\"\x03\x80}\x0eB\xfb\x01\n" +
 	"\x1ccom.chalk.modeldeployment.v1B\fServiceProtoP\x01ZKgithub.com/chalk-ai/chalk-go/gen/chalk/modeldeployment/v1;modeldeploymentv1\xa2\x02\x03CMX\xaa\x02\x18Chalk.Modeldeployment.V1\xca\x02\x18Chalk\\Modeldeployment\\V1\xe2\x02$Chalk\\Modeldeployment\\V1\\GPBMetadata\xea\x02\x1aChalk::Modeldeployment::V1b\x06proto3"
 
 var (
@@ -451,7 +600,7 @@ func file_chalk_modeldeployment_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_modeldeployment_v1_service_proto_rawDescData
 }
 
-var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_chalk_modeldeployment_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
 	(*ModelContainerSpec)(nil),              // 0: chalk.modeldeployment.v1.ModelContainerSpec
 	(*CreateModelScalingGroupRequest)(nil),  // 1: chalk.modeldeployment.v1.CreateModelScalingGroupRequest
@@ -459,35 +608,44 @@ var file_chalk_modeldeployment_v1_service_proto_goTypes = []any{
 	(*ModelVersionSelector)(nil),            // 3: chalk.modeldeployment.v1.ModelVersionSelector
 	(*ListModelScalingGroupsRequest)(nil),   // 4: chalk.modeldeployment.v1.ListModelScalingGroupsRequest
 	(*ListModelScalingGroupsResponse)(nil),  // 5: chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	nil,                                     // 6: chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
-	nil,                                     // 7: chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	(*v1.ResourceLimits)(nil),               // 8: chalk.container.v1.ResourceLimits
-	(*v1.VolumeMount)(nil),                  // 9: chalk.container.v1.VolumeMount
-	(*v11.ModelVersionIdentifier)(nil),      // 10: chalk.models.v1.ModelVersionIdentifier
-	(*v12.ScalingSpec)(nil),                 // 11: chalk.scalinggroup.v1.ScalingSpec
-	(*v12.ScalingGroupResponse)(nil),        // 12: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*CallModelRequest)(nil),                // 6: chalk.modeldeployment.v1.CallModelRequest
+	(*CallModelResponse)(nil),               // 7: chalk.modeldeployment.v1.CallModelResponse
+	nil,                                     // 8: chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
+	nil,                                     // 9: chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
+	(*v1.ResourceLimits)(nil),               // 10: chalk.container.v1.ResourceLimits
+	(*v1.VolumeMount)(nil),                  // 11: chalk.container.v1.VolumeMount
+	(*v11.ModelVersionIdentifier)(nil),      // 12: chalk.models.v1.ModelVersionIdentifier
+	(*v12.ScalingSpec)(nil),                 // 13: chalk.scalinggroup.v1.ScalingSpec
+	(*v12.ScalingGroupResponse)(nil),        // 14: chalk.scalinggroup.v1.ScalingGroupResponse
+	(*v13.CallFunctionRequest)(nil),         // 15: chalk.runtime.v1.CallFunctionRequest
+	(*v13.CallFunctionResponse)(nil),        // 16: chalk.runtime.v1.CallFunctionResponse
 }
 var file_chalk_modeldeployment_v1_service_proto_depIdxs = []int32{
-	6,  // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
-	8,  // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
-	7,  // 2: chalk.modeldeployment.v1.ModelContainerSpec.env_vars:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
-	9,  // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
-	10, // 4: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	8,  // 0: chalk.modeldeployment.v1.ModelContainerSpec.tags:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.TagsEntry
+	10, // 1: chalk.modeldeployment.v1.ModelContainerSpec.resources:type_name -> chalk.container.v1.ResourceLimits
+	9,  // 2: chalk.modeldeployment.v1.ModelContainerSpec.env_vars:type_name -> chalk.modeldeployment.v1.ModelContainerSpec.EnvVarsEntry
+	11, // 3: chalk.modeldeployment.v1.ModelContainerSpec.volumes:type_name -> chalk.container.v1.VolumeMount
+	12, // 4: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
 	0,  // 5: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.container_spec:type_name -> chalk.modeldeployment.v1.ModelContainerSpec
-	11, // 6: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
-	12, // 7: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	10, // 8: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
+	13, // 6: chalk.modeldeployment.v1.CreateModelScalingGroupRequest.scaling_spec:type_name -> chalk.scalinggroup.v1.ScalingSpec
+	14, // 7: chalk.modeldeployment.v1.CreateModelScalingGroupResponse.scaling_group:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	12, // 8: chalk.modeldeployment.v1.ModelVersionSelector.identifier:type_name -> chalk.models.v1.ModelVersionIdentifier
 	3,  // 9: chalk.modeldeployment.v1.ListModelScalingGroupsRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
-	12, // 10: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
-	1,  // 11: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
-	4,  // 12: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
-	2,  // 13: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
-	5,  // 14: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
-	13, // [13:15] is the sub-list for method output_type
-	11, // [11:13] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	14, // 10: chalk.modeldeployment.v1.ListModelScalingGroupsResponse.scaling_groups:type_name -> chalk.scalinggroup.v1.ScalingGroupResponse
+	3,  // 11: chalk.modeldeployment.v1.CallModelRequest.model_version:type_name -> chalk.modeldeployment.v1.ModelVersionSelector
+	15, // 12: chalk.modeldeployment.v1.CallModelRequest.remote_call_request:type_name -> chalk.runtime.v1.CallFunctionRequest
+	16, // 13: chalk.modeldeployment.v1.CallModelResponse.remote_call_response:type_name -> chalk.runtime.v1.CallFunctionResponse
+	1,  // 14: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:input_type -> chalk.modeldeployment.v1.CreateModelScalingGroupRequest
+	4,  // 15: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:input_type -> chalk.modeldeployment.v1.ListModelScalingGroupsRequest
+	6,  // 16: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:input_type -> chalk.modeldeployment.v1.CallModelRequest
+	2,  // 17: chalk.modeldeployment.v1.ModelDeploymentService.CreateModelScalingGroup:output_type -> chalk.modeldeployment.v1.CreateModelScalingGroupResponse
+	5,  // 18: chalk.modeldeployment.v1.ModelDeploymentService.ListModelScalingGroups:output_type -> chalk.modeldeployment.v1.ListModelScalingGroupsResponse
+	7,  // 19: chalk.modeldeployment.v1.ModelDeploymentService.CallModel:output_type -> chalk.modeldeployment.v1.CallModelResponse
+	17, // [17:20] is the sub-list for method output_type
+	14, // [14:17] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_modeldeployment_v1_service_proto_init() }
@@ -498,13 +656,19 @@ func file_chalk_modeldeployment_v1_service_proto_init() {
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_modeldeployment_v1_service_proto_msgTypes[4].OneofWrappers = []any{}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[6].OneofWrappers = []any{
+		(*CallModelRequest_RemoteCallRequest)(nil),
+	}
+	file_chalk_modeldeployment_v1_service_proto_msgTypes[7].OneofWrappers = []any{
+		(*CallModelResponse_RemoteCallResponse)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_modeldeployment_v1_service_proto_rawDesc), len(file_chalk_modeldeployment_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

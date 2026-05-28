@@ -166,6 +166,90 @@ func (x *MachineRate) GetGpus() float64 {
 	return 0
 }
 
+type CloudInstanceType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MachineType   string                 `protobuf:"bytes,1,opt,name=machine_type,json=machineType,proto3" json:"machine_type,omitempty"`
+	Cpus          float64                `protobuf:"fixed64,2,opt,name=cpus,proto3" json:"cpus,omitempty"`
+	MemoryGb      float64                `protobuf:"fixed64,3,opt,name=memory_gb,json=memoryGb,proto3" json:"memory_gb,omitempty"`
+	Cloud         BillingCloud           `protobuf:"varint,4,opt,name=cloud,proto3,enum=chalk.usage.v1.BillingCloud" json:"cloud,omitempty"`
+	MachineFamily string                 `protobuf:"bytes,5,opt,name=machine_family,json=machineFamily,proto3" json:"machine_family,omitempty"`
+	Gpus          *float64               `protobuf:"fixed64,6,opt,name=gpus,proto3,oneof" json:"gpus,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CloudInstanceType) Reset() {
+	*x = CloudInstanceType{}
+	mi := &file_chalk_usage_v1_rate_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CloudInstanceType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CloudInstanceType) ProtoMessage() {}
+
+func (x *CloudInstanceType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_usage_v1_rate_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CloudInstanceType.ProtoReflect.Descriptor instead.
+func (*CloudInstanceType) Descriptor() ([]byte, []int) {
+	return file_chalk_usage_v1_rate_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CloudInstanceType) GetMachineType() string {
+	if x != nil {
+		return x.MachineType
+	}
+	return ""
+}
+
+func (x *CloudInstanceType) GetCpus() float64 {
+	if x != nil {
+		return x.Cpus
+	}
+	return 0
+}
+
+func (x *CloudInstanceType) GetMemoryGb() float64 {
+	if x != nil {
+		return x.MemoryGb
+	}
+	return 0
+}
+
+func (x *CloudInstanceType) GetCloud() BillingCloud {
+	if x != nil {
+		return x.Cloud
+	}
+	return BillingCloud_BILLING_CLOUD_UNSPECIFIED
+}
+
+func (x *CloudInstanceType) GetMachineFamily() string {
+	if x != nil {
+		return x.MachineFamily
+	}
+	return ""
+}
+
+func (x *CloudInstanceType) GetGpus() float64 {
+	if x != nil && x.Gpus != nil {
+		return *x.Gpus
+	}
+	return 0
+}
+
 var File_chalk_usage_v1_rate_proto protoreflect.FileDescriptor
 
 const file_chalk_usage_v1_rate_proto_rawDesc = "" +
@@ -179,6 +263,14 @@ const file_chalk_usage_v1_rate_proto_rawDesc = "" +
 	"\x05cloud\x18\x05 \x01(\x0e2\x1c.chalk.usage.v1.BillingCloudR\x05cloud\x12%\n" +
 	"\x0emachine_family\x18\x06 \x01(\tR\rmachineFamily\x12\x17\n" +
 	"\x04gpus\x18\a \x01(\x01H\x00R\x04gpus\x88\x01\x01B\a\n" +
+	"\x05_gpus\"\xe4\x01\n" +
+	"\x11CloudInstanceType\x12!\n" +
+	"\fmachine_type\x18\x01 \x01(\tR\vmachineType\x12\x12\n" +
+	"\x04cpus\x18\x02 \x01(\x01R\x04cpus\x12\x1b\n" +
+	"\tmemory_gb\x18\x03 \x01(\x01R\bmemoryGb\x122\n" +
+	"\x05cloud\x18\x04 \x01(\x0e2\x1c.chalk.usage.v1.BillingCloudR\x05cloud\x12%\n" +
+	"\x0emachine_family\x18\x05 \x01(\tR\rmachineFamily\x12\x17\n" +
+	"\x04gpus\x18\x06 \x01(\x01H\x00R\x04gpus\x88\x01\x01B\a\n" +
 	"\x05_gpus*t\n" +
 	"\fBillingCloud\x12\x1d\n" +
 	"\x19BILLING_CLOUD_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -200,18 +292,20 @@ func file_chalk_usage_v1_rate_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_usage_v1_rate_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_usage_v1_rate_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_chalk_usage_v1_rate_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_chalk_usage_v1_rate_proto_goTypes = []any{
-	(BillingCloud)(0),   // 0: chalk.usage.v1.BillingCloud
-	(*MachineRate)(nil), // 1: chalk.usage.v1.MachineRate
+	(BillingCloud)(0),         // 0: chalk.usage.v1.BillingCloud
+	(*MachineRate)(nil),       // 1: chalk.usage.v1.MachineRate
+	(*CloudInstanceType)(nil), // 2: chalk.usage.v1.CloudInstanceType
 }
 var file_chalk_usage_v1_rate_proto_depIdxs = []int32{
 	0, // 0: chalk.usage.v1.MachineRate.cloud:type_name -> chalk.usage.v1.BillingCloud
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 1: chalk.usage.v1.CloudInstanceType.cloud:type_name -> chalk.usage.v1.BillingCloud
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_chalk_usage_v1_rate_proto_init() }
@@ -220,13 +314,14 @@ func file_chalk_usage_v1_rate_proto_init() {
 		return
 	}
 	file_chalk_usage_v1_rate_proto_msgTypes[0].OneofWrappers = []any{}
+	file_chalk_usage_v1_rate_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_usage_v1_rate_proto_rawDesc), len(file_chalk_usage_v1_rate_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

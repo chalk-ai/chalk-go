@@ -717,6 +717,110 @@ func (x *RerunScriptTaskResponse) GetNewScriptTaskId() string {
 	return ""
 }
 
+type GetMetaplanTaskInfoRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScriptTaskId  string                 `protobuf:"bytes,1,opt,name=script_task_id,json=scriptTaskId,proto3" json:"script_task_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMetaplanTaskInfoRequest) Reset() {
+	*x = GetMetaplanTaskInfoRequest{}
+	mi := &file_chalk_server_v1_script_tasks_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetaplanTaskInfoRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetaplanTaskInfoRequest) ProtoMessage() {}
+
+func (x *GetMetaplanTaskInfoRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_script_tasks_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetaplanTaskInfoRequest.ProtoReflect.Descriptor instead.
+func (*GetMetaplanTaskInfoRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_script_tasks_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetMetaplanTaskInfoRequest) GetScriptTaskId() string {
+	if x != nil {
+		return x.ScriptTaskId
+	}
+	return ""
+}
+
+type GetMetaplanTaskInfoResponse struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	MetaplanRequestJson string                 `protobuf:"bytes,1,opt,name=metaplan_request_json,json=metaplanRequestJson,proto3" json:"metaplan_request_json,omitempty"`
+	ManifestUris        []string               `protobuf:"bytes,2,rep,name=manifest_uris,json=manifestUris,proto3" json:"manifest_uris,omitempty"`
+	ManifestSignedUrls  []string               `protobuf:"bytes,3,rep,name=manifest_signed_urls,json=manifestSignedUrls,proto3" json:"manifest_signed_urls,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *GetMetaplanTaskInfoResponse) Reset() {
+	*x = GetMetaplanTaskInfoResponse{}
+	mi := &file_chalk_server_v1_script_tasks_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMetaplanTaskInfoResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMetaplanTaskInfoResponse) ProtoMessage() {}
+
+func (x *GetMetaplanTaskInfoResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_script_tasks_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMetaplanTaskInfoResponse.ProtoReflect.Descriptor instead.
+func (*GetMetaplanTaskInfoResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_script_tasks_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetMetaplanTaskInfoResponse) GetMetaplanRequestJson() string {
+	if x != nil {
+		return x.MetaplanRequestJson
+	}
+	return ""
+}
+
+func (x *GetMetaplanTaskInfoResponse) GetManifestUris() []string {
+	if x != nil {
+		return x.ManifestUris
+	}
+	return nil
+}
+
+func (x *GetMetaplanTaskInfoResponse) GetManifestSignedUrls() []string {
+	if x != nil {
+		return x.ManifestSignedUrls
+	}
+	return nil
+}
+
 var File_chalk_server_v1_script_tasks_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
@@ -783,14 +887,21 @@ const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\x16RerunScriptTaskRequest\x12$\n" +
 	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"F\n" +
 	"\x17RerunScriptTaskResponse\x12+\n" +
-	"\x12new_script_task_id\x18\x01 \x01(\tR\x0fnewScriptTaskId2\xad\x05\n" +
+	"\x12new_script_task_id\x18\x01 \x01(\tR\x0fnewScriptTaskId\"B\n" +
+	"\x1aGetMetaplanTaskInfoRequest\x12$\n" +
+	"\x0escript_task_id\x18\x01 \x01(\tR\fscriptTaskId\"\xa8\x01\n" +
+	"\x1bGetMetaplanTaskInfoResponse\x122\n" +
+	"\x15metaplan_request_json\x18\x01 \x01(\tR\x13metaplanRequestJson\x12#\n" +
+	"\rmanifest_uris\x18\x02 \x03(\tR\fmanifestUris\x120\n" +
+	"\x14manifest_signed_urls\x18\x03 \x03(\tR\x12manifestSignedUrls2\xa7\x06\n" +
 	"\x11ScriptTaskService\x12l\n" +
 	"\x10CreateScriptTask\x12(.chalk.server.v1.CreateScriptTaskRequest\x1a).chalk.server.v1.CreateScriptTaskResponse\"\x03\x80}\x04\x12l\n" +
 	"\x0fListScriptTasks\x12'.chalk.server.v1.ListScriptTasksRequest\x1a(.chalk.server.v1.ListScriptTasksResponse\"\x06\x80}\v\x90\x02\x01\x12f\n" +
 	"\rGetScriptTask\x12%.chalk.server.v1.GetScriptTaskRequest\x1a&.chalk.server.v1.GetScriptTaskResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
 	"\x13GetScriptTaskSource\x12+.chalk.server.v1.GetScriptTaskSourceRequest\x1a,.chalk.server.v1.GetScriptTaskSourceResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
 	"\x10CancelScriptTask\x12(.chalk.server.v1.CancelScriptTaskRequest\x1a).chalk.server.v1.CancelScriptTaskResponse\"\x06\x80}\x04\x90\x02\x02\x12i\n" +
-	"\x0fRerunScriptTask\x12'.chalk.server.v1.RerunScriptTaskRequest\x1a(.chalk.server.v1.RerunScriptTaskResponse\"\x03\x80}\x04B\xc0\x01\n" +
+	"\x0fRerunScriptTask\x12'.chalk.server.v1.RerunScriptTaskRequest\x1a(.chalk.server.v1.RerunScriptTaskResponse\"\x03\x80}\x04\x12x\n" +
+	"\x13GetMetaplanTaskInfo\x12+.chalk.server.v1.GetMetaplanTaskInfoRequest\x1a,.chalk.server.v1.GetMetaplanTaskInfoResponse\"\x06\x80}\v\x90\x02\x01B\xc0\x01\n" +
 	"\x13com.chalk.server.v1B\x10ScriptTasksProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -805,7 +916,7 @@ func file_chalk_server_v1_script_tasks_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_script_tasks_proto_rawDescData
 }
 
-var file_chalk_server_v1_script_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_chalk_server_v1_script_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_chalk_server_v1_script_tasks_proto_goTypes = []any{
 	(*CreateScriptTaskRequest)(nil),     // 0: chalk.server.v1.CreateScriptTaskRequest
 	(*CreateScriptTaskResponse)(nil),    // 1: chalk.server.v1.CreateScriptTaskResponse
@@ -820,39 +931,43 @@ var file_chalk_server_v1_script_tasks_proto_goTypes = []any{
 	(*CancelScriptTaskResponse)(nil),    // 10: chalk.server.v1.CancelScriptTaskResponse
 	(*RerunScriptTaskRequest)(nil),      // 11: chalk.server.v1.RerunScriptTaskRequest
 	(*RerunScriptTaskResponse)(nil),     // 12: chalk.server.v1.RerunScriptTaskResponse
-	nil,                                 // 13: chalk.server.v1.ScriptTaskMeta.MetadataEntry
-	(*v1.ScriptTaskRequest)(nil),        // 14: chalk.common.v1.ScriptTaskRequest
-	(v1.ScriptTaskStatus)(0),            // 15: chalk.common.v1.ScriptTaskStatus
-	(*timestamppb.Timestamp)(nil),       // 16: google.protobuf.Timestamp
-	(v1.ScriptTaskKind)(0),              // 17: chalk.common.v1.ScriptTaskKind
-	(*v1.ScriptTaskFilter)(nil),         // 18: chalk.common.v1.ScriptTaskFilter
-	(*structpb.Value)(nil),              // 19: google.protobuf.Value
+	(*GetMetaplanTaskInfoRequest)(nil),  // 13: chalk.server.v1.GetMetaplanTaskInfoRequest
+	(*GetMetaplanTaskInfoResponse)(nil), // 14: chalk.server.v1.GetMetaplanTaskInfoResponse
+	nil,                                 // 15: chalk.server.v1.ScriptTaskMeta.MetadataEntry
+	(*v1.ScriptTaskRequest)(nil),        // 16: chalk.common.v1.ScriptTaskRequest
+	(v1.ScriptTaskStatus)(0),            // 17: chalk.common.v1.ScriptTaskStatus
+	(*timestamppb.Timestamp)(nil),       // 18: google.protobuf.Timestamp
+	(v1.ScriptTaskKind)(0),              // 19: chalk.common.v1.ScriptTaskKind
+	(*v1.ScriptTaskFilter)(nil),         // 20: chalk.common.v1.ScriptTaskFilter
+	(*structpb.Value)(nil),              // 21: google.protobuf.Value
 }
 var file_chalk_server_v1_script_tasks_proto_depIdxs = []int32{
-	14, // 0: chalk.server.v1.CreateScriptTaskRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
-	15, // 1: chalk.server.v1.ScriptTaskMeta.status:type_name -> chalk.common.v1.ScriptTaskStatus
-	16, // 2: chalk.server.v1.ScriptTaskMeta.created_at:type_name -> google.protobuf.Timestamp
-	16, // 3: chalk.server.v1.ScriptTaskMeta.completed_at:type_name -> google.protobuf.Timestamp
-	13, // 4: chalk.server.v1.ScriptTaskMeta.metadata:type_name -> chalk.server.v1.ScriptTaskMeta.MetadataEntry
-	17, // 5: chalk.server.v1.ScriptTaskMeta.kind:type_name -> chalk.common.v1.ScriptTaskKind
-	18, // 6: chalk.server.v1.ListScriptTasksRequest.filters:type_name -> chalk.common.v1.ScriptTaskFilter
+	16, // 0: chalk.server.v1.CreateScriptTaskRequest.request:type_name -> chalk.common.v1.ScriptTaskRequest
+	17, // 1: chalk.server.v1.ScriptTaskMeta.status:type_name -> chalk.common.v1.ScriptTaskStatus
+	18, // 2: chalk.server.v1.ScriptTaskMeta.created_at:type_name -> google.protobuf.Timestamp
+	18, // 3: chalk.server.v1.ScriptTaskMeta.completed_at:type_name -> google.protobuf.Timestamp
+	15, // 4: chalk.server.v1.ScriptTaskMeta.metadata:type_name -> chalk.server.v1.ScriptTaskMeta.MetadataEntry
+	19, // 5: chalk.server.v1.ScriptTaskMeta.kind:type_name -> chalk.common.v1.ScriptTaskKind
+	20, // 6: chalk.server.v1.ListScriptTasksRequest.filters:type_name -> chalk.common.v1.ScriptTaskFilter
 	2,  // 7: chalk.server.v1.ListScriptTasksResponse.script_tasks:type_name -> chalk.server.v1.ScriptTaskMeta
 	2,  // 8: chalk.server.v1.GetScriptTaskResponse.script_task:type_name -> chalk.server.v1.ScriptTaskMeta
-	19, // 9: chalk.server.v1.ScriptTaskMeta.MetadataEntry.value:type_name -> google.protobuf.Value
+	21, // 9: chalk.server.v1.ScriptTaskMeta.MetadataEntry.value:type_name -> google.protobuf.Value
 	0,  // 10: chalk.server.v1.ScriptTaskService.CreateScriptTask:input_type -> chalk.server.v1.CreateScriptTaskRequest
 	3,  // 11: chalk.server.v1.ScriptTaskService.ListScriptTasks:input_type -> chalk.server.v1.ListScriptTasksRequest
 	5,  // 12: chalk.server.v1.ScriptTaskService.GetScriptTask:input_type -> chalk.server.v1.GetScriptTaskRequest
 	7,  // 13: chalk.server.v1.ScriptTaskService.GetScriptTaskSource:input_type -> chalk.server.v1.GetScriptTaskSourceRequest
 	9,  // 14: chalk.server.v1.ScriptTaskService.CancelScriptTask:input_type -> chalk.server.v1.CancelScriptTaskRequest
 	11, // 15: chalk.server.v1.ScriptTaskService.RerunScriptTask:input_type -> chalk.server.v1.RerunScriptTaskRequest
-	1,  // 16: chalk.server.v1.ScriptTaskService.CreateScriptTask:output_type -> chalk.server.v1.CreateScriptTaskResponse
-	4,  // 17: chalk.server.v1.ScriptTaskService.ListScriptTasks:output_type -> chalk.server.v1.ListScriptTasksResponse
-	6,  // 18: chalk.server.v1.ScriptTaskService.GetScriptTask:output_type -> chalk.server.v1.GetScriptTaskResponse
-	8,  // 19: chalk.server.v1.ScriptTaskService.GetScriptTaskSource:output_type -> chalk.server.v1.GetScriptTaskSourceResponse
-	10, // 20: chalk.server.v1.ScriptTaskService.CancelScriptTask:output_type -> chalk.server.v1.CancelScriptTaskResponse
-	12, // 21: chalk.server.v1.ScriptTaskService.RerunScriptTask:output_type -> chalk.server.v1.RerunScriptTaskResponse
-	16, // [16:22] is the sub-list for method output_type
-	10, // [10:16] is the sub-list for method input_type
+	13, // 16: chalk.server.v1.ScriptTaskService.GetMetaplanTaskInfo:input_type -> chalk.server.v1.GetMetaplanTaskInfoRequest
+	1,  // 17: chalk.server.v1.ScriptTaskService.CreateScriptTask:output_type -> chalk.server.v1.CreateScriptTaskResponse
+	4,  // 18: chalk.server.v1.ScriptTaskService.ListScriptTasks:output_type -> chalk.server.v1.ListScriptTasksResponse
+	6,  // 19: chalk.server.v1.ScriptTaskService.GetScriptTask:output_type -> chalk.server.v1.GetScriptTaskResponse
+	8,  // 20: chalk.server.v1.ScriptTaskService.GetScriptTaskSource:output_type -> chalk.server.v1.GetScriptTaskSourceResponse
+	10, // 21: chalk.server.v1.ScriptTaskService.CancelScriptTask:output_type -> chalk.server.v1.CancelScriptTaskResponse
+	12, // 22: chalk.server.v1.ScriptTaskService.RerunScriptTask:output_type -> chalk.server.v1.RerunScriptTaskResponse
+	14, // 23: chalk.server.v1.ScriptTaskService.GetMetaplanTaskInfo:output_type -> chalk.server.v1.GetMetaplanTaskInfoResponse
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
 	10, // [10:10] is the sub-list for extension type_name
 	10, // [10:10] is the sub-list for extension extendee
 	0,  // [0:10] is the sub-list for field type_name
@@ -873,7 +988,7 @@ func file_chalk_server_v1_script_tasks_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_script_tasks_proto_rawDesc), len(file_chalk_server_v1_script_tasks_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
