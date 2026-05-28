@@ -3509,27 +3509,27 @@ const file_chalk_server_v1_datasets_proto_rawDesc = "" +
 	"\tSortOrder\x12\x1a\n" +
 	"\x16SORT_ORDER_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fSORT_ORDER_DESC\x10\x01\x12\x12\n" +
-	"\x0eSORT_ORDER_ASC\x10\x022\xae\x16\n" +
-	"\x16DatasetMetadataService\x12c\n" +
-	"\fListDatasets\x12$.chalk.server.v1.ListDatasetsRequest\x1a%.chalk.server.v1.ListDatasetsResponse\"\x06\x80}\x04\x90\x02\x01\x12]\n" +
+	"\x0eSORT_ORDER_ASC\x10\x022\xc2\x16\n" +
+	"\x16DatasetMetadataService\x12e\n" +
+	"\fListDatasets\x12$.chalk.server.v1.ListDatasetsRequest\x1a%.chalk.server.v1.ListDatasetsResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12_\n" +
 	"\n" +
-	"GetDataset\x12\".chalk.server.v1.GetDatasetRequest\x1a#.chalk.server.v1.GetDatasetResponse\"\x06\x80}\x04\x90\x02\x01\x12{\n" +
-	"\x14ListDatasetRevisions\x12,.chalk.server.v1.ListDatasetRevisionsRequest\x1a-.chalk.server.v1.ListDatasetRevisionsResponse\"\x06\x80}\x04\x90\x02\x01\x12u\n" +
-	"\x12GetDatasetRevision\x12*.chalk.server.v1.GetDatasetRevisionRequest\x1a+.chalk.server.v1.GetDatasetRevisionResponse\"\x06\x80}\x04\x90\x02\x01\x12\x9c\x01\n" +
+	"GetDataset\x12\".chalk.server.v1.GetDatasetRequest\x1a#.chalk.server.v1.GetDatasetResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12}\n" +
+	"\x14ListDatasetRevisions\x12,.chalk.server.v1.ListDatasetRevisionsRequest\x1a-.chalk.server.v1.ListDatasetRevisionsResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12w\n" +
+	"\x12GetDatasetRevision\x12*.chalk.server.v1.GetDatasetRevisionRequest\x1a+.chalk.server.v1.GetDatasetRevisionResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12\x9c\x01\n" +
 	"\x1fGetDatasetRevisionDownloadLinks\x127.chalk.server.v1.GetDatasetRevisionDownloadLinksRequest\x1a8.chalk.server.v1.GetDatasetRevisionDownloadLinksResponse\"\x06\x80}\x04\x90\x02\x01\x12\xa7\x01\n" +
 	"\"StreamDatasetRevisionDownloadLinks\x12:.chalk.server.v1.StreamDatasetRevisionDownloadLinksRequest\x1a;.chalk.server.v1.StreamDatasetRevisionDownloadLinksResponse\"\x06\x80}\x04\x90\x02\x010\x01\x12f\n" +
 	"\rRenameDataset\x12%.chalk.server.v1.RenameDatasetRequest\x1a&.chalk.server.v1.RenameDatasetResponse\"\x06\x80}\x04\x90\x02\x02\x12\x84\x01\n" +
 	"\x16ArchiveDatasetRevision\x12..chalk.server.v1.ArchiveDatasetRevisionRequest\x1a/.chalk.server.v1.ArchiveDatasetRevisionResponse\"\t\x80}\x04\x88\x02\x01\x90\x02\x02\x12\x84\x01\n" +
 	"\x17ArchiveDatasetRevisions\x12/.chalk.server.v1.ArchiveDatasetRevisionsRequest\x1a0.chalk.server.v1.ArchiveDatasetRevisionsResponse\"\x06\x80}\x04\x90\x02\x02\x12f\n" +
-	"\rDeleteDataset\x12%.chalk.server.v1.DeleteDatasetRequest\x1a&.chalk.server.v1.DeleteDatasetResponse\"\x06\x80}\x04\x90\x02\x02\x12\x9c\x01\n" +
-	"\x1eListMaterializedAggregateTiles\x126.chalk.server.v1.ListMaterializedAggregateTilesRequest\x1a7.chalk.server.v1.ListMaterializedAggregateTilesResponse\"\t\x80}\x04\x88\x02\x01\x90\x02\x01\x12\xb1\x01\n" +
-	"&ListMaterializedAggregateTileTimelines\x12>.chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest\x1a?.chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse\"\x06\x80}\x04\x90\x02\x01\x12\xba\x01\n" +
-	")ListMaterializedAggregateTilesForTimeline\x12A.chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest\x1aB.chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse\"\x06\x80}\x04\x90\x02\x01\x12\xa5\x01\n" +
-	"\"ListMaterializedAggregateTileFiles\x12:.chalk.server.v1.ListMaterializedAggregateTileFilesRequest\x1a;.chalk.server.v1.ListMaterializedAggregateTileFilesResponse\"\x06\x80}\x04\x90\x02\x01\x12\x9c\x01\n" +
-	"\x1fDeleteMaterializedAggregateTile\x127.chalk.server.v1.DeleteMaterializedAggregateTileRequest\x1a8.chalk.server.v1.DeleteMaterializedAggregateTileResponse\"\x06\x80}\x04\x90\x02\x02\x12\x8a\x01\n" +
-	"\x19GetDatasetRevisionPreview\x121.chalk.server.v1.GetDatasetRevisionPreviewRequest\x1a2.chalk.server.v1.GetDatasetRevisionPreviewResponse\"\x06\x80}\x04\x90\x02\x01\x12x\n" +
-	"\x14GenerateDatasetStats\x12,.chalk.server.v1.GenerateDatasetStatsRequest\x1a-.chalk.server.v1.GenerateDatasetStatsResponse\"\x03\x80}\x04\x12i\n" +
-	"\x0eGetDatasetEdfs\x12&.chalk.server.v1.GetDatasetEdfsRequest\x1a'.chalk.server.v1.GetDatasetEdfsResponse\"\x06\x80}\x04\x90\x02\x01\x12u\n" +
+	"\rDeleteDataset\x12%.chalk.server.v1.DeleteDatasetRequest\x1a&.chalk.server.v1.DeleteDatasetResponse\"\x06\x80}\x04\x90\x02\x02\x12\x9e\x01\n" +
+	"\x1eListMaterializedAggregateTiles\x126.chalk.server.v1.ListMaterializedAggregateTilesRequest\x1a7.chalk.server.v1.ListMaterializedAggregateTilesResponse\"\v\x92}\x02\x04$\x88\x02\x01\x90\x02\x01\x12\xb3\x01\n" +
+	"&ListMaterializedAggregateTileTimelines\x12>.chalk.server.v1.ListMaterializedAggregateTileTimelinesRequest\x1a?.chalk.server.v1.ListMaterializedAggregateTileTimelinesResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12\xbc\x01\n" +
+	")ListMaterializedAggregateTilesForTimeline\x12A.chalk.server.v1.ListMaterializedAggregateTilesForTimelineRequest\x1aB.chalk.server.v1.ListMaterializedAggregateTilesForTimelineResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12\xa7\x01\n" +
+	"\"ListMaterializedAggregateTileFiles\x12:.chalk.server.v1.ListMaterializedAggregateTileFilesRequest\x1a;.chalk.server.v1.ListMaterializedAggregateTileFilesResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12\x9c\x01\n" +
+	"\x1fDeleteMaterializedAggregateTile\x127.chalk.server.v1.DeleteMaterializedAggregateTileRequest\x1a8.chalk.server.v1.DeleteMaterializedAggregateTileResponse\"\x06\x80}\x04\x90\x02\x02\x12\x8c\x01\n" +
+	"\x19GetDatasetRevisionPreview\x121.chalk.server.v1.GetDatasetRevisionPreviewRequest\x1a2.chalk.server.v1.GetDatasetRevisionPreviewResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12x\n" +
+	"\x14GenerateDatasetStats\x12,.chalk.server.v1.GenerateDatasetStatsRequest\x1a-.chalk.server.v1.GenerateDatasetStatsResponse\"\x03\x80}\x04\x12k\n" +
+	"\x0eGetDatasetEdfs\x12&.chalk.server.v1.GetDatasetEdfsRequest\x1a'.chalk.server.v1.GetDatasetEdfsResponse\"\b\x92}\x02\x04$\x90\x02\x01\x12u\n" +
 	"\x13GenerateDatasetEdfs\x12+.chalk.server.v1.GenerateDatasetEdfsRequest\x1a,.chalk.server.v1.GenerateDatasetEdfsResponse\"\x03\x80}\x04\x12x\n" +
 	"\x14GetDatasetUploadUris\x12,.chalk.server.v1.GetDatasetUploadUrisRequest\x1a-.chalk.server.v1.GetDatasetUploadUrisResponse\"\x03\x80}\x04\x12{\n" +
 	"\x15FinalizeDatasetUpload\x12-.chalk.server.v1.FinalizeDatasetUploadRequest\x1a..chalk.server.v1.FinalizeDatasetUploadResponse\"\x03\x80}\x04B\xbd\x01\n" +
