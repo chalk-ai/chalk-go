@@ -213,8 +213,8 @@ var file_chalk_auth_v1_permissions_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptorpb.MethodOptions)(nil),
 		ExtensionType: ([]Permission)(nil),
 		Field:         2002,
-		Name:          "chalk.auth.v1.permission_list",
-		Tag:           "varint,2002,rep,packed,name=permission_list,enum=chalk.auth.v1.Permission",
+		Name:          "chalk.auth.v1.additional_permissions_list",
+		Tag:           "varint,2002,rep,packed,name=additional_permissions_list,enum=chalk.auth.v1.Permission",
 		Filename:      "chalk/auth/v1/permissions.proto",
 	},
 }
@@ -233,15 +233,16 @@ var (
 	E_Permission = &file_chalk_auth_v1_permissions_proto_extTypes[2]
 	// optional chalk.auth.v1.Permission team_permission = 2001;
 	E_TeamPermission = &file_chalk_auth_v1_permissions_proto_extTypes[3]
-	// If set, a user holding ANY of the listed permissions may access the
-	// endpoint (OR semantics). Use this when read-only access should be
-	// exposed to a narrower role (e.g. PERMISSION_QUERY_OFFLINE +
-	// PERMISSION_QUERY_OFFLINE_READ on dataset reads). Coexist semantics:
-	// if `permission_list` is non-empty it takes precedence over the
-	// singular `permission` field; otherwise `permission` is used as before.
+	// Additional permissions accepted in place of `permission` (OR semantics).
+	// The effective set of acceptable permissions for an endpoint is the union
+	// of `permission` and `additional_permissions_list`: a user holding any
+	// single permission in that union may access the endpoint. Use this to
+	// expose read-only access to a narrower role without disturbing the
+	// existing primary permission (e.g. permission = PERMISSION_QUERY_OFFLINE,
+	// additional_permissions_list = [PERMISSION_QUERY_OFFLINE_READ]).
 	//
-	// repeated chalk.auth.v1.Permission permission_list = 2002;
-	E_PermissionList = &file_chalk_auth_v1_permissions_proto_extTypes[4]
+	// repeated chalk.auth.v1.Permission additional_permissions_list = 2002;
+	E_AdditionalPermissionsList = &file_chalk_auth_v1_permissions_proto_extTypes[4]
 )
 
 var File_chalk_auth_v1_permissions_proto protoreflect.FileDescriptor
@@ -333,8 +334,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\n" +
 	"permission\x12\x1e.google.protobuf.MethodOptions\x18\xd0\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\n" +
 	"permission:c\n" +
-	"\x0fteam_permission\x12\x1e.google.protobuf.MethodOptions\x18\xd1\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\x0eteamPermission:c\n" +
-	"\x0fpermission_list\x12\x1e.google.protobuf.MethodOptions\x18\xd2\x0f \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x0epermissionListB\xb2\x01\n" +
+	"\x0fteam_permission\x12\x1e.google.protobuf.MethodOptions\x18\xd1\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\x0eteamPermission:z\n" +
+	"\x1badditional_permissions_list\x12\x1e.google.protobuf.MethodOptions\x18\xd2\x0f \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x19additionalPermissionsListB\xb2\x01\n" +
 	"\x11com.chalk.auth.v1B\x10PermissionsProtoP\x01Z5github.com/chalk-ai/chalk-go/gen/chalk/auth/v1;authv1\xa2\x02\x03CAX\xaa\x02\rChalk.Auth.V1\xca\x02\rChalk\\Auth\\V1\xe2\x02\x19Chalk\\Auth\\V1\\GPBMetadata\xea\x02\x0fChalk::Auth::V1b\x06proto3"
 
 var (
@@ -360,10 +361,10 @@ var file_chalk_auth_v1_permissions_proto_depIdxs = []int32{
 	1, // 1: chalk.auth.v1.slug:extendee -> google.protobuf.EnumValueOptions
 	2, // 2: chalk.auth.v1.permission:extendee -> google.protobuf.MethodOptions
 	2, // 3: chalk.auth.v1.team_permission:extendee -> google.protobuf.MethodOptions
-	2, // 4: chalk.auth.v1.permission_list:extendee -> google.protobuf.MethodOptions
+	2, // 4: chalk.auth.v1.additional_permissions_list:extendee -> google.protobuf.MethodOptions
 	0, // 5: chalk.auth.v1.permission:type_name -> chalk.auth.v1.Permission
 	0, // 6: chalk.auth.v1.team_permission:type_name -> chalk.auth.v1.Permission
-	0, // 7: chalk.auth.v1.permission_list:type_name -> chalk.auth.v1.Permission
+	0, // 7: chalk.auth.v1.additional_permissions_list:type_name -> chalk.auth.v1.Permission
 	8, // [8:8] is the sub-list for method output_type
 	8, // [8:8] is the sub-list for method input_type
 	5, // [5:8] is the sub-list for extension type_name
