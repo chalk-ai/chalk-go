@@ -64,6 +64,7 @@ const (
 	Permission_PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE Permission = 33
 	Permission_PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE  Permission = 34
 	Permission_PERMISSION_BILLING_WRITE                    Permission = 35
+	Permission_PERMISSION_QUERY_OFFLINE_READ               Permission = 36
 )
 
 // Enum value maps for Permission.
@@ -105,6 +106,7 @@ var (
 		33: "PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE",
 		34: "PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE",
 		35: "PERMISSION_BILLING_WRITE",
+		36: "PERMISSION_QUERY_OFFLINE_READ",
 	}
 	Permission_value = map[string]int32{
 		"PERMISSION_UNSPECIFIED":                      0,
@@ -143,6 +145,7 @@ var (
 		"PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE": 33,
 		"PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE":  34,
 		"PERMISSION_BILLING_WRITE":                    35,
+		"PERMISSION_QUERY_OFFLINE_READ":               36,
 	}
 )
 
@@ -206,6 +209,14 @@ var file_chalk_auth_v1_permissions_proto_extTypes = []protoimpl.ExtensionInfo{
 		Tag:           "varint,2001,opt,name=team_permission,enum=chalk.auth.v1.Permission",
 		Filename:      "chalk/auth/v1/permissions.proto",
 	},
+	{
+		ExtendedType:  (*descriptorpb.MethodOptions)(nil),
+		ExtensionType: ([]Permission)(nil),
+		Field:         2002,
+		Name:          "chalk.auth.v1.additional_permissions_list",
+		Tag:           "varint,2002,rep,packed,name=additional_permissions_list,enum=chalk.auth.v1.Permission",
+		Filename:      "chalk/auth/v1/permissions.proto",
+	},
 }
 
 // Extension fields to descriptorpb.EnumValueOptions.
@@ -222,13 +233,23 @@ var (
 	E_Permission = &file_chalk_auth_v1_permissions_proto_extTypes[2]
 	// optional chalk.auth.v1.Permission team_permission = 2001;
 	E_TeamPermission = &file_chalk_auth_v1_permissions_proto_extTypes[3]
+	// Additional permissions accepted in place of `permission` (OR semantics).
+	// The effective set of acceptable permissions for an endpoint is the union
+	// of `permission` and `additional_permissions_list`: a user holding any
+	// single permission in that union may access the endpoint. Use this to
+	// expose read-only access to a narrower role without disturbing the
+	// existing primary permission (e.g. permission = PERMISSION_QUERY_OFFLINE,
+	// additional_permissions_list = [PERMISSION_QUERY_OFFLINE_READ]).
+	//
+	// repeated chalk.auth.v1.Permission additional_permissions_list = 2002;
+	E_AdditionalPermissionsList = &file_chalk_auth_v1_permissions_proto_extTypes[4]
 )
 
 var File_chalk_auth_v1_permissions_proto protoreflect.FileDescriptor
 
 const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\xd7\x1e\n" +
+	"\x1fchalk/auth/v1/permissions.proto\x12\rchalk.auth.v1\x1a\x1dchalk/utils/v1/encoding.proto\x1a google/protobuf/descriptor.proto*\x82 \n" +
 	"\n" +
 	"Permission\x12R\n" +
 	"\x16PERMISSION_UNSPECIFIED\x10\x00\x1a6\xca>%Default value -- should never be set.\xd2>\vunspecified\x12O\n" +
@@ -268,7 +289,8 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x1dPERMISSION_ENVIRONMENT_CREATE\x10 \x1a6\xca>\x1eCreate and manage environments\xd2>\x12environment.create\x12\x9e\x01\n" +
 	"+PERMISSION_INTERNAL_DATAPLANE_STATUS_UPDATE\x10!\x1am\xca>GUpdate container and scaling group status from the dataplane controller\xd2> internal.dataplane_status_update\x12\x90\x01\n" +
 	"*PERMISSION_INTERNAL_WORKING_TOKEN_EXCHANGE\x10\"\x1a`\xca>;Use an exchange token to obtain a short-lived working token\xd2>\x1finternal.working_token_exchange\x12o\n" +
-	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x1a\xd1\x05\xe2\xa1'\xcc\x05\n" +
+	"\x18PERMISSION_BILLING_WRITE\x10#\x1aQ\xca>>Manage billing settings, payment methods, and credit purchases\xd2>\rbilling.write\x12\x90\x01\n" +
+	"\x1dPERMISSION_QUERY_OFFLINE_READ\x10$\x1am\xca>UView offline query metadata (datasets, query plans, results) without running queries.\xd2>\x12query.offline_read\x1a\xe9\x05\xe2\xa1'\xe4\x05\n" +
 	"\x1c\b\x01\x12\x18insecure_unauthenticated\n" +
 	"\x11\b\x02\x12\rauthenticated\n" +
 	"\x10\b\x03\x12\fquery.online\n" +
@@ -305,13 +327,15 @@ const file_chalk_auth_v1_permissions_proto_rawDesc = "" +
 	"\x16\b \x12\x12environment.create\n" +
 	"$\b!\x12 internal.dataplane_status_update\n" +
 	"#\b\"\x12\x1finternal.working_token_exchange\n" +
-	"\x11\b#\x12\rbilling.write:D\n" +
+	"\x11\b#\x12\rbilling.write\n" +
+	"\x16\b$\x12\x12query.offline_read:D\n" +
 	"\vdescription\x12!.google.protobuf.EnumValueOptions\x18\xe9\a \x01(\tR\vdescription:6\n" +
 	"\x04slug\x12!.google.protobuf.EnumValueOptions\x18\xea\a \x01(\tR\x04slug:Z\n" +
 	"\n" +
 	"permission\x12\x1e.google.protobuf.MethodOptions\x18\xd0\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\n" +
 	"permission:c\n" +
-	"\x0fteam_permission\x12\x1e.google.protobuf.MethodOptions\x18\xd1\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\x0eteamPermissionB\xb2\x01\n" +
+	"\x0fteam_permission\x12\x1e.google.protobuf.MethodOptions\x18\xd1\x0f \x01(\x0e2\x19.chalk.auth.v1.PermissionR\x0eteamPermission:z\n" +
+	"\x1badditional_permissions_list\x12\x1e.google.protobuf.MethodOptions\x18\xd2\x0f \x03(\x0e2\x19.chalk.auth.v1.PermissionR\x19additionalPermissionsListB\xb2\x01\n" +
 	"\x11com.chalk.auth.v1B\x10PermissionsProtoP\x01Z5github.com/chalk-ai/chalk-go/gen/chalk/auth/v1;authv1\xa2\x02\x03CAX\xaa\x02\rChalk.Auth.V1\xca\x02\rChalk\\Auth\\V1\xe2\x02\x19Chalk\\Auth\\V1\\GPBMetadata\xea\x02\x0fChalk::Auth::V1b\x06proto3"
 
 var (
@@ -337,12 +361,14 @@ var file_chalk_auth_v1_permissions_proto_depIdxs = []int32{
 	1, // 1: chalk.auth.v1.slug:extendee -> google.protobuf.EnumValueOptions
 	2, // 2: chalk.auth.v1.permission:extendee -> google.protobuf.MethodOptions
 	2, // 3: chalk.auth.v1.team_permission:extendee -> google.protobuf.MethodOptions
-	0, // 4: chalk.auth.v1.permission:type_name -> chalk.auth.v1.Permission
-	0, // 5: chalk.auth.v1.team_permission:type_name -> chalk.auth.v1.Permission
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	4, // [4:6] is the sub-list for extension type_name
-	0, // [0:4] is the sub-list for extension extendee
+	2, // 4: chalk.auth.v1.additional_permissions_list:extendee -> google.protobuf.MethodOptions
+	0, // 5: chalk.auth.v1.permission:type_name -> chalk.auth.v1.Permission
+	0, // 6: chalk.auth.v1.team_permission:type_name -> chalk.auth.v1.Permission
+	0, // 7: chalk.auth.v1.additional_permissions_list:type_name -> chalk.auth.v1.Permission
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	5, // [5:8] is the sub-list for extension type_name
+	0, // [0:5] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
 }
 
@@ -358,7 +384,7 @@ func file_chalk_auth_v1_permissions_proto_init() {
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_auth_v1_permissions_proto_rawDesc), len(file_chalk_auth_v1_permissions_proto_rawDesc)),
 			NumEnums:      1,
 			NumMessages:   0,
-			NumExtensions: 4,
+			NumExtensions: 5,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_auth_v1_permissions_proto_goTypes,
