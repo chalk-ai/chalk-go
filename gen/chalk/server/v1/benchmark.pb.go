@@ -1432,8 +1432,12 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01\x12Y\n" +
 	"\x10dedicated_engine\x18\x15 \x01(\v2).chalk.server.v1.DedicatedBenchmarkEngineH\tR\x0fdedicatedEngine\x88\x01\x01\x12P\n" +
 	"\x10benchmark_runner\x18\x16 \x01(\x0e2 .chalk.server.v1.BenchmarkRunnerH\n" +
+<<<<<<< HEAD
 	"R\x0fbenchmarkRunner\x88\x01\x01\x12Q\n" +
 	"\x0eresult_targets\x18\x17 \x03(\x0e2*.chalk.server.v1.BenchmarkResultTargetTypeR\rresultTargetsB\x0f\n" +
+=======
+	"R\x0fbenchmarkRunner\x88\x01\x01B\x0f\n" +
+>>>>>>> main
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
