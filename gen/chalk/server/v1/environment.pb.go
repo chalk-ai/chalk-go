@@ -90,6 +90,7 @@ const (
 	VectorDBKind_VECTOR_DB_KIND_PGVECTOR    VectorDBKind = 2
 	VectorDBKind_VECTOR_DB_KIND_MILVUS      VectorDBKind = 3
 	VectorDBKind_VECTOR_DB_KIND_VALKEY      VectorDBKind = 4
+	VectorDBKind_VECTOR_DB_KIND_TURBOPUFFER VectorDBKind = 5
 )
 
 // Enum value maps for VectorDBKind.
@@ -100,6 +101,7 @@ var (
 		2: "VECTOR_DB_KIND_PGVECTOR",
 		3: "VECTOR_DB_KIND_MILVUS",
 		4: "VECTOR_DB_KIND_VALKEY",
+		5: "VECTOR_DB_KIND_TURBOPUFFER",
 	}
 	VectorDBKind_value = map[string]int32{
 		"VECTOR_DB_KIND_UNSPECIFIED": 0,
@@ -107,6 +109,7 @@ var (
 		"VECTOR_DB_KIND_PGVECTOR":    2,
 		"VECTOR_DB_KIND_MILVUS":      3,
 		"VECTOR_DB_KIND_VALKEY":      4,
+		"VECTOR_DB_KIND_TURBOPUFFER": 5,
 	}
 )
 
@@ -2841,13 +2844,14 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x1bCLOUD_PROVIDER_KIND_UNKNOWN\x10\x01\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_GCP\x10\x02\x12\x1b\n" +
 	"\x17CLOUD_PROVIDER_KIND_AWS\x10\x03\x12\x1d\n" +
-	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04*\xa0\x01\n" +
+	"\x19CLOUD_PROVIDER_KIND_AZURE\x10\x04*\xc0\x01\n" +
 	"\fVectorDBKind\x12\x1e\n" +
 	"\x1aVECTOR_DB_KIND_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19VECTOR_DB_KIND_OPENSEARCH\x10\x01\x12\x1b\n" +
 	"\x17VECTOR_DB_KIND_PGVECTOR\x10\x02\x12\x19\n" +
 	"\x15VECTOR_DB_KIND_MILVUS\x10\x03\x12\x19\n" +
-	"\x15VECTOR_DB_KIND_VALKEY\x10\x04*\xe2\x06\n" +
+	"\x15VECTOR_DB_KIND_VALKEY\x10\x04\x12\x1e\n" +
+	"\x1aVECTOR_DB_KIND_TURBOPUFFER\x10\x05*\xe2\x06\n" +
 	"\x16DeploymentBuildProfile\x12(\n" +
 	"$DEPLOYMENT_BUILD_PROFILE_UNSPECIFIED\x10\x00\x12,\n" +
 	"(DEPLOYMENT_BUILD_PROFILE_O3_NO_PROFILING\x10\x01\x12)\n" +
