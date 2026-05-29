@@ -346,9 +346,14 @@ func (*OfflineQueryJobRequest_Identifier) isOfflineQueryJobRequest_IdentifierPay
 func (*OfflineQueryJobRequest_IdentifierFilename) isOfflineQueryJobRequest_IdentifierPayload() {}
 
 type ScheduledQueryJobRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to RequestPayload:
+	//
+	//	*ScheduledQueryJobRequest_Request
+	//	*ScheduledQueryJobRequest_RequestFilename
+	RequestPayload isScheduledQueryJobRequest_RequestPayload `protobuf_oneof:"request_payload"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ScheduledQueryJobRequest) Reset() {
@@ -380,6 +385,47 @@ func (x *ScheduledQueryJobRequest) ProtoReflect() protoreflect.Message {
 func (*ScheduledQueryJobRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_jobqueue_v1_job_queue_request_proto_rawDescGZIP(), []int{2}
 }
+
+func (x *ScheduledQueryJobRequest) GetRequestPayload() isScheduledQueryJobRequest_RequestPayload {
+	if x != nil {
+		return x.RequestPayload
+	}
+	return nil
+}
+
+func (x *ScheduledQueryJobRequest) GetRequest() *OfflineQueryJobBody {
+	if x != nil {
+		if x, ok := x.RequestPayload.(*ScheduledQueryJobRequest_Request); ok {
+			return x.Request
+		}
+	}
+	return nil
+}
+
+func (x *ScheduledQueryJobRequest) GetRequestFilename() string {
+	if x != nil {
+		if x, ok := x.RequestPayload.(*ScheduledQueryJobRequest_RequestFilename); ok {
+			return x.RequestFilename
+		}
+	}
+	return ""
+}
+
+type isScheduledQueryJobRequest_RequestPayload interface {
+	isScheduledQueryJobRequest_RequestPayload()
+}
+
+type ScheduledQueryJobRequest_Request struct {
+	Request *OfflineQueryJobBody `protobuf:"bytes,1,opt,name=request,proto3,oneof"`
+}
+
+type ScheduledQueryJobRequest_RequestFilename struct {
+	RequestFilename string `protobuf:"bytes,2,opt,name=request_filename,json=requestFilename,proto3,oneof"`
+}
+
+func (*ScheduledQueryJobRequest_Request) isScheduledQueryJobRequest_RequestPayload() {}
+
+func (*ScheduledQueryJobRequest_RequestFilename) isScheduledQueryJobRequest_RequestPayload() {}
 
 type AggregationBackfillJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -4367,8 +4413,11 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"identifier\x121\n" +
 	"\x13identifier_filename\x18\x04 \x01(\tH\x01R\x12identifierFilenameB\x11\n" +
 	"\x0frequest_payloadB\x14\n" +
-	"\x12identifier_payload\"\x1a\n" +
-	"\x18ScheduledQueryJobRequest\"\x1f\n" +
+	"\x12identifier_payload\"\x9e\x01\n" +
+	"\x18ScheduledQueryJobRequest\x12B\n" +
+	"\arequest\x18\x01 \x01(\v2&.chalk.jobqueue.v1.OfflineQueryJobBodyH\x00R\arequest\x12+\n" +
+	"\x10request_filename\x18\x02 \x01(\tH\x00R\x0frequestFilenameB\x11\n" +
+	"\x0frequest_payload\"\x1f\n" +
 	"\x1dAggregationBackfillJobRequest\"\x94\x03\n" +
 	"\x15ChalkSqlRunJobRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12&\n" +
@@ -5040,58 +5089,59 @@ var file_chalk_jobqueue_v1_job_queue_request_proto_depIdxs = []int32{
 	36, // 8: chalk.jobqueue.v1.JobQueueRequest.script_task_request:type_name -> chalk.jobqueue.v1.ScriptTaskJobRequest
 	29, // 9: chalk.jobqueue.v1.OfflineQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
 	30, // 10: chalk.jobqueue.v1.OfflineQueryJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	7,  // 11: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_scheduled_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
-	8,  // 12: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_offline_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
-	29, // 13: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.original_query_body:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	9,  // 14: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	9,  // 15: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	29, // 16: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.query:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
-	9,  // 17: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	9,  // 18: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
-	37, // 19: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.env_payload:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
-	12, // 20: chalk.jobqueue.v1.OfflineQueryFeatureName.feature_names:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
-	41, // 21: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.shard_deadline:type_name -> google.protobuf.Duration
-	41, // 22: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.query_deadline:type_name -> google.protobuf.Duration
-	12, // 23: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures.features:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
-	42, // 24: chalk.jobqueue.v1.OfflineQueryLiteralInput.values:type_name -> google.protobuf.ListValue
-	18, // 25: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput.inputs:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
-	38, // 26: chalk.jobqueue.v1.OfflineQueryUriInput.column_name_to_feature_name:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
-	18, // 27: chalk.jobqueue.v1.OfflineQueryInputSpec.literal:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
-	19, // 28: chalk.jobqueue.v1.OfflineQueryInputSpec.sharded_literal:type_name -> chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
-	20, // 29: chalk.jobqueue.v1.OfflineQueryInputSpec.uploaded_parquet_sharded:type_name -> chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
-	21, // 30: chalk.jobqueue.v1.OfflineQueryInputSpec.uri:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput
-	22, // 31: chalk.jobqueue.v1.OfflineQueryInputSpec.sql:type_name -> chalk.jobqueue.v1.OfflineQuerySqlInput
-	23, // 32: chalk.jobqueue.v1.OfflineQueryInputSpec.manifest:type_name -> chalk.jobqueue.v1.OfflineQueryManifestInput
-	24, // 33: chalk.jobqueue.v1.OfflineQueryInputSpec.givens_parquet_filename:type_name -> chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
-	25, // 34: chalk.jobqueue.v1.OfflineQueryJobBody.input:type_name -> chalk.jobqueue.v1.OfflineQueryInputSpec
-	11, // 35: chalk.jobqueue.v1.OfflineQueryJobBody.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
-	16, // 36: chalk.jobqueue.v1.OfflineQueryJobBody.recompute_features:type_name -> chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
-	17, // 37: chalk.jobqueue.v1.OfflineQueryJobBody.explain:type_name -> chalk.jobqueue.v1.OfflineQueryExplain
-	39, // 38: chalk.jobqueue.v1.OfflineQueryJobBody.query_context:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
-	34, // 39: chalk.jobqueue.v1.OfflineQueryJobBody.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	40, // 40: chalk.jobqueue.v1.OfflineQueryJobBody.env_overrides:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
-	26, // 41: chalk.jobqueue.v1.OfflineQueryJobBody.unload_resolvers:type_name -> chalk.jobqueue.v1.UnloadResolverSpec
-	15, // 42: chalk.jobqueue.v1.OfflineQueryJobBody.completion_deadline:type_name -> chalk.jobqueue.v1.OfflineQueryDeadlineOptions
-	27, // 43: chalk.jobqueue.v1.OfflineQueryJobBody.persistence_settings:type_name -> chalk.jobqueue.v1.OfflineQueryPersistenceSettings
-	28, // 44: chalk.jobqueue.v1.OfflineQueryJobBody.hwm_identifier:type_name -> chalk.jobqueue.v1.OfflineQueryHwmIdentifier
-	11, // 45: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
-	32, // 46: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
-	31, // 47: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 48: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 49: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	31, // 50: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	33, // 51: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
-	31, // 52: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
-	11, // 53: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
-	34, // 54: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
-	30, // 55: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
-	13, // 56: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
-	14, // 57: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
-	58, // [58:58] is the sub-list for method output_type
-	58, // [58:58] is the sub-list for method input_type
-	58, // [58:58] is the sub-list for extension type_name
-	58, // [58:58] is the sub-list for extension extendee
-	0,  // [0:58] is the sub-list for field type_name
+	29, // 11: chalk.jobqueue.v1.ScheduledQueryJobRequest.request:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	7,  // 12: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_scheduled_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest
+	8,  // 13: chalk.jobqueue.v1.MetaplanRunJobRequest.plan_offline_query_request:type_name -> chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest
+	29, // 14: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.original_query_body:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	9,  // 15: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	9,  // 16: chalk.jobqueue.v1.MetaplanPlanScheduledQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	29, // 17: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.query:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody
+	9,  // 18: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.job_queue_request_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	9,  // 19: chalk.jobqueue.v1.MetaplanPlanOfflineQueryRequest.metaplan_job_template:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate
+	37, // 20: chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.env_payload:type_name -> chalk.jobqueue.v1.MetaplanJobQueueRequestTemplate.EnvPayloadEntry
+	12, // 21: chalk.jobqueue.v1.OfflineQueryFeatureName.feature_names:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
+	41, // 22: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.shard_deadline:type_name -> google.protobuf.Duration
+	41, // 23: chalk.jobqueue.v1.OfflineQueryDeadlineOptions.query_deadline:type_name -> google.protobuf.Duration
+	12, // 24: chalk.jobqueue.v1.OfflineQueryRecomputeFeatures.features:type_name -> chalk.jobqueue.v1.OfflineQueryStringList
+	42, // 25: chalk.jobqueue.v1.OfflineQueryLiteralInput.values:type_name -> google.protobuf.ListValue
+	18, // 26: chalk.jobqueue.v1.OfflineQueryShardedLiteralInput.inputs:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
+	38, // 27: chalk.jobqueue.v1.OfflineQueryUriInput.column_name_to_feature_name:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry
+	18, // 28: chalk.jobqueue.v1.OfflineQueryInputSpec.literal:type_name -> chalk.jobqueue.v1.OfflineQueryLiteralInput
+	19, // 29: chalk.jobqueue.v1.OfflineQueryInputSpec.sharded_literal:type_name -> chalk.jobqueue.v1.OfflineQueryShardedLiteralInput
+	20, // 30: chalk.jobqueue.v1.OfflineQueryInputSpec.uploaded_parquet_sharded:type_name -> chalk.jobqueue.v1.OfflineQueryUploadedParquetShardedInput
+	21, // 31: chalk.jobqueue.v1.OfflineQueryInputSpec.uri:type_name -> chalk.jobqueue.v1.OfflineQueryUriInput
+	22, // 32: chalk.jobqueue.v1.OfflineQueryInputSpec.sql:type_name -> chalk.jobqueue.v1.OfflineQuerySqlInput
+	23, // 33: chalk.jobqueue.v1.OfflineQueryInputSpec.manifest:type_name -> chalk.jobqueue.v1.OfflineQueryManifestInput
+	24, // 34: chalk.jobqueue.v1.OfflineQueryInputSpec.givens_parquet_filename:type_name -> chalk.jobqueue.v1.OfflineQueryGivensParquetFilename
+	25, // 35: chalk.jobqueue.v1.OfflineQueryJobBody.input:type_name -> chalk.jobqueue.v1.OfflineQueryInputSpec
+	11, // 36: chalk.jobqueue.v1.OfflineQueryJobBody.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
+	16, // 37: chalk.jobqueue.v1.OfflineQueryJobBody.recompute_features:type_name -> chalk.jobqueue.v1.OfflineQueryRecomputeFeatures
+	17, // 38: chalk.jobqueue.v1.OfflineQueryJobBody.explain:type_name -> chalk.jobqueue.v1.OfflineQueryExplain
+	39, // 39: chalk.jobqueue.v1.OfflineQueryJobBody.query_context:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry
+	34, // 40: chalk.jobqueue.v1.OfflineQueryJobBody.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	40, // 41: chalk.jobqueue.v1.OfflineQueryJobBody.env_overrides:type_name -> chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntry
+	26, // 42: chalk.jobqueue.v1.OfflineQueryJobBody.unload_resolvers:type_name -> chalk.jobqueue.v1.UnloadResolverSpec
+	15, // 43: chalk.jobqueue.v1.OfflineQueryJobBody.completion_deadline:type_name -> chalk.jobqueue.v1.OfflineQueryDeadlineOptions
+	27, // 44: chalk.jobqueue.v1.OfflineQueryJobBody.persistence_settings:type_name -> chalk.jobqueue.v1.OfflineQueryPersistenceSettings
+	28, // 45: chalk.jobqueue.v1.OfflineQueryJobBody.hwm_identifier:type_name -> chalk.jobqueue.v1.OfflineQueryHwmIdentifier
+	11, // 46: chalk.jobqueue.v1.OfflineQueryWorkerIdentifier.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
+	32, // 47: chalk.jobqueue.v1.PlannerOptionsStringPairs.values:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPair
+	31, // 48: chalk.jobqueue.v1.PlannerOptions.skip_rewriter_inputs_for_resolvers_override:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 49: chalk.jobqueue.v1.PlannerOptions.persist_values_parquet_partition_by:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 50: chalk.jobqueue.v1.PlannerOptions.use_materialized_offline_query_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	31, // 51: chalk.jobqueue.v1.PlannerOptions.disable_continuous_queries_for_features:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	33, // 52: chalk.jobqueue.v1.PlannerOptions.extra_compilation_options:type_name -> chalk.jobqueue.v1.PlannerOptionsStringPairs
+	31, // 53: chalk.jobqueue.v1.PlannerOptions.excluded_offline_store_operation_kinds:type_name -> chalk.jobqueue.v1.PlannerOptionsStringList
+	11, // 54: chalk.jobqueue.v1.UnloadResolverJobRequest.resources:type_name -> chalk.jobqueue.v1.OfflineQueryResourceRequests
+	34, // 55: chalk.jobqueue.v1.UnloadResolverJobRequest.planner_options:type_name -> chalk.jobqueue.v1.PlannerOptions
+	30, // 56: chalk.jobqueue.v1.UnloadResolverJobRequest.identifier:type_name -> chalk.jobqueue.v1.OfflineQueryWorkerIdentifier
+	13, // 57: chalk.jobqueue.v1.OfflineQueryUriInput.ColumnNameToFeatureNameEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryFeatureName
+	14, // 58: chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntry.value:type_name -> chalk.jobqueue.v1.OfflineQueryContextValue
+	59, // [59:59] is the sub-list for method output_type
+	59, // [59:59] is the sub-list for method input_type
+	59, // [59:59] is the sub-list for extension type_name
+	59, // [59:59] is the sub-list for extension extendee
+	0,  // [0:59] is the sub-list for field type_name
 }
 
 func init() { file_chalk_jobqueue_v1_job_queue_request_proto_init() }
@@ -5115,6 +5165,10 @@ func file_chalk_jobqueue_v1_job_queue_request_proto_init() {
 		(*OfflineQueryJobRequest_RequestFilename)(nil),
 		(*OfflineQueryJobRequest_Identifier)(nil),
 		(*OfflineQueryJobRequest_IdentifierFilename)(nil),
+	}
+	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[2].OneofWrappers = []any{
+		(*ScheduledQueryJobRequest_Request)(nil),
+		(*ScheduledQueryJobRequest_RequestFilename)(nil),
 	}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_jobqueue_v1_job_queue_request_proto_msgTypes[5].OneofWrappers = []any{}

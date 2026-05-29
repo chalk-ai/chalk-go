@@ -80,6 +80,18 @@ const (
 	// McpGatewayServiceCheckPolicyProcedure is the fully-qualified name of the McpGatewayService's
 	// CheckPolicy RPC.
 	McpGatewayServiceCheckPolicyProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/CheckPolicy"
+	// McpGatewayServiceRecentAuditProcedure is the fully-qualified name of the McpGatewayService's
+	// RecentAudit RPC.
+	McpGatewayServiceRecentAuditProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/RecentAudit"
+	// McpGatewayServiceListPoliciesProcedure is the fully-qualified name of the McpGatewayService's
+	// ListPolicies RPC.
+	McpGatewayServiceListPoliciesProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/ListPolicies"
+	// McpGatewayServiceSetPolicyProcedure is the fully-qualified name of the McpGatewayService's
+	// SetPolicy RPC.
+	McpGatewayServiceSetPolicyProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/SetPolicy"
+	// McpGatewayServiceDeletePolicyProcedure is the fully-qualified name of the McpGatewayService's
+	// DeletePolicy RPC.
+	McpGatewayServiceDeletePolicyProcedure = "/chalk.mcp_gateway.v1.McpGatewayService/DeletePolicy"
 )
 
 // McpGatewayServiceClient is a client for the chalk.mcp_gateway.v1.McpGatewayService service.
@@ -100,6 +112,10 @@ type McpGatewayServiceClient interface {
 	DeleteServer(context.Context, *connect.Request[v1.DeleteServerRequest]) (*connect.Response[v1.DeleteServerResponse], error)
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
+	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
+	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
+	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
+	DeletePolicy(context.Context, *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error)
 }
 
 // NewMcpGatewayServiceClient constructs a client for the chalk.mcp_gateway.v1.McpGatewayService
@@ -217,6 +233,32 @@ func NewMcpGatewayServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		recentAudit: connect.NewClient[v1.RecentAuditRequest, v1.RecentAuditResponse](
+			httpClient,
+			baseURL+McpGatewayServiceRecentAuditProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("RecentAudit")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listPolicies: connect.NewClient[v1.ListPoliciesRequest, v1.ListPoliciesResponse](
+			httpClient,
+			baseURL+McpGatewayServiceListPoliciesProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("ListPolicies")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		setPolicy: connect.NewClient[v1.SetPolicyRequest, v1.SetPolicyResponse](
+			httpClient,
+			baseURL+McpGatewayServiceSetPolicyProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("SetPolicy")),
+			connect.WithClientOptions(opts...),
+		),
+		deletePolicy: connect.NewClient[v1.DeletePolicyRequest, v1.DeletePolicyResponse](
+			httpClient,
+			baseURL+McpGatewayServiceDeletePolicyProcedure,
+			connect.WithSchema(mcpGatewayServiceMethods.ByName("DeletePolicy")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -238,6 +280,10 @@ type mcpGatewayServiceClient struct {
 	deleteServer   *connect.Client[v1.DeleteServerRequest, v1.DeleteServerResponse]
 	simulatePolicy *connect.Client[v1.SimulatePolicyRequest, v1.SimulatePolicyResponse]
 	checkPolicy    *connect.Client[v1.CheckPolicyRequest, v1.CheckPolicyResponse]
+	recentAudit    *connect.Client[v1.RecentAuditRequest, v1.RecentAuditResponse]
+	listPolicies   *connect.Client[v1.ListPoliciesRequest, v1.ListPoliciesResponse]
+	setPolicy      *connect.Client[v1.SetPolicyRequest, v1.SetPolicyResponse]
+	deletePolicy   *connect.Client[v1.DeletePolicyRequest, v1.DeletePolicyResponse]
 }
 
 // GetMe calls chalk.mcp_gateway.v1.McpGatewayService.GetMe.
@@ -320,6 +366,26 @@ func (c *mcpGatewayServiceClient) CheckPolicy(ctx context.Context, req *connect.
 	return c.checkPolicy.CallUnary(ctx, req)
 }
 
+// RecentAudit calls chalk.mcp_gateway.v1.McpGatewayService.RecentAudit.
+func (c *mcpGatewayServiceClient) RecentAudit(ctx context.Context, req *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error) {
+	return c.recentAudit.CallUnary(ctx, req)
+}
+
+// ListPolicies calls chalk.mcp_gateway.v1.McpGatewayService.ListPolicies.
+func (c *mcpGatewayServiceClient) ListPolicies(ctx context.Context, req *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
+	return c.listPolicies.CallUnary(ctx, req)
+}
+
+// SetPolicy calls chalk.mcp_gateway.v1.McpGatewayService.SetPolicy.
+func (c *mcpGatewayServiceClient) SetPolicy(ctx context.Context, req *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error) {
+	return c.setPolicy.CallUnary(ctx, req)
+}
+
+// DeletePolicy calls chalk.mcp_gateway.v1.McpGatewayService.DeletePolicy.
+func (c *mcpGatewayServiceClient) DeletePolicy(ctx context.Context, req *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error) {
+	return c.deletePolicy.CallUnary(ctx, req)
+}
+
 // McpGatewayServiceHandler is an implementation of the chalk.mcp_gateway.v1.McpGatewayService
 // service.
 type McpGatewayServiceHandler interface {
@@ -339,6 +405,10 @@ type McpGatewayServiceHandler interface {
 	DeleteServer(context.Context, *connect.Request[v1.DeleteServerRequest]) (*connect.Response[v1.DeleteServerResponse], error)
 	SimulatePolicy(context.Context, *connect.Request[v1.SimulatePolicyRequest]) (*connect.Response[v1.SimulatePolicyResponse], error)
 	CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error)
+	RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error)
+	ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error)
+	SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error)
+	DeletePolicy(context.Context, *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error)
 }
 
 // NewMcpGatewayServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -452,6 +522,32 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	mcpGatewayServiceRecentAuditHandler := connect.NewUnaryHandler(
+		McpGatewayServiceRecentAuditProcedure,
+		svc.RecentAudit,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("RecentAudit")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceListPoliciesHandler := connect.NewUnaryHandler(
+		McpGatewayServiceListPoliciesProcedure,
+		svc.ListPolicies,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("ListPolicies")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceSetPolicyHandler := connect.NewUnaryHandler(
+		McpGatewayServiceSetPolicyProcedure,
+		svc.SetPolicy,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("SetPolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
+	mcpGatewayServiceDeletePolicyHandler := connect.NewUnaryHandler(
+		McpGatewayServiceDeletePolicyProcedure,
+		svc.DeletePolicy,
+		connect.WithSchema(mcpGatewayServiceMethods.ByName("DeletePolicy")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.mcp_gateway.v1.McpGatewayService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case McpGatewayServiceGetMeProcedure:
@@ -486,6 +582,14 @@ func NewMcpGatewayServiceHandler(svc McpGatewayServiceHandler, opts ...connect.H
 			mcpGatewayServiceSimulatePolicyHandler.ServeHTTP(w, r)
 		case McpGatewayServiceCheckPolicyProcedure:
 			mcpGatewayServiceCheckPolicyHandler.ServeHTTP(w, r)
+		case McpGatewayServiceRecentAuditProcedure:
+			mcpGatewayServiceRecentAuditHandler.ServeHTTP(w, r)
+		case McpGatewayServiceListPoliciesProcedure:
+			mcpGatewayServiceListPoliciesHandler.ServeHTTP(w, r)
+		case McpGatewayServiceSetPolicyProcedure:
+			mcpGatewayServiceSetPolicyHandler.ServeHTTP(w, r)
+		case McpGatewayServiceDeletePolicyProcedure:
+			mcpGatewayServiceDeletePolicyHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -557,4 +661,20 @@ func (UnimplementedMcpGatewayServiceHandler) SimulatePolicy(context.Context, *co
 
 func (UnimplementedMcpGatewayServiceHandler) CheckPolicy(context.Context, *connect.Request[v1.CheckPolicyRequest]) (*connect.Response[v1.CheckPolicyResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.CheckPolicy is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) RecentAudit(context.Context, *connect.Request[v1.RecentAuditRequest]) (*connect.Response[v1.RecentAuditResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.RecentAudit is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) ListPolicies(context.Context, *connect.Request[v1.ListPoliciesRequest]) (*connect.Response[v1.ListPoliciesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.ListPolicies is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) SetPolicy(context.Context, *connect.Request[v1.SetPolicyRequest]) (*connect.Response[v1.SetPolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.SetPolicy is not implemented"))
+}
+
+func (UnimplementedMcpGatewayServiceHandler) DeletePolicy(context.Context, *connect.Request[v1.DeletePolicyRequest]) (*connect.Response[v1.DeletePolicyResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.mcp_gateway.v1.McpGatewayService.DeletePolicy is not implemented"))
 }

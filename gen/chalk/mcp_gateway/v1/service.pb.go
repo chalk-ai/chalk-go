@@ -2711,6 +2711,552 @@ func (x *CheckPolicyResponse) GetPolicyEnabled() bool {
 	return false
 }
 
+// One recorded tool-call audit event, mirroring the gateway's live audit feed.
+type AuditEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Server-side wall-clock timestamp when the event was recorded, in unix ms.
+	TimestampMs    int64  `protobuf:"varint,1,opt,name=timestamp_ms,json=timestampMs,proto3" json:"timestamp_ms,omitempty"`
+	AgentId        string `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Backend        string `protobuf:"bytes,3,opt,name=backend,proto3" json:"backend,omitempty"`
+	Tool           string `protobuf:"bytes,4,opt,name=tool,proto3" json:"tool,omitempty"`
+	NamespacedTool string `protobuf:"bytes,5,opt,name=namespaced_tool,json=namespacedTool,proto3" json:"namespaced_tool,omitempty"`
+	// "allow", "deny", or "error".
+	Decision    string   `protobuf:"bytes,6,opt,name=decision,proto3" json:"decision,omitempty"`
+	DenyReasons []string `protobuf:"bytes,7,rep,name=deny_reasons,json=denyReasons,proto3" json:"deny_reasons,omitempty"`
+	// Truncated JSON preview of the call arguments.
+	ArgsPreview   string `protobuf:"bytes,8,opt,name=args_preview,json=argsPreview,proto3" json:"args_preview,omitempty"`
+	ArgsTruncated bool   `protobuf:"varint,9,opt,name=args_truncated,json=argsTruncated,proto3" json:"args_truncated,omitempty"`
+	DurationMs    int32  `protobuf:"varint,10,opt,name=duration_ms,json=durationMs,proto3" json:"duration_ms,omitempty"`
+	IsError       bool   `protobuf:"varint,11,opt,name=is_error,json=isError,proto3" json:"is_error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuditEvent) Reset() {
+	*x = AuditEvent{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuditEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuditEvent) ProtoMessage() {}
+
+func (x *AuditEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuditEvent.ProtoReflect.Descriptor instead.
+func (*AuditEvent) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *AuditEvent) GetTimestampMs() int64 {
+	if x != nil {
+		return x.TimestampMs
+	}
+	return 0
+}
+
+func (x *AuditEvent) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetBackend() string {
+	if x != nil {
+		return x.Backend
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetTool() string {
+	if x != nil {
+		return x.Tool
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetNamespacedTool() string {
+	if x != nil {
+		return x.NamespacedTool
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetDecision() string {
+	if x != nil {
+		return x.Decision
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetDenyReasons() []string {
+	if x != nil {
+		return x.DenyReasons
+	}
+	return nil
+}
+
+func (x *AuditEvent) GetArgsPreview() string {
+	if x != nil {
+		return x.ArgsPreview
+	}
+	return ""
+}
+
+func (x *AuditEvent) GetArgsTruncated() bool {
+	if x != nil {
+		return x.ArgsTruncated
+	}
+	return false
+}
+
+func (x *AuditEvent) GetDurationMs() int32 {
+	if x != nil {
+		return x.DurationMs
+	}
+	return 0
+}
+
+func (x *AuditEvent) GetIsError() bool {
+	if x != nil {
+		return x.IsError
+	}
+	return false
+}
+
+type RecentAuditRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Maximum number of events to return, newest last. Zero means the server default.
+	Limit         int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecentAuditRequest) Reset() {
+	*x = RecentAuditRequest{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecentAuditRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecentAuditRequest) ProtoMessage() {}
+
+func (x *RecentAuditRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecentAuditRequest.ProtoReflect.Descriptor instead.
+func (*RecentAuditRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *RecentAuditRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+type RecentAuditResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Events        []*AuditEvent          `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecentAuditResponse) Reset() {
+	*x = RecentAuditResponse{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecentAuditResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecentAuditResponse) ProtoMessage() {}
+
+func (x *RecentAuditResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecentAuditResponse.ProtoReflect.Descriptor instead.
+func (*RecentAuditResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{48}
+}
+
+func (x *RecentAuditResponse) GetEvents() []*AuditEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+// A persisted, named Rego policy enforced on tool calls.
+type Policy struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Rego source.
+	Source string `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	// When false, the policy is stored but not enforced.
+	Enabled bool `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	// Server-set wall-clock time of the last write, in unix ms. Ignored on writes.
+	UpdatedAtMs   int64 `protobuf:"varint,4,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Policy) Reset() {
+	*x = Policy{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Policy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Policy) ProtoMessage() {}
+
+func (x *Policy) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Policy.ProtoReflect.Descriptor instead.
+func (*Policy) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{49}
+}
+
+func (x *Policy) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Policy) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *Policy) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+func (x *Policy) GetUpdatedAtMs() int64 {
+	if x != nil {
+		return x.UpdatedAtMs
+	}
+	return 0
+}
+
+type ListPoliciesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPoliciesRequest) Reset() {
+	*x = ListPoliciesRequest{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPoliciesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPoliciesRequest) ProtoMessage() {}
+
+func (x *ListPoliciesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPoliciesRequest.ProtoReflect.Descriptor instead.
+func (*ListPoliciesRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{50}
+}
+
+type ListPoliciesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Policies      []*Policy              `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPoliciesResponse) Reset() {
+	*x = ListPoliciesResponse{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPoliciesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPoliciesResponse) ProtoMessage() {}
+
+func (x *ListPoliciesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPoliciesResponse.ProtoReflect.Descriptor instead.
+func (*ListPoliciesResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{51}
+}
+
+func (x *ListPoliciesResponse) GetPolicies() []*Policy {
+	if x != nil {
+		return x.Policies
+	}
+	return nil
+}
+
+// Upsert a policy by name (create if absent, replace otherwise).
+type SetPolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	Enabled       bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetPolicyRequest) Reset() {
+	*x = SetPolicyRequest{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPolicyRequest) ProtoMessage() {}
+
+func (x *SetPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPolicyRequest.ProtoReflect.Descriptor instead.
+func (*SetPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{52}
+}
+
+func (x *SetPolicyRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SetPolicyRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *SetPolicyRequest) GetEnabled() bool {
+	if x != nil {
+		return x.Enabled
+	}
+	return false
+}
+
+type SetPolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetPolicyResponse) Reset() {
+	*x = SetPolicyResponse{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetPolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetPolicyResponse) ProtoMessage() {}
+
+func (x *SetPolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetPolicyResponse.ProtoReflect.Descriptor instead.
+func (*SetPolicyResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{53}
+}
+
+type DeletePolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePolicyRequest) Reset() {
+	*x = DeletePolicyRequest{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePolicyRequest) ProtoMessage() {}
+
+func (x *DeletePolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePolicyRequest.ProtoReflect.Descriptor instead.
+func (*DeletePolicyRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{54}
+}
+
+func (x *DeletePolicyRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type DeletePolicyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeletePolicyResponse) Reset() {
+	*x = DeletePolicyResponse{}
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeletePolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePolicyResponse) ProtoMessage() {}
+
+func (x *DeletePolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_mcp_gateway_v1_service_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePolicyResponse.ProtoReflect.Descriptor instead.
+func (*DeletePolicyResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP(), []int{55}
+}
+
 var File_chalk_mcp_gateway_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
@@ -2925,7 +3471,42 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x13CheckPolicyResponse\x12@\n" +
 	"\bdecision\x18\x01 \x01(\x0e2$.chalk.mcp_gateway.v1.PolicyDecisionR\bdecision\x12\x18\n" +
 	"\areasons\x18\x02 \x03(\tR\areasons\x12%\n" +
-	"\x0epolicy_enabled\x18\x03 \x01(\bR\rpolicyEnabled*O\n" +
+	"\x0epolicy_enabled\x18\x03 \x01(\bR\rpolicyEnabled\"\xe6\x02\n" +
+	"\n" +
+	"AuditEvent\x12!\n" +
+	"\ftimestamp_ms\x18\x01 \x01(\x03R\vtimestampMs\x12\x19\n" +
+	"\bagent_id\x18\x02 \x01(\tR\aagentId\x12\x18\n" +
+	"\abackend\x18\x03 \x01(\tR\abackend\x12\x12\n" +
+	"\x04tool\x18\x04 \x01(\tR\x04tool\x12'\n" +
+	"\x0fnamespaced_tool\x18\x05 \x01(\tR\x0enamespacedTool\x12\x1a\n" +
+	"\bdecision\x18\x06 \x01(\tR\bdecision\x12!\n" +
+	"\fdeny_reasons\x18\a \x03(\tR\vdenyReasons\x12!\n" +
+	"\fargs_preview\x18\b \x01(\tR\vargsPreview\x12%\n" +
+	"\x0eargs_truncated\x18\t \x01(\bR\rargsTruncated\x12\x1f\n" +
+	"\vduration_ms\x18\n" +
+	" \x01(\x05R\n" +
+	"durationMs\x12\x19\n" +
+	"\bis_error\x18\v \x01(\bR\aisError\"*\n" +
+	"\x12RecentAuditRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\"O\n" +
+	"\x13RecentAuditResponse\x128\n" +
+	"\x06events\x18\x01 \x03(\v2 .chalk.mcp_gateway.v1.AuditEventR\x06events\"r\n" +
+	"\x06Policy\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\x12\"\n" +
+	"\rupdated_at_ms\x18\x04 \x01(\x03R\vupdatedAtMs\"\x15\n" +
+	"\x13ListPoliciesRequest\"P\n" +
+	"\x14ListPoliciesResponse\x128\n" +
+	"\bpolicies\x18\x01 \x03(\v2\x1c.chalk.mcp_gateway.v1.PolicyR\bpolicies\"X\n" +
+	"\x10SetPolicyRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\x12\x18\n" +
+	"\aenabled\x18\x03 \x01(\bR\aenabled\"\x13\n" +
+	"\x11SetPolicyResponse\")\n" +
+	"\x13DeletePolicyRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x16\n" +
+	"\x14DeletePolicyResponse*O\n" +
 	"\tTransport\x12\x19\n" +
 	"\x15TRANSPORT_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eTRANSPORT_HTTP\x10\x01\x12\x13\n" +
@@ -2933,7 +3514,7 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\x0ePolicyDecision\x12\x1f\n" +
 	"\x1bPOLICY_DECISION_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15POLICY_DECISION_ALLOW\x10\x01\x12\x18\n" +
-	"\x14POLICY_DECISION_DENY\x10\x022\xaf\r\n" +
+	"\x14POLICY_DECISION_DENY\x10\x022\xd9\x10\n" +
 	"\x11McpGatewayService\x12X\n" +
 	"\x05GetMe\x12\".chalk.mcp_gateway.v1.GetMeRequest\x1a#.chalk.mcp_gateway.v1.GetMeResponse\"\x06\x80}\x02\x90\x02\x01\x12m\n" +
 	"\fListBackends\x12).chalk.mcp_gateway.v1.ListBackendsRequest\x1a*.chalk.mcp_gateway.v1.ListBackendsResponse\"\x06\x80}\x02\x90\x02\x01\x12^\n" +
@@ -2951,7 +3532,11 @@ const file_chalk_mcp_gateway_v1_service_proto_rawDesc = "" +
 	"\fUpdateServer\x12).chalk.mcp_gateway.v1.UpdateServerRequest\x1a*.chalk.mcp_gateway.v1.UpdateServerResponse\"\x03\x80}\x02\x12j\n" +
 	"\fDeleteServer\x12).chalk.mcp_gateway.v1.DeleteServerRequest\x1a*.chalk.mcp_gateway.v1.DeleteServerResponse\"\x03\x80}\x02\x12p\n" +
 	"\x0eSimulatePolicy\x12+.chalk.mcp_gateway.v1.SimulatePolicyRequest\x1a,.chalk.mcp_gateway.v1.SimulatePolicyResponse\"\x03\x80}\x02\x12j\n" +
-	"\vCheckPolicy\x12(.chalk.mcp_gateway.v1.CheckPolicyRequest\x1a).chalk.mcp_gateway.v1.CheckPolicyResponse\"\x06\x80}\x02\x90\x02\x01B\xdb\x01\n" +
+	"\vCheckPolicy\x12(.chalk.mcp_gateway.v1.CheckPolicyRequest\x1a).chalk.mcp_gateway.v1.CheckPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12j\n" +
+	"\vRecentAudit\x12(.chalk.mcp_gateway.v1.RecentAuditRequest\x1a).chalk.mcp_gateway.v1.RecentAuditResponse\"\x06\x80}\x02\x90\x02\x01\x12m\n" +
+	"\fListPolicies\x12).chalk.mcp_gateway.v1.ListPoliciesRequest\x1a*.chalk.mcp_gateway.v1.ListPoliciesResponse\"\x06\x80}\x02\x90\x02\x01\x12a\n" +
+	"\tSetPolicy\x12&.chalk.mcp_gateway.v1.SetPolicyRequest\x1a'.chalk.mcp_gateway.v1.SetPolicyResponse\"\x03\x80}\x02\x12j\n" +
+	"\fDeletePolicy\x12).chalk.mcp_gateway.v1.DeletePolicyRequest\x1a*.chalk.mcp_gateway.v1.DeletePolicyResponse\"\x03\x80}\x02B\xdb\x01\n" +
 	"\x18com.chalk.mcp_gateway.v1B\fServiceProtoP\x01ZCgithub.com/chalk-ai/chalk-go/gen/chalk/mcp_gateway/v1;mcp_gatewayv1\xa2\x02\x03CMX\xaa\x02\x13Chalk.McpGateway.V1\xca\x02\x13Chalk\\McpGateway\\V1\xe2\x02\x1fChalk\\McpGateway\\V1\\GPBMetadata\xea\x02\x15Chalk::McpGateway::V1b\x06proto3"
 
 var (
@@ -2967,7 +3552,7 @@ func file_chalk_mcp_gateway_v1_service_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_mcp_gateway_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_mcp_gateway_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_chalk_mcp_gateway_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_chalk_mcp_gateway_v1_service_proto_goTypes = []any{
 	(Transport)(0),                 // 0: chalk.mcp_gateway.v1.Transport
 	(PolicyDecision)(0),            // 1: chalk.mcp_gateway.v1.PolicyDecision
@@ -3017,34 +3602,44 @@ var file_chalk_mcp_gateway_v1_service_proto_goTypes = []any{
 	(*SimulatePolicyResponse)(nil), // 45: chalk.mcp_gateway.v1.SimulatePolicyResponse
 	(*CheckPolicyRequest)(nil),     // 46: chalk.mcp_gateway.v1.CheckPolicyRequest
 	(*CheckPolicyResponse)(nil),    // 47: chalk.mcp_gateway.v1.CheckPolicyResponse
-	nil,                            // 48: chalk.mcp_gateway.v1.HeadersCredential.ValuesEntry
-	nil,                            // 49: chalk.mcp_gateway.v1.EnvCredential.VarsEntry
-	nil,                            // 50: chalk.mcp_gateway.v1.OauthUserCredential.ExtraAuthorizeParamsEntry
-	(*structpb.Struct)(nil),        // 51: google.protobuf.Struct
-	(*structpb.ListValue)(nil),     // 52: google.protobuf.ListValue
-	(*structpb.Value)(nil),         // 53: google.protobuf.Value
+	(*AuditEvent)(nil),             // 48: chalk.mcp_gateway.v1.AuditEvent
+	(*RecentAuditRequest)(nil),     // 49: chalk.mcp_gateway.v1.RecentAuditRequest
+	(*RecentAuditResponse)(nil),    // 50: chalk.mcp_gateway.v1.RecentAuditResponse
+	(*Policy)(nil),                 // 51: chalk.mcp_gateway.v1.Policy
+	(*ListPoliciesRequest)(nil),    // 52: chalk.mcp_gateway.v1.ListPoliciesRequest
+	(*ListPoliciesResponse)(nil),   // 53: chalk.mcp_gateway.v1.ListPoliciesResponse
+	(*SetPolicyRequest)(nil),       // 54: chalk.mcp_gateway.v1.SetPolicyRequest
+	(*SetPolicyResponse)(nil),      // 55: chalk.mcp_gateway.v1.SetPolicyResponse
+	(*DeletePolicyRequest)(nil),    // 56: chalk.mcp_gateway.v1.DeletePolicyRequest
+	(*DeletePolicyResponse)(nil),   // 57: chalk.mcp_gateway.v1.DeletePolicyResponse
+	nil,                            // 58: chalk.mcp_gateway.v1.HeadersCredential.ValuesEntry
+	nil,                            // 59: chalk.mcp_gateway.v1.EnvCredential.VarsEntry
+	nil,                            // 60: chalk.mcp_gateway.v1.OauthUserCredential.ExtraAuthorizeParamsEntry
+	(*structpb.Struct)(nil),        // 61: google.protobuf.Struct
+	(*structpb.ListValue)(nil),     // 62: google.protobuf.ListValue
+	(*structpb.Value)(nil),         // 63: google.protobuf.Value
 }
 var file_chalk_mcp_gateway_v1_service_proto_depIdxs = []int32{
-	48, // 0: chalk.mcp_gateway.v1.HeadersCredential.values:type_name -> chalk.mcp_gateway.v1.HeadersCredential.ValuesEntry
-	49, // 1: chalk.mcp_gateway.v1.EnvCredential.vars:type_name -> chalk.mcp_gateway.v1.EnvCredential.VarsEntry
-	50, // 2: chalk.mcp_gateway.v1.OauthUserCredential.extra_authorize_params:type_name -> chalk.mcp_gateway.v1.OauthUserCredential.ExtraAuthorizeParamsEntry
+	58, // 0: chalk.mcp_gateway.v1.HeadersCredential.values:type_name -> chalk.mcp_gateway.v1.HeadersCredential.ValuesEntry
+	59, // 1: chalk.mcp_gateway.v1.EnvCredential.vars:type_name -> chalk.mcp_gateway.v1.EnvCredential.VarsEntry
+	60, // 2: chalk.mcp_gateway.v1.OauthUserCredential.extra_authorize_params:type_name -> chalk.mcp_gateway.v1.OauthUserCredential.ExtraAuthorizeParamsEntry
 	2,  // 3: chalk.mcp_gateway.v1.Credential.bearer:type_name -> chalk.mcp_gateway.v1.BearerCredential
 	3,  // 4: chalk.mcp_gateway.v1.Credential.headers:type_name -> chalk.mcp_gateway.v1.HeadersCredential
 	4,  // 5: chalk.mcp_gateway.v1.Credential.env:type_name -> chalk.mcp_gateway.v1.EnvCredential
 	5,  // 6: chalk.mcp_gateway.v1.Credential.oauth_user:type_name -> chalk.mcp_gateway.v1.OauthUserCredential
 	6,  // 7: chalk.mcp_gateway.v1.Credential.oauth_dcr:type_name -> chalk.mcp_gateway.v1.OauthDcrCredential
-	51, // 8: chalk.mcp_gateway.v1.ToolDef.input_schema:type_name -> google.protobuf.Struct
-	52, // 9: chalk.mcp_gateway.v1.PromptDef.arguments:type_name -> google.protobuf.ListValue
+	61, // 8: chalk.mcp_gateway.v1.ToolDef.input_schema:type_name -> google.protobuf.Struct
+	62, // 9: chalk.mcp_gateway.v1.PromptDef.arguments:type_name -> google.protobuf.ListValue
 	0,  // 10: chalk.mcp_gateway.v1.BackendDetails.transport:type_name -> chalk.mcp_gateway.v1.Transport
 	8,  // 11: chalk.mcp_gateway.v1.BackendDetails.tools:type_name -> chalk.mcp_gateway.v1.ToolDef
 	9,  // 12: chalk.mcp_gateway.v1.BackendDetails.resources:type_name -> chalk.mcp_gateway.v1.ResourceDef
 	10, // 13: chalk.mcp_gateway.v1.BackendDetails.prompts:type_name -> chalk.mcp_gateway.v1.PromptDef
 	11, // 14: chalk.mcp_gateway.v1.ListBackendsResponse.backends:type_name -> chalk.mcp_gateway.v1.BackendDetails
-	51, // 15: chalk.mcp_gateway.v1.CallToolRequest.arguments:type_name -> google.protobuf.Struct
-	53, // 16: chalk.mcp_gateway.v1.CallToolResponse.content:type_name -> google.protobuf.Value
-	53, // 17: chalk.mcp_gateway.v1.ReadResourceResponse.contents:type_name -> google.protobuf.Value
-	51, // 18: chalk.mcp_gateway.v1.GetPromptRequest.arguments:type_name -> google.protobuf.Struct
-	51, // 19: chalk.mcp_gateway.v1.GetPromptResponse.result:type_name -> google.protobuf.Struct
+	61, // 15: chalk.mcp_gateway.v1.CallToolRequest.arguments:type_name -> google.protobuf.Struct
+	63, // 16: chalk.mcp_gateway.v1.CallToolResponse.content:type_name -> google.protobuf.Value
+	63, // 17: chalk.mcp_gateway.v1.ReadResourceResponse.contents:type_name -> google.protobuf.Value
+	61, // 18: chalk.mcp_gateway.v1.GetPromptRequest.arguments:type_name -> google.protobuf.Struct
+	61, // 19: chalk.mcp_gateway.v1.GetPromptResponse.result:type_name -> google.protobuf.Struct
 	22, // 20: chalk.mcp_gateway.v1.ListAgentsResponse.agents:type_name -> chalk.mcp_gateway.v1.AgentConfig
 	0,  // 21: chalk.mcp_gateway.v1.ServerEntry.transport:type_name -> chalk.mcp_gateway.v1.Transport
 	33, // 22: chalk.mcp_gateway.v1.ListServersResponse.servers:type_name -> chalk.mcp_gateway.v1.ServerEntry
@@ -3052,49 +3647,59 @@ var file_chalk_mcp_gateway_v1_service_proto_depIdxs = []int32{
 	7,  // 24: chalk.mcp_gateway.v1.CreateServerRequest.credential:type_name -> chalk.mcp_gateway.v1.Credential
 	0,  // 25: chalk.mcp_gateway.v1.UpdateServerRequest.transport:type_name -> chalk.mcp_gateway.v1.Transport
 	7,  // 26: chalk.mcp_gateway.v1.UpdateServerRequest.credential:type_name -> chalk.mcp_gateway.v1.Credential
-	51, // 27: chalk.mcp_gateway.v1.SimulateToolCall.arguments:type_name -> google.protobuf.Struct
+	61, // 27: chalk.mcp_gateway.v1.SimulateToolCall.arguments:type_name -> google.protobuf.Struct
 	42, // 28: chalk.mcp_gateway.v1.SimulatePolicyRequest.policies:type_name -> chalk.mcp_gateway.v1.PolicySource
 	43, // 29: chalk.mcp_gateway.v1.SimulatePolicyRequest.tool_call:type_name -> chalk.mcp_gateway.v1.SimulateToolCall
 	1,  // 30: chalk.mcp_gateway.v1.SimulatePolicyResponse.decision:type_name -> chalk.mcp_gateway.v1.PolicyDecision
-	51, // 31: chalk.mcp_gateway.v1.CheckPolicyRequest.arguments:type_name -> google.protobuf.Struct
+	61, // 31: chalk.mcp_gateway.v1.CheckPolicyRequest.arguments:type_name -> google.protobuf.Struct
 	1,  // 32: chalk.mcp_gateway.v1.CheckPolicyResponse.decision:type_name -> chalk.mcp_gateway.v1.PolicyDecision
-	12, // 33: chalk.mcp_gateway.v1.McpGatewayService.GetMe:input_type -> chalk.mcp_gateway.v1.GetMeRequest
-	14, // 34: chalk.mcp_gateway.v1.McpGatewayService.ListBackends:input_type -> chalk.mcp_gateway.v1.ListBackendsRequest
-	16, // 35: chalk.mcp_gateway.v1.McpGatewayService.CallTool:input_type -> chalk.mcp_gateway.v1.CallToolRequest
-	18, // 36: chalk.mcp_gateway.v1.McpGatewayService.ReadResource:input_type -> chalk.mcp_gateway.v1.ReadResourceRequest
-	20, // 37: chalk.mcp_gateway.v1.McpGatewayService.GetPrompt:input_type -> chalk.mcp_gateway.v1.GetPromptRequest
-	23, // 38: chalk.mcp_gateway.v1.McpGatewayService.ListAgents:input_type -> chalk.mcp_gateway.v1.ListAgentsRequest
-	25, // 39: chalk.mcp_gateway.v1.McpGatewayService.SetAgent:input_type -> chalk.mcp_gateway.v1.SetAgentRequest
-	27, // 40: chalk.mcp_gateway.v1.McpGatewayService.DeleteAgent:input_type -> chalk.mcp_gateway.v1.DeleteAgentRequest
-	29, // 41: chalk.mcp_gateway.v1.McpGatewayService.ListOauthLinks:input_type -> chalk.mcp_gateway.v1.ListOauthLinksRequest
-	31, // 42: chalk.mcp_gateway.v1.McpGatewayService.UnlinkOauth:input_type -> chalk.mcp_gateway.v1.UnlinkOauthRequest
-	34, // 43: chalk.mcp_gateway.v1.McpGatewayService.ListServers:input_type -> chalk.mcp_gateway.v1.ListServersRequest
-	36, // 44: chalk.mcp_gateway.v1.McpGatewayService.CreateServer:input_type -> chalk.mcp_gateway.v1.CreateServerRequest
-	38, // 45: chalk.mcp_gateway.v1.McpGatewayService.UpdateServer:input_type -> chalk.mcp_gateway.v1.UpdateServerRequest
-	40, // 46: chalk.mcp_gateway.v1.McpGatewayService.DeleteServer:input_type -> chalk.mcp_gateway.v1.DeleteServerRequest
-	44, // 47: chalk.mcp_gateway.v1.McpGatewayService.SimulatePolicy:input_type -> chalk.mcp_gateway.v1.SimulatePolicyRequest
-	46, // 48: chalk.mcp_gateway.v1.McpGatewayService.CheckPolicy:input_type -> chalk.mcp_gateway.v1.CheckPolicyRequest
-	13, // 49: chalk.mcp_gateway.v1.McpGatewayService.GetMe:output_type -> chalk.mcp_gateway.v1.GetMeResponse
-	15, // 50: chalk.mcp_gateway.v1.McpGatewayService.ListBackends:output_type -> chalk.mcp_gateway.v1.ListBackendsResponse
-	17, // 51: chalk.mcp_gateway.v1.McpGatewayService.CallTool:output_type -> chalk.mcp_gateway.v1.CallToolResponse
-	19, // 52: chalk.mcp_gateway.v1.McpGatewayService.ReadResource:output_type -> chalk.mcp_gateway.v1.ReadResourceResponse
-	21, // 53: chalk.mcp_gateway.v1.McpGatewayService.GetPrompt:output_type -> chalk.mcp_gateway.v1.GetPromptResponse
-	24, // 54: chalk.mcp_gateway.v1.McpGatewayService.ListAgents:output_type -> chalk.mcp_gateway.v1.ListAgentsResponse
-	26, // 55: chalk.mcp_gateway.v1.McpGatewayService.SetAgent:output_type -> chalk.mcp_gateway.v1.SetAgentResponse
-	28, // 56: chalk.mcp_gateway.v1.McpGatewayService.DeleteAgent:output_type -> chalk.mcp_gateway.v1.DeleteAgentResponse
-	30, // 57: chalk.mcp_gateway.v1.McpGatewayService.ListOauthLinks:output_type -> chalk.mcp_gateway.v1.ListOauthLinksResponse
-	32, // 58: chalk.mcp_gateway.v1.McpGatewayService.UnlinkOauth:output_type -> chalk.mcp_gateway.v1.UnlinkOauthResponse
-	35, // 59: chalk.mcp_gateway.v1.McpGatewayService.ListServers:output_type -> chalk.mcp_gateway.v1.ListServersResponse
-	37, // 60: chalk.mcp_gateway.v1.McpGatewayService.CreateServer:output_type -> chalk.mcp_gateway.v1.CreateServerResponse
-	39, // 61: chalk.mcp_gateway.v1.McpGatewayService.UpdateServer:output_type -> chalk.mcp_gateway.v1.UpdateServerResponse
-	41, // 62: chalk.mcp_gateway.v1.McpGatewayService.DeleteServer:output_type -> chalk.mcp_gateway.v1.DeleteServerResponse
-	45, // 63: chalk.mcp_gateway.v1.McpGatewayService.SimulatePolicy:output_type -> chalk.mcp_gateway.v1.SimulatePolicyResponse
-	47, // 64: chalk.mcp_gateway.v1.McpGatewayService.CheckPolicy:output_type -> chalk.mcp_gateway.v1.CheckPolicyResponse
-	49, // [49:65] is the sub-list for method output_type
-	33, // [33:49] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	48, // 33: chalk.mcp_gateway.v1.RecentAuditResponse.events:type_name -> chalk.mcp_gateway.v1.AuditEvent
+	51, // 34: chalk.mcp_gateway.v1.ListPoliciesResponse.policies:type_name -> chalk.mcp_gateway.v1.Policy
+	12, // 35: chalk.mcp_gateway.v1.McpGatewayService.GetMe:input_type -> chalk.mcp_gateway.v1.GetMeRequest
+	14, // 36: chalk.mcp_gateway.v1.McpGatewayService.ListBackends:input_type -> chalk.mcp_gateway.v1.ListBackendsRequest
+	16, // 37: chalk.mcp_gateway.v1.McpGatewayService.CallTool:input_type -> chalk.mcp_gateway.v1.CallToolRequest
+	18, // 38: chalk.mcp_gateway.v1.McpGatewayService.ReadResource:input_type -> chalk.mcp_gateway.v1.ReadResourceRequest
+	20, // 39: chalk.mcp_gateway.v1.McpGatewayService.GetPrompt:input_type -> chalk.mcp_gateway.v1.GetPromptRequest
+	23, // 40: chalk.mcp_gateway.v1.McpGatewayService.ListAgents:input_type -> chalk.mcp_gateway.v1.ListAgentsRequest
+	25, // 41: chalk.mcp_gateway.v1.McpGatewayService.SetAgent:input_type -> chalk.mcp_gateway.v1.SetAgentRequest
+	27, // 42: chalk.mcp_gateway.v1.McpGatewayService.DeleteAgent:input_type -> chalk.mcp_gateway.v1.DeleteAgentRequest
+	29, // 43: chalk.mcp_gateway.v1.McpGatewayService.ListOauthLinks:input_type -> chalk.mcp_gateway.v1.ListOauthLinksRequest
+	31, // 44: chalk.mcp_gateway.v1.McpGatewayService.UnlinkOauth:input_type -> chalk.mcp_gateway.v1.UnlinkOauthRequest
+	34, // 45: chalk.mcp_gateway.v1.McpGatewayService.ListServers:input_type -> chalk.mcp_gateway.v1.ListServersRequest
+	36, // 46: chalk.mcp_gateway.v1.McpGatewayService.CreateServer:input_type -> chalk.mcp_gateway.v1.CreateServerRequest
+	38, // 47: chalk.mcp_gateway.v1.McpGatewayService.UpdateServer:input_type -> chalk.mcp_gateway.v1.UpdateServerRequest
+	40, // 48: chalk.mcp_gateway.v1.McpGatewayService.DeleteServer:input_type -> chalk.mcp_gateway.v1.DeleteServerRequest
+	44, // 49: chalk.mcp_gateway.v1.McpGatewayService.SimulatePolicy:input_type -> chalk.mcp_gateway.v1.SimulatePolicyRequest
+	46, // 50: chalk.mcp_gateway.v1.McpGatewayService.CheckPolicy:input_type -> chalk.mcp_gateway.v1.CheckPolicyRequest
+	49, // 51: chalk.mcp_gateway.v1.McpGatewayService.RecentAudit:input_type -> chalk.mcp_gateway.v1.RecentAuditRequest
+	52, // 52: chalk.mcp_gateway.v1.McpGatewayService.ListPolicies:input_type -> chalk.mcp_gateway.v1.ListPoliciesRequest
+	54, // 53: chalk.mcp_gateway.v1.McpGatewayService.SetPolicy:input_type -> chalk.mcp_gateway.v1.SetPolicyRequest
+	56, // 54: chalk.mcp_gateway.v1.McpGatewayService.DeletePolicy:input_type -> chalk.mcp_gateway.v1.DeletePolicyRequest
+	13, // 55: chalk.mcp_gateway.v1.McpGatewayService.GetMe:output_type -> chalk.mcp_gateway.v1.GetMeResponse
+	15, // 56: chalk.mcp_gateway.v1.McpGatewayService.ListBackends:output_type -> chalk.mcp_gateway.v1.ListBackendsResponse
+	17, // 57: chalk.mcp_gateway.v1.McpGatewayService.CallTool:output_type -> chalk.mcp_gateway.v1.CallToolResponse
+	19, // 58: chalk.mcp_gateway.v1.McpGatewayService.ReadResource:output_type -> chalk.mcp_gateway.v1.ReadResourceResponse
+	21, // 59: chalk.mcp_gateway.v1.McpGatewayService.GetPrompt:output_type -> chalk.mcp_gateway.v1.GetPromptResponse
+	24, // 60: chalk.mcp_gateway.v1.McpGatewayService.ListAgents:output_type -> chalk.mcp_gateway.v1.ListAgentsResponse
+	26, // 61: chalk.mcp_gateway.v1.McpGatewayService.SetAgent:output_type -> chalk.mcp_gateway.v1.SetAgentResponse
+	28, // 62: chalk.mcp_gateway.v1.McpGatewayService.DeleteAgent:output_type -> chalk.mcp_gateway.v1.DeleteAgentResponse
+	30, // 63: chalk.mcp_gateway.v1.McpGatewayService.ListOauthLinks:output_type -> chalk.mcp_gateway.v1.ListOauthLinksResponse
+	32, // 64: chalk.mcp_gateway.v1.McpGatewayService.UnlinkOauth:output_type -> chalk.mcp_gateway.v1.UnlinkOauthResponse
+	35, // 65: chalk.mcp_gateway.v1.McpGatewayService.ListServers:output_type -> chalk.mcp_gateway.v1.ListServersResponse
+	37, // 66: chalk.mcp_gateway.v1.McpGatewayService.CreateServer:output_type -> chalk.mcp_gateway.v1.CreateServerResponse
+	39, // 67: chalk.mcp_gateway.v1.McpGatewayService.UpdateServer:output_type -> chalk.mcp_gateway.v1.UpdateServerResponse
+	41, // 68: chalk.mcp_gateway.v1.McpGatewayService.DeleteServer:output_type -> chalk.mcp_gateway.v1.DeleteServerResponse
+	45, // 69: chalk.mcp_gateway.v1.McpGatewayService.SimulatePolicy:output_type -> chalk.mcp_gateway.v1.SimulatePolicyResponse
+	47, // 70: chalk.mcp_gateway.v1.McpGatewayService.CheckPolicy:output_type -> chalk.mcp_gateway.v1.CheckPolicyResponse
+	50, // 71: chalk.mcp_gateway.v1.McpGatewayService.RecentAudit:output_type -> chalk.mcp_gateway.v1.RecentAuditResponse
+	53, // 72: chalk.mcp_gateway.v1.McpGatewayService.ListPolicies:output_type -> chalk.mcp_gateway.v1.ListPoliciesResponse
+	55, // 73: chalk.mcp_gateway.v1.McpGatewayService.SetPolicy:output_type -> chalk.mcp_gateway.v1.SetPolicyResponse
+	57, // 74: chalk.mcp_gateway.v1.McpGatewayService.DeletePolicy:output_type -> chalk.mcp_gateway.v1.DeletePolicyResponse
+	55, // [55:75] is the sub-list for method output_type
+	35, // [35:55] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_chalk_mcp_gateway_v1_service_proto_init() }
@@ -3127,7 +3732,7 @@ func file_chalk_mcp_gateway_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_mcp_gateway_v1_service_proto_rawDesc), len(file_chalk_mcp_gateway_v1_service_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   49,
+			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
