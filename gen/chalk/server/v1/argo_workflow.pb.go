@@ -552,10 +552,10 @@ const file_chalk_server_v1_argo_workflow_proto_rawDesc = "" +
 	"\x0fnext_page_token\x18\x02 \x01(\v2(.chalk.server.v1.ListKubeEventsPageTokenH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
 	"\x10_next_page_token2\xda\x03\n" +
 	"\x13ArgoWorkflowService\x12i\n" +
-	"\x0eListArgoBuilds\x12&.chalk.server.v1.ListArgoBuildsRequest\x1a'.chalk.server.v1.ListArgoBuildsResponse\"\x06\x80}\x1e\x90\x02\x01\x12c\n" +
-	"\fGetArgoBuild\x12$.chalk.server.v1.GetArgoBuildRequest\x1a%.chalk.server.v1.GetArgoBuildResponse\"\x06\x80}\x1e\x90\x02\x01\x12o\n" +
-	"\x10GetArgoBuildLogs\x12(.chalk.server.v1.GetArgoBuildLogsRequest\x1a).chalk.server.v1.GetArgoBuildLogsResponse\"\x06\x80}\x1e\x90\x02\x01\x12\x81\x01\n" +
-	"\x16GetArgoBuildKubeEvents\x12..chalk.server.v1.GetArgoBuildKubeEventsRequest\x1a/.chalk.server.v1.GetArgoBuildKubeEventsResponse\"\x06\x80}\x1e\x90\x02\x01B\xc1\x01\n" +
+	"\x0eListArgoBuilds\x12&.chalk.server.v1.ListArgoBuildsRequest\x1a'.chalk.server.v1.ListArgoBuildsResponse\"\x06\x80}\v\x90\x02\x01\x12c\n" +
+	"\fGetArgoBuild\x12$.chalk.server.v1.GetArgoBuildRequest\x1a%.chalk.server.v1.GetArgoBuildResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
+	"\x10GetArgoBuildLogs\x12(.chalk.server.v1.GetArgoBuildLogsRequest\x1a).chalk.server.v1.GetArgoBuildLogsResponse\"\x06\x80}\v\x90\x02\x01\x12\x81\x01\n" +
+	"\x16GetArgoBuildKubeEvents\x12..chalk.server.v1.GetArgoBuildKubeEventsRequest\x1a/.chalk.server.v1.GetArgoBuildKubeEventsResponse\"\x06\x80}\v\x90\x02\x01B\xc1\x01\n" +
 	"\x13com.chalk.server.v1B\x11ArgoWorkflowProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
