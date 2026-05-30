@@ -36,12 +36,17 @@ const (
 	// ObservabilityServiceTriggerPerfettoSnapshotProcedure is the fully-qualified name of the
 	// ObservabilityService's TriggerPerfettoSnapshot RPC.
 	ObservabilityServiceTriggerPerfettoSnapshotProcedure = "/chalk.manager.v1.ObservabilityService/TriggerPerfettoSnapshot"
+	// ObservabilityServiceTriggerNetworkInspectorProcedure is the fully-qualified name of the
+	// ObservabilityService's TriggerNetworkInspector RPC.
+	ObservabilityServiceTriggerNetworkInspectorProcedure = "/chalk.manager.v1.ObservabilityService/TriggerNetworkInspector"
 )
 
 // ObservabilityServiceClient is a client for the chalk.manager.v1.ObservabilityService service.
 type ObservabilityServiceClient interface {
 	// Trigger a Perfetto trace snapshot on all daemon pods
 	TriggerPerfettoSnapshot(context.Context, *connect.Request[v1.TriggerPerfettoSnapshotRequest]) (*connect.Response[v1.TriggerPerfettoSnapshotResponse], error)
+	// Start, stop, or query network inspector captures on daemon pods.
+	TriggerNetworkInspector(context.Context, *connect.Request[v1.TriggerNetworkInspectorRequest]) (*connect.Response[v1.TriggerNetworkInspectorResponse], error)
 }
 
 // NewObservabilityServiceClient constructs a client for the chalk.manager.v1.ObservabilityService
@@ -61,12 +66,19 @@ func NewObservabilityServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(observabilityServiceMethods.ByName("TriggerPerfettoSnapshot")),
 			connect.WithClientOptions(opts...),
 		),
+		triggerNetworkInspector: connect.NewClient[v1.TriggerNetworkInspectorRequest, v1.TriggerNetworkInspectorResponse](
+			httpClient,
+			baseURL+ObservabilityServiceTriggerNetworkInspectorProcedure,
+			connect.WithSchema(observabilityServiceMethods.ByName("TriggerNetworkInspector")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // observabilityServiceClient implements ObservabilityServiceClient.
 type observabilityServiceClient struct {
 	triggerPerfettoSnapshot *connect.Client[v1.TriggerPerfettoSnapshotRequest, v1.TriggerPerfettoSnapshotResponse]
+	triggerNetworkInspector *connect.Client[v1.TriggerNetworkInspectorRequest, v1.TriggerNetworkInspectorResponse]
 }
 
 // TriggerPerfettoSnapshot calls chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot.
@@ -74,11 +86,18 @@ func (c *observabilityServiceClient) TriggerPerfettoSnapshot(ctx context.Context
 	return c.triggerPerfettoSnapshot.CallUnary(ctx, req)
 }
 
+// TriggerNetworkInspector calls chalk.manager.v1.ObservabilityService.TriggerNetworkInspector.
+func (c *observabilityServiceClient) TriggerNetworkInspector(ctx context.Context, req *connect.Request[v1.TriggerNetworkInspectorRequest]) (*connect.Response[v1.TriggerNetworkInspectorResponse], error) {
+	return c.triggerNetworkInspector.CallUnary(ctx, req)
+}
+
 // ObservabilityServiceHandler is an implementation of the chalk.manager.v1.ObservabilityService
 // service.
 type ObservabilityServiceHandler interface {
 	// Trigger a Perfetto trace snapshot on all daemon pods
 	TriggerPerfettoSnapshot(context.Context, *connect.Request[v1.TriggerPerfettoSnapshotRequest]) (*connect.Response[v1.TriggerPerfettoSnapshotResponse], error)
+	// Start, stop, or query network inspector captures on daemon pods.
+	TriggerNetworkInspector(context.Context, *connect.Request[v1.TriggerNetworkInspectorRequest]) (*connect.Response[v1.TriggerNetworkInspectorResponse], error)
 }
 
 // NewObservabilityServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -94,10 +113,18 @@ func NewObservabilityServiceHandler(svc ObservabilityServiceHandler, opts ...con
 		connect.WithSchema(observabilityServiceMethods.ByName("TriggerPerfettoSnapshot")),
 		connect.WithHandlerOptions(opts...),
 	)
+	observabilityServiceTriggerNetworkInspectorHandler := connect.NewUnaryHandler(
+		ObservabilityServiceTriggerNetworkInspectorProcedure,
+		svc.TriggerNetworkInspector,
+		connect.WithSchema(observabilityServiceMethods.ByName("TriggerNetworkInspector")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.manager.v1.ObservabilityService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ObservabilityServiceTriggerPerfettoSnapshotProcedure:
 			observabilityServiceTriggerPerfettoSnapshotHandler.ServeHTTP(w, r)
+		case ObservabilityServiceTriggerNetworkInspectorProcedure:
+			observabilityServiceTriggerNetworkInspectorHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +136,8 @@ type UnimplementedObservabilityServiceHandler struct{}
 
 func (UnimplementedObservabilityServiceHandler) TriggerPerfettoSnapshot(context.Context, *connect.Request[v1.TriggerPerfettoSnapshotRequest]) (*connect.Response[v1.TriggerPerfettoSnapshotResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot is not implemented"))
+}
+
+func (UnimplementedObservabilityServiceHandler) TriggerNetworkInspector(context.Context, *connect.Request[v1.TriggerNetworkInspectorRequest]) (*connect.Response[v1.TriggerNetworkInspectorResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.manager.v1.ObservabilityService.TriggerNetworkInspector is not implemented"))
 }
