@@ -1240,10 +1240,15 @@ func (x *GetPodTimeRangesRequest) GetEndTime() *timestamppb.Timestamp {
 
 // Time range for a single pod
 type PodTimeRange struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PodName       string                 `protobuf:"bytes,1,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	PodName   string                 `protobuf:"bytes,1,opt,name=pod_name,json=podName,proto3" json:"pod_name,omitempty"`
+	StartTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	// The node this pod was scheduled on, if known. Sourced from spec.node_name.
+	NodeName string `protobuf:"bytes,4,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// The instance type of the node this pod was scheduled on, if known.
+	// Joined from the nodes table on (team, cluster, node_name).
+	InstanceType  string `protobuf:"bytes,5,opt,name=instance_type,json=instanceType,proto3" json:"instance_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1297,6 +1302,20 @@ func (x *PodTimeRange) GetEndTime() *timestamppb.Timestamp {
 		return x.EndTime
 	}
 	return nil
+}
+
+func (x *PodTimeRange) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *PodTimeRange) GetInstanceType() string {
+	if x != nil {
+		return x.InstanceType
+	}
+	return ""
 }
 
 // Response message for GetPodTimeRanges
@@ -2204,12 +2223,14 @@ const file_chalk_server_v1_billing_proto_rawDesc = "" +
 	"_componentB\x0f\n" +
 	"\r_service_kindB\r\n" +
 	"\v_start_timeB\v\n" +
-	"\t_end_time\"\x9b\x01\n" +
+	"\t_end_time\"\xdd\x01\n" +
 	"\fPodTimeRange\x12\x19\n" +
 	"\bpod_name\x18\x01 \x01(\tR\apodName\x129\n" +
 	"\n" +
 	"start_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\"Z\n" +
+	"\bend_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x1b\n" +
+	"\tnode_name\x18\x04 \x01(\tR\bnodeName\x12#\n" +
+	"\rinstance_type\x18\x05 \x01(\tR\finstanceType\"Z\n" +
 	"\x18GetPodTimeRangesResponse\x12>\n" +
 	"\vtime_ranges\x18\x01 \x03(\v2\x1d.chalk.server.v1.PodTimeRangeR\n" +
 	"timeRanges\"\xc0\x02\n" +

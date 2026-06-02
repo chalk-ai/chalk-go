@@ -57,6 +57,9 @@ const (
 	// StreamingDebugServiceWatchDebugStreamProcedure is the fully-qualified name of the
 	// StreamingDebugService's WatchDebugStream RPC.
 	StreamingDebugServiceWatchDebugStreamProcedure = "/chalk.streaming.v1.StreamingDebugService/WatchDebugStream"
+	// StreamingDebugServiceGetAggregateMessagesProcedure is the fully-qualified name of the
+	// StreamingDebugService's GetAggregateMessages RPC.
+	StreamingDebugServiceGetAggregateMessagesProcedure = "/chalk.streaming.v1.StreamingDebugService/GetAggregateMessages"
 	// StreamingDebugServicePushTopicProcedure is the fully-qualified name of the
 	// StreamingDebugService's PushTopic RPC.
 	StreamingDebugServicePushTopicProcedure = "/chalk.streaming.v1.StreamingDebugService/PushTopic"
@@ -82,6 +85,8 @@ type StreamingDebugServiceClient interface {
 	GetDebugMessagesV2(context.Context, *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest]) (*connect.ServerStreamForClient[v1.WatchDebugStreamResponse], error)
+	// Get recent aggregate debug messages as a single concatenated parquet blob.
+	GetAggregateMessages(context.Context, *connect.Request[v1.GetAggregateMessagesRequest]) (*connect.Response[v1.GetAggregateMessagesResponse], error)
 	// Push a message to a streaming topic
 	PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error)
 }
@@ -149,6 +154,13 @@ func NewStreamingDebugServiceClient(httpClient connect.HTTPClient, baseURL strin
 			connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
 			connect.WithClientOptions(opts...),
 		),
+		getAggregateMessages: connect.NewClient[v1.GetAggregateMessagesRequest, v1.GetAggregateMessagesResponse](
+			httpClient,
+			baseURL+StreamingDebugServiceGetAggregateMessagesProcedure,
+			connect.WithSchema(streamingDebugServiceMethods.ByName("GetAggregateMessages")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		pushTopic: connect.NewClient[v1.PushTopicRequest, v1.PushTopicResponse](
 			httpClient,
 			baseURL+StreamingDebugServicePushTopicProcedure,
@@ -168,6 +180,7 @@ type streamingDebugServiceClient struct {
 	getDebugMessages        *connect.Client[v1.GetDebugMessagesRequest, v1.GetDebugMessagesResponse]
 	getDebugMessagesV2      *connect.Client[v1.GetDebugMessagesV2Request, v1.GetDebugMessagesV2Response]
 	watchDebugStream        *connect.Client[v1.WatchDebugStreamRequest, v1.WatchDebugStreamResponse]
+	getAggregateMessages    *connect.Client[v1.GetAggregateMessagesRequest, v1.GetAggregateMessagesResponse]
 	pushTopic               *connect.Client[v1.PushTopicRequest, v1.PushTopicResponse]
 }
 
@@ -211,6 +224,11 @@ func (c *streamingDebugServiceClient) WatchDebugStream(ctx context.Context, req 
 	return c.watchDebugStream.CallServerStream(ctx, req)
 }
 
+// GetAggregateMessages calls chalk.streaming.v1.StreamingDebugService.GetAggregateMessages.
+func (c *streamingDebugServiceClient) GetAggregateMessages(ctx context.Context, req *connect.Request[v1.GetAggregateMessagesRequest]) (*connect.Response[v1.GetAggregateMessagesResponse], error) {
+	return c.getAggregateMessages.CallUnary(ctx, req)
+}
+
 // PushTopic calls chalk.streaming.v1.StreamingDebugService.PushTopic.
 func (c *streamingDebugServiceClient) PushTopic(ctx context.Context, req *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error) {
 	return c.pushTopic.CallUnary(ctx, req)
@@ -237,6 +255,8 @@ type StreamingDebugServiceHandler interface {
 	GetDebugMessagesV2(context.Context, *connect.Request[v1.GetDebugMessagesV2Request]) (*connect.Response[v1.GetDebugMessagesV2Response], error)
 	// Watch for new debug files in cloud storage and stream them back
 	WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error
+	// Get recent aggregate debug messages as a single concatenated parquet blob.
+	GetAggregateMessages(context.Context, *connect.Request[v1.GetAggregateMessagesRequest]) (*connect.Response[v1.GetAggregateMessagesResponse], error)
 	// Push a message to a streaming topic
 	PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error)
 }
@@ -300,6 +320,13 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 		connect.WithSchema(streamingDebugServiceMethods.ByName("WatchDebugStream")),
 		connect.WithHandlerOptions(opts...),
 	)
+	streamingDebugServiceGetAggregateMessagesHandler := connect.NewUnaryHandler(
+		StreamingDebugServiceGetAggregateMessagesProcedure,
+		svc.GetAggregateMessages,
+		connect.WithSchema(streamingDebugServiceMethods.ByName("GetAggregateMessages")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	streamingDebugServicePushTopicHandler := connect.NewUnaryHandler(
 		StreamingDebugServicePushTopicProcedure,
 		svc.PushTopic,
@@ -324,6 +351,8 @@ func NewStreamingDebugServiceHandler(svc StreamingDebugServiceHandler, opts ...c
 			streamingDebugServiceGetDebugMessagesV2Handler.ServeHTTP(w, r)
 		case StreamingDebugServiceWatchDebugStreamProcedure:
 			streamingDebugServiceWatchDebugStreamHandler.ServeHTTP(w, r)
+		case StreamingDebugServiceGetAggregateMessagesProcedure:
+			streamingDebugServiceGetAggregateMessagesHandler.ServeHTTP(w, r)
 		case StreamingDebugServicePushTopicProcedure:
 			streamingDebugServicePushTopicHandler.ServeHTTP(w, r)
 		default:
@@ -365,6 +394,10 @@ func (UnimplementedStreamingDebugServiceHandler) GetDebugMessagesV2(context.Cont
 
 func (UnimplementedStreamingDebugServiceHandler) WatchDebugStream(context.Context, *connect.Request[v1.WatchDebugStreamRequest], *connect.ServerStream[v1.WatchDebugStreamResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.WatchDebugStream is not implemented"))
+}
+
+func (UnimplementedStreamingDebugServiceHandler) GetAggregateMessages(context.Context, *connect.Request[v1.GetAggregateMessagesRequest]) (*connect.Response[v1.GetAggregateMessagesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.streaming.v1.StreamingDebugService.GetAggregateMessages is not implemented"))
 }
 
 func (UnimplementedStreamingDebugServiceHandler) PushTopic(context.Context, *connect.Request[v1.PushTopicRequest]) (*connect.Response[v1.PushTopicResponse], error) {

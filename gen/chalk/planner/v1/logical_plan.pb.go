@@ -12,6 +12,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -323,7 +324,9 @@ type LogicalPlanArgument struct {
 	//	*LogicalPlanArgument_BytesValue
 	//	*LogicalPlanArgument_DoubleValue
 	//	*LogicalPlanArgument_DurationValue
+	//	*LogicalPlanArgument_TimestampValue
 	//	*LogicalPlanArgument_ArrowSchema
+	//	*LogicalPlanArgument_ArrowField
 	//	*LogicalPlanArgument_ListValue
 	//	*LogicalPlanArgument_UnorderedDictValue
 	//	*LogicalPlanArgument_ExprValue
@@ -443,10 +446,28 @@ func (x *LogicalPlanArgument) GetDurationValue() *durationpb.Duration {
 	return nil
 }
 
+func (x *LogicalPlanArgument) GetTimestampValue() *timestamppb.Timestamp {
+	if x != nil {
+		if x, ok := x.Arg.(*LogicalPlanArgument_TimestampValue); ok {
+			return x.TimestampValue
+		}
+	}
+	return nil
+}
+
 func (x *LogicalPlanArgument) GetArrowSchema() *v1.Schema {
 	if x != nil {
 		if x, ok := x.Arg.(*LogicalPlanArgument_ArrowSchema); ok {
 			return x.ArrowSchema
+		}
+	}
+	return nil
+}
+
+func (x *LogicalPlanArgument) GetArrowField() *v1.Field {
+	if x != nil {
+		if x, ok := x.Arg.(*LogicalPlanArgument_ArrowField); ok {
+			return x.ArrowField
 		}
 	}
 	return nil
@@ -535,9 +556,17 @@ type LogicalPlanArgument_DurationValue struct {
 	DurationValue *durationpb.Duration `protobuf:"bytes,13,opt,name=duration_value,json=durationValue,proto3,oneof"`
 }
 
+type LogicalPlanArgument_TimestampValue struct {
+	TimestampValue *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=timestamp_value,json=timestampValue,proto3,oneof"`
+}
+
 type LogicalPlanArgument_ArrowSchema struct {
 	// Arrow types
 	ArrowSchema *v1.Schema `protobuf:"bytes,5,opt,name=arrow_schema,json=arrowSchema,proto3,oneof"`
+}
+
+type LogicalPlanArgument_ArrowField struct {
+	ArrowField *v1.Field `protobuf:"bytes,15,opt,name=arrow_field,json=arrowField,proto3,oneof"`
 }
 
 type LogicalPlanArgument_ListValue struct {
@@ -579,7 +608,11 @@ func (*LogicalPlanArgument_DoubleValue) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_DurationValue) isLogicalPlanArgument_Arg() {}
 
+func (*LogicalPlanArgument_TimestampValue) isLogicalPlanArgument_Arg() {}
+
 func (*LogicalPlanArgument_ArrowSchema) isLogicalPlanArgument_Arg() {}
+
+func (*LogicalPlanArgument_ArrowField) isLogicalPlanArgument_Arg() {}
 
 func (*LogicalPlanArgument_ListValue) isLogicalPlanArgument_Arg() {}
 
@@ -854,7 +887,7 @@ var File_chalk_planner_v1_logical_plan_proto protoreflect.FileDescriptor
 
 const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\n" +
-	"#chalk/planner/v1/logical_plan.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a chalk/planner/v1/batch_udf.proto\x1a\x1egoogle/protobuf/duration.proto\"G\n" +
+	"#chalk/planner/v1/logical_plan.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a chalk/planner/v1/batch_udf.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"G\n" +
 	"\vLogicalPlan\x128\n" +
 	"\x05nodes\x18\x01 \x03(\v2\".chalk.planner.v1.LogicalTableNodeR\x05nodes\"\x91\x03\n" +
 	"\x10LogicalTableNode\x12A\n" +
@@ -867,7 +900,7 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12;\n" +
 	"\x05value\x18\x02 \x01(\v2%.chalk.planner.v1.LogicalPlanArgumentR\x05value:\x028\x01\"$\n" +
 	"\x12LogicalTableNodeId\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\"\xb6\x06\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"\xb7\a\n" +
 	"\x13LogicalPlanArgument\x12M\n" +
 	"\n" +
 	"null_value\x18\x01 \x01(\v2,.chalk.planner.v1.LogicalPlanArgumentNullOptH\x00R\tnullValue\x12#\n" +
@@ -880,8 +913,11 @@ const file_chalk_planner_v1_logical_plan_proto_rawDesc = "" +
 	"\vbytes_value\x18\t \x01(\fH\x00R\n" +
 	"bytesValue\x12#\n" +
 	"\fdouble_value\x18\x0e \x01(\x01H\x00R\vdoubleValue\x12B\n" +
-	"\x0eduration_value\x18\r \x01(\v2\x19.google.protobuf.DurationH\x00R\rdurationValue\x12;\n" +
-	"\farrow_schema\x18\x05 \x01(\v2\x16.chalk.arrow.v1.SchemaH\x00R\varrowSchema\x12J\n" +
+	"\x0eduration_value\x18\r \x01(\v2\x19.google.protobuf.DurationH\x00R\rdurationValue\x12E\n" +
+	"\x0ftimestamp_value\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0etimestampValue\x12;\n" +
+	"\farrow_schema\x18\x05 \x01(\v2\x16.chalk.arrow.v1.SchemaH\x00R\varrowSchema\x128\n" +
+	"\varrow_field\x18\x0f \x01(\v2\x15.chalk.arrow.v1.FieldH\x00R\n" +
+	"arrowField\x12J\n" +
 	"\n" +
 	"list_value\x18\a \x01(\v2).chalk.planner.v1.LogicalPlanArgumentListH\x00R\tlistValue\x12^\n" +
 	"\x14unordered_dict_value\x18\b \x01(\v2*.chalk.planner.v1.LogicalPlanUnorderedDictH\x00R\x12unorderedDictValue\x12E\n" +
@@ -974,10 +1010,12 @@ var file_chalk_planner_v1_logical_plan_proto_goTypes = []any{
 	nil,                                // 11: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
 	nil,                                // 12: chalk.planner.v1.BatchUDFV2.ArgumentsEntry
 	(*durationpb.Duration)(nil),        // 13: google.protobuf.Duration
-	(*v1.Schema)(nil),                  // 14: chalk.arrow.v1.Schema
-	(*v11.LogicalExprNode)(nil),        // 15: chalk.expression.v1.LogicalExprNode
-	(*BatchUDF)(nil),                   // 16: chalk.planner.v1.BatchUDF
-	(*PyObject)(nil),                   // 17: chalk.planner.v1.PyObject
+	(*timestamppb.Timestamp)(nil),      // 14: google.protobuf.Timestamp
+	(*v1.Schema)(nil),                  // 15: chalk.arrow.v1.Schema
+	(*v1.Field)(nil),                   // 16: chalk.arrow.v1.Field
+	(*v11.LogicalExprNode)(nil),        // 17: chalk.expression.v1.LogicalExprNode
+	(*BatchUDF)(nil),                   // 18: chalk.planner.v1.BatchUDF
+	(*PyObject)(nil),                   // 19: chalk.planner.v1.PyObject
 }
 var file_chalk_planner_v1_logical_plan_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.LogicalPlan.nodes:type_name -> chalk.planner.v1.LogicalTableNode
@@ -987,25 +1025,27 @@ var file_chalk_planner_v1_logical_plan_proto_depIdxs = []int32{
 	10, // 4: chalk.planner.v1.LogicalTableNode.arguments:type_name -> chalk.planner.v1.LogicalTableNode.ArgumentsEntry
 	9,  // 5: chalk.planner.v1.LogicalPlanArgument.null_value:type_name -> chalk.planner.v1.LogicalPlanArgumentNullOpt
 	13, // 6: chalk.planner.v1.LogicalPlanArgument.duration_value:type_name -> google.protobuf.Duration
-	14, // 7: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
-	5,  // 8: chalk.planner.v1.LogicalPlanArgument.list_value:type_name -> chalk.planner.v1.LogicalPlanArgumentList
-	6,  // 9: chalk.planner.v1.LogicalPlanArgument.unordered_dict_value:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict
-	15, // 10: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
-	16, // 11: chalk.planner.v1.LogicalPlanArgument.batch_udf:type_name -> chalk.planner.v1.BatchUDF
-	7,  // 12: chalk.planner.v1.LogicalPlanArgument.batch_udf_v2:type_name -> chalk.planner.v1.BatchUDFV2
-	4,  // 13: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
-	11, // 14: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
-	12, // 15: chalk.planner.v1.BatchUDFV2.arguments:type_name -> chalk.planner.v1.BatchUDFV2.ArgumentsEntry
-	4,  // 16: chalk.planner.v1.BatchUDFArgumentV2.logical_plan_arg:type_name -> chalk.planner.v1.LogicalPlanArgument
-	17, // 17: chalk.planner.v1.BatchUDFArgumentV2.py_obj:type_name -> chalk.planner.v1.PyObject
-	4,  // 18: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	4,  // 19: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
-	8,  // 20: chalk.planner.v1.BatchUDFV2.ArgumentsEntry.value:type_name -> chalk.planner.v1.BatchUDFArgumentV2
-	21, // [21:21] is the sub-list for method output_type
-	21, // [21:21] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	14, // 7: chalk.planner.v1.LogicalPlanArgument.timestamp_value:type_name -> google.protobuf.Timestamp
+	15, // 8: chalk.planner.v1.LogicalPlanArgument.arrow_schema:type_name -> chalk.arrow.v1.Schema
+	16, // 9: chalk.planner.v1.LogicalPlanArgument.arrow_field:type_name -> chalk.arrow.v1.Field
+	5,  // 10: chalk.planner.v1.LogicalPlanArgument.list_value:type_name -> chalk.planner.v1.LogicalPlanArgumentList
+	6,  // 11: chalk.planner.v1.LogicalPlanArgument.unordered_dict_value:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict
+	17, // 12: chalk.planner.v1.LogicalPlanArgument.expr_value:type_name -> chalk.expression.v1.LogicalExprNode
+	18, // 13: chalk.planner.v1.LogicalPlanArgument.batch_udf:type_name -> chalk.planner.v1.BatchUDF
+	7,  // 14: chalk.planner.v1.LogicalPlanArgument.batch_udf_v2:type_name -> chalk.planner.v1.BatchUDFV2
+	4,  // 15: chalk.planner.v1.LogicalPlanArgumentList.values:type_name -> chalk.planner.v1.LogicalPlanArgument
+	11, // 16: chalk.planner.v1.LogicalPlanUnorderedDict.items:type_name -> chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry
+	12, // 17: chalk.planner.v1.BatchUDFV2.arguments:type_name -> chalk.planner.v1.BatchUDFV2.ArgumentsEntry
+	4,  // 18: chalk.planner.v1.BatchUDFArgumentV2.logical_plan_arg:type_name -> chalk.planner.v1.LogicalPlanArgument
+	19, // 19: chalk.planner.v1.BatchUDFArgumentV2.py_obj:type_name -> chalk.planner.v1.PyObject
+	4,  // 20: chalk.planner.v1.LogicalTableNode.ArgumentsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	4,  // 21: chalk.planner.v1.LogicalPlanUnorderedDict.ItemsEntry.value:type_name -> chalk.planner.v1.LogicalPlanArgument
+	8,  // 22: chalk.planner.v1.BatchUDFV2.ArgumentsEntry.value:type_name -> chalk.planner.v1.BatchUDFArgumentV2
+	23, // [23:23] is the sub-list for method output_type
+	23, // [23:23] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_logical_plan_proto_init() }
@@ -1023,7 +1063,9 @@ func file_chalk_planner_v1_logical_plan_proto_init() {
 		(*LogicalPlanArgument_BytesValue)(nil),
 		(*LogicalPlanArgument_DoubleValue)(nil),
 		(*LogicalPlanArgument_DurationValue)(nil),
+		(*LogicalPlanArgument_TimestampValue)(nil),
 		(*LogicalPlanArgument_ArrowSchema)(nil),
+		(*LogicalPlanArgument_ArrowField)(nil),
 		(*LogicalPlanArgument_ListValue)(nil),
 		(*LogicalPlanArgument_UnorderedDictValue)(nil),
 		(*LogicalPlanArgument_ExprValue)(nil),

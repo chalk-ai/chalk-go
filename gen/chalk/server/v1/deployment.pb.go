@@ -376,8 +376,11 @@ type Deployment struct {
 	CustomerVcsUrl         *string                  `protobuf:"bytes,34,opt,name=customer_vcs_url,json=customerVcsUrl,proto3,oneof" json:"customer_vcs_url,omitempty"`
 	DisplayDescription     *string                  `protobuf:"bytes,35,opt,name=display_description,json=displayDescription,proto3,oneof" json:"display_description,omitempty"`
 	GitCommitMessage       *string                  `protobuf:"bytes,36,opt,name=git_commit_message,json=gitCommitMessage,proto3,oneof" json:"git_commit_message,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Build-time options supplied at deploy time (e.g. `chalk apply --build-option k=v`).
+	// Consumed by the builder; e.g. to enable viztracer trace upload for build steps.
+	BuildOptions  map[string]string `protobuf:"bytes,37,rep,name=build_options,json=buildOptions,proto3" json:"build_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Deployment) Reset() {
@@ -664,6 +667,13 @@ func (x *Deployment) GetGitCommitMessage() string {
 	return ""
 }
 
+func (x *Deployment) GetBuildOptions() map[string]string {
+	if x != nil {
+		return x.BuildOptions
+	}
+	return nil
+}
+
 var File_chalk_server_v1_deployment_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deployment_proto_rawDesc = "" +
@@ -686,7 +696,7 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\n" +
 	"SpecsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
-	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xc6\x10\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xdb\x11\n" +
 	"\n" +
 	"Deployment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
@@ -730,7 +740,11 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\x11customer_metadata\x18! \x01(\tH\fR\x10customerMetadata\x88\x01\x01\x12-\n" +
 	"\x10customer_vcs_url\x18\" \x01(\tH\rR\x0ecustomerVcsUrl\x88\x01\x01\x124\n" +
 	"\x13display_description\x18# \x01(\tH\x0eR\x12displayDescription\x88\x01\x01\x121\n" +
-	"\x12git_commit_message\x18$ \x01(\tH\x0fR\x10gitCommitMessage\x88\x01\x01B\x18\n" +
+	"\x12git_commit_message\x18$ \x01(\tH\x0fR\x10gitCommitMessage\x88\x01\x01\x12R\n" +
+	"\rbuild_options\x18% \x03(\v2-.chalk.server.v1.Deployment.BuildOptionsEntryR\fbuildOptions\x1a?\n" +
+	"\x11BuildOptionsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
 	"\x16_requirements_filepathB\x16\n" +
 	"\x14_dockerfile_filepathB\n" +
 	"\n" +
@@ -783,7 +797,7 @@ func file_chalk_server_v1_deployment_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_deployment_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_chalk_server_v1_deployment_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_chalk_server_v1_deployment_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_server_v1_deployment_proto_goTypes = []any{
 	(DeploymentStatus)(0),         // 0: chalk.server.v1.DeploymentStatus
 	(DeploymentProfilingMode)(0),  // 1: chalk.server.v1.DeploymentProfilingMode
@@ -792,23 +806,25 @@ var file_chalk_server_v1_deployment_proto_goTypes = []any{
 	(*SourceImageSpecs)(nil),      // 4: chalk.server.v1.SourceImageSpecs
 	(*Deployment)(nil),            // 5: chalk.server.v1.Deployment
 	nil,                           // 6: chalk.server.v1.SourceImageSpecs.SpecsEntry
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
-	(DeploymentBuildProfile)(0),   // 8: chalk.server.v1.DeploymentBuildProfile
+	nil,                           // 7: chalk.server.v1.Deployment.BuildOptionsEntry
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(DeploymentBuildProfile)(0),   // 9: chalk.server.v1.DeploymentBuildProfile
 }
 var file_chalk_server_v1_deployment_proto_depIdxs = []int32{
 	6, // 0: chalk.server.v1.SourceImageSpecs.specs:type_name -> chalk.server.v1.SourceImageSpecs.SpecsEntry
 	0, // 1: chalk.server.v1.Deployment.status:type_name -> chalk.server.v1.DeploymentStatus
-	7, // 2: chalk.server.v1.Deployment.created_at:type_name -> google.protobuf.Timestamp
-	7, // 3: chalk.server.v1.Deployment.updated_at:type_name -> google.protobuf.Timestamp
-	7, // 4: chalk.server.v1.Deployment.status_changed_at:type_name -> google.protobuf.Timestamp
+	8, // 2: chalk.server.v1.Deployment.created_at:type_name -> google.protobuf.Timestamp
+	8, // 3: chalk.server.v1.Deployment.updated_at:type_name -> google.protobuf.Timestamp
+	8, // 4: chalk.server.v1.Deployment.status_changed_at:type_name -> google.protobuf.Timestamp
 	1, // 5: chalk.server.v1.Deployment.profiling_mode:type_name -> chalk.server.v1.DeploymentProfilingMode
-	8, // 6: chalk.server.v1.Deployment.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
-	3, // 7: chalk.server.v1.SourceImageSpecs.SpecsEntry.value:type_name -> chalk.server.v1.SourceImageSpec
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	9, // 6: chalk.server.v1.Deployment.build_profile:type_name -> chalk.server.v1.DeploymentBuildProfile
+	7, // 7: chalk.server.v1.Deployment.build_options:type_name -> chalk.server.v1.Deployment.BuildOptionsEntry
+	3, // 8: chalk.server.v1.SourceImageSpecs.SpecsEntry.value:type_name -> chalk.server.v1.SourceImageSpec
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_deployment_proto_init() }
@@ -825,7 +841,7 @@ func file_chalk_server_v1_deployment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_deployment_proto_rawDesc), len(file_chalk_server_v1_deployment_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

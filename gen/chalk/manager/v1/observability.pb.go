@@ -22,6 +22,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type NetworkInspectorTriggerAction int32
+
+const (
+	NetworkInspectorTriggerAction_NETWORK_INSPECTOR_TRIGGER_ACTION_UNSPECIFIED NetworkInspectorTriggerAction = 0
+	NetworkInspectorTriggerAction_NETWORK_INSPECTOR_TRIGGER_ACTION_START       NetworkInspectorTriggerAction = 1
+	NetworkInspectorTriggerAction_NETWORK_INSPECTOR_TRIGGER_ACTION_STOP        NetworkInspectorTriggerAction = 2
+	NetworkInspectorTriggerAction_NETWORK_INSPECTOR_TRIGGER_ACTION_STATUS      NetworkInspectorTriggerAction = 3
+)
+
+// Enum value maps for NetworkInspectorTriggerAction.
+var (
+	NetworkInspectorTriggerAction_name = map[int32]string{
+		0: "NETWORK_INSPECTOR_TRIGGER_ACTION_UNSPECIFIED",
+		1: "NETWORK_INSPECTOR_TRIGGER_ACTION_START",
+		2: "NETWORK_INSPECTOR_TRIGGER_ACTION_STOP",
+		3: "NETWORK_INSPECTOR_TRIGGER_ACTION_STATUS",
+	}
+	NetworkInspectorTriggerAction_value = map[string]int32{
+		"NETWORK_INSPECTOR_TRIGGER_ACTION_UNSPECIFIED": 0,
+		"NETWORK_INSPECTOR_TRIGGER_ACTION_START":       1,
+		"NETWORK_INSPECTOR_TRIGGER_ACTION_STOP":        2,
+		"NETWORK_INSPECTOR_TRIGGER_ACTION_STATUS":      3,
+	}
+)
+
+func (x NetworkInspectorTriggerAction) Enum() *NetworkInspectorTriggerAction {
+	p := new(NetworkInspectorTriggerAction)
+	*p = x
+	return p
+}
+
+func (x NetworkInspectorTriggerAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (NetworkInspectorTriggerAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_manager_v1_observability_proto_enumTypes[0].Descriptor()
+}
+
+func (NetworkInspectorTriggerAction) Type() protoreflect.EnumType {
+	return &file_chalk_manager_v1_observability_proto_enumTypes[0]
+}
+
+func (x NetworkInspectorTriggerAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use NetworkInspectorTriggerAction.Descriptor instead.
+func (NetworkInspectorTriggerAction) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_manager_v1_observability_proto_rawDescGZIP(), []int{0}
+}
+
 type TriggerPerfettoSnapshotRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional Kubernetes label selectors to filter pods.
@@ -190,6 +242,198 @@ func (x *TriggerPerfettoSnapshotResponse) GetResults() []*PerfettoTriggerResult 
 	return nil
 }
 
+type TriggerNetworkInspectorRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Optional Kubernetes label selectors to filter pods.
+	// Each entry should be a valid label selector expression (e.g. "version=v2").
+	PodLabelFilters []string `protobuf:"bytes,1,rep,name=pod_label_filters,json=podLabelFilters,proto3" json:"pod_label_filters,omitempty"`
+	// Optional Kubernetes field selectors to filter pods (e.g. "metadata.name=my-pod", "metadata.namespace=my-ns").
+	// Multiple entries are ANDed together.
+	PodFieldFilters []string                      `protobuf:"bytes,2,rep,name=pod_field_filters,json=podFieldFilters,proto3" json:"pod_field_filters,omitempty"`
+	Action          NetworkInspectorTriggerAction `protobuf:"varint,3,opt,name=action,proto3,enum=chalk.manager.v1.NetworkInspectorTriggerAction" json:"action,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *TriggerNetworkInspectorRequest) Reset() {
+	*x = TriggerNetworkInspectorRequest{}
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerNetworkInspectorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerNetworkInspectorRequest) ProtoMessage() {}
+
+func (x *TriggerNetworkInspectorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerNetworkInspectorRequest.ProtoReflect.Descriptor instead.
+func (*TriggerNetworkInspectorRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_manager_v1_observability_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TriggerNetworkInspectorRequest) GetPodLabelFilters() []string {
+	if x != nil {
+		return x.PodLabelFilters
+	}
+	return nil
+}
+
+func (x *TriggerNetworkInspectorRequest) GetPodFieldFilters() []string {
+	if x != nil {
+		return x.PodFieldFilters
+	}
+	return nil
+}
+
+func (x *TriggerNetworkInspectorRequest) GetAction() NetworkInspectorTriggerAction {
+	if x != nil {
+		return x.Action
+	}
+	return NetworkInspectorTriggerAction_NETWORK_INSPECTOR_TRIGGER_ACTION_UNSPECIFIED
+}
+
+type NetworkInspectorTriggerResult struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	PodIp          string                 `protobuf:"bytes,1,opt,name=pod_ip,json=podIp,proto3" json:"pod_ip,omitempty"`
+	Status         string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Error          string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	HttpStatusCode int32                  `protobuf:"varint,4,opt,name=http_status_code,json=httpStatusCode,proto3" json:"http_status_code,omitempty"`
+	ResponseBody   string                 `protobuf:"bytes,5,opt,name=response_body,json=responseBody,proto3" json:"response_body,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NetworkInspectorTriggerResult) Reset() {
+	*x = NetworkInspectorTriggerResult{}
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NetworkInspectorTriggerResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NetworkInspectorTriggerResult) ProtoMessage() {}
+
+func (x *NetworkInspectorTriggerResult) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NetworkInspectorTriggerResult.ProtoReflect.Descriptor instead.
+func (*NetworkInspectorTriggerResult) Descriptor() ([]byte, []int) {
+	return file_chalk_manager_v1_observability_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *NetworkInspectorTriggerResult) GetPodIp() string {
+	if x != nil {
+		return x.PodIp
+	}
+	return ""
+}
+
+func (x *NetworkInspectorTriggerResult) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *NetworkInspectorTriggerResult) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
+}
+
+func (x *NetworkInspectorTriggerResult) GetHttpStatusCode() int32 {
+	if x != nil {
+		return x.HttpStatusCode
+	}
+	return 0
+}
+
+func (x *NetworkInspectorTriggerResult) GetResponseBody() string {
+	if x != nil {
+		return x.ResponseBody
+	}
+	return ""
+}
+
+type TriggerNetworkInspectorResponse struct {
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	TriggeredPods int32                            `protobuf:"varint,1,opt,name=triggered_pods,json=triggeredPods,proto3" json:"triggered_pods,omitempty"`
+	Results       []*NetworkInspectorTriggerResult `protobuf:"bytes,2,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TriggerNetworkInspectorResponse) Reset() {
+	*x = TriggerNetworkInspectorResponse{}
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TriggerNetworkInspectorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TriggerNetworkInspectorResponse) ProtoMessage() {}
+
+func (x *TriggerNetworkInspectorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_manager_v1_observability_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TriggerNetworkInspectorResponse.ProtoReflect.Descriptor instead.
+func (*TriggerNetworkInspectorResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_manager_v1_observability_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TriggerNetworkInspectorResponse) GetTriggeredPods() int32 {
+	if x != nil {
+		return x.TriggeredPods
+	}
+	return 0
+}
+
+func (x *TriggerNetworkInspectorResponse) GetResults() []*NetworkInspectorTriggerResult {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
 var File_chalk_manager_v1_observability_proto protoreflect.FileDescriptor
 
 const file_chalk_manager_v1_observability_proto_rawDesc = "" +
@@ -204,9 +448,29 @@ const file_chalk_manager_v1_observability_proto_rawDesc = "" +
 	"\x05error\x18\x03 \x01(\tR\x05error\"\x8b\x01\n" +
 	"\x1fTriggerPerfettoSnapshotResponse\x12%\n" +
 	"\x0etriggered_pods\x18\x01 \x01(\x05R\rtriggeredPods\x12A\n" +
-	"\aresults\x18\x02 \x03(\v2'.chalk.manager.v1.PerfettoTriggerResultR\aresults2\x9c\x01\n" +
+	"\aresults\x18\x02 \x03(\v2'.chalk.manager.v1.PerfettoTriggerResultR\aresults\"\xc1\x01\n" +
+	"\x1eTriggerNetworkInspectorRequest\x12*\n" +
+	"\x11pod_label_filters\x18\x01 \x03(\tR\x0fpodLabelFilters\x12*\n" +
+	"\x11pod_field_filters\x18\x02 \x03(\tR\x0fpodFieldFilters\x12G\n" +
+	"\x06action\x18\x03 \x01(\x0e2/.chalk.manager.v1.NetworkInspectorTriggerActionR\x06action\"\xb3\x01\n" +
+	"\x1dNetworkInspectorTriggerResult\x12\x15\n" +
+	"\x06pod_ip\x18\x01 \x01(\tR\x05podIp\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\x12(\n" +
+	"\x10http_status_code\x18\x04 \x01(\x05R\x0ehttpStatusCode\x12#\n" +
+	"\rresponse_body\x18\x05 \x01(\tR\fresponseBody\"\x93\x01\n" +
+	"\x1fTriggerNetworkInspectorResponse\x12%\n" +
+	"\x0etriggered_pods\x18\x01 \x01(\x05R\rtriggeredPods\x12I\n" +
+	"\aresults\x18\x02 \x03(\v2/.chalk.manager.v1.NetworkInspectorTriggerResultR\aresults*\xd5\x01\n" +
+	"\x1dNetworkInspectorTriggerAction\x120\n" +
+	",NETWORK_INSPECTOR_TRIGGER_ACTION_UNSPECIFIED\x10\x00\x12*\n" +
+	"&NETWORK_INSPECTOR_TRIGGER_ACTION_START\x10\x01\x12)\n" +
+	"%NETWORK_INSPECTOR_TRIGGER_ACTION_STOP\x10\x02\x12+\n" +
+	"'NETWORK_INSPECTOR_TRIGGER_ACTION_STATUS\x10\x032\xa2\x02\n" +
 	"\x14ObservabilityService\x12\x83\x01\n" +
 	"\x17TriggerPerfettoSnapshot\x120.chalk.manager.v1.TriggerPerfettoSnapshotRequest\x1a1.chalk.manager.v1.TriggerPerfettoSnapshotResponse\"\x03\x80}\n" +
+	"\x12\x83\x01\n" +
+	"\x17TriggerNetworkInspector\x120.chalk.manager.v1.TriggerNetworkInspectorRequest\x1a1.chalk.manager.v1.TriggerNetworkInspectorResponse\"\x03\x80}\n" +
 	"B\xc9\x01\n" +
 	"\x14com.chalk.manager.v1B\x12ObservabilityProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/manager/v1;managerv1\xa2\x02\x03CMX\xaa\x02\x10Chalk.Manager.V1\xca\x02\x10Chalk\\Manager\\V1\xe2\x02\x1cChalk\\Manager\\V1\\GPBMetadata\xea\x02\x12Chalk::Manager::V1b\x06proto3"
 
@@ -222,21 +486,30 @@ func file_chalk_manager_v1_observability_proto_rawDescGZIP() []byte {
 	return file_chalk_manager_v1_observability_proto_rawDescData
 }
 
-var file_chalk_manager_v1_observability_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_manager_v1_observability_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_manager_v1_observability_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_chalk_manager_v1_observability_proto_goTypes = []any{
-	(*TriggerPerfettoSnapshotRequest)(nil),  // 0: chalk.manager.v1.TriggerPerfettoSnapshotRequest
-	(*PerfettoTriggerResult)(nil),           // 1: chalk.manager.v1.PerfettoTriggerResult
-	(*TriggerPerfettoSnapshotResponse)(nil), // 2: chalk.manager.v1.TriggerPerfettoSnapshotResponse
+	(NetworkInspectorTriggerAction)(0),      // 0: chalk.manager.v1.NetworkInspectorTriggerAction
+	(*TriggerPerfettoSnapshotRequest)(nil),  // 1: chalk.manager.v1.TriggerPerfettoSnapshotRequest
+	(*PerfettoTriggerResult)(nil),           // 2: chalk.manager.v1.PerfettoTriggerResult
+	(*TriggerPerfettoSnapshotResponse)(nil), // 3: chalk.manager.v1.TriggerPerfettoSnapshotResponse
+	(*TriggerNetworkInspectorRequest)(nil),  // 4: chalk.manager.v1.TriggerNetworkInspectorRequest
+	(*NetworkInspectorTriggerResult)(nil),   // 5: chalk.manager.v1.NetworkInspectorTriggerResult
+	(*TriggerNetworkInspectorResponse)(nil), // 6: chalk.manager.v1.TriggerNetworkInspectorResponse
 }
 var file_chalk_manager_v1_observability_proto_depIdxs = []int32{
-	1, // 0: chalk.manager.v1.TriggerPerfettoSnapshotResponse.results:type_name -> chalk.manager.v1.PerfettoTriggerResult
-	0, // 1: chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot:input_type -> chalk.manager.v1.TriggerPerfettoSnapshotRequest
-	2, // 2: chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot:output_type -> chalk.manager.v1.TriggerPerfettoSnapshotResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 0: chalk.manager.v1.TriggerPerfettoSnapshotResponse.results:type_name -> chalk.manager.v1.PerfettoTriggerResult
+	0, // 1: chalk.manager.v1.TriggerNetworkInspectorRequest.action:type_name -> chalk.manager.v1.NetworkInspectorTriggerAction
+	5, // 2: chalk.manager.v1.TriggerNetworkInspectorResponse.results:type_name -> chalk.manager.v1.NetworkInspectorTriggerResult
+	1, // 3: chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot:input_type -> chalk.manager.v1.TriggerPerfettoSnapshotRequest
+	4, // 4: chalk.manager.v1.ObservabilityService.TriggerNetworkInspector:input_type -> chalk.manager.v1.TriggerNetworkInspectorRequest
+	3, // 5: chalk.manager.v1.ObservabilityService.TriggerPerfettoSnapshot:output_type -> chalk.manager.v1.TriggerPerfettoSnapshotResponse
+	6, // 6: chalk.manager.v1.ObservabilityService.TriggerNetworkInspector:output_type -> chalk.manager.v1.TriggerNetworkInspectorResponse
+	5, // [5:7] is the sub-list for method output_type
+	3, // [3:5] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_chalk_manager_v1_observability_proto_init() }
@@ -249,13 +522,14 @@ func file_chalk_manager_v1_observability_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_manager_v1_observability_proto_rawDesc), len(file_chalk_manager_v1_observability_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   3,
+			NumEnums:      1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_manager_v1_observability_proto_goTypes,
 		DependencyIndexes: file_chalk_manager_v1_observability_proto_depIdxs,
+		EnumInfos:         file_chalk_manager_v1_observability_proto_enumTypes,
 		MessageInfos:      file_chalk_manager_v1_observability_proto_msgTypes,
 	}.Build()
 	File_chalk_manager_v1_observability_proto = out.File

@@ -144,9 +144,10 @@ type VolumeMount struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Path inside the container where the volume should be mounted
 	MountPath string `protobuf:"bytes,2,opt,name=mount_path,json=mountPath,proto3" json:"mount_path,omitempty"`
-	// Type of volume: "empty_dir", "shared_memory", or "chalkfs"
-	// "chalkfs" volumes inject a FUSE sidecar that mounts a remote ChalkFS volume.
-	// Requires CHALK_CLIENT_ID, CHALK_CLIENT_SECRET, and VOLUME_SERVICE_URL in env_vars.
+	// Type of volume: "empty_dir", "shared_memory", "chalkfs", or "versioned_chalkfs".
+	// "chalkfs" and "versioned_chalkfs" inject a FUSE sidecar that mounts a remote
+	// ChalkFS volume; the two variants differ only in the sidecar image used.
+	// Both require CHALK_CLIENT_ID, CHALK_CLIENT_SECRET, and VOLUME_SERVICE_URL in env_vars.
 	Type string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
 	// Size limit for the volume (e.g., "2Gi"). Required for empty_dir and shared_memory.
 	SizeLimit     *string `protobuf:"bytes,4,opt,name=size_limit,json=sizeLimit,proto3,oneof" json:"size_limit,omitempty"`
