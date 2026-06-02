@@ -597,12 +597,12 @@ type CreateBenchmarkRequest struct {
 	InitialWindowSize     *int64                                `protobuf:"varint,18,opt,name=initial_window_size,json=initialWindowSize,proto3,oneof" json:"initial_window_size,omitempty"`
 	InitialConnWindowSize *int64                                `protobuf:"varint,19,opt,name=initial_conn_window_size,json=initialConnWindowSize,proto3,oneof" json:"initial_conn_window_size,omitempty"`
 	Nodepool              *string                               `protobuf:"bytes,20,opt,name=nodepool,proto3,oneof" json:"nodepool,omitempty"`
-	Protocol              *string                               `protobuf:"bytes,21,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
-	// Which benchmark binary to invoke: "go" (default, the Go ghz-based binary)
-	// or "rust" (chalk-benchmark-rs). protocol=http requires binary="rust".
-	Binary        *string `protobuf:"bytes,22,opt,name=binary,proto3,oneof" json:"binary,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	DedicatedEngine       *DedicatedBenchmarkEngine             `protobuf:"bytes,21,opt,name=dedicated_engine,json=dedicatedEngine,proto3,oneof" json:"dedicated_engine,omitempty"`
+	BenchmarkRunner       *BenchmarkRunner                      `protobuf:"varint,22,opt,name=benchmark_runner,json=benchmarkRunner,proto3,enum=chalk.server.v1.BenchmarkRunner,oneof" json:"benchmark_runner,omitempty"`
+	ResultTargets         []BenchmarkResultTargetType           `protobuf:"varint,23,rep,packed,name=result_targets,json=resultTargets,proto3,enum=chalk.server.v1.BenchmarkResultTargetType" json:"result_targets,omitempty"`
+	Protocol              *string                               `protobuf:"bytes,24,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *CreateBenchmarkRequest) Reset() {
@@ -786,16 +786,30 @@ func (x *CreateBenchmarkRequest) GetNodepool() string {
 	return ""
 }
 
+func (x *CreateBenchmarkRequest) GetDedicatedEngine() *DedicatedBenchmarkEngine {
+	if x != nil {
+		return x.DedicatedEngine
+	}
+	return nil
+}
+
+func (x *CreateBenchmarkRequest) GetBenchmarkRunner() BenchmarkRunner {
+	if x != nil && x.BenchmarkRunner != nil {
+		return *x.BenchmarkRunner
+	}
+	return BenchmarkRunner_BENCHMARK_RUNNER_UNSPECIFIED
+}
+
+func (x *CreateBenchmarkRequest) GetResultTargets() []BenchmarkResultTargetType {
+	if x != nil {
+		return x.ResultTargets
+	}
+	return nil
+}
+
 func (x *CreateBenchmarkRequest) GetProtocol() string {
 	if x != nil && x.Protocol != nil {
 		return *x.Protocol
-	}
-	return ""
-}
-
-func (x *CreateBenchmarkRequest) GetBinary() string {
-	if x != nil && x.Binary != nil {
-		return *x.Binary
 	}
 	return ""
 }
@@ -1387,8 +1401,18 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\v2#.chalk.server.v1.KubeResourceConfigH\x01R\x05limit\x88\x01\x01B\n" +
 	"\n" +
 	"\b_requestB\b\n" +
-	"\x06_limit\"\x81\n" +
-	"\n" +
+	"\x06_limit\"\xa5\x03\n" +
+	"\x18DedicatedBenchmarkEngine\x12R\n" +
+	"\bprotocol\x18\x01 \x01(\x0e21.chalk.server.v1.BenchmarkDedicatedEngineProtocolH\x00R\bprotocol\x88\x01\x01\x12(\n" +
+	"\rreplica_count\x18\x02 \x01(\x05H\x01R\freplicaCount\x88\x01\x01\x12Q\n" +
+	"\benv_vars\x18\x03 \x03(\v26.chalk.server.v1.DedicatedBenchmarkEngine.EnvVarsEntryR\aenvVars\x12J\n" +
+	"\x0econtainer_spec\x18\x04 \x01(\v2\x1e.chalk.server.v1.ContainerSpecH\x02R\rcontainerSpec\x88\x01\x01\x1a:\n" +
+	"\fEnvVarsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
+	"\t_protocolB\x10\n" +
+	"\x0e_replica_countB\x11\n" +
+	"\x0f_container_spec\"\x83\f\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1413,10 +1437,12 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x0fnum_connections\x18\x11 \x01(\x03H\x05R\x0enumConnections\x88\x01\x01\x123\n" +
 	"\x13initial_window_size\x18\x12 \x01(\x03H\x06R\x11initialWindowSize\x88\x01\x01\x12<\n" +
 	"\x18initial_conn_window_size\x18\x13 \x01(\x03H\aR\x15initialConnWindowSize\x88\x01\x01\x12\x1f\n" +
-	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01\x12\x1f\n" +
-	"\bprotocol\x18\x15 \x01(\tH\tR\bprotocol\x88\x01\x01\x12\x1b\n" +
-	"\x06binary\x18\x16 \x01(\tH\n" +
-	"R\x06binary\x88\x01\x01B\x0f\n" +
+	"\bnodepool\x18\x14 \x01(\tH\bR\bnodepool\x88\x01\x01\x12Y\n" +
+	"\x10dedicated_engine\x18\x15 \x01(\v2).chalk.server.v1.DedicatedBenchmarkEngineH\tR\x0fdedicatedEngine\x88\x01\x01\x12P\n" +
+	"\x10benchmark_runner\x18\x16 \x01(\x0e2 .chalk.server.v1.BenchmarkRunnerH\n" +
+	"R\x0fbenchmarkRunner\x88\x01\x01\x12Q\n" +
+	"\x0eresult_targets\x18\x17 \x03(\x0e2*.chalk.server.v1.BenchmarkResultTargetTypeR\rresultTargets\x12\x1f\n" +
+	"\bprotocol\x18\x18 \x01(\tH\vR\bprotocol\x88\x01\x01B\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
@@ -1425,9 +1451,10 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x10_num_connectionsB\x16\n" +
 	"\x14_initial_window_sizeB\x1b\n" +
 	"\x19_initial_conn_window_sizeB\v\n" +
-	"\t_nodepoolB\v\n" +
-	"\t_protocolB\t\n" +
-	"\a_binary\"v\n" +
+	"\t_nodepoolB\x13\n" +
+	"\x11_dedicated_engineB\x13\n" +
+	"\x11_benchmark_runnerB\v\n" +
+	"\t_protocol\"v\n" +
 	"\x17CreateBenchmarkResponse\x128\n" +
 	"\x06status\x18\x01 \x01(\x0e2 .chalk.server.v1.BenchmarkStatusR\x06status\x12!\n" +
 	"\fbenchmark_id\x18\x02 \x01(\tR\vbenchmarkId\"\x99\x01\n" +
