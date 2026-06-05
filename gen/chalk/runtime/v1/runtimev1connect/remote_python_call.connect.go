@@ -52,6 +52,9 @@ const (
 	// FunctionQueueMetaServiceGetRecentCallsProcedure is the fully-qualified name of the
 	// FunctionQueueMetaService's GetRecentCalls RPC.
 	FunctionQueueMetaServiceGetRecentCallsProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetRecentCalls"
+	// FunctionQueueMetaServiceGetCallResultsProcedure is the fully-qualified name of the
+	// FunctionQueueMetaService's GetCallResults RPC.
+	FunctionQueueMetaServiceGetCallResultsProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetCallResults"
 	// FunctionQueueMetaServiceGetCallCountProcedure is the fully-qualified name of the
 	// FunctionQueueMetaService's GetCallCount RPC.
 	FunctionQueueMetaServiceGetCallCountProcedure = "/chalk.runtime.v1.FunctionQueueMetaService/GetCallCount"
@@ -265,6 +268,8 @@ func (UnimplementedAsyncRemoteCallServiceHandler) PurgeQueue(context.Context, *c
 type FunctionQueueMetaServiceClient interface {
 	// Return the most recent k calls to a function, ordered newest-first.
 	GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error)
+	// Return current status and accumulated result chunks for specific calls.
+	GetCallResults(context.Context, *connect.Request[v1.GetCallResultsRequest]) (*connect.Response[v1.GetCallResultsResponse], error)
 	// Return the number of calls submitted to a function in the past hour.
 	GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error)
 }
@@ -286,6 +291,12 @@ func NewFunctionQueueMetaServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetRecentCalls")),
 			connect.WithClientOptions(opts...),
 		),
+		getCallResults: connect.NewClient[v1.GetCallResultsRequest, v1.GetCallResultsResponse](
+			httpClient,
+			baseURL+FunctionQueueMetaServiceGetCallResultsProcedure,
+			connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetCallResults")),
+			connect.WithClientOptions(opts...),
+		),
 		getCallCount: connect.NewClient[v1.GetCallCountRequest, v1.GetCallCountResponse](
 			httpClient,
 			baseURL+FunctionQueueMetaServiceGetCallCountProcedure,
@@ -298,12 +309,18 @@ func NewFunctionQueueMetaServiceClient(httpClient connect.HTTPClient, baseURL st
 // functionQueueMetaServiceClient implements FunctionQueueMetaServiceClient.
 type functionQueueMetaServiceClient struct {
 	getRecentCalls *connect.Client[v1.GetRecentCallsRequest, v1.GetRecentCallsResponse]
+	getCallResults *connect.Client[v1.GetCallResultsRequest, v1.GetCallResultsResponse]
 	getCallCount   *connect.Client[v1.GetCallCountRequest, v1.GetCallCountResponse]
 }
 
 // GetRecentCalls calls chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls.
 func (c *functionQueueMetaServiceClient) GetRecentCalls(ctx context.Context, req *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error) {
 	return c.getRecentCalls.CallUnary(ctx, req)
+}
+
+// GetCallResults calls chalk.runtime.v1.FunctionQueueMetaService.GetCallResults.
+func (c *functionQueueMetaServiceClient) GetCallResults(ctx context.Context, req *connect.Request[v1.GetCallResultsRequest]) (*connect.Response[v1.GetCallResultsResponse], error) {
+	return c.getCallResults.CallUnary(ctx, req)
 }
 
 // GetCallCount calls chalk.runtime.v1.FunctionQueueMetaService.GetCallCount.
@@ -316,6 +333,8 @@ func (c *functionQueueMetaServiceClient) GetCallCount(ctx context.Context, req *
 type FunctionQueueMetaServiceHandler interface {
 	// Return the most recent k calls to a function, ordered newest-first.
 	GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error)
+	// Return current status and accumulated result chunks for specific calls.
+	GetCallResults(context.Context, *connect.Request[v1.GetCallResultsRequest]) (*connect.Response[v1.GetCallResultsResponse], error)
 	// Return the number of calls submitted to a function in the past hour.
 	GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error)
 }
@@ -333,6 +352,12 @@ func NewFunctionQueueMetaServiceHandler(svc FunctionQueueMetaServiceHandler, opt
 		connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetRecentCalls")),
 		connect.WithHandlerOptions(opts...),
 	)
+	functionQueueMetaServiceGetCallResultsHandler := connect.NewUnaryHandler(
+		FunctionQueueMetaServiceGetCallResultsProcedure,
+		svc.GetCallResults,
+		connect.WithSchema(functionQueueMetaServiceMethods.ByName("GetCallResults")),
+		connect.WithHandlerOptions(opts...),
+	)
 	functionQueueMetaServiceGetCallCountHandler := connect.NewUnaryHandler(
 		FunctionQueueMetaServiceGetCallCountProcedure,
 		svc.GetCallCount,
@@ -343,6 +368,8 @@ func NewFunctionQueueMetaServiceHandler(svc FunctionQueueMetaServiceHandler, opt
 		switch r.URL.Path {
 		case FunctionQueueMetaServiceGetRecentCallsProcedure:
 			functionQueueMetaServiceGetRecentCallsHandler.ServeHTTP(w, r)
+		case FunctionQueueMetaServiceGetCallResultsProcedure:
+			functionQueueMetaServiceGetCallResultsHandler.ServeHTTP(w, r)
 		case FunctionQueueMetaServiceGetCallCountProcedure:
 			functionQueueMetaServiceGetCallCountHandler.ServeHTTP(w, r)
 		default:
@@ -356,6 +383,10 @@ type UnimplementedFunctionQueueMetaServiceHandler struct{}
 
 func (UnimplementedFunctionQueueMetaServiceHandler) GetRecentCalls(context.Context, *connect.Request[v1.GetRecentCallsRequest]) (*connect.Response[v1.GetRecentCallsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FunctionQueueMetaService.GetRecentCalls is not implemented"))
+}
+
+func (UnimplementedFunctionQueueMetaServiceHandler) GetCallResults(context.Context, *connect.Request[v1.GetCallResultsRequest]) (*connect.Response[v1.GetCallResultsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.runtime.v1.FunctionQueueMetaService.GetCallResults is not implemented"))
 }
 
 func (UnimplementedFunctionQueueMetaServiceHandler) GetCallCount(context.Context, *connect.Request[v1.GetCallCountRequest]) (*connect.Response[v1.GetCallCountResponse], error) {

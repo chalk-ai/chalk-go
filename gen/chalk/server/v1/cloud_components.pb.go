@@ -1924,8 +1924,12 @@ type DataplaneController struct {
 	Tier  DataplaneController_Tier `protobuf:"varint,1,opt,name=tier,proto3,enum=chalk.server.v1.DataplaneController_Tier" json:"tier,omitempty"`
 	// Server-populated list of available tiers & capacities. Ignored if set by clients.
 	AvailableTiers []*DataplaneController_TierInfo `protobuf:"bytes,2,rep,name=available_tiers,json=availableTiers,proto3" json:"available_tiers,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Optional node pool to pin non-gVisor (open) container/scaling-group workloads to.
+	NodePool *string `protobuf:"bytes,3,opt,name=node_pool,json=nodePool,proto3,oneof" json:"node_pool,omitempty"`
+	// Optional node pool to pin gVisor (restricted) container/scaling-group workloads to.
+	RestrictedNodePool *string `protobuf:"bytes,4,opt,name=restricted_node_pool,json=restrictedNodePool,proto3,oneof" json:"restricted_node_pool,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *DataplaneController) Reset() {
@@ -1972,6 +1976,20 @@ func (x *DataplaneController) GetAvailableTiers() []*DataplaneController_TierInf
 	return nil
 }
 
+func (x *DataplaneController) GetNodePool() string {
+	if x != nil && x.NodePool != nil {
+		return *x.NodePool
+	}
+	return ""
+}
+
+func (x *DataplaneController) GetRestrictedNodePool() string {
+	if x != nil && x.RestrictedNodePool != nil {
+		return *x.RestrictedNodePool
+	}
+	return ""
+}
+
 type DeploymentManifest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Manifest:
@@ -1985,7 +2003,8 @@ type DeploymentManifest struct {
 	//	*DeploymentManifest_Delete
 	//	*DeploymentManifest_Update
 	Action        isDeploymentManifest_Action `protobuf_oneof:"action"`
-	EventBus      *string                     `protobuf:"bytes,6,opt,name=event_bus,json=eventBus,proto3,oneof" json:"event_bus,omitempty"` // Event bus to publish deployment events to
+	EventBus      *string                     `protobuf:"bytes,6,opt,name=event_bus,json=eventBus,proto3,oneof" json:"event_bus,omitempty"`               // Event bus to publish deployment events to
+	ChalkApiHost  *string                     `protobuf:"bytes,7,opt,name=chalk_api_host,json=chalkApiHost,proto3,oneof" json:"chalk_api_host,omitempty"` // API Host Parent, used for distinguishing metadata planes
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2082,6 +2101,13 @@ func (x *DeploymentManifest) GetUpdate() *DeploymentManifestUpdate {
 func (x *DeploymentManifest) GetEventBus() string {
 	if x != nil && x.EventBus != nil {
 		return *x.EventBus
+	}
+	return ""
+}
+
+func (x *DeploymentManifest) GetChalkApiHost() string {
+	if x != nil && x.ChalkApiHost != nil {
+		return *x.ChalkApiHost
 	}
 	return ""
 }
@@ -6676,10 +6702,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x05_kindB\t\n" +
 	"\a_memoryB\x06\n" +
 	"\x04_cpuB\x14\n" +
-	"\x12_cloud_secret_name\"\xfa\x03\n" +
+	"\x12_cloud_secret_name\"\xfa\x04\n" +
 	"\x13DataplaneController\x12=\n" +
 	"\x04tier\x18\x01 \x01(\x0e2).chalk.server.v1.DataplaneController.TierR\x04tier\x12[\n" +
-	"\x0favailable_tiers\x18\x02 \x03(\v2-.chalk.server.v1.DataplaneController.TierInfoB\x03\xe0A\x03R\x0eavailableTiers\x1a\xe4\x01\n" +
+	"\x0favailable_tiers\x18\x02 \x03(\v2-.chalk.server.v1.DataplaneController.TierInfoB\x03\xe0A\x03R\x0eavailableTiers\x12 \n" +
+	"\tnode_pool\x18\x03 \x01(\tH\x00R\bnodePool\x88\x01\x01\x125\n" +
+	"\x14restricted_node_pool\x18\x04 \x01(\tH\x01R\x12restrictedNodePool\x88\x01\x01\x1a\xe4\x01\n" +
 	"\bTierInfo\x12=\n" +
 	"\x04tier\x18\x01 \x01(\x0e2).chalk.server.v1.DataplaneController.TierR\x04tier\x12%\n" +
 	"\x0emax_containers\x18\x02 \x01(\x05R\rmaxContainers\x12,\n" +
@@ -6694,19 +6722,24 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"TIER_SMALL\x10\x02\x12\x0f\n" +
 	"\vTIER_MEDIUM\x10\x03\x12\x0e\n" +
 	"\n" +
-	"TIER_LARGE\x10\x04\"\xd7\x03\n" +
+	"TIER_LARGE\x10\x04B\f\n" +
+	"\n" +
+	"_node_poolB\x17\n" +
+	"\x15_restricted_node_pool\"\x95\x04\n" +
 	"\x12DeploymentManifest\x12[\n" +
 	"\x12cluster_deployment\x18\x01 \x01(\v2*.chalk.server.v1.ClusterDeploymentManifestH\x00R\x11clusterDeployment\x12O\n" +
 	"\x0evpc_deployment\x18\x02 \x01(\v2&.chalk.server.v1.VpcDeploymentManifestH\x00R\rvpcDeployment\x12C\n" +
 	"\x06create\x18\x03 \x01(\v2).chalk.server.v1.DeploymentManifestCreateH\x01R\x06create\x12C\n" +
 	"\x06delete\x18\x04 \x01(\v2).chalk.server.v1.DeploymentManifestDeleteH\x01R\x06delete\x12C\n" +
 	"\x06update\x18\x05 \x01(\v2).chalk.server.v1.DeploymentManifestUpdateH\x01R\x06update\x12 \n" +
-	"\tevent_bus\x18\x06 \x01(\tH\x02R\beventBus\x88\x01\x01B\n" +
+	"\tevent_bus\x18\x06 \x01(\tH\x02R\beventBus\x88\x01\x01\x12)\n" +
+	"\x0echalk_api_host\x18\a \x01(\tH\x03R\fchalkApiHost\x88\x01\x01B\n" +
 	"\n" +
 	"\bmanifestB\b\n" +
 	"\x06actionB\f\n" +
 	"\n" +
-	"_event_bus\"\x1a\n" +
+	"_event_busB\x11\n" +
+	"\x0f_chalk_api_host\"\x1a\n" +
 	"\x18DeploymentManifestCreate\"\x1a\n" +
 	"\x18DeploymentManifestDelete\"\x1a\n" +
 	"\x18DeploymentManifestUpdate\"\xff\x01\n" +
@@ -7351,6 +7384,7 @@ func file_chalk_server_v1_cloud_components_proto_init() {
 	file_chalk_server_v1_cloud_components_proto_msgTypes[25].OneofWrappers = []any{}
 	file_chalk_server_v1_cloud_components_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_server_v1_cloud_components_proto_msgTypes[27].OneofWrappers = []any{}
+	file_chalk_server_v1_cloud_components_proto_msgTypes[28].OneofWrappers = []any{}
 	file_chalk_server_v1_cloud_components_proto_msgTypes[29].OneofWrappers = []any{
 		(*DeploymentManifest_ClusterDeployment)(nil),
 		(*DeploymentManifest_VpcDeployment)(nil),
