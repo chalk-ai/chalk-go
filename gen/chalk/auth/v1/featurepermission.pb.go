@@ -35,6 +35,16 @@ const (
 	// access to this feature directly, but needs the feature to compute
 	// the result of the query.
 	FeaturePermission_FEATURE_PERMISSION_DENY FeaturePermission = 3
+	// Allow access to the feature, and additionally permit any feature derived
+	// from it to be computed and returned even when that derived feature would
+	// otherwise be blocked by a DENY/ALLOW_INTERNAL ancestor in its lineage.
+	//
+	// This exists so that a sensitive feature can be fully blocked while a
+	// specific anonymizing aggregation derived from it (tagged ALLOW_DOWNSTREAM)
+	// is still served. Unlike ALLOW_INTERNAL on the sensitive parent -- which
+	// would make *every* downstream feature returnable -- this opt-in lives on
+	// the derived feature, so the override is scoped to exactly that feature.
+	FeaturePermission_FEATURE_PERMISSION_ALLOW_DOWNSTREAM FeaturePermission = 4
 )
 
 // Enum value maps for FeaturePermission.
@@ -44,12 +54,14 @@ var (
 		1: "FEATURE_PERMISSION_ALLOW",
 		2: "FEATURE_PERMISSION_ALLOW_INTERNAL",
 		3: "FEATURE_PERMISSION_DENY",
+		4: "FEATURE_PERMISSION_ALLOW_DOWNSTREAM",
 	}
 	FeaturePermission_value = map[string]int32{
-		"FEATURE_PERMISSION_UNSPECIFIED":    0,
-		"FEATURE_PERMISSION_ALLOW":          1,
-		"FEATURE_PERMISSION_ALLOW_INTERNAL": 2,
-		"FEATURE_PERMISSION_DENY":           3,
+		"FEATURE_PERMISSION_UNSPECIFIED":      0,
+		"FEATURE_PERMISSION_ALLOW":            1,
+		"FEATURE_PERMISSION_ALLOW_INTERNAL":   2,
+		"FEATURE_PERMISSION_DENY":             3,
+		"FEATURE_PERMISSION_ALLOW_DOWNSTREAM": 4,
 	}
 )
 
@@ -143,12 +155,13 @@ const file_chalk_auth_v1_featurepermission_proto_rawDesc = "" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
 	"\x05value\x18\x02 \x01(\x0e2 .chalk.auth.v1.FeaturePermissionR\x05value:\x028\x01B\x15\n" +
-	"\x13_default_permission*\x99\x01\n" +
+	"\x13_default_permission*\xc2\x01\n" +
 	"\x11FeaturePermission\x12\"\n" +
 	"\x1eFEATURE_PERMISSION_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18FEATURE_PERMISSION_ALLOW\x10\x01\x12%\n" +
 	"!FEATURE_PERMISSION_ALLOW_INTERNAL\x10\x02\x12\x1b\n" +
-	"\x17FEATURE_PERMISSION_DENY\x10\x03B\xb8\x01\n" +
+	"\x17FEATURE_PERMISSION_DENY\x10\x03\x12'\n" +
+	"#FEATURE_PERMISSION_ALLOW_DOWNSTREAM\x10\x04B\xb8\x01\n" +
 	"\x11com.chalk.auth.v1B\x16FeaturepermissionProtoP\x01Z5github.com/chalk-ai/chalk-go/gen/chalk/auth/v1;authv1\xa2\x02\x03CAX\xaa\x02\rChalk.Auth.V1\xca\x02\rChalk\\Auth\\V1\xe2\x02\x19Chalk\\Auth\\V1\\GPBMetadata\xea\x02\x0fChalk::Auth::V1b\x06proto3"
 
 var (
