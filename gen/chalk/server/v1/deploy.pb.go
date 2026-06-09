@@ -1271,7 +1271,7 @@ var File_chalk_server_v1_deploy_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/server/v1/deploy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a chalk/server/v1/deployment.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x01\n" +
+	"\x1cchalk/server/v1/deploy.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/artifacts/v1/export.proto\x1a\x19chalk/auth/v1/audit.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/chalk_error.proto\x1a\x1achalk/graph/v1/graph.proto\x1a chalk/server/v1/deployment.proto\x1a)chalk/server/v1/deployment_revision.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a google/protobuf/field_mask.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x97\x01\n" +
 	"\x13DeployBranchRequest\x12\x1f\n" +
 	"\vbranch_name\x18\x01 \x01(\tR\n" +
 	"branchName\x12!\n" +
@@ -1385,13 +1385,13 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"\aentries\x18\x01 \x03(\v2/.chalk.server.v1.ResolverDeploymentHistoryEntryR\aentries\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor2\x9a\n" +
-	"\n" +
+	"\f_next_cursor2\xa1\v\n" +
 	"\rDeployService\x12`\n" +
 	"\fDeployBranch\x12$.chalk.server.v1.DeployBranchRequest\x1a%.chalk.server.v1.DeployBranchResponse\"\x03\x80}\r\x12\x9c\x01\n" +
 	" CreateBranchFromSourceDeployment\x128.chalk.server.v1.CreateBranchFromSourceDeploymentRequest\x1a9.chalk.server.v1.CreateBranchFromSourceDeploymentResponse\"\x03\x80}\r\x12c\n" +
 	"\rGetDeployment\x12%.chalk.server.v1.GetDeploymentRequest\x1a&.chalk.server.v1.GetDeploymentResponse\"\x03\x80}\v\x12i\n" +
-	"\x0fListDeployments\x12'.chalk.server.v1.ListDeploymentsRequest\x1a(.chalk.server.v1.ListDeploymentsResponse\"\x03\x80}\v\x12x\n" +
+	"\x0fListDeployments\x12'.chalk.server.v1.ListDeploymentsRequest\x1a(.chalk.server.v1.ListDeploymentsResponse\"\x03\x80}\v\x12\x84\x01\n" +
+	"\x17ListDeploymentRevisions\x12/.chalk.server.v1.ListDeploymentRevisionsRequest\x1a0.chalk.server.v1.ListDeploymentRevisionsResponse\"\x06\x80}\x1b\x90\x02\x01\x12x\n" +
 	"\x14GetActiveDeployments\x12,.chalk.server.v1.GetActiveDeploymentsRequest\x1a-.chalk.server.v1.GetActiveDeploymentsResponse\"\x03\x80}\x02\x12\x95\x01\n" +
 	"\x11SuspendDeployment\x12).chalk.server.v1.SuspendDeploymentRequest\x1a*.chalk.server.v1.SuspendDeploymentResponse\")\x80}\f\x8a\xd3\x0e\"\b\x02\x12\x1eSuspended an active deployment\x12\x9b\x01\n" +
 	"\x0fScaleDeployment\x12'.chalk.server.v1.ScaleDeploymentRequest\x1a(.chalk.server.v1.ScaleDeploymentResponse\"5\x80}\f\x8a\xd3\x0e.\b\x02\x12*Changed the replica count for a deployment\x12\x9c\x01\n" +
@@ -1443,6 +1443,8 @@ var file_chalk_server_v1_deploy_proto_goTypes = []any{
 	(*Deployment)(nil),                               // 26: chalk.server.v1.Deployment
 	(*InstanceSizing)(nil),                           // 27: chalk.server.v1.InstanceSizing
 	(*timestamppb.Timestamp)(nil),                    // 28: google.protobuf.Timestamp
+	(*ListDeploymentRevisionsRequest)(nil),           // 29: chalk.server.v1.ListDeploymentRevisionsRequest
+	(*ListDeploymentRevisionsResponse)(nil),          // 30: chalk.server.v1.ListDeploymentRevisionsResponse
 }
 var file_chalk_server_v1_deploy_proto_depIdxs = []int32{
 	21, // 0: chalk.server.v1.DeployBranchResponse.graph:type_name -> chalk.graph.v1.Graph
@@ -1469,24 +1471,26 @@ var file_chalk_server_v1_deploy_proto_depIdxs = []int32{
 	2,  // 21: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:input_type -> chalk.server.v1.CreateBranchFromSourceDeploymentRequest
 	4,  // 22: chalk.server.v1.DeployService.GetDeployment:input_type -> chalk.server.v1.GetDeploymentRequest
 	6,  // 23: chalk.server.v1.DeployService.ListDeployments:input_type -> chalk.server.v1.ListDeploymentsRequest
-	14, // 24: chalk.server.v1.DeployService.GetActiveDeployments:input_type -> chalk.server.v1.GetActiveDeploymentsRequest
-	8,  // 25: chalk.server.v1.DeployService.SuspendDeployment:input_type -> chalk.server.v1.SuspendDeploymentRequest
-	10, // 26: chalk.server.v1.DeployService.ScaleDeployment:input_type -> chalk.server.v1.ScaleDeploymentRequest
-	12, // 27: chalk.server.v1.DeployService.TagDeployment:input_type -> chalk.server.v1.TagDeploymentRequest
-	16, // 28: chalk.server.v1.DeployService.GetDeploymentSource:input_type -> chalk.server.v1.GetDeploymentSourceRequest
-	19, // 29: chalk.server.v1.DeployService.GetResolverHistory:input_type -> chalk.server.v1.GetResolverHistoryRequest
-	1,  // 30: chalk.server.v1.DeployService.DeployBranch:output_type -> chalk.server.v1.DeployBranchResponse
-	3,  // 31: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:output_type -> chalk.server.v1.CreateBranchFromSourceDeploymentResponse
-	5,  // 32: chalk.server.v1.DeployService.GetDeployment:output_type -> chalk.server.v1.GetDeploymentResponse
-	7,  // 33: chalk.server.v1.DeployService.ListDeployments:output_type -> chalk.server.v1.ListDeploymentsResponse
-	15, // 34: chalk.server.v1.DeployService.GetActiveDeployments:output_type -> chalk.server.v1.GetActiveDeploymentsResponse
-	9,  // 35: chalk.server.v1.DeployService.SuspendDeployment:output_type -> chalk.server.v1.SuspendDeploymentResponse
-	11, // 36: chalk.server.v1.DeployService.ScaleDeployment:output_type -> chalk.server.v1.ScaleDeploymentResponse
-	13, // 37: chalk.server.v1.DeployService.TagDeployment:output_type -> chalk.server.v1.TagDeploymentResponse
-	17, // 38: chalk.server.v1.DeployService.GetDeploymentSource:output_type -> chalk.server.v1.GetDeploymentSourceResponse
-	20, // 39: chalk.server.v1.DeployService.GetResolverHistory:output_type -> chalk.server.v1.GetResolverHistoryResponse
-	30, // [30:40] is the sub-list for method output_type
-	20, // [20:30] is the sub-list for method input_type
+	29, // 24: chalk.server.v1.DeployService.ListDeploymentRevisions:input_type -> chalk.server.v1.ListDeploymentRevisionsRequest
+	14, // 25: chalk.server.v1.DeployService.GetActiveDeployments:input_type -> chalk.server.v1.GetActiveDeploymentsRequest
+	8,  // 26: chalk.server.v1.DeployService.SuspendDeployment:input_type -> chalk.server.v1.SuspendDeploymentRequest
+	10, // 27: chalk.server.v1.DeployService.ScaleDeployment:input_type -> chalk.server.v1.ScaleDeploymentRequest
+	12, // 28: chalk.server.v1.DeployService.TagDeployment:input_type -> chalk.server.v1.TagDeploymentRequest
+	16, // 29: chalk.server.v1.DeployService.GetDeploymentSource:input_type -> chalk.server.v1.GetDeploymentSourceRequest
+	19, // 30: chalk.server.v1.DeployService.GetResolverHistory:input_type -> chalk.server.v1.GetResolverHistoryRequest
+	1,  // 31: chalk.server.v1.DeployService.DeployBranch:output_type -> chalk.server.v1.DeployBranchResponse
+	3,  // 32: chalk.server.v1.DeployService.CreateBranchFromSourceDeployment:output_type -> chalk.server.v1.CreateBranchFromSourceDeploymentResponse
+	5,  // 33: chalk.server.v1.DeployService.GetDeployment:output_type -> chalk.server.v1.GetDeploymentResponse
+	7,  // 34: chalk.server.v1.DeployService.ListDeployments:output_type -> chalk.server.v1.ListDeploymentsResponse
+	30, // 35: chalk.server.v1.DeployService.ListDeploymentRevisions:output_type -> chalk.server.v1.ListDeploymentRevisionsResponse
+	15, // 36: chalk.server.v1.DeployService.GetActiveDeployments:output_type -> chalk.server.v1.GetActiveDeploymentsResponse
+	9,  // 37: chalk.server.v1.DeployService.SuspendDeployment:output_type -> chalk.server.v1.SuspendDeploymentResponse
+	11, // 38: chalk.server.v1.DeployService.ScaleDeployment:output_type -> chalk.server.v1.ScaleDeploymentResponse
+	13, // 39: chalk.server.v1.DeployService.TagDeployment:output_type -> chalk.server.v1.TagDeploymentResponse
+	17, // 40: chalk.server.v1.DeployService.GetDeploymentSource:output_type -> chalk.server.v1.GetDeploymentSourceResponse
+	20, // 41: chalk.server.v1.DeployService.GetResolverHistory:output_type -> chalk.server.v1.GetResolverHistoryResponse
+	31, // [31:42] is the sub-list for method output_type
+	20, // [20:31] is the sub-list for method input_type
 	20, // [20:20] is the sub-list for extension type_name
 	20, // [20:20] is the sub-list for extension extendee
 	0,  // [0:20] is the sub-list for field type_name
@@ -1498,6 +1502,7 @@ func file_chalk_server_v1_deploy_proto_init() {
 		return
 	}
 	file_chalk_server_v1_deployment_proto_init()
+	file_chalk_server_v1_deployment_revision_proto_init()
 	file_chalk_server_v1_deploy_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_server_v1_deploy_proto_msgTypes[2].OneofWrappers = []any{
 		(*CreateBranchFromSourceDeploymentRequest_SourceBranchName)(nil),

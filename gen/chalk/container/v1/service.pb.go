@@ -8,6 +8,7 @@ package containerv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -1281,6 +1282,8 @@ func (x *GetContainerResponse) GetContainer() *ContainerResponse {
 
 type ListContainersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1315,9 +1318,24 @@ func (*ListContainersRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_container_v1_service_proto_rawDescGZIP(), []int{17}
 }
 
+func (x *ListContainersRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListContainersRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
 type ListContainersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Containers    []*ContainerResponse   `protobuf:"bytes,1,rep,name=containers,proto3" json:"containers,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1357,6 +1375,13 @@ func (x *ListContainersResponse) GetContainers() []*ContainerResponse {
 		return x.Containers
 	}
 	return nil
+}
+
+func (x *ListContainersResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
 }
 
 type ExecCommandRequest struct {
@@ -2122,6 +2147,8 @@ type ListContainerSnapshotsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Optional: filter by source container ID
 	SourceContainerId *string `protobuf:"bytes,1,opt,name=source_container_id,json=sourceContainerId,proto3,oneof" json:"source_container_id,omitempty"`
+	Cursor            *string `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit             *int32  `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -2163,9 +2190,24 @@ func (x *ListContainerSnapshotsRequest) GetSourceContainerId() string {
 	return ""
 }
 
+func (x *ListContainerSnapshotsRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListContainerSnapshotsRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
 type ListContainerSnapshotsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Snapshots     []*ContainerSnapshot   `protobuf:"bytes,1,rep,name=snapshots,proto3" json:"snapshots,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2205,6 +2247,13 @@ func (x *ListContainerSnapshotsResponse) GetSnapshots() []*ContainerSnapshot {
 		return x.Snapshots
 	}
 	return nil
+}
+
+func (x *ListContainerSnapshotsResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
 }
 
 // Message containing TTY input data (stdin) for container debug sessions
@@ -2535,7 +2584,7 @@ var File_chalk_container_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\n" +
-	" chalk/container/v1/service.proto\x12\x12chalk.container.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"v\n" +
+	" chalk/container/v1/service.proto\x12\x12chalk.container.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"v\n" +
 	"\x0eResourceLimits\x12\x15\n" +
 	"\x03cpu\x18\x01 \x01(\tH\x00R\x03cpu\x88\x01\x01\x12\x1b\n" +
 	"\x06memory\x18\x02 \x01(\tH\x01R\x06memory\x88\x01\x01\x12\x15\n" +
@@ -2670,12 +2719,19 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_name\"[\n" +
 	"\x14GetContainerResponse\x12C\n" +
-	"\tcontainer\x18\x01 \x01(\v2%.chalk.container.v1.ContainerResponseR\tcontainer\"\x17\n" +
-	"\x15ListContainersRequest\"_\n" +
+	"\tcontainer\x18\x01 \x01(\v2%.chalk.container.v1.ContainerResponseR\tcontainer\"d\n" +
+	"\x15ListContainersRequest\x12\x1b\n" +
+	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\x95\x01\n" +
 	"\x16ListContainersResponse\x12E\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2%.chalk.container.v1.ContainerResponseR\n" +
-	"containers\"\xd7\x01\n" +
+	"containers\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"\xd7\x01\n" +
 	"\x12ExecCommandRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x18\n" +
@@ -2732,12 +2788,19 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\x1bGetContainerSnapshotRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"a\n" +
 	"\x1cGetContainerSnapshotResponse\x12A\n" +
-	"\bsnapshot\x18\x01 \x01(\v2%.chalk.container.v1.ContainerSnapshotR\bsnapshot\"l\n" +
+	"\bsnapshot\x18\x01 \x01(\v2%.chalk.container.v1.ContainerSnapshotR\bsnapshot\"\xb9\x01\n" +
 	"\x1dListContainerSnapshotsRequest\x123\n" +
-	"\x13source_container_id\x18\x01 \x01(\tH\x00R\x11sourceContainerId\x88\x01\x01B\x16\n" +
-	"\x14_source_container_id\"e\n" +
+	"\x13source_container_id\x18\x01 \x01(\tH\x00R\x11sourceContainerId\x88\x01\x01\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01B\x16\n" +
+	"\x14_source_container_idB\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\x9b\x01\n" +
 	"\x1eListContainerSnapshotsResponse\x12C\n" +
-	"\tsnapshots\x18\x01 \x03(\v2%.chalk.container.v1.ContainerSnapshotR\tsnapshots\"z\n" +
+	"\tsnapshots\x18\x01 \x03(\v2%.chalk.container.v1.ContainerSnapshotR\tsnapshots\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"z\n" +
 	"\x11ContainerTTYInput\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\x12F\n" +
 	"\x06resize\x18\x02 \x01(\v2).chalk.container.v1.ContainerTerminalSizeH\x00R\x06resize\x88\x01\x01B\t\n" +
@@ -2763,17 +2826,18 @@ const file_chalk_container_v1_service_proto_rawDesc = "" +
 	"\fKernelPolicy\x12\x1d\n" +
 	"\x19KERNEL_POLICY_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18KERNEL_POLICY_RESTRICTED\x10\x01\x12\x16\n" +
-	"\x12KERNEL_POLICY_OPEN\x10\x022\xc6\n" +
-	"\n" +
-	"\x10ContainerService\x12f\n" +
-	"\fRunContainer\x12'.chalk.container.v1.RunContainerRequest\x1a(.chalk.container.v1.RunContainerResponse\"\x03\x80}\f\x12i\n" +
+	"\x12KERNEL_POLICY_OPEN\x10\x022\xf6\v\n" +
+	"\x10ContainerService\x12\xbd\x01\n" +
+	"\fRunContainer\x12'.chalk.container.v1.RunContainerRequest\x1a(.chalk.container.v1.RunContainerResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12i\n" +
 	"\rStopContainer\x12(.chalk.container.v1.StopContainerRequest\x1a).chalk.container.v1.StopContainerResponse\"\x03\x80}\x0e\x12f\n" +
 	"\fGetContainer\x12'.chalk.container.v1.GetContainerRequest\x1a(.chalk.container.v1.GetContainerResponse\"\x03\x80}\v\x12l\n" +
 	"\x0eListContainers\x12).chalk.container.v1.ListContainersRequest\x1a*.chalk.container.v1.ListContainersResponse\"\x03\x80}\v\x12c\n" +
 	"\vExecCommand\x12&.chalk.container.v1.ExecCommandRequest\x1a'.chalk.container.v1.ExecCommandResponse\"\x03\x80}\x0e\x12\x84\x01\n" +
 	"\x15UpdateContainerStatus\x120.chalk.container.v1.UpdateContainerStatusRequest\x1a1.chalk.container.v1.UpdateContainerStatusResponse\"\x06\x80}\x0e\x88\x02\x01\x12\x90\x01\n" +
-	"\x1aBatchUpdateContainerStatus\x125.chalk.container.v1.BatchUpdateContainerStatusRequest\x1a6.chalk.container.v1.BatchUpdateContainerStatusResponse\"\x03\x80}!\x12u\n" +
-	"\x11SnapshotContainer\x12,.chalk.container.v1.SnapshotContainerRequest\x1a-.chalk.container.v1.SnapshotContainerResponse\"\x03\x80}\f\x12~\n" +
+	"\x1aBatchUpdateContainerStatus\x125.chalk.container.v1.BatchUpdateContainerStatusRequest\x1a6.chalk.container.v1.BatchUpdateContainerStatusResponse\"\x03\x80}!\x12\xcc\x01\n" +
+	"\x11SnapshotContainer\x12,.chalk.container.v1.SnapshotContainerRequest\x1a-.chalk.container.v1.SnapshotContainerResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12~\n" +
 	"\x14GetContainerSnapshot\x12/.chalk.container.v1.GetContainerSnapshotRequest\x1a0.chalk.container.v1.GetContainerSnapshotResponse\"\x03\x80}\v\x12\x84\x01\n" +
 	"\x16ListContainerSnapshots\x121.chalk.container.v1.ListContainerSnapshotsRequest\x1a2.chalk.container.v1.ListContainerSnapshotsResponse\"\x03\x80}\v\x12\x8b\x01\n" +
 	"\x17CreateContainerDebugTTY\x122.chalk.container.v1.CreateContainerDebugTTYRequest\x1a3.chalk.container.v1.CreateContainerDebugTTYResponse\"\x03\x80}\x0e(\x010\x01B\xd1\x01\n" +
@@ -2923,6 +2987,8 @@ func file_chalk_container_v1_service_proto_init() {
 	file_chalk_container_v1_service_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[15].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[17].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[21].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[26].OneofWrappers = []any{
@@ -2931,6 +2997,7 @@ func file_chalk_container_v1_service_proto_init() {
 	file_chalk_container_v1_service_proto_msgTypes[27].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[28].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[32].OneofWrappers = []any{}
+	file_chalk_container_v1_service_proto_msgTypes[33].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[34].OneofWrappers = []any{}
 	file_chalk_container_v1_service_proto_msgTypes[36].OneofWrappers = []any{
 		(*CreateContainerDebugTTYRequest_InitRequest)(nil),

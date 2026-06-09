@@ -78,15 +78,18 @@ func (RunCriterionDirection) EnumDescriptor() ([]byte, []int) {
 }
 
 type ModelArtifact struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Id            string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Path          string                     `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
-	Spec          *v1.ModelArtifactSpec      `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
-	Metadata      map[string]*structpb.Value `protobuf:"bytes,6,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	CreatedBy     *string                    `protobuf:"bytes,4,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
-	CreatedAt     *timestamppb.Timestamp     `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState     `protogen:"open.v1"`
+	Id               string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Path             string                     `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`
+	Spec             *v1.ModelArtifactSpec      `protobuf:"bytes,3,opt,name=spec,proto3" json:"spec,omitempty"`
+	Metadata         map[string]*structpb.Value `protobuf:"bytes,6,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CreatedBy        *string                    `protobuf:"bytes,4,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
+	CreatedAt        *timestamppb.Timestamp     `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ArchivedAt       *timestamppb.Timestamp     `protobuf:"bytes,7,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
+	ArchivedBy       *string                    `protobuf:"bytes,8,opt,name=archived_by,json=archivedBy,proto3,oneof" json:"archived_by,omitempty"`
+	StorageDeletedAt *timestamppb.Timestamp     `protobuf:"bytes,9,opt,name=storage_deleted_at,json=storageDeletedAt,proto3,oneof" json:"storage_deleted_at,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ModelArtifact) Reset() {
@@ -161,6 +164,27 @@ func (x *ModelArtifact) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ModelArtifact) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
+func (x *ModelArtifact) GetArchivedBy() string {
+	if x != nil && x.ArchivedBy != nil {
+		return *x.ArchivedBy
+	}
+	return ""
+}
+
+func (x *ModelArtifact) GetStorageDeletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StorageDeletedAt
+	}
+	return nil
+}
+
 type ModelVersion struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	Id            string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -171,6 +195,8 @@ type ModelVersion struct {
 	Metadata      map[string]*structpb.Value `protobuf:"bytes,6,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // soft-deprecated
 	CreatedBy     *string                    `protobuf:"bytes,7,opt,name=created_by,json=createdBy,proto3,oneof" json:"created_by,omitempty"`
 	CreatedAt     *timestamppb.Timestamp     `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ArchivedAt    *timestamppb.Timestamp     `protobuf:"bytes,9,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
+	ArchivedBy    *string                    `protobuf:"bytes,10,opt,name=archived_by,json=archivedBy,proto3,oneof" json:"archived_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -261,6 +287,20 @@ func (x *ModelVersion) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *ModelVersion) GetArchivedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ArchivedAt
+	}
+	return nil
+}
+
+func (x *ModelVersion) GetArchivedBy() string {
+	if x != nil && x.ArchivedBy != nil {
+		return *x.ArchivedBy
+	}
+	return ""
+}
+
 type Model struct {
 	state              protoimpl.MessageState     `protogen:"open.v1"`
 	Id                 string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -272,6 +312,7 @@ type Model struct {
 	UpdatedAt          *timestamppb.Timestamp     `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	ArchivedAt         *timestamppb.Timestamp     `protobuf:"bytes,8,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
 	LatestModelVersion *ModelVersion              `protobuf:"bytes,9,opt,name=latest_model_version,json=latestModelVersion,proto3,oneof" json:"latest_model_version,omitempty"`
+	ArchivedBy         *string                    `protobuf:"bytes,10,opt,name=archived_by,json=archivedBy,proto3,oneof" json:"archived_by,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -369,12 +410,20 @@ func (x *Model) GetLatestModelVersion() *ModelVersion {
 	return nil
 }
 
+func (x *Model) GetArchivedBy() string {
+	if x != nil && x.ArchivedBy != nil {
+		return *x.ArchivedBy
+	}
+	return ""
+}
+
 type ListModelsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Cursor         *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit          *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeDeleted *bool                  `protobuf:"varint,3,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ListModelsRequest) Reset() {
@@ -419,6 +468,13 @@ func (x *ListModelsRequest) GetLimit() int32 {
 		return *x.Limit
 	}
 	return 0
+}
+
+func (x *ListModelsRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
 }
 
 type ListModelsResponse struct {
@@ -480,6 +536,7 @@ type GetModelRequest struct {
 	//	*GetModelRequest_ModelId
 	//	*GetModelRequest_ModelName
 	ModelIdentifier isGetModelRequest_ModelIdentifier `protobuf_oneof:"model_identifier"`
+	IncludeDeleted  *bool                             `protobuf:"varint,3,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -537,6 +594,13 @@ func (x *GetModelRequest) GetModelName() string {
 		}
 	}
 	return ""
+}
+
+func (x *GetModelRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
 }
 
 type isGetModelRequest_ModelIdentifier interface {
@@ -704,11 +768,12 @@ func (x *CreateModelResponse) GetModel() *Model {
 }
 
 type UpdateModelOperation struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	ModelName     *string                    `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
-	Description   *string                    `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	Metadata      map[string]*structpb.Value `protobuf:"bytes,3,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ArchivedAt    *timestamppb.Timestamp     `protobuf:"bytes,4,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
+	state       protoimpl.MessageState     `protogen:"open.v1"`
+	ModelName   *string                    `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
+	Description *string                    `protobuf:"bytes,2,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Metadata    map[string]*structpb.Value `protobuf:"bytes,3,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Deprecated: Marked as deprecated in chalk/server/v1/model_registry.proto.
+	ArchivedAt    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=archived_at,json=archivedAt,proto3,oneof" json:"archived_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -764,6 +829,7 @@ func (x *UpdateModelOperation) GetMetadata() map[string]*structpb.Value {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/model_registry.proto.
 func (x *UpdateModelOperation) GetArchivedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.ArchivedAt
@@ -875,18 +941,145 @@ func (x *UpdateModelResponse) GetModel() *Model {
 	return nil
 }
 
-type ListModelVersionsRequest struct {
+type DeleteModelRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to ModelIdentifier:
+	//
+	//	*DeleteModelRequest_ModelId
+	//	*DeleteModelRequest_ModelName
+	ModelIdentifier isDeleteModelRequest_ModelIdentifier `protobuf_oneof:"model_identifier"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DeleteModelRequest) Reset() {
+	*x = DeleteModelRequest{}
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelRequest) ProtoMessage() {}
+
+func (x *DeleteModelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelRequest.ProtoReflect.Descriptor instead.
+func (*DeleteModelRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *DeleteModelRequest) GetModelIdentifier() isDeleteModelRequest_ModelIdentifier {
+	if x != nil {
+		return x.ModelIdentifier
+	}
+	return nil
+}
+
+func (x *DeleteModelRequest) GetModelId() string {
+	if x != nil {
+		if x, ok := x.ModelIdentifier.(*DeleteModelRequest_ModelId); ok {
+			return x.ModelId
+		}
+	}
+	return ""
+}
+
+func (x *DeleteModelRequest) GetModelName() string {
+	if x != nil {
+		if x, ok := x.ModelIdentifier.(*DeleteModelRequest_ModelName); ok {
+			return x.ModelName
+		}
+	}
+	return ""
+}
+
+type isDeleteModelRequest_ModelIdentifier interface {
+	isDeleteModelRequest_ModelIdentifier()
+}
+
+type DeleteModelRequest_ModelId struct {
+	ModelId string `protobuf:"bytes,1,opt,name=model_id,json=modelId,proto3,oneof"`
+}
+
+type DeleteModelRequest_ModelName struct {
+	ModelName string `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3,oneof"`
+}
+
+func (*DeleteModelRequest_ModelId) isDeleteModelRequest_ModelIdentifier() {}
+
+func (*DeleteModelRequest_ModelName) isDeleteModelRequest_ModelIdentifier() {}
+
+type DeleteModelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ModelName     *string                `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
-	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
-	Limit         *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Model         *Model                 `protobuf:"bytes,1,opt,name=model,proto3" json:"model,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *DeleteModelResponse) Reset() {
+	*x = DeleteModelResponse{}
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelResponse) ProtoMessage() {}
+
+func (x *DeleteModelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelResponse.ProtoReflect.Descriptor instead.
+func (*DeleteModelResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DeleteModelResponse) GetModel() *Model {
+	if x != nil {
+		return x.Model
+	}
+	return nil
+}
+
+type ListModelVersionsRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ModelName      *string                `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3,oneof" json:"model_name,omitempty"`
+	Cursor         *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit          *int32                 `protobuf:"varint,3,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	IncludeDeleted *bool                  `protobuf:"varint,4,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
 func (x *ListModelVersionsRequest) Reset() {
 	*x = ListModelVersionsRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -898,7 +1091,7 @@ func (x *ListModelVersionsRequest) String() string {
 func (*ListModelVersionsRequest) ProtoMessage() {}
 
 func (x *ListModelVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[12]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -911,7 +1104,7 @@ func (x *ListModelVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListModelVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{12}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListModelVersionsRequest) GetModelName() string {
@@ -935,6 +1128,13 @@ func (x *ListModelVersionsRequest) GetLimit() int32 {
 	return 0
 }
 
+func (x *ListModelVersionsRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
 type ListModelVersionsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ModelVersions []*ModelVersion        `protobuf:"bytes,1,rep,name=model_versions,json=modelVersions,proto3" json:"model_versions,omitempty"`
@@ -945,7 +1145,7 @@ type ListModelVersionsResponse struct {
 
 func (x *ListModelVersionsResponse) Reset() {
 	*x = ListModelVersionsResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -957,7 +1157,7 @@ func (x *ListModelVersionsResponse) String() string {
 func (*ListModelVersionsResponse) ProtoMessage() {}
 
 func (x *ListModelVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[13]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -970,7 +1170,7 @@ func (x *ListModelVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListModelVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{13}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListModelVersionsResponse) GetModelVersions() []*ModelVersion {
@@ -988,16 +1188,17 @@ func (x *ListModelVersionsResponse) GetNextCursor() string {
 }
 
 type GetModelVersionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ModelName     string                 `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
-	Version       uint64                 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	ModelName      string                 `protobuf:"bytes,1,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
+	Version        uint64                 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	IncludeDeleted *bool                  `protobuf:"varint,3,opt,name=include_deleted,json=includeDeleted,proto3,oneof" json:"include_deleted,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetModelVersionRequest) Reset() {
 	*x = GetModelVersionRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1009,7 +1210,7 @@ func (x *GetModelVersionRequest) String() string {
 func (*GetModelVersionRequest) ProtoMessage() {}
 
 func (x *GetModelVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[14]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1022,7 +1223,7 @@ func (x *GetModelVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelVersionRequest.ProtoReflect.Descriptor instead.
 func (*GetModelVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{14}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetModelVersionRequest) GetModelName() string {
@@ -1039,6 +1240,13 @@ func (x *GetModelVersionRequest) GetVersion() uint64 {
 	return 0
 }
 
+func (x *GetModelVersionRequest) GetIncludeDeleted() bool {
+	if x != nil && x.IncludeDeleted != nil {
+		return *x.IncludeDeleted
+	}
+	return false
+}
+
 type GetModelVersionResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ModelVersion  *ModelVersion          `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3,oneof" json:"model_version,omitempty"`
@@ -1048,7 +1256,7 @@ type GetModelVersionResponse struct {
 
 func (x *GetModelVersionResponse) Reset() {
 	*x = GetModelVersionResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1060,7 +1268,7 @@ func (x *GetModelVersionResponse) String() string {
 func (*GetModelVersionResponse) ProtoMessage() {}
 
 func (x *GetModelVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[15]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1073,7 +1281,7 @@ func (x *GetModelVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelVersionResponse.ProtoReflect.Descriptor instead.
 func (*GetModelVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{15}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetModelVersionResponse) GetModelVersion() *ModelVersion {
@@ -1094,7 +1302,7 @@ type CreateModelArtifactRequest struct {
 
 func (x *CreateModelArtifactRequest) Reset() {
 	*x = CreateModelArtifactRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1106,7 +1314,7 @@ func (x *CreateModelArtifactRequest) String() string {
 func (*CreateModelArtifactRequest) ProtoMessage() {}
 
 func (x *CreateModelArtifactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[16]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1119,7 +1327,7 @@ func (x *CreateModelArtifactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelArtifactRequest.ProtoReflect.Descriptor instead.
 func (*CreateModelArtifactRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{16}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateModelArtifactRequest) GetModelArtifactId() string {
@@ -1152,7 +1360,7 @@ type CreateModelArtifactResponse struct {
 
 func (x *CreateModelArtifactResponse) Reset() {
 	*x = CreateModelArtifactResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1164,7 +1372,7 @@ func (x *CreateModelArtifactResponse) String() string {
 func (*CreateModelArtifactResponse) ProtoMessage() {}
 
 func (x *CreateModelArtifactResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[17]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1177,7 +1385,7 @@ func (x *CreateModelArtifactResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelArtifactResponse.ProtoReflect.Descriptor instead.
 func (*CreateModelArtifactResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{17}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CreateModelArtifactResponse) GetModelArtifact() *ModelArtifact {
@@ -1200,7 +1408,7 @@ type CreateModelVersionRequest struct {
 
 func (x *CreateModelVersionRequest) Reset() {
 	*x = CreateModelVersionRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1212,7 +1420,7 @@ func (x *CreateModelVersionRequest) String() string {
 func (*CreateModelVersionRequest) ProtoMessage() {}
 
 func (x *CreateModelVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[18]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1225,7 +1433,7 @@ func (x *CreateModelVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelVersionRequest.ProtoReflect.Descriptor instead.
 func (*CreateModelVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{18}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateModelVersionRequest) GetModelName() string {
@@ -1272,7 +1480,7 @@ type CreateModelVersionResponse struct {
 
 func (x *CreateModelVersionResponse) Reset() {
 	*x = CreateModelVersionResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1284,7 +1492,7 @@ func (x *CreateModelVersionResponse) String() string {
 func (*CreateModelVersionResponse) ProtoMessage() {}
 
 func (x *CreateModelVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[19]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1297,7 +1505,7 @@ func (x *CreateModelVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateModelVersionResponse.ProtoReflect.Descriptor instead.
 func (*CreateModelVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{19}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *CreateModelVersionResponse) GetModelVersion() *ModelVersion {
@@ -1317,7 +1525,7 @@ type ModelVersionKey struct {
 
 func (x *ModelVersionKey) Reset() {
 	*x = ModelVersionKey{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1329,7 +1537,7 @@ func (x *ModelVersionKey) String() string {
 func (*ModelVersionKey) ProtoMessage() {}
 
 func (x *ModelVersionKey) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[20]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1342,7 +1550,7 @@ func (x *ModelVersionKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelVersionKey.ProtoReflect.Descriptor instead.
 func (*ModelVersionKey) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{20}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ModelVersionKey) GetModelName() string {
@@ -1369,7 +1577,7 @@ type UpdateModelVersionOperation struct {
 
 func (x *UpdateModelVersionOperation) Reset() {
 	*x = UpdateModelVersionOperation{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1381,7 +1589,7 @@ func (x *UpdateModelVersionOperation) String() string {
 func (*UpdateModelVersionOperation) ProtoMessage() {}
 
 func (x *UpdateModelVersionOperation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1602,7 @@ func (x *UpdateModelVersionOperation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelVersionOperation.ProtoReflect.Descriptor instead.
 func (*UpdateModelVersionOperation) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *UpdateModelVersionOperation) GetAliases() []string {
@@ -1422,7 +1630,7 @@ type UpdateModelVersionRequest struct {
 
 func (x *UpdateModelVersionRequest) Reset() {
 	*x = UpdateModelVersionRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1434,7 +1642,7 @@ func (x *UpdateModelVersionRequest) String() string {
 func (*UpdateModelVersionRequest) ProtoMessage() {}
 
 func (x *UpdateModelVersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1447,7 +1655,7 @@ func (x *UpdateModelVersionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelVersionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateModelVersionRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *UpdateModelVersionRequest) GetModelVersionKey() *ModelVersionKey {
@@ -1480,7 +1688,7 @@ type UpdateModelVersionResponse struct {
 
 func (x *UpdateModelVersionResponse) Reset() {
 	*x = UpdateModelVersionResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1492,7 +1700,7 @@ func (x *UpdateModelVersionResponse) String() string {
 func (*UpdateModelVersionResponse) ProtoMessage() {}
 
 func (x *UpdateModelVersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1505,10 +1713,98 @@ func (x *UpdateModelVersionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateModelVersionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateModelVersionResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UpdateModelVersionResponse) GetModelVersion() *ModelVersion {
+	if x != nil {
+		return x.ModelVersion
+	}
+	return nil
+}
+
+type DeleteModelVersionRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ModelVersionKey *ModelVersionKey       `protobuf:"bytes,1,opt,name=model_version_key,json=modelVersionKey,proto3" json:"model_version_key,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DeleteModelVersionRequest) Reset() {
+	*x = DeleteModelVersionRequest{}
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelVersionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelVersionRequest) ProtoMessage() {}
+
+func (x *DeleteModelVersionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelVersionRequest.ProtoReflect.Descriptor instead.
+func (*DeleteModelVersionRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *DeleteModelVersionRequest) GetModelVersionKey() *ModelVersionKey {
+	if x != nil {
+		return x.ModelVersionKey
+	}
+	return nil
+}
+
+type DeleteModelVersionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ModelVersion  *ModelVersion          `protobuf:"bytes,1,opt,name=model_version,json=modelVersion,proto3" json:"model_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteModelVersionResponse) Reset() {
+	*x = DeleteModelVersionResponse{}
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteModelVersionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteModelVersionResponse) ProtoMessage() {}
+
+func (x *DeleteModelVersionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteModelVersionResponse.ProtoReflect.Descriptor instead.
+func (*DeleteModelVersionResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *DeleteModelVersionResponse) GetModelVersion() *ModelVersion {
 	if x != nil {
 		return x.ModelVersion
 	}
@@ -1524,7 +1820,7 @@ type GetModelArtifactUploadUrlsRequest struct {
 
 func (x *GetModelArtifactUploadUrlsRequest) Reset() {
 	*x = GetModelArtifactUploadUrlsRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1536,7 +1832,7 @@ func (x *GetModelArtifactUploadUrlsRequest) String() string {
 func (*GetModelArtifactUploadUrlsRequest) ProtoMessage() {}
 
 func (x *GetModelArtifactUploadUrlsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1549,7 +1845,7 @@ func (x *GetModelArtifactUploadUrlsRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetModelArtifactUploadUrlsRequest.ProtoReflect.Descriptor instead.
 func (*GetModelArtifactUploadUrlsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetModelArtifactUploadUrlsRequest) GetFileNames() []string {
@@ -1569,7 +1865,7 @@ type GetModelArtifactUploadUrlsResponse struct {
 
 func (x *GetModelArtifactUploadUrlsResponse) Reset() {
 	*x = GetModelArtifactUploadUrlsResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1581,7 +1877,7 @@ func (x *GetModelArtifactUploadUrlsResponse) String() string {
 func (*GetModelArtifactUploadUrlsResponse) ProtoMessage() {}
 
 func (x *GetModelArtifactUploadUrlsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1594,7 +1890,7 @@ func (x *GetModelArtifactUploadUrlsResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetModelArtifactUploadUrlsResponse.ProtoReflect.Descriptor instead.
 func (*GetModelArtifactUploadUrlsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetModelArtifactUploadUrlsResponse) GetUploadUrls() map[string]string {
@@ -1621,7 +1917,7 @@ type DownloadModelArtifactRequest struct {
 
 func (x *DownloadModelArtifactRequest) Reset() {
 	*x = DownloadModelArtifactRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1633,7 +1929,7 @@ func (x *DownloadModelArtifactRequest) String() string {
 func (*DownloadModelArtifactRequest) ProtoMessage() {}
 
 func (x *DownloadModelArtifactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1646,7 +1942,7 @@ func (x *DownloadModelArtifactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadModelArtifactRequest.ProtoReflect.Descriptor instead.
 func (*DownloadModelArtifactRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *DownloadModelArtifactRequest) GetModelVersionKey() *ModelVersionKey {
@@ -1676,7 +1972,7 @@ type DownloadModelArtifactResponse struct {
 
 func (x *DownloadModelArtifactResponse) Reset() {
 	*x = DownloadModelArtifactResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1688,7 +1984,7 @@ func (x *DownloadModelArtifactResponse) String() string {
 func (*DownloadModelArtifactResponse) ProtoMessage() {}
 
 func (x *DownloadModelArtifactResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1701,7 +1997,7 @@ func (x *DownloadModelArtifactResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadModelArtifactResponse.ProtoReflect.Descriptor instead.
 func (*DownloadModelArtifactResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{31}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/model_registry.proto.
@@ -1746,7 +2042,7 @@ type GetModelReferencesRequest struct {
 
 func (x *GetModelReferencesRequest) Reset() {
 	*x = GetModelReferencesRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1758,7 +2054,7 @@ func (x *GetModelReferencesRequest) String() string {
 func (*GetModelReferencesRequest) ProtoMessage() {}
 
 func (x *GetModelReferencesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1771,7 +2067,7 @@ func (x *GetModelReferencesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelReferencesRequest.ProtoReflect.Descriptor instead.
 func (*GetModelReferencesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *GetModelReferencesRequest) GetDeploymentId() string {
@@ -1819,7 +2115,7 @@ type ModelRelation struct {
 
 func (x *ModelRelation) Reset() {
 	*x = ModelRelation{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1831,7 +2127,7 @@ func (x *ModelRelation) String() string {
 func (*ModelRelation) ProtoMessage() {}
 
 func (x *ModelRelation) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1844,7 +2140,7 @@ func (x *ModelRelation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelRelation.ProtoReflect.Descriptor instead.
 func (*ModelRelation) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ModelRelation) GetInputFeatures() []string {
@@ -1877,7 +2173,7 @@ type ModelReference struct {
 
 func (x *ModelReference) Reset() {
 	*x = ModelReference{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1889,7 +2185,7 @@ func (x *ModelReference) String() string {
 func (*ModelReference) ProtoMessage() {}
 
 func (x *ModelReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1902,7 +2198,7 @@ func (x *ModelReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelReference.ProtoReflect.Descriptor instead.
 func (*ModelReference) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ModelReference) GetId() string {
@@ -1971,7 +2267,7 @@ type GetModelReferencesResponse struct {
 
 func (x *GetModelReferencesResponse) Reset() {
 	*x = GetModelReferencesResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2279,7 @@ func (x *GetModelReferencesResponse) String() string {
 func (*GetModelReferencesResponse) ProtoMessage() {}
 
 func (x *GetModelReferencesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2292,7 @@ func (x *GetModelReferencesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelReferencesResponse.ProtoReflect.Descriptor instead.
 func (*GetModelReferencesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetModelReferencesResponse) GetModelReferences() []*ModelReference {
@@ -2026,7 +2322,7 @@ type GetModelReferenceRequest struct {
 
 func (x *GetModelReferenceRequest) Reset() {
 	*x = GetModelReferenceRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2038,7 +2334,7 @@ func (x *GetModelReferenceRequest) String() string {
 func (*GetModelReferenceRequest) ProtoMessage() {}
 
 func (x *GetModelReferenceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2051,7 +2347,7 @@ func (x *GetModelReferenceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelReferenceRequest.ProtoReflect.Descriptor instead.
 func (*GetModelReferenceRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{36}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/model_registry.proto.
@@ -2092,7 +2388,7 @@ type GetModelReferenceResponse struct {
 
 func (x *GetModelReferenceResponse) Reset() {
 	*x = GetModelReferenceResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2104,7 +2400,7 @@ func (x *GetModelReferenceResponse) String() string {
 func (*GetModelReferenceResponse) ProtoMessage() {}
 
 func (x *GetModelReferenceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2117,7 +2413,7 @@ func (x *GetModelReferenceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelReferenceResponse.ProtoReflect.Descriptor instead.
 func (*GetModelReferenceResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *GetModelReferenceResponse) GetModelReference() *ModelReference {
@@ -2142,7 +2438,7 @@ type RunCriterion struct {
 
 func (x *RunCriterion) Reset() {
 	*x = RunCriterion{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2154,7 +2450,7 @@ func (x *RunCriterion) String() string {
 func (*RunCriterion) ProtoMessage() {}
 
 func (x *RunCriterion) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2167,7 +2463,7 @@ func (x *RunCriterion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunCriterion.ProtoReflect.Descriptor instead.
 func (*RunCriterion) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *RunCriterion) GetRunIdentifier() isRunCriterion_RunIdentifier {
@@ -2240,7 +2536,7 @@ type CreateModelVersionFromArtifactRequest struct {
 
 func (x *CreateModelVersionFromArtifactRequest) Reset() {
 	*x = CreateModelVersionFromArtifactRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2252,7 +2548,7 @@ func (x *CreateModelVersionFromArtifactRequest) String() string {
 func (*CreateModelVersionFromArtifactRequest) ProtoMessage() {}
 
 func (x *CreateModelVersionFromArtifactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2265,7 +2561,7 @@ func (x *CreateModelVersionFromArtifactRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use CreateModelVersionFromArtifactRequest.ProtoReflect.Descriptor instead.
 func (*CreateModelVersionFromArtifactRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *CreateModelVersionFromArtifactRequest) GetModelName() string {
@@ -2334,7 +2630,7 @@ type CreateModelVersionFromArtifactResponse struct {
 
 func (x *CreateModelVersionFromArtifactResponse) Reset() {
 	*x = CreateModelVersionFromArtifactResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2346,7 +2642,7 @@ func (x *CreateModelVersionFromArtifactResponse) String() string {
 func (*CreateModelVersionFromArtifactResponse) ProtoMessage() {}
 
 func (x *CreateModelVersionFromArtifactResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2359,7 +2655,7 @@ func (x *CreateModelVersionFromArtifactResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use CreateModelVersionFromArtifactResponse.ProtoReflect.Descriptor instead.
 func (*CreateModelVersionFromArtifactResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *CreateModelVersionFromArtifactResponse) GetModelVersion() *ModelVersion {
@@ -2383,7 +2679,7 @@ type ListModelArtifactsRequest struct {
 
 func (x *ListModelArtifactsRequest) Reset() {
 	*x = ListModelArtifactsRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2395,7 +2691,7 @@ func (x *ListModelArtifactsRequest) String() string {
 func (*ListModelArtifactsRequest) ProtoMessage() {}
 
 func (x *ListModelArtifactsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2408,7 +2704,7 @@ func (x *ListModelArtifactsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelArtifactsRequest.ProtoReflect.Descriptor instead.
 func (*ListModelArtifactsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListModelArtifactsRequest) GetFilter() isListModelArtifactsRequest_Filter {
@@ -2461,7 +2757,7 @@ type ListModelArtifactsResponse struct {
 
 func (x *ListModelArtifactsResponse) Reset() {
 	*x = ListModelArtifactsResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2473,7 +2769,7 @@ func (x *ListModelArtifactsResponse) String() string {
 func (*ListModelArtifactsResponse) ProtoMessage() {}
 
 func (x *ListModelArtifactsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2486,7 +2782,7 @@ func (x *ListModelArtifactsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelArtifactsResponse.ProtoReflect.Descriptor instead.
 func (*ListModelArtifactsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ListModelArtifactsResponse) GetModelArtifacts() []*ModelArtifact {
@@ -2512,7 +2808,7 @@ type GetModelArtifactRequest struct {
 
 func (x *GetModelArtifactRequest) Reset() {
 	*x = GetModelArtifactRequest{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2524,7 +2820,7 @@ func (x *GetModelArtifactRequest) String() string {
 func (*GetModelArtifactRequest) ProtoMessage() {}
 
 func (x *GetModelArtifactRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2537,7 +2833,7 @@ func (x *GetModelArtifactRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelArtifactRequest.ProtoReflect.Descriptor instead.
 func (*GetModelArtifactRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetModelArtifactRequest) GetModelArtifactId() string {
@@ -2556,7 +2852,7 @@ type GetModelArtifactResponse struct {
 
 func (x *GetModelArtifactResponse) Reset() {
 	*x = GetModelArtifactResponse{}
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2568,7 +2864,7 @@ func (x *GetModelArtifactResponse) String() string {
 func (*GetModelArtifactResponse) ProtoMessage() {}
 
 func (x *GetModelArtifactResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_model_registry_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2581,7 +2877,7 @@ func (x *GetModelArtifactResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetModelArtifactResponse.ProtoReflect.Descriptor instead.
 func (*GetModelArtifactResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_model_registry_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetModelArtifactResponse) GetModelArtifact() *ModelArtifact {
@@ -2595,7 +2891,7 @@ var File_chalk_server_v1_model_registry_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\n" +
-	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/models/v1/model_artifact.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x02\n" +
+	"$chalk/server/v1/model_registry.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/models/v1/model_artifact.proto\x1a google/protobuf/field_mask.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x04\n" +
 	"\rModelArtifact\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04path\x18\x02 \x01(\tR\x04path\x126\n" +
@@ -2604,11 +2900,19 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\x04 \x01(\tH\x00R\tcreatedBy\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x1aS\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12@\n" +
+	"\varchived_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
+	"archivedAt\x88\x01\x01\x12$\n" +
+	"\varchived_by\x18\b \x01(\tH\x02R\n" +
+	"archivedBy\x88\x01\x01\x12M\n" +
+	"\x12storage_deleted_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x03R\x10storageDeletedAt\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\r\n" +
-	"\v_created_by\"\xc4\x03\n" +
+	"\v_created_byB\x0e\n" +
+	"\f_archived_atB\x0e\n" +
+	"\f_archived_byB\x15\n" +
+	"\x13_storage_deleted_at\"\xcc\x04\n" +
 	"\fModelVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -2620,11 +2924,18 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\n" +
 	"created_by\x18\a \x01(\tH\x00R\tcreatedBy\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x1aS\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12@\n" +
+	"\varchived_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
+	"archivedAt\x88\x01\x01\x12$\n" +
+	"\varchived_by\x18\n" +
+	" \x01(\tH\x02R\n" +
+	"archivedBy\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\r\n" +
-	"\v_created_by\"\xed\x04\n" +
+	"\v_created_byB\x0e\n" +
+	"\f_archived_atB\x0e\n" +
+	"\f_archived_by\"\xa3\x05\n" +
 	"\x05Model\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -2639,29 +2950,37 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01\x12@\n" +
 	"\varchived_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
 	"archivedAt\x88\x01\x01\x12T\n" +
-	"\x14latest_model_version\x18\t \x01(\v2\x1d.chalk.server.v1.ModelVersionH\x03R\x12latestModelVersion\x88\x01\x01\x1aS\n" +
+	"\x14latest_model_version\x18\t \x01(\v2\x1d.chalk.server.v1.ModelVersionH\x03R\x12latestModelVersion\x88\x01\x01\x12$\n" +
+	"\varchived_by\x18\n" +
+	" \x01(\tH\x04R\n" +
+	"archivedBy\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\r\n" +
 	"\v_created_byB\r\n" +
 	"\v_updated_atB\x0e\n" +
 	"\f_archived_atB\x17\n" +
-	"\x15_latest_model_version\"`\n" +
+	"\x15_latest_model_versionB\x0e\n" +
+	"\f_archived_by\"\xa2\x01\n" +
 	"\x11ListModelsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12,\n" +
+	"\x0finclude_deleted\x18\x03 \x01(\bH\x02R\x0eincludeDeleted\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_limit\"z\n" +
+	"\x06_limitB\x12\n" +
+	"\x10_include_deleted\"z\n" +
 	"\x12ListModelsResponse\x12.\n" +
 	"\x06models\x18\x01 \x03(\v2\x16.chalk.server.v1.ModelR\x06models\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"c\n" +
+	"\f_next_cursor\"\xa5\x01\n" +
 	"\x0fGetModelRequest\x12\x1b\n" +
 	"\bmodel_id\x18\x01 \x01(\tH\x00R\amodelId\x12\x1f\n" +
 	"\n" +
-	"model_name\x18\x02 \x01(\tH\x00R\tmodelNameB\x12\n" +
-	"\x10model_identifier\"O\n" +
+	"model_name\x18\x02 \x01(\tH\x00R\tmodelName\x12,\n" +
+	"\x0finclude_deleted\x18\x03 \x01(\bH\x01R\x0eincludeDeleted\x88\x01\x01B\x12\n" +
+	"\x10model_identifierB\x12\n" +
+	"\x10_include_deleted\"O\n" +
 	"\x10GetModelResponse\x121\n" +
 	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelH\x00R\x05model\x88\x01\x01B\b\n" +
 	"\x06_model\"\xf9\x01\n" +
@@ -2674,13 +2993,13 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"C\n" +
 	"\x13CreateModelResponse\x12,\n" +
-	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"\xf8\x02\n" +
+	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"\xfc\x02\n" +
 	"\x14UpdateModelOperation\x12\"\n" +
 	"\n" +
 	"model_name\x18\x01 \x01(\tH\x00R\tmodelName\x88\x01\x01\x12%\n" +
 	"\vdescription\x18\x02 \x01(\tH\x01R\vdescription\x88\x01\x01\x12O\n" +
-	"\bmetadata\x18\x03 \x03(\v23.chalk.server.v1.UpdateModelOperation.MetadataEntryR\bmetadata\x12@\n" +
-	"\varchived_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampH\x02R\n" +
+	"\bmetadata\x18\x03 \x03(\v23.chalk.server.v1.UpdateModelOperation.MetadataEntryR\bmetadata\x12D\n" +
+	"\varchived_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\x02\x18\x01H\x02R\n" +
 	"archivedAt\x88\x01\x01\x1aS\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
@@ -2694,24 +3013,35 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"C\n" +
 	"\x13UpdateModelResponse\x12,\n" +
-	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"\x9a\x01\n" +
+	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"f\n" +
+	"\x12DeleteModelRequest\x12\x1b\n" +
+	"\bmodel_id\x18\x01 \x01(\tH\x00R\amodelId\x12\x1f\n" +
+	"\n" +
+	"model_name\x18\x02 \x01(\tH\x00R\tmodelNameB\x12\n" +
+	"\x10model_identifier\"C\n" +
+	"\x13DeleteModelResponse\x12,\n" +
+	"\x05model\x18\x01 \x01(\v2\x16.chalk.server.v1.ModelR\x05model\"\xdc\x01\n" +
 	"\x18ListModelVersionsRequest\x12\"\n" +
 	"\n" +
 	"model_name\x18\x01 \x01(\tH\x00R\tmodelName\x88\x01\x01\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x01R\x06cursor\x88\x01\x01\x12\x19\n" +
-	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01B\r\n" +
+	"\x05limit\x18\x03 \x01(\x05H\x02R\x05limit\x88\x01\x01\x12,\n" +
+	"\x0finclude_deleted\x18\x04 \x01(\bH\x03R\x0eincludeDeleted\x88\x01\x01B\r\n" +
 	"\v_model_nameB\t\n" +
 	"\a_cursorB\b\n" +
-	"\x06_limit\"\x97\x01\n" +
+	"\x06_limitB\x12\n" +
+	"\x10_include_deleted\"\x97\x01\n" +
 	"\x19ListModelVersionsResponse\x12D\n" +
 	"\x0emodel_versions\x18\x01 \x03(\v2\x1d.chalk.server.v1.ModelVersionR\rmodelVersions\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"Q\n" +
+	"\f_next_cursor\"\x93\x01\n" +
 	"\x16GetModelVersionRequest\x12\x1d\n" +
 	"\n" +
 	"model_name\x18\x01 \x01(\tR\tmodelName\x12\x18\n" +
-	"\aversion\x18\x02 \x01(\x04R\aversion\"t\n" +
+	"\aversion\x18\x02 \x01(\x04R\aversion\x12,\n" +
+	"\x0finclude_deleted\x18\x03 \x01(\bH\x00R\x0eincludeDeleted\x88\x01\x01B\x12\n" +
+	"\x10_include_deleted\"t\n" +
 	"\x17GetModelVersionResponse\x12G\n" +
 	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionH\x00R\fmodelVersion\x88\x01\x01B\x10\n" +
 	"\x0e_model_version\"\xbf\x02\n" +
@@ -2752,6 +3082,10 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"`\n" +
 	"\x1aUpdateModelVersionResponse\x12B\n" +
+	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionR\fmodelVersion\"i\n" +
+	"\x19DeleteModelVersionRequest\x12L\n" +
+	"\x11model_version_key\x18\x01 \x01(\v2 .chalk.server.v1.ModelVersionKeyR\x0fmodelVersionKey\"`\n" +
+	"\x1aDeleteModelVersionResponse\x12B\n" +
 	"\rmodel_version\x18\x01 \x01(\v2\x1d.chalk.server.v1.ModelVersionR\fmodelVersion\"B\n" +
 	"!GetModelArtifactUploadUrlsRequest\x12\x1d\n" +
 	"\n" +
@@ -2851,7 +3185,7 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x15RunCriterionDirection\x12'\n" +
 	"#RUN_CRITERION_DIRECTION_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bRUN_CRITERION_DIRECTION_MAX\x10\x01\x12\x1f\n" +
-	"\x1bRUN_CRITERION_DIRECTION_MIN\x10\x022\xac\x13\n" +
+	"\x1bRUN_CRITERION_DIRECTION_MIN\x10\x022\xb5\x16\n" +
 	"\x14ModelRegistryService\x12]\n" +
 	"\n" +
 	"ListModels\x12\".chalk.server.v1.ListModelsRequest\x1a#.chalk.server.v1.ListModelsResponse\"\x06\x80}\v\x90\x02\x01\x12W\n" +
@@ -2859,7 +3193,9 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\vCreateModel\x12#.chalk.server.v1.CreateModelRequest\x1a$.chalk.server.v1.CreateModelResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xb4\x01\n" +
 	"\vUpdateModel\x12#.chalk.server.v1.UpdateModelRequest\x1a$.chalk.server.v1.UpdateModelResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
-	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12r\n" +
+	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xb7\x01\n" +
+	"\vDeleteModel\x12#.chalk.server.v1.DeleteModelRequest\x1a$.chalk.server.v1.DeleteModelResponse\"]\x80}\f\x92\xd3\x0eS\n" +
+	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x02\x12r\n" +
 	"\x11ListModelVersions\x12).chalk.server.v1.ListModelVersionsRequest\x1a*.chalk.server.v1.ListModelVersionsResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x0fGetModelVersion\x12'.chalk.server.v1.GetModelVersionRequest\x1a(.chalk.server.v1.GetModelVersionResponse\"\x06\x80}\v\x90\x02\x01\x12\xc9\x01\n" +
 	"\x12CreateModelVersion\x12*.chalk.server.v1.CreateModelVersionRequest\x1a+.chalk.server.v1.CreateModelVersionResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
@@ -2868,7 +3204,9 @@ const file_chalk_server_v1_model_registry_proto_rawDesc = "" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12\xed\x01\n" +
 	"\x1eCreateModelVersionFromArtifact\x126.chalk.server.v1.CreateModelVersionFromArtifactRequest\x1a7.chalk.server.v1.CreateModelVersionFromArtifactResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x12r\n" +
-	"\x12UpdateModelVersion\x12*.chalk.server.v1.UpdateModelVersionRequest\x1a+.chalk.server.v1.UpdateModelVersionResponse\"\x03\x80}\f\x12\xd5\x01\n" +
+	"\x12UpdateModelVersion\x12*.chalk.server.v1.UpdateModelVersionRequest\x1a+.chalk.server.v1.UpdateModelVersionResponse\"\x03\x80}\f\x12\xcc\x01\n" +
+	"\x12DeleteModelVersion\x12*.chalk.server.v1.DeleteModelVersionRequest\x1a+.chalk.server.v1.DeleteModelVersionResponse\"]\x80}\f\x92\xd3\x0eS\n" +
+	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x02\x12\xd5\x01\n" +
 	"\x15DownloadModelArtifact\x12-.chalk.server.v1.DownloadModelArtifactRequest\x1a..chalk.server.v1.DownloadModelArtifactResponse\"]\x80}\v\x92\xd3\x0eS\n" +
 	"\x16model_registry_enabled\x129This action is not enabled. Please contact Chalk Support.\x90\x02\x01\x12u\n" +
 	"\x12GetModelReferences\x12*.chalk.server.v1.GetModelReferencesRequest\x1a+.chalk.server.v1.GetModelReferencesResponse\"\x06\x80}\v\x90\x02\x01\x12r\n" +
@@ -2892,7 +3230,7 @@ func file_chalk_server_v1_model_registry_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_model_registry_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_model_registry_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_chalk_server_v1_model_registry_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
 var file_chalk_server_v1_model_registry_proto_goTypes = []any{
 	(RunCriterionDirection)(0),                     // 0: chalk.server.v1.RunCriterionDirection
 	(*ModelArtifact)(nil),                          // 1: chalk.server.v1.ModelArtifact
@@ -2907,142 +3245,156 @@ var file_chalk_server_v1_model_registry_proto_goTypes = []any{
 	(*UpdateModelOperation)(nil),                   // 10: chalk.server.v1.UpdateModelOperation
 	(*UpdateModelRequest)(nil),                     // 11: chalk.server.v1.UpdateModelRequest
 	(*UpdateModelResponse)(nil),                    // 12: chalk.server.v1.UpdateModelResponse
-	(*ListModelVersionsRequest)(nil),               // 13: chalk.server.v1.ListModelVersionsRequest
-	(*ListModelVersionsResponse)(nil),              // 14: chalk.server.v1.ListModelVersionsResponse
-	(*GetModelVersionRequest)(nil),                 // 15: chalk.server.v1.GetModelVersionRequest
-	(*GetModelVersionResponse)(nil),                // 16: chalk.server.v1.GetModelVersionResponse
-	(*CreateModelArtifactRequest)(nil),             // 17: chalk.server.v1.CreateModelArtifactRequest
-	(*CreateModelArtifactResponse)(nil),            // 18: chalk.server.v1.CreateModelArtifactResponse
-	(*CreateModelVersionRequest)(nil),              // 19: chalk.server.v1.CreateModelVersionRequest
-	(*CreateModelVersionResponse)(nil),             // 20: chalk.server.v1.CreateModelVersionResponse
-	(*ModelVersionKey)(nil),                        // 21: chalk.server.v1.ModelVersionKey
-	(*UpdateModelVersionOperation)(nil),            // 22: chalk.server.v1.UpdateModelVersionOperation
-	(*UpdateModelVersionRequest)(nil),              // 23: chalk.server.v1.UpdateModelVersionRequest
-	(*UpdateModelVersionResponse)(nil),             // 24: chalk.server.v1.UpdateModelVersionResponse
-	(*GetModelArtifactUploadUrlsRequest)(nil),      // 25: chalk.server.v1.GetModelArtifactUploadUrlsRequest
-	(*GetModelArtifactUploadUrlsResponse)(nil),     // 26: chalk.server.v1.GetModelArtifactUploadUrlsResponse
-	(*DownloadModelArtifactRequest)(nil),           // 27: chalk.server.v1.DownloadModelArtifactRequest
-	(*DownloadModelArtifactResponse)(nil),          // 28: chalk.server.v1.DownloadModelArtifactResponse
-	(*GetModelReferencesRequest)(nil),              // 29: chalk.server.v1.GetModelReferencesRequest
-	(*ModelRelation)(nil),                          // 30: chalk.server.v1.ModelRelation
-	(*ModelReference)(nil),                         // 31: chalk.server.v1.ModelReference
-	(*GetModelReferencesResponse)(nil),             // 32: chalk.server.v1.GetModelReferencesResponse
-	(*GetModelReferenceRequest)(nil),               // 33: chalk.server.v1.GetModelReferenceRequest
-	(*GetModelReferenceResponse)(nil),              // 34: chalk.server.v1.GetModelReferenceResponse
-	(*RunCriterion)(nil),                           // 35: chalk.server.v1.RunCriterion
-	(*CreateModelVersionFromArtifactRequest)(nil),  // 36: chalk.server.v1.CreateModelVersionFromArtifactRequest
-	(*CreateModelVersionFromArtifactResponse)(nil), // 37: chalk.server.v1.CreateModelVersionFromArtifactResponse
-	(*ListModelArtifactsRequest)(nil),              // 38: chalk.server.v1.ListModelArtifactsRequest
-	(*ListModelArtifactsResponse)(nil),             // 39: chalk.server.v1.ListModelArtifactsResponse
-	(*GetModelArtifactRequest)(nil),                // 40: chalk.server.v1.GetModelArtifactRequest
-	(*GetModelArtifactResponse)(nil),               // 41: chalk.server.v1.GetModelArtifactResponse
-	nil,                                            // 42: chalk.server.v1.ModelArtifact.MetadataEntry
-	nil,                                            // 43: chalk.server.v1.ModelVersion.MetadataEntry
-	nil,                                            // 44: chalk.server.v1.Model.MetadataEntry
-	nil,                                            // 45: chalk.server.v1.CreateModelRequest.MetadataEntry
-	nil,                                            // 46: chalk.server.v1.UpdateModelOperation.MetadataEntry
-	nil,                                            // 47: chalk.server.v1.CreateModelArtifactRequest.MetadataEntry
-	nil,                                            // 48: chalk.server.v1.CreateModelVersionRequest.MetadataEntry
-	nil,                                            // 49: chalk.server.v1.UpdateModelVersionOperation.MetadataEntry
-	nil,                                            // 50: chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntry
-	(*v1.ModelArtifactSpec)(nil),                   // 51: chalk.models.v1.ModelArtifactSpec
-	(*timestamppb.Timestamp)(nil),                  // 52: google.protobuf.Timestamp
-	(*fieldmaskpb.FieldMask)(nil),                  // 53: google.protobuf.FieldMask
-	(*v11.SourceFileReference)(nil),                // 54: chalk.graph.v1.SourceFileReference
-	(*structpb.Value)(nil),                         // 55: google.protobuf.Value
+	(*DeleteModelRequest)(nil),                     // 13: chalk.server.v1.DeleteModelRequest
+	(*DeleteModelResponse)(nil),                    // 14: chalk.server.v1.DeleteModelResponse
+	(*ListModelVersionsRequest)(nil),               // 15: chalk.server.v1.ListModelVersionsRequest
+	(*ListModelVersionsResponse)(nil),              // 16: chalk.server.v1.ListModelVersionsResponse
+	(*GetModelVersionRequest)(nil),                 // 17: chalk.server.v1.GetModelVersionRequest
+	(*GetModelVersionResponse)(nil),                // 18: chalk.server.v1.GetModelVersionResponse
+	(*CreateModelArtifactRequest)(nil),             // 19: chalk.server.v1.CreateModelArtifactRequest
+	(*CreateModelArtifactResponse)(nil),            // 20: chalk.server.v1.CreateModelArtifactResponse
+	(*CreateModelVersionRequest)(nil),              // 21: chalk.server.v1.CreateModelVersionRequest
+	(*CreateModelVersionResponse)(nil),             // 22: chalk.server.v1.CreateModelVersionResponse
+	(*ModelVersionKey)(nil),                        // 23: chalk.server.v1.ModelVersionKey
+	(*UpdateModelVersionOperation)(nil),            // 24: chalk.server.v1.UpdateModelVersionOperation
+	(*UpdateModelVersionRequest)(nil),              // 25: chalk.server.v1.UpdateModelVersionRequest
+	(*UpdateModelVersionResponse)(nil),             // 26: chalk.server.v1.UpdateModelVersionResponse
+	(*DeleteModelVersionRequest)(nil),              // 27: chalk.server.v1.DeleteModelVersionRequest
+	(*DeleteModelVersionResponse)(nil),             // 28: chalk.server.v1.DeleteModelVersionResponse
+	(*GetModelArtifactUploadUrlsRequest)(nil),      // 29: chalk.server.v1.GetModelArtifactUploadUrlsRequest
+	(*GetModelArtifactUploadUrlsResponse)(nil),     // 30: chalk.server.v1.GetModelArtifactUploadUrlsResponse
+	(*DownloadModelArtifactRequest)(nil),           // 31: chalk.server.v1.DownloadModelArtifactRequest
+	(*DownloadModelArtifactResponse)(nil),          // 32: chalk.server.v1.DownloadModelArtifactResponse
+	(*GetModelReferencesRequest)(nil),              // 33: chalk.server.v1.GetModelReferencesRequest
+	(*ModelRelation)(nil),                          // 34: chalk.server.v1.ModelRelation
+	(*ModelReference)(nil),                         // 35: chalk.server.v1.ModelReference
+	(*GetModelReferencesResponse)(nil),             // 36: chalk.server.v1.GetModelReferencesResponse
+	(*GetModelReferenceRequest)(nil),               // 37: chalk.server.v1.GetModelReferenceRequest
+	(*GetModelReferenceResponse)(nil),              // 38: chalk.server.v1.GetModelReferenceResponse
+	(*RunCriterion)(nil),                           // 39: chalk.server.v1.RunCriterion
+	(*CreateModelVersionFromArtifactRequest)(nil),  // 40: chalk.server.v1.CreateModelVersionFromArtifactRequest
+	(*CreateModelVersionFromArtifactResponse)(nil), // 41: chalk.server.v1.CreateModelVersionFromArtifactResponse
+	(*ListModelArtifactsRequest)(nil),              // 42: chalk.server.v1.ListModelArtifactsRequest
+	(*ListModelArtifactsResponse)(nil),             // 43: chalk.server.v1.ListModelArtifactsResponse
+	(*GetModelArtifactRequest)(nil),                // 44: chalk.server.v1.GetModelArtifactRequest
+	(*GetModelArtifactResponse)(nil),               // 45: chalk.server.v1.GetModelArtifactResponse
+	nil,                                            // 46: chalk.server.v1.ModelArtifact.MetadataEntry
+	nil,                                            // 47: chalk.server.v1.ModelVersion.MetadataEntry
+	nil,                                            // 48: chalk.server.v1.Model.MetadataEntry
+	nil,                                            // 49: chalk.server.v1.CreateModelRequest.MetadataEntry
+	nil,                                            // 50: chalk.server.v1.UpdateModelOperation.MetadataEntry
+	nil,                                            // 51: chalk.server.v1.CreateModelArtifactRequest.MetadataEntry
+	nil,                                            // 52: chalk.server.v1.CreateModelVersionRequest.MetadataEntry
+	nil,                                            // 53: chalk.server.v1.UpdateModelVersionOperation.MetadataEntry
+	nil,                                            // 54: chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntry
+	(*v1.ModelArtifactSpec)(nil),                   // 55: chalk.models.v1.ModelArtifactSpec
+	(*timestamppb.Timestamp)(nil),                  // 56: google.protobuf.Timestamp
+	(*fieldmaskpb.FieldMask)(nil),                  // 57: google.protobuf.FieldMask
+	(*v11.SourceFileReference)(nil),                // 58: chalk.graph.v1.SourceFileReference
+	(*structpb.Value)(nil),                         // 59: google.protobuf.Value
 }
 var file_chalk_server_v1_model_registry_proto_depIdxs = []int32{
-	51, // 0: chalk.server.v1.ModelArtifact.spec:type_name -> chalk.models.v1.ModelArtifactSpec
-	42, // 1: chalk.server.v1.ModelArtifact.metadata:type_name -> chalk.server.v1.ModelArtifact.MetadataEntry
-	52, // 2: chalk.server.v1.ModelArtifact.created_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: chalk.server.v1.ModelVersion.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	43, // 4: chalk.server.v1.ModelVersion.metadata:type_name -> chalk.server.v1.ModelVersion.MetadataEntry
-	52, // 5: chalk.server.v1.ModelVersion.created_at:type_name -> google.protobuf.Timestamp
-	44, // 6: chalk.server.v1.Model.metadata:type_name -> chalk.server.v1.Model.MetadataEntry
-	52, // 7: chalk.server.v1.Model.created_at:type_name -> google.protobuf.Timestamp
-	52, // 8: chalk.server.v1.Model.updated_at:type_name -> google.protobuf.Timestamp
-	52, // 9: chalk.server.v1.Model.archived_at:type_name -> google.protobuf.Timestamp
-	2,  // 10: chalk.server.v1.Model.latest_model_version:type_name -> chalk.server.v1.ModelVersion
-	3,  // 11: chalk.server.v1.ListModelsResponse.models:type_name -> chalk.server.v1.Model
-	3,  // 12: chalk.server.v1.GetModelResponse.model:type_name -> chalk.server.v1.Model
-	45, // 13: chalk.server.v1.CreateModelRequest.metadata:type_name -> chalk.server.v1.CreateModelRequest.MetadataEntry
-	3,  // 14: chalk.server.v1.CreateModelResponse.model:type_name -> chalk.server.v1.Model
-	46, // 15: chalk.server.v1.UpdateModelOperation.metadata:type_name -> chalk.server.v1.UpdateModelOperation.MetadataEntry
-	52, // 16: chalk.server.v1.UpdateModelOperation.archived_at:type_name -> google.protobuf.Timestamp
-	10, // 17: chalk.server.v1.UpdateModelRequest.update:type_name -> chalk.server.v1.UpdateModelOperation
-	53, // 18: chalk.server.v1.UpdateModelRequest.update_mask:type_name -> google.protobuf.FieldMask
-	3,  // 19: chalk.server.v1.UpdateModelResponse.model:type_name -> chalk.server.v1.Model
-	2,  // 20: chalk.server.v1.ListModelVersionsResponse.model_versions:type_name -> chalk.server.v1.ModelVersion
-	2,  // 21: chalk.server.v1.GetModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
-	51, // 22: chalk.server.v1.CreateModelArtifactRequest.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
-	47, // 23: chalk.server.v1.CreateModelArtifactRequest.metadata:type_name -> chalk.server.v1.CreateModelArtifactRequest.MetadataEntry
-	1,  // 24: chalk.server.v1.CreateModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	51, // 25: chalk.server.v1.CreateModelVersionRequest.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
-	48, // 26: chalk.server.v1.CreateModelVersionRequest.metadata:type_name -> chalk.server.v1.CreateModelVersionRequest.MetadataEntry
-	2,  // 27: chalk.server.v1.CreateModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
-	49, // 28: chalk.server.v1.UpdateModelVersionOperation.metadata:type_name -> chalk.server.v1.UpdateModelVersionOperation.MetadataEntry
-	21, // 29: chalk.server.v1.UpdateModelVersionRequest.model_version_key:type_name -> chalk.server.v1.ModelVersionKey
-	22, // 30: chalk.server.v1.UpdateModelVersionRequest.update:type_name -> chalk.server.v1.UpdateModelVersionOperation
-	53, // 31: chalk.server.v1.UpdateModelVersionRequest.update_mask:type_name -> google.protobuf.FieldMask
-	2,  // 32: chalk.server.v1.UpdateModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
-	50, // 33: chalk.server.v1.GetModelArtifactUploadUrlsResponse.upload_urls:type_name -> chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntry
-	21, // 34: chalk.server.v1.DownloadModelArtifactRequest.model_version_key:type_name -> chalk.server.v1.ModelVersionKey
-	1,  // 35: chalk.server.v1.DownloadModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	30, // 36: chalk.server.v1.ModelReference.relations:type_name -> chalk.server.v1.ModelRelation
-	54, // 37: chalk.server.v1.ModelReference.source_file_reference:type_name -> chalk.graph.v1.SourceFileReference
-	52, // 38: chalk.server.v1.ModelReference.created_at:type_name -> google.protobuf.Timestamp
-	31, // 39: chalk.server.v1.GetModelReferencesResponse.model_references:type_name -> chalk.server.v1.ModelReference
-	31, // 40: chalk.server.v1.GetModelReferenceResponse.model_reference:type_name -> chalk.server.v1.ModelReference
-	0,  // 41: chalk.server.v1.RunCriterion.direction:type_name -> chalk.server.v1.RunCriterionDirection
-	35, // 42: chalk.server.v1.CreateModelVersionFromArtifactRequest.training_run:type_name -> chalk.server.v1.RunCriterion
-	2,  // 43: chalk.server.v1.CreateModelVersionFromArtifactResponse.model_version:type_name -> chalk.server.v1.ModelVersion
-	1,  // 44: chalk.server.v1.ListModelArtifactsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
-	1,  // 45: chalk.server.v1.GetModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
-	55, // 46: chalk.server.v1.ModelArtifact.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 47: chalk.server.v1.ModelVersion.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 48: chalk.server.v1.Model.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 49: chalk.server.v1.CreateModelRequest.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 50: chalk.server.v1.UpdateModelOperation.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 51: chalk.server.v1.CreateModelArtifactRequest.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 52: chalk.server.v1.CreateModelVersionRequest.MetadataEntry.value:type_name -> google.protobuf.Value
-	55, // 53: chalk.server.v1.UpdateModelVersionOperation.MetadataEntry.value:type_name -> google.protobuf.Value
-	4,  // 54: chalk.server.v1.ModelRegistryService.ListModels:input_type -> chalk.server.v1.ListModelsRequest
-	6,  // 55: chalk.server.v1.ModelRegistryService.GetModel:input_type -> chalk.server.v1.GetModelRequest
-	8,  // 56: chalk.server.v1.ModelRegistryService.CreateModel:input_type -> chalk.server.v1.CreateModelRequest
-	11, // 57: chalk.server.v1.ModelRegistryService.UpdateModel:input_type -> chalk.server.v1.UpdateModelRequest
-	13, // 58: chalk.server.v1.ModelRegistryService.ListModelVersions:input_type -> chalk.server.v1.ListModelVersionsRequest
-	15, // 59: chalk.server.v1.ModelRegistryService.GetModelVersion:input_type -> chalk.server.v1.GetModelVersionRequest
-	19, // 60: chalk.server.v1.ModelRegistryService.CreateModelVersion:input_type -> chalk.server.v1.CreateModelVersionRequest
-	17, // 61: chalk.server.v1.ModelRegistryService.CreateModelArtifact:input_type -> chalk.server.v1.CreateModelArtifactRequest
-	36, // 62: chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact:input_type -> chalk.server.v1.CreateModelVersionFromArtifactRequest
-	23, // 63: chalk.server.v1.ModelRegistryService.UpdateModelVersion:input_type -> chalk.server.v1.UpdateModelVersionRequest
-	27, // 64: chalk.server.v1.ModelRegistryService.DownloadModelArtifact:input_type -> chalk.server.v1.DownloadModelArtifactRequest
-	29, // 65: chalk.server.v1.ModelRegistryService.GetModelReferences:input_type -> chalk.server.v1.GetModelReferencesRequest
-	33, // 66: chalk.server.v1.ModelRegistryService.GetModelReference:input_type -> chalk.server.v1.GetModelReferenceRequest
-	25, // 67: chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls:input_type -> chalk.server.v1.GetModelArtifactUploadUrlsRequest
-	38, // 68: chalk.server.v1.ModelRegistryService.ListModelArtifacts:input_type -> chalk.server.v1.ListModelArtifactsRequest
-	40, // 69: chalk.server.v1.ModelRegistryService.GetModelArtifact:input_type -> chalk.server.v1.GetModelArtifactRequest
-	5,  // 70: chalk.server.v1.ModelRegistryService.ListModels:output_type -> chalk.server.v1.ListModelsResponse
-	7,  // 71: chalk.server.v1.ModelRegistryService.GetModel:output_type -> chalk.server.v1.GetModelResponse
-	9,  // 72: chalk.server.v1.ModelRegistryService.CreateModel:output_type -> chalk.server.v1.CreateModelResponse
-	12, // 73: chalk.server.v1.ModelRegistryService.UpdateModel:output_type -> chalk.server.v1.UpdateModelResponse
-	14, // 74: chalk.server.v1.ModelRegistryService.ListModelVersions:output_type -> chalk.server.v1.ListModelVersionsResponse
-	16, // 75: chalk.server.v1.ModelRegistryService.GetModelVersion:output_type -> chalk.server.v1.GetModelVersionResponse
-	20, // 76: chalk.server.v1.ModelRegistryService.CreateModelVersion:output_type -> chalk.server.v1.CreateModelVersionResponse
-	18, // 77: chalk.server.v1.ModelRegistryService.CreateModelArtifact:output_type -> chalk.server.v1.CreateModelArtifactResponse
-	37, // 78: chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact:output_type -> chalk.server.v1.CreateModelVersionFromArtifactResponse
-	24, // 79: chalk.server.v1.ModelRegistryService.UpdateModelVersion:output_type -> chalk.server.v1.UpdateModelVersionResponse
-	28, // 80: chalk.server.v1.ModelRegistryService.DownloadModelArtifact:output_type -> chalk.server.v1.DownloadModelArtifactResponse
-	32, // 81: chalk.server.v1.ModelRegistryService.GetModelReferences:output_type -> chalk.server.v1.GetModelReferencesResponse
-	34, // 82: chalk.server.v1.ModelRegistryService.GetModelReference:output_type -> chalk.server.v1.GetModelReferenceResponse
-	26, // 83: chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls:output_type -> chalk.server.v1.GetModelArtifactUploadUrlsResponse
-	39, // 84: chalk.server.v1.ModelRegistryService.ListModelArtifacts:output_type -> chalk.server.v1.ListModelArtifactsResponse
-	41, // 85: chalk.server.v1.ModelRegistryService.GetModelArtifact:output_type -> chalk.server.v1.GetModelArtifactResponse
-	70, // [70:86] is the sub-list for method output_type
-	54, // [54:70] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	55, // 0: chalk.server.v1.ModelArtifact.spec:type_name -> chalk.models.v1.ModelArtifactSpec
+	46, // 1: chalk.server.v1.ModelArtifact.metadata:type_name -> chalk.server.v1.ModelArtifact.MetadataEntry
+	56, // 2: chalk.server.v1.ModelArtifact.created_at:type_name -> google.protobuf.Timestamp
+	56, // 3: chalk.server.v1.ModelArtifact.archived_at:type_name -> google.protobuf.Timestamp
+	56, // 4: chalk.server.v1.ModelArtifact.storage_deleted_at:type_name -> google.protobuf.Timestamp
+	1,  // 5: chalk.server.v1.ModelVersion.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	47, // 6: chalk.server.v1.ModelVersion.metadata:type_name -> chalk.server.v1.ModelVersion.MetadataEntry
+	56, // 7: chalk.server.v1.ModelVersion.created_at:type_name -> google.protobuf.Timestamp
+	56, // 8: chalk.server.v1.ModelVersion.archived_at:type_name -> google.protobuf.Timestamp
+	48, // 9: chalk.server.v1.Model.metadata:type_name -> chalk.server.v1.Model.MetadataEntry
+	56, // 10: chalk.server.v1.Model.created_at:type_name -> google.protobuf.Timestamp
+	56, // 11: chalk.server.v1.Model.updated_at:type_name -> google.protobuf.Timestamp
+	56, // 12: chalk.server.v1.Model.archived_at:type_name -> google.protobuf.Timestamp
+	2,  // 13: chalk.server.v1.Model.latest_model_version:type_name -> chalk.server.v1.ModelVersion
+	3,  // 14: chalk.server.v1.ListModelsResponse.models:type_name -> chalk.server.v1.Model
+	3,  // 15: chalk.server.v1.GetModelResponse.model:type_name -> chalk.server.v1.Model
+	49, // 16: chalk.server.v1.CreateModelRequest.metadata:type_name -> chalk.server.v1.CreateModelRequest.MetadataEntry
+	3,  // 17: chalk.server.v1.CreateModelResponse.model:type_name -> chalk.server.v1.Model
+	50, // 18: chalk.server.v1.UpdateModelOperation.metadata:type_name -> chalk.server.v1.UpdateModelOperation.MetadataEntry
+	56, // 19: chalk.server.v1.UpdateModelOperation.archived_at:type_name -> google.protobuf.Timestamp
+	10, // 20: chalk.server.v1.UpdateModelRequest.update:type_name -> chalk.server.v1.UpdateModelOperation
+	57, // 21: chalk.server.v1.UpdateModelRequest.update_mask:type_name -> google.protobuf.FieldMask
+	3,  // 22: chalk.server.v1.UpdateModelResponse.model:type_name -> chalk.server.v1.Model
+	3,  // 23: chalk.server.v1.DeleteModelResponse.model:type_name -> chalk.server.v1.Model
+	2,  // 24: chalk.server.v1.ListModelVersionsResponse.model_versions:type_name -> chalk.server.v1.ModelVersion
+	2,  // 25: chalk.server.v1.GetModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
+	55, // 26: chalk.server.v1.CreateModelArtifactRequest.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
+	51, // 27: chalk.server.v1.CreateModelArtifactRequest.metadata:type_name -> chalk.server.v1.CreateModelArtifactRequest.MetadataEntry
+	1,  // 28: chalk.server.v1.CreateModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	55, // 29: chalk.server.v1.CreateModelVersionRequest.model_artifact:type_name -> chalk.models.v1.ModelArtifactSpec
+	52, // 30: chalk.server.v1.CreateModelVersionRequest.metadata:type_name -> chalk.server.v1.CreateModelVersionRequest.MetadataEntry
+	2,  // 31: chalk.server.v1.CreateModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
+	53, // 32: chalk.server.v1.UpdateModelVersionOperation.metadata:type_name -> chalk.server.v1.UpdateModelVersionOperation.MetadataEntry
+	23, // 33: chalk.server.v1.UpdateModelVersionRequest.model_version_key:type_name -> chalk.server.v1.ModelVersionKey
+	24, // 34: chalk.server.v1.UpdateModelVersionRequest.update:type_name -> chalk.server.v1.UpdateModelVersionOperation
+	57, // 35: chalk.server.v1.UpdateModelVersionRequest.update_mask:type_name -> google.protobuf.FieldMask
+	2,  // 36: chalk.server.v1.UpdateModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
+	23, // 37: chalk.server.v1.DeleteModelVersionRequest.model_version_key:type_name -> chalk.server.v1.ModelVersionKey
+	2,  // 38: chalk.server.v1.DeleteModelVersionResponse.model_version:type_name -> chalk.server.v1.ModelVersion
+	54, // 39: chalk.server.v1.GetModelArtifactUploadUrlsResponse.upload_urls:type_name -> chalk.server.v1.GetModelArtifactUploadUrlsResponse.UploadUrlsEntry
+	23, // 40: chalk.server.v1.DownloadModelArtifactRequest.model_version_key:type_name -> chalk.server.v1.ModelVersionKey
+	1,  // 41: chalk.server.v1.DownloadModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	34, // 42: chalk.server.v1.ModelReference.relations:type_name -> chalk.server.v1.ModelRelation
+	58, // 43: chalk.server.v1.ModelReference.source_file_reference:type_name -> chalk.graph.v1.SourceFileReference
+	56, // 44: chalk.server.v1.ModelReference.created_at:type_name -> google.protobuf.Timestamp
+	35, // 45: chalk.server.v1.GetModelReferencesResponse.model_references:type_name -> chalk.server.v1.ModelReference
+	35, // 46: chalk.server.v1.GetModelReferenceResponse.model_reference:type_name -> chalk.server.v1.ModelReference
+	0,  // 47: chalk.server.v1.RunCriterion.direction:type_name -> chalk.server.v1.RunCriterionDirection
+	39, // 48: chalk.server.v1.CreateModelVersionFromArtifactRequest.training_run:type_name -> chalk.server.v1.RunCriterion
+	2,  // 49: chalk.server.v1.CreateModelVersionFromArtifactResponse.model_version:type_name -> chalk.server.v1.ModelVersion
+	1,  // 50: chalk.server.v1.ListModelArtifactsResponse.model_artifacts:type_name -> chalk.server.v1.ModelArtifact
+	1,  // 51: chalk.server.v1.GetModelArtifactResponse.model_artifact:type_name -> chalk.server.v1.ModelArtifact
+	59, // 52: chalk.server.v1.ModelArtifact.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 53: chalk.server.v1.ModelVersion.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 54: chalk.server.v1.Model.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 55: chalk.server.v1.CreateModelRequest.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 56: chalk.server.v1.UpdateModelOperation.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 57: chalk.server.v1.CreateModelArtifactRequest.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 58: chalk.server.v1.CreateModelVersionRequest.MetadataEntry.value:type_name -> google.protobuf.Value
+	59, // 59: chalk.server.v1.UpdateModelVersionOperation.MetadataEntry.value:type_name -> google.protobuf.Value
+	4,  // 60: chalk.server.v1.ModelRegistryService.ListModels:input_type -> chalk.server.v1.ListModelsRequest
+	6,  // 61: chalk.server.v1.ModelRegistryService.GetModel:input_type -> chalk.server.v1.GetModelRequest
+	8,  // 62: chalk.server.v1.ModelRegistryService.CreateModel:input_type -> chalk.server.v1.CreateModelRequest
+	11, // 63: chalk.server.v1.ModelRegistryService.UpdateModel:input_type -> chalk.server.v1.UpdateModelRequest
+	13, // 64: chalk.server.v1.ModelRegistryService.DeleteModel:input_type -> chalk.server.v1.DeleteModelRequest
+	15, // 65: chalk.server.v1.ModelRegistryService.ListModelVersions:input_type -> chalk.server.v1.ListModelVersionsRequest
+	17, // 66: chalk.server.v1.ModelRegistryService.GetModelVersion:input_type -> chalk.server.v1.GetModelVersionRequest
+	21, // 67: chalk.server.v1.ModelRegistryService.CreateModelVersion:input_type -> chalk.server.v1.CreateModelVersionRequest
+	19, // 68: chalk.server.v1.ModelRegistryService.CreateModelArtifact:input_type -> chalk.server.v1.CreateModelArtifactRequest
+	40, // 69: chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact:input_type -> chalk.server.v1.CreateModelVersionFromArtifactRequest
+	25, // 70: chalk.server.v1.ModelRegistryService.UpdateModelVersion:input_type -> chalk.server.v1.UpdateModelVersionRequest
+	27, // 71: chalk.server.v1.ModelRegistryService.DeleteModelVersion:input_type -> chalk.server.v1.DeleteModelVersionRequest
+	31, // 72: chalk.server.v1.ModelRegistryService.DownloadModelArtifact:input_type -> chalk.server.v1.DownloadModelArtifactRequest
+	33, // 73: chalk.server.v1.ModelRegistryService.GetModelReferences:input_type -> chalk.server.v1.GetModelReferencesRequest
+	37, // 74: chalk.server.v1.ModelRegistryService.GetModelReference:input_type -> chalk.server.v1.GetModelReferenceRequest
+	29, // 75: chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls:input_type -> chalk.server.v1.GetModelArtifactUploadUrlsRequest
+	42, // 76: chalk.server.v1.ModelRegistryService.ListModelArtifacts:input_type -> chalk.server.v1.ListModelArtifactsRequest
+	44, // 77: chalk.server.v1.ModelRegistryService.GetModelArtifact:input_type -> chalk.server.v1.GetModelArtifactRequest
+	5,  // 78: chalk.server.v1.ModelRegistryService.ListModels:output_type -> chalk.server.v1.ListModelsResponse
+	7,  // 79: chalk.server.v1.ModelRegistryService.GetModel:output_type -> chalk.server.v1.GetModelResponse
+	9,  // 80: chalk.server.v1.ModelRegistryService.CreateModel:output_type -> chalk.server.v1.CreateModelResponse
+	12, // 81: chalk.server.v1.ModelRegistryService.UpdateModel:output_type -> chalk.server.v1.UpdateModelResponse
+	14, // 82: chalk.server.v1.ModelRegistryService.DeleteModel:output_type -> chalk.server.v1.DeleteModelResponse
+	16, // 83: chalk.server.v1.ModelRegistryService.ListModelVersions:output_type -> chalk.server.v1.ListModelVersionsResponse
+	18, // 84: chalk.server.v1.ModelRegistryService.GetModelVersion:output_type -> chalk.server.v1.GetModelVersionResponse
+	22, // 85: chalk.server.v1.ModelRegistryService.CreateModelVersion:output_type -> chalk.server.v1.CreateModelVersionResponse
+	20, // 86: chalk.server.v1.ModelRegistryService.CreateModelArtifact:output_type -> chalk.server.v1.CreateModelArtifactResponse
+	41, // 87: chalk.server.v1.ModelRegistryService.CreateModelVersionFromArtifact:output_type -> chalk.server.v1.CreateModelVersionFromArtifactResponse
+	26, // 88: chalk.server.v1.ModelRegistryService.UpdateModelVersion:output_type -> chalk.server.v1.UpdateModelVersionResponse
+	28, // 89: chalk.server.v1.ModelRegistryService.DeleteModelVersion:output_type -> chalk.server.v1.DeleteModelVersionResponse
+	32, // 90: chalk.server.v1.ModelRegistryService.DownloadModelArtifact:output_type -> chalk.server.v1.DownloadModelArtifactResponse
+	36, // 91: chalk.server.v1.ModelRegistryService.GetModelReferences:output_type -> chalk.server.v1.GetModelReferencesResponse
+	38, // 92: chalk.server.v1.ModelRegistryService.GetModelReference:output_type -> chalk.server.v1.GetModelReferenceResponse
+	30, // 93: chalk.server.v1.ModelRegistryService.GetModelArtifactUploadUrls:output_type -> chalk.server.v1.GetModelArtifactUploadUrlsResponse
+	43, // 94: chalk.server.v1.ModelRegistryService.ListModelArtifacts:output_type -> chalk.server.v1.ListModelArtifactsResponse
+	45, // 95: chalk.server.v1.ModelRegistryService.GetModelArtifact:output_type -> chalk.server.v1.GetModelArtifactResponse
+	78, // [78:96] is the sub-list for method output_type
+	60, // [60:78] is the sub-list for method input_type
+	60, // [60:60] is the sub-list for extension type_name
+	60, // [60:60] is the sub-list for extension extendee
+	0,  // [0:60] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_model_registry_proto_init() }
@@ -3061,34 +3413,39 @@ func file_chalk_server_v1_model_registry_proto_init() {
 	}
 	file_chalk_server_v1_model_registry_proto_msgTypes[6].OneofWrappers = []any{}
 	file_chalk_server_v1_model_registry_proto_msgTypes[9].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[12].OneofWrappers = []any{
+		(*DeleteModelRequest_ModelId)(nil),
+		(*DeleteModelRequest_ModelName)(nil),
+	}
+	file_chalk_server_v1_model_registry_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_model_registry_proto_msgTypes[15].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[26].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_model_registry_proto_msgTypes[30].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[31].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[33].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[34].OneofWrappers = []any{
+	file_chalk_server_v1_model_registry_proto_msgTypes[32].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[34].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[35].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[37].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[38].OneofWrappers = []any{
 		(*RunCriterion_RunId)(nil),
 		(*RunCriterion_RunName)(nil),
 	}
-	file_chalk_server_v1_model_registry_proto_msgTypes[35].OneofWrappers = []any{
+	file_chalk_server_v1_model_registry_proto_msgTypes[39].OneofWrappers = []any{
 		(*CreateModelVersionFromArtifactRequest_ModelArtifactId)(nil),
 		(*CreateModelVersionFromArtifactRequest_TrainingRun)(nil),
 	}
-	file_chalk_server_v1_model_registry_proto_msgTypes[37].OneofWrappers = []any{
+	file_chalk_server_v1_model_registry_proto_msgTypes[41].OneofWrappers = []any{
 		(*ListModelArtifactsRequest_ScriptTaskId)(nil),
 	}
-	file_chalk_server_v1_model_registry_proto_msgTypes[38].OneofWrappers = []any{}
-	file_chalk_server_v1_model_registry_proto_msgTypes[40].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[42].OneofWrappers = []any{}
+	file_chalk_server_v1_model_registry_proto_msgTypes[44].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_model_registry_proto_rawDesc), len(file_chalk_server_v1_model_registry_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   50,
+			NumMessages:   54,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

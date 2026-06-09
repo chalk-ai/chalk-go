@@ -45,6 +45,9 @@ const (
 	// ModelRegistryServiceUpdateModelProcedure is the fully-qualified name of the
 	// ModelRegistryService's UpdateModel RPC.
 	ModelRegistryServiceUpdateModelProcedure = "/chalk.server.v1.ModelRegistryService/UpdateModel"
+	// ModelRegistryServiceDeleteModelProcedure is the fully-qualified name of the
+	// ModelRegistryService's DeleteModel RPC.
+	ModelRegistryServiceDeleteModelProcedure = "/chalk.server.v1.ModelRegistryService/DeleteModel"
 	// ModelRegistryServiceListModelVersionsProcedure is the fully-qualified name of the
 	// ModelRegistryService's ListModelVersions RPC.
 	ModelRegistryServiceListModelVersionsProcedure = "/chalk.server.v1.ModelRegistryService/ListModelVersions"
@@ -63,6 +66,9 @@ const (
 	// ModelRegistryServiceUpdateModelVersionProcedure is the fully-qualified name of the
 	// ModelRegistryService's UpdateModelVersion RPC.
 	ModelRegistryServiceUpdateModelVersionProcedure = "/chalk.server.v1.ModelRegistryService/UpdateModelVersion"
+	// ModelRegistryServiceDeleteModelVersionProcedure is the fully-qualified name of the
+	// ModelRegistryService's DeleteModelVersion RPC.
+	ModelRegistryServiceDeleteModelVersionProcedure = "/chalk.server.v1.ModelRegistryService/DeleteModelVersion"
 	// ModelRegistryServiceDownloadModelArtifactProcedure is the fully-qualified name of the
 	// ModelRegistryService's DownloadModelArtifact RPC.
 	ModelRegistryServiceDownloadModelArtifactProcedure = "/chalk.server.v1.ModelRegistryService/DownloadModelArtifact"
@@ -89,12 +95,14 @@ type ModelRegistryServiceClient interface {
 	GetModel(context.Context, *connect.Request[v1.GetModelRequest]) (*connect.Response[v1.GetModelResponse], error)
 	CreateModel(context.Context, *connect.Request[v1.CreateModelRequest]) (*connect.Response[v1.CreateModelResponse], error)
 	UpdateModel(context.Context, *connect.Request[v1.UpdateModelRequest]) (*connect.Response[v1.UpdateModelResponse], error)
+	DeleteModel(context.Context, *connect.Request[v1.DeleteModelRequest]) (*connect.Response[v1.DeleteModelResponse], error)
 	ListModelVersions(context.Context, *connect.Request[v1.ListModelVersionsRequest]) (*connect.Response[v1.ListModelVersionsResponse], error)
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
 	CreateModelArtifact(context.Context, *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error)
 	CreateModelVersionFromArtifact(context.Context, *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
+	DeleteModelVersion(context.Context, *connect.Request[v1.DeleteModelVersionRequest]) (*connect.Response[v1.DeleteModelVersionResponse], error)
 	DownloadModelArtifact(context.Context, *connect.Request[v1.DownloadModelArtifactRequest]) (*connect.Response[v1.DownloadModelArtifactResponse], error)
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
@@ -140,6 +148,13 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModel")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteModel: connect.NewClient[v1.DeleteModelRequest, v1.DeleteModelResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceDeleteModelProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("DeleteModel")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
+			connect.WithClientOptions(opts...),
+		),
 		listModelVersions: connect.NewClient[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse](
 			httpClient,
 			baseURL+ModelRegistryServiceListModelVersionsProcedure,
@@ -176,6 +191,13 @@ func NewModelRegistryServiceClient(httpClient connect.HTTPClient, baseURL string
 			httpClient,
 			baseURL+ModelRegistryServiceUpdateModelVersionProcedure,
 			connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModelVersion")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteModelVersion: connect.NewClient[v1.DeleteModelVersionRequest, v1.DeleteModelVersionResponse](
+			httpClient,
+			baseURL+ModelRegistryServiceDeleteModelVersionProcedure,
+			connect.WithSchema(modelRegistryServiceMethods.ByName("DeleteModelVersion")),
+			connect.WithIdempotency(connect.IdempotencyIdempotent),
 			connect.WithClientOptions(opts...),
 		),
 		downloadModelArtifact: connect.NewClient[v1.DownloadModelArtifactRequest, v1.DownloadModelArtifactResponse](
@@ -228,12 +250,14 @@ type modelRegistryServiceClient struct {
 	getModel                       *connect.Client[v1.GetModelRequest, v1.GetModelResponse]
 	createModel                    *connect.Client[v1.CreateModelRequest, v1.CreateModelResponse]
 	updateModel                    *connect.Client[v1.UpdateModelRequest, v1.UpdateModelResponse]
+	deleteModel                    *connect.Client[v1.DeleteModelRequest, v1.DeleteModelResponse]
 	listModelVersions              *connect.Client[v1.ListModelVersionsRequest, v1.ListModelVersionsResponse]
 	getModelVersion                *connect.Client[v1.GetModelVersionRequest, v1.GetModelVersionResponse]
 	createModelVersion             *connect.Client[v1.CreateModelVersionRequest, v1.CreateModelVersionResponse]
 	createModelArtifact            *connect.Client[v1.CreateModelArtifactRequest, v1.CreateModelArtifactResponse]
 	createModelVersionFromArtifact *connect.Client[v1.CreateModelVersionFromArtifactRequest, v1.CreateModelVersionFromArtifactResponse]
 	updateModelVersion             *connect.Client[v1.UpdateModelVersionRequest, v1.UpdateModelVersionResponse]
+	deleteModelVersion             *connect.Client[v1.DeleteModelVersionRequest, v1.DeleteModelVersionResponse]
 	downloadModelArtifact          *connect.Client[v1.DownloadModelArtifactRequest, v1.DownloadModelArtifactResponse]
 	getModelReferences             *connect.Client[v1.GetModelReferencesRequest, v1.GetModelReferencesResponse]
 	getModelReference              *connect.Client[v1.GetModelReferenceRequest, v1.GetModelReferenceResponse]
@@ -260,6 +284,11 @@ func (c *modelRegistryServiceClient) CreateModel(ctx context.Context, req *conne
 // UpdateModel calls chalk.server.v1.ModelRegistryService.UpdateModel.
 func (c *modelRegistryServiceClient) UpdateModel(ctx context.Context, req *connect.Request[v1.UpdateModelRequest]) (*connect.Response[v1.UpdateModelResponse], error) {
 	return c.updateModel.CallUnary(ctx, req)
+}
+
+// DeleteModel calls chalk.server.v1.ModelRegistryService.DeleteModel.
+func (c *modelRegistryServiceClient) DeleteModel(ctx context.Context, req *connect.Request[v1.DeleteModelRequest]) (*connect.Response[v1.DeleteModelResponse], error) {
+	return c.deleteModel.CallUnary(ctx, req)
 }
 
 // ListModelVersions calls chalk.server.v1.ModelRegistryService.ListModelVersions.
@@ -291,6 +320,11 @@ func (c *modelRegistryServiceClient) CreateModelVersionFromArtifact(ctx context.
 // UpdateModelVersion calls chalk.server.v1.ModelRegistryService.UpdateModelVersion.
 func (c *modelRegistryServiceClient) UpdateModelVersion(ctx context.Context, req *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error) {
 	return c.updateModelVersion.CallUnary(ctx, req)
+}
+
+// DeleteModelVersion calls chalk.server.v1.ModelRegistryService.DeleteModelVersion.
+func (c *modelRegistryServiceClient) DeleteModelVersion(ctx context.Context, req *connect.Request[v1.DeleteModelVersionRequest]) (*connect.Response[v1.DeleteModelVersionResponse], error) {
+	return c.deleteModelVersion.CallUnary(ctx, req)
 }
 
 // DownloadModelArtifact calls chalk.server.v1.ModelRegistryService.DownloadModelArtifact.
@@ -330,12 +364,14 @@ type ModelRegistryServiceHandler interface {
 	GetModel(context.Context, *connect.Request[v1.GetModelRequest]) (*connect.Response[v1.GetModelResponse], error)
 	CreateModel(context.Context, *connect.Request[v1.CreateModelRequest]) (*connect.Response[v1.CreateModelResponse], error)
 	UpdateModel(context.Context, *connect.Request[v1.UpdateModelRequest]) (*connect.Response[v1.UpdateModelResponse], error)
+	DeleteModel(context.Context, *connect.Request[v1.DeleteModelRequest]) (*connect.Response[v1.DeleteModelResponse], error)
 	ListModelVersions(context.Context, *connect.Request[v1.ListModelVersionsRequest]) (*connect.Response[v1.ListModelVersionsResponse], error)
 	GetModelVersion(context.Context, *connect.Request[v1.GetModelVersionRequest]) (*connect.Response[v1.GetModelVersionResponse], error)
 	CreateModelVersion(context.Context, *connect.Request[v1.CreateModelVersionRequest]) (*connect.Response[v1.CreateModelVersionResponse], error)
 	CreateModelArtifact(context.Context, *connect.Request[v1.CreateModelArtifactRequest]) (*connect.Response[v1.CreateModelArtifactResponse], error)
 	CreateModelVersionFromArtifact(context.Context, *connect.Request[v1.CreateModelVersionFromArtifactRequest]) (*connect.Response[v1.CreateModelVersionFromArtifactResponse], error)
 	UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error)
+	DeleteModelVersion(context.Context, *connect.Request[v1.DeleteModelVersionRequest]) (*connect.Response[v1.DeleteModelVersionResponse], error)
 	DownloadModelArtifact(context.Context, *connect.Request[v1.DownloadModelArtifactRequest]) (*connect.Response[v1.DownloadModelArtifactResponse], error)
 	GetModelReferences(context.Context, *connect.Request[v1.GetModelReferencesRequest]) (*connect.Response[v1.GetModelReferencesResponse], error)
 	GetModelReference(context.Context, *connect.Request[v1.GetModelReferenceRequest]) (*connect.Response[v1.GetModelReferenceResponse], error)
@@ -377,6 +413,13 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 		connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModel")),
 		connect.WithHandlerOptions(opts...),
 	)
+	modelRegistryServiceDeleteModelHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceDeleteModelProcedure,
+		svc.DeleteModel,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("DeleteModel")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
+		connect.WithHandlerOptions(opts...),
+	)
 	modelRegistryServiceListModelVersionsHandler := connect.NewUnaryHandler(
 		ModelRegistryServiceListModelVersionsProcedure,
 		svc.ListModelVersions,
@@ -413,6 +456,13 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 		ModelRegistryServiceUpdateModelVersionProcedure,
 		svc.UpdateModelVersion,
 		connect.WithSchema(modelRegistryServiceMethods.ByName("UpdateModelVersion")),
+		connect.WithHandlerOptions(opts...),
+	)
+	modelRegistryServiceDeleteModelVersionHandler := connect.NewUnaryHandler(
+		ModelRegistryServiceDeleteModelVersionProcedure,
+		svc.DeleteModelVersion,
+		connect.WithSchema(modelRegistryServiceMethods.ByName("DeleteModelVersion")),
+		connect.WithIdempotency(connect.IdempotencyIdempotent),
 		connect.WithHandlerOptions(opts...),
 	)
 	modelRegistryServiceDownloadModelArtifactHandler := connect.NewUnaryHandler(
@@ -466,6 +516,8 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 			modelRegistryServiceCreateModelHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceUpdateModelProcedure:
 			modelRegistryServiceUpdateModelHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceDeleteModelProcedure:
+			modelRegistryServiceDeleteModelHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceListModelVersionsProcedure:
 			modelRegistryServiceListModelVersionsHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceGetModelVersionProcedure:
@@ -478,6 +530,8 @@ func NewModelRegistryServiceHandler(svc ModelRegistryServiceHandler, opts ...con
 			modelRegistryServiceCreateModelVersionFromArtifactHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceUpdateModelVersionProcedure:
 			modelRegistryServiceUpdateModelVersionHandler.ServeHTTP(w, r)
+		case ModelRegistryServiceDeleteModelVersionProcedure:
+			modelRegistryServiceDeleteModelVersionHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceDownloadModelArtifactProcedure:
 			modelRegistryServiceDownloadModelArtifactHandler.ServeHTTP(w, r)
 		case ModelRegistryServiceGetModelReferencesProcedure:
@@ -515,6 +569,10 @@ func (UnimplementedModelRegistryServiceHandler) UpdateModel(context.Context, *co
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.UpdateModel is not implemented"))
 }
 
+func (UnimplementedModelRegistryServiceHandler) DeleteModel(context.Context, *connect.Request[v1.DeleteModelRequest]) (*connect.Response[v1.DeleteModelResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.DeleteModel is not implemented"))
+}
+
 func (UnimplementedModelRegistryServiceHandler) ListModelVersions(context.Context, *connect.Request[v1.ListModelVersionsRequest]) (*connect.Response[v1.ListModelVersionsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.ListModelVersions is not implemented"))
 }
@@ -537,6 +595,10 @@ func (UnimplementedModelRegistryServiceHandler) CreateModelVersionFromArtifact(c
 
 func (UnimplementedModelRegistryServiceHandler) UpdateModelVersion(context.Context, *connect.Request[v1.UpdateModelVersionRequest]) (*connect.Response[v1.UpdateModelVersionResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.UpdateModelVersion is not implemented"))
+}
+
+func (UnimplementedModelRegistryServiceHandler) DeleteModelVersion(context.Context, *connect.Request[v1.DeleteModelVersionRequest]) (*connect.Response[v1.DeleteModelVersionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ModelRegistryService.DeleteModelVersion is not implemented"))
 }
 
 func (UnimplementedModelRegistryServiceHandler) DownloadModelArtifact(context.Context, *connect.Request[v1.DownloadModelArtifactRequest]) (*connect.Response[v1.DownloadModelArtifactResponse], error) {
