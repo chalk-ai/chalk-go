@@ -233,10 +233,11 @@ func (x *GetAggregatesResponse) GetErrors() []string {
 }
 
 type GetAggregateBackfillJobsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         int32                  `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Cursor        string                 `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
-	PlanHash      *string                `protobuf:"bytes,3,opt,name=plan_hash,json=planHash,proto3,oneof" json:"plan_hash,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Limit         int32                   `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        string                  `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	PlanHash      *string                 `protobuf:"bytes,3,opt,name=plan_hash,json=planHash,proto3,oneof" json:"plan_hash,omitempty"`
+	InitStatus    AggregateBackfillStatus `protobuf:"varint,4,opt,name=init_status,json=initStatus,proto3,enum=chalk.aggregate.v1.AggregateBackfillStatus" json:"init_status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,6 +291,13 @@ func (x *GetAggregateBackfillJobsRequest) GetPlanHash() string {
 		return *x.PlanHash
 	}
 	return ""
+}
+
+func (x *GetAggregateBackfillJobsRequest) GetInitStatus() AggregateBackfillStatus {
+	if x != nil {
+		return x.InitStatus
+	}
+	return AggregateBackfillStatus_AGGREGATE_BACKFILL_STATUS_UNSPECIFIED
 }
 
 type GetAggregateBackfillJobsResponse struct {
@@ -878,11 +886,13 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\ffor_features\x18\x01 \x03(\tR\vforFeatures\"p\n" +
 	"\x15GetAggregatesResponse\x12?\n" +
 	"\x06series\x18\x01 \x03(\v2'.chalk.aggregate.v1.AggregateTimeSeriesR\x06series\x12\x16\n" +
-	"\x06errors\x18\x02 \x03(\tR\x06errors\"\x7f\n" +
+	"\x06errors\x18\x02 \x03(\tR\x06errors\"\xcd\x01\n" +
 	"\x1fGetAggregateBackfillJobsRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12 \n" +
-	"\tplan_hash\x18\x03 \x01(\tH\x00R\bplanHash\x88\x01\x01B\f\n" +
+	"\tplan_hash\x18\x03 \x01(\tH\x00R\bplanHash\x88\x01\x01\x12L\n" +
+	"\vinit_status\x18\x04 \x01(\x0e2+.chalk.aggregate.v1.AggregateBackfillStatusR\n" +
+	"initStatusB\f\n" +
 	"\n" +
 	"_plan_hash\"x\n" +
 	" GetAggregateBackfillJobsResponse\x12<\n" +
@@ -979,44 +989,46 @@ var file_chalk_aggregate_v1_service_proto_goTypes = []any{
 	(*AggregateBackfillCostEstimate)(nil),           // 16: chalk.aggregate.v1.AggregateBackfillCostEstimate
 	(*AggregateBackfillWithCostEstimate)(nil),       // 17: chalk.aggregate.v1.AggregateBackfillWithCostEstimate
 	(*AggregateTimeSeries)(nil),                     // 18: chalk.aggregate.v1.AggregateTimeSeries
-	(*AggregateBackfillJob)(nil),                    // 19: chalk.aggregate.v1.AggregateBackfillJob
-	(*CronAggregateBackfill)(nil),                   // 20: chalk.aggregate.v1.CronAggregateBackfill
-	(*timestamppb.Timestamp)(nil),                   // 21: google.protobuf.Timestamp
-	(*v1.ChalkError)(nil),                           // 22: chalk.common.v1.ChalkError
+	(AggregateBackfillStatus)(0),                    // 19: chalk.aggregate.v1.AggregateBackfillStatus
+	(*AggregateBackfillJob)(nil),                    // 20: chalk.aggregate.v1.AggregateBackfillJob
+	(*CronAggregateBackfill)(nil),                   // 21: chalk.aggregate.v1.CronAggregateBackfill
+	(*timestamppb.Timestamp)(nil),                   // 22: google.protobuf.Timestamp
+	(*v1.ChalkError)(nil),                           // 23: chalk.common.v1.ChalkError
 }
 var file_chalk_aggregate_v1_service_proto_depIdxs = []int32{
 	15, // 0: chalk.aggregate.v1.PlanAggregateBackfillRequest.params:type_name -> chalk.aggregate.v1.AggregateBackfillUserParams
 	16, // 1: chalk.aggregate.v1.PlanAggregateBackfillResponse.estimate:type_name -> chalk.aggregate.v1.AggregateBackfillCostEstimate
 	17, // 2: chalk.aggregate.v1.PlanAggregateBackfillResponse.backfills:type_name -> chalk.aggregate.v1.AggregateBackfillWithCostEstimate
 	18, // 3: chalk.aggregate.v1.GetAggregatesResponse.series:type_name -> chalk.aggregate.v1.AggregateTimeSeries
-	19, // 4: chalk.aggregate.v1.GetAggregateBackfillJobsResponse.jobs:type_name -> chalk.aggregate.v1.AggregateBackfillJob
-	19, // 5: chalk.aggregate.v1.GetAggregateBackfillJobResponse.job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
-	20, // 6: chalk.aggregate.v1.GetCronAggregateBackfillResponse.cron_aggregate_backfill:type_name -> chalk.aggregate.v1.CronAggregateBackfill
-	20, // 7: chalk.aggregate.v1.CronAggregateBackfillWithLatestRun.cron_aggregate_backfill:type_name -> chalk.aggregate.v1.CronAggregateBackfill
-	19, // 8: chalk.aggregate.v1.CronAggregateBackfillWithLatestRun.latest_job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
-	11, // 9: chalk.aggregate.v1.GetActiveCronAggregateBackfillsResponse.cron_aggregate_backfills:type_name -> chalk.aggregate.v1.CronAggregateBackfillWithLatestRun
-	21, // 10: chalk.aggregate.v1.CreateAggregateBackfillJobRequest.lower_bound:type_name -> google.protobuf.Timestamp
-	21, // 11: chalk.aggregate.v1.CreateAggregateBackfillJobRequest.upper_bound:type_name -> google.protobuf.Timestamp
-	22, // 12: chalk.aggregate.v1.CreateAggregateBackfillJobResponse.errors:type_name -> chalk.common.v1.ChalkError
-	0,  // 13: chalk.aggregate.v1.AggregateService.PlanAggregateBackfill:input_type -> chalk.aggregate.v1.PlanAggregateBackfillRequest
-	2,  // 14: chalk.aggregate.v1.AggregateService.GetAggregates:input_type -> chalk.aggregate.v1.GetAggregatesRequest
-	4,  // 15: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs:input_type -> chalk.aggregate.v1.GetAggregateBackfillJobsRequest
-	6,  // 16: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob:input_type -> chalk.aggregate.v1.GetAggregateBackfillJobRequest
-	8,  // 17: chalk.aggregate.v1.AggregateService.GetCronAggregateBackfill:input_type -> chalk.aggregate.v1.GetCronAggregateBackfillRequest
-	10, // 18: chalk.aggregate.v1.AggregateService.GetActiveCronAggregateBackfills:input_type -> chalk.aggregate.v1.GetActiveCronAggregateBackfillsRequest
-	13, // 19: chalk.aggregate.v1.AggregateService.CreateAggregateBackfillJob:input_type -> chalk.aggregate.v1.CreateAggregateBackfillJobRequest
-	1,  // 20: chalk.aggregate.v1.AggregateService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
-	3,  // 21: chalk.aggregate.v1.AggregateService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
-	5,  // 22: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs:output_type -> chalk.aggregate.v1.GetAggregateBackfillJobsResponse
-	7,  // 23: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob:output_type -> chalk.aggregate.v1.GetAggregateBackfillJobResponse
-	9,  // 24: chalk.aggregate.v1.AggregateService.GetCronAggregateBackfill:output_type -> chalk.aggregate.v1.GetCronAggregateBackfillResponse
-	12, // 25: chalk.aggregate.v1.AggregateService.GetActiveCronAggregateBackfills:output_type -> chalk.aggregate.v1.GetActiveCronAggregateBackfillsResponse
-	14, // 26: chalk.aggregate.v1.AggregateService.CreateAggregateBackfillJob:output_type -> chalk.aggregate.v1.CreateAggregateBackfillJobResponse
-	20, // [20:27] is the sub-list for method output_type
-	13, // [13:20] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	19, // 4: chalk.aggregate.v1.GetAggregateBackfillJobsRequest.init_status:type_name -> chalk.aggregate.v1.AggregateBackfillStatus
+	20, // 5: chalk.aggregate.v1.GetAggregateBackfillJobsResponse.jobs:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	20, // 6: chalk.aggregate.v1.GetAggregateBackfillJobResponse.job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	21, // 7: chalk.aggregate.v1.GetCronAggregateBackfillResponse.cron_aggregate_backfill:type_name -> chalk.aggregate.v1.CronAggregateBackfill
+	21, // 8: chalk.aggregate.v1.CronAggregateBackfillWithLatestRun.cron_aggregate_backfill:type_name -> chalk.aggregate.v1.CronAggregateBackfill
+	20, // 9: chalk.aggregate.v1.CronAggregateBackfillWithLatestRun.latest_job:type_name -> chalk.aggregate.v1.AggregateBackfillJob
+	11, // 10: chalk.aggregate.v1.GetActiveCronAggregateBackfillsResponse.cron_aggregate_backfills:type_name -> chalk.aggregate.v1.CronAggregateBackfillWithLatestRun
+	22, // 11: chalk.aggregate.v1.CreateAggregateBackfillJobRequest.lower_bound:type_name -> google.protobuf.Timestamp
+	22, // 12: chalk.aggregate.v1.CreateAggregateBackfillJobRequest.upper_bound:type_name -> google.protobuf.Timestamp
+	23, // 13: chalk.aggregate.v1.CreateAggregateBackfillJobResponse.errors:type_name -> chalk.common.v1.ChalkError
+	0,  // 14: chalk.aggregate.v1.AggregateService.PlanAggregateBackfill:input_type -> chalk.aggregate.v1.PlanAggregateBackfillRequest
+	2,  // 15: chalk.aggregate.v1.AggregateService.GetAggregates:input_type -> chalk.aggregate.v1.GetAggregatesRequest
+	4,  // 16: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs:input_type -> chalk.aggregate.v1.GetAggregateBackfillJobsRequest
+	6,  // 17: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob:input_type -> chalk.aggregate.v1.GetAggregateBackfillJobRequest
+	8,  // 18: chalk.aggregate.v1.AggregateService.GetCronAggregateBackfill:input_type -> chalk.aggregate.v1.GetCronAggregateBackfillRequest
+	10, // 19: chalk.aggregate.v1.AggregateService.GetActiveCronAggregateBackfills:input_type -> chalk.aggregate.v1.GetActiveCronAggregateBackfillsRequest
+	13, // 20: chalk.aggregate.v1.AggregateService.CreateAggregateBackfillJob:input_type -> chalk.aggregate.v1.CreateAggregateBackfillJobRequest
+	1,  // 21: chalk.aggregate.v1.AggregateService.PlanAggregateBackfill:output_type -> chalk.aggregate.v1.PlanAggregateBackfillResponse
+	3,  // 22: chalk.aggregate.v1.AggregateService.GetAggregates:output_type -> chalk.aggregate.v1.GetAggregatesResponse
+	5,  // 23: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJobs:output_type -> chalk.aggregate.v1.GetAggregateBackfillJobsResponse
+	7,  // 24: chalk.aggregate.v1.AggregateService.GetAggregateBackfillJob:output_type -> chalk.aggregate.v1.GetAggregateBackfillJobResponse
+	9,  // 25: chalk.aggregate.v1.AggregateService.GetCronAggregateBackfill:output_type -> chalk.aggregate.v1.GetCronAggregateBackfillResponse
+	12, // 26: chalk.aggregate.v1.AggregateService.GetActiveCronAggregateBackfills:output_type -> chalk.aggregate.v1.GetActiveCronAggregateBackfillsResponse
+	14, // 27: chalk.aggregate.v1.AggregateService.CreateAggregateBackfillJob:output_type -> chalk.aggregate.v1.CreateAggregateBackfillJobResponse
+	21, // [21:28] is the sub-list for method output_type
+	14, // [14:21] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_chalk_aggregate_v1_service_proto_init() }

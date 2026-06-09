@@ -84,6 +84,9 @@ const (
 	// QueriesServiceGetQueryRunProcedure is the fully-qualified name of the QueriesService's
 	// GetQueryRun RPC.
 	QueriesServiceGetQueryRunProcedure = "/chalk.server.v1.QueriesService/GetQueryRun"
+	// QueriesServiceListStreamingResolverDeploymentsProcedure is the fully-qualified name of the
+	// QueriesService's ListStreamingResolverDeployments RPC.
+	QueriesServiceListStreamingResolverDeploymentsProcedure = "/chalk.server.v1.QueriesService/ListStreamingResolverDeployments"
 	// QueriesServiceGetStreamingResolverMappingPlanProcedure is the fully-qualified name of the
 	// QueriesService's GetStreamingResolverMappingPlan RPC.
 	QueriesServiceGetStreamingResolverMappingPlanProcedure = "/chalk.server.v1.QueriesService/GetStreamingResolverMappingPlan"
@@ -123,6 +126,7 @@ type QueriesServiceClient interface {
 	ListMetaQueriesForFeature(context.Context, *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error)
 	ListMetaQueryVersions(context.Context, *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error)
 	GetQueryRun(context.Context, *connect.Request[v1.GetQueryRunRequest]) (*connect.Response[v1.GetQueryRunResponse], error)
+	ListStreamingResolverDeployments(context.Context, *connect.Request[v1.ListStreamingResolverDeploymentsRequest]) (*connect.Response[v1.ListStreamingResolverDeploymentsResponse], error)
 	GetStreamingResolverMappingPlan(context.Context, *connect.Request[v1.GetStreamingResolverMappingPlanRequest]) (*connect.Response[v1.GetStreamingResolverMappingPlanResponse], error)
 	GetStreamingResolverSinkPlan(context.Context, *connect.Request[v1.GetStreamingResolverSinkPlanRequest]) (*connect.Response[v1.GetStreamingResolverSinkPlanResponse], error)
 	GetStreamingResolverMaterializedAggregationPlan(context.Context, *connect.Request[v1.GetStreamingResolverMaterializedAggregationPlanRequest]) (*connect.Response[v1.GetStreamingResolverMaterializedAggregationPlanResponse], error)
@@ -244,6 +248,12 @@ func NewQueriesServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(queriesServiceMethods.ByName("GetQueryRun")),
 			connect.WithClientOptions(opts...),
 		),
+		listStreamingResolverDeployments: connect.NewClient[v1.ListStreamingResolverDeploymentsRequest, v1.ListStreamingResolverDeploymentsResponse](
+			httpClient,
+			baseURL+QueriesServiceListStreamingResolverDeploymentsProcedure,
+			connect.WithSchema(queriesServiceMethods.ByName("ListStreamingResolverDeployments")),
+			connect.WithClientOptions(opts...),
+		),
 		getStreamingResolverMappingPlan: connect.NewClient[v1.GetStreamingResolverMappingPlanRequest, v1.GetStreamingResolverMappingPlanResponse](
 			httpClient,
 			baseURL+QueriesServiceGetStreamingResolverMappingPlanProcedure,
@@ -302,6 +312,7 @@ type queriesServiceClient struct {
 	listMetaQueriesForFeature                       *connect.Client[v1.ListMetaQueriesForFeatureRequest, v1.ListMetaQueriesForFeatureResponse]
 	listMetaQueryVersions                           *connect.Client[v1.ListMetaQueryVersionsRequest, v1.ListMetaQueryVersionsResponse]
 	getQueryRun                                     *connect.Client[v1.GetQueryRunRequest, v1.GetQueryRunResponse]
+	listStreamingResolverDeployments                *connect.Client[v1.ListStreamingResolverDeploymentsRequest, v1.ListStreamingResolverDeploymentsResponse]
 	getStreamingResolverMappingPlan                 *connect.Client[v1.GetStreamingResolverMappingPlanRequest, v1.GetStreamingResolverMappingPlanResponse]
 	getStreamingResolverSinkPlan                    *connect.Client[v1.GetStreamingResolverSinkPlanRequest, v1.GetStreamingResolverSinkPlanResponse]
 	getStreamingResolverMaterializedAggregationPlan *connect.Client[v1.GetStreamingResolverMaterializedAggregationPlanRequest, v1.GetStreamingResolverMaterializedAggregationPlanResponse]
@@ -395,6 +406,12 @@ func (c *queriesServiceClient) GetQueryRun(ctx context.Context, req *connect.Req
 	return c.getQueryRun.CallUnary(ctx, req)
 }
 
+// ListStreamingResolverDeployments calls
+// chalk.server.v1.QueriesService.ListStreamingResolverDeployments.
+func (c *queriesServiceClient) ListStreamingResolverDeployments(ctx context.Context, req *connect.Request[v1.ListStreamingResolverDeploymentsRequest]) (*connect.Response[v1.ListStreamingResolverDeploymentsResponse], error) {
+	return c.listStreamingResolverDeployments.CallUnary(ctx, req)
+}
+
 // GetStreamingResolverMappingPlan calls
 // chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan.
 func (c *queriesServiceClient) GetStreamingResolverMappingPlan(ctx context.Context, req *connect.Request[v1.GetStreamingResolverMappingPlanRequest]) (*connect.Response[v1.GetStreamingResolverMappingPlanResponse], error) {
@@ -446,6 +463,7 @@ type QueriesServiceHandler interface {
 	ListMetaQueriesForFeature(context.Context, *connect.Request[v1.ListMetaQueriesForFeatureRequest]) (*connect.Response[v1.ListMetaQueriesForFeatureResponse], error)
 	ListMetaQueryVersions(context.Context, *connect.Request[v1.ListMetaQueryVersionsRequest]) (*connect.Response[v1.ListMetaQueryVersionsResponse], error)
 	GetQueryRun(context.Context, *connect.Request[v1.GetQueryRunRequest]) (*connect.Response[v1.GetQueryRunResponse], error)
+	ListStreamingResolverDeployments(context.Context, *connect.Request[v1.ListStreamingResolverDeploymentsRequest]) (*connect.Response[v1.ListStreamingResolverDeploymentsResponse], error)
 	GetStreamingResolverMappingPlan(context.Context, *connect.Request[v1.GetStreamingResolverMappingPlanRequest]) (*connect.Response[v1.GetStreamingResolverMappingPlanResponse], error)
 	GetStreamingResolverSinkPlan(context.Context, *connect.Request[v1.GetStreamingResolverSinkPlanRequest]) (*connect.Response[v1.GetStreamingResolverSinkPlanResponse], error)
 	GetStreamingResolverMaterializedAggregationPlan(context.Context, *connect.Request[v1.GetStreamingResolverMaterializedAggregationPlanRequest]) (*connect.Response[v1.GetStreamingResolverMaterializedAggregationPlanResponse], error)
@@ -563,6 +581,12 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 		connect.WithSchema(queriesServiceMethods.ByName("GetQueryRun")),
 		connect.WithHandlerOptions(opts...),
 	)
+	queriesServiceListStreamingResolverDeploymentsHandler := connect.NewUnaryHandler(
+		QueriesServiceListStreamingResolverDeploymentsProcedure,
+		svc.ListStreamingResolverDeployments,
+		connect.WithSchema(queriesServiceMethods.ByName("ListStreamingResolverDeployments")),
+		connect.WithHandlerOptions(opts...),
+	)
 	queriesServiceGetStreamingResolverMappingPlanHandler := connect.NewUnaryHandler(
 		QueriesServiceGetStreamingResolverMappingPlanProcedure,
 		svc.GetStreamingResolverMappingPlan,
@@ -635,6 +659,8 @@ func NewQueriesServiceHandler(svc QueriesServiceHandler, opts ...connect.Handler
 			queriesServiceListMetaQueryVersionsHandler.ServeHTTP(w, r)
 		case QueriesServiceGetQueryRunProcedure:
 			queriesServiceGetQueryRunHandler.ServeHTTP(w, r)
+		case QueriesServiceListStreamingResolverDeploymentsProcedure:
+			queriesServiceListStreamingResolverDeploymentsHandler.ServeHTTP(w, r)
 		case QueriesServiceGetStreamingResolverMappingPlanProcedure:
 			queriesServiceGetStreamingResolverMappingPlanHandler.ServeHTTP(w, r)
 		case QueriesServiceGetStreamingResolverSinkPlanProcedure:
@@ -722,6 +748,10 @@ func (UnimplementedQueriesServiceHandler) ListMetaQueryVersions(context.Context,
 
 func (UnimplementedQueriesServiceHandler) GetQueryRun(context.Context, *connect.Request[v1.GetQueryRunRequest]) (*connect.Response[v1.GetQueryRunResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.GetQueryRun is not implemented"))
+}
+
+func (UnimplementedQueriesServiceHandler) ListStreamingResolverDeployments(context.Context, *connect.Request[v1.ListStreamingResolverDeploymentsRequest]) (*connect.Response[v1.ListStreamingResolverDeploymentsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.QueriesService.ListStreamingResolverDeployments is not implemented"))
 }
 
 func (UnimplementedQueriesServiceHandler) GetStreamingResolverMappingPlan(context.Context, *connect.Request[v1.GetStreamingResolverMappingPlanRequest]) (*connect.Response[v1.GetStreamingResolverMappingPlanResponse], error) {

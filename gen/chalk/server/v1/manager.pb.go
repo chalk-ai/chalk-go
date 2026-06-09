@@ -110,6 +110,162 @@ func (x *GetClusterEnvironmentsResponse) GetEnvironmentIds() []string {
 	return nil
 }
 
+type TelemetryTimescaleKubeSecretRef struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	EnvironmentId  string                 `protobuf:"bytes,1,opt,name=environment_id,json=environmentId,proto3" json:"environment_id,omitempty"`
+	KubeSecretName string                 `protobuf:"bytes,2,opt,name=kube_secret_name,json=kubeSecretName,proto3" json:"kube_secret_name,omitempty"`
+	KubeSecretKey  string                 `protobuf:"bytes,3,opt,name=kube_secret_key,json=kubeSecretKey,proto3" json:"kube_secret_key,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *TelemetryTimescaleKubeSecretRef) Reset() {
+	*x = TelemetryTimescaleKubeSecretRef{}
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TelemetryTimescaleKubeSecretRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TelemetryTimescaleKubeSecretRef) ProtoMessage() {}
+
+func (x *TelemetryTimescaleKubeSecretRef) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TelemetryTimescaleKubeSecretRef.ProtoReflect.Descriptor instead.
+func (*TelemetryTimescaleKubeSecretRef) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_manager_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TelemetryTimescaleKubeSecretRef) GetEnvironmentId() string {
+	if x != nil {
+		return x.EnvironmentId
+	}
+	return ""
+}
+
+func (x *TelemetryTimescaleKubeSecretRef) GetKubeSecretName() string {
+	if x != nil {
+		return x.KubeSecretName
+	}
+	return ""
+}
+
+func (x *TelemetryTimescaleKubeSecretRef) GetKubeSecretKey() string {
+	if x != nil {
+		return x.KubeSecretKey
+	}
+	return ""
+}
+
+type ListTelemetryTimescaleKubeSecretRefsRequest struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	ClusterName           string                 `protobuf:"bytes,1,opt,name=cluster_name,json=clusterName,proto3" json:"cluster_name,omitempty"`
+	TelemetryDeploymentId string                 `protobuf:"bytes,2,opt,name=telemetry_deployment_id,json=telemetryDeploymentId,proto3" json:"telemetry_deployment_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsRequest) Reset() {
+	*x = ListTelemetryTimescaleKubeSecretRefsRequest{}
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTelemetryTimescaleKubeSecretRefsRequest) ProtoMessage() {}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTelemetryTimescaleKubeSecretRefsRequest.ProtoReflect.Descriptor instead.
+func (*ListTelemetryTimescaleKubeSecretRefsRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_manager_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsRequest) GetClusterName() string {
+	if x != nil {
+		return x.ClusterName
+	}
+	return ""
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsRequest) GetTelemetryDeploymentId() string {
+	if x != nil {
+		return x.TelemetryDeploymentId
+	}
+	return ""
+}
+
+type ListTelemetryTimescaleKubeSecretRefsResponse struct {
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	SecretRefs    []*TelemetryTimescaleKubeSecretRef `protobuf:"bytes,1,rep,name=secret_refs,json=secretRefs,proto3" json:"secret_refs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsResponse) Reset() {
+	*x = ListTelemetryTimescaleKubeSecretRefsResponse{}
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListTelemetryTimescaleKubeSecretRefsResponse) ProtoMessage() {}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_manager_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListTelemetryTimescaleKubeSecretRefsResponse.ProtoReflect.Descriptor instead.
+func (*ListTelemetryTimescaleKubeSecretRefsResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_manager_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListTelemetryTimescaleKubeSecretRefsResponse) GetSecretRefs() []*TelemetryTimescaleKubeSecretRef {
+	if x != nil {
+		return x.SecretRefs
+	}
+	return nil
+}
+
 var File_chalk_server_v1_manager_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_manager_proto_rawDesc = "" +
@@ -118,9 +274,20 @@ const file_chalk_server_v1_manager_proto_rawDesc = "" +
 	"\x1dGetClusterEnvironmentsRequest\x12!\n" +
 	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\"I\n" +
 	"\x1eGetClusterEnvironmentsResponse\x12'\n" +
-	"\x0fenvironment_ids\x18\x01 \x03(\tR\x0eenvironmentIds2\x94\x01\n" +
+	"\x0fenvironment_ids\x18\x01 \x03(\tR\x0eenvironmentIds\"\x9a\x01\n" +
+	"\x1fTelemetryTimescaleKubeSecretRef\x12%\n" +
+	"\x0eenvironment_id\x18\x01 \x01(\tR\renvironmentId\x12(\n" +
+	"\x10kube_secret_name\x18\x02 \x01(\tR\x0ekubeSecretName\x12&\n" +
+	"\x0fkube_secret_key\x18\x03 \x01(\tR\rkubeSecretKey\"\x88\x01\n" +
+	"+ListTelemetryTimescaleKubeSecretRefsRequest\x12!\n" +
+	"\fcluster_name\x18\x01 \x01(\tR\vclusterName\x126\n" +
+	"\x17telemetry_deployment_id\x18\x02 \x01(\tR\x15telemetryDeploymentId\"\x81\x01\n" +
+	",ListTelemetryTimescaleKubeSecretRefsResponse\x12Q\n" +
+	"\vsecret_refs\x18\x01 \x03(\v20.chalk.server.v1.TelemetryTimescaleKubeSecretRefR\n" +
+	"secretRefs2\xc2\x02\n" +
 	"\x0eManagerService\x12\x81\x01\n" +
-	"\x16GetClusterEnvironments\x12..chalk.server.v1.GetClusterEnvironmentsRequest\x1a/.chalk.server.v1.GetClusterEnvironmentsResponse\"\x06\x80}\x02\x90\x02\x01B\xbc\x01\n" +
+	"\x16GetClusterEnvironments\x12..chalk.server.v1.GetClusterEnvironmentsRequest\x1a/.chalk.server.v1.GetClusterEnvironmentsResponse\"\x06\x80}\x02\x90\x02\x01\x12\xab\x01\n" +
+	"$ListTelemetryTimescaleKubeSecretRefs\x12<.chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsRequest\x1a=.chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsResponse\"\x06\x80}\v\x90\x02\x01B\xbc\x01\n" +
 	"\x13com.chalk.server.v1B\fManagerProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (
@@ -135,19 +302,25 @@ func file_chalk_server_v1_manager_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_manager_proto_rawDescData
 }
 
-var file_chalk_server_v1_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_chalk_server_v1_manager_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_chalk_server_v1_manager_proto_goTypes = []any{
-	(*GetClusterEnvironmentsRequest)(nil),  // 0: chalk.server.v1.GetClusterEnvironmentsRequest
-	(*GetClusterEnvironmentsResponse)(nil), // 1: chalk.server.v1.GetClusterEnvironmentsResponse
+	(*GetClusterEnvironmentsRequest)(nil),                // 0: chalk.server.v1.GetClusterEnvironmentsRequest
+	(*GetClusterEnvironmentsResponse)(nil),               // 1: chalk.server.v1.GetClusterEnvironmentsResponse
+	(*TelemetryTimescaleKubeSecretRef)(nil),              // 2: chalk.server.v1.TelemetryTimescaleKubeSecretRef
+	(*ListTelemetryTimescaleKubeSecretRefsRequest)(nil),  // 3: chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsRequest
+	(*ListTelemetryTimescaleKubeSecretRefsResponse)(nil), // 4: chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsResponse
 }
 var file_chalk_server_v1_manager_proto_depIdxs = []int32{
-	0, // 0: chalk.server.v1.ManagerService.GetClusterEnvironments:input_type -> chalk.server.v1.GetClusterEnvironmentsRequest
-	1, // 1: chalk.server.v1.ManagerService.GetClusterEnvironments:output_type -> chalk.server.v1.GetClusterEnvironmentsResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsResponse.secret_refs:type_name -> chalk.server.v1.TelemetryTimescaleKubeSecretRef
+	0, // 1: chalk.server.v1.ManagerService.GetClusterEnvironments:input_type -> chalk.server.v1.GetClusterEnvironmentsRequest
+	3, // 2: chalk.server.v1.ManagerService.ListTelemetryTimescaleKubeSecretRefs:input_type -> chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsRequest
+	1, // 3: chalk.server.v1.ManagerService.GetClusterEnvironments:output_type -> chalk.server.v1.GetClusterEnvironmentsResponse
+	4, // 4: chalk.server.v1.ManagerService.ListTelemetryTimescaleKubeSecretRefs:output_type -> chalk.server.v1.ListTelemetryTimescaleKubeSecretRefsResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_manager_proto_init() }
@@ -161,7 +334,7 @@ func file_chalk_server_v1_manager_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_manager_proto_rawDesc), len(file_chalk_server_v1_manager_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

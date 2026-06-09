@@ -9,6 +9,7 @@ package volumev2
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -3947,7 +3948,7 @@ var File_chalk_volume_v2_volume_proto protoreflect.FileDescriptor
 
 const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/volume/v2/volume.proto\x12\x0fchalk.volume.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x01\n" +
+	"\x1cchalk/volume/v2/volume.proto\x12\x0fchalk.volume.v2\x1a\x1bbuf/validate/validate.proto\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf8\x01\n" +
 	"\n" +
 	"VolumeInfo\x12\x1b\n" +
 	"\tvolume_id\x18\x01 \x01(\tR\bvolumeId\x12\x12\n" +
@@ -4243,9 +4244,10 @@ const file_chalk_volume_v2_volume_proto_rawDesc = "" +
 	"\x12UploadedObjectKind\x12$\n" +
 	" UPLOADED_OBJECT_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aUPLOADED_OBJECT_KIND_CHUNK\x10\x01\x12\x1d\n" +
-	"\x19UPLOADED_OBJECT_KIND_PACK\x10\x022\xf5\b\n" +
-	"\rVolumeService\x12`\n" +
-	"\fCreateVolume\x12$.chalk.volume.v2.CreateVolumeRequest\x1a%.chalk.volume.v2.CreateVolumeResponse\"\x03\x80}\f\x12Z\n" +
+	"\x19UPLOADED_OBJECT_KIND_PACK\x10\x022\xcd\t\n" +
+	"\rVolumeService\x12\xb7\x01\n" +
+	"\fCreateVolume\x12$.chalk.volume.v2.CreateVolumeRequest\x1a%.chalk.volume.v2.CreateVolumeResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12Z\n" +
 	"\tGetVolume\x12!.chalk.volume.v2.GetVolumeRequest\x1a\".chalk.volume.v2.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\vListVolumes\x12#.chalk.volume.v2.ListVolumesRequest\x1a$.chalk.volume.v2.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\fDeleteVolume\x12$.chalk.volume.v2.DeleteVolumeRequest\x1a%.chalk.volume.v2.DeleteVolumeResponse\"\x03\x80}\x0e\x12u\n" +

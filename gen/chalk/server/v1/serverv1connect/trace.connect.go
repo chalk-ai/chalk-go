@@ -37,6 +37,12 @@ const (
 	TraceServiceGetTraceProcedure = "/chalk.server.v1.TraceService/GetTrace"
 	// TraceServiceListTraceProcedure is the fully-qualified name of the TraceService's ListTrace RPC.
 	TraceServiceListTraceProcedure = "/chalk.server.v1.TraceService/ListTrace"
+	// TraceServiceSearchTraceSummariesProcedure is the fully-qualified name of the TraceService's
+	// SearchTraceSummaries RPC.
+	TraceServiceSearchTraceSummariesProcedure = "/chalk.server.v1.TraceService/SearchTraceSummaries"
+	// TraceServiceGetTraceCallGraphProcedure is the fully-qualified name of the TraceService's
+	// GetTraceCallGraph RPC.
+	TraceServiceGetTraceCallGraphProcedure = "/chalk.server.v1.TraceService/GetTraceCallGraph"
 	// TraceServiceGetSpanProcedure is the fully-qualified name of the TraceService's GetSpan RPC.
 	TraceServiceGetSpanProcedure = "/chalk.server.v1.TraceService/GetSpan"
 	// TraceServiceListSpanProcedure is the fully-qualified name of the TraceService's ListSpan RPC.
@@ -61,6 +67,10 @@ type TraceServiceClient interface {
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
 	// ListTrace retrieves a list of traces with optional filtering
 	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
+	// SearchTraceSummaries retrieves traces using indexed trace summary filters
+	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
+	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
+	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
 	// ListSpan retrieves a list of spans for a specific trace with optional filtering
@@ -97,6 +107,20 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+TraceServiceListTraceProcedure,
 			connect.WithSchema(traceServiceMethods.ByName("ListTrace")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		searchTraceSummaries: connect.NewClient[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse](
+			httpClient,
+			baseURL+TraceServiceSearchTraceSummariesProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("SearchTraceSummaries")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getTraceCallGraph: connect.NewClient[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse](
+			httpClient,
+			baseURL+TraceServiceGetTraceCallGraphProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("GetTraceCallGraph")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -149,6 +173,8 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 type traceServiceClient struct {
 	getTrace                *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
 	listTrace               *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
+	searchTraceSummaries    *connect.Client[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse]
+	getTraceCallGraph       *connect.Client[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse]
 	getSpan                 *connect.Client[v1.GetSpanRequest, v1.GetSpanResponse]
 	listSpan                *connect.Client[v1.ListSpanRequest, v1.ListSpanResponse]
 	getSpanFacets           *connect.Client[v1.GetSpanFacetsRequest, v1.GetSpanFacetsResponse]
@@ -165,6 +191,16 @@ func (c *traceServiceClient) GetTrace(ctx context.Context, req *connect.Request[
 // ListTrace calls chalk.server.v1.TraceService.ListTrace.
 func (c *traceServiceClient) ListTrace(ctx context.Context, req *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error) {
 	return c.listTrace.CallUnary(ctx, req)
+}
+
+// SearchTraceSummaries calls chalk.server.v1.TraceService.SearchTraceSummaries.
+func (c *traceServiceClient) SearchTraceSummaries(ctx context.Context, req *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error) {
+	return c.searchTraceSummaries.CallUnary(ctx, req)
+}
+
+// GetTraceCallGraph calls chalk.server.v1.TraceService.GetTraceCallGraph.
+func (c *traceServiceClient) GetTraceCallGraph(ctx context.Context, req *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error) {
+	return c.getTraceCallGraph.CallUnary(ctx, req)
 }
 
 // GetSpan calls chalk.server.v1.TraceService.GetSpan.
@@ -203,6 +239,10 @@ type TraceServiceHandler interface {
 	GetTrace(context.Context, *connect.Request[v1.GetTraceRequest]) (*connect.Response[v1.GetTraceResponse], error)
 	// ListTrace retrieves a list of traces with optional filtering
 	ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error)
+	// SearchTraceSummaries retrieves traces using indexed trace summary filters
+	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
+	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
+	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
 	// ListSpan retrieves a list of spans for a specific trace with optional filtering
@@ -235,6 +275,20 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		TraceServiceListTraceProcedure,
 		svc.ListTrace,
 		connect.WithSchema(traceServiceMethods.ByName("ListTrace")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceSearchTraceSummariesHandler := connect.NewUnaryHandler(
+		TraceServiceSearchTraceSummariesProcedure,
+		svc.SearchTraceSummaries,
+		connect.WithSchema(traceServiceMethods.ByName("SearchTraceSummaries")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceGetTraceCallGraphHandler := connect.NewUnaryHandler(
+		TraceServiceGetTraceCallGraphProcedure,
+		svc.GetTraceCallGraph,
+		connect.WithSchema(traceServiceMethods.ByName("GetTraceCallGraph")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -286,6 +340,10 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 			traceServiceGetTraceHandler.ServeHTTP(w, r)
 		case TraceServiceListTraceProcedure:
 			traceServiceListTraceHandler.ServeHTTP(w, r)
+		case TraceServiceSearchTraceSummariesProcedure:
+			traceServiceSearchTraceSummariesHandler.ServeHTTP(w, r)
+		case TraceServiceGetTraceCallGraphProcedure:
+			traceServiceGetTraceCallGraphHandler.ServeHTTP(w, r)
 		case TraceServiceGetSpanProcedure:
 			traceServiceGetSpanHandler.ServeHTTP(w, r)
 		case TraceServiceListSpanProcedure:
@@ -313,6 +371,14 @@ func (UnimplementedTraceServiceHandler) GetTrace(context.Context, *connect.Reque
 
 func (UnimplementedTraceServiceHandler) ListTrace(context.Context, *connect.Request[v1.ListTraceRequest]) (*connect.Response[v1.ListTraceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.ListTrace is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.SearchTraceSummaries is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetTraceCallGraph is not implemented"))
 }
 
 func (UnimplementedTraceServiceHandler) GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {

@@ -35,15 +35,16 @@ const (
 	// access to this feature directly, but needs the feature to compute
 	// the result of the query.
 	FeaturePermission_FEATURE_PERMISSION_DENY FeaturePermission = 3
-	// Allow access to the feature, and additionally permit any feature derived
-	// from it to be computed and returned even when that derived feature would
-	// otherwise be blocked by a DENY/ALLOW_INTERNAL ancestor in its lineage.
+	// Allow the feature, and additionally permit any feature derived from it to be
+	// computed and returned even when it would otherwise be blocked by default-deny.
+	// This keeps a sensitive feature fully blocked upstream while an anonymizing
+	// aggregation derived from it is served. e.g. with A (sensitive) -> B (aggregation)
+	// -> C -> D and B tagged ALLOW_DOWNSTREAM, C and D are allowed as query outputs
+	// while A stays denied.
 	//
-	// This exists so that a sensitive feature can be fully blocked while a
-	// specific anonymizing aggregation derived from it (tagged ALLOW_DOWNSTREAM)
-	// is still served. Unlike ALLOW_INTERNAL on the sensitive parent -- which
-	// would make *every* downstream feature returnable -- this opt-in lives on
-	// the derived feature, so the override is scoped to exactly that feature.
+	// Only meaningful under default-deny. An output is allowed iff it is "cleared":
+	// a feature is cleared when it is tagged ALLOW_DOWNSTREAM, is a caller-supplied
+	// input, or has parents that are all themselves cleared.
 	FeaturePermission_FEATURE_PERMISSION_ALLOW_DOWNSTREAM FeaturePermission = 4
 )
 
