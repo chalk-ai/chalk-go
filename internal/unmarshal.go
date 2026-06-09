@@ -120,6 +120,12 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 			o64[i] = int64(arr.Offsets()[i])
 		}
 		return getInnerSliceFromArray(arr.ListValues(), o64, idx, timeAsString)
+	case *array.FixedSizeList:
+		// Fixed-size lists (e.g. vector / embedding features) store their values
+		// contiguously in the child array; ValueOffsets gives the [start, end)
+		// slice for this row.
+		start, end := arr.ValueOffsets(idx)
+		return getInnerSliceFromArray(arr.ListValues(), []int64{start, end}, 0, timeAsString)
 	case *array.Struct:
 		newMap := map[string]any{}
 		structType, typeOk := arr.DataType().(*arrow.StructType)
@@ -148,11 +154,15 @@ func GetValueFromArrowArray(a arrow.Array, idx int, timeAsString bool) (any, err
 		return arr.Value(idx), nil
 	case *array.Uint64:
 		return arr.Value(idx), nil
+	case *array.Int8:
+		return arr.Value(idx), nil
 	case *array.Int16:
 		return arr.Value(idx), nil
 	case *array.Int32:
 		return arr.Value(idx), nil
 	case *array.Int64:
+		return arr.Value(idx), nil
+	case *array.Float32:
 		return arr.Value(idx), nil
 	case *array.Float64:
 		return arr.Value(idx), nil
