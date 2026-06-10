@@ -8,6 +8,7 @@ package notebookv1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1033,6 +1034,8 @@ func (x *GetNotebookResponse) GetNotebook() *NotebookResponse {
 
 type ListNotebooksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        *string                `protobuf:"bytes,1,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
+	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1067,9 +1070,24 @@ func (*ListNotebooksRequest) Descriptor() ([]byte, []int) {
 	return file_chalk_notebook_v1_service_proto_rawDescGZIP(), []int{18}
 }
 
+func (x *ListNotebooksRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
+func (x *ListNotebooksRequest) GetLimit() int32 {
+	if x != nil && x.Limit != nil {
+		return *x.Limit
+	}
+	return 0
+}
+
 type ListNotebooksResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Notebooks     []*NotebookResponse    `protobuf:"bytes,1,rep,name=notebooks,proto3" json:"notebooks,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1109,6 +1127,13 @@ func (x *ListNotebooksResponse) GetNotebooks() []*NotebookResponse {
 		return x.Notebooks
 	}
 	return nil
+}
+
+func (x *ListNotebooksResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
 }
 
 type StopNotebookRequest struct {
@@ -1307,7 +1332,7 @@ var File_chalk_notebook_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_notebook_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/notebook/v1/service.proto\x12\x11chalk.notebook.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x04\n" +
+	"\x1fchalk/notebook/v1/service.proto\x12\x11chalk.notebook.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbf\x04\n" +
 	"\x10NotebookResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12!\n" +
@@ -1388,10 +1413,17 @@ const file_chalk_notebook_v1_service_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_name\"V\n" +
 	"\x13GetNotebookResponse\x12?\n" +
-	"\bnotebook\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookResponseR\bnotebook\"\x16\n" +
-	"\x14ListNotebooksRequest\"Z\n" +
+	"\bnotebook\x18\x01 \x01(\v2#.chalk.notebook.v1.NotebookResponseR\bnotebook\"c\n" +
+	"\x14ListNotebooksRequest\x12\x1b\n" +
+	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
+	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01B\t\n" +
+	"\a_cursorB\b\n" +
+	"\x06_limit\"\x90\x01\n" +
 	"\x15ListNotebooksResponse\x12A\n" +
-	"\tnotebooks\x18\x01 \x03(\v2#.chalk.notebook.v1.NotebookResponseR\tnotebooks\"S\n" +
+	"\tnotebooks\x18\x01 \x03(\v2#.chalk.notebook.v1.NotebookResponseR\tnotebooks\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01B\x0e\n" +
+	"\f_next_cursor\"S\n" +
 	"\x13StopNotebookRequest\x12\x13\n" +
 	"\x02id\x18\x01 \x01(\tH\x00R\x02id\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01B\x05\n" +
@@ -1410,9 +1442,10 @@ const file_chalk_notebook_v1_service_proto_rawDesc = "" +
 	"\x1cHEARTBEAT_STATUS_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18HEARTBEAT_STATUS_HEALTHY\x10\x01\x12\x1d\n" +
 	"\x19HEARTBEAT_STATUS_DEGRADED\x10\x02\x12\x1e\n" +
-	"\x1aHEARTBEAT_STATUS_UNHEALTHY\x10\x032\xf0\b\n" +
-	"\x0fNotebookService\x12j\n" +
-	"\x0eCreateNotebook\x12(.chalk.notebook.v1.CreateNotebookRequest\x1a).chalk.notebook.v1.CreateNotebookResponse\"\x03\x80}\f\x12a\n" +
+	"\x1aHEARTBEAT_STATUS_UNHEALTHY\x10\x032\xc8\t\n" +
+	"\x0fNotebookService\x12\xc1\x01\n" +
+	"\x0eCreateNotebook\x12(.chalk.notebook.v1.CreateNotebookRequest\x1a).chalk.notebook.v1.CreateNotebookResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12a\n" +
 	"\vGetNotebook\x12%.chalk.notebook.v1.GetNotebookRequest\x1a&.chalk.notebook.v1.GetNotebookResponse\"\x03\x80}\v\x12g\n" +
 	"\rListNotebooks\x12'.chalk.notebook.v1.ListNotebooksRequest\x1a(.chalk.notebook.v1.ListNotebooksResponse\"\x03\x80}\v\x12d\n" +
 	"\fStopNotebook\x12&.chalk.notebook.v1.StopNotebookRequest\x1a'.chalk.notebook.v1.StopNotebookResponse\"\x03\x80}\x0e\x12[\n" +
@@ -1524,6 +1557,8 @@ func file_chalk_notebook_v1_service_proto_init() {
 	file_chalk_notebook_v1_service_proto_msgTypes[1].OneofWrappers = []any{}
 	file_chalk_notebook_v1_service_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_notebook_v1_service_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_notebook_v1_service_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_notebook_v1_service_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_notebook_v1_service_proto_msgTypes[20].OneofWrappers = []any{}
 	file_chalk_notebook_v1_service_proto_msgTypes[22].OneofWrappers = []any{}
 	type x struct{}

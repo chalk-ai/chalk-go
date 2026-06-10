@@ -600,6 +600,7 @@ type CreateBenchmarkRequest struct {
 	DedicatedEngine       *DedicatedBenchmarkEngine             `protobuf:"bytes,21,opt,name=dedicated_engine,json=dedicatedEngine,proto3,oneof" json:"dedicated_engine,omitempty"`
 	BenchmarkRunner       *BenchmarkRunner                      `protobuf:"varint,22,opt,name=benchmark_runner,json=benchmarkRunner,proto3,enum=chalk.server.v1.BenchmarkRunner,oneof" json:"benchmark_runner,omitempty"`
 	ResultTargets         []BenchmarkResultTargetType           `protobuf:"varint,23,rep,packed,name=result_targets,json=resultTargets,proto3,enum=chalk.server.v1.BenchmarkResultTargetType" json:"result_targets,omitempty"`
+	Protocol              *string                               `protobuf:"bytes,24,opt,name=protocol,proto3,oneof" json:"protocol,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -804,6 +805,13 @@ func (x *CreateBenchmarkRequest) GetResultTargets() []BenchmarkResultTargetType 
 		return x.ResultTargets
 	}
 	return nil
+}
+
+func (x *CreateBenchmarkRequest) GetProtocol() string {
+	if x != nil && x.Protocol != nil {
+		return *x.Protocol
+	}
+	return ""
 }
 
 type isCreateBenchmarkRequest_QueryRequest interface {
@@ -1404,7 +1412,7 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
 	"\t_protocolB\x10\n" +
 	"\x0e_replica_countB\x11\n" +
-	"\x0f_container_spec\"\xd5\v\n" +
+	"\x0f_container_spec\"\x83\f\n" +
 	"\x16CreateBenchmarkRequest\x12\x1d\n" +
 	"\n" +
 	"warmup_qps\x18\x01 \x01(\x03R\twarmupQps\x12B\n" +
@@ -1433,7 +1441,8 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x10dedicated_engine\x18\x15 \x01(\v2).chalk.server.v1.DedicatedBenchmarkEngineH\tR\x0fdedicatedEngine\x88\x01\x01\x12P\n" +
 	"\x10benchmark_runner\x18\x16 \x01(\x0e2 .chalk.server.v1.BenchmarkRunnerH\n" +
 	"R\x0fbenchmarkRunner\x88\x01\x01\x12Q\n" +
-	"\x0eresult_targets\x18\x17 \x03(\x0e2*.chalk.server.v1.BenchmarkResultTargetTypeR\rresultTargetsB\x0f\n" +
+	"\x0eresult_targets\x18\x17 \x03(\x0e2*.chalk.server.v1.BenchmarkResultTargetTypeR\rresultTargets\x12\x1f\n" +
+	"\bprotocol\x18\x18 \x01(\tH\vR\bprotocol\x88\x01\x01B\x0f\n" +
 	"\rquery_requestB\x11\n" +
 	"\x0f_image_overrideB\x11\n" +
 	"\x0f_resource_groupB\r\n" +
@@ -1444,7 +1453,8 @@ const file_chalk_server_v1_benchmark_proto_rawDesc = "" +
 	"\x19_initial_conn_window_sizeB\v\n" +
 	"\t_nodepoolB\x13\n" +
 	"\x11_dedicated_engineB\x13\n" +
-	"\x11_benchmark_runner\"v\n" +
+	"\x11_benchmark_runnerB\v\n" +
+	"\t_protocol\"v\n" +
 	"\x17CreateBenchmarkResponse\x128\n" +
 	"\x06status\x18\x01 \x01(\x0e2 .chalk.server.v1.BenchmarkStatusR\x06status\x12!\n" +
 	"\fbenchmark_id\x18\x02 \x01(\tR\vbenchmarkId\"\x99\x01\n" +

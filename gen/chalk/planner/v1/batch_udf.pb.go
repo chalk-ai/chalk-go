@@ -174,6 +174,7 @@ func (*BatchUDFArgument_StringValue) isBatchUDFArgument_Arg() {}
 
 func (*BatchUDFArgument_PyObj) isBatchUDFArgument_Arg() {}
 
+// TODO: deprecate these and define replacements in expression.proto
 type PyObject struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Obj:

@@ -8,6 +8,7 @@ package volumev1
 
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -1439,7 +1440,7 @@ var File_chalk_volume_v1_volume_proto protoreflect.FileDescriptor
 
 const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\n" +
-	"\x1cchalk/volume/v1/volume.proto\x12\x0fchalk.volume.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"[\n" +
+	"\x1cchalk/volume/v1/volume.proto\x12\x0fchalk.volume.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"[\n" +
 	"\n" +
 	"VolumeInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x129\n" +
@@ -1524,9 +1525,10 @@ const file_chalk_volume_v1_volume_proto_rawDesc = "" +
 	"\x13signed_download_uri\x18\x01 \x01(\tR\x11signedDownloadUri2\x90\x02\n" +
 	"\x1dDataPlaneObjectStorageService\x12r\n" +
 	"\x12GetObjectUploadUri\x12*.chalk.volume.v1.GetObjectUploadUriRequest\x1a+.chalk.volume.v1.GetObjectUploadUriResponse\"\x03\x80}\f\x12{\n" +
-	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\x06\x80}\v\x90\x02\x012\xf2\x05\n" +
-	"\rVolumeService\x12`\n" +
-	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"\x03\x80}\f\x12Z\n" +
+	"\x14GetObjectDownloadUri\x12,.chalk.volume.v1.GetObjectDownloadUriRequest\x1a-.chalk.volume.v1.GetObjectDownloadUriResponse\"\x06\x80}\v\x90\x02\x012\xca\x06\n" +
+	"\rVolumeService\x12\xb7\x01\n" +
+	"\fCreateVolume\x12$.chalk.volume.v1.CreateVolumeRequest\x1a%.chalk.volume.v1.CreateVolumeResponse\"Z\x80}\f\x92\xd3\x0eS\n" +
+	"\x16scaling_groups_enabled\x129This action is not enabled. Please contact Chalk Support.\x12Z\n" +
 	"\tGetVolume\x12!.chalk.volume.v1.GetVolumeRequest\x1a\".chalk.volume.v1.GetVolumeResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\vListVolumes\x12#.chalk.volume.v1.ListVolumesRequest\x1a$.chalk.volume.v1.ListVolumesResponse\"\x06\x80}\v\x90\x02\x01\x12`\n" +
 	"\fDeleteVolume\x12$.chalk.volume.v1.DeleteVolumeRequest\x1a%.chalk.volume.v1.DeleteVolumeResponse\"\x03\x80}\x0e\x12Z\n" +

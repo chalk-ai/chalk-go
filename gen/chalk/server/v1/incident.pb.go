@@ -31,6 +31,7 @@ const (
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_FEATURE         IncidentEntityKind = 1
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_RESOLVER        IncidentEntityKind = 2
 	IncidentEntityKind_INCIDENT_ENTITY_KIND_SCHEDULED_QUERY IncidentEntityKind = 3
+	IncidentEntityKind_INCIDENT_ENTITY_KIND_QUERY           IncidentEntityKind = 4
 )
 
 // Enum value maps for IncidentEntityKind.
@@ -40,12 +41,14 @@ var (
 		1: "INCIDENT_ENTITY_KIND_FEATURE",
 		2: "INCIDENT_ENTITY_KIND_RESOLVER",
 		3: "INCIDENT_ENTITY_KIND_SCHEDULED_QUERY",
+		4: "INCIDENT_ENTITY_KIND_QUERY",
 	}
 	IncidentEntityKind_value = map[string]int32{
 		"INCIDENT_ENTITY_KIND_UNSPECIFIED":     0,
 		"INCIDENT_ENTITY_KIND_FEATURE":         1,
 		"INCIDENT_ENTITY_KIND_RESOLVER":        2,
 		"INCIDENT_ENTITY_KIND_SCHEDULED_QUERY": 3,
+		"INCIDENT_ENTITY_KIND_QUERY":           4,
 	}
 )
 
@@ -766,12 +769,13 @@ const file_chalk_server_v1_incident_proto_rawDesc = "" +
 	"\x15ListIncidentsResponse\x12=\n" +
 	"\tincidents\x18\x01 \x03(\v2\x1f.chalk.server.v1.MetricIncidentR\tincidents\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token*\xa9\x01\n" +
+	"\x10_next_page_token*\xc9\x01\n" +
 	"\x12IncidentEntityKind\x12$\n" +
 	" INCIDENT_ENTITY_KIND_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cINCIDENT_ENTITY_KIND_FEATURE\x10\x01\x12!\n" +
 	"\x1dINCIDENT_ENTITY_KIND_RESOLVER\x10\x02\x12(\n" +
-	"$INCIDENT_ENTITY_KIND_SCHEDULED_QUERY\x10\x03B\xbd\x01\n" +
+	"$INCIDENT_ENTITY_KIND_SCHEDULED_QUERY\x10\x03\x12\x1e\n" +
+	"\x1aINCIDENT_ENTITY_KIND_QUERY\x10\x04B\xbd\x01\n" +
 	"\x13com.chalk.server.v1B\rIncidentProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

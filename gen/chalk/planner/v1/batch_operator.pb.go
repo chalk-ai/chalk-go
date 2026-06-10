@@ -7,9 +7,10 @@
 package plannerv1
 
 import (
-	v11 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
-	v12 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
-	v1 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	v12 "github.com/chalk-ai/chalk-go/gen/chalk/arrow/v1"
+	v13 "github.com/chalk-ai/chalk-go/gen/chalk/expression/v1"
+	v11 "github.com/chalk-ai/chalk-go/gen/chalk/graph/v1"
+	v1 "github.com/chalk-ai/chalk-go/gen/chalk/symbolic_value/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
@@ -288,14 +289,20 @@ func (OperatorType) EnumDescriptor() ([]byte, []int) {
 }
 
 type BatchPlan struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Operators      []*BatchOperator       `protobuf:"bytes,1,rep,name=operators,proto3" json:"operators,omitempty"`
-	SymbolicValues []*SymbolicValue       `protobuf:"bytes,2,rep,name=symbolic_values,json=symbolicValues,proto3" json:"symbolic_values,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Operators []*BatchOperator       `protobuf:"bytes,1,rep,name=operators,proto3" json:"operators,omitempty"`
+	// Deprecated; use “symbolic_values_v2“. The
+	// “chalk.planner.v1.SymbolicValue“ package is preserved for wire
+	// compatibility but no longer populated.
+	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	FeatureRefInfo *FeatureReferenceInfo `protobuf:"bytes,3,opt,name=feature_ref_info,json=featureRefInfo,proto3" json:"feature_ref_info,omitempty"`
-	AuxiliaryInfo  *AuxiliaryInfo        `protobuf:"bytes,4,opt,name=auxiliary_info,json=auxiliaryInfo,proto3" json:"auxiliary_info,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	SymbolicValues []*SymbolicValue `protobuf:"bytes,2,rep,name=symbolic_values,json=symbolicValues,proto3" json:"symbolic_values,omitempty"`
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
+	FeatureRefInfo   *FeatureReferenceInfo `protobuf:"bytes,3,opt,name=feature_ref_info,json=featureRefInfo,proto3" json:"feature_ref_info,omitempty"`
+	AuxiliaryInfo    *AuxiliaryInfo        `protobuf:"bytes,4,opt,name=auxiliary_info,json=auxiliaryInfo,proto3" json:"auxiliary_info,omitempty"`
+	SymbolicValuesV2 []*v1.SymbolicValue   `protobuf:"bytes,5,rep,name=symbolic_values_v2,json=symbolicValuesV2,proto3" json:"symbolic_values_v2,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *BatchPlan) Reset() {
@@ -335,6 +342,7 @@ func (x *BatchPlan) GetOperators() []*BatchOperator {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 func (x *BatchPlan) GetSymbolicValues() []*SymbolicValue {
 	if x != nil {
 		return x.SymbolicValues
@@ -353,6 +361,13 @@ func (x *BatchPlan) GetFeatureRefInfo() *FeatureReferenceInfo {
 func (x *BatchPlan) GetAuxiliaryInfo() *AuxiliaryInfo {
 	if x != nil {
 		return x.AuxiliaryInfo
+	}
+	return nil
+}
+
+func (x *BatchPlan) GetSymbolicValuesV2() []*v1.SymbolicValue {
+	if x != nil {
+		return x.SymbolicValuesV2
 	}
 	return nil
 }
@@ -552,6 +567,7 @@ type Argument struct {
 	//	*Argument_FeatureRefIdV2
 	//	*Argument_UnderscoreParsed
 	//	*Argument_IpcArrowTable
+	//	*Argument_SymbolicValueV2
 	Arg           isArgument_Arg `protobuf_oneof:"arg"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -667,7 +683,7 @@ func (x *Argument) GetOperatorId() uint64 {
 }
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-func (x *Argument) GetFeatureRef() *v1.FeatureReference {
+func (x *Argument) GetFeatureRef() *v11.FeatureReference {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_FeatureRef); ok {
 			return x.FeatureRef
@@ -703,7 +719,7 @@ func (x *Argument) GetSubmap() *ArgumentMap {
 	return nil
 }
 
-func (x *Argument) GetArrowType() *v11.ArrowType {
+func (x *Argument) GetArrowType() *v12.ArrowType {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_ArrowType); ok {
 			return x.ArrowType
@@ -712,7 +728,7 @@ func (x *Argument) GetArrowType() *v11.ArrowType {
 	return nil
 }
 
-func (x *Argument) GetUnderscoreExpr() *v12.LogicalExprNode {
+func (x *Argument) GetUnderscoreExpr() *v13.LogicalExprNode {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_UnderscoreExpr); ok {
 			return x.UnderscoreExpr
@@ -721,7 +737,7 @@ func (x *Argument) GetUnderscoreExpr() *v12.LogicalExprNode {
 	return nil
 }
 
-func (x *Argument) GetFilterExpr() *v12.LogicalExprNode {
+func (x *Argument) GetFilterExpr() *v13.LogicalExprNode {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_FilterExpr); ok {
 			return x.FilterExpr
@@ -768,6 +784,7 @@ func (x *Argument) GetFeatureReference() *FeatureReference {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 func (x *Argument) GetSymbolicValue() *SymbolicValue {
 	if x != nil {
 		if x, ok := x.Arg.(*Argument_SymbolicValue); ok {
@@ -833,6 +850,15 @@ func (x *Argument) GetIpcArrowTable() []byte {
 	return nil
 }
 
+func (x *Argument) GetSymbolicValueV2() *v1.SymbolicValue {
+	if x != nil {
+		if x, ok := x.Arg.(*Argument_SymbolicValueV2); ok {
+			return x.SymbolicValueV2
+		}
+	}
+	return nil
+}
+
 type isArgument_Arg interface {
 	isArgument_Arg()
 }
@@ -873,7 +899,7 @@ type Argument_OperatorId struct {
 
 type Argument_FeatureRef struct {
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	FeatureRef *v1.FeatureReference `protobuf:"bytes,9,opt,name=feature_ref,json=featureRef,proto3,oneof"` // Reference features in the batch plan based on their serialization IDs. Meaning to deprecate this
+	FeatureRef *v11.FeatureReference `protobuf:"bytes,9,opt,name=feature_ref,json=featureRef,proto3,oneof"` // Reference features in the batch plan based on their serialization IDs. Meaning to deprecate this
 }
 
 type Argument_BytesValue struct {
@@ -891,15 +917,15 @@ type Argument_Submap struct {
 
 type Argument_ArrowType struct {
 	// Less common argument types go in indices 16+.
-	ArrowType *v11.ArrowType `protobuf:"bytes,16,opt,name=arrow_type,json=arrowType,proto3,oneof"`
+	ArrowType *v12.ArrowType `protobuf:"bytes,16,opt,name=arrow_type,json=arrowType,proto3,oneof"`
 }
 
 type Argument_UnderscoreExpr struct {
-	UnderscoreExpr *v12.LogicalExprNode `protobuf:"bytes,17,opt,name=underscore_expr,json=underscoreExpr,proto3,oneof"`
+	UnderscoreExpr *v13.LogicalExprNode `protobuf:"bytes,17,opt,name=underscore_expr,json=underscoreExpr,proto3,oneof"`
 }
 
 type Argument_FilterExpr struct {
-	FilterExpr *v12.LogicalExprNode `protobuf:"bytes,18,opt,name=filter_expr,json=filterExpr,proto3,oneof"`
+	FilterExpr *v13.LogicalExprNode `protobuf:"bytes,18,opt,name=filter_expr,json=filterExpr,proto3,oneof"`
 }
 
 type Argument_DetachedColumnFeatureType struct {
@@ -921,6 +947,9 @@ type Argument_FeatureReference struct {
 }
 
 type Argument_SymbolicValue struct {
+	// Deprecated; use “symbolic_value_v2“.
+	//
+	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	SymbolicValue *SymbolicValue `protobuf:"bytes,23,opt,name=symbolic_value,json=symbolicValue,proto3,oneof"`
 }
 
@@ -948,6 +977,10 @@ type Argument_UnderscoreParsed struct {
 
 type Argument_IpcArrowTable struct {
 	IpcArrowTable []byte `protobuf:"bytes,29,opt,name=ipc_arrow_table,json=ipcArrowTable,proto3,oneof"`
+}
+
+type Argument_SymbolicValueV2 struct {
+	SymbolicValueV2 *v1.SymbolicValue `protobuf:"bytes,30,opt,name=symbolic_value_v2,json=symbolicValueV2,proto3,oneof"`
 }
 
 func (*Argument_None) isArgument_Arg() {}
@@ -1001,6 +1034,8 @@ func (*Argument_FeatureRefIdV2) isArgument_Arg() {}
 func (*Argument_UnderscoreParsed) isArgument_Arg() {}
 
 func (*Argument_IpcArrowTable) isArgument_Arg() {}
+
+func (*Argument_SymbolicValueV2) isArgument_Arg() {}
 
 type ArgumentMapElement struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1301,7 +1336,7 @@ type FilterExpressionParsed struct {
 	state  protoimpl.MessageState    `protogen:"open.v1"`
 	ThisId *FilterExpressionParsedId `protobuf:"bytes,1,opt,name=this_id,json=thisId,proto3" json:"this_id,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	FilterExpression *v12.LogicalExprNode `protobuf:"bytes,2,opt,name=filter_expression,json=filterExpression,proto3" json:"filter_expression,omitempty"`
+	FilterExpression *v13.LogicalExprNode `protobuf:"bytes,2,opt,name=filter_expression,json=filterExpression,proto3" json:"filter_expression,omitempty"`
 	Expr             *UnderscoreValue     `protobuf:"bytes,3,opt,name=expr,proto3" json:"expr,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
@@ -1345,7 +1380,7 @@ func (x *FilterExpressionParsed) GetThisId() *FilterExpressionParsedId {
 }
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-func (x *FilterExpressionParsed) GetFilterExpression() *v12.LogicalExprNode {
+func (x *FilterExpressionParsed) GetFilterExpression() *v13.LogicalExprNode {
 	if x != nil {
 		return x.FilterExpression
 	}
@@ -1410,11 +1445,11 @@ func (x *FilterExpressionParsedId) GetId() uint64 {
 type DataFrameType struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	ThisId *DataFrameTypeId       `protobuf:"bytes,4,opt,name=this_id,json=thisId,proto3" json:"this_id,omitempty"`
-	Df     *v1.DataFrameType      `protobuf:"bytes,1,opt,name=df,proto3" json:"df,omitempty"`
+	Df     *v11.DataFrameType     `protobuf:"bytes,1,opt,name=df,proto3" json:"df,omitempty"`
 	// overrides to df
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-	FilterExpression   *v12.LogicalExprNode      `protobuf:"bytes,2,opt,name=filter_expression,json=filterExpression,proto3,oneof" json:"filter_expression,omitempty"`
+	FilterExpression   *v13.LogicalExprNode      `protobuf:"bytes,2,opt,name=filter_expression,json=filterExpression,proto3,oneof" json:"filter_expression,omitempty"`
 	FilterExpressionId *FilterExpressionParsedId `protobuf:"bytes,5,opt,name=filter_expression_id,json=filterExpressionId,proto3,oneof" json:"filter_expression_id,omitempty"`
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 	OptionalColumns    []*FeatureReference   `protobuf:"bytes,3,rep,name=optional_columns,json=optionalColumns,proto3" json:"optional_columns,omitempty"`
@@ -1461,7 +1496,7 @@ func (x *DataFrameType) GetThisId() *DataFrameTypeId {
 	return nil
 }
 
-func (x *DataFrameType) GetDf() *v1.DataFrameType {
+func (x *DataFrameType) GetDf() *v11.DataFrameType {
 	if x != nil {
 		return x.Df
 	}
@@ -1469,7 +1504,7 @@ func (x *DataFrameType) GetDf() *v1.DataFrameType {
 }
 
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
-func (x *DataFrameType) GetFilterExpression() *v12.LogicalExprNode {
+func (x *DataFrameType) GetFilterExpression() *v13.LogicalExprNode {
 	if x != nil {
 		return x.FilterExpression
 	}
@@ -1556,7 +1591,7 @@ func (x *DataFrameTypeId) GetId() uint64 {
 type FeatureReference struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	ThisId     *FeatureReferenceId    `protobuf:"bytes,5,opt,name=this_id,json=thisId,proto3" json:"this_id,omitempty"`
-	FeatureRef *v1.FeatureReference   `protobuf:"bytes,1,opt,name=feature_ref,json=featureRef,proto3" json:"feature_ref,omitempty"`
+	FeatureRef *v11.FeatureReference  `protobuf:"bytes,1,opt,name=feature_ref,json=featureRef,proto3" json:"feature_ref,omitempty"`
 	// overrides to feature_ref
 	//
 	// Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
@@ -1606,7 +1641,7 @@ func (x *FeatureReference) GetThisId() *FeatureReferenceId {
 	return nil
 }
 
-func (x *FeatureReference) GetFeatureRef() *v1.FeatureReference {
+func (x *FeatureReference) GetFeatureRef() *v11.FeatureReference {
 	if x != nil {
 		return x.FeatureRef
 	}
@@ -1691,7 +1726,7 @@ func (x *FeatureReferenceId) GetId() uint64 {
 // Deprecated: Marked as deprecated in chalk/planner/v1/batch_operator.proto.
 type UnderscoreValue struct {
 	state              protoimpl.MessageState    `protogen:"open.v1"`
-	OriginalUnderscore *v12.LogicalExprNode      `protobuf:"bytes,1,opt,name=original_underscore,json=originalUnderscore,proto3" json:"original_underscore,omitempty"`
+	OriginalUnderscore *v13.LogicalExprNode      `protobuf:"bytes,1,opt,name=original_underscore,json=originalUnderscore,proto3" json:"original_underscore,omitempty"`
 	CodecInfo          *UnderscoreValueCodecInfo `protobuf:"bytes,2,opt,name=codec_info,json=codecInfo,proto3" json:"codec_info,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -1727,7 +1762,7 @@ func (*UnderscoreValue) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *UnderscoreValue) GetOriginalUnderscore() *v12.LogicalExprNode {
+func (x *UnderscoreValue) GetOriginalUnderscore() *v13.LogicalExprNode {
 	if x != nil {
 		return x.OriginalUnderscore
 	}
@@ -1922,7 +1957,7 @@ func (*ResolverRootUnderscoreBehavior) Descriptor() ([]byte, []int) {
 
 type StreamResolverRootUnderscoreBehavior struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageDtype  *v11.ArrowType         `protobuf:"bytes,1,opt,name=message_dtype,json=messageDtype,proto3" json:"message_dtype,omitempty"`
+	MessageDtype  *v12.ArrowType         `protobuf:"bytes,1,opt,name=message_dtype,json=messageDtype,proto3" json:"message_dtype,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1957,7 +1992,7 @@ func (*StreamResolverRootUnderscoreBehavior) Descriptor() ([]byte, []int) {
 	return file_chalk_planner_v1_batch_operator_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *StreamResolverRootUnderscoreBehavior) GetMessageDtype() *v11.ArrowType {
+func (x *StreamResolverRootUnderscoreBehavior) GetMessageDtype() *v12.ArrowType {
 	if x != nil {
 		return x.MessageDtype
 	}
@@ -1968,12 +2003,13 @@ var File_chalk_planner_v1_batch_operator_proto protoreflect.FileDescriptor
 
 const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/planner/v1/batch_operator.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/planner/v1/feature_types.proto\x1a%chalk/planner/v1/symbolic_value.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb2\x02\n" +
+	"%chalk/planner/v1/batch_operator.proto\x12\x10chalk.planner.v1\x1a\x1achalk/arrow/v1/arrow.proto\x1a$chalk/expression/v1/expression.proto\x1a\x1achalk/graph/v1/graph.proto\x1a$chalk/planner/v1/feature_types.proto\x1a%chalk/planner/v1/symbolic_value.proto\x1a,chalk/symbolic_value/v1/symbolic_value.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8c\x03\n" +
 	"\tBatchPlan\x12=\n" +
-	"\toperators\x18\x01 \x03(\v2\x1f.chalk.planner.v1.BatchOperatorR\toperators\x12H\n" +
-	"\x0fsymbolic_values\x18\x02 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\x0esymbolicValues\x12T\n" +
+	"\toperators\x18\x01 \x03(\v2\x1f.chalk.planner.v1.BatchOperatorR\toperators\x12L\n" +
+	"\x0fsymbolic_values\x18\x02 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueB\x02\x18\x01R\x0esymbolicValues\x12T\n" +
 	"\x10feature_ref_info\x18\x03 \x01(\v2&.chalk.planner.v1.FeatureReferenceInfoB\x02\x18\x01R\x0efeatureRefInfo\x12F\n" +
-	"\x0eauxiliary_info\x18\x04 \x01(\v2\x1f.chalk.planner.v1.AuxiliaryInfoR\rauxiliaryInfo\"\xb8\x02\n" +
+	"\x0eauxiliary_info\x18\x04 \x01(\v2\x1f.chalk.planner.v1.AuxiliaryInfoR\rauxiliaryInfo\x12T\n" +
+	"\x12symbolic_values_v2\x18\x05 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x10symbolicValuesV2\"\xb8\x02\n" +
 	"\rBatchOperator\x12C\n" +
 	"\roperator_type\x18\x01 \x01(\x0e2\x1e.chalk.planner.v1.OperatorTypeR\foperatorType\x12:\n" +
 	"\n" +
@@ -1988,7 +2024,7 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x12filter_expressions\x18\x03 \x03(\v2(.chalk.planner.v1.FilterExpressionParsedR\x11filterExpressions:\x02\x18\x01\",\n" +
 	"\tGraphInfo\x12\x1f\n" +
 	"\voperator_id\x18\x01 \x01(\x04R\n" +
-	"operatorId\"\xbf\r\n" +
+	"operatorId\"\x99\x0e\n" +
 	"\bArgument\x12,\n" +
 	"\x04none\x18\x01 \x01(\v2\x16.chalk.planner.v1.VoidH\x00R\x04none\x12\x1f\n" +
 	"\n" +
@@ -2015,14 +2051,15 @@ const file_chalk_planner_v1_batch_operator_proto_rawDesc = "" +
 	"\x1cdetached_column_feature_type\x18\x13 \x01(\v2+.chalk.planner.v1.DetachedColumnFeatureTypeH\x00R\x19detachedColumnFeatureType\x12t\n" +
 	"\x1eoutput_underscore_feature_type\x18\x14 \x01(\v2-.chalk.planner.v1.OutputUnderscoreFeatureTypeH\x00R\x1boutputUnderscoreFeatureType\x12M\n" +
 	"\x0fdata_frame_type\x18\x15 \x01(\v2\x1f.chalk.planner.v1.DataFrameTypeB\x02\x18\x01H\x00R\rdataFrameType\x12U\n" +
-	"\x11feature_reference\x18\x16 \x01(\v2\".chalk.planner.v1.FeatureReferenceB\x02\x18\x01H\x00R\x10featureReference\x12H\n" +
-	"\x0esymbolic_value\x18\x17 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueH\x00R\rsymbolicValue\x12T\n" +
+	"\x11feature_reference\x18\x16 \x01(\v2\".chalk.planner.v1.FeatureReferenceB\x02\x18\x01H\x00R\x10featureReference\x12L\n" +
+	"\x0esymbolic_value\x18\x17 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueB\x02\x18\x01H\x00R\rsymbolicValue\x12T\n" +
 	"\x12data_frame_type_id\x18\x18 \x01(\v2!.chalk.planner.v1.DataFrameTypeIdB\x02\x18\x01H\x00R\x0fdataFrameTypeId\x12P\n" +
 	"\x0efeature_ref_id\x18\x19 \x01(\v2$.chalk.planner.v1.FeatureReferenceIdB\x02\x18\x01H\x00R\ffeatureRefId\x12W\n" +
 	"\x15data_frame_type_id_v2\x18\x1a \x01(\v2#.chalk.planner.v1.DataFrameTypeIdV2H\x00R\x11dataFrameTypeIdV2\x12S\n" +
 	"\x11feature_ref_id_v2\x18\x1b \x01(\v2&.chalk.planner.v1.FeatureReferenceIdV2H\x00R\x0efeatureRefIdV2\x12S\n" +
 	"\x11underscore_parsed\x18\x1c \x01(\v2$.chalk.planner.v1.UnderscoreParsedIdH\x00R\x10underscoreParsed\x12(\n" +
-	"\x0fipc_arrow_table\x18\x1d \x01(\fH\x00R\ripcArrowTableB\x05\n" +
+	"\x0fipc_arrow_table\x18\x1d \x01(\fH\x00R\ripcArrowTable\x12T\n" +
+	"\x11symbolic_value_v2\x18\x1e \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueH\x00R\x0fsymbolicValueV2B\x05\n" +
 	"\x03arg\"t\n" +
 	"\x12ArgumentMapElement\x12,\n" +
 	"\x03key\x18\x01 \x01(\v2\x1a.chalk.planner.v1.ArgumentR\x03key\x120\n" +
@@ -2217,87 +2254,90 @@ var file_chalk_planner_v1_batch_operator_proto_goTypes = []any{
 	nil,                           // 26: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
 	(*SymbolicValue)(nil),         // 27: chalk.planner.v1.SymbolicValue
 	(*AuxiliaryInfo)(nil),         // 28: chalk.planner.v1.AuxiliaryInfo
-	(*timestamppb.Timestamp)(nil), // 29: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 30: google.protobuf.Duration
-	(*v1.FeatureReference)(nil),   // 31: chalk.graph.v1.FeatureReference
-	(*v11.ArrowType)(nil),         // 32: chalk.arrow.v1.ArrowType
-	(*v12.LogicalExprNode)(nil),   // 33: chalk.expression.v1.LogicalExprNode
-	(*DataFrameTypeIdV2)(nil),     // 34: chalk.planner.v1.DataFrameTypeIdV2
-	(*FeatureReferenceIdV2)(nil),  // 35: chalk.planner.v1.FeatureReferenceIdV2
-	(*UnderscoreParsedId)(nil),    // 36: chalk.planner.v1.UnderscoreParsedId
-	(*v1.DataFrameType)(nil),      // 37: chalk.graph.v1.DataFrameType
+	(*v1.SymbolicValue)(nil),      // 29: chalk.symbolic_value.v1.SymbolicValue
+	(*timestamppb.Timestamp)(nil), // 30: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),   // 31: google.protobuf.Duration
+	(*v11.FeatureReference)(nil),  // 32: chalk.graph.v1.FeatureReference
+	(*v12.ArrowType)(nil),         // 33: chalk.arrow.v1.ArrowType
+	(*v13.LogicalExprNode)(nil),   // 34: chalk.expression.v1.LogicalExprNode
+	(*DataFrameTypeIdV2)(nil),     // 35: chalk.planner.v1.DataFrameTypeIdV2
+	(*FeatureReferenceIdV2)(nil),  // 36: chalk.planner.v1.FeatureReferenceIdV2
+	(*UnderscoreParsedId)(nil),    // 37: chalk.planner.v1.UnderscoreParsedId
+	(*v11.DataFrameType)(nil),     // 38: chalk.graph.v1.DataFrameType
 }
 var file_chalk_planner_v1_batch_operator_proto_depIdxs = []int32{
 	2,  // 0: chalk.planner.v1.BatchPlan.operators:type_name -> chalk.planner.v1.BatchOperator
 	27, // 1: chalk.planner.v1.BatchPlan.symbolic_values:type_name -> chalk.planner.v1.SymbolicValue
 	3,  // 2: chalk.planner.v1.BatchPlan.feature_ref_info:type_name -> chalk.planner.v1.FeatureReferenceInfo
 	28, // 3: chalk.planner.v1.BatchPlan.auxiliary_info:type_name -> chalk.planner.v1.AuxiliaryInfo
-	0,  // 4: chalk.planner.v1.BatchOperator.operator_type:type_name -> chalk.planner.v1.OperatorType
-	4,  // 5: chalk.planner.v1.BatchOperator.graph_info:type_name -> chalk.planner.v1.GraphInfo
-	23, // 6: chalk.planner.v1.BatchOperator.arguments:type_name -> chalk.planner.v1.BatchOperator.ArgumentsEntry
-	16, // 7: chalk.planner.v1.FeatureReferenceInfo.feature_refs:type_name -> chalk.planner.v1.FeatureReference
-	14, // 8: chalk.planner.v1.FeatureReferenceInfo.data_frame_types:type_name -> chalk.planner.v1.DataFrameType
-	12, // 9: chalk.planner.v1.FeatureReferenceInfo.filter_expressions:type_name -> chalk.planner.v1.FilterExpressionParsed
-	9,  // 10: chalk.planner.v1.Argument.none:type_name -> chalk.planner.v1.Void
-	29, // 11: chalk.planner.v1.Argument.timestamp:type_name -> google.protobuf.Timestamp
-	30, // 12: chalk.planner.v1.Argument.duration:type_name -> google.protobuf.Duration
-	31, // 13: chalk.planner.v1.Argument.feature_ref:type_name -> chalk.graph.v1.FeatureReference
-	8,  // 14: chalk.planner.v1.Argument.tuple:type_name -> chalk.planner.v1.ArgumentList
-	7,  // 15: chalk.planner.v1.Argument.submap:type_name -> chalk.planner.v1.ArgumentMap
-	32, // 16: chalk.planner.v1.Argument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
-	33, // 17: chalk.planner.v1.Argument.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	33, // 18: chalk.planner.v1.Argument.filter_expr:type_name -> chalk.expression.v1.LogicalExprNode
-	10, // 19: chalk.planner.v1.Argument.detached_column_feature_type:type_name -> chalk.planner.v1.DetachedColumnFeatureType
-	11, // 20: chalk.planner.v1.Argument.output_underscore_feature_type:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType
-	14, // 21: chalk.planner.v1.Argument.data_frame_type:type_name -> chalk.planner.v1.DataFrameType
-	16, // 22: chalk.planner.v1.Argument.feature_reference:type_name -> chalk.planner.v1.FeatureReference
-	27, // 23: chalk.planner.v1.Argument.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
-	15, // 24: chalk.planner.v1.Argument.data_frame_type_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	17, // 25: chalk.planner.v1.Argument.feature_ref_id:type_name -> chalk.planner.v1.FeatureReferenceId
-	34, // 26: chalk.planner.v1.Argument.data_frame_type_id_v2:type_name -> chalk.planner.v1.DataFrameTypeIdV2
-	35, // 27: chalk.planner.v1.Argument.feature_ref_id_v2:type_name -> chalk.planner.v1.FeatureReferenceIdV2
-	36, // 28: chalk.planner.v1.Argument.underscore_parsed:type_name -> chalk.planner.v1.UnderscoreParsedId
-	5,  // 29: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
-	5,  // 30: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
-	24, // 31: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
-	5,  // 32: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
-	5,  // 33: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
-	6,  // 34: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
-	5,  // 35: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
-	25, // 36: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
-	26, // 37: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
-	13, // 38: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	33, // 39: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	18, // 40: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
-	15, // 41: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	37, // 42: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
-	33, // 43: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
-	13, // 44: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
-	16, // 45: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
-	17, // 46: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	17, // 47: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
-	17, // 48: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
-	31, // 49: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
-	16, // 50: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
-	17, // 51: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
-	14, // 52: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
-	15, // 53: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
-	33, // 54: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
-	19, // 55: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
-	17, // 56: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
-	20, // 57: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
-	21, // 58: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
-	22, // 59: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
-	32, // 60: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
-	5,  // 61: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 62: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 63: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	5,  // 64: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
-	65, // [65:65] is the sub-list for method output_type
-	65, // [65:65] is the sub-list for method input_type
-	65, // [65:65] is the sub-list for extension type_name
-	65, // [65:65] is the sub-list for extension extendee
-	0,  // [0:65] is the sub-list for field type_name
+	29, // 4: chalk.planner.v1.BatchPlan.symbolic_values_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 5: chalk.planner.v1.BatchOperator.operator_type:type_name -> chalk.planner.v1.OperatorType
+	4,  // 6: chalk.planner.v1.BatchOperator.graph_info:type_name -> chalk.planner.v1.GraphInfo
+	23, // 7: chalk.planner.v1.BatchOperator.arguments:type_name -> chalk.planner.v1.BatchOperator.ArgumentsEntry
+	16, // 8: chalk.planner.v1.FeatureReferenceInfo.feature_refs:type_name -> chalk.planner.v1.FeatureReference
+	14, // 9: chalk.planner.v1.FeatureReferenceInfo.data_frame_types:type_name -> chalk.planner.v1.DataFrameType
+	12, // 10: chalk.planner.v1.FeatureReferenceInfo.filter_expressions:type_name -> chalk.planner.v1.FilterExpressionParsed
+	9,  // 11: chalk.planner.v1.Argument.none:type_name -> chalk.planner.v1.Void
+	30, // 12: chalk.planner.v1.Argument.timestamp:type_name -> google.protobuf.Timestamp
+	31, // 13: chalk.planner.v1.Argument.duration:type_name -> google.protobuf.Duration
+	32, // 14: chalk.planner.v1.Argument.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	8,  // 15: chalk.planner.v1.Argument.tuple:type_name -> chalk.planner.v1.ArgumentList
+	7,  // 16: chalk.planner.v1.Argument.submap:type_name -> chalk.planner.v1.ArgumentMap
+	33, // 17: chalk.planner.v1.Argument.arrow_type:type_name -> chalk.arrow.v1.ArrowType
+	34, // 18: chalk.planner.v1.Argument.underscore_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	34, // 19: chalk.planner.v1.Argument.filter_expr:type_name -> chalk.expression.v1.LogicalExprNode
+	10, // 20: chalk.planner.v1.Argument.detached_column_feature_type:type_name -> chalk.planner.v1.DetachedColumnFeatureType
+	11, // 21: chalk.planner.v1.Argument.output_underscore_feature_type:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType
+	14, // 22: chalk.planner.v1.Argument.data_frame_type:type_name -> chalk.planner.v1.DataFrameType
+	16, // 23: chalk.planner.v1.Argument.feature_reference:type_name -> chalk.planner.v1.FeatureReference
+	27, // 24: chalk.planner.v1.Argument.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
+	15, // 25: chalk.planner.v1.Argument.data_frame_type_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	17, // 26: chalk.planner.v1.Argument.feature_ref_id:type_name -> chalk.planner.v1.FeatureReferenceId
+	35, // 27: chalk.planner.v1.Argument.data_frame_type_id_v2:type_name -> chalk.planner.v1.DataFrameTypeIdV2
+	36, // 28: chalk.planner.v1.Argument.feature_ref_id_v2:type_name -> chalk.planner.v1.FeatureReferenceIdV2
+	37, // 29: chalk.planner.v1.Argument.underscore_parsed:type_name -> chalk.planner.v1.UnderscoreParsedId
+	29, // 30: chalk.planner.v1.Argument.symbolic_value_v2:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	5,  // 31: chalk.planner.v1.ArgumentMapElement.key:type_name -> chalk.planner.v1.Argument
+	5,  // 32: chalk.planner.v1.ArgumentMapElement.value:type_name -> chalk.planner.v1.Argument
+	24, // 33: chalk.planner.v1.ArgumentMap.arguments:type_name -> chalk.planner.v1.ArgumentMap.ArgumentsEntry
+	5,  // 34: chalk.planner.v1.ArgumentMap.keys:type_name -> chalk.planner.v1.Argument
+	5,  // 35: chalk.planner.v1.ArgumentMap.values:type_name -> chalk.planner.v1.Argument
+	6,  // 36: chalk.planner.v1.ArgumentMap.ordered_arguments:type_name -> chalk.planner.v1.ArgumentMapElement
+	5,  // 37: chalk.planner.v1.ArgumentList.values:type_name -> chalk.planner.v1.Argument
+	25, // 38: chalk.planner.v1.DetachedColumnFeatureType.arguments:type_name -> chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry
+	26, // 39: chalk.planner.v1.OutputUnderscoreFeatureType.arguments:type_name -> chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry
+	13, // 40: chalk.planner.v1.FilterExpressionParsed.this_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	34, // 41: chalk.planner.v1.FilterExpressionParsed.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	18, // 42: chalk.planner.v1.FilterExpressionParsed.expr:type_name -> chalk.planner.v1.UnderscoreValue
+	15, // 43: chalk.planner.v1.DataFrameType.this_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	38, // 44: chalk.planner.v1.DataFrameType.df:type_name -> chalk.graph.v1.DataFrameType
+	34, // 45: chalk.planner.v1.DataFrameType.filter_expression:type_name -> chalk.expression.v1.LogicalExprNode
+	13, // 46: chalk.planner.v1.DataFrameType.filter_expression_id:type_name -> chalk.planner.v1.FilterExpressionParsedId
+	16, // 47: chalk.planner.v1.DataFrameType.optional_columns:type_name -> chalk.planner.v1.FeatureReference
+	17, // 48: chalk.planner.v1.DataFrameType.optional_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	17, // 49: chalk.planner.v1.DataFrameType.required_column_refs:type_name -> chalk.planner.v1.FeatureReferenceId
+	17, // 50: chalk.planner.v1.FeatureReference.this_id:type_name -> chalk.planner.v1.FeatureReferenceId
+	32, // 51: chalk.planner.v1.FeatureReference.feature_ref:type_name -> chalk.graph.v1.FeatureReference
+	16, // 52: chalk.planner.v1.FeatureReference.path:type_name -> chalk.planner.v1.FeatureReference
+	17, // 53: chalk.planner.v1.FeatureReference.path_ids:type_name -> chalk.planner.v1.FeatureReferenceId
+	14, // 54: chalk.planner.v1.FeatureReference.df:type_name -> chalk.planner.v1.DataFrameType
+	15, // 55: chalk.planner.v1.FeatureReference.df_id:type_name -> chalk.planner.v1.DataFrameTypeId
+	34, // 56: chalk.planner.v1.UnderscoreValue.original_underscore:type_name -> chalk.expression.v1.LogicalExprNode
+	19, // 57: chalk.planner.v1.UnderscoreValue.codec_info:type_name -> chalk.planner.v1.UnderscoreValueCodecInfo
+	17, // 58: chalk.planner.v1.UnderscoreValueCodecInfo.for_feature:type_name -> chalk.planner.v1.FeatureReferenceId
+	20, // 59: chalk.planner.v1.UnderscoreValueCodecInfo.root_underscore_behavior:type_name -> chalk.planner.v1.RootUnderscoreBehavior
+	21, // 60: chalk.planner.v1.RootUnderscoreBehavior.resolver:type_name -> chalk.planner.v1.ResolverRootUnderscoreBehavior
+	22, // 61: chalk.planner.v1.RootUnderscoreBehavior.stream_resolver:type_name -> chalk.planner.v1.StreamResolverRootUnderscoreBehavior
+	33, // 62: chalk.planner.v1.StreamResolverRootUnderscoreBehavior.message_dtype:type_name -> chalk.arrow.v1.ArrowType
+	5,  // 63: chalk.planner.v1.BatchOperator.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 64: chalk.planner.v1.ArgumentMap.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 65: chalk.planner.v1.DetachedColumnFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	5,  // 66: chalk.planner.v1.OutputUnderscoreFeatureType.ArgumentsEntry.value:type_name -> chalk.planner.v1.Argument
+	67, // [67:67] is the sub-list for method output_type
+	67, // [67:67] is the sub-list for method input_type
+	67, // [67:67] is the sub-list for extension type_name
+	67, // [67:67] is the sub-list for extension extendee
+	0,  // [0:67] is the sub-list for field type_name
 }
 
 func init() { file_chalk_planner_v1_batch_operator_proto_init() }
@@ -2334,6 +2374,7 @@ func file_chalk_planner_v1_batch_operator_proto_init() {
 		(*Argument_FeatureRefIdV2)(nil),
 		(*Argument_UnderscoreParsed)(nil),
 		(*Argument_IpcArrowTable)(nil),
+		(*Argument_SymbolicValueV2)(nil),
 	}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_planner_v1_batch_operator_proto_msgTypes[15].OneofWrappers = []any{}

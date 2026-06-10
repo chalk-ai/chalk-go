@@ -2,13 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: chalk/planner/v1/symbolic_value.proto
+// source: chalk/symbolic_value/v1/symbolic_value.proto
 
-// Deprecated. Use chalk/symbolic_value/v1/symbolic_value.proto. This
-// definition is preserved for wire compatibility on legacy fields that
-// continue to reference chalk.planner.v1.SymbolicValue (see batch_operator.proto).
-
-package plannerv1
+package symbolic_valuev1
 
 import (
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/python/v1"
@@ -58,7 +54,7 @@ type SymbolicValue struct {
 
 func (x *SymbolicValue) Reset() {
 	*x = SymbolicValue{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[0]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -70,7 +66,7 @@ func (x *SymbolicValue) String() string {
 func (*SymbolicValue) ProtoMessage() {}
 
 func (x *SymbolicValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[0]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -83,7 +79,7 @@ func (x *SymbolicValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicValue.ProtoReflect.Descriptor instead.
 func (*SymbolicValue) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{0}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SymbolicValue) GetTy() *v1.Ty {
@@ -392,7 +388,7 @@ type EmptyMessage struct {
 
 func (x *EmptyMessage) Reset() {
 	*x = EmptyMessage{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[1]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +400,7 @@ func (x *EmptyMessage) String() string {
 func (*EmptyMessage) ProtoMessage() {}
 
 func (x *EmptyMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[1]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -417,7 +413,7 @@ func (x *EmptyMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmptyMessage.ProtoReflect.Descriptor instead.
 func (*EmptyMessage) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{1}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{1}
 }
 
 type SymbolicValueRef struct {
@@ -429,7 +425,7 @@ type SymbolicValueRef struct {
 
 func (x *SymbolicValueRef) Reset() {
 	*x = SymbolicValueRef{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[2]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +437,7 @@ func (x *SymbolicValueRef) String() string {
 func (*SymbolicValueRef) ProtoMessage() {}
 
 func (x *SymbolicValueRef) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[2]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +450,7 @@ func (x *SymbolicValueRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicValueRef.ProtoReflect.Descriptor instead.
 func (*SymbolicValueRef) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{2}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SymbolicValueRef) GetRefId() uint64 {
@@ -474,7 +470,7 @@ type SymbolicParameter struct {
 
 func (x *SymbolicParameter) Reset() {
 	*x = SymbolicParameter{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[3]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -486,7 +482,7 @@ func (x *SymbolicParameter) String() string {
 func (*SymbolicParameter) ProtoMessage() {}
 
 func (x *SymbolicParameter) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[3]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,7 +495,7 @@ func (x *SymbolicParameter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicParameter.ProtoReflect.Descriptor instead.
 func (*SymbolicParameter) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{3}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SymbolicParameter) GetName() string {
@@ -526,7 +522,7 @@ type SymbolicFuncCall struct {
 
 func (x *SymbolicFuncCall) Reset() {
 	*x = SymbolicFuncCall{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[4]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +534,7 @@ func (x *SymbolicFuncCall) String() string {
 func (*SymbolicFuncCall) ProtoMessage() {}
 
 func (x *SymbolicFuncCall) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[4]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +547,7 @@ func (x *SymbolicFuncCall) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicFuncCall.ProtoReflect.Descriptor instead.
 func (*SymbolicFuncCall) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{4}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SymbolicFuncCall) GetFunctionName() string {
@@ -579,7 +575,7 @@ type SymbolicBranch struct {
 
 func (x *SymbolicBranch) Reset() {
 	*x = SymbolicBranch{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[5]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +587,7 @@ func (x *SymbolicBranch) String() string {
 func (*SymbolicBranch) ProtoMessage() {}
 
 func (x *SymbolicBranch) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[5]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +600,7 @@ func (x *SymbolicBranch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicBranch.ProtoReflect.Descriptor instead.
 func (*SymbolicBranch) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{5}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SymbolicBranch) GetCondition() *SymbolicValue {
@@ -638,7 +634,7 @@ type StringSymbolicValuePair struct {
 
 func (x *StringSymbolicValuePair) Reset() {
 	*x = StringSymbolicValuePair{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[6]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -650,7 +646,7 @@ func (x *StringSymbolicValuePair) String() string {
 func (*StringSymbolicValuePair) ProtoMessage() {}
 
 func (x *StringSymbolicValuePair) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[6]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -663,7 +659,7 @@ func (x *StringSymbolicValuePair) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StringSymbolicValuePair.ProtoReflect.Descriptor instead.
 func (*StringSymbolicValuePair) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{6}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *StringSymbolicValuePair) GetKey() string {
@@ -683,7 +679,7 @@ func (x *StringSymbolicValuePair) GetSymbolicValue() *SymbolicValue {
 type SymbolicStructClassConstructor struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	StructName string                 `protobuf:"bytes,1,opt,name=struct_name,json=structName,proto3" json:"struct_name,omitempty"`
-	// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+	// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 	Fields        map[string]*SymbolicValue  `protobuf:"bytes,2,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	OrderedFields []*StringSymbolicValuePair `protobuf:"bytes,3,rep,name=ordered_fields,json=orderedFields,proto3" json:"ordered_fields,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -692,7 +688,7 @@ type SymbolicStructClassConstructor struct {
 
 func (x *SymbolicStructClassConstructor) Reset() {
 	*x = SymbolicStructClassConstructor{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[7]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -704,7 +700,7 @@ func (x *SymbolicStructClassConstructor) String() string {
 func (*SymbolicStructClassConstructor) ProtoMessage() {}
 
 func (x *SymbolicStructClassConstructor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[7]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,7 +713,7 @@ func (x *SymbolicStructClassConstructor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicStructClassConstructor.ProtoReflect.Descriptor instead.
 func (*SymbolicStructClassConstructor) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{7}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SymbolicStructClassConstructor) GetStructName() string {
@@ -727,7 +723,7 @@ func (x *SymbolicStructClassConstructor) GetStructName() string {
 	return ""
 }
 
-// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 func (x *SymbolicStructClassConstructor) GetFields() map[string]*SymbolicValue {
 	if x != nil {
 		return x.Fields
@@ -745,7 +741,7 @@ func (x *SymbolicStructClassConstructor) GetOrderedFields() []*StringSymbolicVal
 type SymbolicFeatureClassConstructor struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	ConstructorNamespace string                 `protobuf:"bytes,1,opt,name=constructor_namespace,json=constructorNamespace,proto3" json:"constructor_namespace,omitempty"`
-	// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+	// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 	Fields        map[string]*SymbolicValue  `protobuf:"bytes,2,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	OrderedFields []*StringSymbolicValuePair `protobuf:"bytes,3,rep,name=ordered_fields,json=orderedFields,proto3" json:"ordered_fields,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -754,7 +750,7 @@ type SymbolicFeatureClassConstructor struct {
 
 func (x *SymbolicFeatureClassConstructor) Reset() {
 	*x = SymbolicFeatureClassConstructor{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[8]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +762,7 @@ func (x *SymbolicFeatureClassConstructor) String() string {
 func (*SymbolicFeatureClassConstructor) ProtoMessage() {}
 
 func (x *SymbolicFeatureClassConstructor) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[8]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +775,7 @@ func (x *SymbolicFeatureClassConstructor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicFeatureClassConstructor.ProtoReflect.Descriptor instead.
 func (*SymbolicFeatureClassConstructor) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{8}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SymbolicFeatureClassConstructor) GetConstructorNamespace() string {
@@ -789,7 +785,7 @@ func (x *SymbolicFeatureClassConstructor) GetConstructorNamespace() string {
 	return ""
 }
 
-// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 func (x *SymbolicFeatureClassConstructor) GetFields() map[string]*SymbolicValue {
 	if x != nil {
 		return x.Fields
@@ -814,7 +810,7 @@ type SymbolicConfluentKafkaSerializationContext struct {
 
 func (x *SymbolicConfluentKafkaSerializationContext) Reset() {
 	*x = SymbolicConfluentKafkaSerializationContext{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[9]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -826,7 +822,7 @@ func (x *SymbolicConfluentKafkaSerializationContext) String() string {
 func (*SymbolicConfluentKafkaSerializationContext) ProtoMessage() {}
 
 func (x *SymbolicConfluentKafkaSerializationContext) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[9]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -839,7 +835,7 @@ func (x *SymbolicConfluentKafkaSerializationContext) ProtoReflect() protoreflect
 
 // Deprecated: Use SymbolicConfluentKafkaSerializationContext.ProtoReflect.Descriptor instead.
 func (*SymbolicConfluentKafkaSerializationContext) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{9}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SymbolicConfluentKafkaSerializationContext) GetTopic() *SymbolicValue {
@@ -865,7 +861,7 @@ type SymbolicLambdaParameter struct {
 
 func (x *SymbolicLambdaParameter) Reset() {
 	*x = SymbolicLambdaParameter{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[10]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -877,7 +873,7 @@ func (x *SymbolicLambdaParameter) String() string {
 func (*SymbolicLambdaParameter) ProtoMessage() {}
 
 func (x *SymbolicLambdaParameter) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[10]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -890,7 +886,7 @@ func (x *SymbolicLambdaParameter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicLambdaParameter.ProtoReflect.Descriptor instead.
 func (*SymbolicLambdaParameter) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{10}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *SymbolicLambdaParameter) GetName() string {
@@ -911,7 +907,7 @@ type SymbolicLambdaFunction struct {
 
 func (x *SymbolicLambdaFunction) Reset() {
 	*x = SymbolicLambdaFunction{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[11]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -923,7 +919,7 @@ func (x *SymbolicLambdaFunction) String() string {
 func (*SymbolicLambdaFunction) ProtoMessage() {}
 
 func (x *SymbolicLambdaFunction) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[11]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +932,7 @@ func (x *SymbolicLambdaFunction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicLambdaFunction.ProtoReflect.Descriptor instead.
 func (*SymbolicLambdaFunction) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{11}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SymbolicLambdaFunction) GetParameters() []*SymbolicValue {
@@ -967,7 +963,7 @@ type SymbolicStructField struct {
 
 func (x *SymbolicStructField) Reset() {
 	*x = SymbolicStructField{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[12]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -979,7 +975,7 @@ func (x *SymbolicStructField) String() string {
 func (*SymbolicStructField) ProtoMessage() {}
 
 func (x *SymbolicStructField) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[12]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -992,7 +988,7 @@ func (x *SymbolicStructField) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicStructField.ProtoReflect.Descriptor instead.
 func (*SymbolicStructField) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{12}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SymbolicStructField) GetStruct() *SymbolicValue {
@@ -1045,7 +1041,7 @@ func (*SymbolicStructField_FieldNameInt) isSymbolicStructField_FieldName() {}
 
 type SymbolicStructPack struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+	// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 	Fields        map[string]*SymbolicValue  `protobuf:"bytes,1,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	OrderedFields []*StringSymbolicValuePair `protobuf:"bytes,2,rep,name=ordered_fields,json=orderedFields,proto3" json:"ordered_fields,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1054,7 +1050,7 @@ type SymbolicStructPack struct {
 
 func (x *SymbolicStructPack) Reset() {
 	*x = SymbolicStructPack{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[13]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1066,7 +1062,7 @@ func (x *SymbolicStructPack) String() string {
 func (*SymbolicStructPack) ProtoMessage() {}
 
 func (x *SymbolicStructPack) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[13]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1079,10 +1075,10 @@ func (x *SymbolicStructPack) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicStructPack.ProtoReflect.Descriptor instead.
 func (*SymbolicStructPack) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{13}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{13}
 }
 
-// Deprecated: Marked as deprecated in chalk/planner/v1/symbolic_value.proto.
+// Deprecated: Marked as deprecated in chalk/symbolic_value/v1/symbolic_value.proto.
 func (x *SymbolicStructPack) GetFields() map[string]*SymbolicValue {
 	if x != nil {
 		return x.Fields
@@ -1108,7 +1104,7 @@ type SymbolicSlice struct {
 
 func (x *SymbolicSlice) Reset() {
 	*x = SymbolicSlice{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[14]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1120,7 +1116,7 @@ func (x *SymbolicSlice) String() string {
 func (*SymbolicSlice) ProtoMessage() {}
 
 func (x *SymbolicSlice) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[14]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1133,7 +1129,7 @@ func (x *SymbolicSlice) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicSlice.ProtoReflect.Descriptor instead.
 func (*SymbolicSlice) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{14}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SymbolicSlice) GetLower() *SymbolicValue {
@@ -1166,7 +1162,7 @@ type SymbolicTuple struct {
 
 func (x *SymbolicTuple) Reset() {
 	*x = SymbolicTuple{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[15]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1178,7 +1174,7 @@ func (x *SymbolicTuple) String() string {
 func (*SymbolicTuple) ProtoMessage() {}
 
 func (x *SymbolicTuple) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[15]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1191,7 +1187,7 @@ func (x *SymbolicTuple) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicTuple.ProtoReflect.Descriptor instead.
 func (*SymbolicTuple) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{15}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *SymbolicTuple) GetValues() []*SymbolicValue {
@@ -1211,7 +1207,7 @@ type SymbolicDict struct {
 
 func (x *SymbolicDict) Reset() {
 	*x = SymbolicDict{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[16]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1223,7 +1219,7 @@ func (x *SymbolicDict) String() string {
 func (*SymbolicDict) ProtoMessage() {}
 
 func (x *SymbolicDict) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[16]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1236,7 +1232,7 @@ func (x *SymbolicDict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicDict.ProtoReflect.Descriptor instead.
 func (*SymbolicDict) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{16}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *SymbolicDict) GetValuesKeys() []*SymbolicValue {
@@ -1263,7 +1259,7 @@ type SequenceMatcherSymbolicValue struct {
 
 func (x *SequenceMatcherSymbolicValue) Reset() {
 	*x = SequenceMatcherSymbolicValue{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[17]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1271,7 @@ func (x *SequenceMatcherSymbolicValue) String() string {
 func (*SequenceMatcherSymbolicValue) ProtoMessage() {}
 
 func (x *SequenceMatcherSymbolicValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[17]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,7 +1284,7 @@ func (x *SequenceMatcherSymbolicValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SequenceMatcherSymbolicValue.ProtoReflect.Descriptor instead.
 func (*SequenceMatcherSymbolicValue) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{17}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *SequenceMatcherSymbolicValue) GetA() *SymbolicValue {
@@ -1315,7 +1311,7 @@ type SymbolicProtobufMessageClass struct {
 
 func (x *SymbolicProtobufMessageClass) Reset() {
 	*x = SymbolicProtobufMessageClass{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[18]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1327,7 +1323,7 @@ func (x *SymbolicProtobufMessageClass) String() string {
 func (*SymbolicProtobufMessageClass) ProtoMessage() {}
 
 func (x *SymbolicProtobufMessageClass) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[18]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1340,7 +1336,7 @@ func (x *SymbolicProtobufMessageClass) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicProtobufMessageClass.ProtoReflect.Descriptor instead.
 func (*SymbolicProtobufMessageClass) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{18}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SymbolicProtobufMessageClass) GetClassName() string {
@@ -1369,7 +1365,7 @@ type SymbolicProtoEnum struct {
 
 func (x *SymbolicProtoEnum) Reset() {
 	*x = SymbolicProtoEnum{}
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[19]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1381,7 +1377,7 @@ func (x *SymbolicProtoEnum) String() string {
 func (*SymbolicProtoEnum) ProtoMessage() {}
 
 func (x *SymbolicProtoEnum) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_planner_v1_symbolic_value_proto_msgTypes[19]
+	mi := &file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1390,7 @@ func (x *SymbolicProtoEnum) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicProtoEnum.ProtoReflect.Descriptor instead.
 func (*SymbolicProtoEnum) Descriptor() ([]byte, []int) {
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP(), []int{19}
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SymbolicProtoEnum) GetClassName() string {
@@ -1425,33 +1421,33 @@ func (x *SymbolicProtoEnum) GetValueToNameMap() map[int64]string {
 	return nil
 }
 
-var File_chalk_planner_v1_symbolic_value_proto protoreflect.FileDescriptor
+var File_chalk_symbolic_value_v1_symbolic_value_proto protoreflect.FileDescriptor
 
-const file_chalk_planner_v1_symbolic_value_proto_rawDesc = "" +
+const file_chalk_symbolic_value_v1_symbolic_value_proto_rawDesc = "" +
 	"\n" +
-	"%chalk/planner/v1/symbolic_value.proto\x12\x10chalk.planner.v1\x1a\x1bchalk/python/v1/types.proto\"\xe0\x0e\n" +
+	",chalk/symbolic_value/v1/symbolic_value.proto\x12\x17chalk.symbolic_value.v1\x1a\x1bchalk/python/v1/types.proto\"\xdf\x0f\n" +
 	"\rSymbolicValue\x12#\n" +
-	"\x02ty\x18\x01 \x01(\v2\x13.chalk.python.v1.TyR\x02ty\x12T\n" +
-	"\x12symbolic_parameter\x18\x02 \x01(\v2#.chalk.planner.v1.SymbolicParameterH\x00R\x11symbolicParameter\x12G\n" +
-	"\x0esymbolic_const\x18\x03 \x01(\v2\x1e.chalk.python.v1.SymbolicConstH\x00R\rsymbolicConst\x12R\n" +
-	"\x12symbolic_func_call\x18\x04 \x01(\v2\".chalk.planner.v1.SymbolicFuncCallH\x00R\x10symbolicFuncCall\x12K\n" +
-	"\x0fsymbolic_branch\x18\x05 \x01(\v2 .chalk.planner.v1.SymbolicBranchH\x00R\x0esymbolicBranch\x12}\n" +
-	"!symbolic_struct_class_constructor\x18\x06 \x01(\v20.chalk.planner.v1.SymbolicStructClassConstructorH\x00R\x1esymbolicStructClassConstructor\x12\x80\x01\n" +
-	"\"symbolic_feature_class_constructor\x18\a \x01(\v21.chalk.planner.v1.SymbolicFeatureClassConstructorH\x00R\x1fsymbolicFeatureClassConstructor\x12\xa2\x01\n" +
-	".symbolic_confluent_kafka_serialization_context\x18\b \x01(\v2<.chalk.planner.v1.SymbolicConfluentKafkaSerializationContextH\x00R*symbolicConfluentKafkaSerializationContext\x12g\n" +
-	"\x19symbolic_lambda_parameter\x18\t \x01(\v2).chalk.planner.v1.SymbolicLambdaParameterH\x00R\x17symbolicLambdaParameter\x12d\n" +
+	"\x02ty\x18\x01 \x01(\v2\x13.chalk.python.v1.TyR\x02ty\x12[\n" +
+	"\x12symbolic_parameter\x18\x02 \x01(\v2*.chalk.symbolic_value.v1.SymbolicParameterH\x00R\x11symbolicParameter\x12G\n" +
+	"\x0esymbolic_const\x18\x03 \x01(\v2\x1e.chalk.python.v1.SymbolicConstH\x00R\rsymbolicConst\x12Y\n" +
+	"\x12symbolic_func_call\x18\x04 \x01(\v2).chalk.symbolic_value.v1.SymbolicFuncCallH\x00R\x10symbolicFuncCall\x12R\n" +
+	"\x0fsymbolic_branch\x18\x05 \x01(\v2'.chalk.symbolic_value.v1.SymbolicBranchH\x00R\x0esymbolicBranch\x12\x84\x01\n" +
+	"!symbolic_struct_class_constructor\x18\x06 \x01(\v27.chalk.symbolic_value.v1.SymbolicStructClassConstructorH\x00R\x1esymbolicStructClassConstructor\x12\x87\x01\n" +
+	"\"symbolic_feature_class_constructor\x18\a \x01(\v28.chalk.symbolic_value.v1.SymbolicFeatureClassConstructorH\x00R\x1fsymbolicFeatureClassConstructor\x12\xa9\x01\n" +
+	".symbolic_confluent_kafka_serialization_context\x18\b \x01(\v2C.chalk.symbolic_value.v1.SymbolicConfluentKafkaSerializationContextH\x00R*symbolicConfluentKafkaSerializationContext\x12n\n" +
+	"\x19symbolic_lambda_parameter\x18\t \x01(\v20.chalk.symbolic_value.v1.SymbolicLambdaParameterH\x00R\x17symbolicLambdaParameter\x12k\n" +
 	"\x18symbolic_lambda_function\x18\n" +
-	" \x01(\v2(.chalk.planner.v1.SymbolicLambdaFunctionH\x00R\x16symbolicLambdaFunction\x12[\n" +
-	"\x15symbolic_struct_field\x18\v \x01(\v2%.chalk.planner.v1.SymbolicStructFieldH\x00R\x13symbolicStructField\x12X\n" +
-	"\x14symbolic_struct_pack\x18\f \x01(\v2$.chalk.planner.v1.SymbolicStructPackH\x00R\x12symbolicStructPack\x12H\n" +
-	"\x0esymbolic_slice\x18\r \x01(\v2\x1f.chalk.planner.v1.SymbolicSliceH\x00R\rsymbolicSlice\x12H\n" +
-	"\x0esymbolic_tuple\x18\x0e \x01(\v2\x1f.chalk.planner.v1.SymbolicTupleH\x00R\rsymbolicTuple\x12E\n" +
-	"\rsymbolic_dict\x18\x0f \x01(\v2\x1e.chalk.planner.v1.SymbolicDictH\x00R\fsymbolicDict\x12w\n" +
-	"\x1fsequence_matcher_symbolic_value\x18\x10 \x01(\v2..chalk.planner.v1.SequenceMatcherSymbolicValueH\x00R\x1csequenceMatcherSymbolicValue\x12w\n" +
-	"\x1fsymbolic_protobuf_message_class\x18\x11 \x01(\v2..chalk.planner.v1.SymbolicProtobufMessageClassH\x00R\x1csymbolicProtobufMessageClass\x12U\n" +
-	"\x13symbolic_proto_enum\x18\x12 \x01(\v2#.chalk.planner.v1.SymbolicProtoEnumH\x00R\x11symbolicProtoEnum\x12N\n" +
-	"\x12symbolic_value_ref\x18\x13 \x01(\v2\x1e.chalk.planner.v1.EmptyMessageH\x00R\x10symbolicValueRef\x12=\n" +
-	"\bthis_ref\x18\x14 \x01(\v2\".chalk.planner.v1.SymbolicValueRefR\athisRefB\n" +
+	" \x01(\v2/.chalk.symbolic_value.v1.SymbolicLambdaFunctionH\x00R\x16symbolicLambdaFunction\x12b\n" +
+	"\x15symbolic_struct_field\x18\v \x01(\v2,.chalk.symbolic_value.v1.SymbolicStructFieldH\x00R\x13symbolicStructField\x12_\n" +
+	"\x14symbolic_struct_pack\x18\f \x01(\v2+.chalk.symbolic_value.v1.SymbolicStructPackH\x00R\x12symbolicStructPack\x12O\n" +
+	"\x0esymbolic_slice\x18\r \x01(\v2&.chalk.symbolic_value.v1.SymbolicSliceH\x00R\rsymbolicSlice\x12O\n" +
+	"\x0esymbolic_tuple\x18\x0e \x01(\v2&.chalk.symbolic_value.v1.SymbolicTupleH\x00R\rsymbolicTuple\x12L\n" +
+	"\rsymbolic_dict\x18\x0f \x01(\v2%.chalk.symbolic_value.v1.SymbolicDictH\x00R\fsymbolicDict\x12~\n" +
+	"\x1fsequence_matcher_symbolic_value\x18\x10 \x01(\v25.chalk.symbolic_value.v1.SequenceMatcherSymbolicValueH\x00R\x1csequenceMatcherSymbolicValue\x12~\n" +
+	"\x1fsymbolic_protobuf_message_class\x18\x11 \x01(\v25.chalk.symbolic_value.v1.SymbolicProtobufMessageClassH\x00R\x1csymbolicProtobufMessageClass\x12\\\n" +
+	"\x13symbolic_proto_enum\x18\x12 \x01(\v2*.chalk.symbolic_value.v1.SymbolicProtoEnumH\x00R\x11symbolicProtoEnum\x12U\n" +
+	"\x12symbolic_value_ref\x18\x13 \x01(\v2%.chalk.symbolic_value.v1.EmptyMessageH\x00R\x10symbolicValueRef\x12D\n" +
+	"\bthis_ref\x18\x14 \x01(\v2).chalk.symbolic_value.v1.SymbolicValueRefR\athisRefB\n" +
 	"\n" +
 	"\bsubclass\"\x0e\n" +
 	"\fEmptyMessage\")\n" +
@@ -1459,175 +1455,175 @@ const file_chalk_planner_v1_symbolic_value_proto_rawDesc = "" +
 	"\x06ref_id\x18\x01 \x01(\x04R\x05refId\"=\n" +
 	"\x11SymbolicParameter\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05index\x18\x02 \x01(\x03R\x05index\"l\n" +
+	"\x05index\x18\x02 \x01(\x03R\x05index\"s\n" +
 	"\x10SymbolicFuncCall\x12#\n" +
-	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x123\n" +
-	"\x04args\x18\x02 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\x04args\"\xc5\x01\n" +
-	"\x0eSymbolicBranch\x12=\n" +
-	"\tcondition\x18\x01 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\tcondition\x128\n" +
-	"\aif_true\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x06ifTrue\x12:\n" +
-	"\bif_false\x18\x03 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\aifFalse\"s\n" +
+	"\rfunction_name\x18\x01 \x01(\tR\ffunctionName\x12:\n" +
+	"\x04args\x18\x02 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x04args\"\xda\x01\n" +
+	"\x0eSymbolicBranch\x12D\n" +
+	"\tcondition\x18\x01 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\tcondition\x12?\n" +
+	"\aif_true\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x06ifTrue\x12A\n" +
+	"\bif_false\x18\x03 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\aifFalse\"z\n" +
 	"\x17StringSymbolicValuePair\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12F\n" +
-	"\x0esymbolic_value\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\rsymbolicValue\"\xc9\x02\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12M\n" +
+	"\x0esymbolic_value\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\rsymbolicValue\"\xde\x02\n" +
 	"\x1eSymbolicStructClassConstructor\x12\x1f\n" +
 	"\vstruct_name\x18\x01 \x01(\tR\n" +
-	"structName\x12X\n" +
-	"\x06fields\x18\x02 \x03(\v2<.chalk.planner.v1.SymbolicStructClassConstructor.FieldsEntryB\x02\x18\x01R\x06fields\x12P\n" +
-	"\x0eordered_fields\x18\x03 \x03(\v2).chalk.planner.v1.StringSymbolicValuePairR\rorderedFields\x1aZ\n" +
+	"structName\x12_\n" +
+	"\x06fields\x18\x02 \x03(\v2C.chalk.symbolic_value.v1.SymbolicStructClassConstructor.FieldsEntryB\x02\x18\x01R\x06fields\x12W\n" +
+	"\x0eordered_fields\x18\x03 \x03(\v20.chalk.symbolic_value.v1.StringSymbolicValuePairR\rorderedFields\x1aa\n" +
 	"\vFieldsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x125\n" +
-	"\x05value\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05value:\x028\x01\"\xdf\x02\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05value:\x028\x01\"\xf4\x02\n" +
 	"\x1fSymbolicFeatureClassConstructor\x123\n" +
-	"\x15constructor_namespace\x18\x01 \x01(\tR\x14constructorNamespace\x12Y\n" +
-	"\x06fields\x18\x02 \x03(\v2=.chalk.planner.v1.SymbolicFeatureClassConstructor.FieldsEntryB\x02\x18\x01R\x06fields\x12P\n" +
-	"\x0eordered_fields\x18\x03 \x03(\v2).chalk.planner.v1.StringSymbolicValuePairR\rorderedFields\x1aZ\n" +
+	"\x15constructor_namespace\x18\x01 \x01(\tR\x14constructorNamespace\x12`\n" +
+	"\x06fields\x18\x02 \x03(\v2D.chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.FieldsEntryB\x02\x18\x01R\x06fields\x12W\n" +
+	"\x0eordered_fields\x18\x03 \x03(\v20.chalk.symbolic_value.v1.StringSymbolicValuePairR\rorderedFields\x1aa\n" +
 	"\vFieldsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x125\n" +
-	"\x05value\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05value:\x028\x01\"\xa9\x01\n" +
-	"*SymbolicConfluentKafkaSerializationContext\x125\n" +
-	"\x05topic\x18\x01 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05topic\x12D\n" +
-	"\rmessage_field\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\fmessageField\"-\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05value:\x028\x01\"\xb7\x01\n" +
+	"*SymbolicConfluentKafkaSerializationContext\x12<\n" +
+	"\x05topic\x18\x01 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05topic\x12K\n" +
+	"\rmessage_field\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\fmessageField\"-\n" +
 	"\x17SymbolicLambdaParameter\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x8e\x01\n" +
-	"\x16SymbolicLambdaFunction\x12?\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x9c\x01\n" +
+	"\x16SymbolicLambdaFunction\x12F\n" +
 	"\n" +
-	"parameters\x18\x01 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\n" +
-	"parameters\x123\n" +
-	"\x04body\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x04body\"\xac\x01\n" +
-	"\x13SymbolicStructField\x127\n" +
-	"\x06struct\x18\x01 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x06struct\x12&\n" +
+	"parameters\x18\x01 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\n" +
+	"parameters\x12:\n" +
+	"\x04body\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x04body\"\xb3\x01\n" +
+	"\x13SymbolicStructField\x12>\n" +
+	"\x06struct\x18\x01 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x06struct\x12&\n" +
 	"\x0efield_name_str\x18\x02 \x01(\tH\x00R\ffieldNameStr\x12&\n" +
 	"\x0efield_name_int\x18\x03 \x01(\x03H\x00R\ffieldNameIntB\f\n" +
 	"\n" +
-	"field_name\"\x90\x02\n" +
-	"\x12SymbolicStructPack\x12L\n" +
-	"\x06fields\x18\x01 \x03(\v20.chalk.planner.v1.SymbolicStructPack.FieldsEntryB\x02\x18\x01R\x06fields\x12P\n" +
-	"\x0eordered_fields\x18\x02 \x03(\v2).chalk.planner.v1.StringSymbolicValuePairR\rorderedFields\x1aZ\n" +
+	"field_name\"\xa5\x02\n" +
+	"\x12SymbolicStructPack\x12S\n" +
+	"\x06fields\x18\x01 \x03(\v27.chalk.symbolic_value.v1.SymbolicStructPack.FieldsEntryB\x02\x18\x01R\x06fields\x12W\n" +
+	"\x0eordered_fields\x18\x02 \x03(\v20.chalk.symbolic_value.v1.StringSymbolicValuePairR\rorderedFields\x1aa\n" +
 	"\vFieldsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x125\n" +
-	"\x05value\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05value:\x028\x01\"\xb2\x01\n" +
-	"\rSymbolicSlice\x125\n" +
-	"\x05lower\x18\x01 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05lower\x125\n" +
-	"\x05upper\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x05upper\x123\n" +
-	"\x04step\x18\x03 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x04step\"H\n" +
-	"\rSymbolicTuple\x127\n" +
-	"\x06values\x18\x01 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\x06values\"\x96\x01\n" +
-	"\fSymbolicDict\x12@\n" +
-	"\vvalues_keys\x18\x01 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\n" +
-	"valuesKeys\x12D\n" +
-	"\rvalues_values\x18\x02 \x03(\v2\x1f.chalk.planner.v1.SymbolicValueR\fvaluesValues\"|\n" +
-	"\x1cSequenceMatcherSymbolicValue\x12-\n" +
-	"\x01a\x18\x01 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x01a\x12-\n" +
-	"\x01b\x18\x02 \x01(\v2\x1f.chalk.planner.v1.SymbolicValueR\x01b\"s\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05value:\x028\x01\"\xc7\x01\n" +
+	"\rSymbolicSlice\x12<\n" +
+	"\x05lower\x18\x01 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05lower\x12<\n" +
+	"\x05upper\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x05upper\x12:\n" +
+	"\x04step\x18\x03 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x04step\"O\n" +
+	"\rSymbolicTuple\x12>\n" +
+	"\x06values\x18\x01 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x06values\"\xa4\x01\n" +
+	"\fSymbolicDict\x12G\n" +
+	"\vvalues_keys\x18\x01 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\n" +
+	"valuesKeys\x12K\n" +
+	"\rvalues_values\x18\x02 \x03(\v2&.chalk.symbolic_value.v1.SymbolicValueR\fvaluesValues\"\x8a\x01\n" +
+	"\x1cSequenceMatcherSymbolicValue\x124\n" +
+	"\x01a\x18\x01 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x01a\x124\n" +
+	"\x01b\x18\x02 \x01(\v2&.chalk.symbolic_value.v1.SymbolicValueR\x01b\"s\n" +
 	"\x1cSymbolicProtobufMessageClass\x12\x1d\n" +
 	"\n" +
 	"class_name\x18\x01 \x01(\tR\tclassName\x12$\n" +
 	"\vmodule_name\x18\x02 \x01(\tH\x00R\n" +
 	"moduleName\x88\x01\x01B\x0e\n" +
-	"\f_module_name\"\xaa\x02\n" +
+	"\f_module_name\"\xb1\x02\n" +
 	"\x11SymbolicProtoEnum\x12\x1d\n" +
 	"\n" +
 	"class_name\x18\x01 \x01(\tR\tclassName\x12\x1f\n" +
 	"\vmodule_name\x18\x02 \x01(\tR\n" +
 	"moduleName\x12.\n" +
-	"\x13full_qualified_name\x18\x03 \x01(\tR\x11fullQualifiedName\x12b\n" +
-	"\x11value_to_name_map\x18\x04 \x03(\v27.chalk.planner.v1.SymbolicProtoEnum.ValueToNameMapEntryR\x0evalueToNameMap\x1aA\n" +
+	"\x13full_qualified_name\x18\x03 \x01(\tR\x11fullQualifiedName\x12i\n" +
+	"\x11value_to_name_map\x18\x04 \x03(\v2>.chalk.symbolic_value.v1.SymbolicProtoEnum.ValueToNameMapEntryR\x0evalueToNameMap\x1aA\n" +
 	"\x13ValueToNameMapEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x03R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xc9\x01\n" +
-	"\x14com.chalk.planner.v1B\x12SymbolicValueProtoP\x01Z;github.com/chalk-ai/chalk-go/gen/chalk/planner/v1;plannerv1\xa2\x02\x03CPX\xaa\x02\x10Chalk.Planner.V1\xca\x02\x10Chalk\\Planner\\V1\xe2\x02\x1cChalk\\Planner\\V1\\GPBMetadata\xea\x02\x12Chalk::Planner::V1b\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\xf6\x01\n" +
+	"\x1bcom.chalk.symbolic_value.v1B\x12SymbolicValueProtoP\x01ZIgithub.com/chalk-ai/chalk-go/gen/chalk/symbolic_value/v1;symbolic_valuev1\xa2\x02\x03CSX\xaa\x02\x16Chalk.SymbolicValue.V1\xca\x02\x16Chalk\\SymbolicValue\\V1\xe2\x02\"Chalk\\SymbolicValue\\V1\\GPBMetadata\xea\x02\x18Chalk::SymbolicValue::V1b\x06proto3"
 
 var (
-	file_chalk_planner_v1_symbolic_value_proto_rawDescOnce sync.Once
-	file_chalk_planner_v1_symbolic_value_proto_rawDescData []byte
+	file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescOnce sync.Once
+	file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescData []byte
 )
 
-func file_chalk_planner_v1_symbolic_value_proto_rawDescGZIP() []byte {
-	file_chalk_planner_v1_symbolic_value_proto_rawDescOnce.Do(func() {
-		file_chalk_planner_v1_symbolic_value_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_symbolic_value_proto_rawDesc), len(file_chalk_planner_v1_symbolic_value_proto_rawDesc)))
+func file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescGZIP() []byte {
+	file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescOnce.Do(func() {
+		file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_chalk_symbolic_value_v1_symbolic_value_proto_rawDesc), len(file_chalk_symbolic_value_v1_symbolic_value_proto_rawDesc)))
 	})
-	return file_chalk_planner_v1_symbolic_value_proto_rawDescData
+	return file_chalk_symbolic_value_v1_symbolic_value_proto_rawDescData
 }
 
-var file_chalk_planner_v1_symbolic_value_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
-var file_chalk_planner_v1_symbolic_value_proto_goTypes = []any{
-	(*SymbolicValue)(nil),                              // 0: chalk.planner.v1.SymbolicValue
-	(*EmptyMessage)(nil),                               // 1: chalk.planner.v1.EmptyMessage
-	(*SymbolicValueRef)(nil),                           // 2: chalk.planner.v1.SymbolicValueRef
-	(*SymbolicParameter)(nil),                          // 3: chalk.planner.v1.SymbolicParameter
-	(*SymbolicFuncCall)(nil),                           // 4: chalk.planner.v1.SymbolicFuncCall
-	(*SymbolicBranch)(nil),                             // 5: chalk.planner.v1.SymbolicBranch
-	(*StringSymbolicValuePair)(nil),                    // 6: chalk.planner.v1.StringSymbolicValuePair
-	(*SymbolicStructClassConstructor)(nil),             // 7: chalk.planner.v1.SymbolicStructClassConstructor
-	(*SymbolicFeatureClassConstructor)(nil),            // 8: chalk.planner.v1.SymbolicFeatureClassConstructor
-	(*SymbolicConfluentKafkaSerializationContext)(nil), // 9: chalk.planner.v1.SymbolicConfluentKafkaSerializationContext
-	(*SymbolicLambdaParameter)(nil),                    // 10: chalk.planner.v1.SymbolicLambdaParameter
-	(*SymbolicLambdaFunction)(nil),                     // 11: chalk.planner.v1.SymbolicLambdaFunction
-	(*SymbolicStructField)(nil),                        // 12: chalk.planner.v1.SymbolicStructField
-	(*SymbolicStructPack)(nil),                         // 13: chalk.planner.v1.SymbolicStructPack
-	(*SymbolicSlice)(nil),                              // 14: chalk.planner.v1.SymbolicSlice
-	(*SymbolicTuple)(nil),                              // 15: chalk.planner.v1.SymbolicTuple
-	(*SymbolicDict)(nil),                               // 16: chalk.planner.v1.SymbolicDict
-	(*SequenceMatcherSymbolicValue)(nil),               // 17: chalk.planner.v1.SequenceMatcherSymbolicValue
-	(*SymbolicProtobufMessageClass)(nil),               // 18: chalk.planner.v1.SymbolicProtobufMessageClass
-	(*SymbolicProtoEnum)(nil),                          // 19: chalk.planner.v1.SymbolicProtoEnum
-	nil,                                                // 20: chalk.planner.v1.SymbolicStructClassConstructor.FieldsEntry
-	nil,                                                // 21: chalk.planner.v1.SymbolicFeatureClassConstructor.FieldsEntry
-	nil,                                                // 22: chalk.planner.v1.SymbolicStructPack.FieldsEntry
-	nil,                                                // 23: chalk.planner.v1.SymbolicProtoEnum.ValueToNameMapEntry
+var file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_chalk_symbolic_value_v1_symbolic_value_proto_goTypes = []any{
+	(*SymbolicValue)(nil),                              // 0: chalk.symbolic_value.v1.SymbolicValue
+	(*EmptyMessage)(nil),                               // 1: chalk.symbolic_value.v1.EmptyMessage
+	(*SymbolicValueRef)(nil),                           // 2: chalk.symbolic_value.v1.SymbolicValueRef
+	(*SymbolicParameter)(nil),                          // 3: chalk.symbolic_value.v1.SymbolicParameter
+	(*SymbolicFuncCall)(nil),                           // 4: chalk.symbolic_value.v1.SymbolicFuncCall
+	(*SymbolicBranch)(nil),                             // 5: chalk.symbolic_value.v1.SymbolicBranch
+	(*StringSymbolicValuePair)(nil),                    // 6: chalk.symbolic_value.v1.StringSymbolicValuePair
+	(*SymbolicStructClassConstructor)(nil),             // 7: chalk.symbolic_value.v1.SymbolicStructClassConstructor
+	(*SymbolicFeatureClassConstructor)(nil),            // 8: chalk.symbolic_value.v1.SymbolicFeatureClassConstructor
+	(*SymbolicConfluentKafkaSerializationContext)(nil), // 9: chalk.symbolic_value.v1.SymbolicConfluentKafkaSerializationContext
+	(*SymbolicLambdaParameter)(nil),                    // 10: chalk.symbolic_value.v1.SymbolicLambdaParameter
+	(*SymbolicLambdaFunction)(nil),                     // 11: chalk.symbolic_value.v1.SymbolicLambdaFunction
+	(*SymbolicStructField)(nil),                        // 12: chalk.symbolic_value.v1.SymbolicStructField
+	(*SymbolicStructPack)(nil),                         // 13: chalk.symbolic_value.v1.SymbolicStructPack
+	(*SymbolicSlice)(nil),                              // 14: chalk.symbolic_value.v1.SymbolicSlice
+	(*SymbolicTuple)(nil),                              // 15: chalk.symbolic_value.v1.SymbolicTuple
+	(*SymbolicDict)(nil),                               // 16: chalk.symbolic_value.v1.SymbolicDict
+	(*SequenceMatcherSymbolicValue)(nil),               // 17: chalk.symbolic_value.v1.SequenceMatcherSymbolicValue
+	(*SymbolicProtobufMessageClass)(nil),               // 18: chalk.symbolic_value.v1.SymbolicProtobufMessageClass
+	(*SymbolicProtoEnum)(nil),                          // 19: chalk.symbolic_value.v1.SymbolicProtoEnum
+	nil,                                                // 20: chalk.symbolic_value.v1.SymbolicStructClassConstructor.FieldsEntry
+	nil,                                                // 21: chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.FieldsEntry
+	nil,                                                // 22: chalk.symbolic_value.v1.SymbolicStructPack.FieldsEntry
+	nil,                                                // 23: chalk.symbolic_value.v1.SymbolicProtoEnum.ValueToNameMapEntry
 	(*v1.Ty)(nil),                                      // 24: chalk.python.v1.Ty
 	(*v1.SymbolicConst)(nil),                           // 25: chalk.python.v1.SymbolicConst
 }
-var file_chalk_planner_v1_symbolic_value_proto_depIdxs = []int32{
-	24, // 0: chalk.planner.v1.SymbolicValue.ty:type_name -> chalk.python.v1.Ty
-	3,  // 1: chalk.planner.v1.SymbolicValue.symbolic_parameter:type_name -> chalk.planner.v1.SymbolicParameter
-	25, // 2: chalk.planner.v1.SymbolicValue.symbolic_const:type_name -> chalk.python.v1.SymbolicConst
-	4,  // 3: chalk.planner.v1.SymbolicValue.symbolic_func_call:type_name -> chalk.planner.v1.SymbolicFuncCall
-	5,  // 4: chalk.planner.v1.SymbolicValue.symbolic_branch:type_name -> chalk.planner.v1.SymbolicBranch
-	7,  // 5: chalk.planner.v1.SymbolicValue.symbolic_struct_class_constructor:type_name -> chalk.planner.v1.SymbolicStructClassConstructor
-	8,  // 6: chalk.planner.v1.SymbolicValue.symbolic_feature_class_constructor:type_name -> chalk.planner.v1.SymbolicFeatureClassConstructor
-	9,  // 7: chalk.planner.v1.SymbolicValue.symbolic_confluent_kafka_serialization_context:type_name -> chalk.planner.v1.SymbolicConfluentKafkaSerializationContext
-	10, // 8: chalk.planner.v1.SymbolicValue.symbolic_lambda_parameter:type_name -> chalk.planner.v1.SymbolicLambdaParameter
-	11, // 9: chalk.planner.v1.SymbolicValue.symbolic_lambda_function:type_name -> chalk.planner.v1.SymbolicLambdaFunction
-	12, // 10: chalk.planner.v1.SymbolicValue.symbolic_struct_field:type_name -> chalk.planner.v1.SymbolicStructField
-	13, // 11: chalk.planner.v1.SymbolicValue.symbolic_struct_pack:type_name -> chalk.planner.v1.SymbolicStructPack
-	14, // 12: chalk.planner.v1.SymbolicValue.symbolic_slice:type_name -> chalk.planner.v1.SymbolicSlice
-	15, // 13: chalk.planner.v1.SymbolicValue.symbolic_tuple:type_name -> chalk.planner.v1.SymbolicTuple
-	16, // 14: chalk.planner.v1.SymbolicValue.symbolic_dict:type_name -> chalk.planner.v1.SymbolicDict
-	17, // 15: chalk.planner.v1.SymbolicValue.sequence_matcher_symbolic_value:type_name -> chalk.planner.v1.SequenceMatcherSymbolicValue
-	18, // 16: chalk.planner.v1.SymbolicValue.symbolic_protobuf_message_class:type_name -> chalk.planner.v1.SymbolicProtobufMessageClass
-	19, // 17: chalk.planner.v1.SymbolicValue.symbolic_proto_enum:type_name -> chalk.planner.v1.SymbolicProtoEnum
-	1,  // 18: chalk.planner.v1.SymbolicValue.symbolic_value_ref:type_name -> chalk.planner.v1.EmptyMessage
-	2,  // 19: chalk.planner.v1.SymbolicValue.this_ref:type_name -> chalk.planner.v1.SymbolicValueRef
-	0,  // 20: chalk.planner.v1.SymbolicFuncCall.args:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 21: chalk.planner.v1.SymbolicBranch.condition:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 22: chalk.planner.v1.SymbolicBranch.if_true:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 23: chalk.planner.v1.SymbolicBranch.if_false:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 24: chalk.planner.v1.StringSymbolicValuePair.symbolic_value:type_name -> chalk.planner.v1.SymbolicValue
-	20, // 25: chalk.planner.v1.SymbolicStructClassConstructor.fields:type_name -> chalk.planner.v1.SymbolicStructClassConstructor.FieldsEntry
-	6,  // 26: chalk.planner.v1.SymbolicStructClassConstructor.ordered_fields:type_name -> chalk.planner.v1.StringSymbolicValuePair
-	21, // 27: chalk.planner.v1.SymbolicFeatureClassConstructor.fields:type_name -> chalk.planner.v1.SymbolicFeatureClassConstructor.FieldsEntry
-	6,  // 28: chalk.planner.v1.SymbolicFeatureClassConstructor.ordered_fields:type_name -> chalk.planner.v1.StringSymbolicValuePair
-	0,  // 29: chalk.planner.v1.SymbolicConfluentKafkaSerializationContext.topic:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 30: chalk.planner.v1.SymbolicConfluentKafkaSerializationContext.message_field:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 31: chalk.planner.v1.SymbolicLambdaFunction.parameters:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 32: chalk.planner.v1.SymbolicLambdaFunction.body:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 33: chalk.planner.v1.SymbolicStructField.struct:type_name -> chalk.planner.v1.SymbolicValue
-	22, // 34: chalk.planner.v1.SymbolicStructPack.fields:type_name -> chalk.planner.v1.SymbolicStructPack.FieldsEntry
-	6,  // 35: chalk.planner.v1.SymbolicStructPack.ordered_fields:type_name -> chalk.planner.v1.StringSymbolicValuePair
-	0,  // 36: chalk.planner.v1.SymbolicSlice.lower:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 37: chalk.planner.v1.SymbolicSlice.upper:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 38: chalk.planner.v1.SymbolicSlice.step:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 39: chalk.planner.v1.SymbolicTuple.values:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 40: chalk.planner.v1.SymbolicDict.values_keys:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 41: chalk.planner.v1.SymbolicDict.values_values:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 42: chalk.planner.v1.SequenceMatcherSymbolicValue.a:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 43: chalk.planner.v1.SequenceMatcherSymbolicValue.b:type_name -> chalk.planner.v1.SymbolicValue
-	23, // 44: chalk.planner.v1.SymbolicProtoEnum.value_to_name_map:type_name -> chalk.planner.v1.SymbolicProtoEnum.ValueToNameMapEntry
-	0,  // 45: chalk.planner.v1.SymbolicStructClassConstructor.FieldsEntry.value:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 46: chalk.planner.v1.SymbolicFeatureClassConstructor.FieldsEntry.value:type_name -> chalk.planner.v1.SymbolicValue
-	0,  // 47: chalk.planner.v1.SymbolicStructPack.FieldsEntry.value:type_name -> chalk.planner.v1.SymbolicValue
+var file_chalk_symbolic_value_v1_symbolic_value_proto_depIdxs = []int32{
+	24, // 0: chalk.symbolic_value.v1.SymbolicValue.ty:type_name -> chalk.python.v1.Ty
+	3,  // 1: chalk.symbolic_value.v1.SymbolicValue.symbolic_parameter:type_name -> chalk.symbolic_value.v1.SymbolicParameter
+	25, // 2: chalk.symbolic_value.v1.SymbolicValue.symbolic_const:type_name -> chalk.python.v1.SymbolicConst
+	4,  // 3: chalk.symbolic_value.v1.SymbolicValue.symbolic_func_call:type_name -> chalk.symbolic_value.v1.SymbolicFuncCall
+	5,  // 4: chalk.symbolic_value.v1.SymbolicValue.symbolic_branch:type_name -> chalk.symbolic_value.v1.SymbolicBranch
+	7,  // 5: chalk.symbolic_value.v1.SymbolicValue.symbolic_struct_class_constructor:type_name -> chalk.symbolic_value.v1.SymbolicStructClassConstructor
+	8,  // 6: chalk.symbolic_value.v1.SymbolicValue.symbolic_feature_class_constructor:type_name -> chalk.symbolic_value.v1.SymbolicFeatureClassConstructor
+	9,  // 7: chalk.symbolic_value.v1.SymbolicValue.symbolic_confluent_kafka_serialization_context:type_name -> chalk.symbolic_value.v1.SymbolicConfluentKafkaSerializationContext
+	10, // 8: chalk.symbolic_value.v1.SymbolicValue.symbolic_lambda_parameter:type_name -> chalk.symbolic_value.v1.SymbolicLambdaParameter
+	11, // 9: chalk.symbolic_value.v1.SymbolicValue.symbolic_lambda_function:type_name -> chalk.symbolic_value.v1.SymbolicLambdaFunction
+	12, // 10: chalk.symbolic_value.v1.SymbolicValue.symbolic_struct_field:type_name -> chalk.symbolic_value.v1.SymbolicStructField
+	13, // 11: chalk.symbolic_value.v1.SymbolicValue.symbolic_struct_pack:type_name -> chalk.symbolic_value.v1.SymbolicStructPack
+	14, // 12: chalk.symbolic_value.v1.SymbolicValue.symbolic_slice:type_name -> chalk.symbolic_value.v1.SymbolicSlice
+	15, // 13: chalk.symbolic_value.v1.SymbolicValue.symbolic_tuple:type_name -> chalk.symbolic_value.v1.SymbolicTuple
+	16, // 14: chalk.symbolic_value.v1.SymbolicValue.symbolic_dict:type_name -> chalk.symbolic_value.v1.SymbolicDict
+	17, // 15: chalk.symbolic_value.v1.SymbolicValue.sequence_matcher_symbolic_value:type_name -> chalk.symbolic_value.v1.SequenceMatcherSymbolicValue
+	18, // 16: chalk.symbolic_value.v1.SymbolicValue.symbolic_protobuf_message_class:type_name -> chalk.symbolic_value.v1.SymbolicProtobufMessageClass
+	19, // 17: chalk.symbolic_value.v1.SymbolicValue.symbolic_proto_enum:type_name -> chalk.symbolic_value.v1.SymbolicProtoEnum
+	1,  // 18: chalk.symbolic_value.v1.SymbolicValue.symbolic_value_ref:type_name -> chalk.symbolic_value.v1.EmptyMessage
+	2,  // 19: chalk.symbolic_value.v1.SymbolicValue.this_ref:type_name -> chalk.symbolic_value.v1.SymbolicValueRef
+	0,  // 20: chalk.symbolic_value.v1.SymbolicFuncCall.args:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 21: chalk.symbolic_value.v1.SymbolicBranch.condition:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 22: chalk.symbolic_value.v1.SymbolicBranch.if_true:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 23: chalk.symbolic_value.v1.SymbolicBranch.if_false:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 24: chalk.symbolic_value.v1.StringSymbolicValuePair.symbolic_value:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	20, // 25: chalk.symbolic_value.v1.SymbolicStructClassConstructor.fields:type_name -> chalk.symbolic_value.v1.SymbolicStructClassConstructor.FieldsEntry
+	6,  // 26: chalk.symbolic_value.v1.SymbolicStructClassConstructor.ordered_fields:type_name -> chalk.symbolic_value.v1.StringSymbolicValuePair
+	21, // 27: chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.fields:type_name -> chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.FieldsEntry
+	6,  // 28: chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.ordered_fields:type_name -> chalk.symbolic_value.v1.StringSymbolicValuePair
+	0,  // 29: chalk.symbolic_value.v1.SymbolicConfluentKafkaSerializationContext.topic:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 30: chalk.symbolic_value.v1.SymbolicConfluentKafkaSerializationContext.message_field:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 31: chalk.symbolic_value.v1.SymbolicLambdaFunction.parameters:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 32: chalk.symbolic_value.v1.SymbolicLambdaFunction.body:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 33: chalk.symbolic_value.v1.SymbolicStructField.struct:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	22, // 34: chalk.symbolic_value.v1.SymbolicStructPack.fields:type_name -> chalk.symbolic_value.v1.SymbolicStructPack.FieldsEntry
+	6,  // 35: chalk.symbolic_value.v1.SymbolicStructPack.ordered_fields:type_name -> chalk.symbolic_value.v1.StringSymbolicValuePair
+	0,  // 36: chalk.symbolic_value.v1.SymbolicSlice.lower:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 37: chalk.symbolic_value.v1.SymbolicSlice.upper:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 38: chalk.symbolic_value.v1.SymbolicSlice.step:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 39: chalk.symbolic_value.v1.SymbolicTuple.values:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 40: chalk.symbolic_value.v1.SymbolicDict.values_keys:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 41: chalk.symbolic_value.v1.SymbolicDict.values_values:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 42: chalk.symbolic_value.v1.SequenceMatcherSymbolicValue.a:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 43: chalk.symbolic_value.v1.SequenceMatcherSymbolicValue.b:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	23, // 44: chalk.symbolic_value.v1.SymbolicProtoEnum.value_to_name_map:type_name -> chalk.symbolic_value.v1.SymbolicProtoEnum.ValueToNameMapEntry
+	0,  // 45: chalk.symbolic_value.v1.SymbolicStructClassConstructor.FieldsEntry.value:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 46: chalk.symbolic_value.v1.SymbolicFeatureClassConstructor.FieldsEntry.value:type_name -> chalk.symbolic_value.v1.SymbolicValue
+	0,  // 47: chalk.symbolic_value.v1.SymbolicStructPack.FieldsEntry.value:type_name -> chalk.symbolic_value.v1.SymbolicValue
 	48, // [48:48] is the sub-list for method output_type
 	48, // [48:48] is the sub-list for method input_type
 	48, // [48:48] is the sub-list for extension type_name
@@ -1635,12 +1631,12 @@ var file_chalk_planner_v1_symbolic_value_proto_depIdxs = []int32{
 	0,  // [0:48] is the sub-list for field type_name
 }
 
-func init() { file_chalk_planner_v1_symbolic_value_proto_init() }
-func file_chalk_planner_v1_symbolic_value_proto_init() {
-	if File_chalk_planner_v1_symbolic_value_proto != nil {
+func init() { file_chalk_symbolic_value_v1_symbolic_value_proto_init() }
+func file_chalk_symbolic_value_v1_symbolic_value_proto_init() {
+	if File_chalk_symbolic_value_v1_symbolic_value_proto != nil {
 		return
 	}
-	file_chalk_planner_v1_symbolic_value_proto_msgTypes[0].OneofWrappers = []any{
+	file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[0].OneofWrappers = []any{
 		(*SymbolicValue_SymbolicParameter)(nil),
 		(*SymbolicValue_SymbolicConst)(nil),
 		(*SymbolicValue_SymbolicFuncCall)(nil),
@@ -1660,26 +1656,26 @@ func file_chalk_planner_v1_symbolic_value_proto_init() {
 		(*SymbolicValue_SymbolicProtoEnum)(nil),
 		(*SymbolicValue_SymbolicValueRef)(nil),
 	}
-	file_chalk_planner_v1_symbolic_value_proto_msgTypes[12].OneofWrappers = []any{
+	file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[12].OneofWrappers = []any{
 		(*SymbolicStructField_FieldNameStr)(nil),
 		(*SymbolicStructField_FieldNameInt)(nil),
 	}
-	file_chalk_planner_v1_symbolic_value_proto_msgTypes[18].OneofWrappers = []any{}
+	file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_planner_v1_symbolic_value_proto_rawDesc), len(file_chalk_planner_v1_symbolic_value_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_symbolic_value_v1_symbolic_value_proto_rawDesc), len(file_chalk_symbolic_value_v1_symbolic_value_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_chalk_planner_v1_symbolic_value_proto_goTypes,
-		DependencyIndexes: file_chalk_planner_v1_symbolic_value_proto_depIdxs,
-		MessageInfos:      file_chalk_planner_v1_symbolic_value_proto_msgTypes,
+		GoTypes:           file_chalk_symbolic_value_v1_symbolic_value_proto_goTypes,
+		DependencyIndexes: file_chalk_symbolic_value_v1_symbolic_value_proto_depIdxs,
+		MessageInfos:      file_chalk_symbolic_value_v1_symbolic_value_proto_msgTypes,
 	}.Build()
-	File_chalk_planner_v1_symbolic_value_proto = out.File
-	file_chalk_planner_v1_symbolic_value_proto_goTypes = nil
-	file_chalk_planner_v1_symbolic_value_proto_depIdxs = nil
+	File_chalk_symbolic_value_v1_symbolic_value_proto = out.File
+	file_chalk_symbolic_value_v1_symbolic_value_proto_goTypes = nil
+	file_chalk_symbolic_value_v1_symbolic_value_proto_depIdxs = nil
 }

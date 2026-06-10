@@ -36,12 +36,16 @@ const (
 	// ManagerServiceGetClusterEnvironmentsProcedure is the fully-qualified name of the ManagerService's
 	// GetClusterEnvironments RPC.
 	ManagerServiceGetClusterEnvironmentsProcedure = "/chalk.server.v1.ManagerService/GetClusterEnvironments"
+	// ManagerServiceListTelemetryTimescaleKubeSecretRefsProcedure is the fully-qualified name of the
+	// ManagerService's ListTelemetryTimescaleKubeSecretRefs RPC.
+	ManagerServiceListTelemetryTimescaleKubeSecretRefsProcedure = "/chalk.server.v1.ManagerService/ListTelemetryTimescaleKubeSecretRefs"
 )
 
 // ManagerServiceClient is a client for the chalk.server.v1.ManagerService service.
 type ManagerServiceClient interface {
 	// If any checks fail, this request fails.
 	GetClusterEnvironments(context.Context, *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error)
+	ListTelemetryTimescaleKubeSecretRefs(context.Context, *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error)
 }
 
 // NewManagerServiceClient constructs a client for the chalk.server.v1.ManagerService service. By
@@ -62,12 +66,20 @@ func NewManagerServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		listTelemetryTimescaleKubeSecretRefs: connect.NewClient[v1.ListTelemetryTimescaleKubeSecretRefsRequest, v1.ListTelemetryTimescaleKubeSecretRefsResponse](
+			httpClient,
+			baseURL+ManagerServiceListTelemetryTimescaleKubeSecretRefsProcedure,
+			connect.WithSchema(managerServiceMethods.ByName("ListTelemetryTimescaleKubeSecretRefs")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // managerServiceClient implements ManagerServiceClient.
 type managerServiceClient struct {
-	getClusterEnvironments *connect.Client[v1.GetClusterEnvironmentsRequest, v1.GetClusterEnvironmentsResponse]
+	getClusterEnvironments               *connect.Client[v1.GetClusterEnvironmentsRequest, v1.GetClusterEnvironmentsResponse]
+	listTelemetryTimescaleKubeSecretRefs *connect.Client[v1.ListTelemetryTimescaleKubeSecretRefsRequest, v1.ListTelemetryTimescaleKubeSecretRefsResponse]
 }
 
 // GetClusterEnvironments calls chalk.server.v1.ManagerService.GetClusterEnvironments.
@@ -75,10 +87,17 @@ func (c *managerServiceClient) GetClusterEnvironments(ctx context.Context, req *
 	return c.getClusterEnvironments.CallUnary(ctx, req)
 }
 
+// ListTelemetryTimescaleKubeSecretRefs calls
+// chalk.server.v1.ManagerService.ListTelemetryTimescaleKubeSecretRefs.
+func (c *managerServiceClient) ListTelemetryTimescaleKubeSecretRefs(ctx context.Context, req *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error) {
+	return c.listTelemetryTimescaleKubeSecretRefs.CallUnary(ctx, req)
+}
+
 // ManagerServiceHandler is an implementation of the chalk.server.v1.ManagerService service.
 type ManagerServiceHandler interface {
 	// If any checks fail, this request fails.
 	GetClusterEnvironments(context.Context, *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error)
+	ListTelemetryTimescaleKubeSecretRefs(context.Context, *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error)
 }
 
 // NewManagerServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -95,10 +114,19 @@ func NewManagerServiceHandler(svc ManagerServiceHandler, opts ...connect.Handler
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	managerServiceListTelemetryTimescaleKubeSecretRefsHandler := connect.NewUnaryHandler(
+		ManagerServiceListTelemetryTimescaleKubeSecretRefsProcedure,
+		svc.ListTelemetryTimescaleKubeSecretRefs,
+		connect.WithSchema(managerServiceMethods.ByName("ListTelemetryTimescaleKubeSecretRefs")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ManagerService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ManagerServiceGetClusterEnvironmentsProcedure:
 			managerServiceGetClusterEnvironmentsHandler.ServeHTTP(w, r)
+		case ManagerServiceListTelemetryTimescaleKubeSecretRefsProcedure:
+			managerServiceListTelemetryTimescaleKubeSecretRefsHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -110,4 +138,8 @@ type UnimplementedManagerServiceHandler struct{}
 
 func (UnimplementedManagerServiceHandler) GetClusterEnvironments(context.Context, *connect.Request[v1.GetClusterEnvironmentsRequest]) (*connect.Response[v1.GetClusterEnvironmentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ManagerService.GetClusterEnvironments is not implemented"))
+}
+
+func (UnimplementedManagerServiceHandler) ListTelemetryTimescaleKubeSecretRefs(context.Context, *connect.Request[v1.ListTelemetryTimescaleKubeSecretRefsRequest]) (*connect.Response[v1.ListTelemetryTimescaleKubeSecretRefsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ManagerService.ListTelemetryTimescaleKubeSecretRefs is not implemented"))
 }
