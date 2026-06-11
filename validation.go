@@ -2,10 +2,11 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/chalk-ai/chalk-go/internal"
-	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/cockroachdb/errors"
 )
 
 type onlineQueryParamsResolved struct {
@@ -19,12 +20,6 @@ type onlineQueryParamsResolved struct {
 
 func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	if featureStr, ok := feature.(string); ok {
-		// Transparently accept human-readable bracket notation (e.g.
-		// "user.count[7d]") for feature names passed as strings, rewriting
-		// to the internal seconds-based format ("user.count__604800__")
-		// expected by the server. Brackets are not valid in internal FQNs,
-		// so non-windowed names and already-internal names pass through
-		// unchanged.
 		return internal.TranslateBracketFqn(featureStr), false, nil
 	} else if featureObj, err := UnwrapFeature(feature); err == nil {
 		return featureObj.Fqn, true, nil
