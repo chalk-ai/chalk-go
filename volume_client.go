@@ -220,47 +220,54 @@ func NewVolumeClient(ctx context.Context, configs ...*VolumeClientConfig) (Volum
 	}
 
 	envID := manager.EnvironmentId.Value
-	interceptor := volumeAuthInterceptor(tokenManager, envID, timeout)
 	apiServer := manager.GetAPIServer().Value
-	return &volumeClientImpl{
+	client := &volumeClientImpl{
 		httpClient:   cfg.HTTPClient,
 		apiServer:    apiServer,
 		tokenManager: tokenManager,
 		envID:        envID,
 		timeout:      timeout,
 		author:       cfg.CommitAuthor,
-		rpc: volumev2connect.NewVolumeServiceClient(
-			cfg.HTTPClient,
-			apiServer,
-			connect.WithInterceptors(connect.UnaryInterceptorFunc(interceptor)),
-			connect.WithInterceptors(cfg.Interceptors...),
-		),
-	}, nil
+	}
+	client.rpc = volumev2connect.NewVolumeServiceClient(
+		cfg.HTTPClient,
+		apiServer,
+		connect.WithInterceptors(connect.UnaryInterceptorFunc(client.authInterceptor())),
+		connect.WithInterceptors(cfg.Interceptors...),
+	)
+	return client, nil
 }
 
-func volumeAuthInterceptor(tokenManager *auth.Manager, envID string, timeout *time.Duration) connect.UnaryInterceptorFunc {
+func (c *volumeClientImpl) authInterceptor() connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
-			if timeout != nil {
+			if c.timeout != nil {
 				if _, ok := ctx.Deadline(); !ok {
 					var cancel context.CancelFunc
-					ctx, cancel = context.WithTimeout(ctx, *timeout)
+					ctx, cancel = context.WithTimeout(ctx, *c.timeout)
 					defer cancel()
 				}
 			}
-			req.Header().Set("x-chalk-server", "go-api")
-			req.Header().Set("User-Agent", internal.UserAgent())
-			if envID != "" {
-				req.Header().Set("x-chalk-env-id", envID)
-			}
-			token, err := tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
-			if err != nil {
+			if err := c.addAuthHeaders(ctx, req.Header()); err != nil {
 				return nil, errors.Wrap(err, "error refreshing config")
 			}
-			req.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 			return next(ctx, req)
 		}
 	}
+}
+
+func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Header) error {
+	header.Set("x-chalk-server", "go-api")
+	header.Set("User-Agent", internal.UserAgent())
+	if c.envID != "" {
+		header.Set("x-chalk-env-id", c.envID)
+	}
+	token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
+	if err != nil {
+		return err
+	}
+	header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
+	return nil
 }
 
 func (c *volumeClientImpl) CreateVolume(ctx context.Context, name string) (*volumev2.CreateVolumeResponse, error) {
@@ -577,7 +584,7 @@ func computeVolumeSlices(total uint64, chunkSize uint64) []volumeSlice {
 	}
 	var slices []volumeSlice
 	for offset := uint64(0); offset < total; {
-		size := max(chunk, total-offset)
+		size := min(chunk, total-offset)
 		slices = append(slices, volumeSlice{offset: offset, size: size})
 		offset += size
 	}
@@ -755,15 +762,9 @@ func (c *volumeClientImpl) resolveCommitAuthor(ctx context.Context) string {
 		if err != nil {
 			return
 		}
-		req.Header.Set("User-Agent", internal.UserAgent())
-		if c.envID != "" {
-			req.Header.Set("x-chalk-env-id", c.envID)
-		}
-		token, err := c.tokenManager.GetJWT(ctx, time.Now().Add(time.Minute))
-		if err != nil {
+		if err := c.addAuthHeaders(ctx, req.Header); err != nil {
 			return
 		}
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.AccessToken))
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
 			return
@@ -807,7 +808,7 @@ func (c *volumeClientImpl) signedRequestWithRetry(ctx context.Context, method st
 		if err != nil {
 			return err
 		}
-		req.Header = headers.Clone()
+		req.Header = cloneHeader(headers)
 		resp, err := c.httpClient.Do(req)
 		if err == nil && resp != nil {
 			io.Copy(io.Discard, resp.Body)
@@ -856,7 +857,7 @@ func (c *volumeClientImpl) signedGetWithRetry(ctx context.Context, url string, h
 		if err != nil {
 			return nil, err
 		}
-		req.Header = headers.Clone()
+		req.Header = cloneHeader(headers)
 		resp, err := c.httpClient.Do(req)
 		if err == nil && resp != nil {
 			defer resp.Body.Close()
@@ -1307,6 +1308,13 @@ func newVolumeCommitID() string {
 
 func octetStreamHeaders() http.Header {
 	return http.Header{"Content-Type": []string{"application/octet-stream"}}
+}
+
+func cloneHeader(header http.Header) http.Header {
+	if header == nil {
+		return http.Header{}
+	}
+	return header.Clone()
 }
 
 func rateLimitBackoffMS(attempt int) uint64 {
