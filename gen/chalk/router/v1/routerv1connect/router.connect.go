@@ -92,6 +92,9 @@ const (
 	// SettingsServiceListProvidersProcedure is the fully-qualified name of the SettingsService's
 	// ListProviders RPC.
 	SettingsServiceListProvidersProcedure = "/chalk.router.v1.SettingsService/ListProviders"
+	// SettingsServiceSetProviderCredentialProcedure is the fully-qualified name of the
+	// SettingsService's SetProviderCredential RPC.
+	SettingsServiceSetProviderCredentialProcedure = "/chalk.router.v1.SettingsService/SetProviderCredential"
 	// DebugServiceRecentCompletionsProcedure is the fully-qualified name of the DebugService's
 	// RecentCompletions RPC.
 	DebugServiceRecentCompletionsProcedure = "/chalk.router.v1.DebugService/RecentCompletions"
@@ -710,6 +713,7 @@ func (UnimplementedFallbackPolicyServiceHandler) UpdateFallbackPolicy(context.Co
 type SettingsServiceClient interface {
 	GetSettings(context.Context, *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error)
 	ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error)
+	SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error)
 }
 
 // NewSettingsServiceClient constructs a client for the chalk.router.v1.SettingsService service. By
@@ -737,13 +741,20 @@ func NewSettingsServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		setProviderCredential: connect.NewClient[v1.SetProviderCredentialRequest, v1.SetProviderCredentialResponse](
+			httpClient,
+			baseURL+SettingsServiceSetProviderCredentialProcedure,
+			connect.WithSchema(settingsServiceMethods.ByName("SetProviderCredential")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // settingsServiceClient implements SettingsServiceClient.
 type settingsServiceClient struct {
-	getSettings   *connect.Client[v1.GetSettingsRequest, v1.GetSettingsResponse]
-	listProviders *connect.Client[v1.ListProvidersRequest, v1.ListProvidersResponse]
+	getSettings           *connect.Client[v1.GetSettingsRequest, v1.GetSettingsResponse]
+	listProviders         *connect.Client[v1.ListProvidersRequest, v1.ListProvidersResponse]
+	setProviderCredential *connect.Client[v1.SetProviderCredentialRequest, v1.SetProviderCredentialResponse]
 }
 
 // GetSettings calls chalk.router.v1.SettingsService.GetSettings.
@@ -756,10 +767,16 @@ func (c *settingsServiceClient) ListProviders(ctx context.Context, req *connect.
 	return c.listProviders.CallUnary(ctx, req)
 }
 
+// SetProviderCredential calls chalk.router.v1.SettingsService.SetProviderCredential.
+func (c *settingsServiceClient) SetProviderCredential(ctx context.Context, req *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error) {
+	return c.setProviderCredential.CallUnary(ctx, req)
+}
+
 // SettingsServiceHandler is an implementation of the chalk.router.v1.SettingsService service.
 type SettingsServiceHandler interface {
 	GetSettings(context.Context, *connect.Request[v1.GetSettingsRequest]) (*connect.Response[v1.GetSettingsResponse], error)
 	ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error)
+	SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error)
 }
 
 // NewSettingsServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -783,12 +800,20 @@ func NewSettingsServiceHandler(svc SettingsServiceHandler, opts ...connect.Handl
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	settingsServiceSetProviderCredentialHandler := connect.NewUnaryHandler(
+		SettingsServiceSetProviderCredentialProcedure,
+		svc.SetProviderCredential,
+		connect.WithSchema(settingsServiceMethods.ByName("SetProviderCredential")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.router.v1.SettingsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SettingsServiceGetSettingsProcedure:
 			settingsServiceGetSettingsHandler.ServeHTTP(w, r)
 		case SettingsServiceListProvidersProcedure:
 			settingsServiceListProvidersHandler.ServeHTTP(w, r)
+		case SettingsServiceSetProviderCredentialProcedure:
+			settingsServiceSetProviderCredentialHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -804,6 +829,10 @@ func (UnimplementedSettingsServiceHandler) GetSettings(context.Context, *connect
 
 func (UnimplementedSettingsServiceHandler) ListProviders(context.Context, *connect.Request[v1.ListProvidersRequest]) (*connect.Response[v1.ListProvidersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.SettingsService.ListProviders is not implemented"))
+}
+
+func (UnimplementedSettingsServiceHandler) SetProviderCredential(context.Context, *connect.Request[v1.SetProviderCredentialRequest]) (*connect.Response[v1.SetProviderCredentialResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.router.v1.SettingsService.SetProviderCredential is not implemented"))
 }
 
 // DebugServiceClient is a client for the chalk.router.v1.DebugService service.

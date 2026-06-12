@@ -2459,6 +2459,114 @@ func (x *ListProvidersResponse) GetProviders() []*ProviderInfo {
 	return nil
 }
 
+type SetProviderCredentialRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Provider id: "openai", "anthropic", or "gemini".
+	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	// The provider API key.
+	ApiKey string `protobuf:"bytes,2,opt,name=api_key,json=apiKey,proto3" json:"api_key,omitempty"`
+	// Optional base URL override (custom OpenAI-compatible / Gemini endpoint).
+	BaseUrl       *string `protobuf:"bytes,3,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetProviderCredentialRequest) Reset() {
+	*x = SetProviderCredentialRequest{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetProviderCredentialRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetProviderCredentialRequest) ProtoMessage() {}
+
+func (x *SetProviderCredentialRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetProviderCredentialRequest.ProtoReflect.Descriptor instead.
+func (*SetProviderCredentialRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{46}
+}
+
+func (x *SetProviderCredentialRequest) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *SetProviderCredentialRequest) GetApiKey() string {
+	if x != nil {
+		return x.ApiKey
+	}
+	return ""
+}
+
+func (x *SetProviderCredentialRequest) GetBaseUrl() string {
+	if x != nil && x.BaseUrl != nil {
+		return *x.BaseUrl
+	}
+	return ""
+}
+
+type SetProviderCredentialResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The provider's status after the update.
+	Provider      *ProviderInfo `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetProviderCredentialResponse) Reset() {
+	*x = SetProviderCredentialResponse{}
+	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetProviderCredentialResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetProviderCredentialResponse) ProtoMessage() {}
+
+func (x *SetProviderCredentialResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetProviderCredentialResponse.ProtoReflect.Descriptor instead.
+func (*SetProviderCredentialResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{47}
+}
+
+func (x *SetProviderCredentialResponse) GetProvider() *ProviderInfo {
+	if x != nil {
+		return x.Provider
+	}
+	return nil
+}
+
 type Usage struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	PromptTokens     uint32                 `protobuf:"varint,1,opt,name=prompt_tokens,json=promptTokens,proto3" json:"prompt_tokens,omitempty"`
@@ -2470,7 +2578,7 @@ type Usage struct {
 
 func (x *Usage) Reset() {
 	*x = Usage{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2482,7 +2590,7 @@ func (x *Usage) String() string {
 func (*Usage) ProtoMessage() {}
 
 func (x *Usage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[46]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2495,7 +2603,7 @@ func (x *Usage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Usage.ProtoReflect.Descriptor instead.
 func (*Usage) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{46}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *Usage) GetPromptTokens() uint32 {
@@ -2535,7 +2643,7 @@ type DebugCompletionEntry struct {
 
 func (x *DebugCompletionEntry) Reset() {
 	*x = DebugCompletionEntry{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2547,7 +2655,7 @@ func (x *DebugCompletionEntry) String() string {
 func (*DebugCompletionEntry) ProtoMessage() {}
 
 func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[47]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2560,7 +2668,7 @@ func (x *DebugCompletionEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DebugCompletionEntry.ProtoReflect.Descriptor instead.
 func (*DebugCompletionEntry) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{47}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *DebugCompletionEntry) GetTimestamp() string {
@@ -2627,7 +2735,7 @@ type RecentCompletionsRequest struct {
 
 func (x *RecentCompletionsRequest) Reset() {
 	*x = RecentCompletionsRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2639,7 +2747,7 @@ func (x *RecentCompletionsRequest) String() string {
 func (*RecentCompletionsRequest) ProtoMessage() {}
 
 func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[48]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2652,7 +2760,7 @@ func (x *RecentCompletionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsRequest.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{48}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{50}
 }
 
 type RecentCompletionsResponse struct {
@@ -2665,7 +2773,7 @@ type RecentCompletionsResponse struct {
 
 func (x *RecentCompletionsResponse) Reset() {
 	*x = RecentCompletionsResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2677,7 +2785,7 @@ func (x *RecentCompletionsResponse) String() string {
 func (*RecentCompletionsResponse) ProtoMessage() {}
 
 func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[49]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2690,7 +2798,7 @@ func (x *RecentCompletionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecentCompletionsResponse.ProtoReflect.Descriptor instead.
 func (*RecentCompletionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{49}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *RecentCompletionsResponse) GetCount() uint32 {
@@ -2718,7 +2826,7 @@ type CheckRequest struct {
 
 func (x *CheckRequest) Reset() {
 	*x = CheckRequest{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2730,7 +2838,7 @@ func (x *CheckRequest) String() string {
 func (*CheckRequest) ProtoMessage() {}
 
 func (x *CheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[50]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2743,7 +2851,7 @@ func (x *CheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckRequest.ProtoReflect.Descriptor instead.
 func (*CheckRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{50}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{52}
 }
 
 type CheckResponse struct {
@@ -2756,7 +2864,7 @@ type CheckResponse struct {
 
 func (x *CheckResponse) Reset() {
 	*x = CheckResponse{}
-	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2768,7 +2876,7 @@ func (x *CheckResponse) String() string {
 func (*CheckResponse) ProtoMessage() {}
 
 func (x *CheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_router_v1_router_proto_msgTypes[51]
+	mi := &file_chalk_router_v1_router_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2781,7 +2889,7 @@ func (x *CheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckResponse.ProtoReflect.Descriptor instead.
 func (*CheckResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{51}
+	return file_chalk_router_v1_router_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *CheckResponse) GetProfile() string {
@@ -3000,7 +3108,14 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"configured\x18\x03 \x01(\bR\n" +
 	"configured\"T\n" +
 	"\x15ListProvidersResponse\x12;\n" +
-	"\tproviders\x18\x01 \x03(\v2\x1d.chalk.router.v1.ProviderInfoR\tproviders\"|\n" +
+	"\tproviders\x18\x01 \x03(\v2\x1d.chalk.router.v1.ProviderInfoR\tproviders\"\x80\x01\n" +
+	"\x1cSetProviderCredentialRequest\x12\x1a\n" +
+	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x17\n" +
+	"\aapi_key\x18\x02 \x01(\tR\x06apiKey\x12\x1e\n" +
+	"\bbase_url\x18\x03 \x01(\tH\x00R\abaseUrl\x88\x01\x01B\v\n" +
+	"\t_base_url\"Z\n" +
+	"\x1dSetProviderCredentialResponse\x129\n" +
+	"\bprovider\x18\x01 \x01(\v2\x1d.chalk.router.v1.ProviderInfoR\bprovider\"|\n" +
 	"\x05Usage\x12#\n" +
 	"\rprompt_tokens\x18\x01 \x01(\rR\fpromptTokens\x12+\n" +
 	"\x11completion_tokens\x18\x02 \x01(\rR\x10completionTokens\x12!\n" +
@@ -3046,10 +3161,11 @@ const file_chalk_router_v1_router_proto_rawDesc = "" +
 	"\x0fDeleteRateLimit\x12'.chalk.router.v1.DeleteRateLimitRequest\x1a(.chalk.router.v1.DeleteRateLimitResponse\"\x03\x80}\x022\x85\x02\n" +
 	"\x15FallbackPolicyService\x12r\n" +
 	"\x11GetFallbackPolicy\x12).chalk.router.v1.GetFallbackPolicyRequest\x1a*.chalk.router.v1.GetFallbackPolicyResponse\"\x06\x80}\x02\x90\x02\x01\x12x\n" +
-	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\x03\x80}\x022\xdb\x01\n" +
+	"\x14UpdateFallbackPolicy\x12,.chalk.router.v1.UpdateFallbackPolicyRequest\x1a-.chalk.router.v1.UpdateFallbackPolicyResponse\"\x03\x80}\x022\xd8\x02\n" +
 	"\x0fSettingsService\x12`\n" +
 	"\vGetSettings\x12#.chalk.router.v1.GetSettingsRequest\x1a$.chalk.router.v1.GetSettingsResponse\"\x06\x80}\x02\x90\x02\x01\x12f\n" +
-	"\rListProviders\x12%.chalk.router.v1.ListProvidersRequest\x1a&.chalk.router.v1.ListProvidersResponse\"\x06\x80}\x02\x90\x02\x012\x82\x01\n" +
+	"\rListProviders\x12%.chalk.router.v1.ListProvidersRequest\x1a&.chalk.router.v1.ListProvidersResponse\"\x06\x80}\x02\x90\x02\x01\x12{\n" +
+	"\x15SetProviderCredential\x12-.chalk.router.v1.SetProviderCredentialRequest\x1a..chalk.router.v1.SetProviderCredentialResponse\"\x03\x80}\x022\x82\x01\n" +
 	"\fDebugService\x12r\n" +
 	"\x11RecentCompletions\x12).chalk.router.v1.RecentCompletionsRequest\x1a*.chalk.router.v1.RecentCompletionsResponse\"\x06\x80}\x02\x90\x02\x012_\n" +
 	"\rHealthService\x12N\n" +
@@ -3068,148 +3184,153 @@ func file_chalk_router_v1_router_proto_rawDescGZIP() []byte {
 	return file_chalk_router_v1_router_proto_rawDescData
 }
 
-var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
+var file_chalk_router_v1_router_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
 var file_chalk_router_v1_router_proto_goTypes = []any{
-	(*ApiKeyPermission)(nil),             // 0: chalk.router.v1.ApiKeyPermission
-	(*UsageSnapshot)(nil),                // 1: chalk.router.v1.UsageSnapshot
-	(*ApiKey)(nil),                       // 2: chalk.router.v1.ApiKey
-	(*CreateKeyRequest)(nil),             // 3: chalk.router.v1.CreateKeyRequest
-	(*CreateKeyResponse)(nil),            // 4: chalk.router.v1.CreateKeyResponse
-	(*ListKeysRequest)(nil),              // 5: chalk.router.v1.ListKeysRequest
-	(*ListKeysResponse)(nil),             // 6: chalk.router.v1.ListKeysResponse
-	(*UpdateKeyRequest)(nil),             // 7: chalk.router.v1.UpdateKeyRequest
-	(*CostTagsValue)(nil),                // 8: chalk.router.v1.CostTagsValue
-	(*UpdateKeyResponse)(nil),            // 9: chalk.router.v1.UpdateKeyResponse
-	(*RevokeKeyRequest)(nil),             // 10: chalk.router.v1.RevokeKeyRequest
-	(*RevokeKeyResponse)(nil),            // 11: chalk.router.v1.RevokeKeyResponse
-	(*GetKeyUsageRequest)(nil),           // 12: chalk.router.v1.GetKeyUsageRequest
-	(*GetKeyUsageResponse)(nil),          // 13: chalk.router.v1.GetKeyUsageResponse
-	(*ListAllUsageRequest)(nil),          // 14: chalk.router.v1.ListAllUsageRequest
-	(*ListAllUsageResponse)(nil),         // 15: chalk.router.v1.ListAllUsageResponse
-	(*GetUsageHistogramRequest)(nil),     // 16: chalk.router.v1.GetUsageHistogramRequest
-	(*UsageHistogramRow)(nil),            // 17: chalk.router.v1.UsageHistogramRow
-	(*GetUsageHistogramResponse)(nil),    // 18: chalk.router.v1.GetUsageHistogramResponse
-	(*Team)(nil),                         // 19: chalk.router.v1.Team
-	(*CreateTeamRequest)(nil),            // 20: chalk.router.v1.CreateTeamRequest
-	(*CreateTeamResponse)(nil),           // 21: chalk.router.v1.CreateTeamResponse
-	(*ListTeamsRequest)(nil),             // 22: chalk.router.v1.ListTeamsRequest
-	(*ListTeamsResponse)(nil),            // 23: chalk.router.v1.ListTeamsResponse
-	(*DeleteTeamRequest)(nil),            // 24: chalk.router.v1.DeleteTeamRequest
-	(*DeleteTeamResponse)(nil),           // 25: chalk.router.v1.DeleteTeamResponse
-	(*RateLimitPolicy)(nil),              // 26: chalk.router.v1.RateLimitPolicy
-	(*CreateRateLimitRequest)(nil),       // 27: chalk.router.v1.CreateRateLimitRequest
-	(*CreateRateLimitResponse)(nil),      // 28: chalk.router.v1.CreateRateLimitResponse
-	(*ListRateLimitsRequest)(nil),        // 29: chalk.router.v1.ListRateLimitsRequest
-	(*ListRateLimitsResponse)(nil),       // 30: chalk.router.v1.ListRateLimitsResponse
-	(*UpdateRateLimitRequest)(nil),       // 31: chalk.router.v1.UpdateRateLimitRequest
-	(*UpdateRateLimitResponse)(nil),      // 32: chalk.router.v1.UpdateRateLimitResponse
-	(*DeleteRateLimitRequest)(nil),       // 33: chalk.router.v1.DeleteRateLimitRequest
-	(*DeleteRateLimitResponse)(nil),      // 34: chalk.router.v1.DeleteRateLimitResponse
-	(*FallbackList)(nil),                 // 35: chalk.router.v1.FallbackList
-	(*FallbackPolicy)(nil),               // 36: chalk.router.v1.FallbackPolicy
-	(*GetFallbackPolicyRequest)(nil),     // 37: chalk.router.v1.GetFallbackPolicyRequest
-	(*GetFallbackPolicyResponse)(nil),    // 38: chalk.router.v1.GetFallbackPolicyResponse
-	(*UpdateFallbackPolicyRequest)(nil),  // 39: chalk.router.v1.UpdateFallbackPolicyRequest
-	(*UpdateFallbackPolicyResponse)(nil), // 40: chalk.router.v1.UpdateFallbackPolicyResponse
-	(*GetSettingsRequest)(nil),           // 41: chalk.router.v1.GetSettingsRequest
-	(*GetSettingsResponse)(nil),          // 42: chalk.router.v1.GetSettingsResponse
-	(*ListProvidersRequest)(nil),         // 43: chalk.router.v1.ListProvidersRequest
-	(*ProviderInfo)(nil),                 // 44: chalk.router.v1.ProviderInfo
-	(*ListProvidersResponse)(nil),        // 45: chalk.router.v1.ListProvidersResponse
-	(*Usage)(nil),                        // 46: chalk.router.v1.Usage
-	(*DebugCompletionEntry)(nil),         // 47: chalk.router.v1.DebugCompletionEntry
-	(*RecentCompletionsRequest)(nil),     // 48: chalk.router.v1.RecentCompletionsRequest
-	(*RecentCompletionsResponse)(nil),    // 49: chalk.router.v1.RecentCompletionsResponse
-	(*CheckRequest)(nil),                 // 50: chalk.router.v1.CheckRequest
-	(*CheckResponse)(nil),                // 51: chalk.router.v1.CheckResponse
-	nil,                                  // 52: chalk.router.v1.ApiKey.LabelsEntry
-	nil,                                  // 53: chalk.router.v1.ApiKey.CostTagsEntry
-	nil,                                  // 54: chalk.router.v1.CreateKeyRequest.LabelsEntry
-	nil,                                  // 55: chalk.router.v1.CreateKeyRequest.CostTagsEntry
-	nil,                                  // 56: chalk.router.v1.CostTagsValue.TagsEntry
-	nil,                                  // 57: chalk.router.v1.FallbackPolicy.FallbacksEntry
-	(*timestamppb.Timestamp)(nil),        // 58: google.protobuf.Timestamp
+	(*ApiKeyPermission)(nil),              // 0: chalk.router.v1.ApiKeyPermission
+	(*UsageSnapshot)(nil),                 // 1: chalk.router.v1.UsageSnapshot
+	(*ApiKey)(nil),                        // 2: chalk.router.v1.ApiKey
+	(*CreateKeyRequest)(nil),              // 3: chalk.router.v1.CreateKeyRequest
+	(*CreateKeyResponse)(nil),             // 4: chalk.router.v1.CreateKeyResponse
+	(*ListKeysRequest)(nil),               // 5: chalk.router.v1.ListKeysRequest
+	(*ListKeysResponse)(nil),              // 6: chalk.router.v1.ListKeysResponse
+	(*UpdateKeyRequest)(nil),              // 7: chalk.router.v1.UpdateKeyRequest
+	(*CostTagsValue)(nil),                 // 8: chalk.router.v1.CostTagsValue
+	(*UpdateKeyResponse)(nil),             // 9: chalk.router.v1.UpdateKeyResponse
+	(*RevokeKeyRequest)(nil),              // 10: chalk.router.v1.RevokeKeyRequest
+	(*RevokeKeyResponse)(nil),             // 11: chalk.router.v1.RevokeKeyResponse
+	(*GetKeyUsageRequest)(nil),            // 12: chalk.router.v1.GetKeyUsageRequest
+	(*GetKeyUsageResponse)(nil),           // 13: chalk.router.v1.GetKeyUsageResponse
+	(*ListAllUsageRequest)(nil),           // 14: chalk.router.v1.ListAllUsageRequest
+	(*ListAllUsageResponse)(nil),          // 15: chalk.router.v1.ListAllUsageResponse
+	(*GetUsageHistogramRequest)(nil),      // 16: chalk.router.v1.GetUsageHistogramRequest
+	(*UsageHistogramRow)(nil),             // 17: chalk.router.v1.UsageHistogramRow
+	(*GetUsageHistogramResponse)(nil),     // 18: chalk.router.v1.GetUsageHistogramResponse
+	(*Team)(nil),                          // 19: chalk.router.v1.Team
+	(*CreateTeamRequest)(nil),             // 20: chalk.router.v1.CreateTeamRequest
+	(*CreateTeamResponse)(nil),            // 21: chalk.router.v1.CreateTeamResponse
+	(*ListTeamsRequest)(nil),              // 22: chalk.router.v1.ListTeamsRequest
+	(*ListTeamsResponse)(nil),             // 23: chalk.router.v1.ListTeamsResponse
+	(*DeleteTeamRequest)(nil),             // 24: chalk.router.v1.DeleteTeamRequest
+	(*DeleteTeamResponse)(nil),            // 25: chalk.router.v1.DeleteTeamResponse
+	(*RateLimitPolicy)(nil),               // 26: chalk.router.v1.RateLimitPolicy
+	(*CreateRateLimitRequest)(nil),        // 27: chalk.router.v1.CreateRateLimitRequest
+	(*CreateRateLimitResponse)(nil),       // 28: chalk.router.v1.CreateRateLimitResponse
+	(*ListRateLimitsRequest)(nil),         // 29: chalk.router.v1.ListRateLimitsRequest
+	(*ListRateLimitsResponse)(nil),        // 30: chalk.router.v1.ListRateLimitsResponse
+	(*UpdateRateLimitRequest)(nil),        // 31: chalk.router.v1.UpdateRateLimitRequest
+	(*UpdateRateLimitResponse)(nil),       // 32: chalk.router.v1.UpdateRateLimitResponse
+	(*DeleteRateLimitRequest)(nil),        // 33: chalk.router.v1.DeleteRateLimitRequest
+	(*DeleteRateLimitResponse)(nil),       // 34: chalk.router.v1.DeleteRateLimitResponse
+	(*FallbackList)(nil),                  // 35: chalk.router.v1.FallbackList
+	(*FallbackPolicy)(nil),                // 36: chalk.router.v1.FallbackPolicy
+	(*GetFallbackPolicyRequest)(nil),      // 37: chalk.router.v1.GetFallbackPolicyRequest
+	(*GetFallbackPolicyResponse)(nil),     // 38: chalk.router.v1.GetFallbackPolicyResponse
+	(*UpdateFallbackPolicyRequest)(nil),   // 39: chalk.router.v1.UpdateFallbackPolicyRequest
+	(*UpdateFallbackPolicyResponse)(nil),  // 40: chalk.router.v1.UpdateFallbackPolicyResponse
+	(*GetSettingsRequest)(nil),            // 41: chalk.router.v1.GetSettingsRequest
+	(*GetSettingsResponse)(nil),           // 42: chalk.router.v1.GetSettingsResponse
+	(*ListProvidersRequest)(nil),          // 43: chalk.router.v1.ListProvidersRequest
+	(*ProviderInfo)(nil),                  // 44: chalk.router.v1.ProviderInfo
+	(*ListProvidersResponse)(nil),         // 45: chalk.router.v1.ListProvidersResponse
+	(*SetProviderCredentialRequest)(nil),  // 46: chalk.router.v1.SetProviderCredentialRequest
+	(*SetProviderCredentialResponse)(nil), // 47: chalk.router.v1.SetProviderCredentialResponse
+	(*Usage)(nil),                         // 48: chalk.router.v1.Usage
+	(*DebugCompletionEntry)(nil),          // 49: chalk.router.v1.DebugCompletionEntry
+	(*RecentCompletionsRequest)(nil),      // 50: chalk.router.v1.RecentCompletionsRequest
+	(*RecentCompletionsResponse)(nil),     // 51: chalk.router.v1.RecentCompletionsResponse
+	(*CheckRequest)(nil),                  // 52: chalk.router.v1.CheckRequest
+	(*CheckResponse)(nil),                 // 53: chalk.router.v1.CheckResponse
+	nil,                                   // 54: chalk.router.v1.ApiKey.LabelsEntry
+	nil,                                   // 55: chalk.router.v1.ApiKey.CostTagsEntry
+	nil,                                   // 56: chalk.router.v1.CreateKeyRequest.LabelsEntry
+	nil,                                   // 57: chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	nil,                                   // 58: chalk.router.v1.CostTagsValue.TagsEntry
+	nil,                                   // 59: chalk.router.v1.FallbackPolicy.FallbacksEntry
+	(*timestamppb.Timestamp)(nil),         // 60: google.protobuf.Timestamp
 }
 var file_chalk_router_v1_router_proto_depIdxs = []int32{
-	58, // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
+	60, // 0: chalk.router.v1.ApiKey.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: chalk.router.v1.ApiKey.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	52, // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
+	54, // 2: chalk.router.v1.ApiKey.labels:type_name -> chalk.router.v1.ApiKey.LabelsEntry
 	1,  // 3: chalk.router.v1.ApiKey.usage:type_name -> chalk.router.v1.UsageSnapshot
-	53, // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
+	55, // 4: chalk.router.v1.ApiKey.cost_tags:type_name -> chalk.router.v1.ApiKey.CostTagsEntry
 	0,  // 5: chalk.router.v1.CreateKeyRequest.permission:type_name -> chalk.router.v1.ApiKeyPermission
-	54, // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
-	55, // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
+	56, // 6: chalk.router.v1.CreateKeyRequest.labels:type_name -> chalk.router.v1.CreateKeyRequest.LabelsEntry
+	57, // 7: chalk.router.v1.CreateKeyRequest.cost_tags:type_name -> chalk.router.v1.CreateKeyRequest.CostTagsEntry
 	2,  // 8: chalk.router.v1.CreateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
 	2,  // 9: chalk.router.v1.ListKeysResponse.keys:type_name -> chalk.router.v1.ApiKey
 	8,  // 10: chalk.router.v1.UpdateKeyRequest.cost_tags:type_name -> chalk.router.v1.CostTagsValue
-	56, // 11: chalk.router.v1.CostTagsValue.tags:type_name -> chalk.router.v1.CostTagsValue.TagsEntry
+	58, // 11: chalk.router.v1.CostTagsValue.tags:type_name -> chalk.router.v1.CostTagsValue.TagsEntry
 	2,  // 12: chalk.router.v1.UpdateKeyResponse.key:type_name -> chalk.router.v1.ApiKey
 	1,  // 13: chalk.router.v1.GetKeyUsageResponse.usage:type_name -> chalk.router.v1.UsageSnapshot
 	13, // 14: chalk.router.v1.ListAllUsageResponse.keys:type_name -> chalk.router.v1.GetKeyUsageResponse
-	58, // 15: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
-	58, // 16: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
-	58, // 17: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
+	60, // 15: chalk.router.v1.GetUsageHistogramRequest.start:type_name -> google.protobuf.Timestamp
+	60, // 16: chalk.router.v1.GetUsageHistogramRequest.end:type_name -> google.protobuf.Timestamp
+	60, // 17: chalk.router.v1.UsageHistogramRow.bucket:type_name -> google.protobuf.Timestamp
 	17, // 18: chalk.router.v1.GetUsageHistogramResponse.rows:type_name -> chalk.router.v1.UsageHistogramRow
-	58, // 19: chalk.router.v1.Team.created_at:type_name -> google.protobuf.Timestamp
+	60, // 19: chalk.router.v1.Team.created_at:type_name -> google.protobuf.Timestamp
 	19, // 20: chalk.router.v1.CreateTeamResponse.team:type_name -> chalk.router.v1.Team
 	19, // 21: chalk.router.v1.ListTeamsResponse.teams:type_name -> chalk.router.v1.Team
-	58, // 22: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
+	60, // 22: chalk.router.v1.RateLimitPolicy.created_at:type_name -> google.protobuf.Timestamp
 	26, // 23: chalk.router.v1.CreateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
 	26, // 24: chalk.router.v1.ListRateLimitsResponse.policies:type_name -> chalk.router.v1.RateLimitPolicy
 	26, // 25: chalk.router.v1.UpdateRateLimitResponse.policy:type_name -> chalk.router.v1.RateLimitPolicy
-	57, // 26: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
+	59, // 26: chalk.router.v1.FallbackPolicy.fallbacks:type_name -> chalk.router.v1.FallbackPolicy.FallbacksEntry
 	36, // 27: chalk.router.v1.GetFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
 	36, // 28: chalk.router.v1.UpdateFallbackPolicyRequest.policy:type_name -> chalk.router.v1.FallbackPolicy
 	36, // 29: chalk.router.v1.UpdateFallbackPolicyResponse.policy:type_name -> chalk.router.v1.FallbackPolicy
 	44, // 30: chalk.router.v1.ListProvidersResponse.providers:type_name -> chalk.router.v1.ProviderInfo
-	46, // 31: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
-	47, // 32: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
-	35, // 33: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
-	3,  // 34: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
-	5,  // 35: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
-	7,  // 36: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
-	10, // 37: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
-	12, // 38: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
-	14, // 39: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
-	16, // 40: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
-	20, // 41: chalk.router.v1.TeamService.CreateTeam:input_type -> chalk.router.v1.CreateTeamRequest
-	22, // 42: chalk.router.v1.TeamService.ListTeams:input_type -> chalk.router.v1.ListTeamsRequest
-	24, // 43: chalk.router.v1.TeamService.DeleteTeam:input_type -> chalk.router.v1.DeleteTeamRequest
-	27, // 44: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
-	29, // 45: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
-	31, // 46: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
-	33, // 47: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
-	37, // 48: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
-	39, // 49: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
-	41, // 50: chalk.router.v1.SettingsService.GetSettings:input_type -> chalk.router.v1.GetSettingsRequest
-	43, // 51: chalk.router.v1.SettingsService.ListProviders:input_type -> chalk.router.v1.ListProvidersRequest
-	48, // 52: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
-	50, // 53: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
-	4,  // 54: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
-	6,  // 55: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
-	9,  // 56: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
-	11, // 57: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
-	13, // 58: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
-	15, // 59: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
-	18, // 60: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
-	21, // 61: chalk.router.v1.TeamService.CreateTeam:output_type -> chalk.router.v1.CreateTeamResponse
-	23, // 62: chalk.router.v1.TeamService.ListTeams:output_type -> chalk.router.v1.ListTeamsResponse
-	25, // 63: chalk.router.v1.TeamService.DeleteTeam:output_type -> chalk.router.v1.DeleteTeamResponse
-	28, // 64: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
-	30, // 65: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
-	32, // 66: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
-	34, // 67: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
-	38, // 68: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
-	40, // 69: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
-	42, // 70: chalk.router.v1.SettingsService.GetSettings:output_type -> chalk.router.v1.GetSettingsResponse
-	45, // 71: chalk.router.v1.SettingsService.ListProviders:output_type -> chalk.router.v1.ListProvidersResponse
-	49, // 72: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
-	51, // 73: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
-	54, // [54:74] is the sub-list for method output_type
-	34, // [34:54] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	44, // 31: chalk.router.v1.SetProviderCredentialResponse.provider:type_name -> chalk.router.v1.ProviderInfo
+	48, // 32: chalk.router.v1.DebugCompletionEntry.usage:type_name -> chalk.router.v1.Usage
+	49, // 33: chalk.router.v1.RecentCompletionsResponse.entries:type_name -> chalk.router.v1.DebugCompletionEntry
+	35, // 34: chalk.router.v1.FallbackPolicy.FallbacksEntry.value:type_name -> chalk.router.v1.FallbackList
+	3,  // 35: chalk.router.v1.ApiKeyService.CreateKey:input_type -> chalk.router.v1.CreateKeyRequest
+	5,  // 36: chalk.router.v1.ApiKeyService.ListKeys:input_type -> chalk.router.v1.ListKeysRequest
+	7,  // 37: chalk.router.v1.ApiKeyService.UpdateKey:input_type -> chalk.router.v1.UpdateKeyRequest
+	10, // 38: chalk.router.v1.ApiKeyService.RevokeKey:input_type -> chalk.router.v1.RevokeKeyRequest
+	12, // 39: chalk.router.v1.ApiKeyService.GetKeyUsage:input_type -> chalk.router.v1.GetKeyUsageRequest
+	14, // 40: chalk.router.v1.ApiKeyService.ListAllUsage:input_type -> chalk.router.v1.ListAllUsageRequest
+	16, // 41: chalk.router.v1.ApiKeyService.GetUsageHistogram:input_type -> chalk.router.v1.GetUsageHistogramRequest
+	20, // 42: chalk.router.v1.TeamService.CreateTeam:input_type -> chalk.router.v1.CreateTeamRequest
+	22, // 43: chalk.router.v1.TeamService.ListTeams:input_type -> chalk.router.v1.ListTeamsRequest
+	24, // 44: chalk.router.v1.TeamService.DeleteTeam:input_type -> chalk.router.v1.DeleteTeamRequest
+	27, // 45: chalk.router.v1.RateLimitService.CreateRateLimit:input_type -> chalk.router.v1.CreateRateLimitRequest
+	29, // 46: chalk.router.v1.RateLimitService.ListRateLimits:input_type -> chalk.router.v1.ListRateLimitsRequest
+	31, // 47: chalk.router.v1.RateLimitService.UpdateRateLimit:input_type -> chalk.router.v1.UpdateRateLimitRequest
+	33, // 48: chalk.router.v1.RateLimitService.DeleteRateLimit:input_type -> chalk.router.v1.DeleteRateLimitRequest
+	37, // 49: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:input_type -> chalk.router.v1.GetFallbackPolicyRequest
+	39, // 50: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:input_type -> chalk.router.v1.UpdateFallbackPolicyRequest
+	41, // 51: chalk.router.v1.SettingsService.GetSettings:input_type -> chalk.router.v1.GetSettingsRequest
+	43, // 52: chalk.router.v1.SettingsService.ListProviders:input_type -> chalk.router.v1.ListProvidersRequest
+	46, // 53: chalk.router.v1.SettingsService.SetProviderCredential:input_type -> chalk.router.v1.SetProviderCredentialRequest
+	50, // 54: chalk.router.v1.DebugService.RecentCompletions:input_type -> chalk.router.v1.RecentCompletionsRequest
+	52, // 55: chalk.router.v1.HealthService.Check:input_type -> chalk.router.v1.CheckRequest
+	4,  // 56: chalk.router.v1.ApiKeyService.CreateKey:output_type -> chalk.router.v1.CreateKeyResponse
+	6,  // 57: chalk.router.v1.ApiKeyService.ListKeys:output_type -> chalk.router.v1.ListKeysResponse
+	9,  // 58: chalk.router.v1.ApiKeyService.UpdateKey:output_type -> chalk.router.v1.UpdateKeyResponse
+	11, // 59: chalk.router.v1.ApiKeyService.RevokeKey:output_type -> chalk.router.v1.RevokeKeyResponse
+	13, // 60: chalk.router.v1.ApiKeyService.GetKeyUsage:output_type -> chalk.router.v1.GetKeyUsageResponse
+	15, // 61: chalk.router.v1.ApiKeyService.ListAllUsage:output_type -> chalk.router.v1.ListAllUsageResponse
+	18, // 62: chalk.router.v1.ApiKeyService.GetUsageHistogram:output_type -> chalk.router.v1.GetUsageHistogramResponse
+	21, // 63: chalk.router.v1.TeamService.CreateTeam:output_type -> chalk.router.v1.CreateTeamResponse
+	23, // 64: chalk.router.v1.TeamService.ListTeams:output_type -> chalk.router.v1.ListTeamsResponse
+	25, // 65: chalk.router.v1.TeamService.DeleteTeam:output_type -> chalk.router.v1.DeleteTeamResponse
+	28, // 66: chalk.router.v1.RateLimitService.CreateRateLimit:output_type -> chalk.router.v1.CreateRateLimitResponse
+	30, // 67: chalk.router.v1.RateLimitService.ListRateLimits:output_type -> chalk.router.v1.ListRateLimitsResponse
+	32, // 68: chalk.router.v1.RateLimitService.UpdateRateLimit:output_type -> chalk.router.v1.UpdateRateLimitResponse
+	34, // 69: chalk.router.v1.RateLimitService.DeleteRateLimit:output_type -> chalk.router.v1.DeleteRateLimitResponse
+	38, // 70: chalk.router.v1.FallbackPolicyService.GetFallbackPolicy:output_type -> chalk.router.v1.GetFallbackPolicyResponse
+	40, // 71: chalk.router.v1.FallbackPolicyService.UpdateFallbackPolicy:output_type -> chalk.router.v1.UpdateFallbackPolicyResponse
+	42, // 72: chalk.router.v1.SettingsService.GetSettings:output_type -> chalk.router.v1.GetSettingsResponse
+	45, // 73: chalk.router.v1.SettingsService.ListProviders:output_type -> chalk.router.v1.ListProvidersResponse
+	47, // 74: chalk.router.v1.SettingsService.SetProviderCredential:output_type -> chalk.router.v1.SetProviderCredentialResponse
+	51, // 75: chalk.router.v1.DebugService.RecentCompletions:output_type -> chalk.router.v1.RecentCompletionsResponse
+	53, // 76: chalk.router.v1.HealthService.Check:output_type -> chalk.router.v1.CheckResponse
+	56, // [56:77] is the sub-list for method output_type
+	35, // [35:56] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_chalk_router_v1_router_proto_init() }
@@ -3225,14 +3346,15 @@ func file_chalk_router_v1_router_proto_init() {
 	file_chalk_router_v1_router_proto_msgTypes[16].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[31].OneofWrappers = []any{}
 	file_chalk_router_v1_router_proto_msgTypes[42].OneofWrappers = []any{}
-	file_chalk_router_v1_router_proto_msgTypes[47].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[46].OneofWrappers = []any{}
+	file_chalk_router_v1_router_proto_msgTypes[49].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_router_v1_router_proto_rawDesc), len(file_chalk_router_v1_router_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   58,
+			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   7,
 		},

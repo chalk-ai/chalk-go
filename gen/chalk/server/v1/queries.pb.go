@@ -1447,9 +1447,10 @@ type ListMetaQueryRunsRequest struct {
 	// (meta_query_name, query_name_version) slot. NULL and ” on the
 	// meta_queries column are coalesced to ” to match the way the runtime
 	// hash treats them. Ignored when meta_query_name is unset.
-	QueryVersion  *string `protobuf:"bytes,18,opt,name=query_version,json=queryVersion,proto3,oneof" json:"query_version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	QueryVersion     *string `protobuf:"bytes,18,opt,name=query_version,json=queryVersion,proto3,oneof" json:"query_version,omitempty"`
+	DeploymentFilter *string `protobuf:"bytes,19,opt,name=deployment_filter,json=deploymentFilter,proto3,oneof" json:"deployment_filter,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListMetaQueryRunsRequest) Reset() {
@@ -1604,6 +1605,13 @@ func (x *ListMetaQueryRunsRequest) GetResourceGroup() string {
 func (x *ListMetaQueryRunsRequest) GetQueryVersion() string {
 	if x != nil && x.QueryVersion != nil {
 		return *x.QueryVersion
+	}
+	return ""
+}
+
+func (x *ListMetaQueryRunsRequest) GetDeploymentFilter() string {
+	if x != nil && x.DeploymentFilter != nil {
+		return *x.DeploymentFilter
 	}
 	return ""
 }
@@ -3949,7 +3957,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.MetaQueryRunR\x03run\x12\x1d\n" +
 	"\alatency\x18\x03 \x01(\x01H\x00R\alatency\x88\x01\x01B\n" +
 	"\n" +
-	"\b_latency\"\xf9\a\n" +
+	"\b_latency\"\xc1\b\n" +
 	"\x18ListMetaQueryRunsRequest\x12'\n" +
 	"\x0finclude_latency\x18\x01 \x01(\bR\x0eincludeLatency\x12)\n" +
 	"\x0emin_latency_ms\x18\x02 \x01(\x01H\x00R\fminLatencyMs\x88\x01\x01\x12'\n" +
@@ -3972,7 +3980,8 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\thas_trace\x18\x0f \x01(\bH\rR\bhasTrace\x88\x01\x01\x12\x1e\n" +
 	"\btrace_id\x18\x10 \x01(\tH\x0eR\atraceId\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\x11 \x01(\tH\x0fR\rresourceGroup\x88\x01\x01\x12(\n" +
-	"\rquery_version\x18\x12 \x01(\tH\x10R\fqueryVersion\x88\x01\x01B\x11\n" +
+	"\rquery_version\x18\x12 \x01(\tH\x10R\fqueryVersion\x88\x01\x01\x120\n" +
+	"\x11deployment_filter\x18\x13 \x01(\tH\x11R\x10deploymentFilter\x88\x01\x01B\x11\n" +
 	"\x0f_min_latency_msB\x10\n" +
 	"\x0e_query_plan_idB\x10\n" +
 	"\x0e_meta_query_idB\x12\n" +
@@ -3991,7 +4000,8 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"_has_traceB\v\n" +
 	"\t_trace_idB\x11\n" +
 	"\x0f_resource_groupB\x10\n" +
-	"\x0e_query_version\"\xb3\x01\n" +
+	"\x0e_query_versionB\x14\n" +
+	"\x12_deployment_filter\"\xb3\x01\n" +
 	"\x19ListMetaQueryRunsResponse\x12D\n" +
 	"\n" +
 	"query_runs\x18\x01 \x03(\v2%.chalk.server.v1.MetaQueryRunWithMetaR\tqueryRuns\x12@\n" +
