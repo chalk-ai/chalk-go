@@ -65,6 +65,9 @@ const (
 	// GraphServiceSmartDiffDeploymentProcedure is the fully-qualified name of the GraphService's
 	// SmartDiffDeployment RPC.
 	GraphServiceSmartDiffDeploymentProcedure = "/chalk.server.v1.GraphService/SmartDiffDeployment"
+	// GraphServiceDiffCandidateProcedure is the fully-qualified name of the GraphService's
+	// DiffCandidate RPC.
+	GraphServiceDiffCandidateProcedure = "/chalk.server.v1.GraphService/DiffCandidate"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -90,6 +93,9 @@ type GraphServiceClient interface {
 	DiffDeployments(context.Context, *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error)
 	// SmartDiffDeployment automatically finds the best comparison target and diffs.
 	SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error)
+	// DiffCandidate compares a candidate export against the latest successful
+	// deployment's graph and returns the diff.
+	DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -178,6 +184,13 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		diffCandidate: connect.NewClient[v1.DiffCandidateRequest, v1.DiffCandidateResponse](
+			httpClient,
+			baseURL+GraphServiceDiffCandidateProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("DiffCandidate")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -194,6 +207,7 @@ type graphServiceClient struct {
 	getOfflineStoreTable        *connect.Client[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse]
 	diffDeployments             *connect.Client[v1.DiffDeploymentsRequest, v1.DiffDeploymentsResponse]
 	smartDiffDeployment         *connect.Client[v1.SmartDiffDeploymentRequest, v1.SmartDiffDeploymentResponse]
+	diffCandidate               *connect.Client[v1.DiffCandidateRequest, v1.DiffCandidateResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -251,6 +265,11 @@ func (c *graphServiceClient) SmartDiffDeployment(ctx context.Context, req *conne
 	return c.smartDiffDeployment.CallUnary(ctx, req)
 }
 
+// DiffCandidate calls chalk.server.v1.GraphService.DiffCandidate.
+func (c *graphServiceClient) DiffCandidate(ctx context.Context, req *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error) {
+	return c.diffCandidate.CallUnary(ctx, req)
+}
+
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
 type GraphServiceHandler interface {
 	// GetFeatureSQL returns the feature SQLs for a given deployment.
@@ -274,6 +293,9 @@ type GraphServiceHandler interface {
 	DiffDeployments(context.Context, *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error)
 	// SmartDiffDeployment automatically finds the best comparison target and diffs.
 	SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error)
+	// DiffCandidate compares a candidate export against the latest successful
+	// deployment's graph and returns the diff.
+	DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -358,6 +380,13 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceDiffCandidateHandler := connect.NewUnaryHandler(
+		GraphServiceDiffCandidateProcedure,
+		svc.DiffCandidate,
+		connect.WithSchema(graphServiceMethods.ByName("DiffCandidate")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.GraphService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case GraphServiceGetFeatureSQLProcedure:
@@ -382,6 +411,8 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceDiffDeploymentsHandler.ServeHTTP(w, r)
 		case GraphServiceSmartDiffDeploymentProcedure:
 			graphServiceSmartDiffDeploymentHandler.ServeHTTP(w, r)
+		case GraphServiceDiffCandidateProcedure:
+			graphServiceDiffCandidateHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -433,4 +464,8 @@ func (UnimplementedGraphServiceHandler) DiffDeployments(context.Context, *connec
 
 func (UnimplementedGraphServiceHandler) SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.SmartDiffDeployment is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.DiffCandidate is not implemented"))
 }

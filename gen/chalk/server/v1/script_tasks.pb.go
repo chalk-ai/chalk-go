@@ -9,6 +9,7 @@ package serverv1
 import (
 	_ "github.com/chalk-ai/chalk-go/gen/chalk/auth/v1"
 	v1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	_ "github.com/chalk-ai/chalk-go/gen/chalk/flags/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
@@ -825,7 +826,7 @@ var File_chalk_server_v1_script_tasks_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\"chalk/server/v1/script_tasks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8d\x01\n" +
+	"\"chalk/server/v1/script_tasks.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a!chalk/common/v1/script_task.proto\x1a\x1achalk/flags/v1/flags.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x8d\x01\n" +
 	"\x17CreateScriptTaskRequest\x12<\n" +
 	"\arequest\x18\x01 \x01(\v2\".chalk.common.v1.ScriptTaskRequestR\arequest\x12$\n" +
 	"\vsource_file\x18\x02 \x01(\fH\x00R\n" +
@@ -893,14 +894,16 @@ const file_chalk_server_v1_script_tasks_proto_rawDesc = "" +
 	"\x1bGetMetaplanTaskInfoResponse\x122\n" +
 	"\x15metaplan_request_json\x18\x01 \x01(\tR\x13metaplanRequestJson\x12#\n" +
 	"\rmanifest_uris\x18\x02 \x03(\tR\fmanifestUris\x120\n" +
-	"\x14manifest_signed_urls\x18\x03 \x03(\tR\x12manifestSignedUrls2\xa7\x06\n" +
-	"\x11ScriptTaskService\x12l\n" +
-	"\x10CreateScriptTask\x12(.chalk.server.v1.CreateScriptTaskRequest\x1a).chalk.server.v1.CreateScriptTaskResponse\"\x03\x80}\x04\x12l\n" +
+	"\x14manifest_signed_urls\x18\x03 \x03(\tR\x12manifestSignedUrls2\xd3\a\n" +
+	"\x11ScriptTaskService\x12\xc1\x01\n" +
+	"\x10CreateScriptTask\x12(.chalk.server.v1.CreateScriptTaskRequest\x1a).chalk.server.v1.CreateScriptTaskResponse\"X\x80}\x04\x92\xd3\x0eQ\n" +
+	"\x14script_tasks_enabled\x129This action is not enabled. Please contact Chalk Support.\x12l\n" +
 	"\x0fListScriptTasks\x12'.chalk.server.v1.ListScriptTasksRequest\x1a(.chalk.server.v1.ListScriptTasksResponse\"\x06\x80}\v\x90\x02\x01\x12f\n" +
 	"\rGetScriptTask\x12%.chalk.server.v1.GetScriptTaskRequest\x1a&.chalk.server.v1.GetScriptTaskResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
 	"\x13GetScriptTaskSource\x12+.chalk.server.v1.GetScriptTaskSourceRequest\x1a,.chalk.server.v1.GetScriptTaskSourceResponse\"\x06\x80}\v\x90\x02\x01\x12o\n" +
-	"\x10CancelScriptTask\x12(.chalk.server.v1.CancelScriptTaskRequest\x1a).chalk.server.v1.CancelScriptTaskResponse\"\x06\x80}\x04\x90\x02\x02\x12i\n" +
-	"\x0fRerunScriptTask\x12'.chalk.server.v1.RerunScriptTaskRequest\x1a(.chalk.server.v1.RerunScriptTaskResponse\"\x03\x80}\x04\x12x\n" +
+	"\x10CancelScriptTask\x12(.chalk.server.v1.CancelScriptTaskRequest\x1a).chalk.server.v1.CancelScriptTaskResponse\"\x06\x80}\x04\x90\x02\x02\x12\xbe\x01\n" +
+	"\x0fRerunScriptTask\x12'.chalk.server.v1.RerunScriptTaskRequest\x1a(.chalk.server.v1.RerunScriptTaskResponse\"X\x80}\x04\x92\xd3\x0eQ\n" +
+	"\x14script_tasks_enabled\x129This action is not enabled. Please contact Chalk Support.\x12x\n" +
 	"\x13GetMetaplanTaskInfo\x12+.chalk.server.v1.GetMetaplanTaskInfoRequest\x1a,.chalk.server.v1.GetMetaplanTaskInfoResponse\"\x06\x80}\v\x90\x02\x01B\xc0\x01\n" +
 	"\x13com.chalk.server.v1B\x10ScriptTasksProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 

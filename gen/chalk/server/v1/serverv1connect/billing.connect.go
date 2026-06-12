@@ -39,6 +39,9 @@ const (
 	// BillingServiceGetNodesAndPodsProcedure is the fully-qualified name of the BillingService's
 	// GetNodesAndPods RPC.
 	BillingServiceGetNodesAndPodsProcedure = "/chalk.server.v1.BillingService/GetNodesAndPods"
+	// BillingServicePublishNodeUsageProcedure is the fully-qualified name of the BillingService's
+	// PublishNodeUsage RPC.
+	BillingServicePublishNodeUsageProcedure = "/chalk.server.v1.BillingService/PublishNodeUsage"
 	// BillingServiceGetUsageChartProcedure is the fully-qualified name of the BillingService's
 	// GetUsageChart RPC.
 	BillingServiceGetUsageChartProcedure = "/chalk.server.v1.BillingService/GetUsageChart"
@@ -86,6 +89,8 @@ type BillingServiceClient interface {
 	// not just a single environment. To limit the scope, add filters to
 	// the request object.
 	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
+	// PublishNodeUsage republishes node usage messages to the billing Pub/Sub topic.
+	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -137,6 +142,12 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			baseURL+BillingServiceGetNodesAndPodsProcedure,
 			connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPods")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		publishNodeUsage: connect.NewClient[v1.PublishNodeUsageRequest, v1.PublishNodeUsageResponse](
+			httpClient,
+			baseURL+BillingServicePublishNodeUsageProcedure,
+			connect.WithSchema(billingServiceMethods.ByName("PublishNodeUsage")),
 			connect.WithClientOptions(opts...),
 		),
 		getUsageChart: connect.NewClient[v1.GetUsageChartRequest, v1.GetUsageChartResponse](
@@ -223,6 +234,7 @@ func NewBillingServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 type billingServiceClient struct {
 	getNodesAndPodsUI             *connect.Client[v1.GetNodesAndPodsUIRequest, v1.GetNodesAndPodsUIResponse]
 	getNodesAndPods               *connect.Client[v1.GetNodesAndPodsRequest, v1.GetNodesAndPodsResponse]
+	publishNodeUsage              *connect.Client[v1.PublishNodeUsageRequest, v1.PublishNodeUsageResponse]
 	getUsageChart                 *connect.Client[v1.GetUsageChartRequest, v1.GetUsageChartResponse]
 	getUtilizationRates           *connect.Client[v1.GetUtilizationRatesRequest, v1.GetUtilizationRatesResponse]
 	getAvailableInstanceTypes     *connect.Client[v1.GetAvailableInstanceTypesRequest, v1.GetAvailableInstanceTypesResponse]
@@ -244,6 +256,11 @@ func (c *billingServiceClient) GetNodesAndPodsUI(ctx context.Context, req *conne
 // GetNodesAndPods calls chalk.server.v1.BillingService.GetNodesAndPods.
 func (c *billingServiceClient) GetNodesAndPods(ctx context.Context, req *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error) {
 	return c.getNodesAndPods.CallUnary(ctx, req)
+}
+
+// PublishNodeUsage calls chalk.server.v1.BillingService.PublishNodeUsage.
+func (c *billingServiceClient) PublishNodeUsage(ctx context.Context, req *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error) {
+	return c.publishNodeUsage.CallUnary(ctx, req)
 }
 
 // GetUsageChart calls chalk.server.v1.BillingService.GetUsageChart.
@@ -313,6 +330,8 @@ type BillingServiceHandler interface {
 	// not just a single environment. To limit the scope, add filters to
 	// the request object.
 	GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error)
+	// PublishNodeUsage republishes node usage messages to the billing Pub/Sub topic.
+	PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error)
 	// GetUsageChart shows the Chalk credit usage between a provided start and
 	// end period. The usage can be grouped by UsageChartPeriod for daily or
 	// monthly usage, and by UsageChartGrouping for instance type or cluster usage.
@@ -360,6 +379,12 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 		svc.GetNodesAndPods,
 		connect.WithSchema(billingServiceMethods.ByName("GetNodesAndPods")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	billingServicePublishNodeUsageHandler := connect.NewUnaryHandler(
+		BillingServicePublishNodeUsageProcedure,
+		svc.PublishNodeUsage,
+		connect.WithSchema(billingServiceMethods.ByName("PublishNodeUsage")),
 		connect.WithHandlerOptions(opts...),
 	)
 	billingServiceGetUsageChartHandler := connect.NewUnaryHandler(
@@ -445,6 +470,8 @@ func NewBillingServiceHandler(svc BillingServiceHandler, opts ...connect.Handler
 			billingServiceGetNodesAndPodsUIHandler.ServeHTTP(w, r)
 		case BillingServiceGetNodesAndPodsProcedure:
 			billingServiceGetNodesAndPodsHandler.ServeHTTP(w, r)
+		case BillingServicePublishNodeUsageProcedure:
+			billingServicePublishNodeUsageHandler.ServeHTTP(w, r)
 		case BillingServiceGetUsageChartProcedure:
 			billingServiceGetUsageChartHandler.ServeHTTP(w, r)
 		case BillingServiceGetUtilizationRatesProcedure:
@@ -482,6 +509,10 @@ func (UnimplementedBillingServiceHandler) GetNodesAndPodsUI(context.Context, *co
 
 func (UnimplementedBillingServiceHandler) GetNodesAndPods(context.Context, *connect.Request[v1.GetNodesAndPodsRequest]) (*connect.Response[v1.GetNodesAndPodsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.GetNodesAndPods is not implemented"))
+}
+
+func (UnimplementedBillingServiceHandler) PublishNodeUsage(context.Context, *connect.Request[v1.PublishNodeUsageRequest]) (*connect.Response[v1.PublishNodeUsageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BillingService.PublishNodeUsage is not implemented"))
 }
 
 func (UnimplementedBillingServiceHandler) GetUsageChart(context.Context, *connect.Request[v1.GetUsageChartRequest]) (*connect.Response[v1.GetUsageChartResponse], error) {

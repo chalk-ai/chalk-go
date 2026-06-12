@@ -35,6 +35,10 @@ const (
 	ChartMetricsBackend_CHART_METRICS_BACKEND_UNSPECIFIED      ChartMetricsBackend = 0
 	ChartMetricsBackend_CHART_METRICS_BACKEND_TIMESCALE        ChartMetricsBackend = 1
 	ChartMetricsBackend_CHART_METRICS_BACKEND_VICTORIA_METRICS ChartMetricsBackend = 2
+	// Like VICTORIA_METRICS, but a chart VictoriaMetrics cannot represent returns
+	// an error instead of silently falling back to TimescaleDB. For QA/debugging
+	// of VictoriaMetrics chart coverage.
+	ChartMetricsBackend_CHART_METRICS_BACKEND_VICTORIA_METRICS_STRICT ChartMetricsBackend = 3
 )
 
 // Enum value maps for ChartMetricsBackend.
@@ -43,11 +47,13 @@ var (
 		0: "CHART_METRICS_BACKEND_UNSPECIFIED",
 		1: "CHART_METRICS_BACKEND_TIMESCALE",
 		2: "CHART_METRICS_BACKEND_VICTORIA_METRICS",
+		3: "CHART_METRICS_BACKEND_VICTORIA_METRICS_STRICT",
 	}
 	ChartMetricsBackend_value = map[string]int32{
-		"CHART_METRICS_BACKEND_UNSPECIFIED":      0,
-		"CHART_METRICS_BACKEND_TIMESCALE":        1,
-		"CHART_METRICS_BACKEND_VICTORIA_METRICS": 2,
+		"CHART_METRICS_BACKEND_UNSPECIFIED":             0,
+		"CHART_METRICS_BACKEND_TIMESCALE":               1,
+		"CHART_METRICS_BACKEND_VICTORIA_METRICS":        2,
+		"CHART_METRICS_BACKEND_VICTORIA_METRICS_STRICT": 3,
 	}
 )
 
@@ -482,8 +488,11 @@ type ListChartsFilters struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	LinkEntityKind *v1.ChartLinkKind      `protobuf:"varint,1,opt,name=link_entity_kind,json=linkEntityKind,proto3,enum=chalk.artifacts.v1.ChartLinkKind,oneof" json:"link_entity_kind,omitempty"`
 	LinkedEntityId *string                `protobuf:"bytes,2,opt,name=linked_entity_id,json=linkedEntityId,proto3,oneof" json:"linked_entity_id,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// Substring filter for linked_entity_id using case-sensitive contains matching.
+	// Use this for search/filter UIs; use linked_entity_id for exact entity lookups.
+	LinkedEntityIdSearch *string `protobuf:"bytes,3,opt,name=linked_entity_id_search,json=linkedEntityIdSearch,proto3,oneof" json:"linked_entity_id_search,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ListChartsFilters) Reset() {
@@ -526,6 +535,13 @@ func (x *ListChartsFilters) GetLinkEntityKind() v1.ChartLinkKind {
 func (x *ListChartsFilters) GetLinkedEntityId() string {
 	if x != nil && x.LinkedEntityId != nil {
 		return *x.LinkedEntityId
+	}
+	return ""
+}
+
+func (x *ListChartsFilters) GetLinkedEntityIdSearch() string {
+	if x != nil && x.LinkedEntityIdSearch != nil {
+		return *x.LinkedEntityIdSearch
 	}
 	return ""
 }
@@ -3145,12 +3161,14 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x123\n" +
 	"\x06series\x18\x02 \x03(\v2\x1b.chalk.server.v1.TimeSeriesR\x06series\x125\n" +
 	"\bx_series\x18\x03 \x03(\v2\x1a.google.protobuf.TimestampR\axSeries\x12>\n" +
-	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod:\x02\x18\x01\"\xbe\x01\n" +
+	"\rwindow_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod:\x02\x18\x01\"\x96\x02\n" +
 	"\x11ListChartsFilters\x12P\n" +
 	"\x10link_entity_kind\x18\x01 \x01(\x0e2!.chalk.artifacts.v1.ChartLinkKindH\x00R\x0elinkEntityKind\x88\x01\x01\x12-\n" +
-	"\x10linked_entity_id\x18\x02 \x01(\tH\x01R\x0elinkedEntityId\x88\x01\x01B\x13\n" +
+	"\x10linked_entity_id\x18\x02 \x01(\tH\x01R\x0elinkedEntityId\x88\x01\x01\x12:\n" +
+	"\x17linked_entity_id_search\x18\x03 \x01(\tH\x02R\x14linkedEntityIdSearch\x88\x01\x01B\x13\n" +
 	"\x11_link_entity_kindB\x13\n" +
-	"\x11_linked_entity_id\"m\n" +
+	"\x11_linked_entity_idB\x1a\n" +
+	"\x18_linked_entity_id_search\"m\n" +
 	"\x12ListChartPageToken\x12@\n" +
 	"\x0ecreated_at_hwm\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\fcreatedAtHwm\x12\x15\n" +
 	"\x06id_hwm\x18\x02 \x01(\tR\x05idHwm\"\xba\x01\n" +
@@ -3347,11 +3365,12 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\x18GetFormulaOptionsRequest\x12H\n" +
 	"\fformula_kind\x18\x01 \x01(\x0e2%.chalk.artifacts.v1.MetricFormulaKindR\vformulaKind\"j\n" +
 	"\x19GetFormulaOptionsResponse\x12M\n" +
-	"\x0fformula_options\x18\x01 \x01(\v2$.chalk.server.v1.MetricFormulaOptionR\x0eformulaOptions*\x8d\x01\n" +
+	"\x0fformula_options\x18\x01 \x01(\v2$.chalk.server.v1.MetricFormulaOptionR\x0eformulaOptions*\xc0\x01\n" +
 	"\x13ChartMetricsBackend\x12%\n" +
 	"!CHART_METRICS_BACKEND_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fCHART_METRICS_BACKEND_TIMESCALE\x10\x01\x12*\n" +
-	"&CHART_METRICS_BACKEND_VICTORIA_METRICS\x10\x02*\xc1\x01\n" +
+	"&CHART_METRICS_BACKEND_VICTORIA_METRICS\x10\x02\x121\n" +
+	"-CHART_METRICS_BACKEND_VICTORIA_METRICS_STRICT\x10\x03*\xc1\x01\n" +
 	"\x18MetricFormulaOperandKind\x12+\n" +
 	"'METRIC_FORMULA_OPERAND_KIND_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"METRIC_FORMULA_OPERAND_KIND_SERIES\x10\x01\x12'\n" +
