@@ -2619,6 +2619,115 @@ func (x *SmartDiffDeploymentResponse) GetDiff() *v12.ExportDiff {
 	return nil
 }
 
+type DiffCandidateRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The candidate export to diff against the latest successful deployment.
+	Candidate *v12.Export `protobuf:"bytes,1,opt,name=candidate,proto3" json:"candidate,omitempty"`
+	// Defaults to DIFF_MODE_FULL when unset.
+	DiffMode      DiffMode `protobuf:"varint,2,opt,name=diff_mode,json=diffMode,proto3,enum=chalk.server.v1.DiffMode" json:"diff_mode,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DiffCandidateRequest) Reset() {
+	*x = DiffCandidateRequest{}
+	mi := &file_chalk_server_v1_graph_proto_msgTypes[43]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DiffCandidateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiffCandidateRequest) ProtoMessage() {}
+
+func (x *DiffCandidateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_graph_proto_msgTypes[43]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiffCandidateRequest.ProtoReflect.Descriptor instead.
+func (*DiffCandidateRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_graph_proto_rawDescGZIP(), []int{43}
+}
+
+func (x *DiffCandidateRequest) GetCandidate() *v12.Export {
+	if x != nil {
+		return x.Candidate
+	}
+	return nil
+}
+
+func (x *DiffCandidateRequest) GetDiffMode() DiffMode {
+	if x != nil {
+		return x.DiffMode
+	}
+	return DiffMode_DIFF_MODE_UNSPECIFIED
+}
+
+type DiffCandidateResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The deployment the candidate was compared against. nil if no successful
+	// deployment exists yet, in which case the diff reports the entire candidate
+	// as added.
+	DeployIdBefore *string         `protobuf:"bytes,1,opt,name=deploy_id_before,json=deployIdBefore,proto3,oneof" json:"deploy_id_before,omitempty"`
+	Diff           *v12.ExportDiff `protobuf:"bytes,2,opt,name=diff,proto3" json:"diff,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DiffCandidateResponse) Reset() {
+	*x = DiffCandidateResponse{}
+	mi := &file_chalk_server_v1_graph_proto_msgTypes[44]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DiffCandidateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiffCandidateResponse) ProtoMessage() {}
+
+func (x *DiffCandidateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_graph_proto_msgTypes[44]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiffCandidateResponse.ProtoReflect.Descriptor instead.
+func (*DiffCandidateResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_graph_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *DiffCandidateResponse) GetDeployIdBefore() string {
+	if x != nil && x.DeployIdBefore != nil {
+		return *x.DeployIdBefore
+	}
+	return ""
+}
+
+func (x *DiffCandidateResponse) GetDiff() *v12.ExportDiff {
+	if x != nil {
+		return x.Diff
+	}
+	return nil
+}
+
 var File_chalk_server_v1_graph_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_graph_proto_rawDesc = "" +
@@ -2816,11 +2925,18 @@ const file_chalk_server_v1_graph_proto_rawDesc = "" +
 	"\x10deploy_id_before\x18\x01 \x01(\tH\x00R\x0edeployIdBefore\x88\x01\x01\x12&\n" +
 	"\x0fdeploy_id_after\x18\x02 \x01(\tR\rdeployIdAfter\x122\n" +
 	"\x04diff\x18\x03 \x01(\v2\x1e.chalk.artifacts.v1.ExportDiffR\x04diffB\x13\n" +
+	"\x11_deploy_id_before\"\x88\x01\n" +
+	"\x14DiffCandidateRequest\x128\n" +
+	"\tcandidate\x18\x01 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\tcandidate\x126\n" +
+	"\tdiff_mode\x18\x02 \x01(\x0e2\x19.chalk.server.v1.DiffModeR\bdiffMode\"\x8f\x01\n" +
+	"\x15DiffCandidateResponse\x12-\n" +
+	"\x10deploy_id_before\x18\x01 \x01(\tH\x00R\x0edeployIdBefore\x88\x01\x01\x122\n" +
+	"\x04diff\x18\x02 \x01(\v2\x1e.chalk.artifacts.v1.ExportDiffR\x04diffB\x13\n" +
 	"\x11_deploy_id_before*O\n" +
 	"\bDiffMode\x12\x19\n" +
 	"\x15DIFF_MODE_UNSPECIFIED\x10\x00\x12\x12\n" +
 	"\x0eDIFF_MODE_FULL\x10\x01\x12\x14\n" +
-	"\x10DIFF_MODE_SIMPLE\x10\x022\x82\n" +
+	"\x10DIFF_MODE_SIMPLE\x10\x022\xea\n" +
 	"\n" +
 	"\fGraphService\x12f\n" +
 	"\rGetFeatureSQL\x12%.chalk.server.v1.GetFeatureSQLRequest\x1a&.chalk.server.v1.GetFeatureSQLResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
@@ -2833,7 +2949,8 @@ const file_chalk_server_v1_graph_proto_rawDesc = "" +
 	"\x13GetDataLineageIndex\x12+.chalk.server.v1.GetDataLineageIndexRequest\x1a,.chalk.server.v1.GetDataLineageIndexResponse\"\x06\x80}\v\x90\x02\x01\x12{\n" +
 	"\x14GetOfflineStoreTable\x12,.chalk.server.v1.GetOfflineStoreTableRequest\x1a-.chalk.server.v1.GetOfflineStoreTableResponse\"\x06\x80}\v\x90\x02\x01\x12l\n" +
 	"\x0fDiffDeployments\x12'.chalk.server.v1.DiffDeploymentsRequest\x1a(.chalk.server.v1.DiffDeploymentsResponse\"\x06\x80}\v\x90\x02\x01\x12x\n" +
-	"\x13SmartDiffDeployment\x12+.chalk.server.v1.SmartDiffDeploymentRequest\x1a,.chalk.server.v1.SmartDiffDeploymentResponse\"\x06\x80}\v\x90\x02\x01B\xba\x01\n" +
+	"\x13SmartDiffDeployment\x12+.chalk.server.v1.SmartDiffDeploymentRequest\x1a,.chalk.server.v1.SmartDiffDeploymentResponse\"\x06\x80}\v\x90\x02\x01\x12f\n" +
+	"\rDiffCandidate\x12%.chalk.server.v1.DiffCandidateRequest\x1a&.chalk.server.v1.DiffCandidateResponse\"\x06\x80}\v\x90\x02\x01B\xba\x01\n" +
 	"\x13com.chalk.server.v1B\n" +
 	"GraphProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
@@ -2850,7 +2967,7 @@ func file_chalk_server_v1_graph_proto_rawDescGZIP() []byte {
 }
 
 var file_chalk_server_v1_graph_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_chalk_server_v1_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_chalk_server_v1_graph_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_chalk_server_v1_graph_proto_goTypes = []any{
 	(DiffMode)(0),                               // 0: chalk.server.v1.DiffMode
 	(*FeatureSQL)(nil),                          // 1: chalk.server.v1.FeatureSQL
@@ -2896,30 +3013,32 @@ var file_chalk_server_v1_graph_proto_goTypes = []any{
 	(*DiffDeploymentsResponse)(nil),             // 41: chalk.server.v1.DiffDeploymentsResponse
 	(*SmartDiffDeploymentRequest)(nil),          // 42: chalk.server.v1.SmartDiffDeploymentRequest
 	(*SmartDiffDeploymentResponse)(nil),         // 43: chalk.server.v1.SmartDiffDeploymentResponse
-	nil,                                         // 44: chalk.server.v1.TableLineage.FeaturesEntry
-	nil,                                         // 45: chalk.server.v1.DataSourceLineage.TablesEntry
-	nil,                                         // 46: chalk.server.v1.ResolverDataLineage.DataSourcesEntry
-	nil,                                         // 47: chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry
-	(*v1.ArrowType)(nil),                        // 48: chalk.arrow.v1.ArrowType
-	(*v11.Graph)(nil),                           // 49: chalk.graph.v1.Graph
-	(*v12.Export)(nil),                          // 50: chalk.artifacts.v1.Export
-	(*v13.ChalkError)(nil),                      // 51: chalk.common.v1.ChalkError
-	(*v11.StreamResolver)(nil),                  // 52: chalk.graph.v1.StreamResolver
-	(*v11.Resolver)(nil),                        // 53: chalk.graph.v1.Resolver
-	(*v11.FeatureType)(nil),                     // 54: chalk.graph.v1.FeatureType
-	(*v11.FeatureSet)(nil),                      // 55: chalk.graph.v1.FeatureSet
-	(*v12.ExportDiff)(nil),                      // 56: chalk.artifacts.v1.ExportDiff
+	(*DiffCandidateRequest)(nil),                // 44: chalk.server.v1.DiffCandidateRequest
+	(*DiffCandidateResponse)(nil),               // 45: chalk.server.v1.DiffCandidateResponse
+	nil,                                         // 46: chalk.server.v1.TableLineage.FeaturesEntry
+	nil,                                         // 47: chalk.server.v1.DataSourceLineage.TablesEntry
+	nil,                                         // 48: chalk.server.v1.ResolverDataLineage.DataSourcesEntry
+	nil,                                         // 49: chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry
+	(*v1.ArrowType)(nil),                        // 50: chalk.arrow.v1.ArrowType
+	(*v11.Graph)(nil),                           // 51: chalk.graph.v1.Graph
+	(*v12.Export)(nil),                          // 52: chalk.artifacts.v1.Export
+	(*v13.ChalkError)(nil),                      // 53: chalk.common.v1.ChalkError
+	(*v11.StreamResolver)(nil),                  // 54: chalk.graph.v1.StreamResolver
+	(*v11.Resolver)(nil),                        // 55: chalk.graph.v1.Resolver
+	(*v11.FeatureType)(nil),                     // 56: chalk.graph.v1.FeatureType
+	(*v11.FeatureSet)(nil),                      // 57: chalk.graph.v1.FeatureSet
+	(*v12.ExportDiff)(nil),                      // 58: chalk.artifacts.v1.ExportDiff
 }
 var file_chalk_server_v1_graph_proto_depIdxs = []int32{
 	1,  // 0: chalk.server.v1.GetFeatureSQLResponse.features:type_name -> chalk.server.v1.FeatureSQL
-	48, // 1: chalk.server.v1.FeatureMetadata.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
+	50, // 1: chalk.server.v1.FeatureMetadata.pa_dtype:type_name -> chalk.arrow.v1.ArrowType
 	4,  // 2: chalk.server.v1.GetFeaturesMetadataResponse.features:type_name -> chalk.server.v1.FeatureMetadata
-	49, // 3: chalk.server.v1.UpdateGraphRequest.graph:type_name -> chalk.graph.v1.Graph
-	50, // 4: chalk.server.v1.UpdateGraphRequest.export:type_name -> chalk.artifacts.v1.Export
-	49, // 5: chalk.server.v1.GetGraphResponse.graph:type_name -> chalk.graph.v1.Graph
-	50, // 6: chalk.server.v1.GetGraphResponse.export:type_name -> chalk.artifacts.v1.Export
+	51, // 3: chalk.server.v1.UpdateGraphRequest.graph:type_name -> chalk.graph.v1.Graph
+	52, // 4: chalk.server.v1.UpdateGraphRequest.export:type_name -> chalk.artifacts.v1.Export
+	51, // 5: chalk.server.v1.GetGraphResponse.graph:type_name -> chalk.graph.v1.Graph
+	52, // 6: chalk.server.v1.GetGraphResponse.export:type_name -> chalk.artifacts.v1.Export
 	11, // 7: chalk.server.v1.GetCodegenFeaturesFromGraphRequest.python_version:type_name -> chalk.server.v1.PythonVersion
-	51, // 8: chalk.server.v1.GetCodegenFeaturesFromGraphResponse.errors:type_name -> chalk.common.v1.ChalkError
+	53, // 8: chalk.server.v1.GetCodegenFeaturesFromGraphResponse.errors:type_name -> chalk.common.v1.ChalkError
 	15, // 9: chalk.server.v1.GraphMutation.add_streaming_resolver:type_name -> chalk.server.v1.AddStreamingResolver
 	16, // 10: chalk.server.v1.GraphMutation.update_streaming_resolver:type_name -> chalk.server.v1.UpdateStreamingResolver
 	17, // 11: chalk.server.v1.GraphMutation.delete_streaming_resolver:type_name -> chalk.server.v1.DeleteStreamingResolver
@@ -2932,58 +3051,63 @@ var file_chalk_server_v1_graph_proto_depIdxs = []int32{
 	18, // 18: chalk.server.v1.GraphMutation.add_resolver:type_name -> chalk.server.v1.AddResolver
 	19, // 19: chalk.server.v1.GraphMutation.update_resolver:type_name -> chalk.server.v1.UpdateResolver
 	20, // 20: chalk.server.v1.GraphMutation.delete_resolver:type_name -> chalk.server.v1.DeleteResolver
-	52, // 21: chalk.server.v1.AddStreamingResolver.resolver:type_name -> chalk.graph.v1.StreamResolver
-	52, // 22: chalk.server.v1.UpdateStreamingResolver.resolver:type_name -> chalk.graph.v1.StreamResolver
-	53, // 23: chalk.server.v1.AddResolver.resolver:type_name -> chalk.graph.v1.Resolver
-	53, // 24: chalk.server.v1.UpdateResolver.resolver:type_name -> chalk.graph.v1.Resolver
-	54, // 25: chalk.server.v1.AddFeature.feature:type_name -> chalk.graph.v1.FeatureType
-	54, // 26: chalk.server.v1.UpdateFeature.feature:type_name -> chalk.graph.v1.FeatureType
-	55, // 27: chalk.server.v1.AddFeatureSet.feature_set:type_name -> chalk.graph.v1.FeatureSet
-	55, // 28: chalk.server.v1.UpdateFeatureSet.feature_set:type_name -> chalk.graph.v1.FeatureSet
+	54, // 21: chalk.server.v1.AddStreamingResolver.resolver:type_name -> chalk.graph.v1.StreamResolver
+	54, // 22: chalk.server.v1.UpdateStreamingResolver.resolver:type_name -> chalk.graph.v1.StreamResolver
+	55, // 23: chalk.server.v1.AddResolver.resolver:type_name -> chalk.graph.v1.Resolver
+	55, // 24: chalk.server.v1.UpdateResolver.resolver:type_name -> chalk.graph.v1.Resolver
+	56, // 25: chalk.server.v1.AddFeature.feature:type_name -> chalk.graph.v1.FeatureType
+	56, // 26: chalk.server.v1.UpdateFeature.feature:type_name -> chalk.graph.v1.FeatureType
+	57, // 27: chalk.server.v1.AddFeatureSet.feature_set:type_name -> chalk.graph.v1.FeatureSet
+	57, // 28: chalk.server.v1.UpdateFeatureSet.feature_set:type_name -> chalk.graph.v1.FeatureSet
 	14, // 29: chalk.server.v1.ApplyGraphUpdatesRequest.mutations:type_name -> chalk.server.v1.GraphMutation
 	14, // 30: chalk.server.v1.TestGraphMutationsRequest.mutations:type_name -> chalk.server.v1.GraphMutation
-	50, // 31: chalk.server.v1.TestGraphMutationsResponse.export:type_name -> chalk.artifacts.v1.Export
-	51, // 32: chalk.server.v1.TestGraphMutationsResponse.errors:type_name -> chalk.common.v1.ChalkError
-	44, // 33: chalk.server.v1.TableLineage.features:type_name -> chalk.server.v1.TableLineage.FeaturesEntry
-	45, // 34: chalk.server.v1.DataSourceLineage.tables:type_name -> chalk.server.v1.DataSourceLineage.TablesEntry
-	46, // 35: chalk.server.v1.ResolverDataLineage.data_sources:type_name -> chalk.server.v1.ResolverDataLineage.DataSourcesEntry
-	47, // 36: chalk.server.v1.GetDataLineageIndexResponse.resolver_data_lineage:type_name -> chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry
+	52, // 31: chalk.server.v1.TestGraphMutationsResponse.export:type_name -> chalk.artifacts.v1.Export
+	53, // 32: chalk.server.v1.TestGraphMutationsResponse.errors:type_name -> chalk.common.v1.ChalkError
+	46, // 33: chalk.server.v1.TableLineage.features:type_name -> chalk.server.v1.TableLineage.FeaturesEntry
+	47, // 34: chalk.server.v1.DataSourceLineage.tables:type_name -> chalk.server.v1.DataSourceLineage.TablesEntry
+	48, // 35: chalk.server.v1.ResolverDataLineage.data_sources:type_name -> chalk.server.v1.ResolverDataLineage.DataSourcesEntry
+	49, // 36: chalk.server.v1.GetDataLineageIndexResponse.resolver_data_lineage:type_name -> chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry
 	37, // 37: chalk.server.v1.GetOfflineStoreTableResponse.tables:type_name -> chalk.server.v1.OfflineTable
 	0,  // 38: chalk.server.v1.DiffDeploymentsRequest.diff_mode:type_name -> chalk.server.v1.DiffMode
-	56, // 39: chalk.server.v1.DiffDeploymentsResponse.diff:type_name -> chalk.artifacts.v1.ExportDiff
+	58, // 39: chalk.server.v1.DiffDeploymentsResponse.diff:type_name -> chalk.artifacts.v1.ExportDiff
 	0,  // 40: chalk.server.v1.SmartDiffDeploymentRequest.diff_mode:type_name -> chalk.server.v1.DiffMode
-	56, // 41: chalk.server.v1.SmartDiffDeploymentResponse.diff:type_name -> chalk.artifacts.v1.ExportDiff
-	31, // 42: chalk.server.v1.TableLineage.FeaturesEntry.value:type_name -> chalk.server.v1.ColumnList
-	32, // 43: chalk.server.v1.DataSourceLineage.TablesEntry.value:type_name -> chalk.server.v1.TableLineage
-	33, // 44: chalk.server.v1.ResolverDataLineage.DataSourcesEntry.value:type_name -> chalk.server.v1.DataSourceLineage
-	34, // 45: chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry.value:type_name -> chalk.server.v1.ResolverDataLineage
-	3,  // 46: chalk.server.v1.GraphService.GetFeatureSQL:input_type -> chalk.server.v1.GetFeatureSQLRequest
-	6,  // 47: chalk.server.v1.GraphService.GetFeaturesMetadata:input_type -> chalk.server.v1.GetFeaturesMetadataRequest
-	9,  // 48: chalk.server.v1.GraphService.GetGraph:input_type -> chalk.server.v1.GetGraphRequest
-	7,  // 49: chalk.server.v1.GraphService.UpdateGraph:input_type -> chalk.server.v1.UpdateGraphRequest
-	12, // 50: chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph:input_type -> chalk.server.v1.GetCodegenFeaturesFromGraphRequest
-	27, // 51: chalk.server.v1.GraphService.ApplyGraphUpdates:input_type -> chalk.server.v1.ApplyGraphUpdatesRequest
-	29, // 52: chalk.server.v1.GraphService.TestGraphMutations:input_type -> chalk.server.v1.TestGraphMutationsRequest
-	35, // 53: chalk.server.v1.GraphService.GetDataLineageIndex:input_type -> chalk.server.v1.GetDataLineageIndexRequest
-	38, // 54: chalk.server.v1.GraphService.GetOfflineStoreTable:input_type -> chalk.server.v1.GetOfflineStoreTableRequest
-	40, // 55: chalk.server.v1.GraphService.DiffDeployments:input_type -> chalk.server.v1.DiffDeploymentsRequest
-	42, // 56: chalk.server.v1.GraphService.SmartDiffDeployment:input_type -> chalk.server.v1.SmartDiffDeploymentRequest
-	2,  // 57: chalk.server.v1.GraphService.GetFeatureSQL:output_type -> chalk.server.v1.GetFeatureSQLResponse
-	5,  // 58: chalk.server.v1.GraphService.GetFeaturesMetadata:output_type -> chalk.server.v1.GetFeaturesMetadataResponse
-	10, // 59: chalk.server.v1.GraphService.GetGraph:output_type -> chalk.server.v1.GetGraphResponse
-	8,  // 60: chalk.server.v1.GraphService.UpdateGraph:output_type -> chalk.server.v1.UpdateGraphResponse
-	13, // 61: chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph:output_type -> chalk.server.v1.GetCodegenFeaturesFromGraphResponse
-	28, // 62: chalk.server.v1.GraphService.ApplyGraphUpdates:output_type -> chalk.server.v1.ApplyGraphUpdatesResponse
-	30, // 63: chalk.server.v1.GraphService.TestGraphMutations:output_type -> chalk.server.v1.TestGraphMutationsResponse
-	36, // 64: chalk.server.v1.GraphService.GetDataLineageIndex:output_type -> chalk.server.v1.GetDataLineageIndexResponse
-	39, // 65: chalk.server.v1.GraphService.GetOfflineStoreTable:output_type -> chalk.server.v1.GetOfflineStoreTableResponse
-	41, // 66: chalk.server.v1.GraphService.DiffDeployments:output_type -> chalk.server.v1.DiffDeploymentsResponse
-	43, // 67: chalk.server.v1.GraphService.SmartDiffDeployment:output_type -> chalk.server.v1.SmartDiffDeploymentResponse
-	57, // [57:68] is the sub-list for method output_type
-	46, // [46:57] is the sub-list for method input_type
-	46, // [46:46] is the sub-list for extension type_name
-	46, // [46:46] is the sub-list for extension extendee
-	0,  // [0:46] is the sub-list for field type_name
+	58, // 41: chalk.server.v1.SmartDiffDeploymentResponse.diff:type_name -> chalk.artifacts.v1.ExportDiff
+	52, // 42: chalk.server.v1.DiffCandidateRequest.candidate:type_name -> chalk.artifacts.v1.Export
+	0,  // 43: chalk.server.v1.DiffCandidateRequest.diff_mode:type_name -> chalk.server.v1.DiffMode
+	58, // 44: chalk.server.v1.DiffCandidateResponse.diff:type_name -> chalk.artifacts.v1.ExportDiff
+	31, // 45: chalk.server.v1.TableLineage.FeaturesEntry.value:type_name -> chalk.server.v1.ColumnList
+	32, // 46: chalk.server.v1.DataSourceLineage.TablesEntry.value:type_name -> chalk.server.v1.TableLineage
+	33, // 47: chalk.server.v1.ResolverDataLineage.DataSourcesEntry.value:type_name -> chalk.server.v1.DataSourceLineage
+	34, // 48: chalk.server.v1.GetDataLineageIndexResponse.ResolverDataLineageEntry.value:type_name -> chalk.server.v1.ResolverDataLineage
+	3,  // 49: chalk.server.v1.GraphService.GetFeatureSQL:input_type -> chalk.server.v1.GetFeatureSQLRequest
+	6,  // 50: chalk.server.v1.GraphService.GetFeaturesMetadata:input_type -> chalk.server.v1.GetFeaturesMetadataRequest
+	9,  // 51: chalk.server.v1.GraphService.GetGraph:input_type -> chalk.server.v1.GetGraphRequest
+	7,  // 52: chalk.server.v1.GraphService.UpdateGraph:input_type -> chalk.server.v1.UpdateGraphRequest
+	12, // 53: chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph:input_type -> chalk.server.v1.GetCodegenFeaturesFromGraphRequest
+	27, // 54: chalk.server.v1.GraphService.ApplyGraphUpdates:input_type -> chalk.server.v1.ApplyGraphUpdatesRequest
+	29, // 55: chalk.server.v1.GraphService.TestGraphMutations:input_type -> chalk.server.v1.TestGraphMutationsRequest
+	35, // 56: chalk.server.v1.GraphService.GetDataLineageIndex:input_type -> chalk.server.v1.GetDataLineageIndexRequest
+	38, // 57: chalk.server.v1.GraphService.GetOfflineStoreTable:input_type -> chalk.server.v1.GetOfflineStoreTableRequest
+	40, // 58: chalk.server.v1.GraphService.DiffDeployments:input_type -> chalk.server.v1.DiffDeploymentsRequest
+	42, // 59: chalk.server.v1.GraphService.SmartDiffDeployment:input_type -> chalk.server.v1.SmartDiffDeploymentRequest
+	44, // 60: chalk.server.v1.GraphService.DiffCandidate:input_type -> chalk.server.v1.DiffCandidateRequest
+	2,  // 61: chalk.server.v1.GraphService.GetFeatureSQL:output_type -> chalk.server.v1.GetFeatureSQLResponse
+	5,  // 62: chalk.server.v1.GraphService.GetFeaturesMetadata:output_type -> chalk.server.v1.GetFeaturesMetadataResponse
+	10, // 63: chalk.server.v1.GraphService.GetGraph:output_type -> chalk.server.v1.GetGraphResponse
+	8,  // 64: chalk.server.v1.GraphService.UpdateGraph:output_type -> chalk.server.v1.UpdateGraphResponse
+	13, // 65: chalk.server.v1.GraphService.GetCodegenFeaturesFromGraph:output_type -> chalk.server.v1.GetCodegenFeaturesFromGraphResponse
+	28, // 66: chalk.server.v1.GraphService.ApplyGraphUpdates:output_type -> chalk.server.v1.ApplyGraphUpdatesResponse
+	30, // 67: chalk.server.v1.GraphService.TestGraphMutations:output_type -> chalk.server.v1.TestGraphMutationsResponse
+	36, // 68: chalk.server.v1.GraphService.GetDataLineageIndex:output_type -> chalk.server.v1.GetDataLineageIndexResponse
+	39, // 69: chalk.server.v1.GraphService.GetOfflineStoreTable:output_type -> chalk.server.v1.GetOfflineStoreTableResponse
+	41, // 70: chalk.server.v1.GraphService.DiffDeployments:output_type -> chalk.server.v1.DiffDeploymentsResponse
+	43, // 71: chalk.server.v1.GraphService.SmartDiffDeployment:output_type -> chalk.server.v1.SmartDiffDeploymentResponse
+	45, // 72: chalk.server.v1.GraphService.DiffCandidate:output_type -> chalk.server.v1.DiffCandidateResponse
+	61, // [61:73] is the sub-list for method output_type
+	49, // [49:61] is the sub-list for method input_type
+	49, // [49:49] is the sub-list for extension type_name
+	49, // [49:49] is the sub-list for extension extendee
+	0,  // [0:49] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_graph_proto_init() }
@@ -3014,13 +3138,14 @@ func file_chalk_server_v1_graph_proto_init() {
 	file_chalk_server_v1_graph_proto_msgTypes[39].OneofWrappers = []any{}
 	file_chalk_server_v1_graph_proto_msgTypes[40].OneofWrappers = []any{}
 	file_chalk_server_v1_graph_proto_msgTypes[42].OneofWrappers = []any{}
+	file_chalk_server_v1_graph_proto_msgTypes[44].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_graph_proto_rawDesc), len(file_chalk_server_v1_graph_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   47,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1623,8 +1623,11 @@ type ScalarFeatureType struct {
 	RichTypeInfo                 *FeatureRichTypeInfo `protobuf:"bytes,29,opt,name=rich_type_info,json=richTypeInfo,proto3,oneof" json:"rich_type_info,omitempty"`
 	ExpressionDefinitionLocation *v13.Location        `protobuf:"bytes,30,opt,name=expression_definition_location,json=expressionDefinitionLocation,proto3,oneof" json:"expression_definition_location,omitempty"`
 	OfflineExpression            *v11.LogicalExprNode `protobuf:"bytes,31,opt,name=offline_expression,json=offlineExpression,proto3,oneof" json:"offline_expression,omitempty"`
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	// When the feature was contributed by an auxiliary class — `@features(part_of=...)`
+	// or `add_features(...)` — this is the snake_cased name of the contributing class.
+	AuxiliaryNamespace *string `protobuf:"bytes,32,opt,name=auxiliary_namespace,json=auxiliaryNamespace,proto3,oneof" json:"auxiliary_namespace,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *ScalarFeatureType) Reset() {
@@ -1867,6 +1870,13 @@ func (x *ScalarFeatureType) GetOfflineExpression() *v11.LogicalExprNode {
 	return nil
 }
 
+func (x *ScalarFeatureType) GetAuxiliaryNamespace() string {
+	if x != nil && x.AuxiliaryNamespace != nil {
+		return *x.AuxiliaryNamespace
+	}
+	return ""
+}
+
 type HasOneFeatureType struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	Name                     string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1880,8 +1890,11 @@ type HasOneFeatureType struct {
 	Owner                    *string                `protobuf:"bytes,9,opt,name=owner,proto3,oneof" json:"owner,omitempty"`
 	AttributeName            string                 `protobuf:"bytes,10,opt,name=attribute_name,json=attributeName,proto3" json:"attribute_name,omitempty"`
 	UnversionedAttributeName string                 `protobuf:"bytes,11,opt,name=unversioned_attribute_name,json=unversionedAttributeName,proto3" json:"unversioned_attribute_name,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// When the feature was contributed by an auxiliary class — `@features(part_of=...)`
+	// or `add_features(...)` — this is the snake_cased name of the contributing class.
+	AuxiliaryNamespace *string `protobuf:"bytes,12,opt,name=auxiliary_namespace,json=auxiliaryNamespace,proto3,oneof" json:"auxiliary_namespace,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *HasOneFeatureType) Reset() {
@@ -1991,6 +2004,13 @@ func (x *HasOneFeatureType) GetUnversionedAttributeName() string {
 	return ""
 }
 
+func (x *HasOneFeatureType) GetAuxiliaryNamespace() string {
+	if x != nil && x.AuxiliaryNamespace != nil {
+		return *x.AuxiliaryNamespace
+	}
+	return ""
+}
+
 type HasManyFeatureType struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
 	Name                     string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -2005,8 +2025,11 @@ type HasManyFeatureType struct {
 	AttributeName            string                 `protobuf:"bytes,10,opt,name=attribute_name,json=attributeName,proto3" json:"attribute_name,omitempty"`
 	UnversionedAttributeName string                 `protobuf:"bytes,11,opt,name=unversioned_attribute_name,json=unversionedAttributeName,proto3" json:"unversioned_attribute_name,omitempty"`
 	OnlineStoreMaxItems      *uint64                `protobuf:"varint,12,opt,name=online_store_max_items,json=onlineStoreMaxItems,proto3,oneof" json:"online_store_max_items,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// When the feature was contributed by an auxiliary class — `@features(part_of=...)`
+	// or `add_features(...)` — this is the snake_cased name of the contributing class.
+	AuxiliaryNamespace *string `protobuf:"bytes,13,opt,name=auxiliary_namespace,json=auxiliaryNamespace,proto3,oneof" json:"auxiliary_namespace,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *HasManyFeatureType) Reset() {
@@ -2123,6 +2146,13 @@ func (x *HasManyFeatureType) GetOnlineStoreMaxItems() uint64 {
 	return 0
 }
 
+func (x *HasManyFeatureType) GetAuxiliaryNamespace() string {
+	if x != nil && x.AuxiliaryNamespace != nil {
+		return *x.AuxiliaryNamespace
+	}
+	return ""
+}
+
 type FeatureTimeFeatureType struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -2223,8 +2253,11 @@ type WindowedFeatureType struct {
 	WindowDurations          []*durationpb.Duration `protobuf:"bytes,4,rep,name=window_durations,json=windowDurations,proto3" json:"window_durations,omitempty"`
 	AttributeName            string                 `protobuf:"bytes,5,opt,name=attribute_name,json=attributeName,proto3" json:"attribute_name,omitempty"`
 	UnversionedAttributeName string                 `protobuf:"bytes,6,opt,name=unversioned_attribute_name,json=unversionedAttributeName,proto3" json:"unversioned_attribute_name,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// When the feature was contributed by an auxiliary class — `@features(part_of=...)`
+	// or `add_features(...)` — this is the snake_cased name of the contributing class.
+	AuxiliaryNamespace *string `protobuf:"bytes,7,opt,name=auxiliary_namespace,json=auxiliaryNamespace,proto3,oneof" json:"auxiliary_namespace,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *WindowedFeatureType) Reset() {
@@ -2295,6 +2328,13 @@ func (x *WindowedFeatureType) GetAttributeName() string {
 func (x *WindowedFeatureType) GetUnversionedAttributeName() string {
 	if x != nil {
 		return x.UnversionedAttributeName
+	}
+	return ""
+}
+
+func (x *WindowedFeatureType) GetAuxiliaryNamespace() string {
+	if x != nil && x.AuxiliaryNamespace != nil {
+		return *x.AuxiliaryNamespace
 	}
 	return ""
 }
@@ -7193,7 +7233,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x1aunversioned_attribute_name\x18\x0f \x01(\tR\x18unversionedAttributeNameB\x13\n" +
 	"\x11_internal_versionB\x0e\n" +
 	"\f_descriptionB\b\n" +
-	"\x06_owner\"\x87\x0e\n" +
+	"\x06_owner\"\xd5\x0e\n" +
 	"\x11ScalarFeatureType\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12)\n" +
@@ -7232,7 +7272,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x1aunversioned_attribute_name\x18\x1c \x01(\tR\x18unversionedAttributeName\x12N\n" +
 	"\x0erich_type_info\x18\x1d \x01(\v2#.chalk.graph.v1.FeatureRichTypeInfoH\x06R\frichTypeInfo\x88\x01\x01\x12a\n" +
 	"\x1eexpression_definition_location\x18\x1e \x01(\v2\x16.chalk.lsp.v1.LocationH\aR\x1cexpressionDefinitionLocation\x88\x01\x01\x12X\n" +
-	"\x12offline_expression\x18\x1f \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\bR\x11offlineExpression\x88\x01\x01B\x13\n" +
+	"\x12offline_expression\x18\x1f \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\bR\x11offlineExpression\x88\x01\x01\x124\n" +
+	"\x13auxiliary_namespace\x18  \x01(\tH\tR\x12auxiliaryNamespace\x88\x01\x01B\x13\n" +
 	"\x11_internal_versionB\x0e\n" +
 	"\f_descriptionB\b\n" +
 	"\x06_ownerB\x18\n" +
@@ -7241,7 +7282,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x0e_store_offlineB\x11\n" +
 	"\x0f_rich_type_infoB!\n" +
 	"\x1f_expression_definition_locationB\x15\n" +
-	"\x13_offline_expression\"\xcd\x03\n" +
+	"\x13_offline_expressionB\x16\n" +
+	"\x14_auxiliary_namespace\"\x9b\x04\n" +
 	"\x11HasOneFeatureType\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12+\n" +
@@ -7255,9 +7297,11 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x05owner\x18\t \x01(\tH\x01R\x05owner\x88\x01\x01\x12%\n" +
 	"\x0eattribute_name\x18\n" +
 	" \x01(\tR\rattributeName\x12<\n" +
-	"\x1aunversioned_attribute_name\x18\v \x01(\tR\x18unversionedAttributeNameB\x0e\n" +
+	"\x1aunversioned_attribute_name\x18\v \x01(\tR\x18unversionedAttributeName\x124\n" +
+	"\x13auxiliary_namespace\x18\f \x01(\tH\x02R\x12auxiliaryNamespace\x88\x01\x01B\x0e\n" +
 	"\f_descriptionB\b\n" +
-	"\x06_owner\"\xd3\x04\n" +
+	"\x06_ownerB\x16\n" +
+	"\x14_auxiliary_namespace\"\xa1\x05\n" +
 	"\x12HasManyFeatureType\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12+\n" +
@@ -7271,10 +7315,12 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x0eattribute_name\x18\n" +
 	" \x01(\tR\rattributeName\x12<\n" +
 	"\x1aunversioned_attribute_name\x18\v \x01(\tR\x18unversionedAttributeName\x128\n" +
-	"\x16online_store_max_items\x18\f \x01(\x04H\x02R\x13onlineStoreMaxItems\x88\x01\x01B\x0e\n" +
+	"\x16online_store_max_items\x18\f \x01(\x04H\x02R\x13onlineStoreMaxItems\x88\x01\x01\x124\n" +
+	"\x13auxiliary_namespace\x18\r \x01(\tH\x03R\x12auxiliaryNamespace\x88\x01\x01B\x0e\n" +
 	"\f_descriptionB\b\n" +
 	"\x06_ownerB\x19\n" +
-	"\x17_online_store_max_items\"\x8c\x02\n" +
+	"\x17_online_store_max_itemsB\x16\n" +
+	"\x14_auxiliary_namespace\"\x8c\x02\n" +
 	"\x16FeatureTimeFeatureType\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12)\n" +
@@ -7284,14 +7330,16 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x05owner\x18\x06 \x01(\tH\x01R\x05owner\x88\x01\x01\x12%\n" +
 	"\x0eattribute_name\x18\a \x01(\tR\rattributeNameB\x0e\n" +
 	"\f_descriptionB\b\n" +
-	"\x06_owner\"\x9d\x02\n" +
+	"\x06_owner\"\xeb\x02\n" +
 	"\x13WindowedFeatureType\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12)\n" +
 	"\x10is_autogenerated\x18\x03 \x01(\bR\x0fisAutogenerated\x12D\n" +
 	"\x10window_durations\x18\x04 \x03(\v2\x19.google.protobuf.DurationR\x0fwindowDurations\x12%\n" +
 	"\x0eattribute_name\x18\x05 \x01(\tR\rattributeName\x12<\n" +
-	"\x1aunversioned_attribute_name\x18\x06 \x01(\tR\x18unversionedAttributeName\"\xf0\n" +
+	"\x1aunversioned_attribute_name\x18\x06 \x01(\tR\x18unversionedAttributeName\x124\n" +
+	"\x13auxiliary_namespace\x18\a \x01(\tH\x00R\x12auxiliaryNamespace\x88\x01\x01B\x16\n" +
+	"\x14_auxiliary_namespace\"\xf0\n" +
 	"\n" +
 	"\x11WindowAggregation\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12;\n" +
@@ -8168,6 +8216,7 @@ func file_chalk_graph_v1_graph_proto_init() {
 	file_chalk_graph_v1_graph_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_graph_v1_graph_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_graph_v1_graph_proto_msgTypes[12].OneofWrappers = []any{}
+	file_chalk_graph_v1_graph_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_graph_v1_graph_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_graph_v1_graph_proto_msgTypes[16].OneofWrappers = []any{}
 	file_chalk_graph_v1_graph_proto_msgTypes[18].OneofWrappers = []any{
