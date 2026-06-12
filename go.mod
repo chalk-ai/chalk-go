@@ -5,11 +5,13 @@ go 1.26.1
 require (
 	connectrpc.com/connect v1.19.0
 	github.com/apache/arrow/go/v16 v16.1.0
-	github.com/chalk-ai/chalk-go/gen v1.2.236
+	github.com/chalk-ai/chalk-go/gen v1.2.259
 	github.com/cockroachdb/errors v1.12.0
+	github.com/fxamacker/cbor/v2 v2.9.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
+	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/net v0.46.1-0.20251013234738-63d1a5100f82
 	golang.org/x/sync v0.17.0
 	google.golang.org/protobuf v1.36.11
@@ -33,6 +35,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 	golang.org/x/mod v0.28.0 // indirect
