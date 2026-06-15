@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -323,6 +325,417 @@ func TestVolumeDataPackFitsMatchesSealedLength(t *testing.T) {
 	sealed, err := builder.seal()
 	require.NoError(t, err)
 	require.Equal(t, uint64(len(sealed.bytes)), builder.objectLen())
+}
+
+func TestVolumeDefaultUploadConfig(t *testing.T) {
+	cfg := DefaultVolumeUploadConfig()
+	require.Greater(t, cfg.ChunkSize, uint64(0))
+	require.Greater(t, cfg.MaxPackBytes, uint64(0))
+	require.Greater(t, cfg.BatchSize, 0)
+	require.Greater(t, cfg.FileConcurrency, 0)
+}
+
+func TestVolumeRefSelector(t *testing.T) {
+	sel := VolumeRefSelector("my-ref")
+	require.Equal(t, "my-ref", sel.GetRef())
+}
+
+func TestVolumeLocalPathContentSizeAndRead(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "data.bin")
+	require.NoError(t, os.WriteFile(path, []byte("hello world"), 0o644))
+
+	content := VolumeUploadLocalPath(path)
+	size, err := content.size()
+	require.NoError(t, err)
+	require.Equal(t, uint64(11), size)
+
+	chunk, err := content.readChunk(6, 5)
+	require.NoError(t, err)
+	require.Equal(t, []byte("world"), chunk)
+
+	_, err = VolumeUploadLocalPath("/nonexistent/path.bin").size()
+	require.Error(t, err)
+}
+
+func TestVolumeCollectLocalFiles(t *testing.T) {
+	dir := t.TempDir()
+	subDir := filepath.Join(dir, "sub")
+	require.NoError(t, os.MkdirAll(subDir, 0o755))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "a.txt"), []byte("a"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(subDir, "b.txt"), []byte("b"), 0o644))
+
+	files, err := collectVolumeLocalFiles(dir)
+	require.NoError(t, err)
+	require.Len(t, files, 2)
+	var paths []string
+	for _, f := range files {
+		paths = append(paths, f.Path)
+	}
+	require.ElementsMatch(t, []string{"a.txt", "sub/b.txt"}, paths)
+}
+
+func TestVolumeCRUDPassthrough(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("CreateVolume", func(t *testing.T) {
+		var gotName string
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			createVolume: func(_ context.Context, req *connect.Request[volumev2.CreateVolumeRequest]) (*connect.Response[volumev2.CreateVolumeResponse], error) {
+				gotName = req.Msg.GetName()
+				return connect.NewResponse(&volumev2.CreateVolumeResponse{}), nil
+			},
+		}}
+		_, err := client.CreateVolume(ctx, "my-vol")
+		require.NoError(t, err)
+		require.Equal(t, "my-vol", gotName)
+	})
+
+	t.Run("GetVolume", func(t *testing.T) {
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			getVolume: func(_ context.Context, req *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				return connect.NewResponse(&volumev2.GetVolumeResponse{
+					Version: &volumev2.VersionInfo{VersionId: 5},
+				}), nil
+			},
+		}}
+		resp, err := client.GetVolume(ctx, VolumeRef{Name: "my-vol"}, VolumeVersionSelector(5))
+		require.NoError(t, err)
+		require.Equal(t, uint64(5), resp.Version.VersionId)
+	})
+
+	t.Run("ListVolumes", func(t *testing.T) {
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			listVolumes: func(_ context.Context, req *connect.Request[volumev2.ListVolumesRequest]) (*connect.Response[volumev2.ListVolumesResponse], error) {
+				require.Equal(t, int32(10), req.Msg.GetLimit())
+				require.Equal(t, "cursor1", req.Msg.GetCursor())
+				return connect.NewResponse(&volumev2.ListVolumesResponse{}), nil
+			},
+		}}
+		_, err := client.ListVolumes(ctx, 10, "cursor1")
+		require.NoError(t, err)
+	})
+
+	t.Run("DeleteVolume", func(t *testing.T) {
+		var gotVolume *volumev2.VolumeRef
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			deleteVolume: func(_ context.Context, req *connect.Request[volumev2.DeleteVolumeRequest]) (*connect.Response[volumev2.DeleteVolumeResponse], error) {
+				gotVolume = req.Msg.GetVolume()
+				return connect.NewResponse(&volumev2.DeleteVolumeResponse{}), nil
+			},
+		}}
+		err := client.DeleteVolume(ctx, VolumeRef{Name: "old-vol"})
+		require.NoError(t, err)
+		require.Equal(t, "old-vol", gotVolume.GetName())
+	})
+
+	t.Run("ListVolumeVersions", func(t *testing.T) {
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			listVolumeVersions: func(_ context.Context, req *connect.Request[volumev2.ListVolumeVersionsRequest]) (*connect.Response[volumev2.ListVolumeVersionsResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, int32(5), req.Msg.GetLimit())
+				return connect.NewResponse(&volumev2.ListVolumeVersionsResponse{}), nil
+			},
+		}}
+		_, err := client.ListVolumeVersions(ctx, VolumeRef{Name: "my-vol"}, 5, "")
+		require.NoError(t, err)
+	})
+
+	t.Run("ListFiles", func(t *testing.T) {
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, "models/", req.Msg.GetPath())
+				require.True(t, req.Msg.GetRecursive())
+				return connect.NewResponse(&volumev2.ListFilesResponse{
+					Files: []*volumev2.FileInfo{{Path: "models/a.bin"}},
+				}), nil
+			},
+		}}
+		resp, err := client.ListFiles(ctx, ListVolumeFilesParams{
+			Volume:    VolumeRef{Name: "my-vol"},
+			Path:      "models/",
+			Recursive: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Files, 1)
+		require.Equal(t, "models/a.bin", resp.Files[0].Path)
+	})
+
+	t.Run("GetFile", func(t *testing.T) {
+		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+			getFile: func(_ context.Context, req *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, "model.bin", req.Msg.GetPath())
+				return connect.NewResponse(&volumev2.GetFileResponse{
+					File: &volumev2.FileInfo{Path: "model.bin", Size: 3},
+				}), nil
+			},
+		}}
+		resp, err := client.GetFile(ctx, VolumeRef{Name: "my-vol"}, "model.bin", nil)
+		require.NoError(t, err)
+		require.Equal(t, uint64(3), resp.File.Size)
+	})
+}
+
+func TestVolumeRemoveFiles(t *testing.T) {
+	var capturedRemoves []*volumev2.PathRemoveDelta
+	rpc := &fakeVolumeRPC{
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return connect.NewResponse(&volumev2.GetVolumeResponse{
+				Version: &volumev2.VersionInfo{VersionId: 1, SequenceNumber: 0},
+			}), nil
+		},
+		commitVersion: func(_ context.Context, req *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			capturedRemoves = req.Msg.GetIntent().GetPathDeltas().GetRemoves()
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}
+	client := &volumeClientImpl{rpc: rpc, author: "test"}
+	status, err := client.RemoveFiles(context.Background(), "my-vol", []VolumeRemovePath{
+		{Path: "old.bin"},
+		{Path: "dir/", Recursive: true},
+	}, 1)
+	require.NoError(t, err)
+	require.Equal(t, volumev2.CommitResult_COMMIT_RESULT_COMMITTED, status.Result)
+	require.Len(t, capturedRemoves, 2)
+	require.Equal(t, "old.bin", capturedRemoves[0].Path)
+	require.False(t, capturedRemoves[0].Recursive)
+	require.Equal(t, "dir/", capturedRemoves[1].Path)
+	require.True(t, capturedRemoves[1].Recursive)
+}
+
+func TestVolumeUploadFilesEmptyBatch(t *testing.T) {
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{}}
+	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      nil,
+	}, nil)
+	require.NoError(t, err)
+	require.Empty(t, statuses)
+}
+
+func TestVolumeUploadFilesZeroSizeFile(t *testing.T) {
+	var commits []*volumev2.CommitIntent
+	rpc := &fakeVolumeRPC{
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return connect.NewResponse(&volumev2.GetVolumeResponse{
+				Version: &volumev2.VersionInfo{VersionId: 1, SequenceNumber: 0},
+			}), nil
+		},
+		commitVersion: func(_ context.Context, req *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			commits = append(commits, req.Msg.GetIntent())
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}
+	client := &volumeClientImpl{rpc: rpc, author: "test"}
+	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "empty.bin", Content: VolumeUploadBytes(nil)}},
+	}, nil)
+	require.NoError(t, err)
+	require.Len(t, statuses, 1)
+	require.Len(t, commits, 1)
+	require.Len(t, commits[0].GetPathDeltas().GetUpserts(), 1)
+}
+
+// TestVolumeUploadDirectoryPackPath exercises UploadDirectory -> collectVolumeLocalFiles ->
+// uploadBatchFiles -> packAndUpload -> uploadOnePack -> requestUploadURLs (AlreadyExists=true).
+func TestVolumeUploadDirectoryPackPath(t *testing.T) {
+	dir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "a.bin"), []byte("content-a"), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "b.bin"), []byte("content-b"), 0o644))
+
+	rpc := &fakeVolumeRPC{
+		requestUploadURLs: func(_ context.Context, req *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
+			urls := make([]*volumev2.UploadURLItem, len(req.Msg.GetObjects()))
+			for i, obj := range req.Msg.GetObjects() {
+				urls[i] = &volumev2.UploadURLItem{ObjectKey: obj.GetObjectKey(), AlreadyExists: true}
+			}
+			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{Urls: urls}), nil
+		},
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return connect.NewResponse(&volumev2.GetVolumeResponse{
+				Version: &volumev2.VersionInfo{VersionId: 1, SequenceNumber: 0},
+			}), nil
+		},
+		commitVersion: func(_ context.Context, req *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}
+	client := &volumeClientImpl{rpc: rpc, author: "test"}
+	statuses, err := client.UploadDirectory(context.Background(), "test-vol", dir, VolumeUploadConfig{})
+	require.NoError(t, err)
+	require.Len(t, statuses, 1)
+	require.Equal(t, volumev2.CommitResult_COMMIT_RESULT_COMMITTED, statuses[0].Result)
+}
+
+// TestVolumeUploadFilesChunkPath forces the per-file (non-pack) upload path by setting
+// MaxPackBytes=1 so no file fits in a pack, then exercises uploadOneFile with a real PUT.
+func TestVolumeUploadFilesChunkPath(t *testing.T) {
+	fileData := []byte("chunk content data")
+	var putBodies [][]byte
+	var mu sync.Mutex
+	putServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPut {
+			data, _ := io.ReadAll(r.Body)
+			mu.Lock()
+			putBodies = append(putBodies, data)
+			mu.Unlock()
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer putServer.Close()
+
+	var commits []*volumev2.CommitIntent
+	rpc := &fakeVolumeRPC{
+		requestUploadURLs: func(_ context.Context, req *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
+			urls := make([]*volumev2.UploadURLItem, len(req.Msg.GetObjects()))
+			for i, obj := range req.Msg.GetObjects() {
+				urls[i] = &volumev2.UploadURLItem{
+					ObjectKey:       obj.GetObjectKey(),
+					SignedUploadUri: putServer.URL,
+					AlreadyExists:   false,
+				}
+			}
+			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{Urls: urls}), nil
+		},
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return connect.NewResponse(&volumev2.GetVolumeResponse{
+				Version: &volumev2.VersionInfo{VersionId: 1, SequenceNumber: 0},
+			}), nil
+		},
+		commitVersion: func(_ context.Context, req *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+			commits = append(commits, req.Msg.GetIntent())
+			return connect.NewResponse(&volumev2.CommitVersionResponse{
+				Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_COMMITTED},
+			}), nil
+		},
+	}
+	client := &volumeClientImpl{httpClient: putServer.Client(), rpc: rpc, author: "test"}
+	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
+		VolumeName: "test-vol",
+		Files:      []VolumeUploadFile{{Path: "file.bin", Content: VolumeUploadBytes(fileData)}},
+		Config:     VolumeUploadConfig{MaxPackBytes: 1}, // force per-file path
+	}, func(uint64) {})
+	require.NoError(t, err)
+	require.Len(t, statuses, 1)
+	require.Equal(t, volumev2.CommitResult_COMMIT_RESULT_COMMITTED, statuses[0].Result)
+	require.NotEmpty(t, putBodies)
+	require.Equal(t, fileData, putBodies[0])
+	require.Len(t, commits, 1)
+	require.Len(t, commits[0].GetPathDeltas().GetUpserts(), 1)
+}
+
+func TestVolumeDownloadToFile(t *testing.T) {
+	content := []byte("file content data")
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "model.bin", Size: uint64(len(content))},
+				Content: &volumev2.GetFileResponse_Data{Data: content},
+			}), nil
+		},
+	}}
+	localPath := filepath.Join(t.TempDir(), "model.bin")
+	info, err := client.DownloadToFile(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models",
+		Path:       "model.bin",
+	}, localPath, nil)
+	require.NoError(t, err)
+	require.Equal(t, "model.bin", info.Path)
+	got, err := os.ReadFile(localPath)
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestVolumeDownloadToDirectory(t *testing.T) {
+	content := []byte("dir file content")
+	var getFileCalls int
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
+			return connect.NewResponse(&volumev2.ListFilesResponse{
+				Files: []*volumev2.FileInfo{
+					{Path: "sub/model.bin", Size: uint64(len(content)), Kind: volumev2.FileKind_FILE_KIND_FILE},
+				},
+			}), nil
+		},
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			getFileCalls++
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "sub/model.bin", Size: uint64(len(content))},
+				Content: &volumev2.GetFileResponse_Data{Data: content},
+			}), nil
+		},
+	}}
+	localDir := t.TempDir()
+	err := client.DownloadToDirectory(context.Background(), "models", localDir, nil, VolumeDownloadConfig{})
+	require.NoError(t, err)
+	require.Equal(t, 1, getFileCalls)
+	got, err := os.ReadFile(filepath.Join(localDir, "sub", "model.bin"))
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
+	content := []byte("nested file")
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
+			if req.Msg.GetPath() == "" {
+				return connect.NewResponse(&volumev2.ListFilesResponse{
+					Files: []*volumev2.FileInfo{
+						{Path: "data/", Kind: volumev2.FileKind_FILE_KIND_DIRECTORY},
+					},
+				}), nil
+			}
+			return connect.NewResponse(&volumev2.ListFilesResponse{
+				Files: []*volumev2.FileInfo{
+					{Path: "data/file.bin", Size: uint64(len(content)), Kind: volumev2.FileKind_FILE_KIND_FILE},
+				},
+			}), nil
+		},
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "data/file.bin"},
+				Content: &volumev2.GetFileResponse_Data{Data: content},
+			}), nil
+		},
+	}}
+	localDir := t.TempDir()
+	err := client.DownloadToDirectory(context.Background(), "models", localDir, nil, VolumeDownloadConfig{})
+	require.NoError(t, err)
+	got, err := os.ReadFile(filepath.Join(localDir, "data", "file.bin"))
+	require.NoError(t, err)
+	require.Equal(t, content, got)
+}
+
+func TestVolumeListFilesRecursivePagination(t *testing.T) {
+	var calls int
+	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
+			calls++
+			if req.Msg.GetCursor() == "" {
+				return connect.NewResponse(&volumev2.ListFilesResponse{
+					Files:      []*volumev2.FileInfo{{Path: "a.bin", Kind: volumev2.FileKind_FILE_KIND_FILE}},
+					NextCursor: "page2",
+				}), nil
+			}
+			return connect.NewResponse(&volumev2.ListFilesResponse{
+				Files: []*volumev2.FileInfo{{Path: "b.bin", Kind: volumev2.FileKind_FILE_KIND_FILE}},
+			}), nil
+		},
+	}}
+	files, err := client.listFilesRecursive(context.Background(), "models", nil)
+	require.NoError(t, err)
+	require.Len(t, files, 2)
+	require.Equal(t, 2, calls)
 }
 
 type fakeVolumeRPC struct {
