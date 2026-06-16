@@ -329,7 +329,7 @@ func TestVolumeDataPackSealIsDeterministic(t *testing.T) {
 func TestVolumeDataPackFitsMatchesSealedLength(t *testing.T) {
 	t.Parallel()
 	builder := newDataPackBuilder()
-	for i := 0; i < 30; i++ {
+	for i := range 30 {
 		data := bytes.Repeat([]byte{byte('a' + i%26)}, 24+i)
 		require.True(t, builder.fits(uint64(len(data)), 10000))
 		builder.append(blake3Sum(data), data)
@@ -460,8 +460,6 @@ func TestVolumeUploadFilesZeroSizeFile(t *testing.T) {
 	require.Len(t, commits[0].GetPathDeltas().GetUpserts(), 1)
 }
 
-// TestVolumeUploadDirectoryPackPath exercises UploadDirectory -> collectVolumeLocalFiles ->
-// uploadBatchFiles -> packAndUpload -> uploadOnePack -> requestUploadURLs (AlreadyExists=true).
 func TestVolumeUploadDirectoryPackPath(t *testing.T) {
 	t.Parallel()
 	dir := t.TempDir()
@@ -735,8 +733,6 @@ func TestVolumeSignedRequestRateLimitExceeded(t *testing.T) {
 		func(context.Context) (string, error) { return url, nil })
 	require.Error(t, err)
 }
-
-// ── signedGetWithRetry branches ─────────────────────────────────────────────
 
 func TestVolumeSignedGetDefaultsMaxAttempts(t *testing.T) {
 	t.Parallel()
