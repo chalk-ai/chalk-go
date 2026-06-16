@@ -40,6 +40,9 @@ const (
 	// StaticAcceleratorServiceGetStaticConversionDiagnosticsProcedure is the fully-qualified name of
 	// the StaticAcceleratorService's GetStaticConversionDiagnostics RPC.
 	StaticAcceleratorServiceGetStaticConversionDiagnosticsProcedure = "/chalk.staticaccelerator.v1.StaticAcceleratorService/GetStaticConversionDiagnostics"
+	// StaticAcceleratorServiceGetSupportedPythonSurfaceProcedure is the fully-qualified name of the
+	// StaticAcceleratorService's GetSupportedPythonSurface RPC.
+	StaticAcceleratorServiceGetSupportedPythonSurfaceProcedure = "/chalk.staticaccelerator.v1.StaticAcceleratorService/GetSupportedPythonSurface"
 )
 
 // StaticAcceleratorServiceClient is a client for the
@@ -48,6 +51,7 @@ type StaticAcceleratorServiceClient interface {
 	HealthCheck(context.Context, *connect.Request[v1.HealthCheckRequest]) (*connect.Response[v1.HealthCheckResponse], error)
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	GetStaticConversionDiagnostics(context.Context, *connect.Request[v1.GetStaticConversionDiagnosticsRequest]) (*connect.Response[v11.Export], error)
+	GetSupportedPythonSurface(context.Context, *connect.Request[v1.GetSupportedPythonSurfaceRequest]) (*connect.Response[v1.GetSupportedPythonSurfaceResponse], error)
 }
 
 // NewStaticAcceleratorServiceClient constructs a client for the
@@ -76,6 +80,13 @@ func NewStaticAcceleratorServiceClient(httpClient connect.HTTPClient, baseURL st
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getSupportedPythonSurface: connect.NewClient[v1.GetSupportedPythonSurfaceRequest, v1.GetSupportedPythonSurfaceResponse](
+			httpClient,
+			baseURL+StaticAcceleratorServiceGetSupportedPythonSurfaceProcedure,
+			connect.WithSchema(staticAcceleratorServiceMethods.ByName("GetSupportedPythonSurface")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -83,6 +94,7 @@ func NewStaticAcceleratorServiceClient(httpClient connect.HTTPClient, baseURL st
 type staticAcceleratorServiceClient struct {
 	healthCheck                    *connect.Client[v1.HealthCheckRequest, v1.HealthCheckResponse]
 	getStaticConversionDiagnostics *connect.Client[v1.GetStaticConversionDiagnosticsRequest, v11.Export]
+	getSupportedPythonSurface      *connect.Client[v1.GetSupportedPythonSurfaceRequest, v1.GetSupportedPythonSurfaceResponse]
 }
 
 // HealthCheck calls chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck.
@@ -96,12 +108,19 @@ func (c *staticAcceleratorServiceClient) GetStaticConversionDiagnostics(ctx cont
 	return c.getStaticConversionDiagnostics.CallUnary(ctx, req)
 }
 
+// GetSupportedPythonSurface calls
+// chalk.staticaccelerator.v1.StaticAcceleratorService.GetSupportedPythonSurface.
+func (c *staticAcceleratorServiceClient) GetSupportedPythonSurface(ctx context.Context, req *connect.Request[v1.GetSupportedPythonSurfaceRequest]) (*connect.Response[v1.GetSupportedPythonSurfaceResponse], error) {
+	return c.getSupportedPythonSurface.CallUnary(ctx, req)
+}
+
 // StaticAcceleratorServiceHandler is an implementation of the
 // chalk.staticaccelerator.v1.StaticAcceleratorService service.
 type StaticAcceleratorServiceHandler interface {
 	HealthCheck(context.Context, *connect.Request[v1.HealthCheckRequest]) (*connect.Response[v1.HealthCheckResponse], error)
 	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
 	GetStaticConversionDiagnostics(context.Context, *connect.Request[v1.GetStaticConversionDiagnosticsRequest]) (*connect.Response[v11.Export], error)
+	GetSupportedPythonSurface(context.Context, *connect.Request[v1.GetSupportedPythonSurfaceRequest]) (*connect.Response[v1.GetSupportedPythonSurfaceResponse], error)
 }
 
 // NewStaticAcceleratorServiceHandler builds an HTTP handler from the service implementation. It
@@ -125,12 +144,21 @@ func NewStaticAcceleratorServiceHandler(svc StaticAcceleratorServiceHandler, opt
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	staticAcceleratorServiceGetSupportedPythonSurfaceHandler := connect.NewUnaryHandler(
+		StaticAcceleratorServiceGetSupportedPythonSurfaceProcedure,
+		svc.GetSupportedPythonSurface,
+		connect.WithSchema(staticAcceleratorServiceMethods.ByName("GetSupportedPythonSurface")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.staticaccelerator.v1.StaticAcceleratorService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case StaticAcceleratorServiceHealthCheckProcedure:
 			staticAcceleratorServiceHealthCheckHandler.ServeHTTP(w, r)
 		case StaticAcceleratorServiceGetStaticConversionDiagnosticsProcedure:
 			staticAcceleratorServiceGetStaticConversionDiagnosticsHandler.ServeHTTP(w, r)
+		case StaticAcceleratorServiceGetSupportedPythonSurfaceProcedure:
+			staticAcceleratorServiceGetSupportedPythonSurfaceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -146,4 +174,8 @@ func (UnimplementedStaticAcceleratorServiceHandler) HealthCheck(context.Context,
 
 func (UnimplementedStaticAcceleratorServiceHandler) GetStaticConversionDiagnostics(context.Context, *connect.Request[v1.GetStaticConversionDiagnosticsRequest]) (*connect.Response[v11.Export], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics is not implemented"))
+}
+
+func (UnimplementedStaticAcceleratorServiceHandler) GetSupportedPythonSurface(context.Context, *connect.Request[v1.GetSupportedPythonSurfaceRequest]) (*connect.Response[v1.GetSupportedPythonSurfaceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.staticaccelerator.v1.StaticAcceleratorService.GetSupportedPythonSurface is not implemented"))
 }

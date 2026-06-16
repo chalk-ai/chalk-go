@@ -3543,8 +3543,14 @@ type PlannerOptions struct {
 	OmitReplayDuringCombineAggregations                  *bool                      `protobuf:"varint,116,opt,name=omit_replay_during_combine_aggregations,json=omitReplayDuringCombineAggregations,proto3,oneof" json:"omit_replay_during_combine_aggregations,omitempty"`
 	DistinctEventTiesArbitrarily                         *bool                      `protobuf:"varint,117,opt,name=distinct_event_ties_arbitrarily,json=distinctEventTiesArbitrarily,proto3,oneof" json:"distinct_event_ties_arbitrarily,omitempty"`
 	UnifyTileWindowAggregations                          *bool                      `protobuf:"varint,118,opt,name=unify_tile_window_aggregations,json=unifyTileWindowAggregations,proto3,oneof" json:"unify_tile_window_aggregations,omitempty"`
-	unknownFields                                        protoimpl.UnknownFields
-	sizeCache                                            protoimpl.SizeCache
+	// When set, a has_one/has_many subplan that computes a materialized windowed
+	// aggregation is planned as time-dependent so the foreign-key spine de-dup keeps
+	// __ts__ in its key. This stops sibling input rows that share a join key but have
+	// different as-of times from collapsing into one another's aggregation windows.
+	// See CHA-9429.
+	ExcludeOverlappingInputEventsFromAggs *bool `protobuf:"varint,119,opt,name=exclude_overlapping_input_events_from_aggs,json=excludeOverlappingInputEventsFromAggs,proto3,oneof" json:"exclude_overlapping_input_events_from_aggs,omitempty"`
+	unknownFields                         protoimpl.UnknownFields
+	sizeCache                             protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4403,6 +4409,13 @@ func (x *PlannerOptions) GetUnifyTileWindowAggregations() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetExcludeOverlappingInputEventsFromAggs() bool {
+	if x != nil && x.ExcludeOverlappingInputEventsFromAggs != nil {
+		return *x.ExcludeOverlappingInputEventsFromAggs
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -5041,7 +5054,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x8dj\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x9ck\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5162,7 +5175,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"1sql_use_postgres_array_params_for_givens_pushdown\x18s \x01(\bHrR*sqlUsePostgresArrayParamsForGivensPushdown\x88\x01\x01\x12Y\n" +
 	"'omit_replay_during_combine_aggregations\x18t \x01(\bHsR#omitReplayDuringCombineAggregations\x88\x01\x01\x12J\n" +
 	"\x1fdistinct_event_ties_arbitrarily\x18u \x01(\bHtR\x1cdistinctEventTiesArbitrarily\x88\x01\x01\x12H\n" +
-	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01B\x1e\n" +
+	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01\x12^\n" +
+	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5280,7 +5294,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"2_sql_use_postgres_array_params_for_givens_pushdownB*\n" +
 	"(_omit_replay_during_combine_aggregationsB\"\n" +
 	" _distinct_event_ties_arbitrarilyB!\n" +
-	"\x1f_unify_tile_window_aggregations\"\xd2\x06\n" +
+	"\x1f_unify_tile_window_aggregationsB-\n" +
+	"+_exclude_overlapping_input_events_from_aggs\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

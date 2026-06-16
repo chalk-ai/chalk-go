@@ -390,6 +390,741 @@ func (x *KubernetesPodData_PodResourceClaim) GetSource() *KubernetesPodData_Clai
 	return nil
 }
 
+// A label selector requirement is a selector that contains values, a key, and an
+// operator that relates the key and values.
+type KubernetesPodData_LabelSelectorRequirement struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The label key that the selector applies to.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Represents a key's relationship to a set of values.
+	Operator string `protobuf:"bytes,2,opt,name=operator,proto3" json:"operator,omitempty"`
+	// Values is an array of string values. If the operator is In or NotIn,
+	// values must be non-empty. If the operator is Exists or DoesNotExist,
+	// values must be empty.
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) Reset() {
+	*x = KubernetesPodData_LabelSelectorRequirement{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_LabelSelectorRequirement) ProtoMessage() {}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_LabelSelectorRequirement.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_LabelSelectorRequirement) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 3}
+}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_LabelSelectorRequirement) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+// LabelSelector is a label query over a set of resources.
+type KubernetesPodData_LabelSelector struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// match_labels is a map of key/value pairs.
+	MatchLabels map[string]string `protobuf:"bytes,1,rep,name=match_labels,json=matchLabels,proto3" json:"match_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// match_expressions is a list of label selector requirements.
+	MatchExpressions []*KubernetesPodData_LabelSelectorRequirement `protobuf:"bytes,2,rep,name=match_expressions,json=matchExpressions,proto3" json:"match_expressions,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_LabelSelector) Reset() {
+	*x = KubernetesPodData_LabelSelector{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_LabelSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_LabelSelector) ProtoMessage() {}
+
+func (x *KubernetesPodData_LabelSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_LabelSelector.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_LabelSelector) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 4}
+}
+
+func (x *KubernetesPodData_LabelSelector) GetMatchLabels() map[string]string {
+	if x != nil {
+		return x.MatchLabels
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_LabelSelector) GetMatchExpressions() []*KubernetesPodData_LabelSelectorRequirement {
+	if x != nil {
+		return x.MatchExpressions
+	}
+	return nil
+}
+
+// A node selector requirement is a selector that contains values, a key, and
+// an operator that relates the key and values.
+type KubernetesPodData_NodeSelectorRequirement struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The label key that the selector applies to.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// Represents a key's relationship to a set of values.
+	Operator string `protobuf:"bytes,2,opt,name=operator,proto3" json:"operator,omitempty"`
+	// Values is an array of string values.
+	Values        []string `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) Reset() {
+	*x = KubernetesPodData_NodeSelectorRequirement{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_NodeSelectorRequirement) ProtoMessage() {}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_NodeSelectorRequirement.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_NodeSelectorRequirement) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 5}
+}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) GetOperator() string {
+	if x != nil {
+		return x.Operator
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_NodeSelectorRequirement) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+// A null or empty node selector term matches no objects.
+type KubernetesPodData_NodeSelectorTerm struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A list of node selector requirements by node labels.
+	MatchExpressions []*KubernetesPodData_NodeSelectorRequirement `protobuf:"bytes,1,rep,name=match_expressions,json=matchExpressions,proto3" json:"match_expressions,omitempty"`
+	// A list of node selector requirements by node fields.
+	MatchFields   []*KubernetesPodData_NodeSelectorRequirement `protobuf:"bytes,2,rep,name=match_fields,json=matchFields,proto3" json:"match_fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_NodeSelectorTerm) Reset() {
+	*x = KubernetesPodData_NodeSelectorTerm{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_NodeSelectorTerm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_NodeSelectorTerm) ProtoMessage() {}
+
+func (x *KubernetesPodData_NodeSelectorTerm) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_NodeSelectorTerm.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_NodeSelectorTerm) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 6}
+}
+
+func (x *KubernetesPodData_NodeSelectorTerm) GetMatchExpressions() []*KubernetesPodData_NodeSelectorRequirement {
+	if x != nil {
+		return x.MatchExpressions
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_NodeSelectorTerm) GetMatchFields() []*KubernetesPodData_NodeSelectorRequirement {
+	if x != nil {
+		return x.MatchFields
+	}
+	return nil
+}
+
+// A node selector represents the union of the results of one or more label
+// queries over a set of nodes.
+type KubernetesPodData_NodeSelector struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Required. A list of node selector terms.
+	NodeSelectorTerms []*KubernetesPodData_NodeSelectorTerm `protobuf:"bytes,1,rep,name=node_selector_terms,json=nodeSelectorTerms,proto3" json:"node_selector_terms,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_NodeSelector) Reset() {
+	*x = KubernetesPodData_NodeSelector{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_NodeSelector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_NodeSelector) ProtoMessage() {}
+
+func (x *KubernetesPodData_NodeSelector) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_NodeSelector.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_NodeSelector) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 7}
+}
+
+func (x *KubernetesPodData_NodeSelector) GetNodeSelectorTerms() []*KubernetesPodData_NodeSelectorTerm {
+	if x != nil {
+		return x.NodeSelectorTerms
+	}
+	return nil
+}
+
+// An empty preferred scheduling term matches all objects with implicit weight 0.
+type KubernetesPodData_PreferredSchedulingTerm struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Weight associated with matching the corresponding nodeSelectorTerm.
+	Weight int32 `protobuf:"varint,1,opt,name=weight,proto3" json:"weight,omitempty"`
+	// A node selector term associated with the corresponding weight.
+	Preference    *KubernetesPodData_NodeSelectorTerm `protobuf:"bytes,2,opt,name=preference,proto3" json:"preference,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_PreferredSchedulingTerm) Reset() {
+	*x = KubernetesPodData_PreferredSchedulingTerm{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_PreferredSchedulingTerm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_PreferredSchedulingTerm) ProtoMessage() {}
+
+func (x *KubernetesPodData_PreferredSchedulingTerm) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_PreferredSchedulingTerm.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_PreferredSchedulingTerm) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 8}
+}
+
+func (x *KubernetesPodData_PreferredSchedulingTerm) GetWeight() int32 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *KubernetesPodData_PreferredSchedulingTerm) GetPreference() *KubernetesPodData_NodeSelectorTerm {
+	if x != nil {
+		return x.Preference
+	}
+	return nil
+}
+
+// Node affinity is a group of node affinity scheduling rules.
+type KubernetesPodData_NodeAffinity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// If the affinity requirements specified by this field are not met at
+	// scheduling time, the pod will not be scheduled onto the node.
+	RequiredDuringSchedulingIgnoredDuringExecution *KubernetesPodData_NodeSelector `protobuf:"bytes,1,opt,name=required_during_scheduling_ignored_during_execution,json=requiredDuringSchedulingIgnoredDuringExecution,proto3,oneof" json:"required_during_scheduling_ignored_during_execution,omitempty"`
+	// The scheduler will prefer to schedule pods to nodes that satisfy these
+	// affinity expressions, but it may choose a node that violates one or more
+	// of the expressions.
+	PreferredDuringSchedulingIgnoredDuringExecution []*KubernetesPodData_PreferredSchedulingTerm `protobuf:"bytes,2,rep,name=preferred_during_scheduling_ignored_during_execution,json=preferredDuringSchedulingIgnoredDuringExecution,proto3" json:"preferred_during_scheduling_ignored_during_execution,omitempty"`
+	unknownFields                                   protoimpl.UnknownFields
+	sizeCache                                       protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_NodeAffinity) Reset() {
+	*x = KubernetesPodData_NodeAffinity{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_NodeAffinity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_NodeAffinity) ProtoMessage() {}
+
+func (x *KubernetesPodData_NodeAffinity) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_NodeAffinity.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_NodeAffinity) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 9}
+}
+
+func (x *KubernetesPodData_NodeAffinity) GetRequiredDuringSchedulingIgnoredDuringExecution() *KubernetesPodData_NodeSelector {
+	if x != nil {
+		return x.RequiredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_NodeAffinity) GetPreferredDuringSchedulingIgnoredDuringExecution() []*KubernetesPodData_PreferredSchedulingTerm {
+	if x != nil {
+		return x.PreferredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+// Defines a set of pods to be co-located or not co-located with the current
+// pod by label selector and topology key.
+type KubernetesPodData_PodAffinityTerm struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A label query over a set of resources.
+	LabelSelector *KubernetesPodData_LabelSelector `protobuf:"bytes,1,opt,name=label_selector,json=labelSelector,proto3,oneof" json:"label_selector,omitempty"`
+	// Namespaces specifies the namespaces that the term applies to.
+	Namespaces []string `protobuf:"bytes,2,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
+	// This pod should be co-located or not co-located with matching pods in the
+	// same topology domain.
+	TopologyKey string `protobuf:"bytes,3,opt,name=topology_key,json=topologyKey,proto3" json:"topology_key,omitempty"`
+	// NamespaceSelector follows Kubernetes presence semantics: nil plus empty
+	// namespaces means only the pod's namespace, while an empty selector object
+	// matches all namespaces and is therefore cross-namespace.
+	NamespaceSelector *KubernetesPodData_LabelSelector `protobuf:"bytes,4,opt,name=namespace_selector,json=namespaceSelector,proto3,oneof" json:"namespace_selector,omitempty"`
+	// MatchLabelKeys is a set of pod label keys to select which pods are taken
+	// into consideration.
+	MatchLabelKeys []string `protobuf:"bytes,5,rep,name=match_label_keys,json=matchLabelKeys,proto3" json:"match_label_keys,omitempty"`
+	// MismatchLabelKeys is a set of pod label keys to select which pods are not
+	// taken into consideration.
+	MismatchLabelKeys []string `protobuf:"bytes,6,rep,name=mismatch_label_keys,json=mismatchLabelKeys,proto3" json:"mismatch_label_keys,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) Reset() {
+	*x = KubernetesPodData_PodAffinityTerm{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_PodAffinityTerm) ProtoMessage() {}
+
+func (x *KubernetesPodData_PodAffinityTerm) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_PodAffinityTerm.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_PodAffinityTerm) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 10}
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetLabelSelector() *KubernetesPodData_LabelSelector {
+	if x != nil {
+		return x.LabelSelector
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetNamespaces() []string {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetTopologyKey() string {
+	if x != nil {
+		return x.TopologyKey
+	}
+	return ""
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetNamespaceSelector() *KubernetesPodData_LabelSelector {
+	if x != nil {
+		return x.NamespaceSelector
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetMatchLabelKeys() []string {
+	if x != nil {
+		return x.MatchLabelKeys
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAffinityTerm) GetMismatchLabelKeys() []string {
+	if x != nil {
+		return x.MismatchLabelKeys
+	}
+	return nil
+}
+
+// The weights of all of the matched WeightedPodAffinityTerm fields are added
+// per-node to find the most preferred nodes.
+type KubernetesPodData_WeightedPodAffinityTerm struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Weight associated with matching the corresponding podAffinityTerm.
+	Weight int32 `protobuf:"varint,1,opt,name=weight,proto3" json:"weight,omitempty"`
+	// The pod affinity term associated with the corresponding weight.
+	PodAffinityTerm *KubernetesPodData_PodAffinityTerm `protobuf:"bytes,2,opt,name=pod_affinity_term,json=podAffinityTerm,proto3" json:"pod_affinity_term,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_WeightedPodAffinityTerm) Reset() {
+	*x = KubernetesPodData_WeightedPodAffinityTerm{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_WeightedPodAffinityTerm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_WeightedPodAffinityTerm) ProtoMessage() {}
+
+func (x *KubernetesPodData_WeightedPodAffinityTerm) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_WeightedPodAffinityTerm.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_WeightedPodAffinityTerm) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 11}
+}
+
+func (x *KubernetesPodData_WeightedPodAffinityTerm) GetWeight() int32 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+func (x *KubernetesPodData_WeightedPodAffinityTerm) GetPodAffinityTerm() *KubernetesPodData_PodAffinityTerm {
+	if x != nil {
+		return x.PodAffinityTerm
+	}
+	return nil
+}
+
+// Pod affinity is a group of inter pod affinity scheduling rules.
+type KubernetesPodData_PodAffinity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// If the affinity requirements specified by this field are not met at
+	// scheduling time, the pod will not be scheduled onto the node.
+	RequiredDuringSchedulingIgnoredDuringExecution []*KubernetesPodData_PodAffinityTerm `protobuf:"bytes,1,rep,name=required_during_scheduling_ignored_during_execution,json=requiredDuringSchedulingIgnoredDuringExecution,proto3" json:"required_during_scheduling_ignored_during_execution,omitempty"`
+	// The scheduler will prefer to schedule pods to nodes that satisfy these
+	// affinity expressions, but it may choose a node that violates one or more
+	// of the expressions.
+	PreferredDuringSchedulingIgnoredDuringExecution []*KubernetesPodData_WeightedPodAffinityTerm `protobuf:"bytes,2,rep,name=preferred_during_scheduling_ignored_during_execution,json=preferredDuringSchedulingIgnoredDuringExecution,proto3" json:"preferred_during_scheduling_ignored_during_execution,omitempty"`
+	unknownFields                                   protoimpl.UnknownFields
+	sizeCache                                       protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_PodAffinity) Reset() {
+	*x = KubernetesPodData_PodAffinity{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_PodAffinity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_PodAffinity) ProtoMessage() {}
+
+func (x *KubernetesPodData_PodAffinity) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_PodAffinity.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_PodAffinity) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 12}
+}
+
+func (x *KubernetesPodData_PodAffinity) GetRequiredDuringSchedulingIgnoredDuringExecution() []*KubernetesPodData_PodAffinityTerm {
+	if x != nil {
+		return x.RequiredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAffinity) GetPreferredDuringSchedulingIgnoredDuringExecution() []*KubernetesPodData_WeightedPodAffinityTerm {
+	if x != nil {
+		return x.PreferredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+// Pod anti-affinity is a group of inter pod anti-affinity scheduling rules.
+type KubernetesPodData_PodAntiAffinity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// If the anti-affinity requirements specified by this field are not met at
+	// scheduling time, the pod will not be scheduled onto the node.
+	RequiredDuringSchedulingIgnoredDuringExecution []*KubernetesPodData_PodAffinityTerm `protobuf:"bytes,1,rep,name=required_during_scheduling_ignored_during_execution,json=requiredDuringSchedulingIgnoredDuringExecution,proto3" json:"required_during_scheduling_ignored_during_execution,omitempty"`
+	// The scheduler will prefer to schedule pods to nodes that satisfy these
+	// anti-affinity expressions, but it may choose a node that violates one or
+	// more of the expressions.
+	PreferredDuringSchedulingIgnoredDuringExecution []*KubernetesPodData_WeightedPodAffinityTerm `protobuf:"bytes,2,rep,name=preferred_during_scheduling_ignored_during_execution,json=preferredDuringSchedulingIgnoredDuringExecution,proto3" json:"preferred_during_scheduling_ignored_during_execution,omitempty"`
+	unknownFields                                   protoimpl.UnknownFields
+	sizeCache                                       protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_PodAntiAffinity) Reset() {
+	*x = KubernetesPodData_PodAntiAffinity{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_PodAntiAffinity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_PodAntiAffinity) ProtoMessage() {}
+
+func (x *KubernetesPodData_PodAntiAffinity) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_PodAntiAffinity.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_PodAntiAffinity) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 13}
+}
+
+func (x *KubernetesPodData_PodAntiAffinity) GetRequiredDuringSchedulingIgnoredDuringExecution() []*KubernetesPodData_PodAffinityTerm {
+	if x != nil {
+		return x.RequiredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_PodAntiAffinity) GetPreferredDuringSchedulingIgnoredDuringExecution() []*KubernetesPodData_WeightedPodAffinityTerm {
+	if x != nil {
+		return x.PreferredDuringSchedulingIgnoredDuringExecution
+	}
+	return nil
+}
+
+// Affinity is a group of affinity scheduling rules.
+type KubernetesPodData_Affinity struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Describes node affinity scheduling rules for the pod.
+	NodeAffinity *KubernetesPodData_NodeAffinity `protobuf:"bytes,1,opt,name=node_affinity,json=nodeAffinity,proto3,oneof" json:"node_affinity,omitempty"`
+	// Describes pod affinity scheduling rules.
+	PodAffinity *KubernetesPodData_PodAffinity `protobuf:"bytes,2,opt,name=pod_affinity,json=podAffinity,proto3,oneof" json:"pod_affinity,omitempty"`
+	// Describes pod anti-affinity scheduling rules.
+	PodAntiAffinity *KubernetesPodData_PodAntiAffinity `protobuf:"bytes,3,opt,name=pod_anti_affinity,json=podAntiAffinity,proto3,oneof" json:"pod_anti_affinity,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *KubernetesPodData_Affinity) Reset() {
+	*x = KubernetesPodData_Affinity{}
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *KubernetesPodData_Affinity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*KubernetesPodData_Affinity) ProtoMessage() {}
+
+func (x *KubernetesPodData_Affinity) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use KubernetesPodData_Affinity.ProtoReflect.Descriptor instead.
+func (*KubernetesPodData_Affinity) Descriptor() ([]byte, []int) {
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 14}
+}
+
+func (x *KubernetesPodData_Affinity) GetNodeAffinity() *KubernetesPodData_NodeAffinity {
+	if x != nil {
+		return x.NodeAffinity
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_Affinity) GetPodAffinity() *KubernetesPodData_PodAffinity {
+	if x != nil {
+		return x.PodAffinity
+	}
+	return nil
+}
+
+func (x *KubernetesPodData_Affinity) GetPodAntiAffinity() *KubernetesPodData_PodAntiAffinity {
+	if x != nil {
+		return x.PodAntiAffinity
+	}
+	return nil
+}
+
 // PodSpec is a description of a pod.
 type KubernetesPodData_PodSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -507,6 +1242,9 @@ type KubernetesPodData_PodSpec struct {
 	// If not specified, the pod will not have a domainname at all.
 	// +optional
 	Subdomain *string `protobuf:"bytes,17,opt,name=subdomain,proto3,oneof" json:"subdomain,omitempty"`
+	// If specified, the pod's scheduling constraints
+	// +optional
+	Affinity *KubernetesPodData_Affinity `protobuf:"bytes,18,opt,name=affinity,proto3,oneof" json:"affinity,omitempty"`
 	// If specified, the pod will be dispatched by specified scheduler.
 	// If not specified, the pod will be dispatched by default scheduler.
 	// +optional
@@ -578,7 +1316,7 @@ type KubernetesPodData_PodSpec struct {
 
 func (x *KubernetesPodData_PodSpec) Reset() {
 	*x = KubernetesPodData_PodSpec{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[4]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +1328,7 @@ func (x *KubernetesPodData_PodSpec) String() string {
 func (*KubernetesPodData_PodSpec) ProtoMessage() {}
 
 func (x *KubernetesPodData_PodSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[4]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +1341,7 @@ func (x *KubernetesPodData_PodSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_PodSpec.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_PodSpec) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 3}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 15}
 }
 
 func (x *KubernetesPodData_PodSpec) GetVolumes() []*KubernetesPodData_Volume {
@@ -725,6 +1463,13 @@ func (x *KubernetesPodData_PodSpec) GetSubdomain() string {
 	return ""
 }
 
+func (x *KubernetesPodData_PodSpec) GetAffinity() *KubernetesPodData_Affinity {
+	if x != nil {
+		return x.Affinity
+	}
+	return nil
+}
+
 func (x *KubernetesPodData_PodSpec) GetSchedulerName() string {
 	if x != nil && x.SchedulerName != nil {
 		return *x.SchedulerName
@@ -801,7 +1546,7 @@ type KubernetesPodData_ContainerState struct {
 
 func (x *KubernetesPodData_ContainerState) Reset() {
 	*x = KubernetesPodData_ContainerState{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[5]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -813,7 +1558,7 @@ func (x *KubernetesPodData_ContainerState) String() string {
 func (*KubernetesPodData_ContainerState) ProtoMessage() {}
 
 func (x *KubernetesPodData_ContainerState) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[5]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +1571,7 @@ func (x *KubernetesPodData_ContainerState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_ContainerState.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ContainerState) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 4}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 16}
 }
 
 func (x *KubernetesPodData_ContainerState) GetWaiting() *KubernetesPodData_ContainerStateWaiting {
@@ -862,7 +1607,7 @@ type KubernetesPodData_ContainerStateRunning struct {
 
 func (x *KubernetesPodData_ContainerStateRunning) Reset() {
 	*x = KubernetesPodData_ContainerStateRunning{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[6]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -874,7 +1619,7 @@ func (x *KubernetesPodData_ContainerStateRunning) String() string {
 func (*KubernetesPodData_ContainerStateRunning) ProtoMessage() {}
 
 func (x *KubernetesPodData_ContainerStateRunning) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[6]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -887,7 +1632,7 @@ func (x *KubernetesPodData_ContainerStateRunning) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use KubernetesPodData_ContainerStateRunning.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ContainerStateRunning) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 5}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 17}
 }
 
 func (x *KubernetesPodData_ContainerStateRunning) GetStartedAt() int64 {
@@ -926,7 +1671,7 @@ type KubernetesPodData_ContainerStateTerminated struct {
 
 func (x *KubernetesPodData_ContainerStateTerminated) Reset() {
 	*x = KubernetesPodData_ContainerStateTerminated{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[7]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -938,7 +1683,7 @@ func (x *KubernetesPodData_ContainerStateTerminated) String() string {
 func (*KubernetesPodData_ContainerStateTerminated) ProtoMessage() {}
 
 func (x *KubernetesPodData_ContainerStateTerminated) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[7]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -951,7 +1696,7 @@ func (x *KubernetesPodData_ContainerStateTerminated) ProtoReflect() protoreflect
 
 // Deprecated: Use KubernetesPodData_ContainerStateTerminated.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ContainerStateTerminated) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 6}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 18}
 }
 
 func (x *KubernetesPodData_ContainerStateTerminated) GetExitCode() int32 {
@@ -1027,7 +1772,7 @@ type KubernetesPodData_EnvVar struct {
 
 func (x *KubernetesPodData_EnvVar) Reset() {
 	*x = KubernetesPodData_EnvVar{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[8]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1039,7 +1784,7 @@ func (x *KubernetesPodData_EnvVar) String() string {
 func (*KubernetesPodData_EnvVar) ProtoMessage() {}
 
 func (x *KubernetesPodData_EnvVar) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[8]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1052,7 +1797,7 @@ func (x *KubernetesPodData_EnvVar) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_EnvVar.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_EnvVar) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 7}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 19}
 }
 
 func (x *KubernetesPodData_EnvVar) GetName() string {
@@ -1099,7 +1844,7 @@ type KubernetesPodData_EnvVarSource struct {
 
 func (x *KubernetesPodData_EnvVarSource) Reset() {
 	*x = KubernetesPodData_EnvVarSource{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[9]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1111,7 +1856,7 @@ func (x *KubernetesPodData_EnvVarSource) String() string {
 func (*KubernetesPodData_EnvVarSource) ProtoMessage() {}
 
 func (x *KubernetesPodData_EnvVarSource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[9]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1124,7 +1869,7 @@ func (x *KubernetesPodData_EnvVarSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_EnvVarSource.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_EnvVarSource) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 8}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 20}
 }
 
 func (x *KubernetesPodData_EnvVarSource) GetFieldRef() *KubernetesPodData_ObjectFieldSelector {
@@ -1169,7 +1914,7 @@ type KubernetesPodData_ObjectFieldSelector struct {
 
 func (x *KubernetesPodData_ObjectFieldSelector) Reset() {
 	*x = KubernetesPodData_ObjectFieldSelector{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[10]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1181,7 +1926,7 @@ func (x *KubernetesPodData_ObjectFieldSelector) String() string {
 func (*KubernetesPodData_ObjectFieldSelector) ProtoMessage() {}
 
 func (x *KubernetesPodData_ObjectFieldSelector) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[10]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1194,7 +1939,7 @@ func (x *KubernetesPodData_ObjectFieldSelector) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use KubernetesPodData_ObjectFieldSelector.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ObjectFieldSelector) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 9}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 21}
 }
 
 func (x *KubernetesPodData_ObjectFieldSelector) GetApiVersion() string {
@@ -1228,7 +1973,7 @@ type KubernetesPodData_ResourceFieldSelector struct {
 
 func (x *KubernetesPodData_ResourceFieldSelector) Reset() {
 	*x = KubernetesPodData_ResourceFieldSelector{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[11]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1240,7 +1985,7 @@ func (x *KubernetesPodData_ResourceFieldSelector) String() string {
 func (*KubernetesPodData_ResourceFieldSelector) ProtoMessage() {}
 
 func (x *KubernetesPodData_ResourceFieldSelector) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[11]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1253,7 +1998,7 @@ func (x *KubernetesPodData_ResourceFieldSelector) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use KubernetesPodData_ResourceFieldSelector.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ResourceFieldSelector) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 10}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 22}
 }
 
 func (x *KubernetesPodData_ResourceFieldSelector) GetContainerName() string {
@@ -1293,7 +2038,7 @@ type KubernetesPodData_ConfigMapKeySelector struct {
 
 func (x *KubernetesPodData_ConfigMapKeySelector) Reset() {
 	*x = KubernetesPodData_ConfigMapKeySelector{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[12]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1305,7 +2050,7 @@ func (x *KubernetesPodData_ConfigMapKeySelector) String() string {
 func (*KubernetesPodData_ConfigMapKeySelector) ProtoMessage() {}
 
 func (x *KubernetesPodData_ConfigMapKeySelector) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[12]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1318,7 +2063,7 @@ func (x *KubernetesPodData_ConfigMapKeySelector) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use KubernetesPodData_ConfigMapKeySelector.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ConfigMapKeySelector) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 11}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 23}
 }
 
 func (x *KubernetesPodData_ConfigMapKeySelector) GetName() string {
@@ -1358,7 +2103,7 @@ type KubernetesPodData_SecretKeySelector struct {
 
 func (x *KubernetesPodData_SecretKeySelector) Reset() {
 	*x = KubernetesPodData_SecretKeySelector{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[13]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1370,7 +2115,7 @@ func (x *KubernetesPodData_SecretKeySelector) String() string {
 func (*KubernetesPodData_SecretKeySelector) ProtoMessage() {}
 
 func (x *KubernetesPodData_SecretKeySelector) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[13]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1383,7 +2128,7 @@ func (x *KubernetesPodData_SecretKeySelector) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use KubernetesPodData_SecretKeySelector.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_SecretKeySelector) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 12}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 24}
 }
 
 func (x *KubernetesPodData_SecretKeySelector) GetName() string {
@@ -1425,7 +2170,7 @@ type KubernetesPodData_EnvFromSource struct {
 
 func (x *KubernetesPodData_EnvFromSource) Reset() {
 	*x = KubernetesPodData_EnvFromSource{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[14]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1437,7 +2182,7 @@ func (x *KubernetesPodData_EnvFromSource) String() string {
 func (*KubernetesPodData_EnvFromSource) ProtoMessage() {}
 
 func (x *KubernetesPodData_EnvFromSource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[14]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1450,7 +2195,7 @@ func (x *KubernetesPodData_EnvFromSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_EnvFromSource.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_EnvFromSource) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 13}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 25}
 }
 
 func (x *KubernetesPodData_EnvFromSource) GetPrefix() string {
@@ -1489,7 +2234,7 @@ type KubernetesPodData_ConfigMapEnvSource struct {
 
 func (x *KubernetesPodData_ConfigMapEnvSource) Reset() {
 	*x = KubernetesPodData_ConfigMapEnvSource{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[15]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1501,7 +2246,7 @@ func (x *KubernetesPodData_ConfigMapEnvSource) String() string {
 func (*KubernetesPodData_ConfigMapEnvSource) ProtoMessage() {}
 
 func (x *KubernetesPodData_ConfigMapEnvSource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[15]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1514,7 +2259,7 @@ func (x *KubernetesPodData_ConfigMapEnvSource) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use KubernetesPodData_ConfigMapEnvSource.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ConfigMapEnvSource) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 14}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 26}
 }
 
 func (x *KubernetesPodData_ConfigMapEnvSource) GetName() string {
@@ -1546,7 +2291,7 @@ type KubernetesPodData_SecretEnvSource struct {
 
 func (x *KubernetesPodData_SecretEnvSource) Reset() {
 	*x = KubernetesPodData_SecretEnvSource{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[16]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1558,7 +2303,7 @@ func (x *KubernetesPodData_SecretEnvSource) String() string {
 func (*KubernetesPodData_SecretEnvSource) ProtoMessage() {}
 
 func (x *KubernetesPodData_SecretEnvSource) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[16]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1571,7 +2316,7 @@ func (x *KubernetesPodData_SecretEnvSource) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use KubernetesPodData_SecretEnvSource.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_SecretEnvSource) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 15}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 27}
 }
 
 func (x *KubernetesPodData_SecretEnvSource) GetName() string {
@@ -1712,7 +2457,7 @@ type KubernetesPodData_Container struct {
 
 func (x *KubernetesPodData_Container) Reset() {
 	*x = KubernetesPodData_Container{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[17]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1724,7 +2469,7 @@ func (x *KubernetesPodData_Container) String() string {
 func (*KubernetesPodData_Container) ProtoMessage() {}
 
 func (x *KubernetesPodData_Container) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[17]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1737,7 +2482,7 @@ func (x *KubernetesPodData_Container) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_Container.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_Container) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 16}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 28}
 }
 
 func (x *KubernetesPodData_Container) GetName() string {
@@ -1860,7 +2605,7 @@ type KubernetesPodData_ContainerStateWaiting struct {
 
 func (x *KubernetesPodData_ContainerStateWaiting) Reset() {
 	*x = KubernetesPodData_ContainerStateWaiting{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[18]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1872,7 +2617,7 @@ func (x *KubernetesPodData_ContainerStateWaiting) String() string {
 func (*KubernetesPodData_ContainerStateWaiting) ProtoMessage() {}
 
 func (x *KubernetesPodData_ContainerStateWaiting) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[18]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1885,7 +2630,7 @@ func (x *KubernetesPodData_ContainerStateWaiting) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use KubernetesPodData_ContainerStateWaiting.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ContainerStateWaiting) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 17}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 29}
 }
 
 func (x *KubernetesPodData_ContainerStateWaiting) GetReason() string {
@@ -1958,7 +2703,7 @@ type KubernetesPodData_ContainerStatus struct {
 
 func (x *KubernetesPodData_ContainerStatus) Reset() {
 	*x = KubernetesPodData_ContainerStatus{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[19]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1970,7 +2715,7 @@ func (x *KubernetesPodData_ContainerStatus) String() string {
 func (*KubernetesPodData_ContainerStatus) ProtoMessage() {}
 
 func (x *KubernetesPodData_ContainerStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[19]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1983,7 +2728,7 @@ func (x *KubernetesPodData_ContainerStatus) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use KubernetesPodData_ContainerStatus.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ContainerStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 18}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 30}
 }
 
 func (x *KubernetesPodData_ContainerStatus) GetName() string {
@@ -2058,7 +2803,7 @@ type KubernetesPodData_Quantity struct {
 
 func (x *KubernetesPodData_Quantity) Reset() {
 	*x = KubernetesPodData_Quantity{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[20]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2070,7 +2815,7 @@ func (x *KubernetesPodData_Quantity) String() string {
 func (*KubernetesPodData_Quantity) ProtoMessage() {}
 
 func (x *KubernetesPodData_Quantity) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[20]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2083,7 +2828,7 @@ func (x *KubernetesPodData_Quantity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_Quantity.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_Quantity) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 19}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 31}
 }
 
 func (x *KubernetesPodData_Quantity) GetString_() string {
@@ -2111,7 +2856,7 @@ type KubernetesPodData_ResourceRequirements struct {
 
 func (x *KubernetesPodData_ResourceRequirements) Reset() {
 	*x = KubernetesPodData_ResourceRequirements{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[21]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2123,7 +2868,7 @@ func (x *KubernetesPodData_ResourceRequirements) String() string {
 func (*KubernetesPodData_ResourceRequirements) ProtoMessage() {}
 
 func (x *KubernetesPodData_ResourceRequirements) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[21]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2136,7 +2881,7 @@ func (x *KubernetesPodData_ResourceRequirements) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use KubernetesPodData_ResourceRequirements.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_ResourceRequirements) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 20}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 32}
 }
 
 func (x *KubernetesPodData_ResourceRequirements) GetLimits() map[string]*KubernetesPodData_Quantity {
@@ -2181,7 +2926,7 @@ type KubernetesPodData_PodCondition struct {
 
 func (x *KubernetesPodData_PodCondition) Reset() {
 	*x = KubernetesPodData_PodCondition{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[22]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2193,7 +2938,7 @@ func (x *KubernetesPodData_PodCondition) String() string {
 func (*KubernetesPodData_PodCondition) ProtoMessage() {}
 
 func (x *KubernetesPodData_PodCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[22]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2206,7 +2951,7 @@ func (x *KubernetesPodData_PodCondition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_PodCondition.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_PodCondition) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 21}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 33}
 }
 
 func (x *KubernetesPodData_PodCondition) GetType() string {
@@ -2262,7 +3007,7 @@ type KubernetesPodData_HostIP struct {
 
 func (x *KubernetesPodData_HostIP) Reset() {
 	*x = KubernetesPodData_HostIP{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[23]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +3019,7 @@ func (x *KubernetesPodData_HostIP) String() string {
 func (*KubernetesPodData_HostIP) ProtoMessage() {}
 
 func (x *KubernetesPodData_HostIP) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[23]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2287,7 +3032,7 @@ func (x *KubernetesPodData_HostIP) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_HostIP.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_HostIP) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 22}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 34}
 }
 
 func (x *KubernetesPodData_HostIP) GetIp() string {
@@ -2400,7 +3145,7 @@ type KubernetesPodData_PodStatus struct {
 
 func (x *KubernetesPodData_PodStatus) Reset() {
 	*x = KubernetesPodData_PodStatus{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[24]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2412,7 +3157,7 @@ func (x *KubernetesPodData_PodStatus) String() string {
 func (*KubernetesPodData_PodStatus) ProtoMessage() {}
 
 func (x *KubernetesPodData_PodStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[24]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2425,7 +3170,7 @@ func (x *KubernetesPodData_PodStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_PodStatus.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_PodStatus) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 23}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 35}
 }
 
 func (x *KubernetesPodData_PodStatus) GetPhase() string {
@@ -2548,7 +3293,7 @@ type KubernetesPodData_OwnerReference struct {
 
 func (x *KubernetesPodData_OwnerReference) Reset() {
 	*x = KubernetesPodData_OwnerReference{}
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2560,7 +3305,7 @@ func (x *KubernetesPodData_OwnerReference) String() string {
 func (*KubernetesPodData_OwnerReference) ProtoMessage() {}
 
 func (x *KubernetesPodData_OwnerReference) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[27]
+	mi := &file_chalk_kubernetes_v1_pods_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2573,7 +3318,7 @@ func (x *KubernetesPodData_OwnerReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KubernetesPodData_OwnerReference.ProtoReflect.Descriptor instead.
 func (*KubernetesPodData_OwnerReference) Descriptor() ([]byte, []int) {
-	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 26}
+	return file_chalk_kubernetes_v1_pods_proto_rawDescGZIP(), []int{0, 38}
 }
 
 func (x *KubernetesPodData_OwnerReference) GetApiVersion() string {
@@ -2622,7 +3367,7 @@ var File_chalk_kubernetes_v1_pods_proto protoreflect.FileDescriptor
 
 const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\n" +
-	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xdaD\n" +
+	"\x1echalk/kubernetes/v1/pods.proto\x12\x13chalk.kubernetes.v1\"\xab]\n" +
 	"\x11KubernetesPodData\x12\x12\n" +
 	"\x04team\x18\x01 \x01(\tR\x04team\x12\x10\n" +
 	"\x03app\x18\x02 \x01(\tR\x03app\x12\x1c\n" +
@@ -2652,7 +3397,62 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\x10PodResourceClaim\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12O\n" +
 	"\x06source\x18\x02 \x01(\v22.chalk.kubernetes.v1.KubernetesPodData.ClaimSourceH\x00R\x06source\x88\x01\x01B\t\n" +
-	"\a_source\x1a\xf6\r\n" +
+	"\a_source\x1a`\n" +
+	"\x18LabelSelectorRequirement\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\boperator\x18\x02 \x01(\tR\boperator\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\x1a\xa7\x02\n" +
+	"\rLabelSelector\x12h\n" +
+	"\fmatch_labels\x18\x01 \x03(\v2E.chalk.kubernetes.v1.KubernetesPodData.LabelSelector.MatchLabelsEntryR\vmatchLabels\x12l\n" +
+	"\x11match_expressions\x18\x02 \x03(\v2?.chalk.kubernetes.v1.KubernetesPodData.LabelSelectorRequirementR\x10matchExpressions\x1a>\n" +
+	"\x10MatchLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a_\n" +
+	"\x17NodeSelectorRequirement\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\boperator\x18\x02 \x01(\tR\boperator\x12\x16\n" +
+	"\x06values\x18\x03 \x03(\tR\x06values\x1a\xe2\x01\n" +
+	"\x10NodeSelectorTerm\x12k\n" +
+	"\x11match_expressions\x18\x01 \x03(\v2>.chalk.kubernetes.v1.KubernetesPodData.NodeSelectorRequirementR\x10matchExpressions\x12a\n" +
+	"\fmatch_fields\x18\x02 \x03(\v2>.chalk.kubernetes.v1.KubernetesPodData.NodeSelectorRequirementR\vmatchFields\x1aw\n" +
+	"\fNodeSelector\x12g\n" +
+	"\x13node_selector_terms\x18\x01 \x03(\v27.chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTermR\x11nodeSelectorTerms\x1a\x8a\x01\n" +
+	"\x17PreferredSchedulingTerm\x12\x16\n" +
+	"\x06weight\x18\x01 \x01(\x05R\x06weight\x12W\n" +
+	"\n" +
+	"preference\x18\x02 \x01(\v27.chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTermR\n" +
+	"preference\x1a\x9e\x03\n" +
+	"\fNodeAffinity\x12\xa5\x01\n" +
+	"3required_during_scheduling_ignored_during_execution\x18\x01 \x01(\v23.chalk.kubernetes.v1.KubernetesPodData.NodeSelectorH\x00R.requiredDuringSchedulingIgnoredDuringExecution\x88\x01\x01\x12\xad\x01\n" +
+	"4preferred_during_scheduling_ignored_during_execution\x18\x02 \x03(\v2>.chalk.kubernetes.v1.KubernetesPodData.PreferredSchedulingTermR/preferredDuringSchedulingIgnoredDuringExecutionB6\n" +
+	"4_required_during_scheduling_ignored_during_execution\x1a\xa4\x03\n" +
+	"\x0fPodAffinityTerm\x12`\n" +
+	"\x0elabel_selector\x18\x01 \x01(\v24.chalk.kubernetes.v1.KubernetesPodData.LabelSelectorH\x00R\rlabelSelector\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"namespaces\x18\x02 \x03(\tR\n" +
+	"namespaces\x12!\n" +
+	"\ftopology_key\x18\x03 \x01(\tR\vtopologyKey\x12h\n" +
+	"\x12namespace_selector\x18\x04 \x01(\v24.chalk.kubernetes.v1.KubernetesPodData.LabelSelectorH\x01R\x11namespaceSelector\x88\x01\x01\x12(\n" +
+	"\x10match_label_keys\x18\x05 \x03(\tR\x0ematchLabelKeys\x12.\n" +
+	"\x13mismatch_label_keys\x18\x06 \x03(\tR\x11mismatchLabelKeysB\x11\n" +
+	"\x0f_label_selectorB\x15\n" +
+	"\x13_namespace_selector\x1a\x95\x01\n" +
+	"\x17WeightedPodAffinityTerm\x12\x16\n" +
+	"\x06weight\x18\x01 \x01(\x05R\x06weight\x12b\n" +
+	"\x11pod_affinity_term\x18\x02 \x01(\v26.chalk.kubernetes.v1.KubernetesPodData.PodAffinityTermR\x0fpodAffinityTerm\x1a\xe3\x02\n" +
+	"\vPodAffinity\x12\xa3\x01\n" +
+	"3required_during_scheduling_ignored_during_execution\x18\x01 \x03(\v26.chalk.kubernetes.v1.KubernetesPodData.PodAffinityTermR.requiredDuringSchedulingIgnoredDuringExecution\x12\xad\x01\n" +
+	"4preferred_during_scheduling_ignored_during_execution\x18\x02 \x03(\v2>.chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTermR/preferredDuringSchedulingIgnoredDuringExecution\x1a\xe7\x02\n" +
+	"\x0fPodAntiAffinity\x12\xa3\x01\n" +
+	"3required_during_scheduling_ignored_during_execution\x18\x01 \x03(\v26.chalk.kubernetes.v1.KubernetesPodData.PodAffinityTermR.requiredDuringSchedulingIgnoredDuringExecution\x12\xad\x01\n" +
+	"4preferred_during_scheduling_ignored_during_execution\x18\x02 \x03(\v2>.chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTermR/preferredDuringSchedulingIgnoredDuringExecution\x1a\xe7\x02\n" +
+	"\bAffinity\x12]\n" +
+	"\rnode_affinity\x18\x01 \x01(\v23.chalk.kubernetes.v1.KubernetesPodData.NodeAffinityH\x00R\fnodeAffinity\x88\x01\x01\x12Z\n" +
+	"\fpod_affinity\x18\x02 \x01(\v22.chalk.kubernetes.v1.KubernetesPodData.PodAffinityH\x01R\vpodAffinity\x88\x01\x01\x12g\n" +
+	"\x11pod_anti_affinity\x18\x03 \x01(\v26.chalk.kubernetes.v1.KubernetesPodData.PodAntiAffinityH\x02R\x0fpodAntiAffinity\x88\x01\x01B\x10\n" +
+	"\x0e_node_affinityB\x0f\n" +
+	"\r_pod_affinityB\x14\n" +
+	"\x12_pod_anti_affinity\x1a\xd5\x0e\n" +
 	"\aPodSpec\x12G\n" +
 	"\avolumes\x18\x01 \x03(\v2-.chalk.kubernetes.v1.KubernetesPodData.VolumeR\avolumes\x12Y\n" +
 	"\x0finit_containers\x18\x14 \x03(\v20.chalk.kubernetes.v1.KubernetesPodData.ContainerR\x0einitContainers\x12P\n" +
@@ -2674,16 +3474,17 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"\bhost_ipc\x18\r \x01(\bR\ahostIpc\x126\n" +
 	"\x17share_process_namespace\x18\x1b \x01(\bR\x15shareProcessNamespace\x12\x1f\n" +
 	"\bhostname\x18\x10 \x01(\tH\aR\bhostname\x88\x01\x01\x12!\n" +
-	"\tsubdomain\x18\x11 \x01(\tH\bR\tsubdomain\x88\x01\x01\x12*\n" +
-	"\x0escheduler_name\x18\x13 \x01(\tH\tR\rschedulerName\x88\x01\x01\x123\n" +
-	"\x13priority_class_name\x18\x18 \x01(\tH\n" +
-	"R\x11priorityClassName\x88\x01\x01\x12\x1f\n" +
-	"\bpriority\x18\x19 \x01(\x05H\vR\bpriority\x88\x01\x01\x121\n" +
-	"\x12runtime_class_name\x18\x1d \x01(\tH\fR\x10runtimeClassName\x88\x01\x01\x125\n" +
-	"\x14enable_service_links\x18\x1e \x01(\bH\rR\x12enableServiceLinks\x88\x01\x01\x120\n" +
-	"\x11preemption_policy\x18\x1f \x01(\tH\x0eR\x10preemptionPolicy\x88\x01\x01\x12\"\n" +
+	"\tsubdomain\x18\x11 \x01(\tH\bR\tsubdomain\x88\x01\x01\x12P\n" +
+	"\baffinity\x18\x12 \x01(\v2/.chalk.kubernetes.v1.KubernetesPodData.AffinityH\tR\baffinity\x88\x01\x01\x12*\n" +
+	"\x0escheduler_name\x18\x13 \x01(\tH\n" +
+	"R\rschedulerName\x88\x01\x01\x123\n" +
+	"\x13priority_class_name\x18\x18 \x01(\tH\vR\x11priorityClassName\x88\x01\x01\x12\x1f\n" +
+	"\bpriority\x18\x19 \x01(\x05H\fR\bpriority\x88\x01\x01\x121\n" +
+	"\x12runtime_class_name\x18\x1d \x01(\tH\rR\x10runtimeClassName\x88\x01\x01\x125\n" +
+	"\x14enable_service_links\x18\x1e \x01(\bH\x0eR\x12enableServiceLinks\x88\x01\x01\x120\n" +
+	"\x11preemption_policy\x18\x1f \x01(\tH\x0fR\x10preemptionPolicy\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"host_users\x18% \x01(\bH\x0fR\thostUsers\x88\x01\x01\x12`\n" +
+	"host_users\x18% \x01(\bH\x10R\thostUsers\x88\x01\x01\x12`\n" +
 	"\x0fresource_claims\x18' \x03(\v27.chalk.kubernetes.v1.KubernetesPodData.PodResourceClaimR\x0eresourceClaims\x1a?\n" +
 	"\x11NodeSelectorEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -2698,7 +3499,8 @@ const file_chalk_kubernetes_v1_pods_proto_rawDesc = "" +
 	"_node_nameB\v\n" +
 	"\t_hostnameB\f\n" +
 	"\n" +
-	"_subdomainB\x11\n" +
+	"_subdomainB\v\n" +
+	"\t_affinityB\x11\n" +
 	"\x0f_scheduler_nameB\x16\n" +
 	"\x14_priority_class_nameB\v\n" +
 	"\t_priorityB\x15\n" +
@@ -2925,82 +3727,114 @@ func file_chalk_kubernetes_v1_pods_proto_rawDescGZIP() []byte {
 	return file_chalk_kubernetes_v1_pods_proto_rawDescData
 }
 
-var file_chalk_kubernetes_v1_pods_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_chalk_kubernetes_v1_pods_proto_msgTypes = make([]protoimpl.MessageInfo, 44)
 var file_chalk_kubernetes_v1_pods_proto_goTypes = []any{
 	(*KubernetesPodData)(nil),                          // 0: chalk.kubernetes.v1.KubernetesPodData
 	(*KubernetesPodData_Volume)(nil),                   // 1: chalk.kubernetes.v1.KubernetesPodData.Volume
 	(*KubernetesPodData_ClaimSource)(nil),              // 2: chalk.kubernetes.v1.KubernetesPodData.ClaimSource
 	(*KubernetesPodData_PodResourceClaim)(nil),         // 3: chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim
-	(*KubernetesPodData_PodSpec)(nil),                  // 4: chalk.kubernetes.v1.KubernetesPodData.PodSpec
-	(*KubernetesPodData_ContainerState)(nil),           // 5: chalk.kubernetes.v1.KubernetesPodData.ContainerState
-	(*KubernetesPodData_ContainerStateRunning)(nil),    // 6: chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
-	(*KubernetesPodData_ContainerStateTerminated)(nil), // 7: chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
-	(*KubernetesPodData_EnvVar)(nil),                   // 8: chalk.kubernetes.v1.KubernetesPodData.EnvVar
-	(*KubernetesPodData_EnvVarSource)(nil),             // 9: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
-	(*KubernetesPodData_ObjectFieldSelector)(nil),      // 10: chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
-	(*KubernetesPodData_ResourceFieldSelector)(nil),    // 11: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
-	(*KubernetesPodData_ConfigMapKeySelector)(nil),     // 12: chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
-	(*KubernetesPodData_SecretKeySelector)(nil),        // 13: chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
-	(*KubernetesPodData_EnvFromSource)(nil),            // 14: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
-	(*KubernetesPodData_ConfigMapEnvSource)(nil),       // 15: chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
-	(*KubernetesPodData_SecretEnvSource)(nil),          // 16: chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
-	(*KubernetesPodData_Container)(nil),                // 17: chalk.kubernetes.v1.KubernetesPodData.Container
-	(*KubernetesPodData_ContainerStateWaiting)(nil),    // 18: chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
-	(*KubernetesPodData_ContainerStatus)(nil),          // 19: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	(*KubernetesPodData_Quantity)(nil),                 // 20: chalk.kubernetes.v1.KubernetesPodData.Quantity
-	(*KubernetesPodData_ResourceRequirements)(nil),     // 21: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
-	(*KubernetesPodData_PodCondition)(nil),             // 22: chalk.kubernetes.v1.KubernetesPodData.PodCondition
-	(*KubernetesPodData_HostIP)(nil),                   // 23: chalk.kubernetes.v1.KubernetesPodData.HostIP
-	(*KubernetesPodData_PodStatus)(nil),                // 24: chalk.kubernetes.v1.KubernetesPodData.PodStatus
-	nil,                                                // 25: chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
-	nil,                                                // 26: chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
-	(*KubernetesPodData_OwnerReference)(nil),           // 27: chalk.kubernetes.v1.KubernetesPodData.OwnerReference
-	nil,                                                // 28: chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
-	nil,                                                // 29: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
-	nil,                                                // 30: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
+	(*KubernetesPodData_LabelSelectorRequirement)(nil), // 4: chalk.kubernetes.v1.KubernetesPodData.LabelSelectorRequirement
+	(*KubernetesPodData_LabelSelector)(nil),            // 5: chalk.kubernetes.v1.KubernetesPodData.LabelSelector
+	(*KubernetesPodData_NodeSelectorRequirement)(nil),  // 6: chalk.kubernetes.v1.KubernetesPodData.NodeSelectorRequirement
+	(*KubernetesPodData_NodeSelectorTerm)(nil),         // 7: chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTerm
+	(*KubernetesPodData_NodeSelector)(nil),             // 8: chalk.kubernetes.v1.KubernetesPodData.NodeSelector
+	(*KubernetesPodData_PreferredSchedulingTerm)(nil),  // 9: chalk.kubernetes.v1.KubernetesPodData.PreferredSchedulingTerm
+	(*KubernetesPodData_NodeAffinity)(nil),             // 10: chalk.kubernetes.v1.KubernetesPodData.NodeAffinity
+	(*KubernetesPodData_PodAffinityTerm)(nil),          // 11: chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm
+	(*KubernetesPodData_WeightedPodAffinityTerm)(nil),  // 12: chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTerm
+	(*KubernetesPodData_PodAffinity)(nil),              // 13: chalk.kubernetes.v1.KubernetesPodData.PodAffinity
+	(*KubernetesPodData_PodAntiAffinity)(nil),          // 14: chalk.kubernetes.v1.KubernetesPodData.PodAntiAffinity
+	(*KubernetesPodData_Affinity)(nil),                 // 15: chalk.kubernetes.v1.KubernetesPodData.Affinity
+	(*KubernetesPodData_PodSpec)(nil),                  // 16: chalk.kubernetes.v1.KubernetesPodData.PodSpec
+	(*KubernetesPodData_ContainerState)(nil),           // 17: chalk.kubernetes.v1.KubernetesPodData.ContainerState
+	(*KubernetesPodData_ContainerStateRunning)(nil),    // 18: chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
+	(*KubernetesPodData_ContainerStateTerminated)(nil), // 19: chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
+	(*KubernetesPodData_EnvVar)(nil),                   // 20: chalk.kubernetes.v1.KubernetesPodData.EnvVar
+	(*KubernetesPodData_EnvVarSource)(nil),             // 21: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
+	(*KubernetesPodData_ObjectFieldSelector)(nil),      // 22: chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
+	(*KubernetesPodData_ResourceFieldSelector)(nil),    // 23: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
+	(*KubernetesPodData_ConfigMapKeySelector)(nil),     // 24: chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
+	(*KubernetesPodData_SecretKeySelector)(nil),        // 25: chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
+	(*KubernetesPodData_EnvFromSource)(nil),            // 26: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
+	(*KubernetesPodData_ConfigMapEnvSource)(nil),       // 27: chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
+	(*KubernetesPodData_SecretEnvSource)(nil),          // 28: chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
+	(*KubernetesPodData_Container)(nil),                // 29: chalk.kubernetes.v1.KubernetesPodData.Container
+	(*KubernetesPodData_ContainerStateWaiting)(nil),    // 30: chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
+	(*KubernetesPodData_ContainerStatus)(nil),          // 31: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	(*KubernetesPodData_Quantity)(nil),                 // 32: chalk.kubernetes.v1.KubernetesPodData.Quantity
+	(*KubernetesPodData_ResourceRequirements)(nil),     // 33: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
+	(*KubernetesPodData_PodCondition)(nil),             // 34: chalk.kubernetes.v1.KubernetesPodData.PodCondition
+	(*KubernetesPodData_HostIP)(nil),                   // 35: chalk.kubernetes.v1.KubernetesPodData.HostIP
+	(*KubernetesPodData_PodStatus)(nil),                // 36: chalk.kubernetes.v1.KubernetesPodData.PodStatus
+	nil,                                                // 37: chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
+	nil,                                                // 38: chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
+	(*KubernetesPodData_OwnerReference)(nil),           // 39: chalk.kubernetes.v1.KubernetesPodData.OwnerReference
+	nil,                                                // 40: chalk.kubernetes.v1.KubernetesPodData.LabelSelector.MatchLabelsEntry
+	nil,                                                // 41: chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
+	nil,                                                // 42: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
+	nil,                                                // 43: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
 }
 var file_chalk_kubernetes_v1_pods_proto_depIdxs = []int32{
-	24, // 0: chalk.kubernetes.v1.KubernetesPodData.status:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodStatus
-	4,  // 1: chalk.kubernetes.v1.KubernetesPodData.spec:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec
-	25, // 2: chalk.kubernetes.v1.KubernetesPodData.labels:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
-	26, // 3: chalk.kubernetes.v1.KubernetesPodData.annotations:type_name -> chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
-	27, // 4: chalk.kubernetes.v1.KubernetesPodData.owner_reference:type_name -> chalk.kubernetes.v1.KubernetesPodData.OwnerReference
+	36, // 0: chalk.kubernetes.v1.KubernetesPodData.status:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodStatus
+	16, // 1: chalk.kubernetes.v1.KubernetesPodData.spec:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec
+	37, // 2: chalk.kubernetes.v1.KubernetesPodData.labels:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelsEntry
+	38, // 3: chalk.kubernetes.v1.KubernetesPodData.annotations:type_name -> chalk.kubernetes.v1.KubernetesPodData.AnnotationsEntry
+	39, // 4: chalk.kubernetes.v1.KubernetesPodData.owner_reference:type_name -> chalk.kubernetes.v1.KubernetesPodData.OwnerReference
 	2,  // 5: chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim.source:type_name -> chalk.kubernetes.v1.KubernetesPodData.ClaimSource
-	1,  // 6: chalk.kubernetes.v1.KubernetesPodData.PodSpec.volumes:type_name -> chalk.kubernetes.v1.KubernetesPodData.Volume
-	17, // 7: chalk.kubernetes.v1.KubernetesPodData.PodSpec.init_containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
-	17, // 8: chalk.kubernetes.v1.KubernetesPodData.PodSpec.containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
-	28, // 9: chalk.kubernetes.v1.KubernetesPodData.PodSpec.node_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
-	3,  // 10: chalk.kubernetes.v1.KubernetesPodData.PodSpec.resource_claims:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim
-	18, // 11: chalk.kubernetes.v1.KubernetesPodData.ContainerState.waiting:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
-	6,  // 12: chalk.kubernetes.v1.KubernetesPodData.ContainerState.running:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
-	7,  // 13: chalk.kubernetes.v1.KubernetesPodData.ContainerState.terminated:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
-	9,  // 14: chalk.kubernetes.v1.KubernetesPodData.EnvVar.value_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
-	10, // 15: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
-	11, // 16: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.resource_field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
-	12, // 17: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.config_map_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
-	13, // 18: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.secret_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
-	20, // 19: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector.divisor:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	15, // 20: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.config_map_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
-	16, // 21: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.secret_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
-	14, // 22: chalk.kubernetes.v1.KubernetesPodData.Container.env_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
-	8,  // 23: chalk.kubernetes.v1.KubernetesPodData.Container.env:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVar
-	21, // 24: chalk.kubernetes.v1.KubernetesPodData.Container.resources:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
-	5,  // 25: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
-	5,  // 26: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.last_state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
-	29, // 27: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.limits:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
-	30, // 28: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.requests:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
-	22, // 29: chalk.kubernetes.v1.KubernetesPodData.PodStatus.conditions:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodCondition
-	23, // 30: chalk.kubernetes.v1.KubernetesPodData.PodStatus.host_ips:type_name -> chalk.kubernetes.v1.KubernetesPodData.HostIP
-	19, // 31: chalk.kubernetes.v1.KubernetesPodData.PodStatus.init_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	19, // 32: chalk.kubernetes.v1.KubernetesPodData.PodStatus.container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	19, // 33: chalk.kubernetes.v1.KubernetesPodData.PodStatus.ephemeral_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
-	20, // 34: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	20, // 35: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
-	36, // [36:36] is the sub-list for method output_type
-	36, // [36:36] is the sub-list for method input_type
-	36, // [36:36] is the sub-list for extension type_name
-	36, // [36:36] is the sub-list for extension extendee
-	0,  // [0:36] is the sub-list for field type_name
+	40, // 6: chalk.kubernetes.v1.KubernetesPodData.LabelSelector.match_labels:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelSelector.MatchLabelsEntry
+	4,  // 7: chalk.kubernetes.v1.KubernetesPodData.LabelSelector.match_expressions:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelSelectorRequirement
+	6,  // 8: chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTerm.match_expressions:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeSelectorRequirement
+	6,  // 9: chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTerm.match_fields:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeSelectorRequirement
+	7,  // 10: chalk.kubernetes.v1.KubernetesPodData.NodeSelector.node_selector_terms:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTerm
+	7,  // 11: chalk.kubernetes.v1.KubernetesPodData.PreferredSchedulingTerm.preference:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeSelectorTerm
+	8,  // 12: chalk.kubernetes.v1.KubernetesPodData.NodeAffinity.required_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeSelector
+	9,  // 13: chalk.kubernetes.v1.KubernetesPodData.NodeAffinity.preferred_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.PreferredSchedulingTerm
+	5,  // 14: chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm.label_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelSelector
+	5,  // 15: chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm.namespace_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.LabelSelector
+	11, // 16: chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTerm.pod_affinity_term:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm
+	11, // 17: chalk.kubernetes.v1.KubernetesPodData.PodAffinity.required_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm
+	12, // 18: chalk.kubernetes.v1.KubernetesPodData.PodAffinity.preferred_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTerm
+	11, // 19: chalk.kubernetes.v1.KubernetesPodData.PodAntiAffinity.required_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodAffinityTerm
+	12, // 20: chalk.kubernetes.v1.KubernetesPodData.PodAntiAffinity.preferred_during_scheduling_ignored_during_execution:type_name -> chalk.kubernetes.v1.KubernetesPodData.WeightedPodAffinityTerm
+	10, // 21: chalk.kubernetes.v1.KubernetesPodData.Affinity.node_affinity:type_name -> chalk.kubernetes.v1.KubernetesPodData.NodeAffinity
+	13, // 22: chalk.kubernetes.v1.KubernetesPodData.Affinity.pod_affinity:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodAffinity
+	14, // 23: chalk.kubernetes.v1.KubernetesPodData.Affinity.pod_anti_affinity:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodAntiAffinity
+	1,  // 24: chalk.kubernetes.v1.KubernetesPodData.PodSpec.volumes:type_name -> chalk.kubernetes.v1.KubernetesPodData.Volume
+	29, // 25: chalk.kubernetes.v1.KubernetesPodData.PodSpec.init_containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
+	29, // 26: chalk.kubernetes.v1.KubernetesPodData.PodSpec.containers:type_name -> chalk.kubernetes.v1.KubernetesPodData.Container
+	41, // 27: chalk.kubernetes.v1.KubernetesPodData.PodSpec.node_selector:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodSpec.NodeSelectorEntry
+	15, // 28: chalk.kubernetes.v1.KubernetesPodData.PodSpec.affinity:type_name -> chalk.kubernetes.v1.KubernetesPodData.Affinity
+	3,  // 29: chalk.kubernetes.v1.KubernetesPodData.PodSpec.resource_claims:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodResourceClaim
+	30, // 30: chalk.kubernetes.v1.KubernetesPodData.ContainerState.waiting:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateWaiting
+	18, // 31: chalk.kubernetes.v1.KubernetesPodData.ContainerState.running:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateRunning
+	19, // 32: chalk.kubernetes.v1.KubernetesPodData.ContainerState.terminated:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStateTerminated
+	21, // 33: chalk.kubernetes.v1.KubernetesPodData.EnvVar.value_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVarSource
+	22, // 34: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ObjectFieldSelector
+	23, // 35: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.resource_field_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector
+	24, // 36: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.config_map_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapKeySelector
+	25, // 37: chalk.kubernetes.v1.KubernetesPodData.EnvVarSource.secret_key_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretKeySelector
+	32, // 38: chalk.kubernetes.v1.KubernetesPodData.ResourceFieldSelector.divisor:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	27, // 39: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.config_map_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.ConfigMapEnvSource
+	28, // 40: chalk.kubernetes.v1.KubernetesPodData.EnvFromSource.secret_ref:type_name -> chalk.kubernetes.v1.KubernetesPodData.SecretEnvSource
+	26, // 41: chalk.kubernetes.v1.KubernetesPodData.Container.env_from:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvFromSource
+	20, // 42: chalk.kubernetes.v1.KubernetesPodData.Container.env:type_name -> chalk.kubernetes.v1.KubernetesPodData.EnvVar
+	33, // 43: chalk.kubernetes.v1.KubernetesPodData.Container.resources:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements
+	17, // 44: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
+	17, // 45: chalk.kubernetes.v1.KubernetesPodData.ContainerStatus.last_state:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerState
+	42, // 46: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.limits:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry
+	43, // 47: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.requests:type_name -> chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry
+	34, // 48: chalk.kubernetes.v1.KubernetesPodData.PodStatus.conditions:type_name -> chalk.kubernetes.v1.KubernetesPodData.PodCondition
+	35, // 49: chalk.kubernetes.v1.KubernetesPodData.PodStatus.host_ips:type_name -> chalk.kubernetes.v1.KubernetesPodData.HostIP
+	31, // 50: chalk.kubernetes.v1.KubernetesPodData.PodStatus.init_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	31, // 51: chalk.kubernetes.v1.KubernetesPodData.PodStatus.container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	31, // 52: chalk.kubernetes.v1.KubernetesPodData.PodStatus.ephemeral_container_statuses:type_name -> chalk.kubernetes.v1.KubernetesPodData.ContainerStatus
+	32, // 53: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.LimitsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	32, // 54: chalk.kubernetes.v1.KubernetesPodData.ResourceRequirements.RequestsEntry.value:type_name -> chalk.kubernetes.v1.KubernetesPodData.Quantity
+	55, // [55:55] is the sub-list for method output_type
+	55, // [55:55] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_chalk_kubernetes_v1_pods_proto_init() }
@@ -3011,32 +3845,35 @@ func file_chalk_kubernetes_v1_pods_proto_init() {
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[0].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[3].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[5].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[7].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[8].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[9].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[10].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[11].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[12].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[16].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[17].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_kubernetes_v1_pods_proto_msgTypes[22].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[21].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[24].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[25].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_kubernetes_v1_pods_proto_msgTypes[27].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[28].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[29].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[30].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[31].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[32].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[34].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[35].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[36].OneofWrappers = []any{}
+	file_chalk_kubernetes_v1_pods_proto_msgTypes[39].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_kubernetes_v1_pods_proto_rawDesc), len(file_chalk_kubernetes_v1_pods_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   44,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
