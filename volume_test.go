@@ -20,6 +20,7 @@ import (
 )
 
 func TestVolumeAuthHeadersUseConfiguredToken(t *testing.T) {
+	t.Parallel()
 	envID := "env-123"
 	client, err := NewVolumeClient(context.Background(), &VolumeClientConfig{
 		ApiServer:                  "https://api.chalk.ai",
@@ -44,6 +45,7 @@ func TestVolumeAuthHeadersUseConfiguredToken(t *testing.T) {
 }
 
 func TestVolumeUploadContentCopiesBytes(t *testing.T) {
+	t.Parallel()
 	src := []byte("abcdef")
 	content := VolumeUploadBytes(src)
 	src[0] = 'z'
@@ -61,6 +63,7 @@ func TestVolumeUploadContentCopiesBytes(t *testing.T) {
 }
 
 func TestVolumeSlicesCoverRange(t *testing.T) {
+	t.Parallel()
 	require.Equal(t, []volumeSlice{
 		{offset: 0, size: 10},
 		{offset: 10, size: 10},
@@ -75,6 +78,7 @@ func TestVolumeSlicesCoverRange(t *testing.T) {
 }
 
 func TestVolumeCommitRetriesRebaseAndDedupesRefs(t *testing.T) {
+	t.Parallel()
 	rpc := &fakeVolumeRPC{
 		getVolume: func(context.Context, *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
 			return connect.NewResponse(&volumev2.GetVolumeResponse{
@@ -113,6 +117,7 @@ func TestVolumeCommitRetriesRebaseAndDedupesRefs(t *testing.T) {
 }
 
 func TestVolumeDownloadInlineBytes(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(context.Context, *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -134,6 +139,7 @@ func TestVolumeDownloadInlineBytes(t *testing.T) {
 }
 
 func TestVolumeDownloadChunkedRefreshesURL(t *testing.T) {
+	t.Parallel()
 	body := []byte("chunk-data")
 	var objectHits int
 	objectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -176,6 +182,7 @@ func TestVolumeDownloadChunkedRefreshesURL(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedUsesRange(t *testing.T) {
+	t.Parallel()
 	body := []byte("pack member")
 	var gotRange string
 	objectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -209,6 +216,7 @@ func TestVolumeDownloadPackedUsesRange(t *testing.T) {
 }
 
 func TestVolumeSignedPutRefreshesURLAndRewindsBody(t *testing.T) {
+	t.Parallel()
 	var bodies [][]byte
 	var mu sync.Mutex
 	objectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -247,6 +255,7 @@ func TestVolumeSignedPutRefreshesURLAndRewindsBody(t *testing.T) {
 }
 
 func TestVolumeSafeRelativePath(t *testing.T) {
+	t.Parallel()
 	path, err := safeVolumeRelativePath("models/v1/model.bin")
 	require.NoError(t, err)
 	require.Equal(t, "models/v1/model.bin", path)
@@ -257,6 +266,7 @@ func TestVolumeSafeRelativePath(t *testing.T) {
 }
 
 func TestVolumeDataPackSealParsesAndAddressesMembers(t *testing.T) {
+	t.Parallel()
 	files := [][]byte{
 		[]byte("alpha payload"),
 		[]byte("bravo payload longer"),
@@ -289,6 +299,7 @@ func TestVolumeDataPackSealParsesAndAddressesMembers(t *testing.T) {
 }
 
 func TestVolumeDataPackDedupesIdenticalContent(t *testing.T) {
+	t.Parallel()
 	data := []byte("same bytes")
 	hash := blake3Sum(data)
 	builder := newDataPackBuilder()
@@ -301,6 +312,7 @@ func TestVolumeDataPackDedupesIdenticalContent(t *testing.T) {
 }
 
 func TestVolumeDataPackSealIsDeterministic(t *testing.T) {
+	t.Parallel()
 	build := func() []byte {
 		builder := newDataPackBuilder()
 		for _, data := range [][]byte{[]byte("alpha"), []byte("charlie")} {
@@ -315,6 +327,7 @@ func TestVolumeDataPackSealIsDeterministic(t *testing.T) {
 }
 
 func TestVolumeDataPackFitsMatchesSealedLength(t *testing.T) {
+	t.Parallel()
 	builder := newDataPackBuilder()
 	for i := 0; i < 30; i++ {
 		data := bytes.Repeat([]byte{byte('a' + i%26)}, 24+i)
@@ -328,6 +341,7 @@ func TestVolumeDataPackFitsMatchesSealedLength(t *testing.T) {
 }
 
 func TestVolumeDefaultUploadConfig(t *testing.T) {
+	t.Parallel()
 	cfg := DefaultVolumeUploadConfig()
 	require.Greater(t, cfg.ChunkSize, uint64(0))
 	require.Greater(t, cfg.MaxPackBytes, uint64(0))
@@ -336,11 +350,13 @@ func TestVolumeDefaultUploadConfig(t *testing.T) {
 }
 
 func TestVolumeRefSelector(t *testing.T) {
+	t.Parallel()
 	sel := VolumeRefSelector("my-ref")
 	require.Equal(t, "my-ref", sel.GetRef())
 }
 
 func TestVolumeLocalPathContentSizeAndRead(t *testing.T) {
+	t.Parallel()
 	dir := t.TempDir()
 	path := filepath.Join(dir, "data.bin")
 	require.NoError(t, os.WriteFile(path, []byte("hello world"), 0o644))
@@ -359,6 +375,7 @@ func TestVolumeLocalPathContentSizeAndRead(t *testing.T) {
 }
 
 func TestVolumeCollectLocalFiles(t *testing.T) {
+	t.Parallel()
 	dir := t.TempDir()
 	subDir := filepath.Join(dir, "sub")
 	require.NoError(t, os.MkdirAll(subDir, 0o755))
@@ -376,6 +393,7 @@ func TestVolumeCollectLocalFiles(t *testing.T) {
 }
 
 func TestVolumeRemoveFiles(t *testing.T) {
+	t.Parallel()
 	var capturedRemoves []*volumev2.PathRemoveDelta
 	rpc := &fakeVolumeRPC{
 		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
@@ -405,6 +423,7 @@ func TestVolumeRemoveFiles(t *testing.T) {
 }
 
 func TestVolumeUploadFilesEmptyBatch(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{})
 	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
 		VolumeName: "test-vol",
@@ -415,6 +434,7 @@ func TestVolumeUploadFilesEmptyBatch(t *testing.T) {
 }
 
 func TestVolumeUploadFilesZeroSizeFile(t *testing.T) {
+	t.Parallel()
 	var commits []*volumev2.CommitIntent
 	rpc := &fakeVolumeRPC{
 		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
@@ -443,6 +463,7 @@ func TestVolumeUploadFilesZeroSizeFile(t *testing.T) {
 // TestVolumeUploadDirectoryPackPath exercises UploadDirectory -> collectVolumeLocalFiles ->
 // uploadBatchFiles -> packAndUpload -> uploadOnePack -> requestUploadURLs (AlreadyExists=true).
 func TestVolumeUploadDirectoryPackPath(t *testing.T) {
+	t.Parallel()
 	dir := t.TempDir()
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "a.bin"), []byte("content-a"), 0o644))
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "b.bin"), []byte("content-b"), 0o644))
@@ -476,6 +497,7 @@ func TestVolumeUploadDirectoryPackPath(t *testing.T) {
 // TestVolumeUploadFilesChunkPath forces the per-file (non-pack) upload path by setting
 // MaxPackBytes=1 so no file fits in a pack, then exercises uploadOneFile with a real PUT.
 func TestVolumeUploadFilesChunkPath(t *testing.T) {
+	t.Parallel()
 	fileData := []byte("chunk content data")
 	var putBodies [][]byte
 	var mu sync.Mutex
@@ -530,6 +552,7 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 }
 
 func TestVolumeDownloadToFile(t *testing.T) {
+	t.Parallel()
 	content := []byte("file content data")
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
@@ -552,6 +575,7 @@ func TestVolumeDownloadToFile(t *testing.T) {
 }
 
 func TestVolumeDownloadToDirectory(t *testing.T) {
+	t.Parallel()
 	content := []byte("dir file content")
 	var getFileCalls int
 	client := newClientWithRPC(&fakeVolumeRPC{
@@ -580,6 +604,7 @@ func TestVolumeDownloadToDirectory(t *testing.T) {
 }
 
 func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
+	t.Parallel()
 	content := []byte("nested file")
 	client := newClientWithRPC(&fakeVolumeRPC{
 		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
@@ -612,6 +637,7 @@ func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
 }
 
 func TestVolumeListFilesRecursivePagination(t *testing.T) {
+	t.Parallel()
 	var calls int
 	client := newClientWithRPC(&fakeVolumeRPC{
 		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
@@ -634,17 +660,21 @@ func TestVolumeListFilesRecursivePagination(t *testing.T) {
 }
 
 func TestVolumeParseDataPackHeaderErrors(t *testing.T) {
+	t.Parallel()
 	t.Run("too short", func(t *testing.T) {
+		t.Parallel()
 		_, _, err := parseDataPackHeader([]byte{0, 1, 2})
 		require.Error(t, err)
 	})
 	t.Run("bad magic", func(t *testing.T) {
+		t.Parallel()
 		data := make([]byte, 16)
 		copy(data[:4], []byte("BAD1"))
 		_, _, err := parseDataPackHeader(data)
 		require.Error(t, err)
 	})
 	t.Run("header length exceeds data", func(t *testing.T) {
+		t.Parallel()
 		// 10-byte buffer; write headerLen=1000 (0x000003E8 LE) so bodyStart > len(data).
 		data := make([]byte, 10)
 		copy(data[:4], cdp1Magic)
@@ -656,11 +686,13 @@ func TestVolumeParseDataPackHeaderErrors(t *testing.T) {
 }
 
 func TestVolumeFitsOversizedFile(t *testing.T) {
+	t.Parallel()
 	b := newDataPackBuilder()
 	require.False(t, b.fits(uint64(^uint32(0))+1, 1<<40))
 }
 
 func TestVolumeSignedRequestDefaultsMaxAttempts(t *testing.T) {
+	t.Parallel()
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
 	client := &volumeClientImpl{httpClient: srv.Client()}
 	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
@@ -670,6 +702,7 @@ func TestVolumeSignedRequestDefaultsMaxAttempts(t *testing.T) {
 }
 
 func TestVolumeSignedRequestRefreshError(t *testing.T) {
+	t.Parallel()
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusForbidden) })
 	client := &volumeClientImpl{httpClient: srv.Client()}
 	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
@@ -679,6 +712,7 @@ func TestVolumeSignedRequestRefreshError(t *testing.T) {
 }
 
 func TestVolumeSignedRequestNonSuccessRetry(t *testing.T) {
+	t.Parallel()
 	var count int
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
 		count++
@@ -693,6 +727,7 @@ func TestVolumeSignedRequestNonSuccessRetry(t *testing.T) {
 }
 
 func TestVolumeSignedRequestRateLimitExceeded(t *testing.T) {
+	t.Parallel()
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTooManyRequests) })
 	client := &volumeClientImpl{httpClient: srv.Client()}
 	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
@@ -704,6 +739,7 @@ func TestVolumeSignedRequestRateLimitExceeded(t *testing.T) {
 // ── signedGetWithRetry branches ─────────────────────────────────────────────
 
 func TestVolumeSignedGetDefaultsMaxAttempts(t *testing.T) {
+	t.Parallel()
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
 	client := &volumeClientImpl{httpClient: srv.Client()}
 	data, err := client.signedGetWithRetry(context.Background(), url, nil, 0,
@@ -713,6 +749,7 @@ func TestVolumeSignedGetDefaultsMaxAttempts(t *testing.T) {
 }
 
 func TestVolumeSignedGetRefreshError(t *testing.T) {
+	t.Parallel()
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusUnauthorized) })
 	client := &volumeClientImpl{httpClient: srv.Client()}
 	_, err := client.signedGetWithRetry(context.Background(), url, nil, 1,
@@ -721,6 +758,7 @@ func TestVolumeSignedGetRefreshError(t *testing.T) {
 }
 
 func TestVolumeSignedGetNonSuccessRetry(t *testing.T) {
+	t.Parallel()
 	var count int
 	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
 		count++
@@ -734,6 +772,7 @@ func TestVolumeSignedGetNonSuccessRetry(t *testing.T) {
 }
 
 func TestVolumeResolveCommitAuthorHTTPError(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
 	url := server.URL
 	client := newClientWithServer(t, url)
@@ -744,12 +783,14 @@ func TestVolumeResolveCommitAuthorHTTPError(t *testing.T) {
 }
 
 func TestVolumeResolveCommitAuthorNonSuccessStatus(t *testing.T) {
+	t.Parallel()
 	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusInternalServerError) })
 	client := newClientWithServer(t, url)
 	require.Empty(t, client.(*volumeClientImpl).resolveCommitAuthor(context.Background()))
 }
 
 func TestVolumeResolveCommitAuthorInvalidJSON(t *testing.T) {
+	t.Parallel()
 	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{invalid`))
@@ -759,6 +800,7 @@ func TestVolumeResolveCommitAuthorInvalidJSON(t *testing.T) {
 }
 
 func TestVolumeResolveCommitAuthorUsesBodyEnvID(t *testing.T) {
+	t.Parallel()
 	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte(`{"user":"bob","environment_id":"env-from-body"}`))
@@ -772,6 +814,7 @@ func TestVolumeResolveCommitAuthorUsesBodyEnvID(t *testing.T) {
 }
 
 func TestVolumeDownloadGetFileError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return nil, fakeVolumeUnimplemented()
@@ -784,6 +827,7 @@ func TestVolumeDownloadGetFileError(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedRangeOverflow(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -803,6 +847,7 @@ func TestVolumeDownloadPackedRangeOverflow(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedGetFailure(t *testing.T) {
+	t.Parallel()
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}, func(url string) *fakeVolumeRPC {
@@ -818,6 +863,7 @@ func TestVolumeDownloadPackedGetFailure(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedSizeMismatch(t *testing.T) {
+	t.Parallel()
 	body := []byte("ab") // 2 bytes; pack declares Size: 100
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(body)
@@ -833,6 +879,7 @@ func TestVolumeDownloadPackedSizeMismatch(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedHashMismatch(t *testing.T) {
+	t.Parallel()
 	body := []byte("data bytes")
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(body)
@@ -848,6 +895,7 @@ func TestVolumeDownloadPackedHashMismatch(t *testing.T) {
 }
 
 func TestVolumeDownloadChunkedHashMismatch(t *testing.T) {
+	t.Parallel()
 	body := []byte("chunk data")
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(body)
@@ -875,6 +923,7 @@ func TestVolumeDownloadChunkedHashMismatch(t *testing.T) {
 }
 
 func TestVolumeRateLimitBackoff(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		attempt int
 		want    uint64
@@ -893,6 +942,7 @@ func TestVolumeRateLimitBackoff(t *testing.T) {
 }
 
 func TestVolumeChunkRelativeObjectKey(t *testing.T) {
+	t.Parallel()
 	tests := []struct{ hash, want string }{
 		{"abcdef1234", "ab/abcdef1234"},
 		{"x", "x"}, // len < 2: returned as-is
@@ -904,11 +954,13 @@ func TestVolumeChunkRelativeObjectKey(t *testing.T) {
 }
 
 func TestVolumePinnedFileRequestNilVersion(t *testing.T) {
+	t.Parallel()
 	_, err := pinnedVolumeFileRequest(&volumev2.GetFileRequest{}, nil)
 	require.Error(t, err)
 }
 
 func TestVolumeApplyFileInfoMetadata(t *testing.T) {
+	t.Parallel()
 	// nil info must be a no-op (no panic)
 	applyVolumeFileInfoMetadata("/nonexistent/path", nil)
 
@@ -928,6 +980,7 @@ func TestVolumeApplyFileInfoMetadata(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedZeroSize(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -949,6 +1002,7 @@ func TestVolumeDownloadPackedZeroSize(t *testing.T) {
 }
 
 func TestVolumeUploadPackWithPUT(t *testing.T) {
+	t.Parallel()
 	fileData := []byte("pack payload data")
 	var putCount int
 	putSrv, putURL := testHTTPServer(t, func(w http.ResponseWriter, r *http.Request) {
@@ -992,6 +1046,7 @@ func TestVolumeUploadPackWithPUT(t *testing.T) {
 }
 
 func TestVolumePackAndUploadMultiplePacks(t *testing.T) {
+	t.Parallel()
 	data1 := bytes.Repeat([]byte{0xAA}, 64)
 	data2 := bytes.Repeat([]byte{0xBB}, 64)
 
@@ -1036,6 +1091,7 @@ func TestVolumePackAndUploadMultiplePacks(t *testing.T) {
 }
 
 func TestVolumeResolveCommitAuthorFromAPI(t *testing.T) {
+	t.Parallel()
 	envID := "env-test"
 	var requestCount int
 	apiServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1069,6 +1125,7 @@ func TestVolumeResolveCommitAuthorFromAPI(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedNilVersionError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -1087,6 +1144,7 @@ func TestVolumeDownloadPackedNilVersionError(t *testing.T) {
 }
 
 func TestVolumeCheckedRangeEndOverflow(t *testing.T) {
+	t.Parallel()
 	// Sanity-check the normal case.
 	end, ok := checkedInclusiveRangeEnd(10, 5)
 	require.True(t, ok)
@@ -1102,6 +1160,7 @@ func TestVolumeCheckedRangeEndOverflow(t *testing.T) {
 }
 
 func TestVolumeSignedRequestNetworkError(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -1122,6 +1181,7 @@ func TestVolumeSignedRequestNetworkError(t *testing.T) {
 }
 
 func TestVolumeDownloadChunkedSizeMismatch(t *testing.T) {
+	t.Parallel()
 	body := []byte("short") // 5 bytes, but the chunk declares Size: 100
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(body)
@@ -1149,6 +1209,7 @@ func TestVolumeDownloadChunkedSizeMismatch(t *testing.T) {
 }
 
 func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
 			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{Urls: nil}), nil
@@ -1164,6 +1225,7 @@ func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
 }
 
 func TestVolumeDownloadChunkedNilVersionError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -1182,6 +1244,7 @@ func TestVolumeDownloadChunkedNilVersionError(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedNilPackError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
@@ -1198,6 +1261,7 @@ func TestVolumeDownloadPackedNilPackError(t *testing.T) {
 }
 
 func TestVolumeSignedGetNetworkError(t *testing.T) {
+	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -1216,6 +1280,7 @@ func TestVolumeSignedGetNetworkError(t *testing.T) {
 }
 
 func TestVolumeUploadOneFileMetadataError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{})
 	file := VolumeUploadFile{
 		Path:    "file.txt",
@@ -1226,6 +1291,7 @@ func TestVolumeUploadOneFileMetadataError(t *testing.T) {
 }
 
 func TestVolumeUploadOneFileReadChunkError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{})
 	file := VolumeUploadFile{
 		Path:     "file.txt",
@@ -1238,6 +1304,7 @@ func TestVolumeUploadOneFileReadChunkError(t *testing.T) {
 }
 
 func TestVolumeUploadOneFileURLCountMismatch(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
 			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{}), nil
@@ -1254,6 +1321,7 @@ func TestVolumeUploadOneFileURLCountMismatch(t *testing.T) {
 }
 
 func TestVolumeRPCWrapperErrors(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{})
 	vol := VolumeRef{Name: "vol"}
 	ctx := context.Background()
@@ -1278,6 +1346,7 @@ func TestVolumeRPCWrapperErrors(t *testing.T) {
 }
 
 func TestVolumeUploadDirectoryNonExistentDir(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{})
 	_, err := client.UploadDirectory(context.Background(), "vol", "/nonexistent-dir-xyz-abc", VolumeUploadConfig{})
 	require.Error(t, err)
@@ -1296,6 +1365,7 @@ func fakeGetVolumeOK() func(context.Context, *connect.Request[volumev2.GetVolume
 }
 
 func TestVolumeCommitInlineContentError(t *testing.T) {
+	t.Parallel()
 	client := newTestCommitClient(fakeGetVolumeOK(), nil)
 	upserts := []uploadedVolumeFile{{
 		path: "file.txt",
@@ -1308,6 +1378,7 @@ func TestVolumeCommitInlineContentError(t *testing.T) {
 }
 
 func TestVolumeCommitGetVolumeError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
 			return nil, fakeVolumeUnimplemented()
@@ -1318,6 +1389,7 @@ func TestVolumeCommitGetVolumeError(t *testing.T) {
 }
 
 func TestVolumeCommitGetVolumeNilVersion(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
 			return connect.NewResponse(&volumev2.GetVolumeResponse{}), nil
@@ -1328,6 +1400,7 @@ func TestVolumeCommitGetVolumeNilVersion(t *testing.T) {
 }
 
 func TestVolumeCommitVersionError(t *testing.T) {
+	t.Parallel()
 	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
 		return nil, fakeVolumeUnimplemented()
 	})
@@ -1336,6 +1409,7 @@ func TestVolumeCommitVersionError(t *testing.T) {
 }
 
 func TestVolumeCommitVersionNilStatus(t *testing.T) {
+	t.Parallel()
 	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
 		return connect.NewResponse(&volumev2.CommitVersionResponse{}), nil
 	})
@@ -1344,6 +1418,7 @@ func TestVolumeCommitVersionNilStatus(t *testing.T) {
 }
 
 func TestVolumeCommitResultUnknown(t *testing.T) {
+	t.Parallel()
 	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
 		return connect.NewResponse(&volumev2.CommitVersionResponse{
 			Status: &volumev2.CommitStatus{Result: volumev2.CommitResult(999)},
@@ -1354,6 +1429,7 @@ func TestVolumeCommitResultUnknown(t *testing.T) {
 }
 
 func TestVolumeCommitMaxRetriesExhausted(t *testing.T) {
+	t.Parallel()
 	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
 		return connect.NewResponse(&volumev2.CommitVersionResponse{
 			Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_REBASE_REQUIRED},
@@ -1364,6 +1440,7 @@ func TestVolumeCommitMaxRetriesExhausted(t *testing.T) {
 }
 
 func TestVolumeUploadOnePackRequestURLsError(t *testing.T) {
+	t.Parallel()
 	client := newClientWithRPC(&fakeVolumeRPC{
 		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
 			return nil, fakeVolumeUnimplemented()
@@ -1380,6 +1457,7 @@ func TestVolumeUploadOnePackRequestURLsError(t *testing.T) {
 }
 
 func TestVolumeUploadOnePackPUTFailure(t *testing.T) {
+	t.Parallel()
 	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}, func(url string) *fakeVolumeRPC {
@@ -1402,9 +1480,11 @@ func TestVolumeUploadOnePackPUTFailure(t *testing.T) {
 }
 
 func TestVolumeCRUDPassthrough(t *testing.T) {
+	t.Parallel()
 	ctx := context.Background()
 
 	t.Run("CreateVolume", func(t *testing.T) {
+		t.Parallel()
 		var gotName string
 		client := newClientWithRPC(&fakeVolumeRPC{
 			createVolume: func(_ context.Context, req *connect.Request[volumev2.CreateVolumeRequest]) (*connect.Response[volumev2.CreateVolumeResponse], error) {
@@ -1418,6 +1498,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("GetVolume", func(t *testing.T) {
+		t.Parallel()
 		client := newClientWithRPC(&fakeVolumeRPC{
 			getVolume: func(_ context.Context, req *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
 				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
@@ -1432,6 +1513,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("ListVolumes", func(t *testing.T) {
+		t.Parallel()
 		client := newClientWithRPC(&fakeVolumeRPC{
 			listVolumes: func(_ context.Context, req *connect.Request[volumev2.ListVolumesRequest]) (*connect.Response[volumev2.ListVolumesResponse], error) {
 				require.Equal(t, int32(10), req.Msg.GetLimit())
@@ -1444,6 +1526,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("DeleteVolume", func(t *testing.T) {
+		t.Parallel()
 		var gotVolume *volumev2.VolumeRef
 		client := newClientWithRPC(&fakeVolumeRPC{
 			deleteVolume: func(_ context.Context, req *connect.Request[volumev2.DeleteVolumeRequest]) (*connect.Response[volumev2.DeleteVolumeResponse], error) {
@@ -1457,6 +1540,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("ListVolumeVersions", func(t *testing.T) {
+		t.Parallel()
 		client := newClientWithRPC(&fakeVolumeRPC{
 			listVolumeVersions: func(_ context.Context, req *connect.Request[volumev2.ListVolumeVersionsRequest]) (*connect.Response[volumev2.ListVolumeVersionsResponse], error) {
 				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
@@ -1469,6 +1553,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("ListFiles", func(t *testing.T) {
+		t.Parallel()
 		client := newClientWithRPC(&fakeVolumeRPC{
 			listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
 				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
@@ -1490,6 +1575,7 @@ func TestVolumeCRUDPassthrough(t *testing.T) {
 	})
 
 	t.Run("GetFile", func(t *testing.T) {
+		t.Parallel()
 		client := newClientWithRPC(&fakeVolumeRPC{
 			getFile: func(_ context.Context, req *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
