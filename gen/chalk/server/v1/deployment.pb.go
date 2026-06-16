@@ -215,8 +215,11 @@ type SourceImageSpec struct {
 	Runtime          string                 `protobuf:"bytes,3,opt,name=runtime,proto3" json:"runtime,omitempty"` // kept for back-compat
 	PythonVersion    string                 `protobuf:"bytes,4,opt,name=python_version,json=pythonVersion,proto3" json:"python_version,omitempty"`
 	VenvDownloadUri  string                 `protobuf:"bytes,5,opt,name=venv_download_uri,json=venvDownloadUri,proto3" json:"venv_download_uri,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Extras the user specified on their own chalkpy requirement, beyond "all"
+	// (which the platform always installs). Normalized, deduped, and sorted.
+	AdditionalChalkpyExtras []string `protobuf:"bytes,6,rep,name=additional_chalkpy_extras,json=additionalChalkpyExtras,proto3" json:"additional_chalkpy_extras,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *SourceImageSpec) Reset() {
@@ -282,6 +285,13 @@ func (x *SourceImageSpec) GetVenvDownloadUri() string {
 		return x.VenvDownloadUri
 	}
 	return ""
+}
+
+func (x *SourceImageSpec) GetAdditionalChalkpyExtras() []string {
+	if x != nil {
+		return x.AdditionalChalkpyExtras
+	}
+	return nil
 }
 
 type SourceImageSpecs struct {
@@ -683,13 +693,14 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\rmin_instances\x18\x01 \x01(\rH\x00R\fminInstances\x88\x01\x01\x12(\n" +
 	"\rmax_instances\x18\x02 \x01(\rH\x01R\fmaxInstances\x88\x01\x01B\x10\n" +
 	"\x0e_min_instancesB\x10\n" +
-	"\x0e_max_instances\"\xcf\x01\n" +
+	"\x0e_max_instances\"\x8b\x02\n" +
 	"\x0fSourceImageSpec\x12\"\n" +
 	"\frequirements\x18\x01 \x01(\tR\frequirements\x12+\n" +
 	"\x11dependencies_hash\x18\x02 \x01(\tR\x10dependenciesHash\x12\x18\n" +
 	"\aruntime\x18\x03 \x01(\tR\aruntime\x12%\n" +
 	"\x0epython_version\x18\x04 \x01(\tR\rpythonVersion\x12*\n" +
-	"\x11venv_download_uri\x18\x05 \x01(\tR\x0fvenvDownloadUri\"\xed\x01\n" +
+	"\x11venv_download_uri\x18\x05 \x01(\tR\x0fvenvDownloadUri\x12:\n" +
+	"\x19additional_chalkpy_extras\x18\x06 \x03(\tR\x17additionalChalkpyExtras\"\xed\x01\n" +
 	"\x10SourceImageSpecs\x12B\n" +
 	"\x05specs\x18\x01 \x03(\v2,.chalk.server.v1.SourceImageSpecs.SpecsEntryR\x05specs\x129\n" +
 	"\x19uses_uploaded_proto_graph\x18\x02 \x01(\bR\x16usesUploadedProtoGraph\x1aZ\n" +

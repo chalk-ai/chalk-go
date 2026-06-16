@@ -2,9 +2,11 @@ package chalk
 
 import (
 	"fmt"
-	"github.com/cockroachdb/errors"
 	"reflect"
 	"time"
+
+	"github.com/chalk-ai/chalk-go/internal"
+	"github.com/cockroachdb/errors"
 )
 
 type onlineQueryParamsResolved struct {
@@ -18,7 +20,7 @@ type onlineQueryParamsResolved struct {
 
 func getFqn(feature any) (fqn string, isCodegenFeature bool, err error) {
 	if featureStr, ok := feature.(string); ok {
-		return featureStr, false, nil
+		return internal.TranslateBracketFqn(featureStr), false, nil
 	} else if featureObj, err := UnwrapFeature(feature); err == nil {
 		return featureObj.Fqn, true, nil
 	} else {

@@ -626,6 +626,14 @@ type OfflineQueryRequest struct {
 	ObservedAtLowerBound *string `protobuf:"bytes,201,opt,name=observed_at_lower_bound,json=observedAtLowerBound,proto3,oneof" json:"observed_at_lower_bound,omitempty"`
 	// The upper bound for the observed at timestamp (inclusive). If not specified, defaults to the end of time
 	ObservedAtUpperBound *string `protobuf:"bytes,202,opt,name=observed_at_upper_bound,json=observedAtUpperBound,proto3,oneof" json:"observed_at_upper_bound,omitempty"`
+	// The lower bound for the inserted at timestamp (inclusive). Filters on when each row was written
+	// to the offline store, regardless of the wall-clock time it was originally observed.
+	// If not specified, defaults to the beginning of time.
+	InsertedAtLowerBound *string `protobuf:"bytes,217,opt,name=inserted_at_lower_bound,json=insertedAtLowerBound,proto3,oneof" json:"inserted_at_lower_bound,omitempty"`
+	// The upper bound for the inserted at timestamp (inclusive). Filters on when each row was written
+	// to the offline store, regardless of the wall-clock time it was originally observed.
+	// If not specified, defaults to the end of time.
+	InsertedAtUpperBound *string `protobuf:"bytes,218,opt,name=inserted_at_upper_bound,json=insertedAtUpperBound,proto3,oneof" json:"inserted_at_upper_bound,omitempty"`
 	// Planner options to pass to the engine, overriding any default/set by environment variable
 	PlannerOptions map[string]*structpb.Value `protobuf:"bytes,203,rep,name=planner_options,json=plannerOptions,proto3" json:"planner_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	EnvOverrides   map[string]string          `protobuf:"bytes,213,rep,name=env_overrides,json=envOverrides,proto3" json:"env_overrides,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -809,6 +817,20 @@ func (x *OfflineQueryRequest) GetObservedAtLowerBound() string {
 func (x *OfflineQueryRequest) GetObservedAtUpperBound() string {
 	if x != nil && x.ObservedAtUpperBound != nil {
 		return *x.ObservedAtUpperBound
+	}
+	return ""
+}
+
+func (x *OfflineQueryRequest) GetInsertedAtLowerBound() string {
+	if x != nil && x.InsertedAtLowerBound != nil {
+		return *x.InsertedAtLowerBound
+	}
+	return ""
+}
+
+func (x *OfflineQueryRequest) GetInsertedAtUpperBound() string {
+	if x != nil && x.InsertedAtUpperBound != nil {
+		return *x.InsertedAtUpperBound
 	}
 	return ""
 }
@@ -1401,7 +1423,7 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\a_memoryB\x18\n" +
 	"\x16_ephemeral_volume_sizeB\x14\n" +
 	"\x12_ephemeral_storageB\x11\n" +
-	"\x0f_resource_group\"\xff\x12\n" +
+	"\x0f_resource_group\"\xb1\x14\n" +
 	"\x13OfflineQueryRequest\x12;\n" +
 	"\x06inputs\x18\x01 \x01(\v2#.chalk.common.v1.OfflineQueryInputsR\x06inputs\x12\x18\n" +
 	"\aoutputs\x18\x02 \x03(\tR\aoutputs\x12)\n" +
@@ -1422,25 +1444,27 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\x0ecorrelation_id\x18i \x01(\tH\x05R\rcorrelationId\x88\x01\x01\x124\n" +
 	"\x16required_resolver_tags\x18k \x03(\tR\x14requiredResolverTags\x12;\n" +
 	"\x17observed_at_lower_bound\x18\xc9\x01 \x01(\tH\x06R\x14observedAtLowerBound\x88\x01\x01\x12;\n" +
-	"\x17observed_at_upper_bound\x18\xca\x01 \x01(\tH\aR\x14observedAtUpperBound\x88\x01\x01\x12b\n" +
+	"\x17observed_at_upper_bound\x18\xca\x01 \x01(\tH\aR\x14observedAtUpperBound\x88\x01\x01\x12;\n" +
+	"\x17inserted_at_lower_bound\x18\xd9\x01 \x01(\tH\bR\x14insertedAtLowerBound\x88\x01\x01\x12;\n" +
+	"\x17inserted_at_upper_bound\x18\xda\x01 \x01(\tH\tR\x14insertedAtUpperBound\x88\x01\x01\x12b\n" +
 	"\x0fplanner_options\x18\xcb\x01 \x03(\v28.chalk.common.v1.OfflineQueryRequest.PlannerOptionsEntryR\x0eplannerOptions\x12\\\n" +
 	"\renv_overrides\x18\xd5\x01 \x03(\v26.chalk.common.v1.OfflineQueryRequest.EnvOverridesEntryR\fenvOverrides\x12'\n" +
-	"\fstore_online\x18\xcc\x01 \x01(\bH\bR\vstoreOnline\x88\x01\x01\x12)\n" +
-	"\rstore_offline\x18\xcd\x01 \x01(\bH\tR\fstoreOffline\x88\x01\x01\x12:\n" +
-	"\x16use_multiple_computers\x18\xce\x01 \x01(\bH\n" +
-	"R\x14useMultipleComputers\x88\x01\x01\x12#\n" +
+	"\fstore_online\x18\xcc\x01 \x01(\bH\n" +
+	"R\vstoreOnline\x88\x01\x01\x12)\n" +
+	"\rstore_offline\x18\xcd\x01 \x01(\bH\vR\fstoreOffline\x88\x01\x01\x12:\n" +
+	"\x16use_multiple_computers\x18\xce\x01 \x01(\bH\fR\x14useMultipleComputers\x88\x01\x01\x12#\n" +
 	"\n" +
-	"num_shards\x18\xcf\x01 \x01(\x05H\vR\tnumShards\x88\x01\x01\x12%\n" +
-	"\vnum_workers\x18\xd0\x01 \x01(\x05H\fR\n" +
+	"num_shards\x18\xcf\x01 \x01(\x05H\rR\tnumShards\x88\x01\x01\x12%\n" +
+	"\vnum_workers\x18\xd0\x01 \x01(\x05H\x0eR\n" +
 	"numWorkers\x88\x01\x01\x12\\\n" +
 	"\rquery_context\x18\xd1\x01 \x03(\v26.chalk.common.v1.OfflineQueryRequest.QueryContextEntryR\fqueryContext\x12G\n" +
-	"\roverlay_graph\x18\xd2\x01 \x01(\v2\x1c.chalk.graph.v1.OverlayGraphH\rR\foverlayGraph\x88\x01\x01\x12#\n" +
+	"\roverlay_graph\x18\xd2\x01 \x01(\v2\x1c.chalk.graph.v1.OverlayGraphH\x0fR\foverlayGraph\x88\x01\x01\x12#\n" +
 	"\n" +
-	"query_name\x18\xd3\x01 \x01(\tH\x0eR\tqueryName\x88\x01\x01\x122\n" +
-	"\x12query_name_version\x18\xd4\x01 \x01(\tH\x0fR\x10queryNameVersion\x88\x01\x01\x12E\n" +
-	"\tresources\x18\xd6\x01 \x01(\v2!.chalk.common.v1.ResourceRequestsH\x10R\tresources\x88\x01\x01\x12O\n" +
+	"query_name\x18\xd3\x01 \x01(\tH\x10R\tqueryName\x88\x01\x01\x122\n" +
+	"\x12query_name_version\x18\xd4\x01 \x01(\tH\x11R\x10queryNameVersion\x88\x01\x01\x12E\n" +
+	"\tresources\x18\xd6\x01 \x01(\v2!.chalk.common.v1.ResourceRequestsH\x12R\tresources\x88\x01\x01\x12O\n" +
 	"\x10unload_resolvers\x18\xd7\x01 \x03(\v2#.chalk.common.v1.UnloadResolverSpecR\x0funloadResolvers\x12-\n" +
-	"\x0fuse_metaplanner\x18\xd8\x01 \x01(\bH\x11R\x0euseMetaplanner\x88\x01\x01\x1aY\n" +
+	"\x0fuse_metaplanner\x18\xd8\x01 \x01(\bH\x13R\x0euseMetaplanner\x88\x01\x01\x1aY\n" +
 	"\x13PlannerOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\x1a?\n" +
@@ -1457,7 +1481,9 @@ const file_chalk_common_v1_offline_query_proto_rawDesc = "" +
 	"\x13_max_cache_age_secsB\x11\n" +
 	"\x0f_correlation_idB\x1a\n" +
 	"\x18_observed_at_lower_boundB\x1a\n" +
-	"\x18_observed_at_upper_boundB\x0f\n" +
+	"\x18_observed_at_upper_boundB\x1a\n" +
+	"\x18_inserted_at_lower_boundB\x1a\n" +
+	"\x18_inserted_at_upper_boundB\x0f\n" +
 	"\r_store_onlineB\x10\n" +
 	"\x0e_store_offlineB\x19\n" +
 	"\x17_use_multiple_computersB\r\n" +

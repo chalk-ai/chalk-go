@@ -40,6 +40,7 @@ type KubeEvent struct {
 	FirstTimestamp  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=first_timestamp,json=firstTimestamp,proto3" json:"first_timestamp,omitempty"`
 	LastTimestamp   *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
 	Count           int32                  `protobuf:"varint,13,opt,name=count,proto3" json:"count,omitempty"`
+	Id              string                 `protobuf:"bytes,14,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -163,6 +164,13 @@ func (x *KubeEvent) GetCount() int32 {
 		return x.Count
 	}
 	return 0
+}
+
+func (x *KubeEvent) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 type ListKubeEventsPageToken struct {
@@ -797,7 +805,7 @@ var File_chalk_server_v1_kube_events_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	"\n" +
-	"!chalk/server/v1/kube_events.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe4\x03\n" +
+	"!chalk/server/v1/kube_events.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf4\x03\n" +
 	"\tKubeEvent\x128\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1d\n" +
 	"\n" +
@@ -813,7 +821,8 @@ const file_chalk_server_v1_kube_events_proto_rawDesc = "" +
 	" \x01(\tR\x0fsourceComponent\x12C\n" +
 	"\x0ffirst_timestamp\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x0efirstTimestamp\x12A\n" +
 	"\x0elast_timestamp\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\rlastTimestamp\x12\x14\n" +
-	"\x05count\x18\r \x01(\x05R\x05count\"A\n" +
+	"\x05count\x18\r \x01(\x05R\x05count\x12\x0e\n" +
+	"\x02id\x18\x0e \x01(\tR\x02id\"A\n" +
 	"\x17ListKubeEventsPageToken\x12&\n" +
 	"\x0fnext_page_token\x18\x01 \x01(\tR\rnextPageToken\"\xeb\x03\n" +
 	"\x15ListKubeEventsRequest\x12>\n" +
