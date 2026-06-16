@@ -45,6 +45,9 @@ const (
 	TraceServiceGetTraceCallGraphProcedure = "/chalk.server.v1.TraceService/GetTraceCallGraph"
 	// TraceServiceGetSpanProcedure is the fully-qualified name of the TraceService's GetSpan RPC.
 	TraceServiceGetSpanProcedure = "/chalk.server.v1.TraceService/GetSpan"
+	// TraceServiceGetSpanLatencyDistributionProcedure is the fully-qualified name of the TraceService's
+	// GetSpanLatencyDistribution RPC.
+	TraceServiceGetSpanLatencyDistributionProcedure = "/chalk.server.v1.TraceService/GetSpanLatencyDistribution"
 	// TraceServiceListSpanProcedure is the fully-qualified name of the TraceService's ListSpan RPC.
 	TraceServiceListSpanProcedure = "/chalk.server.v1.TraceService/ListSpan"
 	// TraceServiceGetSpanFacetsProcedure is the fully-qualified name of the TraceService's
@@ -73,6 +76,8 @@ type TraceServiceClient interface {
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
+	// GetSpanLatencyDistribution returns latency percentiles for spans matching selected spans.
+	GetSpanLatencyDistribution(context.Context, *connect.Request[v1.GetSpanLatencyDistributionRequest]) (*connect.Response[v1.GetSpanLatencyDistributionResponse], error)
 	// ListSpan retrieves a list of spans for a specific trace with optional filtering
 	ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error)
 	// GetSpanFacets returns available facets for filtering spans
@@ -131,6 +136,13 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getSpanLatencyDistribution: connect.NewClient[v1.GetSpanLatencyDistributionRequest, v1.GetSpanLatencyDistributionResponse](
+			httpClient,
+			baseURL+TraceServiceGetSpanLatencyDistributionProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("GetSpanLatencyDistribution")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		listSpan: connect.NewClient[v1.ListSpanRequest, v1.ListSpanResponse](
 			httpClient,
 			baseURL+TraceServiceListSpanProcedure,
@@ -171,16 +183,17 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 
 // traceServiceClient implements TraceServiceClient.
 type traceServiceClient struct {
-	getTrace                *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
-	listTrace               *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
-	searchTraceSummaries    *connect.Client[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse]
-	getTraceCallGraph       *connect.Client[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse]
-	getSpan                 *connect.Client[v1.GetSpanRequest, v1.GetSpanResponse]
-	listSpan                *connect.Client[v1.ListSpanRequest, v1.ListSpanResponse]
-	getSpanFacets           *connect.Client[v1.GetSpanFacetsRequest, v1.GetSpanFacetsResponse]
-	getSpanFacetValues      *connect.Client[v1.GetSpanFacetValuesRequest, v1.GetSpanFacetValuesResponse]
-	listSpanAggregated      *connect.Client[v1.ListSpanAggregatedRequest, v1.ListSpanAggregatedResponse]
-	getSpanSourceAggregates *connect.Client[v1.GetSpanSourceAggregatesRequest, v1.GetSpanSourceAggregatesResponse]
+	getTrace                   *connect.Client[v1.GetTraceRequest, v1.GetTraceResponse]
+	listTrace                  *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
+	searchTraceSummaries       *connect.Client[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse]
+	getTraceCallGraph          *connect.Client[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse]
+	getSpan                    *connect.Client[v1.GetSpanRequest, v1.GetSpanResponse]
+	getSpanLatencyDistribution *connect.Client[v1.GetSpanLatencyDistributionRequest, v1.GetSpanLatencyDistributionResponse]
+	listSpan                   *connect.Client[v1.ListSpanRequest, v1.ListSpanResponse]
+	getSpanFacets              *connect.Client[v1.GetSpanFacetsRequest, v1.GetSpanFacetsResponse]
+	getSpanFacetValues         *connect.Client[v1.GetSpanFacetValuesRequest, v1.GetSpanFacetValuesResponse]
+	listSpanAggregated         *connect.Client[v1.ListSpanAggregatedRequest, v1.ListSpanAggregatedResponse]
+	getSpanSourceAggregates    *connect.Client[v1.GetSpanSourceAggregatesRequest, v1.GetSpanSourceAggregatesResponse]
 }
 
 // GetTrace calls chalk.server.v1.TraceService.GetTrace.
@@ -206,6 +219,11 @@ func (c *traceServiceClient) GetTraceCallGraph(ctx context.Context, req *connect
 // GetSpan calls chalk.server.v1.TraceService.GetSpan.
 func (c *traceServiceClient) GetSpan(ctx context.Context, req *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {
 	return c.getSpan.CallUnary(ctx, req)
+}
+
+// GetSpanLatencyDistribution calls chalk.server.v1.TraceService.GetSpanLatencyDistribution.
+func (c *traceServiceClient) GetSpanLatencyDistribution(ctx context.Context, req *connect.Request[v1.GetSpanLatencyDistributionRequest]) (*connect.Response[v1.GetSpanLatencyDistributionResponse], error) {
+	return c.getSpanLatencyDistribution.CallUnary(ctx, req)
 }
 
 // ListSpan calls chalk.server.v1.TraceService.ListSpan.
@@ -245,6 +263,8 @@ type TraceServiceHandler interface {
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
+	// GetSpanLatencyDistribution returns latency percentiles for spans matching selected spans.
+	GetSpanLatencyDistribution(context.Context, *connect.Request[v1.GetSpanLatencyDistributionRequest]) (*connect.Response[v1.GetSpanLatencyDistributionResponse], error)
 	// ListSpan retrieves a list of spans for a specific trace with optional filtering
 	ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error)
 	// GetSpanFacets returns available facets for filtering spans
@@ -299,6 +319,13 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	traceServiceGetSpanLatencyDistributionHandler := connect.NewUnaryHandler(
+		TraceServiceGetSpanLatencyDistributionProcedure,
+		svc.GetSpanLatencyDistribution,
+		connect.WithSchema(traceServiceMethods.ByName("GetSpanLatencyDistribution")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	traceServiceListSpanHandler := connect.NewUnaryHandler(
 		TraceServiceListSpanProcedure,
 		svc.ListSpan,
@@ -346,6 +373,8 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 			traceServiceGetTraceCallGraphHandler.ServeHTTP(w, r)
 		case TraceServiceGetSpanProcedure:
 			traceServiceGetSpanHandler.ServeHTTP(w, r)
+		case TraceServiceGetSpanLatencyDistributionProcedure:
+			traceServiceGetSpanLatencyDistributionHandler.ServeHTTP(w, r)
 		case TraceServiceListSpanProcedure:
 			traceServiceListSpanHandler.ServeHTTP(w, r)
 		case TraceServiceGetSpanFacetsProcedure:
@@ -383,6 +412,10 @@ func (UnimplementedTraceServiceHandler) GetTraceCallGraph(context.Context, *conn
 
 func (UnimplementedTraceServiceHandler) GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetSpan is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) GetSpanLatencyDistribution(context.Context, *connect.Request[v1.GetSpanLatencyDistributionRequest]) (*connect.Response[v1.GetSpanLatencyDistributionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetSpanLatencyDistribution is not implemented"))
 }
 
 func (UnimplementedTraceServiceHandler) ListSpan(context.Context, *connect.Request[v1.ListSpanRequest]) (*connect.Response[v1.ListSpanResponse], error) {

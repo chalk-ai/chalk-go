@@ -287,6 +287,8 @@ type ExecuteSqlQueryRequest struct {
 	PersistenceSettings *ExecuteSqlResultPersistenceSettings `protobuf:"bytes,3,opt,name=persistence_settings,json=persistenceSettings,proto3" json:"persistence_settings,omitempty"`
 	// Maximum number of bytes of memory to allow for query execution
 	MaxMemoryBytes *int64 `protobuf:"varint,4,opt,name=max_memory_bytes,json=maxMemoryBytes,proto3,oneof" json:"max_memory_bytes,omitempty"`
+	// Optional datasource name. When set, the query is executed against that datasource.
+	DatasourceName *string `protobuf:"bytes,5,opt,name=datasource_name,json=datasourceName,proto3,oneof" json:"datasource_name,omitempty"`
 	// Presence of one of these options will allow go-api-server grpc engine proxy to do the right thing here.
 	// Older clients will not specify any of these, which will default us to running ChalkSQL synchronously.
 	//
@@ -357,6 +359,13 @@ func (x *ExecuteSqlQueryRequest) GetMaxMemoryBytes() int64 {
 		return *x.MaxMemoryBytes
 	}
 	return 0
+}
+
+func (x *ExecuteSqlQueryRequest) GetDatasourceName() string {
+	if x != nil && x.DatasourceName != nil {
+		return *x.DatasourceName
+	}
+	return ""
 }
 
 func (x *ExecuteSqlQueryRequest) GetOptions() isExecuteSqlQueryRequest_Options {
@@ -1522,12 +1531,13 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x0eresource_group\x18\x02 \x01(\tH\x00R\rresourceGroup\x88\x01\x01B\x11\n" +
 	"\x0f_resource_group\"?\n" +
 	"#ExecuteSqlResultPersistenceSettings\x12\x18\n" +
-	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xb3\x05\n" +
+	"\aenabled\x18\x01 \x01(\bR\aenabled\"\xf5\x05\n" +
 	"\x16ExecuteSqlQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x01R\rcorrelationId\x88\x01\x01\x12i\n" +
 	"\x14persistence_settings\x18\x03 \x01(\v26.chalk.protosql.v1.ExecuteSqlResultPersistenceSettingsR\x13persistenceSettings\x12-\n" +
-	"\x10max_memory_bytes\x18\x04 \x01(\x03H\x02R\x0emaxMemoryBytes\x88\x01\x01\x12Y\n" +
+	"\x10max_memory_bytes\x18\x04 \x01(\x03H\x02R\x0emaxMemoryBytes\x88\x01\x01\x12,\n" +
+	"\x0fdatasource_name\x18\x05 \x01(\tH\x03R\x0edatasourceName\x88\x01\x01\x12Y\n" +
 	"\fsync_options\x18\n" +
 	" \x01(\v24.chalk.protosql.v1.ExecuteSqlSyncQueryRequestOptionsH\x00R\vsyncOptions\x12\\\n" +
 	"\rasync_options\x18\v \x01(\v25.chalk.protosql.v1.ExecuteSqlAsyncQueryRequestOptionsH\x00R\fasyncOptions\x12r\n" +
@@ -1537,7 +1547,8 @@ const file_chalk_protosql_v1_sql_service_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\t\n" +
 	"\aoptionsB\x11\n" +
 	"\x0f_correlation_idB\x13\n" +
-	"\x11_max_memory_bytes\"&\n" +
+	"\x11_max_memory_bytesB\x12\n" +
+	"\x10_datasource_name\"&\n" +
 	"\x10SignedOutputUris\x12\x12\n" +
 	"\x04uris\x18\x01 \x03(\tR\x04uris\"\xb1\x01\n" +
 	"\"ExecuteSqlSyncQueryResponsePayload\x12+\n" +
