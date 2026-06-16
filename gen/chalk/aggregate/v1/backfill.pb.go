@@ -225,6 +225,7 @@ type AggregateBackfillUserParams struct {
 	UpperBound          *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=upper_bound,json=upperBound,proto3,oneof" json:"upper_bound,omitempty"`
 	Exact               bool                   `protobuf:"varint,6,opt,name=exact,proto3" json:"exact,omitempty"`
 	Tags                []string               `protobuf:"bytes,7,rep,name=tags,proto3" json:"tags,omitempty"`
+	InputSql            *string                `protobuf:"bytes,8,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -309,6 +310,13 @@ func (x *AggregateBackfillUserParams) GetTags() []string {
 	return nil
 }
 
+func (x *AggregateBackfillUserParams) GetInputSql() string {
+	if x != nil && x.InputSql != nil {
+		return *x.InputSql
+	}
+	return ""
+}
+
 type AggregateBackfill struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	Series             []*AggregateTimeSeries `protobuf:"bytes,1,rep,name=series,proto3" json:"series,omitempty"`
@@ -320,6 +328,7 @@ type AggregateBackfill struct {
 	MaxRetention       *durationpb.Duration   `protobuf:"bytes,7,opt,name=max_retention,json=maxRetention,proto3" json:"max_retention,omitempty"`
 	LowerBound         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=lower_bound,json=lowerBound,proto3" json:"lower_bound,omitempty"`
 	UpperBound         *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	InputSql           *string                `protobuf:"bytes,10,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -415,6 +424,13 @@ func (x *AggregateBackfill) GetUpperBound() *timestamppb.Timestamp {
 		return x.UpperBound
 	}
 	return nil
+}
+
+func (x *AggregateBackfill) GetInputSql() string {
+	if x != nil && x.InputSql != nil {
+		return *x.InputSql
+	}
+	return ""
 }
 
 type AggregateBackfillWithCostEstimate struct {
@@ -785,7 +801,7 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\x10expected_buckets\x18\x02 \x01(\x03R\x0fexpectedBuckets\x12%\n" +
 	"\x0eexpected_bytes\x18\x03 \x01(\x03R\rexpectedBytes\x122\n" +
 	"\x15expected_storage_cost\x18\x04 \x01(\x01R\x13expectedStorageCost\x12D\n" +
-	"\x10expected_runtime\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x0fexpectedRuntime\"\x8c\x03\n" +
+	"\x10expected_runtime\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x0fexpectedRuntime\"\xbc\x03\n" +
 	"\x1bAggregateBackfillUserParams\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12\x1f\n" +
 	"\bresolver\x18\x02 \x01(\tH\x00R\bresolver\x88\x01\x01\x12;\n" +
@@ -795,11 +811,14 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\vupper_bound\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampH\x03R\n" +
 	"upperBound\x88\x01\x01\x12\x14\n" +
 	"\x05exact\x18\x06 \x01(\bR\x05exact\x12\x12\n" +
-	"\x04tags\x18\a \x03(\tR\x04tagsB\v\n" +
+	"\x04tags\x18\a \x03(\tR\x04tags\x12 \n" +
+	"\tinput_sql\x18\b \x01(\tH\x04R\binputSql\x88\x01\x01B\v\n" +
 	"\t_resolverB\x18\n" +
 	"\x16_timestamp_column_nameB\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
-	"\f_upper_bound\"\xe5\x03\n" +
+	"\f_upper_boundB\f\n" +
+	"\n" +
+	"_input_sql\"\x95\x04\n" +
 	"\x11AggregateBackfill\x12?\n" +
 	"\x06series\x18\x01 \x03(\v2'.chalk.aggregate.v1.AggregateTimeSeriesR\x06series\x12\x1a\n" +
 	"\bresolver\x18\x02 \x01(\tR\bresolver\x12)\n" +
@@ -811,7 +830,11 @@ const file_chalk_aggregate_v1_backfill_proto_rawDesc = "" +
 	"\vlower_bound\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"lowerBound\x12;\n" +
 	"\vupper_bound\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"upperBound\"\xb5\x01\n" +
+	"upperBound\x12 \n" +
+	"\tinput_sql\x18\n" +
+	" \x01(\tH\x00R\binputSql\x88\x01\x01B\f\n" +
+	"\n" +
+	"_input_sql\"\xb5\x01\n" +
 	"!AggregateBackfillWithCostEstimate\x12A\n" +
 	"\bbackfill\x18\x01 \x01(\v2%.chalk.aggregate.v1.AggregateBackfillR\bbackfill\x12M\n" +
 	"\bestimate\x18\x02 \x01(\v21.chalk.aggregate.v1.AggregateBackfillCostEstimateR\bestimate\"\xf0\x05\n" +
@@ -938,6 +961,7 @@ func file_chalk_aggregate_v1_backfill_proto_init() {
 	}
 	file_chalk_aggregate_v1_timeseries_proto_init()
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[1].OneofWrappers = []any{}
+	file_chalk_aggregate_v1_backfill_proto_msgTypes[2].OneofWrappers = []any{}
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[4].OneofWrappers = []any{}
 	file_chalk_aggregate_v1_backfill_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}

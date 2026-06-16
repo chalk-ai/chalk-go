@@ -113,6 +113,7 @@ type EventBusMessage struct {
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*EventBusMessage_WebhookEvent
+	//	*EventBusMessage_InfraDeploymentEvent
 	Payload       isEventBusMessage_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -164,6 +165,15 @@ func (x *EventBusMessage) GetWebhookEvent() *WebhookEvent {
 	return nil
 }
 
+func (x *EventBusMessage) GetInfraDeploymentEvent() *InfraDeploymentEvent {
+	if x != nil {
+		if x, ok := x.Payload.(*EventBusMessage_InfraDeploymentEvent); ok {
+			return x.InfraDeploymentEvent
+		}
+	}
+	return nil
+}
+
 type isEventBusMessage_Payload interface {
 	isEventBusMessage_Payload()
 }
@@ -172,7 +182,118 @@ type EventBusMessage_WebhookEvent struct {
 	WebhookEvent *WebhookEvent `protobuf:"bytes,1,opt,name=webhook_event,json=webhookEvent,proto3,oneof"`
 }
 
+type EventBusMessage_InfraDeploymentEvent struct {
+	InfraDeploymentEvent *InfraDeploymentEvent `protobuf:"bytes,2,opt,name=infra_deployment_event,json=infraDeploymentEvent,proto3,oneof"`
+}
+
 func (*EventBusMessage_WebhookEvent) isEventBusMessage_Payload() {}
+
+func (*EventBusMessage_InfraDeploymentEvent) isEventBusMessage_Payload() {}
+
+// InfraDeploymentEvent reports the outcome of applying a cloud-component deployment
+// manifest (see DeploymentManifest). On success the metadata plane stamps applied_at
+// on the referenced cluster or VPC; status and error are carried for observability.
+type InfraDeploymentEvent struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The cloud component that was deployed.
+	//
+	// Types that are valid to be assigned to Component:
+	//
+	//	*InfraDeploymentEvent_ClusterId
+	//	*InfraDeploymentEvent_VpcId
+	Component isInfraDeploymentEvent_Component `protobuf_oneof:"component"`
+	// Deployment outcome, e.g. "SUCCESS" or "FAILED".
+	Status string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	// Failure detail, set when status is not a success.
+	Error         *string `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InfraDeploymentEvent) Reset() {
+	*x = InfraDeploymentEvent{}
+	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InfraDeploymentEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InfraDeploymentEvent) ProtoMessage() {}
+
+func (x *InfraDeploymentEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InfraDeploymentEvent.ProtoReflect.Descriptor instead.
+func (*InfraDeploymentEvent) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_eventbus_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *InfraDeploymentEvent) GetComponent() isInfraDeploymentEvent_Component {
+	if x != nil {
+		return x.Component
+	}
+	return nil
+}
+
+func (x *InfraDeploymentEvent) GetClusterId() string {
+	if x != nil {
+		if x, ok := x.Component.(*InfraDeploymentEvent_ClusterId); ok {
+			return x.ClusterId
+		}
+	}
+	return ""
+}
+
+func (x *InfraDeploymentEvent) GetVpcId() string {
+	if x != nil {
+		if x, ok := x.Component.(*InfraDeploymentEvent_VpcId); ok {
+			return x.VpcId
+		}
+	}
+	return ""
+}
+
+func (x *InfraDeploymentEvent) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *InfraDeploymentEvent) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+type isInfraDeploymentEvent_Component interface {
+	isInfraDeploymentEvent_Component()
+}
+
+type InfraDeploymentEvent_ClusterId struct {
+	ClusterId string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,oneof"`
+}
+
+type InfraDeploymentEvent_VpcId struct {
+	VpcId string `protobuf:"bytes,2,opt,name=vpc_id,json=vpcId,proto3,oneof"`
+}
+
+func (*InfraDeploymentEvent_ClusterId) isInfraDeploymentEvent_Component() {}
+
+func (*InfraDeploymentEvent_VpcId) isInfraDeploymentEvent_Component() {}
 
 // WebhookEvent represents an event that should be delivered to a webhook.
 type WebhookEvent struct {
@@ -197,7 +318,7 @@ type WebhookEvent struct {
 
 func (x *WebhookEvent) Reset() {
 	*x = WebhookEvent{}
-	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +330,7 @@ func (x *WebhookEvent) String() string {
 func (*WebhookEvent) ProtoMessage() {}
 
 func (x *WebhookEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[2]
+	mi := &file_chalk_server_v1_eventbus_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,7 +343,7 @@ func (x *WebhookEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookEvent.ProtoReflect.Descriptor instead.
 func (*WebhookEvent) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_eventbus_proto_rawDescGZIP(), []int{2}
+	return file_chalk_server_v1_eventbus_proto_rawDescGZIP(), []int{3}
 }
 
 // Deprecated: Marked as deprecated in chalk/server/v1/eventbus.proto.
@@ -277,10 +398,19 @@ const file_chalk_server_v1_eventbus_proto_rawDesc = "" +
 	"attributes\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x01\n" +
 	"\x0fEventBusMessage\x12D\n" +
-	"\rwebhook_event\x18\x01 \x01(\v2\x1d.chalk.server.v1.WebhookEventH\x00R\fwebhookEventB\t\n" +
-	"\apayload\"\x8f\x02\n" +
+	"\rwebhook_event\x18\x01 \x01(\v2\x1d.chalk.server.v1.WebhookEventH\x00R\fwebhookEvent\x12]\n" +
+	"\x16infra_deployment_event\x18\x02 \x01(\v2%.chalk.server.v1.InfraDeploymentEventH\x00R\x14infraDeploymentEventB\t\n" +
+	"\apayload\"\x9a\x01\n" +
+	"\x14InfraDeploymentEvent\x12\x1f\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tH\x00R\tclusterId\x12\x17\n" +
+	"\x06vpc_id\x18\x02 \x01(\tH\x00R\x05vpcId\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12\x19\n" +
+	"\x05error\x18\x04 \x01(\tH\x01R\x05error\x88\x01\x01B\v\n" +
+	"\tcomponentB\b\n" +
+	"\x06_error\"\x8f\x02\n" +
 	"\fWebhookEvent\x12!\n" +
 	"\n" +
 	"webhook_id\x18\x01 \x01(\tB\x02\x18\x01R\twebhookId\x12\"\n" +
@@ -303,27 +433,29 @@ func file_chalk_server_v1_eventbus_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_eventbus_proto_rawDescData
 }
 
-var file_chalk_server_v1_eventbus_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_chalk_server_v1_eventbus_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_chalk_server_v1_eventbus_proto_goTypes = []any{
 	(*EventBusEnvelope)(nil),      // 0: chalk.server.v1.EventBusEnvelope
 	(*EventBusMessage)(nil),       // 1: chalk.server.v1.EventBusMessage
-	(*WebhookEvent)(nil),          // 2: chalk.server.v1.WebhookEvent
-	nil,                           // 3: chalk.server.v1.EventBusEnvelope.AttributesEntry
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
-	(*structpb.Struct)(nil),       // 5: google.protobuf.Struct
+	(*InfraDeploymentEvent)(nil),  // 2: chalk.server.v1.InfraDeploymentEvent
+	(*WebhookEvent)(nil),          // 3: chalk.server.v1.WebhookEvent
+	nil,                           // 4: chalk.server.v1.EventBusEnvelope.AttributesEntry
+	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	(*structpb.Struct)(nil),       // 6: google.protobuf.Struct
 }
 var file_chalk_server_v1_eventbus_proto_depIdxs = []int32{
-	4, // 0: chalk.server.v1.EventBusEnvelope.created_at:type_name -> google.protobuf.Timestamp
+	5, // 0: chalk.server.v1.EventBusEnvelope.created_at:type_name -> google.protobuf.Timestamp
 	1, // 1: chalk.server.v1.EventBusEnvelope.message:type_name -> chalk.server.v1.EventBusMessage
-	3, // 2: chalk.server.v1.EventBusEnvelope.attributes:type_name -> chalk.server.v1.EventBusEnvelope.AttributesEntry
-	2, // 3: chalk.server.v1.EventBusMessage.webhook_event:type_name -> chalk.server.v1.WebhookEvent
-	5, // 4: chalk.server.v1.WebhookEvent.payload:type_name -> google.protobuf.Struct
-	4, // 5: chalk.server.v1.WebhookEvent.event_timestamp:type_name -> google.protobuf.Timestamp
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	4, // 2: chalk.server.v1.EventBusEnvelope.attributes:type_name -> chalk.server.v1.EventBusEnvelope.AttributesEntry
+	3, // 3: chalk.server.v1.EventBusMessage.webhook_event:type_name -> chalk.server.v1.WebhookEvent
+	2, // 4: chalk.server.v1.EventBusMessage.infra_deployment_event:type_name -> chalk.server.v1.InfraDeploymentEvent
+	6, // 5: chalk.server.v1.WebhookEvent.payload:type_name -> google.protobuf.Struct
+	5, // 6: chalk.server.v1.WebhookEvent.event_timestamp:type_name -> google.protobuf.Timestamp
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_eventbus_proto_init() }
@@ -333,15 +465,20 @@ func file_chalk_server_v1_eventbus_proto_init() {
 	}
 	file_chalk_server_v1_eventbus_proto_msgTypes[1].OneofWrappers = []any{
 		(*EventBusMessage_WebhookEvent)(nil),
+		(*EventBusMessage_InfraDeploymentEvent)(nil),
 	}
-	file_chalk_server_v1_eventbus_proto_msgTypes[2].OneofWrappers = []any{}
+	file_chalk_server_v1_eventbus_proto_msgTypes[2].OneofWrappers = []any{
+		(*InfraDeploymentEvent_ClusterId)(nil),
+		(*InfraDeploymentEvent_VpcId)(nil),
+	}
+	file_chalk_server_v1_eventbus_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_eventbus_proto_rawDesc), len(file_chalk_server_v1_eventbus_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -175,20 +175,39 @@ func (x *TrainingRunArgs) GetExperimentName() string {
 	return ""
 }
 
+// ScriptTaskRequest is the input and configuration of a script task. For
+// user-submitted tasks the full message is serialized to cloud storage on
+// submission (raw_body_key in the script_tasks table) so that reruns can
+// reconstruct the original request exactly, including all fields below.
+// System-initiated tasks (e.g. metaplanner-scheduled) are not persisted this
+// way and leave raw_body_key NULL; those are not rerunnable.
 type ScriptTaskRequest struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
 	FunctionReferenceType string                 `protobuf:"bytes,1,opt,name=function_reference_type,json=functionReferenceType,proto3" json:"function_reference_type,omitempty"` // 'file' or 'module'
 	FunctionReference     string                 `protobuf:"bytes,2,opt,name=function_reference,json=functionReference,proto3" json:"function_reference,omitempty"`               // e.g. script.py::my_func
-	ArgumentsJson         *string                `protobuf:"bytes,11,opt,name=arguments_json,json=argumentsJson,proto3,oneof" json:"arguments_json,omitempty"`
-	Kind                  ScriptTaskKind         `protobuf:"varint,12,opt,name=kind,proto3,enum=chalk.common.v1.ScriptTaskKind" json:"kind,omitempty"`
-	SourceKey             *string                `protobuf:"bytes,3,opt,name=source_key,json=sourceKey,proto3,oneof" json:"source_key,omitempty"` // only for single file inputs
-	Branch                *string                `protobuf:"bytes,4,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
-	ResourceGroup         *string                `protobuf:"bytes,5,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
-	ResourceRequests      *ResourceRequirements  `protobuf:"bytes,6,opt,name=resource_requests,json=resourceRequests,proto3,oneof" json:"resource_requests,omitempty"`
-	EnvOverrides          map[string]string      `protobuf:"bytes,7,rep,name=env_overrides,json=envOverrides,proto3" json:"env_overrides,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	EnableProfiling       bool                   `protobuf:"varint,8,opt,name=enable_profiling,json=enableProfiling,proto3" json:"enable_profiling,omitempty"`
-	MaxRetries            *int32                 `protobuf:"varint,9,opt,name=max_retries,json=maxRetries,proto3,oneof" json:"max_retries,omitempty"` // defaults to 0
-	CompletionDeadline    *string                `protobuf:"bytes,10,opt,name=completion_deadline,json=completionDeadline,proto3,oneof" json:"completion_deadline,omitempty"`
+	// JSON-encoded call arguments forwarded to the function at execution time.
+	// Must be a JSON object with optional "args" (list) and "kwargs" (dict) keys,
+	// e.g. {"args": ["Alice", 30], "kwargs": {"city": "NYC"}}.
+	// For scripts invoked without a ::func suffix, "args" become CLI positional
+	// arguments and "kwargs" become --key=value flags. For ::func references the
+	// values are unpacked and passed directly to the Python function.
+	ArgumentsJson *string        `protobuf:"bytes,11,opt,name=arguments_json,json=argumentsJson,proto3,oneof" json:"arguments_json,omitempty"`
+	Kind          ScriptTaskKind `protobuf:"varint,12,opt,name=kind,proto3,enum=chalk.common.v1.ScriptTaskKind" json:"kind,omitempty"`
+	// Cloud-storage path to a single uploaded Python file
+	// (e.g. env_{env_id}/tasks/{task_id}/inputs/script.py).
+	// Set by the server from the raw bytes in CreateScriptTaskRequest.source_file;
+	// callers do not supply this directly. On rerun the original key is reused
+	// without re-uploading — the file already exists in storage.
+	SourceKey        *string               `protobuf:"bytes,3,opt,name=source_key,json=sourceKey,proto3,oneof" json:"source_key,omitempty"`
+	Branch           *string               `protobuf:"bytes,4,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
+	ResourceGroup    *string               `protobuf:"bytes,5,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	ResourceRequests *ResourceRequirements `protobuf:"bytes,6,opt,name=resource_requests,json=resourceRequests,proto3,oneof" json:"resource_requests,omitempty"`
+	EnvOverrides     map[string]string     `protobuf:"bytes,7,rep,name=env_overrides,json=envOverrides,proto3" json:"env_overrides,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	EnableProfiling  bool                  `protobuf:"varint,8,opt,name=enable_profiling,json=enableProfiling,proto3" json:"enable_profiling,omitempty"`
+	MaxRetries       *int32                `protobuf:"varint,9,opt,name=max_retries,json=maxRetries,proto3,oneof" json:"max_retries,omitempty"` // defaults to 0
+	// Maximum duration the task may run, in a format like "1w 4d 1h 3m 1s".
+	// This is a duration, not a wall-clock timestamp, despite the "deadline" name.
+	CompletionDeadline *string `protobuf:"bytes,10,opt,name=completion_deadline,json=completionDeadline,proto3,oneof" json:"completion_deadline,omitempty"`
 	// Types that are valid to be assigned to KindArgs:
 	//
 	//	*ScriptTaskRequest_TrainingRun

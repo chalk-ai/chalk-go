@@ -163,6 +163,916 @@ func (x *GetStaticConversionDiagnosticsRequest) GetRenderFailedProofs() bool {
 	return false
 }
 
+type GetSupportedPythonSurfaceRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSupportedPythonSurfaceRequest) Reset() {
+	*x = GetSupportedPythonSurfaceRequest{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSupportedPythonSurfaceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSupportedPythonSurfaceRequest) ProtoMessage() {}
+
+func (x *GetSupportedPythonSurfaceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSupportedPythonSurfaceRequest.ProtoReflect.Descriptor instead.
+func (*GetSupportedPythonSurfaceRequest) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{3}
+}
+
+type GetSupportedPythonSurfaceResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Namespaces    []*PythonNamespaceSurface `protobuf:"bytes,1,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
+	Types         []*PythonTypeSurface      `protobuf:"bytes,2,rep,name=types,proto3" json:"types,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSupportedPythonSurfaceResponse) Reset() {
+	*x = GetSupportedPythonSurfaceResponse{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSupportedPythonSurfaceResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSupportedPythonSurfaceResponse) ProtoMessage() {}
+
+func (x *GetSupportedPythonSurfaceResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSupportedPythonSurfaceResponse.ProtoReflect.Descriptor instead.
+func (*GetSupportedPythonSurfaceResponse) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetSupportedPythonSurfaceResponse) GetNamespaces() []*PythonNamespaceSurface {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
+}
+
+func (x *GetSupportedPythonSurfaceResponse) GetTypes() []*PythonTypeSurface {
+	if x != nil {
+		return x.Types
+	}
+	return nil
+}
+
+type PythonNamespaceSurface struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          *PythonQualifiedName   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Members       []*PythonMember        `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonNamespaceSurface) Reset() {
+	*x = PythonNamespaceSurface{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonNamespaceSurface) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonNamespaceSurface) ProtoMessage() {}
+
+func (x *PythonNamespaceSurface) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonNamespaceSurface.ProtoReflect.Descriptor instead.
+func (*PythonNamespaceSurface) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PythonNamespaceSurface) GetName() *PythonQualifiedName {
+	if x != nil {
+		return x.Name
+	}
+	return nil
+}
+
+func (x *PythonNamespaceSurface) GetMembers() []*PythonMember {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type PythonTypeSurface struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Receiver      *TypePattern           `protobuf:"bytes,1,opt,name=receiver,proto3" json:"receiver,omitempty"`
+	Members       []*PythonMember        `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonTypeSurface) Reset() {
+	*x = PythonTypeSurface{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonTypeSurface) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonTypeSurface) ProtoMessage() {}
+
+func (x *PythonTypeSurface) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonTypeSurface.ProtoReflect.Descriptor instead.
+func (*PythonTypeSurface) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PythonTypeSurface) GetReceiver() *TypePattern {
+	if x != nil {
+		return x.Receiver
+	}
+	return nil
+}
+
+func (x *PythonTypeSurface) GetMembers() []*PythonMember {
+	if x != nil {
+		return x.Members
+	}
+	return nil
+}
+
+type PythonQualifiedName struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Parts         []string               `protobuf:"bytes,1,rep,name=parts,proto3" json:"parts,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonQualifiedName) Reset() {
+	*x = PythonQualifiedName{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonQualifiedName) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonQualifiedName) ProtoMessage() {}
+
+func (x *PythonQualifiedName) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonQualifiedName.ProtoReflect.Descriptor instead.
+func (*PythonQualifiedName) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *PythonQualifiedName) GetParts() []string {
+	if x != nil {
+		return x.Parts
+	}
+	return nil
+}
+
+type PythonMember struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Documentation string                 `protobuf:"bytes,2,opt,name=documentation,proto3" json:"documentation,omitempty"`
+	Callable      *CallableSupport       `protobuf:"bytes,10,opt,name=callable,proto3" json:"callable,omitempty"`
+	Attribute     *AttributeSupport      `protobuf:"bytes,11,opt,name=attribute,proto3" json:"attribute,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PythonMember) Reset() {
+	*x = PythonMember{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PythonMember) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PythonMember) ProtoMessage() {}
+
+func (x *PythonMember) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PythonMember.ProtoReflect.Descriptor instead.
+func (*PythonMember) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *PythonMember) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *PythonMember) GetDocumentation() string {
+	if x != nil {
+		return x.Documentation
+	}
+	return ""
+}
+
+func (x *PythonMember) GetCallable() *CallableSupport {
+	if x != nil {
+		return x.Callable
+	}
+	return nil
+}
+
+func (x *PythonMember) GetAttribute() *AttributeSupport {
+	if x != nil {
+		return x.Attribute
+	}
+	return nil
+}
+
+type CallableSupport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Overloads     []*CallableOverload    `protobuf:"bytes,1,rep,name=overloads,proto3" json:"overloads,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CallableSupport) Reset() {
+	*x = CallableSupport{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CallableSupport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallableSupport) ProtoMessage() {}
+
+func (x *CallableSupport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallableSupport.ProtoReflect.Descriptor instead.
+func (*CallableSupport) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CallableSupport) GetOverloads() []*CallableOverload {
+	if x != nil {
+		return x.Overloads
+	}
+	return nil
+}
+
+type CallableOverload struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Signature     string                 `protobuf:"bytes,1,opt,name=signature,proto3" json:"signature,omitempty"`
+	Parameters    []*ParameterSupport    `protobuf:"bytes,2,rep,name=parameters,proto3" json:"parameters,omitempty"`
+	ReturnType    *TypePattern           `protobuf:"bytes,3,opt,name=return_type,json=returnType,proto3" json:"return_type,omitempty"`
+	Behavior      *BehaviorSupport       `protobuf:"bytes,4,opt,name=behavior,proto3" json:"behavior,omitempty"`
+	SourceModule  string                 `protobuf:"bytes,5,opt,name=source_module,json=sourceModule,proto3" json:"source_module,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CallableOverload) Reset() {
+	*x = CallableOverload{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CallableOverload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallableOverload) ProtoMessage() {}
+
+func (x *CallableOverload) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallableOverload.ProtoReflect.Descriptor instead.
+func (*CallableOverload) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CallableOverload) GetSignature() string {
+	if x != nil {
+		return x.Signature
+	}
+	return ""
+}
+
+func (x *CallableOverload) GetParameters() []*ParameterSupport {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
+func (x *CallableOverload) GetReturnType() *TypePattern {
+	if x != nil {
+		return x.ReturnType
+	}
+	return nil
+}
+
+func (x *CallableOverload) GetBehavior() *BehaviorSupport {
+	if x != nil {
+		return x.Behavior
+	}
+	return nil
+}
+
+func (x *CallableOverload) GetSourceModule() string {
+	if x != nil {
+		return x.SourceModule
+	}
+	return ""
+}
+
+type ParameterSupport struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Name                string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Type                *TypePattern           `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Optional            bool                   `protobuf:"varint,3,opt,name=optional,proto3" json:"optional,omitempty"`
+	DefaultDisplay      string                 `protobuf:"bytes,4,opt,name=default_display,json=defaultDisplay,proto3" json:"default_display,omitempty"`
+	RequiresStaticValue bool                   `protobuf:"varint,5,opt,name=requires_static_value,json=requiresStaticValue,proto3" json:"requires_static_value,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *ParameterSupport) Reset() {
+	*x = ParameterSupport{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ParameterSupport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ParameterSupport) ProtoMessage() {}
+
+func (x *ParameterSupport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ParameterSupport.ProtoReflect.Descriptor instead.
+func (*ParameterSupport) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ParameterSupport) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ParameterSupport) GetType() *TypePattern {
+	if x != nil {
+		return x.Type
+	}
+	return nil
+}
+
+func (x *ParameterSupport) GetOptional() bool {
+	if x != nil {
+		return x.Optional
+	}
+	return false
+}
+
+func (x *ParameterSupport) GetDefaultDisplay() string {
+	if x != nil {
+		return x.DefaultDisplay
+	}
+	return ""
+}
+
+func (x *ParameterSupport) GetRequiresStaticValue() bool {
+	if x != nil {
+		return x.RequiresStaticValue
+	}
+	return false
+}
+
+type BehaviorSupport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HasProof      bool                   `protobuf:"varint,1,opt,name=has_proof,json=hasProof,proto3" json:"has_proof,omitempty"`
+	MayRaise      bool                   `protobuf:"varint,2,opt,name=may_raise,json=mayRaise,proto3" json:"may_raise,omitempty"`
+	Raises        []string               `protobuf:"bytes,3,rep,name=raises,proto3" json:"raises,omitempty"`
+	RowFallible   bool                   `protobuf:"varint,4,opt,name=row_fallible,json=rowFallible,proto3" json:"row_fallible,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BehaviorSupport) Reset() {
+	*x = BehaviorSupport{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BehaviorSupport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BehaviorSupport) ProtoMessage() {}
+
+func (x *BehaviorSupport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BehaviorSupport.ProtoReflect.Descriptor instead.
+func (*BehaviorSupport) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *BehaviorSupport) GetHasProof() bool {
+	if x != nil {
+		return x.HasProof
+	}
+	return false
+}
+
+func (x *BehaviorSupport) GetMayRaise() bool {
+	if x != nil {
+		return x.MayRaise
+	}
+	return false
+}
+
+func (x *BehaviorSupport) GetRaises() []string {
+	if x != nil {
+		return x.Raises
+	}
+	return nil
+}
+
+func (x *BehaviorSupport) GetRowFallible() bool {
+	if x != nil {
+		return x.RowFallible
+	}
+	return false
+}
+
+type AttributeSupport struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ValueType     *TypePattern           `protobuf:"bytes,1,opt,name=value_type,json=valueType,proto3" json:"value_type,omitempty"`
+	SourceModule  string                 `protobuf:"bytes,2,opt,name=source_module,json=sourceModule,proto3" json:"source_module,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AttributeSupport) Reset() {
+	*x = AttributeSupport{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AttributeSupport) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AttributeSupport) ProtoMessage() {}
+
+func (x *AttributeSupport) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AttributeSupport.ProtoReflect.Descriptor instead.
+func (*AttributeSupport) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *AttributeSupport) GetValueType() *TypePattern {
+	if x != nil {
+		return x.ValueType
+	}
+	return nil
+}
+
+func (x *AttributeSupport) GetSourceModule() string {
+	if x != nil {
+		return x.SourceModule
+	}
+	return ""
+}
+
+type TypePattern struct {
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Key      string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Display  string                 `protobuf:"bytes,2,opt,name=display,proto3" json:"display,omitempty"`
+	Nullable bool                   `protobuf:"varint,3,opt,name=nullable,proto3" json:"nullable,omitempty"`
+	// Types that are valid to be assigned to Matcher:
+	//
+	//	*TypePattern_Exact
+	//	*TypePattern_Subclass
+	//	*TypePattern_Generic
+	//	*TypePattern_Any
+	Matcher       isTypePattern_Matcher `protobuf_oneof:"matcher"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TypePattern) Reset() {
+	*x = TypePattern{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TypePattern) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TypePattern) ProtoMessage() {}
+
+func (x *TypePattern) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TypePattern.ProtoReflect.Descriptor instead.
+func (*TypePattern) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *TypePattern) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *TypePattern) GetDisplay() string {
+	if x != nil {
+		return x.Display
+	}
+	return ""
+}
+
+func (x *TypePattern) GetNullable() bool {
+	if x != nil {
+		return x.Nullable
+	}
+	return false
+}
+
+func (x *TypePattern) GetMatcher() isTypePattern_Matcher {
+	if x != nil {
+		return x.Matcher
+	}
+	return nil
+}
+
+func (x *TypePattern) GetExact() *ExactType {
+	if x != nil {
+		if x, ok := x.Matcher.(*TypePattern_Exact); ok {
+			return x.Exact
+		}
+	}
+	return nil
+}
+
+func (x *TypePattern) GetSubclass() *SubclassType {
+	if x != nil {
+		if x, ok := x.Matcher.(*TypePattern_Subclass); ok {
+			return x.Subclass
+		}
+	}
+	return nil
+}
+
+func (x *TypePattern) GetGeneric() *GenericType {
+	if x != nil {
+		if x, ok := x.Matcher.(*TypePattern_Generic); ok {
+			return x.Generic
+		}
+	}
+	return nil
+}
+
+func (x *TypePattern) GetAny() *AnyType {
+	if x != nil {
+		if x, ok := x.Matcher.(*TypePattern_Any); ok {
+			return x.Any
+		}
+	}
+	return nil
+}
+
+type isTypePattern_Matcher interface {
+	isTypePattern_Matcher()
+}
+
+type TypePattern_Exact struct {
+	Exact *ExactType `protobuf:"bytes,10,opt,name=exact,proto3,oneof"`
+}
+
+type TypePattern_Subclass struct {
+	Subclass *SubclassType `protobuf:"bytes,11,opt,name=subclass,proto3,oneof"`
+}
+
+type TypePattern_Generic struct {
+	Generic *GenericType `protobuf:"bytes,12,opt,name=generic,proto3,oneof"`
+}
+
+type TypePattern_Any struct {
+	Any *AnyType `protobuf:"bytes,13,opt,name=any,proto3,oneof"`
+}
+
+func (*TypePattern_Exact) isTypePattern_Matcher() {}
+
+func (*TypePattern_Subclass) isTypePattern_Matcher() {}
+
+func (*TypePattern_Generic) isTypePattern_Matcher() {}
+
+func (*TypePattern_Any) isTypePattern_Matcher() {}
+
+type ExactType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExactType) Reset() {
+	*x = ExactType{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExactType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExactType) ProtoMessage() {}
+
+func (x *ExactType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExactType.ProtoReflect.Descriptor instead.
+func (*ExactType) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{15}
+}
+
+type SubclassType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubclassType) Reset() {
+	*x = SubclassType{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubclassType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubclassType) ProtoMessage() {}
+
+func (x *SubclassType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubclassType.ProtoReflect.Descriptor instead.
+func (*SubclassType) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{16}
+}
+
+type GenericType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Parameters    []*TypePattern         `protobuf:"bytes,1,rep,name=parameters,proto3" json:"parameters,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GenericType) Reset() {
+	*x = GenericType{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenericType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenericType) ProtoMessage() {}
+
+func (x *GenericType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenericType.ProtoReflect.Descriptor instead.
+func (*GenericType) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GenericType) GetParameters() []*TypePattern {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
+type AnyType struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AnyType) Reset() {
+	*x = AnyType{}
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AnyType) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AnyType) ProtoMessage() {}
+
+func (x *AnyType) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_staticaccelerator_v1_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AnyType.ProtoReflect.Descriptor instead.
+func (*AnyType) Descriptor() ([]byte, []int) {
+	return file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP(), []int{18}
+}
+
 var File_chalk_staticaccelerator_v1_service_proto protoreflect.FileDescriptor
 
 const file_chalk_staticaccelerator_v1_service_proto_rawDesc = "" +
@@ -174,10 +1084,74 @@ const file_chalk_staticaccelerator_v1_service_proto_rawDesc = "" +
 	"\aservice\x18\x02 \x01(\tR\aservice\"\xa5\x01\n" +
 	"%GetStaticConversionDiagnosticsRequest\x122\n" +
 	"\x06export\x18\x02 \x01(\v2\x1a.chalk.artifacts.v1.ExportR\x06export\x120\n" +
-	"\x14render_failed_proofs\x18\x03 \x01(\bR\x12renderFailedProofsJ\x04\b\x01\x10\x02R\x10global_variables2\x96\x02\n" +
+	"\x14render_failed_proofs\x18\x03 \x01(\bR\x12renderFailedProofsJ\x04\b\x01\x10\x02R\x10global_variables\"\"\n" +
+	" GetSupportedPythonSurfaceRequest\"\xbc\x01\n" +
+	"!GetSupportedPythonSurfaceResponse\x12R\n" +
+	"\n" +
+	"namespaces\x18\x01 \x03(\v22.chalk.staticaccelerator.v1.PythonNamespaceSurfaceR\n" +
+	"namespaces\x12C\n" +
+	"\x05types\x18\x02 \x03(\v2-.chalk.staticaccelerator.v1.PythonTypeSurfaceR\x05types\"\xa1\x01\n" +
+	"\x16PythonNamespaceSurface\x12C\n" +
+	"\x04name\x18\x01 \x01(\v2/.chalk.staticaccelerator.v1.PythonQualifiedNameR\x04name\x12B\n" +
+	"\amembers\x18\x02 \x03(\v2(.chalk.staticaccelerator.v1.PythonMemberR\amembers\"\x9c\x01\n" +
+	"\x11PythonTypeSurface\x12C\n" +
+	"\breceiver\x18\x01 \x01(\v2'.chalk.staticaccelerator.v1.TypePatternR\breceiver\x12B\n" +
+	"\amembers\x18\x02 \x03(\v2(.chalk.staticaccelerator.v1.PythonMemberR\amembers\"+\n" +
+	"\x13PythonQualifiedName\x12\x14\n" +
+	"\x05parts\x18\x01 \x03(\tR\x05parts\"\xdd\x01\n" +
+	"\fPythonMember\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12$\n" +
+	"\rdocumentation\x18\x02 \x01(\tR\rdocumentation\x12G\n" +
+	"\bcallable\x18\n" +
+	" \x01(\v2+.chalk.staticaccelerator.v1.CallableSupportR\bcallable\x12J\n" +
+	"\tattribute\x18\v \x01(\v2,.chalk.staticaccelerator.v1.AttributeSupportR\tattribute\"]\n" +
+	"\x0fCallableSupport\x12J\n" +
+	"\toverloads\x18\x01 \x03(\v2,.chalk.staticaccelerator.v1.CallableOverloadR\toverloads\"\xb6\x02\n" +
+	"\x10CallableOverload\x12\x1c\n" +
+	"\tsignature\x18\x01 \x01(\tR\tsignature\x12L\n" +
+	"\n" +
+	"parameters\x18\x02 \x03(\v2,.chalk.staticaccelerator.v1.ParameterSupportR\n" +
+	"parameters\x12H\n" +
+	"\vreturn_type\x18\x03 \x01(\v2'.chalk.staticaccelerator.v1.TypePatternR\n" +
+	"returnType\x12G\n" +
+	"\bbehavior\x18\x04 \x01(\v2+.chalk.staticaccelerator.v1.BehaviorSupportR\bbehavior\x12#\n" +
+	"\rsource_module\x18\x05 \x01(\tR\fsourceModule\"\xdc\x01\n" +
+	"\x10ParameterSupport\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12;\n" +
+	"\x04type\x18\x02 \x01(\v2'.chalk.staticaccelerator.v1.TypePatternR\x04type\x12\x1a\n" +
+	"\boptional\x18\x03 \x01(\bR\boptional\x12'\n" +
+	"\x0fdefault_display\x18\x04 \x01(\tR\x0edefaultDisplay\x122\n" +
+	"\x15requires_static_value\x18\x05 \x01(\bR\x13requiresStaticValue\"\x86\x01\n" +
+	"\x0fBehaviorSupport\x12\x1b\n" +
+	"\thas_proof\x18\x01 \x01(\bR\bhasProof\x12\x1b\n" +
+	"\tmay_raise\x18\x02 \x01(\bR\bmayRaise\x12\x16\n" +
+	"\x06raises\x18\x03 \x03(\tR\x06raises\x12!\n" +
+	"\frow_fallible\x18\x04 \x01(\bR\vrowFallible\"\x7f\n" +
+	"\x10AttributeSupport\x12F\n" +
+	"\n" +
+	"value_type\x18\x01 \x01(\v2'.chalk.staticaccelerator.v1.TypePatternR\tvalueType\x12#\n" +
+	"\rsource_module\x18\x02 \x01(\tR\fsourceModule\"\xe5\x02\n" +
+	"\vTypePattern\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x18\n" +
+	"\adisplay\x18\x02 \x01(\tR\adisplay\x12\x1a\n" +
+	"\bnullable\x18\x03 \x01(\bR\bnullable\x12=\n" +
+	"\x05exact\x18\n" +
+	" \x01(\v2%.chalk.staticaccelerator.v1.ExactTypeH\x00R\x05exact\x12F\n" +
+	"\bsubclass\x18\v \x01(\v2(.chalk.staticaccelerator.v1.SubclassTypeH\x00R\bsubclass\x12C\n" +
+	"\ageneric\x18\f \x01(\v2'.chalk.staticaccelerator.v1.GenericTypeH\x00R\ageneric\x127\n" +
+	"\x03any\x18\r \x01(\v2#.chalk.staticaccelerator.v1.AnyTypeH\x00R\x03anyB\t\n" +
+	"\amatcher\"\v\n" +
+	"\tExactType\"\x0e\n" +
+	"\fSubclassType\"V\n" +
+	"\vGenericType\x12G\n" +
+	"\n" +
+	"parameters\x18\x01 \x03(\v2'.chalk.staticaccelerator.v1.TypePatternR\n" +
+	"parameters\"\t\n" +
+	"\aAnyType2\xb6\x03\n" +
 	"\x18StaticAcceleratorService\x12s\n" +
 	"\vHealthCheck\x12..chalk.staticaccelerator.v1.HealthCheckRequest\x1a/.chalk.staticaccelerator.v1.HealthCheckResponse\"\x03\x90\x02\x01\x12\x84\x01\n" +
-	"\x1eGetStaticConversionDiagnostics\x12A.chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest\x1a\x1a.chalk.artifacts.v1.Export\"\x03\x90\x02\x01B\x89\x02\n" +
+	"\x1eGetStaticConversionDiagnostics\x12A.chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest\x1a\x1a.chalk.artifacts.v1.Export\"\x03\x90\x02\x01\x12\x9d\x01\n" +
+	"\x19GetSupportedPythonSurface\x12<.chalk.staticaccelerator.v1.GetSupportedPythonSurfaceRequest\x1a=.chalk.staticaccelerator.v1.GetSupportedPythonSurfaceResponse\"\x03\x90\x02\x01B\x89\x02\n" +
 	"\x1ecom.chalk.staticaccelerator.v1B\fServiceProtoP\x01ZOgithub.com/chalk-ai/chalk-go/gen/chalk/staticaccelerator/v1;staticacceleratorv1\xa2\x02\x03CSX\xaa\x02\x1aChalk.Staticaccelerator.V1\xca\x02\x1aChalk\\Staticaccelerator\\V1\xe2\x02&Chalk\\Staticaccelerator\\V1\\GPBMetadata\xea\x02\x1cChalk::Staticaccelerator::V1b\x06proto3"
 
 var (
@@ -192,24 +1166,61 @@ func file_chalk_staticaccelerator_v1_service_proto_rawDescGZIP() []byte {
 	return file_chalk_staticaccelerator_v1_service_proto_rawDescData
 }
 
-var file_chalk_staticaccelerator_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_chalk_staticaccelerator_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_chalk_staticaccelerator_v1_service_proto_goTypes = []any{
 	(*HealthCheckRequest)(nil),                    // 0: chalk.staticaccelerator.v1.HealthCheckRequest
 	(*HealthCheckResponse)(nil),                   // 1: chalk.staticaccelerator.v1.HealthCheckResponse
 	(*GetStaticConversionDiagnosticsRequest)(nil), // 2: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
-	(*v1.Export)(nil),                             // 3: chalk.artifacts.v1.Export
+	(*GetSupportedPythonSurfaceRequest)(nil),      // 3: chalk.staticaccelerator.v1.GetSupportedPythonSurfaceRequest
+	(*GetSupportedPythonSurfaceResponse)(nil),     // 4: chalk.staticaccelerator.v1.GetSupportedPythonSurfaceResponse
+	(*PythonNamespaceSurface)(nil),                // 5: chalk.staticaccelerator.v1.PythonNamespaceSurface
+	(*PythonTypeSurface)(nil),                     // 6: chalk.staticaccelerator.v1.PythonTypeSurface
+	(*PythonQualifiedName)(nil),                   // 7: chalk.staticaccelerator.v1.PythonQualifiedName
+	(*PythonMember)(nil),                          // 8: chalk.staticaccelerator.v1.PythonMember
+	(*CallableSupport)(nil),                       // 9: chalk.staticaccelerator.v1.CallableSupport
+	(*CallableOverload)(nil),                      // 10: chalk.staticaccelerator.v1.CallableOverload
+	(*ParameterSupport)(nil),                      // 11: chalk.staticaccelerator.v1.ParameterSupport
+	(*BehaviorSupport)(nil),                       // 12: chalk.staticaccelerator.v1.BehaviorSupport
+	(*AttributeSupport)(nil),                      // 13: chalk.staticaccelerator.v1.AttributeSupport
+	(*TypePattern)(nil),                           // 14: chalk.staticaccelerator.v1.TypePattern
+	(*ExactType)(nil),                             // 15: chalk.staticaccelerator.v1.ExactType
+	(*SubclassType)(nil),                          // 16: chalk.staticaccelerator.v1.SubclassType
+	(*GenericType)(nil),                           // 17: chalk.staticaccelerator.v1.GenericType
+	(*AnyType)(nil),                               // 18: chalk.staticaccelerator.v1.AnyType
+	(*v1.Export)(nil),                             // 19: chalk.artifacts.v1.Export
 }
 var file_chalk_staticaccelerator_v1_service_proto_depIdxs = []int32{
-	3, // 0: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest.export:type_name -> chalk.artifacts.v1.Export
-	0, // 1: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:input_type -> chalk.staticaccelerator.v1.HealthCheckRequest
-	2, // 2: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:input_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
-	1, // 3: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:output_type -> chalk.staticaccelerator.v1.HealthCheckResponse
-	3, // 4: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:output_type -> chalk.artifacts.v1.Export
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	19, // 0: chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest.export:type_name -> chalk.artifacts.v1.Export
+	5,  // 1: chalk.staticaccelerator.v1.GetSupportedPythonSurfaceResponse.namespaces:type_name -> chalk.staticaccelerator.v1.PythonNamespaceSurface
+	6,  // 2: chalk.staticaccelerator.v1.GetSupportedPythonSurfaceResponse.types:type_name -> chalk.staticaccelerator.v1.PythonTypeSurface
+	7,  // 3: chalk.staticaccelerator.v1.PythonNamespaceSurface.name:type_name -> chalk.staticaccelerator.v1.PythonQualifiedName
+	8,  // 4: chalk.staticaccelerator.v1.PythonNamespaceSurface.members:type_name -> chalk.staticaccelerator.v1.PythonMember
+	14, // 5: chalk.staticaccelerator.v1.PythonTypeSurface.receiver:type_name -> chalk.staticaccelerator.v1.TypePattern
+	8,  // 6: chalk.staticaccelerator.v1.PythonTypeSurface.members:type_name -> chalk.staticaccelerator.v1.PythonMember
+	9,  // 7: chalk.staticaccelerator.v1.PythonMember.callable:type_name -> chalk.staticaccelerator.v1.CallableSupport
+	13, // 8: chalk.staticaccelerator.v1.PythonMember.attribute:type_name -> chalk.staticaccelerator.v1.AttributeSupport
+	10, // 9: chalk.staticaccelerator.v1.CallableSupport.overloads:type_name -> chalk.staticaccelerator.v1.CallableOverload
+	11, // 10: chalk.staticaccelerator.v1.CallableOverload.parameters:type_name -> chalk.staticaccelerator.v1.ParameterSupport
+	14, // 11: chalk.staticaccelerator.v1.CallableOverload.return_type:type_name -> chalk.staticaccelerator.v1.TypePattern
+	12, // 12: chalk.staticaccelerator.v1.CallableOverload.behavior:type_name -> chalk.staticaccelerator.v1.BehaviorSupport
+	14, // 13: chalk.staticaccelerator.v1.ParameterSupport.type:type_name -> chalk.staticaccelerator.v1.TypePattern
+	14, // 14: chalk.staticaccelerator.v1.AttributeSupport.value_type:type_name -> chalk.staticaccelerator.v1.TypePattern
+	15, // 15: chalk.staticaccelerator.v1.TypePattern.exact:type_name -> chalk.staticaccelerator.v1.ExactType
+	16, // 16: chalk.staticaccelerator.v1.TypePattern.subclass:type_name -> chalk.staticaccelerator.v1.SubclassType
+	17, // 17: chalk.staticaccelerator.v1.TypePattern.generic:type_name -> chalk.staticaccelerator.v1.GenericType
+	18, // 18: chalk.staticaccelerator.v1.TypePattern.any:type_name -> chalk.staticaccelerator.v1.AnyType
+	14, // 19: chalk.staticaccelerator.v1.GenericType.parameters:type_name -> chalk.staticaccelerator.v1.TypePattern
+	0,  // 20: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:input_type -> chalk.staticaccelerator.v1.HealthCheckRequest
+	2,  // 21: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:input_type -> chalk.staticaccelerator.v1.GetStaticConversionDiagnosticsRequest
+	3,  // 22: chalk.staticaccelerator.v1.StaticAcceleratorService.GetSupportedPythonSurface:input_type -> chalk.staticaccelerator.v1.GetSupportedPythonSurfaceRequest
+	1,  // 23: chalk.staticaccelerator.v1.StaticAcceleratorService.HealthCheck:output_type -> chalk.staticaccelerator.v1.HealthCheckResponse
+	19, // 24: chalk.staticaccelerator.v1.StaticAcceleratorService.GetStaticConversionDiagnostics:output_type -> chalk.artifacts.v1.Export
+	4,  // 25: chalk.staticaccelerator.v1.StaticAcceleratorService.GetSupportedPythonSurface:output_type -> chalk.staticaccelerator.v1.GetSupportedPythonSurfaceResponse
+	23, // [23:26] is the sub-list for method output_type
+	20, // [20:23] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_chalk_staticaccelerator_v1_service_proto_init() }
@@ -217,13 +1228,19 @@ func file_chalk_staticaccelerator_v1_service_proto_init() {
 	if File_chalk_staticaccelerator_v1_service_proto != nil {
 		return
 	}
+	file_chalk_staticaccelerator_v1_service_proto_msgTypes[14].OneofWrappers = []any{
+		(*TypePattern_Exact)(nil),
+		(*TypePattern_Subclass)(nil),
+		(*TypePattern_Generic)(nil),
+		(*TypePattern_Any)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_staticaccelerator_v1_service_proto_rawDesc), len(file_chalk_staticaccelerator_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

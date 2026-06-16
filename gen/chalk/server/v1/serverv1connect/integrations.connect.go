@@ -45,6 +45,9 @@ const (
 	// IntegrationsServiceGetIntegrationProcedure is the fully-qualified name of the
 	// IntegrationsService's GetIntegration RPC.
 	IntegrationsServiceGetIntegrationProcedure = "/chalk.server.v1.IntegrationsService/GetIntegration"
+	// IntegrationsServiceGetIntegrationByNameProcedure is the fully-qualified name of the
+	// IntegrationsService's GetIntegrationByName RPC.
+	IntegrationsServiceGetIntegrationByNameProcedure = "/chalk.server.v1.IntegrationsService/GetIntegrationByName"
 	// IntegrationsServiceInsertIntegrationProcedure is the fully-qualified name of the
 	// IntegrationsService's InsertIntegration RPC.
 	IntegrationsServiceInsertIntegrationProcedure = "/chalk.server.v1.IntegrationsService/InsertIntegration"
@@ -65,6 +68,7 @@ type IntegrationsServiceClient interface {
 	ListIntegrationsAndSecrets(context.Context, *connect.Request[v1.ListIntegrationsAndSecretsRequest]) (*connect.Response[v1.ListIntegrationsAndSecretsResponse], error)
 	GetIntegrationValue(context.Context, *connect.Request[v1.GetIntegrationValueRequest]) (*connect.Response[v1.GetIntegrationValueResponse], error)
 	GetIntegration(context.Context, *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error)
+	GetIntegrationByName(context.Context, *connect.Request[v1.GetIntegrationByNameRequest]) (*connect.Response[v1.GetIntegrationByNameResponse], error)
 	InsertIntegration(context.Context, *connect.Request[v1.InsertIntegrationRequest]) (*connect.Response[v1.InsertIntegrationResponse], error)
 	UpdateIntegration(context.Context, *connect.Request[v1.UpdateIntegrationRequest]) (*connect.Response[v1.UpdateIntegrationResponse], error)
 	DeleteIntegration(context.Context, *connect.Request[v1.DeleteIntegrationRequest]) (*connect.Response[v1.DeleteIntegrationResponse], error)
@@ -106,6 +110,12 @@ func NewIntegrationsServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(integrationsServiceMethods.ByName("GetIntegration")),
 			connect.WithClientOptions(opts...),
 		),
+		getIntegrationByName: connect.NewClient[v1.GetIntegrationByNameRequest, v1.GetIntegrationByNameResponse](
+			httpClient,
+			baseURL+IntegrationsServiceGetIntegrationByNameProcedure,
+			connect.WithSchema(integrationsServiceMethods.ByName("GetIntegrationByName")),
+			connect.WithClientOptions(opts...),
+		),
 		insertIntegration: connect.NewClient[v1.InsertIntegrationRequest, v1.InsertIntegrationResponse](
 			httpClient,
 			baseURL+IntegrationsServiceInsertIntegrationProcedure,
@@ -139,6 +149,7 @@ type integrationsServiceClient struct {
 	listIntegrationsAndSecrets *connect.Client[v1.ListIntegrationsAndSecretsRequest, v1.ListIntegrationsAndSecretsResponse]
 	getIntegrationValue        *connect.Client[v1.GetIntegrationValueRequest, v1.GetIntegrationValueResponse]
 	getIntegration             *connect.Client[v1.GetIntegrationRequest, v1.GetIntegrationResponse]
+	getIntegrationByName       *connect.Client[v1.GetIntegrationByNameRequest, v1.GetIntegrationByNameResponse]
 	insertIntegration          *connect.Client[v1.InsertIntegrationRequest, v1.InsertIntegrationResponse]
 	updateIntegration          *connect.Client[v1.UpdateIntegrationRequest, v1.UpdateIntegrationResponse]
 	deleteIntegration          *connect.Client[v1.DeleteIntegrationRequest, v1.DeleteIntegrationResponse]
@@ -163,6 +174,11 @@ func (c *integrationsServiceClient) GetIntegrationValue(ctx context.Context, req
 // GetIntegration calls chalk.server.v1.IntegrationsService.GetIntegration.
 func (c *integrationsServiceClient) GetIntegration(ctx context.Context, req *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error) {
 	return c.getIntegration.CallUnary(ctx, req)
+}
+
+// GetIntegrationByName calls chalk.server.v1.IntegrationsService.GetIntegrationByName.
+func (c *integrationsServiceClient) GetIntegrationByName(ctx context.Context, req *connect.Request[v1.GetIntegrationByNameRequest]) (*connect.Response[v1.GetIntegrationByNameResponse], error) {
+	return c.getIntegrationByName.CallUnary(ctx, req)
 }
 
 // InsertIntegration calls chalk.server.v1.IntegrationsService.InsertIntegration.
@@ -192,6 +208,7 @@ type IntegrationsServiceHandler interface {
 	ListIntegrationsAndSecrets(context.Context, *connect.Request[v1.ListIntegrationsAndSecretsRequest]) (*connect.Response[v1.ListIntegrationsAndSecretsResponse], error)
 	GetIntegrationValue(context.Context, *connect.Request[v1.GetIntegrationValueRequest]) (*connect.Response[v1.GetIntegrationValueResponse], error)
 	GetIntegration(context.Context, *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error)
+	GetIntegrationByName(context.Context, *connect.Request[v1.GetIntegrationByNameRequest]) (*connect.Response[v1.GetIntegrationByNameResponse], error)
 	InsertIntegration(context.Context, *connect.Request[v1.InsertIntegrationRequest]) (*connect.Response[v1.InsertIntegrationResponse], error)
 	UpdateIntegration(context.Context, *connect.Request[v1.UpdateIntegrationRequest]) (*connect.Response[v1.UpdateIntegrationResponse], error)
 	DeleteIntegration(context.Context, *connect.Request[v1.DeleteIntegrationRequest]) (*connect.Response[v1.DeleteIntegrationResponse], error)
@@ -229,6 +246,12 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 		connect.WithSchema(integrationsServiceMethods.ByName("GetIntegration")),
 		connect.WithHandlerOptions(opts...),
 	)
+	integrationsServiceGetIntegrationByNameHandler := connect.NewUnaryHandler(
+		IntegrationsServiceGetIntegrationByNameProcedure,
+		svc.GetIntegrationByName,
+		connect.WithSchema(integrationsServiceMethods.ByName("GetIntegrationByName")),
+		connect.WithHandlerOptions(opts...),
+	)
 	integrationsServiceInsertIntegrationHandler := connect.NewUnaryHandler(
 		IntegrationsServiceInsertIntegrationProcedure,
 		svc.InsertIntegration,
@@ -263,6 +286,8 @@ func NewIntegrationsServiceHandler(svc IntegrationsServiceHandler, opts ...conne
 			integrationsServiceGetIntegrationValueHandler.ServeHTTP(w, r)
 		case IntegrationsServiceGetIntegrationProcedure:
 			integrationsServiceGetIntegrationHandler.ServeHTTP(w, r)
+		case IntegrationsServiceGetIntegrationByNameProcedure:
+			integrationsServiceGetIntegrationByNameHandler.ServeHTTP(w, r)
 		case IntegrationsServiceInsertIntegrationProcedure:
 			integrationsServiceInsertIntegrationHandler.ServeHTTP(w, r)
 		case IntegrationsServiceUpdateIntegrationProcedure:
@@ -294,6 +319,10 @@ func (UnimplementedIntegrationsServiceHandler) GetIntegrationValue(context.Conte
 
 func (UnimplementedIntegrationsServiceHandler) GetIntegration(context.Context, *connect.Request[v1.GetIntegrationRequest]) (*connect.Response[v1.GetIntegrationResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.GetIntegration is not implemented"))
+}
+
+func (UnimplementedIntegrationsServiceHandler) GetIntegrationByName(context.Context, *connect.Request[v1.GetIntegrationByNameRequest]) (*connect.Response[v1.GetIntegrationByNameResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.IntegrationsService.GetIntegrationByName is not implemented"))
 }
 
 func (UnimplementedIntegrationsServiceHandler) InsertIntegration(context.Context, *connect.Request[v1.InsertIntegrationRequest]) (*connect.Response[v1.InsertIntegrationResponse], error) {

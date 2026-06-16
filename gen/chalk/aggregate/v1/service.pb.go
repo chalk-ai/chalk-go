@@ -685,6 +685,7 @@ type CreateAggregateBackfillJobRequest struct {
 	UseMetaplanner      *bool                  `protobuf:"varint,11,opt,name=use_metaplanner,json=useMetaplanner,proto3,oneof" json:"use_metaplanner,omitempty"`
 	AllowEmptyTiles     *bool                  `protobuf:"varint,12,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
 	StoreOnline         *bool                  `protobuf:"varint,13,opt,name=store_online,json=storeOnline,proto3,oneof" json:"store_online,omitempty"`
+	InputSql            *string                `protobuf:"bytes,14,opt,name=input_sql,json=inputSql,proto3,oneof" json:"input_sql,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -810,6 +811,13 @@ func (x *CreateAggregateBackfillJobRequest) GetStoreOnline() bool {
 	return false
 }
 
+func (x *CreateAggregateBackfillJobRequest) GetInputSql() string {
+	if x != nil && x.InputSql != nil {
+		return *x.InputSql
+	}
+	return ""
+}
+
 type CreateAggregateBackfillJobResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
@@ -913,7 +921,7 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"latest_job\x18\x02 \x01(\v2(.chalk.aggregate.v1.AggregateBackfillJobR\tlatestJob\"\x9b\x01\n" +
 	"'GetActiveCronAggregateBackfillsResponse\x12p\n" +
-	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xaa\x06\n" +
+	"\x18cron_aggregate_backfills\x18\x01 \x03(\v26.chalk.aggregate.v1.CronAggregateBackfillWithLatestRunR\x16cronAggregateBackfills\"\xda\x06\n" +
 	"!CreateAggregateBackfillJobRequest\x12\x1a\n" +
 	"\bfeatures\x18\x01 \x03(\tR\bfeatures\x12@\n" +
 	"\vlower_bound\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
@@ -931,7 +939,9 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	" \x01(\bH\x06R\fstoreOffline\x88\x01\x01\x12,\n" +
 	"\x0fuse_metaplanner\x18\v \x01(\bH\aR\x0euseMetaplanner\x88\x01\x01\x12/\n" +
 	"\x11allow_empty_tiles\x18\f \x01(\bH\bR\x0fallowEmptyTiles\x88\x01\x01\x12&\n" +
-	"\fstore_online\x18\r \x01(\bH\tR\vstoreOnline\x88\x01\x01B\x0e\n" +
+	"\fstore_online\x18\r \x01(\bH\tR\vstoreOnline\x88\x01\x01\x12 \n" +
+	"\tinput_sql\x18\x0e \x01(\tH\n" +
+	"R\binputSql\x88\x01\x01B\x0e\n" +
 	"\f_lower_boundB\x0e\n" +
 	"\f_upper_boundB\v\n" +
 	"\t_resolverB\x11\n" +
@@ -941,7 +951,9 @@ const file_chalk_aggregate_v1_service_proto_rawDesc = "" +
 	"\x0e_store_offlineB\x12\n" +
 	"\x10_use_metaplannerB\x14\n" +
 	"\x12_allow_empty_tilesB\x0f\n" +
-	"\r_store_online\"\x8c\x01\n" +
+	"\r_store_onlineB\f\n" +
+	"\n" +
+	"_input_sql\"\x8c\x01\n" +
 	"\"CreateAggregateBackfillJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1a\n" +
 	"\bfeatures\x18\x02 \x03(\tR\bfeatures\x123\n" +
