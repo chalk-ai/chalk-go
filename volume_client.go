@@ -270,34 +270,29 @@ func (c *volumeClientImpl) addAuthHeaders(ctx context.Context, header http.Heade
 	return nil
 }
 
-func (c *volumeClientImpl) CreateVolume(ctx context.Context, name string) (*volumev2.CreateVolumeResponse, error) {
-	res, err := c.rpc.CreateVolume(ctx, connect.NewRequest(&volumev2.CreateVolumeRequest{Name: name}))
+func rpcMsg[T any](res *connect.Response[T], err error) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
 	return res.Msg, nil
+}
+
+func (c *volumeClientImpl) CreateVolume(ctx context.Context, name string) (*volumev2.CreateVolumeResponse, error) {
+	return rpcMsg(c.rpc.CreateVolume(ctx, connect.NewRequest(&volumev2.CreateVolumeRequest{Name: name})))
 }
 
 func (c *volumeClientImpl) GetVolume(ctx context.Context, volume VolumeRef, selector *volumev2.VersionSelector) (*volumev2.GetVolumeResponse, error) {
-	res, err := c.rpc.GetVolume(ctx, connect.NewRequest(&volumev2.GetVolumeRequest{
+	return rpcMsg(c.rpc.GetVolume(ctx, connect.NewRequest(&volumev2.GetVolumeRequest{
 		Volume:   volume.toProto(),
 		Selector: selector,
-	}))
-	if err != nil {
-		return nil, err
-	}
-	return res.Msg, nil
+	})))
 }
 
 func (c *volumeClientImpl) ListVolumes(ctx context.Context, limit int32, cursor string) (*volumev2.ListVolumesResponse, error) {
-	res, err := c.rpc.ListVolumes(ctx, connect.NewRequest(&volumev2.ListVolumesRequest{
+	return rpcMsg(c.rpc.ListVolumes(ctx, connect.NewRequest(&volumev2.ListVolumesRequest{
 		Limit:  limit,
 		Cursor: cursor,
-	}))
-	if err != nil {
-		return nil, err
-	}
-	return res.Msg, nil
+	})))
 }
 
 func (c *volumeClientImpl) DeleteVolume(ctx context.Context, volume VolumeRef) error {
@@ -306,42 +301,30 @@ func (c *volumeClientImpl) DeleteVolume(ctx context.Context, volume VolumeRef) e
 }
 
 func (c *volumeClientImpl) ListVolumeVersions(ctx context.Context, volume VolumeRef, limit int32, cursor string) (*volumev2.ListVolumeVersionsResponse, error) {
-	res, err := c.rpc.ListVolumeVersions(ctx, connect.NewRequest(&volumev2.ListVolumeVersionsRequest{
+	return rpcMsg(c.rpc.ListVolumeVersions(ctx, connect.NewRequest(&volumev2.ListVolumeVersionsRequest{
 		Volume: volume.toProto(),
 		Limit:  limit,
 		Cursor: cursor,
-	}))
-	if err != nil {
-		return nil, err
-	}
-	return res.Msg, nil
+	})))
 }
 
 func (c *volumeClientImpl) ListFiles(ctx context.Context, params ListVolumeFilesParams) (*volumev2.ListFilesResponse, error) {
-	res, err := c.rpc.ListFiles(ctx, connect.NewRequest(&volumev2.ListFilesRequest{
+	return rpcMsg(c.rpc.ListFiles(ctx, connect.NewRequest(&volumev2.ListFilesRequest{
 		Volume:    params.Volume.toProto(),
 		Path:      params.Path,
 		Recursive: params.Recursive,
 		Limit:     params.Limit,
 		Cursor:    params.Cursor,
 		Selector:  params.Selector,
-	}))
-	if err != nil {
-		return nil, err
-	}
-	return res.Msg, nil
+	})))
 }
 
 func (c *volumeClientImpl) GetFile(ctx context.Context, volume VolumeRef, path string, selector *volumev2.VersionSelector) (*volumev2.GetFileResponse, error) {
-	res, err := c.rpc.GetFile(ctx, connect.NewRequest(&volumev2.GetFileRequest{
+	return rpcMsg(c.rpc.GetFile(ctx, connect.NewRequest(&volumev2.GetFileRequest{
 		Volume:   volume.toProto(),
 		Path:     path,
 		Selector: selector,
-	}))
-	if err != nil {
-		return nil, err
-	}
-	return res.Msg, nil
+	})))
 }
 
 func (v VolumeRef) toProto() *volumev2.VolumeRef {

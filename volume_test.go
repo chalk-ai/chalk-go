@@ -113,14 +113,14 @@ func TestVolumeCommitRetriesRebaseAndDedupesRefs(t *testing.T) {
 }
 
 func TestVolumeDownloadInlineBytes(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(context.Context, *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File:    &volumev2.FileInfo{Path: "model.bin", Size: 5, Hash: blake3Hex([]byte("hello"))},
 				Content: &volumev2.GetFileResponse_Data{Data: []byte("hello")},
 			}), nil
 		},
-	}}
+	})
 	var progress uint64
 	got, info, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models",
@@ -375,110 +375,6 @@ func TestVolumeCollectLocalFiles(t *testing.T) {
 	require.ElementsMatch(t, []string{"a.txt", "sub/b.txt"}, paths)
 }
 
-func TestVolumeCRUDPassthrough(t *testing.T) {
-	ctx := context.Background()
-
-	t.Run("CreateVolume", func(t *testing.T) {
-		var gotName string
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			createVolume: func(_ context.Context, req *connect.Request[volumev2.CreateVolumeRequest]) (*connect.Response[volumev2.CreateVolumeResponse], error) {
-				gotName = req.Msg.GetName()
-				return connect.NewResponse(&volumev2.CreateVolumeResponse{}), nil
-			},
-		}}
-		_, err := client.CreateVolume(ctx, "my-vol")
-		require.NoError(t, err)
-		require.Equal(t, "my-vol", gotName)
-	})
-
-	t.Run("GetVolume", func(t *testing.T) {
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			getVolume: func(_ context.Context, req *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
-				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
-				return connect.NewResponse(&volumev2.GetVolumeResponse{
-					Version: &volumev2.VersionInfo{VersionId: 5},
-				}), nil
-			},
-		}}
-		resp, err := client.GetVolume(ctx, VolumeRef{Name: "my-vol"}, VolumeVersionSelector(5))
-		require.NoError(t, err)
-		require.Equal(t, uint64(5), resp.Version.VersionId)
-	})
-
-	t.Run("ListVolumes", func(t *testing.T) {
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			listVolumes: func(_ context.Context, req *connect.Request[volumev2.ListVolumesRequest]) (*connect.Response[volumev2.ListVolumesResponse], error) {
-				require.Equal(t, int32(10), req.Msg.GetLimit())
-				require.Equal(t, "cursor1", req.Msg.GetCursor())
-				return connect.NewResponse(&volumev2.ListVolumesResponse{}), nil
-			},
-		}}
-		_, err := client.ListVolumes(ctx, 10, "cursor1")
-		require.NoError(t, err)
-	})
-
-	t.Run("DeleteVolume", func(t *testing.T) {
-		var gotVolume *volumev2.VolumeRef
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			deleteVolume: func(_ context.Context, req *connect.Request[volumev2.DeleteVolumeRequest]) (*connect.Response[volumev2.DeleteVolumeResponse], error) {
-				gotVolume = req.Msg.GetVolume()
-				return connect.NewResponse(&volumev2.DeleteVolumeResponse{}), nil
-			},
-		}}
-		err := client.DeleteVolume(ctx, VolumeRef{Name: "old-vol"})
-		require.NoError(t, err)
-		require.Equal(t, "old-vol", gotVolume.GetName())
-	})
-
-	t.Run("ListVolumeVersions", func(t *testing.T) {
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			listVolumeVersions: func(_ context.Context, req *connect.Request[volumev2.ListVolumeVersionsRequest]) (*connect.Response[volumev2.ListVolumeVersionsResponse], error) {
-				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
-				require.Equal(t, int32(5), req.Msg.GetLimit())
-				return connect.NewResponse(&volumev2.ListVolumeVersionsResponse{}), nil
-			},
-		}}
-		_, err := client.ListVolumeVersions(ctx, VolumeRef{Name: "my-vol"}, 5, "")
-		require.NoError(t, err)
-	})
-
-	t.Run("ListFiles", func(t *testing.T) {
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
-				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
-				require.Equal(t, "models/", req.Msg.GetPath())
-				require.True(t, req.Msg.GetRecursive())
-				return connect.NewResponse(&volumev2.ListFilesResponse{
-					Files: []*volumev2.FileInfo{{Path: "models/a.bin"}},
-				}), nil
-			},
-		}}
-		resp, err := client.ListFiles(ctx, ListVolumeFilesParams{
-			Volume:    VolumeRef{Name: "my-vol"},
-			Path:      "models/",
-			Recursive: true,
-		})
-		require.NoError(t, err)
-		require.Len(t, resp.Files, 1)
-		require.Equal(t, "models/a.bin", resp.Files[0].Path)
-	})
-
-	t.Run("GetFile", func(t *testing.T) {
-		client := &volumeClientImpl{rpc: &fakeVolumeRPC{
-			getFile: func(_ context.Context, req *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
-				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
-				require.Equal(t, "model.bin", req.Msg.GetPath())
-				return connect.NewResponse(&volumev2.GetFileResponse{
-					File: &volumev2.FileInfo{Path: "model.bin", Size: 3},
-				}), nil
-			},
-		}}
-		resp, err := client.GetFile(ctx, VolumeRef{Name: "my-vol"}, "model.bin", nil)
-		require.NoError(t, err)
-		require.Equal(t, uint64(3), resp.File.Size)
-	})
-}
-
 func TestVolumeRemoveFiles(t *testing.T) {
 	var capturedRemoves []*volumev2.PathRemoveDelta
 	rpc := &fakeVolumeRPC{
@@ -509,7 +405,7 @@ func TestVolumeRemoveFiles(t *testing.T) {
 }
 
 func TestVolumeUploadFilesEmptyBatch(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{}}
+	client := newClientWithRPC(&fakeVolumeRPC{})
 	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
 		VolumeName: "test-vol",
 		Files:      nil,
@@ -583,7 +479,7 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 	fileData := []byte("chunk content data")
 	var putBodies [][]byte
 	var mu sync.Mutex
-	putServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	putSrv, putURL := testHTTPServer(t, func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPut {
 			data, _ := io.ReadAll(r.Body)
 			mu.Lock()
@@ -591,8 +487,7 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 			mu.Unlock()
 		}
 		w.WriteHeader(http.StatusOK)
-	}))
-	defer putServer.Close()
+	})
 
 	var commits []*volumev2.CommitIntent
 	rpc := &fakeVolumeRPC{
@@ -601,7 +496,7 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 			for i, obj := range req.Msg.GetObjects() {
 				urls[i] = &volumev2.UploadURLItem{
 					ObjectKey:       obj.GetObjectKey(),
-					SignedUploadUri: putServer.URL,
+					SignedUploadUri: putURL,
 					AlreadyExists:   false,
 				}
 			}
@@ -619,7 +514,7 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 			}), nil
 		},
 	}
-	client := &volumeClientImpl{httpClient: putServer.Client(), rpc: rpc, author: "test"}
+	client := &volumeClientImpl{httpClient: putSrv.Client(), rpc: rpc, author: "test"}
 	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
 		VolumeName: "test-vol",
 		Files:      []VolumeUploadFile{{Path: "file.bin", Content: VolumeUploadBytes(fileData)}},
@@ -636,14 +531,14 @@ func TestVolumeUploadFilesChunkPath(t *testing.T) {
 
 func TestVolumeDownloadToFile(t *testing.T) {
 	content := []byte("file content data")
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File:    &volumev2.FileInfo{Path: "model.bin", Size: uint64(len(content))},
 				Content: &volumev2.GetFileResponse_Data{Data: content},
 			}), nil
 		},
-	}}
+	})
 	localPath := filepath.Join(t.TempDir(), "model.bin")
 	info, err := client.DownloadToFile(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models",
@@ -659,7 +554,7 @@ func TestVolumeDownloadToFile(t *testing.T) {
 func TestVolumeDownloadToDirectory(t *testing.T) {
 	content := []byte("dir file content")
 	var getFileCalls int
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
 			return connect.NewResponse(&volumev2.ListFilesResponse{
 				Files: []*volumev2.FileInfo{
@@ -674,7 +569,7 @@ func TestVolumeDownloadToDirectory(t *testing.T) {
 				Content: &volumev2.GetFileResponse_Data{Data: content},
 			}), nil
 		},
-	}}
+	})
 	localDir := t.TempDir()
 	err := client.DownloadToDirectory(context.Background(), "models", localDir, nil, VolumeDownloadConfig{})
 	require.NoError(t, err)
@@ -686,7 +581,7 @@ func TestVolumeDownloadToDirectory(t *testing.T) {
 
 func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
 	content := []byte("nested file")
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
 			if req.Msg.GetPath() == "" {
 				return connect.NewResponse(&volumev2.ListFilesResponse{
@@ -707,7 +602,7 @@ func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
 				Content: &volumev2.GetFileResponse_Data{Data: content},
 			}), nil
 		},
-	}}
+	})
 	localDir := t.TempDir()
 	err := client.DownloadToDirectory(context.Background(), "models", localDir, nil, VolumeDownloadConfig{})
 	require.NoError(t, err)
@@ -718,7 +613,7 @@ func TestVolumeDownloadToDirectoryWithSubdirs(t *testing.T) {
 
 func TestVolumeListFilesRecursivePagination(t *testing.T) {
 	var calls int
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
 			calls++
 			if req.Msg.GetCursor() == "" {
@@ -731,11 +626,252 @@ func TestVolumeListFilesRecursivePagination(t *testing.T) {
 				Files: []*volumev2.FileInfo{{Path: "b.bin", Kind: volumev2.FileKind_FILE_KIND_FILE}},
 			}), nil
 		},
-	}}
+	})
 	files, err := client.listFilesRecursive(context.Background(), "models", nil)
 	require.NoError(t, err)
 	require.Len(t, files, 2)
 	require.Equal(t, 2, calls)
+}
+
+func TestVolumeParseDataPackHeaderErrors(t *testing.T) {
+	t.Run("too short", func(t *testing.T) {
+		_, _, err := parseDataPackHeader([]byte{0, 1, 2})
+		require.Error(t, err)
+	})
+	t.Run("bad magic", func(t *testing.T) {
+		data := make([]byte, 16)
+		copy(data[:4], []byte("BAD1"))
+		_, _, err := parseDataPackHeader(data)
+		require.Error(t, err)
+	})
+	t.Run("header length exceeds data", func(t *testing.T) {
+		// 10-byte buffer; write headerLen=1000 (0x000003E8 LE) so bodyStart > len(data).
+		data := make([]byte, 10)
+		copy(data[:4], cdp1Magic)
+		data[4] = 0xE8
+		data[5] = 0x03 // 1000 little-endian
+		_, _, err := parseDataPackHeader(data)
+		require.Error(t, err)
+	})
+}
+
+func TestVolumeFitsOversizedFile(t *testing.T) {
+	b := newDataPackBuilder()
+	require.False(t, b.fits(uint64(^uint32(0))+1, 1<<40))
+}
+
+func TestVolumeSignedRequestDefaultsMaxAttempts(t *testing.T) {
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
+		nil, nil, 0, 0,
+		func(context.Context) (string, error) { return url, nil })
+	require.NoError(t, err)
+}
+
+func TestVolumeSignedRequestRefreshError(t *testing.T) {
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusForbidden) })
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
+		nil, bytes.NewReader(nil), 1, 0,
+		func(context.Context) (string, error) { return "", io.ErrClosedPipe })
+	require.Error(t, err)
+}
+
+func TestVolumeSignedRequestNonSuccessRetry(t *testing.T) {
+	var count int
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		count++
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
+		nil, bytes.NewReader(nil), 2, 0,
+		func(context.Context) (string, error) { return url, nil })
+	require.Error(t, err)
+	require.Equal(t, 2, count)
+}
+
+func TestVolumeSignedRequestRateLimitExceeded(t *testing.T) {
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTooManyRequests) })
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	err := client.signedRequestWithRetry(context.Background(), http.MethodPut, url,
+		nil, bytes.NewReader(nil), 1, 0,
+		func(context.Context) (string, error) { return url, nil })
+	require.Error(t, err)
+}
+
+// ── signedGetWithRetry branches ─────────────────────────────────────────────
+
+func TestVolumeSignedGetDefaultsMaxAttempts(t *testing.T) {
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("ok")) })
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	data, err := client.signedGetWithRetry(context.Background(), url, nil, 0,
+		func(context.Context) (string, error) { return url, nil })
+	require.NoError(t, err)
+	require.Equal(t, []byte("ok"), data)
+}
+
+func TestVolumeSignedGetRefreshError(t *testing.T) {
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusUnauthorized) })
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	_, err := client.signedGetWithRetry(context.Background(), url, nil, 1,
+		func(context.Context) (string, error) { return "", io.ErrClosedPipe })
+	require.Error(t, err)
+}
+
+func TestVolumeSignedGetNonSuccessRetry(t *testing.T) {
+	var count int
+	srv, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		count++
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	client := &volumeClientImpl{httpClient: srv.Client()}
+	_, err := client.signedGetWithRetry(context.Background(), url, nil, 2,
+		func(context.Context) (string, error) { return url, nil })
+	require.Error(t, err)
+	require.Equal(t, 2, count)
+}
+
+func TestVolumeResolveCommitAuthorHTTPError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {}))
+	url := server.URL
+	client := newClientWithServer(t, url)
+	server.Close() // close after client creation so httpClient.Do fails
+
+	impl := client.(*volumeClientImpl)
+	require.Empty(t, impl.resolveCommitAuthor(context.Background()))
+}
+
+func TestVolumeResolveCommitAuthorNonSuccessStatus(t *testing.T) {
+	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusInternalServerError) })
+	client := newClientWithServer(t, url)
+	require.Empty(t, client.(*volumeClientImpl).resolveCommitAuthor(context.Background()))
+}
+
+func TestVolumeResolveCommitAuthorInvalidJSON(t *testing.T) {
+	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{invalid`))
+	})
+	client := newClientWithServer(t, url)
+	require.Empty(t, client.(*volumeClientImpl).resolveCommitAuthor(context.Background()))
+}
+
+func TestVolumeResolveCommitAuthorUsesBodyEnvID(t *testing.T) {
+	_, url := testHTTPServer(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"user":"bob","environment_id":"env-from-body"}`))
+	})
+	// Create a client normally, then clear envID so the body's environment_id is used.
+	client := newClientWithServer(t, url)
+	impl := client.(*volumeClientImpl)
+	impl.envID = ""
+	author := impl.resolveCommitAuthor(context.Background())
+	require.Equal(t, "chalk:env-from-body:agent:bob", author)
+}
+
+func TestVolumeDownloadGetFileError(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return nil, fakeVolumeUnimplemented()
+		},
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+	}, nil)
+	require.Error(t, err)
+}
+
+func TestVolumeDownloadPackedRangeOverflow(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "f.bin"},
+				Version: &volumev2.VersionInfo{VersionId: 1},
+				Content: &volumev2.GetFileResponse_Packed{Packed: &volumev2.PackedFileContent{
+					// offset + size - 1 overflows uint64
+					Pack: &volumev2.SignedPackEntryRef{Offset: ^uint64(0) - 1, Size: 3},
+				}},
+			}), nil
+		},
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+	}, nil)
+	require.Error(t, err)
+}
+
+func TestVolumeDownloadPackedGetFailure(t *testing.T) {
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return packedGetFileResponse(url, 0, 5, ""), nil
+		}}
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+		Config: VolumeDownloadConfig{MaxChunkRetries: 1},
+	}, nil)
+	require.Error(t, err)
+}
+
+func TestVolumeDownloadPackedSizeMismatch(t *testing.T) {
+	body := []byte("ab") // 2 bytes; pack declares Size: 100
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return packedGetFileResponse(url, 0, 100, ""), nil
+		}}
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+	}, nil)
+	require.Error(t, err)
+}
+
+func TestVolumeDownloadPackedHashMismatch(t *testing.T) {
+	body := []byte("data bytes")
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return packedGetFileResponse(url, 0, uint64(len(body)), "deadbeef"), nil
+		}}
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+	}, nil)
+	require.Error(t, err)
+}
+
+func TestVolumeDownloadChunkedHashMismatch(t *testing.T) {
+	body := []byte("chunk data")
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write(body)
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+			return connect.NewResponse(&volumev2.GetFileResponse{
+				File:    &volumev2.FileInfo{Path: "f.bin"},
+				Version: &volumev2.VersionInfo{VersionId: 1},
+				Content: &volumev2.GetFileResponse_Chunked{Chunked: &volumev2.ChunkedFileContent{
+					Chunks: []*volumev2.SignedChunkRef{{
+						SignedDownloadUri: url,
+						Offset:            0,
+						Size:              uint64(len(body)),
+						Hash:              "deadbeef", // wrong hash
+					}},
+				}},
+			}), nil
+		}}
+	})
+	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
+		VolumeName: "models", Path: "f.bin",
+		Config: VolumeDownloadConfig{ChunkConcurrency: 1, MaxChunkRetries: 1},
+	}, nil)
+	require.Error(t, err)
 }
 
 func TestVolumeRateLimitBackoff(t *testing.T) {
@@ -759,8 +895,8 @@ func TestVolumeRateLimitBackoff(t *testing.T) {
 func TestVolumeChunkRelativeObjectKey(t *testing.T) {
 	tests := []struct{ hash, want string }{
 		{"abcdef1234", "ab/abcdef1234"},
-		{"x", "x"},  // len < 2: returned as-is
-		{"", ""},    // empty: returned as-is
+		{"x", "x"}, // len < 2: returned as-is
+		{"", ""},   // empty: returned as-is
 	}
 	for _, tc := range tests {
 		require.Equal(t, tc.want, chunkRelativeObjectKey(tc.hash), "hash=%q", tc.hash)
@@ -792,7 +928,7 @@ func TestVolumeApplyFileInfoMetadata(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedZeroSize(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File:    &volumev2.FileInfo{Path: "empty.bin"},
@@ -802,7 +938,7 @@ func TestVolumeDownloadPackedZeroSize(t *testing.T) {
 				}},
 			}), nil
 		},
-	}}
+	})
 	got, info, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models",
 		Path:       "empty.bin",
@@ -812,18 +948,15 @@ func TestVolumeDownloadPackedZeroSize(t *testing.T) {
 	require.Equal(t, "empty.bin", info.Path)
 }
 
-// TestVolumeUploadPackWithPUT exercises the uploadOnePack path when the object does not
-// already exist, triggering a signed PUT to the object store.
 func TestVolumeUploadPackWithPUT(t *testing.T) {
 	fileData := []byte("pack payload data")
 	var putCount int
-	putServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	putSrv, putURL := testHTTPServer(t, func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPut {
 			putCount++
 		}
 		w.WriteHeader(http.StatusOK)
-	}))
-	defer putServer.Close()
+	})
 
 	rpc := &fakeVolumeRPC{
 		requestUploadURLs: func(_ context.Context, req *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
@@ -831,7 +964,7 @@ func TestVolumeUploadPackWithPUT(t *testing.T) {
 			for i, obj := range req.Msg.GetObjects() {
 				urls[i] = &volumev2.UploadURLItem{
 					ObjectKey:       obj.GetObjectKey(),
-					SignedUploadUri: putServer.URL,
+					SignedUploadUri: putURL,
 					AlreadyExists:   false,
 				}
 			}
@@ -848,7 +981,7 @@ func TestVolumeUploadPackWithPUT(t *testing.T) {
 			}), nil
 		},
 	}
-	client := &volumeClientImpl{httpClient: putServer.Client(), rpc: rpc, author: "test"}
+	client := &volumeClientImpl{httpClient: putSrv.Client(), rpc: rpc, author: "test"}
 	statuses, err := client.UploadFiles(context.Background(), VolumeUploadRequest{
 		VolumeName: "test-vol",
 		Files:      []VolumeUploadFile{{Path: "pack.bin", Content: VolumeUploadBytes(fileData)}},
@@ -858,8 +991,6 @@ func TestVolumeUploadPackWithPUT(t *testing.T) {
 	require.Equal(t, 1, putCount)
 }
 
-// TestVolumePackAndUploadMultiplePacks verifies that packAndUpload starts a new pack when
-// the current one would overflow MaxPackBytes.
 func TestVolumePackAndUploadMultiplePacks(t *testing.T) {
 	data1 := bytes.Repeat([]byte{0xAA}, 64)
 	data2 := bytes.Repeat([]byte{0xBB}, 64)
@@ -904,8 +1035,6 @@ func TestVolumePackAndUploadMultiplePacks(t *testing.T) {
 	require.Equal(t, 2, uploadCount, "expected two separate pack uploads")
 }
 
-// TestVolumeResolveCommitAuthorFromAPI verifies that resolveCommitAuthor fetches and caches
-// the author identity from /v1/who-am-i when no explicit author is configured.
 func TestVolumeResolveCommitAuthorFromAPI(t *testing.T) {
 	envID := "env-test"
 	var requestCount int
@@ -940,7 +1069,7 @@ func TestVolumeResolveCommitAuthorFromAPI(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedNilVersionError(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File: &volumev2.FileInfo{Path: "f.bin"},
@@ -950,7 +1079,7 @@ func TestVolumeDownloadPackedNilVersionError(t *testing.T) {
 				}},
 			}), nil
 		},
-	}}
+	})
 	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models", Path: "f.bin",
 	}, nil)
@@ -994,26 +1123,23 @@ func TestVolumeSignedRequestNetworkError(t *testing.T) {
 
 func TestVolumeDownloadChunkedSizeMismatch(t *testing.T) {
 	body := []byte("short") // 5 bytes, but the chunk declares Size: 100
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write(body)
-	}))
-	defer server.Close()
-
-	client := &volumeClientImpl{httpClient: server.Client(), rpc: &fakeVolumeRPC{
-		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File:    &volumev2.FileInfo{Path: "f.bin"},
 				Version: &volumev2.VersionInfo{VersionId: 1},
 				Content: &volumev2.GetFileResponse_Chunked{Chunked: &volumev2.ChunkedFileContent{
 					Chunks: []*volumev2.SignedChunkRef{{
-						SignedDownloadUri: server.URL,
+						SignedDownloadUri: url,
 						Offset:            0,
 						Size:              100, // declared size doesn't match server response
 					}},
 				}},
 			}), nil
-		},
-	}}
+		}}
+	})
 	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models",
 		Path:       "f.bin",
@@ -1023,11 +1149,11 @@ func TestVolumeDownloadChunkedSizeMismatch(t *testing.T) {
 }
 
 func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
 			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{Urls: nil}), nil
 		},
-	}, author: "test"}
+	})
 	builder := newDataPackBuilder()
 	data := []byte("pack data")
 	builder.append(blake3Sum(data), data)
@@ -1038,7 +1164,7 @@ func TestVolumeUploadOnePackEmptyURLsError(t *testing.T) {
 }
 
 func TestVolumeDownloadChunkedNilVersionError(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File: &volumev2.FileInfo{Path: "f.bin"},
@@ -1048,7 +1174,7 @@ func TestVolumeDownloadChunkedNilVersionError(t *testing.T) {
 				}},
 			}), nil
 		},
-	}}
+	})
 	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models", Path: "f.bin",
 	}, nil)
@@ -1056,7 +1182,7 @@ func TestVolumeDownloadChunkedNilVersionError(t *testing.T) {
 }
 
 func TestVolumeDownloadPackedNilPackError(t *testing.T) {
-	client := &volumeClientImpl{rpc: &fakeVolumeRPC{
+	client := newClientWithRPC(&fakeVolumeRPC{
 		getFile: func(_ context.Context, _ *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
 			return connect.NewResponse(&volumev2.GetFileResponse{
 				File:    &volumev2.FileInfo{Path: "f.bin"},
@@ -1064,7 +1190,7 @@ func TestVolumeDownloadPackedNilPackError(t *testing.T) {
 				Content: &volumev2.GetFileResponse_Packed{Packed: &volumev2.PackedFileContent{Pack: nil}},
 			}), nil
 		},
-	}}
+	})
 	_, _, err := client.DownloadBytes(context.Background(), VolumeDownloadRequest{
 		VolumeName: "models", Path: "f.bin",
 	}, nil)
@@ -1087,6 +1213,349 @@ func TestVolumeSignedGetNetworkError(t *testing.T) {
 		func(context.Context) (string, error) { return url, nil },
 	)
 	require.Error(t, err)
+}
+
+func TestVolumeUploadOneFileMetadataError(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{})
+	file := VolumeUploadFile{
+		Path:    "file.txt",
+		Content: VolumeUploadLocalPath("/nonexistent-path-xyz-abc"),
+	}
+	_, err := client.uploadOneFile(context.Background(), &volumev2.VolumeRef{Name: "vol"}, file, 100, VolumeUploadConfig{ChunkSize: 64 * 1024}, func(uint64) {})
+	require.Error(t, err)
+}
+
+func TestVolumeUploadOneFileReadChunkError(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{})
+	file := VolumeUploadFile{
+		Path:     "file.txt",
+		Content:  VolumeUploadBytes([]byte("hi")),
+		Metadata: &volumev2.FileMetadata{},
+	}
+	// size=100 causes readChunk to fail since actual data is only 2 bytes
+	_, err := client.uploadOneFile(context.Background(), &volumev2.VolumeRef{}, file, 100, VolumeUploadConfig{ChunkSize: 64 * 1024}, func(uint64) {})
+	require.Error(t, err)
+}
+
+func TestVolumeUploadOneFileURLCountMismatch(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
+			return connect.NewResponse(&volumev2.RequestUploadURLsResponse{}), nil
+		},
+	})
+	data := []byte("hello world data")
+	file := VolumeUploadFile{
+		Path:     "file.txt",
+		Content:  VolumeUploadBytes(data),
+		Metadata: &volumev2.FileMetadata{},
+	}
+	_, err := client.uploadOneFile(context.Background(), &volumev2.VolumeRef{}, file, uint64(len(data)), VolumeUploadConfig{ChunkSize: 64 * 1024}, func(uint64) {})
+	require.Error(t, err)
+}
+
+func TestVolumeRPCWrapperErrors(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{})
+	vol := VolumeRef{Name: "vol"}
+	ctx := context.Background()
+
+	_, err := client.CreateVolume(ctx, "vol")
+	require.Error(t, err)
+
+	_, err = client.GetVolume(ctx, vol, nil)
+	require.Error(t, err)
+
+	_, err = client.ListVolumes(ctx, 10, "")
+	require.Error(t, err)
+
+	_, err = client.ListVolumeVersions(ctx, vol, 10, "")
+	require.Error(t, err)
+
+	_, err = client.ListFiles(ctx, ListVolumeFilesParams{Volume: vol})
+	require.Error(t, err)
+
+	_, err = client.GetFile(ctx, vol, "path.txt", nil)
+	require.Error(t, err)
+}
+
+func TestVolumeUploadDirectoryNonExistentDir(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{})
+	_, err := client.UploadDirectory(context.Background(), "vol", "/nonexistent-dir-xyz-abc", VolumeUploadConfig{})
+	require.Error(t, err)
+}
+
+func newTestCommitClient(getVolumeFn func(context.Context, *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error), commitVersionFn func(context.Context, *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error)) *volumeClientImpl {
+	return newClientWithRPC(&fakeVolumeRPC{getVolume: getVolumeFn, commitVersion: commitVersionFn})
+}
+
+func fakeGetVolumeOK() func(context.Context, *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+	return func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+		return connect.NewResponse(&volumev2.GetVolumeResponse{
+			Version: &volumev2.VersionInfo{VersionId: 1},
+		}), nil
+	}
+}
+
+func TestVolumeCommitInlineContentError(t *testing.T) {
+	client := newTestCommitClient(fakeGetVolumeOK(), nil)
+	upserts := []uploadedVolumeFile{{
+		path: "file.txt",
+		contentRef: &volumev2.ContentRef{
+			Content: &volumev2.ContentRef_Inline{Inline: &volumev2.InlineFileContent{Data: []byte("hi")}},
+		},
+	}}
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, upserts, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitGetVolumeError(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return nil, fakeVolumeUnimplemented()
+		},
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitGetVolumeNilVersion(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		getVolume: func(_ context.Context, _ *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+			return connect.NewResponse(&volumev2.GetVolumeResponse{}), nil
+		},
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitVersionError(t *testing.T) {
+	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+		return nil, fakeVolumeUnimplemented()
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitVersionNilStatus(t *testing.T) {
+	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+		return connect.NewResponse(&volumev2.CommitVersionResponse{}), nil
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitResultUnknown(t *testing.T) {
+	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+		return connect.NewResponse(&volumev2.CommitVersionResponse{
+			Status: &volumev2.CommitStatus{Result: volumev2.CommitResult(999)},
+		}), nil
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeCommitMaxRetriesExhausted(t *testing.T) {
+	client := newTestCommitClient(fakeGetVolumeOK(), func(_ context.Context, _ *connect.Request[volumev2.CommitVersionRequest]) (*connect.Response[volumev2.CommitVersionResponse], error) {
+		return connect.NewResponse(&volumev2.CommitVersionResponse{
+			Status: &volumev2.CommitStatus{Result: volumev2.CommitResult_COMMIT_RESULT_REBASE_REQUIRED},
+		}), nil
+	})
+	_, err := client.commitPathDeltas(context.Background(), &volumev2.VolumeRef{Name: "vol"}, nil, nil, 1)
+	require.Error(t, err)
+}
+
+func TestVolumeUploadOnePackRequestURLsError(t *testing.T) {
+	client := newClientWithRPC(&fakeVolumeRPC{
+		requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
+			return nil, fakeVolumeUnimplemented()
+		},
+	})
+	builder := newDataPackBuilder()
+	data := []byte("upload-pack-data")
+	h := blake3Sum(data)
+	builder.append(h, data)
+	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
+		[]packMember{{path: "f.bin", hash: h}},
+		VolumeUploadConfig{}, func(uint64) {})
+	require.Error(t, err)
+}
+
+func TestVolumeUploadOnePackPUTFailure(t *testing.T) {
+	client := newHTTPFakeClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}, func(url string) *fakeVolumeRPC {
+		return &fakeVolumeRPC{
+			requestUploadURLs: func(_ context.Context, _ *connect.Request[volumev2.RequestUploadURLsRequest]) (*connect.Response[volumev2.RequestUploadURLsResponse], error) {
+				return connect.NewResponse(&volumev2.RequestUploadURLsResponse{
+					Urls: []*volumev2.UploadURLItem{{ObjectKey: "some-key", SignedUploadUri: url, AlreadyExists: false}},
+				}), nil
+			},
+		}
+	})
+	builder := newDataPackBuilder()
+	data := []byte("put-fail-data")
+	h := blake3Sum(data)
+	builder.append(h, data)
+	_, err := client.uploadOnePack(context.Background(), &volumev2.VolumeRef{Name: "vol"}, builder,
+		[]packMember{{path: "f.bin", hash: h}},
+		VolumeUploadConfig{MaxChunkRetries: 1}, func(uint64) {})
+	require.Error(t, err)
+}
+
+func TestVolumeCRUDPassthrough(t *testing.T) {
+	ctx := context.Background()
+
+	t.Run("CreateVolume", func(t *testing.T) {
+		var gotName string
+		client := newClientWithRPC(&fakeVolumeRPC{
+			createVolume: func(_ context.Context, req *connect.Request[volumev2.CreateVolumeRequest]) (*connect.Response[volumev2.CreateVolumeResponse], error) {
+				gotName = req.Msg.GetName()
+				return connect.NewResponse(&volumev2.CreateVolumeResponse{}), nil
+			},
+		})
+		_, err := client.CreateVolume(ctx, "my-vol")
+		require.NoError(t, err)
+		require.Equal(t, "my-vol", gotName)
+	})
+
+	t.Run("GetVolume", func(t *testing.T) {
+		client := newClientWithRPC(&fakeVolumeRPC{
+			getVolume: func(_ context.Context, req *connect.Request[volumev2.GetVolumeRequest]) (*connect.Response[volumev2.GetVolumeResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				return connect.NewResponse(&volumev2.GetVolumeResponse{
+					Version: &volumev2.VersionInfo{VersionId: 5},
+				}), nil
+			},
+		})
+		resp, err := client.GetVolume(ctx, VolumeRef{Name: "my-vol"}, VolumeVersionSelector(5))
+		require.NoError(t, err)
+		require.Equal(t, uint64(5), resp.Version.VersionId)
+	})
+
+	t.Run("ListVolumes", func(t *testing.T) {
+		client := newClientWithRPC(&fakeVolumeRPC{
+			listVolumes: func(_ context.Context, req *connect.Request[volumev2.ListVolumesRequest]) (*connect.Response[volumev2.ListVolumesResponse], error) {
+				require.Equal(t, int32(10), req.Msg.GetLimit())
+				require.Equal(t, "cursor1", req.Msg.GetCursor())
+				return connect.NewResponse(&volumev2.ListVolumesResponse{}), nil
+			},
+		})
+		_, err := client.ListVolumes(ctx, 10, "cursor1")
+		require.NoError(t, err)
+	})
+
+	t.Run("DeleteVolume", func(t *testing.T) {
+		var gotVolume *volumev2.VolumeRef
+		client := newClientWithRPC(&fakeVolumeRPC{
+			deleteVolume: func(_ context.Context, req *connect.Request[volumev2.DeleteVolumeRequest]) (*connect.Response[volumev2.DeleteVolumeResponse], error) {
+				gotVolume = req.Msg.GetVolume()
+				return connect.NewResponse(&volumev2.DeleteVolumeResponse{}), nil
+			},
+		})
+		err := client.DeleteVolume(ctx, VolumeRef{Name: "old-vol"})
+		require.NoError(t, err)
+		require.Equal(t, "old-vol", gotVolume.GetName())
+	})
+
+	t.Run("ListVolumeVersions", func(t *testing.T) {
+		client := newClientWithRPC(&fakeVolumeRPC{
+			listVolumeVersions: func(_ context.Context, req *connect.Request[volumev2.ListVolumeVersionsRequest]) (*connect.Response[volumev2.ListVolumeVersionsResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, int32(5), req.Msg.GetLimit())
+				return connect.NewResponse(&volumev2.ListVolumeVersionsResponse{}), nil
+			},
+		})
+		_, err := client.ListVolumeVersions(ctx, VolumeRef{Name: "my-vol"}, 5, "")
+		require.NoError(t, err)
+	})
+
+	t.Run("ListFiles", func(t *testing.T) {
+		client := newClientWithRPC(&fakeVolumeRPC{
+			listFiles: func(_ context.Context, req *connect.Request[volumev2.ListFilesRequest]) (*connect.Response[volumev2.ListFilesResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, "models/", req.Msg.GetPath())
+				require.True(t, req.Msg.GetRecursive())
+				return connect.NewResponse(&volumev2.ListFilesResponse{
+					Files: []*volumev2.FileInfo{{Path: "models/a.bin"}},
+				}), nil
+			},
+		})
+		resp, err := client.ListFiles(ctx, ListVolumeFilesParams{
+			Volume:    VolumeRef{Name: "my-vol"},
+			Path:      "models/",
+			Recursive: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Files, 1)
+		require.Equal(t, "models/a.bin", resp.Files[0].Path)
+	})
+
+	t.Run("GetFile", func(t *testing.T) {
+		client := newClientWithRPC(&fakeVolumeRPC{
+			getFile: func(_ context.Context, req *connect.Request[volumev2.GetFileRequest]) (*connect.Response[volumev2.GetFileResponse], error) {
+				require.Equal(t, "my-vol", req.Msg.GetVolume().GetName())
+				require.Equal(t, "model.bin", req.Msg.GetPath())
+				return connect.NewResponse(&volumev2.GetFileResponse{
+					File: &volumev2.FileInfo{Path: "model.bin", Size: 3},
+				}), nil
+			},
+		})
+		resp, err := client.GetFile(ctx, VolumeRef{Name: "my-vol"}, "model.bin", nil)
+		require.NoError(t, err)
+		require.Equal(t, uint64(3), resp.File.Size)
+	})
+}
+
+func newClientWithServer(t *testing.T, apiServer string) VolumeClient {
+	t.Helper()
+	envID := "env-test"
+	client, err := NewVolumeClient(context.Background(), &VolumeClientConfig{
+		ApiServer:                  apiServer,
+		ClientId:                   "client",
+		ClientSecret:               "secret",
+		EnvironmentId:              envID,
+		SkipEnvironmentNameMapping: true,
+		JWT: &serverv1.GetTokenResponse{
+			AccessToken:         "test-token",
+			ExpiresAt:           timestamppb.New(time.Now().Add(time.Hour)),
+			EnvironmentIdToName: map[string]string{envID: "test-env"},
+		},
+	})
+	require.NoError(t, err)
+	return client
+}
+
+// newFakeClient creates a volumeClientImpl backed by a fakeVolumeRPC for unit tests.
+func newClientWithRPC(rpc *fakeVolumeRPC) *volumeClientImpl {
+	return &volumeClientImpl{rpc: rpc, author: "test"}
+}
+
+// testHTTPServer starts an httptest.Server using handler and registers its Close
+// as a test cleanup. Returns the server and its URL.
+func testHTTPServer(t *testing.T, handler http.HandlerFunc) (*httptest.Server, string) {
+	t.Helper()
+	srv := httptest.NewServer(handler)
+	t.Cleanup(srv.Close)
+	return srv, srv.URL
+}
+
+// newHTTPFakeClient starts an httptest.Server, registers cleanup, and returns a
+// volumeClientImpl whose HTTP client points at that server. makeRPC receives the
+// server URL so handlers can embed it in fake RPC responses.
+func newHTTPFakeClient(t *testing.T, handler http.HandlerFunc, makeRPC func(url string) *fakeVolumeRPC) *volumeClientImpl {
+	t.Helper()
+	srv, url := testHTTPServer(t, handler)
+	return &volumeClientImpl{rpc: makeRPC(url), httpClient: srv.Client(), author: "test"}
+}
+
+// packedGetFileResponse builds a GetFileResponse pointing at a pack at the given URL/offset/size.
+func packedGetFileResponse(url string, offset, size uint64, fileHash string) *connect.Response[volumev2.GetFileResponse] {
+	return connect.NewResponse(&volumev2.GetFileResponse{
+		File:    &volumev2.FileInfo{Path: "f.bin", Size: size, Hash: fileHash},
+		Version: &volumev2.VersionInfo{VersionId: 1},
+		Content: &volumev2.GetFileResponse_Packed{Packed: &volumev2.PackedFileContent{
+			Pack: &volumev2.SignedPackEntryRef{SignedDownloadUri: url, Offset: offset, Size: size},
+		}},
+	})
 }
 
 type fakeVolumeRPC struct {
