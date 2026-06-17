@@ -1296,9 +1296,14 @@ type RedeployDeploymentRequest struct {
 	DisplayDescription     *string `protobuf:"bytes,9,opt,name=display_description,json=displayDescription,proto3,oneof" json:"display_description,omitempty"`
 	ForceRebuildDockerfile bool    `protobuf:"varint,10,opt,name=force_rebuild_dockerfile,json=forceRebuildDockerfile,proto3" json:"force_rebuild_dockerfile,omitempty"`
 	// Build-time options consumed by the builder (see CreateDeploymentRequest.build_options).
-	BuildOptions  map[string]string `protobuf:"bytes,11,rep,name=build_options,json=buildOptions,proto3" json:"build_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	BuildOptions map[string]string `protobuf:"bytes,11,rep,name=build_options,json=buildOptions,proto3" json:"build_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Pin the engine platform version for this redeploy (a tag/digest selector applied
+	// to the default engine base image, e.g. "v3.27.30"). Mutually exclusive with
+	// base_image_override. When unset, the existing deployment's pinned platform version
+	// is inherited (the prior behavior).
+	PlatformVersion *string `protobuf:"bytes,12,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RedeployDeploymentRequest) Reset() {
@@ -1409,13 +1414,24 @@ func (x *RedeployDeploymentRequest) GetBuildOptions() map[string]string {
 	return nil
 }
 
+func (x *RedeployDeploymentRequest) GetPlatformVersion() string {
+	if x != nil && x.PlatformVersion != nil {
+		return *x.PlatformVersion
+	}
+	return ""
+}
+
 type RedeployDeploymentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
-	BuildId       string `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"` // don't care about this
-	DeploymentId  string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	BuildId      string `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"` // don't care about this
+	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	// The platform version the new deployment was pinned to (resolved from the request's
+	// platform_version, or inherited from the existing deployment when unset). Empty when
+	// no platform version is pinned.
+	PlatformVersion *string `protobuf:"bytes,3,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *RedeployDeploymentResponse) Reset() {
@@ -1459,6 +1475,13 @@ func (x *RedeployDeploymentResponse) GetBuildId() string {
 func (x *RedeployDeploymentResponse) GetDeploymentId() string {
 	if x != nil {
 		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *RedeployDeploymentResponse) GetPlatformVersion() string {
+	if x != nil && x.PlatformVersion != nil {
+		return *x.PlatformVersion
 	}
 	return ""
 }
@@ -12394,7 +12417,7 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0e_build_profileB\x0e\n" +
 	"\f_branch_name\"6\n" +
 	"\x19RebuildDeploymentResponse\x12\x19\n" +
-	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\xda\a\n" +
+	"\bbuild_id\x18\x01 \x01(\tR\abuildId\"\x9f\b\n" +
 	"\x19RedeployDeploymentRequest\x124\n" +
 	"\x16existing_deployment_id\x18\x01 \x01(\tR\x14existingDeploymentId\x12-\n" +
 	"\x10enable_profiling\x18\x02 \x01(\bB\x02\x18\x01R\x0fenableProfiling\x12'\n" +
@@ -12407,7 +12430,8 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x13display_description\x18\t \x01(\tH\x03R\x12displayDescription\x88\x01\x01\x128\n" +
 	"\x18force_rebuild_dockerfile\x18\n" +
 	" \x01(\bR\x16forceRebuildDockerfile\x12a\n" +
-	"\rbuild_options\x18\v \x03(\v2<.chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntryR\fbuildOptions\x1aC\n" +
+	"\rbuild_options\x18\v \x03(\v2<.chalk.server.v1.RedeployDeploymentRequest.BuildOptionsEntryR\fbuildOptions\x12.\n" +
+	"\x10platform_version\x18\f \x01(\tH\x04R\x0fplatformVersion\x88\x01\x01\x1aC\n" +
 	"\x15CustomerMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a?\n" +
@@ -12417,10 +12441,13 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x14_base_image_overrideB\x11\n" +
 	"\x0f_override_graphB\x10\n" +
 	"\x0e_build_profileB\x16\n" +
-	"\x14_display_description\"`\n" +
+	"\x14_display_descriptionB\x13\n" +
+	"\x11_platform_version\"\xa5\x01\n" +
 	"\x1aRedeployDeploymentResponse\x12\x1d\n" +
 	"\bbuild_id\x18\x01 \x01(\tB\x02\x18\x01R\abuildId\x12#\n" +
-	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"\xeb\x03\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12.\n" +
+	"\x10platform_version\x18\x03 \x01(\tH\x00R\x0fplatformVersion\x88\x01\x01B\x13\n" +
+	"\x11_platform_version\"\xeb\x03\n" +
 	"\x13UploadSourceRequest\x12#\n" +
 	"\rdeployment_id\x18\a \x01(\tR\fdeploymentId\x12\x18\n" +
 	"\aarchive\x18\x01 \x01(\fR\aarchive\x12\x1d\n" +
@@ -14222,6 +14249,7 @@ func file_chalk_server_v1_builder_proto_init() {
 	file_chalk_server_v1_builder_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[13].OneofWrappers = []any{}
+	file_chalk_server_v1_builder_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[27].OneofWrappers = []any{}

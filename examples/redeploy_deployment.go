@@ -27,7 +27,12 @@ func redeployDeployment() {
 		ExistingDeploymentId: "your-deployment-id", // Replace with actual deployment ID
 		EnableProfiling:      false,
 		DeploymentTags:       []string{"production", "v2"},
-		// Optional: Set base image override
+		// Optional: pin the engine platform version (a tag/digest selector applied to the
+		// default engine base image, e.g. "v3.27.30"). Mutually exclusive with
+		// BaseImageOverride — setting both returns an InvalidArgument error. When unset,
+		// the existing deployment's pinned platform version is inherited.
+		// PlatformVersion: &somePlatformVersion,
+		// Optional: Set base image override (mutually exclusive with PlatformVersion)
 		// BaseImageOverride: &someBaseImage,
 		// Optional: Override the graph
 		// OverrideGraph: &graphv1.Graph{...},
@@ -42,4 +47,6 @@ func redeployDeployment() {
 	// Access the response data
 	fmt.Printf("Redeploy initiated successfully!\n")
 	fmt.Printf("New Deployment ID: %s\n", result.Msg.DeploymentId)
+	// The response also echoes the resolved platform version the new deployment was
+	// pinned to, available via result.Msg.GetPlatformVersion().
 }
