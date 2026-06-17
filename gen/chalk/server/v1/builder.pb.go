@@ -1424,14 +1424,10 @@ func (x *RedeployDeploymentRequest) GetPlatformVersion() string {
 type RedeployDeploymentResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Deprecated: Marked as deprecated in chalk/server/v1/builder.proto.
-	BuildId      string `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"` // don't care about this
-	DeploymentId string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
-	// The platform version the new deployment was pinned to (resolved from the request's
-	// platform_version, or inherited from the existing deployment when unset). Empty when
-	// no platform version is pinned.
-	PlatformVersion *string `protobuf:"bytes,3,opt,name=platform_version,json=platformVersion,proto3,oneof" json:"platform_version,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	BuildId       string `protobuf:"bytes,1,opt,name=build_id,json=buildId,proto3" json:"build_id,omitempty"` // don't care about this
+	DeploymentId  string `protobuf:"bytes,2,opt,name=deployment_id,json=deploymentId,proto3" json:"deployment_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RedeployDeploymentResponse) Reset() {
@@ -1475,13 +1471,6 @@ func (x *RedeployDeploymentResponse) GetBuildId() string {
 func (x *RedeployDeploymentResponse) GetDeploymentId() string {
 	if x != nil {
 		return x.DeploymentId
-	}
-	return ""
-}
-
-func (x *RedeployDeploymentResponse) GetPlatformVersion() string {
-	if x != nil && x.PlatformVersion != nil {
-		return *x.PlatformVersion
 	}
 	return ""
 }
@@ -12442,12 +12431,10 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x0f_override_graphB\x10\n" +
 	"\x0e_build_profileB\x16\n" +
 	"\x14_display_descriptionB\x13\n" +
-	"\x11_platform_version\"\xa5\x01\n" +
+	"\x11_platform_version\"`\n" +
 	"\x1aRedeployDeploymentResponse\x12\x1d\n" +
 	"\bbuild_id\x18\x01 \x01(\tB\x02\x18\x01R\abuildId\x12#\n" +
-	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\x12.\n" +
-	"\x10platform_version\x18\x03 \x01(\tH\x00R\x0fplatformVersion\x88\x01\x01B\x13\n" +
-	"\x11_platform_version\"\xeb\x03\n" +
+	"\rdeployment_id\x18\x02 \x01(\tR\fdeploymentId\"\xeb\x03\n" +
 	"\x13UploadSourceRequest\x12#\n" +
 	"\rdeployment_id\x18\a \x01(\tR\fdeploymentId\x12\x18\n" +
 	"\aarchive\x18\x01 \x01(\fR\aarchive\x12\x1d\n" +
@@ -14249,7 +14236,6 @@ func file_chalk_server_v1_builder_proto_init() {
 	file_chalk_server_v1_builder_proto_msgTypes[7].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[11].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[13].OneofWrappers = []any{}
-	file_chalk_server_v1_builder_proto_msgTypes[14].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[15].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_builder_proto_msgTypes[27].OneofWrappers = []any{}

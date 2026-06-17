@@ -47,6 +47,6 @@ func redeployDeployment() {
 	// Access the response data
 	fmt.Printf("Redeploy initiated successfully!\n")
 	fmt.Printf("New Deployment ID: %s\n", result.Msg.DeploymentId)
-	// The response also echoes the resolved platform version the new deployment was
-	// pinned to, available via result.Msg.GetPlatformVersion().
+	// To read the resolved platform version, call GetDeployment with the returned
+	// deployment id; the returned Deployment carries pinned_platform_version.
 }
