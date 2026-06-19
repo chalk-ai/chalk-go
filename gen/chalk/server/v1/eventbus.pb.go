@@ -205,7 +205,12 @@ type InfraDeploymentEvent struct {
 	// Deployment outcome, e.g. "SUCCESS" or "FAILED".
 	Status string `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
 	// Failure detail, set when status is not a success.
-	Error         *string `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	Error *string `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	// Which manifest action this outcome is for: "CREATE", "UPDATE", or "DELETE". The metadata plane
+	// uses this to pick the lifecycle transition (e.g. DELETE+SUCCESS archives the record, whereas
+	// CREATE/UPDATE+SUCCESS stamps applied_at and marks it ACTIVE). Empty is treated as CREATE/UPDATE
+	// for backward compatibility with older deployers.
+	Action        string `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -275,6 +280,13 @@ func (x *InfraDeploymentEvent) GetStatus() string {
 func (x *InfraDeploymentEvent) GetError() string {
 	if x != nil && x.Error != nil {
 		return *x.Error
+	}
+	return ""
+}
+
+func (x *InfraDeploymentEvent) GetAction() string {
+	if x != nil {
+		return x.Action
 	}
 	return ""
 }
@@ -402,13 +414,14 @@ const file_chalk_server_v1_eventbus_proto_rawDesc = "" +
 	"\x0fEventBusMessage\x12D\n" +
 	"\rwebhook_event\x18\x01 \x01(\v2\x1d.chalk.server.v1.WebhookEventH\x00R\fwebhookEvent\x12]\n" +
 	"\x16infra_deployment_event\x18\x02 \x01(\v2%.chalk.server.v1.InfraDeploymentEventH\x00R\x14infraDeploymentEventB\t\n" +
-	"\apayload\"\x9a\x01\n" +
+	"\apayload\"\xb2\x01\n" +
 	"\x14InfraDeploymentEvent\x12\x1f\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tH\x00R\tclusterId\x12\x17\n" +
 	"\x06vpc_id\x18\x02 \x01(\tH\x00R\x05vpcId\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12\x19\n" +
-	"\x05error\x18\x04 \x01(\tH\x01R\x05error\x88\x01\x01B\v\n" +
+	"\x05error\x18\x04 \x01(\tH\x01R\x05error\x88\x01\x01\x12\x16\n" +
+	"\x06action\x18\x05 \x01(\tR\x06actionB\v\n" +
 	"\tcomponentB\b\n" +
 	"\x06_error\"\x8f\x02\n" +
 	"\fWebhookEvent\x12!\n" +

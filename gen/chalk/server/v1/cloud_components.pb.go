@@ -153,8 +153,14 @@ type CloudComponentVpcResponse struct {
 	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	AppliedAt         *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=applied_at,json=appliedAt,proto3" json:"applied_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Lifecycle status string (see CloudComponentStatus in go-api-server). Async create/update/delete
+	// progress through PENDING/PROVISIONING/UPDATING/DELETING to ACTIVE/DELETED, or FAILED. Clients
+	// should treat unrecognized values as a non-terminal in-progress state.
+	Status string `protobuf:"bytes,12,opt,name=status,proto3" json:"status,omitempty"`
+	// Failure detail, set when status is FAILED.
+	StatusError   *string `protobuf:"bytes,13,opt,name=status_error,json=statusError,proto3,oneof" json:"status_error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CloudComponentVpcResponse) Reset() {
@@ -262,6 +268,20 @@ func (x *CloudComponentVpcResponse) GetAppliedAt() *timestamppb.Timestamp {
 		return x.AppliedAt
 	}
 	return nil
+}
+
+func (x *CloudComponentVpcResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *CloudComponentVpcResponse) GetStatusError() string {
+	if x != nil && x.StatusError != nil {
+		return *x.StatusError
+	}
+	return ""
 }
 
 type CloudComponentVpcRequest struct {
@@ -2496,8 +2516,14 @@ type CloudComponentClusterResponse struct {
 	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt         *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	AppliedAt         *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=applied_at,json=appliedAt,proto3" json:"applied_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Lifecycle status string (see CloudComponentStatus in go-api-server). Async create/update/delete
+	// progress through PENDING/PROVISIONING/UPDATING/DELETING to ACTIVE/DELETED, or FAILED. Clients
+	// should treat unrecognized values as a non-terminal in-progress state.
+	Status string `protobuf:"bytes,13,opt,name=status,proto3" json:"status,omitempty"`
+	// Failure detail, set when status is FAILED.
+	StatusError   *string `protobuf:"bytes,14,opt,name=status_error,json=statusError,proto3,oneof" json:"status_error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CloudComponentClusterResponse) Reset() {
@@ -2612,6 +2638,20 @@ func (x *CloudComponentClusterResponse) GetAppliedAt() *timestamppb.Timestamp {
 		return x.AppliedAt
 	}
 	return nil
+}
+
+func (x *CloudComponentClusterResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *CloudComponentClusterResponse) GetStatusError() string {
+	if x != nil && x.StatusError != nil {
+		return *x.StatusError
+	}
+	return ""
 }
 
 type CloudComponentClusterRequest struct {
@@ -6630,7 +6670,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\n" +
 	"designator\x18\x03 \x01(\tH\x00R\n" +
 	"designator\x88\x01\x01B\r\n" +
-	"\v_designator\"\xf0\x03\n" +
+	"\v_designator\"\xc1\x04\n" +
 	"\x19CloudComponentVpcResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12#\n" +
@@ -6648,9 +6688,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"updated_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
 	"\n" +
-	"applied_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAtB\r\n" +
+	"applied_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAt\x12\x16\n" +
+	"\x06status\x18\f \x01(\tR\x06status\x12&\n" +
+	"\fstatus_error\x18\r \x01(\tH\x02R\vstatusError\x88\x01\x01B\r\n" +
 	"\v_designatorB\x16\n" +
-	"\x14_cloud_credential_id\"\xcd\x01\n" +
+	"\x14_cloud_credential_idB\x0f\n" +
+	"\r_status_error\"\xcd\x01\n" +
 	"\x18CloudComponentVpcRequest\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x126\n" +
 	"\x04spec\x18\x02 \x01(\v2\".chalk.server.v1.CloudComponentVpcR\x04spec\x12\x18\n" +
@@ -6859,7 +6902,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x03vpc\x18\x01 \x01(\v2\".chalk.server.v1.CloudComponentVpcR\x03vpc\x12?\n" +
 	"\fcloud_config\x18\x02 \x01(\v2\x1c.chalk.server.v1.CloudConfigR\vcloudConfig\x12)\n" +
 	"\x04team\x18\x03 \x01(\v2\x15.chalk.server.v1.TeamR\x04team\x12\x15\n" +
-	"\x06vpc_id\x18\x04 \x01(\tR\x05vpcId\"\x9f\x04\n" +
+	"\x06vpc_id\x18\x04 \x01(\tR\x05vpcId\"\xf0\x04\n" +
 	"\x1dCloudComponentClusterResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12#\n" +
@@ -6878,10 +6921,13 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x129\n" +
 	"\n" +
-	"applied_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAtB\r\n" +
+	"applied_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tappliedAt\x12\x16\n" +
+	"\x06status\x18\r \x01(\tR\x06status\x12&\n" +
+	"\fstatus_error\x18\x0e \x01(\tH\x03R\vstatusError\x88\x01\x01B\r\n" +
 	"\v_designatorB\x16\n" +
 	"\x14_cloud_credential_idB\t\n" +
-	"\a_vpc_id\"\xfc\x01\n" +
+	"\a_vpc_idB\x0f\n" +
+	"\r_status_error\"\xfc\x01\n" +
 	"\x1cCloudComponentClusterRequest\x12\x12\n" +
 	"\x04kind\x18\x01 \x01(\tR\x04kind\x12:\n" +
 	"\x04spec\x18\x02 \x01(\v2&.chalk.server.v1.CloudComponentClusterR\x04spec\x12\x18\n" +

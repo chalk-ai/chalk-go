@@ -3213,6 +3213,8 @@ type Resolver struct {
 	OutputRowOrder           *string                       `protobuf:"bytes,26,opt,name=output_row_order,json=outputRowOrder,proto3,oneof" json:"output_row_order,omitempty"`
 	Venv                     *string                       `protobuf:"bytes,27,opt,name=venv,proto3,oneof" json:"venv,omitempty"`
 	IncrementalSettings      *IncrementalSettings          `protobuf:"bytes,32,opt,name=incremental_settings,json=incrementalSettings,proto3,oneof" json:"incremental_settings,omitempty"`
+	// Opt-in runtime contract label set by the `@resolver` decorator
+	RuntimeContract *string `protobuf:"bytes,34,opt,name=runtime_contract,json=runtimeContract,proto3,oneof" json:"runtime_contract,omitempty"`
 	// Applied to the results of running a resolver. Currently only enabled for
 	// SQL resolvers.
 	//
@@ -3471,6 +3473,13 @@ func (x *Resolver) GetIncrementalSettings() *IncrementalSettings {
 		return x.IncrementalSettings
 	}
 	return nil
+}
+
+func (x *Resolver) GetRuntimeContract() string {
+	if x != nil && x.RuntimeContract != nil {
+		return *x.RuntimeContract
+	}
+	return ""
 }
 
 func (x *Resolver) GetPostprocessing() isResolver_Postprocessing {
@@ -5672,10 +5681,11 @@ func (x *FunctionGlobalCapturedProto) GetFullName() string {
 }
 
 type SourceFileReference struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Range         *v13.Range             `protobuf:"bytes,1,opt,name=range,proto3" json:"range,omitempty"`
-	Code          *string                `protobuf:"bytes,2,opt,name=code,proto3,oneof" json:"code,omitempty"`
-	FileName      string                 `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Follows chalk.lsp.v1.Range / LSP semantics.
+	Range         *v13.Range `protobuf:"bytes,1,opt,name=range,proto3" json:"range,omitempty"`
+	Code          *string    `protobuf:"bytes,2,opt,name=code,proto3,oneof" json:"code,omitempty"`
+	FileName      string     `protobuf:"bytes,3,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -7427,7 +7437,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\n" +
 	"_characterB\v\n" +
 	"\t_end_lineB\x10\n" +
-	"\x0e_end_character\"\xe1\x0f\n" +
+	"\x0e_end_character\"\xa6\x10\n" +
 	"\bResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x120\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1c.chalk.graph.v1.ResolverKindR\x04kind\x125\n" +
@@ -7462,7 +7472,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x10output_row_order\x18\x1a \x01(\tH\bR\x0eoutputRowOrder\x88\x01\x01\x12\x17\n" +
 	"\x04venv\x18\x1b \x01(\tH\tR\x04venv\x88\x01\x01\x12[\n" +
 	"\x14incremental_settings\x18  \x01(\v2#.chalk.graph.v1.IncrementalSettingsH\n" +
-	"R\x13incrementalSettings\x88\x01\x01\x12O\n" +
+	"R\x13incrementalSettings\x88\x01\x01\x12.\n" +
+	"\x10runtime_contract\x18\" \x01(\tH\vR\x0fruntimeContract\x88\x01\x01\x12O\n" +
 	"\x0funderscore_expr\x18\x1c \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\x0eunderscoreExpr\x12M\n" +
 	"\x0elazyframe_expr\x18\x1d \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\rlazyframeExprB\x10\n" +
 	"\x0epostprocessingB\x0f\n" +
@@ -7475,7 +7486,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x0f_resource_groupB\x13\n" +
 	"\x11_output_row_orderB\a\n" +
 	"\x05_venvB\x17\n" +
-	"\x15_incremental_settings\"\xc1\a\n" +
+	"\x15_incremental_settingsB\x13\n" +
+	"\x11_runtime_contract\"\xc1\a\n" +
 	"\fSinkResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x125\n" +
 	"\x06inputs\x18\x02 \x03(\v2\x1d.chalk.graph.v1.ResolverInputR\x06inputs\x12$\n" +
