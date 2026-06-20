@@ -47,6 +47,9 @@ const (
 	// BuilderServiceValidateNamedQueriesProcedure is the fully-qualified name of the BuilderService's
 	// ValidateNamedQueries RPC.
 	BuilderServiceValidateNamedQueriesProcedure = "/chalk.server.v1.BuilderService/ValidateNamedQueries"
+	// BuilderServiceRunPostIndexValidationProcedure is the fully-qualified name of the BuilderService's
+	// RunPostIndexValidation RPC.
+	BuilderServiceRunPostIndexValidationProcedure = "/chalk.server.v1.BuilderService/RunPostIndexValidation"
 	// BuilderServiceStartShadowBuildFromDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's StartShadowBuildFromDeployment RPC.
 	BuilderServiceStartShadowBuildFromDeploymentProcedure = "/chalk.server.v1.BuilderService/StartShadowBuildFromDeployment"
@@ -224,6 +227,12 @@ const (
 	// BuilderServiceResumeClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's ResumeClusterBackgroundPersistence RPC.
 	BuilderServiceResumeClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/ResumeClusterBackgroundPersistence"
+	// BuilderServiceDeleteClusterGatewayProcedure is the fully-qualified name of the BuilderService's
+	// DeleteClusterGateway RPC.
+	BuilderServiceDeleteClusterGatewayProcedure = "/chalk.server.v1.BuilderService/DeleteClusterGateway"
+	// BuilderServiceDeleteClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's DeleteClusterBackgroundPersistence RPC.
+	BuilderServiceDeleteClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/DeleteClusterBackgroundPersistence"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -240,6 +249,7 @@ type BuilderServiceClient interface {
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
+	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -314,6 +324,8 @@ type BuilderServiceClient interface {
 	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
 	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
+	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
+	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -350,6 +362,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceValidateNamedQueriesProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("ValidateNamedQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		runPostIndexValidation: connect.NewClient[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse](
+			httpClient,
+			baseURL+BuilderServiceRunPostIndexValidationProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
 			connect.WithClientOptions(opts...),
 		),
 		startShadowBuildFromDeployment: connect.NewClient[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse](
@@ -717,6 +735,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteClusterGateway: connect.NewClient[v1.DeleteClusterGatewayRequest, v1.DeleteClusterGatewayResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteClusterGatewayProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteClusterBackgroundPersistence: connect.NewClient[v1.DeleteClusterBackgroundPersistenceRequest, v1.DeleteClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -726,6 +756,7 @@ type builderServiceClient struct {
 	activateDeployment                          *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
 	indexDeployment                             *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	validateNamedQueries                        *connect.Client[v1.ValidateNamedQueriesRequest, v1.ValidateNamedQueriesResponse]
+	runPostIndexValidation                      *connect.Client[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse]
 	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
 	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
@@ -785,6 +816,8 @@ type builderServiceClient struct {
 	resumeClusterGateway                        *connect.Client[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse]
 	suspendClusterBackgroundPersistence         *connect.Client[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse]
 	resumeClusterBackgroundPersistence          *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
+	deleteClusterGateway                        *connect.Client[v1.DeleteClusterGatewayRequest, v1.DeleteClusterGatewayResponse]
+	deleteClusterBackgroundPersistence          *connect.Client[v1.DeleteClusterBackgroundPersistenceRequest, v1.DeleteClusterBackgroundPersistenceResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -805,6 +838,11 @@ func (c *builderServiceClient) IndexDeployment(ctx context.Context, req *connect
 // ValidateNamedQueries calls chalk.server.v1.BuilderService.ValidateNamedQueries.
 func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return c.validateNamedQueries.CallUnary(ctx, req)
+}
+
+// RunPostIndexValidation calls chalk.server.v1.BuilderService.RunPostIndexValidation.
+func (c *builderServiceClient) RunPostIndexValidation(ctx context.Context, req *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
+	return c.runPostIndexValidation.CallUnary(ctx, req)
 }
 
 // StartShadowBuildFromDeployment calls
@@ -1122,6 +1160,17 @@ func (c *builderServiceClient) ResumeClusterBackgroundPersistence(ctx context.Co
 	return c.resumeClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
+// DeleteClusterGateway calls chalk.server.v1.BuilderService.DeleteClusterGateway.
+func (c *builderServiceClient) DeleteClusterGateway(ctx context.Context, req *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error) {
+	return c.deleteClusterGateway.CallUnary(ctx, req)
+}
+
+// DeleteClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence.
+func (c *builderServiceClient) DeleteClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error) {
+	return c.deleteClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -1130,6 +1179,7 @@ type BuilderServiceHandler interface {
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
+	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -1204,6 +1254,8 @@ type BuilderServiceHandler interface {
 	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
 	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
+	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
+	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -1236,6 +1288,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceValidateNamedQueriesProcedure,
 		svc.ValidateNamedQueries,
 		connect.WithSchema(builderServiceMethods.ByName("ValidateNamedQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceRunPostIndexValidationHandler := connect.NewUnaryHandler(
+		BuilderServiceRunPostIndexValidationProcedure,
+		svc.RunPostIndexValidation,
+		connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartShadowBuildFromDeploymentHandler := connect.NewUnaryHandler(
@@ -1603,6 +1661,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceDeleteClusterGatewayHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteClusterGatewayProcedure,
+		svc.DeleteClusterGateway,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteClusterBackgroundPersistenceProcedure,
+		svc.DeleteClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -1613,6 +1683,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceIndexDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceValidateNamedQueriesProcedure:
 			builderServiceValidateNamedQueriesHandler.ServeHTTP(w, r)
+		case BuilderServiceRunPostIndexValidationProcedure:
+			builderServiceRunPostIndexValidationHandler.ServeHTTP(w, r)
 		case BuilderServiceStartShadowBuildFromDeploymentProcedure:
 			builderServiceStartShadowBuildFromDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
@@ -1731,6 +1803,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSuspendClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceResumeClusterBackgroundPersistenceProcedure:
 			builderServiceResumeClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteClusterGatewayProcedure:
+			builderServiceDeleteClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteClusterBackgroundPersistenceProcedure:
+			builderServiceDeleteClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1754,6 +1830,10 @@ func (UnimplementedBuilderServiceHandler) IndexDeployment(context.Context, *conn
 
 func (UnimplementedBuilderServiceHandler) ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ValidateNamedQueries is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RunPostIndexValidation is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error) {
@@ -1990,6 +2070,14 @@ func (UnimplementedBuilderServiceHandler) SuspendClusterBackgroundPersistence(co
 
 func (UnimplementedBuilderServiceHandler) ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.

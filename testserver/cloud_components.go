@@ -416,3 +416,185 @@ func (h *cloudComponentsServiceHandler) DeleteBindingEnvironmentBackgroundPersis
 	}
 	return connect.NewResponse(resp.(*serverv1.DeleteBindingEnvironmentBackgroundPersistenceDeploymentResponse)), nil
 }
+
+func (h *cloudComponentsServiceHandler) CreateCloudComponentVpc(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateCloudComponentVpcRequest],
+) (*connect.Response[serverv1.CreateCloudComponentVpcResponse], error) {
+	h.registry.CaptureRequest("CreateCloudComponentVpc", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateCloudComponentVpc"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateCloudComponentVpcResponse)), nil
+	}
+	if err := h.registry.GetError("CreateCloudComponentVpc"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateCloudComponentVpc")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateCloudComponentVpc"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateCloudComponentVpcResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentVpc(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentVpcRequest],
+) (*connect.Response[serverv1.GetCloudComponentVpcResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentVpc", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentVpc"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentVpcResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentVpc"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentVpc")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentVpc"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentVpcResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteCloudComponentVpc(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteCloudComponentVpcRequest],
+) (*connect.Response[serverv1.DeleteCloudComponentVpcResponse], error) {
+	h.registry.CaptureRequest("DeleteCloudComponentVpc", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteCloudComponentVpc"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentVpcResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteCloudComponentVpc"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteCloudComponentVpc")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteCloudComponentVpcResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentVpcResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) CreateCloudComponentCluster(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateCloudComponentClusterRequest],
+) (*connect.Response[serverv1.CreateCloudComponentClusterResponse], error) {
+	h.registry.CaptureRequest("CreateCloudComponentCluster", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateCloudComponentCluster"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateCloudComponentClusterResponse)), nil
+	}
+	if err := h.registry.GetError("CreateCloudComponentCluster"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateCloudComponentCluster")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateCloudComponentCluster"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateCloudComponentClusterResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) GetCloudComponentCluster(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetCloudComponentClusterRequest],
+) (*connect.Response[serverv1.GetCloudComponentClusterResponse], error) {
+	h.registry.CaptureRequest("GetCloudComponentCluster", req.Msg)
+	if behavior := h.registry.GetBehavior("GetCloudComponentCluster"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
+	}
+	if err := h.registry.GetError("GetCloudComponentCluster"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetCloudComponentCluster")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetCloudComponentCluster"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetCloudComponentClusterResponse)), nil
+}
+
+func (h *cloudComponentsServiceHandler) DeleteCloudComponentCluster(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteCloudComponentClusterRequest],
+) (*connect.Response[serverv1.DeleteCloudComponentClusterResponse], error) {
+	h.registry.CaptureRequest("DeleteCloudComponentCluster", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteCloudComponentCluster"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentClusterResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteCloudComponentCluster"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteCloudComponentCluster")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteCloudComponentClusterResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentClusterResponse)), nil
+}
+
+// OnCreateCloudComponentVpc configures the CreateCloudComponentVpc RPC method.
+func (s *MockServer) OnCreateCloudComponentVpc() *MethodConfigBuilder[*serverv1.CreateCloudComponentVpcResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateCloudComponentVpcResponse]{
+		methodName: "CreateCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentVpc configures the GetCloudComponentVpc RPC method.
+func (s *MockServer) OnGetCloudComponentVpc() *MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentVpcResponse]{
+		methodName: "GetCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteCloudComponentVpc configures the DeleteCloudComponentVpc RPC method.
+func (s *MockServer) OnDeleteCloudComponentVpc() *MethodConfigBuilder[*serverv1.DeleteCloudComponentVpcResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteCloudComponentVpcResponse]{
+		methodName: "DeleteCloudComponentVpc",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateCloudComponentCluster configures the CreateCloudComponentCluster RPC method.
+func (s *MockServer) OnCreateCloudComponentCluster() *MethodConfigBuilder[*serverv1.CreateCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateCloudComponentClusterResponse]{
+		methodName: "CreateCloudComponentCluster",
+		registry:   s.registry,
+	}
+}
+
+// OnGetCloudComponentCluster configures the GetCloudComponentCluster RPC method.
+func (s *MockServer) OnGetCloudComponentCluster() *MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.GetCloudComponentClusterResponse]{
+		methodName: "GetCloudComponentCluster",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteCloudComponentCluster configures the DeleteCloudComponentCluster RPC method.
+func (s *MockServer) OnDeleteCloudComponentCluster() *MethodConfigBuilder[*serverv1.DeleteCloudComponentClusterResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteCloudComponentClusterResponse]{
+		methodName: "DeleteCloudComponentCluster",
+		registry:   s.registry,
+	}
+}

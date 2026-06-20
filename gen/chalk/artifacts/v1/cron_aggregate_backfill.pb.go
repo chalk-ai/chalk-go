@@ -86,6 +86,7 @@ type CronAggregateBackfill struct {
 	UpperBound      *timestamppb.Timestamp        `protobuf:"bytes,10,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
 	AllowEmptyTiles *bool                         `protobuf:"varint,11,opt,name=allow_empty_tiles,json=allowEmptyTiles,proto3,oneof" json:"allow_empty_tiles,omitempty"`
 	Targets         []CronAggregateBackfillTarget `protobuf:"varint,12,rep,packed,name=targets,proto3,enum=chalk.artifacts.v1.CronAggregateBackfillTarget" json:"targets,omitempty"`
+	Environment     *string                       `protobuf:"bytes,13,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -204,11 +205,18 @@ func (x *CronAggregateBackfill) GetTargets() []CronAggregateBackfillTarget {
 	return nil
 }
 
+func (x *CronAggregateBackfill) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
 var File_chalk_artifacts_v1_cron_aggregate_backfill_proto protoreflect.FileDescriptor
 
 const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	"\n" +
-	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd1\x04\n" +
+	"0chalk/artifacts/v1/cron_aggregate_backfill.proto\x12\x12chalk.artifacts.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x88\x05\n" +
 	"\x15CronAggregateBackfill\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bschedule\x18\x02 \x01(\tR\bschedule\x12\x1b\n" +
@@ -225,9 +233,11 @@ const file_chalk_artifacts_v1_cron_aggregate_backfill_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"upperBound\x12/\n" +
 	"\x11allow_empty_tiles\x18\v \x01(\bH\x01R\x0fallowEmptyTiles\x88\x01\x01\x12I\n" +
-	"\atargets\x18\f \x03(\x0e2/.chalk.artifacts.v1.CronAggregateBackfillTargetR\atargetsB\x11\n" +
+	"\atargets\x18\f \x03(\x0e2/.chalk.artifacts.v1.CronAggregateBackfillTargetR\atargets\x12%\n" +
+	"\venvironment\x18\r \x01(\tH\x02R\venvironment\x88\x01\x01B\x11\n" +
 	"\x0f_resource_groupB\x14\n" +
-	"\x12_allow_empty_tiles*\xa4\x01\n" +
+	"\x12_allow_empty_tilesB\x0e\n" +
+	"\f_environment*\xa4\x01\n" +
 	"\x1bCronAggregateBackfillTarget\x12.\n" +
 	"*CRON_AGGREGATE_BACKFILL_TARGET_UNSPECIFIED\x10\x00\x12)\n" +
 	"%CRON_AGGREGATE_BACKFILL_TARGET_ONLINE\x10\x01\x12*\n" +
