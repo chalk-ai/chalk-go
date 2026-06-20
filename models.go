@@ -602,6 +602,10 @@ type OfflineQueryParams struct {
 	// UseJobQueue specifies whether to use the job queue for processing.
 	UseJobQueue bool
 
+	// UseMetaplanner specifies whether to plan the query with the metaplanner.
+	// A nil value lets the server choose its own default.
+	UseMetaplanner *bool
+
 	// OverlayGraph specifies additional features and resolvers to be used to plan this specific query.
 	OverlayGraph string
 	/***************

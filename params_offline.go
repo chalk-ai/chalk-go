@@ -231,6 +231,12 @@ func (p OfflineQueryParamsComplete) WithUseJobQueue(useJobQueue bool) OfflineQue
 	return p
 }
 
+// WithUseMetaplanner returns a copy of Offline Query parameters with the specified use metaplanner setting.
+func (p OfflineQueryParamsComplete) WithUseMetaplanner(useMetaplanner bool) OfflineQueryParamsComplete {
+	p.underlying.UseMetaplanner = &useMetaplanner
+	return p
+}
+
 // WithOverlayGraph returns a copy of Offline Query parameters with the specified overlay graph set.
 func (p OfflineQueryParamsComplete) WithOverlayGraph(overlayGraph string) OfflineQueryParamsComplete {
 	p.underlying.OverlayGraph = overlayGraph
