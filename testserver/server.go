@@ -133,6 +133,38 @@ func (s *MockServer) OnGetClusterBackgroundPersistence() *MethodConfigBuilder[*s
 	}
 }
 
+// OnDeleteClusterBackgroundPersistence configures the DeleteClusterBackgroundPersistence RPC method.
+func (s *MockServer) OnDeleteClusterBackgroundPersistence() *MethodConfigBuilder[*serverv1.DeleteClusterBackgroundPersistenceResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteClusterBackgroundPersistenceResponse]{
+		methodName: "DeleteClusterBackgroundPersistence",
+		registry:   s.registry,
+	}
+}
+
+// OnCreateClusterGateway configures the CreateClusterGateway RPC method.
+func (s *MockServer) OnCreateClusterGateway() *MethodConfigBuilder[*serverv1.CreateClusterGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.CreateClusterGatewayResponse]{
+		methodName: "CreateClusterGateway",
+		registry:   s.registry,
+	}
+}
+
+// OnGetClusterGateway configures the GetClusterGateway RPC method.
+func (s *MockServer) OnGetClusterGateway() *MethodConfigBuilder[*serverv1.GetClusterGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.GetClusterGatewayResponse]{
+		methodName: "GetClusterGateway",
+		registry:   s.registry,
+	}
+}
+
+// OnDeleteClusterGateway configures the DeleteClusterGateway RPC method.
+func (s *MockServer) OnDeleteClusterGateway() *MethodConfigBuilder[*serverv1.DeleteClusterGatewayResponse] {
+	return &MethodConfigBuilder[*serverv1.DeleteClusterGatewayResponse]{
+		methodName: "DeleteClusterGateway",
+		registry:   s.registry,
+	}
+}
+
 // OnGetClusterTimescaleDB configures the GetClusterTimescaleDB RPC method.
 func (s *MockServer) OnGetClusterTimescaleDB() *MethodConfigBuilder[*serverv1.GetClusterTimescaleDBResponse] {
 	return &MethodConfigBuilder[*serverv1.GetClusterTimescaleDBResponse]{
