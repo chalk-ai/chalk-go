@@ -3215,6 +3215,8 @@ type Resolver struct {
 	IncrementalSettings      *IncrementalSettings          `protobuf:"bytes,32,opt,name=incremental_settings,json=incrementalSettings,proto3,oneof" json:"incremental_settings,omitempty"`
 	// Opt-in runtime contract label set by the `@resolver` decorator
 	RuntimeContract *string `protobuf:"bytes,34,opt,name=runtime_contract,json=runtimeContract,proto3,oneof" json:"runtime_contract,omitempty"`
+	// Per-resolver override for duplicate-row handling.
+	HandleDuplicateOutputs *string `protobuf:"bytes,35,opt,name=handle_duplicate_outputs,json=handleDuplicateOutputs,proto3,oneof" json:"handle_duplicate_outputs,omitempty"`
 	// Applied to the results of running a resolver. Currently only enabled for
 	// SQL resolvers.
 	//
@@ -3478,6 +3480,13 @@ func (x *Resolver) GetIncrementalSettings() *IncrementalSettings {
 func (x *Resolver) GetRuntimeContract() string {
 	if x != nil && x.RuntimeContract != nil {
 		return *x.RuntimeContract
+	}
+	return ""
+}
+
+func (x *Resolver) GetHandleDuplicateOutputs() string {
+	if x != nil && x.HandleDuplicateOutputs != nil {
+		return *x.HandleDuplicateOutputs
 	}
 	return ""
 }
@@ -7437,7 +7446,7 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\n" +
 	"_characterB\v\n" +
 	"\t_end_lineB\x10\n" +
-	"\x0e_end_character\"\xa6\x10\n" +
+	"\x0e_end_character\"\x82\x11\n" +
 	"\bResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x120\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1c.chalk.graph.v1.ResolverKindR\x04kind\x125\n" +
@@ -7473,7 +7482,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x04venv\x18\x1b \x01(\tH\tR\x04venv\x88\x01\x01\x12[\n" +
 	"\x14incremental_settings\x18  \x01(\v2#.chalk.graph.v1.IncrementalSettingsH\n" +
 	"R\x13incrementalSettings\x88\x01\x01\x12.\n" +
-	"\x10runtime_contract\x18\" \x01(\tH\vR\x0fruntimeContract\x88\x01\x01\x12O\n" +
+	"\x10runtime_contract\x18\" \x01(\tH\vR\x0fruntimeContract\x88\x01\x01\x12=\n" +
+	"\x18handle_duplicate_outputs\x18# \x01(\tH\fR\x16handleDuplicateOutputs\x88\x01\x01\x12O\n" +
 	"\x0funderscore_expr\x18\x1c \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\x0eunderscoreExpr\x12M\n" +
 	"\x0elazyframe_expr\x18\x1d \x01(\v2$.chalk.expression.v1.LogicalExprNodeH\x00R\rlazyframeExprB\x10\n" +
 	"\x0epostprocessingB\x0f\n" +
@@ -7487,7 +7497,8 @@ const file_chalk_graph_v1_graph_proto_rawDesc = "" +
 	"\x11_output_row_orderB\a\n" +
 	"\x05_venvB\x17\n" +
 	"\x15_incremental_settingsB\x13\n" +
-	"\x11_runtime_contract\"\xc1\a\n" +
+	"\x11_runtime_contractB\x1b\n" +
+	"\x19_handle_duplicate_outputs\"\xc1\a\n" +
 	"\fSinkResolver\x12\x10\n" +
 	"\x03fqn\x18\x01 \x01(\tR\x03fqn\x125\n" +
 	"\x06inputs\x18\x02 \x03(\v2\x1d.chalk.graph.v1.ResolverInputR\x06inputs\x12$\n" +
