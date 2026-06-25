@@ -370,6 +370,54 @@ func List(items ...Expr) Expr {
 	return FunctionCall("list_literal", items...)
 }
 
+// Type creates a type-value (useful for cast)
+func Type(name string) *arrowv1.ArrowType {
+	switch name {
+	case "int":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Int64{},
+		}
+	case "float":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Float64{},
+		}
+	case "str":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_LargeUtf8{},
+		}
+	case "datetime":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Timestamp{
+				Timestamp: &arrowv1.Timestamp{
+					TimeUnit: arrowv1.TimeUnit_TIME_UNIT_MICROSECOND,
+					Timezone: "UTC",
+				},
+			},
+		}
+	case "bool":
+		return &arrowv1.ArrowType{
+			ArrowTypeEnum: &arrowv1.ArrowType_Bool{},
+		}
+	default:
+		panic(fmt.Sprintf("invalid primitive name %s", name))
+	}
+}
+
+// ListOf creates a list type-value (useful for cast)
+func ListOf(elemType *arrowv1.ArrowType) *arrowv1.ArrowType {
+	return &arrowv1.ArrowType{
+		ArrowTypeEnum: &arrowv1.ArrowType_LargeList{
+			LargeList: &arrowv1.List{
+				FieldType: &arrowv1.Field{
+					Name:      "item",
+					ArrowType: elemType,
+					Nullable:  true,
+				},
+			},
+		},
+	}
+}
+
 // Column and identifier constructors
 
 // Col creates a column reference expression
