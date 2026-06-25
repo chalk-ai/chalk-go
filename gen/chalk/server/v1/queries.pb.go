@@ -25,6 +25,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Selects which backend ListMetaQueryRuns reads from. The query log lives in a
+// pluggable data-warehouse backend reached through the engine, whereas timescale
+// is the metadata-plane TimescaleDB. UNSPECIFIED is treated as TIMESCALE so that
+// existing callers keep their current behavior.
+type MetaQueryRunsSource int32
+
+const (
+	MetaQueryRunsSource_META_QUERY_RUNS_SOURCE_UNSPECIFIED MetaQueryRunsSource = 0
+	MetaQueryRunsSource_META_QUERY_RUNS_SOURCE_TIMESCALE   MetaQueryRunsSource = 1
+	MetaQueryRunsSource_META_QUERY_RUNS_SOURCE_QUERY_LOG   MetaQueryRunsSource = 2
+)
+
+// Enum value maps for MetaQueryRunsSource.
+var (
+	MetaQueryRunsSource_name = map[int32]string{
+		0: "META_QUERY_RUNS_SOURCE_UNSPECIFIED",
+		1: "META_QUERY_RUNS_SOURCE_TIMESCALE",
+		2: "META_QUERY_RUNS_SOURCE_QUERY_LOG",
+	}
+	MetaQueryRunsSource_value = map[string]int32{
+		"META_QUERY_RUNS_SOURCE_UNSPECIFIED": 0,
+		"META_QUERY_RUNS_SOURCE_TIMESCALE":   1,
+		"META_QUERY_RUNS_SOURCE_QUERY_LOG":   2,
+	}
+)
+
+func (x MetaQueryRunsSource) Enum() *MetaQueryRunsSource {
+	p := new(MetaQueryRunsSource)
+	*p = x
+	return p
+}
+
+func (x MetaQueryRunsSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MetaQueryRunsSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_server_v1_queries_proto_enumTypes[0].Descriptor()
+}
+
+func (MetaQueryRunsSource) Type() protoreflect.EnumType {
+	return &file_chalk_server_v1_queries_proto_enumTypes[0]
+}
+
+func (x MetaQueryRunsSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MetaQueryRunsSource.Descriptor instead.
+func (MetaQueryRunsSource) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{0}
+}
+
 type GetQueryPerformanceSummaryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OperationId   string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
@@ -1225,6 +1278,7 @@ type MetaQueryRun struct {
 	ResourceGroup *string                `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
 	// The run's meta_query.query_name_version slot, sourced via JOIN.
 	QueryNameVersion *string `protobuf:"bytes,15,opt,name=query_name_version,json=queryNameVersion,proto3,oneof" json:"query_name_version,omitempty"`
+	QueryName        *string `protobuf:"bytes,16,opt,name=query_name,json=queryName,proto3,oneof" json:"query_name,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1364,6 +1418,13 @@ func (x *MetaQueryRun) GetQueryNameVersion() string {
 	return ""
 }
 
+func (x *MetaQueryRun) GetQueryName() string {
+	if x != nil && x.QueryName != nil {
+		return *x.QueryName
+	}
+	return ""
+}
+
 type MetaQueryRunWithMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1447,10 +1508,17 @@ type ListMetaQueryRunsRequest struct {
 	// (meta_query_name, query_name_version) slot. NULL and ” on the
 	// meta_queries column are coalesced to ” to match the way the runtime
 	// hash treats them. Ignored when meta_query_name is unset.
-	QueryVersion     *string `protobuf:"bytes,18,opt,name=query_version,json=queryVersion,proto3,oneof" json:"query_version,omitempty"`
-	DeploymentFilter *string `protobuf:"bytes,19,opt,name=deployment_filter,json=deploymentFilter,proto3,oneof" json:"deployment_filter,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	QueryVersion     *string             `protobuf:"bytes,18,opt,name=query_version,json=queryVersion,proto3,oneof" json:"query_version,omitempty"`
+	DeploymentFilter *string             `protobuf:"bytes,19,opt,name=deployment_filter,json=deploymentFilter,proto3,oneof" json:"deployment_filter,omitempty"`
+	Source           MetaQueryRunsSource `protobuf:"varint,20,opt,name=source,proto3,enum=chalk.server.v1.MetaQueryRunsSource" json:"source,omitempty"`
+	// Opaque pagination token, accepted by both backends so clients can paginate uniformly
+	// without switching on the source. For query_log it is the engine-defined token; for
+	// timescale it is a base64-encoded ListMetaQueryRunsPageToken wrapping the created_at
+	// cursor. When set, it takes precedence over the legacy `cursor` field, which remains
+	// supported for existing callers.
+	PageToken     *string `protobuf:"bytes,21,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListMetaQueryRunsRequest) Reset() {
@@ -1616,17 +1684,83 @@ func (x *ListMetaQueryRunsRequest) GetDeploymentFilter() string {
 	return ""
 }
 
+func (x *ListMetaQueryRunsRequest) GetSource() MetaQueryRunsSource {
+	if x != nil {
+		return x.Source
+	}
+	return MetaQueryRunsSource_META_QUERY_RUNS_SOURCE_UNSPECIFIED
+}
+
+func (x *ListMetaQueryRunsRequest) GetPageToken() string {
+	if x != nil && x.PageToken != nil {
+		return *x.PageToken
+	}
+	return ""
+}
+
+// Opaque pagination token for the timescale-backed ListMetaQueryRuns. Wraps the created_at
+// cursor of the last returned row; surfaced to clients as a base64-encoded ProtoJSON string
+// in page_token / next_page_token.
+type ListMetaQueryRunsPageToken struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListMetaQueryRunsPageToken) Reset() {
+	*x = ListMetaQueryRunsPageToken{}
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListMetaQueryRunsPageToken) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListMetaQueryRunsPageToken) ProtoMessage() {}
+
+func (x *ListMetaQueryRunsPageToken) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListMetaQueryRunsPageToken.ProtoReflect.Descriptor instead.
+func (*ListMetaQueryRunsPageToken) Descriptor() ([]byte, []int) {
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListMetaQueryRunsPageToken) GetCursor() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Cursor
+	}
+	return nil
+}
+
 type ListMetaQueryRunsResponse struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	QueryRuns     []*MetaQueryRunWithMeta `protobuf:"bytes,1,rep,name=query_runs,json=queryRuns,proto3" json:"query_runs,omitempty"`
-	NextCursor    *timestamppb.Timestamp  `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	state     protoimpl.MessageState  `protogen:"open.v1"`
+	QueryRuns []*MetaQueryRunWithMeta `protobuf:"bytes,1,rep,name=query_runs,json=queryRuns,proto3" json:"query_runs,omitempty"`
+	// Deprecated for the timescale backend in favor of next_page_token, but still populated
+	// for backward compatibility. Never set by the query_log backend.
+	NextCursor *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	// Opaque next-page token populated by both backends. Clients should prefer this over
+	// next_cursor. Empty/unset when there is no further page.
+	NextPageToken *string `protobuf:"bytes,3,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListMetaQueryRunsResponse) Reset() {
 	*x = ListMetaQueryRunsResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1638,7 +1772,7 @@ func (x *ListMetaQueryRunsResponse) String() string {
 func (*ListMetaQueryRunsResponse) ProtoMessage() {}
 
 func (x *ListMetaQueryRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[21]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1651,7 +1785,7 @@ func (x *ListMetaQueryRunsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueryRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueryRunsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{21}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ListMetaQueryRunsResponse) GetQueryRuns() []*MetaQueryRunWithMeta {
@@ -1666,6 +1800,13 @@ func (x *ListMetaQueryRunsResponse) GetNextCursor() *timestamppb.Timestamp {
 		return x.NextCursor
 	}
 	return nil
+}
+
+func (x *ListMetaQueryRunsResponse) GetNextPageToken() string {
+	if x != nil && x.NextPageToken != nil {
+		return *x.NextPageToken
+	}
+	return ""
 }
 
 type MetaQuery struct {
@@ -1698,7 +1839,7 @@ type MetaQuery struct {
 
 func (x *MetaQuery) Reset() {
 	*x = MetaQuery{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1710,7 +1851,7 @@ func (x *MetaQuery) String() string {
 func (*MetaQuery) ProtoMessage() {}
 
 func (x *MetaQuery) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[22]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1723,7 +1864,7 @@ func (x *MetaQuery) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetaQuery.ProtoReflect.Descriptor instead.
 func (*MetaQuery) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{22}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *MetaQuery) GetId() string {
@@ -1859,7 +2000,7 @@ type ListMetaQueriesRequest struct {
 
 func (x *ListMetaQueriesRequest) Reset() {
 	*x = ListMetaQueriesRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1871,7 +2012,7 @@ func (x *ListMetaQueriesRequest) String() string {
 func (*ListMetaQueriesRequest) ProtoMessage() {}
 
 func (x *ListMetaQueriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[23]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1884,7 +2025,7 @@ func (x *ListMetaQueriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueriesRequest.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{23}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListMetaQueriesRequest) GetNameFilter() string {
@@ -1939,7 +2080,7 @@ type ListMetaQueriesResponse struct {
 
 func (x *ListMetaQueriesResponse) Reset() {
 	*x = ListMetaQueriesResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1951,7 +2092,7 @@ func (x *ListMetaQueriesResponse) String() string {
 func (*ListMetaQueriesResponse) ProtoMessage() {}
 
 func (x *ListMetaQueriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[24]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1964,7 +2105,7 @@ func (x *ListMetaQueriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueriesResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{24}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListMetaQueriesResponse) GetMetaQueries() []*MetaQuery {
@@ -1990,7 +2131,7 @@ type ListLatestMetaQueriesRequest struct {
 
 func (x *ListLatestMetaQueriesRequest) Reset() {
 	*x = ListLatestMetaQueriesRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2002,7 +2143,7 @@ func (x *ListLatestMetaQueriesRequest) String() string {
 func (*ListLatestMetaQueriesRequest) ProtoMessage() {}
 
 func (x *ListLatestMetaQueriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[25]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2015,7 +2156,7 @@ func (x *ListLatestMetaQueriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLatestMetaQueriesRequest.ProtoReflect.Descriptor instead.
 func (*ListLatestMetaQueriesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{25}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListLatestMetaQueriesRequest) GetHasName() bool {
@@ -2034,7 +2175,7 @@ type ListLatestMetaQueriesResponse struct {
 
 func (x *ListLatestMetaQueriesResponse) Reset() {
 	*x = ListLatestMetaQueriesResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2046,7 +2187,7 @@ func (x *ListLatestMetaQueriesResponse) String() string {
 func (*ListLatestMetaQueriesResponse) ProtoMessage() {}
 
 func (x *ListLatestMetaQueriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[26]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2059,7 +2200,7 @@ func (x *ListLatestMetaQueriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListLatestMetaQueriesResponse.ProtoReflect.Descriptor instead.
 func (*ListLatestMetaQueriesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{26}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListLatestMetaQueriesResponse) GetMetaQueries() []*MetaQuery {
@@ -2078,7 +2219,7 @@ type GetMetaQueryRequest struct {
 
 func (x *GetMetaQueryRequest) Reset() {
 	*x = GetMetaQueryRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2090,7 +2231,7 @@ func (x *GetMetaQueryRequest) String() string {
 func (*GetMetaQueryRequest) ProtoMessage() {}
 
 func (x *GetMetaQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[27]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2103,7 +2244,7 @@ func (x *GetMetaQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetaQueryRequest.ProtoReflect.Descriptor instead.
 func (*GetMetaQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{27}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetMetaQueryRequest) GetMetaQueryId() string {
@@ -2122,7 +2263,7 @@ type GetMetaQueryResponse struct {
 
 func (x *GetMetaQueryResponse) Reset() {
 	*x = GetMetaQueryResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2134,7 +2275,7 @@ func (x *GetMetaQueryResponse) String() string {
 func (*GetMetaQueryResponse) ProtoMessage() {}
 
 func (x *GetMetaQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[28]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2147,7 +2288,7 @@ func (x *GetMetaQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetaQueryResponse.ProtoReflect.Descriptor instead.
 func (*GetMetaQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{28}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetMetaQueryResponse) GetMetaQuery() *MetaQuery {
@@ -2166,7 +2307,7 @@ type GetMetaQueryByNameRequest struct {
 
 func (x *GetMetaQueryByNameRequest) Reset() {
 	*x = GetMetaQueryByNameRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2178,7 +2319,7 @@ func (x *GetMetaQueryByNameRequest) String() string {
 func (*GetMetaQueryByNameRequest) ProtoMessage() {}
 
 func (x *GetMetaQueryByNameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[29]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2191,7 +2332,7 @@ func (x *GetMetaQueryByNameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetaQueryByNameRequest.ProtoReflect.Descriptor instead.
 func (*GetMetaQueryByNameRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{29}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetMetaQueryByNameRequest) GetMetaQueryName() string {
@@ -2210,7 +2351,7 @@ type GetMetaQueryByNameResponse struct {
 
 func (x *GetMetaQueryByNameResponse) Reset() {
 	*x = GetMetaQueryByNameResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2222,7 +2363,7 @@ func (x *GetMetaQueryByNameResponse) String() string {
 func (*GetMetaQueryByNameResponse) ProtoMessage() {}
 
 func (x *GetMetaQueryByNameResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[30]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2235,7 +2376,7 @@ func (x *GetMetaQueryByNameResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMetaQueryByNameResponse.ProtoReflect.Descriptor instead.
 func (*GetMetaQueryByNameResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{30}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *GetMetaQueryByNameResponse) GetMetaQuery() *MetaQuery {
@@ -2254,7 +2395,7 @@ type ListMetaQueriesByIdsRequest struct {
 
 func (x *ListMetaQueriesByIdsRequest) Reset() {
 	*x = ListMetaQueriesByIdsRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2266,7 +2407,7 @@ func (x *ListMetaQueriesByIdsRequest) String() string {
 func (*ListMetaQueriesByIdsRequest) ProtoMessage() {}
 
 func (x *ListMetaQueriesByIdsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[31]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2279,7 +2420,7 @@ func (x *ListMetaQueriesByIdsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueriesByIdsRequest.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesByIdsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{31}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ListMetaQueriesByIdsRequest) GetMetaQueryIds() []string {
@@ -2298,7 +2439,7 @@ type ListMetaQueriesByIdsResponse struct {
 
 func (x *ListMetaQueriesByIdsResponse) Reset() {
 	*x = ListMetaQueriesByIdsResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2310,7 +2451,7 @@ func (x *ListMetaQueriesByIdsResponse) String() string {
 func (*ListMetaQueriesByIdsResponse) ProtoMessage() {}
 
 func (x *ListMetaQueriesByIdsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[32]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2323,7 +2464,7 @@ func (x *ListMetaQueriesByIdsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueriesByIdsResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesByIdsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{32}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ListMetaQueriesByIdsResponse) GetMetaQueries() []*MetaQuery {
@@ -2341,7 +2482,7 @@ type ListArchivedMetaQueriesRequest struct {
 
 func (x *ListArchivedMetaQueriesRequest) Reset() {
 	*x = ListArchivedMetaQueriesRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2353,7 +2494,7 @@ func (x *ListArchivedMetaQueriesRequest) String() string {
 func (*ListArchivedMetaQueriesRequest) ProtoMessage() {}
 
 func (x *ListArchivedMetaQueriesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[33]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2366,7 +2507,7 @@ func (x *ListArchivedMetaQueriesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListArchivedMetaQueriesRequest.ProtoReflect.Descriptor instead.
 func (*ListArchivedMetaQueriesRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{33}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{34}
 }
 
 type ListArchivedMetaQueriesResponse struct {
@@ -2378,7 +2519,7 @@ type ListArchivedMetaQueriesResponse struct {
 
 func (x *ListArchivedMetaQueriesResponse) Reset() {
 	*x = ListArchivedMetaQueriesResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2390,7 +2531,7 @@ func (x *ListArchivedMetaQueriesResponse) String() string {
 func (*ListArchivedMetaQueriesResponse) ProtoMessage() {}
 
 func (x *ListArchivedMetaQueriesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[34]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2403,7 +2544,7 @@ func (x *ListArchivedMetaQueriesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListArchivedMetaQueriesResponse.ProtoReflect.Descriptor instead.
 func (*ListArchivedMetaQueriesResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{34}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ListArchivedMetaQueriesResponse) GetMetaQueries() []*MetaQuery {
@@ -2422,7 +2563,7 @@ type ListMetaQueriesForResolverRequest struct {
 
 func (x *ListMetaQueriesForResolverRequest) Reset() {
 	*x = ListMetaQueriesForResolverRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2434,7 +2575,7 @@ func (x *ListMetaQueriesForResolverRequest) String() string {
 func (*ListMetaQueriesForResolverRequest) ProtoMessage() {}
 
 func (x *ListMetaQueriesForResolverRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[35]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2447,7 +2588,7 @@ func (x *ListMetaQueriesForResolverRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListMetaQueriesForResolverRequest.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesForResolverRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{35}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ListMetaQueriesForResolverRequest) GetResolverFqn() string {
@@ -2466,7 +2607,7 @@ type ListMetaQueriesForResolverResponse struct {
 
 func (x *ListMetaQueriesForResolverResponse) Reset() {
 	*x = ListMetaQueriesForResolverResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2478,7 +2619,7 @@ func (x *ListMetaQueriesForResolverResponse) String() string {
 func (*ListMetaQueriesForResolverResponse) ProtoMessage() {}
 
 func (x *ListMetaQueriesForResolverResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[36]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2491,7 +2632,7 @@ func (x *ListMetaQueriesForResolverResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ListMetaQueriesForResolverResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesForResolverResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{36}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ListMetaQueriesForResolverResponse) GetMetaQueries() []*MetaQuery {
@@ -2510,7 +2651,7 @@ type ListMetaQueriesForFeatureRequest struct {
 
 func (x *ListMetaQueriesForFeatureRequest) Reset() {
 	*x = ListMetaQueriesForFeatureRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2522,7 +2663,7 @@ func (x *ListMetaQueriesForFeatureRequest) String() string {
 func (*ListMetaQueriesForFeatureRequest) ProtoMessage() {}
 
 func (x *ListMetaQueriesForFeatureRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[37]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2535,7 +2676,7 @@ func (x *ListMetaQueriesForFeatureRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueriesForFeatureRequest.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesForFeatureRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{37}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *ListMetaQueriesForFeatureRequest) GetFeatureFqn() string {
@@ -2554,7 +2695,7 @@ type ListMetaQueriesForFeatureResponse struct {
 
 func (x *ListMetaQueriesForFeatureResponse) Reset() {
 	*x = ListMetaQueriesForFeatureResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2566,7 +2707,7 @@ func (x *ListMetaQueriesForFeatureResponse) String() string {
 func (*ListMetaQueriesForFeatureResponse) ProtoMessage() {}
 
 func (x *ListMetaQueriesForFeatureResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[38]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2579,7 +2720,7 @@ func (x *ListMetaQueriesForFeatureResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListMetaQueriesForFeatureResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueriesForFeatureResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{38}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListMetaQueriesForFeatureResponse) GetMetaQueries() []*MetaQuery {
@@ -2604,7 +2745,7 @@ type ListMetaQueryVersionsRequest struct {
 
 func (x *ListMetaQueryVersionsRequest) Reset() {
 	*x = ListMetaQueryVersionsRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2616,7 +2757,7 @@ func (x *ListMetaQueryVersionsRequest) String() string {
 func (*ListMetaQueryVersionsRequest) ProtoMessage() {}
 
 func (x *ListMetaQueryVersionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[39]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2629,7 +2770,7 @@ func (x *ListMetaQueryVersionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueryVersionsRequest.ProtoReflect.Descriptor instead.
 func (*ListMetaQueryVersionsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{39}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListMetaQueryVersionsRequest) GetMetaQueryName() string {
@@ -2670,7 +2811,7 @@ type ListMetaQueryVersionsResponse struct {
 
 func (x *ListMetaQueryVersionsResponse) Reset() {
 	*x = ListMetaQueryVersionsResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2682,7 +2823,7 @@ func (x *ListMetaQueryVersionsResponse) String() string {
 func (*ListMetaQueryVersionsResponse) ProtoMessage() {}
 
 func (x *ListMetaQueryVersionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[40]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2695,7 +2836,7 @@ func (x *ListMetaQueryVersionsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMetaQueryVersionsResponse.ProtoReflect.Descriptor instead.
 func (*ListMetaQueryVersionsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{40}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *ListMetaQueryVersionsResponse) GetMetaQueryVersions() []*MetaQuery {
@@ -2728,13 +2869,15 @@ type QueryRun struct {
 	Duration      *float64               `protobuf:"fixed64,12,opt,name=duration,proto3,oneof" json:"duration,omitempty"`
 	TraceId       *string                `protobuf:"bytes,13,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
 	ResourceGroup *string                `protobuf:"bytes,14,opt,name=resource_group,json=resourceGroup,proto3,oneof" json:"resource_group,omitempty"`
+	NumInputRows  *int32                 `protobuf:"varint,15,opt,name=num_input_rows,json=numInputRows,proto3,oneof" json:"num_input_rows,omitempty"`
+	MultiQueryId  *string                `protobuf:"bytes,16,opt,name=multi_query_id,json=multiQueryId,proto3,oneof" json:"multi_query_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *QueryRun) Reset() {
 	*x = QueryRun{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2746,7 +2889,7 @@ func (x *QueryRun) String() string {
 func (*QueryRun) ProtoMessage() {}
 
 func (x *QueryRun) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[41]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2759,7 +2902,7 @@ func (x *QueryRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryRun.ProtoReflect.Descriptor instead.
 func (*QueryRun) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{41}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *QueryRun) GetId() string {
@@ -2860,6 +3003,20 @@ func (x *QueryRun) GetResourceGroup() string {
 	return ""
 }
 
+func (x *QueryRun) GetNumInputRows() int32 {
+	if x != nil && x.NumInputRows != nil {
+		return *x.NumInputRows
+	}
+	return 0
+}
+
+func (x *QueryRun) GetMultiQueryId() string {
+	if x != nil && x.MultiQueryId != nil {
+		return *x.MultiQueryId
+	}
+	return ""
+}
+
 type GetQueryRunRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	OperationId          string                 `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
@@ -2870,7 +3027,7 @@ type GetQueryRunRequest struct {
 
 func (x *GetQueryRunRequest) Reset() {
 	*x = GetQueryRunRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2882,7 +3039,7 @@ func (x *GetQueryRunRequest) String() string {
 func (*GetQueryRunRequest) ProtoMessage() {}
 
 func (x *GetQueryRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[42]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2895,7 +3052,7 @@ func (x *GetQueryRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQueryRunRequest.ProtoReflect.Descriptor instead.
 func (*GetQueryRunRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{42}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *GetQueryRunRequest) GetOperationId() string {
@@ -2921,7 +3078,7 @@ type GetQueryRunResponse struct {
 
 func (x *GetQueryRunResponse) Reset() {
 	*x = GetQueryRunResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2933,7 +3090,7 @@ func (x *GetQueryRunResponse) String() string {
 func (*GetQueryRunResponse) ProtoMessage() {}
 
 func (x *GetQueryRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[43]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2946,7 +3103,7 @@ func (x *GetQueryRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetQueryRunResponse.ProtoReflect.Descriptor instead.
 func (*GetQueryRunResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{43}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *GetQueryRunResponse) GetQueryRun() *QueryRun {
@@ -2969,7 +3126,7 @@ type ListStreamingResolverDeploymentsRequest struct {
 
 func (x *ListStreamingResolverDeploymentsRequest) Reset() {
 	*x = ListStreamingResolverDeploymentsRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2981,7 +3138,7 @@ func (x *ListStreamingResolverDeploymentsRequest) String() string {
 func (*ListStreamingResolverDeploymentsRequest) ProtoMessage() {}
 
 func (x *ListStreamingResolverDeploymentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[44]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2994,7 +3151,7 @@ func (x *ListStreamingResolverDeploymentsRequest) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use ListStreamingResolverDeploymentsRequest.ProtoReflect.Descriptor instead.
 func (*ListStreamingResolverDeploymentsRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{44}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *ListStreamingResolverDeploymentsRequest) GetResolverFqn() string {
@@ -3028,7 +3185,7 @@ type DeploymentTimestamp struct {
 
 func (x *DeploymentTimestamp) Reset() {
 	*x = DeploymentTimestamp{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3040,7 +3197,7 @@ func (x *DeploymentTimestamp) String() string {
 func (*DeploymentTimestamp) ProtoMessage() {}
 
 func (x *DeploymentTimestamp) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[45]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3053,7 +3210,7 @@ func (x *DeploymentTimestamp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeploymentTimestamp.ProtoReflect.Descriptor instead.
 func (*DeploymentTimestamp) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{45}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *DeploymentTimestamp) GetDeploymentId() string {
@@ -3080,7 +3237,7 @@ type ListStreamingResolverDeploymentsResponse struct {
 
 func (x *ListStreamingResolverDeploymentsResponse) Reset() {
 	*x = ListStreamingResolverDeploymentsResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3092,7 +3249,7 @@ func (x *ListStreamingResolverDeploymentsResponse) String() string {
 func (*ListStreamingResolverDeploymentsResponse) ProtoMessage() {}
 
 func (x *ListStreamingResolverDeploymentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[46]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3105,7 +3262,7 @@ func (x *ListStreamingResolverDeploymentsResponse) ProtoReflect() protoreflect.M
 
 // Deprecated: Use ListStreamingResolverDeploymentsResponse.ProtoReflect.Descriptor instead.
 func (*ListStreamingResolverDeploymentsResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{46}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *ListStreamingResolverDeploymentsResponse) GetDeployments() []*DeploymentTimestamp {
@@ -3136,7 +3293,7 @@ type GetStreamingResolverMappingPlanRequest struct {
 
 func (x *GetStreamingResolverMappingPlanRequest) Reset() {
 	*x = GetStreamingResolverMappingPlanRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3148,7 +3305,7 @@ func (x *GetStreamingResolverMappingPlanRequest) String() string {
 func (*GetStreamingResolverMappingPlanRequest) ProtoMessage() {}
 
 func (x *GetStreamingResolverMappingPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[47]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3161,7 +3318,7 @@ func (x *GetStreamingResolverMappingPlanRequest) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GetStreamingResolverMappingPlanRequest.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverMappingPlanRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{47}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetStreamingResolverMappingPlanRequest) GetResolverFqn() string {
@@ -3187,7 +3344,7 @@ type GetStreamingResolverMappingPlanResponse struct {
 
 func (x *GetStreamingResolverMappingPlanResponse) Reset() {
 	*x = GetStreamingResolverMappingPlanResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[48]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3199,7 +3356,7 @@ func (x *GetStreamingResolverMappingPlanResponse) String() string {
 func (*GetStreamingResolverMappingPlanResponse) ProtoMessage() {}
 
 func (x *GetStreamingResolverMappingPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[48]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3212,7 +3369,7 @@ func (x *GetStreamingResolverMappingPlanResponse) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetStreamingResolverMappingPlanResponse.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverMappingPlanResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{48}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetStreamingResolverMappingPlanResponse) GetQueryPlan() *QueryPlan {
@@ -3235,7 +3392,7 @@ type GetStreamingResolverSinkPlanRequest struct {
 
 func (x *GetStreamingResolverSinkPlanRequest) Reset() {
 	*x = GetStreamingResolverSinkPlanRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[49]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3247,7 +3404,7 @@ func (x *GetStreamingResolverSinkPlanRequest) String() string {
 func (*GetStreamingResolverSinkPlanRequest) ProtoMessage() {}
 
 func (x *GetStreamingResolverSinkPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[49]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3260,7 +3417,7 @@ func (x *GetStreamingResolverSinkPlanRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetStreamingResolverSinkPlanRequest.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverSinkPlanRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{49}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetStreamingResolverSinkPlanRequest) GetResolverFqn() string {
@@ -3286,7 +3443,7 @@ type GetStreamingResolverSinkPlanResponse struct {
 
 func (x *GetStreamingResolverSinkPlanResponse) Reset() {
 	*x = GetStreamingResolverSinkPlanResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[50]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3298,7 +3455,7 @@ func (x *GetStreamingResolverSinkPlanResponse) String() string {
 func (*GetStreamingResolverSinkPlanResponse) ProtoMessage() {}
 
 func (x *GetStreamingResolverSinkPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[50]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3311,7 +3468,7 @@ func (x *GetStreamingResolverSinkPlanResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use GetStreamingResolverSinkPlanResponse.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverSinkPlanResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{50}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetStreamingResolverSinkPlanResponse) GetQueryPlan() *QueryPlan {
@@ -3333,7 +3490,7 @@ type GetStreamingResolverMaterializedAggregationPlanRequest struct {
 
 func (x *GetStreamingResolverMaterializedAggregationPlanRequest) Reset() {
 	*x = GetStreamingResolverMaterializedAggregationPlanRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[51]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3345,7 +3502,7 @@ func (x *GetStreamingResolverMaterializedAggregationPlanRequest) String() string
 func (*GetStreamingResolverMaterializedAggregationPlanRequest) ProtoMessage() {}
 
 func (x *GetStreamingResolverMaterializedAggregationPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[51]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3358,7 +3515,7 @@ func (x *GetStreamingResolverMaterializedAggregationPlanRequest) ProtoReflect() 
 
 // Deprecated: Use GetStreamingResolverMaterializedAggregationPlanRequest.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverMaterializedAggregationPlanRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{51}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *GetStreamingResolverMaterializedAggregationPlanRequest) GetResolverFqn() string {
@@ -3384,7 +3541,7 @@ type GetStreamingResolverMaterializedAggregationPlanResponse struct {
 
 func (x *GetStreamingResolverMaterializedAggregationPlanResponse) Reset() {
 	*x = GetStreamingResolverMaterializedAggregationPlanResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[52]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3396,7 +3553,7 @@ func (x *GetStreamingResolverMaterializedAggregationPlanResponse) String() strin
 func (*GetStreamingResolverMaterializedAggregationPlanResponse) ProtoMessage() {}
 
 func (x *GetStreamingResolverMaterializedAggregationPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[52]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3409,7 +3566,7 @@ func (x *GetStreamingResolverMaterializedAggregationPlanResponse) ProtoReflect()
 
 // Deprecated: Use GetStreamingResolverMaterializedAggregationPlanResponse.ProtoReflect.Descriptor instead.
 func (*GetStreamingResolverMaterializedAggregationPlanResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{52}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *GetStreamingResolverMaterializedAggregationPlanResponse) GetQueryPlan() *QueryPlan {
@@ -3435,7 +3592,7 @@ type PlanRunMetadataBlock struct {
 
 func (x *PlanRunMetadataBlock) Reset() {
 	*x = PlanRunMetadataBlock{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[53]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3447,7 +3604,7 @@ func (x *PlanRunMetadataBlock) String() string {
 func (*PlanRunMetadataBlock) ProtoMessage() {}
 
 func (x *PlanRunMetadataBlock) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[53]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3460,7 +3617,7 @@ func (x *PlanRunMetadataBlock) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanRunMetadataBlock.ProtoReflect.Descriptor instead.
 func (*PlanRunMetadataBlock) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{53}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *PlanRunMetadataBlock) GetOperatorId() string {
@@ -3528,7 +3685,7 @@ type ArchiveMetaQueryRequest struct {
 
 func (x *ArchiveMetaQueryRequest) Reset() {
 	*x = ArchiveMetaQueryRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[54]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3540,7 +3697,7 @@ func (x *ArchiveMetaQueryRequest) String() string {
 func (*ArchiveMetaQueryRequest) ProtoMessage() {}
 
 func (x *ArchiveMetaQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[54]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3553,7 +3710,7 @@ func (x *ArchiveMetaQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveMetaQueryRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveMetaQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{54}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *ArchiveMetaQueryRequest) GetQueryName() string {
@@ -3572,7 +3729,7 @@ type ArchiveMetaQueryResponse struct {
 
 func (x *ArchiveMetaQueryResponse) Reset() {
 	*x = ArchiveMetaQueryResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[55]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3584,7 +3741,7 @@ func (x *ArchiveMetaQueryResponse) String() string {
 func (*ArchiveMetaQueryResponse) ProtoMessage() {}
 
 func (x *ArchiveMetaQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[55]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3597,7 +3754,7 @@ func (x *ArchiveMetaQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveMetaQueryResponse.ProtoReflect.Descriptor instead.
 func (*ArchiveMetaQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{55}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *ArchiveMetaQueryResponse) GetQueryName() string {
@@ -3616,7 +3773,7 @@ type UnarchiveMetaQueryRequest struct {
 
 func (x *UnarchiveMetaQueryRequest) Reset() {
 	*x = UnarchiveMetaQueryRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[56]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3628,7 +3785,7 @@ func (x *UnarchiveMetaQueryRequest) String() string {
 func (*UnarchiveMetaQueryRequest) ProtoMessage() {}
 
 func (x *UnarchiveMetaQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[56]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3641,7 +3798,7 @@ func (x *UnarchiveMetaQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnarchiveMetaQueryRequest.ProtoReflect.Descriptor instead.
 func (*UnarchiveMetaQueryRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{56}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *UnarchiveMetaQueryRequest) GetQueryName() string {
@@ -3660,7 +3817,7 @@ type UnarchiveMetaQueryResponse struct {
 
 func (x *UnarchiveMetaQueryResponse) Reset() {
 	*x = UnarchiveMetaQueryResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[57]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3672,7 +3829,7 @@ func (x *UnarchiveMetaQueryResponse) String() string {
 func (*UnarchiveMetaQueryResponse) ProtoMessage() {}
 
 func (x *UnarchiveMetaQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[57]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3685,7 +3842,7 @@ func (x *UnarchiveMetaQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnarchiveMetaQueryResponse.ProtoReflect.Descriptor instead.
 func (*UnarchiveMetaQueryResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{57}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *UnarchiveMetaQueryResponse) GetQueryName() string {
@@ -3704,7 +3861,7 @@ type GetPlanRunMetadataRequest struct {
 
 func (x *GetPlanRunMetadataRequest) Reset() {
 	*x = GetPlanRunMetadataRequest{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[58]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3716,7 +3873,7 @@ func (x *GetPlanRunMetadataRequest) String() string {
 func (*GetPlanRunMetadataRequest) ProtoMessage() {}
 
 func (x *GetPlanRunMetadataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[58]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3729,7 +3886,7 @@ func (x *GetPlanRunMetadataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlanRunMetadataRequest.ProtoReflect.Descriptor instead.
 func (*GetPlanRunMetadataRequest) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{58}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetPlanRunMetadataRequest) GetOperationId() string {
@@ -3748,7 +3905,7 @@ type GetPlanRunMetadataResponse struct {
 
 func (x *GetPlanRunMetadataResponse) Reset() {
 	*x = GetPlanRunMetadataResponse{}
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[59]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3760,7 +3917,7 @@ func (x *GetPlanRunMetadataResponse) String() string {
 func (*GetPlanRunMetadataResponse) ProtoMessage() {}
 
 func (x *GetPlanRunMetadataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_server_v1_queries_proto_msgTypes[59]
+	mi := &file_chalk_server_v1_queries_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3773,7 +3930,7 @@ func (x *GetPlanRunMetadataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlanRunMetadataResponse.ProtoReflect.Descriptor instead.
 func (*GetPlanRunMetadataResponse) Descriptor() ([]byte, []int) {
-	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{59}
+	return file_chalk_server_v1_queries_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *GetPlanRunMetadataResponse) GetMetadata() []*PlanRunMetadataBlock {
@@ -3921,7 +4078,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x1cAggregateQueryErrorsResponse\x12R\n" +
 	"\x11aggregated_errors\x18\x01 \x03(\v2%.chalk.server.v1.AggregatedQueryErrorR\x10aggregatedErrors\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\"\xe2\x05\n" +
+	"\x10_next_page_token\"\x95\x06\n" +
 	"\fMetaQueryRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\rmeta_query_id\x18\x02 \x01(\tR\vmetaQueryId\x12\x1f\n" +
@@ -3942,7 +4099,9 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\bduration\x18\f \x01(\x01H\x05R\bduration\x88\x01\x01\x12\x1e\n" +
 	"\btrace_id\x18\r \x01(\tH\x06R\atraceId\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\x0e \x01(\tH\aR\rresourceGroup\x88\x01\x01\x121\n" +
-	"\x12query_name_version\x18\x0f \x01(\tH\bR\x10queryNameVersion\x88\x01\x01B\x10\n" +
+	"\x12query_name_version\x18\x0f \x01(\tH\bR\x10queryNameVersion\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"query_name\x18\x10 \x01(\tH\tR\tqueryName\x88\x01\x01B\x10\n" +
 	"\x0e_query_plan_idB\x11\n" +
 	"\x0f_correlation_idB\v\n" +
 	"\t_agent_idB\x0e\n" +
@@ -3951,13 +4110,14 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\t_durationB\v\n" +
 	"\t_trace_idB\x11\n" +
 	"\x0f_resource_groupB\x15\n" +
-	"\x13_query_name_version\"\x82\x01\n" +
+	"\x13_query_name_versionB\r\n" +
+	"\v_query_name\"\x82\x01\n" +
 	"\x14MetaQueryRunWithMeta\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12/\n" +
 	"\x03run\x18\x02 \x01(\v2\x1d.chalk.server.v1.MetaQueryRunR\x03run\x12\x1d\n" +
 	"\alatency\x18\x03 \x01(\x01H\x00R\alatency\x88\x01\x01B\n" +
 	"\n" +
-	"\b_latency\"\xc1\b\n" +
+	"\b_latency\"\xb2\t\n" +
 	"\x18ListMetaQueryRunsRequest\x12'\n" +
 	"\x0finclude_latency\x18\x01 \x01(\bR\x0eincludeLatency\x12)\n" +
 	"\x0emin_latency_ms\x18\x02 \x01(\x01H\x00R\fminLatencyMs\x88\x01\x01\x12'\n" +
@@ -3981,7 +4141,10 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\btrace_id\x18\x10 \x01(\tH\x0eR\atraceId\x88\x01\x01\x12*\n" +
 	"\x0eresource_group\x18\x11 \x01(\tH\x0fR\rresourceGroup\x88\x01\x01\x12(\n" +
 	"\rquery_version\x18\x12 \x01(\tH\x10R\fqueryVersion\x88\x01\x01\x120\n" +
-	"\x11deployment_filter\x18\x13 \x01(\tH\x11R\x10deploymentFilter\x88\x01\x01B\x11\n" +
+	"\x11deployment_filter\x18\x13 \x01(\tH\x11R\x10deploymentFilter\x88\x01\x01\x12<\n" +
+	"\x06source\x18\x14 \x01(\x0e2$.chalk.server.v1.MetaQueryRunsSourceR\x06source\x12\"\n" +
+	"\n" +
+	"page_token\x18\x15 \x01(\tH\x12R\tpageToken\x88\x01\x01B\x11\n" +
 	"\x0f_min_latency_msB\x10\n" +
 	"\x0e_query_plan_idB\x10\n" +
 	"\x0e_meta_query_idB\x12\n" +
@@ -4001,13 +4164,18 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\t_trace_idB\x11\n" +
 	"\x0f_resource_groupB\x10\n" +
 	"\x0e_query_versionB\x14\n" +
-	"\x12_deployment_filter\"\xb3\x01\n" +
+	"\x12_deployment_filterB\r\n" +
+	"\v_page_token\"P\n" +
+	"\x1aListMetaQueryRunsPageToken\x122\n" +
+	"\x06cursor\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06cursor\"\xf4\x01\n" +
 	"\x19ListMetaQueryRunsResponse\x12D\n" +
 	"\n" +
 	"query_runs\x18\x01 \x03(\v2%.chalk.server.v1.MetaQueryRunWithMetaR\tqueryRuns\x12@\n" +
 	"\vnext_cursor\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
-	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\x92\a\n" +
+	"nextCursor\x88\x01\x01\x12+\n" +
+	"\x0fnext_page_token\x18\x03 \x01(\tH\x01R\rnextPageToken\x88\x01\x01B\x0e\n" +
+	"\f_next_cursorB\x12\n" +
+	"\x10_next_page_token\"\x92\a\n" +
 	"\tMetaQuery\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\n" +
@@ -4102,7 +4270,7 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x13meta_query_versions\x18\x01 \x03(\v2\x1a.chalk.server.v1.MetaQueryR\x11metaQueryVersions\x12@\n" +
 	"\vnext_cursor\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xc1\x05\n" +
+	"\f_next_cursor\"\xbd\x06\n" +
 	"\bQueryRun\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\"\n" +
 	"\rmeta_query_id\x18\x02 \x01(\tR\vmetaQueryId\x12\x1f\n" +
@@ -4122,7 +4290,10 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x0fhas_plan_stages\x18\v \x01(\bH\x06R\rhasPlanStages\x88\x01\x01\x12\x1f\n" +
 	"\bduration\x18\f \x01(\x01H\aR\bduration\x88\x01\x01\x12\x1e\n" +
 	"\btrace_id\x18\r \x01(\tH\bR\atraceId\x88\x01\x01\x12*\n" +
-	"\x0eresource_group\x18\x0e \x01(\tH\tR\rresourceGroup\x88\x01\x01B\x10\n" +
+	"\x0eresource_group\x18\x0e \x01(\tH\tR\rresourceGroup\x88\x01\x01\x12)\n" +
+	"\x0enum_input_rows\x18\x0f \x01(\x05H\n" +
+	"R\fnumInputRows\x88\x01\x01\x12)\n" +
+	"\x0emulti_query_id\x18\x10 \x01(\tH\vR\fmultiQueryId\x88\x01\x01B\x10\n" +
 	"\x0e_query_plan_idB\x11\n" +
 	"\x0f_correlation_idB\r\n" +
 	"\v_has_errorsB\v\n" +
@@ -4132,7 +4303,9 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x10_has_plan_stagesB\v\n" +
 	"\t_durationB\v\n" +
 	"\t_trace_idB\x11\n" +
-	"\x0f_resource_group\"\xa7\x01\n" +
+	"\x0f_resource_groupB\x11\n" +
+	"\x0f_num_input_rowsB\x11\n" +
+	"\x0f_multi_query_id\"\xa7\x01\n" +
 	"\x12GetQueryRunRequest\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12T\n" +
 	"\x15approximate_timestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x14approximateTimestamp\x88\x01\x01B\x18\n" +
@@ -4199,7 +4372,11 @@ const file_chalk_server_v1_queries_proto_rawDesc = "" +
 	"\x19GetPlanRunMetadataRequest\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\"_\n" +
 	"\x1aGetPlanRunMetadataResponse\x12A\n" +
-	"\bmetadata\x18\x01 \x03(\v2%.chalk.server.v1.PlanRunMetadataBlockR\bmetadata2\xd3\x17\n" +
+	"\bmetadata\x18\x01 \x03(\v2%.chalk.server.v1.PlanRunMetadataBlockR\bmetadata*\x89\x01\n" +
+	"\x13MetaQueryRunsSource\x12&\n" +
+	"\"META_QUERY_RUNS_SOURCE_UNSPECIFIED\x10\x00\x12$\n" +
+	" META_QUERY_RUNS_SOURCE_TIMESCALE\x10\x01\x12$\n" +
+	" META_QUERY_RUNS_SOURCE_QUERY_LOG\x10\x022\xd3\x17\n" +
 	"\x0eQueriesService\x12\x8a\x01\n" +
 	"\x1aGetQueryPerformanceSummary\x122.chalk.server.v1.GetQueryPerformanceSummaryRequest\x1a3.chalk.server.v1.GetQueryPerformanceSummaryResponse\"\x03\x80}\x06\x12i\n" +
 	"\x0fListQueryErrors\x12'.chalk.server.v1.ListQueryErrorsRequest\x1a(.chalk.server.v1.ListQueryErrorsResponse\"\x03\x80}\x06\x12u\n" +
@@ -4239,185 +4416,190 @@ func file_chalk_server_v1_queries_proto_rawDescGZIP() []byte {
 	return file_chalk_server_v1_queries_proto_rawDescData
 }
 
-var file_chalk_server_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_chalk_server_v1_queries_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_server_v1_queries_proto_msgTypes = make([]protoimpl.MessageInfo, 61)
 var file_chalk_server_v1_queries_proto_goTypes = []any{
-	(*GetQueryPerformanceSummaryRequest)(nil),                       // 0: chalk.server.v1.GetQueryPerformanceSummaryRequest
-	(*GetQueryPerformanceSummaryResponse)(nil),                      // 1: chalk.server.v1.GetQueryPerformanceSummaryResponse
-	(*ListQueryErrorsPageToken)(nil),                                // 2: chalk.server.v1.ListQueryErrorsPageToken
-	(*QueryErrorFilters)(nil),                                       // 3: chalk.server.v1.QueryErrorFilters
-	(*QueryErrorMeta)(nil),                                          // 4: chalk.server.v1.QueryErrorMeta
-	(*ListQueryErrorsRequest)(nil),                                  // 5: chalk.server.v1.ListQueryErrorsRequest
-	(*ListQueryErrorsResponse)(nil),                                 // 6: chalk.server.v1.ListQueryErrorsResponse
-	(*GetQueryErrorsChartRequest)(nil),                              // 7: chalk.server.v1.GetQueryErrorsChartRequest
-	(*GetQueryErrorsChartResponse)(nil),                             // 8: chalk.server.v1.GetQueryErrorsChartResponse
-	(*GetQueryPlanRequest)(nil),                                     // 9: chalk.server.v1.GetQueryPlanRequest
-	(*QueryPlan)(nil),                                               // 10: chalk.server.v1.QueryPlan
-	(*GetQueryPlanResponse)(nil),                                    // 11: chalk.server.v1.GetQueryPlanResponse
-	(*ListQueryPlansRequest)(nil),                                   // 12: chalk.server.v1.ListQueryPlansRequest
-	(*QueryPlanReference)(nil),                                      // 13: chalk.server.v1.QueryPlanReference
-	(*ListQueryPlansResponse)(nil),                                  // 14: chalk.server.v1.ListQueryPlansResponse
-	(*AggregatedQueryError)(nil),                                    // 15: chalk.server.v1.AggregatedQueryError
-	(*AggregateQueryErrorsRequest)(nil),                             // 16: chalk.server.v1.AggregateQueryErrorsRequest
-	(*AggregateQueryErrorsResponse)(nil),                            // 17: chalk.server.v1.AggregateQueryErrorsResponse
-	(*MetaQueryRun)(nil),                                            // 18: chalk.server.v1.MetaQueryRun
-	(*MetaQueryRunWithMeta)(nil),                                    // 19: chalk.server.v1.MetaQueryRunWithMeta
-	(*ListMetaQueryRunsRequest)(nil),                                // 20: chalk.server.v1.ListMetaQueryRunsRequest
-	(*ListMetaQueryRunsResponse)(nil),                               // 21: chalk.server.v1.ListMetaQueryRunsResponse
-	(*MetaQuery)(nil),                                               // 22: chalk.server.v1.MetaQuery
-	(*ListMetaQueriesRequest)(nil),                                  // 23: chalk.server.v1.ListMetaQueriesRequest
-	(*ListMetaQueriesResponse)(nil),                                 // 24: chalk.server.v1.ListMetaQueriesResponse
-	(*ListLatestMetaQueriesRequest)(nil),                            // 25: chalk.server.v1.ListLatestMetaQueriesRequest
-	(*ListLatestMetaQueriesResponse)(nil),                           // 26: chalk.server.v1.ListLatestMetaQueriesResponse
-	(*GetMetaQueryRequest)(nil),                                     // 27: chalk.server.v1.GetMetaQueryRequest
-	(*GetMetaQueryResponse)(nil),                                    // 28: chalk.server.v1.GetMetaQueryResponse
-	(*GetMetaQueryByNameRequest)(nil),                               // 29: chalk.server.v1.GetMetaQueryByNameRequest
-	(*GetMetaQueryByNameResponse)(nil),                              // 30: chalk.server.v1.GetMetaQueryByNameResponse
-	(*ListMetaQueriesByIdsRequest)(nil),                             // 31: chalk.server.v1.ListMetaQueriesByIdsRequest
-	(*ListMetaQueriesByIdsResponse)(nil),                            // 32: chalk.server.v1.ListMetaQueriesByIdsResponse
-	(*ListArchivedMetaQueriesRequest)(nil),                          // 33: chalk.server.v1.ListArchivedMetaQueriesRequest
-	(*ListArchivedMetaQueriesResponse)(nil),                         // 34: chalk.server.v1.ListArchivedMetaQueriesResponse
-	(*ListMetaQueriesForResolverRequest)(nil),                       // 35: chalk.server.v1.ListMetaQueriesForResolverRequest
-	(*ListMetaQueriesForResolverResponse)(nil),                      // 36: chalk.server.v1.ListMetaQueriesForResolverResponse
-	(*ListMetaQueriesForFeatureRequest)(nil),                        // 37: chalk.server.v1.ListMetaQueriesForFeatureRequest
-	(*ListMetaQueriesForFeatureResponse)(nil),                       // 38: chalk.server.v1.ListMetaQueriesForFeatureResponse
-	(*ListMetaQueryVersionsRequest)(nil),                            // 39: chalk.server.v1.ListMetaQueryVersionsRequest
-	(*ListMetaQueryVersionsResponse)(nil),                           // 40: chalk.server.v1.ListMetaQueryVersionsResponse
-	(*QueryRun)(nil),                                                // 41: chalk.server.v1.QueryRun
-	(*GetQueryRunRequest)(nil),                                      // 42: chalk.server.v1.GetQueryRunRequest
-	(*GetQueryRunResponse)(nil),                                     // 43: chalk.server.v1.GetQueryRunResponse
-	(*ListStreamingResolverDeploymentsRequest)(nil),                 // 44: chalk.server.v1.ListStreamingResolverDeploymentsRequest
-	(*DeploymentTimestamp)(nil),                                     // 45: chalk.server.v1.DeploymentTimestamp
-	(*ListStreamingResolverDeploymentsResponse)(nil),                // 46: chalk.server.v1.ListStreamingResolverDeploymentsResponse
-	(*GetStreamingResolverMappingPlanRequest)(nil),                  // 47: chalk.server.v1.GetStreamingResolverMappingPlanRequest
-	(*GetStreamingResolverMappingPlanResponse)(nil),                 // 48: chalk.server.v1.GetStreamingResolverMappingPlanResponse
-	(*GetStreamingResolverSinkPlanRequest)(nil),                     // 49: chalk.server.v1.GetStreamingResolverSinkPlanRequest
-	(*GetStreamingResolverSinkPlanResponse)(nil),                    // 50: chalk.server.v1.GetStreamingResolverSinkPlanResponse
-	(*GetStreamingResolverMaterializedAggregationPlanRequest)(nil),  // 51: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
-	(*GetStreamingResolverMaterializedAggregationPlanResponse)(nil), // 52: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
-	(*PlanRunMetadataBlock)(nil),                                    // 53: chalk.server.v1.PlanRunMetadataBlock
-	(*ArchiveMetaQueryRequest)(nil),                                 // 54: chalk.server.v1.ArchiveMetaQueryRequest
-	(*ArchiveMetaQueryResponse)(nil),                                // 55: chalk.server.v1.ArchiveMetaQueryResponse
-	(*UnarchiveMetaQueryRequest)(nil),                               // 56: chalk.server.v1.UnarchiveMetaQueryRequest
-	(*UnarchiveMetaQueryResponse)(nil),                              // 57: chalk.server.v1.UnarchiveMetaQueryResponse
-	(*GetPlanRunMetadataRequest)(nil),                               // 58: chalk.server.v1.GetPlanRunMetadataRequest
-	(*GetPlanRunMetadataResponse)(nil),                              // 59: chalk.server.v1.GetPlanRunMetadataResponse
-	(*timestamppb.Timestamp)(nil),                                   // 60: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),                                     // 61: google.protobuf.Duration
-	(*v1.DenseTimeSeriesChart)(nil),                                 // 62: chalk.chart.v1.DenseTimeSeriesChart
+	(MetaQueryRunsSource)(0),                                        // 0: chalk.server.v1.MetaQueryRunsSource
+	(*GetQueryPerformanceSummaryRequest)(nil),                       // 1: chalk.server.v1.GetQueryPerformanceSummaryRequest
+	(*GetQueryPerformanceSummaryResponse)(nil),                      // 2: chalk.server.v1.GetQueryPerformanceSummaryResponse
+	(*ListQueryErrorsPageToken)(nil),                                // 3: chalk.server.v1.ListQueryErrorsPageToken
+	(*QueryErrorFilters)(nil),                                       // 4: chalk.server.v1.QueryErrorFilters
+	(*QueryErrorMeta)(nil),                                          // 5: chalk.server.v1.QueryErrorMeta
+	(*ListQueryErrorsRequest)(nil),                                  // 6: chalk.server.v1.ListQueryErrorsRequest
+	(*ListQueryErrorsResponse)(nil),                                 // 7: chalk.server.v1.ListQueryErrorsResponse
+	(*GetQueryErrorsChartRequest)(nil),                              // 8: chalk.server.v1.GetQueryErrorsChartRequest
+	(*GetQueryErrorsChartResponse)(nil),                             // 9: chalk.server.v1.GetQueryErrorsChartResponse
+	(*GetQueryPlanRequest)(nil),                                     // 10: chalk.server.v1.GetQueryPlanRequest
+	(*QueryPlan)(nil),                                               // 11: chalk.server.v1.QueryPlan
+	(*GetQueryPlanResponse)(nil),                                    // 12: chalk.server.v1.GetQueryPlanResponse
+	(*ListQueryPlansRequest)(nil),                                   // 13: chalk.server.v1.ListQueryPlansRequest
+	(*QueryPlanReference)(nil),                                      // 14: chalk.server.v1.QueryPlanReference
+	(*ListQueryPlansResponse)(nil),                                  // 15: chalk.server.v1.ListQueryPlansResponse
+	(*AggregatedQueryError)(nil),                                    // 16: chalk.server.v1.AggregatedQueryError
+	(*AggregateQueryErrorsRequest)(nil),                             // 17: chalk.server.v1.AggregateQueryErrorsRequest
+	(*AggregateQueryErrorsResponse)(nil),                            // 18: chalk.server.v1.AggregateQueryErrorsResponse
+	(*MetaQueryRun)(nil),                                            // 19: chalk.server.v1.MetaQueryRun
+	(*MetaQueryRunWithMeta)(nil),                                    // 20: chalk.server.v1.MetaQueryRunWithMeta
+	(*ListMetaQueryRunsRequest)(nil),                                // 21: chalk.server.v1.ListMetaQueryRunsRequest
+	(*ListMetaQueryRunsPageToken)(nil),                              // 22: chalk.server.v1.ListMetaQueryRunsPageToken
+	(*ListMetaQueryRunsResponse)(nil),                               // 23: chalk.server.v1.ListMetaQueryRunsResponse
+	(*MetaQuery)(nil),                                               // 24: chalk.server.v1.MetaQuery
+	(*ListMetaQueriesRequest)(nil),                                  // 25: chalk.server.v1.ListMetaQueriesRequest
+	(*ListMetaQueriesResponse)(nil),                                 // 26: chalk.server.v1.ListMetaQueriesResponse
+	(*ListLatestMetaQueriesRequest)(nil),                            // 27: chalk.server.v1.ListLatestMetaQueriesRequest
+	(*ListLatestMetaQueriesResponse)(nil),                           // 28: chalk.server.v1.ListLatestMetaQueriesResponse
+	(*GetMetaQueryRequest)(nil),                                     // 29: chalk.server.v1.GetMetaQueryRequest
+	(*GetMetaQueryResponse)(nil),                                    // 30: chalk.server.v1.GetMetaQueryResponse
+	(*GetMetaQueryByNameRequest)(nil),                               // 31: chalk.server.v1.GetMetaQueryByNameRequest
+	(*GetMetaQueryByNameResponse)(nil),                              // 32: chalk.server.v1.GetMetaQueryByNameResponse
+	(*ListMetaQueriesByIdsRequest)(nil),                             // 33: chalk.server.v1.ListMetaQueriesByIdsRequest
+	(*ListMetaQueriesByIdsResponse)(nil),                            // 34: chalk.server.v1.ListMetaQueriesByIdsResponse
+	(*ListArchivedMetaQueriesRequest)(nil),                          // 35: chalk.server.v1.ListArchivedMetaQueriesRequest
+	(*ListArchivedMetaQueriesResponse)(nil),                         // 36: chalk.server.v1.ListArchivedMetaQueriesResponse
+	(*ListMetaQueriesForResolverRequest)(nil),                       // 37: chalk.server.v1.ListMetaQueriesForResolverRequest
+	(*ListMetaQueriesForResolverResponse)(nil),                      // 38: chalk.server.v1.ListMetaQueriesForResolverResponse
+	(*ListMetaQueriesForFeatureRequest)(nil),                        // 39: chalk.server.v1.ListMetaQueriesForFeatureRequest
+	(*ListMetaQueriesForFeatureResponse)(nil),                       // 40: chalk.server.v1.ListMetaQueriesForFeatureResponse
+	(*ListMetaQueryVersionsRequest)(nil),                            // 41: chalk.server.v1.ListMetaQueryVersionsRequest
+	(*ListMetaQueryVersionsResponse)(nil),                           // 42: chalk.server.v1.ListMetaQueryVersionsResponse
+	(*QueryRun)(nil),                                                // 43: chalk.server.v1.QueryRun
+	(*GetQueryRunRequest)(nil),                                      // 44: chalk.server.v1.GetQueryRunRequest
+	(*GetQueryRunResponse)(nil),                                     // 45: chalk.server.v1.GetQueryRunResponse
+	(*ListStreamingResolverDeploymentsRequest)(nil),                 // 46: chalk.server.v1.ListStreamingResolverDeploymentsRequest
+	(*DeploymentTimestamp)(nil),                                     // 47: chalk.server.v1.DeploymentTimestamp
+	(*ListStreamingResolverDeploymentsResponse)(nil),                // 48: chalk.server.v1.ListStreamingResolverDeploymentsResponse
+	(*GetStreamingResolverMappingPlanRequest)(nil),                  // 49: chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	(*GetStreamingResolverMappingPlanResponse)(nil),                 // 50: chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	(*GetStreamingResolverSinkPlanRequest)(nil),                     // 51: chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	(*GetStreamingResolverSinkPlanResponse)(nil),                    // 52: chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	(*GetStreamingResolverMaterializedAggregationPlanRequest)(nil),  // 53: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	(*GetStreamingResolverMaterializedAggregationPlanResponse)(nil), // 54: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	(*PlanRunMetadataBlock)(nil),                                    // 55: chalk.server.v1.PlanRunMetadataBlock
+	(*ArchiveMetaQueryRequest)(nil),                                 // 56: chalk.server.v1.ArchiveMetaQueryRequest
+	(*ArchiveMetaQueryResponse)(nil),                                // 57: chalk.server.v1.ArchiveMetaQueryResponse
+	(*UnarchiveMetaQueryRequest)(nil),                               // 58: chalk.server.v1.UnarchiveMetaQueryRequest
+	(*UnarchiveMetaQueryResponse)(nil),                              // 59: chalk.server.v1.UnarchiveMetaQueryResponse
+	(*GetPlanRunMetadataRequest)(nil),                               // 60: chalk.server.v1.GetPlanRunMetadataRequest
+	(*GetPlanRunMetadataResponse)(nil),                              // 61: chalk.server.v1.GetPlanRunMetadataResponse
+	(*timestamppb.Timestamp)(nil),                                   // 62: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),                                     // 63: google.protobuf.Duration
+	(*v1.DenseTimeSeriesChart)(nil),                                 // 64: chalk.chart.v1.DenseTimeSeriesChart
 }
 var file_chalk_server_v1_queries_proto_depIdxs = []int32{
-	60, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
-	60, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
-	60, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	60, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
-	3,  // 4: chalk.server.v1.ListQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	4,  // 5: chalk.server.v1.ListQueryErrorsResponse.query_errors:type_name -> chalk.server.v1.QueryErrorMeta
-	60, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
-	60, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
-	61, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
-	3,  // 9: chalk.server.v1.GetQueryErrorsChartRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	62, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	60, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
-	10, // 12: chalk.server.v1.GetQueryPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	60, // 13: chalk.server.v1.ListQueryPlansRequest.start:type_name -> google.protobuf.Timestamp
-	60, // 14: chalk.server.v1.ListQueryPlansRequest.end:type_name -> google.protobuf.Timestamp
-	60, // 15: chalk.server.v1.QueryPlanReference.created_at:type_name -> google.protobuf.Timestamp
-	13, // 16: chalk.server.v1.ListQueryPlansResponse.plans:type_name -> chalk.server.v1.QueryPlanReference
-	4,  // 17: chalk.server.v1.AggregatedQueryError.sample_error:type_name -> chalk.server.v1.QueryErrorMeta
-	60, // 18: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
-	60, // 19: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
-	60, // 20: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
-	60, // 21: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
-	3,  // 22: chalk.server.v1.AggregateQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
-	15, // 23: chalk.server.v1.AggregateQueryErrorsResponse.aggregated_errors:type_name -> chalk.server.v1.AggregatedQueryError
-	60, // 24: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
-	18, // 25: chalk.server.v1.MetaQueryRunWithMeta.run:type_name -> chalk.server.v1.MetaQueryRun
-	60, // 26: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
-	60, // 27: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
-	60, // 28: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
-	19, // 29: chalk.server.v1.ListMetaQueryRunsResponse.query_runs:type_name -> chalk.server.v1.MetaQueryRunWithMeta
-	60, // 30: chalk.server.v1.ListMetaQueryRunsResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	60, // 31: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
-	60, // 32: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
-	60, // 33: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
-	60, // 34: chalk.server.v1.MetaQuery.succeeded_at:type_name -> google.protobuf.Timestamp
-	60, // 35: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
-	60, // 36: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
-	60, // 37: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
-	22, // 38: chalk.server.v1.ListMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	60, // 39: chalk.server.v1.ListMetaQueriesResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	22, // 40: chalk.server.v1.ListLatestMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	22, // 41: chalk.server.v1.GetMetaQueryResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
-	22, // 42: chalk.server.v1.GetMetaQueryByNameResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
-	22, // 43: chalk.server.v1.ListMetaQueriesByIdsResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	22, // 44: chalk.server.v1.ListArchivedMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	22, // 45: chalk.server.v1.ListMetaQueriesForResolverResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	22, // 46: chalk.server.v1.ListMetaQueriesForFeatureResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
-	60, // 47: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
-	22, // 48: chalk.server.v1.ListMetaQueryVersionsResponse.meta_query_versions:type_name -> chalk.server.v1.MetaQuery
-	60, // 49: chalk.server.v1.ListMetaQueryVersionsResponse.next_cursor:type_name -> google.protobuf.Timestamp
-	60, // 50: chalk.server.v1.QueryRun.created_at:type_name -> google.protobuf.Timestamp
-	60, // 51: chalk.server.v1.GetQueryRunRequest.approximate_timestamp:type_name -> google.protobuf.Timestamp
-	41, // 52: chalk.server.v1.GetQueryRunResponse.query_run:type_name -> chalk.server.v1.QueryRun
-	60, // 53: chalk.server.v1.DeploymentTimestamp.created_at:type_name -> google.protobuf.Timestamp
-	45, // 54: chalk.server.v1.ListStreamingResolverDeploymentsResponse.deployments:type_name -> chalk.server.v1.DeploymentTimestamp
-	10, // 55: chalk.server.v1.GetStreamingResolverMappingPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	10, // 56: chalk.server.v1.GetStreamingResolverSinkPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	10, // 57: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
-	53, // 58: chalk.server.v1.GetPlanRunMetadataResponse.metadata:type_name -> chalk.server.v1.PlanRunMetadataBlock
-	0,  // 59: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
-	5,  // 60: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
-	7,  // 61: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
-	9,  // 62: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
-	12, // 63: chalk.server.v1.QueriesService.ListQueryPlans:input_type -> chalk.server.v1.ListQueryPlansRequest
-	16, // 64: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
-	20, // 65: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
-	23, // 66: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
-	25, // 67: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
-	27, // 68: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
-	29, // 69: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
-	31, // 70: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
-	33, // 71: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
-	35, // 72: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
-	37, // 73: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
-	39, // 74: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
-	42, // 75: chalk.server.v1.QueriesService.GetQueryRun:input_type -> chalk.server.v1.GetQueryRunRequest
-	44, // 76: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:input_type -> chalk.server.v1.ListStreamingResolverDeploymentsRequest
-	47, // 77: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:input_type -> chalk.server.v1.GetStreamingResolverMappingPlanRequest
-	49, // 78: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:input_type -> chalk.server.v1.GetStreamingResolverSinkPlanRequest
-	51, // 79: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:input_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
-	58, // 80: chalk.server.v1.QueriesService.GetPlanRunMetadata:input_type -> chalk.server.v1.GetPlanRunMetadataRequest
-	54, // 81: chalk.server.v1.QueriesService.ArchiveMetaQuery:input_type -> chalk.server.v1.ArchiveMetaQueryRequest
-	56, // 82: chalk.server.v1.QueriesService.UnarchiveMetaQuery:input_type -> chalk.server.v1.UnarchiveMetaQueryRequest
-	1,  // 83: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
-	6,  // 84: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
-	8,  // 85: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
-	11, // 86: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
-	14, // 87: chalk.server.v1.QueriesService.ListQueryPlans:output_type -> chalk.server.v1.ListQueryPlansResponse
-	17, // 88: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
-	21, // 89: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
-	24, // 90: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
-	26, // 91: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
-	28, // 92: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
-	30, // 93: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
-	32, // 94: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
-	34, // 95: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
-	36, // 96: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
-	38, // 97: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
-	40, // 98: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
-	43, // 99: chalk.server.v1.QueriesService.GetQueryRun:output_type -> chalk.server.v1.GetQueryRunResponse
-	46, // 100: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:output_type -> chalk.server.v1.ListStreamingResolverDeploymentsResponse
-	48, // 101: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:output_type -> chalk.server.v1.GetStreamingResolverMappingPlanResponse
-	50, // 102: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:output_type -> chalk.server.v1.GetStreamingResolverSinkPlanResponse
-	52, // 103: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:output_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
-	59, // 104: chalk.server.v1.QueriesService.GetPlanRunMetadata:output_type -> chalk.server.v1.GetPlanRunMetadataResponse
-	55, // 105: chalk.server.v1.QueriesService.ArchiveMetaQuery:output_type -> chalk.server.v1.ArchiveMetaQueryResponse
-	57, // 106: chalk.server.v1.QueriesService.UnarchiveMetaQuery:output_type -> chalk.server.v1.UnarchiveMetaQueryResponse
-	83, // [83:107] is the sub-list for method output_type
-	59, // [59:83] is the sub-list for method input_type
-	59, // [59:59] is the sub-list for extension type_name
-	59, // [59:59] is the sub-list for extension extendee
-	0,  // [0:59] is the sub-list for field type_name
+	62, // 0: chalk.server.v1.ListQueryErrorsPageToken.error_timestamp_hwm:type_name -> google.protobuf.Timestamp
+	62, // 1: chalk.server.v1.QueryErrorMeta.created_at:type_name -> google.protobuf.Timestamp
+	62, // 2: chalk.server.v1.ListQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	62, // 3: chalk.server.v1.ListQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	4,  // 4: chalk.server.v1.ListQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	5,  // 5: chalk.server.v1.ListQueryErrorsResponse.query_errors:type_name -> chalk.server.v1.QueryErrorMeta
+	62, // 6: chalk.server.v1.GetQueryErrorsChartRequest.start_timestamp_inclusive:type_name -> google.protobuf.Timestamp
+	62, // 7: chalk.server.v1.GetQueryErrorsChartRequest.end_timestamp_exclusive:type_name -> google.protobuf.Timestamp
+	63, // 8: chalk.server.v1.GetQueryErrorsChartRequest.window_period:type_name -> google.protobuf.Duration
+	4,  // 9: chalk.server.v1.GetQueryErrorsChartRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	64, // 10: chalk.server.v1.GetQueryErrorsChartResponse.chart:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	62, // 11: chalk.server.v1.QueryPlan.created_at:type_name -> google.protobuf.Timestamp
+	11, // 12: chalk.server.v1.GetQueryPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	62, // 13: chalk.server.v1.ListQueryPlansRequest.start:type_name -> google.protobuf.Timestamp
+	62, // 14: chalk.server.v1.ListQueryPlansRequest.end:type_name -> google.protobuf.Timestamp
+	62, // 15: chalk.server.v1.QueryPlanReference.created_at:type_name -> google.protobuf.Timestamp
+	14, // 16: chalk.server.v1.ListQueryPlansResponse.plans:type_name -> chalk.server.v1.QueryPlanReference
+	5,  // 17: chalk.server.v1.AggregatedQueryError.sample_error:type_name -> chalk.server.v1.QueryErrorMeta
+	62, // 18: chalk.server.v1.AggregatedQueryError.first_seen:type_name -> google.protobuf.Timestamp
+	62, // 19: chalk.server.v1.AggregatedQueryError.last_seen:type_name -> google.protobuf.Timestamp
+	62, // 20: chalk.server.v1.AggregateQueryErrorsRequest.start_date:type_name -> google.protobuf.Timestamp
+	62, // 21: chalk.server.v1.AggregateQueryErrorsRequest.end_date:type_name -> google.protobuf.Timestamp
+	4,  // 22: chalk.server.v1.AggregateQueryErrorsRequest.filters:type_name -> chalk.server.v1.QueryErrorFilters
+	16, // 23: chalk.server.v1.AggregateQueryErrorsResponse.aggregated_errors:type_name -> chalk.server.v1.AggregatedQueryError
+	62, // 24: chalk.server.v1.MetaQueryRun.created_at:type_name -> google.protobuf.Timestamp
+	19, // 25: chalk.server.v1.MetaQueryRunWithMeta.run:type_name -> chalk.server.v1.MetaQueryRun
+	62, // 26: chalk.server.v1.ListMetaQueryRunsRequest.cursor:type_name -> google.protobuf.Timestamp
+	62, // 27: chalk.server.v1.ListMetaQueryRunsRequest.start:type_name -> google.protobuf.Timestamp
+	62, // 28: chalk.server.v1.ListMetaQueryRunsRequest.end:type_name -> google.protobuf.Timestamp
+	0,  // 29: chalk.server.v1.ListMetaQueryRunsRequest.source:type_name -> chalk.server.v1.MetaQueryRunsSource
+	62, // 30: chalk.server.v1.ListMetaQueryRunsPageToken.cursor:type_name -> google.protobuf.Timestamp
+	20, // 31: chalk.server.v1.ListMetaQueryRunsResponse.query_runs:type_name -> chalk.server.v1.MetaQueryRunWithMeta
+	62, // 32: chalk.server.v1.ListMetaQueryRunsResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	62, // 33: chalk.server.v1.MetaQuery.last_observed_at:type_name -> google.protobuf.Timestamp
+	62, // 34: chalk.server.v1.MetaQuery.created_at:type_name -> google.protobuf.Timestamp
+	62, // 35: chalk.server.v1.MetaQuery.archived_at:type_name -> google.protobuf.Timestamp
+	62, // 36: chalk.server.v1.MetaQuery.succeeded_at:type_name -> google.protobuf.Timestamp
+	62, // 37: chalk.server.v1.ListMetaQueriesRequest.start:type_name -> google.protobuf.Timestamp
+	62, // 38: chalk.server.v1.ListMetaQueriesRequest.end:type_name -> google.protobuf.Timestamp
+	62, // 39: chalk.server.v1.ListMetaQueriesRequest.cursor:type_name -> google.protobuf.Timestamp
+	24, // 40: chalk.server.v1.ListMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	62, // 41: chalk.server.v1.ListMetaQueriesResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	24, // 42: chalk.server.v1.ListLatestMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	24, // 43: chalk.server.v1.GetMetaQueryResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
+	24, // 44: chalk.server.v1.GetMetaQueryByNameResponse.meta_query:type_name -> chalk.server.v1.MetaQuery
+	24, // 45: chalk.server.v1.ListMetaQueriesByIdsResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	24, // 46: chalk.server.v1.ListArchivedMetaQueriesResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	24, // 47: chalk.server.v1.ListMetaQueriesForResolverResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	24, // 48: chalk.server.v1.ListMetaQueriesForFeatureResponse.meta_queries:type_name -> chalk.server.v1.MetaQuery
+	62, // 49: chalk.server.v1.ListMetaQueryVersionsRequest.cursor:type_name -> google.protobuf.Timestamp
+	24, // 50: chalk.server.v1.ListMetaQueryVersionsResponse.meta_query_versions:type_name -> chalk.server.v1.MetaQuery
+	62, // 51: chalk.server.v1.ListMetaQueryVersionsResponse.next_cursor:type_name -> google.protobuf.Timestamp
+	62, // 52: chalk.server.v1.QueryRun.created_at:type_name -> google.protobuf.Timestamp
+	62, // 53: chalk.server.v1.GetQueryRunRequest.approximate_timestamp:type_name -> google.protobuf.Timestamp
+	43, // 54: chalk.server.v1.GetQueryRunResponse.query_run:type_name -> chalk.server.v1.QueryRun
+	62, // 55: chalk.server.v1.DeploymentTimestamp.created_at:type_name -> google.protobuf.Timestamp
+	47, // 56: chalk.server.v1.ListStreamingResolverDeploymentsResponse.deployments:type_name -> chalk.server.v1.DeploymentTimestamp
+	11, // 57: chalk.server.v1.GetStreamingResolverMappingPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	11, // 58: chalk.server.v1.GetStreamingResolverSinkPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	11, // 59: chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse.query_plan:type_name -> chalk.server.v1.QueryPlan
+	55, // 60: chalk.server.v1.GetPlanRunMetadataResponse.metadata:type_name -> chalk.server.v1.PlanRunMetadataBlock
+	1,  // 61: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:input_type -> chalk.server.v1.GetQueryPerformanceSummaryRequest
+	6,  // 62: chalk.server.v1.QueriesService.ListQueryErrors:input_type -> chalk.server.v1.ListQueryErrorsRequest
+	8,  // 63: chalk.server.v1.QueriesService.GetQueryErrorsChart:input_type -> chalk.server.v1.GetQueryErrorsChartRequest
+	10, // 64: chalk.server.v1.QueriesService.GetQueryPlan:input_type -> chalk.server.v1.GetQueryPlanRequest
+	13, // 65: chalk.server.v1.QueriesService.ListQueryPlans:input_type -> chalk.server.v1.ListQueryPlansRequest
+	17, // 66: chalk.server.v1.QueriesService.AggregateQueryErrors:input_type -> chalk.server.v1.AggregateQueryErrorsRequest
+	21, // 67: chalk.server.v1.QueriesService.ListMetaQueryRuns:input_type -> chalk.server.v1.ListMetaQueryRunsRequest
+	25, // 68: chalk.server.v1.QueriesService.ListMetaQueries:input_type -> chalk.server.v1.ListMetaQueriesRequest
+	27, // 69: chalk.server.v1.QueriesService.ListLatestMetaQueries:input_type -> chalk.server.v1.ListLatestMetaQueriesRequest
+	29, // 70: chalk.server.v1.QueriesService.GetMetaQuery:input_type -> chalk.server.v1.GetMetaQueryRequest
+	31, // 71: chalk.server.v1.QueriesService.GetMetaQueryByName:input_type -> chalk.server.v1.GetMetaQueryByNameRequest
+	33, // 72: chalk.server.v1.QueriesService.ListMetaQueriesByIds:input_type -> chalk.server.v1.ListMetaQueriesByIdsRequest
+	35, // 73: chalk.server.v1.QueriesService.ListArchivedMetaQueries:input_type -> chalk.server.v1.ListArchivedMetaQueriesRequest
+	37, // 74: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:input_type -> chalk.server.v1.ListMetaQueriesForResolverRequest
+	39, // 75: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:input_type -> chalk.server.v1.ListMetaQueriesForFeatureRequest
+	41, // 76: chalk.server.v1.QueriesService.ListMetaQueryVersions:input_type -> chalk.server.v1.ListMetaQueryVersionsRequest
+	44, // 77: chalk.server.v1.QueriesService.GetQueryRun:input_type -> chalk.server.v1.GetQueryRunRequest
+	46, // 78: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:input_type -> chalk.server.v1.ListStreamingResolverDeploymentsRequest
+	49, // 79: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:input_type -> chalk.server.v1.GetStreamingResolverMappingPlanRequest
+	51, // 80: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:input_type -> chalk.server.v1.GetStreamingResolverSinkPlanRequest
+	53, // 81: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:input_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanRequest
+	60, // 82: chalk.server.v1.QueriesService.GetPlanRunMetadata:input_type -> chalk.server.v1.GetPlanRunMetadataRequest
+	56, // 83: chalk.server.v1.QueriesService.ArchiveMetaQuery:input_type -> chalk.server.v1.ArchiveMetaQueryRequest
+	58, // 84: chalk.server.v1.QueriesService.UnarchiveMetaQuery:input_type -> chalk.server.v1.UnarchiveMetaQueryRequest
+	2,  // 85: chalk.server.v1.QueriesService.GetQueryPerformanceSummary:output_type -> chalk.server.v1.GetQueryPerformanceSummaryResponse
+	7,  // 86: chalk.server.v1.QueriesService.ListQueryErrors:output_type -> chalk.server.v1.ListQueryErrorsResponse
+	9,  // 87: chalk.server.v1.QueriesService.GetQueryErrorsChart:output_type -> chalk.server.v1.GetQueryErrorsChartResponse
+	12, // 88: chalk.server.v1.QueriesService.GetQueryPlan:output_type -> chalk.server.v1.GetQueryPlanResponse
+	15, // 89: chalk.server.v1.QueriesService.ListQueryPlans:output_type -> chalk.server.v1.ListQueryPlansResponse
+	18, // 90: chalk.server.v1.QueriesService.AggregateQueryErrors:output_type -> chalk.server.v1.AggregateQueryErrorsResponse
+	23, // 91: chalk.server.v1.QueriesService.ListMetaQueryRuns:output_type -> chalk.server.v1.ListMetaQueryRunsResponse
+	26, // 92: chalk.server.v1.QueriesService.ListMetaQueries:output_type -> chalk.server.v1.ListMetaQueriesResponse
+	28, // 93: chalk.server.v1.QueriesService.ListLatestMetaQueries:output_type -> chalk.server.v1.ListLatestMetaQueriesResponse
+	30, // 94: chalk.server.v1.QueriesService.GetMetaQuery:output_type -> chalk.server.v1.GetMetaQueryResponse
+	32, // 95: chalk.server.v1.QueriesService.GetMetaQueryByName:output_type -> chalk.server.v1.GetMetaQueryByNameResponse
+	34, // 96: chalk.server.v1.QueriesService.ListMetaQueriesByIds:output_type -> chalk.server.v1.ListMetaQueriesByIdsResponse
+	36, // 97: chalk.server.v1.QueriesService.ListArchivedMetaQueries:output_type -> chalk.server.v1.ListArchivedMetaQueriesResponse
+	38, // 98: chalk.server.v1.QueriesService.ListMetaQueriesForResolver:output_type -> chalk.server.v1.ListMetaQueriesForResolverResponse
+	40, // 99: chalk.server.v1.QueriesService.ListMetaQueriesForFeature:output_type -> chalk.server.v1.ListMetaQueriesForFeatureResponse
+	42, // 100: chalk.server.v1.QueriesService.ListMetaQueryVersions:output_type -> chalk.server.v1.ListMetaQueryVersionsResponse
+	45, // 101: chalk.server.v1.QueriesService.GetQueryRun:output_type -> chalk.server.v1.GetQueryRunResponse
+	48, // 102: chalk.server.v1.QueriesService.ListStreamingResolverDeployments:output_type -> chalk.server.v1.ListStreamingResolverDeploymentsResponse
+	50, // 103: chalk.server.v1.QueriesService.GetStreamingResolverMappingPlan:output_type -> chalk.server.v1.GetStreamingResolverMappingPlanResponse
+	52, // 104: chalk.server.v1.QueriesService.GetStreamingResolverSinkPlan:output_type -> chalk.server.v1.GetStreamingResolverSinkPlanResponse
+	54, // 105: chalk.server.v1.QueriesService.GetStreamingResolverMaterializedAggregationPlan:output_type -> chalk.server.v1.GetStreamingResolverMaterializedAggregationPlanResponse
+	61, // 106: chalk.server.v1.QueriesService.GetPlanRunMetadata:output_type -> chalk.server.v1.GetPlanRunMetadataResponse
+	57, // 107: chalk.server.v1.QueriesService.ArchiveMetaQuery:output_type -> chalk.server.v1.ArchiveMetaQueryResponse
+	59, // 108: chalk.server.v1.QueriesService.UnarchiveMetaQuery:output_type -> chalk.server.v1.UnarchiveMetaQueryResponse
+	85, // [85:109] is the sub-list for method output_type
+	61, // [61:85] is the sub-list for method input_type
+	61, // [61:61] is the sub-list for extension type_name
+	61, // [61:61] is the sub-list for extension extendee
+	0,  // [0:61] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_queries_proto_init() }
@@ -4438,29 +4620,30 @@ func file_chalk_server_v1_queries_proto_init() {
 	file_chalk_server_v1_queries_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[19].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[20].OneofWrappers = []any{}
-	file_chalk_server_v1_queries_proto_msgTypes[21].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[22].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[23].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[24].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[25].OneofWrappers = []any{}
-	file_chalk_server_v1_queries_proto_msgTypes[39].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[26].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[40].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[41].OneofWrappers = []any{}
 	file_chalk_server_v1_queries_proto_msgTypes[42].OneofWrappers = []any{}
-	file_chalk_server_v1_queries_proto_msgTypes[44].OneofWrappers = []any{}
-	file_chalk_server_v1_queries_proto_msgTypes[53].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[43].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[45].OneofWrappers = []any{}
+	file_chalk_server_v1_queries_proto_msgTypes[54].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_server_v1_queries_proto_rawDesc), len(file_chalk_server_v1_queries_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   60,
+			NumEnums:      1,
+			NumMessages:   61,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_chalk_server_v1_queries_proto_goTypes,
 		DependencyIndexes: file_chalk_server_v1_queries_proto_depIdxs,
+		EnumInfos:         file_chalk_server_v1_queries_proto_enumTypes,
 		MessageInfos:      file_chalk_server_v1_queries_proto_msgTypes,
 	}.Build()
 	File_chalk_server_v1_queries_proto = out.File
