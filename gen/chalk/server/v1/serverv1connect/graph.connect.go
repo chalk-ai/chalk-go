@@ -59,12 +59,18 @@ const (
 	// GraphServiceGetOfflineStoreTableProcedure is the fully-qualified name of the GraphService's
 	// GetOfflineStoreTable RPC.
 	GraphServiceGetOfflineStoreTableProcedure = "/chalk.server.v1.GraphService/GetOfflineStoreTable"
+	// GraphServiceGetAllOfflineStoreTablesProcedure is the fully-qualified name of the GraphService's
+	// GetAllOfflineStoreTables RPC.
+	GraphServiceGetAllOfflineStoreTablesProcedure = "/chalk.server.v1.GraphService/GetAllOfflineStoreTables"
 	// GraphServiceDiffDeploymentsProcedure is the fully-qualified name of the GraphService's
 	// DiffDeployments RPC.
 	GraphServiceDiffDeploymentsProcedure = "/chalk.server.v1.GraphService/DiffDeployments"
 	// GraphServiceSmartDiffDeploymentProcedure is the fully-qualified name of the GraphService's
 	// SmartDiffDeployment RPC.
 	GraphServiceSmartDiffDeploymentProcedure = "/chalk.server.v1.GraphService/SmartDiffDeployment"
+	// GraphServiceDiffCandidateProcedure is the fully-qualified name of the GraphService's
+	// DiffCandidate RPC.
+	GraphServiceDiffCandidateProcedure = "/chalk.server.v1.GraphService/DiffCandidate"
 )
 
 // GraphServiceClient is a client for the chalk.server.v1.GraphService service.
@@ -86,10 +92,17 @@ type GraphServiceClient interface {
 	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
 	// GetOfflineStoreTable returns the offline store table names for a feature
 	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
+	// GetAllOfflineStoreTables returns the offline store table name for every
+	// feature and internal version in the deployment. Useful for reverse-mapping
+	// a feat_<hash> table name back to its feature.
+	GetAllOfflineStoreTables(context.Context, *connect.Request[v1.GetAllOfflineStoreTablesRequest]) (*connect.Response[v1.GetAllOfflineStoreTablesResponse], error)
 	// DiffDeployments compares two deployment graphs and returns the diff.
 	DiffDeployments(context.Context, *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error)
 	// SmartDiffDeployment automatically finds the best comparison target and diffs.
 	SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error)
+	// DiffCandidate compares a candidate export against the latest successful
+	// deployment's graph and returns the diff.
+	DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error)
 }
 
 // NewGraphServiceClient constructs a client for the chalk.server.v1.GraphService service. By
@@ -164,6 +177,13 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getAllOfflineStoreTables: connect.NewClient[v1.GetAllOfflineStoreTablesRequest, v1.GetAllOfflineStoreTablesResponse](
+			httpClient,
+			baseURL+GraphServiceGetAllOfflineStoreTablesProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("GetAllOfflineStoreTables")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		diffDeployments: connect.NewClient[v1.DiffDeploymentsRequest, v1.DiffDeploymentsResponse](
 			httpClient,
 			baseURL+GraphServiceDiffDeploymentsProcedure,
@@ -175,6 +195,13 @@ func NewGraphServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+GraphServiceSmartDiffDeploymentProcedure,
 			connect.WithSchema(graphServiceMethods.ByName("SmartDiffDeployment")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		diffCandidate: connect.NewClient[v1.DiffCandidateRequest, v1.DiffCandidateResponse](
+			httpClient,
+			baseURL+GraphServiceDiffCandidateProcedure,
+			connect.WithSchema(graphServiceMethods.ByName("DiffCandidate")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -192,8 +219,10 @@ type graphServiceClient struct {
 	testGraphMutations          *connect.Client[v1.TestGraphMutationsRequest, v1.TestGraphMutationsResponse]
 	getDataLineageIndex         *connect.Client[v1.GetDataLineageIndexRequest, v1.GetDataLineageIndexResponse]
 	getOfflineStoreTable        *connect.Client[v1.GetOfflineStoreTableRequest, v1.GetOfflineStoreTableResponse]
+	getAllOfflineStoreTables    *connect.Client[v1.GetAllOfflineStoreTablesRequest, v1.GetAllOfflineStoreTablesResponse]
 	diffDeployments             *connect.Client[v1.DiffDeploymentsRequest, v1.DiffDeploymentsResponse]
 	smartDiffDeployment         *connect.Client[v1.SmartDiffDeploymentRequest, v1.SmartDiffDeploymentResponse]
+	diffCandidate               *connect.Client[v1.DiffCandidateRequest, v1.DiffCandidateResponse]
 }
 
 // GetFeatureSQL calls chalk.server.v1.GraphService.GetFeatureSQL.
@@ -241,6 +270,11 @@ func (c *graphServiceClient) GetOfflineStoreTable(ctx context.Context, req *conn
 	return c.getOfflineStoreTable.CallUnary(ctx, req)
 }
 
+// GetAllOfflineStoreTables calls chalk.server.v1.GraphService.GetAllOfflineStoreTables.
+func (c *graphServiceClient) GetAllOfflineStoreTables(ctx context.Context, req *connect.Request[v1.GetAllOfflineStoreTablesRequest]) (*connect.Response[v1.GetAllOfflineStoreTablesResponse], error) {
+	return c.getAllOfflineStoreTables.CallUnary(ctx, req)
+}
+
 // DiffDeployments calls chalk.server.v1.GraphService.DiffDeployments.
 func (c *graphServiceClient) DiffDeployments(ctx context.Context, req *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error) {
 	return c.diffDeployments.CallUnary(ctx, req)
@@ -249,6 +283,11 @@ func (c *graphServiceClient) DiffDeployments(ctx context.Context, req *connect.R
 // SmartDiffDeployment calls chalk.server.v1.GraphService.SmartDiffDeployment.
 func (c *graphServiceClient) SmartDiffDeployment(ctx context.Context, req *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error) {
 	return c.smartDiffDeployment.CallUnary(ctx, req)
+}
+
+// DiffCandidate calls chalk.server.v1.GraphService.DiffCandidate.
+func (c *graphServiceClient) DiffCandidate(ctx context.Context, req *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error) {
+	return c.diffCandidate.CallUnary(ctx, req)
 }
 
 // GraphServiceHandler is an implementation of the chalk.server.v1.GraphService service.
@@ -270,10 +309,17 @@ type GraphServiceHandler interface {
 	GetDataLineageIndex(context.Context, *connect.Request[v1.GetDataLineageIndexRequest]) (*connect.Response[v1.GetDataLineageIndexResponse], error)
 	// GetOfflineStoreTable returns the offline store table names for a feature
 	GetOfflineStoreTable(context.Context, *connect.Request[v1.GetOfflineStoreTableRequest]) (*connect.Response[v1.GetOfflineStoreTableResponse], error)
+	// GetAllOfflineStoreTables returns the offline store table name for every
+	// feature and internal version in the deployment. Useful for reverse-mapping
+	// a feat_<hash> table name back to its feature.
+	GetAllOfflineStoreTables(context.Context, *connect.Request[v1.GetAllOfflineStoreTablesRequest]) (*connect.Response[v1.GetAllOfflineStoreTablesResponse], error)
 	// DiffDeployments compares two deployment graphs and returns the diff.
 	DiffDeployments(context.Context, *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error)
 	// SmartDiffDeployment automatically finds the best comparison target and diffs.
 	SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error)
+	// DiffCandidate compares a candidate export against the latest successful
+	// deployment's graph and returns the diff.
+	DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error)
 }
 
 // NewGraphServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -344,6 +390,13 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	graphServiceGetAllOfflineStoreTablesHandler := connect.NewUnaryHandler(
+		GraphServiceGetAllOfflineStoreTablesProcedure,
+		svc.GetAllOfflineStoreTables,
+		connect.WithSchema(graphServiceMethods.ByName("GetAllOfflineStoreTables")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	graphServiceDiffDeploymentsHandler := connect.NewUnaryHandler(
 		GraphServiceDiffDeploymentsProcedure,
 		svc.DiffDeployments,
@@ -355,6 +408,13 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 		GraphServiceSmartDiffDeploymentProcedure,
 		svc.SmartDiffDeployment,
 		connect.WithSchema(graphServiceMethods.ByName("SmartDiffDeployment")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	graphServiceDiffCandidateHandler := connect.NewUnaryHandler(
+		GraphServiceDiffCandidateProcedure,
+		svc.DiffCandidate,
+		connect.WithSchema(graphServiceMethods.ByName("DiffCandidate")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -378,10 +438,14 @@ func NewGraphServiceHandler(svc GraphServiceHandler, opts ...connect.HandlerOpti
 			graphServiceGetDataLineageIndexHandler.ServeHTTP(w, r)
 		case GraphServiceGetOfflineStoreTableProcedure:
 			graphServiceGetOfflineStoreTableHandler.ServeHTTP(w, r)
+		case GraphServiceGetAllOfflineStoreTablesProcedure:
+			graphServiceGetAllOfflineStoreTablesHandler.ServeHTTP(w, r)
 		case GraphServiceDiffDeploymentsProcedure:
 			graphServiceDiffDeploymentsHandler.ServeHTTP(w, r)
 		case GraphServiceSmartDiffDeploymentProcedure:
 			graphServiceSmartDiffDeploymentHandler.ServeHTTP(w, r)
+		case GraphServiceDiffCandidateProcedure:
+			graphServiceDiffCandidateHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -427,10 +491,18 @@ func (UnimplementedGraphServiceHandler) GetOfflineStoreTable(context.Context, *c
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetOfflineStoreTable is not implemented"))
 }
 
+func (UnimplementedGraphServiceHandler) GetAllOfflineStoreTables(context.Context, *connect.Request[v1.GetAllOfflineStoreTablesRequest]) (*connect.Response[v1.GetAllOfflineStoreTablesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.GetAllOfflineStoreTables is not implemented"))
+}
+
 func (UnimplementedGraphServiceHandler) DiffDeployments(context.Context, *connect.Request[v1.DiffDeploymentsRequest]) (*connect.Response[v1.DiffDeploymentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.DiffDeployments is not implemented"))
 }
 
 func (UnimplementedGraphServiceHandler) SmartDiffDeployment(context.Context, *connect.Request[v1.SmartDiffDeploymentRequest]) (*connect.Response[v1.SmartDiffDeploymentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.SmartDiffDeployment is not implemented"))
+}
+
+func (UnimplementedGraphServiceHandler) DiffCandidate(context.Context, *connect.Request[v1.DiffCandidateRequest]) (*connect.Response[v1.DiffCandidateResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.GraphService.DiffCandidate is not implemented"))
 }

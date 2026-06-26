@@ -87,6 +87,8 @@ type LogEntry struct {
 	OperationProducer *string                `protobuf:"bytes,9,opt,name=operation_producer,json=operationProducer,proto3,oneof" json:"operation_producer,omitempty"`
 	IsUserLogger      *bool                  `protobuf:"varint,10,opt,name=is_user_logger,json=isUserLogger,proto3,oneof" json:"is_user_logger,omitempty"`
 	Labels            map[string]string      `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	TraceId           *string                `protobuf:"bytes,12,opt,name=trace_id,json=traceId,proto3,oneof" json:"trace_id,omitempty"`
+	SpanId            *string                `protobuf:"bytes,13,opt,name=span_id,json=spanId,proto3,oneof" json:"span_id,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -196,6 +198,20 @@ func (x *LogEntry) GetLabels() map[string]string {
 		return x.Labels
 	}
 	return nil
+}
+
+func (x *LogEntry) GetTraceId() string {
+	if x != nil && x.TraceId != nil {
+		return *x.TraceId
+	}
+	return ""
+}
+
+func (x *LogEntry) GetSpanId() string {
+	if x != nil && x.SpanId != nil {
+		return *x.SpanId
+	}
+	return ""
 }
 
 type AccessLogEntry struct {
@@ -1739,7 +1755,7 @@ var File_chalk_server_v1_log_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\n" +
-	"\x19chalk/server/v1/log.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xf7\x04\n" +
+	"\x19chalk/server/v1/log.proto\x12\x0fchalk.server.v1\x1a\x1fchalk/auth/v1/permissions.proto\x1a)chalk/chart/v1/densetimeserieschart.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xce\x05\n" +
 	"\bLogEntry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\bseverity\x18\x02 \x01(\tH\x00R\bseverity\x88\x01\x01\x128\n" +
@@ -1753,7 +1769,9 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\x12operation_producer\x18\t \x01(\tH\x05R\x11operationProducer\x88\x01\x01\x12)\n" +
 	"\x0eis_user_logger\x18\n" +
 	" \x01(\bH\x06R\fisUserLogger\x88\x01\x01\x12=\n" +
-	"\x06labels\x18\v \x03(\v2%.chalk.server.v1.LogEntry.LabelsEntryR\x06labels\x1a9\n" +
+	"\x06labels\x18\v \x03(\v2%.chalk.server.v1.LogEntry.LabelsEntryR\x06labels\x12\x1e\n" +
+	"\btrace_id\x18\f \x01(\tH\aR\atraceId\x88\x01\x01\x12\x1c\n" +
+	"\aspan_id\x18\r \x01(\tH\bR\x06spanId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
@@ -1763,7 +1781,10 @@ const file_chalk_server_v1_log_proto_rawDesc = "" +
 	"\f_logger_nameB\v\n" +
 	"\t_agent_idB\x15\n" +
 	"\x13_operation_producerB\x11\n" +
-	"\x0f_is_user_logger\"\xab\x05\n" +
+	"\x0f_is_user_loggerB\v\n" +
+	"\t_trace_idB\n" +
+	"\n" +
+	"\b_span_id\"\xab\x05\n" +
 	"\x0eAccessLogEntry\x128\n" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x19\n" +
 	"\btrace_id\x18\x02 \x01(\tR\atraceId\x12\x1c\n" +

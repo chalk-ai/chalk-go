@@ -366,6 +366,7 @@ func serializeOfflineQueryParams(p *OfflineQueryParams, resolved *offlineQueryPa
 		CompletionDeadline:         completionDeadlineStr,
 		MaxRetries:                 p.MaxRetries,
 		UseJobQueue:                p.UseJobQueue,
+		UseMetaplanner:             p.UseMetaplanner,
 		OverlayGraph:               nil,
 	}
 

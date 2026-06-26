@@ -100,7 +100,7 @@ type CronQuery struct {
 	UnloadResolvers      []*v1.UnloadResolverSpec `protobuf:"bytes,20,rep,name=unload_resolvers,json=unloadResolvers,proto3" json:"unload_resolvers,omitempty"`
 	MaxRetries           *int32                   `protobuf:"varint,21,opt,name=max_retries,json=maxRetries,proto3,oneof" json:"max_retries,omitempty"`
 	Resources            *v1.ResourceRequests     `protobuf:"bytes,22,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
-	EnvironmentOverride  *string                  `protobuf:"bytes,23,opt,name=environment_override,json=environmentOverride,proto3,oneof" json:"environment_override,omitempty"`
+	EnvironmentOverride  *string                  `protobuf:"bytes,23,opt,name=environment_override,json=environmentOverride,proto3,oneof" json:"environment_override,omitempty"` // implies "target environment in which to execute"
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }

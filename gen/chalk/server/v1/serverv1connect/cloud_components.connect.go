@@ -75,6 +75,30 @@ const (
 	// CloudComponentsServiceDeleteCloudComponentStorageProcedure is the fully-qualified name of the
 	// CloudComponentsService's DeleteCloudComponentStorage RPC.
 	CloudComponentsServiceDeleteCloudComponentStorageProcedure = "/chalk.server.v1.CloudComponentsService/DeleteCloudComponentStorage"
+	// CloudComponentsServiceCreateBindingEnvironmentCloudStorageProcedure is the fully-qualified name
+	// of the CloudComponentsService's CreateBindingEnvironmentCloudStorage RPC.
+	CloudComponentsServiceCreateBindingEnvironmentCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingEnvironmentCloudStorage"
+	// CloudComponentsServiceGetBindingEnvironmentCloudStorageProcedure is the fully-qualified name of
+	// the CloudComponentsService's GetBindingEnvironmentCloudStorage RPC.
+	CloudComponentsServiceGetBindingEnvironmentCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingEnvironmentCloudStorage"
+	// CloudComponentsServiceListBindingEnvironmentCloudStorageProcedure is the fully-qualified name of
+	// the CloudComponentsService's ListBindingEnvironmentCloudStorage RPC.
+	CloudComponentsServiceListBindingEnvironmentCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingEnvironmentCloudStorage"
+	// CloudComponentsServiceDeleteBindingEnvironmentCloudStorageProcedure is the fully-qualified name
+	// of the CloudComponentsService's DeleteBindingEnvironmentCloudStorage RPC.
+	CloudComponentsServiceDeleteBindingEnvironmentCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingEnvironmentCloudStorage"
+	// CloudComponentsServiceCreateBindingClusterCloudStorageProcedure is the fully-qualified name of
+	// the CloudComponentsService's CreateBindingClusterCloudStorage RPC.
+	CloudComponentsServiceCreateBindingClusterCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/CreateBindingClusterCloudStorage"
+	// CloudComponentsServiceGetBindingClusterCloudStorageProcedure is the fully-qualified name of the
+	// CloudComponentsService's GetBindingClusterCloudStorage RPC.
+	CloudComponentsServiceGetBindingClusterCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/GetBindingClusterCloudStorage"
+	// CloudComponentsServiceListBindingClusterCloudStorageProcedure is the fully-qualified name of the
+	// CloudComponentsService's ListBindingClusterCloudStorage RPC.
+	CloudComponentsServiceListBindingClusterCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/ListBindingClusterCloudStorage"
+	// CloudComponentsServiceDeleteBindingClusterCloudStorageProcedure is the fully-qualified name of
+	// the CloudComponentsService's DeleteBindingClusterCloudStorage RPC.
+	CloudComponentsServiceDeleteBindingClusterCloudStorageProcedure = "/chalk.server.v1.CloudComponentsService/DeleteBindingClusterCloudStorage"
 	// CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure is the fully-qualified name
 	// of the CloudComponentsService's CreateCloudComponentContainerRegistry RPC.
 	CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure = "/chalk.server.v1.CloudComponentsService/CreateCloudComponentContainerRegistry"
@@ -200,6 +224,14 @@ type CloudComponentsServiceClient interface {
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
+	CreateBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.CreateBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.CreateBindingEnvironmentCloudStorageResponse], error)
+	GetBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.GetBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.GetBindingEnvironmentCloudStorageResponse], error)
+	ListBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.ListBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.ListBindingEnvironmentCloudStorageResponse], error)
+	DeleteBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.DeleteBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.DeleteBindingEnvironmentCloudStorageResponse], error)
+	CreateBindingClusterCloudStorage(context.Context, *connect.Request[v1.CreateBindingClusterCloudStorageRequest]) (*connect.Response[v1.CreateBindingClusterCloudStorageResponse], error)
+	GetBindingClusterCloudStorage(context.Context, *connect.Request[v1.GetBindingClusterCloudStorageRequest]) (*connect.Response[v1.GetBindingClusterCloudStorageResponse], error)
+	ListBindingClusterCloudStorage(context.Context, *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error)
+	DeleteBindingClusterCloudStorage(context.Context, *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error)
 	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
 	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
 	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
@@ -335,6 +367,58 @@ func NewCloudComponentsServiceClient(httpClient connect.HTTPClient, baseURL stri
 			httpClient,
 			baseURL+CloudComponentsServiceDeleteCloudComponentStorageProcedure,
 			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentStorage")),
+			connect.WithClientOptions(opts...),
+		),
+		createBindingEnvironmentCloudStorage: connect.NewClient[v1.CreateBindingEnvironmentCloudStorageRequest, v1.CreateBindingEnvironmentCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateBindingEnvironmentCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingEnvironmentCloudStorage")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingEnvironmentCloudStorage: connect.NewClient[v1.GetBindingEnvironmentCloudStorageRequest, v1.GetBindingEnvironmentCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetBindingEnvironmentCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingEnvironmentCloudStorage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingEnvironmentCloudStorage: connect.NewClient[v1.ListBindingEnvironmentCloudStorageRequest, v1.ListBindingEnvironmentCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingEnvironmentCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentCloudStorage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingEnvironmentCloudStorage: connect.NewClient[v1.DeleteBindingEnvironmentCloudStorageRequest, v1.DeleteBindingEnvironmentCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteBindingEnvironmentCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingEnvironmentCloudStorage")),
+			connect.WithClientOptions(opts...),
+		),
+		createBindingClusterCloudStorage: connect.NewClient[v1.CreateBindingClusterCloudStorageRequest, v1.CreateBindingClusterCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceCreateBindingClusterCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterCloudStorage")),
+			connect.WithClientOptions(opts...),
+		),
+		getBindingClusterCloudStorage: connect.NewClient[v1.GetBindingClusterCloudStorageRequest, v1.GetBindingClusterCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceGetBindingClusterCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterCloudStorage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listBindingClusterCloudStorage: connect.NewClient[v1.ListBindingClusterCloudStorageRequest, v1.ListBindingClusterCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceListBindingClusterCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterCloudStorage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		deleteBindingClusterCloudStorage: connect.NewClient[v1.DeleteBindingClusterCloudStorageRequest, v1.DeleteBindingClusterCloudStorageResponse](
+			httpClient,
+			baseURL+CloudComponentsServiceDeleteBindingClusterCloudStorageProcedure,
+			connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterCloudStorage")),
 			connect.WithClientOptions(opts...),
 		),
 		createCloudComponentContainerRegistry: connect.NewClient[v1.CreateCloudComponentContainerRegistryRequest, v1.CreateCloudComponentContainerRegistryResponse](
@@ -570,6 +654,14 @@ type cloudComponentsServiceClient struct {
 	getCloudComponentStorage                                *connect.Client[v1.GetCloudComponentStorageRequest, v1.GetCloudComponentStorageResponse]
 	listCloudComponentStorage                               *connect.Client[v1.ListCloudComponentStorageRequest, v1.ListCloudComponentStorageResponse]
 	deleteCloudComponentStorage                             *connect.Client[v1.DeleteCloudComponentStorageRequest, v1.DeleteCloudComponentStorageResponse]
+	createBindingEnvironmentCloudStorage                    *connect.Client[v1.CreateBindingEnvironmentCloudStorageRequest, v1.CreateBindingEnvironmentCloudStorageResponse]
+	getBindingEnvironmentCloudStorage                       *connect.Client[v1.GetBindingEnvironmentCloudStorageRequest, v1.GetBindingEnvironmentCloudStorageResponse]
+	listBindingEnvironmentCloudStorage                      *connect.Client[v1.ListBindingEnvironmentCloudStorageRequest, v1.ListBindingEnvironmentCloudStorageResponse]
+	deleteBindingEnvironmentCloudStorage                    *connect.Client[v1.DeleteBindingEnvironmentCloudStorageRequest, v1.DeleteBindingEnvironmentCloudStorageResponse]
+	createBindingClusterCloudStorage                        *connect.Client[v1.CreateBindingClusterCloudStorageRequest, v1.CreateBindingClusterCloudStorageResponse]
+	getBindingClusterCloudStorage                           *connect.Client[v1.GetBindingClusterCloudStorageRequest, v1.GetBindingClusterCloudStorageResponse]
+	listBindingClusterCloudStorage                          *connect.Client[v1.ListBindingClusterCloudStorageRequest, v1.ListBindingClusterCloudStorageResponse]
+	deleteBindingClusterCloudStorage                        *connect.Client[v1.DeleteBindingClusterCloudStorageRequest, v1.DeleteBindingClusterCloudStorageResponse]
 	createCloudComponentContainerRegistry                   *connect.Client[v1.CreateCloudComponentContainerRegistryRequest, v1.CreateCloudComponentContainerRegistryResponse]
 	updateCloudComponentContainerRegistry                   *connect.Client[v1.UpdateCloudComponentContainerRegistryRequest, v1.UpdateCloudComponentContainerRegistryResponse]
 	getCloudComponentContainerRegistry                      *connect.Client[v1.GetCloudComponentContainerRegistryRequest, v1.GetCloudComponentContainerRegistryResponse]
@@ -678,6 +770,54 @@ func (c *cloudComponentsServiceClient) ListCloudComponentStorage(ctx context.Con
 // chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage.
 func (c *cloudComponentsServiceClient) DeleteCloudComponentStorage(ctx context.Context, req *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error) {
 	return c.deleteCloudComponentStorage.CallUnary(ctx, req)
+}
+
+// CreateBindingEnvironmentCloudStorage calls
+// chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage.
+func (c *cloudComponentsServiceClient) CreateBindingEnvironmentCloudStorage(ctx context.Context, req *connect.Request[v1.CreateBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.CreateBindingEnvironmentCloudStorageResponse], error) {
+	return c.createBindingEnvironmentCloudStorage.CallUnary(ctx, req)
+}
+
+// GetBindingEnvironmentCloudStorage calls
+// chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage.
+func (c *cloudComponentsServiceClient) GetBindingEnvironmentCloudStorage(ctx context.Context, req *connect.Request[v1.GetBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.GetBindingEnvironmentCloudStorageResponse], error) {
+	return c.getBindingEnvironmentCloudStorage.CallUnary(ctx, req)
+}
+
+// ListBindingEnvironmentCloudStorage calls
+// chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage.
+func (c *cloudComponentsServiceClient) ListBindingEnvironmentCloudStorage(ctx context.Context, req *connect.Request[v1.ListBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.ListBindingEnvironmentCloudStorageResponse], error) {
+	return c.listBindingEnvironmentCloudStorage.CallUnary(ctx, req)
+}
+
+// DeleteBindingEnvironmentCloudStorage calls
+// chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage.
+func (c *cloudComponentsServiceClient) DeleteBindingEnvironmentCloudStorage(ctx context.Context, req *connect.Request[v1.DeleteBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.DeleteBindingEnvironmentCloudStorageResponse], error) {
+	return c.deleteBindingEnvironmentCloudStorage.CallUnary(ctx, req)
+}
+
+// CreateBindingClusterCloudStorage calls
+// chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage.
+func (c *cloudComponentsServiceClient) CreateBindingClusterCloudStorage(ctx context.Context, req *connect.Request[v1.CreateBindingClusterCloudStorageRequest]) (*connect.Response[v1.CreateBindingClusterCloudStorageResponse], error) {
+	return c.createBindingClusterCloudStorage.CallUnary(ctx, req)
+}
+
+// GetBindingClusterCloudStorage calls
+// chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage.
+func (c *cloudComponentsServiceClient) GetBindingClusterCloudStorage(ctx context.Context, req *connect.Request[v1.GetBindingClusterCloudStorageRequest]) (*connect.Response[v1.GetBindingClusterCloudStorageResponse], error) {
+	return c.getBindingClusterCloudStorage.CallUnary(ctx, req)
+}
+
+// ListBindingClusterCloudStorage calls
+// chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage.
+func (c *cloudComponentsServiceClient) ListBindingClusterCloudStorage(ctx context.Context, req *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error) {
+	return c.listBindingClusterCloudStorage.CallUnary(ctx, req)
+}
+
+// DeleteBindingClusterCloudStorage calls
+// chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage.
+func (c *cloudComponentsServiceClient) DeleteBindingClusterCloudStorage(ctx context.Context, req *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error) {
+	return c.deleteBindingClusterCloudStorage.CallUnary(ctx, req)
 }
 
 // CreateCloudComponentContainerRegistry calls
@@ -891,6 +1031,14 @@ type CloudComponentsServiceHandler interface {
 	GetCloudComponentStorage(context.Context, *connect.Request[v1.GetCloudComponentStorageRequest]) (*connect.Response[v1.GetCloudComponentStorageResponse], error)
 	ListCloudComponentStorage(context.Context, *connect.Request[v1.ListCloudComponentStorageRequest]) (*connect.Response[v1.ListCloudComponentStorageResponse], error)
 	DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error)
+	CreateBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.CreateBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.CreateBindingEnvironmentCloudStorageResponse], error)
+	GetBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.GetBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.GetBindingEnvironmentCloudStorageResponse], error)
+	ListBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.ListBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.ListBindingEnvironmentCloudStorageResponse], error)
+	DeleteBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.DeleteBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.DeleteBindingEnvironmentCloudStorageResponse], error)
+	CreateBindingClusterCloudStorage(context.Context, *connect.Request[v1.CreateBindingClusterCloudStorageRequest]) (*connect.Response[v1.CreateBindingClusterCloudStorageResponse], error)
+	GetBindingClusterCloudStorage(context.Context, *connect.Request[v1.GetBindingClusterCloudStorageRequest]) (*connect.Response[v1.GetBindingClusterCloudStorageResponse], error)
+	ListBindingClusterCloudStorage(context.Context, *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error)
+	DeleteBindingClusterCloudStorage(context.Context, *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error)
 	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
 	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
 	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
@@ -1022,6 +1170,58 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 		CloudComponentsServiceDeleteCloudComponentStorageProcedure,
 		svc.DeleteCloudComponentStorage,
 		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteCloudComponentStorage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceCreateBindingEnvironmentCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateBindingEnvironmentCloudStorageProcedure,
+		svc.CreateBindingEnvironmentCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingEnvironmentCloudStorage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetBindingEnvironmentCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetBindingEnvironmentCloudStorageProcedure,
+		svc.GetBindingEnvironmentCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingEnvironmentCloudStorage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingEnvironmentCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingEnvironmentCloudStorageProcedure,
+		svc.ListBindingEnvironmentCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingEnvironmentCloudStorage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteBindingEnvironmentCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteBindingEnvironmentCloudStorageProcedure,
+		svc.DeleteBindingEnvironmentCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingEnvironmentCloudStorage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceCreateBindingClusterCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceCreateBindingClusterCloudStorageProcedure,
+		svc.CreateBindingClusterCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("CreateBindingClusterCloudStorage")),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceGetBindingClusterCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceGetBindingClusterCloudStorageProcedure,
+		svc.GetBindingClusterCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("GetBindingClusterCloudStorage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceListBindingClusterCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceListBindingClusterCloudStorageProcedure,
+		svc.ListBindingClusterCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("ListBindingClusterCloudStorage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	cloudComponentsServiceDeleteBindingClusterCloudStorageHandler := connect.NewUnaryHandler(
+		CloudComponentsServiceDeleteBindingClusterCloudStorageProcedure,
+		svc.DeleteBindingClusterCloudStorage,
+		connect.WithSchema(cloudComponentsServiceMethods.ByName("DeleteBindingClusterCloudStorage")),
 		connect.WithHandlerOptions(opts...),
 	)
 	cloudComponentsServiceCreateCloudComponentContainerRegistryHandler := connect.NewUnaryHandler(
@@ -1268,6 +1468,22 @@ func NewCloudComponentsServiceHandler(svc CloudComponentsServiceHandler, opts ..
 			cloudComponentsServiceListCloudComponentStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceDeleteCloudComponentStorageProcedure:
 			cloudComponentsServiceDeleteCloudComponentStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateBindingEnvironmentCloudStorageProcedure:
+			cloudComponentsServiceCreateBindingEnvironmentCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetBindingEnvironmentCloudStorageProcedure:
+			cloudComponentsServiceGetBindingEnvironmentCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingEnvironmentCloudStorageProcedure:
+			cloudComponentsServiceListBindingEnvironmentCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteBindingEnvironmentCloudStorageProcedure:
+			cloudComponentsServiceDeleteBindingEnvironmentCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceCreateBindingClusterCloudStorageProcedure:
+			cloudComponentsServiceCreateBindingClusterCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceGetBindingClusterCloudStorageProcedure:
+			cloudComponentsServiceGetBindingClusterCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceListBindingClusterCloudStorageProcedure:
+			cloudComponentsServiceListBindingClusterCloudStorageHandler.ServeHTTP(w, r)
+		case CloudComponentsServiceDeleteBindingClusterCloudStorageProcedure:
+			cloudComponentsServiceDeleteBindingClusterCloudStorageHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceCreateCloudComponentContainerRegistryProcedure:
 			cloudComponentsServiceCreateCloudComponentContainerRegistryHandler.ServeHTTP(w, r)
 		case CloudComponentsServiceUpdateCloudComponentContainerRegistryProcedure:
@@ -1397,6 +1613,38 @@ func (UnimplementedCloudComponentsServiceHandler) ListCloudComponentStorage(cont
 
 func (UnimplementedCloudComponentsServiceHandler) DeleteCloudComponentStorage(context.Context, *connect.Request[v1.DeleteCloudComponentStorageRequest]) (*connect.Response[v1.DeleteCloudComponentStorageResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteCloudComponentStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.CreateBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.CreateBindingEnvironmentCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingEnvironmentCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.GetBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.GetBindingEnvironmentCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingEnvironmentCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.ListBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.ListBindingEnvironmentCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingEnvironmentCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteBindingEnvironmentCloudStorage(context.Context, *connect.Request[v1.DeleteBindingEnvironmentCloudStorageRequest]) (*connect.Response[v1.DeleteBindingEnvironmentCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingEnvironmentCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) CreateBindingClusterCloudStorage(context.Context, *connect.Request[v1.CreateBindingClusterCloudStorageRequest]) (*connect.Response[v1.CreateBindingClusterCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.CreateBindingClusterCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) GetBindingClusterCloudStorage(context.Context, *connect.Request[v1.GetBindingClusterCloudStorageRequest]) (*connect.Response[v1.GetBindingClusterCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.GetBindingClusterCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) ListBindingClusterCloudStorage(context.Context, *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.ListBindingClusterCloudStorage is not implemented"))
+}
+
+func (UnimplementedCloudComponentsServiceHandler) DeleteBindingClusterCloudStorage(context.Context, *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.CloudComponentsService.DeleteBindingClusterCloudStorage is not implemented"))
 }
 
 func (UnimplementedCloudComponentsServiceHandler) CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error) {

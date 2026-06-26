@@ -321,3 +321,97 @@ func (h *builderServiceHandler) UpdateTelemetryDeployment(
 
 	return connect.NewResponse(resp.(*serverv1.UpdateTelemetryDeploymentResponse)), nil
 }
+
+// CreateClusterGateway implements the CreateClusterGateway RPC method.
+func (h *builderServiceHandler) CreateClusterGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.CreateClusterGatewayRequest],
+) (*connect.Response[serverv1.CreateClusterGatewayResponse], error) {
+	h.registry.CaptureRequest("CreateClusterGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("CreateClusterGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.CreateClusterGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("CreateClusterGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("CreateClusterGateway")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for CreateClusterGateway"))
+	}
+	return connect.NewResponse(resp.(*serverv1.CreateClusterGatewayResponse)), nil
+}
+
+// GetClusterGateway implements the GetClusterGateway RPC method.
+func (h *builderServiceHandler) GetClusterGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.GetClusterGatewayRequest],
+) (*connect.Response[serverv1.GetClusterGatewayResponse], error) {
+	h.registry.CaptureRequest("GetClusterGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("GetClusterGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.GetClusterGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("GetClusterGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("GetClusterGateway")
+	if resp == nil {
+		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for GetClusterGateway"))
+	}
+	return connect.NewResponse(resp.(*serverv1.GetClusterGatewayResponse)), nil
+}
+
+// DeleteClusterGateway implements the DeleteClusterGateway RPC method.
+func (h *builderServiceHandler) DeleteClusterGateway(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteClusterGatewayRequest],
+) (*connect.Response[serverv1.DeleteClusterGatewayResponse], error) {
+	h.registry.CaptureRequest("DeleteClusterGateway", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteClusterGateway"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteClusterGatewayResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteClusterGateway"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteClusterGateway")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteClusterGatewayResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteClusterGatewayResponse)), nil
+}
+
+// DeleteClusterBackgroundPersistence implements the DeleteClusterBackgroundPersistence RPC method.
+func (h *builderServiceHandler) DeleteClusterBackgroundPersistence(
+	ctx context.Context,
+	req *connect.Request[serverv1.DeleteClusterBackgroundPersistenceRequest],
+) (*connect.Response[serverv1.DeleteClusterBackgroundPersistenceResponse], error) {
+	h.registry.CaptureRequest("DeleteClusterBackgroundPersistence", req.Msg)
+	if behavior := h.registry.GetBehavior("DeleteClusterBackgroundPersistence"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.DeleteClusterBackgroundPersistenceResponse)), nil
+	}
+	if err := h.registry.GetError("DeleteClusterBackgroundPersistence"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("DeleteClusterBackgroundPersistence")
+	if resp == nil {
+		// Delete has an empty response; default to success when unconfigured.
+		return connect.NewResponse(&serverv1.DeleteClusterBackgroundPersistenceResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.DeleteClusterBackgroundPersistenceResponse)), nil
+}

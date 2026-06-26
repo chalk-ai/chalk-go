@@ -42,6 +42,9 @@ const (
 	// ClickhouseServiceSetClickhouseOtelTtlsProcedure is the fully-qualified name of the
 	// ClickhouseService's SetClickhouseOtelTtls RPC.
 	ClickhouseServiceSetClickhouseOtelTtlsProcedure = "/chalk.server.v1.ClickhouseService/SetClickhouseOtelTtls"
+	// ClickhouseServiceGetClickhouseInfoProcedure is the fully-qualified name of the
+	// ClickhouseService's GetClickhouseInfo RPC.
+	ClickhouseServiceGetClickhouseInfoProcedure = "/chalk.server.v1.ClickhouseService/GetClickhouseInfo"
 )
 
 // ClickhouseServiceClient is a client for the chalk.server.v1.ClickhouseService service.
@@ -50,6 +53,7 @@ type ClickhouseServiceClient interface {
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
+	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
 }
 
 // NewClickhouseServiceClient constructs a client for the chalk.server.v1.ClickhouseService service.
@@ -83,6 +87,13 @@ func NewClickhouseServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
 			connect.WithClientOptions(opts...),
 		),
+		getClickhouseInfo: connect.NewClient[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse](
+			httpClient,
+			baseURL+ClickhouseServiceGetClickhouseInfoProcedure,
+			connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseInfo")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -91,6 +102,7 @@ type clickhouseServiceClient struct {
 	getClickhouseUri      *connect.Client[v1.GetClickhouseUriRequest, v1.GetClickhouseUriResponse]
 	getClickhouseOtelTtls *connect.Client[v1.GetClickhouseOtelTtlsRequest, v1.GetClickhouseOtelTtlsResponse]
 	setClickhouseOtelTtls *connect.Client[v1.SetClickhouseOtelTtlsRequest, v1.SetClickhouseOtelTtlsResponse]
+	getClickhouseInfo     *connect.Client[v1.GetClickhouseInfoRequest, v1.GetClickhouseInfoResponse]
 }
 
 // GetClickhouseUri calls chalk.server.v1.ClickhouseService.GetClickhouseUri.
@@ -108,12 +120,18 @@ func (c *clickhouseServiceClient) SetClickhouseOtelTtls(ctx context.Context, req
 	return c.setClickhouseOtelTtls.CallUnary(ctx, req)
 }
 
+// GetClickhouseInfo calls chalk.server.v1.ClickhouseService.GetClickhouseInfo.
+func (c *clickhouseServiceClient) GetClickhouseInfo(ctx context.Context, req *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error) {
+	return c.getClickhouseInfo.CallUnary(ctx, req)
+}
+
 // ClickhouseServiceHandler is an implementation of the chalk.server.v1.ClickhouseService service.
 type ClickhouseServiceHandler interface {
 	// Get the Clickhouse connection URI for an environment
 	GetClickhouseUri(context.Context, *connect.Request[v1.GetClickhouseUriRequest]) (*connect.Response[v1.GetClickhouseUriResponse], error)
 	GetClickhouseOtelTtls(context.Context, *connect.Request[v1.GetClickhouseOtelTtlsRequest]) (*connect.Response[v1.GetClickhouseOtelTtlsResponse], error)
 	SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error)
+	GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error)
 }
 
 // NewClickhouseServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -143,6 +161,13 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 		connect.WithSchema(clickhouseServiceMethods.ByName("SetClickhouseOtelTtls")),
 		connect.WithHandlerOptions(opts...),
 	)
+	clickhouseServiceGetClickhouseInfoHandler := connect.NewUnaryHandler(
+		ClickhouseServiceGetClickhouseInfoProcedure,
+		svc.GetClickhouseInfo,
+		connect.WithSchema(clickhouseServiceMethods.ByName("GetClickhouseInfo")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.ClickhouseService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case ClickhouseServiceGetClickhouseUriProcedure:
@@ -151,6 +176,8 @@ func NewClickhouseServiceHandler(svc ClickhouseServiceHandler, opts ...connect.H
 			clickhouseServiceGetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
 		case ClickhouseServiceSetClickhouseOtelTtlsProcedure:
 			clickhouseServiceSetClickhouseOtelTtlsHandler.ServeHTTP(w, r)
+		case ClickhouseServiceGetClickhouseInfoProcedure:
+			clickhouseServiceGetClickhouseInfoHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -170,4 +197,8 @@ func (UnimplementedClickhouseServiceHandler) GetClickhouseOtelTtls(context.Conte
 
 func (UnimplementedClickhouseServiceHandler) SetClickhouseOtelTtls(context.Context, *connect.Request[v1.SetClickhouseOtelTtlsRequest]) (*connect.Response[v1.SetClickhouseOtelTtlsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.SetClickhouseOtelTtls is not implemented"))
+}
+
+func (UnimplementedClickhouseServiceHandler) GetClickhouseInfo(context.Context, *connect.Request[v1.GetClickhouseInfoRequest]) (*connect.Response[v1.GetClickhouseInfoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.ClickhouseService.GetClickhouseInfo is not implemented"))
 }

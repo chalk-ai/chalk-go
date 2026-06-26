@@ -215,8 +215,11 @@ type SourceImageSpec struct {
 	Runtime          string                 `protobuf:"bytes,3,opt,name=runtime,proto3" json:"runtime,omitempty"` // kept for back-compat
 	PythonVersion    string                 `protobuf:"bytes,4,opt,name=python_version,json=pythonVersion,proto3" json:"python_version,omitempty"`
 	VenvDownloadUri  string                 `protobuf:"bytes,5,opt,name=venv_download_uri,json=venvDownloadUri,proto3" json:"venv_download_uri,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Extras the user specified on their own chalkpy requirement, beyond "all"
+	// (which the platform always installs). Normalized, deduped, and sorted.
+	AdditionalChalkpyExtras []string `protobuf:"bytes,6,rep,name=additional_chalkpy_extras,json=additionalChalkpyExtras,proto3" json:"additional_chalkpy_extras,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *SourceImageSpec) Reset() {
@@ -282,6 +285,13 @@ func (x *SourceImageSpec) GetVenvDownloadUri() string {
 		return x.VenvDownloadUri
 	}
 	return ""
+}
+
+func (x *SourceImageSpec) GetAdditionalChalkpyExtras() []string {
+	if x != nil {
+		return x.AdditionalChalkpyExtras
+	}
+	return nil
 }
 
 type SourceImageSpecs struct {
@@ -378,9 +388,15 @@ type Deployment struct {
 	GitCommitMessage       *string                  `protobuf:"bytes,36,opt,name=git_commit_message,json=gitCommitMessage,proto3,oneof" json:"git_commit_message,omitempty"`
 	// Build-time options supplied at deploy time (e.g. `chalk apply --build-option k=v`).
 	// Consumed by the builder; e.g. to enable viztracer trace upload for build steps.
-	BuildOptions  map[string]string `protobuf:"bytes,37,rep,name=build_options,json=buildOptions,proto3" json:"build_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	BuildOptions map[string]string `protobuf:"bytes,37,rep,name=build_options,json=buildOptions,proto3" json:"build_options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// The structured engine-base version tag (e.g. "v3.31.3-dev.4") that the deploy
+	// flow resolved in place of the floating ":latest" and rendered into the Argo
+	// Dockerfile FROM. Set only when CHALK_RESOLVE_LATEST_STRUCTURED_BASE_IMAGE_TAG is
+	// enabled and the deployment used the default base image. Lets consumers know the
+	// engine base version statically (for version comparisons).
+	ResolvedBaseImageTag *string `protobuf:"bytes,38,opt,name=resolved_base_image_tag,json=resolvedBaseImageTag,proto3,oneof" json:"resolved_base_image_tag,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *Deployment) Reset() {
@@ -674,6 +690,13 @@ func (x *Deployment) GetBuildOptions() map[string]string {
 	return nil
 }
 
+func (x *Deployment) GetResolvedBaseImageTag() string {
+	if x != nil && x.ResolvedBaseImageTag != nil {
+		return *x.ResolvedBaseImageTag
+	}
+	return ""
+}
+
 var File_chalk_server_v1_deployment_proto protoreflect.FileDescriptor
 
 const file_chalk_server_v1_deployment_proto_rawDesc = "" +
@@ -683,20 +706,21 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\rmin_instances\x18\x01 \x01(\rH\x00R\fminInstances\x88\x01\x01\x12(\n" +
 	"\rmax_instances\x18\x02 \x01(\rH\x01R\fmaxInstances\x88\x01\x01B\x10\n" +
 	"\x0e_min_instancesB\x10\n" +
-	"\x0e_max_instances\"\xcf\x01\n" +
+	"\x0e_max_instances\"\x8b\x02\n" +
 	"\x0fSourceImageSpec\x12\"\n" +
 	"\frequirements\x18\x01 \x01(\tR\frequirements\x12+\n" +
 	"\x11dependencies_hash\x18\x02 \x01(\tR\x10dependenciesHash\x12\x18\n" +
 	"\aruntime\x18\x03 \x01(\tR\aruntime\x12%\n" +
 	"\x0epython_version\x18\x04 \x01(\tR\rpythonVersion\x12*\n" +
-	"\x11venv_download_uri\x18\x05 \x01(\tR\x0fvenvDownloadUri\"\xed\x01\n" +
+	"\x11venv_download_uri\x18\x05 \x01(\tR\x0fvenvDownloadUri\x12:\n" +
+	"\x19additional_chalkpy_extras\x18\x06 \x03(\tR\x17additionalChalkpyExtras\"\xed\x01\n" +
 	"\x10SourceImageSpecs\x12B\n" +
 	"\x05specs\x18\x01 \x03(\v2,.chalk.server.v1.SourceImageSpecs.SpecsEntryR\x05specs\x129\n" +
 	"\x19uses_uploaded_proto_graph\x18\x02 \x01(\bR\x16usesUploadedProtoGraph\x1aZ\n" +
 	"\n" +
 	"SpecsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x126\n" +
-	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xdb\x11\n" +
+	"\x05value\x18\x02 \x01(\v2 .chalk.server.v1.SourceImageSpecR\x05value:\x028\x01\"\xb3\x12\n" +
 	"\n" +
 	"Deployment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12%\n" +
@@ -741,7 +765,8 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\x10customer_vcs_url\x18\" \x01(\tH\rR\x0ecustomerVcsUrl\x88\x01\x01\x124\n" +
 	"\x13display_description\x18# \x01(\tH\x0eR\x12displayDescription\x88\x01\x01\x121\n" +
 	"\x12git_commit_message\x18$ \x01(\tH\x0fR\x10gitCommitMessage\x88\x01\x01\x12R\n" +
-	"\rbuild_options\x18% \x03(\v2-.chalk.server.v1.Deployment.BuildOptionsEntryR\fbuildOptions\x1a?\n" +
+	"\rbuild_options\x18% \x03(\v2-.chalk.server.v1.Deployment.BuildOptionsEntryR\fbuildOptions\x12:\n" +
+	"\x17resolved_base_image_tag\x18& \x01(\tH\x10R\x14resolvedBaseImageTag\x88\x01\x01\x1a?\n" +
 	"\x11BuildOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x18\n" +
@@ -761,7 +786,8 @@ const file_chalk_server_v1_deployment_proto_rawDesc = "" +
 	"\x12_customer_metadataB\x13\n" +
 	"\x11_customer_vcs_urlB\x16\n" +
 	"\x14_display_descriptionB\x15\n" +
-	"\x13_git_commit_message*\xde\x03\n" +
+	"\x13_git_commit_messageB\x1a\n" +
+	"\x18_resolved_base_image_tag*\xde\x03\n" +
 	"\x10DeploymentStatus\x12!\n" +
 	"\x1dDEPLOYMENT_STATUS_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_UNKNOWN\x10\x01\x12\x1d\n" +

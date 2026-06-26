@@ -273,6 +273,33 @@ func TranslateWindowedFqn(fqn string) string {
 	return stem + "[" + windowStr + "]" + version
 }
 
+var bracketWindowedFqnRe = regexp.MustCompile(`^(.+?)\[([^\]]+)\](@.+)?$`)
+
+// TranslateBracketFqn rewrites a windowed FQN from its human-readable bracket
+// notation (e.g. "user.count[1d]") to the internal seconds-based format
+// (e.g. "user.count__86400__"). It is the inverse of [TranslateWindowedFqn] and
+// accepts any duration unit understood by [ParseBucketDuration] (e.g. "7d" and
+// "1w" both map to "__604800__"). FQNs without bracket notation, and bracket
+// expressions that are not valid durations, are returned unchanged.
+func TranslateBracketFqn(fqn string) string {
+	m := bracketWindowedFqnRe.FindStringSubmatch(fqn)
+	if m == nil {
+		return fqn
+	}
+	stem, window, version := m[1], m[2], m[3]
+	var bucket string
+	if window == "all" {
+		bucket = "all"
+	} else {
+		seconds, err := ParseBucketDuration(window)
+		if err != nil {
+			return fqn
+		}
+		bucket = strconv.Itoa(seconds)
+	}
+	return stem + "__" + bucket + "__" + version
+}
+
 func GetBucketFromFqn(fqn string) (string, error) {
 	sections := strings.Split(fqn, ".")
 	lastSection := sections[len(sections)-1]

@@ -22,6 +22,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type TyJson_JsonShape int32
+
+const (
+	TyJson_JSON_SHAPE_UNSPECIFIED TyJson_JsonShape = 0
+	TyJson_JSON_SHAPE_DICT        TyJson_JsonShape = 1
+	TyJson_JSON_SHAPE_LIST        TyJson_JsonShape = 2
+)
+
+// Enum value maps for TyJson_JsonShape.
+var (
+	TyJson_JsonShape_name = map[int32]string{
+		0: "JSON_SHAPE_UNSPECIFIED",
+		1: "JSON_SHAPE_DICT",
+		2: "JSON_SHAPE_LIST",
+	}
+	TyJson_JsonShape_value = map[string]int32{
+		"JSON_SHAPE_UNSPECIFIED": 0,
+		"JSON_SHAPE_DICT":        1,
+		"JSON_SHAPE_LIST":        2,
+	}
+)
+
+func (x TyJson_JsonShape) Enum() *TyJson_JsonShape {
+	p := new(TyJson_JsonShape)
+	*p = x
+	return p
+}
+
+func (x TyJson_JsonShape) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TyJson_JsonShape) Descriptor() protoreflect.EnumDescriptor {
+	return file_chalk_python_v1_types_proto_enumTypes[0].Descriptor()
+}
+
+func (TyJson_JsonShape) Type() protoreflect.EnumType {
+	return &file_chalk_python_v1_types_proto_enumTypes[0]
+}
+
+func (x TyJson_JsonShape) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TyJson_JsonShape.Descriptor instead.
+func (TyJson_JsonShape) EnumDescriptor() ([]byte, []int) {
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{11, 0}
+}
+
 type TySet struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         *Ty                    `protobuf:"bytes,1,opt,name=items,proto3" json:"items,omitempty"`
@@ -583,6 +632,50 @@ func (x *TyEnum) GetTy() *Ty {
 	return nil
 }
 
+type TyJson struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Shape         *TyJson_JsonShape      `protobuf:"varint,1,opt,name=shape,proto3,enum=chalk.python.v1.TyJson_JsonShape,oneof" json:"shape,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TyJson) Reset() {
+	*x = TyJson{}
+	mi := &file_chalk_python_v1_types_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TyJson) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TyJson) ProtoMessage() {}
+
+func (x *TyJson) ProtoReflect() protoreflect.Message {
+	mi := &file_chalk_python_v1_types_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TyJson.ProtoReflect.Descriptor instead.
+func (*TyJson) Descriptor() ([]byte, []int) {
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *TyJson) GetShape() TyJson_JsonShape {
+	if x != nil && x.Shape != nil {
+		return *x.Shape
+	}
+	return TyJson_JSON_SHAPE_UNSPECIFIED
+}
+
 type Ty struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
 	Nullable bool                   `protobuf:"varint,1,opt,name=nullable,proto3" json:"nullable,omitempty"`
@@ -610,6 +703,7 @@ type Ty struct {
 	//	*Ty_Generator
 	//	*Ty_Never
 	//	*Ty_RequestsHttpResponse
+	//	*Ty_Json
 	Ty            isTy_Ty `protobuf_oneof:"ty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -617,7 +711,7 @@ type Ty struct {
 
 func (x *Ty) Reset() {
 	*x = Ty{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[11]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -629,7 +723,7 @@ func (x *Ty) String() string {
 func (*Ty) ProtoMessage() {}
 
 func (x *Ty) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[11]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -642,7 +736,7 @@ func (x *Ty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ty.ProtoReflect.Descriptor instead.
 func (*Ty) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{11}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Ty) GetNullable() bool {
@@ -857,6 +951,15 @@ func (x *Ty) GetRequestsHttpResponse() *EmptyMessage {
 	return nil
 }
 
+func (x *Ty) GetJson() *TyJson {
+	if x != nil {
+		if x, ok := x.Ty.(*Ty_Json); ok {
+			return x.Json
+		}
+	}
+	return nil
+}
+
 type isTy_Ty interface {
 	isTy_Ty()
 }
@@ -949,6 +1052,10 @@ type Ty_RequestsHttpResponse struct {
 	RequestsHttpResponse *EmptyMessage `protobuf:"bytes,23,opt,name=requests_http_response,json=requestsHttpResponse,proto3,oneof"`
 }
 
+type Ty_Json struct {
+	Json *TyJson `protobuf:"bytes,24,opt,name=json,proto3,oneof"`
+}
+
 func (*Ty_Int) isTy_Ty() {}
 
 func (*Ty_Str) isTy_Ty() {}
@@ -993,6 +1100,8 @@ func (*Ty_Never) isTy_Ty() {}
 
 func (*Ty_RequestsHttpResponse) isTy_Ty() {}
 
+func (*Ty_Json) isTy_Ty() {}
+
 type EmptyMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1001,7 +1110,7 @@ type EmptyMessage struct {
 
 func (x *EmptyMessage) Reset() {
 	*x = EmptyMessage{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[12]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1122,7 @@ func (x *EmptyMessage) String() string {
 func (*EmptyMessage) ProtoMessage() {}
 
 func (x *EmptyMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[12]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1135,7 @@ func (x *EmptyMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmptyMessage.ProtoReflect.Descriptor instead.
 func (*EmptyMessage) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{12}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{13}
 }
 
 type SymbolicConst struct {
@@ -1039,7 +1148,7 @@ type SymbolicConst struct {
 
 func (x *SymbolicConst) Reset() {
 	*x = SymbolicConst{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[13]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1051,7 +1160,7 @@ func (x *SymbolicConst) String() string {
 func (*SymbolicConst) ProtoMessage() {}
 
 func (x *SymbolicConst) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[13]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1064,7 +1173,7 @@ func (x *SymbolicConst) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SymbolicConst.ProtoReflect.Descriptor instead.
 func (*SymbolicConst) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{13}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SymbolicConst) GetTy() *Ty {
@@ -1091,7 +1200,7 @@ type CodeVariable struct {
 
 func (x *CodeVariable) Reset() {
 	*x = CodeVariable{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[14]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1103,7 +1212,7 @@ func (x *CodeVariable) String() string {
 func (*CodeVariable) ProtoMessage() {}
 
 func (x *CodeVariable) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[14]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1116,7 +1225,7 @@ func (x *CodeVariable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeVariable.ProtoReflect.Descriptor instead.
 func (*CodeVariable) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{14}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CodeVariable) GetName() string {
@@ -1143,7 +1252,7 @@ type CodeVariableValue struct {
 
 func (x *CodeVariableValue) Reset() {
 	*x = CodeVariableValue{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[15]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1155,7 +1264,7 @@ func (x *CodeVariableValue) String() string {
 func (*CodeVariableValue) ProtoMessage() {}
 
 func (x *CodeVariableValue) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[15]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1168,7 +1277,7 @@ func (x *CodeVariableValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeVariableValue.ProtoReflect.Descriptor instead.
 func (*CodeVariableValue) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{15}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CodeVariableValue) GetVariable() *CodeVariable {
@@ -1195,7 +1304,7 @@ type GlobalVariablesInfo struct {
 
 func (x *GlobalVariablesInfo) Reset() {
 	*x = GlobalVariablesInfo{}
-	mi := &file_chalk_python_v1_types_proto_msgTypes[16]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1316,7 @@ func (x *GlobalVariablesInfo) String() string {
 func (*GlobalVariablesInfo) ProtoMessage() {}
 
 func (x *GlobalVariablesInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_chalk_python_v1_types_proto_msgTypes[16]
+	mi := &file_chalk_python_v1_types_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1220,7 +1329,7 @@ func (x *GlobalVariablesInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GlobalVariablesInfo.ProtoReflect.Descriptor instead.
 func (*GlobalVariablesInfo) Descriptor() ([]byte, []int) {
-	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{16}
+	return file_chalk_python_v1_types_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GlobalVariablesInfo) GetCodeVariables() []*CodeVariableValue {
@@ -1282,7 +1391,14 @@ const file_chalk_python_v1_types_proto_rawDesc = "" +
 	"\x06module\x18\x01 \x01(\tR\x06module\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12)\n" +
 	"\x05bases\x18\x03 \x03(\v2\x13.chalk.python.v1.TyR\x05bases\x12#\n" +
-	"\x02ty\x18\x04 \x01(\v2\x13.chalk.python.v1.TyR\x02ty\"\x97\n" +
+	"\x02ty\x18\x04 \x01(\v2\x13.chalk.python.v1.TyR\x02ty\"\xa3\x01\n" +
+	"\x06TyJson\x12<\n" +
+	"\x05shape\x18\x01 \x01(\x0e2!.chalk.python.v1.TyJson.JsonShapeH\x00R\x05shape\x88\x01\x01\"Q\n" +
+	"\tJsonShape\x12\x1a\n" +
+	"\x16JSON_SHAPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fJSON_SHAPE_DICT\x10\x01\x12\x13\n" +
+	"\x0fJSON_SHAPE_LIST\x10\x02B\b\n" +
+	"\x06_shape\"\xc6\n" +
 	"\n" +
 	"\x02Ty\x12\x1a\n" +
 	"\bnullable\x18\x01 \x01(\bR\bnullable\x121\n" +
@@ -1308,7 +1424,8 @@ const file_chalk_python_v1_types_proto_rawDesc = "" +
 	"\x10sequence_matcher\x18\x14 \x01(\v2\x1d.chalk.python.v1.EmptyMessageH\x00R\x0fsequenceMatcher\x12<\n" +
 	"\tgenerator\x18\x15 \x01(\v2\x1c.chalk.python.v1.TyGeneratorH\x00R\tgenerator\x125\n" +
 	"\x05never\x18\x16 \x01(\v2\x1d.chalk.python.v1.EmptyMessageH\x00R\x05never\x12U\n" +
-	"\x16requests_http_response\x18\x17 \x01(\v2\x1d.chalk.python.v1.EmptyMessageH\x00R\x14requestsHttpResponseB\x04\n" +
+	"\x16requests_http_response\x18\x17 \x01(\v2\x1d.chalk.python.v1.EmptyMessageH\x00R\x14requestsHttpResponse\x12-\n" +
+	"\x04json\x18\x18 \x01(\v2\x17.chalk.python.v1.TyJsonH\x00R\x04jsonB\x04\n" +
 	"\x02ty\"\x0e\n" +
 	"\fEmptyMessage\"g\n" +
 	"\rSymbolicConst\x12#\n" +
@@ -1341,80 +1458,85 @@ func file_chalk_python_v1_types_proto_rawDescGZIP() []byte {
 	return file_chalk_python_v1_types_proto_rawDescData
 }
 
-var file_chalk_python_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_chalk_python_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_chalk_python_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_chalk_python_v1_types_proto_goTypes = []any{
-	(*TySet)(nil),               // 0: chalk.python.v1.TySet
-	(*TyList)(nil),              // 1: chalk.python.v1.TyList
-	(*TyIterable)(nil),          // 2: chalk.python.v1.TyIterable
-	(*TyGenerator)(nil),         // 3: chalk.python.v1.TyGenerator
-	(*TyDatetime)(nil),          // 4: chalk.python.v1.TyDatetime
-	(*TyDict)(nil),              // 5: chalk.python.v1.TyDict
-	(*TyTuple)(nil),             // 6: chalk.python.v1.TyTuple
-	(*StringTyPair)(nil),        // 7: chalk.python.v1.StringTyPair
-	(*TyLogicalStruct)(nil),     // 8: chalk.python.v1.TyLogicalStruct
-	(*TyFeatureClass)(nil),      // 9: chalk.python.v1.TyFeatureClass
-	(*TyEnum)(nil),              // 10: chalk.python.v1.TyEnum
-	(*Ty)(nil),                  // 11: chalk.python.v1.Ty
-	(*EmptyMessage)(nil),        // 12: chalk.python.v1.EmptyMessage
-	(*SymbolicConst)(nil),       // 13: chalk.python.v1.SymbolicConst
-	(*CodeVariable)(nil),        // 14: chalk.python.v1.CodeVariable
-	(*CodeVariableValue)(nil),   // 15: chalk.python.v1.CodeVariableValue
-	(*GlobalVariablesInfo)(nil), // 16: chalk.python.v1.GlobalVariablesInfo
-	nil,                         // 17: chalk.python.v1.TyLogicalStruct.FieldsEntry
-	nil,                         // 18: chalk.python.v1.TyFeatureClass.AssignedFieldsEntry
-	nil,                         // 19: chalk.python.v1.GlobalVariablesInfo.EnvironmentVariablesEntry
-	(*v1.ScalarValue)(nil),      // 20: chalk.arrow.v1.ScalarValue
+	(TyJson_JsonShape)(0),       // 0: chalk.python.v1.TyJson.JsonShape
+	(*TySet)(nil),               // 1: chalk.python.v1.TySet
+	(*TyList)(nil),              // 2: chalk.python.v1.TyList
+	(*TyIterable)(nil),          // 3: chalk.python.v1.TyIterable
+	(*TyGenerator)(nil),         // 4: chalk.python.v1.TyGenerator
+	(*TyDatetime)(nil),          // 5: chalk.python.v1.TyDatetime
+	(*TyDict)(nil),              // 6: chalk.python.v1.TyDict
+	(*TyTuple)(nil),             // 7: chalk.python.v1.TyTuple
+	(*StringTyPair)(nil),        // 8: chalk.python.v1.StringTyPair
+	(*TyLogicalStruct)(nil),     // 9: chalk.python.v1.TyLogicalStruct
+	(*TyFeatureClass)(nil),      // 10: chalk.python.v1.TyFeatureClass
+	(*TyEnum)(nil),              // 11: chalk.python.v1.TyEnum
+	(*TyJson)(nil),              // 12: chalk.python.v1.TyJson
+	(*Ty)(nil),                  // 13: chalk.python.v1.Ty
+	(*EmptyMessage)(nil),        // 14: chalk.python.v1.EmptyMessage
+	(*SymbolicConst)(nil),       // 15: chalk.python.v1.SymbolicConst
+	(*CodeVariable)(nil),        // 16: chalk.python.v1.CodeVariable
+	(*CodeVariableValue)(nil),   // 17: chalk.python.v1.CodeVariableValue
+	(*GlobalVariablesInfo)(nil), // 18: chalk.python.v1.GlobalVariablesInfo
+	nil,                         // 19: chalk.python.v1.TyLogicalStruct.FieldsEntry
+	nil,                         // 20: chalk.python.v1.TyFeatureClass.AssignedFieldsEntry
+	nil,                         // 21: chalk.python.v1.GlobalVariablesInfo.EnvironmentVariablesEntry
+	(*v1.ScalarValue)(nil),      // 22: chalk.arrow.v1.ScalarValue
 }
 var file_chalk_python_v1_types_proto_depIdxs = []int32{
-	11, // 0: chalk.python.v1.TySet.items:type_name -> chalk.python.v1.Ty
-	11, // 1: chalk.python.v1.TyList.items:type_name -> chalk.python.v1.Ty
-	11, // 2: chalk.python.v1.TyIterable.items:type_name -> chalk.python.v1.Ty
-	11, // 3: chalk.python.v1.TyGenerator.items:type_name -> chalk.python.v1.Ty
-	11, // 4: chalk.python.v1.TyDict.key:type_name -> chalk.python.v1.Ty
-	11, // 5: chalk.python.v1.TyDict.value:type_name -> chalk.python.v1.Ty
-	11, // 6: chalk.python.v1.TyTuple.fixed:type_name -> chalk.python.v1.Ty
-	11, // 7: chalk.python.v1.StringTyPair.ty:type_name -> chalk.python.v1.Ty
-	17, // 8: chalk.python.v1.TyLogicalStruct.fields:type_name -> chalk.python.v1.TyLogicalStruct.FieldsEntry
-	7,  // 9: chalk.python.v1.TyLogicalStruct.ordered_fields:type_name -> chalk.python.v1.StringTyPair
-	18, // 10: chalk.python.v1.TyFeatureClass.assigned_fields:type_name -> chalk.python.v1.TyFeatureClass.AssignedFieldsEntry
-	7,  // 11: chalk.python.v1.TyFeatureClass.ordered_assigned_fields:type_name -> chalk.python.v1.StringTyPair
-	11, // 12: chalk.python.v1.TyEnum.bases:type_name -> chalk.python.v1.Ty
-	11, // 13: chalk.python.v1.TyEnum.ty:type_name -> chalk.python.v1.Ty
-	12, // 14: chalk.python.v1.Ty.int:type_name -> chalk.python.v1.EmptyMessage
-	12, // 15: chalk.python.v1.Ty.str:type_name -> chalk.python.v1.EmptyMessage
-	12, // 16: chalk.python.v1.Ty.bool:type_name -> chalk.python.v1.EmptyMessage
-	12, // 17: chalk.python.v1.Ty.float:type_name -> chalk.python.v1.EmptyMessage
-	1,  // 18: chalk.python.v1.Ty.list:type_name -> chalk.python.v1.TyList
-	0,  // 19: chalk.python.v1.Ty.set:type_name -> chalk.python.v1.TySet
-	12, // 20: chalk.python.v1.Ty.none:type_name -> chalk.python.v1.EmptyMessage
-	12, // 21: chalk.python.v1.Ty.any:type_name -> chalk.python.v1.EmptyMessage
-	2,  // 22: chalk.python.v1.Ty.iterable:type_name -> chalk.python.v1.TyIterable
-	4,  // 23: chalk.python.v1.Ty.datetime:type_name -> chalk.python.v1.TyDatetime
-	12, // 24: chalk.python.v1.Ty.timedelta:type_name -> chalk.python.v1.EmptyMessage
-	12, // 25: chalk.python.v1.Ty.date:type_name -> chalk.python.v1.EmptyMessage
-	6,  // 26: chalk.python.v1.Ty.tuple:type_name -> chalk.python.v1.TyTuple
-	5,  // 27: chalk.python.v1.Ty.dict:type_name -> chalk.python.v1.TyDict
-	12, // 28: chalk.python.v1.Ty.bytes:type_name -> chalk.python.v1.EmptyMessage
-	8,  // 29: chalk.python.v1.Ty.logical_struct:type_name -> chalk.python.v1.TyLogicalStruct
-	9,  // 30: chalk.python.v1.Ty.feature_class:type_name -> chalk.python.v1.TyFeatureClass
-	10, // 31: chalk.python.v1.Ty.enum:type_name -> chalk.python.v1.TyEnum
-	12, // 32: chalk.python.v1.Ty.sequence_matcher:type_name -> chalk.python.v1.EmptyMessage
-	3,  // 33: chalk.python.v1.Ty.generator:type_name -> chalk.python.v1.TyGenerator
-	12, // 34: chalk.python.v1.Ty.never:type_name -> chalk.python.v1.EmptyMessage
-	12, // 35: chalk.python.v1.Ty.requests_http_response:type_name -> chalk.python.v1.EmptyMessage
-	11, // 36: chalk.python.v1.SymbolicConst.ty:type_name -> chalk.python.v1.Ty
-	20, // 37: chalk.python.v1.SymbolicConst.value:type_name -> chalk.arrow.v1.ScalarValue
-	14, // 38: chalk.python.v1.CodeVariableValue.variable:type_name -> chalk.python.v1.CodeVariable
-	13, // 39: chalk.python.v1.CodeVariableValue.value:type_name -> chalk.python.v1.SymbolicConst
-	15, // 40: chalk.python.v1.GlobalVariablesInfo.code_variables:type_name -> chalk.python.v1.CodeVariableValue
-	19, // 41: chalk.python.v1.GlobalVariablesInfo.environment_variables:type_name -> chalk.python.v1.GlobalVariablesInfo.EnvironmentVariablesEntry
-	11, // 42: chalk.python.v1.TyLogicalStruct.FieldsEntry.value:type_name -> chalk.python.v1.Ty
-	11, // 43: chalk.python.v1.TyFeatureClass.AssignedFieldsEntry.value:type_name -> chalk.python.v1.Ty
-	44, // [44:44] is the sub-list for method output_type
-	44, // [44:44] is the sub-list for method input_type
-	44, // [44:44] is the sub-list for extension type_name
-	44, // [44:44] is the sub-list for extension extendee
-	0,  // [0:44] is the sub-list for field type_name
+	13, // 0: chalk.python.v1.TySet.items:type_name -> chalk.python.v1.Ty
+	13, // 1: chalk.python.v1.TyList.items:type_name -> chalk.python.v1.Ty
+	13, // 2: chalk.python.v1.TyIterable.items:type_name -> chalk.python.v1.Ty
+	13, // 3: chalk.python.v1.TyGenerator.items:type_name -> chalk.python.v1.Ty
+	13, // 4: chalk.python.v1.TyDict.key:type_name -> chalk.python.v1.Ty
+	13, // 5: chalk.python.v1.TyDict.value:type_name -> chalk.python.v1.Ty
+	13, // 6: chalk.python.v1.TyTuple.fixed:type_name -> chalk.python.v1.Ty
+	13, // 7: chalk.python.v1.StringTyPair.ty:type_name -> chalk.python.v1.Ty
+	19, // 8: chalk.python.v1.TyLogicalStruct.fields:type_name -> chalk.python.v1.TyLogicalStruct.FieldsEntry
+	8,  // 9: chalk.python.v1.TyLogicalStruct.ordered_fields:type_name -> chalk.python.v1.StringTyPair
+	20, // 10: chalk.python.v1.TyFeatureClass.assigned_fields:type_name -> chalk.python.v1.TyFeatureClass.AssignedFieldsEntry
+	8,  // 11: chalk.python.v1.TyFeatureClass.ordered_assigned_fields:type_name -> chalk.python.v1.StringTyPair
+	13, // 12: chalk.python.v1.TyEnum.bases:type_name -> chalk.python.v1.Ty
+	13, // 13: chalk.python.v1.TyEnum.ty:type_name -> chalk.python.v1.Ty
+	0,  // 14: chalk.python.v1.TyJson.shape:type_name -> chalk.python.v1.TyJson.JsonShape
+	14, // 15: chalk.python.v1.Ty.int:type_name -> chalk.python.v1.EmptyMessage
+	14, // 16: chalk.python.v1.Ty.str:type_name -> chalk.python.v1.EmptyMessage
+	14, // 17: chalk.python.v1.Ty.bool:type_name -> chalk.python.v1.EmptyMessage
+	14, // 18: chalk.python.v1.Ty.float:type_name -> chalk.python.v1.EmptyMessage
+	2,  // 19: chalk.python.v1.Ty.list:type_name -> chalk.python.v1.TyList
+	1,  // 20: chalk.python.v1.Ty.set:type_name -> chalk.python.v1.TySet
+	14, // 21: chalk.python.v1.Ty.none:type_name -> chalk.python.v1.EmptyMessage
+	14, // 22: chalk.python.v1.Ty.any:type_name -> chalk.python.v1.EmptyMessage
+	3,  // 23: chalk.python.v1.Ty.iterable:type_name -> chalk.python.v1.TyIterable
+	5,  // 24: chalk.python.v1.Ty.datetime:type_name -> chalk.python.v1.TyDatetime
+	14, // 25: chalk.python.v1.Ty.timedelta:type_name -> chalk.python.v1.EmptyMessage
+	14, // 26: chalk.python.v1.Ty.date:type_name -> chalk.python.v1.EmptyMessage
+	7,  // 27: chalk.python.v1.Ty.tuple:type_name -> chalk.python.v1.TyTuple
+	6,  // 28: chalk.python.v1.Ty.dict:type_name -> chalk.python.v1.TyDict
+	14, // 29: chalk.python.v1.Ty.bytes:type_name -> chalk.python.v1.EmptyMessage
+	9,  // 30: chalk.python.v1.Ty.logical_struct:type_name -> chalk.python.v1.TyLogicalStruct
+	10, // 31: chalk.python.v1.Ty.feature_class:type_name -> chalk.python.v1.TyFeatureClass
+	11, // 32: chalk.python.v1.Ty.enum:type_name -> chalk.python.v1.TyEnum
+	14, // 33: chalk.python.v1.Ty.sequence_matcher:type_name -> chalk.python.v1.EmptyMessage
+	4,  // 34: chalk.python.v1.Ty.generator:type_name -> chalk.python.v1.TyGenerator
+	14, // 35: chalk.python.v1.Ty.never:type_name -> chalk.python.v1.EmptyMessage
+	14, // 36: chalk.python.v1.Ty.requests_http_response:type_name -> chalk.python.v1.EmptyMessage
+	12, // 37: chalk.python.v1.Ty.json:type_name -> chalk.python.v1.TyJson
+	13, // 38: chalk.python.v1.SymbolicConst.ty:type_name -> chalk.python.v1.Ty
+	22, // 39: chalk.python.v1.SymbolicConst.value:type_name -> chalk.arrow.v1.ScalarValue
+	16, // 40: chalk.python.v1.CodeVariableValue.variable:type_name -> chalk.python.v1.CodeVariable
+	15, // 41: chalk.python.v1.CodeVariableValue.value:type_name -> chalk.python.v1.SymbolicConst
+	17, // 42: chalk.python.v1.GlobalVariablesInfo.code_variables:type_name -> chalk.python.v1.CodeVariableValue
+	21, // 43: chalk.python.v1.GlobalVariablesInfo.environment_variables:type_name -> chalk.python.v1.GlobalVariablesInfo.EnvironmentVariablesEntry
+	13, // 44: chalk.python.v1.TyLogicalStruct.FieldsEntry.value:type_name -> chalk.python.v1.Ty
+	13, // 45: chalk.python.v1.TyFeatureClass.AssignedFieldsEntry.value:type_name -> chalk.python.v1.Ty
+	46, // [46:46] is the sub-list for method output_type
+	46, // [46:46] is the sub-list for method input_type
+	46, // [46:46] is the sub-list for extension type_name
+	46, // [46:46] is the sub-list for extension extendee
+	0,  // [0:46] is the sub-list for field type_name
 }
 
 func init() { file_chalk_python_v1_types_proto_init() }
@@ -1423,7 +1545,8 @@ func file_chalk_python_v1_types_proto_init() {
 		return
 	}
 	file_chalk_python_v1_types_proto_msgTypes[4].OneofWrappers = []any{}
-	file_chalk_python_v1_types_proto_msgTypes[11].OneofWrappers = []any{
+	file_chalk_python_v1_types_proto_msgTypes[11].OneofWrappers = []any{}
+	file_chalk_python_v1_types_proto_msgTypes[12].OneofWrappers = []any{
 		(*Ty_Int)(nil),
 		(*Ty_Str)(nil),
 		(*Ty_Bool)(nil),
@@ -1446,19 +1569,21 @@ func file_chalk_python_v1_types_proto_init() {
 		(*Ty_Generator)(nil),
 		(*Ty_Never)(nil),
 		(*Ty_RequestsHttpResponse)(nil),
+		(*Ty_Json)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_chalk_python_v1_types_proto_rawDesc), len(file_chalk_python_v1_types_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   20,
+			NumEnums:      1,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_chalk_python_v1_types_proto_goTypes,
 		DependencyIndexes: file_chalk_python_v1_types_proto_depIdxs,
+		EnumInfos:         file_chalk_python_v1_types_proto_enumTypes,
 		MessageInfos:      file_chalk_python_v1_types_proto_msgTypes,
 	}.Build()
 	File_chalk_python_v1_types_proto = out.File

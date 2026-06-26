@@ -47,6 +47,9 @@ const (
 	// BuilderServiceValidateNamedQueriesProcedure is the fully-qualified name of the BuilderService's
 	// ValidateNamedQueries RPC.
 	BuilderServiceValidateNamedQueriesProcedure = "/chalk.server.v1.BuilderService/ValidateNamedQueries"
+	// BuilderServiceRunPostIndexValidationProcedure is the fully-qualified name of the BuilderService's
+	// RunPostIndexValidation RPC.
+	BuilderServiceRunPostIndexValidationProcedure = "/chalk.server.v1.BuilderService/RunPostIndexValidation"
 	// BuilderServiceStartShadowBuildFromDeploymentProcedure is the fully-qualified name of the
 	// BuilderService's StartShadowBuildFromDeployment RPC.
 	BuilderServiceStartShadowBuildFromDeploymentProcedure = "/chalk.server.v1.BuilderService/StartShadowBuildFromDeployment"
@@ -74,6 +77,9 @@ const (
 	// BuilderServiceGetDeploymentDependenciesProcedure is the fully-qualified name of the
 	// BuilderService's GetDeploymentDependencies RPC.
 	BuilderServiceGetDeploymentDependenciesProcedure = "/chalk.server.v1.BuilderService/GetDeploymentDependencies"
+	// BuilderServiceResolveEngineBaseImageProcedure is the fully-qualified name of the BuilderService's
+	// ResolveEngineBaseImage RPC.
+	BuilderServiceResolveEngineBaseImageProcedure = "/chalk.server.v1.BuilderService/ResolveEngineBaseImage"
 	// BuilderServiceGetClusterTimescaleDBProcedure is the fully-qualified name of the BuilderService's
 	// GetClusterTimescaleDB RPC.
 	BuilderServiceGetClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/GetClusterTimescaleDB"
@@ -95,6 +101,9 @@ const (
 	// BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure is the fully-qualified name of
 	// the BuilderService's ListClusterBackgroundPersistenceDeployments RPC.
 	BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure = "/chalk.server.v1.BuilderService/ListClusterBackgroundPersistenceDeployments"
+	// BuilderServiceListStreamingKafkaKedaConfigsProcedure is the fully-qualified name of the
+	// BuilderService's ListStreamingKafkaKedaConfigs RPC.
+	BuilderServiceListStreamingKafkaKedaConfigsProcedure = "/chalk.server.v1.BuilderService/ListStreamingKafkaKedaConfigs"
 	// BuilderServiceCreateClusterTimescaleDBProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterTimescaleDB RPC.
 	BuilderServiceCreateClusterTimescaleDBProcedure = "/chalk.server.v1.BuilderService/CreateClusterTimescaleDB"
@@ -122,6 +131,9 @@ const (
 	// BuilderServiceCreateClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's CreateClusterBackgroundPersistence RPC.
 	BuilderServiceCreateClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/CreateClusterBackgroundPersistence"
+	// BuilderServiceUpdateStreamingKafkaKedaConfigProcedure is the fully-qualified name of the
+	// BuilderService's UpdateStreamingKafkaKedaConfig RPC.
+	BuilderServiceUpdateStreamingKafkaKedaConfigProcedure = "/chalk.server.v1.BuilderService/UpdateStreamingKafkaKedaConfig"
 	// BuilderServiceUpdateEnvironmentVariablesProcedure is the fully-qualified name of the
 	// BuilderService's UpdateEnvironmentVariables RPC.
 	BuilderServiceUpdateEnvironmentVariablesProcedure = "/chalk.server.v1.BuilderService/UpdateEnvironmentVariables"
@@ -215,6 +227,12 @@ const (
 	// BuilderServiceResumeClusterBackgroundPersistenceProcedure is the fully-qualified name of the
 	// BuilderService's ResumeClusterBackgroundPersistence RPC.
 	BuilderServiceResumeClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/ResumeClusterBackgroundPersistence"
+	// BuilderServiceDeleteClusterGatewayProcedure is the fully-qualified name of the BuilderService's
+	// DeleteClusterGateway RPC.
+	BuilderServiceDeleteClusterGatewayProcedure = "/chalk.server.v1.BuilderService/DeleteClusterGateway"
+	// BuilderServiceDeleteClusterBackgroundPersistenceProcedure is the fully-qualified name of the
+	// BuilderService's DeleteClusterBackgroundPersistence RPC.
+	BuilderServiceDeleteClusterBackgroundPersistenceProcedure = "/chalk.server.v1.BuilderService/DeleteClusterBackgroundPersistence"
 	// ClusterBuilderServiceCreateKafkaTopicsProcedure is the fully-qualified name of the
 	// ClusterBuilderService's CreateKafkaTopics RPC.
 	ClusterBuilderServiceCreateKafkaTopicsProcedure = "/chalk.server.v1.ClusterBuilderService/CreateKafkaTopics"
@@ -231,6 +249,7 @@ type BuilderServiceClient interface {
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
+	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -246,6 +265,7 @@ type BuilderServiceClient interface {
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
+	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -253,6 +273,7 @@ type BuilderServiceClient interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
+	ListStreamingKafkaKedaConfigs(context.Context, *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
@@ -262,6 +283,7 @@ type BuilderServiceClient interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	UpdateStreamingKafkaKedaConfig(context.Context, *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error)
 	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	// Initiates the branch server for the environment if it isn't already running.
@@ -302,6 +324,8 @@ type BuilderServiceClient interface {
 	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
 	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
+	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
+	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceClient constructs a client for the chalk.server.v1.BuilderService service. By
@@ -338,6 +362,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceValidateNamedQueriesProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("ValidateNamedQueries")),
+			connect.WithClientOptions(opts...),
+		),
+		runPostIndexValidation: connect.NewClient[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse](
+			httpClient,
+			baseURL+BuilderServiceRunPostIndexValidationProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
 			connect.WithClientOptions(opts...),
 		),
 		startShadowBuildFromDeployment: connect.NewClient[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse](
@@ -394,6 +424,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("GetDeploymentDependencies")),
 			connect.WithClientOptions(opts...),
 		),
+		resolveEngineBaseImage: connect.NewClient[v1.ResolveEngineBaseImageRequest, v1.ResolveEngineBaseImageResponse](
+			httpClient,
+			baseURL+BuilderServiceResolveEngineBaseImageProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ResolveEngineBaseImage")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		getClusterTimescaleDB: connect.NewClient[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse](
 			httpClient,
 			baseURL+BuilderServiceGetClusterTimescaleDBProcedure,
@@ -436,6 +473,13 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("ListClusterBackgroundPersistenceDeployments")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		listStreamingKafkaKedaConfigs: connect.NewClient[v1.ListStreamingKafkaKedaConfigsRequest, v1.ListStreamingKafkaKedaConfigsResponse](
+			httpClient,
+			baseURL+BuilderServiceListStreamingKafkaKedaConfigsProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("ListStreamingKafkaKedaConfigs")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -491,6 +535,12 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			httpClient,
 			baseURL+BuilderServiceCreateClusterBackgroundPersistenceProcedure,
 			connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
+		updateStreamingKafkaKedaConfig: connect.NewClient[v1.UpdateStreamingKafkaKedaConfigRequest, v1.UpdateStreamingKafkaKedaConfigResponse](
+			httpClient,
+			baseURL+BuilderServiceUpdateStreamingKafkaKedaConfigProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("UpdateStreamingKafkaKedaConfig")),
 			connect.WithClientOptions(opts...),
 		),
 		updateEnvironmentVariables: connect.NewClient[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse](
@@ -685,6 +735,18 @@ func NewBuilderServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteClusterGateway: connect.NewClient[v1.DeleteClusterGatewayRequest, v1.DeleteClusterGatewayResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteClusterGatewayProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterGateway")),
+			connect.WithClientOptions(opts...),
+		),
+		deleteClusterBackgroundPersistence: connect.NewClient[v1.DeleteClusterBackgroundPersistenceRequest, v1.DeleteClusterBackgroundPersistenceResponse](
+			httpClient,
+			baseURL+BuilderServiceDeleteClusterBackgroundPersistenceProcedure,
+			connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -694,6 +756,7 @@ type builderServiceClient struct {
 	activateDeployment                          *connect.Client[v1.ActivateDeploymentRequest, v1.ActivateDeploymentResponse]
 	indexDeployment                             *connect.Client[v1.IndexDeploymentRequest, v1.IndexDeploymentResponse]
 	validateNamedQueries                        *connect.Client[v1.ValidateNamedQueriesRequest, v1.ValidateNamedQueriesResponse]
+	runPostIndexValidation                      *connect.Client[v1.RunPostIndexValidationRequest, v1.RunPostIndexValidationResponse]
 	startShadowBuildFromDeployment              *connect.Client[v1.StartShadowBuildFromDeploymentRequest, v1.StartShadowBuildFromDeploymentResponse]
 	deployKubeComponents                        *connect.Client[v1.DeployKubeComponentsRequest, v1.DeployKubeComponentsResponse]
 	rebuildDeployment                           *connect.Client[v1.RebuildDeploymentRequest, v1.RebuildDeploymentResponse]
@@ -703,6 +766,7 @@ type builderServiceClient struct {
 	getDeploymentSteps                          *connect.Client[v1.GetDeploymentStepsRequest, v1.GetDeploymentStepsResponse]
 	getDeploymentLogs                           *connect.Client[v1.GetDeploymentLogsRequest, v1.GetDeploymentLogsResponse]
 	getDeploymentDependencies                   *connect.Client[v1.GetDeploymentDependenciesRequest, v1.GetDeploymentDependenciesResponse]
+	resolveEngineBaseImage                      *connect.Client[v1.ResolveEngineBaseImageRequest, v1.ResolveEngineBaseImageResponse]
 	getClusterTimescaleDB                       *connect.Client[v1.GetClusterTimescaleDBRequest, v1.GetClusterTimescaleDBResponse]
 	listClusterTimescaleDBs                     *connect.Client[v1.ListClusterTimescaleDBsRequest, v1.ListClusterTimescaleDBsResponse]
 	getClusterGateway                           *connect.Client[v1.GetClusterGatewayRequest, v1.GetClusterGatewayResponse]
@@ -710,6 +774,7 @@ type builderServiceClient struct {
 	getClusterGatewayDefault                    *connect.Client[v1.GetClusterGatewayDefaultRequest, v1.GetClusterGatewayDefaultResponse]
 	getClusterBackgroundPersistence             *connect.Client[v1.GetClusterBackgroundPersistenceRequest, v1.GetClusterBackgroundPersistenceResponse]
 	listClusterBackgroundPersistenceDeployments *connect.Client[v1.ListClusterBackgroundPersistenceDeploymentsRequest, v1.ListClusterBackgroundPersistenceDeploymentsResponse]
+	listStreamingKafkaKedaConfigs               *connect.Client[v1.ListStreamingKafkaKedaConfigsRequest, v1.ListStreamingKafkaKedaConfigsResponse]
 	createClusterTimescaleDB                    *connect.Client[v1.CreateClusterTimescaleDBRequest, v1.CreateClusterTimescaleDBResponse]
 	updateClusterTimescaleDB                    *connect.Client[v1.UpdateClusterTimescaleDBRequest, v1.UpdateClusterTimescaleDBResponse]
 	getClusterTimescaleDefault                  *connect.Client[v1.GetClusterTimescaleDefaultRequest, v1.GetClusterTimescaleDefaultResponse]
@@ -719,6 +784,7 @@ type builderServiceClient struct {
 	migrateClusterTimescaleDB                   *connect.Client[v1.MigrateClusterTimescaleDBRequest, v1.MigrateClusterTimescaleDBResponse]
 	createClusterGateway                        *connect.Client[v1.CreateClusterGatewayRequest, v1.CreateClusterGatewayResponse]
 	createClusterBackgroundPersistence          *connect.Client[v1.CreateClusterBackgroundPersistenceRequest, v1.CreateClusterBackgroundPersistenceResponse]
+	updateStreamingKafkaKedaConfig              *connect.Client[v1.UpdateStreamingKafkaKedaConfigRequest, v1.UpdateStreamingKafkaKedaConfigResponse]
 	updateEnvironmentVariables                  *connect.Client[v1.UpdateEnvironmentVariablesRequest, v1.UpdateEnvironmentVariablesResponse]
 	startBranch                                 *connect.Client[v1.StartBranchRequest, v1.StartBranchResponse]
 	scaleBranch                                 *connect.Client[v1.ScaleBranchRequest, v1.ScaleBranchResponse]
@@ -750,6 +816,8 @@ type builderServiceClient struct {
 	resumeClusterGateway                        *connect.Client[v1.ResumeClusterGatewayRequest, v1.ResumeClusterGatewayResponse]
 	suspendClusterBackgroundPersistence         *connect.Client[v1.SuspendClusterBackgroundPersistenceRequest, v1.SuspendClusterBackgroundPersistenceResponse]
 	resumeClusterBackgroundPersistence          *connect.Client[v1.ResumeClusterBackgroundPersistenceRequest, v1.ResumeClusterBackgroundPersistenceResponse]
+	deleteClusterGateway                        *connect.Client[v1.DeleteClusterGatewayRequest, v1.DeleteClusterGatewayResponse]
+	deleteClusterBackgroundPersistence          *connect.Client[v1.DeleteClusterBackgroundPersistenceRequest, v1.DeleteClusterBackgroundPersistenceResponse]
 }
 
 // GetSearchConfig calls chalk.server.v1.BuilderService.GetSearchConfig.
@@ -770,6 +838,11 @@ func (c *builderServiceClient) IndexDeployment(ctx context.Context, req *connect
 // ValidateNamedQueries calls chalk.server.v1.BuilderService.ValidateNamedQueries.
 func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return c.validateNamedQueries.CallUnary(ctx, req)
+}
+
+// RunPostIndexValidation calls chalk.server.v1.BuilderService.RunPostIndexValidation.
+func (c *builderServiceClient) RunPostIndexValidation(ctx context.Context, req *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
+	return c.runPostIndexValidation.CallUnary(ctx, req)
 }
 
 // StartShadowBuildFromDeployment calls
@@ -818,6 +891,11 @@ func (c *builderServiceClient) GetDeploymentDependencies(ctx context.Context, re
 	return c.getDeploymentDependencies.CallUnary(ctx, req)
 }
 
+// ResolveEngineBaseImage calls chalk.server.v1.BuilderService.ResolveEngineBaseImage.
+func (c *builderServiceClient) ResolveEngineBaseImage(ctx context.Context, req *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error) {
+	return c.resolveEngineBaseImage.CallUnary(ctx, req)
+}
+
 // GetClusterTimescaleDB calls chalk.server.v1.BuilderService.GetClusterTimescaleDB.
 func (c *builderServiceClient) GetClusterTimescaleDB(ctx context.Context, req *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error) {
 	return c.getClusterTimescaleDB.CallUnary(ctx, req)
@@ -853,6 +931,11 @@ func (c *builderServiceClient) GetClusterBackgroundPersistence(ctx context.Conte
 // chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments.
 func (c *builderServiceClient) ListClusterBackgroundPersistenceDeployments(ctx context.Context, req *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error) {
 	return c.listClusterBackgroundPersistenceDeployments.CallUnary(ctx, req)
+}
+
+// ListStreamingKafkaKedaConfigs calls chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs.
+func (c *builderServiceClient) ListStreamingKafkaKedaConfigs(ctx context.Context, req *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error) {
+	return c.listStreamingKafkaKedaConfigs.CallUnary(ctx, req)
 }
 
 // CreateClusterTimescaleDB calls chalk.server.v1.BuilderService.CreateClusterTimescaleDB.
@@ -901,6 +984,12 @@ func (c *builderServiceClient) CreateClusterGateway(ctx context.Context, req *co
 // chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence.
 func (c *builderServiceClient) CreateClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error) {
 	return c.createClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
+// UpdateStreamingKafkaKedaConfig calls
+// chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig.
+func (c *builderServiceClient) UpdateStreamingKafkaKedaConfig(ctx context.Context, req *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error) {
+	return c.updateStreamingKafkaKedaConfig.CallUnary(ctx, req)
 }
 
 // UpdateEnvironmentVariables calls chalk.server.v1.BuilderService.UpdateEnvironmentVariables.
@@ -1071,6 +1160,17 @@ func (c *builderServiceClient) ResumeClusterBackgroundPersistence(ctx context.Co
 	return c.resumeClusterBackgroundPersistence.CallUnary(ctx, req)
 }
 
+// DeleteClusterGateway calls chalk.server.v1.BuilderService.DeleteClusterGateway.
+func (c *builderServiceClient) DeleteClusterGateway(ctx context.Context, req *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error) {
+	return c.deleteClusterGateway.CallUnary(ctx, req)
+}
+
+// DeleteClusterBackgroundPersistence calls
+// chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence.
+func (c *builderServiceClient) DeleteClusterBackgroundPersistence(ctx context.Context, req *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error) {
+	return c.deleteClusterBackgroundPersistence.CallUnary(ctx, req)
+}
+
 // BuilderServiceHandler is an implementation of the chalk.server.v1.BuilderService service.
 type BuilderServiceHandler interface {
 	GetSearchConfig(context.Context, *connect.Request[v1.GetSearchConfigRequest]) (*connect.Response[v1.GetSearchConfigResponse], error)
@@ -1079,6 +1179,7 @@ type BuilderServiceHandler interface {
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
+	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
 	// Intermediate step in the deployment activation process. Allows for partial migration to the new
 	// go-api-server builder service.
@@ -1094,6 +1195,7 @@ type BuilderServiceHandler interface {
 	GetDeploymentSteps(context.Context, *connect.Request[v1.GetDeploymentStepsRequest]) (*connect.Response[v1.GetDeploymentStepsResponse], error)
 	GetDeploymentLogs(context.Context, *connect.Request[v1.GetDeploymentLogsRequest]) (*connect.Response[v1.GetDeploymentLogsResponse], error)
 	GetDeploymentDependencies(context.Context, *connect.Request[v1.GetDeploymentDependenciesRequest]) (*connect.Response[v1.GetDeploymentDependenciesResponse], error)
+	ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error)
 	GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error)
 	ListClusterTimescaleDBs(context.Context, *connect.Request[v1.ListClusterTimescaleDBsRequest]) (*connect.Response[v1.ListClusterTimescaleDBsResponse], error)
 	GetClusterGateway(context.Context, *connect.Request[v1.GetClusterGatewayRequest]) (*connect.Response[v1.GetClusterGatewayResponse], error)
@@ -1101,6 +1203,7 @@ type BuilderServiceHandler interface {
 	GetClusterGatewayDefault(context.Context, *connect.Request[v1.GetClusterGatewayDefaultRequest]) (*connect.Response[v1.GetClusterGatewayDefaultResponse], error)
 	GetClusterBackgroundPersistence(context.Context, *connect.Request[v1.GetClusterBackgroundPersistenceRequest]) (*connect.Response[v1.GetClusterBackgroundPersistenceResponse], error)
 	ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error)
+	ListStreamingKafkaKedaConfigs(context.Context, *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error)
 	CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error)
 	UpdateClusterTimescaleDB(context.Context, *connect.Request[v1.UpdateClusterTimescaleDBRequest]) (*connect.Response[v1.UpdateClusterTimescaleDBResponse], error)
 	GetClusterTimescaleDefault(context.Context, *connect.Request[v1.GetClusterTimescaleDefaultRequest]) (*connect.Response[v1.GetClusterTimescaleDefaultResponse], error)
@@ -1110,6 +1213,7 @@ type BuilderServiceHandler interface {
 	MigrateClusterTimescaleDB(context.Context, *connect.Request[v1.MigrateClusterTimescaleDBRequest]) (*connect.Response[v1.MigrateClusterTimescaleDBResponse], error)
 	CreateClusterGateway(context.Context, *connect.Request[v1.CreateClusterGatewayRequest]) (*connect.Response[v1.CreateClusterGatewayResponse], error)
 	CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error)
+	UpdateStreamingKafkaKedaConfig(context.Context, *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error)
 	// Deprecated: do not use.
 	UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error)
 	// Initiates the branch server for the environment if it isn't already running.
@@ -1150,6 +1254,8 @@ type BuilderServiceHandler interface {
 	ResumeClusterGateway(context.Context, *connect.Request[v1.ResumeClusterGatewayRequest]) (*connect.Response[v1.ResumeClusterGatewayResponse], error)
 	SuspendClusterBackgroundPersistence(context.Context, *connect.Request[v1.SuspendClusterBackgroundPersistenceRequest]) (*connect.Response[v1.SuspendClusterBackgroundPersistenceResponse], error)
 	ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error)
+	DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error)
+	DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error)
 }
 
 // NewBuilderServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -1182,6 +1288,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceValidateNamedQueriesProcedure,
 		svc.ValidateNamedQueries,
 		connect.WithSchema(builderServiceMethods.ByName("ValidateNamedQueries")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceRunPostIndexValidationHandler := connect.NewUnaryHandler(
+		BuilderServiceRunPostIndexValidationProcedure,
+		svc.RunPostIndexValidation,
+		connect.WithSchema(builderServiceMethods.ByName("RunPostIndexValidation")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceStartShadowBuildFromDeploymentHandler := connect.NewUnaryHandler(
@@ -1238,6 +1350,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("GetDeploymentDependencies")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceResolveEngineBaseImageHandler := connect.NewUnaryHandler(
+		BuilderServiceResolveEngineBaseImageProcedure,
+		svc.ResolveEngineBaseImage,
+		connect.WithSchema(builderServiceMethods.ByName("ResolveEngineBaseImage")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	builderServiceGetClusterTimescaleDBHandler := connect.NewUnaryHandler(
 		BuilderServiceGetClusterTimescaleDBProcedure,
 		svc.GetClusterTimescaleDB,
@@ -1280,6 +1399,13 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure,
 		svc.ListClusterBackgroundPersistenceDeployments,
 		connect.WithSchema(builderServiceMethods.ByName("ListClusterBackgroundPersistenceDeployments")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceListStreamingKafkaKedaConfigsHandler := connect.NewUnaryHandler(
+		BuilderServiceListStreamingKafkaKedaConfigsProcedure,
+		svc.ListStreamingKafkaKedaConfigs,
+		connect.WithSchema(builderServiceMethods.ByName("ListStreamingKafkaKedaConfigs")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -1335,6 +1461,12 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		BuilderServiceCreateClusterBackgroundPersistenceProcedure,
 		svc.CreateClusterBackgroundPersistence,
 		connect.WithSchema(builderServiceMethods.ByName("CreateClusterBackgroundPersistence")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceUpdateStreamingKafkaKedaConfigHandler := connect.NewUnaryHandler(
+		BuilderServiceUpdateStreamingKafkaKedaConfigProcedure,
+		svc.UpdateStreamingKafkaKedaConfig,
+		connect.WithSchema(builderServiceMethods.ByName("UpdateStreamingKafkaKedaConfig")),
 		connect.WithHandlerOptions(opts...),
 	)
 	builderServiceUpdateEnvironmentVariablesHandler := connect.NewUnaryHandler(
@@ -1529,6 +1661,18 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 		connect.WithSchema(builderServiceMethods.ByName("ResumeClusterBackgroundPersistence")),
 		connect.WithHandlerOptions(opts...),
 	)
+	builderServiceDeleteClusterGatewayHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteClusterGatewayProcedure,
+		svc.DeleteClusterGateway,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterGateway")),
+		connect.WithHandlerOptions(opts...),
+	)
+	builderServiceDeleteClusterBackgroundPersistenceHandler := connect.NewUnaryHandler(
+		BuilderServiceDeleteClusterBackgroundPersistenceProcedure,
+		svc.DeleteClusterBackgroundPersistence,
+		connect.WithSchema(builderServiceMethods.ByName("DeleteClusterBackgroundPersistence")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/chalk.server.v1.BuilderService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case BuilderServiceGetSearchConfigProcedure:
@@ -1539,6 +1683,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceIndexDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceValidateNamedQueriesProcedure:
 			builderServiceValidateNamedQueriesHandler.ServeHTTP(w, r)
+		case BuilderServiceRunPostIndexValidationProcedure:
+			builderServiceRunPostIndexValidationHandler.ServeHTTP(w, r)
 		case BuilderServiceStartShadowBuildFromDeploymentProcedure:
 			builderServiceStartShadowBuildFromDeploymentHandler.ServeHTTP(w, r)
 		case BuilderServiceDeployKubeComponentsProcedure:
@@ -1557,6 +1703,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetDeploymentLogsHandler.ServeHTTP(w, r)
 		case BuilderServiceGetDeploymentDependenciesProcedure:
 			builderServiceGetDeploymentDependenciesHandler.ServeHTTP(w, r)
+		case BuilderServiceResolveEngineBaseImageProcedure:
+			builderServiceResolveEngineBaseImageHandler.ServeHTTP(w, r)
 		case BuilderServiceGetClusterTimescaleDBProcedure:
 			builderServiceGetClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceListClusterTimescaleDBsProcedure:
@@ -1571,6 +1719,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceGetClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceListClusterBackgroundPersistenceDeploymentsProcedure:
 			builderServiceListClusterBackgroundPersistenceDeploymentsHandler.ServeHTTP(w, r)
+		case BuilderServiceListStreamingKafkaKedaConfigsProcedure:
+			builderServiceListStreamingKafkaKedaConfigsHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterTimescaleDBProcedure:
 			builderServiceCreateClusterTimescaleDBHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateClusterTimescaleDBProcedure:
@@ -1589,6 +1739,8 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceCreateClusterGatewayHandler.ServeHTTP(w, r)
 		case BuilderServiceCreateClusterBackgroundPersistenceProcedure:
 			builderServiceCreateClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceUpdateStreamingKafkaKedaConfigProcedure:
+			builderServiceUpdateStreamingKafkaKedaConfigHandler.ServeHTTP(w, r)
 		case BuilderServiceUpdateEnvironmentVariablesProcedure:
 			builderServiceUpdateEnvironmentVariablesHandler.ServeHTTP(w, r)
 		case BuilderServiceStartBranchProcedure:
@@ -1651,6 +1803,10 @@ func NewBuilderServiceHandler(svc BuilderServiceHandler, opts ...connect.Handler
 			builderServiceSuspendClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		case BuilderServiceResumeClusterBackgroundPersistenceProcedure:
 			builderServiceResumeClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteClusterGatewayProcedure:
+			builderServiceDeleteClusterGatewayHandler.ServeHTTP(w, r)
+		case BuilderServiceDeleteClusterBackgroundPersistenceProcedure:
+			builderServiceDeleteClusterBackgroundPersistenceHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -1674,6 +1830,10 @@ func (UnimplementedBuilderServiceHandler) IndexDeployment(context.Context, *conn
 
 func (UnimplementedBuilderServiceHandler) ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ValidateNamedQueries is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.RunPostIndexValidation is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error) {
@@ -1712,6 +1872,10 @@ func (UnimplementedBuilderServiceHandler) GetDeploymentDependencies(context.Cont
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetDeploymentDependencies is not implemented"))
 }
 
+func (UnimplementedBuilderServiceHandler) ResolveEngineBaseImage(context.Context, *connect.Request[v1.ResolveEngineBaseImageRequest]) (*connect.Response[v1.ResolveEngineBaseImageResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResolveEngineBaseImage is not implemented"))
+}
+
 func (UnimplementedBuilderServiceHandler) GetClusterTimescaleDB(context.Context, *connect.Request[v1.GetClusterTimescaleDBRequest]) (*connect.Response[v1.GetClusterTimescaleDBResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.GetClusterTimescaleDB is not implemented"))
 }
@@ -1738,6 +1902,10 @@ func (UnimplementedBuilderServiceHandler) GetClusterBackgroundPersistence(contex
 
 func (UnimplementedBuilderServiceHandler) ListClusterBackgroundPersistenceDeployments(context.Context, *connect.Request[v1.ListClusterBackgroundPersistenceDeploymentsRequest]) (*connect.Response[v1.ListClusterBackgroundPersistenceDeploymentsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListClusterBackgroundPersistenceDeployments is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) ListStreamingKafkaKedaConfigs(context.Context, *connect.Request[v1.ListStreamingKafkaKedaConfigsRequest]) (*connect.Response[v1.ListStreamingKafkaKedaConfigsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ListStreamingKafkaKedaConfigs is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) CreateClusterTimescaleDB(context.Context, *connect.Request[v1.CreateClusterTimescaleDBRequest]) (*connect.Response[v1.CreateClusterTimescaleDBResponse], error) {
@@ -1774,6 +1942,10 @@ func (UnimplementedBuilderServiceHandler) CreateClusterGateway(context.Context, 
 
 func (UnimplementedBuilderServiceHandler) CreateClusterBackgroundPersistence(context.Context, *connect.Request[v1.CreateClusterBackgroundPersistenceRequest]) (*connect.Response[v1.CreateClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.CreateClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) UpdateStreamingKafkaKedaConfig(context.Context, *connect.Request[v1.UpdateStreamingKafkaKedaConfigRequest]) (*connect.Response[v1.UpdateStreamingKafkaKedaConfigResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.UpdateStreamingKafkaKedaConfig is not implemented"))
 }
 
 func (UnimplementedBuilderServiceHandler) UpdateEnvironmentVariables(context.Context, *connect.Request[v1.UpdateEnvironmentVariablesRequest]) (*connect.Response[v1.UpdateEnvironmentVariablesResponse], error) {
@@ -1898,6 +2070,14 @@ func (UnimplementedBuilderServiceHandler) SuspendClusterBackgroundPersistence(co
 
 func (UnimplementedBuilderServiceHandler) ResumeClusterBackgroundPersistence(context.Context, *connect.Request[v1.ResumeClusterBackgroundPersistenceRequest]) (*connect.Response[v1.ResumeClusterBackgroundPersistenceResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.ResumeClusterBackgroundPersistence is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteClusterGateway(context.Context, *connect.Request[v1.DeleteClusterGatewayRequest]) (*connect.Response[v1.DeleteClusterGatewayResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterGateway is not implemented"))
+}
+
+func (UnimplementedBuilderServiceHandler) DeleteClusterBackgroundPersistence(context.Context, *connect.Request[v1.DeleteClusterBackgroundPersistenceRequest]) (*connect.Response[v1.DeleteClusterBackgroundPersistenceResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.BuilderService.DeleteClusterBackgroundPersistence is not implemented"))
 }
 
 // ClusterBuilderServiceClient is a client for the chalk.server.v1.ClusterBuilderService service.

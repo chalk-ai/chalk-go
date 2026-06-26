@@ -2579,21 +2579,24 @@ func (*OfflineQueryHwmIdentifier_CronQueryName) isOfflineQueryHwmIdentifier_Valu
 func (*OfflineQueryHwmIdentifier_ResolverFqn) isOfflineQueryHwmIdentifier_Value() {}
 
 type OfflineQueryJobBody struct {
-	state                            protoimpl.MessageState               `protogen:"open.v1"`
-	Output                           []string                             `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
-	OutputExpressions                []string                             `protobuf:"bytes,2,rep,name=output_expressions,json=outputExpressions,proto3" json:"output_expressions,omitempty"`
-	RequiredOutput                   []string                             `protobuf:"bytes,3,rep,name=required_output,json=requiredOutput,proto3" json:"required_output,omitempty"`
-	RequiredOutputExpressions        []string                             `protobuf:"bytes,4,rep,name=required_output_expressions,json=requiredOutputExpressions,proto3" json:"required_output_expressions,omitempty"`
-	DestinationFormat                string                               `protobuf:"bytes,5,opt,name=destination_format,json=destinationFormat,proto3" json:"destination_format,omitempty"`
-	JobId                            *string                              `protobuf:"bytes,6,opt,name=job_id,json=jobId,proto3,oneof" json:"job_id,omitempty"`
-	Input                            *OfflineQueryInputSpec               `protobuf:"bytes,7,opt,name=input,proto3" json:"input,omitempty"`
-	MaxSamples                       *int32                               `protobuf:"varint,8,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
-	MaxCacheAgeSecs                  *int32                               `protobuf:"varint,9,opt,name=max_cache_age_secs,json=maxCacheAgeSecs,proto3,oneof" json:"max_cache_age_secs,omitempty"`
-	Resources                        *v1.ResourceRequests                 `protobuf:"bytes,10,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
-	ObservedAtLowerBound             *string                              `protobuf:"bytes,11,opt,name=observed_at_lower_bound,json=observedAtLowerBound,proto3,oneof" json:"observed_at_lower_bound,omitempty"`
-	ObservedAtUpperBound             *string                              `protobuf:"bytes,12,opt,name=observed_at_upper_bound,json=observedAtUpperBound,proto3,oneof" json:"observed_at_upper_bound,omitempty"`
-	ObservedAtLowerBoundExclusive    *string                              `protobuf:"bytes,13,opt,name=observed_at_lower_bound_exclusive,json=observedAtLowerBoundExclusive,proto3,oneof" json:"observed_at_lower_bound_exclusive,omitempty"`
-	ObservedAtUpperBoundExclusive    *string                              `protobuf:"bytes,14,opt,name=observed_at_upper_bound_exclusive,json=observedAtUpperBoundExclusive,proto3,oneof" json:"observed_at_upper_bound_exclusive,omitempty"`
+	state                         protoimpl.MessageState `protogen:"open.v1"`
+	Output                        []string               `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
+	OutputExpressions             []string               `protobuf:"bytes,2,rep,name=output_expressions,json=outputExpressions,proto3" json:"output_expressions,omitempty"`
+	RequiredOutput                []string               `protobuf:"bytes,3,rep,name=required_output,json=requiredOutput,proto3" json:"required_output,omitempty"`
+	RequiredOutputExpressions     []string               `protobuf:"bytes,4,rep,name=required_output_expressions,json=requiredOutputExpressions,proto3" json:"required_output_expressions,omitempty"`
+	DestinationFormat             string                 `protobuf:"bytes,5,opt,name=destination_format,json=destinationFormat,proto3" json:"destination_format,omitempty"`
+	JobId                         *string                `protobuf:"bytes,6,opt,name=job_id,json=jobId,proto3,oneof" json:"job_id,omitempty"`
+	Input                         *OfflineQueryInputSpec `protobuf:"bytes,7,opt,name=input,proto3" json:"input,omitempty"`
+	MaxSamples                    *int32                 `protobuf:"varint,8,opt,name=max_samples,json=maxSamples,proto3,oneof" json:"max_samples,omitempty"`
+	MaxCacheAgeSecs               *int32                 `protobuf:"varint,9,opt,name=max_cache_age_secs,json=maxCacheAgeSecs,proto3,oneof" json:"max_cache_age_secs,omitempty"`
+	Resources                     *v1.ResourceRequests   `protobuf:"bytes,10,opt,name=resources,proto3,oneof" json:"resources,omitempty"`
+	ObservedAtLowerBound          *string                `protobuf:"bytes,11,opt,name=observed_at_lower_bound,json=observedAtLowerBound,proto3,oneof" json:"observed_at_lower_bound,omitempty"`
+	ObservedAtUpperBound          *string                `protobuf:"bytes,12,opt,name=observed_at_upper_bound,json=observedAtUpperBound,proto3,oneof" json:"observed_at_upper_bound,omitempty"`
+	ObservedAtLowerBoundExclusive *string                `protobuf:"bytes,13,opt,name=observed_at_lower_bound_exclusive,json=observedAtLowerBoundExclusive,proto3,oneof" json:"observed_at_lower_bound_exclusive,omitempty"`
+	ObservedAtUpperBoundExclusive *string                `protobuf:"bytes,14,opt,name=observed_at_upper_bound_exclusive,json=observedAtUpperBoundExclusive,proto3,oneof" json:"observed_at_upper_bound_exclusive,omitempty"`
+	// Filters on the offline-store inserted_at timestamp instead of observed_at. Inclusive.
+	InsertedAtLowerBound             *string                              `protobuf:"bytes,70,opt,name=inserted_at_lower_bound,json=insertedAtLowerBound,proto3,oneof" json:"inserted_at_lower_bound,omitempty"`
+	InsertedAtUpperBound             *string                              `protobuf:"bytes,71,opt,name=inserted_at_upper_bound,json=insertedAtUpperBound,proto3,oneof" json:"inserted_at_upper_bound,omitempty"`
 	DatasetName                      *string                              `protobuf:"bytes,15,opt,name=dataset_name,json=datasetName,proto3,oneof" json:"dataset_name,omitempty"`
 	Branch                           *string                              `protobuf:"bytes,16,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
 	RecomputeFeatures                *OfflineQueryRecomputeFeatures       `protobuf:"bytes,17,opt,name=recompute_features,json=recomputeFeatures,proto3" json:"recompute_features,omitempty"`
@@ -2776,6 +2779,20 @@ func (x *OfflineQueryJobBody) GetObservedAtLowerBoundExclusive() string {
 func (x *OfflineQueryJobBody) GetObservedAtUpperBoundExclusive() string {
 	if x != nil && x.ObservedAtUpperBoundExclusive != nil {
 		return *x.ObservedAtUpperBoundExclusive
+	}
+	return ""
+}
+
+func (x *OfflineQueryJobBody) GetInsertedAtLowerBound() string {
+	if x != nil && x.InsertedAtLowerBound != nil {
+		return *x.InsertedAtLowerBound
+	}
+	return ""
+}
+
+func (x *OfflineQueryJobBody) GetInsertedAtUpperBound() string {
+	if x != nil && x.InsertedAtUpperBound != nil {
+		return *x.InsertedAtUpperBound
 	}
 	return ""
 }
@@ -3526,8 +3543,14 @@ type PlannerOptions struct {
 	OmitReplayDuringCombineAggregations                  *bool                      `protobuf:"varint,116,opt,name=omit_replay_during_combine_aggregations,json=omitReplayDuringCombineAggregations,proto3,oneof" json:"omit_replay_during_combine_aggregations,omitempty"`
 	DistinctEventTiesArbitrarily                         *bool                      `protobuf:"varint,117,opt,name=distinct_event_ties_arbitrarily,json=distinctEventTiesArbitrarily,proto3,oneof" json:"distinct_event_ties_arbitrarily,omitempty"`
 	UnifyTileWindowAggregations                          *bool                      `protobuf:"varint,118,opt,name=unify_tile_window_aggregations,json=unifyTileWindowAggregations,proto3,oneof" json:"unify_tile_window_aggregations,omitempty"`
-	unknownFields                                        protoimpl.UnknownFields
-	sizeCache                                            protoimpl.SizeCache
+	// When set, a has_one/has_many subplan that computes a materialized windowed
+	// aggregation is planned as time-dependent so the foreign-key spine de-dup keeps
+	// __ts__ in its key. This stops sibling input rows that share a join key but have
+	// different as-of times from collapsing into one another's aggregation windows.
+	// See CHA-9429.
+	ExcludeOverlappingInputEventsFromAggs *bool `protobuf:"varint,119,opt,name=exclude_overlapping_input_events_from_aggs,json=excludeOverlappingInputEventsFromAggs,proto3,oneof" json:"exclude_overlapping_input_events_from_aggs,omitempty"`
+	unknownFields                         protoimpl.UnknownFields
+	sizeCache                             protoimpl.SizeCache
 }
 
 func (x *PlannerOptions) Reset() {
@@ -4386,6 +4409,13 @@ func (x *PlannerOptions) GetUnifyTileWindowAggregations() bool {
 	return false
 }
 
+func (x *PlannerOptions) GetExcludeOverlappingInputEventsFromAggs() bool {
+	if x != nil && x.ExcludeOverlappingInputEventsFromAggs != nil {
+		return *x.ExcludeOverlappingInputEventsFromAggs
+	}
+	return false
+}
+
 type UnloadResolverJobRequest struct {
 	state                protoimpl.MessageState        `protogen:"open.v1"`
 	Output               []string                      `protobuf:"bytes,1,rep,name=output,proto3" json:"output,omitempty"`
@@ -4868,7 +4898,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x19OfflineQueryHwmIdentifier\x12(\n" +
 	"\x0fcron_query_name\x18\x01 \x01(\tH\x00R\rcronQueryName\x12#\n" +
 	"\fresolver_fqn\x18\x02 \x01(\tH\x00R\vresolverFqnB\a\n" +
-	"\x05value\"\x9f$\n" +
+	"\x05value\"\xcf%\n" +
 	"\x13OfflineQueryJobBody\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12output_expressions\x18\x02 \x03(\tR\x11outputExpressions\x12'\n" +
@@ -4885,69 +4915,71 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x17observed_at_lower_bound\x18\v \x01(\tH\x04R\x14observedAtLowerBound\x88\x01\x01\x12:\n" +
 	"\x17observed_at_upper_bound\x18\f \x01(\tH\x05R\x14observedAtUpperBound\x88\x01\x01\x12M\n" +
 	"!observed_at_lower_bound_exclusive\x18\r \x01(\tH\x06R\x1dobservedAtLowerBoundExclusive\x88\x01\x01\x12M\n" +
-	"!observed_at_upper_bound_exclusive\x18\x0e \x01(\tH\aR\x1dobservedAtUpperBoundExclusive\x88\x01\x01\x12&\n" +
-	"\fdataset_name\x18\x0f \x01(\tH\bR\vdatasetName\x88\x01\x01\x12\x1b\n" +
-	"\x06branch\x18\x10 \x01(\tH\tR\x06branch\x88\x01\x01\x12_\n" +
+	"!observed_at_upper_bound_exclusive\x18\x0e \x01(\tH\aR\x1dobservedAtUpperBoundExclusive\x88\x01\x01\x12:\n" +
+	"\x17inserted_at_lower_bound\x18F \x01(\tH\bR\x14insertedAtLowerBound\x88\x01\x01\x12:\n" +
+	"\x17inserted_at_upper_bound\x18G \x01(\tH\tR\x14insertedAtUpperBound\x88\x01\x01\x12&\n" +
+	"\fdataset_name\x18\x0f \x01(\tH\n" +
+	"R\vdatasetName\x88\x01\x01\x12\x1b\n" +
+	"\x06branch\x18\x10 \x01(\tH\vR\x06branch\x88\x01\x01\x12_\n" +
 	"\x12recompute_features\x18\x11 \x01(\v20.chalk.jobqueue.v1.OfflineQueryRecomputeFeaturesR\x11recomputeFeatures\x12'\n" +
 	"\x0fsample_features\x18\x12 \x03(\tR\x0esampleFeatures\x12@\n" +
 	"\aexplain\x18\x13 \x01(\v2&.chalk.jobqueue.v1.OfflineQueryExplainR\aexplain\x12*\n" +
 	"\x11store_plan_stages\x18\x14 \x01(\bR\x0fstorePlanStages\x12\x12\n" +
 	"\x04tags\x18\x15 \x03(\tR\x04tags\x124\n" +
 	"\x16required_resolver_tags\x18\x16 \x03(\tR\x14requiredResolverTags\x12*\n" +
-	"\x0ecorrelation_id\x18\x17 \x01(\tH\n" +
-	"R\rcorrelationId\x88\x01\x01\x12]\n" +
+	"\x0ecorrelation_id\x18\x17 \x01(\tH\fR\rcorrelationId\x88\x01\x01\x12]\n" +
 	"\rquery_context\x18\x18 \x03(\v28.chalk.jobqueue.v1.OfflineQueryJobBody.QueryContextEntryR\fqueryContext\x124\n" +
 	"\x16use_multiple_computers\x18\x19 \x01(\bR\x14useMultipleComputers\x12+\n" +
-	"\x0fspine_sql_query\x18\x1a \x01(\tH\vR\rspineSqlQuery\x88\x01\x01\x12F\n" +
-	"\x1drecompute_request_revision_id\x18\x1b \x01(\tH\fR\x1arecomputeRequestRevisionId\x88\x01\x01\x12O\n" +
-	"\x0fplanner_options\x18\x1c \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\rR\x0eplannerOptions\x88\x01\x01\x12>\n" +
-	"\x19override_target_image_tag\x18\x1d \x01(\tH\x0eR\x16overrideTargetImageTag\x88\x01\x01\x121\n" +
-	"\x12offline_query_kind\x18\x1e \x01(\x05H\x0fR\x10offlineQueryKind\x88\x01\x01\x12\"\n" +
+	"\x0fspine_sql_query\x18\x1a \x01(\tH\rR\rspineSqlQuery\x88\x01\x01\x12F\n" +
+	"\x1drecompute_request_revision_id\x18\x1b \x01(\tH\x0eR\x1arecomputeRequestRevisionId\x88\x01\x01\x12O\n" +
+	"\x0fplanner_options\x18\x1c \x01(\v2!.chalk.jobqueue.v1.PlannerOptionsH\x0fR\x0eplannerOptions\x88\x01\x01\x12>\n" +
+	"\x19override_target_image_tag\x18\x1d \x01(\tH\x10R\x16overrideTargetImageTag\x88\x01\x01\x121\n" +
+	"\x12offline_query_kind\x18\x1e \x01(\x05H\x11R\x10offlineQueryKind\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"dataset_id\x18\x1f \x01(\tH\x10R\tdatasetId\x88\x01\x01\x12'\n" +
+	"dataset_id\x18\x1f \x01(\tH\x12R\tdatasetId\x88\x01\x01\x12'\n" +
 	"\x0ftotal_computers\x18  \x01(\x05R\x0etotalComputers\x12!\n" +
 	"\ftotal_shards\x18! \x01(\x05R\vtotalShards\x12?\n" +
-	"\x19aggregation_resolver_name\x18\" \x01(\tH\x11R\x17aggregationResolverName\x88\x01\x01\x12:\n" +
+	"\x19aggregation_resolver_name\x18\" \x01(\tH\x13R\x17aggregationResolverName\x88\x01\x01\x12:\n" +
 	"\x19aggregation_feature_names\x18# \x03(\tR\x17aggregationFeatureNames\x127\n" +
-	"\x15aggregate_backfill_id\x18$ \x01(\tH\x12R\x13aggregateBackfillId\x88\x01\x01\x12M\n" +
+	"\x15aggregate_backfill_id\x18$ \x01(\tH\x14R\x13aggregateBackfillId\x88\x01\x01\x12M\n" +
 	"#aggregation_disallow_partial_bucket\x18% \x01(\bR aggregationDisallowPartialBucket\x12/\n" +
-	"\x11evaluation_run_id\x18& \x01(\tH\x13R\x0fevaluationRunId\x88\x01\x01\x12]\n" +
+	"\x11evaluation_run_id\x18& \x01(\tH\x15R\x0fevaluationRunId\x88\x01\x01\x12]\n" +
 	"\renv_overrides\x18' \x03(\v28.chalk.jobqueue.v1.OfflineQueryJobBody.EnvOverridesEntryR\fenvOverrides\x12P\n" +
 	"\x10unload_resolvers\x18) \x03(\v2%.chalk.jobqueue.v1.UnloadResolverSpecR\x0funloadResolvers\x12!\n" +
 	"\fstore_online\x18* \x01(\bR\vstoreOnline\x12#\n" +
 	"\rstore_offline\x18+ \x01(\bR\fstoreOffline\x12\"\n" +
 	"\n" +
-	"num_shards\x18, \x01(\x05H\x14R\tnumShards\x88\x01\x01\x12$\n" +
-	"\vnum_workers\x18- \x01(\x05H\x15R\n" +
+	"num_shards\x18, \x01(\x05H\x16R\tnumShards\x88\x01\x01\x12$\n" +
+	"\vnum_workers\x18- \x01(\x05H\x17R\n" +
 	"numWorkers\x88\x01\x01\x12E\n" +
-	"\x1dfeature_for_lower_upper_bound\x18. \x01(\tH\x16R\x19featureForLowerUpperBound\x88\x01\x01\x12_\n" +
+	"\x1dfeature_for_lower_upper_bound\x18. \x01(\tH\x18R\x19featureForLowerUpperBound\x88\x01\x01\x12_\n" +
 	"\x13completion_deadline\x18/ \x01(\v2..chalk.jobqueue.v1.OfflineQueryDeadlineOptionsR\x12completionDeadline\x12$\n" +
-	"\vmax_retries\x180 \x01(\x05H\x17R\n" +
+	"\vmax_retries\x180 \x01(\x05H\x19R\n" +
 	"maxRetries\x88\x01\x01\x12\"\n" +
 	"\ruse_job_queue\x181 \x01(\bR\vuseJobQueue\x12(\n" +
-	"\roverlay_graph\x182 \x01(\tH\x18R\foverlayGraph\x88\x01\x01\x12\"\n" +
+	"\roverlay_graph\x182 \x01(\tH\x1aR\foverlayGraph\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"query_name\x183 \x01(\tH\x19R\tqueryName\x88\x01\x01\x121\n" +
-	"\x12query_name_version\x184 \x01(\tH\x1aR\x10queryNameVersion\x88\x01\x01\x127\n" +
-	"\x15workflow_manifest_uri\x185 \x01(\tH\x1bR\x13workflowManifestUri\x88\x01\x01\x12.\n" +
+	"query_name\x183 \x01(\tH\x1bR\tqueryName\x88\x01\x01\x121\n" +
+	"\x12query_name_version\x184 \x01(\tH\x1cR\x10queryNameVersion\x88\x01\x01\x127\n" +
+	"\x15workflow_manifest_uri\x185 \x01(\tH\x1dR\x13workflowManifestUri\x88\x01\x01\x12.\n" +
 	"\x13partition_scan_keys\x186 \x03(\tR\x11partitionScanKeys\x12$\n" +
-	"\vnum_buckets\x187 \x01(\x05H\x1cR\n" +
+	"\vnum_buckets\x187 \x01(\x05H\x1eR\n" +
 	"numBuckets\x88\x01\x01\x12=\n" +
-	"\x18online_timestamping_mode\x188 \x01(\tH\x1dR\x16onlineTimestampingMode\x88\x01\x01\x121\n" +
-	"\x12givens_revision_id\x189 \x01(\tH\x1eR\x10givensRevisionId\x88\x01\x01\x12$\n" +
-	"\vcomputer_id\x18: \x01(\x05H\x1fR\n" +
+	"\x18online_timestamping_mode\x188 \x01(\tH\x1fR\x16onlineTimestampingMode\x88\x01\x01\x121\n" +
+	"\x12givens_revision_id\x189 \x01(\tH R\x10givensRevisionId\x88\x01\x01\x12$\n" +
+	"\vcomputer_id\x18: \x01(\x05H!R\n" +
 	"computerId\x88\x01\x01\x12\x1e\n" +
-	"\bshard_id\x18; \x01(\x05H R\ashardId\x88\x01\x01\x127\n" +
-	"\x15num_output_partitions\x18< \x01(\x05H!R\x13numOutputPartitions\x88\x01\x01\x12\x1c\n" +
-	"\ais_cron\x18= \x01(\bH\"R\x06isCron\x88\x01\x01\x12 \n" +
-	"\tspine_uri\x18> \x01(\tH#R\bspineUri\x88\x01\x01\x12e\n" +
+	"\bshard_id\x18; \x01(\x05H\"R\ashardId\x88\x01\x01\x127\n" +
+	"\x15num_output_partitions\x18< \x01(\x05H#R\x13numOutputPartitions\x88\x01\x01\x12\x1c\n" +
+	"\ais_cron\x18= \x01(\bH$R\x06isCron\x88\x01\x01\x12 \n" +
+	"\tspine_uri\x18> \x01(\tH%R\bspineUri\x88\x01\x01\x12e\n" +
 	"\x14persistence_settings\x18? \x01(\v22.chalk.jobqueue.v1.OfflineQueryPersistenceSettingsR\x13persistenceSettings\x12 \n" +
-	"\tcron_name\x18@ \x01(\tH$R\bcronName\x88\x01\x01\x12S\n" +
+	"\tcron_name\x18@ \x01(\tH&R\bcronName\x88\x01\x01\x12S\n" +
 	"\x0ehwm_identifier\x18A \x01(\v2,.chalk.jobqueue.v1.OfflineQueryHwmIdentifierR\rhwmIdentifier\x12/\n" +
 	"\x13incremental_sources\x18B \x03(\tR\x12incrementalSources\x122\n" +
-	"\x12preferred_resolver\x18C \x01(\tH%R\x11preferredResolver\x88\x01\x01\x12%\n" +
+	"\x12preferred_resolver\x18C \x01(\tH'R\x11preferredResolver\x88\x01\x01\x12%\n" +
 	"\x0epersist_givens\x18D \x01(\bR\rpersistGivens\x12&\n" +
-	"\frequester_id\x18E \x01(\tH&R\vrequesterId\x88\x01\x01\x1al\n" +
+	"\frequester_id\x18E \x01(\tH(R\vrequesterId\x88\x01\x01\x1al\n" +
 	"\x11QueryContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12A\n" +
 	"\x05value\x18\x02 \x01(\v2+.chalk.jobqueue.v1.OfflineQueryContextValueR\x05value:\x028\x01\x1a?\n" +
@@ -4962,7 +4994,9 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x18_observed_at_lower_boundB\x1a\n" +
 	"\x18_observed_at_upper_boundB$\n" +
 	"\"_observed_at_lower_bound_exclusiveB$\n" +
-	"\"_observed_at_upper_bound_exclusiveB\x0f\n" +
+	"\"_observed_at_upper_bound_exclusiveB\x1a\n" +
+	"\x18_inserted_at_lower_boundB\x1a\n" +
+	"\x18_inserted_at_upper_boundB\x0f\n" +
 	"\r_dataset_nameB\t\n" +
 	"\a_branchB\x11\n" +
 	"\x0f_correlation_idB\x12\n" +
@@ -5020,7 +5054,7 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value\"`\n" +
 	"\x19PlannerOptionsStringPairs\x12C\n" +
-	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x8dj\n" +
+	"\x06values\x18\x01 \x03(\v2+.chalk.jobqueue.v1.PlannerOptionsStringPairR\x06values\"\x9ck\n" +
 	"\x0ePlannerOptions\x12B\n" +
 	"\x1bshould_auto_partition_spine\x18\x01 \x01(\bH\x00R\x18shouldAutoPartitionSpine\x88\x01\x01\x12O\n" +
 	"\"should_cache_fallback_on_recompute\x18\x02 \x01(\bH\x01R\x1eshouldCacheFallbackOnRecompute\x88\x01\x01\x12O\n" +
@@ -5141,7 +5175,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"1sql_use_postgres_array_params_for_givens_pushdown\x18s \x01(\bHrR*sqlUsePostgresArrayParamsForGivensPushdown\x88\x01\x01\x12Y\n" +
 	"'omit_replay_during_combine_aggregations\x18t \x01(\bHsR#omitReplayDuringCombineAggregations\x88\x01\x01\x12J\n" +
 	"\x1fdistinct_event_ties_arbitrarily\x18u \x01(\bHtR\x1cdistinctEventTiesArbitrarily\x88\x01\x01\x12H\n" +
-	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01B\x1e\n" +
+	"\x1eunify_tile_window_aggregations\x18v \x01(\bHuR\x1bunifyTileWindowAggregations\x88\x01\x01\x12^\n" +
+	"*exclude_overlapping_input_events_from_aggs\x18w \x01(\bHvR%excludeOverlappingInputEventsFromAggs\x88\x01\x01B\x1e\n" +
 	"\x1c_should_auto_partition_spineB%\n" +
 	"#_should_cache_fallback_on_recomputeB$\n" +
 	"\"_deduplicate_identical_underscoresB#\n" +
@@ -5259,7 +5294,8 @@ const file_chalk_jobqueue_v1_job_queue_request_proto_rawDesc = "" +
 	"2_sql_use_postgres_array_params_for_givens_pushdownB*\n" +
 	"(_omit_replay_during_combine_aggregationsB\"\n" +
 	" _distinct_event_ties_arbitrarilyB!\n" +
-	"\x1f_unify_tile_window_aggregations\"\xd2\x06\n" +
+	"\x1f_unify_tile_window_aggregationsB-\n" +
+	"+_exclude_overlapping_input_events_from_aggs\"\xd2\x06\n" +
 	"\x18UnloadResolverJobRequest\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12-\n" +
 	"\x12destination_format\x18\x02 \x01(\tR\x11destinationFormat\x12\x15\n" +

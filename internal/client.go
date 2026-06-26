@@ -98,5 +98,6 @@ type OfflineQueryRequestSerialized struct {
 	CompletionDeadline         *string                     `json:"completion_deadline"`
 	MaxRetries                 *int                        `json:"max_retries"`
 	UseJobQueue                bool                        `json:"use_job_queue"`
+	UseMetaplanner             *bool                       `json:"use_metaplanner,omitempty"`
 	OverlayGraph               *string                     `json:"overlay_graph"`
 }
