@@ -48,6 +48,15 @@ const (
 	// ContainerServiceExecCommandProcedure is the fully-qualified name of the ContainerService's
 	// ExecCommand RPC.
 	ContainerServiceExecCommandProcedure = "/chalk.container.v1.ContainerService/ExecCommand"
+	// ContainerServiceSessionProcedure is the fully-qualified name of the ContainerService's Session
+	// RPC.
+	ContainerServiceSessionProcedure = "/chalk.container.v1.ContainerService/Session"
+	// ContainerServiceGetSessionProcedure is the fully-qualified name of the ContainerService's
+	// GetSession RPC.
+	ContainerServiceGetSessionProcedure = "/chalk.container.v1.ContainerService/GetSession"
+	// ContainerServiceListSessionsProcedure is the fully-qualified name of the ContainerService's
+	// ListSessions RPC.
+	ContainerServiceListSessionsProcedure = "/chalk.container.v1.ContainerService/ListSessions"
 	// ContainerServiceUpdateContainerStatusProcedure is the fully-qualified name of the
 	// ContainerService's UpdateContainerStatus RPC.
 	ContainerServiceUpdateContainerStatusProcedure = "/chalk.container.v1.ContainerService/UpdateContainerStatus"
@@ -80,6 +89,12 @@ type ContainerServiceClient interface {
 	ListContainers(context.Context, *connect.Request[v1.ListContainersRequest]) (*connect.Response[v1.ListContainersResponse], error)
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
+	// Session establishes a bidirectional command session in a running container
+	Session(context.Context) *connect.BidiStreamForClient[v1.SessionRequest, v1.SessionResponse]
+	// GetSession retrieves information about a command session
+	GetSession(context.Context, *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error)
+	// ListSessions lists command sessions for a container
+	ListSessions(context.Context, *connect.Request[v1.ListSessionsRequest]) (*connect.Response[v1.ListSessionsResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
 	// Deprecated: use BatchUpdateContainerStatus
 	//
@@ -141,6 +156,24 @@ func NewContainerServiceClient(httpClient connect.HTTPClient, baseURL string, op
 			connect.WithSchema(containerServiceMethods.ByName("ExecCommand")),
 			connect.WithClientOptions(opts...),
 		),
+		session: connect.NewClient[v1.SessionRequest, v1.SessionResponse](
+			httpClient,
+			baseURL+ContainerServiceSessionProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("Session")),
+			connect.WithClientOptions(opts...),
+		),
+		getSession: connect.NewClient[v1.GetSessionRequest, v1.GetSessionResponse](
+			httpClient,
+			baseURL+ContainerServiceGetSessionProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("GetSession")),
+			connect.WithClientOptions(opts...),
+		),
+		listSessions: connect.NewClient[v1.ListSessionsRequest, v1.ListSessionsResponse](
+			httpClient,
+			baseURL+ContainerServiceListSessionsProcedure,
+			connect.WithSchema(containerServiceMethods.ByName("ListSessions")),
+			connect.WithClientOptions(opts...),
+		),
 		updateContainerStatus: connect.NewClient[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse](
 			httpClient,
 			baseURL+ContainerServiceUpdateContainerStatusProcedure,
@@ -187,6 +220,9 @@ type containerServiceClient struct {
 	getContainer               *connect.Client[v1.GetContainerRequest, v1.GetContainerResponse]
 	listContainers             *connect.Client[v1.ListContainersRequest, v1.ListContainersResponse]
 	execCommand                *connect.Client[v1.ExecCommandRequest, v1.ExecCommandResponse]
+	session                    *connect.Client[v1.SessionRequest, v1.SessionResponse]
+	getSession                 *connect.Client[v1.GetSessionRequest, v1.GetSessionResponse]
+	listSessions               *connect.Client[v1.ListSessionsRequest, v1.ListSessionsResponse]
 	updateContainerStatus      *connect.Client[v1.UpdateContainerStatusRequest, v1.UpdateContainerStatusResponse]
 	batchUpdateContainerStatus *connect.Client[v1.BatchUpdateContainerStatusRequest, v1.BatchUpdateContainerStatusResponse]
 	snapshotContainer          *connect.Client[v1.SnapshotContainerRequest, v1.SnapshotContainerResponse]
@@ -218,6 +254,21 @@ func (c *containerServiceClient) ListContainers(ctx context.Context, req *connec
 // ExecCommand calls chalk.container.v1.ContainerService.ExecCommand.
 func (c *containerServiceClient) ExecCommand(ctx context.Context, req *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error) {
 	return c.execCommand.CallUnary(ctx, req)
+}
+
+// Session calls chalk.container.v1.ContainerService.Session.
+func (c *containerServiceClient) Session(ctx context.Context) *connect.BidiStreamForClient[v1.SessionRequest, v1.SessionResponse] {
+	return c.session.CallBidiStream(ctx)
+}
+
+// GetSession calls chalk.container.v1.ContainerService.GetSession.
+func (c *containerServiceClient) GetSession(ctx context.Context, req *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error) {
+	return c.getSession.CallUnary(ctx, req)
+}
+
+// ListSessions calls chalk.container.v1.ContainerService.ListSessions.
+func (c *containerServiceClient) ListSessions(ctx context.Context, req *connect.Request[v1.ListSessionsRequest]) (*connect.Response[v1.ListSessionsResponse], error) {
+	return c.listSessions.CallUnary(ctx, req)
 }
 
 // UpdateContainerStatus calls chalk.container.v1.ContainerService.UpdateContainerStatus.
@@ -264,6 +315,12 @@ type ContainerServiceHandler interface {
 	ListContainers(context.Context, *connect.Request[v1.ListContainersRequest]) (*connect.Response[v1.ListContainersResponse], error)
 	// ExecCommand executes a command in a running container
 	ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error)
+	// Session establishes a bidirectional command session in a running container
+	Session(context.Context, *connect.BidiStream[v1.SessionRequest, v1.SessionResponse]) error
+	// GetSession retrieves information about a command session
+	GetSession(context.Context, *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error)
+	// ListSessions lists command sessions for a container
+	ListSessions(context.Context, *connect.Request[v1.ListSessionsRequest]) (*connect.Response[v1.ListSessionsResponse], error)
 	// UpdateContainerStatus updates container status from K8s controller
 	// Deprecated: use BatchUpdateContainerStatus
 	//
@@ -321,6 +378,24 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 		connect.WithSchema(containerServiceMethods.ByName("ExecCommand")),
 		connect.WithHandlerOptions(opts...),
 	)
+	containerServiceSessionHandler := connect.NewBidiStreamHandler(
+		ContainerServiceSessionProcedure,
+		svc.Session,
+		connect.WithSchema(containerServiceMethods.ByName("Session")),
+		connect.WithHandlerOptions(opts...),
+	)
+	containerServiceGetSessionHandler := connect.NewUnaryHandler(
+		ContainerServiceGetSessionProcedure,
+		svc.GetSession,
+		connect.WithSchema(containerServiceMethods.ByName("GetSession")),
+		connect.WithHandlerOptions(opts...),
+	)
+	containerServiceListSessionsHandler := connect.NewUnaryHandler(
+		ContainerServiceListSessionsProcedure,
+		svc.ListSessions,
+		connect.WithSchema(containerServiceMethods.ByName("ListSessions")),
+		connect.WithHandlerOptions(opts...),
+	)
 	containerServiceUpdateContainerStatusHandler := connect.NewUnaryHandler(
 		ContainerServiceUpdateContainerStatusProcedure,
 		svc.UpdateContainerStatus,
@@ -369,6 +444,12 @@ func NewContainerServiceHandler(svc ContainerServiceHandler, opts ...connect.Han
 			containerServiceListContainersHandler.ServeHTTP(w, r)
 		case ContainerServiceExecCommandProcedure:
 			containerServiceExecCommandHandler.ServeHTTP(w, r)
+		case ContainerServiceSessionProcedure:
+			containerServiceSessionHandler.ServeHTTP(w, r)
+		case ContainerServiceGetSessionProcedure:
+			containerServiceGetSessionHandler.ServeHTTP(w, r)
+		case ContainerServiceListSessionsProcedure:
+			containerServiceListSessionsHandler.ServeHTTP(w, r)
 		case ContainerServiceUpdateContainerStatusProcedure:
 			containerServiceUpdateContainerStatusHandler.ServeHTTP(w, r)
 		case ContainerServiceBatchUpdateContainerStatusProcedure:
@@ -408,6 +489,18 @@ func (UnimplementedContainerServiceHandler) ListContainers(context.Context, *con
 
 func (UnimplementedContainerServiceHandler) ExecCommand(context.Context, *connect.Request[v1.ExecCommandRequest]) (*connect.Response[v1.ExecCommandResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.ExecCommand is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) Session(context.Context, *connect.BidiStream[v1.SessionRequest, v1.SessionResponse]) error {
+	return connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.Session is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) GetSession(context.Context, *connect.Request[v1.GetSessionRequest]) (*connect.Response[v1.GetSessionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.GetSession is not implemented"))
+}
+
+func (UnimplementedContainerServiceHandler) ListSessions(context.Context, *connect.Request[v1.ListSessionsRequest]) (*connect.Response[v1.ListSessionsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.container.v1.ContainerService.ListSessions is not implemented"))
 }
 
 func (UnimplementedContainerServiceHandler) UpdateContainerStatus(context.Context, *connect.Request[v1.UpdateContainerStatusRequest]) (*connect.Response[v1.UpdateContainerStatusResponse], error) {
