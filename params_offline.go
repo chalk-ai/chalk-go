@@ -123,6 +123,7 @@ func (p OfflineQueryParamsComplete) WithUseMultipleComputers(useMultipleComputer
 // For use via method chaining. See OfflineQueryParamsComplete for usage examples.
 func (p OfflineQueryParamsComplete) WithUploadInputAsTable(uploadInputAsTable bool) OfflineQueryParamsComplete {
 	p.underlying.UploadInputAsTable = uploadInputAsTable
+	p.underlying.uploadInputAsTableSet = &uploadInputAsTable
 	return p
 }
 

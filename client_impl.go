@@ -60,12 +60,24 @@ type HTTPClient interface {
 func (c *clientImpl) OfflineQuery(ctx context.Context, params OfflineQueryParamsComplete) (Dataset, error) {
 	request := params.underlying
 
+	if err := normalizeOfflineQueryParallelism(&request); err != nil {
+		return Dataset{}, errors.Wrap(err, "validating offline query parallelism")
+	}
+
 	resolved, err := request.resolve()
 	if err != nil {
 		return Dataset{}, errors.Wrap(err, "resolving params")
 	}
 
-	body, err := serializeOfflineQueryParams(&request, resolved)
+	var queryInput any
+	if shouldUploadOfflineQueryInputAsTable(&request, resolved) {
+		queryInput, err = c.uploadOfflineQueryInputAsTable(ctx, &request, resolved)
+		if err != nil {
+			return Dataset{}, errors.Wrap(err, "uploading offline query input")
+		}
+	}
+
+	body, err := serializeOfflineQueryParamsWithInput(&request, resolved, queryInput)
 	if err != nil {
 		return Dataset{}, errors.Wrap(err, "serializing offline query params")
 	}
