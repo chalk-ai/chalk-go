@@ -26,6 +26,7 @@ import (
 const (
 	offlineQueryInputTSColumnName    = "__ts__"
 	offlineQueryInputIndexColumnName = "__index__"
+	offlineQueryInputUploadRowLimit  = 100
 
 	// Matches chalkpy's OfflineQueryGivensVersion.SINGLE_TS_COL_NAME_WITH_URI_PREFIX.
 	offlineQueryGivensVersionSingleTSColNameWithURIPrefix = 3
@@ -60,11 +61,14 @@ func shouldUploadOfflineQueryInputAsTable(p *OfflineQueryParams, resolved *offli
 	if len(resolved.inputs) == 0 {
 		return false
 	}
+	if p.NumShards != nil || p.NumWorkers != nil {
+		return true
+	}
+	if offlineQueryInputRowCount(resolved.inputs) > offlineQueryInputUploadRowLimit {
+		return true
+	}
 	if p.uploadInputAsTableSet != nil {
 		return *p.uploadInputAsTableSet
-	}
-	if p.UploadInputAsTable {
-		return true
 	}
 	return true
 }

@@ -32,6 +32,19 @@ func TestShouldUploadOfflineQueryInputAsTableDefaultsToTrue(t *testing.T) {
 	complete := OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
 	assert.False(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
 
+	manyInputs := make([]TsFeatureValue, offlineQueryInputUploadRowLimit+1)
+	for i := range manyInputs {
+		manyInputs[i] = TsFeatureValue{Value: int64(i), ObservationTime: &now}
+	}
+	resolved.inputs["user.id"] = manyInputs
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	numShards := 1
+	resolved.inputs["user.id"] = []TsFeatureValue{{Value: int64(1), ObservationTime: &now}}
+	params = OfflineQueryParams{NumShards: &numShards}
+	complete = OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
 	fileInput := "s3://bucket/input.parquet"
 	params = OfflineQueryParams{rawFileInput: &fileInput}
 	assert.False(t, shouldUploadOfflineQueryInputAsTable(&params, resolved))
