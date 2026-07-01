@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -11,8 +15,12 @@ import (
 	"github.com/apache/arrow/go/v16/arrow/array"
 	"github.com/apache/arrow/go/v16/arrow/memory"
 	"github.com/apache/arrow/go/v16/parquet/pqarrow"
+	"github.com/chalk-ai/chalk-go/auth"
+	"github.com/chalk-ai/chalk-go/config"
+	serverv1 "github.com/chalk-ai/chalk-go/gen/chalk/server/v1"
 	"github.com/chalk-ai/chalk-go/internal"
 	assert "github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestShouldUploadOfflineQueryInputAsTable(t *testing.T) {
@@ -131,6 +139,100 @@ func TestSerializeOfflineQueryParamsWithUploadedParquetInput(t *testing.T) {
 	assert.NotContains(t, input, "parquet_uri")
 }
 
+func TestUploadOfflineQueryInputAsTableRequestsAllPartitionURLs(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	uploadDir := t.TempDir()
+	firstPath := filepath.Join(uploadDir, "shard_0.parquet")
+	secondPath := filepath.Join(uploadDir, "shard_1.parquet")
+
+	var requestedPath string
+	apiServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestedPath = r.URL.Path
+		assert.Equal(t, http.MethodGet, r.Method)
+		assert.Equal(t, "/v1/offline_query_parquet_upload_url/2", r.URL.Path)
+
+		w.Header().Set("Content-Type", "application/json")
+		err := json.NewEncoder(w).Encode(map[string]any{
+			"urls": []map[string]string{
+				{
+					"signed_url": fileURL(firstPath),
+					"filename":   "env_test/upload_abc/givens/shard_0.parquet",
+				},
+				{
+					"signed_url": fileURL(secondPath),
+					"filename":   "env_test/upload_abc/givens/shard_1.parquet",
+				},
+			},
+		})
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(apiServer.Close)
+
+	cfg, err := config.NewManager(ctx, &config.ManagerInputs{
+		APIServer:     apiServer.URL,
+		ClientId:      "client-id",
+		ClientSecret:  "client-secret",
+		EnvironmentId: "test",
+	})
+	assert.NoError(t, err)
+
+	tokenManager, err := auth.NewManager(ctx, &auth.Inputs{
+		Token: &serverv1.GetTokenResponse{
+			AccessToken:         "token",
+			ExpiresAt:           timestamppb.New(time.Now().Add(time.Hour)),
+			PrimaryEnvironment:  ptrTo("test"),
+			EnvironmentIdToName: map[string]string{"test": "Test"},
+			Engines:             map[string]string{},
+			GrpcEngines:         map[string]string{},
+		},
+		HttpClient:                 http.DefaultClient,
+		Config:                     cfg,
+		SkipEnvironmentNameMapping: true,
+		SkipEngineMapping:          true,
+	})
+	assert.NoError(t, err)
+
+	client := &clientImpl{
+		config:       cfg,
+		allocator:    memory.DefaultAllocator,
+		httpClient:   http.DefaultClient,
+		logger:       DefaultLeveledLogger,
+		tokenManager: tokenManager,
+	}
+
+	ts := time.Date(2026, 6, 30, 12, 0, 0, 0, time.UTC)
+	numShards := 2
+	uploadedInput, err := client.uploadOfflineQueryInputAsTable(ctx, &OfflineQueryParams{NumShards: &numShards}, &offlineQueryParamsResolved{
+		inputs: map[string][]TsFeatureValue{
+			"user.id": {
+				{Value: int64(101), ObservationTime: &ts},
+				{Value: int64(102), ObservationTime: &ts},
+				{Value: int64(103), ObservationTime: &ts},
+			},
+		},
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, "/v1/offline_query_parquet_upload_url/2", requestedPath)
+	assert.Equal(t, []string{
+		"env_test/upload_abc/givens/shard_0.parquet",
+		"env_test/upload_abc/givens/shard_1.parquet",
+	}, uploadedInput.Filenames)
+
+	firstBytes, err := os.ReadFile(firstPath)
+	assert.NoError(t, err)
+	first := readParquetTable(t, firstBytes)
+	defer first.Release()
+	assert.Equal(t, int64(2), first.NumRows())
+
+	secondBytes, err := os.ReadFile(secondPath)
+	assert.NoError(t, err)
+	second := readParquetTable(t, secondBytes)
+	defer second.Release()
+	assert.Equal(t, int64(1), second.NumRows())
+}
+
 func readParquetTable(t *testing.T, data []byte) arrow.Table {
 	t.Helper()
 
@@ -151,4 +253,12 @@ func tableFieldNames(table arrow.Table) []string {
 		names[i] = table.Schema().Field(i).Name
 	}
 	return names
+}
+
+func fileURL(path string) string {
+	return "file://" + filepath.ToSlash(path)
+}
+
+func ptrTo[T any](value T) *T {
+	return &value
 }
