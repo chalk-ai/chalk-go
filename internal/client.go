@@ -51,6 +51,20 @@ type OfflineQueryInputUri struct {
 	ColumnNameToFeatureName map[string]string `json:"column_name_to_feature_name,omitempty"`
 }
 
+type OfflineQueryInputUploadedParquetSharded struct {
+	Filenames []string `json:"filenames"`
+	Version   int      `json:"version"`
+}
+
+type OfflineQueryParquetUploadURLResponse struct {
+	URLs []AnnotatedSignedUploadURL `json:"urls"`
+}
+
+type AnnotatedSignedUploadURL struct {
+	SignedURL string `json:"signed_url"`
+	Filename  string `json:"filename"`
+}
+
 type ResourceRequestsSerialized struct {
 	CPU                 *string `json:"cpu"`
 	Memory              *string `json:"memory"`
