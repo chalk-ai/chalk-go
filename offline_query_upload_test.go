@@ -15,7 +15,7 @@ import (
 	assert "github.com/stretchr/testify/require"
 )
 
-func TestShouldUploadOfflineQueryInputAsTableDefaultsToTrue(t *testing.T) {
+func TestShouldUploadOfflineQueryInputAsTable(t *testing.T) {
 	t.Parallel()
 
 	now := time.Now().UTC()
@@ -26,10 +26,14 @@ func TestShouldUploadOfflineQueryInputAsTableDefaultsToTrue(t *testing.T) {
 	}
 
 	params := OfflineQueryParams{}
-	assert.True(t, shouldUploadOfflineQueryInputAsTable(&params, resolved))
+	assert.False(t, shouldUploadOfflineQueryInputAsTable(&params, resolved))
 
 	params = OfflineQueryParams{}
-	complete := OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
+	complete := OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(true)
+	assert.True(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
+
+	params = OfflineQueryParams{}
+	complete = OfflineQueryParamsComplete{underlying: params}.WithUploadInputAsTable(false)
 	assert.False(t, shouldUploadOfflineQueryInputAsTable(&complete.underlying, resolved))
 
 	manyInputs := make([]TsFeatureValue, offlineQueryInputUploadRowLimit+1)

@@ -70,7 +70,7 @@ func shouldUploadOfflineQueryInputAsTable(p *OfflineQueryParams, resolved *offli
 	if p.uploadInputAsTableSet != nil {
 		return *p.uploadInputAsTableSet
 	}
-	return true
+	return p.UploadInputAsTable
 }
 
 func (c *clientImpl) uploadOfflineQueryInputAsTable(

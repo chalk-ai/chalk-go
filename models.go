@@ -550,13 +550,12 @@ type OfflineQueryParams struct {
 	UseMultipleComputers bool
 
 	// UploadInputAsTable specifies whether to upload inline inputs as a table.
-	// Inline offline inputs upload as parquet by default to match chalkpy.
-	// Use WithUploadInputAsTable(false) to opt out when method chaining.
+	// Inline offline inputs over 100 rows or with NumShards / NumWorkers upload
+	// as parquet to match chalkpy's forced upload behavior.
 	UploadInputAsTable bool
 
 	// uploadInputAsTableSet tracks explicit values passed through
-	// WithUploadInputAsTable. The public bool cannot distinguish unset from
-	// false, while chalkpy defaults this behavior to true.
+	// WithUploadInputAsTable. The public bool cannot distinguish unset from false.
 	uploadInputAsTableSet *bool
 
 	// EnvOverrides specifies environment variable overrides for the query execution.
