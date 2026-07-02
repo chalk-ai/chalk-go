@@ -618,6 +618,29 @@ func (h *cloudComponentsServiceHandler) DeleteCloudComponentStorage(
 	return connect.NewResponse(resp.(*serverv1.DeleteCloudComponentStorageResponse)), nil
 }
 
+func (h *cloudComponentsServiceHandler) ListCloudComponentStorage(
+	ctx context.Context,
+	req *connect.Request[serverv1.ListCloudComponentStorageRequest],
+) (*connect.Response[serverv1.ListCloudComponentStorageResponse], error) {
+	h.registry.CaptureRequest("ListCloudComponentStorage", req.Msg)
+	if behavior := h.registry.GetBehavior("ListCloudComponentStorage"); behavior != nil {
+		resp, err := behavior(req.Msg)
+		if err != nil {
+			return nil, err
+		}
+		return connect.NewResponse(resp.(*serverv1.ListCloudComponentStorageResponse)), nil
+	}
+	if err := h.registry.GetError("ListCloudComponentStorage"); err != nil {
+		return nil, err
+	}
+	resp := h.registry.GetResponse("ListCloudComponentStorage")
+	if resp == nil {
+		// List has a repeated response; default to empty when unconfigured.
+		return connect.NewResponse(&serverv1.ListCloudComponentStorageResponse{}), nil
+	}
+	return connect.NewResponse(resp.(*serverv1.ListCloudComponentStorageResponse)), nil
+}
+
 func (h *cloudComponentsServiceHandler) CreateBindingEnvironmentCloudStorage(
 	ctx context.Context,
 	req *connect.Request[serverv1.CreateBindingEnvironmentCloudStorageRequest],

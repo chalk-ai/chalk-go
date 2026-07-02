@@ -568,6 +568,14 @@ func (s *MockServer) OnDeleteCloudComponentStorage() *MethodConfigBuilder[*serve
 	}
 }
 
+// OnListCloudComponentStorage configures the ListCloudComponentStorage RPC method.
+func (s *MockServer) OnListCloudComponentStorage() *MethodConfigBuilder[*serverv1.ListCloudComponentStorageResponse] {
+	return &MethodConfigBuilder[*serverv1.ListCloudComponentStorageResponse]{
+		methodName: "ListCloudComponentStorage",
+		registry:   s.registry,
+	}
+}
+
 // OnCreateBindingEnvironmentCloudStorage configures the CreateBindingEnvironmentCloudStorage RPC method.
 func (s *MockServer) OnCreateBindingEnvironmentCloudStorage() *MethodConfigBuilder[*serverv1.CreateBindingEnvironmentCloudStorageResponse] {
 	return &MethodConfigBuilder[*serverv1.CreateBindingEnvironmentCloudStorageResponse]{
