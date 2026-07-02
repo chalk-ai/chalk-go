@@ -5,6 +5,7 @@ import (
 	"time"
 
 	commonv1 "github.com/chalk-ai/chalk-go/gen/chalk/common/v1"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
@@ -21,6 +22,15 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 		queryTimestamp = new(qs.AsTime())
 	}
 
+	// The server reports plan-cache participation through the free-form additional
+	// metadata map; absence (or a non-bool value) means the server did not report it.
+	var missedPlanCache *bool
+	if v, ok := metaRaw.GetAdditionalMetadata()["missed_plan_cache"]; ok && v != nil {
+		if _, isBool := v.GetKind().(*structpb.Value_BoolValue); isBool {
+			missedPlanCache = new(v.GetBoolValue())
+		}
+	}
+
 	return &QueryMeta{
 		ExecutionDurationS: executionDuration,
 		DeploymentId:       metaRaw.DeploymentId,
@@ -29,6 +39,7 @@ func queryMetaFromProto(metaRaw *commonv1.OnlineQueryMetadata) *QueryMeta {
 		QueryId:            metaRaw.QueryId,
 		QueryTimestamp:     queryTimestamp,
 		QueryHash:          metaRaw.QueryHash,
+		MissedPlanCache:    missedPlanCache,
 	}
 }
 
