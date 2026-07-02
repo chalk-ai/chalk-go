@@ -624,14 +624,6 @@ func (s *MockServer) OnCreateCloudComponentContainerRegistry() *MethodConfigBuil
 	}
 }
 
-// OnUpdateCloudComponentContainerRegistry configures the UpdateCloudComponentContainerRegistry RPC method.
-func (s *MockServer) OnUpdateCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.UpdateCloudComponentContainerRegistryResponse] {
-	return &MethodConfigBuilder[*serverv1.UpdateCloudComponentContainerRegistryResponse]{
-		methodName: "UpdateCloudComponentContainerRegistry",
-		registry:   s.registry,
-	}
-}
-
 // OnGetCloudComponentContainerRegistry configures the GetCloudComponentContainerRegistry RPC method.
 func (s *MockServer) OnGetCloudComponentContainerRegistry() *MethodConfigBuilder[*serverv1.GetCloudComponentContainerRegistryResponse] {
 	return &MethodConfigBuilder[*serverv1.GetCloudComponentContainerRegistryResponse]{

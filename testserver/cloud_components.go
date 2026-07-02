@@ -774,28 +774,6 @@ func (h *cloudComponentsServiceHandler) CreateCloudComponentContainerRegistry(
 	return connect.NewResponse(resp.(*serverv1.CreateCloudComponentContainerRegistryResponse)), nil
 }
 
-func (h *cloudComponentsServiceHandler) UpdateCloudComponentContainerRegistry(
-	ctx context.Context,
-	req *connect.Request[serverv1.UpdateCloudComponentContainerRegistryRequest],
-) (*connect.Response[serverv1.UpdateCloudComponentContainerRegistryResponse], error) {
-	h.registry.CaptureRequest("UpdateCloudComponentContainerRegistry", req.Msg)
-	if behavior := h.registry.GetBehavior("UpdateCloudComponentContainerRegistry"); behavior != nil {
-		resp, err := behavior(req.Msg)
-		if err != nil {
-			return nil, err
-		}
-		return connect.NewResponse(resp.(*serverv1.UpdateCloudComponentContainerRegistryResponse)), nil
-	}
-	if err := h.registry.GetError("UpdateCloudComponentContainerRegistry"); err != nil {
-		return nil, err
-	}
-	resp := h.registry.GetResponse("UpdateCloudComponentContainerRegistry")
-	if resp == nil {
-		return nil, connect.NewError(connect.CodeNotFound, errors.New("no mock response configured for UpdateCloudComponentContainerRegistry"))
-	}
-	return connect.NewResponse(resp.(*serverv1.UpdateCloudComponentContainerRegistryResponse)), nil
-}
-
 func (h *cloudComponentsServiceHandler) GetCloudComponentContainerRegistry(
 	ctx context.Context,
 	req *connect.Request[serverv1.GetCloudComponentContainerRegistryRequest],
