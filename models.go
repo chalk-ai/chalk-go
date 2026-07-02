@@ -349,6 +349,11 @@ type QueryMeta struct {
 	// input/output features will typically have the same hash; changes may be observed
 	// over time as we adjust implementation details.
 	QueryHash string `json:"query_hash"`
+
+	// True if this query's plan had to be computed by the planner rather than served
+	// from a plan cache. Nil when the server did not report plan-cache participation
+	// (e.g. older server versions).
+	MissedPlanCache *bool `json:"missed_plan_cache"`
 }
 
 // OnlineQueryBulkResult holds the result of a bulk online query.
