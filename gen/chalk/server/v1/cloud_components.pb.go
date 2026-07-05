@@ -1901,6 +1901,11 @@ func (x *AcrContainerRegistryConfig) GetRepositoryName() string {
 	return ""
 }
 
+// Soft-deprecated: retained for backward compatibility only. The registry `name`
+// (see CloudComponentContainerRegistry.name) is the source of truth; the server
+// derives the kind and all addressing (account/project/region/registry + repository)
+// by parsing `name`. Clients should not set this — the server ignores and clears any
+// supplied config on create, and it is no longer read for new registries.
 type CloudContainerRegistryConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Config:
@@ -2000,9 +2005,13 @@ func (*CloudContainerRegistryConfig_Ecr) isCloudContainerRegistryConfig_Config()
 func (*CloudContainerRegistryConfig_Acr) isCloudContainerRegistryConfig_Config() {}
 
 type CloudComponentContainerRegistry struct {
-	state         protoimpl.MessageState        `protogen:"open.v1"`
-	Name          string                        `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Designator    *string                       `protobuf:"bytes,2,opt,name=designator,proto3,oneof" json:"designator,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Full registry path, e.g. "us-docker.pkg.dev/project/repo/image". This is the
+	// source of truth for the registry kind and all addressing.
+	Name       string  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Designator *string `protobuf:"bytes,2,opt,name=designator,proto3,oneof" json:"designator,omitempty"`
+	// Soft-deprecated computed projection of `name`; see CloudContainerRegistryConfig.
+	// Not read by the server for new registries and cleared on create.
 	Config        *CloudContainerRegistryConfig `protobuf:"bytes,3,opt,name=config,proto3" json:"config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -5065,6 +5074,7 @@ func (x *CreateCloudComponentContainerRegistryResponse) GetContainerRegistry() *
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
 type UpdateCloudComponentContainerRegistryRequest struct {
 	state             protoimpl.MessageState                  `protogen:"open.v1"`
 	Id                string                                  `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -5117,6 +5127,7 @@ func (x *UpdateCloudComponentContainerRegistryRequest) GetContainerRegistry() *C
 	return nil
 }
 
+// Deprecated: Marked as deprecated in chalk/server/v1/cloud_components.proto.
 type UpdateCloudComponentContainerRegistryResponse struct {
 	state             protoimpl.MessageState                   `protogen:"open.v1"`
 	ContainerRegistry *CloudComponentContainerRegistryResponse `protobuf:"bytes,1,opt,name=container_registry,json=containerRegistry,proto3" json:"container_registry,omitempty"`
@@ -8379,12 +8390,12 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	",CreateCloudComponentContainerRegistryRequest\x12f\n" +
 	"\x12container_registry\x18\x01 \x01(\v27.chalk.server.v1.CloudComponentContainerRegistryRequestR\x11containerRegistry\"\x98\x01\n" +
 	"-CreateCloudComponentContainerRegistryResponse\x12g\n" +
-	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\"\xa6\x01\n" +
+	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\"\xaa\x01\n" +
 	",UpdateCloudComponentContainerRegistryRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12f\n" +
-	"\x12container_registry\x18\x02 \x01(\v27.chalk.server.v1.CloudComponentContainerRegistryRequestR\x11containerRegistry\"\x98\x01\n" +
+	"\x12container_registry\x18\x02 \x01(\v27.chalk.server.v1.CloudComponentContainerRegistryRequestR\x11containerRegistry:\x02\x18\x01\"\x9c\x01\n" +
 	"-UpdateCloudComponentContainerRegistryResponse\x12g\n" +
-	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry\";\n" +
+	"\x12container_registry\x18\x01 \x01(\v28.chalk.server.v1.CloudComponentContainerRegistryResponseR\x11containerRegistry:\x02\x18\x01\";\n" +
 	")GetCloudComponentContainerRegistryRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x95\x01\n" +
 	"*GetCloudComponentContainerRegistryResponse\x12g\n" +
@@ -8546,7 +8557,7 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\fClusterClass\x12\x1d\n" +
 	"\x19CLUSTER_CLASS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14CLUSTER_CLASS_HOSTED\x10\x01\x12\x1c\n" +
-	"\x18CLUSTER_CLASS_SERVERLESS\x10\x022\xc3R\n" +
+	"\x18CLUSTER_CLASS_SERVERLESS\x10\x022\xc6R\n" +
 	"\x16CloudComponentsService\x12\xa4\x01\n" +
 	"\x17CreateCloudComponentVpc\x12/.chalk.server.v1.CreateCloudComponentVpcRequest\x1a0.chalk.server.v1.CreateCloudComponentVpcResponse\"&\x88}\n" +
 	"\x8a\xd3\x0e\x1f\b\x02\x12\x1bCreated cloud component VPC\x12{\n" +
@@ -8571,8 +8582,8 @@ const file_chalk_server_v1_cloud_components_proto_rawDesc = "" +
 	"\x1dGetBindingClusterCloudStorage\x125.chalk.server.v1.GetBindingClusterCloudStorageRequest\x1a6.chalk.server.v1.GetBindingClusterCloudStorageResponse\"\x06\x80}\x02\x90\x02\x01\x12\x99\x01\n" +
 	"\x1eListBindingClusterCloudStorage\x126.chalk.server.v1.ListBindingClusterCloudStorageRequest\x1a7.chalk.server.v1.ListBindingClusterCloudStorageResponse\"\x06\x80}\x02\x90\x02\x01\x12\xd5\x01\n" +
 	" DeleteBindingClusterCloudStorage\x128.chalk.server.v1.DeleteBindingClusterCloudStorageRequest\x1a9.chalk.server.v1.DeleteBindingClusterCloudStorageResponse\"<\x88}\x1a\x8a\xd3\x0e5\b\x02\x121Deleted binding between cluster and cloud storage\x12\xdd\x01\n" +
-	"%CreateCloudComponentContainerRegistry\x12=.chalk.server.v1.CreateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.CreateCloudComponentContainerRegistryResponse\"5\x88}\x1a\x8a\xd3\x0e.\b\x02\x12*Created cloud component container registry\x12\xdd\x01\n" +
-	"%UpdateCloudComponentContainerRegistry\x12=.chalk.server.v1.UpdateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.UpdateCloudComponentContainerRegistryResponse\"5\x88}\x1a\x8a\xd3\x0e.\b\x02\x12*Updated cloud component container registry\x12\xa5\x01\n" +
+	"%CreateCloudComponentContainerRegistry\x12=.chalk.server.v1.CreateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.CreateCloudComponentContainerRegistryResponse\"5\x88}\x1a\x8a\xd3\x0e.\b\x02\x12*Created cloud component container registry\x12\xe0\x01\n" +
+	"%UpdateCloudComponentContainerRegistry\x12=.chalk.server.v1.UpdateCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.UpdateCloudComponentContainerRegistryResponse\"8\x88}\x1a\x8a\xd3\x0e.\b\x02\x12*Updated cloud component container registry\x88\x02\x01\x12\xa5\x01\n" +
 	"\"GetCloudComponentContainerRegistry\x12:.chalk.server.v1.GetCloudComponentContainerRegistryRequest\x1a;.chalk.server.v1.GetCloudComponentContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xa8\x01\n" +
 	"#ListCloudComponentContainerRegistry\x12;.chalk.server.v1.ListCloudComponentContainerRegistryRequest\x1a<.chalk.server.v1.ListCloudComponentContainerRegistryResponse\"\x06\x80}\x02\x90\x02\x01\x12\xdd\x01\n" +
 	"%DeleteCloudComponentContainerRegistry\x12=.chalk.server.v1.DeleteCloudComponentContainerRegistryRequest\x1a>.chalk.server.v1.DeleteCloudComponentContainerRegistryResponse\"5\x88}\x1a\x8a\xd3\x0e.\b\x02\x12*Deleted cloud component container registry\x12\xe9\x01\n" +

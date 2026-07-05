@@ -824,11 +824,11 @@ const file_chalk_server_v1_feature_metadata_proto_rawDesc = "" +
 	"!DeleteIncrementalProgressResponse2\x97\x06\n" +
 	"\x16FeatureMetadataService\x12u\n" +
 	"\x13DropFeatureVersions\x12+.chalk.server.v1.DropFeatureVersionsRequest\x1a,.chalk.server.v1.DropFeatureVersionsResponse\"\x03\x80}\f\x12r\n" +
-	"\x12FeatureMigrateType\x12*.chalk.server.v1.FeatureMigrateTypeRequest\x1a+.chalk.server.v1.FeatureMigrateTypeResponse\"\x03\x80}\x19\x12\x87\x01\n" +
-	"\x19DeleteFeatureObservations\x121.chalk.server.v1.DeleteFeatureObservationsRequest\x1a2.chalk.server.v1.DeleteFeatureObservationsResponse\"\x03\x80}\x19\x12~\n" +
-	"\x16GetIncrementalProgress\x12..chalk.server.v1.GetIncrementalProgressRequest\x1a/.chalk.server.v1.GetIncrementalProgressResponse\"\x03\x80}\x17\x12~\n" +
-	"\x16SetIncrementalProgress\x12..chalk.server.v1.SetIncrementalProgressRequest\x1a/.chalk.server.v1.SetIncrementalProgressResponse\"\x03\x80}\x19\x12\x87\x01\n" +
-	"\x19DeleteIncrementalProgress\x121.chalk.server.v1.DeleteIncrementalProgressRequest\x1a2.chalk.server.v1.DeleteIncrementalProgressResponse\"\x03\x80}\x19B\xc4\x01\n" +
+	"\x12FeatureMigrateType\x12*.chalk.server.v1.FeatureMigrateTypeRequest\x1a+.chalk.server.v1.FeatureMigrateTypeResponse\"\x03\x80}\f\x12\x87\x01\n" +
+	"\x19DeleteFeatureObservations\x121.chalk.server.v1.DeleteFeatureObservationsRequest\x1a2.chalk.server.v1.DeleteFeatureObservationsResponse\"\x03\x80}\f\x12~\n" +
+	"\x16GetIncrementalProgress\x12..chalk.server.v1.GetIncrementalProgressRequest\x1a/.chalk.server.v1.GetIncrementalProgressResponse\"\x03\x80}\v\x12~\n" +
+	"\x16SetIncrementalProgress\x12..chalk.server.v1.SetIncrementalProgressRequest\x1a/.chalk.server.v1.SetIncrementalProgressResponse\"\x03\x80}\f\x12\x87\x01\n" +
+	"\x19DeleteIncrementalProgress\x121.chalk.server.v1.DeleteIncrementalProgressRequest\x1a2.chalk.server.v1.DeleteIncrementalProgressResponse\"\x03\x80}\fB\xc4\x01\n" +
 	"\x13com.chalk.server.v1B\x14FeatureMetadataProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/server/v1;serverv1\xa2\x02\x03CSX\xaa\x02\x0fChalk.Server.V1\xca\x02\x0fChalk\\Server\\V1\xe2\x02\x1bChalk\\Server\\V1\\GPBMetadata\xea\x02\x11Chalk::Server::V1b\x06proto3"
 
 var (

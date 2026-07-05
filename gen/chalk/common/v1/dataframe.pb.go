@@ -27,8 +27,11 @@ type DataFrameRunJobRequest struct {
 	CorrelationId           *string                `protobuf:"bytes,2,opt,name=correlation_id,json=correlationId,proto3,oneof" json:"correlation_id,omitempty"`
 	CompressedPlanUriPrefix *string                `protobuf:"bytes,3,opt,name=compressed_plan_uri_prefix,json=compressedPlanUriPrefix,proto3,oneof" json:"compressed_plan_uri_prefix,omitempty"`
 	ShardOperationId        *string                `protobuf:"bytes,4,opt,name=shard_operation_id,json=shardOperationId,proto3,oneof" json:"shard_operation_id,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Seconds between periodic performance-summary writes during execution. 0
+	// (default) disables the live summary.
+	UpdatePerformanceSummaryIntervalSecs *float64 `protobuf:"fixed64,5,opt,name=update_performance_summary_interval_secs,json=updatePerformanceSummaryIntervalSecs,proto3,oneof" json:"update_performance_summary_interval_secs,omitempty"`
+	unknownFields                        protoimpl.UnknownFields
+	sizeCache                            protoimpl.SizeCache
 }
 
 func (x *DataFrameRunJobRequest) Reset() {
@@ -89,19 +92,28 @@ func (x *DataFrameRunJobRequest) GetShardOperationId() string {
 	return ""
 }
 
+func (x *DataFrameRunJobRequest) GetUpdatePerformanceSummaryIntervalSecs() float64 {
+	if x != nil && x.UpdatePerformanceSummaryIntervalSecs != nil {
+		return *x.UpdatePerformanceSummaryIntervalSecs
+	}
+	return 0
+}
+
 var File_chalk_common_v1_dataframe_proto protoreflect.FileDescriptor
 
 const file_chalk_common_v1_dataframe_proto_rawDesc = "" +
 	"\n" +
-	"\x1fchalk/common/v1/dataframe.proto\x12\x0fchalk.common.v1\"\xa5\x02\n" +
+	"\x1fchalk/common/v1/dataframe.proto\x12\x0fchalk.common.v1\"\xaf\x03\n" +
 	"\x16DataFrameRunJobRequest\x12!\n" +
 	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12*\n" +
 	"\x0ecorrelation_id\x18\x02 \x01(\tH\x00R\rcorrelationId\x88\x01\x01\x12@\n" +
 	"\x1acompressed_plan_uri_prefix\x18\x03 \x01(\tH\x01R\x17compressedPlanUriPrefix\x88\x01\x01\x121\n" +
-	"\x12shard_operation_id\x18\x04 \x01(\tH\x02R\x10shardOperationId\x88\x01\x01B\x11\n" +
+	"\x12shard_operation_id\x18\x04 \x01(\tH\x02R\x10shardOperationId\x88\x01\x01\x12[\n" +
+	"(update_performance_summary_interval_secs\x18\x05 \x01(\x01H\x03R$updatePerformanceSummaryIntervalSecs\x88\x01\x01B\x11\n" +
 	"\x0f_correlation_idB\x1d\n" +
 	"\x1b_compressed_plan_uri_prefixB\x15\n" +
-	"\x13_shard_operation_idB\xbe\x01\n" +
+	"\x13_shard_operation_idB+\n" +
+	")_update_performance_summary_interval_secsB\xbe\x01\n" +
 	"\x13com.chalk.common.v1B\x0eDataframeProtoP\x01Z9github.com/chalk-ai/chalk-go/gen/chalk/common/v1;commonv1\xa2\x02\x03CCX\xaa\x02\x0fChalk.Common.V1\xca\x02\x0fChalk\\Common\\V1\xe2\x02\x1bChalk\\Common\\V1\\GPBMetadata\xea\x02\x11Chalk::Common::V1b\x06proto3"
 
 var (

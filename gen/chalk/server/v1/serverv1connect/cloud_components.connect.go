@@ -233,6 +233,10 @@ type CloudComponentsServiceClient interface {
 	ListBindingClusterCloudStorage(context.Context, *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error)
 	DeleteBindingClusterCloudStorage(context.Context, *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error)
 	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
+	// Deprecated: container registries are immutable metadata records. Create a new
+	// registry and delete the old one instead of updating in place.
+	//
+	// Deprecated: do not use.
 	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
 	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
 	ListCloudComponentContainerRegistry(context.Context, *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error)
@@ -828,6 +832,8 @@ func (c *cloudComponentsServiceClient) CreateCloudComponentContainerRegistry(ctx
 
 // UpdateCloudComponentContainerRegistry calls
 // chalk.server.v1.CloudComponentsService.UpdateCloudComponentContainerRegistry.
+//
+// Deprecated: do not use.
 func (c *cloudComponentsServiceClient) UpdateCloudComponentContainerRegistry(ctx context.Context, req *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error) {
 	return c.updateCloudComponentContainerRegistry.CallUnary(ctx, req)
 }
@@ -1040,6 +1046,10 @@ type CloudComponentsServiceHandler interface {
 	ListBindingClusterCloudStorage(context.Context, *connect.Request[v1.ListBindingClusterCloudStorageRequest]) (*connect.Response[v1.ListBindingClusterCloudStorageResponse], error)
 	DeleteBindingClusterCloudStorage(context.Context, *connect.Request[v1.DeleteBindingClusterCloudStorageRequest]) (*connect.Response[v1.DeleteBindingClusterCloudStorageResponse], error)
 	CreateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.CreateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.CreateCloudComponentContainerRegistryResponse], error)
+	// Deprecated: container registries are immutable metadata records. Create a new
+	// registry and delete the old one instead of updating in place.
+	//
+	// Deprecated: do not use.
 	UpdateCloudComponentContainerRegistry(context.Context, *connect.Request[v1.UpdateCloudComponentContainerRegistryRequest]) (*connect.Response[v1.UpdateCloudComponentContainerRegistryResponse], error)
 	GetCloudComponentContainerRegistry(context.Context, *connect.Request[v1.GetCloudComponentContainerRegistryRequest]) (*connect.Response[v1.GetCloudComponentContainerRegistryResponse], error)
 	ListCloudComponentContainerRegistry(context.Context, *connect.Request[v1.ListCloudComponentContainerRegistryRequest]) (*connect.Response[v1.ListCloudComponentContainerRegistryResponse], error)

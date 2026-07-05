@@ -794,10 +794,10 @@ const file_chalk_streaming_v1_streaming_resolver_control_proto_rawDesc = "" +
 	"\x1aPAUSE_STATUS_ACTION_RESUME\x10\x022\xfe\x05\n" +
 	"\x1fStreamingResolverControlService\x12o\n" +
 	"\x0eGetPauseStatus\x12).chalk.streaming.v1.GetPauseStatusRequest\x1a*.chalk.streaming.v1.GetPauseStatusResponse\"\x06\x80}\x17\x90\x02\x01\x12l\n" +
-	"\x0eSetPauseStatus\x12).chalk.streaming.v1.SetPauseStatusRequest\x1a*.chalk.streaming.v1.SetPauseStatusResponse\"\x03\x80}\x19\x12`\n" +
+	"\x0eSetPauseStatus\x12).chalk.streaming.v1.SetPauseStatusRequest\x1a*.chalk.streaming.v1.SetPauseStatusResponse\"\x03\x80}\f\x12`\n" +
 	"\n" +
-	"SeekOffset\x12%.chalk.streaming.v1.SeekOffsetRequest\x1a&.chalk.streaming.v1.SeekOffsetResponse\"\x03\x80}\x19\x12{\n" +
-	"\x13SeekOffsetTimestamp\x12..chalk.streaming.v1.SeekOffsetTimestampRequest\x1a/.chalk.streaming.v1.SeekOffsetTimestampResponse\"\x03\x80}\x19\x12c\n" +
+	"SeekOffset\x12%.chalk.streaming.v1.SeekOffsetRequest\x1a&.chalk.streaming.v1.SeekOffsetResponse\"\x03\x80}\f\x12{\n" +
+	"\x13SeekOffsetTimestamp\x12..chalk.streaming.v1.SeekOffsetTimestampRequest\x1a/.chalk.streaming.v1.SeekOffsetTimestampResponse\"\x03\x80}\f\x12c\n" +
 	"\vResetStream\x12&.chalk.streaming.v1.ResetStreamRequest\x1a'.chalk.streaming.v1.ResetStreamResponse\"\x03\x80}\x03\x12\xb7\x01\n" +
 	"&TestStreamResolverDatasourceConnection\x12A.chalk.streaming.v1.TestStreamResolverDatasourceConnectionRequest\x1aB.chalk.streaming.v1.TestStreamResolverDatasourceConnectionResponse\"\x06\x80}\x02\x90\x02\x01B\xe2\x01\n" +
 	"\x16com.chalk.streaming.v1B\x1dStreamingResolverControlProtoP\x01Z?github.com/chalk-ai/chalk-go/gen/chalk/streaming/v1;streamingv1\xa2\x02\x03CSX\xaa\x02\x12Chalk.Streaming.V1\xca\x02\x12Chalk\\Streaming\\V1\xe2\x02\x1eChalk\\Streaming\\V1\\GPBMetadata\xea\x02\x14Chalk::Streaming::V1b\x06proto3"

@@ -117,6 +117,8 @@ const (
 	MetricKind_METRIC_KIND_QUERY_PROGRESS_OPERATOR_ROWS_PROCESSED MetricKind = 87
 	MetricKind_METRIC_KIND_SCHEDULED_QUERY_COUNT                  MetricKind = 88
 	MetricKind_METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO          MetricKind = 89
+	MetricKind_METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION   MetricKind = 90
+	MetricKind_METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES      MetricKind = 91
 )
 
 // Enum value maps for MetricKind.
@@ -212,6 +214,8 @@ var (
 		87: "METRIC_KIND_QUERY_PROGRESS_OPERATOR_ROWS_PROCESSED",
 		88: "METRIC_KIND_SCHEDULED_QUERY_COUNT",
 		89: "METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO",
+		90: "METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION",
+		91: "METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES",
 	}
 	MetricKind_value = map[string]int32{
 		"METRIC_KIND_UNSPECIFIED":                             0,
@@ -304,6 +308,8 @@ var (
 		"METRIC_KIND_QUERY_PROGRESS_OPERATOR_ROWS_PROCESSED":  87,
 		"METRIC_KIND_SCHEDULED_QUERY_COUNT":                   88,
 		"METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO":           89,
+		"METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION":    90,
+		"METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES":       91,
 	}
 )
 
@@ -363,6 +369,7 @@ const (
 	FilterKind_FILTER_KIND_FUNCTION_NAME       FilterKind = 23
 	FilterKind_FILTER_KIND_SERVICE_KIND        FilterKind = 24
 	FilterKind_FILTER_KIND_CONSUMER_GROUP      FilterKind = 25
+	FilterKind_FILTER_KIND_CONTAINER_ID        FilterKind = 26
 )
 
 // Enum value maps for FilterKind.
@@ -394,6 +401,7 @@ var (
 		23: "FILTER_KIND_FUNCTION_NAME",
 		24: "FILTER_KIND_SERVICE_KIND",
 		25: "FILTER_KIND_CONSUMER_GROUP",
+		26: "FILTER_KIND_CONTAINER_ID",
 	}
 	FilterKind_value = map[string]int32{
 		"FILTER_KIND_UNSPECIFIED":         0,
@@ -422,6 +430,7 @@ var (
 		"FILTER_KIND_FUNCTION_NAME":       23,
 		"FILTER_KIND_SERVICE_KIND":        24,
 		"FILTER_KIND_CONSUMER_GROUP":      25,
+		"FILTER_KIND_CONTAINER_ID":        26,
 	}
 )
 
@@ -1567,7 +1576,7 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\n" +
 	"is_virtual\x18\x06 \x01(\bR\tisVirtualB\f\n" +
 	"\n" +
-	"_entity_id*\x8a\x1c\n" +
+	"_entity_id*\xf3\x1c\n" +
 	"\n" +
 	"MetricKind\x12\x1b\n" +
 	"\x17METRIC_KIND_UNSPECIFIED\x10\x00\x12%\n" +
@@ -1660,7 +1669,9 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"0METRIC_KIND_QUERY_PROGRESS_OPERATOR_OUTPUT_BYTES\x10V\x126\n" +
 	"2METRIC_KIND_QUERY_PROGRESS_OPERATOR_ROWS_PROCESSED\x10W\x12%\n" +
 	"!METRIC_KIND_SCHEDULED_QUERY_COUNT\x10X\x12-\n" +
-	")METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO\x10Y*\xa3\x06\n" +
+	")METRIC_KIND_SCHEDULED_QUERY_SUCCESS_RATIO\x10Y\x124\n" +
+	"0METRIC_KIND_HYPERVISOR_CONTAINER_CPU_UTILIZATION\x10Z\x121\n" +
+	"-METRIC_KIND_HYPERVISOR_CONTAINER_MEMORY_BYTES\x10[*\xc1\x06\n" +
 	"\n" +
 	"FilterKind\x12\x1b\n" +
 	"\x17FILTER_KIND_UNSPECIFIED\x10\x00\x12\x1e\n" +
@@ -1689,7 +1700,8 @@ const file_chalk_artifacts_v1_chart_proto_rawDesc = "" +
 	"\x19FILTER_KIND_SCALING_GROUP\x10\x16\x12\x1d\n" +
 	"\x19FILTER_KIND_FUNCTION_NAME\x10\x17\x12\x1c\n" +
 	"\x18FILTER_KIND_SERVICE_KIND\x10\x18\x12\x1e\n" +
-	"\x1aFILTER_KIND_CONSUMER_GROUP\x10\x19*~\n" +
+	"\x1aFILTER_KIND_CONSUMER_GROUP\x10\x19\x12\x1c\n" +
+	"\x18FILTER_KIND_CONTAINER_ID\x10\x1a*~\n" +
 	"\x0eComparatorKind\x12\x1f\n" +
 	"\x1bCOMPARATOR_KIND_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COMPARATOR_KIND_EQ\x10\x01\x12\x17\n" +
