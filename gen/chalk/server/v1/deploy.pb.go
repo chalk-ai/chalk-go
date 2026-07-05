@@ -469,6 +469,8 @@ type ListDeploymentsRequest struct {
 	Limit         *int32                 `protobuf:"varint,2,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
 	IncludeBranch *bool                  `protobuf:"varint,3,opt,name=include_branch,json=includeBranch,proto3,oneof" json:"include_branch,omitempty"`
 	BranchName    *string                `protobuf:"bytes,4,opt,name=branch_name,json=branchName,proto3,oneof" json:"branch_name,omitempty"`
+	// Filter to deployments triggered by this agent (matches the deployment's `triggered_by`).
+	AgentId       *string `protobuf:"bytes,5,opt,name=agent_id,json=agentId,proto3,oneof" json:"agent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -527,6 +529,13 @@ func (x *ListDeploymentsRequest) GetIncludeBranch() bool {
 func (x *ListDeploymentsRequest) GetBranchName() string {
 	if x != nil && x.BranchName != nil {
 		return *x.BranchName
+	}
+	return ""
+}
+
+func (x *ListDeploymentsRequest) GetAgentId() string {
+	if x != nil && x.AgentId != nil {
+		return *x.AgentId
 	}
 	return ""
 }
@@ -1309,17 +1318,19 @@ const file_chalk_server_v1_deploy_proto_rawDesc = "" +
 	"deployment\x18\x01 \x01(\v2\x1b.chalk.server.v1.DeploymentR\n" +
 	"deployment\x127\n" +
 	"\x06export\x18\x02 \x01(\v2\x1a.chalk.artifacts.v1.ExportH\x00R\x06export\x88\x01\x01B\t\n" +
-	"\a_export\"\xda\x01\n" +
+	"\a_export\"\x87\x02\n" +
 	"\x16ListDeploymentsRequest\x12\x1b\n" +
 	"\x06cursor\x18\x01 \x01(\tH\x00R\x06cursor\x88\x01\x01\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x01R\x05limit\x88\x01\x01\x12*\n" +
 	"\x0einclude_branch\x18\x03 \x01(\bH\x02R\rincludeBranch\x88\x01\x01\x12$\n" +
 	"\vbranch_name\x18\x04 \x01(\tH\x03R\n" +
-	"branchName\x88\x01\x01B\t\n" +
+	"branchName\x88\x01\x01\x12\x1e\n" +
+	"\bagent_id\x18\x05 \x01(\tH\x04R\aagentId\x88\x01\x01B\t\n" +
 	"\a_cursorB\b\n" +
 	"\x06_limitB\x11\n" +
 	"\x0f_include_branchB\x0e\n" +
-	"\f_branch_name\"\x80\x01\n" +
+	"\f_branch_nameB\v\n" +
+	"\t_agent_id\"\x80\x01\n" +
 	"\x17ListDeploymentsResponse\x12=\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x1b.chalk.server.v1.DeploymentR\vdeployments\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +

@@ -43,6 +43,12 @@ const (
 	// TraceServiceGetTraceCallGraphProcedure is the fully-qualified name of the TraceService's
 	// GetTraceCallGraph RPC.
 	TraceServiceGetTraceCallGraphProcedure = "/chalk.server.v1.TraceService/GetTraceCallGraph"
+	// TraceServiceGetTraceFacetsProcedure is the fully-qualified name of the TraceService's
+	// GetTraceFacets RPC.
+	TraceServiceGetTraceFacetsProcedure = "/chalk.server.v1.TraceService/GetTraceFacets"
+	// TraceServiceGetTraceFacetValuesProcedure is the fully-qualified name of the TraceService's
+	// GetTraceFacetValues RPC.
+	TraceServiceGetTraceFacetValuesProcedure = "/chalk.server.v1.TraceService/GetTraceFacetValues"
 	// TraceServiceGetSpanProcedure is the fully-qualified name of the TraceService's GetSpan RPC.
 	TraceServiceGetSpanProcedure = "/chalk.server.v1.TraceService/GetSpan"
 	// TraceServiceGetSpanLatencyDistributionProcedure is the fully-qualified name of the TraceService's
@@ -74,6 +80,10 @@ type TraceServiceClient interface {
 	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
 	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
+	// GetTraceFacets returns available facets for filtering trace summaries
+	GetTraceFacets(context.Context, *connect.Request[v1.GetTraceFacetsRequest]) (*connect.Response[v1.GetTraceFacetsResponse], error)
+	// GetTraceFacetValues returns values for a specific trace summary facet
+	GetTraceFacetValues(context.Context, *connect.Request[v1.GetTraceFacetValuesRequest]) (*connect.Response[v1.GetTraceFacetValuesResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
 	// GetSpanLatencyDistribution returns latency percentiles for spans matching selected spans.
@@ -126,6 +136,20 @@ func NewTraceServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			httpClient,
 			baseURL+TraceServiceGetTraceCallGraphProcedure,
 			connect.WithSchema(traceServiceMethods.ByName("GetTraceCallGraph")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getTraceFacets: connect.NewClient[v1.GetTraceFacetsRequest, v1.GetTraceFacetsResponse](
+			httpClient,
+			baseURL+TraceServiceGetTraceFacetsProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("GetTraceFacets")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
+		getTraceFacetValues: connect.NewClient[v1.GetTraceFacetValuesRequest, v1.GetTraceFacetValuesResponse](
+			httpClient,
+			baseURL+TraceServiceGetTraceFacetValuesProcedure,
+			connect.WithSchema(traceServiceMethods.ByName("GetTraceFacetValues")),
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
@@ -187,6 +211,8 @@ type traceServiceClient struct {
 	listTrace                  *connect.Client[v1.ListTraceRequest, v1.ListTraceResponse]
 	searchTraceSummaries       *connect.Client[v1.SearchTraceSummariesRequest, v1.SearchTraceSummariesResponse]
 	getTraceCallGraph          *connect.Client[v1.GetTraceCallGraphRequest, v1.GetTraceCallGraphResponse]
+	getTraceFacets             *connect.Client[v1.GetTraceFacetsRequest, v1.GetTraceFacetsResponse]
+	getTraceFacetValues        *connect.Client[v1.GetTraceFacetValuesRequest, v1.GetTraceFacetValuesResponse]
 	getSpan                    *connect.Client[v1.GetSpanRequest, v1.GetSpanResponse]
 	getSpanLatencyDistribution *connect.Client[v1.GetSpanLatencyDistributionRequest, v1.GetSpanLatencyDistributionResponse]
 	listSpan                   *connect.Client[v1.ListSpanRequest, v1.ListSpanResponse]
@@ -214,6 +240,16 @@ func (c *traceServiceClient) SearchTraceSummaries(ctx context.Context, req *conn
 // GetTraceCallGraph calls chalk.server.v1.TraceService.GetTraceCallGraph.
 func (c *traceServiceClient) GetTraceCallGraph(ctx context.Context, req *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error) {
 	return c.getTraceCallGraph.CallUnary(ctx, req)
+}
+
+// GetTraceFacets calls chalk.server.v1.TraceService.GetTraceFacets.
+func (c *traceServiceClient) GetTraceFacets(ctx context.Context, req *connect.Request[v1.GetTraceFacetsRequest]) (*connect.Response[v1.GetTraceFacetsResponse], error) {
+	return c.getTraceFacets.CallUnary(ctx, req)
+}
+
+// GetTraceFacetValues calls chalk.server.v1.TraceService.GetTraceFacetValues.
+func (c *traceServiceClient) GetTraceFacetValues(ctx context.Context, req *connect.Request[v1.GetTraceFacetValuesRequest]) (*connect.Response[v1.GetTraceFacetValuesResponse], error) {
+	return c.getTraceFacetValues.CallUnary(ctx, req)
 }
 
 // GetSpan calls chalk.server.v1.TraceService.GetSpan.
@@ -261,6 +297,10 @@ type TraceServiceHandler interface {
 	SearchTraceSummaries(context.Context, *connect.Request[v1.SearchTraceSummariesRequest]) (*connect.Response[v1.SearchTraceSummariesResponse], error)
 	// GetTraceCallGraph retrieves the pre-indexed trace data needed to render a call graph.
 	GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error)
+	// GetTraceFacets returns available facets for filtering trace summaries
+	GetTraceFacets(context.Context, *connect.Request[v1.GetTraceFacetsRequest]) (*connect.Response[v1.GetTraceFacetsResponse], error)
+	// GetTraceFacetValues returns values for a specific trace summary facet
+	GetTraceFacetValues(context.Context, *connect.Request[v1.GetTraceFacetValuesRequest]) (*connect.Response[v1.GetTraceFacetValuesResponse], error)
 	// GetSpan retrieves a specific span by span ID and trace ID
 	GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error)
 	// GetSpanLatencyDistribution returns latency percentiles for spans matching selected spans.
@@ -309,6 +349,20 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 		TraceServiceGetTraceCallGraphProcedure,
 		svc.GetTraceCallGraph,
 		connect.WithSchema(traceServiceMethods.ByName("GetTraceCallGraph")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceGetTraceFacetsHandler := connect.NewUnaryHandler(
+		TraceServiceGetTraceFacetsProcedure,
+		svc.GetTraceFacets,
+		connect.WithSchema(traceServiceMethods.ByName("GetTraceFacets")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
+	traceServiceGetTraceFacetValuesHandler := connect.NewUnaryHandler(
+		TraceServiceGetTraceFacetValuesProcedure,
+		svc.GetTraceFacetValues,
+		connect.WithSchema(traceServiceMethods.ByName("GetTraceFacetValues")),
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
@@ -371,6 +425,10 @@ func NewTraceServiceHandler(svc TraceServiceHandler, opts ...connect.HandlerOpti
 			traceServiceSearchTraceSummariesHandler.ServeHTTP(w, r)
 		case TraceServiceGetTraceCallGraphProcedure:
 			traceServiceGetTraceCallGraphHandler.ServeHTTP(w, r)
+		case TraceServiceGetTraceFacetsProcedure:
+			traceServiceGetTraceFacetsHandler.ServeHTTP(w, r)
+		case TraceServiceGetTraceFacetValuesProcedure:
+			traceServiceGetTraceFacetValuesHandler.ServeHTTP(w, r)
 		case TraceServiceGetSpanProcedure:
 			traceServiceGetSpanHandler.ServeHTTP(w, r)
 		case TraceServiceGetSpanLatencyDistributionProcedure:
@@ -408,6 +466,14 @@ func (UnimplementedTraceServiceHandler) SearchTraceSummaries(context.Context, *c
 
 func (UnimplementedTraceServiceHandler) GetTraceCallGraph(context.Context, *connect.Request[v1.GetTraceCallGraphRequest]) (*connect.Response[v1.GetTraceCallGraphResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetTraceCallGraph is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) GetTraceFacets(context.Context, *connect.Request[v1.GetTraceFacetsRequest]) (*connect.Response[v1.GetTraceFacetsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetTraceFacets is not implemented"))
+}
+
+func (UnimplementedTraceServiceHandler) GetTraceFacetValues(context.Context, *connect.Request[v1.GetTraceFacetValuesRequest]) (*connect.Response[v1.GetTraceFacetValuesResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.TraceService.GetTraceFacetValues is not implemented"))
 }
 
 func (UnimplementedTraceServiceHandler) GetSpan(context.Context, *connect.Request[v1.GetSpanRequest]) (*connect.Response[v1.GetSpanResponse], error) {

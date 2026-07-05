@@ -251,6 +251,7 @@ type BuilderServiceClient interface {
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
+	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)
@@ -848,6 +849,8 @@ func (c *builderServiceClient) IndexDeployment(ctx context.Context, req *connect
 }
 
 // ValidateNamedQueries calls chalk.server.v1.BuilderService.ValidateNamedQueries.
+//
+// Deprecated: do not use.
 func (c *builderServiceClient) ValidateNamedQueries(ctx context.Context, req *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error) {
 	return c.validateNamedQueries.CallUnary(ctx, req)
 }
@@ -1195,6 +1198,7 @@ type BuilderServiceHandler interface {
 	// Useful for debugging in local development where the auto activation doesn't work b/c no pubsub.
 	ActivateDeployment(context.Context, *connect.Request[v1.ActivateDeploymentRequest]) (*connect.Response[v1.ActivateDeploymentResponse], error)
 	IndexDeployment(context.Context, *connect.Request[v1.IndexDeploymentRequest]) (*connect.Response[v1.IndexDeploymentResponse], error)
+	// Deprecated: do not use.
 	ValidateNamedQueries(context.Context, *connect.Request[v1.ValidateNamedQueriesRequest]) (*connect.Response[v1.ValidateNamedQueriesResponse], error)
 	RunPostIndexValidation(context.Context, *connect.Request[v1.RunPostIndexValidationRequest]) (*connect.Response[v1.RunPostIndexValidationResponse], error)
 	StartShadowBuildFromDeployment(context.Context, *connect.Request[v1.StartShadowBuildFromDeploymentRequest]) (*connect.Response[v1.StartShadowBuildFromDeploymentResponse], error)

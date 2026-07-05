@@ -1375,8 +1375,10 @@ type GetChartSnapshotResponse struct {
 	// This is the display resolution; the alert lookback is not returned here.
 	WindowPeriod    *durationpb.Duration `protobuf:"bytes,3,opt,name=window_period,json=windowPeriod,proto3" json:"window_period,omitempty"`
 	SqlQueryStrings []string             `protobuf:"bytes,4,rep,name=sql_query_strings,json=sqlQueryStrings,proto3" json:"sql_query_strings,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Metrics backend that actually rendered this response, after any fallback.
+	MetricsBackend *ChartMetricsBackend `protobuf:"varint,5,opt,name=metrics_backend,json=metricsBackend,proto3,enum=chalk.server.v1.ChartMetricsBackend,oneof" json:"metrics_backend,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *GetChartSnapshotResponse) Reset() {
@@ -1435,6 +1437,13 @@ func (x *GetChartSnapshotResponse) GetSqlQueryStrings() []string {
 		return x.SqlQueryStrings
 	}
 	return nil
+}
+
+func (x *GetChartSnapshotResponse) GetMetricsBackend() ChartMetricsBackend {
+	if x != nil && x.MetricsBackend != nil {
+		return *x.MetricsBackend
+	}
+	return ChartMetricsBackend_CHART_METRICS_BACKEND_UNSPECIFIED
 }
 
 type GetChartSnapshotByQueryRequest struct {
@@ -3329,12 +3338,14 @@ const file_chalk_server_v1_chart_proto_rawDesc = "" +
 	"\x19_use_sketch_metrics_tableB\x1a\n" +
 	"\x18_return_sql_query_stringB!\n" +
 	"\x1f_exclude_incomplete_last_bucketB\x12\n" +
-	"\x10_metrics_backend\"\xfb\x01\n" +
+	"\x10_metrics_backend\"\xe3\x02\n" +
 	"\x18GetChartSnapshotResponse\x12<\n" +
 	"\x06charts\x18\x01 \x03(\v2$.chalk.chart.v1.DenseTimeSeriesChartR\x06charts\x125\n" +
 	"\bx_series\x18\x02 \x03(\v2\x1a.google.protobuf.TimestampR\axSeries\x12>\n" +
 	"\rwindow_period\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\fwindowPeriod\x12*\n" +
-	"\x11sql_query_strings\x18\x04 \x03(\tR\x0fsqlQueryStrings\"\xfc\x04\n" +
+	"\x11sql_query_strings\x18\x04 \x03(\tR\x0fsqlQueryStrings\x12R\n" +
+	"\x0fmetrics_backend\x18\x05 \x01(\x0e2$.chalk.server.v1.ChartMetricsBackendH\x00R\x0emetricsBackend\x88\x01\x01B\x12\n" +
+	"\x10_metrics_backend\"\xfc\x04\n" +
 	"\x1eGetChartSnapshotByQueryRequest\x12\x14\n" +
 	"\x05query\x18\x01 \x01(\tR\x05query\x129\n" +
 	"\n" +
@@ -3612,78 +3623,79 @@ var file_chalk_server_v1_chart_proto_depIdxs = []int32{
 	64, // 26: chalk.server.v1.GetChartSnapshotResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
 	55, // 27: chalk.server.v1.GetChartSnapshotResponse.x_series:type_name -> google.protobuf.Timestamp
 	56, // 28: chalk.server.v1.GetChartSnapshotResponse.window_period:type_name -> google.protobuf.Duration
-	55, // 29: chalk.server.v1.GetChartSnapshotByQueryRequest.start_time:type_name -> google.protobuf.Timestamp
-	55, // 30: chalk.server.v1.GetChartSnapshotByQueryRequest.end_time:type_name -> google.protobuf.Timestamp
-	0,  // 31: chalk.server.v1.GetChartSnapshotByQueryRequest.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
-	64, // 32: chalk.server.v1.GetChartSnapshotByQueryResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
-	55, // 33: chalk.server.v1.GetChartSnapshotByQueryResponse.x_series:type_name -> google.protobuf.Timestamp
-	56, // 34: chalk.server.v1.GetChartSnapshotByQueryResponse.window_period:type_name -> google.protobuf.Duration
-	58, // 35: chalk.server.v1.GetChartSnapshotByQueryResponse.compiled_metric_config:type_name -> chalk.artifacts.v1.MetricConfig
-	59, // 36: chalk.server.v1.GetChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
-	65, // 37: chalk.server.v1.GetChartResponse.active_incidents:type_name -> chalk.server.v1.MetricIncident
-	66, // 38: chalk.server.v1.FilterOption.kind:type_name -> chalk.artifacts.v1.FilterKind
-	29, // 39: chalk.server.v1.FilterOption.namespaced_values:type_name -> chalk.server.v1.FilterOptionNamespace
-	67, // 40: chalk.server.v1.GroupOption.kind:type_name -> chalk.artifacts.v1.GroupByKind
-	68, // 41: chalk.server.v1.WindowFunctionOption.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
-	69, // 42: chalk.server.v1.MetricOptions.kind:type_name -> chalk.artifacts.v1.MetricKind
-	30, // 43: chalk.server.v1.MetricOptions.filters:type_name -> chalk.server.v1.FilterOption
-	31, // 44: chalk.server.v1.MetricOptions.groups:type_name -> chalk.server.v1.GroupOption
-	32, // 45: chalk.server.v1.MetricOptions.window_functions:type_name -> chalk.server.v1.WindowFunctionOption
-	1,  // 46: chalk.server.v1.MetricOptions.metric_kind_group:type_name -> chalk.server.v1.MetricKindGroup
-	34, // 47: chalk.server.v1.MetricFormulaFeatureOperandList.features:type_name -> chalk.server.v1.MetricFormulaFeatureOperandInput
-	36, // 48: chalk.server.v1.MetricFormulaDatasetOperandList.datasets:type_name -> chalk.server.v1.MetricFormulaDatasetOperandInput
-	2,  // 49: chalk.server.v1.MetricFormulaOperand.kind:type_name -> chalk.server.v1.MetricFormulaOperandKind
-	37, // 50: chalk.server.v1.MetricFormulaOperand.dataset_operands:type_name -> chalk.server.v1.MetricFormulaDatasetOperandList
-	35, // 51: chalk.server.v1.MetricFormulaOperand.feature_operands:type_name -> chalk.server.v1.MetricFormulaFeatureOperandList
-	70, // 52: chalk.server.v1.MetricFormulaOption.kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
-	38, // 53: chalk.server.v1.MetricFormulaOption.operands:type_name -> chalk.server.v1.MetricFormulaOperand
-	33, // 54: chalk.server.v1.GetChartOptionsResponse.metrics:type_name -> chalk.server.v1.MetricOptions
-	39, // 55: chalk.server.v1.GetChartOptionsResponse.formulas:type_name -> chalk.server.v1.MetricFormulaOption
-	3,  // 56: chalk.server.v1.MetricHealthCheck.status:type_name -> chalk.server.v1.MetricHealthStatus
-	42, // 57: chalk.server.v1.SparkSeries.points:type_name -> chalk.server.v1.SparkPoint
-	43, // 58: chalk.server.v1.EntityMetrics.successful_requests:type_name -> chalk.server.v1.SparkSeries
-	43, // 59: chalk.server.v1.EntityMetrics.failed_requests:type_name -> chalk.server.v1.SparkSeries
-	41, // 60: chalk.server.v1.EntityMetrics.health:type_name -> chalk.server.v1.MetricHealthCheck
-	44, // 61: chalk.server.v1.GetFeatureMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	44, // 62: chalk.server.v1.GetResolverMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	44, // 63: chalk.server.v1.GetQueryMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
-	69, // 64: chalk.server.v1.GetMetricOptionsRequest.metric_kind:type_name -> chalk.artifacts.v1.MetricKind
-	33, // 65: chalk.server.v1.GetMetricOptionsResponse.metric_options:type_name -> chalk.server.v1.MetricOptions
-	70, // 66: chalk.server.v1.GetFormulaOptionsRequest.formula_kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
-	39, // 67: chalk.server.v1.GetFormulaOptionsResponse.formula_options:type_name -> chalk.server.v1.MetricFormulaOption
-	11, // 68: chalk.server.v1.ChartsService.ListCharts:input_type -> chalk.server.v1.ListChartsRequest
-	20, // 69: chalk.server.v1.ChartsService.GetChartSnapshot:input_type -> chalk.server.v1.GetChartSnapshotRequest
-	22, // 70: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:input_type -> chalk.server.v1.GetChartSnapshotByQueryRequest
-	18, // 71: chalk.server.v1.ChartsService.UpdateMetricConfig:input_type -> chalk.server.v1.UpdateMetricConfigRequest
-	16, // 72: chalk.server.v1.ChartsService.CreateChart:input_type -> chalk.server.v1.CreateChartRequest
-	24, // 73: chalk.server.v1.ChartsService.DeleteChart:input_type -> chalk.server.v1.DeleteChartRequest
-	26, // 74: chalk.server.v1.ChartsService.GetChart:input_type -> chalk.server.v1.GetChartRequest
-	28, // 75: chalk.server.v1.ChartsService.GetChartOptions:input_type -> chalk.server.v1.GetChartOptionsRequest
-	45, // 76: chalk.server.v1.ChartsService.GetFeatureMetrics:input_type -> chalk.server.v1.GetFeatureMetricsRequest
-	47, // 77: chalk.server.v1.ChartsService.GetResolverMetrics:input_type -> chalk.server.v1.GetResolverMetricsRequest
-	49, // 78: chalk.server.v1.ChartsService.GetQueryMetrics:input_type -> chalk.server.v1.GetQueryMetricsRequest
-	51, // 79: chalk.server.v1.ChartsService.GetMetricOptions:input_type -> chalk.server.v1.GetMetricOptionsRequest
-	53, // 80: chalk.server.v1.ChartsService.GetFormulaOptions:input_type -> chalk.server.v1.GetFormulaOptionsRequest
-	13, // 81: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:input_type -> chalk.server.v1.ListChartsWithCronAlertsRequest
-	12, // 82: chalk.server.v1.ChartsService.ListCharts:output_type -> chalk.server.v1.ListChartsResponse
-	21, // 83: chalk.server.v1.ChartsService.GetChartSnapshot:output_type -> chalk.server.v1.GetChartSnapshotResponse
-	23, // 84: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:output_type -> chalk.server.v1.GetChartSnapshotByQueryResponse
-	19, // 85: chalk.server.v1.ChartsService.UpdateMetricConfig:output_type -> chalk.server.v1.UpdateMetricConfigResponse
-	17, // 86: chalk.server.v1.ChartsService.CreateChart:output_type -> chalk.server.v1.CreateChartResponse
-	25, // 87: chalk.server.v1.ChartsService.DeleteChart:output_type -> chalk.server.v1.DeleteChartResponse
-	27, // 88: chalk.server.v1.ChartsService.GetChart:output_type -> chalk.server.v1.GetChartResponse
-	40, // 89: chalk.server.v1.ChartsService.GetChartOptions:output_type -> chalk.server.v1.GetChartOptionsResponse
-	46, // 90: chalk.server.v1.ChartsService.GetFeatureMetrics:output_type -> chalk.server.v1.GetFeatureMetricsResponse
-	48, // 91: chalk.server.v1.ChartsService.GetResolverMetrics:output_type -> chalk.server.v1.GetResolverMetricsResponse
-	50, // 92: chalk.server.v1.ChartsService.GetQueryMetrics:output_type -> chalk.server.v1.GetQueryMetricsResponse
-	52, // 93: chalk.server.v1.ChartsService.GetMetricOptions:output_type -> chalk.server.v1.GetMetricOptionsResponse
-	54, // 94: chalk.server.v1.ChartsService.GetFormulaOptions:output_type -> chalk.server.v1.GetFormulaOptionsResponse
-	14, // 95: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:output_type -> chalk.server.v1.ListChartsWithCronAlertsResponse
-	82, // [82:96] is the sub-list for method output_type
-	68, // [68:82] is the sub-list for method input_type
-	68, // [68:68] is the sub-list for extension type_name
-	68, // [68:68] is the sub-list for extension extendee
-	0,  // [0:68] is the sub-list for field type_name
+	0,  // 29: chalk.server.v1.GetChartSnapshotResponse.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
+	55, // 30: chalk.server.v1.GetChartSnapshotByQueryRequest.start_time:type_name -> google.protobuf.Timestamp
+	55, // 31: chalk.server.v1.GetChartSnapshotByQueryRequest.end_time:type_name -> google.protobuf.Timestamp
+	0,  // 32: chalk.server.v1.GetChartSnapshotByQueryRequest.metrics_backend:type_name -> chalk.server.v1.ChartMetricsBackend
+	64, // 33: chalk.server.v1.GetChartSnapshotByQueryResponse.charts:type_name -> chalk.chart.v1.DenseTimeSeriesChart
+	55, // 34: chalk.server.v1.GetChartSnapshotByQueryResponse.x_series:type_name -> google.protobuf.Timestamp
+	56, // 35: chalk.server.v1.GetChartSnapshotByQueryResponse.window_period:type_name -> google.protobuf.Duration
+	58, // 36: chalk.server.v1.GetChartSnapshotByQueryResponse.compiled_metric_config:type_name -> chalk.artifacts.v1.MetricConfig
+	59, // 37: chalk.server.v1.GetChartResponse.chart:type_name -> chalk.artifacts.v1.Chart
+	65, // 38: chalk.server.v1.GetChartResponse.active_incidents:type_name -> chalk.server.v1.MetricIncident
+	66, // 39: chalk.server.v1.FilterOption.kind:type_name -> chalk.artifacts.v1.FilterKind
+	29, // 40: chalk.server.v1.FilterOption.namespaced_values:type_name -> chalk.server.v1.FilterOptionNamespace
+	67, // 41: chalk.server.v1.GroupOption.kind:type_name -> chalk.artifacts.v1.GroupByKind
+	68, // 42: chalk.server.v1.WindowFunctionOption.window_function:type_name -> chalk.artifacts.v1.WindowFunctionKind
+	69, // 43: chalk.server.v1.MetricOptions.kind:type_name -> chalk.artifacts.v1.MetricKind
+	30, // 44: chalk.server.v1.MetricOptions.filters:type_name -> chalk.server.v1.FilterOption
+	31, // 45: chalk.server.v1.MetricOptions.groups:type_name -> chalk.server.v1.GroupOption
+	32, // 46: chalk.server.v1.MetricOptions.window_functions:type_name -> chalk.server.v1.WindowFunctionOption
+	1,  // 47: chalk.server.v1.MetricOptions.metric_kind_group:type_name -> chalk.server.v1.MetricKindGroup
+	34, // 48: chalk.server.v1.MetricFormulaFeatureOperandList.features:type_name -> chalk.server.v1.MetricFormulaFeatureOperandInput
+	36, // 49: chalk.server.v1.MetricFormulaDatasetOperandList.datasets:type_name -> chalk.server.v1.MetricFormulaDatasetOperandInput
+	2,  // 50: chalk.server.v1.MetricFormulaOperand.kind:type_name -> chalk.server.v1.MetricFormulaOperandKind
+	37, // 51: chalk.server.v1.MetricFormulaOperand.dataset_operands:type_name -> chalk.server.v1.MetricFormulaDatasetOperandList
+	35, // 52: chalk.server.v1.MetricFormulaOperand.feature_operands:type_name -> chalk.server.v1.MetricFormulaFeatureOperandList
+	70, // 53: chalk.server.v1.MetricFormulaOption.kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
+	38, // 54: chalk.server.v1.MetricFormulaOption.operands:type_name -> chalk.server.v1.MetricFormulaOperand
+	33, // 55: chalk.server.v1.GetChartOptionsResponse.metrics:type_name -> chalk.server.v1.MetricOptions
+	39, // 56: chalk.server.v1.GetChartOptionsResponse.formulas:type_name -> chalk.server.v1.MetricFormulaOption
+	3,  // 57: chalk.server.v1.MetricHealthCheck.status:type_name -> chalk.server.v1.MetricHealthStatus
+	42, // 58: chalk.server.v1.SparkSeries.points:type_name -> chalk.server.v1.SparkPoint
+	43, // 59: chalk.server.v1.EntityMetrics.successful_requests:type_name -> chalk.server.v1.SparkSeries
+	43, // 60: chalk.server.v1.EntityMetrics.failed_requests:type_name -> chalk.server.v1.SparkSeries
+	41, // 61: chalk.server.v1.EntityMetrics.health:type_name -> chalk.server.v1.MetricHealthCheck
+	44, // 62: chalk.server.v1.GetFeatureMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	44, // 63: chalk.server.v1.GetResolverMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	44, // 64: chalk.server.v1.GetQueryMetricsResponse.metrics:type_name -> chalk.server.v1.EntityMetrics
+	69, // 65: chalk.server.v1.GetMetricOptionsRequest.metric_kind:type_name -> chalk.artifacts.v1.MetricKind
+	33, // 66: chalk.server.v1.GetMetricOptionsResponse.metric_options:type_name -> chalk.server.v1.MetricOptions
+	70, // 67: chalk.server.v1.GetFormulaOptionsRequest.formula_kind:type_name -> chalk.artifacts.v1.MetricFormulaKind
+	39, // 68: chalk.server.v1.GetFormulaOptionsResponse.formula_options:type_name -> chalk.server.v1.MetricFormulaOption
+	11, // 69: chalk.server.v1.ChartsService.ListCharts:input_type -> chalk.server.v1.ListChartsRequest
+	20, // 70: chalk.server.v1.ChartsService.GetChartSnapshot:input_type -> chalk.server.v1.GetChartSnapshotRequest
+	22, // 71: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:input_type -> chalk.server.v1.GetChartSnapshotByQueryRequest
+	18, // 72: chalk.server.v1.ChartsService.UpdateMetricConfig:input_type -> chalk.server.v1.UpdateMetricConfigRequest
+	16, // 73: chalk.server.v1.ChartsService.CreateChart:input_type -> chalk.server.v1.CreateChartRequest
+	24, // 74: chalk.server.v1.ChartsService.DeleteChart:input_type -> chalk.server.v1.DeleteChartRequest
+	26, // 75: chalk.server.v1.ChartsService.GetChart:input_type -> chalk.server.v1.GetChartRequest
+	28, // 76: chalk.server.v1.ChartsService.GetChartOptions:input_type -> chalk.server.v1.GetChartOptionsRequest
+	45, // 77: chalk.server.v1.ChartsService.GetFeatureMetrics:input_type -> chalk.server.v1.GetFeatureMetricsRequest
+	47, // 78: chalk.server.v1.ChartsService.GetResolverMetrics:input_type -> chalk.server.v1.GetResolverMetricsRequest
+	49, // 79: chalk.server.v1.ChartsService.GetQueryMetrics:input_type -> chalk.server.v1.GetQueryMetricsRequest
+	51, // 80: chalk.server.v1.ChartsService.GetMetricOptions:input_type -> chalk.server.v1.GetMetricOptionsRequest
+	53, // 81: chalk.server.v1.ChartsService.GetFormulaOptions:input_type -> chalk.server.v1.GetFormulaOptionsRequest
+	13, // 82: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:input_type -> chalk.server.v1.ListChartsWithCronAlertsRequest
+	12, // 83: chalk.server.v1.ChartsService.ListCharts:output_type -> chalk.server.v1.ListChartsResponse
+	21, // 84: chalk.server.v1.ChartsService.GetChartSnapshot:output_type -> chalk.server.v1.GetChartSnapshotResponse
+	23, // 85: chalk.server.v1.ChartsService.GetChartSnapshotByQuery:output_type -> chalk.server.v1.GetChartSnapshotByQueryResponse
+	19, // 86: chalk.server.v1.ChartsService.UpdateMetricConfig:output_type -> chalk.server.v1.UpdateMetricConfigResponse
+	17, // 87: chalk.server.v1.ChartsService.CreateChart:output_type -> chalk.server.v1.CreateChartResponse
+	25, // 88: chalk.server.v1.ChartsService.DeleteChart:output_type -> chalk.server.v1.DeleteChartResponse
+	27, // 89: chalk.server.v1.ChartsService.GetChart:output_type -> chalk.server.v1.GetChartResponse
+	40, // 90: chalk.server.v1.ChartsService.GetChartOptions:output_type -> chalk.server.v1.GetChartOptionsResponse
+	46, // 91: chalk.server.v1.ChartsService.GetFeatureMetrics:output_type -> chalk.server.v1.GetFeatureMetricsResponse
+	48, // 92: chalk.server.v1.ChartsService.GetResolverMetrics:output_type -> chalk.server.v1.GetResolverMetricsResponse
+	50, // 93: chalk.server.v1.ChartsService.GetQueryMetrics:output_type -> chalk.server.v1.GetQueryMetricsResponse
+	52, // 94: chalk.server.v1.ChartsService.GetMetricOptions:output_type -> chalk.server.v1.GetMetricOptionsResponse
+	54, // 95: chalk.server.v1.ChartsService.GetFormulaOptions:output_type -> chalk.server.v1.GetFormulaOptionsResponse
+	14, // 96: chalk.server.v1.ChartsService.ListChartsWithCronAlerts:output_type -> chalk.server.v1.ListChartsWithCronAlertsResponse
+	83, // [83:97] is the sub-list for method output_type
+	69, // [69:83] is the sub-list for method input_type
+	69, // [69:69] is the sub-list for extension type_name
+	69, // [69:69] is the sub-list for extension extendee
+	0,  // [0:69] is the sub-list for field type_name
 }
 
 func init() { file_chalk_server_v1_chart_proto_init() }
@@ -3702,6 +3714,7 @@ func file_chalk_server_v1_chart_proto_init() {
 	file_chalk_server_v1_chart_proto_msgTypes[12].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[13].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[16].OneofWrappers = []any{}
+	file_chalk_server_v1_chart_proto_msgTypes[17].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[18].OneofWrappers = []any{}
 	file_chalk_server_v1_chart_proto_msgTypes[34].OneofWrappers = []any{
 		(*MetricFormulaOperand_DatasetOperands)(nil),

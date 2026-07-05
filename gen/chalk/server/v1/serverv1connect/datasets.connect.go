@@ -75,6 +75,9 @@ const (
 	// DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure is the fully-qualified name of
 	// the DatasetMetadataService's ListMaterializedAggregateTileFiles RPC.
 	DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure = "/chalk.server.v1.DatasetMetadataService/ListMaterializedAggregateTileFiles"
+	// DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure is the fully-qualified
+	// name of the DatasetMetadataService's GetMaterializedAggregateTileRowCountChart RPC.
+	DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure = "/chalk.server.v1.DatasetMetadataService/GetMaterializedAggregateTileRowCountChart"
 	// DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure is the fully-qualified name of the
 	// DatasetMetadataService's DeleteMaterializedAggregateTile RPC.
 	DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure = "/chalk.server.v1.DatasetMetadataService/DeleteMaterializedAggregateTile"
@@ -126,6 +129,12 @@ type DatasetMetadataServiceClient interface {
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
+	// Row-count-per-tile histogram for one timeline (one
+	// materialization_key_hash). Each x point is a tile's coverage_lower_bound;
+	// the value is the total stored row count of the newest manifest covering
+	// that window, i.e. the number of distinct (primary key, group, bucket)
+	// rows materialized for the window.
+	GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
@@ -254,6 +263,13 @@ func NewDatasetMetadataServiceClient(httpClient connect.HTTPClient, baseURL stri
 			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 			connect.WithClientOptions(opts...),
 		),
+		getMaterializedAggregateTileRowCountChart: connect.NewClient[v1.GetMaterializedAggregateTileRowCountChartRequest, v1.GetMaterializedAggregateTileRowCountChartResponse](
+			httpClient,
+			baseURL+DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure,
+			connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileRowCountChart")),
+			connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+			connect.WithClientOptions(opts...),
+		),
 		deleteMaterializedAggregateTile: connect.NewClient[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse](
 			httpClient,
 			baseURL+DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure,
@@ -318,6 +334,7 @@ type datasetMetadataServiceClient struct {
 	listMaterializedAggregateTileTimelines    *connect.Client[v1.ListMaterializedAggregateTileTimelinesRequest, v1.ListMaterializedAggregateTileTimelinesResponse]
 	listMaterializedAggregateTilesForTimeline *connect.Client[v1.ListMaterializedAggregateTilesForTimelineRequest, v1.ListMaterializedAggregateTilesForTimelineResponse]
 	listMaterializedAggregateTileFiles        *connect.Client[v1.ListMaterializedAggregateTileFilesRequest, v1.ListMaterializedAggregateTileFilesResponse]
+	getMaterializedAggregateTileRowCountChart *connect.Client[v1.GetMaterializedAggregateTileRowCountChartRequest, v1.GetMaterializedAggregateTileRowCountChartResponse]
 	deleteMaterializedAggregateTile           *connect.Client[v1.DeleteMaterializedAggregateTileRequest, v1.DeleteMaterializedAggregateTileResponse]
 	getDatasetRevisionPreview                 *connect.Client[v1.GetDatasetRevisionPreviewRequest, v1.GetDatasetRevisionPreviewResponse]
 	generateDatasetStats                      *connect.Client[v1.GenerateDatasetStatsRequest, v1.GenerateDatasetStatsResponse]
@@ -407,6 +424,12 @@ func (c *datasetMetadataServiceClient) ListMaterializedAggregateTileFiles(ctx co
 	return c.listMaterializedAggregateTileFiles.CallUnary(ctx, req)
 }
 
+// GetMaterializedAggregateTileRowCountChart calls
+// chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart.
+func (c *datasetMetadataServiceClient) GetMaterializedAggregateTileRowCountChart(ctx context.Context, req *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error) {
+	return c.getMaterializedAggregateTileRowCountChart.CallUnary(ctx, req)
+}
+
 // DeleteMaterializedAggregateTile calls
 // chalk.server.v1.DatasetMetadataService.DeleteMaterializedAggregateTile.
 func (c *datasetMetadataServiceClient) DeleteMaterializedAggregateTile(ctx context.Context, req *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error) {
@@ -472,6 +495,12 @@ type DatasetMetadataServiceHandler interface {
 	// Full tile manifests for one timeline (one materialization_key_hash).
 	ListMaterializedAggregateTilesForTimeline(context.Context, *connect.Request[v1.ListMaterializedAggregateTilesForTimelineRequest]) (*connect.Response[v1.ListMaterializedAggregateTilesForTimelineResponse], error)
 	ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error)
+	// Row-count-per-tile histogram for one timeline (one
+	// materialization_key_hash). Each x point is a tile's coverage_lower_bound;
+	// the value is the total stored row count of the newest manifest covering
+	// that window, i.e. the number of distinct (primary key, group, bucket)
+	// rows materialized for the window.
+	GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error)
 	DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error)
 	GetDatasetRevisionPreview(context.Context, *connect.Request[v1.GetDatasetRevisionPreviewRequest]) (*connect.Response[v1.GetDatasetRevisionPreviewResponse], error)
 	GenerateDatasetStats(context.Context, *connect.Request[v1.GenerateDatasetStatsRequest]) (*connect.Response[v1.GenerateDatasetStatsResponse], error)
@@ -596,6 +625,13 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
 		connect.WithHandlerOptions(opts...),
 	)
+	datasetMetadataServiceGetMaterializedAggregateTileRowCountChartHandler := connect.NewUnaryHandler(
+		DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure,
+		svc.GetMaterializedAggregateTileRowCountChart,
+		connect.WithSchema(datasetMetadataServiceMethods.ByName("GetMaterializedAggregateTileRowCountChart")),
+		connect.WithIdempotency(connect.IdempotencyNoSideEffects),
+		connect.WithHandlerOptions(opts...),
+	)
 	datasetMetadataServiceDeleteMaterializedAggregateTileHandler := connect.NewUnaryHandler(
 		DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure,
 		svc.DeleteMaterializedAggregateTile,
@@ -671,6 +707,8 @@ func NewDatasetMetadataServiceHandler(svc DatasetMetadataServiceHandler, opts ..
 			datasetMetadataServiceListMaterializedAggregateTilesForTimelineHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceListMaterializedAggregateTileFilesProcedure:
 			datasetMetadataServiceListMaterializedAggregateTileFilesHandler.ServeHTTP(w, r)
+		case DatasetMetadataServiceGetMaterializedAggregateTileRowCountChartProcedure:
+			datasetMetadataServiceGetMaterializedAggregateTileRowCountChartHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceDeleteMaterializedAggregateTileProcedure:
 			datasetMetadataServiceDeleteMaterializedAggregateTileHandler.ServeHTTP(w, r)
 		case DatasetMetadataServiceGetDatasetRevisionPreviewProcedure:
@@ -748,6 +786,10 @@ func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTiles
 
 func (UnimplementedDatasetMetadataServiceHandler) ListMaterializedAggregateTileFiles(context.Context, *connect.Request[v1.ListMaterializedAggregateTileFilesRequest]) (*connect.Response[v1.ListMaterializedAggregateTileFilesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.ListMaterializedAggregateTileFiles is not implemented"))
+}
+
+func (UnimplementedDatasetMetadataServiceHandler) GetMaterializedAggregateTileRowCountChart(context.Context, *connect.Request[v1.GetMaterializedAggregateTileRowCountChartRequest]) (*connect.Response[v1.GetMaterializedAggregateTileRowCountChartResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("chalk.server.v1.DatasetMetadataService.GetMaterializedAggregateTileRowCountChart is not implemented"))
 }
 
 func (UnimplementedDatasetMetadataServiceHandler) DeleteMaterializedAggregateTile(context.Context, *connect.Request[v1.DeleteMaterializedAggregateTileRequest]) (*connect.Response[v1.DeleteMaterializedAggregateTileResponse], error) {

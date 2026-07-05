@@ -850,6 +850,7 @@ type AWSCloudConfig struct {
 	CloudwatchConfig       *AWSCloudWatchConfig    `protobuf:"bytes,10,opt,name=cloudwatch_config,json=cloudwatchConfig,proto3" json:"cloudwatch_config,omitempty"`
 	SecretmanagerConfig    *AWSSecretManagerConfig `protobuf:"bytes,11,opt,name=secretmanager_config,json=secretmanagerConfig,proto3" json:"secretmanager_config,omitempty"`
 	GcpWorkloadIdentity    *GCPWorkloadIdentity    `protobuf:"bytes,12,opt,name=gcp_workload_identity,json=gcpWorkloadIdentity,proto3" json:"gcp_workload_identity,omitempty"`
+	PermissionsBoundaryArn *string                 `protobuf:"bytes,13,opt,name=permissions_boundary_arn,json=permissionsBoundaryArn,proto3,oneof" json:"permissions_boundary_arn,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -969,6 +970,13 @@ func (x *AWSCloudConfig) GetGcpWorkloadIdentity() *GCPWorkloadIdentity {
 		return x.GcpWorkloadIdentity
 	}
 	return nil
+}
+
+func (x *AWSCloudConfig) GetPermissionsBoundaryArn() string {
+	if x != nil && x.PermissionsBoundaryArn != nil {
+		return *x.PermissionsBoundaryArn
+	}
+	return ""
 }
 
 type GCPCloudConfig struct {
@@ -2610,7 +2618,7 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x16ElasticsearchLogConfig\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1a\n" +
-	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"\xa7\a\n" +
+	"\bendpoint\x18\x03 \x01(\tR\bendpoint\"\x83\b\n" +
 	"\x0eAWSCloudConfig\x12\x1d\n" +
 	"\n" +
 	"account_id\x18\x01 \x01(\tR\taccountId\x12.\n" +
@@ -2626,8 +2634,10 @@ const file_chalk_server_v1_environment_proto_rawDesc = "" +
 	"\x11cloudwatch_config\x18\n" +
 	" \x01(\v2$.chalk.server.v1.AWSCloudWatchConfigR\x10cloudwatchConfig\x12Z\n" +
 	"\x14secretmanager_config\x18\v \x01(\v2'.chalk.server.v1.AWSSecretManagerConfigR\x13secretmanagerConfig\x12X\n" +
-	"\x15gcp_workload_identity\x18\f \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentityB\x0e\n" +
-	"\f_external_id\"\xa0\x03\n" +
+	"\x15gcp_workload_identity\x18\f \x01(\v2$.chalk.server.v1.GCPWorkloadIdentityR\x13gcpWorkloadIdentity\x12=\n" +
+	"\x18permissions_boundary_arn\x18\r \x01(\tH\x01R\x16permissionsBoundaryArn\x88\x01\x01B\x0e\n" +
+	"\f_external_idB\x1b\n" +
+	"\x19_permissions_boundary_arn\"\xa0\x03\n" +
 	"\x0eGCPCloudConfig\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x16\n" +

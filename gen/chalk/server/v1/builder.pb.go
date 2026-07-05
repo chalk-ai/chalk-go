@@ -16079,12 +16079,12 @@ const file_chalk_server_v1_builder_proto_rawDesc = "" +
 	"\x1cBRANCH_SERVER_STATUS_OFFLINE\x10\x05\x12!\n" +
 	"\x1dBRANCH_SERVER_STATUS_DISABLED\x10\x06\x12'\n" +
 	"#BRANCH_SERVER_STATUS_NOT_CONFIGURED\x10\a\x12,\n" +
-	"(BRANCH_SERVER_STATUS_ERROR_COMMUNICATING\x10\b2\xc3Q\n" +
+	"(BRANCH_SERVER_STATUS_ERROR_COMMUNICATING\x10\b2\xc6Q\n" +
 	"\x0eBuilderService\x12l\n" +
 	"\x0fGetSearchConfig\x12'.chalk.server.v1.GetSearchConfigRequest\x1a(.chalk.server.v1.GetSearchConfigResponse\"\x06\x80}\x02\x90\x02\x01\x12\xc0\x01\n" +
 	"\x12ActivateDeployment\x12*.chalk.server.v1.ActivateDeploymentRequest\x1a+.chalk.server.v1.ActivateDeploymentResponse\"Q\x80}\x0e\x8a\xd3\x0eJ\b\x02\x12FPromoted an existing deployment's resources into the active deployment\x12i\n" +
-	"\x0fIndexDeployment\x12'.chalk.server.v1.IndexDeploymentRequest\x1a(.chalk.server.v1.IndexDeploymentResponse\"\x03\x80}\x0e\x12x\n" +
-	"\x14ValidateNamedQueries\x12,.chalk.server.v1.ValidateNamedQueriesRequest\x1a-.chalk.server.v1.ValidateNamedQueriesResponse\"\x03\x80}\x0e\x12~\n" +
+	"\x0fIndexDeployment\x12'.chalk.server.v1.IndexDeploymentRequest\x1a(.chalk.server.v1.IndexDeploymentResponse\"\x03\x80}\x0e\x12{\n" +
+	"\x14ValidateNamedQueries\x12,.chalk.server.v1.ValidateNamedQueriesRequest\x1a-.chalk.server.v1.ValidateNamedQueriesResponse\"\x06\x80}\x0e\x88\x02\x01\x12~\n" +
 	"\x16RunPostIndexValidation\x12..chalk.server.v1.RunPostIndexValidationRequest\x1a/.chalk.server.v1.RunPostIndexValidationResponse\"\x03\x80}\x0e\x12\x96\x01\n" +
 	"\x1eStartShadowBuildFromDeployment\x126.chalk.server.v1.StartShadowBuildFromDeploymentRequest\x1a7.chalk.server.v1.StartShadowBuildFromDeploymentResponse\"\x03\x80}\x0e\x12\xbf\x01\n" +
 	"\x14DeployKubeComponents\x12,.chalk.server.v1.DeployKubeComponentsRequest\x1a-.chalk.server.v1.DeployKubeComponentsResponse\"J\x80}\f\x8a\xd3\x0eC\b\x02\x12?Deployed Kubernetes components as part of deployment activation\x12\xad\x01\n" +
