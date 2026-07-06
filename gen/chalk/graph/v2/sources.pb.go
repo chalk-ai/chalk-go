@@ -84,9 +84,12 @@ type DatabaseSource struct {
 	// The (customer provided) name for the database source. The default source for the given type is represented by the empty string
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Additional source-specific options. DO NOT STORE CREDENTIALS IN HERE.
-	Options       map[string]*structpb.Value `protobuf:"bytes,3,rep,name=options,proto3" json:"options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Options map[string]*structpb.Value `protobuf:"bytes,3,rep,name=options,proto3" json:"options,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Permission tags associated with datasource access for datasource RBAC (akin to Feature Tags). These permission tags are
+	// NOT THE SAME as Routing Tags (SQLSourceGroupTags and Resolver Tags).
+	PermissionTags []string `protobuf:"bytes,4,rep,name=permission_tags,json=permissionTags,proto3" json:"permission_tags,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DatabaseSource) Reset() {
@@ -136,6 +139,13 @@ func (x *DatabaseSource) GetName() string {
 func (x *DatabaseSource) GetOptions() map[string]*structpb.Value {
 	if x != nil {
 		return x.Options
+	}
+	return nil
+}
+
+func (x *DatabaseSource) GetPermissionTags() []string {
+	if x != nil {
+		return x.PermissionTags
 	}
 	return nil
 }
@@ -371,12 +381,13 @@ const file_chalk_graph_v2_sources_proto_rawDesc = "" +
 	"\x17DatabaseSourceReference\x12\x1f\n" +
 	"\vsource_type\x18\x01 \x01(\tR\n" +
 	"sourceType\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xe0\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x89\x02\n" +
 	"\x0eDatabaseSource\x12\x1f\n" +
 	"\vsource_type\x18\x01 \x01(\tR\n" +
 	"sourceType\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12E\n" +
-	"\aoptions\x18\x03 \x03(\v2+.chalk.graph.v2.DatabaseSource.OptionsEntryR\aoptions\x1aR\n" +
+	"\aoptions\x18\x03 \x03(\v2+.chalk.graph.v2.DatabaseSource.OptionsEntryR\aoptions\x12'\n" +
+	"\x0fpermission_tags\x18\x04 \x03(\tR\x0epermissionTags\x1aR\n" +
 	"\fOptionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01\"\xc3\x02\n" +
